@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Pwd Plug-in
+Bundle-SymbolicName: ext.ux.pwd
+Bundle-Version: 1.0.0
+Bundle-Vendor: EXTJS
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ClassPath: PasswordField.jar
+Export-Package: ext.ux.pwd, 
+ ext.ux.pwd.client

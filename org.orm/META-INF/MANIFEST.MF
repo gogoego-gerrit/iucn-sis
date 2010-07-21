@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ORM Plug-in
+Bundle-SymbolicName: org.orm
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: orm.jar,
+ .
+Export-Package: org.orm,
+ org.orm.cfg,
+ org.orm.criteria,
+ org.orm.ermodel,
+ org.orm.ermodel.handler,
+ org.orm.ertodb,
+ org.orm.ertodb.decorator,
+ org.orm.ertodb.metadata,
+ org.orm.http,
+ org.orm.ormtypemapper,
+ org.orm.util,
+ org.orm.util.comparator

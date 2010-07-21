@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: slf4j Impl Plug-in
+Bundle-SymbolicName: org.slf4j
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: .,
+ slf4j-nop-1.5.8.jar,
+ slf4j-api-1.5.8.jar
+Export-Package: org.slf4j,
+ org.slf4j.helpers,
+ org.slf4j.impl,
+ org.slf4j.spi

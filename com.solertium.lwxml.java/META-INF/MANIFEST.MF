@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LWXML for Java
+Bundle-SymbolicName: com.solertium.lwxml.java
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.solertium.lwxml.shared
+Require-Bundle: org.restlet,
+ org.restlet.ext.xml;bundle-version="2.0.0"
+Export-Package: com.solertium.lwxml.factory,
+ com.solertium.lwxml.java

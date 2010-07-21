@@ -1,0 +1,19 @@
+<xs:schema xmlns:xs = "http://www.w3.org/2001/XMLSchema">
+
+<xs:element name="root" type="Root" />
+
+<xs:complexType name="Root">
+	<xs:sequence>
+		<xs:element name="field" type="Field" minOccurs="0" maxOccurs="unbounded" />
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="Field">
+	<xs:simpleContent>
+		<xs:extension base="xs:string">
+			<xs:attribute name="name" type="xs:string" use="required" />
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+</xs:schema>

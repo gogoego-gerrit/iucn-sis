@@ -1,0 +1,4983 @@
+<field id="0">
+	<!-- AAH used General Info -->
+	<canonicalName>RangeDocumentation</canonicalName>
+	<description>Geographic Range Information</description>
+	<classOfService>Documentation</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<richText></richText>
+		</structure>
+	</structures>
+</field>
+<field id="1">
+	<!-- AAH used General Info -->
+	<canonicalName>AOO</canonicalName>
+	<description>Area of Occupancy (in km2)</description>
+	<classOfService>Factor</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="2">
+	<canonicalName>AOOContinuingDecline</canonicalName>
+	<description>Continuing decline in area of occupancy</description>
+	<classOfService>Factor</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="3">
+	<canonicalName>AOOExtremeFluctuation</canonicalName>
+	<description>
+		Extreme fluctuations in area of occupancy?
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="4">
+	<!-- AAH used General Info -->
+	<canonicalName>EOO</canonicalName>
+	<description>Extent of occurrence (in km2)</description>
+	<classOfService>Factor</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="5">
+	<canonicalName>EOOContinuingDecline</canonicalName>
+	<description>
+		Continuing decline in extent of occurrence
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="6">
+	<canonicalName>EOOExtremeFluctuation</canonicalName>
+	<description>
+		Extreme fluctuations in extent of occurrence?
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="7">
+	<canonicalName>HabitatContinuingDecline</canonicalName>
+	<description>
+		Continuing decline in area, extent and/or quality of habitat?
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="8">
+	<canonicalName>AreaRestricted</canonicalName>
+	<description>
+		Very restricted in AOO and/or # of locations
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="9">
+	<!-- AAH used General Info -->
+	<canonicalName>ElevationUpper</canonicalName>
+	<description>
+		Elevation (in metres above sea level) Upper Limit
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<number></number>
+		</structure>
+	</structures>
+</field>
+<field id="10">
+	<!-- AAH used General Info -->
+	<canonicalName>ElevationLower</canonicalName>
+	<description>
+		Elevation (in metres above sea level) Lower Limit
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<number></number>
+		</structure>
+	</structures>
+</field>
+<field id="11">
+	<!-- AAH used General Info -->
+	<canonicalName>DepthUpper</canonicalName>
+	<description>
+		Depth (in metres above sea level) Upper Limit
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<number></number>
+		</structure>
+	</structures>
+</field>
+<field id="12">
+	<!-- AAH used General Info -->
+	<canonicalName>DepthLower</canonicalName>
+	<description>
+		Depth (in metres above sea level) Lower Limit
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<number></number>
+		</structure>
+	</structures>
+</field>
+<field id="13">
+	<!-- AAH used General Info -->
+	<canonicalName>DepthZone</canonicalName>
+	<description>Depth Zone</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<multipleSelect>
+				<option>Shallow photic (0-50m)</option>
+				<option>Deep Photic (51-200m)</option>
+				<option>Bathyl (201-4,000m)</option>
+				<option>Abyssal (4,001-6,000m)</option>
+				<option>Hadal (&gt;6,000m)</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="14">
+	<!-- AAH used General Info -->
+	<canonicalName>BiogeographicRealm</canonicalName>
+	<description>Biogeographic Realm</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<multipleSelect>
+				<option>Afrotropical</option>
+				<option>Antarctic</option>
+				<option>Australasian</option>
+				<option>Indomalayan</option>
+				<option>Nearctic</option>
+				<option>Neotropical</option>
+				<option>Oceanian</option>
+				<option>Palearctic</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="15">
+	<!-- AAH used General Info -->
+	<canonicalName>MapStatus</canonicalName>
+	<description>Map Status</description>
+	<classOfService>Documentation</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<singleSelect>
+				<option>Done</option>
+				<option>Missing</option>
+				<option>Incomplete</option>
+				<option>Not possible</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
+<tree id="16">
+	<!-- AAH used Countries of Occurrence -->
+	<canonicalName>CountryOccurrence</canonicalName>
+	<description>Countries of Occurrence</description>
+	<classOfService>Documentation</classOfService>
+	<location>Distribution</location>
+	<treeRoot>
+		<defaultStructure>
+			<treeStructures>
+				<structure>
+					<singleSelect>
+						<option>Year Round</option>
+						<option>Breeding Season Only</option>
+						<option>Non-breeding Season Only</option>
+						<selected></selected>
+					</singleSelect>
+				</structure>
+				<structure>
+					<boolean>false</boolean>
+				</structure>
+				<structure>
+					<singleSelect>
+						<option>Possibly Extinct</option>
+						<option>Extinct</option>
+						<option>Not extinct</option>
+						<selected></selected>
+					</singleSelect>
+				</structure>
+				<structure>
+					<relatedStructure>
+						<dominantStructures>
+							<structure>
+								<boolean>false</boolean>
+							</structure>
+						</dominantStructures>
+						<dependentStructures>
+							<structure>
+								<relatedStructure>
+									<dominantStructures>
+										<structure>
+											<boolean>false</boolean>
+										</structure>
+									</dominantStructures>
+									<dependentStructures>
+										<structure>
+											<singleSelect>
+												<option>Native</option>
+												<option>
+													Introduced
+												</option>
+												<option>
+													Reintroduced
+												</option>
+												<option>Vagrant</option>
+												<selected>0</selected>
+											</singleSelect>
+										</structure>
+									</dependentStructures>
+									<rules>
+										<booleanRule>
+											<activateOnRule>
+												false
+											</activateOnRule>
+											<actions>
+												<onTrue>show</onTrue>
+												<onFalse>hide</onFalse>
+											</actions>
+										</booleanRule>
+									</rules>
+								</relatedStructure>
+							</structure>
+						</dependentStructures>
+						<rules>
+							<booleanRule>
+								<activateOnRule>false</activateOnRule>
+								<actions>
+									<onTrue>show</onTrue>
+									<onFalse>hide</onFalse>
+								</actions>
+							</booleanRule>
+						</rules>
+					</relatedStructure>
+				</structure>
+			</treeStructures>
+		</defaultStructure>
+		<root id="1" depth="1" expanded="false">
+			<label>AF Afghanistan</label>
+		</root>
+		<root id="2" depth="1" expanded="false">
+			<label>AL Albania</label>
+		</root>
+		<root id="3" depth="1" expanded="false">
+			<label>DZ Algeria</label>
+		</root>
+		<root id="4" depth="1" expanded="false">
+			<label>AS American Samoa</label>
+		</root>
+		<root id="5" depth="1" expanded="false">
+			<label>AD Andorra</label>
+		</root>
+		<root id="6" depth="1" expanded="false">
+			<label>AO Angola</label>
+		</root>
+		<root id="7" depth="1" expanded="false">
+			<label>AI Anguilla</label>
+		</root>
+		<root id="8" depth="1" expanded="false">
+			<label>AQ Antarctica</label>
+		</root>
+		<root id="9" depth="1" expanded="false">
+			<label>AG Antigua and Barbuda</label>
+		</root>
+		<root id="10" depth="1" expanded="false">
+			<label>AR Argentina</label>
+		</root>
+		<root id="11" depth="1" expanded="false">
+			<label>AM Armenia</label>
+		</root>
+		<root id="12" depth="1" expanded="false">
+			<label>AW Aruba</label>
+		</root>
+		<root id="13" depth="1" expanded="false">
+			<label>AU Australia</label>
+		</root>
+		<root id="14" depth="1" expanded="false">
+			<label>AT Austria</label>
+		</root>
+		<root id="15" depth="1" expanded="false">
+			<label>AZ Azerbaijan</label>
+		</root>
+		<root id="16" depth="1" expanded="false">
+			<label>BS Bahamas</label>
+		</root>
+		<root id="17" depth="1" expanded="false">
+			<label>BH Bahrain</label>
+		</root>
+		<root id="18" depth="1" expanded="false">
+			<label>BD Bangladesh</label>
+		</root>
+		<root id="19" depth="1" expanded="false">
+			<label>BB Barbados</label>
+		</root>
+		<root id="20" depth="1" expanded="false">
+			<label>BY Belarus</label>
+		</root>
+		<root id="21" depth="1" expanded="false">
+			<label>BE Belgium</label>
+		</root>
+		<root id="22" depth="1" expanded="false">
+			<label>BZ Belize</label>
+		</root>
+		<root id="23" depth="1" expanded="false">
+			<label>BJ Benin</label>
+		</root>
+		<root id="24" depth="1" expanded="false">
+			<label>BM Bermuda</label>
+		</root>
+		<root id="25" depth="1" expanded="false">
+			<label>BT Bhutan</label>
+		</root>
+		<root id="26" depth="1" expanded="false">
+			<label>BO Bolivia</label>
+		</root>
+		<root id="27" depth="1" expanded="false">
+			<label>BA Bosnia and Herzegovina</label>
+		</root>
+		<root id="28" depth="1" expanded="false">
+			<label>BW Botswana</label>
+		</root>
+		<root id="29" depth="1" expanded="false">
+			<label>BV Bouvet Island</label>
+		</root>
+		<root id="30" depth="1" expanded="false">
+			<label>BR Brazil</label>
+		</root>
+		<root id="31" depth="1" expanded="false">
+			<label>VG Virgin Islands, British</label>
+		</root>
+		<root id="32" depth="1" expanded="false">
+			<label>BN Brunei Darussalam</label>
+		</root>
+		<root id="33" depth="1" expanded="false">
+			<label>BG Bulgaria</label>
+		</root>
+		<root id="34" depth="1" expanded="false">
+			<label>BF Burkina Faso</label>
+		</root>
+		<root id="35" depth="1" expanded="false">
+			<label>BI Burundi</label>
+		</root>
+		<root id="36" depth="1" expanded="false">
+			<label>KH Cambodia</label>
+		</root>
+		<root id="37" depth="1" expanded="false">
+			<label>CM Cameroon</label>
+		</root>
+		<root id="38" depth="1" expanded="false">
+			<label>CA Canada</label>
+		</root>
+		<root id="39" depth="1" expanded="false">
+			<label>CV Cape Verde</label>
+		</root>
+		<root id="40" depth="1" expanded="false">
+			<label>KY Cayman Islands</label>
+		</root>
+		<root id="41" depth="1" expanded="false">
+			<label>CF Central African Republic</label>
+		</root>
+		<root id="42" depth="1" expanded="false">
+			<label>TD Chad</label>
+		</root>
+		<root id="43" depth="1" expanded="false">
+			<label>CL Chile</label>
+		</root>
+		<root id="44" depth="1" expanded="false">
+			<label>CN China</label>
+		</root>
+		<root id="45" depth="1" expanded="false">
+			<label>CX Christmas Island</label>
+		</root>
+		<root id="46" depth="1" expanded="false">
+			<label>CC Cocos (Keeling) Islands</label>
+		</root>
+		<root id="47" depth="1" expanded="false">
+			<label>CO Colombia</label>
+		</root>
+		<root id="48" depth="1" expanded="false">
+			<label>KM Comoros</label>
+		</root>
+		<root id="49" depth="1" expanded="false">
+			<label>CG Congo</label>
+		</root>
+		<root id="50" depth="1" expanded="false">
+			<label>CD Congo, The Democratic Republic of the</label>
+		</root>
+		<root id="51" depth="1" expanded="false">
+			<label>CK Cook Islands</label>
+		</root>
+		<root id="52" depth="1" expanded="false">
+			<label>CR Costa Rica</label>
+		</root>
+		<root id="53" depth="1" expanded="false">
+			<label>CI Cote d'Ivoire</label>
+		</root>
+		<root id="54" depth="1" expanded="false">
+			<label>HR Croatia</label>
+		</root>
+		<root id="55" depth="1" expanded="false">
+			<label>CU Cuba</label>
+		</root>
+		<root id="56" depth="1" expanded="false">
+			<label>CY Cyprus</label>
+		</root>
+		<root id="57" depth="1" expanded="false">
+			<label>CZ Czech Republic</label>
+		</root>
+		<root id="58" depth="1" expanded="false">
+			<label>DK Denmark</label>
+		</root>
+		<root id="59" depth="1" expanded="false">
+			<label>DJ Djibouti</label>
+		</root>
+		<root id="60" depth="1" expanded="false">
+			<label>DM Dominica</label>
+		</root>
+		<root id="61" depth="1" expanded="false">
+			<label>DO Dominican Republic</label>
+		</root>
+		<root id="62" depth="1" expanded="false">
+			<label>TL Timor-Leste</label>
+		</root>
+		<root id="63" depth="1" expanded="false">
+			<label>EC Ecuador</label>
+		</root>
+		<root id="64" depth="1" expanded="false">
+			<label>EG Egypt</label>
+		</root>
+		<root id="65" depth="1" expanded="false">
+			<label>SV El Salvador</label>
+		</root>
+		<root id="66" depth="1" expanded="false">
+			<label>GQ Equatorial Guinea</label>
+		</root>
+		<root id="67" depth="1" expanded="false">
+			<label>ER Eritrea</label>
+		</root>
+		<root id="68" depth="1" expanded="false">
+			<label>EE Estonia</label>
+		</root>
+		<root id="69" depth="1" expanded="false">
+			<label>ET Ethiopia</label>
+		</root>
+		<root id="70" depth="1" expanded="false">
+			<label>FK Falkland Islands (Malvinas)</label>
+		</root>
+		<root id="71" depth="1" expanded="false">
+			<label>FO Faroe Islands</label>
+		</root>
+		<root id="72" depth="1" expanded="false">
+			<label>FJ Fiji</label>
+		</root>
+		<root id="73" depth="1" expanded="false">
+			<label>FI Finland</label>
+		</root>
+		<root id="74" depth="1" expanded="false">
+			<label>FR France</label>
+		</root>
+		<root id="75" depth="1" expanded="false">
+			<label>GF French Guiana</label>
+		</root>
+		<root id="76" depth="1" expanded="false">
+			<label>PF French Polynesia</label>
+		</root>
+		<root id="77" depth="1" expanded="false">
+			<label>TF French Southern Territories</label>
+		</root>
+		<root id="78" depth="1" expanded="false">
+			<label>GA Gabon</label>
+		</root>
+		<root id="79" depth="1" expanded="false">
+			<label>GM Gambia</label>
+		</root>
+		<root id="80" depth="1" expanded="false">
+			<label>GE Georgia</label>
+		</root>
+		<root id="81" depth="1" expanded="false">
+			<label>DE Germany</label>
+		</root>
+		<root id="82" depth="1" expanded="false">
+			<label>GH Ghana</label>
+		</root>
+		<root id="83" depth="1" expanded="false">
+			<label>GI Gibraltar</label>
+		</root>
+		<root id="84" depth="1" expanded="false">
+			<label>GR Greece</label>
+		</root>
+		<root id="85" depth="1" expanded="false">
+			<label>GL Greenland</label>
+		</root>
+		<root id="86" depth="1" expanded="false">
+			<label>GD Grenada</label>
+		</root>
+		<root id="87" depth="1" expanded="false">
+			<label>GP Guadeloupe</label>
+		</root>
+		<root id="88" depth="1" expanded="false">
+			<label>GU Guam</label>
+		</root>
+		<root id="89" depth="1" expanded="false">
+			<label>GT Guatemala</label>
+		</root>
+		<root id="90" depth="1" expanded="false">
+			<label>GN Guinea</label>
+		</root>
+		<root id="91" depth="1" expanded="false">
+			<label>GW Guinea-Bissau</label>
+		</root>
+		<root id="92" depth="1" expanded="false">
+			<label>GY Guyana</label>
+		</root>
+		<root id="93" depth="1" expanded="false">
+			<label>HT Haiti</label>
+		</root>
+		<root id="94" depth="1" expanded="false">
+			<label>HM Heard Island and McDonald Islands</label>
+		</root>
+		<root id="95" depth="1" expanded="false">
+			<label>HN Honduras</label>
+		</root>
+		<root id="96" depth="1" expanded="false">
+			<label>HK Hong Kong</label>
+		</root>
+		<root id="97" depth="1" expanded="false">
+			<label>HU Hungary</label>
+		</root>
+		<root id="98" depth="1" expanded="false">
+			<label>IS Iceland</label>
+		</root>
+		<root id="99" depth="1" expanded="false">
+			<label>IN India</label>
+		</root>
+		<root id="101" depth="1" expanded="false">
+			<label>IQ Iraq</label>
+		</root>
+		<root id="102" depth="1" expanded="false">
+			<label>IE Ireland</label>
+		</root>
+		<root id="103" depth="1" expanded="false">
+			<label>IR Iran, Islamic Republic of</label>
+		</root>
+		<root id="104" depth="1" expanded="false">
+			<label>IL Israel</label>
+		</root>
+		<root id="105" depth="1" expanded="false">
+			<label>IT Italy</label>
+		</root>
+		<root id="106" depth="1" expanded="false">
+			<label>JM Jamaica</label>
+		</root>
+		<root id="107" depth="1" expanded="false">
+			<label>JP Japan</label>
+		</root>
+		<root id="108" depth="1" expanded="false">
+			<label>JO Jordan</label>
+		</root>
+		<root id="109" depth="1" expanded="false">
+			<label>KZ Kazakhstan</label>
+		</root>
+		<root id="110" depth="1" expanded="false">
+			<label>KE Kenya</label>
+		</root>
+		<root id="111" depth="1" expanded="false">
+			<label>KI Kiribati</label>
+		</root>
+		<root id="112" depth="1" expanded="false">
+			<label>KP Korea, Democratic People's Republic of</label>
+		</root>
+		<root id="113" depth="1" expanded="false">
+			<label>KR Korea, Republic of</label>
+		</root>
+		<root id="114" depth="1" expanded="false">
+			<label>KW Kuwait</label>
+		</root>
+		<root id="115" depth="1" expanded="false">
+			<label>KG Kyrgyzstan</label>
+		</root>
+		<root id="116" depth="1" expanded="false">
+			<label>LA Lao People's Democratic Republic</label>
+		</root>
+		<root id="117" depth="1" expanded="false">
+			<label>LV Latvia</label>
+		</root>
+		<root id="118" depth="1" expanded="false">
+			<label>LB Lebanon</label>
+		</root>
+		<root id="119" depth="1" expanded="false">
+			<label>LS Lesotho</label>
+		</root>
+		<root id="120" depth="1" expanded="false">
+			<label>LR Liberia</label>
+		</root>
+		<root id="121" depth="1" expanded="false">
+			<label>LY Libyan Arab Jamahiriya</label>
+		</root>
+		<root id="122" depth="1" expanded="false">
+			<label>LI Liechtenstein</label>
+		</root>
+		<root id="123" depth="1" expanded="false">
+			<label>LT Lithuania</label>
+		</root>
+		<root id="124" depth="1" expanded="false">
+			<label>LU Luxembourg</label>
+		</root>
+		<root id="125" depth="1" expanded="false">
+			<label>MO Macao</label>
+		</root>
+		<root id="126" depth="1" expanded="false">
+			<label>MK Macedonia, the former Yugoslav Republic of</label>
+		</root>
+		<root id="127" depth="1" expanded="false">
+			<label>MG Madagascar</label>
+		</root>
+		<root id="128" depth="1" expanded="false">
+			<label>MW Malawi</label>
+		</root>
+		<root id="129" depth="1" expanded="false">
+			<label>MY Malaysia</label>
+		</root>
+		<root id="130" depth="1" expanded="false">
+			<label>MV Maldives</label>
+		</root>
+		<root id="131" depth="1" expanded="false">
+			<label>ML Mali</label>
+		</root>
+		<root id="132" depth="1" expanded="false">
+			<label>MT Malta</label>
+		</root>
+		<root id="133" depth="1" expanded="false">
+			<label>MH Marshall Islands</label>
+		</root>
+		<root id="134" depth="1" expanded="false">
+			<label>MQ Martinique</label>
+		</root>
+		<root id="135" depth="1" expanded="false">
+			<label>MR Mauritania</label>
+		</root>
+		<root id="136" depth="1" expanded="false">
+			<label>MU Mauritius</label>
+		</root>
+		<root id="137" depth="1" expanded="false">
+			<label>YT Mayotte</label>
+		</root>
+		<root id="138" depth="1" expanded="false">
+			<label>MX Mexico</label>
+		</root>
+		<root id="139" depth="1" expanded="false">
+			<label>FM Micronesia, Federated States of</label>
+		</root>
+		<root id="140" depth="1" expanded="false">
+			<label>MD Moldova, Republic of</label>
+		</root>
+		<root id="141" depth="1" expanded="false">
+			<label>MC Monaco</label>
+		</root>
+		<root id="142" depth="1" expanded="false">
+			<label>MN Mongolia</label>
+		</root>
+		<root id="143" depth="1" expanded="false">
+			<label>MS Montserrat</label>
+		</root>
+		<root id="144" depth="1" expanded="false">
+			<label>MA Morocco</label>
+		</root>
+		<root id="145" depth="1" expanded="false">
+			<label>MZ Mozambique</label>
+		</root>
+		<root id="146" depth="1" expanded="false">
+			<label>MM Myanmar</label>
+		</root>
+		<root id="147" depth="1" expanded="false">
+			<label>NA Namibia</label>
+		</root>
+		<root id="148" depth="1" expanded="false">
+			<label>NR Nauru</label>
+		</root>
+		<root id="149" depth="1" expanded="false">
+			<label>NP Nepal</label>
+		</root>
+		<root id="150" depth="1" expanded="false">
+			<label>NL Netherlands</label>
+		</root>
+		<root id="151" depth="1" expanded="false">
+			<label>AN Netherlands Antilles</label>
+		</root>
+		<root id="152" depth="1" expanded="false">
+			<label>NC New Caledonia</label>
+		</root>
+		<root id="153" depth="1" expanded="false">
+			<label>NZ New Zealand</label>
+		</root>
+		<root id="154" depth="1" expanded="false">
+			<label>NI Nicaragua</label>
+		</root>
+		<root id="155" depth="1" expanded="false">
+			<label>NE Niger</label>
+		</root>
+		<root id="156" depth="1" expanded="false">
+			<label>NG Nigeria</label>
+		</root>
+		<root id="157" depth="1" expanded="false">
+			<label>NU Niue</label>
+		</root>
+		<root id="158" depth="1" expanded="false">
+			<label>NF Norfolk Island</label>
+		</root>
+		<root id="159" depth="1" expanded="false">
+			<label>MP Northern Mariana Islands</label>
+		</root>
+		<root id="160" depth="1" expanded="false">
+			<label>NO Norway</label>
+		</root>
+		<root id="161" depth="1" expanded="false">
+			<label>OM Oman</label>
+		</root>
+		<root id="162" depth="1" expanded="false">
+			<label>PK Pakistan</label>
+		</root>
+		<root id="163" depth="1" expanded="false">
+			<label>PW Palau</label>
+		</root>
+		<root id="164" depth="1" expanded="false">
+			<label>PA Panama</label>
+		</root>
+		<root id="165" depth="1" expanded="false">
+			<label>PG Papua New Guinea</label>
+		</root>
+		<root id="166" depth="1" expanded="false">
+			<label>PY Paraguay</label>
+		</root>
+		<root id="167" depth="1" expanded="false">
+			<label>PE Peru</label>
+		</root>
+		<root id="168" depth="1" expanded="false">
+			<label>PH Philippines</label>
+		</root>
+		<root id="169" depth="1" expanded="false">
+			<label>PN Pitcairn</label>
+		</root>
+		<root id="170" depth="1" expanded="false">
+			<label>PL Poland</label>
+		</root>
+		<root id="171" depth="1" expanded="false">
+			<label>PT Portugal</label>
+		</root>
+		<root id="172" depth="1" expanded="false">
+			<label>PR Puerto Rico</label>
+		</root>
+		<root id="173" depth="1" expanded="false">
+			<label>QA Qatar</label>
+		</root>
+		<root id="174" depth="1" expanded="false">
+			<label>RE Reunion</label>
+		</root>
+		<root id="175" depth="1" expanded="false">
+			<label>RO Romania</label>
+		</root>
+		<root id="176" depth="1" expanded="false">
+			<label>RU Russian Federation</label>
+		</root>
+		<root id="177" depth="1" expanded="false">
+			<label>RW Rwanda</label>
+		</root>
+		<root id="178" depth="1" expanded="false">
+			<label>LC Saint Lucia</label>
+		</root>
+		<root id="179" depth="1" expanded="false">
+			<label>WS Samoa</label>
+		</root>
+		<root id="180" depth="1" expanded="false">
+			<label>SM San Marino</label>
+		</root>
+		<root id="181" depth="1" expanded="false">
+			<label>ST Sao Tome and Principe</label>
+		</root>
+		<root id="182" depth="1" expanded="false">
+			<label>SA Saudi Arabia</label>
+		</root>
+		<root id="183" depth="1" expanded="false">
+			<label>SN Senegal</label>
+		</root>
+		<root id="184" depth="1" expanded="false">
+			<label>SC Seychelles</label>
+		</root>
+		<root id="185" depth="1" expanded="false">
+			<label>SL Sierra Leone</label>
+		</root>
+		<root id="186" depth="1" expanded="false">
+			<label>SG Singapore</label>
+		</root>
+		<root id="187" depth="1" expanded="false">
+			<label>SK Slovakia</label>
+		</root>
+		<root id="188" depth="1" expanded="false">
+			<label>SI Slovenia</label>
+		</root>
+		<root id="189" depth="1" expanded="false">
+			<label>SB Solomon Islands</label>
+		</root>
+		<root id="190" depth="1" expanded="false">
+			<label>SO Somalia</label>
+		</root>
+		<root id="191" depth="1" expanded="false">
+			<label>ZA South Africa</label>
+		</root>
+		<root id="192" depth="1" expanded="false">
+			<label>
+				GS South Georgia and the South Sandwich Islands
+			</label>
+		</root>
+		<root id="193" depth="1" expanded="false">
+			<label>ES Spain</label>
+		</root>
+		<root id="194" depth="1" expanded="false">
+			<label>LK Sri Lanka</label>
+		</root>
+		<root id="195" depth="1" expanded="false">
+			<label>SH Saint Helena</label>
+		</root>
+		<root id="196" depth="1" expanded="false">
+			<label>KN Saint Kitts and Nevis</label>
+		</root>
+		<root id="197" depth="1" expanded="false">
+			<label>PM Saint Pierre and Miquelon</label>
+		</root>
+		<root id="198" depth="1" expanded="false">
+			<label>VC Saint Vincent and the Grenadines</label>
+		</root>
+		<root id="199" depth="1" expanded="false">
+			<label>SD Sudan</label>
+		</root>
+		<root id="200" depth="1" expanded="false">
+			<label>SR Suriname</label>
+		</root>
+		<root id="201" depth="1" expanded="false">
+			<label>SJ Svalbard and Jan Mayen</label>
+		</root>
+		<root id="202" depth="1" expanded="false">
+			<label>SZ Swaziland</label>
+		</root>
+		<root id="203" depth="1" expanded="false">
+			<label>SE Sweden</label>
+		</root>
+		<root id="204" depth="1" expanded="false">
+			<label>CH Switzerland</label>
+		</root>
+		<root id="205" depth="1" expanded="false">
+			<label>SY Syrian Arab Republic</label>
+		</root>
+		<root id="206" depth="1" expanded="false">
+			<label>TW Taiwan, Province of China</label>
+		</root>
+		<root id="207" depth="1" expanded="false">
+			<label>TJ Tajikistan</label>
+		</root>
+		<root id="208" depth="1" expanded="false">
+			<label>TZ Tanzania</label>
+		</root>
+		<root id="209" depth="1" expanded="false">
+			<label>TH Thailand</label>
+		</root>
+		<root id="210" depth="1" expanded="false">
+			<label>TG Togo</label>
+		</root>
+		<root id="211" depth="1" expanded="false">
+			<label>TK Tokelau</label>
+		</root>
+		<root id="212" depth="1" expanded="false">
+			<label>TO Tonga</label>
+		</root>
+		<root id="213" depth="1" expanded="false">
+			<label>TT Trinidad and Tobago</label>
+		</root>
+		<root id="214" depth="1" expanded="false">
+			<label>TN Tunisia</label>
+		</root>
+		<root id="215" depth="1" expanded="false">
+			<label>TR Turkey</label>
+		</root>
+		<root id="216" depth="1" expanded="false">
+			<label>TM Turkmenistan</label>
+		</root>
+		<root id="217" depth="1" expanded="false">
+			<label>TC Turks and Caicos Islands</label>
+		</root>
+		<root id="218" depth="1" expanded="false">
+			<label>TV Tuvalu</label>
+		</root>
+		<root id="219" depth="1" expanded="false">
+			<label>UG Uganda</label>
+		</root>
+		<root id="220" depth="1" expanded="false">
+			<label>UA Ukraine</label>
+		</root>
+		<root id="221" depth="1" expanded="false">
+			<label>AE United Arab Emirates</label>
+		</root>
+		<root id="222" depth="1" expanded="false">
+			<label>GB United Kingdom</label>
+		</root>
+		<root id="223" depth="1" expanded="false">
+			<label>UM United States Minor Outlying Islands</label>
+		</root>
+		<root id="224" depth="1" expanded="false">
+			<label>US United States</label>
+		</root>
+		<root id="225" depth="1" expanded="false">
+			<label>VI Virgin Islands, U.S.</label>
+		</root>
+		<root id="226" depth="1" expanded="false">
+			<label>UY Uruguay</label>
+		</root>
+		<root id="227" depth="1" expanded="false">
+			<label>UZ Uzbekistan</label>
+		</root>
+		<root id="228" depth="1" expanded="false">
+			<label>VU Vanuatu</label>
+		</root>
+		<root id="229" depth="1" expanded="false">
+			<label>VA Holy See (Vatican City State)</label>
+		</root>
+		<root id="230" depth="1" expanded="false">
+			<label>VE Venezuela</label>
+		</root>
+		<root id="231" depth="1" expanded="false">
+			<label>VN Viet Nam</label>
+		</root>
+		<root id="232" depth="1" expanded="false">
+			<label>WF Wallis and Futuna</label>
+		</root>
+		<root id="233" depth="1" expanded="false">
+			<label>EH Western Sahara</label>
+		</root>
+		<root id="234" depth="1" expanded="false">
+			<label>YE Yemen</label>
+		</root>
+		<root id="235" depth="1" expanded="false">
+			<label>CS Serbia and Montenegro</label>
+		</root>
+		<root id="236" depth="1" expanded="false">
+			<label>ZM Zambia</label>
+		</root>
+		<root id="237" depth="1" expanded="false">
+			<label>ZW Zimbabwe</label>
+		</root>
+		<root id="238" depth="1" expanded="false">
+			<label>PS "Palestinian Territory, Occupied</label>
+		</root>
+		<root id="239" depth="1" expanded="false">
+			<label>DT Disputed Territories</label>
+		</root>
+		<root id="240" depth="1" expanded="false">
+			<label>IO British Indian Ocean Territory</label>
+		</root>
+		<root id="241" depth="1" expanded="false">
+			<label>AX A...land Islands</label>
+		</root>
+		<root id="242" depth="1" expanded="false">
+			<label>GG Guernsey</label>
+		</root>
+		<root id="243" depth="1" expanded="false">
+			<label>IM Isle of Man</label>
+		</root>
+		<root id="244" depth="1" expanded="false">
+			<label>JE Jersey</label>
+		</root>
+		<root id="245" depth="1" expanded="false">
+			<label>ME Montenegro</label>
+		</root>
+		<root id="246" depth="1" expanded="false">
+			<label>RS Serbia</label>
+		</root>
+	</treeRoot>
+</tree>
+<tree id="17">
+	<canonicalName>FAOOccurrence</canonicalName>
+	<description>FAO Marine Areas</description>
+	<classOfService>Documentation</classOfService>
+	<location>Distribution</location>
+	<treeRoot>
+		<defaultStructure>
+			<treeStructures>
+				<structure>
+					<singleSelect>
+						<option>Year Round</option>
+						<option>Breeding Season Only</option>
+						<option>Non-breeding Season Only</option>
+						<selected></selected>
+					</singleSelect>
+				</structure>
+				<structure>
+					<boolean>false</boolean>
+				</structure>
+				<structure>
+					<singleSelect>
+						<option>Possibly Extinct</option>
+						<option>Extinct</option>
+						<option>Not extinct</option>
+						<selected></selected>
+					</singleSelect>
+				</structure>
+				<structure>
+					<relatedStructure>
+						<dominantStructures>
+							<structure>
+								<boolean>false</boolean>
+							</structure>
+						</dominantStructures>
+						<dependentStructures>
+							<structure>
+								<relatedStructure>
+									<dominantStructures>
+										<structure>
+											<boolean>false</boolean>
+										</structure>
+									</dominantStructures>
+									<dependentStructures>
+										<structure>
+											<singleSelect>
+												<option>Native</option>
+												<option>
+													Introduced
+												</option>
+												<option>
+													Reintroduced
+												</option>
+												<option>Vagrant</option>
+												<selected>0</selected>
+											</singleSelect>
+										</structure>
+									</dependentStructures>
+									<rules>
+										<booleanRule>
+											<activateOnRule>
+												false
+											</activateOnRule>
+											<actions>
+												<onTrue>show</onTrue>
+												<onFalse>hide</onFalse>
+											</actions>
+										</booleanRule>
+									</rules>
+								</relatedStructure>
+							</structure>
+						</dependentStructures>
+						<rules>
+							<booleanRule>
+								<activateOnRule>false</activateOnRule>
+								<actions>
+									<onTrue>show</onTrue>
+									<onFalse>hide</onFalse>
+								</actions>
+							</booleanRule>
+						</rules>
+					</relatedStructure>
+				</structure>
+			</treeStructures>
+		</defaultStructure>
+		<root id="1" depth="1" codeable="false" expanded="false">
+			<label>Polar</label>
+			<child id="1.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Boreal</label>
+				<child id="1.1.1" depth="3" expanded="false">
+					<label>Hudson</label>
+				</child>
+				<child id="1.1.2" depth="3" expanded="false">
+					<label>Beaufort</label>
+				</child>
+				<child id="1.1.3" depth="3" expanded="false">
+					<label>Barents</label>
+				</child>
+				<child id="1.1.4" depth="3" expanded="false">
+					<label>Kara</label>
+				</child>
+				<child id="1.1.5" depth="3" expanded="false">
+					<label>Laptev</label>
+				</child>
+				<child id="1.1.6" depth="3" expanded="false">
+					<label>East</label>
+				</child>
+				<child id="1.1.7" depth="3" expanded="false">
+					<label>Chukchi</label>
+				</child>
+				<child id="1.1.8" depth="3" expanded="false">
+					<label>Arctic</label>
+				</child>
+			</child>
+			<child id="1.2" depth="2" codeable="false"
+				expanded="false">
+				<label>Pacific</label>
+				<child id="1.2.1" depth="3" expanded="false">
+					<label>Eastern</label>
+				</child>
+				<child id="1.2.2" depth="3" expanded="false">
+					<label>Western</label>
+				</child>
+			</child>
+			<child id="1.3" depth="2" codeable="false"
+				expanded="false">
+				<label>Antarctic</label>
+				<child id="1.3.1" depth="3" expanded="false">
+					<label>Antarctic</label>
+				</child>
+			</child>
+		</root>
+		<root id="2" depth="1" codeable="false" expanded="false">
+			<label>Westerlies</label>
+			<child id="2.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Atlantic</label>
+				<child id="2.1.1" depth="3" expanded="false">
+					<label>Mediterranean</label>
+				</child>
+				<child id="2.1.2" depth="3" expanded="false">
+					<label>Canary</label>
+				</child>
+				<child id="2.1.3" depth="3" expanded="false">
+					<label>Guinea</label>
+				</child>
+				<child id="2.1.4" depth="3" expanded="false">
+					<label>Benguela</label>
+				</child>
+			</child>
+			<child id="2.2" depth="2" codeable="false"
+				expanded="false">
+				<label>Pacific</label>
+				<child id="2.2.1" depth="3" expanded="false">
+					<label>Kuroshio</label>
+				</child>
+				<child id="2.2.2" depth="3" expanded="false">
+					<label>Oyashio</label>
+				</child>
+				<child id="2.2.3" depth="3" expanded="false">
+					<label>Gulf</label>
+				</child>
+			</child>
+		</root>
+		<root id="3" depth="1" codeable="false" expanded="false">
+			<label>Trade</label>
+			<child id="3.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Atlantic</label>
+				<child id="3.1.1" depth="3" expanded="false">
+					<label>Caribbean</label>
+				</child>
+				<child id="3.1.2" depth="3" expanded="false">
+					<label>Gulf</label>
+				</child>
+			</child>
+			<child id="3.2" depth="2" codeable="false"
+				expanded="false">
+				<label>Pacific</label>
+				<child id="3.2.1" depth="3" expanded="false">
+					<label>Insular</label>
+				</child>
+			</child>
+		</root>
+		<root id="4" depth="1" codeable="false" expanded="false">
+			<label>Coastal</label>
+			<child id="4.1" depth="2" codeable="false"
+				expanded="false">
+				<label>NW</label>
+				<child id="4.1.1" depth="3" expanded="false">
+					<label>Scotian</label>
+				</child>
+				<child id="4.1.2" depth="3" expanded="false">
+					<label>Newfoundland-Labrador</label>
+				</child>
+				<child id="4.1.3" depth="3" expanded="false">
+					<label>NE</label>
+				</child>
+				<child id="4.1.4" depth="3" expanded="false">
+					<label>SE</label>
+				</child>
+			</child>
+			<child id="4.2" depth="2" codeable="false"
+				expanded="false">
+				<label>NE</label>
+				<child id="4.2.1" depth="3" expanded="false">
+					<label>West</label>
+				</child>
+				<child id="4.2.2" depth="3" expanded="false">
+					<label>East</label>
+				</child>
+				<child id="4.2.3" depth="3" expanded="false">
+					<label>Iceland</label>
+				</child>
+				<child id="4.2.4" depth="3" expanded="false">
+					<label>Faroe</label>
+				</child>
+				<child id="4.2.5" depth="3" expanded="false">
+					<label>Black</label>
+				</child>
+				<child id="4.2.6" depth="3" expanded="false">
+					<label>North</label>
+				</child>
+				<child id="4.2.7" depth="3" expanded="false">
+					<label>Norwegian</label>
+				</child>
+				<child id="4.2.8" depth="3" expanded="false">
+					<label>Celtic-Biscay</label>
+				</child>
+				<child id="4.2.9" depth="3" expanded="false">
+					<label>Baltic</label>
+				</child>
+				<child id="4.2.10" depth="3" expanded="false">
+					<label>Iberian</label>
+				</child>
+			</child>
+			<child id="4.3" depth="2" codeable="false"
+				expanded="false">
+				<label>SW</label>
+				<child id="4.3.1" depth="3" expanded="false">
+					<label>East</label>
+				</child>
+				<child id="4.3.2" depth="3" expanded="false">
+					<label>Patagonian</label>
+				</child>
+				<child id="4.3.3" depth="3" expanded="false">
+					<label>North</label>
+				</child>
+				<child id="4.3.4" depth="3" expanded="false">
+					<label>South</label>
+				</child>
+			</child>
+			<child id="4.4" depth="2" codeable="false"
+				expanded="false">
+				<label>Australian</label>
+				<child id="4.4.1" depth="3" expanded="false">
+					<label>West-Central</label>
+				</child>
+				<child id="4.4.2" depth="3" expanded="false">
+					<label>Northwest</label>
+				</child>
+				<child id="4.4.3" depth="3" expanded="false">
+					<label>Northeast</label>
+				</child>
+				<child id="4.4.4" depth="3" expanded="false">
+					<label>North</label>
+				</child>
+				<child id="4.4.5" depth="3" expanded="false">
+					<label>East-Central</label>
+				</child>
+				<child id="4.4.6" depth="3" expanded="false">
+					<label>Southeast</label>
+				</child>
+				<child id="4.4.7" depth="3" expanded="false">
+					<label>Southwest</label>
+				</child>
+			</child>
+			<child id="4.5" depth="2" codeable="false"
+				expanded="false">
+				<label>Pacific</label>
+				<child id="4.5.1" depth="3" expanded="false">
+					<label>Gulf</label>
+				</child>
+				<child id="4.5.2" depth="3" expanded="false">
+					<label>California</label>
+				</child>
+				<child id="4.5.3" depth="3" expanded="false">
+					<label>Humboldt</label>
+				</child>
+				<child id="4.5.4" depth="3" expanded="false">
+					<label>Indonesian</label>
+				</child>
+				<child id="4.5.5" depth="3" expanded="false">
+					<label>Sea</label>
+				</child>
+				<child id="4.5.6" depth="3" expanded="false">
+					<label>New</label>
+				</child>
+				<child id="4.5.7" depth="3" expanded="false">
+					<label>Sulu-Celebes</label>
+				</child>
+				<child id="4.5.8" depth="3" expanded="false">
+					<label>Pacific</label>
+				</child>
+				<child id="4.5.9" depth="3" expanded="false">
+					<label>Sea</label>
+				</child>
+				<child id="4.5.10" depth="3" expanded="false">
+					<label>Yellow</label>
+				</child>
+				<child id="4.5.11" depth="3" expanded="false">
+					<label>East</label>
+				</child>
+				<child id="4.5.12" depth="3" expanded="false">
+					<label>South</label>
+				</child>
+				<child id="4.5.13" depth="3" expanded="false">
+					<label>Gulf</label>
+				</child>
+			</child>
+			<child id="4.6" depth="2" codeable="false"
+				expanded="false">
+				<label>Indian</label>
+				<child id="4.6.1" depth="3" expanded="false">
+					<label>Bay</label>
+				</child>
+				<child id="4.6.2" depth="3" expanded="false">
+					<label>Arabian</label>
+				</child>
+				<child id="4.6.3" depth="3" expanded="false">
+					<label>Somali</label>
+				</child>
+				<child id="4.6.4" depth="3" expanded="false">
+					<label>Agulhas</label>
+				</child>
+				<child id="4.6.5" depth="3" expanded="false">
+					<label>Red</label>
+				</child>
+			</child>
+		</root>
+	</treeRoot>
+</tree>
+<field id="19">
+	<!-- AAH used General Info -->
+	<canonicalName>PopulationDocumentation</canonicalName>
+	<description>Population Information</description>
+	<classOfService>Documentation</classOfService>
+	<location>Distribution</location>
+	<structures>
+		<structure>
+			<richText></richText>
+		</structure>
+	</structures>
+</field>
+<field id="22">
+	<!-- AAH used General Info -->
+	<canonicalName>PopulationSize</canonicalName>
+	<description>Population Size</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<range></range>
+		</structure>
+	</structures>
+</field>
+<field id="24">
+	<canonicalName>PopulationReductionPast</canonicalName>
+	<description>Percent Reduction in past</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="25">
+	<canonicalName>PopulationReductionPastBasis</canonicalName>
+	<description>Past Population Reduction Basis</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<multipleSelect>
+				<option>a) direct observation</option>
+				<option>b) an index of abundance appropriate for the taxon		</option>
+				<option>
+					c) a decline in area of occupancy, extent of
+					occurrence and/or quality of habitat
+				</option>
+				<option>
+					d) actual or potential levels of exploitation
+				</option>
+				<option>
+					e) the effects of introduced taxa, hybridization,
+					pathogens, pollutants, competitors or parasites)
+				</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="27">
+	<canonicalName>PopulationReductionFuture</canonicalName>
+	<description>Percent Reduction in future</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="28">
+	<canonicalName>PopulationReductionFutureBasis</canonicalName>
+	<description>Future Population Reduction Basis</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<multipleSelect>
+				<option>
+					b) an index of abundance appropriate for the taxon
+				</option>
+				<option>
+					c) a decline in area of occupancy, extent of
+					occurrence and/or quality of habitat
+				</option>
+				<option>
+					d) actual or potential levels of exploitation
+				</option>
+				<option>
+					e) the effects of introduced taxa, hybridization,
+					pathogens, pollutants, competitors or parasites)
+				</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="29">
+	<canonicalName>PopulationReductionPastandFuture</canonicalName>
+	<description>
+		Both: Percent Reduction over any 10 year or 3 generation period,
+		whichever is longer, and must include both past and future,
+		future can't go beyond 100 years
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="30">
+	<canonicalName>PopulationReductionPastandFutureBasis</canonicalName>
+	<description>Both Population Reduction Basis</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<multipleSelect>
+				<option>a) direct observation</option>
+				<option>
+					b) an index of abundance appropriate for the taxon
+				</option>
+				<option>
+					c) a decline in area of occupancy, extent of
+					occurrence and/or quality of habitat
+				</option>
+				<option>
+					d) actual or potential levels of exploitation
+				</option>
+				<option>
+					e) the effects of introduced taxa,hybridization,
+					pathogens, pollutants,competitors or parasites
+				</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="31">
+	<canonicalName>
+		PopulationReductionPastandFutureReversible
+	</canonicalName>
+	<description>
+		Causes of both (past and future) reduction reversible?
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="32">
+	<canonicalName>
+		PopulationReductionPastandFutureUnderstood
+	</canonicalName>
+	<description>
+		Causes of both (past and future) reduction understood?
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="33">
+	<canonicalName>
+		PopulationReductionPastandFutureCeased
+	</canonicalName>
+	<description>
+		Causes of both (past and future) reduction ceased?
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="34">
+	<canonicalName>PopulationReductionPastReversible</canonicalName>
+	<description>Causes of past reduction reversible?</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="35">
+	<canonicalName>PopulationReductionFutureReversible</canonicalName>
+	<description>Causes of future reduction reversible?</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="36">
+	<canonicalName>PopulationReductionPastUnderstood</canonicalName>
+	<description>Causes of past reduction understood?</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="37">
+	<canonicalName>PopulationReductionFutureUnderstood</canonicalName>
+	<description>Causes of future reduction understood?</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="38">
+	<canonicalName>PopulationReductionPastCeased</canonicalName>
+	<description>Causes of past reduction ceased?</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="39">
+	<canonicalName>PopulationReductionFutureCeased</canonicalName>
+	<description>Causes of future reduction ceased?</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="40">
+	<canonicalName>PopulationContinuingDecline</canonicalName>
+	<description>Continuing decline in mature individuals?</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="41">
+	<canonicalName>PopulationDeclineGenerations1</canonicalName>
+	<description>
+		Estimated continuing decline % in mature individuals within 1
+		generation or 3 years, whichever is longer, note to not go 100
+		years in future
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="42">
+	<canonicalName>PopulationDeclineGenerations2</canonicalName>
+	<description>
+		Estimated continuing decline % in mature individuals within 2
+		generations or 5 years, whichever is longer, note to not go 100
+		years in future
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="43">
+	<canonicalName>PopulationDeclineGenerations3</canonicalName>
+	<description>
+		Estimated continuing decline % in mature individuals within 3
+		generations or 10 years, whichever is longer, note to not go 100
+		years in future
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="44">
+	<canonicalName>PopulationExtremeFluctuation</canonicalName>
+	<description>
+		Extreme fluctuations? (in # of mature individuals)
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="45">
+	<canonicalName>PopulationTrend</canonicalName>
+	<description>Current Population Trend</description>
+	<classOfService>Documentation</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<singleSelect>
+				<option>Increasing</option>
+				<option>Decreasing</option>
+				<option>Stable</option>
+				<option>Unknown</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="49">
+	<canonicalName>LocationsNumber</canonicalName>
+	<description>Number of Locations</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="50">
+	<canonicalName>SevereFragmentation</canonicalName>
+	<description>Severely fragmented?</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="51">
+	<canonicalName>SubpopulationNumber</canonicalName>
+	<description>Number of Subpopulations</description>
+	<classOfService>Documentation</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="52">
+	<canonicalName>LocationContinuingDecline</canonicalName>
+	<description>Continuing decline in number of locations</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="53">
+	<canonicalName>SubpopulationContinuingDecline</canonicalName>
+	<description>
+		Continuing decline in number of subpopulations
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<qualifier></qualifier>
+					</structure>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="54">
+	<canonicalName>LocationExtremeFluctuation</canonicalName>
+	<description>
+		Extreme fluctuations in the number of locations
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="55">
+	<canonicalName>SubpopulationExtremeFluctuation</canonicalName>
+	<description>
+		Extreme fluctuations in the number of subpopulations
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="56">
+	<canonicalName>MaxSubpopulationSize</canonicalName>
+	<description>
+		Size of the largest subpopulation? (in mature individuals)
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<range></range>
+		</structure>
+	</structures>
+</field>
+<field id="57">
+	<canonicalName>SubpopulationSingle</canonicalName>
+	<description>All individuals in one subpopulation</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>
+<field id="58">
+	<canonicalName>ExtinctionProbabilityGenerations3</canonicalName>
+	<description>
+		Probability of extinction in the wild within 3 generations or 10
+		years, whichever is longer, maximum 100 years
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="59">
+	<canonicalName>ExtinctionProbabilityGenerations5</canonicalName>
+	<description>
+		Probability of extinction in the wild within 5 generations or 20
+		years, whichever is longer, maximum 100 years
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="60">
+	<canonicalName>ExtinctionProbabilityYears100</canonicalName>
+	<description>
+		Probability of extinction in the wild within 100 years
+	</description>
+	<classOfService>Factor</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="61">
+	<canonicalName>PVAFile</canonicalName>
+	<description>PVA file(s) upload</description>
+	<classOfService>Documentation</classOfService>
+	<location>Population</location>
+	<structures>
+		<structure>
+			<file></file>
+		</structure>
+	</structures>
+</field>
+<field id="62">
+	<!-- AAH used General Info -->
+	<canonicalName>HabitatDocumentation</canonicalName>
+	<description>Habitat Information</description>
+	<classOfService>Documentation</classOfService>
+	<location>Habitats and Ecology</location>
+	<structures>
+		<structure>
+			<richText></richText>
+		</structure>
+	</structures>
+</field>
+<field id="63">
+	<!-- AAH used General Info -->
+	<canonicalName>System</canonicalName>
+	<description>System</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Habitats and Ecology</location>
+	<structures>
+		<structure>
+			<multipleSelect>
+				<option>Terrestrial</option>
+				<option>Freshwater</option>
+				<option>Marine</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="64">
+	<!-- AAH used General Info -->
+	<canonicalName>MovementPatterns</canonicalName>
+	<description>Movement Patterns</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Habitats and Ecology</location>
+	<structures>
+		<structure>
+			<multipleSelect>
+				<option>Nomadic</option>
+				<option>Congregatory/dispersive</option>
+				<option>Migratory</option>
+				<option>Altitudinally migrant</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="65">
+	<!-- AAH used General Info -->
+	<canonicalName>CropWildRelative</canonicalName>
+	<description>Wild relative of a crop?</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Habitats and Ecology</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<!-- SUBSTANTIAL DIFFERENCES -->
+<tree id="67">
+	<canonicalName>GeneralHabitats</canonicalName>
+	<description>General Habitat Information</description>
+	<classOfService>Documentation</classOfService>
+	<location>Habitats and Ecology</location>
+	<treeRoot>
+		<defaultStructure>
+			<treeStructures>
+				<structure>
+					<relatedStructure layout="table">
+						<dominantStructures>
+							<structure description="Description:">
+								<singleSelect>
+									<option>Suitable</option>
+									<option>Marginal</option>
+									<option>Possible</option>
+									<selected>0</selected>
+								</singleSelect>
+							</structure>
+						</dominantStructures>
+						<dependentStructures>
+							<structure
+								description="Major Importance?">
+								<singleSelect>
+									<option>Yes</option>
+									<option>No</option>
+									<selected>0</selected>
+								</singleSelect>
+							</structure>
+						</dependentStructures>
+						<rules>
+							<selectRule>
+								<activateOnIndex>0</activateOnIndex>
+								<actions>
+									<onTrue>show</onTrue>
+									<onFalse>hide</onFalse>
+								</actions>
+							</selectRule>
+						</rules>
+					</relatedStructure>
+				</structure>
+			</treeStructures>
+		</defaultStructure>
+		<root id="1" depth="1" codeable="false" expanded="false">
+			<label>Forest</label>
+			<child id="1.1" depth="2" expanded="false">
+				<label>Forest - Boreal</label>
+			</child>
+			<child id="1.2" depth="2" expanded="false">
+				<label>Forest - Subarctic</label>
+			</child>
+			<child id="1.3" depth="2" expanded="false">
+				<label>Forest - Subantarctic</label>
+			</child>
+			<child id="1.4" depth="2" expanded="false">
+				<label>Forest - Temperate</label>
+			</child>
+			<child id="1.5" depth="2" expanded="false">
+				<label>Forest - Subtropical/Tropical Dry</label>
+			</child>
+			<child id="1.6" depth="2" expanded="false">
+				<label>
+					Forest - Subtropical/Tropical Moist Lowland
+				</label>
+			</child>
+			<child id="1.7" depth="2" expanded="false">
+				<label>
+					Forest - Subtropical/Tropical Mangrove Vegetation
+					Above High Tide Level
+				</label>
+			</child>
+			<child id="1.8" depth="2" expanded="false">
+				<label>Forest - Subtropical/Tropical Swamp</label>
+			</child>
+			<child id="1.9" depth="2" expanded="false">
+				<label>
+					Forest - Subtropical/Tropical Moist Montane
+				</label>
+			</child>
+		</root>
+		<root id="2" depth="1" codeable="false" expanded="false">
+			<label>Savanna</label>
+			<child id="2.1" depth="2" expanded="false">
+				<label>Savanna - Dry</label>
+			</child>
+			<child id="2.2" depth="2" expanded="false">
+				<label>Savanna - Moist</label>
+			</child>
+		</root>
+		<root id="3" depth="1" codeable="false" expanded="false">
+			<label>Shrubland</label>
+			<child id="3.1" depth="2" expanded="false">
+				<label>Shrubland - Subarctic</label>
+			</child>
+			<child id="3.2" depth="2" expanded="false">
+				<label>Shrubland - Subantarctic</label>
+			</child>
+			<child id="3.3" depth="2" expanded="false">
+				<label>Shrubland - Boreal</label>
+			</child>
+			<child id="3.4" depth="2" expanded="false">
+				<label>Shrubland - Temperate</label>
+			</child>
+			<child id="3.5" depth="2" expanded="false">
+				<label>Shrubland - Subtropical/Tropical Dry</label>
+			</child>
+			<child id="3.6" depth="2" expanded="false">
+				<label>Shrubland - Subtropical/Tropical Moist</label>
+			</child>
+			<child id="3.7" depth="2" expanded="false">
+				<label>
+					Shrubland - Subtropical/Tropical High Altitude
+				</label>
+			</child>
+			<child id="3.8" depth="2" expanded="false">
+				<label>
+					Shrubland - Mediterranean-type Shrubby Vegetation
+				</label>
+			</child>
+		</root>
+		<root id="4" depth="1" codeable="false" expanded="false">
+			<label>Grassland</label>
+			<child id="4.1" depth="2" expanded="false">
+				<label>Grassland - Tundra</label>
+			</child>
+			<child id="4.2" depth="2" expanded="false">
+				<label>Grassland - Subarctic</label>
+			</child>
+			<child id="4.3" depth="2" expanded="false">
+				<label>Grassland - Subantarctic</label>
+			</child>
+			<child id="4.4" depth="2" expanded="false">
+				<label>Grassland - Temperate</label>
+			</child>
+			<child id="4.5" depth="2" expanded="false">
+				<label>Grassland - Subtropical/Tropical Dry</label>
+			</child>
+			<child id="4.6" depth="2" expanded="false">
+				<label>
+					Grassland - Subtropical/Tropical Seasonally
+					Wet/Flooded
+				</label>
+			</child>
+			<child id="4.7" depth="2" expanded="false">
+				<label>
+					Grassland - Subtropical/Tropical High Altitude
+				</label>
+			</child>
+		</root>
+		<root id="5" depth="1" codeable="false" expanded="false">
+			<label>Wetlands (inland)</label>
+			<child id="5.1" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Permanent Rivers/Streams/Creeks
+					(includes waterfalls)
+				</label>
+			</child>
+			<child id="5.2" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Seasonal/Intermittent/Irregular
+					Rivers/Streams/Creeks
+				</label>
+			</child>
+			<child id="5.3" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Shrub Dominated Wetlands
+				</label>
+			</child>
+			<child id="5.4" depth="2" codeable="false"
+				expanded="false">
+				<label>Marshes</label>
+			</child>
+			<child id="5.5" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Permanent Freshwater Lakes (over
+					8ha)
+				</label>
+			</child>
+			<child id="5.6" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Seasonal/Intermittent Freshwater
+					Lakes (over 8ha)
+				</label>
+			</child>
+			<child id="5.7" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Permanent Freshwater
+					Marshes/Pools (under 8ha)
+				</label>
+			</child>
+			<child id="5.8" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Seasonal/Intermittent Freshwater
+					Marshes/Pools (under 8ha)
+				</label>
+			</child>
+			<child id="5.9" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Freshwater Springs and Oases
+				</label>
+			</child>
+			<child id="5.10" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Tundra Wetlands (incl. pools and
+					temporary waters from snowmelt)
+				</label>
+			</child>
+			<child id="5.11" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Alpine Wetlands (includes
+					temporary waters from snowmelt)
+				</label>
+			</child>
+			<child id="5.12" depth="2" expanded="false">
+				<label>Wetlands (inland) - Geothermal Wetlands</label>
+			</child>
+			<child id="5.13" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Permanent Inland Deltas
+				</label>
+			</child>
+			<child id="5.14" depth="2" codeable="false"
+				expanded="false">
+				<label>Brackish or Alkaline Lakes"</label>
+			</child>
+			<child id="5.15" depth="2" codeable="false"
+				expanded="false">
+				<label>Brackish or Alkaline Lakes and Flats"</label>
+			</child>
+			<child id="5.16" depth="2" codeable="false"
+				expanded="false">
+				<label>Brackish or Alkaline Marshes/Pools"</label>
+			</child>
+			<child id="5.17" depth="2" codeable="false"
+				expanded="false">
+				<label>Brackish or Alkaline Marshes/Pools"</label>
+			</child>
+			<child id="5.18" depth="2" expanded="false">
+				<label>
+					Wetlands (inland) - Karst and Other Subterranean
+					Hydrological Systems (inland)
+				</label>
+			</child>
+		</root>
+		<root id="6" depth="1" codeable="false" expanded="false">
+			<label>mountain peaks)"</label>
+		</root>
+		<root id="7" depth="1" codeable="false" expanded="false">
+			<label>Caves and Subterranean Habitats (non-aquatic)</label>
+			<child id="7.1" depth="2" expanded="false">
+				<label>
+					Caves and Subterranean Habitats (non-aquatic) -
+					Caves
+				</label>
+			</child>
+			<child id="7.2" depth="2" expanded="false">
+				<label>
+					Caves and Subterranean Habitats (non-aquatic) -
+					Other Subterranean Habitats
+				</label>
+			</child>
+		</root>
+		<root id="8" depth="1" codeable="false" expanded="false">
+			<label>Desert</label>
+			<child id="8.1" depth="2" expanded="false">
+				<label>Desert - Hot</label>
+			</child>
+			<child id="8.2" depth="2" expanded="false">
+				<label>Desert - Temperate</label>
+			</child>
+			<child id="8.3" depth="2" expanded="false">
+				<label>Desert - Cold</label>
+			</child>
+		</root>
+		<root id="9" depth="1" codeable="false" expanded="false">
+			<label>Marine Neritic</label>
+			<child id="9.1" depth="2" expanded="false">
+				<label>Marine Neritic - Pelagic</label>
+			</child>
+			<child id="9.2" depth="2" expanded="false">
+				<label>
+					Marine Neritic - Subtidal Rock and Rocky Reefs
+				</label>
+			</child>
+			<child id="9.3" depth="2" expanded="false">
+				<label>
+					Marine Neritic - Subtidal Loose Rock/pebble/gravel
+				</label>
+			</child>
+			<child id="9.4" depth="2" expanded="false">
+				<label>Marine Neritic - Subtidal Sandy</label>
+			</child>
+			<child id="9.5" depth="2" expanded="false">
+				<label>Marine Neritic - Subtidal Sandy-Mud</label>
+			</child>
+			<child id="9.6" depth="2" expanded="false">
+				<label>Marine Neritic - Subtidal Muddy</label>
+			</child>
+			<child id="9.7" depth="2" expanded="false">
+				<label>Marine Neritic - Macroalgal/Kelp</label>
+			</child>
+			<child id="9.8" depth="2" expanded="false">
+				<label>Marine Neritic - Coral Reef</label>
+				<child id="9.8.1" depth="3" expanded="false">
+					<label>Outer Reef Channel</label>
+				</child>
+				<child id="9.8.2" depth="3" expanded="false">
+					<label>Back Slope</label>
+				</child>
+				<child id="9.8.3" depth="3" expanded="false">
+					<label>Foreslope (Outer Reef Slope)</label>
+				</child>
+				<child id="9.8.4" depth="3" expanded="false">
+					<label>Lagoon</label>
+				</child>
+				<child id="9.8.5" depth="3" expanded="false">
+					<label>Inter-Reef Soft Substrate</label>
+				</child>
+				<child id="9.8.6" depth="3" expanded="false">
+					<label>Inter-Reef Rubble Substrate</label>
+				</child>
+			</child>
+			<child id="9.9" depth="2" expanded="false">
+				<label>Marine Neritic - Seagrass (Submerged)</label>
+			</child>
+			<child id="9.10" depth="2" expanded="false">
+				<label>Marine Neritic - Estuaries</label>
+			</child>
+		</root>
+		<root id="10" depth="1" codeable="false" expanded="false">
+			<label>Marine Oceanic</label>
+			<child id="10.1" depth="2" expanded="false">
+				<label>Marine Oceanic - Epipelagic (0-200m)</label>
+			</child>
+			<child id="10.2" depth="2" expanded="false">
+				<label>Marine Oceanic - Mesopelagic (200-1000m)</label>
+			</child>
+			<child id="10.3" depth="2" expanded="false">
+				<label>
+					Marine Oceanic - Bathypelagic (1000-4000m)
+				</label>
+			</child>
+			<child id="10.4" depth="2" expanded="false">
+				<label>
+					Marine Oceanic - Abyssopelagic (4000-6000m)
+				</label>
+			</child>
+		</root>
+		<root id="11" depth="1" codeable="false" expanded="false">
+			<label>Marine Deep Benthic</label>
+			<child id="11.1" depth="2" codeable="false"
+				expanded="false">
+				<label>000m)"</label>
+				<child id="11.1.1" depth="3" expanded="false">
+					<label>Hard Substrate</label>
+				</child>
+				<child id="11.1.2" depth="3" expanded="false">
+					<label>Soft Substrate</label>
+				</child>
+			</child>
+			<child id="11.2" depth="2" codeable="false"
+				expanded="false">
+				<label>000-6</label>
+			</child>
+			<child id="11.3" depth="2" codeable="false"
+				expanded="false">
+				<label>000-6</label>
+			</child>
+			<child id="11.4" depth="2" codeable="false"
+				expanded="false">
+				<label>000m)"</label>
+			</child>
+			<child id="11.5" depth="2" expanded="false">
+				<label>Marine Deep Benthic - Seamount</label>
+			</child>
+			<child id="11.6" depth="2" expanded="false">
+				<label>
+					Marine Deep Benthic - Deep Sea Vents (Rifts/Seeps)
+				</label>
+			</child>
+		</root>
+		<root id="12" depth="1" codeable="false" expanded="false">
+			<label>Marine Intertidal</label>
+			<child id="12.1" depth="2" expanded="false">
+				<label>Marine Intertidal - Rocky Shoreline</label>
+			</child>
+			<child id="12.2" depth="2" codeable="false"
+				expanded="false">
+				<label>Sand Bars</label>
+			</child>
+			<child id="12.3" depth="2" expanded="false">
+				<label>
+					Marine Intertidal - Shingle and/or Pebble Shoreline
+					and/or Beaches
+				</label>
+			</child>
+			<child id="12.4" depth="2" expanded="false">
+				<label>
+					Marine Intertidal - Mud Flats and Salt Flats
+				</label>
+			</child>
+			<child id="12.5" depth="2" expanded="false">
+				<label>
+					Marine Intertidal - Salt Marshes (Emergent Grasses)
+				</label>
+			</child>
+			<child id="12.6" depth="2" expanded="false">
+				<label>Marine Intertidal - Tidepools</label>
+			</child>
+			<child id="12.7" depth="2" expanded="false">
+				<label>
+					Marine Intertidal - Mangrove Submerged Roots
+				</label>
+			</child>
+		</root>
+		<root id="13" depth="1" codeable="false" expanded="false">
+			<label>Marine Coastal/Supratidal</label>
+			<child id="13.1" depth="2" expanded="false">
+				<label>
+					Marine Coastal/Supratidal - Sea Cliffs and Rocky
+					Offshore Islands
+				</label>
+			</child>
+			<child id="13.2" depth="2" expanded="false">
+				<label>
+					Marine Coastal/supratidal - Coastal Caves/Karst
+				</label>
+			</child>
+			<child id="13.3" depth="2" expanded="false">
+				<label>
+					Marine Coastal/Supratidal - Coastal Sand Dunes
+				</label>
+			</child>
+			<child id="13.4" depth="2" expanded="false">
+				<label>
+					Marine Coastal/Supratidal - Coastal Brackish/Saline
+					Lagoons/Marine Lakes
+				</label>
+			</child>
+			<child id="13.5" depth="2" expanded="false">
+				<label>
+					Marine Coastal/Supratidal - Coastal Freshwater Lakes
+				</label>
+			</child>
+		</root>
+		<root id="14" depth="1" codeable="false" expanded="false">
+			<label>Artificial/Terrestrial</label>
+			<child id="14.1" depth="2" expanded="false">
+				<label>Artificial/Terrestrial - Arable Land</label>
+			</child>
+			<child id="14.2" depth="2" expanded="false">
+				<label>Artificial/Terrestrial - Pastureland</label>
+			</child>
+			<child id="14.3" depth="2" expanded="false">
+				<label>Artificial/Terrestrial - Plantations</label>
+			</child>
+			<child id="14.4" depth="2" expanded="false">
+				<label>Artificial/Terrestrial - Rural Gardens</label>
+			</child>
+			<child id="14.5" depth="2" expanded="false">
+				<label>Artificial/Terrestrial - Urban Areas</label>
+			</child>
+			<child id="14.6" depth="2" expanded="false">
+				<label>
+					Artificial/Terrestrial - Subtropical/Tropical
+					Heavily Degraded Former Forest
+				</label>
+			</child>
+		</root>
+		<root id="15" depth="1" codeable="false" expanded="false">
+			<label>Artificial/Aquatic and Marine</label>
+			<child id="15.1" depth="2" expanded="false">
+				<label>
+					Artificial/Aquatic - Water Storage Areas (over 8ha)
+				</label>
+			</child>
+			<child id="15.2" depth="2" expanded="false">
+				<label>Artificial/Aquatic - Ponds (below 8ha)</label>
+			</child>
+			<child id="15.3" depth="2" expanded="false">
+				<label>Artificial/Aquatic - Aquaculture Ponds</label>
+			</child>
+			<child id="15.4" depth="2" expanded="false">
+				<label>
+					Artificial/Aquatic - Salt Exploitation Sites
+				</label>
+			</child>
+			<child id="15.5" depth="2" expanded="false">
+				<label>Artificial/Aquatic - Excavations (open)</label>
+			</child>
+			<child id="15.6" depth="2" expanded="false">
+				<label>
+					Artificial/Aquatic - Wastewater Treatment Areas
+				</label>
+			</child>
+			<child id="15.7" depth="2" expanded="false">
+				<label>
+					Artificial/Aquatic - Irrigated Land (includes
+					irrigation channels)
+				</label>
+			</child>
+			<child id="15.8" depth="2" expanded="false">
+				<label>
+					Artificial/Aquatic - Seasonally Flooded Agricultural
+					Land
+				</label>
+			</child>
+			<child id="15.9" depth="2" codeable="false"
+				expanded="false">
+				<label>Ditches"</label>
+			</child>
+			<child id="15.10" depth="2" expanded="false">
+				<label>
+					Artificial/Aquatic - Karst and Other Subterranean
+					Hydrological Systems (human-made)
+				</label>
+			</child>
+			<child id="15.11" depth="2" expanded="false">
+				<label>
+					Artificial/Marine - Marine Anthropogenic Structures
+				</label>
+			</child>
+			<child id="15.12" depth="2" expanded="false">
+				<label>Artificial/Marine - Mariculture Cages</label>
+			</child>
+			<child id="15.13" depth="2" expanded="false">
+				<label>
+					Artificial/Marine - Mari/Brackishculture Ponds
+				</label>
+			</child>
+		</root>
+		<root id="16" depth="1" expanded="false">
+			<label>Introduced vegetation</label>
+		</root>
+		<root id="17" depth="1" expanded="false">
+			<label>Other</label>
+			<treeStructures>
+				<structure description="Please Specify:">
+					<text></text>
+				</structure>
+			</treeStructures>
+		</root>
+		<root id="18" depth="1" expanded="false">
+			<label>Unknown</label>
+		</root>
+	</treeRoot>
+</tree>
+<field id="68">
+	<canonicalName>FemaleMaturityAge</canonicalName>
+	<description>Age at Maturity: Female</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+		<structure description="Units:">
+			<singleSelect>
+				<option>Days</option>
+				<option>Weeks</option>
+				<option>Months</option>
+				<option>Years</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="69">
+	<canonicalName>MaleMaturityAge</canonicalName>
+	<description>Age at Maturity: Male</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+		<structure description="Units:">
+			<singleSelect>
+				<option>Days</option>
+				<option>Weeks</option>
+				<option>Months</option>
+				<option>Years</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="71">
+	<canonicalName>FemaleMaturitySize</canonicalName>
+	<description>Size at Maturity (in cms): Female</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+	</structures>
+</field>
+<field id="72">
+	<canonicalName>MaleMaturitySize</canonicalName>
+	<description>Size at Maturity (in cms): Male</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+	</structures>
+</field>
+<field id="73">
+	<!-- AAH used General Info -->
+	<canonicalName>Longevity</canonicalName>
+	<description>Longevity</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+		<structure description="Units:">
+			<singleSelect>
+				<option>Days</option>
+				<option>Months</option>
+				<option>Years</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="75">
+	<canonicalName>AvgReproductiveAge</canonicalName>
+	<description>Average Reproductive Age</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+		<structure description="Units:">
+			<singleSelect>
+				<option>Days</option>
+				<option>Months</option>
+				<option>Years</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="77">
+	<canonicalName>MaxSize</canonicalName>
+	<description>Maximum Size (in cms)</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+	</structures>
+</field>
+<field id="78">
+	<canonicalName>BirthSize</canonicalName>
+	<description>Size at Birth (in cms)</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+	</structures>
+</field>
+<field id="79">
+	<canonicalName>GestationTime</canonicalName>
+	<description>Gestation Time</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+		<structure description="Units:">
+			<singleSelect>
+				<option>Days</option>
+				<option>Months</option>
+				<option>Years</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="81">
+	<canonicalName>GenerationLength</canonicalName>
+	<description>Generation Length</description>
+	<classOfService>Factor</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure>
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="82">
+	<canonicalName>ReproduictivePeriodicity</canonicalName>
+	<description>Reproductive Periodicity</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+	</structures>
+</field>
+<field id="83">
+	<canonicalName>AvgAnnualFecundity</canonicalName>
+	<description>Average Annual Fecundity or Litter Size</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+	</structures>
+</field>
+<field id="84">
+	<canonicalName>PopulationIncreaseRate</canonicalName>
+	<description>Annual Rate of Population Increase</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+	</structures>
+</field>
+<field id="85">
+	<canonicalName>NaturalMortality</canonicalName>
+	<description>Natural Mortality</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<range>
+				<lowerBound></lowerBound>
+				<upperBound></upperBound>
+			</range>
+		</structure>
+	</structures>
+</field>
+<field id="86">
+	<canonicalName>EggLaying</canonicalName>
+	<description>
+		Does the species lay eggs? (Yes or Unknown)
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="87">
+	<canonicalName>LiveBirth</canonicalName>
+	<description>
+		Does the species give birth to live young (Yes or Unknown)
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="88">
+	<canonicalName>Parthenogenesis</canonicalName>
+	<description>
+		Does the species exhibit parthenogenesis (Yes or Unknown)
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="89">
+	<canonicalName>FreeLivingLarvae</canonicalName>
+	<description>
+		Does the species have a free-living larval stage? (Yes or
+		Unknown)
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="90">
+	<canonicalName>WaterBreeding</canonicalName>
+	<description>
+		Does the species require water for breeding? (Yes or Unknown)
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Life History Info</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="91">
+	<!-- AAH used General Info -->
+	<canonicalName>ThreatsDocumentation</canonicalName>
+	<description>Threats Information</description>
+	<classOfService>Documentation</classOfService>
+	<location>Threats</location>
+	<structures>
+		<structure>
+			<richText></richText>
+		</structure>
+	</structures>
+</field>
+<!-- SUBSTANTIAL DIFFERENCES -->
+<tree id="776">
+	<canonicalName>PlantGrowthForms</canonicalName>
+	<description>Plant Growth Forms</description>
+	<classOfService>Species Attributes</classOfService>
+	<location></location>
+	<treeRoot>
+		<defaultStructure>
+			<treeStructures>
+				<structure description="In place?">
+					<boolean>false</boolean>
+				</structure>
+			</treeStructures>
+		</defaultStructure>
+		<root id="1" depth="1" expanded="false">
+			<label
+				title="Tree (any size),  also termed a Phanerophyte (>1m)">
+				Tree - size unknown
+			</label>
+		</root>
+		<root id="2" depth="1" expanded="false">
+			<label
+				title="Large tree,  also termed a Phanerophyte (>1m)">
+				Tree - large
+			</label>
+		</root>
+		<root id="3" depth="1" expanded="false">
+			<label
+				title="Small tree,  also termed a Phanerophyte (>1m)">
+				Tree - small
+			</label>
+		</root>
+		<root id="4" depth="1" expanded="false">
+			<label
+				title="Perennial shrub (any size) also termed a Phanerophyte if (>1m) or a Chamaephyte if &lt;1m">
+				Shrub - size unknown
+			</label>
+		</root>
+		<root id="5" depth="1" expanded="false">
+			<label
+				title="Perennial shrub (>1m),  also termed a Phanerophyte (>1m)">
+				Shrub - large
+			</label>
+		</root>
+		<root id="6" depth="1" expanded="false">
+			<label
+				title="Perennial shrub small (&lt;1m) or dwarf shrub, also termed a Chamaephyte (&lt;1m)">
+				Shrub - small
+			</label>
+		</root>
+		<root id="7" depth="1" expanded="false">
+			<label
+				title="Biennial or perennial herbacaeous plant,  also termed a Hemicryptophyte">
+				Forb or Herb
+			</label>
+		</root>
+		<root id="8" depth="1" expanded="false">
+			<label title="An annual plant,  also termed a Therophyte">
+				Annual
+			</label>
+		</root>
+		<root id="9" depth="1" expanded="false">
+			<label title="Grasses,  sedges,  restios">Graminoid</label>
+		</root>
+		<root id="10" depth="1" expanded="false">
+			<label
+				title="Plants with underground bulbs,  corms,  rhizome,  tubers (not lignotubers),  also termed Cryptophytes">
+				Geophyte
+			</label>
+		</root>
+		<root id="11" depth="1" expanded="false">
+			<label title="Vines,  lianas and creepers">Vines</label>
+		</root>
+		<root id="12" depth="1" expanded="false">
+			<label
+				title="Aquatic plants,  includes algae like seaweeds">
+				Hydrophyte
+			</label>
+		</root>
+		<root id="13" depth="1" expanded="false">
+			<label title="Parasitic plants,  dependent on the host">
+				Parasite
+			</label>
+		</root>
+		<root id="14" depth="1" expanded="false">
+			<label
+				title="Plants growing on other plants,  but not parasitic">
+				Epiphyte
+			</label>
+		</root>
+		<root id="15" depth="1" expanded="false">
+			<label title="Plants growing on rocks">Lithophyte</label>
+		</root>
+		<root id="16" depth="1" expanded="false">
+			<label
+				title="Succulent (leaves,  stems,  etc.) of any form">
+				Succulent - form unknown
+			</label>
+		</root>
+		<root id="17" depth="1" expanded="false">
+			<label title="Annual succulent">Succulent - annual</label>
+		</root>
+		<root id="18" depth="1" expanded="false">
+			<label title="Succulent shrubs, generally &lt;1m">
+				Succulent - shrub
+			</label>
+		</root>
+		<root id="19" depth="1" expanded="false">
+			<label title="Tree succulents, generally >1m">
+				Succulent - tree
+			</label>
+		</root>
+		<root id="20" depth="1" expanded="false">
+			<label title="Ferns">Fern</label>
+		</root>
+		<root id="21" depth="1" expanded="false">
+			<label title="Cycads">Cycad</label>
+		</root>
+		<root id="22" depth="1" expanded="false">
+			<label title="Fungi">Fungus</label>
+		</root>
+		<root id="23" depth="1" expanded="false">
+			<label title="Any bryophyte including hydrophytes">
+				Moss
+			</label>
+		</root>
+		<root id="24" depth="1" expanded="false">
+			<label title="Lichens">Lichen</label>
+		</root>
+	</treeRoot>
+</tree>
+<!-- SUBSTANTIAL DIFFERENCES -->
+<tree id="92">
+	<!-- AAH used General Info -->
+	<!-- AAH used Threats -->
+	<canonicalName>Threats</canonicalName>
+	<description>Threats</description>
+	<classOfService>Documentation</classOfService>
+	<location>Threats</location>
+	<treeRoot>
+		<defaultStructure>
+			<treeStructures>
+				<structure>
+					<relatedStructure>
+						<dominantStructures>
+							<structure>
+								<threat>
+									<timing>1</timing>
+									<scope>1</scope>
+									<severity>1</severity>
+									<impact>1</impact>
+								</threat>
+							</structure>
+						</dominantStructures>
+						<dependentStructures>
+							<structure description="Notes">
+								<narrative>Notes</narrative>
+							</structure>
+							<structure>
+								<treeStructure>
+									<defaultStructure>
+										<treeStructures>
+											<structure description="Stress?">
+												<boolean>false</boolean>
+											</structure>
+										</treeStructures>
+									</defaultStructure>
+									<root id="1" depth="1"
+										codeable="false" expanded="false">
+										<label>
+											Ecosystem stresses
+										</label>
+										<child id="1.1" depth="2"
+											expanded="false">
+											<label>
+												Ecosystem conversion
+											</label>
+										</child>
+										<child id="1.2" depth="2"
+											expanded="false">
+											<label>
+												Ecosystem degradation
+											</label>
+										</child>
+										<child id="1.3" depth="2"
+											expanded="false">
+											<label>
+												Indirect ecosystem
+												effects
+											</label>
+										</child>
+									</root>
+									<root id="2" depth="1"
+										codeable="false" expanded="false">
+										<label>Species Stresses</label>
+										<child id="2.1" depth="2"
+											expanded="false">
+											<label>
+												Species mortality
+											</label>
+										</child>
+										<child id="2.2" depth="2"
+											expanded="false">
+											<label>
+												Species disturbance
+											</label>
+										</child>
+										<child id="2.3" depth="2"
+											codeable="false" expanded="false">
+											<label>
+												Indirect species effects
+											</label>
+											<child id="2.3.1" depth="3"
+												expanded="false">
+												<label>
+													Hybridisation
+												</label>
+											</child>
+											<child id="2.3.2" depth="3"
+												expanded="false">
+												<label>
+													Competition
+												</label>
+											</child>
+											<child id="2.3.3" depth="3"
+												expanded="false">
+												<label>
+													Loss of mutualism
+												</label>
+											</child>
+											<child id="2.3.4" depth="3"
+												expanded="false">
+												<label>
+													Loss of pollinator
+												</label>
+											</child>
+											<child id="2.3.5" depth="3"
+												expanded="false">
+												<label>
+													Inbreeding
+												</label>
+											</child>
+											<child id="2.3.6" depth="3"
+												expanded="false">
+												<label>
+													Skewed sex ratios
+												</label>
+											</child>
+											<child id="2.3.8" depth="3"
+												expanded="false">
+												<label>Other</label>
+											</child>
+											<child id="2.3.7" depth="3"
+												expanded="false">
+												<label>
+													Reduced reproductive
+													success
+												</label>
+											</child>
+										</child>
+									</root>
+								</treeStructure>
+							</structure>
+						</dependentStructures>
+						<rules>
+							<booleanRule>
+								<activateOnRule>true</activateOnRule>
+								<actions>
+									<onTrue>SHOW</onTrue>
+									<onFalse>HIDE</onFalse>
+								</actions>
+							</booleanRule>
+						</rules>
+					</relatedStructure>
+				</structure>
+			</treeStructures>
+		</defaultStructure>
+		<root id="1" depth="1" codeable="false" expanded="false">
+			<label>Residential and commercial development</label>
+			<child id="1.1" depth="2" expanded="false">
+				<label>Housing and urban areas</label>
+			</child>
+			<child id="1.2" depth="2" expanded="false">
+				<label>Commercial and industrial areas</label>
+			</child>
+			<child id="1.3" depth="2" expanded="false">
+				<label>Tourism and recreation areas</label>
+			</child>
+		</root>
+		<root id="2" depth="1" codeable="false" expanded="false">
+			<label>Agriculture and aquaculture</label>
+			<child id="2.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Annual and perennial non-timber crops</label>
+				<child id="2.1.1" depth="3" expanded="false">
+					<label>Shifting agriculture</label>
+				</child>
+				<child id="2.1.2" depth="3" expanded="false">
+					<label>Small-holder farming</label>
+				</child>
+				<child id="2.1.3" depth="3" expanded="false">
+					<label>Agro-industry farming</label>
+				</child>
+				<child id="2.1.4" depth="3" expanded="false">
+					<label>Scale Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="2.2" depth="2" codeable="false"
+				expanded="false">
+				<label>Wood and pulp plantations</label>
+				<child id="2.2.1" depth="3" expanded="false">
+					<label>Small-holder plantations</label>
+				</child>
+				<child id="2.2.2" depth="3" expanded="false">
+					<label>Agro-industry plantations</label>
+				</child>
+				<child id="2.2.3" depth="3" expanded="false">
+					<label>Scale Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="2.3" depth="2" codeable="false"
+				expanded="false">
+				<label>Livestock farming and ranching</label>
+				<child id="2.3.1" depth="3" expanded="false">
+					<label>Nomadic grazing</label>
+				</child>
+				<child id="2.3.2" depth="3" expanded="false">
+					<label>
+						Small-holder grazing, ranching, or farming
+					</label>
+				</child>
+				<child id="2.3.3" depth="3" expanded="false">
+					<label>
+						Agro-industry grazing, ranching, or farming
+					</label>
+				</child>
+				<child id="2.3.4" depth="3" expanded="false">
+					<label>Scale Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="2.4" depth="2" codeable="false"
+				expanded="false">
+				<label>Marine and freshwater aquaculture</label>
+				<child id="2.4.1" depth="3" expanded="false">
+					<label>Subsistence/artisinal aquaculture</label>
+				</child>
+				<child id="2.4.2" depth="3" expanded="false">
+					<label>Industrial aquaculture</label>
+				</child>
+				<child id="2.4.3" depth="3" expanded="false">
+					<label>Scale Unknown/Unrecorded</label>
+				</child>
+			</child>
+		</root>
+		<root id="3" depth="1" codeable="false" expanded="false">
+			<label>Energy production and mining</label>
+			<child id="3.1" depth="2" expanded="false">
+				<label>Oil and gas drilling</label>
+			</child>
+			<child id="3.2" depth="2" expanded="false">
+				<label>Mining and quarrying</label>
+			</child>
+			<child id="3.3" depth="2" expanded="false">
+				<label>Renewable energy</label>
+			</child>
+		</root>
+		<root id="4" depth="1" codeable="false" expanded="false">
+			<label>Transportation and service corridors</label>
+			<child id="4.1" depth="2" expanded="false">
+				<label>Roads and railroads</label>
+			</child>
+			<child id="4.2" depth="2" expanded="false">
+				<label>Utility and service lines</label>
+			</child>
+			<child id="4.3" depth="2" expanded="false">
+				<label>Shipping lanes</label>
+			</child>
+			<child id="4.4" depth="2" expanded="false">
+				<label>Flight paths</label>
+			</child>
+		</root>
+		<root id="5" depth="1" codeable="false" expanded="false">
+			<label>Biological resource use</label>
+			<child id="5.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Hunting and trapping terrestrial animals</label>
+				<child id="5.1.1" depth="3" expanded="false">
+					<label>Intentional mortality (human use)</label>
+				</child>
+				<child id="5.1.2" depth="3" expanded="false">
+					<label>
+						Incidental or accidental mortality (by catch)
+					</label>
+				</child>
+				<child id="5.1.3" depth="3" expanded="false">
+					<label>Persecution/control</label>
+				</child>
+				<child id="5.1.4" depth="3" expanded="false">
+					<label>Motivation Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="5.2" depth="2" codeable="false"
+				expanded="false">
+				<label>Gathering terrestrial plants</label>
+				<child id="5.2.1" depth="3" expanded="false">
+					<label>Intentional mortality (human use)</label>
+				</child>
+				<child id="5.2.2" depth="3" expanded="false">
+					<label>
+						Incidental or accidental mortality (by catch)
+					</label>
+				</child>
+				<child id="5.2.3" depth="3" expanded="false">
+					<label>Persecution/control</label>
+				</child>
+				<child id="5.2.4" depth="3" expanded="false">
+					<label>Motivation Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="5.3" depth="2" codeable="false"
+				expanded="false">
+				<label>Logging and wood harvesting</label>
+				<child id="5.3.1" depth="3" expanded="false">
+					<label>
+						Intentional mortality (human use -
+						subsistence/small scale)
+					</label>
+				</child>
+				<child id="5.3.2" depth="3" expanded="false">
+					<label>
+						Intentional mortality (human use - large scale)
+					</label>
+				</child>
+				<child id="5.3.3" depth="3" expanded="false">
+					<label>
+						Incidental or accidental mortality (by catch -
+						subsistence/small scale)
+					</label>
+				</child>
+				<child id="5.3.4" depth="3" expanded="false">
+					<label>
+						Incidental or accidental mortality (by catch -
+						large scale)
+					</label>
+				</child>
+				<child id="5.3.5" depth="3" expanded="false">
+					<label>Motivation Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="5.4" depth="2" codeable="false"
+				expanded="false">
+				<label>Fishing and harvesting aquatic resources</label>
+				<child id="5.4.1" depth="3" expanded="false">
+					<label>
+						Intentional mortality (human use -
+						subsistence/small scale)
+					</label>
+				</child>
+				<child id="5.4.2" depth="3" expanded="false">
+					<label>
+						Intentional mortality (human use - large scale)
+					</label>
+				</child>
+				<child id="5.4.3" depth="3" expanded="false">
+					<label>
+						Incidental or accidental mortality (by catch -
+						subsistence/small scale)
+					</label>
+				</child>
+				<child id="5.4.4" depth="3" expanded="false">
+					<label>
+						Incidental or accidental mortality (by catch -
+						large scale)
+					</label>
+				</child>
+				<child id="5.4.5" depth="3" expanded="false">
+					<label>Persecution/control</label>
+				</child>
+				<child id="5.4.6" depth="3" expanded="false">
+					<label>Motivation Unknown/Unrecorded</label>
+				</child>
+			</child>
+		</root>
+		<root id="6" depth="1" codeable="false" expanded="false">
+			<label>Human intrusions and disturbance</label>
+			<child id="6.1" depth="2" expanded="false">
+				<label>Recreational activities</label>
+			</child>
+			<child id="6.2" depth="2" codeable="false"
+				expanded="false">
+				<label>" War</label>
+			</child>
+			<child id="6.3" depth="2" expanded="false">
+				<label>Work and other activities</label>
+			</child>
+		</root>
+		<root id="7" depth="1" codeable="false" expanded="false">
+			<label>Natural system modifications</label>
+			<child id="7.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Fire and fire suppression</label>
+				<child id="7.1.1" depth="3" expanded="false">
+					<label>Increase in fire frequency/intensity</label>
+				</child>
+				<child id="7.1.2" depth="3" expanded="false">
+					<label>
+						Supression in fire frequency/intensity
+					</label>
+				</child>
+				<child id="7.1.3" depth="3" expanded="false">
+					<label>Trend Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="7.2" depth="2" codeable="false"
+				expanded="false">
+				<label>Dams and water management/use</label>
+				<child id="7.2.1" depth="3" expanded="false">
+					<label>
+						Abstraction of surface water (domestic use)
+					</label>
+				</child>
+				<child id="7.2.2" depth="3" expanded="false">
+					<label>
+						Abstraction of surface water (commercial use)
+					</label>
+				</child>
+				<child id="7.2.3" depth="3" expanded="false">
+					<label>
+						Abstraction of surface water (agricultural use)
+					</label>
+				</child>
+				<child id="7.2.4" depth="3" expanded="false">
+					<label>
+						Abstraction of surface water (unknown use)
+					</label>
+				</child>
+				<child id="7.2.5" depth="3" expanded="false">
+					<label>
+						Abstraction of ground water (domestic use)
+					</label>
+				</child>
+				<child id="7.2.6" depth="3" expanded="false">
+					<label>
+						Abstraction of ground water (commercial use)
+					</label>
+				</child>
+				<child id="7.2.7" depth="3" expanded="false">
+					<label>
+						Abstraction of ground water (agricultural use)
+					</label>
+				</child>
+				<child id="7.2.8" depth="3" expanded="false">
+					<label>
+						Abstraction of ground water (unknown use)
+					</label>
+				</child>
+				<child id="7.2.9" depth="3" expanded="false">
+					<label>Small dams</label>
+				</child>
+				<child id="7.2.10" depth="3" expanded="false">
+					<label>Large dams</label>
+				</child>
+				<child id="7.2.11" depth="3" expanded="false">
+					<label>Dams (size unknown)</label>
+				</child>
+			</child>
+			<child id="7.3" depth="2" expanded="false">
+				<label>Other ecosystem modifications</label>
+			</child>
+		</root>
+		<root id="8" depth="1" codeable="false" expanded="false">
+			<label>
+				Invasive and other problematic species and genes
+			</label>
+			<child id="8.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Invasive non-native/alien species</label>
+				<child id="8.1.1" depth="3" expanded="false">
+					<label>Unspecified species</label>
+				</child>
+				<child id="8.1.2" depth="3" expanded="false">
+					<label>Named species</label>
+				</child>
+			</child>
+			<child id="8.2" depth="2" expanded="false">
+				<label>Problematic native species</label>
+			</child>
+			<child id="8.3" depth="2" expanded="false">
+				<label>Introduced genetic material</label>
+			</child>
+		</root>
+		<root id="9" depth="1" codeable="false" expanded="false">
+			<label>Pollution</label>
+			<child id="9.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Domestic and urban waste water</label>
+				<child id="9.1.1" depth="3" expanded="false">
+					<label>Sewage</label>
+				</child>
+				<child id="9.1.2" depth="3" expanded="false">
+					<label>Run-off</label>
+				</child>
+				<child id="9.1.3" depth="3" expanded="false">
+					<label>Type Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="9.2" depth="2" codeable="false"
+				expanded="false">
+				<label>Industrial and military effluents</label>
+				<child id="9.2.1" depth="3" expanded="false">
+					<label>Oil spills</label>
+				</child>
+				<child id="9.2.2" depth="3" expanded="false">
+					<label>Seepage from mining</label>
+				</child>
+				<child id="9.2.3" depth="3" expanded="false">
+					<label>Type Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="9.3" depth="2" codeable="false"
+				expanded="false">
+				<label>Agricultural and forestry effluents</label>
+				<child id="9.3.1" depth="3" expanded="false">
+					<label>Nutrient loads</label>
+				</child>
+				<child id="9.3.2" depth="3" expanded="false">
+					<label>Soil erosion, sedimentation</label>
+				</child>
+				<child id="9.3.3" depth="3" expanded="false">
+					<label>Herbicides and pesticides</label>
+				</child>
+				<child id="9.3.4" depth="3" expanded="false">
+					<label>Type Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="9.4" depth="2" expanded="false">
+				<label>Garbage and solid waste</label>
+			</child>
+			<child id="9.5" depth="2" codeable="false"
+				expanded="false">
+				<label>Air-borne pollutants</label>
+				<child id="9.5.1" depth="3" expanded="false">
+					<label>Acid rain</label>
+				</child>
+				<child id="9.5.2" depth="3" expanded="false">
+					<label>Smog</label>
+				</child>
+				<child id="9.5.3" depth="3" expanded="false">
+					<label>Ozone</label>
+				</child>
+				<child id="9.5.4" depth="3" expanded="false">
+					<label>Type Unknown/Unrecorded</label>
+				</child>
+			</child>
+			<child id="9.6" depth="2" codeable="false"
+				expanded="false">
+				<label>Excess energy</label>
+				<child id="9.6.1" depth="3" expanded="false">
+					<label>Light pollution</label>
+				</child>
+				<child id="9.6.2" depth="3" expanded="false">
+					<label>Thermal pollution</label>
+				</child>
+				<child id="9.6.3" depth="3" expanded="false">
+					<label>Noise pollution</label>
+				</child>
+				<child id="9.6.4" depth="3" expanded="false">
+					<label>Type Unknown/Unrecorded</label>
+				</child>
+			</child>
+		</root>
+		<root id="10" depth="1" codeable="false" expanded="false">
+			<label>Geological events</label>
+			<child id="10.1" depth="2" expanded="false">
+				<label>Volcanoes</label>
+			</child>
+			<child id="10.2" depth="2" expanded="false">
+				<label>Earthquakes/tsunamis</label>
+			</child>
+			<child id="10.3" depth="2" expanded="false">
+				<label>Avalanches/landslides</label>
+			</child>
+		</root>
+		<root id="11" depth="1" codeable="false" expanded="false">
+			<label>Climate change and severe weather</label>
+			<child id="11.1" depth="2" expanded="false">
+				<label>Habitat shifting and alteration</label>
+			</child>
+			<child id="11.2" depth="2" expanded="false">
+				<label>Droughts</label>
+			</child>
+			<child id="11.3" depth="2" expanded="false">
+				<label>Temperature extremes</label>
+			</child>
+			<child id="11.4" depth="2" expanded="false">
+				<label>Storms and flooding</label>
+			</child>
+			<child id="11.5" depth="2" expanded="false">
+				<label>Other impacts</label>
+				<treeStructures>
+					<structure description="Please specify:">
+						<text></text>
+					</structure>
+				</treeStructures>
+			</child>
+		</root>
+		<root id="12" depth="1" expanded="false">
+			<label>Other</label>
+			<treeStructures>
+				<structure description="Please specify:">
+					<text></text>
+				</structure>
+			</treeStructures>
+		</root>
+	</treeRoot>
+</tree>
+<field id="93">
+	<!-- AAH used General Info -->
+	<canonicalName>ConservationActionsDocumentation</canonicalName>
+	<description>Conservation Actions Information</description>
+	<classOfService>Documentation</classOfService>
+	<location>Conservation</location>
+	<structures>
+		<structure>
+			<richText></richText>
+		</structure>
+	</structures>
+</field>
+<!-- SUBSTANTIAL DIFFERENCES -->
+<tree id="94">
+	<!-- AAH used General Info -->
+	<!-- AAH used Conservation Measures -->
+	<canonicalName>ConservationActions</canonicalName>
+	<description>Conservation Actions Needed</description>
+	<classOfService>Documentation</classOfService>
+	<location>Conservation</location>
+	<treeRoot>
+		<defaultStructure>
+			<treeStructures>
+				<structure description="In place?">
+					<boolean>false</boolean>
+				</structure>
+			</treeStructures>
+		</defaultStructure>
+		<root id="1" depth="1" codeable="false" expanded="false">
+			<label>Land/water protection</label>
+			<child id="1.1" depth="2" expanded="false">
+				<label>Site/area protection</label>
+			</child>
+			<child id="1.2" depth="2" expanded="false">
+				<label>Resource and habitat protection</label>
+			</child>
+		</root>
+		<root id="2" depth="1" codeable="false" expanded="false">
+			<label>Land/water management</label>
+			<child id="2.1" depth="2" expanded="false">
+				<label>Site/area management</label>
+			</child>
+			<child id="2.2" depth="2" expanded="false">
+				<label>Invasive/problematic species control</label>
+			</child>
+			<child id="2.3" depth="2" expanded="false">
+				<label>Habitat and natural process restoration</label>
+			</child>
+		</root>
+		<root id="3" depth="1" codeable="false" expanded="false">
+			<label>Species management</label>
+			<child id="3.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Species management</label>
+				<child id="3.1.1" depth="3" expanded="false">
+					<label>Harvest management</label>
+				</child>
+				<child id="3.1.2" depth="3" expanded="false">
+					<label>Trade management</label>
+				</child>
+				<child id="3.1.3" depth="3" expanded="false">
+					<label>Limiting population growth</label>
+				</child>
+			</child>
+			<child id="3.2" depth="2" expanded="false">
+				<label>Species recovery</label>
+			</child>
+			<child id="3.3" depth="2" codeable="false"
+				expanded="false">
+				<label>Species re-introduction</label>
+				<child id="3.3.1" depth="3" expanded="false">
+					<label>Reintroduction</label>
+				</child>
+				<child id="3.3.2" depth="3" expanded="false">
+					<label>Benign introduction</label>
+				</child>
+			</child>
+			<child id="3.4" depth="2" codeable="false"
+				expanded="false">
+				<label>Ex-situ conservation</label>
+				<child id="3.4.1" depth="3" expanded="false">
+					<label>
+						Captive breeding/artificial propagation
+					</label>
+				</child>
+				<child id="3.4.2" depth="3" expanded="false">
+					<label>Genome resource bank</label>
+				</child>
+			</child>
+		</root>
+		<root id="4" depth="1" codeable="false" expanded="false">
+			<label>Education and awareness</label>
+			<child id="4.1" depth="2" expanded="false">
+				<label>Formal education</label>
+			</child>
+			<child id="4.2" depth="2" expanded="false">
+				<label>Training</label>
+			</child>
+			<child id="4.3" depth="2" expanded="false">
+				<label>Awareness and communications</label>
+			</child>
+		</root>
+		<root id="5" depth="1" codeable="false" expanded="false">
+			<label>Law and policy</label>
+			<child id="5.1" depth="2" codeable="false"
+				expanded="false">
+				<label>Legislation</label>
+				<child id="5.1.1" depth="3" expanded="false">
+					<label>International level</label>
+				</child>
+				<child id="5.1.2" depth="3" expanded="false">
+					<label>National level</label>
+				</child>
+				<child id="5.1.3" depth="3" expanded="false">
+					<label>Sub-national level</label>
+				</child>
+				<child id="5.1.4" depth="3" expanded="false">
+					<label>Scale unspecified</label>
+				</child>
+			</child>
+			<child id="5.2" depth="2" expanded="false">
+				<label>Policies and regulations</label>
+			</child>
+			<child id="5.3" depth="2" expanded="false">
+				<label>Private sector standards and codes</label>
+			</child>
+			<child id="5.4" depth="2" codeable="false"
+				expanded="false">
+				<label>Compliance and enforcement</label>
+				<child id="5.4.1" depth="3" expanded="false">
+					<label>International level</label>
+				</child>
+				<child id="5.4.2" depth="3" expanded="false">
+					<label>National level</label>
+				</child>
+				<child id="5.4.3" depth="3" expanded="false">
+					<label>Sub-national level</label>
+				</child>
+				<child id="5.4.4" depth="3" expanded="false">
+					<label>Scale unspecified</label>
+				</child>
+			</child>
+		</root>
+		<root id="6" depth="1" codeable="false" expanded="false">
+			<label>"Livelihood</label>
+			<child id="6.1" depth="2" expanded="false">
+				<label>
+					Linked enterprises and livelihood alternatives
+				</label>
+			</child>
+			<child id="6.2" depth="2" expanded="false">
+				<label>Substitution</label>
+			</child>
+			<child id="6.3" depth="2" expanded="false">
+				<label>Market forces</label>
+			</child>
+			<child id="6.4" depth="2" expanded="false">
+				<label>Conservation payments</label>
+			</child>
+			<child id="6.5" depth="2" expanded="false">
+				<label>Non-monetary values</label>
+			</child>
+		</root>
+		<root id="7" depth="1" expanded="false">
+			<label>Other</label>
+			<treeStructures>
+				<structure description="Please specify:">
+					<text></text>
+				</structure>
+			</treeStructures>
+		</root>
+	</treeRoot>
+</tree>
+<!-- SUBSTANTIAL DIFFERENCES -->
+<tree id="95">
+	<canonicalName>Research</canonicalName>
+	<description>Research Needed</description>
+	<classOfService>Documentation</classOfService>
+	<location>Conservation</location>
+	<treeRoot>
+		<defaultStructure>
+			<treeStructures>
+				<structure description="Needed?">
+					<boolean>false</boolean>
+				</structure>
+			</treeStructures>
+		</defaultStructure>
+		<root id="1" depth="1" codeable="false" expanded="false">
+			<label>Research</label>
+			<child id="1.1" depth="2" expanded="false">
+				<label>Taxonomy</label>
+			</child>
+			<child id="1.2" depth="2" expanded="false">
+				<label>Population size, distribution and trends</label>
+			</child>
+			<child id="1.3" depth="2" expanded="false">
+				<label>Life history and ecology</label>
+			</child>
+			<child id="1.4" depth="2" expanded="false">
+				<label>Harvest, use, and livelihoods</label>
+			</child>
+			<child id="1.5" depth="2" expanded="false">
+				<label>Threats</label>
+			</child>
+			<child id="1.6" depth="2" expanded="false">
+				<label>Actions</label>
+			</child>
+		</root>
+		<root id="2" depth="1" codeable="false" expanded="false">
+			<label>Conservation Planning</label>
+			<child id="2.1" depth="2" expanded="false">
+				<label>Species Action/Recovery Plan</label>
+			</child>
+			<child id="2.2" depth="2" expanded="false">
+				<label>Area-based Management Plan</label>
+			</child>
+			<child id="2.3" depth="2" expanded="false">
+				<label>Harvest and Trade Management Plan</label>
+			</child>
+		</root>
+		<root id="3" depth="1" codeable="false" expanded="false">
+			<label>Monitoring</label>
+			<child id="3.1" depth="2" expanded="false">
+				<label>Population trends</label>
+			</child>
+			<child id="3.2" depth="2" expanded="false">
+				<label>Harvest level trends</label>
+			</child>
+			<child id="3.3" depth="2" expanded="false">
+				<label>Trade trends</label>
+			</child>
+			<child id="3.4" depth="2" expanded="false">
+				<label>Habitat trends</label>
+			</child>
+		</root>
+		<root id="4" depth="1" expanded="false">
+			<label>Other</label>
+			<treeStructures>
+				<structure description="Please specify:">
+					<text></text>
+				</structure>
+			</treeStructures>
+		</root>
+	</treeRoot>
+</tree>
+<field id="96">
+	<!-- AAH used Ecosystem Services -->
+	<canonicalName>EcosystemServicesInsufficientInfo</canonicalName>
+	<description>Insufficient Information Available</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Ecosystem Services</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="97">
+	<!-- AAH used Ecosystem Services -->
+	<canonicalName>EcosystemServicesProvidesNone</canonicalName>
+	<description>Species provides no ecosystem services</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Ecosystem Services</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<!-- SUBSTANTIAL DIFFERENCES -->
+<tree id="979">
+	<canonicalName>EcosystemServices</canonicalName>
+	<description>Ecosystem Services</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>None</location>
+	<treeRoot>
+		<defaultStructure>
+			<treeStructures>
+				<structure>
+					<singleSelect>
+						<option>1 - Very Important</option>
+						<option>2 - Important</option>
+						<option>3 - Some Importance</option>
+						<option>4 - Not Important/relevant</option>
+						<option>5 - Not Known</option>
+						<selected>4</selected>
+					</singleSelect>
+				</structure>
+				<structure>
+					<singleSelect>
+						<option>Local</option>
+						<option>National</option>
+						<option>Regional</option>
+						<option>Global</option>
+						<option>Unknown</option>
+						<selected>4</selected>
+					</singleSelect>
+				</structure>
+			</treeStructures>
+		</defaultStructure>
+		<root depth="1" expanded="false" id="1">
+			<label>Water Quality</label>
+		</root>
+		<root depth="1" expanded="false" id="2">
+			<label>Water Supplies</label>
+		</root>
+		<root depth="1" expanded="false" id="3">
+			<label>Flood Control</label>
+		</root>
+		<root depth="1" expanded="false" id="4">
+			<label>Climate Regulation</label>
+		</root>
+		<root depth="1" expanded="false" id="5">
+			<label>Landscape</label>
+		</root>
+		<root depth="1" expanded="false" id="6">
+			<label>Air Quality</label>
+		</root>
+		<root depth="1" expanded="false" id="7">
+			<label>Nutrient Cycling</label>
+		</root>
+		<root depth="1" expanded="false" id="8">
+			<label>Habitat Maintenance</label>
+		</root>
+		<root depth="1" expanded="false" id="9">
+			<label>Provision of Critical Habitat</label>
+		</root>
+		<root depth="1" expanded="false" id="10">
+			<label>Pollination</label>
+		</root>
+		<root depth="1" expanded="false" id="11">
+			<label>Erosion Control</label>
+		</root>
+		<root depth="1" expanded="false" id="12">
+			<label>Biocontrol</label>
+		</root>
+		<root depth="1" expanded="false" id="13">
+			<label>Shoreline Protection</label>
+		</root>
+		<root depth="1" expanded="false" id="14">
+			<label>Other (specify in notes)</label>
+			<treeStructures>
+				<structure description="Please Specify">
+					<text></text>
+				</structure>
+				<structure>
+					<singleSelect>
+						<option>1 - Very Important</option>
+						<option>2 - Important</option>
+						<option>3 - Some Importance</option>
+						<option>4 - Not Important/relevant</option>
+						<option>5 - Not Known</option>
+						<selected></selected>
+					</singleSelect>
+				</structure>
+				<structure>
+					<singleSelect>
+						<option>Local</option>
+						<option>National</option>
+						<option>Regional</option>
+						<option>Global</option>
+						<option>Unknown</option>
+						<selected></selected>
+					</singleSelect>
+				</structure>
+			</treeStructures>
+		</root>
+	</treeRoot>
+</tree>
+<field id="98">
+	<canonicalName>NotUtilized</canonicalName>
+	<description>Species not utilized</description>
+	<classOfService>Documentation</classOfService>
+	<location>Use and Trade</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="99">
+	<canonicalName>UseTradeNoInformation</canonicalName>
+	<description>No use/trade information for this species</description>
+	<classOfService>Documentation</classOfService>
+	<location>Use and Trade</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="100">
+	<canonicalName>NonConsumptiveUse</canonicalName>
+	<description>Non-consumptive use of the species?</description>
+	<classOfService>Documentation</classOfService>
+	<location>Use and Trade</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="101">
+	<canonicalName>NonConsumptiveUseDescription</canonicalName>
+	<description>Explanation of non-consumptive use:</description>
+	<classOfService>Documentation</classOfService>
+	<location>Use and Trade</location>
+	<structures>
+		<structure>
+			<narrative></narrative>
+		</structure>
+	</structures>
+</field>
+<field id="102">
+	<canonicalName>TrendInWildOfftake</canonicalName>
+	<description>
+		Trend in level of total offtake from wild sources
+	</description>
+	<classOfService>None</classOfService>
+	<location>None</location>
+	<structures>
+		<structure>
+			<singleSelect>
+				<option>Increasing</option>
+				<option>Decreasing</option>
+				<option>Stable</option>
+				<option>Unknown</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="103">
+	<canonicalName>TrendInDomesticOfftake</canonicalName>
+	<description>
+		Trend in level of total offtake from domesticated sources
+	</description>
+	<classOfService>None</classOfService>
+	<location>None</location>
+	<structures>
+		<structure>
+			<singleSelect>
+				<option>Increasing</option>
+				<option>Decreasing</option>
+				<option>Stable</option>
+				<option>Not cultivated</option>
+				<option>Unknown</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
+<field id="104">
+	<canonicalName>UseTradeDocumentation</canonicalName>
+	<description>
+		General notes regarding trade and use of this species
+	</description>
+	<classOfService>Documentation</classOfService>
+	<location>Use and Trade</location>
+	<structures>
+		<structure>
+			<richText></richText>
+		</structure>
+	</structures>
+</field>
+<field id="105">
+	<canonicalName>UseTradeDetails</canonicalName>
+	<description>Use and Trade Details</description>
+	<classOfService>Documentation</classOfService>
+	<location>Use and Trade</location>
+	<structures>
+		<structure>
+			<complex></complex>
+		</structure>
+	</structures>
+</field>
+<field id="115">
+	<canonicalName>CITES</canonicalName>
+	<description>
+		CITES status (Appendix I, Appendix II, Appendix III, or Not
+		listed) NOTE: would be nice to link to CITIES database in the
+		future
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<location>Use and Trade</location>
+	<structures>
+		<structure>
+			<complex></complex>
+		</structure>
+	</structures>
+</field>
+<field id="116">
+	<canonicalName>RedListCategory</canonicalName>
+	<description>Red List Assessment Category</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<text></text>
+		</structure>
+	</structures>
+</field>
+<field id="117">
+	<canonicalName>RedListCriteria</canonicalName>
+	<description>Red List Criteria</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<text></text>
+		</structure>
+	</structures>
+</field>
+<field id="118">
+	<canonicalName>PossiblyExtinct</canonicalName>
+	<description>
+		Is the species Possibly Extinct? (tick if yes) (NOTE: only for
+		CR)
+	</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="119">
+	<canonicalName>PossiblyExtinctCandidate</canonicalName>
+	<description>
+		Possibly Extinct Candidate? (tick if yes) (NOTE: only for CR)
+	</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
+<field id="120">
+	<canonicalName>DateLastSeen</canonicalName>
+	<description>
+		Date Last Seen (only for EX, EW, or Possibly EX species): (NOTE:
+		Year format)
+	</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<date></date>
+		</structure>
+	</structures>
+</field>
+<field id="121">
+	<canonicalName>RedListRationale</canonicalName>
+	<description>Rationale for the Red List Assesssment</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<richText></richText>
+		</structure>
+	</structures>
+</field>
+<field id="122">
+	<canonicalName>RedListReasonsForChange</canonicalName>
+	<description>
+		Reason(s) for Change in Red List Category from the Previous
+		Assessment
+	</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<singleSelect>
+							<option>Genuine Change</option>
+							<option>Nongenuine Change</option>
+							<option>No change</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure description="Reason:">
+						<singleSelect>
+							<option>Recent</option>
+							<option>Since first assessent</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+					<structure>
+						<relatedStructure>
+							<dominantStructures>
+								<structure description="Reason(s):">
+									<multipleSelect>
+										<option>New Information</option>
+										<option>
+											Knowledge of criteria
+										</option>
+										<option>
+											Incorrect data used
+											previously
+										</option>
+										<option>Taxonomy</option>
+										<option>
+											Criteria Revision
+										</option>
+										<option>Other</option>
+										<selected>0</selected>
+									</multipleSelect>
+								</structure>
+							</dominantStructures>
+							<dependentStructures>
+								<structure
+									description="Please Specify: ">
+									<text></text>
+								</structure>
+							</dependentStructures>
+							<rules>
+								<selectRule>
+									<activateOnIndex>5</activateOnIndex>
+									<actions>
+										<onTrue>show</onTrue>
+										<onFalse>hide</onFalse>
+									</actions>
+								</selectRule>
+							</rules>
+						</relatedStructure>
+					</structure>
+					<structure description="Reason:">
+						<singleSelect>
+							<option>Same category and criteria</option>
+							<option>
+								Same category but change in criteria
+							</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+							<affectedDependentStructures>
+								0
+							</affectedDependentStructures>
+						</actions>
+					</selectRule>
+					<selectRule>
+						<activateOnIndex>1</activateOnIndex>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+							<affectedDependentStructures>
+								1
+							</affectedDependentStructures>
+						</actions>
+					</selectRule>
+					<selectRule>
+						<activateOnIndex>2</activateOnIndex>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+							<affectedDependentStructures>
+								2
+							</affectedDependentStructures>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="123">
+	<canonicalName>RedListAssessmentDate</canonicalName>
+	<description>Date of Assessment</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<date></date>
+		</structure>
+	</structures>
+</field>
+<field id="124">
+	<canonicalName>RedListAssessors</canonicalName>
+	<description>Assessor(s)</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<text></text>
+		</structure>
+	</structures>
+</field>
+<field id="125">
+	<canonicalName>RedListContributors</canonicalName>
+	<description>Contributor(s)</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<text></text>
+		</structure>
+	</structures>
+</field>
+<field id="126">
+	<canonicalName>RedListEvaluators</canonicalName>
+	<description>Evaluator(s)</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<text></text>
+		</structure>
+	</structures>
+</field>
+<!-- SUBSTANTIAL DIFFERENCES -->
+<field id="127">
+	<canonicalName>RedListEvaluated</canonicalName>
+	<description>Evaluated?</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<boolean>false</boolean>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure description="Date of Assessment:">
+						<date></date>
+					</structure>
+					<structure>
+						<relatedStructure>
+							<dominantStructures>
+								<structure description="Status:">
+									<singleSelect>
+										<option>Passed</option>
+										<option>Rejected</option>
+										<option>
+											Returned for Improvements
+										</option>
+										<selected>0</selected>
+									</singleSelect>
+								</structure>
+							</dominantStructures>
+							<dependentStructures>
+								<structure
+									description="Reasons for Rejection:">
+									<narrative></narrative>
+								</structure>
+								<structure
+									description="Improvements Needed:">
+									<narrative></narrative>
+								</structure>
+							</dependentStructures>
+							<rules>
+								<selectRule>
+									<activateOnIndex>1</activateOnIndex>
+									<actions>
+										<onTrue>show</onTrue>
+										<onFalse>hide</onFalse>
+										<affectedDependentStructures>
+											0
+										</affectedDependentStructures>
+									</actions>
+								</selectRule>
+								<selectRule>
+									<activateOnIndex>2</activateOnIndex>
+									<actions>
+										<onTrue>show</onTrue>
+										<onFalse>hide</onFalse>
+										<affectedDependentStructures>
+											1
+										</affectedDependentStructures>
+									</actions>
+								</selectRule>
+							</rules>
+						</relatedStructure>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>true</activateOnRule>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+<field id="128">
+	<canonicalName>RedListEvaluationDate</canonicalName>
+	<description>Date of Evaluation</description>
+	<classOfService>Outcome</classOfService>
+	<location>Red List Status</location>
+	<structures>
+		<structure>
+			<date></date>
+		</structure>
+	</structures>
+</field>
+<field id="129">
+	<canonicalName>RedListNotes</canonicalName>
+	<description>Red List Notes</description>
+	<classOfService>IUCN Internal</classOfService>
+	<location>Assessment Properties</location>
+	<structures>
+		<structure>
+			<text></text>
+		</structure>
+	</structures>
+</field>
+<!-- SUBSTANTIAL DIFFERENCES -->
+<field id="130">
+	<canonicalName>AssessmentGeographicScope</canonicalName>
+	<description>Assessment Scope</description>
+	<classOfService>Metadata</classOfService>
+	<location>Assessment Properties</location>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure>
+						<singleSelect>
+							<option>Global</option>
+							<option>Regional</option>
+							<option>National</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure description="Enter Region:">
+						<text></text>
+					</structure>
+					<structure description="Enter Country:">
+						<text></text>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>1</activateOnIndex>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+							<affectedDependentStructures>
+								0
+							</affectedDependentStructures>
+						</actions>
+					</selectRule>
+					<selectRule>
+						<activateOnIndex>2</activateOnIndex>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+							<affectedDependentStructures>
+								1
+							</affectedDependentStructures>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
+

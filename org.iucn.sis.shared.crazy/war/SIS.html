@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+	<head>
+		<title>IUCN Species Information Service (SIS) Toolkit</title>
+		<link rel="stylesheet" type="text/css" href="css/styles.css" />
+		<link rel="stylesheet" type="text/css" href="css/gxt-all.css" />
+		
+		<!--
+			Comment in to enable using Jiffy! 
+			<script language="javascript" type="text/javascript" src="jiffy.js"></script>
+		 -->
+		    
+		<style>
+			* {
+			  margin: 0px;
+			  padding: 0px;
+			}
+			
+			#loading {
+			  position: absolute;
+			  left: 45%;
+			  top: 40%;
+			  margin-left: -65px;
+			  padding: 2px;
+			  z-index: 20001;
+			  height: auto;
+			  border: 1px solid #ccc;
+			}
+			
+			#loading a {
+			  color: #225588;
+			}
+			
+			#loading .loading-indicator {
+			  background: white;
+			  color: #444;
+			  font: bold 13px tahoma, arial, helvetica;
+			  padding: 10px;
+			  margin: 0;
+			  height: auto;
+			}
+			
+			#loading .loading-indicator img {
+			  margin-right:8px;
+			  float:left;
+			  vertical-align:top;
+			}
+			
+			#loading-msg {
+			  font: normal 10px arial, tahoma, sans-serif;
+			}
+		</style>
+	</head>
+	<body>
+	<script language='javascript' src='SIS/SIS.nocache.js'></script>
+	<iframe src="javascript:''" id="__gwt_historyFrame" style="width:0;height:0;border:0"></iframe>
+	  <div id="application">
+		<div id="loading">
+		    <div class="loading-indicator">
+		    <img src="images/default/shared/large-loading.gif" width="32" height="32"/>SIS Toolkit<br />
+		    <span id="loading-msg">loading...</span>
+		    </div>
+		</div>
+	   </div>
+	</body>
+</html>

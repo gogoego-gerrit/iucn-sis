@@ -1,0 +1,34 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Restlet Extension - Jetty 6
+Bundle-SymbolicName: org.restlet.ext.jetty
+Bundle-Version: 2.0.0.SNAPSHOT
+Bundle-ClassPath: org.restlet.ext.jetty.jar
+Bundle-Vendor: Noelios Technologies
+Export-Package: org.restlet.ext.jetty; uses:="javax.servlet.http,  org.restlet.engine.http,  org.restlet.util,  org.restlet,  org.restlet.data,  org.mortbay.jetty.handler,  org.mortbay.jetty"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: javax.servlet,
+ javax.servlet.http,
+ javax.servlet.resources,
+ org.mortbay.component,
+ org.mortbay.jetty,
+ org.mortbay.jetty.ajp,
+ org.mortbay.jetty.bio,
+ org.mortbay.jetty.handler,
+ org.mortbay.jetty.nio,
+ org.mortbay.jetty.security,
+ org.mortbay.thread,
+ org.restlet,
+ org.restlet.data,
+ org.restlet.engine,
+ org.restlet.engine.application,
+ org.restlet.engine.component,
+ org.restlet.engine.http,
+ org.restlet.engine.local,
+ org.restlet.engine.security,
+ org.restlet.engine.util,
+ org.restlet.resource,
+ org.restlet.service,
+ org.restlet.util
+Created-By: 1.5.0_14-b03 (Sun Microsystems Inc.)
+Ant-Version: Apache Ant 1.6.5

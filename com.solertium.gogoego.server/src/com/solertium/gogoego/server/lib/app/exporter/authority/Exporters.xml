@@ -1,0 +1,25 @@
+<root>
+	<exporter id="appengine">
+		<name>Google App Engine</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Run your web applications on Google's infrastructure. 
+			Build apps on the same scalable systems that power Google applications. 
+		</description>
+		<authority>/admin/apps/com.solertium.gogoego.server.lib.app.exporter.container.ExporterApplication/ui/authority/appengine.xml</authority>
+	</exporter>
+	<exporter id="static">
+		<name>Static Site Exporter</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Exports your entire site to a ZIP file which you can 
+			view from anywhere.
+		</description>
+	</exporter>
+	<exporter id="gge">
+		<name>GoGoEgo Exporter</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Export this GoGoEgo site to another GoGoEgo site.  The receiving 
+			site must have the Importer Application installed.
+		</description>
+		<authority>/admin/apps/com.solertium.gogoego.server.lib.app.exporter.container.ExporterApplication/ui/authority/gge.xml</authority>
+	</exporter>
+</root>

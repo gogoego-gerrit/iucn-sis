@@ -1,0 +1,16 @@
+<root>
+	<application id="TAGS">
+		<name>GoGoEgo Tags</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Allows you to tag any file or collection item.</description>
+		<class>com.solertium.gogoego.server.lib.app.tags.TagApplication</class>
+	</application>
+	<application id="EXPORTER">
+		<name>GoGoEgo Exporter</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Allows you to export your site via a number of 
+		means of your choosing to external sources.</description>
+		<class>com.solertium.gogoego.server.lib.app.exporter.ExportApplication</class>
+	</application>
+	
+</root>

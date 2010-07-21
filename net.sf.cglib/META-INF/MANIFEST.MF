@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Objectweb Plug-in
+Bundle-SymbolicName: net.sf.cglib
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: cglib-2.2.jar,
+ .
+Export-Package: net.sf.cglib.beans,
+ net.sf.cglib.core,
+ net.sf.cglib.proxy,
+ net.sf.cglib.reflect,
+ net.sf.cglib.transform,
+ net.sf.cglib.transform.impl,
+ net.sf.cglib.util

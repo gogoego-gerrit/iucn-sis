@@ -1,0 +1,861 @@
+CREATE TABLE AOO(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO AOO VALUES range, range_primitive_field, 0..1
+INSERT INTO AOO VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE AOOContinuingDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO AOOContinuingDecline VALUES isInContinuingDecline, boolean_range_primitive_field, 0..1
+INSERT INTO AOOContinuingDecline VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO AOOContinuingDecline VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE AOOExtremeFluctuation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO AOOExtremeFluctuation VALUES isFluctuating, boolean_range_primitive_field, 0..1
+INSERT INTO AOOExtremeFluctuation VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE AreaRestricted(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO AreaRestricted VALUES isRestricted, boolean_range_primitive_field, 0..1
+INSERT INTO AreaRestricted VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE AssessmentGeographicScope_geographicScopeLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO AssessmentGeographicScope_geographicScopeLookup VALUES 0, Global
+INSERT INTO AssessmentGeographicScope_geographicScopeLookup VALUES 1, Regional
+INSERT INTO AssessmentGeographicScope_geographicScopeLookup VALUES 2, National
+CREATE TABLE AssessmentGeographicScope(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO AssessmentGeographicScope VALUES geographicScope, fk_primitive_field, 0..1
+INSERT INTO AssessmentGeographicScope VALUES region, text_primitive_field, 0..1
+INSERT INTO AssessmentGeographicScope VALUES country, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE AvgAnnualFecundity(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO AvgAnnualFecundity VALUES fecundity, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE AvgReproductiveAgeUnits_unitsLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO AvgReproductiveAgeUnits_unitsLookup VALUES 0, Days
+INSERT INTO AvgReproductiveAgeUnits_unitsLookup VALUES 1, Months
+INSERT INTO AvgReproductiveAgeUnits_unitsLookup VALUES 2, Years
+CREATE TABLE AvgReproductiveAge(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO AvgReproductiveAge VALUES age, text_primitive_field, 0..1
+INSERT INTO AvgReproductiveAge VALUES units, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE BiogeographicRealm_realmLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO BiogeographicRealm_realmLookup VALUES 0, Afrotropical
+INSERT INTO BiogeographicRealm_realmLookup VALUES 1, Antarctic
+INSERT INTO BiogeographicRealm_realmLookup VALUES 2, Australasian
+INSERT INTO BiogeographicRealm_realmLookup VALUES 3, Indomalayan
+INSERT INTO BiogeographicRealm_realmLookup VALUES 4, Nearctic
+INSERT INTO BiogeographicRealm_realmLookup VALUES 5, Neotropical
+INSERT INTO BiogeographicRealm_realmLookup VALUES 6, Oceanian
+INSERT INTO BiogeographicRealm_realmLookup VALUES 7, Palearctic
+CREATE TABLE BiogeographicRealm(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO BiogeographicRealm VALUES realm, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE BirthSize(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO BirthSize VALUES size, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE ConservationActions(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ConservationActions VALUES ConservationActionsSubfield, field, 0..
+CREATE TABLE ConservationActionsSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ConservationActionsSubfield VALUES ConservationActionsSchemeLookup, fk_primitive_field, 1
+#----------------------------------------
+CREATE TABLE ConservationActionsDocumentation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ConservationActionsDocumentation VALUES narrative, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE CountryOccurrenceStructure0_presenceLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO CountryOccurrenceStructure0_presenceLookup VALUES 0, Extant
+INSERT INTO CountryOccurrenceStructure0_presenceLookup VALUES 1, Possibly Extinct
+INSERT INTO CountryOccurrenceStructure0_presenceLookup VALUES 2, Extinct
+INSERT INTO CountryOccurrenceStructure0_presenceLookup VALUES 3, Presence Uncertain
+CREATE TABLE CountryOccurrenceStructure1_originLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO CountryOccurrenceStructure1_originLookup VALUES 0, Native
+INSERT INTO CountryOccurrenceStructure1_originLookup VALUES 1, Reintroduced
+INSERT INTO CountryOccurrenceStructure1_originLookup VALUES 2, Introduced
+INSERT INTO CountryOccurrenceStructure1_originLookup VALUES 3, Prehistorically Introduced
+INSERT INTO CountryOccurrenceStructure1_originLookup VALUES 4, Vagrant
+INSERT INTO CountryOccurrenceStructure1_originLookup VALUES 5, Origin Uncertain
+CREATE TABLE CountryOccurrenceStructure1Seasonality_seasonalityLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO CountryOccurrenceStructure1Seasonality_seasonalityLookup VALUES 0, Resident
+INSERT INTO CountryOccurrenceStructure1Seasonality_seasonalityLookup VALUES 1, Breeding Season
+INSERT INTO CountryOccurrenceStructure1Seasonality_seasonalityLookup VALUES 2, Non-Breeding Season
+INSERT INTO CountryOccurrenceStructure1Seasonality_seasonalityLookup VALUES 3, Passage
+INSERT INTO CountryOccurrenceStructure1Seasonality_seasonalityLookup VALUES 4, Seasonal Occurrence Uncertain
+CREATE TABLE CountryOccurrence(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO CountryOccurrence VALUES CountryOccurrenceSubfield, field, 0..
+CREATE TABLE CountryOccurrenceSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO CountryOccurrenceSubfield VALUES CountryOccurrenceSchemeLookup, fk_primitive_field, 1
+INSERT INTO CountryOccurrenceSubfield VALUES presence, fk_primitive_field, 0..1
+INSERT INTO CountryOccurrenceSubfield VALUES formerlyBred, boolean_unknown_primitive_field, 0..1
+INSERT INTO CountryOccurrenceSubfield VALUES origin, fk_primitive_field, 0..1
+INSERT INTO CountryOccurrenceSubfield VALUES seasonality, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE CropWildRelative(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO CropWildRelative VALUES isRelative, boolean_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE DateLastSeen(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO DateLastSeen VALUES lastSeen, date_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE DepthLower(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO DepthLower VALUES limit, float_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE DepthUpper(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO DepthUpper VALUES limit, float_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE DepthZone_depthZoneLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO DepthZone_depthZoneLookup VALUES 0, Shallow photic (0-50m)
+INSERT INTO DepthZone_depthZoneLookup VALUES 1, Deep Photic (51-200m)
+INSERT INTO DepthZone_depthZoneLookup VALUES 2, Bathyl (201-4,000m)
+INSERT INTO DepthZone_depthZoneLookup VALUES 3, Abyssal (4,001-6,000m)
+INSERT INTO DepthZone_depthZoneLookup VALUES 4, Hadal (>6,000m)
+CREATE TABLE DepthZone(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO DepthZone VALUES depthZone, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE EOO(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO EOO VALUES range, range_primitive_field, 0..1
+INSERT INTO EOO VALUES qualifier, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE EOOContinuingDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO EOOContinuingDecline VALUES isContinuingDecline, boolean_range_primitive_field, 0..1
+INSERT INTO EOOContinuingDecline VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO EOOContinuingDecline VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE EOOExtremeFluctuation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO EOOExtremeFluctuation VALUES isFluctuating, boolean_range_primitive_field, 0..1
+INSERT INTO EOOExtremeFluctuation VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE EcosystemServicesStructureImportance_importanceLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO EcosystemServicesStructureImportance_importanceLookup VALUES 0, 1 - Very Important
+INSERT INTO EcosystemServicesStructureImportance_importanceLookup VALUES 1, 2 - Important
+INSERT INTO EcosystemServicesStructureImportance_importanceLookup VALUES 2, 3 - Some Importance
+INSERT INTO EcosystemServicesStructureImportance_importanceLookup VALUES 3, 4 - Not Important/relevant
+INSERT INTO EcosystemServicesStructureImportance_importanceLookup VALUES 4, 5 - Not Known
+CREATE TABLE EcosystemServicesStructureGeographicrangeofbenefit_rangeOfBenefitLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO EcosystemServicesStructureGeographicrangeofbenefit_rangeOfBenefitLookup VALUES 0, Local
+INSERT INTO EcosystemServicesStructureGeographicrangeofbenefit_rangeOfBenefitLookup VALUES 1, National
+INSERT INTO EcosystemServicesStructureGeographicrangeofbenefit_rangeOfBenefitLookup VALUES 2, Regional
+INSERT INTO EcosystemServicesStructureGeographicrangeofbenefit_rangeOfBenefitLookup VALUES 3, Global
+INSERT INTO EcosystemServicesStructureGeographicrangeofbenefit_rangeOfBenefitLookup VALUES 4, Unknown
+CREATE TABLE EcosystemServices(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO EcosystemServices VALUES EcosystemServicesSubfield, field, 0..
+CREATE TABLE EcosystemServicesSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO EcosystemServicesSubfield VALUES EcosystemServicesSchemeLookup, fk_primitive_field, 1
+INSERT INTO EcosystemServicesSubfield VALUES importance, fk_primitive_field, 0..1
+INSERT INTO EcosystemServicesSubfield VALUES rangeOfBenefit, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE EcosystemServicesInsufficientInfo(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO EcosystemServicesInsufficientInfo VALUES isInsufficient, boolean_primitive_field, 0..1
+INSERT INTO EcosystemServicesInsufficientInfo VALUES label, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE EcosystemServicesProvidesNone(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO EcosystemServicesProvidesNone VALUES providesNothing, boolean_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE EggLaying(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO EggLaying VALUES layEggs, boolean_unknown_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE ElevationLower(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ElevationLower VALUES limit, float_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE ElevationUpper(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ElevationUpper VALUES limit, float_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE ExtinctionProbabilityGenerations3(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ExtinctionProbabilityGenerations3 VALUES range, range_primitive_field, 0..1
+INSERT INTO ExtinctionProbabilityGenerations3 VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE ExtinctionProbabilityGenerations5(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ExtinctionProbabilityGenerations5 VALUES range, range_primitive_field, 0..1
+INSERT INTO ExtinctionProbabilityGenerations5 VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE ExtinctionProbabilityYears100(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ExtinctionProbabilityYears100 VALUES range, range_primitive_field, 0..1
+INSERT INTO ExtinctionProbabilityYears100 VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE FAOOccurrenceStructure0_presenceLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO FAOOccurrenceStructure0_presenceLookup VALUES 0, Extant
+INSERT INTO FAOOccurrenceStructure0_presenceLookup VALUES 1, Possibly Extinct
+INSERT INTO FAOOccurrenceStructure0_presenceLookup VALUES 2, Extinct
+INSERT INTO FAOOccurrenceStructure0_presenceLookup VALUES 3, Presence Uncertain
+CREATE TABLE FAOOccurrenceStructure1_originLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO FAOOccurrenceStructure1_originLookup VALUES 0, Native
+INSERT INTO FAOOccurrenceStructure1_originLookup VALUES 1, Reintroduced
+INSERT INTO FAOOccurrenceStructure1_originLookup VALUES 2, Introduced
+INSERT INTO FAOOccurrenceStructure1_originLookup VALUES 3, Prehistorically Introduced
+INSERT INTO FAOOccurrenceStructure1_originLookup VALUES 4, Vagrant
+INSERT INTO FAOOccurrenceStructure1_originLookup VALUES 5, Origin Uncertain
+CREATE TABLE FAOOccurrenceStructure1Seasonality_seasonalityLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO FAOOccurrenceStructure1Seasonality_seasonalityLookup VALUES 0, Resident
+INSERT INTO FAOOccurrenceStructure1Seasonality_seasonalityLookup VALUES 1, Breeding Season
+INSERT INTO FAOOccurrenceStructure1Seasonality_seasonalityLookup VALUES 2, Non-Breeding Season
+INSERT INTO FAOOccurrenceStructure1Seasonality_seasonalityLookup VALUES 3, Passage
+INSERT INTO FAOOccurrenceStructure1Seasonality_seasonalityLookup VALUES 4, Seasonal Occurrence Uncertain
+CREATE TABLE FAOOccurrence(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO FAOOccurrence VALUES FAOOccurrenceSubfield, field, 0..
+CREATE TABLE FAOOccurrenceSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO FAOOccurrenceSubfield VALUES FAOOccurrenceSchemeLookup, fk_primitive_field, 1
+INSERT INTO FAOOccurrenceSubfield VALUES presence, fk_primitive_field, 0..1
+INSERT INTO FAOOccurrenceSubfield VALUES formerlyBred, boolean_unknown_primitive_field, 0..1
+INSERT INTO FAOOccurrenceSubfield VALUES origin, fk_primitive_field, 0..1
+INSERT INTO FAOOccurrenceSubfield VALUES seasonality, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE FemaleMaturityAgeUnits_unitsLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO FemaleMaturityAgeUnits_unitsLookup VALUES 0, Days
+INSERT INTO FemaleMaturityAgeUnits_unitsLookup VALUES 1, Weeks
+INSERT INTO FemaleMaturityAgeUnits_unitsLookup VALUES 2, Months
+INSERT INTO FemaleMaturityAgeUnits_unitsLookup VALUES 3, Years
+CREATE TABLE FemaleMaturityAge(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO FemaleMaturityAge VALUES age, text_primitive_field, 0..1
+INSERT INTO FemaleMaturityAge VALUES units, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE FemaleMaturitySize(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO FemaleMaturitySize VALUES size, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE FreeLivingLarvae(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO FreeLivingLarvae VALUES hasStage, boolean_unknown_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE GeneralHabitatsStructure_suitabilityLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO GeneralHabitatsStructure_suitabilityLookup VALUES 0, Suitable
+INSERT INTO GeneralHabitatsStructure_suitabilityLookup VALUES 1, Marginal
+INSERT INTO GeneralHabitatsStructure_suitabilityLookup VALUES 2, Possible
+CREATE TABLE GeneralHabitatsStructureMajorImportance_majorImportanceLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO GeneralHabitatsStructureMajorImportance_majorImportanceLookup VALUES 0, Yes
+INSERT INTO GeneralHabitatsStructureMajorImportance_majorImportanceLookup VALUES 1, No
+CREATE TABLE GeneralHabitats(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO GeneralHabitats VALUES GeneralHabitatsSubfield, field, 0..
+CREATE TABLE GeneralHabitatsSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO GeneralHabitatsSubfield VALUES GeneralHabitatsSchemeLookup, fk_primitive_field, 1
+INSERT INTO GeneralHabitatsSubfield VALUES suitability, fk_primitive_field, 0..1
+INSERT INTO GeneralHabitatsSubfield VALUES majorImportance, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE GenerationLength(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO GenerationLength VALUES range, range_primitive_field, 0..1
+INSERT INTO GenerationLength VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE GestationTimeUnits_unitsLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO GestationTimeUnits_unitsLookup VALUES 0, Days
+INSERT INTO GestationTimeUnits_unitsLookup VALUES 1, Months
+INSERT INTO GestationTimeUnits_unitsLookup VALUES 2, Years
+CREATE TABLE GestationTime(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO GestationTime VALUES time, text_primitive_field, 0..1
+INSERT INTO GestationTime VALUES units, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE HabitatContinuingDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO HabitatContinuingDecline VALUES isDeclining, boolean_range_primitive_field, 0..1
+INSERT INTO HabitatContinuingDecline VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO HabitatContinuingDecline VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE HabitatDocumentation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO HabitatDocumentation VALUES narrative, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE InPlaceResearchInPlaceResearchMonitoringandPlanning_recoveryPlanLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceResearchInPlaceResearchMonitoringandPlanning_recoveryPlanLookup VALUES 0, Yes
+INSERT INTO InPlaceResearchInPlaceResearchMonitoringandPlanning_recoveryPlanLookup VALUES 1, No
+INSERT INTO InPlaceResearchInPlaceResearchMonitoringandPlanning_recoveryPlanLookup VALUES 2, Unknown
+CREATE TABLE InPlaceResearch1_monitoringSchemeLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceResearch1_monitoringSchemeLookup VALUES 0, Yes
+INSERT INTO InPlaceResearch1_monitoringSchemeLookup VALUES 1, No
+INSERT INTO InPlaceResearch1_monitoringSchemeLookup VALUES 2, Unknown
+CREATE TABLE InPlaceResearch(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO InPlaceResearch VALUES recoveryPlan, fk_primitive_field, 0..1
+INSERT INTO InPlaceResearch VALUES note, text_primitive_field, 0..1
+INSERT INTO InPlaceResearch VALUES monitoringScheme, fk_primitive_field, 0..1
+INSERT INTO InPlaceResearch VALUES note, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE InPlaceSpeciesManagementInPlaceSpeciesManagement_harvestPlanLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceSpeciesManagementInPlaceSpeciesManagement_harvestPlanLookup VALUES 0, Yes
+INSERT INTO InPlaceSpeciesManagementInPlaceSpeciesManagement_harvestPlanLookup VALUES 1, No
+INSERT INTO InPlaceSpeciesManagementInPlaceSpeciesManagement_harvestPlanLookup VALUES 2, Unknown
+CREATE TABLE InPlaceSpeciesManagement1_reintroducedLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceSpeciesManagement1_reintroducedLookup VALUES 0, Yes
+INSERT INTO InPlaceSpeciesManagement1_reintroducedLookup VALUES 1, No
+INSERT INTO InPlaceSpeciesManagement1_reintroducedLookup VALUES 2, Unknown
+CREATE TABLE InPlaceSpeciesManagement2_exSituConservationLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceSpeciesManagement2_exSituConservationLookup VALUES 0, Yes
+INSERT INTO InPlaceSpeciesManagement2_exSituConservationLookup VALUES 1, No
+INSERT INTO InPlaceSpeciesManagement2_exSituConservationLookup VALUES 2, Unknown
+CREATE TABLE InPlaceSpeciesManagement(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO InPlaceSpeciesManagement VALUES harvestPlan, fk_primitive_field, 0..1
+INSERT INTO InPlaceSpeciesManagement VALUES note, text_primitive_field, 0..1
+INSERT INTO InPlaceSpeciesManagement VALUES reintroduced, fk_primitive_field, 0..1
+INSERT INTO InPlaceSpeciesManagement VALUES note, text_primitive_field, 0..1
+INSERT INTO InPlaceSpeciesManagement VALUES exSituConservation, fk_primitive_field, 0..1
+INSERT INTO InPlaceSpeciesManagement VALUES note, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE InPlaceLandWaterProtection0_sitesIdentifiedLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceLandWaterProtection0_sitesIdentifiedLookup VALUES 0, Yes
+INSERT INTO InPlaceLandWaterProtection0_sitesIdentifiedLookup VALUES 1, No
+INSERT INTO InPlaceLandWaterProtection0_sitesIdentifiedLookup VALUES 2, Unknown
+CREATE TABLE InPlaceLandWaterProtection00_rangeLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceLandWaterProtection00_rangeLookup VALUES 0, Over entire range
+INSERT INTO InPlaceLandWaterProtection00_rangeLookup VALUES 1, Over part of range
+CREATE TABLE InPlaceLandWaterProtection1_inPALookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceLandWaterProtection1_inPALookup VALUES 0, Yes
+INSERT INTO InPlaceLandWaterProtection1_inPALookup VALUES 1, No
+INSERT INTO InPlaceLandWaterProtection1_inPALookup VALUES 2, Unknown
+CREATE TABLE InPlaceLandWaterProtection2_areaPlannedLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceLandWaterProtection2_areaPlannedLookup VALUES 0, Yes
+INSERT INTO InPlaceLandWaterProtection2_areaPlannedLookup VALUES 1, No
+INSERT INTO InPlaceLandWaterProtection2_areaPlannedLookup VALUES 2, Unknown
+CREATE TABLE InPlaceLandWaterProtection(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO InPlaceLandWaterProtection VALUES sitesIdentified, fk_primitive_field, 0..1
+INSERT INTO InPlaceLandWaterProtection VALUES range, fk_primitive_field, 0..1
+INSERT INTO InPlaceLandWaterProtection VALUES note, text_primitive_field, 0..1
+INSERT INTO InPlaceLandWaterProtection VALUES inPA, fk_primitive_field, 0..1
+INSERT INTO InPlaceLandWaterProtection VALUES populationProtected, float_primitive_field, 0..1
+INSERT INTO InPlaceLandWaterProtection VALUES note, text_primitive_field, 0..1
+INSERT INTO InPlaceLandWaterProtection VALUES areaPlanned, fk_primitive_field, 0..1
+INSERT INTO InPlaceLandWaterProtection VALUES note, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE InPlaceEducationInPlaceEducationandAwareness_subjectToProgramsLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceEducationInPlaceEducationandAwareness_subjectToProgramsLookup VALUES 0, Yes
+INSERT INTO InPlaceEducationInPlaceEducationandAwareness_subjectToProgramsLookup VALUES 1, No
+INSERT INTO InPlaceEducationInPlaceEducationandAwareness_subjectToProgramsLookup VALUES 2, Unknown
+CREATE TABLE InPlaceEducation1_internationalLegislationLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceEducation1_internationalLegislationLookup VALUES 0, Yes
+INSERT INTO InPlaceEducation1_internationalLegislationLookup VALUES 1, No
+INSERT INTO InPlaceEducation1_internationalLegislationLookup VALUES 2, Unknown
+CREATE TABLE InPlaceEducation2_controlledLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO InPlaceEducation2_controlledLookup VALUES 0, Yes
+INSERT INTO InPlaceEducation2_controlledLookup VALUES 1, No
+INSERT INTO InPlaceEducation2_controlledLookup VALUES 2, Unknown
+CREATE TABLE InPlaceEducation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO InPlaceEducation VALUES subjectToPrograms, fk_primitive_field, 0..1
+INSERT INTO InPlaceEducation VALUES notes, text_primitive_field, 0..1
+INSERT INTO InPlaceEducation VALUES internationalLegislation, fk_primitive_field, 0..1
+INSERT INTO InPlaceEducation VALUES notes, text_primitive_field, 0..1
+INSERT INTO InPlaceEducation VALUES controlled, fk_primitive_field, 0..1
+INSERT INTO InPlaceEducation VALUES note, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE LakesStructure0_aLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO LakesStructure0_aLookup VALUES 0, Year Round
+INSERT INTO LakesStructure0_aLookup VALUES 1, Breeding Season Only
+INSERT INTO LakesStructure0_aLookup VALUES 2, Non-breeding Season Only
+INSERT INTO LakesStructure0_aLookup VALUES 3, Possibly Extinct
+INSERT INTO LakesStructure0_aLookup VALUES 4, Extinct
+INSERT INTO LakesStructure0_aLookup VALUES 5, Uncertain
+CREATE TABLE LakesStructureOrigin_Lookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO LakesStructureOrigin_Lookup VALUES 0, Native
+INSERT INTO LakesStructureOrigin_Lookup VALUES 1, Introduced
+INSERT INTO LakesStructureOrigin_Lookup VALUES 2, Reintroduced
+INSERT INTO LakesStructureOrigin_Lookup VALUES 3, Vagrant
+INSERT INTO LakesStructureOrigin_Lookup VALUES 4, Uncertain
+CREATE TABLE Lakes(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO Lakes VALUES LakesSubfield, field, 0..
+CREATE TABLE LakesSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LakesSubfield VALUES LakesSchemeLookup, fk_primitive_field, 1
+INSERT INTO LakesSubfield VALUES a, fk_primitive_field, 0..1
+INSERT INTO LakesSubfield VALUES N/A, boolean_primitive_field, 0..1
+INSERT INTO LakesSubfield VALUES N/A, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE LandCoverStructure_nullLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO LandCoverStructure_nullLookup VALUES 0, Suitable
+INSERT INTO LandCoverStructure_nullLookup VALUES 1, Moderately Suitable
+INSERT INTO LandCoverStructure_nullLookup VALUES 2, Unsuitable
+INSERT INTO LandCoverStructure_nullLookup VALUES 3, Undefined
+CREATE TABLE LandCover(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LandCover VALUES LandCoverSubfield, field, 0..
+CREATE TABLE LandCoverSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LandCoverSubfield VALUES LandCoverSchemeLookup, fk_primitive_field, 1
+#----------------------------------------
+CREATE TABLE LargeMarineEcosystemsStructure0_presenceLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO LargeMarineEcosystemsStructure0_presenceLookup VALUES 0, Extant
+INSERT INTO LargeMarineEcosystemsStructure0_presenceLookup VALUES 1, Possibly Extinct
+INSERT INTO LargeMarineEcosystemsStructure0_presenceLookup VALUES 2, Extinct
+INSERT INTO LargeMarineEcosystemsStructure0_presenceLookup VALUES 3, Presence Uncertain
+CREATE TABLE LargeMarineEcosystemsStructure1_originLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO LargeMarineEcosystemsStructure1_originLookup VALUES 0, Native
+INSERT INTO LargeMarineEcosystemsStructure1_originLookup VALUES 1, Reintroduced
+INSERT INTO LargeMarineEcosystemsStructure1_originLookup VALUES 2, Introduced
+INSERT INTO LargeMarineEcosystemsStructure1_originLookup VALUES 3, Prehistorically Introduced
+INSERT INTO LargeMarineEcosystemsStructure1_originLookup VALUES 4, Vagrant
+INSERT INTO LargeMarineEcosystemsStructure1_originLookup VALUES 5, Origin Uncertain
+CREATE TABLE LargeMarineEcosystemsStructure1Seasonality_seasonalityLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO LargeMarineEcosystemsStructure1Seasonality_seasonalityLookup VALUES 0, Resident
+INSERT INTO LargeMarineEcosystemsStructure1Seasonality_seasonalityLookup VALUES 1, Breeding Season
+INSERT INTO LargeMarineEcosystemsStructure1Seasonality_seasonalityLookup VALUES 2, Non-Breeding Season
+INSERT INTO LargeMarineEcosystemsStructure1Seasonality_seasonalityLookup VALUES 3, Passage
+INSERT INTO LargeMarineEcosystemsStructure1Seasonality_seasonalityLookup VALUES 4, Seasonal Occurrence Uncertain
+CREATE TABLE LargeMarineEcosystems(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LargeMarineEcosystems VALUES LargeMarineEcosystemsSubfield, field, 0..
+CREATE TABLE LargeMarineEcosystemsSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LargeMarineEcosystemsSubfield VALUES LargeMarineEcosystemsSchemeLookup, fk_primitive_field, 1
+INSERT INTO LargeMarineEcosystemsSubfield VALUES presence, fk_primitive_field, 0..1
+INSERT INTO LargeMarineEcosystemsSubfield VALUES formerlyBred, boolean_unknown_primitive_field, 0..1
+INSERT INTO LargeMarineEcosystemsSubfield VALUES origin, fk_primitive_field, 0..1
+INSERT INTO LargeMarineEcosystemsSubfield VALUES seasonality, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE LiveBirth(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LiveBirth VALUES liveBirth, boolean_unknown_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE Livelihoods(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO Livelihoods VALUES noInfo, boolean_primitive_field, 0..1
+INSERT INTO Livelihoods VALUES LivelihoodsSubfield, field, 0..
+CREATE TABLE LivelihoodsSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LivelihoodsSubfield VALUES scale, fk_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES nameOfLocality, text_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES date, date_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES productDescription, text_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES annualHarvest, text_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES unitsAnnualHarvest, fk_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES annualMultiSpeciesHarvest, text_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES unitsAnnualMultiSpeciesHarvest, fk_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES percentInHarvest, float_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES amountInHarvest, text_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES humanReliance, fk_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES genderAge, fk_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES socioEconomic, fk_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES other, text_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES totalPopBenefit, fk_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES householdConsumption, fk_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES householdIncome, fk_primitive_field, 0..1
+INSERT INTO LivelihoodsSubfield VALUES annualCashIncome, float_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE LocationContinuingDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LocationContinuingDecline VALUES inDecline, boolean_range_primitive_field, 0..1
+INSERT INTO LocationContinuingDecline VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO LocationContinuingDecline VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE LocationExtremeFluctuation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LocationExtremeFluctuation VALUES isFluctuating, boolean_range_primitive_field, 0..1
+INSERT INTO LocationExtremeFluctuation VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE LocationsNumber(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO LocationsNumber VALUES range, range_primitive_field, 0..1
+INSERT INTO LocationsNumber VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE LongevityUnits_unitsLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO LongevityUnits_unitsLookup VALUES 0, Days
+INSERT INTO LongevityUnits_unitsLookup VALUES 1, Months
+INSERT INTO LongevityUnits_unitsLookup VALUES 2, Years
+CREATE TABLE Longevity(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO Longevity VALUES longevity, text_primitive_field, 0..1
+INSERT INTO Longevity VALUES units, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE MaleMaturityAgeUnits_unitsLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO MaleMaturityAgeUnits_unitsLookup VALUES 0, Days
+INSERT INTO MaleMaturityAgeUnits_unitsLookup VALUES 1, Weeks
+INSERT INTO MaleMaturityAgeUnits_unitsLookup VALUES 2, Months
+INSERT INTO MaleMaturityAgeUnits_unitsLookup VALUES 3, Years
+CREATE TABLE MaleMaturityAge(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO MaleMaturityAge VALUES age, text_primitive_field, 0..1
+INSERT INTO MaleMaturityAge VALUES units, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE MaleMaturitySize(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO MaleMaturitySize VALUES size, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE MapStatus_statusLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO MapStatus_statusLookup VALUES 0, Done
+INSERT INTO MapStatus_statusLookup VALUES 1, Missing
+INSERT INTO MapStatus_statusLookup VALUES 2, Incomplete
+INSERT INTO MapStatus_statusLookup VALUES 3, Not possible
+CREATE TABLE MapStatus(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO MapStatus VALUES status, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE MaxSize(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO MaxSize VALUES size, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE MaxSubpopulationSize(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO MaxSubpopulationSize VALUES range, range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE MovementPatterns_patternLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO MovementPatterns_patternLookup VALUES 0, Nomadic
+INSERT INTO MovementPatterns_patternLookup VALUES 1, Congregatory/dispersive
+INSERT INTO MovementPatterns_patternLookup VALUES 2, Migratory
+INSERT INTO MovementPatterns_patternLookup VALUES 3, Altitudinally migrant
+CREATE TABLE MovementPatterns(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO MovementPatterns VALUES pattern, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE NaturalMortality(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO NaturalMortality VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE NonConsumptiveUse(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO NonConsumptiveUse VALUES isNonConsumptiveUse, boolean_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE NonConsumptiveUseDescription(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO NonConsumptiveUseDescription VALUES narrative, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE NotUtilized(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO NotUtilized VALUES isNotUtilized, boolean_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE OldDEMPastDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO OldDEMPastDecline VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE OldDEMPeriodPastDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO OldDEMPeriodPastDecline VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE OldDEMFutureDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO OldDEMFutureDecline VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE OldDEMPeriodFutureDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO OldDEMPeriodFutureDecline VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE OtherPublication(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO OtherPublication VALUES reference, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PVAFile(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PVAFile VALUES a, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE Parthenogenesis(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO Parthenogenesis VALUES exhibitsParthenogenesis, boolean_unknown_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PlantGrowthForms(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PlantGrowthForms VALUES PlantGrowthFormsSubfield, field, 0..
+CREATE TABLE PlantGrowthFormsSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PlantGrowthFormsSubfield VALUES PlantGrowthFormsSchemeLookup, fk_primitive_field, 1
+#----------------------------------------
+CREATE TABLE PopulationContinuingDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationContinuingDecline VALUES isDeclining, boolean_range_primitive_field, 0..1
+INSERT INTO PopulationContinuingDecline VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO PopulationContinuingDecline VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationDeclineGenerations1(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationDeclineGenerations1 VALUES range, range_primitive_field, 0..1
+INSERT INTO PopulationDeclineGenerations1 VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO PopulationDeclineGenerations1 VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationDeclineGenerations2(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationDeclineGenerations2 VALUES range, range_primitive_field, 0..1
+INSERT INTO PopulationDeclineGenerations2 VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO PopulationDeclineGenerations2 VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationDeclineGenerations3(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationDeclineGenerations3 VALUES range, range_primitive_field, 0..1
+INSERT INTO PopulationDeclineGenerations3 VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO PopulationDeclineGenerations3 VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationDocumentation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationDocumentation VALUES narrative, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationExtremeFluctuation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationExtremeFluctuation VALUES isFluctuating, boolean_range_primitive_field, 0..1
+INSERT INTO PopulationExtremeFluctuation VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationIncreaseRate(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationIncreaseRate VALUES narrative, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionFuture(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionFuture VALUES range, range_primitive_field, 0..1
+INSERT INTO PopulationReductionFuture VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO PopulationReductionFuture VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionFutureBasis_valueLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO PopulationReductionFutureBasis_valueLookup VALUES 0, b) an index of abundance appropriate for the taxon
+INSERT INTO PopulationReductionFutureBasis_valueLookup VALUES 1, c) a decline in area of occupancy, extent of
+					occurrence and/or quality of habitat
+INSERT INTO PopulationReductionFutureBasis_valueLookup VALUES 2, d) actual or potential levels of exploitation
+INSERT INTO PopulationReductionFutureBasis_valueLookup VALUES 3, e) the effects of introduced taxa, hybridization,
+					pathogens, pollutants, competitors or parasites)
+CREATE TABLE PopulationReductionFutureBasis(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionFutureBasis VALUES value, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE PopulationReductionFutureCeased(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionFutureCeased VALUES hasCeased, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionFutureReversible(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionFutureReversible VALUES isReversible, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionFutureUnderstood(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionFutureUnderstood VALUES isUnderstood, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionPast(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPast VALUES range, range_primitive_field, 0..1
+INSERT INTO PopulationReductionPast VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO PopulationReductionPast VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionPastBasis_valueLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO PopulationReductionPastBasis_valueLookup VALUES 0, a) direct observation
+INSERT INTO PopulationReductionPastBasis_valueLookup VALUES 1, b) an index of abundance appropriate for the taxon
+INSERT INTO PopulationReductionPastBasis_valueLookup VALUES 2, c) a decline in area of occupancy, extent of
+					occurrence and/or quality of habitat
+INSERT INTO PopulationReductionPastBasis_valueLookup VALUES 3, d) actual or potential levels of exploitation
+INSERT INTO PopulationReductionPastBasis_valueLookup VALUES 4, e) the effects of introduced taxa, hybridization,
+					pathogens, pollutants, competitors or parasites)
+CREATE TABLE PopulationReductionPastBasis(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPastBasis VALUES value, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE PopulationReductionPastCeased(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPastCeased VALUES value, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionPastReversible(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPastReversible VALUES value, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionPastUnderstood(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPastUnderstood VALUES value, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionPastandFuture(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPastandFuture VALUES range, range_primitive_field, 0..1
+INSERT INTO PopulationReductionPastandFuture VALUES numYears, float_primitive_field, 0..1
+INSERT INTO PopulationReductionPastandFuture VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO PopulationReductionPastandFuture VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionPastandFutureBasis_valueLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO PopulationReductionPastandFutureBasis_valueLookup VALUES 0, a) direct observation
+INSERT INTO PopulationReductionPastandFutureBasis_valueLookup VALUES 1, b) an index of abundance appropriate for the taxon
+INSERT INTO PopulationReductionPastandFutureBasis_valueLookup VALUES 2, c) a decline in area of occupancy, extent of
+					occurrence and/or quality of habitat
+INSERT INTO PopulationReductionPastandFutureBasis_valueLookup VALUES 3, d) actual or potential levels of exploitation
+INSERT INTO PopulationReductionPastandFutureBasis_valueLookup VALUES 4, e) the effects of introduced taxa,hybridization,
+					pathogens, pollutants,competitors or parasites
+CREATE TABLE PopulationReductionPastandFutureBasis(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPastandFutureBasis VALUES value, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE PopulationReductionPastandFutureCeased(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPastandFutureCeased VALUES value, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionPastandFutureReversible(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPastandFutureReversible VALUES value, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationReductionPastandFutureUnderstood(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationReductionPastandFutureUnderstood VALUES value, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationSize(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationSize VALUES range, range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE PopulationTrend_valueLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO PopulationTrend_valueLookup VALUES 0, Increasing
+INSERT INTO PopulationTrend_valueLookup VALUES 1, Decreasing
+INSERT INTO PopulationTrend_valueLookup VALUES 2, Stable
+INSERT INTO PopulationTrend_valueLookup VALUES 3, Unknown
+CREATE TABLE PopulationTrend(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO PopulationTrend VALUES value, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RangeDocumentation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RangeDocumentation VALUES narrative, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListAssessmentDate(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListAssessmentDate VALUES value, date_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListAssessors(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListAssessors VALUES a, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE RedListCaveat(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListCaveat VALUES value, boolean_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListConsistencyCheck_progressLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO RedListConsistencyCheck_progressLookup VALUES 0, In Progress
+INSERT INTO RedListConsistencyCheck_progressLookup VALUES 1, Done
+CREATE TABLE RedListConsistencyCheck1_successStatusLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO RedListConsistencyCheck1_successStatusLookup VALUES 0, Passed
+INSERT INTO RedListConsistencyCheck1_successStatusLookup VALUES 1, Rejected
+INSERT INTO RedListConsistencyCheck1_successStatusLookup VALUES 2, Returned for Improvements
+CREATE TABLE RedListConsistencyCheck(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListConsistencyCheck VALUES progress, fk_primitive_field, 0..1
+INSERT INTO RedListConsistencyCheck VALUES date, date_primitive_field, 0..1
+INSERT INTO RedListConsistencyCheck VALUES successStatus, fk_primitive_field, 0..1
+INSERT INTO RedListConsistencyCheck VALUES reasons, text_primitive_field, 0..1
+INSERT INTO RedListConsistencyCheck VALUES improvementsNeeded, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListContributors(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListContributors VALUES value, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE _lookup_CriteriaVersions(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO _lookup_CriteriaVersions VALUES 0, 3.1
+INSERT INTO _lookup_CriteriaVersions VALUES 1, 2.3
+INSERT INTO _lookup_CriteriaVersions VALUES 2, Earlier Version
+CREATE TABLE RedListCriteria(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListCriteria VALUES isManual, boolean_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES critVersion, fk_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES manualCategory, fk_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES manualCriteria, text_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES autoCategory, fk_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES autoCriteria, text_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES rlHistoryText, text_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES possiblyExtinct, boolean_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES possiblyExtinctCandidate, boolean_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES dateLastSeen, date_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES categoryText, text_primitive_field, 0..1
+INSERT INTO RedListCriteria VALUES dataDeficientReason, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListEvaluated1_statusLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO RedListEvaluated1_statusLookup VALUES 0, Passed
+INSERT INTO RedListEvaluated1_statusLookup VALUES 1, Rejected
+INSERT INTO RedListEvaluated1_statusLookup VALUES 2, Returned for Improvements
+CREATE TABLE RedListEvaluated(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListEvaluated VALUES isEvaluated, boolean_primitive_field, 0..1
+INSERT INTO RedListEvaluated VALUES date, date_primitive_field, 0..1
+INSERT INTO RedListEvaluated VALUES status, fk_primitive_field, 0..1
+INSERT INTO RedListEvaluated VALUES reasons, text_primitive_field, 0..1
+INSERT INTO RedListEvaluated VALUES improvementsNeeded, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListEvaluators(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListEvaluators VALUES value, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE RedListNotes(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListNotes VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListPetition(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListPetition VALUES value, boolean_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListPublication(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListPublication VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListRationale(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListRationale VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListReasonsForChange_typeLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO RedListReasonsForChange_typeLookup VALUES 0, Genuine Change
+INSERT INTO RedListReasonsForChange_typeLookup VALUES 1, Nongenuine Change
+INSERT INTO RedListReasonsForChange_typeLookup VALUES 2, No change
+CREATE TABLE RedListReasonsForChangeReason_timeframeLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO RedListReasonsForChangeReason_timeframeLookup VALUES 0, Recent
+INSERT INTO RedListReasonsForChangeReason_timeframeLookup VALUES 1, Since first assessent
+CREATE TABLE RedListReasonsForChange1_changeReasonsLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO RedListReasonsForChange1_changeReasonsLookup VALUES 0, New Information
+INSERT INTO RedListReasonsForChange1_changeReasonsLookup VALUES 1, Knowledge of criteria
+INSERT INTO RedListReasonsForChange1_changeReasonsLookup VALUES 2, Incorrect data used
+											previously
+INSERT INTO RedListReasonsForChange1_changeReasonsLookup VALUES 3, Taxonomy
+INSERT INTO RedListReasonsForChange1_changeReasonsLookup VALUES 4, Criteria Revision
+INSERT INTO RedListReasonsForChange1_changeReasonsLookup VALUES 5, Other
+CREATE TABLE RedListReasonsForChangeReason_catCritChangesLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO RedListReasonsForChangeReason_catCritChangesLookup VALUES 0, Same category and criteria
+INSERT INTO RedListReasonsForChangeReason_catCritChangesLookup VALUES 1, Same category but change in criteria
+CREATE TABLE RedListReasonsForChange(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListReasonsForChange VALUES type, fk_primitive_field, 0..1
+INSERT INTO RedListReasonsForChange VALUES timeframe, fk_primitive_field, 0..1
+INSERT INTO RedListReasonsForChange VALUES changeReasons, fk_primitive_field, 0..
+INSERT INTO RedListReasonsForChange VALUES otherReason, text_primitive_field, 0..1
+INSERT INTO RedListReasonsForChange VALUES catCritChanges, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RedListText(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RedListText VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RegionInformation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RegionInformation VALUES regions, fk_primitive_field, 0..
+INSERT INTO RegionInformation VALUES endemic, boolean_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE RegionExpertQuestions(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RegionExpertQuestions VALUES answers, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE ReproduictivePeriodicity(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ReproduictivePeriodicity VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE Research(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO Research VALUES ResearchSubfield, field, 0..
+CREATE TABLE ResearchSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ResearchSubfield VALUES ResearchSchemeLookup, fk_primitive_field, 1
+#----------------------------------------
+CREATE TABLE RiversStructure0_aLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO RiversStructure0_aLookup VALUES 0, Year Round
+INSERT INTO RiversStructure0_aLookup VALUES 1, Breeding Season Only
+INSERT INTO RiversStructure0_aLookup VALUES 2, Non-breeding Season Only
+INSERT INTO RiversStructure0_aLookup VALUES 3, Possibly Extinct
+INSERT INTO RiversStructure0_aLookup VALUES 4, Extinct
+INSERT INTO RiversStructure0_aLookup VALUES 5, Uncertain
+CREATE TABLE RiversStructureOrigin_Lookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO RiversStructureOrigin_Lookup VALUES 0, Native
+INSERT INTO RiversStructureOrigin_Lookup VALUES 1, Introduced
+INSERT INTO RiversStructureOrigin_Lookup VALUES 2, Reintroduced
+INSERT INTO RiversStructureOrigin_Lookup VALUES 3, Vagrant
+INSERT INTO RiversStructureOrigin_Lookup VALUES 4, Uncertain
+CREATE TABLE Rivers(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO Rivers VALUES RiversSubfield, field, 0..
+CREATE TABLE RiversSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO RiversSubfield VALUES RiversSchemeLookup, fk_primitive_field, 1
+INSERT INTO RiversSubfield VALUES a, fk_primitive_field, 0..1
+INSERT INTO RiversSubfield VALUES N/A, boolean_primitive_field, 0..1
+INSERT INTO RiversSubfield VALUES N/A, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE SevereFragmentation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO SevereFragmentation VALUES isFragmented, boolean_range_primitive_field, 0..1
+INSERT INTO SevereFragmentation VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE SubpopulationContinuingDecline(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO SubpopulationContinuingDecline VALUES isDeclining, boolean_range_primitive_field, 0..1
+INSERT INTO SubpopulationContinuingDecline VALUES qualifier, fk_primitive_field, 0..1
+INSERT INTO SubpopulationContinuingDecline VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE SubpopulationExtremeFluctuation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO SubpopulationExtremeFluctuation VALUES isFluctuating, boolean_range_primitive_field, 0..1
+INSERT INTO SubpopulationExtremeFluctuation VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE SubpopulationNumber(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO SubpopulationNumber VALUES range, range_primitive_field, 0..1
+INSERT INTO SubpopulationNumber VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE SubpopulationSingle(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO SubpopulationSingle VALUES value, boolean_range_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE System_valueLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO System_valueLookup VALUES 0, Terrestrial
+INSERT INTO System_valueLookup VALUES 1, Freshwater
+INSERT INTO System_valueLookup VALUES 2, Marine
+CREATE TABLE System(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO System VALUES value, fk_primitive_field, 0..
+#----------------------------------------
+CREATE TABLE TaxonomicNotes(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO TaxonomicNotes VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE Threat_timingLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO Threat_timingLookup VALUES 0, Past, Unlikely to Return
+INSERT INTO Threat_timingLookup VALUES 1, Ongoing
+INSERT INTO Threat_timingLookup VALUES 2, Future
+INSERT INTO Threat_timingLookup VALUES 3, Unknown
+INSERT INTO Threat_timingLookup VALUES 4, Past, Likely to Return
+CREATE TABLE Threat_scopeLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO Threat_scopeLookup VALUES 0, Whole (>90%)
+INSERT INTO Threat_scopeLookup VALUES 1, Majority (50-90%)
+INSERT INTO Threat_scopeLookup VALUES 2, Minority (<50%)
+INSERT INTO Threat_scopeLookup VALUES 3, Unknown
+CREATE TABLE Threat_severityLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO Threat_severityLookup VALUES 0, Very Rapid Declines
+INSERT INTO Threat_severityLookup VALUES 1, Rapid Declines
+INSERT INTO Threat_severityLookup VALUES 2, Slow, Significant Declines
+INSERT INTO Threat_severityLookup VALUES 3, Causing/Could cause fluctuations
+INSERT INTO Threat_severityLookup VALUES 4, Negligible declines
+INSERT INTO Threat_severityLookup VALUES 5, No decline
+INSERT INTO Threat_severityLookup VALUES 6, Unknown
+CREATE TABLE Threats(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO Threats VALUES ThreatsSubfield, field, 0..
+CREATE TABLE ThreatsSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ThreatsSubfield VALUES ThreatsSchemeLookup, fk_primitive_field, 1
+INSERT INTO ThreatsSubfield VALUES timing, fk_primitive_field, 0..1
+INSERT INTO ThreatsSubfield VALUES scope, fk_primitive_field, 0..1
+INSERT INTO ThreatsSubfield VALUES severity, fk_primitive_field, 0..1
+INSERT INTO ThreatsSubfield VALUES score, integer_primitive_field, 0..1
+INSERT INTO ThreatsSubfield VALUES Stresses, StressesSubfield, 0..
+CREATE TABLE StressesSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO StressesSubfield VALUES stress, fk_primitive_field, 0..
+INSERT INTO ThreatsSubfield VALUES c, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE ThreatsDocumentation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ThreatsDocumentation VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE ThreatsUnknown(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO ThreatsUnknown VALUES value, boolean_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE TrendInDomesticOfftake_valueLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO TrendInDomesticOfftake_valueLookup VALUES 0, Increasing
+INSERT INTO TrendInDomesticOfftake_valueLookup VALUES 1, Decreasing
+INSERT INTO TrendInDomesticOfftake_valueLookup VALUES 2, Stable
+INSERT INTO TrendInDomesticOfftake_valueLookup VALUES 3, Not cultivated
+INSERT INTO TrendInDomesticOfftake_valueLookup VALUES 4, Unknown
+CREATE TABLE TrendInDomesticOfftake(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO TrendInDomesticOfftake VALUES value, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE TrendInWildOfftake_valueLookup(id int(10) auto_increment, name varchar(255), value varchar(255)
+INSERT INTO TrendInWildOfftake_valueLookup VALUES 0, Increasing
+INSERT INTO TrendInWildOfftake_valueLookup VALUES 1, Decreasing
+INSERT INTO TrendInWildOfftake_valueLookup VALUES 2, Stable
+INSERT INTO TrendInWildOfftake_valueLookup VALUES 3, Unknown
+CREATE TABLE TrendInWildOfftake(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO TrendInWildOfftake VALUES value, fk_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE UseTradeDetails(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO UseTradeDetails VALUES UseTradeSubfield, field, 0..
+CREATE TABLE UseTradeSubfield (id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO UseTradeSubfield VALUES purpose, fk_primitive_field, 0..1
+INSERT INTO UseTradeSubfield VALUES source, fk_primitive_field, 0..1
+INSERT INTO UseTradeSubfield VALUES formRemoved, fk_primitive_field, 0..1
+INSERT INTO UseTradeSubfield VALUES subsistence, boolean_primitive_field, 0..1
+INSERT INTO UseTradeSubfield VALUES national, boolean_primitive_field, 0..1
+INSERT INTO UseTradeSubfield VALUES international, boolean_primitive_field, 0..1
+INSERT INTO UseTradeSubfield VALUES harvestLevel, text_primitive_field, 0..1
+INSERT INTO UseTradeSubfield VALUES units, fk_primitive_field, 0..1
+INSERT INTO UseTradeSubfield VALUES possibleThreat, boolean_primitive_field, 0..1
+INSERT INTO UseTradeSubfield VALUES justification, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE UseTradeDocumentation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO UseTradeDocumentation VALUES value, text_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE UseTradeNoInformation(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO UseTradeNoInformation VALUES value, boolean_primitive_field, 0..1
+#----------------------------------------
+CREATE TABLE WaterBreeding(id int(10) auto_increment, name varchar(255), type varchar(255), number_allowed varchar(255))
+INSERT INTO WaterBreeding VALUES value, boolean_unknown_primitive_field, 0..1
+#----------------------------------------

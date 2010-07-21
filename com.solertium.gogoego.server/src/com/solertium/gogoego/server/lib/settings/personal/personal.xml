@@ -1,0 +1,4 @@
+<root>
+	<node name="Profile" uri="/admin/settings/personal/authority/profile" />
+	<node name="General Settings" uri="/admin/settings/personal/authority/general" />
+</root>

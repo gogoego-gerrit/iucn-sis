@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.Synonym" table="synonym" lazy="false">
+		<id name="id" column="id" type="integer">
+			<generator class="native">
+			</generator>
+		</id>
+		<property name="friendlyName" column="friendly_name" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="genusName" column="genus_name" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="speciesName" column="species_name" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="infraType" column="infra_type" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="infraName" column="infra_name" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="stockName" column="stock_name" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="genusAuthor" column="genus_author" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="speciesAuthor" column="species_author" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="infrarankAuthor" column="infrarank_author" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="status" column="status" type="string" length="255" not-null="false" lazy="false"/>
+		<many-to-one name="taxon_level" cascade="lock" column="taxon_levelid" class="org.iucn.sis.shared.api.models.TaxonLevel" not-null="false" lazy="no-proxy">
+		</many-to-one>
+		<many-to-one name="taxon" cascade="lock" column="taxonid" class="org.iucn.sis.shared.api.models.Taxon" not-null="true" lazy="no-proxy">
+		</many-to-one>
+		<set name="Notes" table="synonym_notes" lazy="true" cascade="save-update,lock">
+			<key column="synonymid" not-null="true"/>
+			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
+			</many-to-many>
+		</set>
+		<set name="Reference" table="synonym_reference" lazy="true" cascade="save-update,lock">
+			<key column="synonymid" not-null="true"/>
+			<many-to-many column="referenceid" class="org.iucn.sis.shared.api.models.Reference">
+			</many-to-many>
+		</set>
+	</class>
+</hibernate-mapping>

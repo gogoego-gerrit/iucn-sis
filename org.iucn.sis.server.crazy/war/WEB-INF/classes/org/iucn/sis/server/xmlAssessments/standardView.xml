@@ -1,0 +1,114 @@
+<view id="Standard" title="Standard View"
+		    	xsi:noNamespaceSchemaLocation = "views.xsd"
+				xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance">
+	<pages>
+		<page title="General Information" id="GenInfo">
+			<pageOrganizations>
+				<organization title="Geographic Range Information">
+					<field id="RangeDocumentation" />
+				</organization>
+				<organization title="Range Size">
+					<composite>
+						<field id="AOO" />
+						<field id="EOO" />
+					</composite>
+				</organization>
+				<organization title="Elevation">
+					<composite layout="horizontal">
+						<field id="ElevationUpper" />
+						<field id="ElevationLower" />
+					</composite>
+				</organization>
+				<organization>
+					<break />
+				</organization>
+				<organization title="Depth">
+					<composite>
+						<field id="DepthUpper" />
+						<field id="DepthLower" />
+					</composite>
+				</organization>
+				<organization title="Depth Zone">
+					<field id="DepthZone" />
+				</organization>
+				<organization title="Biogeographic Realm">
+					<field id="BiogeographicRealm" />
+				</organization>		
+			</pageOrganizations>
+		</page>
+		
+		<page title="Extent of Occurrence" id="OccurrenceExtent">
+			<pageOrganizations>
+				<organization>
+					<related layout="horizontal">
+					<dominantField id="AOOExtremeFluctuation" />
+					<dependent id="AOO" />
+					<dependent id="AOOContinuingDecline" />
+					<activeRule>
+						<booleanRule>
+							<activateOnValue>true</activateOnValue>
+							<actions>
+								<onTrue>show</onTrue>
+								<onFalse>hide</onFalse>
+							</actions>
+						</booleanRule>
+					</activeRule>
+					</related>
+				</organization>
+				<organization>
+					<text>This is some test text data</text>
+					<break size="medium" />
+				</organization>
+				<organization>
+					<composite>
+						<field id="EOO" />
+						<field id="EOOContinuingDecline" />
+					</composite>
+				</organization>
+			</pageOrganizations>
+		</page>
+		
+		<page title="Countries of Occurrence" id="Countries">
+			<pageOrganizations>
+				<organization>
+					<field id="EOOExtremeFluctuation" />
+				</organization>
+				<organization>
+					<field id="AssessmentGeographicScope" />
+				</organization>
+				<organization>
+					<field id="test tree 2" />
+					<field id="Conservation Actions Tree" />
+				</organization>
+			</pageOrganizations>
+		</page>
+		
+		<page title="Habitat Preferences" id="Habitat">
+			<pageOrganizations>
+				<organization>
+					<field id="RedListReasonsForChange" />
+				</organization>
+				<organization>
+						<field id="PopulationSize" />
+				</organization>
+				<organization>
+						<field id="MaleMaturityAge" />
+				</organization>
+				<organization>
+						<field id="RedListEvaluated" />
+				</organization>
+				<organization>
+					<field id="Large Marine Ecosystems Tree" />
+				</organization>
+				<organization>
+					<field id="PlantGrowthForms" />
+				</organization>
+				<organization>
+					<field id="Habitats Tree" />
+				</organization>
+			</pageOrganizations>
+		</page>
+		
+	</pages>
+	
+</view>

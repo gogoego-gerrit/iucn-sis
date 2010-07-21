@@ -1,0 +1,31 @@
+<xs:schema xmlns:xs = "http://www.w3.org/2001/XMLSchema">
+
+<xs:element name="structure" type="Structure" />
+
+<xs:complexType name="Structure">
+	<xs:sequence>
+		<xs:element name="object" type="Object" minOccurs="0" maxOccurs="unbounded" />
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="Object">
+	<xs:sequence>
+		<xs:element name="inherits" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+		<xs:element name="uri" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+		<xs:element name="action" type="Action" minOccurs="0" maxOccurs="unbounded" />
+	</xs:sequence>
+	<xs:attribute name="type" type="xs:string" use="required" />
+	<xs:attribute name="name" type="xs:string" use="optional" />
+</xs:complexType>
+
+<xs:simpleType name="Action">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value="create" />
+		<xs:enumeration value="read" />
+		<xs:enumeration value="update" />
+		<xs:enumeration value="delete" />
+		<xs:enumeration value="grant" />
+	</xs:restriction>
+</xs:simpleType>
+
+</xs:schema>

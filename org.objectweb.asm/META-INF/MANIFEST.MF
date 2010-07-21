@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Asm Plug-in
+Bundle-SymbolicName: org.objectweb.asm
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: asm-3.2.jar,
+ asm-analysis-3.2.jar,
+ asm-commons-3.2.jar,
+ asm-tree-3.2.jar,
+ asm-util-3.2.jar,
+ asm-xml-3.2.jar,
+ .
+Export-Package: org.objectweb.asm,
+ org.objectweb.asm.commons,
+ org.objectweb.asm.signature,
+ org.objectweb.asm.tree,
+ org.objectweb.asm.tree.analysis,
+ org.objectweb.asm.util,
+ org.objectweb.asm.xml

@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Daisy Diff
+Bundle-SymbolicName: org.outerj.daisy.diff
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ClassPath: daisydiffRebuild.jar,
+ .
+Export-Package: org.eclipse.compare.internal,
+ org.eclipse.compare.rangedifferencer,
+ org.eclipse.core.runtime,
+ org.outerj.daisy.diff,
+ org.outerj.daisy.diff.helper,
+ org.outerj.daisy.diff.html,
+ org.outerj.daisy.diff.html.ancestor,
+ org.outerj.daisy.diff.html.ancestor.tagtostring,
+ org.outerj.daisy.diff.html.dom,
+ org.outerj.daisy.diff.html.dom.helper,
+ org.outerj.daisy.diff.html.modification,
+ org.outerj.daisy.diff.tag

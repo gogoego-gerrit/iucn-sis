@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<structure>
+	<table name="${profile_table}">
+		<column name="ID" type="CInteger" key="true" />
+		<column name="NAME" type="CString" scale="255" />
+	</table>
+	<table name="${data_table}">
+		<column name="ID" type="CInteger" key="true" />
+		<column name="PROFILE_ID" type="CInteger"  />
+		<column name="KEY" type="CString" scale="255" />
+		<column name="VALUE" type="CString" scale="1000" />
+	</table>
+</structure>

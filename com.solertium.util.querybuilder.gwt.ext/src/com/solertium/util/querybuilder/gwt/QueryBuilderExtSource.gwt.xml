@@ -1,0 +1,15 @@
+<module>
+
+	<!-- Core Web Toolkit -->
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name='com.google.gwt.i18n.I18N' />
+	
+	<!-- HTTP Features -->
+	<inherits name='com.google.gwt.http.HTTP' />
+	
+	<!-- Lightweight XML API -->
+	<inherits name='com.solertium.lwxml.LWXML' />
+	
+	<inherits name='com.solertium.util.querybuilder.QueryBuilderCore'/>
+	
+</module>

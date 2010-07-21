@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Group Model
+Bundle-SymbolicName: com.solertium.util.restlet.usermodel.groups
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.solertium.db,
+ com.solertium.util,
+ com.solertium.util.restlet
+Require-Bundle: com.solertium.db,
+ com.solertium.lwxml,
+ org.h2,
+ org.junit4,
+ org.restlet;bundle-version="2.0.0",
+ org.restlet.ext.xml;bundle-version="2.0.0"
+Export-Package: com.solertium.util.restlet.usermodel.groups.core,
+ com.solertium.util.restlet.usermodel.groups.managers
+

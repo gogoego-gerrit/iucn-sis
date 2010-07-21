@@ -1,0 +1,132 @@
+<xs:schema xmlns:xs = "http://www.w3.org/2001/XMLSchema">
+
+	<xs:complexType name="Page">
+		<xs:sequence>
+			<xs:element name="pageOrganizations" type="PageOrganization" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="required" />
+		<xs:attribute name="title" type="xs:string" use="required" />
+		<xs:attribute name="style" type="xs:string" use="optional" />
+		<xs:attribute name="showHeader" type="xs:boolean" use="optional" />
+		<xs:attribute name="showFooter" type="xs:boolean" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="PageOrganization">
+		<xs:sequence>
+			<xs:element name="organization" type="OrganizationChoices" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="OrganizationChoices">
+		<xs:choice>
+			<xs:element name="composite" type="Composite" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="break" type="Break" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="related" type="RelatedField" minOccurs="0" maxOccurs="unbounded" />			
+			<xs:element name="field" type="Field" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="text" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+		</xs:choice>
+		<xs:attribute name="title" use="optional" />
+	</xs:complexType>
+	
+	<xs:complexType name="Break">
+		<xs:choice>
+			<xs:attribute name="pixelSize" type="xs:integer" use="optional" />
+			<xs:attribute name="size" type="SimpleSize" use="optionnal" />
+		</xs:choice>
+	</xs:complexType>	
+	
+	<xs:simpleType name="SimpleSize">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="small" />
+			<xs:enumeration value="medium" />
+			<xs:enumeration value="large" />
+			<xs:enumeration value="SMALL" />
+			<xs:enumeration value="MEDIUM" />
+			<xs:enumeration value="LARGE" />
+		</xs:restriction>	
+	</xs:simpleType>
+	
+	<xs:complexType name="Field">
+		<xs:attribute name="id" type="xs:anySimpleType" use="required" />
+		<xs:attribute name="style" type="xs:string" use="optional" />
+		<xs:attribute name="row" type="xs:integer" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="Composite">
+		<xs:sequence>
+			<xs:element name="field" type="Field" minOccurs="1" maxOccurs="unbounded" />
+			<xs:element name="subField" type="PageOrganization" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="layout" type="LayoutEnumerations" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="RelatedField">
+		<xs:sequence>
+			<xs:element name="dominantField" type="Field" minOccurs="1" maxOccurs="1" />
+			<xs:element name="dependent" type="Field" minOccurs="1" maxOccurs="unbounded" />
+			<xs:element name="activeRule" type="Rule" />
+		</xs:sequence>
+		<xs:attribute name="layout" type="LayoutEnumerations" use="optional" />
+	</xs:complexType>
+	
+	<xs:simpleType name="LayoutEnumerations">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="vertical" />
+			<xs:enumeration value="horizontal" />
+			<xs:enumeration value="table" />
+			<xs:enumeration value="VERTICAL" />
+			<xs:enumeration value="HORIZONTAL />
+			<xs:enumeration value="TABLE" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="Rule">
+		<xs:choice>
+			<xs:element name="selectRule" type="SelectRule" minOccurs="1" maxOccurs="1" />
+			<xs:element name="booleanRule" type="BooleanRule" minOccurs="1" maxOccurs="1" />
+			<xs:element name="contentRule" type="ContentRule" minOccurs="1" maxOccurs="1" />			
+		</xs:choice>
+	</xs:complexType>
+	
+	<xs:complexType name="SelectRule">
+		<xs:sequence>
+			<xs:element name="activateOnIndex" type="xs:integer" minOccurs="1" maxOccurs="unbounded" />
+			<xs:element name="actions" type="RelatedStructureAction" minOccurs="1" maxOccurs="1" />			
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="BooleanRule">
+		<xs:sequence>
+			<xs:element name="activateOnValue" type="xs:boolean" minOccurs="1" maxOccurs="1" />
+			<xs:element name="actions" type="RelatedStructureAction" minOccurs="1" maxOccurs="1" />			
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ContentRule">
+		<xs:sequence>
+			<xs:element name="activateOnContent" type="xs:anySimpleType" minOccurs="1" maxOccurs="1" />
+			<xs:element name="actions" type="RelatedStructureAction" minOccurs="1" maxOccurs="1" />			
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="RelatedStructureAction">
+		<xs:sequence>
+			<xs:element name="onTrue" type="ActionEnumerations"	minOccurs="1" maxOccurs="1" />
+			<xs:element name="onFalse" type="ActionEnumerations" minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="ActionEnumerations">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="SHOW"></xs:enumeration>
+			<xs:enumeration value="HIDE"></xs:enumeration>
+			<xs:enumeration value="ENABLE"></xs:enumeration>
+			<xs:enumeration value="DISABLE"></xs:enumeration>
+			<xs:enumeration value="show" />
+			<xs:enumeration value="hide" />
+			<xs:enumeration value="enable" />
+			<xs:enumeration value="disable" />			
+		</xs:restriction>
+	</xs:simpleType>	
+
+</xs:schema>

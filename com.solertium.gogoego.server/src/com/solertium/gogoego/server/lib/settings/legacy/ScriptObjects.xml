@@ -1,0 +1,40 @@
+<root>
+	<object id="FeedReader" isConfigurable="false">
+		<name>FeedReader</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Reads Feeds</description>
+		<class>com.solertium.gogoego.customerutils.FeedReader</class>
+	</object>
+	<object id="ChannelDecoder" isConfigurable="false">
+		<name>Channel Decoder</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Decodes Channels</description>
+		<class>com.solertium.gogoego.customerutils.ChannelDecoder</class>
+	</object>
+	<object id="FormMail" isConfigurable="false">
+		<name>FormMail</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Mails Forms</description>
+		<class>com.solertium.gogoego.customerutils.FormMail</class>
+	</object>
+	<object id="LocalProperties" isConfigurable="false">
+		<name>LocalProperties</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Contains local properties for a given domain</description>
+		<class>com.solertium.gogoego.customerutils.LocalProperties</class>
+	</object>
+	<object id="TagBrowseUtility" isConfigurable="false">
+		<name>TagBrowseUtility</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Accessor for the TagBrowseResource (the what?)</description>
+		<class>com.solertium.gogoego.customerutils.TagBrowseUtility</class>
+		<parent>TAGS</parent>
+	</object>
+	<object id="TagSearchResultController" isConfigurable="false">
+		<name>TagSearchResultController</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Controls Tag Search Results</description>
+		<class>com.solertium.gogoego.customerutils.TagSearchResultController</class>
+		<parent>TAGS</parent>
+	</object>	
+</root>

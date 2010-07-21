@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dragdrop Plug-in
+Bundle-SymbolicName: com.solertium.gwt.gears.client.dragdrop
+Bundle-Version: 1.0.0
+Bundle-Vendor: SOLERTIUM
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.google.gwt,
+ com.google.gwt.gears
+Export-Package: com.solertium.gwt.gears.client.dragdrop,
+ com.solertium.gwt.gears.client.dragdrop.processors,
+ com.solertium.gwt.gears.client.dragdrop.targets

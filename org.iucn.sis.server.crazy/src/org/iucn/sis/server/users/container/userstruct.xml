@@ -1,0 +1,42 @@
+<!-- 
+	Stores structural information about the user tables of the 
+	database.  The tables store usernames, profile information, 
+	custom field data, and custom field enumerations.
+ -->
+<structure>
+	<!-- Stores user ID and user name -->
+	<table name="user">
+		<column name="id" type="CInteger" key="true" />
+		<column name="username" type="CString" />
+	</table>
+	<!-- Stores all required profile information, separate from custom fields -->
+	<table name="profile">
+		<column name="id" type="CInteger" key="true" use="required"/>
+		<column name="userid" type="CInteger" relatedTable="user" relatedColumn="id" index="true" />
+		<column name="firstname" type="CString" />
+		<column name="initials" type="CString" />
+		<column name="lastname" type="CString" />
+		<column name="email" type="CString" />
+		<column name="affiliation" type="CString" />
+		<column name="quickGroup" type="CString" />
+		<column name="sis" type="CString" />
+		<column name="rapidlist" type="CString" />
+	</table>
+	<!-- Custom field enumerations -->
+	<table name="customfield">
+		<column name="id" type="CInteger" key="true" />
+		<column name="name" type="CString" />
+		<column name="required" type="CString" />
+		<column name="type" type="CString" />
+		<column name="default" type="CString" />
+		<column name="options" type="CString" />
+	</table>
+	<!-- Custom field data values for users -->
+	<table name="customfielddata">
+		<column name="id" type="CInteger" key="true" />
+		<column name="userid" type="CInteger" relatedTable="user" relateColumn="id" />
+		<column name="fieldid" type="CInteger" relatedTable="customfield" relatedColumn="id" />
+		<column name="value" type="CString" />
+		<hint join="user" via="profile" />
+	</table>
+</structure>

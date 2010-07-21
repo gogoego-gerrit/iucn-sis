@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Ext JS Utilities
+Bundle-SymbolicName: com.solertium.util.extjs
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.extjs.gwt,
+ com.google.gwt
+Export-Package: com.solertium.util.extjs, 
+ com.solertium.util.extjs.client

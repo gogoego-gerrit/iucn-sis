@@ -1,0 +1,9 @@
+<module>
+
+	<inherits name='org.iucn.sis.Integrity' />
+		
+	<!-- Specify the app entry point class.
+	     Be sure this is commented out if you are building a full SIS. -->
+	<entry-point class="org.iucn.sis.client.integrity.IntegrityEntryPoint"/>
+	
+</module>

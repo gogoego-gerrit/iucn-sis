@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Hxtt Plug-in
+Bundle-SymbolicName: com.hxtt
+Bundle-Version: 1.0.0
+Bundle-ClassPath: Access_JDBC30.jar
+Export-Package: com.hxtt.a,
+ com.hxtt.b,
+ com.hxtt.c,
+ com.hxtt.concurrent,
+ com.hxtt.d,
+ com.hxtt.global,
+ com.hxtt.security,
+ com.hxtt.sql,
+ com.hxtt.sql.a,
+ com.hxtt.sql.access,
+ com.hxtt.sql.admin,
+ com.hxtt.sql.common,
+ com.hxtt.sql.remote,
+ com.hxtt.sql.server,
+ com.hxtt.swing.a,
+ com.hxtt.swing.util

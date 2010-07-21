@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.Notes" table="notes" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<property name="value" column="value" type="text" not-null="true" lazy="false"/>
+		<set name="Synonyms" table="synonym_notes" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="notesid" not-null="true"/>
+			<many-to-many column="synonymid" class="org.iucn.sis.shared.api.models.Synonym">
+			</many-to-many>
+		</set>
+		<set name="CommonNames" table="common_name_notes" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="notesid" not-null="true"/>
+			<many-to-many column="common_nameid" class="org.iucn.sis.shared.api.models.CommonName">
+			</many-to-many>
+		</set>
+		<set name="Taxa" table="taxon_notes" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="notesid" not-null="true"/>
+			<many-to-many column="taxonid" class="org.iucn.sis.shared.api.models.Taxon">
+			</many-to-many>
+		</set>
+		<set name="Edits" table="notes_edit" lazy="true" cascade="save-update,lock">
+			<key column="notesid" not-null="true"/>
+			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
+			</many-to-many>
+		</set>
+		<set name="Fields" table="notes_field" lazy="true" cascade="save-update,lock">
+			<key column="notesid" not-null="true"/>
+			<many-to-many column="fieldid" class="org.iucn.sis.shared.api.models.Field">
+			</many-to-many>
+		</set>
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,32 @@
+<xs:schema xmlns:xs = "http://www.w3.org/2001/XMLSchema">
+
+<xs:element name="root" type="Root" />
+
+<xs:complexType name="Root">
+	<xs:sequence>
+		<xs:element name="resource" type="xs:string" minOccurs="1" maxOccurs="1" />
+		<xs:element name="section" type="Section" minOccurs="0" maxOccurs="unbounded" />
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="Section">
+	<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="field" type="Field" />
+			<xs:element name="text" type="xs:string" />
+			<xs:element name="authority" type="xs:string" />		
+		</xs:choice>
+	</xs:sequence>
+	<xs:attribute name="name" type="xs:string" use="optional" />
+</xs:complexType>
+
+<xs:complexType name="Field">
+	<xs:sequence>
+		<xs:element name="option" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+	</xs:sequence>
+	<xs:attribute name="name" type="xs:string" use="required" />
+	<xs:attribute name="prompt" type="xs:string" use="required" />
+	<xs:attribute name="required" type="xs:boolean" use="optional" />
+</xs:complexType>
+
+</xs:schema>

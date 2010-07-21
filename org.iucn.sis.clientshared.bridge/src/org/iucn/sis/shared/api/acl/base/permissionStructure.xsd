@@ -1,0 +1,58 @@
+<permissions>
+	<inherits />
+
+	<default />
+	
+	<resource> <!-- Scope a resource! -->
+		<assessment>
+			<region> <!-- Specify a region, "global", or * for unspecified (i.e. any) -->
+				<draft>
+					<field>CanonicalName</field> <!-- Specify one or more fields -->
+					<references /> <!-- Governs references at draft scope -->
+				</draft>
+				<published>
+					<field>CanonicalName</field> <!-- Specify one or more fields -->
+					<references /> <!-- Governs references at published scope -->
+				</published>
+				<asterisk> <!-- An * denotes draft or published -->
+					<field>CanonicalName</field> <!-- Specify one or more fields -->
+					<references /> <!-- Governs references at published scope -->
+				</asterisk>
+			</region>
+		</assessment>
+		<taxon>
+			
+		</taxon>
+		
+		<workingSets />
+	</resource>
+	
+	<scope>
+		<all /> <!-- Scoped to entire taxonomy -->
+		
+		<taxon> <!-- Scoped by taxon name -->
+			<level> <!-- 1+, Specifies level, 1+ names of taxa at this level -->
+				<name>
+			</level>
+		</taxon>
+		
+		<taxonID> <!-- Scoped by taxon ID - includes 1+ IDs -->
+			<ID />
+		</taxonID>
+		
+		<workingSet /> <!-- Scoped by all public working sets a user subscribes to -->
+		
+		<workingSetID> <!-- Scoped by working sets listed by ID, 1+ IDs allowed -->
+			<ID />
+		</workingSetID>
+	</scope>
+
+	<values>
+		<read />
+		<write />
+		<create />
+		<delete />
+		<grant />
+		<use />
+	</values>
+</permissions>

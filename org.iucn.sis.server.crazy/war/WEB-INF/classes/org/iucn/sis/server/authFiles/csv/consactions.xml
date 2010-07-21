@@ -1,0 +1,138 @@
+		<treeRoot>
+			<defaultStructure>
+				<treeStructures>
+					<structure description="In place?">
+						<boolean>false</boolean>
+					</structure>
+				</treeStructures>
+			</defaultStructure>
+			<root id="1" depth="1" codeable="false" expanded="false">
+				<label>Land/water protection</label>
+				<child id="1.1" depth="2" expanded="false">
+					<label>Site/area protection</label>
+				</child>
+				<child id="1.2" depth="2" expanded="false">
+					<label>Resource and habitat protection</label>
+				</child>
+			</root>
+			<root id="2" depth="1" codeable="false" expanded="false">
+				<label>Land/water management</label>
+				<child id="2.1" depth="2" expanded="false">
+					<label>Site/area management</label>
+				</child>
+				<child id="2.2" depth="2" expanded="false">
+					<label>Invasive/problematic species control</label>
+				</child>
+				<child id="2.3" depth="2" expanded="false">
+					<label>Habitat and natural process restoration</label>
+				</child>
+			</root>
+			<root id="3" depth="1" codeable="false" expanded="false">
+				<label>Species management</label>
+				<child id="3.1" depth="2" codeable="false"  expanded="false">
+					<label>Species management</label>
+					<child id="3.1.1" depth="3" expanded="false">
+						<label>Harvest management</label>
+					</child>
+					<child id="3.1.2" depth="3" expanded="false">
+						<label>Trade management</label>
+					</child>
+					<child id="3.1.3" depth="3" expanded="false">
+						<label>Limiting population growth</label>
+					</child>
+				</child>
+				<child id="3.2" depth="2" expanded="false">
+					<label>Species recovery</label>
+				</child>
+				<child id="3.3" depth="2" codeable="false"  expanded="false">
+					<label>Species re-introduction</label>
+					<child id="3.3.1" depth="3" expanded="false">
+						<label>Reintroduction</label>
+					</child>
+					<child id="3.3.2" depth="3" expanded="false">
+						<label>Benign introduction</label>
+					</child>
+				</child>
+				<child id="3.4" depth="2" codeable="false"  expanded="false">
+					<label>Ex-situ conservation</label>
+					<child id="3.4.1" depth="3" expanded="false">
+						<label>Captive breeding/artificial propagation</label>
+					</child>
+					<child id="3.4.2" depth="3" expanded="false">
+						<label>Genome resource bank</label>
+					</child>
+				</child>
+			</root>
+			<root id="4" depth="1" codeable="false" expanded="false">
+				<label>Education and awareness</label>
+				<child id="4.1" depth="2" expanded="false">
+					<label>Formal education</label>
+				</child>
+				<child id="4.2" depth="2" expanded="false">
+					<label>Training</label>
+				</child>
+				<child id="4.3" depth="2" expanded="false">
+					<label>Awareness and communications</label>
+				</child>
+			</root>
+			<root id="5" depth="1" codeable="false" expanded="false">
+				<label>Law and policy</label>
+				<child id="5.1" depth="2" codeable="false"  expanded="false">
+					<label>Legislation</label>
+					<child id="5.1.1" depth="3" expanded="false">
+						<label>International level</label>
+					</child>
+					<child id="5.1.2" depth="3" expanded="false">
+						<label>National level</label>
+					</child>
+					<child id="5.1.3" depth="3" expanded="false">
+						<label>Sub-national level</label>
+					</child>
+					<child id="5.1.4" depth="3" expanded="false">
+						<label>Scale unspecified</label>
+					</child>
+				</child>
+				<child id="5.2" depth="2" expanded="false">
+					<label>Policies and regulations</label>
+				</child>
+				<child id="5.3" depth="2" expanded="false">
+					<label>Private sector standards and codes</label>
+				</child>
+				<child id="5.4" depth="2" codeable="false"  expanded="false">
+					<label>Compliance and enforcement</label>
+					<child id="5.4.1" depth="3" expanded="false">
+						<label>International level</label>
+					</child>
+					<child id="5.4.2" depth="3" expanded="false">
+						<label>National level</label>
+					</child>
+					<child id="5.4.3" depth="3" expanded="false">
+						<label>Sub-national level</label>
+					</child>
+					<child id="5.4.4" depth="3" expanded="false">
+						<label>Scale unspecified</label>
+					</child>
+				</child>
+			</root>
+			<root id="6" depth="1" codeable="false" expanded="false">
+				<label>"Livelihood</label>
+				<child id="6.1" depth="2" expanded="false">
+					<label>Linked enterprises and livelihood alternatives</label>
+				</child>
+				<child id="6.2" depth="2" expanded="false">
+					<label>Substitution</label>
+				</child>
+				<child id="6.3" depth="2" expanded="false">
+					<label>Market forces</label>
+				</child>
+				<child id="6.4" depth="2" expanded="false">
+					<label>Conservation payments</label>
+				</child>
+				<child id="6.5" depth="2" expanded="false">
+					<label>Non-monetary values</label>
+				</child>
+			</root>
+			<root id="7" depth="1" expanded="false">
+				<label>Other</label>
+			</root>
+		</treeRoot>

@@ -1,0 +1,788 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<structure>
+	<!-- Not sent to HGN currently, generate in XML and send in future -->
+	<table name="Aquatic Authority File">
+		<column name="AquRecID" type="CInteger" />
+		<column name="AquType" type="CString" />
+		<column name="AquName" type="CString" />
+		<column name="AquSubName" type="CString" />
+		<column name="AquNotes" scale="65536" type="CString" />
+		<column name="AquAdded" type="CDateTime" />
+		<column name="AquModified" type="CDateTime" />
+		<column name="RLDBRecID" type="CInteger" />
+	</table>
+	<!-- IGNORE -- not used -->
+	<table name="Assessors">
+		<column name="AssRecID" type="CInteger" />
+		<column name="AssName" type="CString" />
+		<column name="AssNotes" scale="65536" type="CString" />
+		<column name="AssAdded" type="CDateTime" />
+		<column name="AssModified" type="CDateTime" />
+		<column name="RLDBRecID" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Class Names Authority File">
+		<column name="ClaRecID" type="CInteger" />
+		<column name="PhyRecID" type="CInteger" />
+		<column name="ClaName" type="CString" />
+		<column name="ClaRecStatus" type="CString" />
+		<column name="ClaCommonName1" type="CString" />
+		<column name="ClaCommonName2" type="CString" />
+		<column name="ClaCommonName3" type="CString" />
+		<column name="ClaCommonName4" type="CString" />
+		<column name="ClaCommonName5" type="CString" />
+		<column name="ClaNotes" scale="65536" type="CString" />
+		<column name="ClaAdded" type="CDateTime" />
+		<column name="ClaModified" type="CDateTime" />
+		<column name="ClByWho" type="CInteger" />
+	</table>
+	<!-- Type of occurrence -->
+	<table name="coding_occurence_lookup">
+		<column name="col_id" type="CInteger" />
+		<column name="col_type" type="CString" />
+		<column name="col_val" type="CInteger" />
+		<column name="col_name" type="CString" />
+	</table>
+	<!-- Load as is -- except we only export English, Spanish, and
+	     French common names -->
+	<table name="CommonName">
+		<column name="ComRecID" type="CInteger" />
+		<column name="ComSpcRecID" type="CInteger" />
+		<column name="ComName" type="CString" />
+		<column name="ComLanDesc" type="CString" />
+		<column name="ComNotes" scale="65536" type="CString" />
+		<column name="ComAdded" type="CDateTime" />
+		<column name="ComModified" type="CDateTime" />
+		<column name="ComByWho" type="CInteger" />
+	</table>
+	<!-- Conservation Actions will be redesigned -->
+	<table name="Conservation_actions_in_place_NEW">
+		<column name="ca_code" type="CInteger" />
+		<column name="sp_code" type="CInteger" />
+		<column name="Action_code" type="CInteger" />
+		<column name="who_added" type="CInteger" />
+		<column name="who_modified" type="CInteger" />
+		<column name="date_added" type="CDateTime" />
+		<column name="date_modified" type="CDateTime" />
+		<column name="Note" scale="65536" type="CString" />
+	</table>
+	<!--  -->
+	<table name="conservation_measures_list_OLD LOOKUP">
+		<column name="Measure_code" type="CInteger" />
+		<column name="Measure_level" type="CInteger" />
+		<column name="Measure_ref" type="CString" />
+		<column name="Measure-description" type="CString" />
+		<column name="Measure_full" type="CString" />
+		<column name="Measure_query" type="CString" />
+		<column name="Measure_order" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="conservation_measures_NEW">
+		<column name="cm_code" type="CInteger" />
+		<column name="sp_code" type="CInteger" />
+		<column name="Measure_code" type="CInteger" />
+		<column name="who_added" type="CInteger" />
+		<column name="who_modified" type="CInteger" />
+		<column name="date_added" type="CDateTime" />
+		<column name="date_modified" type="CDateTime" />
+		<column name="Note" scale="65536" type="CString" />
+	</table>
+	<!--  -->
+	<table name="conservation_measures_OLD DATA">
+		<column name="SpcRecID" type="CInteger" />
+		<column name="Measure_code" type="CInteger" />
+		<column name="In_place" type="CInteger" />
+		<column name="Needed" type="CInteger" />
+		<column name="Notes" scale="65536" type="CString" />
+		<column name="Added" type="CDateTime" />
+		<column name="Modified" type="CDateTime" />
+		<column name="ByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Country Authority File">
+		<column name="CtyRecID" type="CInteger" />
+		<column name="CtyISO3166" type="CInteger" />
+		<column name="CtyBru" type="CInteger" />
+		<column name="CtyISO2" type="CString" />
+		<column name="CtyISO3" type="CString" />
+		<column name="CtyISO4" type="CInteger" />
+		<column name="CtyShort" type="CString" />
+		<column name="CtyLong" type="CString" />
+		<column name="CtyIUCNName" type="CString" />
+		<column name="CtyOldName" type="CString" />
+		<column name="CtyRegion" type="CString" />
+		<column name="CtyBioRegion" type="CString" />
+		<column name="CtyTelCode" type="CString" />
+		<column name="CtyCapital" type="CString" />
+		<column name="CtyNotes" scale="65536" type="CString" />
+		<column name="CtyAdded" type="CDateTime" />
+		<column name="CtyModified" type="CDateTime" />
+		<column name="CtyByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="DataSource">
+		<column name="DscNumber" type="CInteger" />
+		<column name="DscPubTy" type="CString" />
+		<column name="DscAuthors" type="CString" />
+		<column name="DscAuthorType" type="CString" />
+		<column name="DscPubYear" type="CInteger" />
+		<column name="DscDateQual" type="CString" />
+		<column name="DscTitle" type="CString" />
+		<column name="DscCitation" scale="65536" type="CString" />
+		<column name="DscNotes" scale="65536" type="CString" />
+		<column name="DscAdded" type="CDateTime" />
+		<column name="DscModified" type="CDateTime" />
+		<column name="DscByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="DataSourceLinks">
+		<column name="DscNumber" type="CInteger" />
+		<column name="SpcRecID" type="CInteger" />
+	</table>
+	<!-- Potentially redesign -- ask Adrien -->
+	<table name="DistribAquatic">
+		<column name="DaqRecID" type="CInteger" />
+		<column name="DaqSpcRecID" type="CInteger" />
+		<column name="AquRecID" type="CInteger" />
+		<column name="p_code" type="CInteger" />
+		<column name="o_code" type="CInteger" />
+		<column name="m_code" type="CInteger" />
+		<column name="DaqNotes" scale="65536" type="CString" />
+		<column name="DaqAdded" type="CDateTime" />
+		<column name="DaqModified" type="CDateTime" />
+		<column name="DaqByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="DistribCountry">
+		<column name="DctRecID" type="CInteger" />
+		<column name="DctSpcRecID" type="CInteger" />
+		<column name="p_code" type="CInteger" />
+		<column name="o_code" type="CInteger" />
+		<column name="m_code" type="CInteger" />
+		<column name="CtyISO2" type="CString" />
+		<column name="DctNotes" scale="65536" type="CString" />
+		<column name="DctAdded" type="CDateTime" />
+		<column name="DctModified" type="CDateTime" />
+		<column name="DctByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="DistribSub-country">
+		<column name="DbruSpcRecID" type="CInteger" />
+		<column name="DbruDctRecID" type="CInteger" />
+		<column name="DbruCtyISO2" type="CString" />
+		<column name="DbruRecID" type="CInteger" />
+		<column name="p_code" type="CInteger" />
+		<column name="o_code" type="CInteger" />
+		<column name="m_code" type="CInteger" />
+		<column name="DbruAdded" type="CDateTime" />
+		<column name="DbruModified" type="CDateTime" />
+		<column name="DbruByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Documentation">
+		<column name="DocRecID" type="CInteger" />
+		<column name="DocSpcRecID" type="CInteger" />
+		<column name="DocRange" scale="65536" type="CString" />
+		<column name="DocPopulation" scale="65536" type="CString" />
+		<column name="DocHab&amp;Ecology" scale="65536" type="CString" />
+		<column name="Docthreats" scale="65536" type="CString" />
+		<column name="DocConsMeas" scale="65536" type="CString" />
+		<column name="DocAdded" type="CDateTime" />
+		<column name="DocModified" type="CDateTime" />
+		<column name="DocByWho" type="CInteger" />
+	</table>
+	<!-- Not sent to HGN -->
+	<table name="Evaluators">
+		<column name="EvalRecID" type="CInteger" />
+		<column name="EvalName" type="CString" />
+		<column name="EvalNotes" scale="65536" type="CString" />
+		<column name="EvalAdded" type="CDateTime" />
+		<column name="EvalModified" type="CDateTime" />
+		<column name="RLDBRecID" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Family Names Authority File">
+		<column name="FamRecID" type="CInteger" />
+		<column name="OrdRecID" type="CInteger" />
+		<column name="FamName" type="CString" />
+		<column name="FamAuthor" type="CString" />
+		<column name="FamType" type="CString" />
+		<column name="FamStatus" type="CString" />
+		<column name="FamCommonName1" type="CString" />
+		<column name="FamCommonName2" type="CString" />
+		<column name="FamCommonName3" type="CString" />
+		<column name="FamCommonName4" type="CString" />
+		<column name="FamNoGenera" type="CInteger" />
+		<column name="FamNotes" scale="65536" type="CString" />
+		<column name="FamAdded" type="CDateTime" />
+		<column name="FamModified" type="CDateTime" />
+		<column name="FamByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="General_Habitat_Authority_File">
+		<column name="uh_number" type="CInteger" />
+		<column name="Gh_N" type="CInteger" />
+		<column name="GH_level" type="CInteger" />
+		<column name="Middle level code" type="CString" />
+		<column name="Description" type="CString" />
+		<column name="Short Description" type="CString" />
+		<column name="Order" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="General_habitat_new">
+		<column name="Gh_code" type="CInteger" />
+		<column name="SpcRecID" type="CInteger" />
+		<column name="Gh_N" type="CInteger" />
+		<column name="Score" type="CInteger" />
+		<column name="HabNotes" type="CString" />
+		<column name="HabAdded" type="CDateTime" />
+		<column name="HabModified" type="CDateTime" />
+		<column name="HabByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Generic Names Authority File">
+		<column name="GenRecID" type="CInteger" />
+		<column name="FamRecID" type="CInteger" />
+		<column name="GenName" type="CString" />
+		<column name="GenAuthor" type="CString" />
+		<column name="GenStatus" type="CString" />
+		<column name="GenType" type="CString" />
+		<column name="GenCommonName1" type="CString" />
+		<column name="GenCommonName2" type="CString" />
+		<column name="GenCommonName3" type="CString" />
+		<column name="GenCommonName4" type="CString" />
+		<column name="GenNotes" type="CString" />
+		<column name="GenNoSpecies" type="CInteger" />
+		<column name="GenAdded" type="CDateTime" />
+		<column name="GenModified" type="CDateTime" />
+		<column name="GenByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Growth Form Authority File">
+		<column name="GFRecID" type="CInteger" />
+		<column name="GFCode" type="CString" />
+		<column name="GFFull" type="CString" />
+		<column name="GFShort" type="CString" />
+		<column name="GFDefn" scale="65536" type="CString" />
+		<column name="GFAdded" type="CDateTime" />
+		<column name="GFModified" type="CDateTime" />
+		<column name="GFByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Growth Forms">
+		<column name="GFRecNo" type="CInteger" />
+		<column name="GFSpcRecID" type="CInteger" />
+		<column name="GFCode" type="CString" />
+		<column name="GFNotes" scale="65536" type="CString" />
+		<column name="GFAdded" type="CDateTime" />
+		<column name="GFModified" type="CDateTime" />
+		<column name="GFByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Historical Red List Category Authority File">
+		<column name="HRlcRecID" type="CInteger" />
+		<column name="HRlcAbb" type="CString" />
+		<column name="HRlcFull" type="CString" />
+		<column name="HRlcUse" type="CString" />
+		<column name="HRlcDefn" scale="65536" type="CString" />
+		<column name="HRlcSortField" type="CInteger" />
+		<column name="HRlcAdded" type="CDateTime" />
+		<column name="HRlcModified" type="CDateTime" />
+		<column name="HRlcByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Kingdom Names Authority File">
+		<column name="KingRecID" type="CInteger" />
+		<column name="KingName" type="CString" />
+		<column name="KingRecStatus" type="CString" />
+		<column name="KingCommonName1" type="CString" />
+		<column name="KingCommonName2" type="CString" />
+		<column name="KingAdded" type="CDateTime" />
+		<column name="KingModified" type="CDateTime" />
+		<column name="KingByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Order Names Authority File">
+		<column name="OrdRecID" type="CInteger" />
+		<column name="ClaRecID" type="CInteger" />
+		<column name="OrdName" type="CString" />
+		<column name="OrdRecStatus" type="CString" />
+		<column name="OrdCommonName1" type="CString" />
+		<column name="OrdCommonName2" type="CString" />
+		<column name="OrdCommonName3" type="CString" />
+		<column name="OrdCommonName4" type="CString" />
+		<column name="OrdNotes" scale="65536" type="CString" />
+		<column name="OrdAdded" type="CDateTime" />
+		<column name="OrdModified" type="CDateTime" />
+		<column name="OrdByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Phylum Names Authority File">
+		<column name="PhyRecID" type="CInteger" />
+		<column name="KingRecID" type="CInteger" />
+		<column name="PhyName" type="CString" />
+		<column name="PhyRecStatus" type="CString" />
+		<column name="PhyCommonName1" type="CString" />
+		<column name="PhyCommonName2" type="CString" />
+		<!-- In all cases: Added/Modified/ByWho never goes to the web.
+		     Have a SINGLE Modified stamp that goes with an assessment so
+		     that there is some signal if the file is modified mid
+		     release cycle ... this does not get shown to the public
+		     but it is important for HGN to know -->
+		<column name="PhyAdded" type="CDateTime" />
+		<column name="PhyModified" type="CDateTime" />
+		<column name="PhyByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Population">
+		<column name="PopRecID" type="CInteger" />
+		<column name="PopSpcRecID" type="CInteger" />
+		<column name="PopTrend" type="CString" />
+		<column name="PopNotes" type="CString" />
+		<column name="PopAdded" type="CDateTime" />
+		<column name="PopModified" type="CDateTime" />
+		<column name="PopByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Red List Category Authority File">
+		<column name="RlcRecID" type="CInteger" />
+		<column name="RlcAbb" type="CString" />
+		<column name="RlcFull" type="CString" />
+		<column name="RlcDefn" scale="65536" type="CString" />
+		<column name="RlcAdded" type="CDateTime" />
+		<column name="RlcModified" type="CDateTime" />
+		<column name="RlcByWho" type="CInteger" />
+	</table>
+	<!-- DO NOT SEND to HGN exactly: synthesize Recent and Old -->
+	<table name="Red List History_OLD DATA">
+		<column name="RlhNumber" type="CInteger" />
+		<column name="RlhSpcRecID" type="CInteger" />
+		<column name="RlhYear" type="CInteger" />
+		<column name="RlhCategoryAbb" type="CString" />
+		<column name="RlhCategoryTxt" type="CString" />
+		<column name="RlhNote" type="CString" />
+		<column name="RlhSource" type="CString" />
+		<column name="rlstatusnewID" type="CInteger" />
+	</table>
+	<!-- Not used for Web -->
+	<table name="RedListCriteria1994_New">
+		<column name="RecNo" type="CInteger" />
+		<column name="CritVer" type="CString" />
+		<column name="SpcRecID" type="CInteger" />
+		<column name="RLsRecNo" type="CInteger" />
+		<column name="RlsA1a" type="CInteger" />
+		<column name="RlsA1b" type="CInteger" />
+		<column name="RlsA1c" type="CInteger" />
+		<column name="RlsA1d" type="CInteger" />
+		<column name="RlsA1e" type="CInteger" />
+		<column name="RlsA2b" type="CInteger" />
+		<column name="RlsA2c" type="CInteger" />
+		<column name="RlsA2d" type="CInteger" />
+		<column name="RlsA2e" type="CInteger" />
+		<column name="RlsB1" type="CInteger" />
+		<column name="RlsB2a" type="CInteger" />
+		<column name="RlsB2b" type="CInteger" />
+		<column name="RlsB2c" type="CInteger" />
+		<column name="RlsB2d" type="CInteger" />
+		<column name="RlsB2e" type="CInteger" />
+		<column name="RlsB3a" type="CInteger" />
+		<column name="RlsB3b" type="CInteger" />
+		<column name="RlsB3c" type="CInteger" />
+		<column name="RlsB3d" type="CInteger" />
+		<column name="RlsC1" type="CInteger" />
+		<column name="RlsC2a" type="CInteger" />
+		<column name="RlsC2b" type="CInteger" />
+		<column name="RlsD" type="CInteger" />
+		<column name="RlsD1" type="CInteger" />
+		<column name="RlsD2" type="CInteger" />
+		<column name="RlsE" type="CInteger" />
+	</table>
+	<!-- Not used for Web -->
+	<table name="RedListCriteria2001_New">
+		<column name="RecNo" type="CInteger" />
+		<column name="CritVer" type="CString" />
+		<column name="SpcRecID" type="CInteger" />
+		<column name="RLsRecNo" type="CInteger" />
+		<column name="RlsA1a" type="CInteger" />
+		<column name="RlsA1b" type="CInteger" />
+		<column name="RlsA1c" type="CInteger" />
+		<column name="RlsA1d" type="CInteger" />
+		<column name="RlsA1e" type="CInteger" />
+		<column name="RlsA2a" type="CInteger" />
+		<column name="RlsA2b" type="CInteger" />
+		<column name="RlsA2c" type="CInteger" />
+		<column name="RlsA2d" type="CInteger" />
+		<column name="RlsA2e" type="CInteger" />
+		<column name="RlsA3b" type="CInteger" />
+		<column name="RlsA3c" type="CInteger" />
+		<column name="RlsA3d" type="CInteger" />
+		<column name="RlsA3e" type="CInteger" />
+		<column name="RlsA4a" type="CInteger" />
+		<column name="RlsA4b" type="CInteger" />
+		<column name="RlsA4c" type="CInteger" />
+		<column name="RlsA4d" type="CInteger" />
+		<column name="RlsA4e" type="CInteger" />
+		<column name="RlsB1a" type="CInteger" />
+		<column name="RlsB1b(i)" type="CInteger" />
+		<column name="RlsB1b(ii)" type="CInteger" />
+		<column name="RlsB1b(iii)" type="CInteger" />
+		<column name="RlsB1b(iv)" type="CInteger" />
+		<column name="RlsB1b(v)" type="CInteger" />
+		<column name="RlsB1c(i)" type="CInteger" />
+		<column name="RlsB1c(ii)" type="CInteger" />
+		<column name="RlsB1c(iii)" type="CInteger" />
+		<column name="RlsB1c(iv)" type="CInteger" />
+		<column name="RlsB2a" type="CInteger" />
+		<column name="RlsB2b(i)" type="CInteger" />
+		<column name="RlsB2b(ii)" type="CInteger" />
+		<column name="RlsB2b(iii)" type="CInteger" />
+		<column name="RlsB2b(iv)" type="CInteger" />
+		<column name="RlsB2b(v)" type="CInteger" />
+		<column name="RlsB2c(i)" type="CInteger" />
+		<column name="RlsB2c(ii)" type="CInteger" />
+		<column name="RlsB2c(iii)" type="CInteger" />
+		<column name="RlsB2c(iv)" type="CInteger" />
+		<column name="RlsC1" type="CInteger" />
+		<column name="RlsC2a(i)" type="CInteger" />
+		<column name="RlsC2a(ii)" type="CInteger" />
+		<column name="RlsC2b" type="CInteger" />
+		<column name="RlsD" type="CInteger" />
+		<column name="RlsD1" type="CInteger" />
+		<column name="RlsD2" type="CInteger" />
+		<column name="RlsE" type="CInteger" />
+	</table>
+	<!-- Combined into RedListNEW -->
+	<table name="RedListStatus2001_OLD DATA">
+		<column name="RlsRecNo" type="CInteger" />
+		<column name="RlsSpcRecID" type="CInteger" />
+		<column name="RlcAbb" type="CString" />
+		<column name="RlsCriteria" type="CString" />
+		<column name="RlsPossiblyExtinct" type="CString" />
+		<column name="RlsDate" type="CDateTime" />
+		<column name="genuine_change" type="CInteger" />
+		<column name="genuine_recent" type="CInteger" />
+		<column name="genuine_sincefirst" type="CInteger" />
+		<column name="nongenuine_change" type="CInteger" />
+		<column name="criteria_revision" type="CInteger" />
+		<column name="knowledge_new" type="CInteger" />
+		<column name="Knowledge_correction" type="CInteger" />
+		<column name="Knowledge_criteria" type="CInteger" />
+		<column name="Taxonomy" type="CInteger" />
+		<column name="Other" type="CInteger" />
+		<column name="no_change" type="CInteger" />
+		<column name="same" type="CInteger" />
+		<column name="criteria_change" type="CInteger" />
+		<column name="RlsSpcLastSeen" type="CString" />
+		<column name="RlsCaveat" type="CInteger" />
+		<column name="RlsPetition" type="CInteger" />
+		<column name="RlsA1a" type="CInteger" />
+		<column name="RlsA1b" type="CInteger" />
+		<column name="RlsA1c" type="CInteger" />
+		<column name="RlsA1d" type="CInteger" />
+		<column name="RlsA1e" type="CInteger" />
+		<column name="RlsA2a" type="CInteger" />
+		<column name="RlsA2b" type="CInteger" />
+		<column name="RlsA2c" type="CInteger" />
+		<column name="RlsA2d" type="CInteger" />
+		<column name="RlsA2e" type="CInteger" />
+		<column name="RlsA3b" type="CInteger" />
+		<column name="RlsA3c" type="CInteger" />
+		<column name="RlsA3d" type="CInteger" />
+		<column name="RlsA3e" type="CInteger" />
+		<column name="RlsA4a" type="CInteger" />
+		<column name="RlsA4b" type="CInteger" />
+		<column name="RlsA4c" type="CInteger" />
+		<column name="RlsA4d" type="CInteger" />
+		<column name="RlsA4e" type="CInteger" />
+		<column name="RlsB1a" type="CInteger" />
+		<column name="RlsB1b(i)" type="CInteger" />
+		<column name="RlsB1b(ii)" type="CInteger" />
+		<column name="RlsB1b(iii)" type="CInteger" />
+		<column name="RlsB1b(iv)" type="CInteger" />
+		<column name="RlsB1b(v)" type="CInteger" />
+		<column name="RlsB1c(i)" type="CInteger" />
+		<column name="RlsB1c(ii)" type="CInteger" />
+		<column name="RlsB1c(iii)" type="CInteger" />
+		<column name="RlsB1c(iv)" type="CInteger" />
+		<column name="RlsB2a" type="CInteger" />
+		<column name="RlsB2b(i)" type="CInteger" />
+		<column name="RlsB2b(ii)" type="CInteger" />
+		<column name="RlsB2b(iii)" type="CInteger" />
+		<column name="RlsB2b(iv)" type="CInteger" />
+		<column name="RlsB2b(v)" type="CInteger" />
+		<column name="RlsB2c(i)" type="CInteger" />
+		<column name="RlsB2c(ii)" type="CInteger" />
+		<column name="RlsB2c(iii)" type="CInteger" />
+		<column name="RlsB2c(iv)" type="CInteger" />
+		<column name="RlsC1" type="CInteger" />
+		<column name="RlsC2a(i)" type="CInteger" />
+		<column name="RlsC2a(ii)" type="CInteger" />
+		<column name="RlsC2b" type="CInteger" />
+		<column name="RlsD" type="CInteger" />
+		<column name="RlsD1" type="CInteger" />
+		<column name="RlsD2" type="CInteger" />
+		<column name="RlsE" type="CInteger" />
+		<column name="RlsRationale" scale="65536" type="CString" />
+		<column name="RlsNotes" scale="65536" type="CString" />
+		<column name="AssName" scale="65536" type="CString" />
+		<column name="RlsEvalName" type="CString" />
+		<column name="RlsCitation" scale="65536" type="CString" />
+		<column name="RlsAdded" type="CDateTime" />
+		<column name="RlsModified" type="CDateTime" />
+		<column name="RlsByWho" type="CInteger" />
+		<column name="2001RLCatCrit" type="CInteger" />
+	</table>
+	<!-- Combined into RedListNEW  -->
+	<table name="RedListStatus_OLD DATA">
+		<column name="RlsRecNo" type="CInteger" />
+		<column name="RlsSpcRecID" type="CInteger" />
+		<column name="RlcAbb" type="CString" />
+		<column name="RlsCriteria" type="CString" />
+		<column name="RlsPossiblyExtinct" type="CString" />
+		<column name="RlsDate" type="CDateTime" />
+		<column name="genuine_change" type="CInteger" />
+		<column name="genuine_recent" type="CInteger" />
+		<column name="genuine_sincefirst" type="CInteger" />
+		<column name="nongenuine_change" type="CInteger" />
+		<column name="criteria_revision" type="CInteger" />
+		<column name="knowledge_new" type="CInteger" />
+		<column name="Knowledge_correction" type="CInteger" />
+		<column name="Knowledge_criteria" type="CInteger" />
+		<column name="Taxonomy" type="CInteger" />
+		<column name="Other" type="CInteger" />
+		<column name="no_change" type="CInteger" />
+		<column name="same" type="CInteger" />
+		<column name="criteria_change" type="CInteger" />
+		<column name="RlsSpcLastSeen" type="CString" />
+		<column name="RlsCaveat" type="CInteger" />
+		<column name="RlsPetition" type="CInteger" />
+		<column name="RlsA1a" type="CInteger" />
+		<column name="RlsA1b" type="CInteger" />
+		<column name="RlsA1c" type="CInteger" />
+		<column name="RlsA1d" type="CInteger" />
+		<column name="RlsA1e" type="CInteger" />
+		<column name="RlsA2b" type="CInteger" />
+		<column name="RlsA2c" type="CInteger" />
+		<column name="RlsA2d" type="CInteger" />
+		<column name="RlsA2e" type="CInteger" />
+		<column name="RlsB1" type="CInteger" />
+		<column name="RlsB2a" type="CInteger" />
+		<column name="RlsB2b" type="CInteger" />
+		<column name="RlsB2c" type="CInteger" />
+		<column name="RlsB2d" type="CInteger" />
+		<column name="RlsB2e" type="CInteger" />
+		<column name="RlsB3a" type="CInteger" />
+		<column name="RlsB3b" type="CInteger" />
+		<column name="RlsB3c" type="CInteger" />
+		<column name="RlsB3d" type="CInteger" />
+		<column name="RlsC1" type="CInteger" />
+		<column name="RlsC2a" type="CInteger" />
+		<column name="RlsC2b" type="CInteger" />
+		<column name="RlsD" type="CInteger" />
+		<column name="RlsD1" type="CInteger" />
+		<column name="RlsD2" type="CInteger" />
+		<column name="RlsE" type="CInteger" />
+		<column name="RlsRationale" scale="65536" type="CString" />
+		<column name="RlsNotes" scale="65536" type="CString" />
+		<column name="AssName" scale="65536" type="CString" />
+		<column name="RlsEvalName" type="CString" />
+		<column name="RlsCitation" scale="65536" type="CString" />
+		<column name="RlsAdded" type="CDateTime" />
+		<column name="RlsModified" type="CDateTime" />
+		<column name="RlsByWho" type="CInteger" />
+		<column name="2001RLCatCrit" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="RedList_NEW">
+		<column name="RlsRecNo" type="CInteger" />
+		<column name="RlsSpcRecID" type="CInteger" />
+		<column name="RlcAbb" type="CString" />
+		<column name="RlsCriteria" type="CString" />
+		<column name="RlsCritVersion" type="CString" />
+		<column name="RlsCatText" type="CString" />
+		<column name="RlsTaxNote" type="CString" />
+		<column name="RlsPossiblyExtinct" type="CString" />
+		<column name="RlsAssessmentDate" type="CDateTime" />
+		<column name="RlsFinalizedDate" type="CDateTime" />
+		<column name="Source" type="CString" />
+		<column name="SourceDate" type="CString" />
+		<column name="RlsChangeReason" type="CString" />
+		<column name="genuine_change" type="CInteger" />
+		<column name="genuine_recent" type="CInteger" />
+		<column name="genuine_sincefirst" type="CInteger" />
+		<column name="nongenuine_change" type="CInteger" />
+		<column name="criteria_revision" type="CInteger" />
+		<column name="knowledge_new" type="CInteger" />
+		<column name="Knowledge_correction" type="CInteger" />
+		<column name="Knowledge_criteria" type="CInteger" />
+		<column name="Taxonomy" type="CInteger" />
+		<column name="Other" type="CInteger" />
+		<column name="no_change" type="CInteger" />
+		<column name="same" type="CInteger" />
+		<column name="criteria_change" type="CInteger" />
+		<column name="RlsSpcLastSeen" type="CString" />
+		<column name="RlsCaveat" type="CInteger" />
+		<column name="RlsPetition" type="CInteger" />
+		<column name="RlsRationale" scale="65536" type="CString" />
+		<column name="RlsNotes" scale="65536" type="CString" />
+		<column name="AssName" scale="65536" type="CString" />
+		<column name="RlsEvalName" type="CString" />
+		<column name="RlsCitation" scale="65536" type="CString" />
+		<column name="RlsAdded" type="CDateTime" />
+		<column name="RlsModified" type="CDateTime" />
+		<column name="RlsByWho" type="CInteger" />
+		<column name="FromTable" type="CString" />
+		<column name="TableRecID" type="CInteger" />
+		<column name="done" type="CInteger" />
+		<column name="RLHistoryRECID" type="CInteger" />
+		<column name="AssessmentStatus" type="CString" />
+	</table>
+	<!--  -->
+	<table name="research_needed">
+		<column name="rs_code" type="CInteger" />
+		<column name="sp_code" type="CInteger" />
+		<column name="Research_code" type="CInteger" />
+		<column name="who_added" type="CInteger" />
+		<column name="who_modified" type="CInteger" />
+		<column name="date_added" type="CDateTime" />
+		<column name="date_modified" type="CDateTime" />
+		<column name="Note" type="CString" />
+	</table>
+	<!-- Doesn't go to web -->
+	<table name="RLDBUsers">
+		<column name="RLDBRecID" type="CInteger" />
+		<column name="RLDBFullName" type="CString" />
+		<column name="RLDBUser" type="CString" />
+		<column name="RLDBPassword" type="CString" />
+		<column name="RLDBAccessLevel" type="CInteger" />
+		<column name="RLDBActive" type="CInteger" />
+		<column name="RLDBInUse" type="CInteger" />
+		<column name="RLDBExpiryDays" type="CInteger" />
+		<column name="RLDBExpiryDate" type="CDateTime" />
+		<column name="RLDBRecordStatus" type="CString" />
+	</table>
+	<!--  -->
+	<table name="Species">
+		<column name="SpcRecID" type="CInteger" />
+		<column name="ParentSpcRecID" type="CInteger" />
+		<column name="KingName" type="CString" />
+		<column name="PhyName" type="CString" />
+		<column name="ClaName" type="CString" />
+		<column name="OrdName" type="CString" />
+		<column name="FamName" type="CString" />
+		<column name="GenName" type="CString" />
+		<column name="SpcName" type="CString" />
+		<column name="SpcInfraRank" type="CString" />
+		<column name="SpcInfraEpithet" type="CString" />
+		<column name="SpcAuthor" type="CString" />
+		<column name="SpcInfraRankAuthor" type="CString" />
+		<column name="SpcStatus" type="CString" />
+		<column name="SpcStockName" type="CString" />
+		<column name="SpcHybrid" type="CInteger" />
+		<column name="SpcNotes" scale="65536" type="CString" />
+		<column name="SpcEndemism" type="CString" />
+		<column name="SpcDistribComplete" type="CString" />
+		<column name="SpcMarine" type="CInteger" />
+		<column name="SpcFreshwater" type="CInteger" />
+		<column name="SpcTerrestrial" type="CInteger" />
+		<column name="SpcMigratory" type="CInteger" />
+		<column name="SpcPalearctic" type="CInteger" />
+		<column name="SpcAfrotropical" type="CInteger" />
+		<column name="SpcIndomalayan" type="CInteger" />
+		<column name="SpcAustralasian" type="CInteger" />
+		<column name="SpcOceanian" type="CInteger" />
+		<column name="SpcNearctic" type="CInteger" />
+		<column name="SpcNeotropical" type="CInteger" />
+		<column name="SpcAntarctic" type="CInteger" />
+		<column name="SpcRLDistribNotes" scale="65536" type="CString" />
+		<column name="SpcAdded" type="CDateTime" />
+		<column name="SpcModified" type="CDateTime" />
+		<column name="SpcByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="SpeciesRecordNos">
+		<column name="SpcRecNo" type="CInteger" />
+		<column name="SpcRecID" type="CInteger" />
+	</table>
+	<!-- Not web for 2008 -->
+	<table name="STRESS THREAT DATA">
+		<column name="Sp_code" type="CInteger" />
+		<column name="Threat_code" type="CInteger" />
+		<column name="Stress" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Sub-country BRU Authority File">
+		<column name="BruRecID" type="CInteger" />
+		<column name="BruCtyRecID" type="CInteger" />
+		<column name="CtyISO2" type="CString" />
+		<column name="CtyShort" type="CString" />
+		<column name="BruValid" type="CInteger" />
+		<column name="BruIUCNName" type="CString" />
+		<column name="BruLevel3Name" type="CString" />
+		<column name="BruLevel4Code" type="CString" />
+		<column name="BruLevel4Name" type="CString" />
+		<column name="BruNotes" type="CString" />
+		<column name="BruBioRegion" type="CString" />
+		<column name="BruAdded" type="CDateTime" />
+		<column name="BruModified" type="CDateTime" />
+		<column name="BruByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="Synonyms">
+		<column name="SynSpcRecID" type="CInteger" />
+		<column name="SynOldSpcRecID" type="CInteger" />
+		<column name="SynGenName" type="CString" />
+		<column name="SynSpcName" type="CString" />
+		<column name="SynSpcAuthor" type="CString" />
+		<column name="SynInfraRank" type="CString" />
+		<column name="SynInfraEpithet" type="CString" />
+		<column name="SynInfraRankAuthor" type="CString" />
+		<column name="SynStockName" type="CString" />
+		<column name="SynStatus" type="CString" />
+		<column name="RlcAbb" type="CString" />
+		<column name="SynRlsCriteria" type="CString" />
+		<column name="SynRlsDate" type="CDateTime" />
+		<column name="SynAssName" type="CString" />
+		<column name="SynNotes" scale="65536" type="CString" />
+		<column name="SynAdded" type="CDateTime" />
+		<column name="SynModified" type="CDateTime" />
+		<column name="SynByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="threats_new_OLD DATA">
+		<column name="ThrRecID" type="CInteger" />
+		<column name="SpcRecID" type="CInteger" />
+		<column name="Threat_code" type="CInteger" />
+		<column name="Past" type="CInteger" />
+		<column name="Present" type="CInteger" />
+		<column name="Future" type="CInteger" />
+		<column name="ThrOther" type="CString" />
+		<column name="ThrNotes" type="CString" />
+		<column name="ThrAdded" type="CDateTime" />
+		<column name="ThrModified" type="CDateTime" />
+		<column name="ThrByWho" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="threat_list_OLD Lookup">
+		<column name="Threat_code" type="CInteger" />
+		<column name="Threat_level" type="CInteger" />
+		<column name="Threat_ref" type="CString" />
+		<column name="Threat_description" type="CString" />
+		<column name="Threat_query" type="CString" />
+		<column name="Threat_full" type="CString" />
+		<column name="Threat_help" scale="65536" type="CString" />
+		<column name="Threat_Order" type="CInteger" />
+	</table>
+	<!--  -->
+	<table name="threat_table_NEW">
+		<column name="mt_code" type="CInteger" />
+		<column name="Sp_code" type="CInteger" />
+		<column name="Threat_code" type="CInteger" />
+		<column name="threat_timing" type="CString" />
+		<column name="who_added" type="CInteger" />
+		<column name="who_modified" type="CInteger" />
+		<column name="date_added" type="CDateTime" />
+		<column name="date_modified" type="CDateTime" />
+		<column name="Threat_note" scale="65536" type="CString" />
+	</table>
+</structure>

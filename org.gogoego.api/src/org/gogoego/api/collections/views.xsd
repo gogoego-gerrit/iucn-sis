@@ -1,0 +1,102 @@
+<xs:schema xmlns:xs = "http://www.w3.org/2001/XMLSchema">
+
+	<xs:include schemaLocation="pages.xsd" />
+
+	<xs:element name="view" type="View" />
+	
+	<xs:complexType name="View">
+		<xs:sequence>
+			<xs:element name="pages" type="Pages" minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:string" use="required" />
+		<xs:attribute name="title" type="xs:string" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="Pages">
+		<xs:sequence>
+			<xs:element name="page" type="Page" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="optional" />
+		<xs:attribute name="style" type="xs:string" use="optional" />
+	</xs:complexType>
+	
+	<xs:complexType name="Page">
+		<xs:sequence>
+			<xs:element name="pageOrganizations" type="PageOrganization" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="PageOrganization">
+		<xs:sequence>
+			<xs:element name="organization" type="OrganizationChoices" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="OrganizationChoices">
+		<xs:choice>
+			<!-- More options will be supported in the future -->	
+			<xs:element name="field" type="Field" minOccurs="0" maxOccurs="unbounded" />
+		</xs:choice>
+		<xs:attribute name="title" use="optional" />
+	</xs:complexType>
+	
+	<xs:complexType name="Break">
+		<xs:attribute name="pixelSize" type="xs:integer" use="optional" />
+		<xs:attribute name="size" type="SimpleSize" use="optional" />
+	</xs:complexType>	
+	
+	<xs:simpleType name="SimpleSize">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="small" />
+			<xs:enumeration value="medium" />
+			<xs:enumeration value="large" />
+			<xs:enumeration value="SMALL" />
+			<xs:enumeration value="MEDIUM" />
+			<xs:enumeration value="LARGE" />
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="FieldType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="date" />
+			<xs:enumeration value="file" />
+			<xs:enumeration value="image" />
+			<xs:enumeration value="text" />
+			<xs:enumeration value="html" />
+			<xs:enumeration value="boolean" />
+			<xs:enumeration value="singleSelect" />
+			<xs:enumeration value="multipleSelect" />
+			<xs:enumeration value="datetime" />
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:complexType name="Field">
+		<xs:sequence>
+			<xs:element name="option" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="type" type="FieldType" use="required" />
+		<xs:attribute name="name" type="xs:string" use="required" />
+		<xs:attribute name="prompt" type="xs:string" use="required" />
+		<xs:attribute name="required" type="xs:boolean" use="optional" />
+		<xs:attribute name="row" type="xs:integer" use="optional" />
+	</xs:complexType>
+
+	<xs:complexType name="Composite">
+		<xs:sequence>
+			<xs:element name="field" type="Field" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="layout" type="LayoutEnumerations" use="optional" />
+	</xs:complexType>
+	
+	<xs:simpleType name="LayoutEnumerations">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="vertical" />
+			<xs:enumeration value="horizontal" />
+			<xs:enumeration value="table" />
+			<xs:enumeration value="VERTICAL" />
+			<xs:enumeration value="HORIZONTAL" />
+			<xs:enumeration value="TABLE" />
+		</xs:restriction>
+	</xs:simpleType>
+
+</xs:schema>

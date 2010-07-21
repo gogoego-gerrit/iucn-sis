@@ -1,0 +1,76 @@
+body,p,td,th {
+    font-size: 12px;
+}
+th {
+    background-color: #bbbbbb;
+	text-align: left;
+	border-bottom: 1px solid black;
+}
+table {
+    border: solid 1px gray;
+	margin-bottom: 5px;
+}
+.dataBorder {
+	border-bottom: 1px solid #cccccc;
+} 
+h1 {
+    font-size: 1.6em;
+	background-color: #cccccc;
+	border-top: 2px solid black;
+	border-bottom: 2px solid black;
+	color: black;
+	text-align: right;
+	padding: 5 5 5 0px;
+}
+h2 {
+    font-size: 1.5em;
+	border-bottom: 1px solid gray;
+	width: 90%;
+}
+h3 {
+    font-size: 1.3em;
+}
+h4 {
+    font-size: 1.2em;
+}
+h5 {
+    font-size: 1.1em;
+}
+td {
+	text-align: left;
+}
+body {
+	font-family: Georgia, "Times New Roman", Times, serif;
+}
+#header img {
+	float: left;
+}
+#header h1 {
+	width: 100%;
+	border: none;
+	background-color: white;
+	color: black;
+}
+.dataLabel {
+	font-weight: bold;
+}
+
+#speciesInfo {
+	text-align: right;
+}
+
+#redListStatus th {
+	font-size: 1.1em;
+	text-align: center;
+}
+#redListStatusInfo {
+	font-size: 1.1em;
+}
+#draftType {
+	margin-bottom: 10px;
+	border-top: 2px solid black;
+	border-bottom: 2px solid black;
+	font-size: 1.6em;
+	font-weight: bold;
+	text-align: center;
+}

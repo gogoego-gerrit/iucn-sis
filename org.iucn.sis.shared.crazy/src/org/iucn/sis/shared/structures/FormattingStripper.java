@@ -1,0 +1,236 @@
+package org.iucn.sis.shared.structures;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import org.iucn.sis.client.utilities.GWTValidTagFilter;
+
+import com.solertium.util.portable.PortableReplacer;
+import com.solertium.util.portable.PortableTagFilter;
+
+public class FormattingStripper {
+
+	/** Filters everything but simple tags in an HTML file. */
+	public static class SISTagListener implements PortableTagFilter.Listener {
+
+		public static ArrayList<String> tags = new ArrayList<String>();
+
+		private boolean removeNextClosingSpanTag = true;
+
+		public Iterator interestingTagNames() {
+			final ArrayList<String> l = new ArrayList<String>();
+			l.add("*");
+			return l.iterator();
+		}
+
+		public void process(final PortableTagFilter.Tag t) {
+			final String ltn = t.name.toLowerCase();
+
+			if ("a".equals(ltn))
+				return;
+			if ("/a".equals(ltn))
+				return;
+			if ("em".equals(ltn))
+				return;
+			if ("/em".equals(ltn))
+				return;
+			if ("/strong".equals(ltn))
+				return;
+			if ("strong".equals(ltn))
+				return;
+			if ("i".equals(ltn)) {
+				t.newTagText = "<em>";
+				return;
+			}
+			if ("/i".equals(ltn)) {
+				t.newTagText = "</em>";
+				return;
+			}
+			if ("b".equals(ltn)) {
+				t.newTagText = "<strong>";
+				return;
+			}
+			if ("/b".equals(ltn)) {
+				t.newTagText = "</strong>";
+				return;
+			}
+			if ("p".equals(ltn)) {
+				t.newTagText = "<p>";
+				return;
+			}
+			if ("/p".equals(ltn)) {
+				t.newTagText = "</p>";
+				return;
+			}
+			if ("br".equals(ltn)) {
+				t.newTagText = "<br/>";
+				return;
+			}
+			if ("br/".equals(ltn)) {
+				t.newTagText = "<br/>";
+				return;
+			}
+			if ("li".equals(ltn)) {
+				t.newTagText = "<li>";
+				return;
+			}
+			if ("/li".equals(ltn)) {
+				t.newTagText = "</li>";
+				return;
+			}
+			if ("ul".equals(ltn)) {
+				t.newTagText = "<ul>";
+				return;
+			}
+			if ("/ul".equals(ltn)) {
+				t.newTagText = "</ul>";
+				return;
+			}
+			if ("ol".equals(ltn)) {
+				t.newTagText = "<ol>";
+				return;
+			}
+			if ("/ol".equals(ltn)) {
+				t.newTagText = "</ol>";
+				return;
+			}
+			if ("u".equals(ltn)) {
+				t.newTagText = "<u>";
+				return;
+			}
+			if ("/u".equals(ltn)) {
+				t.newTagText = "</u>";
+				return;
+			}
+			if ("/sup".equals(ltn)) {
+				t.newTagText = "</sup>";
+				return;
+			}
+			if ("sup".equals(ltn)) {
+				t.newTagText = "<sup>";
+				return;
+			}
+			if ("/sub".equals(ltn)) {
+				t.newTagText = "</sub>";
+				return;
+			}
+			if ("sub".equals(ltn)) {
+				t.newTagText = "<sub>";
+				return;
+			}
+			if ("/span".equals(ltn)) {
+				if (removeNextClosingSpanTag) {
+					t.newTagText = "";
+					removeNextClosingSpanTag = false;
+				} else
+					removeNextClosingSpanTag = true;
+
+				return;
+			}
+			if ("span".equals(ltn)) {
+				// reset text if lots of attributes
+				HashMap keyset = new HashMap(t.attr);
+				String style = (String) keyset.remove("style");
+				if (style.endsWith(";"))
+					style = style.substring(0, style.length() - 2);
+
+				if (style == null || keyset.size() > 0) {
+					t.newTagText = "";
+					return;
+				}
+
+				// reset text if styles aren't right
+				String[] styles = style.split(";");
+
+				if (styles.length == 0)
+					styles = new String[] { style.replace(";", "") };
+
+				for (String s : styles) {
+					s = s.trim();
+
+					if (s.equals("\"") || s.equals("'"))
+						continue;
+
+					if (s.startsWith("\"") || s.startsWith("'")) {
+						s = s.substring(1);
+					}
+					if (s.endsWith("\"") || s.endsWith("'"))
+						s = s.substring(0, s.length() - 1);
+
+					String[] sides = s.split(":");
+					if (sides.length != 2) {
+						t.newTagText = "";
+						return;
+					}
+
+					String left = sides[0].trim();
+					String right = sides[1].trim();
+					if (!((left.equalsIgnoreCase("font-weight") && right.equalsIgnoreCase("bold"))
+							|| (left.equalsIgnoreCase("font-style") && right.equalsIgnoreCase("italic"))
+							|| (left.equalsIgnoreCase("text-decoration") && right.equalsIgnoreCase("underline")) || (left
+							.equalsIgnoreCase("background-color")))) {
+						t.newTagText = "";
+						removeNextClosingSpanTag = true;
+						return;
+					}
+
+				}
+
+				// otherwise flag to not removing the matching span tag, then
+				// return
+				removeNextClosingSpanTag = false;
+				return;
+			}
+			t.newTagText = "";
+		}
+
+		public void setTagFilter(final PortableTagFilter tf) {
+		}
+	}
+
+	public static String stripText(String in) {
+		if (in == null)
+			return null;
+		in = PortableReplacer.removeHTMLComments(in);
+		final StringBuffer ss = new StringBuffer(in.length());
+		final GWTValidTagFilter filter = new GWTValidTagFilter(in, ss);
+		filter.shortCircuitClosingTags = false;
+		filter.registerListener(new FormattingStripper.SISTagListener());
+		filter.parse();
+
+		String out = PortableReplacer.stripWhitespace(ss.toString());
+		int ctr = 0;
+		try { // attempt to remove leading/trailing junk generated by WYSIWYG
+
+			while (out.endsWith("<br/>")) {
+				out = out.substring(0, out.length() - 5);
+				ctr++;
+				if (ctr > 100)
+					break; // infinite loop protection
+			}
+			while (out.endsWith("&nbsp;")) {
+				out = out.substring(0, out.length() - 6);
+				ctr++;
+				if (ctr > 100)
+					break; // infinite loop protection
+			}
+			while (out.endsWith("<br><br/>")) {
+				out = out.substring(0, out.length() - 9);
+				ctr++;
+				if (ctr > 100)
+					break; // infinite loop protection
+			}
+		} catch (final Exception ignored) {
+		}
+		out = PortableReplacer.replace(out, "&nbsp;", "&#160;"); // illegal xhtml
+
+//		// entity killer
+//		for (String tagname : SISTagListener.tags) {
+//			System.out.print("tag : " + tagname + " -- ");
+//		}
+
+		return out;
+	}
+
+}

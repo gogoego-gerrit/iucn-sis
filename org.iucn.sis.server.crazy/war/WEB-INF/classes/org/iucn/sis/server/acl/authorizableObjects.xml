@@ -1,0 +1,19 @@
+<objects>
+  <assessment>
+    <option>draft_status></option>
+    <option>published_status></option>
+    <attribute>region</attribute>
+    	<option description="Global">global</option>
+    	<option description="Regional Only">(\d,?)+</option>
+    	<option description="Specify a Region">\d</option>
+    </attribute>
+  </assessment>
+  
+  <taxon>
+  	<option>commonName</option>
+  	<option>synonym</option>
+  </taxon>
+  
+  <reference>
+  </reference>
+</objects>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.User" table="`user`" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<property name="username" column="username" unique="true" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="firstName" column="first_name" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="lastName" column="last_name" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="password" column="password" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="initials" column="initials" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="affiliation" column="affiliation" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="sisUser" column="sis_user" type="boolean" length="1" not-null="true" lazy="false"/>
+		<property name="rapidlistUser" column="rapidlist_user" type="boolean" length="1" not-null="false" lazy="false"/>
+		<property name="email" column="email" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="state" column="state" type="integer" length="8" not-null="true" lazy="false"/>
+		<set name="SubscribedWorkingSets" table="working_set_subscribe_user" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="userid" not-null="true"/>
+			<many-to-many column="working_setid" class="org.iucn.sis.shared.api.models.WorkingSet">
+			</many-to-many>
+		</set>
+		<set name="PermissionGroups" table="user_permission" lazy="true" cascade="save-update,lock">
+			<key column="user_id" not-null="true"/>
+			<many-to-many column="permission_group_id" class="org.iucn.sis.shared.api.models.PermissionGroup">
+			</many-to-many>
+		</set>
+		<set name="OwnedWorkingSets" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="creator" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.WorkingSet"/>
+		</set>
+		<set name="Edit" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="userid" not-null="false"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.Edit"/>
+		</set>
+	</class>
+</hibernate-mapping>

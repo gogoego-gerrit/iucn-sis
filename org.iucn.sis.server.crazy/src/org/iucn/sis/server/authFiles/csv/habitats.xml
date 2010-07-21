@@ -1,0 +1,416 @@
+		<treeRoot>
+			<defaultStructure>
+				<treeStructures>
+					<structure>
+						<relatedStructure>
+							<dominantStructures>
+								<structure>
+									<singleSelect>
+										<option>Suitable</option>
+										<option>Marginal</option>
+										<option>Possible</option>
+										<selected>0</selected>
+									</singleSelect>
+								</structure>
+							</dominantStructures>
+							<dependentStructures>
+								<structure>
+									<singleSelect>
+										<option>Yes</option>
+										<option>No</option>
+										<selected>0</selected>
+									</singleSelect>
+								</structure>
+							</dependentStructures>
+							<rules>
+								<selectRule>
+									<activateOnIndex>0</activateOnIndex>
+									<actions>
+										<onTrue>show</onTrue>
+										<onFalse>hide</onFalse>
+									</actions>
+								</selectRule>
+							</rules>
+						</relatedStructure>
+					</structure>
+				</treeStructures>
+			</defaultStructure>
+			<root id="1" depth="1" codeable="false" expanded="false">
+				<label>Forest</label>
+				<child id="1.1" depth="2" expanded="false">
+					<label>Forest - Boreal</label>
+				</child>
+				<child id="1.2" depth="2" expanded="false">
+					<label>Forest - Subarctic</label>
+				</child>
+				<child id="1.3" depth="2" expanded="false">
+					<label>Forest - Subantarctic</label>
+				</child>
+				<child id="1.4" depth="2" expanded="false">
+					<label>Forest - Temperate</label>
+				</child>
+				<child id="1.5" depth="2" expanded="false">
+					<label>Forest - Subtropical/Tropical Dry</label>
+				</child>
+				<child id="1.6" depth="2" expanded="false">
+					<label>Forest - Subtropical/Tropical Moist Lowland</label>
+				</child>
+				<child id="1.7" depth="2" expanded="false">
+					<label>Forest - Subtropical/Tropical Mangrove Vegetation Above High Tide Level</label>
+				</child>
+				<child id="1.8" depth="2" expanded="false">
+					<label>Forest - Subtropical/Tropical Swamp</label>
+				</child>
+				<child id="1.9" depth="2" expanded="false">
+					<label>Forest - Subtropical/Tropical Moist Montane</label>
+				</child>
+			</root>
+			<root id="2" depth="1" codeable="false" expanded="false">
+				<label>Savanna</label>
+				<child id="2.1" depth="2" expanded="false">
+					<label>Savanna - Dry</label>
+				</child>
+				<child id="2.2" depth="2" expanded="false">
+					<label>Savanna - Moist</label>
+				</child>
+			</root>
+			<root id="3" depth="1" codeable="false" expanded="false">
+				<label>Shrubland</label>
+				<child id="3.1" depth="2" expanded="false">
+					<label>Shrubland - Subarctic</label>
+				</child>
+				<child id="3.2" depth="2" expanded="false">
+					<label>Shrubland - Subantarctic</label>
+				</child>
+				<child id="3.3" depth="2" expanded="false">
+					<label>Shrubland - Boreal</label>
+				</child>
+				<child id="3.4" depth="2" expanded="false">
+					<label>Shrubland - Temperate</label>
+				</child>
+				<child id="3.5" depth="2" expanded="false">
+					<label>Shrubland - Subtropical/Tropical Dry</label>
+				</child>
+				<child id="3.6" depth="2" expanded="false">
+					<label>Shrubland - Subtropical/Tropical Moist</label>
+				</child>
+				<child id="3.7" depth="2" expanded="false">
+					<label>Shrubland - Subtropical/Tropical High Altitude</label>
+				</child>
+				<child id="3.8" depth="2" expanded="false">
+					<label>Shrubland - Mediterranean-type Shrubby Vegetation</label>
+				</child>
+			</root>
+			<root id="4" depth="1" codeable="false" expanded="false">
+				<label>Grassland</label>
+				<child id="4.1" depth="2" expanded="false">
+					<label>Grassland - Tundra</label>
+				</child>
+				<child id="4.2" depth="2" expanded="false">
+					<label>Grassland - Subarctic</label>
+				</child>
+				<child id="4.3" depth="2" expanded="false">
+					<label>Grassland - Subantarctic</label>
+				</child>
+				<child id="4.4" depth="2" expanded="false">
+					<label>Grassland - Temperate</label>
+				</child>
+				<child id="4.5" depth="2" expanded="false">
+					<label>Grassland - Subtropical/Tropical Dry</label>
+				</child>
+				<child id="4.6" depth="2" expanded="false">
+					<label>Grassland - Subtropical/Tropical Seasonally Wet/Flooded</label>
+				</child>
+				<child id="4.7" depth="2" expanded="false">
+					<label>Grassland - Subtropical/Tropical High Altitude</label>
+				</child>
+			</root>
+			<root id="5" depth="1" codeable="false" expanded="false">
+				<label>Wetlands (inland)</label>
+				<child id="5.1" depth="2" expanded="false">
+					<label>Wetlands (inland) - Permanent Rivers/Streams/Creeks (includes waterfalls)</label>
+				</child>
+				<child id="5.2" depth="2" expanded="false">
+					<label>Wetlands (inland) - Seasonal/Intermittent/Irregular Rivers/Streams/Creeks</label>
+				</child>
+				<child id="5.3" depth="2" expanded="false">
+					<label>Wetlands (inland) - Shrub Dominated Wetlands</label>
+				</child>
+				<child id="5.4" depth="2" codeable="false"  expanded="false">
+					<label>Marshes</label>
+				</child>
+				<child id="5.5" depth="2" expanded="false">
+					<label>Wetlands (inland) - Permanent Freshwater Lakes (over 8ha)</label>
+				</child>
+				<child id="5.6" depth="2" expanded="false">
+					<label>Wetlands (inland) - Seasonal/Intermittent Freshwater Lakes (over 8ha)</label>
+				</child>
+				<child id="5.7" depth="2" expanded="false">
+					<label>Wetlands (inland) - Permanent Freshwater Marshes/Pools (under 8ha)</label>
+				</child>
+				<child id="5.8" depth="2" expanded="false">
+					<label>Wetlands (inland) - Seasonal/Intermittent Freshwater Marshes/Pools (under 8ha)</label>
+				</child>
+				<child id="5.9" depth="2" expanded="false">
+					<label>Wetlands (inland) - Freshwater Springs and Oases</label>
+				</child>
+				<child id="5.10" depth="2" expanded="false">
+					<label>Wetlands (inland) - Tundra Wetlands (incl. pools and temporary waters from snowmelt)</label>
+				</child>
+				<child id="5.11" depth="2" expanded="false">
+					<label>Wetlands (inland) - Alpine Wetlands (includes temporary waters from snowmelt)</label>
+				</child>
+				<child id="5.12" depth="2" expanded="false">
+					<label>Wetlands (inland) - Geothermal Wetlands</label>
+				</child>
+				<child id="5.13" depth="2" expanded="false">
+					<label>Wetlands (inland) - Permanent Inland Deltas</label>
+				</child>
+				<child id="5.14" depth="2" codeable="false"  expanded="false">
+					<label>Brackish or Alkaline Lakes"</label>
+				</child>
+				<child id="5.15" depth="2" codeable="false"  expanded="false">
+					<label>Brackish or Alkaline Lakes and Flats"</label>
+				</child>
+				<child id="5.16" depth="2" codeable="false"  expanded="false">
+					<label>Brackish or Alkaline Marshes/Pools"</label>
+				</child>
+				<child id="5.17" depth="2" codeable="false"  expanded="false">
+					<label>Brackish or Alkaline Marshes/Pools"</label>
+				</child>
+				<child id="5.18" depth="2" expanded="false">
+					<label>Wetlands (inland) - Karst and Other Subterranean Hydrological Systems (inland)</label>
+				</child>
+			</root>
+			<root id="6" depth="1" codeable="false" expanded="false">
+				<label>mountain peaks)"</label>
+			</root>
+			<root id="7" depth="1" codeable="false" expanded="false">
+				<label>Caves and Subterranean Habitats (non-aquatic)</label>
+				<child id="7.1" depth="2" expanded="false">
+					<label>Caves and Subterranean Habitats (non-aquatic) - Caves</label>
+				</child>
+				<child id="7.2" depth="2" expanded="false">
+					<label>Caves and Subterranean Habitats (non-aquatic) - Other Subterranean Habitats</label>
+				</child>
+			</root>
+			<root id="8" depth="1" codeable="false" expanded="false">
+				<label>Desert</label>
+				<child id="8.1" depth="2" expanded="false">
+					<label>Desert - Hot</label>
+				</child>
+				<child id="8.2" depth="2" expanded="false">
+					<label>Desert - Temperate</label>
+				</child>
+				<child id="8.3" depth="2" expanded="false">
+					<label>Desert - Cold</label>
+				</child>
+			</root>
+			<root id="9" depth="1" codeable="false" expanded="false">
+				<label>Marine Neritic</label>
+				<child id="9.1" depth="2" expanded="false">
+					<label>Marine Neritic - Pelagic</label>
+				</child>
+				<child id="9.2" depth="2" expanded="false">
+					<label>Marine Neritic - Subtidal Rock and Rocky Reefs</label>
+				</child>
+				<child id="9.3" depth="2" expanded="false">
+					<label>Marine Neritic - Subtidal Loose Rock/pebble/gravel</label>
+				</child>
+				<child id="9.4" depth="2" expanded="false">
+					<label>Marine Neritic - Subtidal Sandy</label>
+				</child>
+				<child id="9.5" depth="2" expanded="false">
+					<label>Marine Neritic - Subtidal Sandy-Mud</label>
+				</child>
+				<child id="9.6" depth="2" expanded="false">
+					<label>Marine Neritic - Subtidal Muddy</label>
+				</child>
+				<child id="9.7" depth="2" expanded="false">
+					<label>Marine Neritic - Macroalgal/Kelp</label>
+				</child>
+				<child id="9.8" depth="2" expanded="false">
+					<label>Marine Neritic - Coral Reef</label>
+					<child id="9.8.1" depth="3" expanded="false">
+						<label>Outer Reef Channel</label>
+					</child>
+					<child id="9.8.2" depth="3" expanded="false">
+						<label>Back Slope</label>
+					</child>
+					<child id="9.8.3" depth="3" expanded="false">
+						<label>Foreslope (Outer Reef Slope)</label>
+					</child>
+					<child id="9.8.4" depth="3" expanded="false">
+						<label>Lagoon</label>
+					</child>
+					<child id="9.8.5" depth="3" expanded="false">
+						<label>Inter-Reef Soft Substrate</label>
+					</child>
+					<child id="9.8.6" depth="3" expanded="false">
+						<label>Inter-Reef Rubble Substrate</label>
+					</child>
+				</child>
+				<child id="9.9" depth="2" expanded="false">
+					<label>Marine Neritic - Seagrass (Submerged)</label>
+				</child>
+				<child id="9.10" depth="2" expanded="false">
+					<label>Marine Neritic - Estuaries</label>
+				</child>
+			</root>
+			<root id="10" depth="1" codeable="false" expanded="false">
+				<label>Marine Oceanic</label>
+				<child id="10.1" depth="2" expanded="false">
+					<label>Marine Oceanic - Epipelagic (0-200m)</label>
+				</child>
+				<child id="10.2" depth="2" expanded="false">
+					<label>Marine Oceanic - Mesopelagic (200-1000m)</label>
+				</child>
+				<child id="10.3" depth="2" expanded="false">
+					<label>Marine Oceanic - Bathypelagic (1000-4000m)</label>
+				</child>
+				<child id="10.4" depth="2" expanded="false">
+					<label>Marine Oceanic - Abyssopelagic (4000-6000m)</label>
+				</child>
+			</root>
+			<root id="11" depth="1" codeable="false" expanded="false">
+				<label>Marine Deep Benthic</label>
+				<child id="11.1" depth="2" codeable="false"  expanded="false">
+					<label>000m)"</label>
+					<child id="11.1.1" depth="3" expanded="false">
+						<label>Hard Substrate</label>
+					</child>
+					<child id="11.1.2" depth="3" expanded="false">
+						<label>Soft Substrate</label>
+					</child>
+				</child>
+				<child id="11.2" depth="2" codeable="false"  expanded="false">
+					<label>000-6</label>
+				</child>
+				<child id="11.3" depth="2" codeable="false"  expanded="false">
+					<label>000-6</label>
+				</child>
+				<child id="11.4" depth="2" codeable="false"  expanded="false">
+					<label>000m)"</label>
+				</child>
+				<child id="11.5" depth="2" expanded="false">
+					<label>Marine Deep Benthic - Seamount</label>
+				</child>
+				<child id="11.6" depth="2" expanded="false">
+					<label>Marine Deep Benthic - Deep Sea Vents (Rifts/Seeps)</label>
+				</child>
+			</root>
+			<root id="12" depth="1" codeable="false" expanded="false">
+				<label>Marine Intertidal</label>
+				<child id="12.1" depth="2" expanded="false">
+					<label>Marine Intertidal - Rocky Shoreline</label>
+				</child>
+				<child id="12.2" depth="2" codeable="false"  expanded="false">
+					<label>Sand Bars</label>
+				</child>
+				<child id="12.3" depth="2" expanded="false">
+					<label>Marine Intertidal - Shingle and/or Pebble Shoreline and/or Beaches</label>
+				</child>
+				<child id="12.4" depth="2" expanded="false">
+					<label>Marine Intertidal - Mud Flats and Salt Flats</label>
+				</child>
+				<child id="12.5" depth="2" expanded="false">
+					<label>Marine Intertidal - Salt Marshes (Emergent Grasses)</label>
+				</child>
+				<child id="12.6" depth="2" expanded="false">
+					<label>Marine Intertidal - Tidepools</label>
+				</child>
+				<child id="12.7" depth="2" expanded="false">
+					<label>Marine Intertidal - Mangrove Submerged Roots</label>
+				</child>
+			</root>
+			<root id="13" depth="1" codeable="false" expanded="false">
+				<label>Marine Coastal/Supratidal</label>
+				<child id="13.1" depth="2" expanded="false">
+					<label>Marine Coastal/Supratidal - Sea Cliffs and Rocky Offshore Islands</label>
+				</child>
+				<child id="13.2" depth="2" expanded="false">
+					<label>Marine Coastal/supratidal - Coastal Caves/Karst</label>
+				</child>
+				<child id="13.3" depth="2" expanded="false">
+					<label>Marine Coastal/Supratidal - Coastal Sand Dunes</label>
+				</child>
+				<child id="13.4" depth="2" expanded="false">
+					<label>Marine Coastal/Supratidal - Coastal Brackish/Saline Lagoons/Marine Lakes</label>
+				</child>
+				<child id="13.5" depth="2" expanded="false">
+					<label>Marine Coastal/Supratidal - Coastal Freshwater Lakes</label>
+				</child>
+			</root>
+			<root id="14" depth="1" codeable="false" expanded="false">
+				<label>Artificial/Terrestrial</label>
+				<child id="14.1" depth="2" expanded="false">
+					<label>Artificial/Terrestrial - Arable Land</label>
+				</child>
+				<child id="14.2" depth="2" expanded="false">
+					<label>Artificial/Terrestrial - Pastureland</label>
+				</child>
+				<child id="14.3" depth="2" expanded="false">
+					<label>Artificial/Terrestrial - Plantations</label>
+				</child>
+				<child id="14.4" depth="2" expanded="false">
+					<label>Artificial/Terrestrial - Rural Gardens</label>
+				</child>
+				<child id="14.5" depth="2" expanded="false">
+					<label>Artificial/Terrestrial - Urban Areas</label>
+				</child>
+				<child id="14.6" depth="2" expanded="false">
+					<label>Artificial/Terrestrial - Subtropical/Tropical Heavily Degraded Former Forest</label>
+				</child>
+			</root>
+			<root id="15" depth="1" codeable="false" expanded="false">
+				<label>Artificial/Aquatic and Marine</label>
+				<child id="15.1" depth="2" expanded="false">
+					<label>Artificial/Aquatic - Water Storage Areas (over 8ha)</label>
+				</child>
+				<child id="15.2" depth="2" expanded="false">
+					<label>Artificial/Aquatic - Ponds (below 8ha)</label>
+				</child>
+				<child id="15.3" depth="2" expanded="false">
+					<label>Artificial/Aquatic - Aquaculture Ponds</label>
+				</child>
+				<child id="15.4" depth="2" expanded="false">
+					<label>Artificial/Aquatic - Salt Exploitation Sites</label>
+				</child>
+				<child id="15.5" depth="2" expanded="false">
+					<label>Artificial/Aquatic - Excavations (open)</label>
+				</child>
+				<child id="15.6" depth="2" expanded="false">
+					<label>Artificial/Aquatic - Wastewater Treatment Areas</label>
+				</child>
+				<child id="15.7" depth="2" expanded="false">
+					<label>Artificial/Aquatic - Irrigated Land (includes irrigation channels)</label>
+				</child>
+				<child id="15.8" depth="2" expanded="false">
+					<label>Artificial/Aquatic - Seasonally Flooded Agricultural Land</label>
+				</child>
+				<child id="15.9" depth="2" codeable="false"  expanded="false">
+					<label>Ditches"</label>
+				</child>
+				<child id="15.10" depth="2" expanded="false">
+					<label>Artificial/Aquatic - Karst and Other Subterranean Hydrological Systems (human-made)</label>
+				</child>
+				<child id="15.11" depth="2" expanded="false">
+					<label>Artificial/Marine - Marine Anthropogenic Structures</label>
+				</child>
+				<child id="15.12" depth="2" expanded="false">
+					<label>Artificial/Marine - Mariculture Cages</label>
+				</child>
+				<child id="15.13" depth="2" expanded="false">
+					<label>Artificial/Marine - Mari/Brackishculture Ponds</label>
+				</child>
+			</root>
+			<root id="16" depth="1" expanded="false">
+				<label>Introduced vegetation</label>
+			</root>
+			<root id="17" depth="1" expanded="false">
+				<label>Other</label>
+			</root>
+			<root id="18" depth="1" expanded="false">
+				<label>Unknown</label>
+			</root>
+		</treeRoot>

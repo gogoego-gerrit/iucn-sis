@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Restlet Utilities
+Bundle-SymbolicName: com.solertium.util.restlet
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.solertium.db,
+ com.solertium.util,
+ edu.stanford.ejalbert,
+ javax.activation;version="1.1.1",
+ net.jcip.annotations,
+ org.apache.commons.fileupload
+Export-Package: com.solertium.util.restlet
+Require-Bundle: org.restlet;bundle-version="2.0.0"

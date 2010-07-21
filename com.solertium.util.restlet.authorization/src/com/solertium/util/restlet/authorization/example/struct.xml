@@ -1,0 +1,45 @@
+<!--
+	This test document defines four protected entities:
+	
+	root - Basically covers all requests.  Without it, everything would be 
+	accessible.  By adding this and giving it no actions, you are blocking 
+	all actions.
+	
+	public - Any request at /public or below will be caught here, and can 
+	be "read".
+	
+	hi - Inherently allows for create and update actions (PUT, POST, etc), 
+	and it specifies two uris for this object, "/hi" and "/hello".  Also, 
+	it inherits more actions from public.  The inheritance is additive. So, 
+	after parsing, hi will have create, read, and update functions.  
+	
+	bye - Similar to "hi", it inherits read from the type "public".
+	
+	This is simply to show the full power of the application.  For best 
+	practice, the inheritance model is best used in a hierarchical nature, 
+	so that you get more permissions as you delve into the site.
+	
+	Additionally, a structure document for a particular group would be 
+	be much more specific in regard to its uris.  
+-->
+<structure>
+	<object type="root">
+		<uri>/</uri>
+	</object>
+	<object type="public">
+		<uri>/public</uri>
+		<action>read</action>
+	</object>
+	<object type="hi">
+		<inherits>public</inherits>
+		<uri>/hi</uri>
+		<uri>/hello</uri>
+		<action>create</action>
+		<action>update</action>
+	</object>
+	<object type="bye">
+		<inherits>public</inherits>
+		<uri>/bye</uri>
+		<action>delete</action>
+	</object>
+</structure>

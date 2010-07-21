@@ -1,0 +1,1160 @@
+<assessment id="w0mb4t5"
+		xsi:noNamespaceSchemaLocation = "assessmentStructure.xsd"
+		xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance">
+
+	<basicInformation>
+		<speciesName>wommy wombat5</speciesName>
+		<commonName>Wombat5!</commonName>
+		<taxonomicAuthority>Us</taxonomicAuthority>
+		<assessmentType>
+			<global />
+		</assessmentType>
+		<kingdom>wombatius</kingdom>
+		<phylum>sadness</phylum>
+		<class>funhating</class>
+		<order>hot</order>
+		<family>biggest</family>
+		<genus>wommy</genus>
+		<species>wombat5</species>
+	</basicInformation>
+
+	<field id="0">
+			<canonicalName>RangeDocumentation</canonicalName>
+			<description>Geographic Range Information</description>
+			<classOfService>Documentation</classOfService>
+			<location>Distribution</location>
+			<references>
+				<referenceId>1</referenceId>
+				<referenceId>2</referenceId>
+			</references>
+			<structures>
+				<structure>
+					<narrative>I live in the sea</narrative>
+				</structure>
+			</structures>
+	</field>
+	
+	<field id="1">
+		<!-- AAH used General Info -->
+		<canonicalName>AOO</canonicalName>
+		<description>Area of Occupancy (in km2)</description>
+		<classOfService>Factor</classOfService>
+		<location>Distribution</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<number>100</number>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="2">
+		<canonicalName>AOOContinuingDecline</canonicalName>
+		<description>
+			Continuing decline in area of occupancy
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Distribution</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="3">
+		<canonicalName>AOOExtremeFluctuation</canonicalName>
+		<description>Extreme fluctuations in area of occupancy?</description>
+		<classOfService>Factor</classOfService>
+		<location>Distribution</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="4">
+		<!-- AAH used General Info -->
+		<canonicalName>EOO</canonicalName>
+		<description>Extent of occurrence (in km2)</description>
+		<classOfService>Factor</classOfService>
+		<location>Distribution</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<number>100</number>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="5">
+		<canonicalName>EOOContinuingDecline</canonicalName>
+		<description>
+			Continuing decline in extent of occurrence
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Distribution</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="6">
+		<canonicalName>EOOExtremeFluctuation</canonicalName>
+		<description>
+			Extreme fluctuations in extent of occurrence?
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Distribution</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="7">
+		<canonicalName>HabitatContinuingDecline</canonicalName>
+		<description>Continuing decline in area, extent and/or quality of habitat?
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Distribution</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="8">
+		<canonicalName>AreaRestricted</canonicalName>
+		<description>Very restricted in AOO and/or # of locations</description>
+		<classOfService>Factor</classOfService>
+		<location>Distribution</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="22">
+		<!-- AAH used General Info -->
+		<canonicalName>PopulationSize</canonicalName>
+		<description>Population Size</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<range>
+					<lowerBound>10</lowerBound>
+					<upperBound>90</upperBound>
+				</range>
+			</structure>
+		</structures>
+	</field>
+	<field id="24">
+		<canonicalName>PopulationReductionPast</canonicalName>
+		<description>Percent Reduction in past</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<number>90</number>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="25">
+		<canonicalName>PopulationReductionPastBasis</canonicalName>
+		<description>Past Population Reduction Basis</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<multipleSelect>
+					<option>a) direct observation</option>
+					<option>b) an index of abundance appropriate for the taxon</option>
+					<option>c) a decline in area of occupancy, extent of occurrence and/or quality of habitat</option>
+					<option>d) actual or potential levels of exploitation</option>
+					<option>e) the effects of introduced taxa, hybridization, pathogens, pollutants, competitors or parasites)</option>
+					<selected>1</selected>
+				</multipleSelect>
+			</structure>
+		</structures>
+	</field>
+	<field id="27">
+		<canonicalName>PopulationReductionFuture</canonicalName>
+		<description>Percent Reduction in future</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<number>90</number>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="28">
+		<canonicalName>PopulationReductionFutureBasis</canonicalName>
+		<description>Future Population Reduction Basis</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<multipleSelect>
+					<option>
+						b) an index of abundance appropriate for the
+						taxon
+					</option>
+					<option>
+						c) a decline in area of occupancy, extent of
+						occurrence and/or quality of habitat
+					</option>
+					<option>
+						d) actual or potential levels of exploitation
+					</option>
+					<option>
+						e) the effects of introduced taxa,
+						hybridization, pathogens, pollutants,
+						competitors or parasites)
+					</option>
+					<selected>1</selected>
+				</multipleSelect>
+			</structure>
+		</structures>
+	</field>
+	<field id="29">
+		<canonicalName>PopulationReductionPastandFuture</canonicalName>
+		<description>
+			Both: Percent Reduction over any 10 year or 3 generation
+			period, whichever is longer, and must include both past and
+			future, future can't go beyond 100 years
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<number>90</number>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="30">
+		<canonicalName>
+			PopulationReductionPastandFutureBasis
+		</canonicalName>
+		<description>Both Population Reduction Basis</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<multipleSelect>
+					<option>a) direct observation</option>
+					<option>b) an index of abundance appropriate for the taxon</option>
+					<option>c) a decline in area of occupancy, extent of occurrence and/or quality of habitat</option>
+					<option>d) actual or potential levels of exploitation</option>
+					<option>e) the effects of introduced taxa,hybridization, pathogens, pollutants,competitors or parasites</option>
+					<selected>1</selected>
+				</multipleSelect>
+			</structure>
+		</structures>
+	</field>
+	<field id="31">
+		<canonicalName>PopulationReductionPastandFutureReversible</canonicalName>
+		<description>Causes of both (past and future) reduction reversible?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<booleanUnknown>false</booleanUnknown>
+			</structure>
+		</structures>
+	</field>
+	<field id="32">
+		<canonicalName>PopulationReductionPastandFutureUnderstood</canonicalName>
+		<description>Causes of both (past and future) reduction understood?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<booleanUnknown>false</booleanUnknown>
+			</structure>
+		</structures>
+	</field>
+	<field id="33">
+		<canonicalName>PopulationReductionPastandFutureCeased</canonicalName>
+		<description>
+			Causes of both (past and future) reduction ceased?
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<booleanUnknown>false</booleanUnknown>
+			</structure>
+		</structures>
+	</field>
+	<field id="34">
+		<canonicalName>PopulationReductionPastReversible</canonicalName>
+		<description>Causes of past reduction reversible?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<booleanUnknown>false</booleanUnknown>
+			</structure>
+		</structures>
+	</field>
+	<field id="35">
+		<canonicalName>PopulationReductionFutureReversible</canonicalName>
+		<description>Causes of future reduction reversible?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<booleanUnknown>false</booleanUnknown>
+			</structure>
+		</structures>
+	</field>
+	<field id="36">
+		<canonicalName>PopulationReductionPastUnderstood</canonicalName>
+		<description>Causes of past reduction understood?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<booleanUnknown>false</booleanUnknown>
+			</structure>
+		</structures>
+	</field>
+	<field id="37">
+		<canonicalName>PopulationReductionFutureUnderstood</canonicalName>
+		<description>Causes of future reduction understood?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<booleanUnknown>false</booleanUnknown>
+			</structure>
+		</structures>
+	</field>
+	<field id="38">
+		<canonicalName>PopulationReductionPastCeased</canonicalName>
+		<description>Causes of past reduction ceased?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<booleanUnknown>false</booleanUnknown>
+			</structure>
+		</structures>
+	</field>
+	<field id="39">
+		<canonicalName>PopulationReductionFutureCeased</canonicalName>
+		<description>Causes of future reduction ceased?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<booleanUnknown>false</booleanUnknown>
+			</structure>
+		</structures>
+	</field>
+	<field id="40">
+		<canonicalName>PopulationContinuingDecline</canonicalName>
+		<description>Continuing decline in mature individuals?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>false</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="41">
+		<canonicalName>PopulationDeclineGenerations1</canonicalName>
+		<description>
+			Estimated continuing decline % in mature individuals within
+			1 generation or 3 years, whichever is longer, note to not go
+			100 years in future
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<range>
+								<lowerBound>10</lowerBound>
+								<upperBound>100</upperBound>
+							</range>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="42">
+		<canonicalName>PopulationDeclineGenerations2</canonicalName>
+		<description>
+			Estimated continuing decline % in mature individuals within
+			2 generations or 5 years, whichever is longer, note to not
+			go 100 years in future
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<range>
+								<lowerBound>10</lowerBound>
+								<upperBound>100</upperBound>
+							</range>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="43">
+		<canonicalName>PopulationDeclineGenerations3</canonicalName>
+		<description>
+			Estimated continuing decline % in mature individuals within
+			3 generations or 10 years, whichever is longer, note to not
+			go 100 years in future
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<range>
+								<lowerBound>10</lowerBound>
+								<upperBound>100</upperBound>
+							</range>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="44">
+		<canonicalName>PopulationExtremeFluctuation</canonicalName>
+		<description>Extreme fluctuations? (in # of mature individuals)</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="45">
+		<canonicalName>PopulationTrend</canonicalName>
+		<description>Current Population Trend</description>
+		<classOfService>Documentation</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<singleSelect>
+					<option>Increasing</option>
+					<option>Decreasing</option>
+					<option>Stable</option>
+					<option>Unknown</option>
+					<selected>1</selected>
+				</singleSelect>
+			</structure>
+		</structures>
+	</field>
+	<field id="49">
+		<canonicalName>LocationsNumber</canonicalName>
+		<description>Number of Locations</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<range>
+								<lowerBound>10</lowerBound>
+								<upperBound>100</upperBound>
+							</range>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="50">
+		<canonicalName>SevereFragmentation</canonicalName>
+		<description>Severely fragmented?</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="51">
+		<canonicalName>SubpopulationNumber</canonicalName>
+		<description>Number of Subpopulations</description>
+		<classOfService>Documentation</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<range>
+								<lowerBound>10</lowerBound>
+								<upperBound>100</upperBound>
+							</range>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="52">
+		<canonicalName>LocationContinuingDecline</canonicalName>
+		<description>Continuing decline in number of locations</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="53">
+		<canonicalName>SubpopulationContinuingDecline</canonicalName>
+		<description>Continuing decline in number of subpopulations</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<qualifier>Inferred</qualifier>
+						</structure>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="54">
+		<canonicalName>LocationExtremeFluctuation</canonicalName>
+		<description>Extreme fluctuations in the number of locations</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="55">
+		<canonicalName>SubpopulationExtremeFluctuation</canonicalName>
+		<description>Extreme fluctuations in the number of subpopulations</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<boolean>true</boolean>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<booleanRule>
+							<activateOnRule>false</activateOnRule>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</booleanRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="56">
+		<canonicalName>MaxSubpopulationSize</canonicalName>
+		<description>Size of the largest subpopulation? (in mature individuals)</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<range>
+					<lowerBound>10</lowerBound>
+					<upperBound>90</upperBound>
+				</range>
+			</structure>
+		</structures>
+	</field>
+	<field id="57">
+		<canonicalName>SubpopulationSingle</canonicalName>
+		<description>All individuals in one subpopulation</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<boolean>true</boolean>
+			</structure>
+		</structures>
+	</field>
+	<field id="58">
+		<canonicalName>ExtinctionProbabilityGenerations3</canonicalName>
+		<description>
+			Probability of extinction in the wild within 3 generations
+			or 10 years, whichever is longer, maximum 100 years
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<range>
+								<lowerBound>10</lowerBound>
+								<upperBound>100</upperBound>
+							</range>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="59">
+		<canonicalName>ExtinctionProbabilityGenerations5</canonicalName>
+		<description>
+			Probability of extinction in the wild within 5 generations
+			or 20 years, whichever is longer, maximum 100 years
+		</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<range>
+								<lowerBound>10</lowerBound>
+								<upperBound>100</upperBound>
+							</range>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	<field id="60">
+		<canonicalName>ExtinctionProbabilityYears100</canonicalName>
+		<description>Probability of extinction in the wild within 100 years</description>
+		<classOfService>Factor</classOfService>
+		<location>Population</location>
+		<structures>
+			<structure>
+				<relatedStructure>
+					<dominantStructures>
+						<structure>
+							<range>
+								<lowerBound>10</lowerBound>
+								<upperBound>100</upperBound>
+							</range>
+						</structure>
+					</dominantStructures>
+					<dependentStructures>
+						<structure>
+							<justification>None</justification>
+						</structure>
+					</dependentStructures>
+					<rules>
+						<contentRule>
+							<activateOnContent></activateOnContent>
+							<actions>
+								<onTrue>HIDE</onTrue>
+								<onFalse>SHOW</onFalse>
+							</actions>
+						</contentRule>
+					</rules>
+				</relatedStructure>
+			</structure>
+		</structures>
+	</field>
+	
+</assessment>

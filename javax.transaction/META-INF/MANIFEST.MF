@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Transaction Plug-in
+Bundle-SymbolicName: javax.transaction
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: jta-1.1.jar,
+ .
+Export-Package: javax.transaction,
+ javax.transaction.xa

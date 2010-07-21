@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><module rename-to="com_solertium_gwt_gears_client">
+  <!-- Inherit the core Web Toolkit stuff.                        -->
+  <inherits name="com.google.gwt.user.User"/>
+  <inherits name="com.google.gwt.gears.Gears"/>
+  
+
+  <!-- Inherit the default GWT style sheet.  You can change       -->
+  <!-- the theme of your GWT application by uncommenting          -->
+  <!-- any one of the following lines.                            -->
+  <inherits name="com.google.gwt.user.theme.standard.Standard"/>
+  <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+  <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+  <!-- Other module inherits                                      -->
+  	<inherits name="com.google.gwt.gears.client.dragdrop.DragDrop"/>
+     <source casesensitive="true" defaultexcludes="yes" path="client"/>
+     <source casesensitive="true" defaultexcludes="yes" path="widgets"/>
+
+  <!-- Specify the app entry point class.                         -->
+  <entry-point class="com.solertium.gwt.gears.client.client.Com_solertium_gwt_gears_client"/>
+</module>

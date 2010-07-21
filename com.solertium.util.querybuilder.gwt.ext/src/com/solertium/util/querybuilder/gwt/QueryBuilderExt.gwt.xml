@@ -1,0 +1,9 @@
+<module>
+
+	<!-- Core QueryBuilder -->
+	<inherits name='com.solertium.util.querybuilder.gwt.QueryBuilderExtSource' />
+	
+	<!-- Specify the app entry point class. -->
+	<entry-point class='com.solertium.util.querybuilder.gwt.QueryBuilderExt' />
+	
+</module>

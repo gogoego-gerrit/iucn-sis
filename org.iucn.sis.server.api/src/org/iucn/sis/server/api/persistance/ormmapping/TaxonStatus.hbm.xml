@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.TaxonStatus" table="taxon_status" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="assigned">
+			</generator>
+		</id>
+		<property name="name" column="name" type="string" length="127" not-null="true" lazy="false"/>
+		<property name="code" column="code" unique="true" type="string" length="15" not-null="true" lazy="false"/>
+		<set name="Taxa" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="taxon_statusid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.Taxon"/>
+		</set>
+	</class>
+</hibernate-mapping>

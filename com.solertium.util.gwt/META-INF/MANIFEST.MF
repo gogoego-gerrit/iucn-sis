@@ -1,0 +1,14 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GWT Utilities
+Bundle-SymbolicName: com.solertium.util.gwt
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: com.solertium.util.gwt,
+ com.solertium.util.gwt.api,
+ com.solertium.util.gwt.ui
+Import-Package: com.google.gwt.core.client,
+ com.google.gwt.user.client,
+ com.google.gwt.user.client.rpc,
+ com.google.gwt.user.client.ui

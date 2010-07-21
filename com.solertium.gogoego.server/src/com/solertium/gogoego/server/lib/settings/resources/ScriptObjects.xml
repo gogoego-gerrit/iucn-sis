@@ -1,0 +1,34 @@
+<root>
+	<object id="FeedReader" isConfigurable="false">
+		<name>FeedReader</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Reads Feeds</description>
+		<class>com.solertium.gogoego.customerutils.FeedReader</class>
+		<version>1.0</version>
+		<provider>Solertium</provider>
+	</object>
+	<object id="ChannelDecoder" isConfigurable="false">
+		<name>Channel Decoder</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Decodes Channels</description>
+		<class>com.solertium.gogoego.customerutils.ChannelDecoder</class>
+		<version>1.0</version>
+		<provider>Solertium</provider>
+	</object>
+	<object id="FormMail" isConfigurable="false">
+		<name>FormMail</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Mails Forms</description>
+		<class>com.solertium.gogoego.customerutils.FormMail</class>
+		<version>1.0</version>
+		<provider>Solertium</provider>
+	</object>
+	<object id="LocalProperties" isConfigurable="false">
+		<name>LocalProperties</name>
+		<logo>/admin/images/g64.png</logo>
+		<description>Contains local properties for a given domain</description>
+		<class>com.solertium.gogoego.customerutils.LocalProperties</class>
+		<version>1.0</version>
+		<provider>Solertium</provider>
+	</object>	
+</root>

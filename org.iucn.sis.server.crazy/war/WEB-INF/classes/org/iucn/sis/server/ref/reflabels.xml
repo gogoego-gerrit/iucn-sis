@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<referenceLabels>
+	<type name="book">
+		<field label="Book" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="City" name="place_published" />
+		<field label="Publisher" name="publisher" />
+		<field label="Series Editor" name="secondary_author" />
+		<field label="Series Title" name="secondary_title" />
+		<field label="Volume" name="volume" />
+		<field label="Number of Volumes" name="number_of_volumes" />
+		<field label="Number of Pages" name="pages" />
+		<field label="Edition" name="edition" />
+		<field label="Translator" name="subsidiary_author" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="ISBN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="book section">
+		<field label="Book section" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Editor" name="secondary_author" />
+		<field label="Book Title" name="secondary_title" />
+		<field label="City" name="place_published" />
+		<field label="Pages" name="pages" />
+		<field label="Publisher" name="publisher" />
+		<field label="Volume" name="volume" />
+		<field label="Number of Volumes" name="number_of_volumes" />
+		<field label="Series Editor" name="tertiary_author" />
+		<field label="Series Title" name="tertiary_title" />
+		<field label="Edition" name="edition" />
+		<field label="Translator" name="subsidiary_author" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="ISBN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="conference proceedings">
+		<field label="Conference Proceedings" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year of Conference" name="year" />
+		<field label="Title" name="title" />
+		<field label="Editor" name="secondary_author" />
+		<field label="Conference Name" name="secondary_title" />
+		<field label="Conference Location" name="place_published" />
+		<field label="Publisher" name="publisher" />
+		<field label="Volume" name="volume" />
+		<field label="Number of Volumes" name="number_of_volumes" />
+		<field label="Pages" name="pages" />
+		<field label="Series Editor" name="tertiary_author" />
+		<field label="Series Title" name="tertiary_title" />
+		<field label="Edition" name="edition" />
+		<field label="Date" name="date" />
+		<field label="Sponsor" name="subsidiary_author" />
+		<field label="Short Title" name="short_title" />
+		<field label="ISBN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="journal article">
+		<field label="Journal Article" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Journal" name="secondary_title" />
+		<field label="Volume" name="volume" />
+		<field label="Issue" name="number" />
+		<field label="Pages" name="pages" />
+		<field label="Date" name="date" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Journal" name="alternate_title" />
+		<field label="ISSN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="conference paper">
+		<field label="Conference Paper" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Conference" name="secondary_title" />
+		<field label="Volume" name="volume" />
+		<field label="Issue" name="number" />
+		<field label="Pages" name="pages" />
+		<field label="Date" name="date" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="ISSN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="edited book">
+		<field label="Edited Book" name="publication_type" />
+		<field label="Editor" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="City" name="place_published" />
+		<field label="Publisher" name="publisher" />
+		<field label="Series Editor" name="secondary_author" />
+		<field label="Series Title" name="secondary_title" />
+		<field label="Number of Pages" name="pages" />
+		<field label="Volume" name="volume" />
+		<field label="Number of Volumes" name="number_of_volumes" />
+		<field label="Edition" name="edition" />
+		<field label="Translator" name="subsidiary_author" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="ISBN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>	
+		<type name="journal">
+		<field label="Journal" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="City" name="place_published" />
+		<field label="Publisher" name="publisher" />
+		<field label="Series Editor" name="secondary_author" />
+		<field label="Series Title" name="secondary_title" />
+		<field label="Number of Pages" name="pages" />
+		<field label="Volume" name="volume" />
+		<field label="Number of Volumes" name="number_of_volumes" />
+		<field label="Edition" name="edition" />
+		<field label="Translator" name="subsidiary_author" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="ISBN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>	
+	<type name="electronic source">
+		<field label="Electronic Source" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Series Editor" name="secondary_author" />
+		<field label="Series Title" name="secondary_title" />
+		<field label="City" name="place_published" />
+		<field label="Publisher" name="publisher" />
+		<field label="Access Year" name="volume" />
+		<field label="Access Date" name="number" />
+		<field label="Description" name="pages" />
+		<field label="Edition" name="edition" />
+		<field label="Last Update Date" name="date" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="ISBN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="computer program">
+		<field label="Computer program" name="publication_type" />
+		<field label="Programmer" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Series Editor" name="secondary_author" />
+		<field label="Series Title" name="secondary_title" />
+		<field label="City" name="place_published" />
+		<field label="Publisher" name="publisher" />
+		<field label="Description" name="pages" />
+		<field label="Version" name="edition" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="ISBN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>	
+	<type name="magazine article">
+		<field label="Magazine Article" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Magazine" name="secondary_title" />
+		<field label="Volume" name="volume" />
+		<field label="Issue Number" name="number" />
+		<field label="Pages" name="pages" />
+		<field label="Date" name="date" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Magazine" name="alternate_title" />
+		<field label="ISSN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="manuscript">
+		<field label="Manuscript" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Collection Title" name="secondary_title" />
+		<field label="City" name="place_published" />
+		<field label="Number" name="number" />
+		<field label="Pages" name="pages" />
+		<field label="Date" name="date" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="newspaper article">
+		<field label="Newspaper article" name="publication_type" />
+		<field label="Reporter" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Newspaper" name="secondary_title" />
+		<field label="City" name="place_published" />
+		<field label="Pages" name="pages" />
+		<field label="Section" name="section" />
+		<field label="Edition" name="edition" />
+		<field label="Issue Date" name="date" />
+		<field label="Short Title" name="short_title" />
+		<field label="ISSN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="report">
+		<field label="Report" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Series Editor" name="secondary_author" />
+		<field label="Series Title" name="secondary_title" />
+		<field label="City" name="place_published" />
+		<field label="Institution" name="publisher" />
+		<field label="Pages" name="pages" />
+		<field label="Date" name="date" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="Report Number" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="thesis">
+		<field label="Thesis" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Academic Department" name="secondary_title" />
+		<field label="City" name="place_published" />
+		<field label="University" name="publisher" />
+		<field label="Number of Pages" name="pages" />
+		<field label="Advisor" name="tertiary_author" />
+		<field label="Short Title" name="short_title" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<type name="other">
+		<field label="Other" name="publication_type" />
+		<field label="Author" name="author" />
+		<field label="Year" name="year" />
+		<field label="Title" name="title" />
+		<field label="Secondary Author" name="secondary_author" />
+		<field label="Secondary Title" name="secondary_title" />
+		<field label="Place Published" name="place_published" />
+		<field label="Publisher" name="publisher" />
+		<field label="Volume" name="volume" />
+		<field label="Number of Volumes" name="number_of_volumes" />
+		<field label="Number" name="number" />
+		<field label="Pages" name="pages" />
+		<field label="Section" name="section" />
+		<field label="Tertiary Author" name="tertiary_author" />
+		<field label="Tertiary Title" name="tertiary_title" />
+		<field label="Edition" name="edition" />
+		<field label="Date" name="date" />
+		<field label="Subsidiary Author" name="subsidiary_author" />
+		<field label="Short Title" name="short_title" />
+		<field label="Alternate Title" name="alternate_title" />
+		<field label="ISBN/ISSN" name="isbn/issn" />
+		<field label="Keywords" name="keywords" />
+		<field label="URL" name="url" />
+		<field label="External Bib Code" name="external_bib_code" />
+		<field label="Submission Type" name="submission_type" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+	<!-- The following types accomodate Red List data not in DEM -->
+	<type name="rldb">
+		<field label="Legacy RLDB Reference" name="publication_type" />
+		<field label="RLDB Publication Type" name="place_published" />
+		<field label="Author" name="author" />
+		<field label="RLDB Author Type" name="secondary_author" />
+		<field label="Year" name="year" />
+		<field label="RLDB Date Qualification" name="edition" />
+		<field label="Title" name="title" />
+		<field label="RLDB Full Citation" name="secondary_title" />
+		<field label="RLDB Legacy #" name="alternate_title" />
+		<field label="Citation" name="citation" />
+		<field label="Short Citation" name="citation_short" />
+		<field label="Citation Complete" name="citation_complete" />
+	</type>
+</referenceLabels>

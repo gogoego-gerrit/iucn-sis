@@ -1,0 +1,9 @@
+<module>
+
+	<inherits name='com.solertium.lwxml.BaseLWXML' />
+	<inherits name='com.solertium.util.Portable' />
+	<source path='gwt'/>
+	<source path='shared'/>
+	<source path='factory'/>
+  
+</module>

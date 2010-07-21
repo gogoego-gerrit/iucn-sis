@@ -1,0 +1,6 @@
+<module>
+
+	<source path='api'/>
+	<source path='ui'/>
+  
+</module>

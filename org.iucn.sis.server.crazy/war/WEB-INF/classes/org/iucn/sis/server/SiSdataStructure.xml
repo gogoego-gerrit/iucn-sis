@@ -1,0 +1,1311 @@
+<assessmentStructure>
+	<field id="0">
+		<canonicalName value="" />
+		<description value="Geographic Range Information" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Narrative" />
+	</field>
+	<field id="1">
+		<canonicalName value="Area" />
+		<description value="Area of Occupancy  (in km2)" />
+		<type value="Factor" />
+		<location value="Distribution" />
+		<structure value="Map" />
+	</field>
+	<field id="2">
+		<canonicalName value="" />
+		<description value="Area of Occ Justification" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Text" />
+	</field>
+	<field id="3">
+		<canonicalName value="AreaDecline" />
+		<description value="Continuing decline in area of occupancy" />
+		<type value="Factor" />
+		<location value="Distribution" />
+		<structure value="Boolean" />
+	</field>
+	<field id="4">
+		<canonicalName value="" />
+		<description value="Qualifier SHOULD BE (Observed, Inferred or Projected)" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Qualifier_OPI" />
+		<dependentOn value="3" />
+	</field>
+	<field id="5">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Justification" />
+		<dependentOn value="3" />
+	</field>
+	<field id="6">
+		<canonicalName value="AreaFluctuation" />
+		<description value="Extreme fluctuations in area of occupancy?" />
+		<type value="Factor" />
+		<location value="Distribution" />
+		<structure value="Boolean" />
+	</field>
+	<field id="7">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Justification" />
+		<dependentOn value="6" />
+	</field>
+	<field id="8">
+		<canonicalName value="Extent" />
+		<description value="Extent of occurrence (in km2)" />
+		<type value="Factor" />
+		<location value="Distribution" />
+		<structure value="Number" />
+	</field>
+	<field id="9">
+		<canonicalName value="" />
+		<description value="Extent of Occ Justification (also a Qualifier, but we're dropping that)" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Justification" />
+		<dependentOn value="8" />
+	</field>
+	<field id="10">
+		<canonicalName value="ExtentDecline" />
+		<description value="Continuing decline in extent of occurrence " />
+		<type value="Factor" />
+		<location value="Distribution" />
+		<structure value="Boolean" />
+	</field>
+	<field id="11">
+		<canonicalName value="" />
+		<description value="Qualifier SHOULD BE (Observed, Inferred or Projected)" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Qualifier_OPI" />
+		<dependentOn value="10" />
+	</field>
+	<field id="12">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Justification" />
+		<dependentOn value="10" />
+	</field>
+	<field id="13">
+		<canonicalName value="ExtentFluctuation" />
+		<description value="Extreme fluctuations in extent of occurrence?" />
+		<type value="Factor" />
+		<location value="Distribution" />
+		<structure value="Boolean" />
+	</field>
+	<field id="14">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Justification" />
+		<dependentOn value="13" />
+	</field>
+	<field id="15">
+		<canonicalName value="HabitatDecline" />
+		<description value="Continuing decline in area, extent and/or quality of habitat?" />
+		<type value="Factor" />
+		<location value="Distribution" />
+		<structure value="Boolean" />
+	</field>
+	<field id="16">
+		<canonicalName value="" />
+		<description value="Qualifier SHOULD BE (Observed, Inferred or Projected)" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Qualifier_OPI" />
+		<dependentOn value="15" />
+	</field>
+	<field id="17">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Justification" />
+		<dependentOn value="15" />
+	</field>
+	<field id="18">
+		<canonicalName value="AreaRestricted" />
+		<description value="Very restricted in AOO and/or # of locations such that blah blah blah" />
+		<type value="Factor" />
+		<location value="Distribution" />
+		<structure value="Boolean" />
+	</field>
+	<field id="19">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="Justification" />
+		<dependentOn value="18" />
+	</field>
+	<field id="20">
+		<canonicalName value="" />
+		<description value="Elevation (in metres above sea level) Upper Limit" />
+		<type value="Species Attributes" />
+		<location value="Distribution" />
+		<structure value="Number" />
+	</field>
+	<field id="21">
+		<canonicalName value="" />
+		<description value="Elevation (in metres above sea level) Lower Limit" />
+		<type value="Species Attributes" />
+		<location value="Distribution" />
+		<structure value="Number" />
+	</field>
+	<field id="22">
+		<canonicalName value="" />
+		<description value="Depth (in metres above sea level) Upper Limit" />
+		<type value="Species Attributes" />
+		<location value="Distribution" />
+		<structure value="Number" />
+	</field>
+	<field id="23">
+		<canonicalName value="" />
+		<description value="Depth (in metres above sea level) Lower Limit" />
+		<type value="Species Attributes" />
+		<location value="Distribution" />
+		<structure value="Number" />
+	</field>
+	<field id="24">
+		<canonicalName value="" />
+		<description value="Depth Zone" />
+		<type value="Species Attributes" />
+		<location value="Distribution" />
+		<structure value="SingleSelect">
+			<property name="Depth Zone: Shallow photic (0-50m)" />
+			<property name="Depth Zone: Deep Photic (51-200m)" />
+			<property name="Depth Zone: Bathyl (201-4,000m)" />
+			<property name="Depth Zone: Abyssal (4,001-6,000m)" />
+			<property name="Depth Zone: Hadal (>6,000m)" />
+		</structure>
+	</field>
+	<field id="25">
+		<canonicalName value="" />
+		<description value="Biogeographic Realm" />
+		<type value="Species Attributes" />
+		<location value="Distribution" />
+		<structure value="MultipleSelect">
+			<property name="Biogeographic Realm: Afrotropical" />
+			<property name="Biogeographic Realm: Antarctic" />
+			<property name="Biogeographic Realm: Australasian" />
+			<property name="Biogeographic Realm: Indomalayan" />
+			<property name="Biogeographic Realm: Nearctic" />
+			<property name="Biogeographic Realm: Neotropical" />
+			<property name="Biogeographic Realm: Oceanian" />
+			<property name="Biogeographic Realm: Palearctic" />
+		</structure>
+	</field>
+	<field id="26">
+		<canonicalName value="" />
+		<description value="Map Status" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="SingleSelect">
+			<property name="Map Status: done" />
+			<property name="Map Status: missing" />
+			<property name="Map Status: incomplete" />
+			<property name="Map Status: not possible" />
+		</structure>
+	</field>
+	<field id="27">
+		<canonicalName value="" />
+		<description value="Countries of Occurrence (GET AUTH FILE and RULES FROM JIM)" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="complex" />
+	</field>
+	<field id="28">
+		<canonicalName value="" />
+		<description value="FAO Marine Areas (GET AUTH FILE and RULES FROM JIM)" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="complex" />
+	</field>
+	<field id="29">
+		<canonicalName value="" />
+		<description value="FAO View Map" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="map" />
+	</field>
+	<field id="30">
+		<canonicalName value="" />
+		<description value="Large Marine Ecosystems (GET AUTH FILE  and RULES FROM JIM)" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="complex" />
+	</field>
+	<field id="31">
+		<canonicalName value="" />
+		<description value="Large Marine Ecosystems View Map" />
+		<type value="Documentation" />
+		<location value="Distribution" />
+		<structure value="map" />
+	</field>
+	<field id="32">
+		<canonicalName value="" />
+		<description value="Population Information " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Narrative" />
+	</field>
+	<field id="33">
+		<canonicalName value="PopulationSize" />
+		<description value="Population Size (mature individuals)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="34">
+		<canonicalName value="" />
+		<description value="Number of Mature Individuals in the past (calculated by 3* a single generation or over the last 10 years, whichever is longer (no limit))" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="35">
+		<canonicalName value="PopulationReductionPast" />
+		<description value="Percent Reduction in past" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Number" />
+	</field>
+	<field id="36">
+		<canonicalName value="" />
+		<description value="(%in past) Qualifier (Observed, Estimated, Inferred or Suspected)" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Qualifier_OEIS" />
+		<dependentOn value="35" />
+	</field>
+	<field id="37">
+		<canonicalName value="" />
+		<description value="(%in past) Justification" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="35" />
+	</field>
+	<field id="38">
+		<canonicalName value="PopulationReductionPastBasis" />
+		<description value="Past Population Reduction Basis" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="MultipleSelect">
+			<property name="a) direct observation" />
+			<property name="b) an index of abundance appropriate for the taxon" />
+			<property name="c) a decline in area of occupancy, extent of occurrence and/or quality of habitat " />
+			<property name="d) actual or potential levels of exploitation" />
+			<property name="e) the effects of introduced taxa, hybridization, pathogens, pollutants, competitors or parasites)" />
+		</structure>
+	</field>
+	<field id="39">
+		<canonicalName value="" />
+		<description value="Number of Mature Individuals in the future (calculated by 3* a single generation OR within the next 10 years, whichever is longer, up to a maximum of 100" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Number" />
+	</field>
+	<field id="40">
+		<canonicalName value="PopulationReductionFuture" />
+		<description value="Percent Reduction in future" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Number" />
+	</field>
+	<field id="41">
+		<canonicalName value="" />
+		<description value="(%in future) Qualifier (Projected or Suspected) " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Qualifier_PS" />
+		<dependentOn value="40" />
+	</field>
+	<field id="42">
+		<canonicalName value="" />
+		<description value="(%in future) Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="40" />
+	</field>
+	<field id="43">
+		<canonicalName value="PopulationReductionFutureBasis" />
+		<description value="Future Population Reduction Basis" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="MultipleSelect">
+			<property name="b) an index of abundance appropriate for the taxon" />
+			<property name="c) a decline in area of occupancy, extent of occurrence and/or quality of habitat " />
+			<property name="d) actual or potential levels of exploitation" />
+			<property name="e) the effects of introduced taxa, hybridization, pathogens, pollutants, competitors or parasites)" />
+		</structure>
+	</field>
+	<field id="44">
+		<canonicalName value="PopulationReductionBoth" />
+		<description value="Both:  Percent Reduction over any 10 year or 3 generation period, whichever is longer, and must include both past and future, future can't go beyond 100 years" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Number" />
+	</field>
+	<field id="45">
+		<canonicalName value="" />
+		<description value="(%both) Qualifier (Observed, Estimated, Inferred or Suspected)" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Qualifier_OEIS" />
+		<dependentOn value="44" />
+	</field>
+	<field id="46">
+		<canonicalName value="" />
+		<description value="(%both) Justification" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="44" />
+	</field>
+	<field id="47">
+		<canonicalName value="PopulationReductionBothBasis" />
+		<description value="Both Population Reduction Basis " />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="MultipleSelect">
+			<property name="a) direct observation" />
+			<property name="b) an index of abundance appropriate for the taxon" />
+			<property name="c) a decline in area of occupancy, extent of occurrence and/or quality of habitat " />
+			<property name="d) actual or potential levels of exploitation" />
+			<property name="e) the effects of introduced taxa, hybridization, pathogens, pollutants, competitors or parasites)" />
+		</structure>
+	</field>
+	<field id="48">
+		<canonicalName value="PopulationReductionBothReversible" />
+		<description value="Causes of both (past and future) reduction reversible? (yes or no or unknown)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="49">
+		<canonicalName value="PopulationReductionBothUnderstood" />
+		<description value="Causes of both (past and future) reduction understood (yes or no or unknown)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="50">
+		<canonicalName value="PopulationReductionBothCeased" />
+		<description value="Causes of both (past and future) reduction ceased? (yes or no or unknown)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="51">
+		<canonicalName value="PopulationReductionPastReversible" />
+		<description value="Causes of past reduction reversible? (yes or no or unknown)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="52">
+		<canonicalName value="PopulationReductionFutureReversible" />
+		<description value="Causes of future reduction reversible? (yes or no or unknown)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="53">
+		<canonicalName value="PopulationReductionPastUnderstood" />
+		<description value="Causes of past reduction understood (yes or no or unknown)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="54">
+		<canonicalName value="PopulationReductionFutureUnderstood" />
+		<description value="Causes of future reduction understood? (yes or no or unknown)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="55">
+		<canonicalName value="PopulationReductionPastCeased" />
+		<description value="Causes of past reduction ceased? (yes or no or unknown)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="56">
+		<canonicalName value="PopulationReductionFutureCeased" />
+		<description value="Causes of future reduction ceased? (yes or no or unknown)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="57">
+		<canonicalName value="PopulationDecline" />
+		<description value="Continuing decline in mature individuals? (yes or no)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Boolean" />
+	</field>
+	<field id="58">
+		<canonicalName value="" />
+		<description value="Qualifier SHOULD BE Observed, Projected or Inferred" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Qualifier_OPI" />
+		<dependentOn value="57" />
+	</field>
+	<field id="59">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="57" />
+	</field>
+	<field id="60">
+		<canonicalName value="PopulationDeclineGenerations1" />
+		<description value="Estimated continuing decline % in mature individuals within 1 generation or 3 years, whichever is longer, note to not go 100 years in future" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Number" />
+	</field>
+	<field id="61">
+		<canonicalName value="" />
+		<description value="Qualifier (Observed, Estimated, Projected, Inferred or Suspected) SHOULD BE Observed, Projected or Inferred" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Qualifier_OPI" />
+		<dependentOn value="60" />
+	</field>
+	<field id="62">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="60" />
+	</field>
+	<field id="63">
+		<canonicalName value="PopulationDeclineGenerations2" />
+		<description value="Estimated continuing decline % in mature individuals within 2 generations or 5 years, whichever is longer, note to not go 100 years in future" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Number" />
+	</field>
+	<field id="64">
+		<canonicalName value="" />
+		<description value="Qualifier SHOULD BE Observed, Projected or Inferred" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Qualifier_OPI" />
+		<dependentOn value="63" />
+	</field>
+	<field id="65">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="63" />
+	</field>
+	<field id="66">
+		<canonicalName value="PopulationDeclineGenerations3" />
+		<description value="Estimated continuing decline % in mature individuals within 3 generations or 10 years, whichever is longer, note to not go 100 years in future" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Number" />
+	</field>
+	<field id="67">
+		<canonicalName value="" />
+		<description value="Qualifier SHOULD BE Observed, Projected or Inferred" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Qualifier_OPI" />
+		<dependentOn value="66" />
+	</field>
+	<field id="68">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="66" />
+	</field>
+	<field id="69">
+		<canonicalName value="PopulationFluctuation" />
+		<description value="Extreme fluctuations? (in # of mature individuals)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Boolean" />
+	</field>
+	<field id="70">
+		<canonicalName value="" />
+		<description value="Current Population Trend (Increasing, Decreasing, Stable or Unknown)" />
+		<type value="Factor or Documentation?" />
+		<location value="Population" />
+		<structure value="SingleSelect">
+			<property name="Increasing" />
+			<property name="Decreasing" />
+			<property name="Stable" />
+			<property name="Unknown" />
+		</structure>
+	</field>
+	<field id="71">
+		<canonicalName value="PopulationDeclinePast" />
+		<description value="% population decline in the past (to be replaced)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="72">
+		<canonicalName value="" />
+		<description value="Time period over which the past decline has been measured for applying Criterion A or C1 (in years or generations) (to be replaced)" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="73">
+		<canonicalName value="PopulationDeclineFuture" />
+		<description value="% population decline in the future (see “Percent Reduction in Future above)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="74">
+		<canonicalName value="Locations" />
+		<description value="Number of Locations" />
+		<type value="Factor?" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="75">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="74" />
+	</field>
+	<field id="76">
+		<canonicalName value="SevereFragmentation" />
+		<description value="Severe Fragmentation (tick for yes)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Boolean" />
+	</field>
+	<field id="77">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="76" />
+	</field>
+	<field id="78">
+		<canonicalName value="" />
+		<description value="Number of Subpopulations" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="79">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="78" />
+	</field>
+	<field id="80">
+		<canonicalName value="LocationDecline" />
+		<description value="Continuing decline in number of locations" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Boolean" />
+	</field>
+	<field id="81">
+		<canonicalName value="" />
+		<description value="Qualifier (Observed, Inferred, or Projected)" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Qualifier_OPI" />
+		<dependentOn value="80" />
+	</field>
+	<field id="82">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="80" />
+	</field>
+	<field id="83">
+		<canonicalName value="SubpopulationDecline" />
+		<description value="Continuing decline in number of subpopulations" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Boolean" />
+	</field>
+	<field id="84">
+		<canonicalName value="" />
+		<description value="Qualifier (Observed, Inferred, or Projected)" />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Qualifier_OPI" />
+		<dependentOn value="83" />
+	</field>
+	<field id="85">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="83" />
+	</field>
+	<field id="86">
+		<canonicalName value="LocationFluctuation" />
+		<description value="Extreme fluctuations in the number of locations" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Boolean" />
+	</field>
+	<field id="87">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="86" />
+	</field>
+	<field id="88">
+		<canonicalName value="SubpopulationFluctuation" />
+		<description value="Extreme fluctuations in the number of subpopulations" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Boolean" />
+	</field>
+	<field id="89">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="88" />
+	</field>
+	<field id="90">
+		<canonicalName value="MaxSubpopulationSize" />
+		<description value="Size of the largest subpopulation? (in mature individuals)" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Number" />
+	</field>
+	<field id="91">
+		<canonicalName value="SubpopulationSingle" />
+		<description value="All individuals in one subpopulation" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Boolean" />
+	</field>
+	<field id="92">
+		<canonicalName value="ExtinctionGenerations3" />
+		<description value="Probability of extinction in the wild within 3 generations or 10 years, whichever is longer, maximum 100 years" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="93">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="92" />
+	</field>
+	<field id="94">
+		<canonicalName value="ExtinctionGenerations5" />
+		<description value="Probability of extinction in the wild within 5 generations or 20 years, whichever is longer, maximum 100 years" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="95">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="94" />
+	</field>
+	<field id="96">
+		<canonicalName value="ExtinctionYears100" />
+		<description value="Probability of extinction in the wild within 100 years" />
+		<type value="Factor" />
+		<location value="Population" />
+		<structure value="Range" />
+	</field>
+	<field id="97">
+		<canonicalName value="" />
+		<description value="Justification " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Justification" />
+		<dependentOn value="96" />
+	</field>
+	<field id="98">
+		<canonicalName value="" />
+		<description value="PVA file(s) upload " />
+		<type value="Documentation" />
+		<location value="Population" />
+		<structure value="Upload" />
+	</field>
+	<field id="99">
+		<canonicalName value="" />
+		<description value="Habitat Information" />
+		<type value="Documentation" />
+		<location value="Habitats and Ecology" />
+		<structure value="Narrative" />
+	</field>
+	<field id="100">
+		<canonicalName value="" />
+		<description value="System" />
+		<type value="Species Attributes" />
+		<location value="Habitats and Ecology" />
+		<structure value="SingleSelect">
+			<property name="System: Terrestrial" />
+			<property name="System: Freshwater" />
+			<property name="System: Marine" />
+		</structure>
+	</field>
+	<field id="101">
+		<canonicalName value="" />
+		<description value="Movement Pattern" />
+		<type value="Species Attributes" />
+		<location value="Habitats and Ecology" />
+		<structure value="SingleSelect">
+			<property name="Movement Pattern: Nomadic" />
+			<property name="Movement Pattern: Congregatory/dispersive" />
+			<property name="Movement Pattern: Migratory" />
+			<property name="Movement Pattern: Altitudinally migrant" />
+		</structure>
+	</field>
+	<field id="102">
+		<canonicalName value="" />
+		<description value="Plants: Is the species a wild relative of a crop? tick box" />
+		<type value="Species Attributes" />
+		<location value="Habitats and Ecology" />
+		<structure value="Boolean" />
+	</field>
+	<field id="103">
+		<canonicalName value="" />
+		<description value="Plant Growth Forms:  Growth Form/Definition/Tick all apply: GET AUTH FILE FROM JIM" />
+		<type value="Species Attributes" />
+		<location value="?" />
+		<structure value="complex" />
+	</field>
+	<field id="104">
+		<canonicalName value="" />
+		<description value="General Habitats (GET AUTH FILE and RULES FROM JIM)" />
+		<type value="Documentation" />
+		<location value="Habitats and Ecology" />
+		<structure value="complex" />
+	</field>
+	<field id="105">
+		<canonicalName value="" />
+		<description value="Age at Maturity: Female" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="106">
+		<canonicalName value="" />
+		<description value="Age at Maturity: Male" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="107">
+		<canonicalName value="" />
+		<description value="Units for Age (Days or Months or Years)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="SingleSelect">
+			<property name="Days" />
+			<property name="Month" />
+			<property name="Years" />
+		</structure>
+	</field>
+	<field id="108">
+		<canonicalName value="" />
+		<description value="Size at Maturity (in cms): Female" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="109">
+		<canonicalName value="" />
+		<description value="Size at Maturity (in cms): Male" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="110">
+		<canonicalName value="" />
+		<description value="Longevity" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="111">
+		<canonicalName value="" />
+		<description value="Units for Longevity ((Days or Months or Years)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="SingleSelect">
+			<property name="Days" />
+			<property name="Month" />
+			<property name="Years" />
+		</structure>
+	</field>
+	<field id="112">
+		<canonicalName value="" />
+		<description value="Average Reproductive Age" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="113">
+		<canonicalName value="" />
+		<description value="Units for Reproductive Age (Days or Months or Years)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="SingleSelect">
+			<property name="Days" />
+			<property name="Month" />
+			<property name="Years" />
+		</structure>
+	</field>
+	<field id="114">
+		<canonicalName value="" />
+		<description value="Maximum Size (in cms)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="115">
+		<canonicalName value="" />
+		<description value="Size at Birth (in cms)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="116">
+		<canonicalName value="" />
+		<description value="Gestation Time" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="117">
+		<canonicalName value="" />
+		<description value="Units for Gestation Time (Days or Months or Years)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="SingleSelect">
+			<property name="Days" />
+			<property name="Month" />
+			<property name="Years" />
+		</structure>
+	</field>
+	<field id="118">
+		<canonicalName value="GenerationLength" />
+		<description value="Generation Length" />
+		<type value="Factor" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="119">
+		<canonicalName value="" />
+		<description value="Generation Length Justification" />
+		<type value="Documentation" />
+		<location value="Life History Info" />
+		<structure value="Justification" />
+		<dependentOn value="118" />
+	</field>
+	<field id="120">
+		<canonicalName value="" />
+		<description value="Reproductive Periodicity" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="121">
+		<canonicalName value="" />
+		<description value="Average Annual Fecundity or Litter Size" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="122">
+		<canonicalName value="" />
+		<description value="Annual Rate of Population Increase" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="123">
+		<canonicalName value="" />
+		<description value="Natural Mortality" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="Range" />
+	</field>
+	<field id="124">
+		<canonicalName value="" />
+		<description value="Does the species lay eggs? (Yes or Unknown)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="125">
+		<canonicalName value="" />
+		<description value="Does the species give birth to live young (Yes or Unknown)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="126">
+		<canonicalName value="" />
+		<description value="Does the species exhibit parthenogenesis (Yes or Unknown)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="127">
+		<canonicalName value="" />
+		<description value="Does the species have a free-living larval stage? (Yes or Unknown)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="128">
+		<canonicalName value="" />
+		<description value="Does the species require water for breeding? (Yes or Unknown)" />
+		<type value="Species Attributes" />
+		<location value="Life History Info" />
+		<structure value="BooleanUnknown" />
+	</field>
+	<field id="129">
+		<canonicalName value="" />
+		<description value="Threats Information" />
+		<type value="Documentation" />
+		<location value="Threats" />
+		<structure value="Narrative" />
+	</field>
+	<field id="130">
+		<canonicalName value="" />
+		<description value="Threats (GET AUTH FILE and RULES FROM JIM)" />
+		<type value="Documentation" />
+		<location value="Threats" />
+		<structure value="complex" />
+	</field>
+	<field id="131">
+		<canonicalName value="" />
+		<description value="Conservation Actions Information" />
+		<type value="Documentation" />
+		<location value="Conservation" />
+		<structure value="Narrative" />
+	</field>
+	<field id="132">
+		<canonicalName value="" />
+		<description value="Conservation Actions (GET AUTH FILE and RULES FROM JIM)" />
+		<type value="Documentation" />
+		<location value="Conservation" />
+		<structure value="complex" />
+	</field>
+	<field id="133">
+		<canonicalName value="" />
+		<description value="Research (coming, GET AUTH FILE FROM JIM" />
+		<type value="Documentation" />
+		<location value="Conservation" />
+		<structure value="complex" />
+	</field>
+	<field id="134">
+		<canonicalName value="" />
+		<description value="Insufficient Information Available (tick)" />
+		<type value="Species Attributes" />
+		<location value="Ecosystem Services" />
+		<structure value="Boolean" />
+	</field>
+	<field id="135">
+		<canonicalName value="" />
+		<description value="Species provides no ecosystem services (tick)" />
+		<type value="Species Attributes" />
+		<location value="Ecosystem Services" />
+		<structure value="Boolean" />
+	</field>
+	<field id="136">
+		<canonicalName value="" />
+		<description value="Species not utilized (tick)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Boolean" />
+	</field>
+	<field id="137">
+		<canonicalName value="" />
+		<description value="No use/trade information for this species (tick)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Boolean" />
+	</field>
+	<field id="138">
+		<canonicalName value="" />
+		<description value="Non-consumptive use of the species? (tick)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Boolean" />
+	</field>
+	<field id="139">
+		<canonicalName value="" />
+		<description value="Explanation of non-consumptive use:" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Narrative" />
+	</field>
+	<field id="140">
+		<canonicalName value="" />
+		<description value="Trend in level of total offtake from wild sources" />
+		<type value="" />
+		<location value="" />
+		<structure value="SingleSelect">
+			<property name="           (Increasing/Decreasing/Stable/Unknown)" />
+		</structure>
+	</field>
+	<field id="141">
+		<canonicalName value="" />
+		<description value="Trend in level of total offtake from domesticated sources" />
+		<type value="" />
+		<location value="" />
+		<structure value="SingleSelect">
+			<property name="           (Incre/Decreas/Sta/Not cultivated/Unknown)" />
+		</structure>
+	</field>
+	<field id="142">
+		<canonicalName value="" />
+		<description value="General notes regarding trade and use of this species" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Narrative" />
+	</field>
+	<field id="143">
+		<canonicalName value="" />
+		<description value="Use and Trade Details (can have multiple records – 1 to many relationship – SEE MOCKUP/NEW VERSION)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="complex" />
+	</field>
+	<field id="144">
+		<canonicalName value="" />
+		<description value="Purpose (GET AUTH FILE)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="complex" />
+	</field>
+	<field id="145">
+		<canonicalName value="" />
+		<description value="Source (GET AUTH FILE)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="complex" />
+	</field>
+	<field id="146">
+		<canonicalName value="" />
+		<description value="Form removed (GET AUTH FILE)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="complex" />
+	</field>
+	<field id="147">
+		<canonicalName value="" />
+		<description value="Sub (subsistence) (tick)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Boolean" />
+	</field>
+	<field id="148">
+		<canonicalName value="" />
+		<description value="Nat (national) (tick)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Boolean" />
+	</field>
+	<field id="149">
+		<canonicalName value="" />
+		<description value="Int (international) (tick)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Boolean" />
+	</field>
+	<field id="150">
+		<canonicalName value="" />
+		<description value="Harvest level" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Range" />
+	</field>
+	<field id="151">
+		<canonicalName value="" />
+		<description value="Units (GET AUTH FILE)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="complex" />
+	</field>
+	<field id="152">
+		<canonicalName value="" />
+		<description value="Possible Threat? (tick)" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Boolean" />
+	</field>
+	<field id="153">
+		<canonicalName value="" />
+		<description value="Notes and justification if use is a possible threat:" />
+		<type value="Documentation" />
+		<location value="Use and Trade" />
+		<structure value="Justification" />
+		<dependentOn value="152" />
+	</field>
+	<field id="154">
+		<canonicalName value="" />
+		<description value="CITIES status (Appendix I, Appendix II, Appendix III, or Not listed) NOTE:  would be nice to link to CITIES database in the future" />
+		<type value="Species Attributes" />
+		<location value="Use and Trade" />
+		<structure value="complex" />
+	</field>
+	<field id="155">
+		<canonicalName value="" />
+		<description value="Red List Assessment Category (to be calculated by Red List Expert System)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Text" />
+	</field>
+	<field id="156">
+		<canonicalName value="" />
+		<description value="Red List Criteria (to be calculated by Red List Expert System)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Text" />
+	</field>
+	<field id="157">
+		<canonicalName value="" />
+		<description value="Is the species Possibly Extinct? (tick if yes) (NOTE: only for CR)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Boolean" />
+	</field>
+	<field id="158">
+		<canonicalName value="" />
+		<description value="Possibly Extinct Candidate? (tick if yes) (NOTE: only for CR)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Boolean" />
+	</field>
+	<field id="159">
+		<canonicalName value="" />
+		<description value="Date Last Seen (only for EX, EW, or Possibly EX species): (NOTE: Year format)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Date" />
+	</field>
+	<field id="160">
+		<canonicalName value="" />
+		<description value="Rationale for the Red List Assesssment " />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Narrative" />
+	</field>
+	<field id="161">
+		<canonicalName value="" />
+		<description value="Reason(s) for Change in Red List Category from the Previous Assessment (next few)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="MultipleSelect">
+			<property name="(Genuine Change SELECT (Recent OR Since first assessment)) OR (Nongenuine Change SELECT (New information AND/OR Knowledge of criteria AND/OR Incorrect data used previously AND/OR Taxonomy AND/OR Criteria revision AND/OR Other)) OR (No Change SELECT (Same category and criteria OR Same category but change in criteria))" />
+		</structure>
+	</field>
+	<field id="162">
+		<canonicalName value="" />
+		<description value="Date of Assessment" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Date" />
+	</field>
+	<field id="163">
+		<canonicalName value="" />
+		<description value="Assessor(s) (1 per field, as many fields as needed)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Text" />
+	</field>
+	<field id="164">
+		<canonicalName value="" />
+		<description value="Contributor(s) (1 per field, as many fields as needed)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Text" />
+	</field>
+	<field id="165">
+		<canonicalName value="" />
+		<description value="Evaluator(s) (1 per field, as many fields as needed)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Text" />
+	</field>
+	<field id="166">
+		<canonicalName value="" />
+		<description value="Evaluated (tick box)" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Boolean" />
+	</field>
+	<field id="167">
+		<canonicalName value="" />
+		<description value="Date of Evaluation" />
+		<type value="Outcome" />
+		<location value="Red List Status" />
+		<structure value="Date" />
+	</field>
+	<field id="168">
+		<canonicalName value="" />
+		<description value="Red List Notes (“Comments” on RAMAS)" />
+		<type value="IUCN Internal" />
+		<location value="Assessment Properties" />
+		<structure value="Text" />
+	</field>
+	<field id="169">
+		<canonicalName value="" />
+		<description value="Assessment Scope (Global or Regional or National) NOTE: if you pick National, it should make you specify nation, and Regional, type in a region (not defined)" />
+		<type value="Metadata" />
+		<location value="Assessment Properties" />
+		<structure value="SingleSelect">
+		</structure>
+	</field>
+	<field id="170">
+		<canonicalName value="" />
+		<description value="Authors, etc. - many per assessment (fields to be defined)" />
+		<type value="" />
+		<location value="References" />
+		<structure value="complex" />
+	</field>
+</assessmentStructure>

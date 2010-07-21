@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Restlet VFS Resources
+Bundle-SymbolicName: com.solertium.vfs.restlet
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.solertium.util,
+ com.solertium.util.restlet,
+ com.solertium.vfs,
+ com.solertium.vfs.utils,
+ javax.activation;version="1.1.1",
+ javax.servlet.http,
+ net.jcip.annotations,
+ org.apache.commons.fileupload,
+ org.apache.commons.fileupload.disk
+Export-Package: com.solertium.vfs.restlet
+Require-Bundle: org.restlet;bundle-version="2.0.0",
+ org.restlet.ext.xml;bundle-version="2.0.0",
+ org.restlet.ext.fileupload;bundle-version="2.0.0"

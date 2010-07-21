@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DBSession
+Bundle-SymbolicName: com.solertium.db
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.solertium.util,
+ net.jcip.annotations,
+ org.apache.commons.dbcp,
+ org.apache.commons.pool,
+ org.apache.commons.pool.impl
+Export-Package: com.solertium.db,
+ com.solertium.db.query,
+ com.solertium.db.satools,
+ com.solertium.db.utils,
+ com.solertium.db.vendor

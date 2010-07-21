@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Updater Plug-in
+Bundle-SymbolicName: com.solertium.updater
+Bundle-Version: 1.0.0
+Bundle-Vendor: SOLERTIUM
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.restlet;bundle-version="1.2.0",
+ com.solertium.util.restlet;bundle-version="1.0.0",
+ com.solertium.util;bundle-version="1.0.0",
+ org.restlet.ext.xml;bundle-version="2.0.0"
+Export-Package: com.solertium.update

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.CommonName" table="common_name" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<property name="name" column="name" type="string" length="511" not-null="true" lazy="false"/>
+		<property name="principal" column="principal" type="boolean" length="1" not-null="true" lazy="false"/>
+		<property name="validated" column="validated" type="boolean" length="1" not-null="true" lazy="false"/>
+		<property name="changeReason" column="change_reason" type="integer" length="10" not-null="false" lazy="false"/>
+		<many-to-one name="iso" cascade="lock" column="iso_languageid" class="org.iucn.sis.shared.api.models.IsoLanguage" not-null="false" lazy="no-proxy">
+		</many-to-one>
+		<many-to-one name="taxon" cascade="lock" column="taxonid" class="org.iucn.sis.shared.api.models.Taxon" not-null="true" lazy="no-proxy">
+		</many-to-one>
+		<set name="Reference" table="common_name_reference" lazy="true" cascade="save-update,lock">
+			<key column="common_nameid" not-null="true"/>
+			<many-to-many column="referenceid" class="org.iucn.sis.shared.api.models.Reference">
+			</many-to-many>
+		</set>
+		<set name="Notes" table="common_name_notes" lazy="true" cascade="save-update,lock">
+			<key column="common_nameid" not-null="true"/>
+			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
+			</many-to-many>
+		</set>
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SIS Client Plug-in
+Bundle-SymbolicName: org.iucn.sis.client
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
+ com.extjs.gwt;bundle-version="2.1.2",
+ com.google.gwt;bundle-version="2.0.0",
+ com.solertium.lwxml;bundle-version="1.1.2",
+ com.solertium.lwxml.gwt;bundle-version="1.1.2",
+ com.solertium.util.extjs;bundle-version="1.1.2",
+ com.solertium.util.gwt;bundle-version="1.1.2",
+ com.solertium.util.portable;bundle-version="1.1.2",
+ com.solertium.util.extjs.login;bundle-version="1.0.0",
+ com.solertium.util.gwt.wizard;bundle-version="1.0.0",
+ com.solertium.util.querybuilder;bundle-version="1.0.0",
+ com.solertium.util.querybuilder.gwt.ext;bundle-version="1.0.0",
+ com.solertium.gwtproxy;bundle-version="1.1.2"
+Import-Package: ext.ux.pwd,
+ ext.ux.pwd.client,
+ org.restlet.ext.servlet

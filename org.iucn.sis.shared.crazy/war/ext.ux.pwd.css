@@ -1,0 +1,8 @@
+
+.x-form-password-scoreBar {
+	background-image: url(meter.png);
+	height: 100;
+	width: 0;
+	line-height: 1px;
+	font-size: 1px;
+}

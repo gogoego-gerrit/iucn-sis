@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Authorization
+Bundle-SymbolicName: com.solertium.util.restlet.authorization
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.solertium.util;bundle-version="1.0.0",
+ org.restlet;bundle-version="1.2.0",
+ com.solertium.util.restlet;bundle-version="1.0.0",
+ com.solertium.db;bundle-version="1.0.0"
+Export-Package: com.solertium.util.restlet.authorization.base,
+ com.solertium.util.restlet.authorization.example,
+ com.solertium.util.restlet.authorization.filters
+Import-Package: com.solertium.util.portable

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project name="BootUpdater" default="dist">
+
+	<property name="etc" value="etc" />
+	<property name="src" value="src" />
+	<property name="tools" value="tools" />
+	<property name="lib" value="lib" />
+	<property name="build" value="build" />
+	<property name="dist" value="dist" />
+	<property name="jre" value="jre" />
+
+	<target name="compile" depends="clean" description="compile the code">
+		<mkdir dir="${build}"/>
+		<javac target="1.5" srcdir="${src}" destdir="${build}" debug="on">
+		</javac>
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<mkdir dir="${dist}"/>
+		<copy file="${etc}/bootupdater.properties" todir="${dist}"/>
+		<jar jarfile="${dist}/bootupdater.jar" manifest="${etc}/MANIFEST.MF">
+ 			<fileset dir="${build}"/>
+		</jar>
+	</target>
+
+	<target name="clean" description="clean up">
+		<echo message="cleaning with ant version ${ant.version}"/>
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+	</target>
+	
+</project>

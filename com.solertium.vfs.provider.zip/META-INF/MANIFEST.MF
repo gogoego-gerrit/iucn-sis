@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: VFS ZIP provider
+Bundle-SymbolicName: com.solertium.vfs.provider.zip
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.solertium.util,
+ com.solertium.vfs,
+ com.solertium.vfs.events,
+ com.thoughtworks.xstream,
+ de.schlichtherle.io,
+ net.jcip.annotations

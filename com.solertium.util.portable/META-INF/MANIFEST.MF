@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Portable (GWT/Java) utility classes
+Bundle-SymbolicName: com.solertium.util.portable
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: com.solertium.util.events,
+ com.solertium.util.portable

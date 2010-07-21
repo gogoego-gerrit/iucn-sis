@@ -1,0 +1,26 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Theme Plug-in
+Bundle-SymbolicName: ext.ux.theme
+Bundle-Version: 1.0.0
+Bundle-Vendor: EXTJS
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ClassPath: gxt-theme-black-1.0.jar,
+ gxt-theme-darkgray-1.0.jar,
+ gxt-theme-olive-1.0.jar,
+ gxt-theme-purple-1.0.jar,
+ gxt-theme-slickness-1.0.jar,
+ SlateTheme.jar
+Import-Package: com.extjs.gxt.desktop.client,
+ com.extjs.gxt.themes.client,
+ com.extjs.gxt.ui.client
+Export-Package: ext.ux.theme.black,
+ ext.ux.theme.black.client,
+ ext.ux.theme.darkgray,
+ ext.ux.theme.darkgray.client,
+ ext.ux.theme.olive,
+ ext.ux.theme.olive.client,
+ ext.ux.theme.purple,
+ ext.ux.theme.purple.client,
+ ext.ux.theme.slickness,
+ ext.ux.theme.slickness.client

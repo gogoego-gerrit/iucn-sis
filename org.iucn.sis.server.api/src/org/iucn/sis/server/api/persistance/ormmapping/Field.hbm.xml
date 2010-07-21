@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.Field" table="field" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<many-to-one name="assessment" cascade="lock" column="assessmentid" class="org.iucn.sis.shared.api.models.Assessment" not-null="true" lazy="no-proxy">
+		</many-to-one>
+		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false"/>
+		<many-to-one name="parent" cascade="lock" column="parentid" class="org.iucn.sis.shared.api.models.Field" not-null="false" lazy="no-proxy">
+		</many-to-one>
+		<set name="Notes" table="notes_field" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="fieldid" not-null="true"/>
+			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
+			</many-to-many>
+		</set>
+		<set name="Fields" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="parentid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.Field"/>
+		</set>
+		<set name="Reference" table="field_reference" lazy="true" cascade="save-update,lock">
+			<key column="fieldid" not-null="true"/>
+			<many-to-many column="referenceid" class="org.iucn.sis.shared.api.models.Reference">
+			</many-to-many>
+		</set>
+		<set name="PrimitiveField" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="fieldid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.PrimitiveField"/>
+		</set>
+	</class>
+</hibernate-mapping>

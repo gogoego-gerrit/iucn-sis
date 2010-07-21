@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.PermissionGroup" table="permission_group" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="scopeURI" column="scopeuri" type="string" length="255" not-null="false" lazy="false"/>
+		
+		<many-to-one name="parent" cascade="lock" column="parentid" class="org.iucn.sis.shared.api.models.PermissionGroup" not-null="false" lazy="no-proxy">
+		</many-to-one>
+		<set name="Users" table="user_permission" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="permission_group_id" not-null="true"/>
+			<many-to-many column="user_id" class="org.iucn.sis.shared.api.models.User">
+			</many-to-many>
+		</set>		
+		<set name="Children" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="parentid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.PermissionGroup"/>
+		</set>
+		<set name="Permissions" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="permission_group_id" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.Permission"/>
+		</set>
+	</class>
+</hibernate-mapping>

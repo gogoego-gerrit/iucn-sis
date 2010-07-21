@@ -1,0 +1,266 @@
+<view id="FullView" title="All Fields View"
+	xsi:noNamespaceSchemaLocation="views.xsd"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<pages>
+		<page title="Distribution and Range" id="Distribution">
+			<pageOrganizations>
+				<organization title="Geographic Range Information">
+					<field id="RangeDocumentation"></field>
+				</organization>
+				<organization title="Area of Occupancy">
+					<composite>
+						<field id="AOO"></field>
+						<field id="AOOContinuingDecline"></field>
+					</composite>
+					<composite>
+						<field id="AOOExtremeFluctuation"></field>
+						<field id="AreaRestricted"></field>
+					</composite>
+				</organization>
+				<organization title="Extent of Occurrence">
+					<composite>
+						<field id="EOO"></field>
+						<field id="EOOContinuingDecline"></field>
+					</composite>
+					<composite>
+						<field id="EOOExtremeFluctuation"></field>
+					</composite>
+				</organization>
+				<organization title="Elevation/Depth">
+					<composite>
+						<field id="ElevationUpper"></field>
+						<field id="ElevationLower"></field>
+					</composite>
+					<composite>
+						<field id="DepthUpper"></field>
+						<field id="DepthLower"></field>
+					</composite>
+				</organization>
+				<organization title="Map Status">
+					<field id="MapStatus"></field>
+				</organization>
+				<organization title="Depth Zones">
+					<field id="DepthZone"></field>
+				</organization>
+				<organization title="Biogeographic Realms">
+					<field id="BiogeographicRealm"></field>
+				</organization>
+			</pageOrganizations>
+		</page>
+		<page title="Population" id="Population">
+			<pageOrganizations>
+				<organization title="Population Documentation">
+					<field id="PopulationDocumentation"></field>
+				</organization>
+				<organization title="Population Size Information">
+					<field id="PopulationSize"></field>
+				</organization>
+				<organization title="Population Reduction - Past 10 Years or 3 Generations">
+					<related layout="table">
+						<dominantField id="PopulationReductionPast" />
+						<dependent         id="PopulationReductionPastBasis" />
+						<dependent row="1" id="PopulationReductionPastReversible" />
+						<dependent         id="PopulationReductionPastUnderstood" />
+						<dependent 	       id="PopulationReductionPastCeased" />
+						<activeRule>
+							<contentRule>
+								<activateOnContent></activateOnContent>
+								<actions>
+									<onTrue>HIDE</onTrue>
+									<onFalse>SHOW</onFalse>
+								</actions>
+							</contentRule>
+						</activeRule>
+					</related>
+				</organization>
+				<organization title="Population Reduction - Within Next 10 Years or 3 Generations">
+					<related layout="table">
+						<dominantField id="PopulationReductionFuture" />
+						<dependent         id="PopulationReductionFutureBasis" />
+						<dependent row="1" id="PopulationReductionFutureReversible" />
+						<dependent         id="PopulationReductionFutureUnderstood" />
+						<dependent         id="PopulationReductionFutureCeased" />
+						<activeRule>
+							<contentRule>
+								<activateOnContent></activateOnContent>
+								<actions>
+									<onTrue>HIDE</onTrue>
+									<onFalse>SHOW</onFalse>
+								</actions>
+							</contentRule>
+						</activeRule>
+					</related>
+				</organization>
+				<organization
+					title="Population Reduction - Any 10 Year or 3 Generation Period">
+					<related layout="table">
+						<dominantField id="PopulationReductionPastandFuture" />
+						<dependent         id="PopulationReductionPastandFutureBasis" />
+						<dependent row="1" id="PopulationReductionPastandFutureReversible" />
+						<dependent         id="PopulationReductionPastandFutureUnderstood" />
+						<dependent         id="PopulationReductionPastandFutureCeased" />
+						<activeRule>
+							<contentRule>
+								<activateOnContent></activateOnContent>
+								<actions>
+									<onTrue>HIDE</onTrue>
+									<onFalse>SHOW</onFalse>
+								</actions>
+							</contentRule>
+						</activeRule>
+					</related>
+				</organization>
+				<organization title="Continuing Decline Information">
+					<composite>
+						<field id="PopulationContinuingDecline"></field>
+					</composite>
+					<composite>
+						<field id="PopulationDeclineGenerations1"></field>
+						<field id="PopulationDeclineGenerations2"></field>
+						<field id="PopulationDeclineGenerations3"></field>
+					</composite>
+				</organization>
+				<organization title="Population trends">
+					<field id="PopulationExtremeFluctuation"></field>
+					<field id="PopulationTrend"></field>
+				</organization>
+			</pageOrganizations>
+		</page>
+		<page title="Ecosystem Services" id="EcosystemServices">
+			<!-- AAH note: this page added by AAH -->
+			<pageOrganizations>
+				<organization
+					title="Ecosystem Services Provided by the Species">
+					<composite>
+						<field id="EcosystemServicesInsufficientInfo"></field>
+						<field id="EcosystemServicesProvidesNone"></field>
+					</composite>
+					<composite>
+						<field id="EcosystemServices"></field>
+					</composite>
+				</organization>
+			</pageOrganizations>
+		</page>
+		<page title="Species Ecology" id="Ecology">
+			<pageOrganizations>
+				<organization title="Life History">
+					<composite>
+						<field id="FemaleMaturityAge"></field>
+						<field id="MaleMaturityAge"></field>
+					</composite>
+					<composite>
+						<field id="FemaleMaturitySize"></field>
+						<field id="MaleMaturitySize"></field>
+					</composite>
+					<composite>
+						<field id="Longevity"></field>
+						<field id="AvgReproductiveAge"></field>
+					</composite>
+					<composite>
+						<field id="MaxSize"></field>
+					</composite>
+					<composite>
+						<field id="BirthSize"></field>
+					</composite>
+					<composite>
+						<field id="GestationTime"></field>
+						<field id="GenerationLength"></field>
+					</composite>
+					<composite>
+						<field id="ReproduictivePeriodicity"></field>
+						<field id="AvgAnnualFecundity"></field>
+					</composite>
+					<composite>
+						<field id="PopulationIncreaseRate"></field>
+						<field id="NaturalMortality"></field>
+					</composite>
+					<composite>
+						<field id="EggLaying"></field>
+						<field id="LiveBirth"></field>
+					</composite>
+					<composite>
+						<field id="Parthenogenesis"></field>
+						<field id="FreeLivingLarvae"></field>
+					</composite>
+					<composite>
+						<field id="WaterBreeding"></field>
+					</composite>
+				</organization>
+				<organization title="Movement Patterns">
+					<field id="MovementPatterns"></field>
+				</organization>
+				<organization title="Systems">
+					<field id="System"></field>
+				</organization>
+			</pageOrganizations>
+		</page>
+		<page title="Conservation" id="Conservation">
+			<pageOrganizations>
+				<organization title="Conservation Actions">
+					<field id="ConservationActionsDocumentation"></field>
+				</organization>
+				<organization title="Research Needed">
+					<field id="Research"></field>
+				</organization>
+				<organization title="Conservation Actions in Place">
+					<field id="ConservationActions"></field>
+				</organization>
+			</pageOrganizations>
+		</page>
+		<page title="Threats" id="Threats">
+			<pageOrganizations>
+				<organization title="Threats Documentation">
+					<field id="ThreatsDocumentation"></field>
+				</organization>
+				<organization title="Threats Classification Scheme">
+					<field id="Threats"></field>
+				</organization>
+			</pageOrganizations>
+		</page>
+		<page title="Habitats" id="Habitats">
+			<pageOrganizations>
+				<organization title="Habitat Documentation">
+					<field id="HabitatDocumentation"></field>
+				</organization>
+				<organization title="Habitat Classification Scheme">
+					<field id="GeneralHabitats"></field>
+				</organization>
+			</pageOrganizations>
+		</page>
+		<page title="Use and Trade" id="UseTrade">
+			<pageOrganizations>
+				<organization title="General Use and Trade Information">
+					<composite>
+                        <field id="UseTradeDocumentation"></field>
+          			</composite>
+          		</organization>
+          		<organization>
+					<related>
+						<dominantField id="NonConsumptiveUse"></dominantField>
+						<dependent id="NonConsumptiveUseDescription"></dependent>
+						<activeRule>
+                            <booleanRule>
+								<activateOnRule>false</activateOnRule>
+								<actions>
+									<onTrue>DISABLE</onTrue>
+									<onFalse>ENABLE</onFalse>
+								</actions>
+							</booleanRule>
+						</activeRule>
+					</related>
+				</organization>
+				<organization title="Offtake Trends">
+					<composite>
+						<field id="TrendInWildOfftake"></field>
+						<field id="TrendInDomesticOfftake"></field>
+					</composite>
+				</organization>
+				<organization title="Detailed Use and Trade Information">
+					<text>Placeholder for Use and Trade Complex</text>
+				</organization>
+			</pageOrganizations>
+    	</page>
+		<!-- Jim Ragle note:  still need Red Listing, Livelihoods, Bibliography tabs -->
+		<!-- AAH note:  still need Utilisation, Red Listing, Bibliography, and Species Report tabs -->
+	</pages>
+</view>

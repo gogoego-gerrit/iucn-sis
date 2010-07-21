@@ -1,0 +1,28 @@
+<module>
+
+	<!-- Inherit the core Web Toolkit stuff. -->
+	<inherits name='com.google.gwt.user.User'/>
+	<inherits name='com.google.gwt.user.RichText'/>
+	<inherits name='com.extjs.gxt.ui.GXT'/>
+	<inherits name='com.google.gwt.xml.XML' />
+	<inherits name='com.solertium.lwxml.LWXML' />
+	<inherits name='com.solertium.util.extjs.ExtGWTUtils' />
+	<inherits name='com.extjs.gxt.themes.Themes' />
+	<inherits name='ext.ux.theme.black.Black'/>
+	<inherits name='ext.ux.theme.darkgray.DarkGray'/>
+	<inherits name='ext.ux.theme.purple.Purple'/>
+	<inherits name='ext.ux.theme.olive.Olive'/>
+	<inherits name='ext.ux.theme.slickness.Slickness'/>
+	<inherits name='ext.ux.wizard.WizardWindow'/>
+	<inherits name='ext.ux.pwd.PasswordField'/>
+	
+	<!-- HTTP Features -->
+	<inherits name='com.google.gwt.http.HTTP' />
+		
+	<!-- Specify the app entry point class.
+	     Be sure this is commented out if you are building a full SIS.
+	<entry-point class="org.iucn.sis.client.userui.StandaloneUserClient"/>  -->
+	
+	<source path='sis/client/userui'/>
+	
+</module>

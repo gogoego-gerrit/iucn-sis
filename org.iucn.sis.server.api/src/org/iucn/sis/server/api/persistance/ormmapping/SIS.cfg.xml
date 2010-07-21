@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+ "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+   	<!-- properties -->
+		<property name="dialect">org.hibernate.dialect.MySQLInnoDBDialect</property>
+		<property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+		<property name="connection.url">jdbc:mysql://localhost/sis</property>
+		<property name="connection.username">root</property>
+		<property name="connection.password"></property>
+		<property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
+		<property name="hibernate.c3p0.acquire_increment">1</property>
+		<property name="hibernate.c3p0.idle_test_period">0</property>
+		<property name="hibernate.c3p0.min_size">1</property>
+		<property name="hibernate.c3p0.max_size">15</property>
+		<property name="hibernate.c3p0.timeout">0</property>
+		<property name="show_sql">false</property>
+		<property name="query.substitutions">true 1, false 0, yes 'Y', no 'N'</property>
+		<!-- mapping files -->
+		<mapping resource="ormmapping/Assessment.hbm.xml" />
+		<mapping resource="ormmapping/AssessmentType.hbm.xml" />
+		<mapping resource="ormmapping/CommonName.hbm.xml" />
+		<mapping resource="ormmapping/Edit.hbm.xml" />
+		<mapping resource="ormmapping/Field.hbm.xml" />
+		<mapping resource="ormmapping/Infratype.hbm.xml" />
+		<mapping resource="ormmapping/IsoLanguage.hbm.xml" />
+		<mapping resource="ormmapping/Notes.hbm.xml" />
+		<mapping resource="ormmapping/Permission.hbm.xml" />
+		<mapping resource="ormmapping/PermissionResource.hbm.xml" />
+		<mapping resource="ormmapping/PermissionResourceAttribute.hbm.xml" />
+		<mapping resource="ormmapping/PermissionType.hbm.xml" />
+		<mapping resource="ormmapping/PrimitiveField.hbm.xml" />
+		<mapping resource="ormmapping/Reference.hbm.xml" />
+		<mapping resource="ormmapping/Region.hbm.xml" />
+		<mapping resource="ormmapping/Relationship.hbm.xml" />
+		<mapping resource="ormmapping/Synonym.hbm.xml" />
+		<mapping resource="ormmapping/Taxon.hbm.xml" />
+		<mapping resource="ormmapping/TaxonLevel.hbm.xml" />
+		<mapping resource="ormmapping/TaxonStatus.hbm.xml" />
+		<mapping resource="ormmapping/User.hbm.xml" />
+		<mapping resource="ormmapping/Workflow.hbm.xml" />
+		<mapping resource="ormmapping/WorkflowNotes.hbm.xml" />
+		<mapping resource="ormmapping/WorkingSet.hbm.xml" />
+	</session-factory>
+</hibernate-configuration>

@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: User Model
+Bundle-SymbolicName: com.solertium.util.restlet.usermodel
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.solertium.db,
+ com.solertium.util,
+ com.solertium.util.portable,
+ com.solertium.util.restlet
+Require-Bundle: com.solertium.db,
+ com.solertium.lwxml,
+ org.restlet;bundle-version="2.0.0",
+ org.restlet.ext.xml;bundle-version="2.0.0",
+ org.junit4;bundle-version="4.4.0"
+Export-Package: com.solertium.util.restlet.usermodel.core,
+ com.solertium.util.restlet.usermodel.managers

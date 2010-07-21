@@ -1,0 +1,9 @@
+<root>
+	<section>
+		<resource>/admin/apps/com.solertium.gogoego.server.lib.app.exporter.container.ExporterApplication/settings/com.solertium.gogoego.server.lib.app.exporter.workers.appengine</resource>
+		<text><![CDATA[App Engine Data]]></text>
+		<field name="linkaddress" prompt="Link Address"/>
+		<text><![CDATA[In order to configure the AppEngine exporter, there must already exist an AppEngine application with the GoGoEgo AppEngine application running on it.  If you have not already created an AppEngine application, please visit <a href="http://appengine.google.com" target="_blank">Google AppEngine</a>, create an application, and upload the GoGoEgo AppEngine Application.]]></text>
+		<field name="applicationID" prompt="Application ID" />
+	</section>
+</root>

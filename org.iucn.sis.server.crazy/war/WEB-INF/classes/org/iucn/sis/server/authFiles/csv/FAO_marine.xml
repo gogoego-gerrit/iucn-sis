@@ -1,0 +1,127 @@
+		<treeRoot>
+			<defaultStructure>
+				<treeStructures>
+					<structure>
+						<singleSelect>
+							<option>Year Round</option>
+							<option>Breeding Season Only</option>
+							<option>Non-breeding Season Only</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+					<structure>
+					<boolean>false</boolean>
+					</structure>
+					<structure>
+						<singleSelect>
+							<option>Possibly Extinct</option>
+							<option>Extinct</option>
+							<option>Not extinct</option>
+							<selected>2</selected>
+						</singleSelect>
+					</structure>
+					<structure>
+						<relatedStructure>
+							<dominantStructures>
+								<boolean>false</boolean>
+							</dominantStructures>
+							<dependentStructures>
+								<structure>
+									<relatedStructure>
+										<dominantStructures>
+											<boolean>false</boolean>
+										</dominantStructures>
+										<dependentStructures>
+											<structure>
+												<singleSelect>
+													<option>Native</option>
+													<option>Introduced</option>
+													<option>Reintroduced</option>
+													<option>Vagrant</option>
+													<selected>0</selected>
+												</singleSelect>
+											</structure>
+										</dependentStructures>
+										<rules>
+											<booleanRule>
+												<activateOnRule>false</activateOnRule>
+												<actions>
+													<onTrue>show</onTrue>
+													<onFalse>hide</onFalse>
+												</actions>
+											</booleanRule>
+										</rules>
+									</relatedStructure>
+								</structure>
+							</dependentStructures>
+							<rules>
+								<booleanRule>
+									<activateOnRule>false</activateOnRule>
+									<actions>
+										<onTrue>show</onTrue>
+										<onFalse>hide</onFalse>
+									</actions>
+								</booleanRule>
+							</rules>
+						</relatedStructure>
+					</structure>
+				</treeStructures>
+			</defaultStructure>
+			<root id="18" depth="1" codeable="false" expanded="false">
+				<label>Arctic Sea</label>
+			</root>
+			<root id="48" depth="1" codeable="false" expanded="false">
+				<label>Atlantic - Antarctic</label>
+			</root>
+			<root id="34" depth="1" codeable="false" expanded="false">
+				<label>Atlantic - eastern central</label>
+			</root>
+			<root id="27" depth="1" codeable="false" expanded="false">
+				<label>Atlantic - northeast</label>
+			</root>
+			<root id="21" depth="1" codeable="false" expanded="false">
+				<label>Atlantic - northwest</label>
+			</root>
+			<root id="47" depth="1" codeable="false" expanded="false">
+				<label>Atlantic - southeast</label>
+			</root>
+			<root id="41" depth="1" codeable="false" expanded="false">
+				<label>Atlantic - southwest</label>
+			</root>
+			<root id="31" depth="1" codeable="false" expanded="false">
+				<label>Atlantic - western central</label>
+			</root>
+			<root id="58" depth="1" codeable="false" expanded="false">
+				<label>Indian Ocean - Antarctic</label>
+			</root>
+			<root id="57" depth="1" codeable="false" expanded="false">
+				<label>Indian Ocean - eastern</label>
+			</root>
+			<root id="51" depth="1" codeable="false" expanded="false">
+				<label>Indian Ocean - western</label>
+			</root>
+			<root id="37" depth="1" codeable="false" expanded="false">
+				<label>Mediterranean and Black Sea</label>
+			</root>
+			<root id="88" depth="1" codeable="false" expanded="false">
+				<label>Pacific - Antarctic</label>
+			</root>
+			<root id="77" depth="1" codeable="false" expanded="false">
+				<label>Pacific - eastern central</label>
+			</root>
+			<root id="67" depth="1" codeable="false" expanded="false">
+				<label>Pacific - northeast</label>
+			</root>
+			<root id="61" depth="1" codeable="false" expanded="false">
+				<label>Pacific - northwest</label>
+			</root>
+			<root id="87" depth="1" codeable="false" expanded="false">
+				<label>Pacific - southeast</label>
+			</root>
+			<root id="81" depth="1" codeable="false" expanded="false">
+				<label>Pacific - southwest</label>
+			</root>
+			<root id="71" depth="1" codeable="false" expanded="false">
+				<label>Pacific - western central</label>
+			</root>
+		</treeRoot>

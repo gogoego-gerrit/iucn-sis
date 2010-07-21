@@ -1,0 +1,55 @@
+<structure>
+	<table name="${siteID}_tags">
+		<column name="id" type="CInteger" key="true" />
+		<column name="name" type="CString" scale="4000" />
+		<column name="attributes" type="CString" scale="4000" />
+		<hint join="${siteID}_resourceuris" via="${siteID}_resourcetags" />
+	</table>
+	<table name="${siteID}_defaulttags">
+		<column name="id" type="CInteger" key="true" />
+		<column name="uri" type="CString" scale="4000" />
+		<column name="tagid" type="CInteger" scale="4000" relatedTable="${siteID}_tags" relatedColumn="id"/>
+	</table>
+	<table name="${siteID}_groups">
+		<column name="id" type="CInteger" key="true" />
+		<column name="name" type="CString" scale="4000" />
+		<column name="description" type="CString" scale="4000" />
+	</table>
+	<table name="${siteID}_grouptags">
+		<column name="id" type="CInteger" key="true" />
+		<column name="tagid" type="CInteger" relatedTable="${siteID}_tags" relatedColumn="id" />
+		<column name="groupid" type="CInteger" relatedTable="${siteID}_groups" relatedColumn="id" />
+	</table>
+	<table name="${siteID}_groupkeys">
+		<column name="id" type="CInteger" key="true" />
+		<column name="key" type="CString" scale="4000" />
+		<column name="protocol" type="CString" scale="255" />
+	</table>
+	<table name="${siteID}_groupkeygroups">
+		<column name="id" type="CInteger" key="true" />
+		<column name="keyid" type="CInteger" relatedTable="${siteID}_groupkeys" relatedColumn="id" />
+		<column name="groupid" type="CInteger" relatedTable="${siteID}_groups" relatedColumn="id" />
+	</table>
+	<table name="${siteID}_groupkeyrules">
+		<column name="id" type="CInteger" key="true" />
+		<column name="keyid" type="CInteger" relatedTable="${siteID}_groupkeys" relatedColumn="id" />
+		<!-- boolean -->
+		<column name="rules" type="CString" scale="255" />		
+	</table>
+	<table name="${siteID}_resourceuris">
+		<column name="id" type="CInteger" key="true" />
+		<column name="uri" type="CString" scale="4000" />
+		<column name="datatype" type="CString" scale="4000" />
+		<column name="lasttagged" type="CString" scale="255" />
+		<hint join="${siteID}_tags" via="${siteID}_resourcetags" />
+	</table>
+	<table name="${siteID}_resourcetags">
+		<column name="id" type="CInteger" key="true" />
+		<column name="tagid" type="CInteger" relatedTable="${siteID}_tags" relatedColumn="id" />
+		<column name="uriid" type="CInteger" relatedTable="${siteID}_resourceuris" relatedColumn="id" />
+	</table>
+	<table name="${siteID}_idcount">
+		<column name="id" type="CInteger" />
+		<column name="tbl" type="CString" scale="255" />
+	</table>
+</structure>

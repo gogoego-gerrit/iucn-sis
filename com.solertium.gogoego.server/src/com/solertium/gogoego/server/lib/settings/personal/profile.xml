@@ -1,0 +1,15 @@
+<root>
+	<resource>/admin/settings/personal/data/profile</resource>
+	<section>	
+		<text><![CDATA[Profile]]></text>
+		<field name="first" prompt="First Name"/>
+		<field name="last" prompt="Last Name" />
+		<field name="address1" prompt="Address 1" />
+		<field name="address2" prompt="Address 2" />
+		<field name="city" prompt="City" />
+		<field name="state" prompt="State" />
+		<field name="zip" prompt="Zip" />
+		<field name="email" prompt="Email Address" />
+		<field name="phone" prompt="Phone Number" />
+	</section>
+</root>

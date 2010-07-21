@@ -1,0 +1,6 @@
+<module>
+	<inherits name='com.solertium.util.Portable'/>	
+	<source path='query' />
+	<source path='struct' />
+	<source path='utils' />	
+</module>

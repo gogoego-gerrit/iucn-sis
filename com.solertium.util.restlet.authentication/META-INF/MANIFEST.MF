@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Authentication
+Bundle-SymbolicName: com.solertium.util.restlet.authentication
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Import-Package: com.solertium.db,
+ com.solertium.db.query,
+ com.solertium.util,
+ com.solertium.util.restlet,
+ com.solertium.vfs
+Export-Package: com.solertium.util.restlet.authentication
+Require-Bundle: org.restlet;bundle-version="2.0.0",
+ org.restlet.ext.xml;bundle-version="2.0.0",
+ org.postgresql;bundle-version="1.6.0"

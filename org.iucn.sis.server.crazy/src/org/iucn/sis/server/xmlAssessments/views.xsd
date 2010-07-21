@@ -1,0 +1,23 @@
+<xs:schema xmlns:xs = "http://www.w3.org/2001/XMLSchema">
+
+	<xs:include schemaLocation="pages.xsd" />
+
+	<xs:element name="view" type="View" />
+	
+	<xs:complexType name="View">
+		<xs:sequence>
+			<xs:element name="pages" type="Pages" minOccurs="1" maxOccurs="1" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" use="required" />
+		<xs:attribute name="title" type="xs:string" use="required" />
+	</xs:complexType>
+
+	<xs:complexType name="Pages">
+		<xs:sequence>
+			<xs:element name="page" type="Page" minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+		<xs:attribute name="id" type="xs:ID" />
+		<xs:attribute name="style" type="xs:string" use="optional" />
+	</xs:complexType>
+
+</xs:schema>

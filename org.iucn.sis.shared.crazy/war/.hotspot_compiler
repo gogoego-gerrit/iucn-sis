@@ -1,0 +1,3 @@
+exclude org/eclipse/jdt/internal/compiler/lookup/ParameterizedMethodBinding <init>
+exclude org/restlet/engine/http/HeaderReader readValue
+exclude org/restlet/engine/http/PreferenceReader readPreference

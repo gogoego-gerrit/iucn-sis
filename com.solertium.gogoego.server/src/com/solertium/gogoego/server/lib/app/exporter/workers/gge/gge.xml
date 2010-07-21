@@ -1,0 +1,7 @@
+<root>
+	<section>
+		<resource>/admin/apps/com.solertium.gogoego.server.lib.app.exporter.container.ExporterApplication/settings/com.solertium.gogoego.server.lib.app.exporter.workers.gge</resource>
+		<field name="location" prompt="Import Location"/>
+		<field name="key" prompt="Import Access Key"/>
+	</section>
+</root>

@@ -1,0 +1,4614 @@
+<?xml version="1.0"?>
+<Class id="REPTILIA">
+<Order id="SQUAMATA">
+<Family id="ANNIELLIDAE">
+<Genus id="Anniella">
+<Species id="Anniella pulchra">
+</Species>
+</Genus>
+</Family>
+<Family id="AGAMIDAE">
+<Genus id="Tympanocryptis">
+<Species id="Tympanocryptis lineata">
+</Species>
+</Genus>
+<Genus id="Ctenophorus">
+<Species id="Ctenophorus yinnietharra">
+<commonNames>
+<name>YINNIETHARRA ROCK DRAGON</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Calotes">
+<Species id="Calotes liocephalus">
+<commonNames>
+<name>SPINELESS FOREST LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Uromastyx">
+<Species id="Uromastyx alfredschmidti">
+</Species>
+</Genus>
+<Genus id="Gonocephalus">
+<Species id="Gonocephalus abbotti">
+<commonNames>
+<name>ABBOTT'S CRESTED LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ceratophora">
+<Species id="Ceratophora tennentii">
+<commonNames>
+<name>LEAF-NOSED LIZARD</name>
+<name>TENNENT'S LEAF-NOSED LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Hydrosaurus">
+<Species id="Hydrosaurus pustulatus">
+<commonNames>
+<name>CRESTED LIZARD</name>
+<name>SAIL-FIN LIZARD</name>
+<name>SOA-SOA WATER LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Japalura">
+<Species id="Japalura luei">
+</Species>
+</Genus>
+<Genus id="Trapelus">
+<Species id="Trapelus tournevillei">
+<commonNames>
+<name>ERG AGAMA</name>
+</commonNames>
+</Species>
+<Species id="Trapelus savignii">
+<commonNames>
+<name>SAVIGNY'S AGAMA</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="CORDYLIDAE">
+<Genus id="Cordylus">
+<Species id="Cordylus lawrenci">
+<commonNames>
+<name>LAWRENCE'S GIRDLED LIZARD</name>
+<name>CORDYLE DE LAWRENCE</name>
+<name>LÉZARD À QUEUE ÉPINEUSE DE LAWRENCE</name>
+</commonNames>
+</Species>
+<Species id="Cordylus giganteus">
+<commonNames>
+<name>GIANT GIRDLED LIZARD</name>
+<name>GIANT SPINY-TAILED LIZARD</name>
+<name>GIANT ZONURE</name>
+<name>SUNGAZER</name>
+<name>CORDYLE GÉANT</name>
+<name>LÉZARD À QUEUE ÉPINEUSE GÉANT</name>
+</commonNames>
+</Species>
+<Species id="Cordylus mclachlani">
+<commonNames>
+<name>MCLACHLAN'S GIRDLED LIZARD</name>
+<name>MCLACHLAN'S SPINY-TAILED LIZARD</name>
+<name>CORDYLE DE MCLACHLAN</name>
+<name>LÉZARD À QUEUE ÉPINEUSE DE MCLACHLAN</name>
+</commonNames>
+</Species>
+<Species id="Cordylus cataphractus">
+<commonNames>
+<name>ARMADILLO GIRDLED LIZARD</name>
+<name>ARMADILLO SPINY-TAILED LIZARD</name>
+<name>CORDYLE D'ARMADILLO</name>
+<name>LÉZARD À QUEUE ÉPINEUSE D'ARMADILLO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Pseudocordylus">
+<Species id="Pseudocordylus langi">
+<commonNames>
+<name>LANG'S CRAG LIZARD</name>
+<name>LANG'S GIRDLED LIZARD</name>
+<name>LÉZARD À FAUSSE CEINTURE DE LANG</name>
+<name>PSEUDOCORDYLE DE LANG</name>
+<name>FALSO LAGARTO ARMADILLO DE LANG</name>
+</commonNames>
+</Species>
+<Species id="Pseudocordylus spinosus">
+<commonNames>
+<name>PRICKLY GIRDLED LIZARD</name>
+<name>SPINY CRAG LIZARD</name>
+<name>LÉZARD À CEINTURE ÉPINEUSE</name>
+<name>PSEUDOCORDYLE ÉPINEUX</name>
+<name>FALSO LAGARTO ARMADILLO ESPINOSO</name>
+</commonNames>
+</Species>
+<Species id="Pseudocordylus nebulosus">
+<commonNames>
+<name>DWARF CRAG LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Tetradactylus">
+<Species id="Tetradactylus breyeri">
+<commonNames>
+<name>BREYER'S LONG-TAILED SEPS</name>
+</commonNames>
+</Species>
+<Species id="Tetradactylus eastwoodae">
+<commonNames>
+<name>EASTWOOD'S LONGTAILED SEPS</name>
+<name>EASTWOOD'S WHIP LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Gerrhosaurus">
+<Species id="Gerrhosaurus typicus">
+<commonNames>
+<name>NAMAQUA PLATED LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Platysaurus">
+<Species id="Platysaurus relictus">
+<commonNames>
+<name>SOUTPANSBERG FLAT LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="XANTUSIIDAE">
+<Genus id="Xantusia">
+<Species id="Xantusia riversiana">
+<commonNames>
+<name>ISLAND NIGHT LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="CHAMAELEONIDAE">
+<Genus id="Bradypodion">
+<Species id="Bradypodion taeniabronchum">
+<commonNames>
+<name>SMITH'S DWARF CHAMAELEON</name>
+</commonNames>
+</Species>
+<Species id="Bradypodion setaroi">
+<commonNames>
+<name>SETARO'S DWARF CHAMELEON</name>
+<name>CAMÉLÉON NAIN ÉPINEUX</name>
+</commonNames>
+</Species>
+<Species id="Bradypodion nemorale">
+<commonNames>
+<name>ZULULAND DWARF CHAMAELEON</name>
+<name>CAMÉLÉON NAIN À NEZ ROUGE</name>
+</commonNames>
+</Species>
+<Species id="Bradypodion thamnobates">
+<commonNames>
+<name>NATAL MIDLAND DWARF CHAMAELEON</name>
+<name>CAMÉLÉON NAIN DU TRANSVAAL</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Calumma">
+<Species id="Calumma tigris">
+<commonNames>
+<name>TIGER CHAMELEON</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Brookesia">
+<Species id="Brookesia perarmata">
+<commonNames>
+<name>ANTSINGY LEAF CHAMELEON</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Furcifer">
+<Species id="Furcifer campani">
+</Species>
+<Species id="Furcifer minor">
+</Species>
+<Species id="Furcifer labordi">
+</Species>
+</Genus>
+</Family>
+<Family id="ELAPIDAE">
+<Genus id="Ogmodon">
+<Species id="Ogmodon vitianus">
+<commonNames>
+<name>FIJI SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Denisonia">
+<Species id="Denisonia maculata">
+<commonNames>
+<name>ORNAMENTAL SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Elapognathus">
+<Species id="Elapognathus minor">
+<commonNames>
+<name>SHORT-NOSED SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Furina">
+<Species id="Furina dunmalli">
+<commonNames>
+<name>DUNMALL'S SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Naja">
+<Species id="Naja naja">
+</Species>
+</Genus>
+<Genus id="Hoplocephalus">
+<Species id="Hoplocephalus bungaroides">
+<commonNames>
+<name>BROAD-HEADED SNAKE</name>
+<name>HOPLOCÉPHALE DE SCHLEGEL</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Notechis">
+<Species id="Notechis ater">
+</Species>
+</Genus>
+<Genus id="Echiopsis">
+<Species id="Echiopsis curta">
+</Species>
+<Species id="Echiopsis atriceps">
+<commonNames>
+<name>LAKE CRONIN SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Simoselaps">
+<Species id="Simoselaps morrisi">
+</Species>
+<Species id="Simoselaps calonotus">
+<commonNames>
+<name>BLACK-STRIPED SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Austrelaps">
+<Species id="Austrelaps labialis">
+<commonNames>
+<name>PYGMY COPPERHEAD</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="SCINCIDAE">
+<Genus id="Eumeces">
+<Species id="Eumeces kishinouyei">
+<commonNames>
+<name>KISHINOUE'S GIANT SKINK</name>
+</commonNames>
+</Species>
+<Species id="Eumeces algeriensis">
+<commonNames>
+<name>ALGERIAN ORANGE-TAILED SKINK</name>
+<name>BULÁN</name>
+<name>EUMECE D'ALGERIE</name>
+</commonNames>
+</Species>
+<Species id="Eumeces longirostris">
+<commonNames>
+<name>BERMUDA ROCK SKINK</name>
+<name>BERMUDA ROCK LIZARD</name>
+<name>BERMUDIAN ROCK SKINK</name>
+<name>BERMUDIAN ROCK LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Typhlosaurus">
+<Species id="Typhlosaurus lomii">
+<commonNames>
+<name>LOMI'S BLIND LEGLESS SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Isopachys">
+<Species id="Isopachys gyldenstolpei">
+<commonNames>
+<name>GYLDENSTOLPE'S WORM SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Scelotes">
+<Species id="Scelotes kasneri">
+<commonNames>
+<name>KASNER'S DWARF BURROWING SKINK</name>
+</commonNames>
+</Species>
+<Species id="Scelotes gronovii">
+<commonNames>
+<name>GRONOVI'S DWARF BURROWING SKINK</name>
+</commonNames>
+</Species>
+<Species id="Scelotes guentheri">
+<commonNames>
+<name>GÜNTHER'S DWARF BURROWING SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Lerista">
+<Species id="Lerista allanae">
+<commonNames>
+<name>ALLAN'S LERISTA</name>
+</commonNames>
+</Species>
+<Species id="Lerista vittata">
+<commonNames>
+<name>MOUNT COOPER STRIPED LERISTA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Phoboscincus">
+<Species id="Phoboscincus bocourti">
+</Species>
+</Genus>
+<Genus id="Macroscincus">
+<Species id="Macroscincus coctei">
+<commonNames>
+<name>CAPE VERDE GIANT SKINK</name>
+<name>COCTEAU'S SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Lioscincus">
+<Species id="Lioscincus maruia">
+</Species>
+</Genus>
+<Genus id="Leiolopisma">
+<Species id="Leiolopisma mauritiana">
+</Species>
+<Species id="Leiolopisma telfairii">
+<commonNames>
+<name>ROUND ISLAND SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ablepharus">
+<Species id="Ablepharus rueppellii">
+</Species>
+<Species id="Ablepharus kitaibelii">
+<commonNames>
+<name>EUROPEAN COPPER SKINK</name>
+<name>ABLEPHARE DE KITAIBEL</name>
+<name>JOHANNISEIDECHSE</name>
+<name>SNAKE-EYED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Ablepharus budaki">
+</Species>
+</Genus>
+<Genus id="Emoia">
+<Species id="Emoia kitcheneri">
+</Species>
+</Genus>
+<Genus id="Tribolonotus">
+<Species id="Tribolonotus ponceleti">
+</Species>
+</Genus>
+<Genus id="Acontophiops">
+<Species id="Acontophiops lineatus">
+<commonNames>
+<name>WOODBUSH LEGLESS SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Pamelaescincus">
+<Species id="Pamelaescincus gardineri">
+<commonNames>
+<name>GARDINER'S BURROWING SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Egernia">
+<Species id="Egernia stokesii">
+</Species>
+<Species id="Egernia pulchra">
+</Species>
+<Species id="Egernia kintorei">
+<commonNames>
+<name>GREAT DESERT SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Anomalopus">
+<Species id="Anomalopus mackayi">
+<commonNames>
+<name>LONG-LEGGED WORM-SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Tiliqua">
+<Species id="Tiliqua adelaidensis">
+<commonNames>
+<name>ADELAIDE PIGMY BLUE-TONGUE SKINK</name>
+<name>PYGMY BLUETONGUE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Cyclodina">
+<Species id="Cyclodina lichenigera">
+<commonNames>
+<name>LORD HOWE ISLAND SKINK</name>
+</commonNames>
+</Species>
+<Species id="Cyclodina whitakeri">
+<commonNames>
+<name>WHITAKER'S SKINK</name>
+</commonNames>
+</Species>
+<Species id="Cyclodina alani">
+<commonNames>
+<name>ROBUST SKINK</name>
+</commonNames>
+</Species>
+<Species id="Cyclodina oliveri">
+<commonNames>
+<name>MARBLED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Cyclodina macgregori">
+<commonNames>
+<name>MACGREGOR'S SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Janetaescincus">
+<Species id="Janetaescincus braueri">
+<commonNames>
+<name>BRAUER'S BURROWING SKINK</name>
+</commonNames>
+</Species>
+<Species id="Janetaescincus veseyfitzgeraldi">
+<commonNames>
+<name>VESEY-FITZGERALD'S BURROWING SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ctenotus">
+<Species id="Ctenotus rimacola">
+</Species>
+<Species id="Ctenotus zastictus">
+<commonNames>
+<name>HAMELIN CTENOTUS</name>
+</commonNames>
+</Species>
+<Species id="Ctenotus lancelini">
+<commonNames>
+<name>LANCELIN ISLAND SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Lygosoma">
+<Species id="Lygosoma haroldyoungi">
+<commonNames>
+<name>BANDED SUPPLE SKINK</name>
+</commonNames>
+</Species>
+<Species id="Lygosoma koratense">
+<commonNames>
+<name>KORAT SUPPLE SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Coeranoscincus">
+<Species id="Coeranoscincus reticulatus">
+<commonNames>
+<name>THREE-TOED SNAKE-TOOTH SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ophiomorus">
+<Species id="Ophiomorus punctatissimus">
+<commonNames>
+<name>GESPRENKELTER SCHLANGENSKINK</name>
+<name>LIMBLESS SKINK</name>
+</commonNames>
+</Species>
+<Species id="Ophiomorus latastii">
+</Species>
+</Genus>
+<Genus id="Trachylepis">
+<Species id="Trachylepis wrightii">
+<commonNames>
+<name>WRIGHT'S SKINK</name>
+</commonNames>
+</Species>
+<Species id="Trachylepis seychellensis">
+<commonNames>
+<name>SEYCHELLES SKINK</name>
+</commonNames>
+</Species>
+<Species id="Trachylepis vittata">
+<commonNames>
+<name>BRIDLED SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Neoseps">
+<Species id="Neoseps reynoldsi">
+<commonNames>
+<name>SAND SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Barkudia">
+<Species id="Barkudia insularis">
+<commonNames>
+<name>LEGLESS SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Oligosoma">
+<Species id="Oligosoma notosaurus">
+<commonNames>
+<name>SOUTHERN SKINK</name>
+</commonNames>
+</Species>
+<Species id="Oligosoma infrapunctatum">
+<commonNames>
+<name>SPECKLED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Oligosoma microlepis">
+<commonNames>
+<name>SMALL-SCALED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Oligosoma longipes">
+</Species>
+<Species id="Oligosoma gracilicorpus">
+<commonNames>
+<name>NARROW-BODIED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Oligosoma fallai">
+<commonNames>
+<name>FALLA'S SKINK</name>
+</commonNames>
+</Species>
+<Species id="Oligosoma waimatense">
+<commonNames>
+<name>SCREE SKINK</name>
+</commonNames>
+</Species>
+<Species id="Oligosoma otagense">
+<commonNames>
+<name>OTAGO SKINK</name>
+</commonNames>
+</Species>
+<Species id="Oligosoma grande">
+<commonNames>
+<name>GRAND SKINK</name>
+</commonNames>
+</Species>
+<Species id="Oligosoma striatum">
+<commonNames>
+<name>STRIPED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Oligosoma homalonotum">
+<commonNames>
+<name>CHEVRON SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Niveoscincus">
+<Species id="Niveoscincus palfreymani">
+<commonNames>
+<name>PEDRA BRANCA SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Sphenops">
+<Species id="Sphenops sepsoides">
+<commonNames>
+<name>WEDGE-SNOUTED SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Tachygia">
+<Species id="Tachygia microlepis">
+<commonNames>
+<name>TONGA GROUND SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Chalcides">
+<Species id="Chalcides colosii">
+<commonNames>
+<name>ESLIZÓN RIFEÑO</name>
+<name>RIFFIAN SKINK</name>
+<name>SEPS RIFAIN</name>
+</commonNames>
+</Species>
+<Species id="Chalcides striatus">
+<commonNames>
+<name>ESLIZÓN TRIDÁCTILO IBÉRICO</name>
+<name>FURA-PASTO TRIDACTILO</name>
+<name>LUSCENGOLA STRIATA</name>
+<name>WESTERN THREE-TOED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides ebneri">
+<commonNames>
+<name>EBNER'S SKINK</name>
+<name>SEPS D'EBNER</name>
+</commonNames>
+</Species>
+<Species id="Chalcides mertensi">
+<commonNames>
+<name>ALGERIAN THREE-TOED SKINK</name>
+<name>SEPS TRIDACTYLE DE L'ALGERIE</name>
+</commonNames>
+</Species>
+<Species id="Chalcides mauritanicus">
+<commonNames>
+<name>TWO-FINGERED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides sexlineatus">
+<commonNames>
+<name>GRAN CANARIA SKINK</name>
+<name>LISA GRANCANARIA O LISA VARIABLE</name>
+</commonNames>
+</Species>
+<Species id="Chalcides chalcides">
+<commonNames>
+<name>ITALIAN THREE-TOED SKINK</name>
+<name>LUSCENGOLA</name>
+<name>THREE-TOED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides minutus">
+<commonNames>
+<name>PETIT SEPS TRIDACTYLE</name>
+<name>SMALL THREE-TOED SKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides parallelus">
+<commonNames>
+<name>ESLIZÓN DE CHAFARINAS</name>
+<name>SEPS DE DOUMERGUE</name>
+</commonNames>
+</Species>
+<Species id="Chalcides polylepis">
+<commonNames>
+<name>MANY-SCALED CYLINDRICAL SKINK</name>
+<name>SEPS À ÉCAILLES NOMBREUSES</name>
+<name>VIELSCHUPPIGER WALZENSKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides mionecton">
+<commonNames>
+<name>MIONECTON SKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides montanus">
+<commonNames>
+<name>MOUNTAIN SKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides simonyi">
+</Species>
+<Species id="Chalcides bedriagai">
+<commonNames>
+<name>BEDRIAGA'S SKINK</name>
+<name>ESLIZÓN IBÉRICO</name>
+<name>FURA-PASTO IBERICA</name>
+</commonNames>
+</Species>
+<Species id="Chalcides lanzai">
+<commonNames>
+<name>SEPS DE LANZA</name>
+</commonNames>
+</Species>
+<Species id="Chalcides guentheri">
+<commonNames>
+<name>GÜNTHER'S CYLINDRICAL SKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides manueli">
+<commonNames>
+<name>MANUEL'S SKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides viridanus">
+<commonNames>
+<name>LISA DORADA</name>
+<name>WEST CANARY SKINK</name>
+</commonNames>
+</Species>
+<Species id="Chalcides pseudostriatus">
+<commonNames>
+<name>ESLIZÓN TRIDÁCTILO DEL ATLAS</name>
+<name>MOROCCAN THREE-TOED SKINK</name>
+<name>SEPS STRIÉ DU MAROC</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Gongylomorphus">
+<Species id="Gongylomorphus bojerii">
+</Species>
+</Genus>
+<Genus id="Eulamprus">
+<Species id="Eulamprus tympanum">
+</Species>
+<Species id="Eulamprus leuraensis">
+<commonNames>
+<name>BLUE MOUNTAIN WATER SKINK</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="IGUANIDAE">
+<Genus id="Cyclura">
+<Species id="Cyclura carinata">
+<commonNames>
+<name>TURKS AND CAICOS GROUND IGUANA</name>
+<name>TURKS AND CAICOS IGUANA</name>
+</commonNames>
+</Species>
+<Species id="Cyclura pinguis">
+<commonNames>
+<name>ANEGADA GROUND IGUANA</name>
+<name>ANEGADA ISLAND IGUANA</name>
+<name>ANEGADA ROCK IGUANA</name>
+<name>CYCLURE DE L'ILE ANEGADA</name>
+<name>IGUANE TERRESTRE DE L'ILE ANEGADA</name>
+</commonNames>
+</Species>
+<Species id="Cyclura rileyi">
+<commonNames>
+<name>SAN SALVADOR IGUANA</name>
+<name>SAN SALVADOR ROCK IGUANA</name>
+</commonNames>
+</Species>
+<Species id="Cyclura lewisi">
+<commonNames>
+<name>CAYMAN ISLAND GROUND IGUANA</name>
+<name>GRAND CAYMAN IGUANA</name>
+<name>GRAND CAYMAN BLUE IGUANA</name>
+</commonNames>
+</Species>
+<Species id="Cyclura cychlura">
+<commonNames>
+<name>ALLEN'S CAY IGUANA</name>
+<name>ALLEN'S CAY ROCK IGUANA</name>
+</commonNames>
+</Species>
+<Species id="Cyclura collei">
+<commonNames>
+<name>JAMAICA GROUND IGUANA</name>
+<name>JAMAICAN IGUANA</name>
+<name>CYCLURE TERRESTRE DE LA JAMAÏQUE</name>
+<name>IGUANE TERRESTRE DE LA JAMAÏQUE</name>
+</commonNames>
+</Species>
+<Species id="Cyclura cornuta">
+<commonNames>
+<name>MONA ISLAND IGUANA</name>
+</commonNames>
+</Species>
+<Species id="Cyclura nubila">
+<commonNames>
+<name>CUBAN GROUND IGUANA</name>
+<name>CUBAN IGUANA</name>
+</commonNames>
+</Species>
+<Species id="Cyclura ricordi">
+<commonNames>
+<name>HISPANIOLAN GROUND IGUANA</name>
+<name>RICORD'S GROUND IGUANA</name>
+<name>RICORD'S IGUANA</name>
+<name>CYCLURE D'HISPANIOLA</name>
+<name>CYCLURE DE RICORD</name>
+<name>IGUANE TERRESTRE D'HISPANIOLA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Microlophus">
+<Species id="Microlophus tarapacensis">
+<commonNames>
+<name>TARAPACA PACIFIC IGUANA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ctenosaura">
+<Species id="Ctenosaura bakeri">
+<commonNames>
+<name>WISHIWILLY DEL SUAMPO</name>
+<name>SWAMPER</name>
+<name>UTILA SPINY-TAILED IGUANA</name>
+<name>UTILA-LEGUAN</name>
+</commonNames>
+</Species>
+<Species id="Ctenosaura oaxacana">
+<commonNames>
+<name>OAXACAN SPINY-TAILED IGUANA</name>
+<name>GUIOU</name>
+</commonNames>
+</Species>
+<Species id="Ctenosaura defensor">
+<commonNames>
+<name>YUCATAN SPINY-TAILED IGUANA</name>
+<name>CHOP</name>
+</commonNames>
+</Species>
+<Species id="Ctenosaura melanosterna">
+<commonNames>
+<name>HONDURAN PALEATE SPINY-TAILED IGUANA</name>
+</commonNames>
+</Species>
+<Species id="Ctenosaura palearis">
+<commonNames>
+<name>GUATEMALAN SPINY-TAILED IGUANA</name>
+</commonNames>
+</Species>
+<Species id="Ctenosaura clarki">
+<commonNames>
+<name>MICHOACÁN DWARF SPINY-TAILED IGUANA</name>
+<name>BALSAS ARMED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Ctenosaura oedirhina">
+<commonNames>
+<name>ROATÁN SPINY-TAILED IGUANA</name>
+<name>WISHYWILLY</name>
+</commonNames>
+</Species>
+<Species id="Ctenosaura flavidorsalis">
+<commonNames>
+<name>YELLOWBACK SPINY-TAILED IGUANA</name>
+<name>RUMIA</name>
+</commonNames>
+</Species>
+<Species id="Ctenosaura alfredschmidti">
+<commonNames>
+<name>CAMPECHE SPINY-TAILED IGUANA</name>
+<name>ESCORPION</name>
+</commonNames>
+</Species>
+<Species id="Ctenosaura quinquecariniata">
+<commonNames>
+<name>FIVE-KEELED SPINY-TAILED IGUANA</name>
+<name>COLA CHATA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Amblyrhynchus">
+<Species id="Amblyrhynchus cristatus">
+<commonNames>
+<name>SEA IGUANA</name>
+<name>IGUANE MARIN</name>
+<name>IGUANA MARINA</name>
+<name>GALAPAGOS MARINE IGUANA</name>
+<name>AMBLYRHYNCHE A CRETE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Gambelia">
+<Species id="Gambelia sila">
+<commonNames>
+<name>BLUNT-NOSED LEOPARD LIZARD</name>
+<name>BLUNT-NOSED OR SAN JOAQUIN LEOPARD LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Brachylophus">
+<Species id="Brachylophus vitiensis">
+<commonNames>
+<name>FIJI CRESTED IGUANA</name>
+<name>IGUANE À CRÊTE DE FIDJI</name>
+<name>IGUANA CRESTADA DE FIJI</name>
+</commonNames>
+</Species>
+<Species id="Brachylophus fasciatus">
+<commonNames>
+<name>FIJI BANDED IGUANA</name>
+<name>SOUTH PACIFIC BANDED IGUANA</name>
+<name>IGUANE À BANDES DE FIDJI</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Iguana">
+<Species id="Iguana delicatissima">
+<commonNames>
+<name>LESSER ANTILLEAN IGUANA</name>
+<name>WEST INDIAN IGUANA</name>
+<name>IGUANE DES ANTILLES</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Conolophus">
+<Species id="Conolophus pallidus">
+<commonNames>
+<name>BARRINGTON LAND IGUANA</name>
+<name>IGUANE TERRESTRE DE L'ÎLE SANTA FE</name>
+<name>IGUANA TERRESTRE DE BARRINGTON</name>
+</commonNames>
+</Species>
+<Species id="Conolophus subcristatus">
+<commonNames>
+<name>GALAPAGOS LAND IGUANA</name>
+<name>IGUANE TERRESTRE DES GALAPAGOS</name>
+<name>IGUANA TERRESTRE DE LAS GALÁPAGOS</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Anolis">
+<Species id="Anolis roosevelti">
+<commonNames>
+<name>CULEBRA ISLAND GIANT ANOLE</name>
+<name>ROOSEVELT'S GIANT ANOLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Stenocercus">
+<Species id="Stenocercus fimbriatus">
+<commonNames>
+<name>WESTERN LEAF LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Liolaemus">
+<Species id="Liolaemus melanogaster">
+</Species>
+<Species id="Liolaemus lutzae">
+</Species>
+<Species id="Liolaemus paulinae">
+</Species>
+<Species id="Liolaemus walkeri">
+</Species>
+<Species id="Liolaemus ramirezae">
+</Species>
+<Species id="Liolaemus donosoi">
+</Species>
+<Species id="Liolaemus lemniscatus">
+</Species>
+<Species id="Liolaemus pagaburoi">
+</Species>
+<Species id="Liolaemus curis">
+</Species>
+<Species id="Liolaemus rabinoi">
+</Species>
+<Species id="Liolaemus constanzae">
+</Species>
+<Species id="Liolaemus gravenhorstii">
+</Species>
+<Species id="Liolaemus thomasi">
+</Species>
+<Species id="Liolaemus huacahuasicus">
+</Species>
+<Species id="Liolaemus etheridgei">
+</Species>
+<Species id="Liolaemus kuhlmanni">
+</Species>
+<Species id="Liolaemus hellmichi">
+</Species>
+<Species id="Liolaemus occipitalis">
+</Species>
+<Species id="Liolaemus leopardinus">
+</Species>
+<Species id="Liolaemus nitidus">
+</Species>
+<Species id="Liolaemus zapallarensis">
+</Species>
+<Species id="Liolaemus pleophilis">
+</Species>
+<Species id="Liolaemus fuscus">
+</Species>
+<Species id="Liolaemus lorenzmuelleri">
+</Species>
+</Genus>
+<Genus id="Uma">
+<Species id="Uma inornata">
+<commonNames>
+<name>COACHELLA VALLEY FRINGE-TOED LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Anisolepis">
+<Species id="Anisolepis undulatus">
+</Species>
+</Genus>
+<Genus id="Phrynosoma">
+<Species id="Phrynosoma coronatum">
+</Species>
+</Genus>
+<Genus id="Leiocephalus">
+<Species id="Leiocephalus eremitus">
+</Species>
+<Species id="Leiocephalus herminieri">
+</Species>
+</Genus>
+<Genus id="Pristidactylus">
+<Species id="Pristidactylus valeriae">
+</Species>
+<Species id="Pristidactylus alvaroi">
+</Species>
+</Genus>
+<Genus id="Norops">
+<Species id="Norops wermuthi">
+</Species>
+</Genus>
+</Family>
+<Family id="TROGONOPHIDAE">
+<Genus id="Trogonophis">
+<Species id="Trogonophis wiegmanni">
+<commonNames>
+<name>CHECKERBOARD WORM LIZARD</name>
+<name>TROGONOPHIS</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="GERRHOSAURIDAE">
+<Genus id="Zonosaurus">
+<Species id="Zonosaurus madagascariensis">
+<commonNames>
+<name>MADAGASCAR PLATED LIZARD</name>
+<name>MADAGASCAR GIRDLED LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="BOIDAE">
+<Genus id="Python">
+<Species id="Python molurus">
+<commonNames>
+<name>ASIATIC ROCK PYTHON</name>
+<name>BURMESE PYTHON</name>
+<name>TIGER PYTHON</name>
+<name>PYTHON MOLURE</name>
+<name>PYTHON TIGRE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Bolyeria">
+<Species id="Bolyeria multocarinata">
+<commonNames>
+<name>ROUND ISLAND BURROWING BOA</name>
+<name>BOA FOUISSEUR DE L'ÎLE MAURICE</name>
+<name>BOA FOUISSEUR DE L'ILE RONDE</name>
+<name>BOLYERIDE</name>
+<name>BOA EXCAVADORA DE ROUND ISLAND</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Charina">
+<Species id="Charina bottae">
+</Species>
+</Genus>
+<Genus id="Aspidites">
+<Species id="Aspidites ramsayi">
+<commonNames>
+<name>RAMSAY'S PYTHON</name>
+<name>WOMA</name>
+<name>PYTHON DE RAMSAY</name>
+<name>WOMA</name>
+<name>PITÓN DE RAMSAY</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Morelia">
+<Species id="Morelia spilota">
+</Species>
+</Genus>
+<Genus id="Casarea">
+<Species id="Casarea dussumieri">
+<commonNames>
+<name>ROUND ISLAND KEEL-SCALED BOA</name>
+<name>BOA DE L'ILE RONDE DE DUSSUMIER</name>
+<name>BOA DE ROUND ISLAND</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Corallus">
+<Species id="Corallus cropanii">
+<commonNames>
+<name>CROPANI'S BOA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Acrantophis">
+<Species id="Acrantophis madagascariensis">
+<commonNames>
+<name>MADAGASCAR BOA</name>
+<name>MALAGASY GROUND BOA</name>
+<name>BOA DE MADAGASCAR</name>
+<name>BOA DES SAVANES DE MADAGASCAR</name>
+<name>BOA DE MADAGASCAR MERIDIONAL</name>
+</commonNames>
+</Species>
+<Species id="Acrantophis dumerili">
+<commonNames>
+<name>DUMERIL'S BOA</name>
+<name>MADAGASCAR GROUND BOA</name>
+<name>BOA DE DUMERIL</name>
+<name>BOA DES SAVANES DE DUMERIL</name>
+<name>BOA DE DUMERIL</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Sanzinia">
+<Species id="Sanzinia madagascariensis">
+<commonNames>
+<name>MADAGASCAR TREE BOA</name>
+<name>SANZINIA</name>
+<name>BOA DES FORITS DE MADAGASCAR</name>
+<name>BOA ARBORÍCOLA DE MADAGASCAR</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Epicrates">
+<Species id="Epicrates inornatus">
+<commonNames>
+<name>PUERTO RICAN BOA</name>
+<name>YELLOW TREE BOA</name>
+<name>BOA DE PORTO RICO</name>
+<name>BOA SOBRE</name>
+<name>BOA DE PUERTO RICO</name>
+</commonNames>
+</Species>
+<Species id="Epicrates monensis">
+</Species>
+<Species id="Epicrates striatus">
+</Species>
+<Species id="Epicrates angulifer">
+<commonNames>
+<name>CUBAN BOA</name>
+<name>CUBAN TREE BOA</name>
+<name>BOA DE CUBA</name>
+<name>BOA DE CUBA</name>
+<name>MAJA DE STA. MARÍA</name>
+</commonNames>
+</Species>
+<Species id="Epicrates subflavus">
+<commonNames>
+<name>JAMAICAN BOA</name>
+<name>YELLOW SNAKE</name>
+<name>BOA DE LA JAMAÏQUE</name>
+<name>BOA DE JAMAICA</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="VARANIDAE">
+<Genus id="Varanus">
+<Species id="Varanus flavescens">
+<commonNames>
+<name>CALCUTTA OVAL-GRAIN LIZARD</name>
+<name>INDIAN OVAL-GRAIN LIZARD</name>
+<name>RUDDY SNUB-NOSED MONITOR</name>
+<name>YELLOW LAND LIZARD</name>
+<name>YELLOW MONITOR</name>
+<name>VARAN JAUNE</name>
+<name>VARANO AMARILLO</name>
+</commonNames>
+</Species>
+<Species id="Varanus yuwonoi">
+</Species>
+<Species id="Varanus komodoensis">
+<commonNames>
+<name>KOMODO DRAGON</name>
+<name>KOMODO MONITOR</name>
+<name>ORA</name>
+<name>DRAGON DES KOMODOS</name>
+<name>VARAN DE KOMODO</name>
+<name>VARANO DE KOMODO</name>
+</commonNames>
+</Species>
+<Species id="Varanus olivaceus">
+<commonNames>
+<name>GRAY'S MONITOR</name>
+<name>VARAN DE GRAY</name>
+</commonNames>
+</Species>
+<Species id="Varanus griseus">
+</Species>
+</Genus>
+</Family>
+<Family id="ATRACTASPIDIDAE">
+<Genus id="Micrelaps">
+<Species id="Micrelaps muelleri">
+<commonNames>
+<name>ERDVIPER</name>
+<name>MULLER'S SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="GYMNOPHTHALMIDAE">
+<Genus id="Ptychoglossus">
+<Species id="Ptychoglossus danieli">
+</Species>
+<Species id="Ptychoglossus gorgonae">
+</Species>
+<Species id="Ptychoglossus romaleos">
+</Species>
+<Species id="Ptychoglossus myersi">
+</Species>
+<Species id="Ptychoglossus vallensis">
+</Species>
+</Genus>
+</Family>
+<Family id="HYDROPHIIDAE">
+<Genus id="Laticauda">
+<Species id="Laticauda crockeri">
+<commonNames>
+<name>CROCKER'S SEA SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="ANILIIDAE">
+<Genus id="Anomochilus">
+<Species id="Anomochilus leonardi">
+<commonNames>
+<name>LEONARD'S PIPE SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="ANGUIDAE">
+<Genus id="Elgaria">
+<Species id="Elgaria panamintina">
+<commonNames>
+<name>PANAMINT ALLIGATOR LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Anguis">
+<Species id="Anguis cephalonnica">
+<commonNames>
+<name>PELOPONNESE SLOW WORM</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Hyalosaurus">
+<Species id="Hyalosaurus koellikeri">
+<commonNames>
+<name>KOELLIKER'S GLASS LIZARD</name>
+<name>MOROCCAN GLASS LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Diploglossus">
+<Species id="Diploglossus montisserrati">
+<commonNames>
+<name>MONTSERRAT GALLIWASP</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Abronia">
+<Species id="Abronia montecristoi">
+</Species>
+<Species id="Abronia frosti">
+</Species>
+</Genus>
+<Genus id="Celestus">
+<Species id="Celestus duquesneyi">
+</Species>
+<Species id="Celestus occiduus">
+<commonNames>
+<name>JAMAICA GIANT GALLIWASP</name>
+</commonNames>
+</Species>
+<Species id="Celestus microblepharis">
+</Species>
+<Species id="Celestus fowleri">
+</Species>
+<Species id="Celestus warreni">
+<commonNames>
+<name>GIANT HISPANIOLAN GALLIWASP</name>
+</commonNames>
+</Species>
+<Species id="Celestus anelpistus">
+<commonNames>
+<name>GIANT HISPANIOLAN GALLIWASP</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="TEIIDAE">
+<Genus id="Gymnophthalmus">
+<Species id="Gymnophthalmus vanzoi">
+</Species>
+</Genus>
+<Genus id="Neusticurus">
+<Species id="Neusticurus juruazensis">
+</Species>
+</Genus>
+<Genus id="Tupinambis">
+<Species id="Tupinambis quadrilineatus">
+</Species>
+<Species id="Tupinambis cerradensis">
+</Species>
+</Genus>
+<Genus id="Cnemidophorus">
+<Species id="Cnemidophorus vanzoi">
+<commonNames>
+<name>ST LUCIA WHIPTAIL</name>
+</commonNames>
+</Species>
+<Species id="Cnemidophorus hyperythrus">
+<commonNames>
+<name>ORANGE-THROATED RACE-RUNNER</name>
+<name>ORANGE-THROATED WHIPTAIL</name>
+<name>RACE-RUNNER</name>
+<name>COUREUR À GORGE ORANGE</name>
+<name>CORREDOR GORGUINARANJA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Callopistes">
+<Species id="Callopistes maculatus">
+</Species>
+</Genus>
+<Genus id="Ameiva">
+<Species id="Ameiva cineracea">
+</Species>
+<Species id="Ameiva major">
+<commonNames>
+<name>MARTINIQUE GIANT AMEIVA</name>
+</commonNames>
+</Species>
+<Species id="Ameiva polops">
+<commonNames>
+<name>SAINT CROIX GROUND LIZARD</name>
+<name>ST. CROIX GROUND LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="VIPERIDAE">
+<Genus id="Lachesis">
+<Species id="Lachesis muta">
+</Species>
+</Genus>
+<Genus id="Macrovipera">
+<Species id="Macrovipera schweizeri">
+<commonNames>
+<name>CYCLADES BLUNT-NOSED VIPER</name>
+<name>MILOS VIPER</name>
+<name>MILOSOTTER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Crotalus">
+<Species id="Crotalus unicolor">
+<commonNames>
+<name>ARUBA ISLAND RATTLESNAKE</name>
+</commonNames>
+</Species>
+<Species id="Crotalus willardi">
+</Species>
+</Genus>
+<Genus id="Vipera">
+<Species id="Vipera raddei">
+<commonNames>
+<name>ARMENIAN VIPER</name>
+</commonNames>
+</Species>
+<Species id="Vipera kaznakovi">
+<commonNames>
+<name>CAUCASIAN VIPER</name>
+</commonNames>
+</Species>
+<Species id="Vipera aspis">
+<commonNames>
+<name>ASP VIPER</name>
+<name>ASPISVIPER</name>
+<name>VIPERA ÁSPID</name>
+<name>VIPERA COMUNE</name>
+</commonNames>
+</Species>
+<Species id="Vipera pontica">
+</Species>
+<Species id="Vipera bulgardaghica">
+<commonNames>
+<name>MOUNT BULGAR VIPER</name>
+</commonNames>
+</Species>
+<Species id="Vipera latifii">
+<commonNames>
+<name>LATIFI'S VIPER</name>
+</commonNames>
+</Species>
+<Species id="Vipera latastei">
+<commonNames>
+<name>LATASTE'S VIPER</name>
+<name>STÜLPNASENOTTER</name>
+</commonNames>
+</Species>
+<Species id="Vipera albizona">
+<commonNames>
+<name>MOUNTAIN VIPER</name>
+</commonNames>
+</Species>
+<Species id="Vipera wagneri">
+<commonNames>
+<name>WAGNER'S VIPER</name>
+<name>VIPÈRE DE WAGNER</name>
+</commonNames>
+</Species>
+<Species id="Vipera darevskii">
+</Species>
+<Species id="Vipera seoanei">
+<commonNames>
+<name>NORDIBERISCHE KREUZOTTER</name>
+<name>SEOANE'S VIPER</name>
+<name>VIBORA DE SEOANE</name>
+<name>VIBORA DE SEOANE</name>
+</commonNames>
+</Species>
+<Species id="Vipera ursinii">
+</Species>
+<Species id="Vipera ammodytes">
+</Species>
+<Species id="Vipera dinniki">
+</Species>
+<Species id="Vipera monticola">
+<commonNames>
+<name>ATLAS DWARF VIPER</name>
+<name>VIPERE DE L'ATLAS</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Trimeresurus">
+<Species id="Trimeresurus mangshanensis">
+</Species>
+<Species id="Trimeresurus cornutus">
+</Species>
+</Genus>
+<Genus id="Montivipera">
+<Species id="Montivipera xanthina">
+<commonNames>
+<name>OTTOMAN VIPER</name>
+</commonNames>
+</Species>
+<Species id="Montivipera bornmuelleri">
+<commonNames>
+<name>LEBANON VIPER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Bitis">
+<Species id="Bitis schneideri">
+<commonNames>
+<name>NAMAQUA DWARF ADDER</name>
+</commonNames>
+</Species>
+<Species id="Bitis inornata">
+<commonNames>
+<name>PLAIN MOUNTAIN ADDER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Daboia">
+<Species id="Daboia palaestinae">
+<commonNames>
+<name>PALÄSTINAVIPER</name>
+<name>PALESTINE VIPER</name>
+</commonNames>
+</Species>
+<Species id="Daboia deserti">
+<commonNames>
+<name>DESERT VIPER</name>
+<name>VIPERE DU DESERT</name>
+</commonNames>
+</Species>
+<Species id="Daboia mauritanica">
+<commonNames>
+<name>ATLASOTTER</name>
+<name>MOORISH VIPER</name>
+<name>VIPERE DE MAURETANIE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Bothrops">
+<Species id="Bothrops pirajai">
+<commonNames>
+<name>PIRAJA'S LANCEHEAD</name>
+</commonNames>
+</Species>
+<Species id="Bothrops insularis">
+<commonNames>
+<name>GOLDEN LANCEHEAD</name>
+<name>QUEIMADA ISLAND BOTHROPS</name>
+</commonNames>
+</Species>
+<Species id="Bothrops alcatraz">
+<commonNames>
+<name>ALCATRAZES LANCEHEAD</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="LACERTIDAE">
+<Genus id="Timon">
+<Species id="Timon tangitanus">
+<commonNames>
+<name>LAGARTO OCELADO DEL ATLAS</name>
+<name>LÉZARD OCELLÉ DU ATLAS</name>
+</commonNames>
+</Species>
+<Species id="Timon pater">
+<commonNames>
+<name>LAGARTO OCELADO DEL ATLAS</name>
+<name>NORTH AFRICAN OCELLATED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Timon lepidus">
+<commonNames>
+<name>LAGARTO OCELADO</name>
+<name>LEZARD OCELLE</name>
+<name>LUCERTOLA OCELLATA</name>
+<name>OCELLATED LIZARD</name>
+<name>PERLEIDECHSE</name>
+<name>SARDAO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Algyroides">
+<Species id="Algyroides nigropunctatus">
+<commonNames>
+<name>BLUE-THROATED KEELED LIZARD</name>
+<name>DALMATIAN ALGYROIDES</name>
+<name>PRACHT-KIELEIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Algyroides marchi">
+<commonNames>
+<name>LAGARTIJA DE VALVERDE</name>
+<name>SPANISH ALGYROIDES</name>
+</commonNames>
+</Species>
+<Species id="Algyroides fitzingeri">
+<commonNames>
+<name>ALGYRIODE DE FITZINGER</name>
+<name>ALGYROIDE NANO</name>
+<name>FITZINGER'S ALGYROIDES</name>
+<name>PYGMY ALGYROIDES</name>
+</commonNames>
+</Species>
+<Species id="Algyroides moreoticus">
+<commonNames>
+<name>GREEK ALGYROIDES</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ophisops">
+<Species id="Ophisops occidentalis">
+<commonNames>
+<name>WESTERN SNAKE-EYED LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Zootoca">
+<Species id="Zootoca vivipara">
+</Species>
+</Genus>
+<Genus id="Philochortus">
+<Species id="Philochortus zolii">
+</Species>
+</Genus>
+<Genus id="Lacerta">
+<Species id="Lacerta parva">
+<commonNames>
+<name>DWARF LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Lacerta viridis">
+<commonNames>
+<name>GREEN LIZARD</name>
+<name>RAMARRO ORIENTALA</name>
+<name>SMARAGDEIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Lacerta kulzeri">
+</Species>
+<Species id="Lacerta andreanskyi">
+<commonNames>
+<name>ATLAS DWARF LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Lacerta oxycephala">
+<commonNames>
+<name>DALMATINISHCE SPITZKOPFEIDECHSE</name>
+<name>SHARP-SNOUTED ROCK LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Lacerta bilineata">
+<commonNames>
+<name>LAGARTO VERDE</name>
+<name>RAMARRO OCCIDENTALE</name>
+<name>WESTERN GREEN LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Lacerta laevis">
+</Species>
+<Species id="Lacerta schreiberi">
+<commonNames>
+<name>IBERIAN EMERALD LIZARD</name>
+<name>IBERISCHE SMARAGDEIDECHSE</name>
+<name>LAGARTO VERDINEGRO</name>
+<name>LAGARTO-DE-AGUA</name>
+<name>SCHREIBER'S GREEN LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Lacerta alpina">
+</Species>
+<Species id="Lacerta princeps">
+<commonNames>
+<name>ZAGROSIAN LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Lacerta graeca">
+<commonNames>
+<name>GREEK ROCK LIZARD</name>
+<name>GRIECHISCHE SPITZKOPFEIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Lacerta zagrosica">
+</Species>
+<Species id="Lacerta cyanisparsa">
+</Species>
+<Species id="Lacerta dugesii">
+<commonNames>
+<name>MADEIRA LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Lacerta oertzeni">
+</Species>
+<Species id="Lacerta mosorensis">
+<commonNames>
+<name>MOSOR ROCK LIZARD</name>
+<name>MOSOR-GEBIRGSEIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Lacerta trilineata">
+<commonNames>
+<name>BALKAN GREEN LIZARD</name>
+<name>RIESENSMARAGDEIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Lacerta clarkorum">
+</Species>
+<Species id="Lacerta anatolica">
+<commonNames>
+<name>ANATOLIAN ROCK LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Lacerta fraasii">
+<commonNames>
+<name>FRAAS' LIZARD</name>
+<name>LIBANON-EIDECHSE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Podarcis">
+<Species id="Podarcis vaucheri">
+</Species>
+<Species id="Podarcis milensis">
+<commonNames>
+<name>MILES WALL LIZARD</name>
+<name>MILOS WALL LIZARD</name>
+<name>MILOS-MAUEREIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis gaigeae">
+<commonNames>
+<name>SKYROS WALL LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Podarcis erhardii">
+<commonNames>
+<name>ERHARD'S WALL LIZARD</name>
+<name>KYKLADEN-MAUEREIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis bocagei">
+<commonNames>
+<name>BOCAGE'S WALL LIZARD</name>
+<name>LAGARTIJA DE BOCAGE</name>
+<name>LAGARTIXA DE BOCAGE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis carbonelli">
+<commonNames>
+<name>LAGARTIXA DE CARBONELL</name>
+</commonNames>
+</Species>
+<Species id="Podarcis pityusensis">
+<commonNames>
+<name>LÉZARD DES PITYUSES</name>
+<name>IBIZA WALL LIZARD</name>
+<name>LAGARTIJA DE LAS PITIUSAS</name>
+<name>PITYUSEN-EIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis lilfordi">
+<commonNames>
+<name>LÉZARD DE LILFORD</name>
+<name>LÉZARD DES BALÉARES</name>
+<name>BALEAREN-EIDECHSE</name>
+<name>LAGARTIJA BALEAR</name>
+<name>LILFORD'S WALL LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Podarcis muralis">
+<commonNames>
+<name>COMMON WALL LIZARD</name>
+<name>LAGARTIJA ROQUERA</name>
+<name>LUCERTOLA MURAIOLA</name>
+<name>MAUEREIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis filfolensis">
+<commonNames>
+<name>FILFOLA LIZARD</name>
+<name>LUCERTOLA MALTESE</name>
+<name>MALTA-MAUEREIDECHSE</name>
+<name>MALTESE WALL LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Podarcis wagleriana">
+<commonNames>
+<name>LUCERTOLA DI WAGLER</name>
+<name>SICILIAN WALL LIZARD</name>
+<name>SIZILIANISCHE MAUEREIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis raffonei">
+<commonNames>
+<name>AEOLIAN WALL LIZARD</name>
+<name>LUCERTOLA DELLE EOLIE</name>
+<name>LUCERTOLA EOLIANA</name>
+</commonNames>
+</Species>
+<Species id="Podarcis hispanica">
+<commonNames>
+<name>IBERIAN WALL LIZARD</name>
+<name>LAGARTIJA IBÉRICA</name>
+<name>SPANISCHE MAUEREIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis peloponnesiaca">
+<commonNames>
+<name>PELOPONNESE WALL LIZARD</name>
+<name>PELOPONNESISCHE EIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis melisellensis">
+<commonNames>
+<name>ADRIATISCHE MAUEREIDECHSE</name>
+<name>DALMATIAN WALL LIZARD</name>
+<name>LUCERTOLA ADRIATICA</name>
+</commonNames>
+</Species>
+<Species id="Podarcis taurica">
+<commonNames>
+<name>BALKAN WALL LIZARD</name>
+<name>TAURISCHE EIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis tiliguerta">
+<commonNames>
+<name>LEZARD TILIGUERTA</name>
+<name>LUCERTOLA TIRRENICA</name>
+<name>TYRRHENIAN WALL LIZARD</name>
+<name>TYRRHENISCHE MAUEREIDECHSE</name>
+</commonNames>
+</Species>
+<Species id="Podarcis sicula">
+<commonNames>
+<name>ITALIAN WALL LIZARD</name>
+<name>LAGARTIJA ITALIANA</name>
+<name>LUCERTOLA CAMPESTRE</name>
+<name>RUINENEIDECHSE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Mesalina">
+<Species id="Mesalina bahaeldini">
+</Species>
+<Species id="Mesalina simonii">
+<commonNames>
+<name>SIMON'S DESERT RACER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Psammodromus">
+<Species id="Psammodromus microdactylus">
+<commonNames>
+<name>GREEN PSAMMODROMUS</name>
+<name>GRÜNER SANDLÄUFER</name>
+<name>SMALL-FINGERED PSAMMODROMUS</name>
+</commonNames>
+</Species>
+<Species id="Psammodromus blanci">
+<commonNames>
+<name>BLANC'S SAND RACER</name>
+</commonNames>
+</Species>
+<Species id="Psammodromus hispanicus">
+<commonNames>
+<name>LAGARTIJA CENICIENTA</name>
+<name>SARDANISCA DO MATO IBERICA</name>
+<name>SPANISCHER SANDLÄUFER</name>
+<name>SPANISH PSAMMODROMUS</name>
+</commonNames>
+</Species>
+<Species id="Psammodromus algirus">
+<commonNames>
+<name>ALGERISCHER SANDLÄUFER</name>
+<name>LAGARTIJA COLILARGA</name>
+<name>LARGE PSAMMODROMUS</name>
+<name>PSAMMODROMO ALGERINO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Gallotia">
+<Species id="Gallotia simonyi">
+<commonNames>
+<name>HIERRO GIANT LIZARD</name>
+<name>LÉZARD DE SIMONY</name>
+<name>EL HIERRO GIANT LIZARD</name>
+<name>LAGARTO GIGANTE DE EL HIERRO</name>
+</commonNames>
+</Species>
+<Species id="Gallotia atlantica">
+<commonNames>
+<name>ATLANTIC LIZARD</name>
+<name>LAGARTO ATLÁNTICO</name>
+</commonNames>
+</Species>
+<Species id="Gallotia auaritae">
+</Species>
+<Species id="Gallotia stehlini">
+<commonNames>
+<name>GRAN CANARIA GIANT LIZARD</name>
+<name>LAGARTO DE GRAN CANARIA</name>
+</commonNames>
+</Species>
+<Species id="Gallotia galloti">
+<commonNames>
+<name>LAGARTO TIZÓN</name>
+<name>TENERIFE LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Gallotia caesaris">
+<commonNames>
+<name>BOETTGER'S LIZARD</name>
+<name>LAGARTO TIZÓN DE LA GOMERA Y EL HIERRO</name>
+</commonNames>
+</Species>
+<Species id="Gallotia bravoana">
+<commonNames>
+<name>LA GOMERA GIANT LIZARD</name>
+<name>LAGARTO GIGANTE DE LA GOMERA</name>
+</commonNames>
+</Species>
+<Species id="Gallotia intermedia">
+<commonNames>
+<name>LAGARTO CANARIO MOTEADO</name>
+<name>TENERIFE SPECKLED LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Archaeolacerta">
+<Species id="Archaeolacerta bedriagae">
+<commonNames>
+<name>BEDRIAGA'S ROCK LIZARD</name>
+<name>LEZARD DE BEDRIAGA</name>
+<name>LUCERTOLA DI BEDRIAGA</name>
+<name>TYRRHENISCHE GEBIRGSEIDECHSE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Teira">
+<Species id="Teira perspicillata">
+<commonNames>
+<name>BRILLENEIDECHSE</name>
+<name>LAGARTIJA DE MARUECOS</name>
+<name>MOROCCAN ROCK LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Acanthodactylus">
+<Species id="Acanthodactylus erythrurus">
+<commonNames>
+<name>LAGARTIJA COLIRROJA</name>
+<name>SARDANISCA-DE-DEDOS-DENTEADOS</name>
+<name>SPINY-FOOTED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Acanthodactylus nilsoni">
+</Species>
+<Species id="Acanthodactylus blanci">
+<commonNames>
+<name>BLANC'S FRINGE-TOED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Acanthodactylus spinicauda">
+<commonNames>
+<name>DOUMERGUE'S FRINGE-FINGERED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Acanthodactylus bedriagai">
+<commonNames>
+<name>BEDRIAGA'S FRINGE-FINGERED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Acanthodactylus schreiberi">
+<commonNames>
+<name>SCHREIBER'S FRINGE-FINGERED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Acanthodactylus beershebensis">
+<commonNames>
+<name>BE’ER SHEVA FRINGE-FINGERED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Acanthodactylus lineomaculatus">
+<commonNames>
+<name>ACANTHODACTYLE LIGNÉ</name>
+<name>COASTAL COMMON FRINGE-TOED LIZARD</name>
+<name>LAGARTIJA COLIRROJA OCCIDENTAL</name>
+</commonNames>
+</Species>
+<Species id="Acanthodactylus maculatus">
+<commonNames>
+<name>SPOTTED FRINGE-FINGERED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Acanthodactylus savignyi">
+<commonNames>
+<name>SAVIGNY'S FRINGE-FINGERED LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Acanthodactylus ahmaddisii">
+</Species>
+<Species id="Acanthodactylus mechriguensis">
+</Species>
+<Species id="Acanthodactylus pardalis">
+<commonNames>
+<name>LEOPARD FRINGE-FINGERED LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Iberolacerta">
+<Species id="Iberolacerta aurelioi">
+<commonNames>
+<name>AURELIO'S ROCK LIZARD</name>
+<name>LAGARTIJA PALLARESA</name>
+</commonNames>
+</Species>
+<Species id="Iberolacerta aranica">
+<commonNames>
+<name>ARAN ROCK LIZARD</name>
+<name>LAGARTIJA ARANESA</name>
+</commonNames>
+</Species>
+<Species id="Iberolacerta horvathi">
+<commonNames>
+<name>HORVATH'S ROCK LIZARD</name>
+<name>KROATISCHE GEBIRGSEIDECHSE</name>
+<name>LUCERTOLA DI HORVATH</name>
+</commonNames>
+</Species>
+<Species id="Iberolacerta martinezricai">
+</Species>
+<Species id="Iberolacerta cyreni">
+</Species>
+<Species id="Iberolacerta monticola">
+<commonNames>
+<name>IBERIAN ROCK LIZARD</name>
+<name>IBERISCHE GEBIRGSEIDECHSE</name>
+<name>LAGARTIJA SERRANA</name>
+<name>LAGARTIXA DE MONTANHA</name>
+</commonNames>
+</Species>
+<Species id="Iberolacerta bonnali">
+<commonNames>
+<name>LAGARTIJA PIRENAICA</name>
+<name>PYRENEAN ROCK LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Australolacerta">
+<Species id="Australolacerta rupicola">
+<commonNames>
+<name>SOUTPANSBERG ROCK LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Australolacerta australis">
+<commonNames>
+<name>SOUTHERN ROCK LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="TYPHLOPIDAE">
+<Genus id="Rhinotyphlops">
+<Species id="Rhinotyphlops simonii">
+</Species>
+</Genus>
+<Genus id="Typhlops">
+<Species id="Typhlops monensis">
+<commonNames>
+<name>MONA BLIND SNAKE</name>
+</commonNames>
+</Species>
+<Species id="Typhlops cariei">
+</Species>
+</Genus>
+<Genus id="Ramphotyphlops">
+<Species id="Ramphotyphlops exocoeti">
+<commonNames>
+<name>CHRISTMAS ISLAND BLIND SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="GEKKONIDAE">
+<Genus id="Euleptes">
+<Species id="Euleptes europaea">
+<commonNames>
+<name>EUROPEAN LEAF-TOED GEKKO</name>
+<name>EUROPEAN LEAF-TOED GECKO</name>
+<name>PHYLLODACTYLE D'EUROPE</name>
+<name>TARANTOLINO</name>
+<name>TARENTOLINO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Nactus">
+<Species id="Nactus coindemirensis">
+</Species>
+<Species id="Nactus serpensinsula">
+<commonNames>
+<name>SERPENT ISLAND GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Phelsuma">
+<Species id="Phelsuma gigas">
+<commonNames>
+<name>GECKO DIURNE GÉANT DE RODRIGUES</name>
+<name>PHELSUME DE GÉANT RODRIGUES</name>
+</commonNames>
+</Species>
+<Species id="Phelsuma astriata">
+<commonNames>
+<name>SEYCHELLES SMALL DAY GECKO</name>
+<name>STRIPELESS DAY GECKO</name>
+</commonNames>
+</Species>
+<Species id="Phelsuma standingi">
+<commonNames>
+<name>BANDED DAY GECKO</name>
+<name>STANDING'S DAY GECKO</name>
+<name>GECKO DIURNE DE STANDING</name>
+<name>PHELSUME DE STANDING</name>
+<name>GECO DIURNO DE STANDING</name>
+</commonNames>
+</Species>
+<Species id="Phelsuma laticauda">
+<commonNames>
+<name>GOLD-DUST DAY GECKO</name>
+</commonNames>
+</Species>
+<Species id="Phelsuma ocellata">
+<commonNames>
+<name>NAMAQUA DAY GECKO</name>
+<name>OCELLATED DAY GECKO</name>
+<name>SPOTTED DAY GECKO</name>
+<name>GECKO DIURNE OCELLÉ</name>
+<name>PHELSUME OCELLÉ</name>
+<name>GECO DIURNO OCELADO</name>
+</commonNames>
+</Species>
+<Species id="Phelsuma guentheri">
+<commonNames>
+<name>ROUND ISLAND DAY GECKO</name>
+<name>GECKO DIURNE DE L'ILE RONDE</name>
+<name>PHELSUME DE L'ILE RONDE</name>
+<name>GECO DIURNO DE GUENTHER</name>
+</commonNames>
+</Species>
+<Species id="Phelsuma sundbergi">
+<commonNames>
+<name>LA DIGUE DAY GECKO</name>
+<name>MAHÉ DAY GECKO</name>
+<name>SEYCHELLES GIANT DAY GECKO</name>
+</commonNames>
+</Species>
+<Species id="Phelsuma abbotti">
+<commonNames>
+<name>ABBOTT'S DAY GECKO</name>
+<name>ALDABRA DAY GECKO</name>
+<name>ASSUMPTION DAY GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Hemidactylus">
+<Species id="Hemidactylus mindiae">
+</Species>
+<Species id="Hemidactylus foudaii">
+</Species>
+</Genus>
+<Genus id="Naultinus">
+<Species id="Naultinus rudis">
+<commonNames>
+<name>ROUGH GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Lygodactylus">
+<Species id="Lygodactylus methueni">
+<commonNames>
+<name>METHUEN'S DWARF GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Sphaerodactylus">
+<Species id="Sphaerodactylus micropithecus">
+<commonNames>
+<name>MONITO GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Quedenfeldtia">
+<Species id="Quedenfeldtia moerens">
+</Species>
+<Species id="Quedenfeldtia trachyblepharus">
+<commonNames>
+<name>ATLAS DAY GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Phyllodactylus">
+<Species id="Phyllodactylus melanostictus">
+<commonNames>
+<name>SCARCE GROUND GECKO</name>
+</commonNames>
+</Species>
+<Species id="Phyllodactylus microlepidotus">
+<commonNames>
+<name>SMALL-SCALED LEAF-TOED GECKO</name>
+</commonNames>
+</Species>
+<Species id="Phyllodactylus heterurus">
+</Species>
+</Genus>
+<Genus id="Tarentola">
+<Species id="Tarentola neglecta">
+<commonNames>
+<name>ALGERIAN WALL GECKO</name>
+</commonNames>
+</Species>
+<Species id="Tarentola gomerensis">
+<commonNames>
+<name>GOMERA-GECKO</name>
+<name>GOMERO WALL GECKO</name>
+<name>LA GOMERA GECKO</name>
+<name>PERENQUÉN GOMERO</name>
+</commonNames>
+</Species>
+<Species id="Tarentola mindiae">
+<commonNames>
+<name>QATTARA GECKO</name>
+</commonNames>
+</Species>
+<Species id="Tarentola mauritanica">
+<commonNames>
+<name>COMMON WALL GECKO</name>
+<name>GECO COMUNE</name>
+<name>MAUERGECKO</name>
+<name>MOORISH GECKO</name>
+<name>OSGA</name>
+<name>SALAMANQUESA COMÚN</name>
+</commonNames>
+</Species>
+<Species id="Tarentola angustimentalis">
+<commonNames>
+<name>EAST CANARY GECKO</name>
+<name>PERENQUÉN MAJORERO</name>
+</commonNames>
+</Species>
+<Species id="Tarentola delalandii">
+<commonNames>
+<name>KANARISCHER MAUERGECKO</name>
+<name>PRAQUÉN COMÚN</name>
+<name>TENERIFE GECKO</name>
+<name>TENERIFE WALL GECKO</name>
+</commonNames>
+</Species>
+<Species id="Tarentola deserti">
+<commonNames>
+<name>DESERT WALL GECKO</name>
+</commonNames>
+</Species>
+<Species id="Tarentola boehmei">
+<commonNames>
+<name>BÖHME'S GECKO</name>
+</commonNames>
+</Species>
+<Species id="Tarentola albertschwartzi">
+</Species>
+<Species id="Tarentola boettgeri">
+<commonNames>
+<name>BOETTGER'S WALL GECKO</name>
+<name>GESTREIFTER KANARENGECKO</name>
+<name>GRAN CANARIA GECKO</name>
+<name>PERENQUÉN DE BOETTGER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Underwoodisaurus">
+<Species id="Underwoodisaurus sphyrurus">
+</Species>
+</Genus>
+<Genus id="Lepidodactylus">
+<Species id="Lepidodactylus listeri">
+</Species>
+</Genus>
+<Genus id="Nephrurus">
+<Species id="Nephrurus deleani">
+</Species>
+</Genus>
+<Genus id="Goniurosaurus">
+<Species id="Goniurosaurus kuroiwae">
+<commonNames>
+<name>KUROIWA'S GROUND GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Afroedura">
+<Species id="Afroedura hawequensis">
+<commonNames>
+<name>HAWEQUA FLAT GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ptyodactylus">
+<Species id="Ptyodactylus oudrii">
+<commonNames>
+<name>OUDRI'S FAN-FOOTED GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Lepidoblepharis">
+<Species id="Lepidoblepharis montecanoensis">
+<commonNames>
+<name>PARAGUANAN GROUND GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Christinus">
+<Species id="Christinus guentheri">
+</Species>
+</Genus>
+<Genus id="Urocotyledon">
+<Species id="Urocotyledon inexpectata">
+<commonNames>
+<name>SEYCHELLES SUCKER-TAILED GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Cryptactites">
+<Species id="Cryptactites peringueyi">
+<commonNames>
+<name>PERINGUEYI'S LEAF-TOED GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ebenavia">
+<Species id="Ebenavia maintimainty">
+</Species>
+</Genus>
+<Genus id="Bavayia">
+<Species id="Bavayia pulchella">
+</Species>
+<Species id="Bavayia exsuccida">
+</Species>
+</Genus>
+<Genus id="Hoplodactylus">
+<Species id="Hoplodactylus stephensi">
+<commonNames>
+<name>STEPHEN'S ISLAND GECKO</name>
+</commonNames>
+</Species>
+<Species id="Hoplodactylus kahutarae">
+<commonNames>
+<name>BLACK-EYED GECKO</name>
+</commonNames>
+</Species>
+<Species id="Hoplodactylus delcourti">
+</Species>
+<Species id="Hoplodactylus duvauceli">
+<commonNames>
+<name>DUVAUCEL'S GECKO</name>
+</commonNames>
+</Species>
+<Species id="Hoplodactylus chrysosireticus">
+<commonNames>
+<name>GOLD-STRIPED GECKO</name>
+</commonNames>
+</Species>
+<Species id="Hoplodactylus rakiurae">
+<commonNames>
+<name>HARLEQUIN GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Saurodactylus">
+<Species id="Saurodactylus brosseti">
+</Species>
+<Species id="Saurodactylus fasciatus">
+<commonNames>
+<name>BANDED TOED GECKO</name>
+</commonNames>
+</Species>
+<Species id="Saurodactylus mauritanicus">
+<commonNames>
+<name>GECO DE ALBORÁN</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ailuronyx">
+<Species id="Ailuronyx trachygaster">
+<commonNames>
+<name>GIANT BRONZE GECKO</name>
+</commonNames>
+</Species>
+<Species id="Ailuronyx tachyscopaeus">
+<commonNames>
+<name>DWARF BRONZE GECKO</name>
+</commonNames>
+</Species>
+<Species id="Ailuronyx seychellensis">
+<commonNames>
+<name>SEYCHELLES BRONZE GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Homopholis">
+<Species id="Homopholis mulleri">
+<commonNames>
+<name>MULLER'S VELVET GECKO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Homonota">
+<Species id="Homonota penai">
+</Species>
+</Genus>
+<Genus id="Cyrtopodion">
+<Species id="Cyrtopodion amictopholis">
+</Species>
+</Genus>
+</Family>
+<Family id="HELODERMATIDAE">
+<Genus id="Heloderma">
+<Species id="Heloderma suspectum">
+<commonNames>
+<name>GILA MONSTER</name>
+<name>LÉZARD PERLÉ</name>
+<name>MONSTRE DE GILA</name>
+<name>MONSTRUO DE GILA</name>
+</commonNames>
+</Species>
+<Species id="Heloderma horridum">
+<commonNames>
+<name>BEADED LIZARD</name>
+<name>HÉLODERME GRANULEUX</name>
+<name>HÉLODERME HORRIBLE</name>
+<name>ESCORPIÓN</name>
+<name>LAGARTO DE CUENTAS</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="PYGOPODIDAE">
+<Genus id="Aprasia">
+<Species id="Aprasia pseudopulchella">
+<commonNames>
+<name>FLINDERS RANGES WORM-LIZARD</name>
+</commonNames>
+</Species>
+<Species id="Aprasia rostrata">
+</Species>
+<Species id="Aprasia aurita">
+</Species>
+</Genus>
+<Genus id="Delma">
+<Species id="Delma torquata">
+<commonNames>
+<name>COLLARED DELMA</name>
+</commonNames>
+</Species>
+<Species id="Delma labialis">
+<commonNames>
+<name>STRIPED TAILED DELMA</name>
+</commonNames>
+</Species>
+<Species id="Delma impar">
+<commonNames>
+<name>STRIPED LEGLESS LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Paradelma">
+<Species id="Paradelma orientalis">
+<commonNames>
+<name>BRIGALOW SCALY-FOOT</name>
+<name>QUEENSLAND SNAKE-LIZARD</name>
+<name>LÉZARD APODE DU QUEENSLAND</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Ophidiocephalus">
+<Species id="Ophidiocephalus taeniatus">
+<commonNames>
+<name>BRONZEBACK SNAKE-LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="AMPHISBAENIDAE">
+<Genus id="Blanus">
+<Species id="Blanus tingitanus">
+<commonNames>
+<name>AMPHISBÈNE CENDRÉ DU NORD DU MAROC</name>
+<name>CULEBRILLA CIEGA DE TÁNGER</name>
+</commonNames>
+</Species>
+<Species id="Blanus cinereus">
+<commonNames>
+<name>CULEBRILLA CIEGA</name>
+<name>IBERIAN WORM LIZARD</name>
+<name>LICRANCO</name>
+</commonNames>
+</Species>
+<Species id="Blanus mettetali">
+<commonNames>
+<name>AMPHISBÈNE CENDRÉ DU MAROC</name>
+<name>MOROCCAN WORM LIZARD</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Amphisbaena">
+<Species id="Amphisbaena anaemariae">
+</Species>
+<Species id="Amphisbaena crisae">
+</Species>
+</Genus>
+</Family>
+<Family id="COLUBRIDAE">
+<Genus id="Hierophis">
+<Species id="Hierophis cypriensis">
+<commonNames>
+<name>CYPRUS WHIP SNAKE</name>
+<name>ZYPERN-SCHLANKNATTER</name>
+</commonNames>
+</Species>
+<Species id="Hierophis gemonensis">
+<commonNames>
+<name>BALKAN WHIP SNAKE</name>
+<name>BALKAN-ZORNNATTER</name>
+</commonNames>
+</Species>
+<Species id="Hierophis viridiflavus">
+<commonNames>
+<name>BIACCO</name>
+<name>CULEBRA VERDIAMARILLA</name>
+<name>GELBGRÜNE ZORNNATTER</name>
+<name>GREEN WHIP SNAKE</name>
+<name>WESTERN WHIP SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Alsophis">
+<Species id="Alsophis rufiventris">
+<commonNames>
+<name>RED-BELLIED RACER</name>
+</commonNames>
+</Species>
+<Species id="Alsophis ater">
+<commonNames>
+<name>BLACK RACER</name>
+</commonNames>
+</Species>
+<Species id="Alsophis sanctaecrucis">
+<commonNames>
+<name>SAINT CROIX RACER</name>
+</commonNames>
+</Species>
+<Species id="Alsophis antiguae">
+<commonNames>
+<name>ANTIGUAN RACER</name>
+</commonNames>
+</Species>
+<Species id="Alsophis rijersmai">
+<commonNames>
+<name>LEEWARD ISLAND RACER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Macroprotodon">
+<Species id="Macroprotodon cucullatus">
+<commonNames>
+<name>COLUBRO DAL CAPPUCCIO</name>
+<name>CULEBRA DE COGULLA</name>
+<name>FALSE SMOOTH SNAKE</name>
+<name>KAPUTZENNATTER</name>
+</commonNames>
+</Species>
+<Species id="Macroprotodon brevis">
+<commonNames>
+<name>FALSE SMOOTH SNAKE</name>
+</commonNames>
+</Species>
+<Species id="Macroprotodon abubakeri">
+</Species>
+</Genus>
+<Genus id="Achalinus">
+<Species id="Achalinus werneri">
+<commonNames>
+<name>AMAMI TAKACHIHO SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Rhinechis">
+<Species id="Rhinechis scalaris">
+<commonNames>
+<name>COBRA DE ESCADA</name>
+<name>CULEBRA DE ESCALERA</name>
+<name>LADDER SNAKE</name>
+<name>TREPPENNATTER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Drymarchon">
+<Species id="Drymarchon corais">
+</Species>
+</Genus>
+<Genus id="Opisthotropis">
+<Species id="Opisthotropis kikuzatoi">
+<commonNames>
+<name>KIKUZATO'S BROOK SNAKE</name>
+</commonNames>
+</Species>
+<Species id="Opisthotropis boonsongi">
+<commonNames>
+<name>BOONSONG'S KEELBACK</name>
+</commonNames>
+</Species>
+<Species id="Opisthotropis spenceri">
+<commonNames>
+<name>SMITH'S MOUNTAIN KEELBACK</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Dipsas">
+<Species id="Dipsas albifrons">
+</Species>
+</Genus>
+<Genus id="Thermophis">
+<Species id="Thermophis baileyi">
+</Species>
+</Genus>
+<Genus id="Apostolepis">
+<Species id="Apostolepis quirogai">
+</Species>
+</Genus>
+<Genus id="Iguanognathus">
+<Species id="Iguanognathus werneri">
+<commonNames>
+<name>SPATULA-TOOTHED SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Eirenis">
+<Species id="Eirenis lineomaculatus">
+</Species>
+<Species id="Eirenis barani">
+</Species>
+<Species id="Eirenis levantinus">
+</Species>
+</Genus>
+<Genus id="Chapinophis">
+<Species id="Chapinophis xanthocheilus">
+</Species>
+</Genus>
+<Genus id="Coronella">
+<Species id="Coronella girondica">
+<commonNames>
+<name>COLUBRO DI RICCIOLI</name>
+<name>CULEBRA LISA MERIDIONAL</name>
+<name>GIRONDISCHE GLATTNATTER</name>
+<name>SOUTHERN SMOOTH SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Calamodontophis">
+<Species id="Calamodontophis sp. nov.">
+</Species>
+<Species id="Calamodontophis paucidens">
+</Species>
+</Genus>
+<Genus id="Elachistodon">
+<Species id="Elachistodon westermanni">
+<commonNames>
+<name>INDIAN EGG-EATER</name>
+<name>INDIAN EGG-EATING SNAKE</name>
+<name>WESTERMANN'S SNAKE</name>
+<name>COULEUVRE DE WESTERMANN</name>
+<name>ELACHISTODON</name>
+<name>MANGEUR D'OUEFS INDIEN</name>
+<name>MANGEUR D'ÚUFS ASIATIQUE</name>
+<name>CULEBRA TRAGAHUEVOS INDIA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Telescopus">
+<Species id="Telescopus hoogstraali">
+</Species>
+</Genus>
+<Genus id="Geophis">
+<Species id="Geophis damiani">
+</Species>
+</Genus>
+<Genus id="Zamenis">
+<Species id="Zamenis lineatus">
+<commonNames>
+<name>ITALIAN AESCULAPIAN SNAKE</name>
+<name>SAETTONE OCCHIROSSI</name>
+</commonNames>
+</Species>
+<Species id="Zamenis situla">
+<commonNames>
+<name>EUROPEAN RATSNAKE</name>
+<name>LEOPARD SNAKE</name>
+<name>LEOPARDNATTER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Spalerosophis">
+<Species id="Spalerosophis dolichospilus">
+<commonNames>
+<name>COULEUVRE DIADÈME DU MAGHREB</name>
+<name>MOGRABIN DIADEM SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Oligodon">
+<Species id="Oligodon nikhili">
+</Species>
+</Genus>
+<Genus id="Chironius">
+<Species id="Chironius vincenti">
+<commonNames>
+<name>ST VINCENT BLACKSNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Atractus">
+<Species id="Atractus nebularis">
+</Species>
+</Genus>
+<Genus id="Lamprophis">
+<Species id="Lamprophis swazicus">
+<commonNames>
+<name>SWAZI ROCK SNAKE</name>
+</commonNames>
+</Species>
+<Species id="Lamprophis fiskii">
+<commonNames>
+<name>FISK'S HOUSE SNAKE</name>
+</commonNames>
+</Species>
+<Species id="Lamprophis geometricus">
+<commonNames>
+<name>SEYCHELLES HOUSE SNAKE</name>
+</commonNames>
+</Species>
+<Species id="Lamprophis fuscus">
+<commonNames>
+<name>YELLOW-BELLIED HOUSE SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Natrix">
+<Species id="Natrix maura">
+<commonNames>
+<name>CULEBRA VIPERINA</name>
+<name>NATRICE VIPERINA</name>
+<name>VIPERINE SNAKE</name>
+<name>VIPERNATTER</name>
+</commonNames>
+</Species>
+<Species id="Natrix natrix">
+</Species>
+<Species id="Natrix megalocephala">
+<commonNames>
+<name>LARGE-HEADED WATER SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Opheodrys">
+<Species id="Opheodrys herminae">
+<commonNames>
+<name>SAKASHIMA GREEN SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Nerodia">
+<Species id="Nerodia sipedon">
+</Species>
+<Species id="Nerodia harteri">
+</Species>
+<Species id="Nerodia fasciata">
+</Species>
+</Genus>
+<Genus id="Tantilla">
+<Species id="Tantilla vulcani">
+</Species>
+<Species id="Tantilla impensa">
+</Species>
+</Genus>
+<Genus id="Masticophis">
+<Species id="Masticophis flagellum">
+</Species>
+<Species id="Masticophis lateralis">
+</Species>
+</Genus>
+<Genus id="Xenocalamus">
+<Species id="Xenocalamus transvaalensis">
+<commonNames>
+<name>TRANSVAAL QUILLSNOUT SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Philodryas">
+<Species id="Philodryas chamissonis">
+</Species>
+</Genus>
+<Genus id="Liophis">
+<Species id="Liophis perfuscus">
+<commonNames>
+<name>BARBADOS RACER</name>
+</commonNames>
+</Species>
+<Species id="Liophis atraventer">
+</Species>
+<Species id="Liophis ornatus">
+<commonNames>
+<name>ST LUCIA RACER</name>
+</commonNames>
+</Species>
+<Species id="Liophis cursor">
+</Species>
+</Genus>
+<Genus id="Platyceps">
+<Species id="Platyceps collaris">
+<commonNames>
+<name>RED WHIP SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Homoroselaps">
+<Species id="Homoroselaps dorsalis">
+<commonNames>
+<name>STRIPED HARLEQUIN SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Adelphicos">
+<Species id="Adelphicos daryi">
+</Species>
+</Genus>
+<Genus id="Pareas">
+<Species id="Pareas iwasakii">
+<commonNames>
+<name>IWASAKI'S SNAIL-EATER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Thamnophis">
+<Species id="Thamnophis hammondii">
+<commonNames>
+<name>TWO-STRIPED GARTER SNAKE</name>
+<name>SERPENT-JARRETIERE À DEUX RAIES</name>
+<name>SERPIENTE JARRETERA</name>
+</commonNames>
+</Species>
+<Species id="Thamnophis gigas">
+<commonNames>
+<name>GIANT GARTER SNAKE</name>
+</commonNames>
+</Species>
+<Species id="Thamnophis sirtalis">
+</Species>
+</Genus>
+<Genus id="Hemorrhois">
+<Species id="Hemorrhois hippocrepis">
+<commonNames>
+<name>COLUBRO FERRO DI CAVALLO</name>
+<name>CULEBRA DE HERRADURA</name>
+<name>HORSESHOE WHIP SNAKE</name>
+<name>HUFEISENNATTER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Lycognathophis">
+<Species id="Lycognathophis seychellensis">
+<commonNames>
+<name>SEYCHELLES WOLF SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Calamaria">
+<Species id="Calamaria pfefferi">
+<commonNames>
+<name>PFEFFER'S REED SNAKE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+</Order>
+<Order id="CROCODYLIA">
+<Family id="CROCODYLIDAE">
+<Genus id="Crocodylus">
+<Species id="Crocodylus palustris">
+<commonNames>
+<name>BROAD-SNOUTED CROCODILE</name>
+<name>MARSH CROCODILE</name>
+<name>MUGGER</name>
+<name>CROCODILE DES MARAIS</name>
+<name>CROCODILE PALUDÉEN</name>
+<name>CROCODILE PALUSTRE</name>
+<name>COCODRILO MARISMEÑO</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus intermedius">
+<commonNames>
+<name>ORINOCO CROCODILE</name>
+<name>CROCODILE DE L'ORÉNOQUE</name>
+<name>COCODRILO DEL ORINOCO</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus mindorensis">
+<commonNames>
+<name>PHILIPPINES CROCODILE</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus niloticus">
+<commonNames>
+<name>NILE CROCODILE</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus acutus">
+<commonNames>
+<name>AMERICAN CROCODILE</name>
+<name>CROCODILE D'AMÉRIQUE</name>
+<name>COCODRILO AMERICANO</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus siamensis">
+<commonNames>
+<name>SIAMESE CROCODILE</name>
+<name>CROCODILE DU SIAM</name>
+<name>COCODRILO DE SIAM</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus novaeguineae">
+<commonNames>
+<name>NEW GUINEA CROCODILE</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus rhombifer">
+<commonNames>
+<name>CUBAN CROCODILE</name>
+<name>CROCODILE DE CUBA</name>
+<name>COCODRILO DE CUBA</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus porosus">
+<commonNames>
+<name>ESTUARINE CROCODILE</name>
+<name>SALT-WATER CROCODILE</name>
+<name>CROCODILE D'ESTUAIRE</name>
+<name>CROCODILE MARIN</name>
+<name>COCODRILO POROSO</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus cataphractus">
+<commonNames>
+<name>AFRICAN SHARP-NOSED CROCODILE</name>
+<name>AFRICAN SLENDER-SNOUTED CROCODILE</name>
+<name>LONG-SNOUTED CROCODILE</name>
+<name>CROCODILE À MUSEAU ALLONGÉ D'AFRIQUE</name>
+<name>CROCODILE À MUSEAU ÉTROIT</name>
+<name>FAUX-GAVIAL D'AFRIQUE</name>
+<name>COCODRILO HOCIQUIFINO AFRICANO</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus johnsoni">
+<commonNames>
+<name>AUSTRALIAN FRESHWATER CROCODILE</name>
+<name>FRESHIE</name>
+<name>JOHNSON'S CROCODILE</name>
+<name>JOHNSTONE'S CROCODILE</name>
+<name>JOHNSTON'S CROCODILE</name>
+</commonNames>
+</Species>
+<Species id="Crocodylus moreletii">
+<commonNames>
+<name>BELIZE CROCODILE</name>
+<name>MORELET'S CROCODILE</name>
+<name>CROCODILE DE MORELET</name>
+<name>COCODRILO DE MORELET</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Osteolaemus">
+<Species id="Osteolaemus tetraspis">
+<commonNames>
+<name>AFRICAN DWARF CROCODILE</name>
+<name>WEST AFRICAN DWARF CROCODILE</name>
+<name>CROCODILE À FRONT LARGE</name>
+<name>CROCODILE À NUQUE CUIRASSÉE</name>
+<name>CROCODILE NAIN AFRICAIN</name>
+<name>COCODRILO CHICO AFRICANO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Tomistoma">
+<Species id="Tomistoma schlegelii">
+<commonNames>
+<name>FALSE GAVIAL</name>
+<name>FALSE GHARIAL</name>
+<name>MALAYAN GHARIAL</name>
+<name>TOMISTOMA</name>
+<name>FAUX GAVIAL MALAIS</name>
+<name>FALSO GAVIAL MALAYO</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="GAVIALIDAE">
+<Genus id="Gavialis">
+<Species id="Gavialis gangeticus">
+<commonNames>
+<name>FISH-EATING CROCODILE</name>
+<name>GAVIAL</name>
+<name>GHARIAL</name>
+<name>LONG-NOSED CROCODILE</name>
+<name>GAVIAL DU GANGE</name>
+<name>GAVIAL DEL GANGES</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="ALLIGATORIDAE">
+<Genus id="Alligator">
+<Species id="Alligator sinensis">
+<commonNames>
+<name>CHINA ALLIGATOR</name>
+<name>CHINESE ALLIGATOR</name>
+<name>ALLIGATOR DE CHINE</name>
+<name>ALIGATOR DE CHINA</name>
+</commonNames>
+</Species>
+<Species id="Alligator mississipiensis">
+<commonNames>
+<name>AMERICAN ALLIGATOR</name>
+<name>GATOR</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Caiman">
+<Species id="Caiman yacare">
+<commonNames>
+<name>YACARÉ</name>
+</commonNames>
+</Species>
+<Species id="Caiman latirostris">
+<commonNames>
+<name>BROAD-SNOUTED CAIMAN</name>
+</commonNames>
+</Species>
+<Species id="Caiman crocodilus">
+<commonNames>
+<name>COMMON CAIMAN</name>
+<name>SPECTACLED CAIMAN</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Paleosuchus">
+<Species id="Paleosuchus trigomatus">
+<commonNames>
+<name>SMOOTH-FRONTED CAIMAN</name>
+<name>SCHNEIDER'S SMOOTH-FRONTED CAIMAN</name>
+</commonNames>
+</Species>
+<Species id="Paleosuchus palpebrosus">
+<commonNames>
+<name>DWARF CAIMAN</name>
+<name>CUVIER'S SMOOTH-FRONTED CAIMAN</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Melanosuchus">
+<Species id="Melanosuchus niger">
+<commonNames>
+<name>BLACK CAIMAN</name>
+<name>CAÏMAN NOIR</name>
+<name>CAIMÁN NEGRO</name>
+<name>LAGARTO NEGRO</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+</Order>
+<Order id="RHYNCHOCEPHALIA">
+<Family id="SPHENODONTIDAE">
+<Genus id="Sphenodon">
+<Species id="Sphenodon punctatus">
+<commonNames>
+<name>BEAK-HEAD</name>
+<name>COOK STRAIT TUATARA</name>
+<name>SPHENODON</name>
+<name>TUATARA</name>
+<name>HATTERIA PONCTUÉ</name>
+<name>SPHÉNODON PONCTUÉ</name>
+<name>TUÁTARA</name>
+</commonNames>
+</Species>
+<Species id="Sphenodon guntheri">
+<commonNames>
+<name>BROTHERS ISLAND TUATARA</name>
+<name>HATTERIA DE GÜNTHER</name>
+<name>SPHÉNODON DE GÜNTHER</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+</Order>
+<Order id="TESTUDINES">
+<Family id="TESTUDINIDAE">
+<Genus id="Malacochersus">
+<Species id="Malacochersus tornieri">
+<commonNames>
+<name>CREVICE TORTOISE</name>
+<name>PANCAKE TORTOISE</name>
+<name>SOFTSHELL TORTOISE</name>
+<name>TORNIER'S TORTOISE</name>
+<name>TORTUE À CARAPACE SOUPLE</name>
+<name>TORTUE DE TORNIER</name>
+<name>TORTUGA DE CUÑA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Indotestudo">
+<Species id="Indotestudo forstenii">
+<commonNames>
+<name>CELEBES TORTOISE</name>
+<name>FORSTEN'S TORTOISE</name>
+<name>TRAVANCORE TORTOISE</name>
+<name>TORTUE DE TRANVANCORE</name>
+<name>TORTUE DES CELÈBES</name>
+<name>TORTUGA MARRÓN DE LA INDIA</name>
+</commonNames>
+</Species>
+<Species id="Indotestudo elongata">
+<commonNames>
+<name>ELONGATED TORTOISE</name>
+<name>PINEAPPLE TORTOISE</name>
+<name>RED-NOSED TORTOISE</name>
+<name>YELLOW TORTOISE</name>
+<name>YELLOW-HEADED TORTOISE</name>
+<name>TORTUE À TÊTE JAUNE</name>
+</commonNames>
+</Species>
+<Species id="Indotestudo travancorica">
+</Species>
+</Genus>
+<Genus id="Gopherus">
+<Species id="Gopherus flavomarginatus">
+<commonNames>
+<name>BOLSON TORTOISE</name>
+<name>MEXICAN GIANT TORTOISE</name>
+<name>YELLOW-BORDERED TORTOISE</name>
+<name>GOPHÈRE À BORDS JAUNES</name>
+<name>TORTUE À BORDS JAUNES</name>
+<name>TORTUE DU MEXIQUE</name>
+<name>TORTUGA GRANDE</name>
+<name>TORTUGA LLANERO</name>
+<name>TORTUGA TOPO</name>
+</commonNames>
+</Species>
+<Species id="Gopherus polyphemus">
+<commonNames>
+<name>GOPHER TORTOISE</name>
+<name>GOPHÈRE POLYPHÈME</name>
+<name>TORTUE DE LA FLORIDE</name>
+<name>TORTUE GAUFRÉE</name>
+<name>TORTUGA TERRESTRE DE FLORIDA</name>
+</commonNames>
+</Species>
+<Species id="Gopherus agassizii">
+<commonNames>
+<name>DESERT TORTOISE</name>
+<name>GOPHÈRE D'AGASSIZ</name>
+<name>TORTUE D'AGASSIZ</name>
+<name>TORTUGA DEL DESIERTO</name>
+</commonNames>
+</Species>
+<Species id="Gopherus berlandieri">
+<commonNames>
+<name>BERLANDIER'S TORTOISE</name>
+<name>TEXAS TORTOISE</name>
+<name>GOPHÈRE DU TEXAS</name>
+<name>TORTUE DU TEXAS</name>
+<name>TORTUGA DE TEXAS</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Pyxis">
+<Species id="Pyxis arachnoides">
+<commonNames>
+<name>SPIDER TORTOISE</name>
+<name>PYXIDE ARACHNOIDE</name>
+<name>TORTUGA ARAÑA</name>
+<name>TORTUGA DE PLASTRÓN ARTICULADO</name>
+</commonNames>
+</Species>
+<Species id="Pyxis planicauda">
+<commonNames>
+<name>FLAT-BACKED SPIDER TORTOISE</name>
+<name>FLAT-SHELLED SPIDER TORTOISE</name>
+<name>MADAGASCAR FLAT-SHELLED TORTOISE</name>
+<name>PYXIDE À QUEUE PLATTE</name>
+<name>TORTUE DE COLA PLANA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Manouria">
+<Species id="Manouria emys">
+<commonNames>
+<name>ASIAN GIANT TORTOISE</name>
+<name>ASIAN TORTOISE</name>
+<name>BLACK GIANT TORTOISE</name>
+<name>BURMESE BROWN TORTOISE</name>
+<name>BURMESE MOUNTAIN TORTOISE</name>
+<name>SIX-LEGGED TORTOISE</name>
+<name>TORTUE BRUNE</name>
+</commonNames>
+</Species>
+<Species id="Manouria impressa">
+<commonNames>
+<name>IMPRESSED TORTOISE</name>
+<name>TORTUE IMPRIMÉE</name>
+<name>TORTUGA MARRÓN DE BURMA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Psammobates">
+<Species id="Psammobates geometricus">
+<commonNames>
+<name>GEOMETRIC TORTOISE</name>
+<name>SAKAFI</name>
+<name>TORTUE GÉOMÉTRIQUE</name>
+<name>SACAFI</name>
+<name>TORTUGA GEOMÉTRICA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Testudo">
+<Species id="Testudo marginata">
+<commonNames>
+<name>MARGINATED TORTOISE</name>
+<name>MARGINED TORTOISE</name>
+<name>TORTUE BORDÉE</name>
+<name>TORTUGA MARGINADA</name>
+</commonNames>
+</Species>
+<Species id="Testudo hermanni">
+<commonNames>
+<name>WESTERN HERMANN'S TORTOISE</name>
+</commonNames>
+</Species>
+<Species id="Testudo werneri">
+<commonNames>
+<name>NEGEV TORTOISE</name>
+<name>TORTUE DE NEGEV</name>
+<name>TORTUGA DE NEGEV</name>
+</commonNames>
+</Species>
+<Species id="Testudo horsfieldii">
+<commonNames>
+<name>AFGHAN TORTOISE</name>
+<name>CENTRAL ASIAN TORTOISE</name>
+<name>FOUR-TOED TORTOISE</name>
+<name>HORSFIELD'S TORTOISE</name>
+<name>STEPPE TORTOISE</name>
+<name>TORTUE D'HORSFIELD</name>
+<name>TORTUE DES STEPPES</name>
+<name>TORTUGA TERRESTRE AFGANA</name>
+</commonNames>
+</Species>
+<Species id="Testudo graeca">
+</Species>
+<Species id="Testudo kleinmanni">
+<commonNames>
+<name>EGYPTIAN TORTOISE</name>
+<name>KLEINMANN'S TORTOISE</name>
+<name>LEITH'S TORTOISE</name>
+<name>TORTUE D'EGYPTE</name>
+<name>TORTUE DE KLEINMANN</name>
+<name>TORTUGA DE PLASTRÓN ARTICULADO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Kinixys">
+<Species id="Kinixys erosa">
+<commonNames>
+<name>COMMON TORTOISE</name>
+<name>FOREST HINGED TORTOISE</name>
+<name>SCHWEIGGER'S TORTOISE</name>
+<name>SERRATED HINGE-BACK TORTOISE</name>
+<name>SERRATED HINGE-BACKED TORTOISE</name>
+<name>SERRATED TORTOISE</name>
+<name>KINIXYS RONGÉE</name>
+<name>TORTUE ARTICULÉE D'AFRIQUE</name>
+</commonNames>
+</Species>
+<Species id="Kinixys natalensis">
+<commonNames>
+<name>NATAL HINGE-BACK TORTOISE</name>
+<name>NATAL HINGE-BACKED TORTOISE</name>
+<name>NATAL HINGED TORTOISE</name>
+<name>KINIXYS DU NATAL</name>
+</commonNames>
+</Species>
+<Species id="Kinixys homeana">
+<commonNames>
+<name>HOME'S HINGE-BACK TORTOISE</name>
+<name>HOME'S HINGED TORTOISE</name>
+<name>HOME'S HINGED-BACKED TORTOISE</name>
+<name>KINIXYS DE HOME</name>
+<name>STUTZ-GELENKSCHILDKRÖTE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Cylindraspis">
+<Species id="Cylindraspis peltastes">
+</Species>
+<Species id="Cylindraspis triserrata">
+</Species>
+<Species id="Cylindraspis vosmaeri">
+</Species>
+<Species id="Cylindraspis inepta">
+</Species>
+<Species id="Cylindraspis indica">
+</Species>
+</Genus>
+<Genus id="Homopus">
+<Species id="Homopus bergeri">
+<commonNames>
+<name>BERGER'S CAPE TORTOISE</name>
+<name>HOMOPODE DE NAMIBIE</name>
+</commonNames>
+</Species>
+<Species id="Homopus signatus">
+<commonNames>
+<name>SPECKLED CAPE TORTOISE</name>
+<name>SPECKLED TORTOISE</name>
+<name>HOMOPODE MARQUÉ</name>
+<name>TORTUGA MANCHADA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Geochelone">
+<Species id="Geochelone chilensis">
+<commonNames>
+<name>ARGENTINE TORTOISE</name>
+<name>CHACO TORTOISE</name>
+<name>SOUTHERN WOOD TORTOISE</name>
+<name>TORTUE DE LA PAMPA</name>
+<name>TORTUGA TERRESTRE ARGENTINA</name>
+</commonNames>
+</Species>
+<Species id="Geochelone elegans">
+</Species>
+<Species id="Geochelone yniphora">
+<commonNames>
+<name>ANGONOKA</name>
+<name>MADAGASCAR ANGULATED TORTOISE</name>
+<name>MADAGASCAR TORTOISE</name>
+<name>TORTUE À ÉPERON</name>
+<name>TORTUE À PLASTRON ÉPERONNÉ</name>
+<name>TORTUE À SOC DE MADAGASCAR</name>
+<name>TORTUE DE MADAGASCAR</name>
+<name>TORTUGA DE MADAGASCAR</name>
+<name>TORTUGA GLOBULOSA MALAGACHE</name>
+</commonNames>
+</Species>
+<Species id="Geochelone nigra">
+<commonNames>
+<name>IGUANA COVE TORTOISE</name>
+</commonNames>
+</Species>
+<Species id="Geochelone platynota">
+<commonNames>
+<name>BURMESE STARRED TORTOISE</name>
+<name>FLATBACK TORTOISE</name>
+<name>TORTUE ÉTOILÉE DE BIRMANIE</name>
+<name>TORTUGA ESTRELLADA DE BURMA</name>
+</commonNames>
+</Species>
+<Species id="Geochelone sulcata">
+<commonNames>
+<name>AFRICAN SPURRED TORTOISE</name>
+<name>GROOVED TORTOISE</name>
+<name>TORTUE SILLONNÉE</name>
+<name>TORTUGA CON PÚAS</name>
+</commonNames>
+</Species>
+<Species id="Geochelone radiata">
+<commonNames>
+<name>RADIATED TORTOISE</name>
+<name>TORTUE RADIÉE DE MADAGASCAR</name>
+<name>TORTUE RAYONNÉE</name>
+<name>TORTUGA ESTRELLADA DE MADAGASCAR</name>
+<name>TORTUGA RAYADA</name>
+</commonNames>
+</Species>
+<Species id="Geochelone gigantea">
+<commonNames>
+<name>ALDABRA GIANT TORTOISE</name>
+<name>TORTUE GÉANTE</name>
+<name>TORTUE GÉANTE D'ALDABRA</name>
+<name>TORTUGA GIGANTE DE ALDABRA</name>
+</commonNames>
+</Species>
+<Species id="Geochelone denticulata">
+<commonNames>
+<name>BRAZILIAN GIANT TORTOISE</name>
+<name>FOREST TORTOISE</name>
+<name>SOUTH AMERICAN TORTOISE</name>
+<name>SOUTH AMERICAN YELLOW-FOOTED TORTOISE</name>
+<name>YELLOW-FOOTED TORTOISE</name>
+<name>TORTUE DE L'AMÉRIQUE DU SUD</name>
+<name>TORTUE DENTELÉE</name>
+<name>TORTUE DENTICULÉE</name>
+<name>MORROCOY</name>
+<name>MOTELO</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="PLATYSTERNIDAE">
+<Genus id="Platysternon">
+<Species id="Platysternon megacephalum">
+<commonNames>
+<name>BIG-HEADED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="TRIONYCHIDAE">
+<Genus id="Pelodiscus">
+<Species id="Pelodiscus sinensis">
+</Species>
+</Genus>
+<Genus id="Palea">
+<Species id="Palea steindachneri">
+<commonNames>
+<name>WATTLE-NECKED SOFTSHELL TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Cycloderma">
+<Species id="Cycloderma frenatum">
+<commonNames>
+<name>ZAMBEZI FLAPSHELL TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Trionyx">
+<Species id="Trionyx triunguis">
+</Species>
+</Genus>
+<Genus id="Dogania">
+<Species id="Dogania subplana">
+<commonNames>
+<name>MALAYAN SOFT-SHELLED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Amyda">
+<Species id="Amyda cartilaginea">
+<commonNames>
+<name>ASIATIC SOFTSHELL TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Pelochelys">
+<Species id="Pelochelys bibroni">
+<commonNames>
+<name>ASIAN GIANT SOFTSHELL TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Pelochelys cantorii">
+<commonNames>
+<name>CANTOR'S GIANT SOFTSHELL</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Rafetus">
+<Species id="Rafetus euphraticus">
+<commonNames>
+<name>EUPHRATES SOFTSHELL TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Rafetus swinhoei">
+</Species>
+</Genus>
+<Genus id="Apalone">
+<Species id="Apalone ater">
+<commonNames>
+<name>CUATRO CIENEGAS SOFTSHELL</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Nilssonia">
+<Species id="Nilssonia formosa">
+<commonNames>
+<name>BURMESE PEACOCK SOFTSHELL</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Cyclanorbis">
+<Species id="Cyclanorbis elegans">
+<commonNames>
+<name>NUBIAN FLAPSHELL TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Cyclanorbis senegalensis">
+<commonNames>
+<name>SENEGAL FLAPSHELL TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Lissemys">
+<Species id="Lissemys scutata">
+<commonNames>
+<name>BURMESE FLAPSHELL TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Lissemys punctata">
+<commonNames>
+<name>INDIAN FLAP-SHELLED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Chitra">
+<Species id="Chitra indica">
+<commonNames>
+<name>NARROW-HEADED SOFTSHELL TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Chitra chitra">
+<commonNames>
+<name>STRIPED NARROW-HEADED SOFTSHELL TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Aspideretes">
+<Species id="Aspideretes nigricans">
+<commonNames>
+<name>BLACK SOFT-SHELL TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Aspideretes leithii">
+<commonNames>
+<name>LEITH'S SOFTSHELL TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Aspideretes gangeticus">
+</Species>
+<Species id="Aspideretes hurum">
+</Species>
+</Genus>
+</Family>
+<Family id="CHELYDRIDAE">
+<Genus id="Macroclemys">
+<Species id="Macroclemys temminckii">
+<commonNames>
+<name>ALLIGATOR SNAPPING TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="EMYDIDAE">
+<Genus id="Clemmys">
+<Species id="Clemmys marmorata">
+<commonNames>
+<name>PACIFIC POND TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Clemmys muhlenbergii">
+<commonNames>
+<name>BOG TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Clemmys guttata">
+<commonNames>
+<name>SPOTTED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Clemmys insculpta">
+<commonNames>
+<name>WOOD TURTLE</name>
+<name>CLEMMYDE SCULPTÉE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Trachemys">
+<Species id="Trachemys scripta">
+<commonNames>
+<name>RED EARED SLIDER</name>
+</commonNames>
+</Species>
+<Species id="Trachemys gaigeae">
+<commonNames>
+<name>BIG BEND SLIDER</name>
+</commonNames>
+</Species>
+<Species id="Trachemys decorata">
+<commonNames>
+<name>HAITIAN SLIDER</name>
+<name>HISPANIOLAN ELEGANT SLIDER</name>
+<name>HISPANIOLAN SLIDER</name>
+<name>JICOTEA</name>
+</commonNames>
+</Species>
+<Species id="Trachemys terrapen">
+<commonNames>
+<name>JAMAICAN SLIDER</name>
+</commonNames>
+</Species>
+<Species id="Trachemys stejnegeri">
+<commonNames>
+<name>CENTRAL ANTILLEAN SLIDER</name>
+</commonNames>
+</Species>
+<Species id="Trachemys adiutrix">
+<commonNames>
+<name>CARVALHO'S SLIDER</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Graptemys">
+<Species id="Graptemys gibbonsi">
+<commonNames>
+<name>PASCAGOULA MAP TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Graptemys barbouri">
+<commonNames>
+<name>BARBOUR'S MAP TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Graptemys oculifera">
+<commonNames>
+<name>RINGED MAP TURTLE</name>
+<name>RINGED SAWBACK</name>
+</commonNames>
+</Species>
+<Species id="Graptemys versa">
+<commonNames>
+<name>TEXAS MAP TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Graptemys ernsti">
+<commonNames>
+<name>ESCAMBIA MAP TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Graptemys flavimaculata">
+<commonNames>
+<name>YELLOW BLOTCHED SAWBACK</name>
+<name>YELLOW-BLOTCHED MAP TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Graptemys nigrinoda">
+<commonNames>
+<name>BLACK-KNOBBED MAP TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Graptemys caglei">
+<commonNames>
+<name>CAGLE'S MAP TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Emydoidea">
+<Species id="Emydoidea blandingii">
+<commonNames>
+<name>BLANDING'S TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Pseudemys">
+<Species id="Pseudemys gorzugi">
+<commonNames>
+<name>RIO GRANDE COOTER</name>
+</commonNames>
+</Species>
+<Species id="Pseudemys rubriventris">
+<commonNames>
+<name>AMERICAN RED-BELLIED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Pseudemys alabamensis">
+<commonNames>
+<name>ALABAMA RED-BELLIED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Terrapene">
+<Species id="Terrapene nelsoni">
+<commonNames>
+<name>SPOTTED BOX TURTLE</name>
+<name>TORTUE-BOÎTE DU MEXIQUE</name>
+</commonNames>
+</Species>
+<Species id="Terrapene coahuila">
+<commonNames>
+<name>AQUATIC BOX TURTLE</name>
+<name>COAHUILA BOX TURTLE</name>
+<name>COAHUILA TURTLE</name>
+<name>WATER BOX TURTLE</name>
+<name>TORTUE-BOÎTE DE COAHUILA</name>
+<name>TORTUE-BOÎTE DU MEXIQUE</name>
+<name>GALÁPAGO CAJA MEXICANO</name>
+<name>TORTUGA COAHUILA</name>
+</commonNames>
+</Species>
+<Species id="Terrapene ornata">
+<commonNames>
+<name>ORNATE BOX TURTLE</name>
+<name>WESTERN BOX TURTLE</name>
+<name>TORTUE-BOÎTE ORNÉE COMMUNE</name>
+</commonNames>
+</Species>
+<Species id="Terrapene carolina">
+<commonNames>
+<name>COMMON BOX TURTLE</name>
+<name>EASTERN BOX TURTLE</name>
+<name>TORTUE-BOÎTE DE CAROLINE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Malaclemys">
+<Species id="Malaclemys terrapin">
+<commonNames>
+<name>DIAMONDBACK TERRAPIN</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Emys">
+<Species id="Emys orbicularis">
+<commonNames>
+<name>EUROPEAN POND TURTLE</name>
+<name>CISTUDE D'EUROPE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="PELOMEDUSIDAE">
+<Genus id="Podocnemis">
+<Species id="Podocnemis sextuberculata">
+<commonNames>
+<name>SIX-TUBERCLED AMAZON RIVER TURTLE</name>
+<name>SIX-TUBERCLED RIVER TURTLE</name>
+<name>PODOCNÉMIDE TUBERCULÉE</name>
+<name>CUPISO</name>
+<name>IAÇA</name>
+<name>PITIU</name>
+</commonNames>
+</Species>
+<Species id="Podocnemis lewyana">
+<commonNames>
+<name>MAGDALENA RIVER TURTLE</name>
+<name>RIO MAGDALENA RIVER TURTLE</name>
+<name>PODOCNÉMIDE DE LÉWY</name>
+<name>TORTUGA DE AGUA</name>
+</commonNames>
+</Species>
+<Species id="Podocnemis erythrocephala">
+<commonNames>
+<name>RED-HEADED AMAZON RIVER TURTLE</name>
+<name>RED-HEADED RIVER TURTLE</name>
+<name>RED-HEADED SIDENECK</name>
+<name>PODOCNÉMIDE À TÊTE ROUGE</name>
+<name>CHIMPIRE</name>
+</commonNames>
+</Species>
+<Species id="Podocnemis unifilis">
+<commonNames>
+<name>YELLOW-HEADED SIDENECK</name>
+<name>YELLOW-SPOTTED RIVER TURTLE</name>
+<name>YELLOW-SPOTTED SIDENECK TURTLE</name>
+<name>PODOCNÉMIDE DE CAYENNE</name>
+<name>TERECAY</name>
+</commonNames>
+</Species>
+<Species id="Podocnemis expansa">
+<commonNames>
+<name>ARRAU</name>
+<name>GIANT SOUTH AMERICAN TURTLE</name>
+<name>SOUTH AMERICAN RIVER TURTLE</name>
+<name>TARTARUGA</name>
+<name>PODOCNÉMIDE ÉLARGIE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Erymnochelys">
+<Species id="Erymnochelys madagascariensis">
+<commonNames>
+<name>MADAGASCAR BIG-HEADED TURTLE</name>
+<name>MADAGASCAR SIDENECK TURTLE</name>
+<name>PODOCNÉMIDE DE MADAGASCAR</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Pelusios">
+<Species id="Pelusios seychellensis">
+<commonNames>
+<name>SEYCHELLES BLACK TERRAPIN</name>
+<name>SEYCHELLES MUD TURTLE</name>
+<name>SEYCHELLES TERRAPIN</name>
+</commonNames>
+</Species>
+<Species id="Pelusios broadleyi">
+<commonNames>
+<name>TURKANA MUD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Pelusios subniger">
+<commonNames>
+<name>SEYCHELLES BLACK MUD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Pelusios rhodesianus">
+<commonNames>
+<name>VARIABLE MUD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Pelusios upembae">
+<commonNames>
+<name>UPEMBA MUD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Pelusios castanoides">
+<commonNames>
+<name>SEYCHELLES CHESTNUT-BELLIED MUD TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Peltocephalus">
+<Species id="Peltocephalus dumeriliana">
+<commonNames>
+<name>BIG-HEADED AMAZON RIVER TURTLE</name>
+<name>BIG-HEADED SIDENECK</name>
+<name>PELTOCEPHALE DE DUMÉRIL</name>
+<name>PODOCNÉMIDE DE DUMÉRIL</name>
+<name>CABEZÓN</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="ENDODONTIDAE">
+<Genus id="Endodonta">
+<Species id="Endodonta apiculata">
+</Species>
+</Genus>
+<Genus id="Aaadonta">
+<Species id="Aaadonta fuscozonata">
+</Species>
+<Species id="Aaadonta angaurana">
+</Species>
+<Species id="Aaadonta irregularis">
+</Species>
+<Species id="Aaadonta constricta">
+</Species>
+<Species id="Aaadonta pelewana">
+</Species>
+<Species id="Aaadonta kinlochi">
+</Species>
+</Genus>
+<Genus id="Pseudohelenoconcha">
+<Species id="Pseudohelenoconcha spurca">
+</Species>
+</Genus>
+<Genus id="Thaumatodon">
+<Species id="Thaumatodon hystricelloides">
+</Species>
+<Species id="Thaumatodon multilamellata">
+</Species>
+</Genus>
+<Genus id="Hirasiella">
+<Species id="Hirasiella clara">
+</Species>
+</Genus>
+<Genus id="Anguispira">
+<Species id="Anguispira picta">
+<commonNames>
+<name>PAINTED SNAKE-COILED FOREST SNAIL</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Cookeconcha">
+<Species id="Cookeconcha contorta">
+</Species>
+</Genus>
+<Genus id="Hirasea">
+<Species id="Hirasea hypolia">
+</Species>
+<Species id="Hirasea acutissima">
+</Species>
+<Species id="Hirasea biconcava">
+</Species>
+<Species id="Hirasea mirabilis">
+</Species>
+<Species id="Hirasea eutheca">
+</Species>
+<Species id="Hirasea operculina">
+</Species>
+<Species id="Hirasea major">
+</Species>
+<Species id="Hirasea sinuosa">
+</Species>
+<Species id="Hirasea planulata">
+</Species>
+<Species id="Hirasea goniobasis">
+</Species>
+<Species id="Hirasea nesiotica">
+</Species>
+<Species id="Hirasea diplomphalus">
+</Species>
+<Species id="Hirasea insignis">
+</Species>
+<Species id="Hirasea chichijimana">
+</Species>
+<Species id="Hirasea profundispira">
+</Species>
+</Genus>
+<Genus id="Helicodiscus">
+<Species id="Helicodiscus hexodon">
+</Species>
+<Species id="Helicodiscus diadema">
+</Species>
+</Genus>
+</Family>
+<Family id="DERMOCHELYIDAE">
+<Genus id="Dermochelys">
+<Species id="Dermochelys coriacea">
+<commonNames>
+<name>LEATHERBACK</name>
+<name>LEATHERY TURTLE</name>
+<name>LUTH</name>
+<name>TRUNKBACK TURTLE</name>
+<name>TORTUE LUTH</name>
+<name>CANAL</name>
+<name>TINGLADA</name>
+<name>TORTUGA LAUD</name>
+<name>BAULA</name>
+<name>TINGLAR</name>
+<name>CARDON</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="CHELIDAE">
+<Genus id="Emydura">
+<Species id="Emydura signata">
+<commonNames>
+<name>BRISBANE SHORT-NECKED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Emydura subglobosa">
+<commonNames>
+<name>RED-BELLIED SHORT-NECKED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Elusor">
+<Species id="Elusor macrurus">
+<commonNames>
+<name>MARY RIVER TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Rheodytes">
+<Species id="Rheodytes leukops">
+<commonNames>
+<name>FITZROY RIVER TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Hydromedusa">
+<Species id="Hydromedusa maximiliani">
+<commonNames>
+<name>BRAZILIAN SNAKE-NECKED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Chelodina">
+<Species id="Chelodina siebenrocki">
+</Species>
+<Species id="Chelodina pritchardi">
+<commonNames>
+<name>PRITCHARD'S SNAKE-NECKED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Chelodina novaeguineae">
+<commonNames>
+<name>NEW GUINEA SNAKE-NECKED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Chelodina reimanni">
+<commonNames>
+<name>REIMANN'S SNAKE-NECKED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Chelodina parkeri">
+<commonNames>
+<name>PARKER'S SNAKE-NECKED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Chelodina mccordi">
+<commonNames>
+<name>ROTI ISLAND SNAKE-NECKED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Chelodina oblonga">
+<commonNames>
+<name>NARROW-BREASTED SNAKE-NECKED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Elseya">
+<Species id="Elseya georgesi">
+<commonNames>
+<name>BELLINGER RIVER SNAPPING TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Elseya purvisi">
+<commonNames>
+<name>MANNING RIVER SNAPPING TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Elseya branderhorstii">
+</Species>
+<Species id="Elseya bellii">
+<commonNames>
+<name>NAMOI RIVER SNAPPING TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Elseya novaeguineae">
+<commonNames>
+<name>NEW GUINEA SNAPPING TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Acanthochelys">
+<Species id="Acanthochelys pallidipectoris">
+<commonNames>
+<name>CHACO SIDE-NECKED TURTLE</name>
+<name>CHACO SIDENECK TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Acanthochelys macrocephala">
+<commonNames>
+<name>BIG-HEADED PANTANAL SWAMP TURTLE</name>
+<name>PANTANAL SWAMP TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Acanthochelys radiolata">
+<commonNames>
+<name>BRAZILIAN RADIOLATED SWAMP TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Acanthochelys spixii">
+<commonNames>
+<name>BLACK SPINE-NECK SWAMP TURTLE</name>
+<name>SPINY-NECK TURTLE</name>
+<name>SPINY-NECKED TURTLE</name>
+<name>SPIX'S SIDENECK TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Phrynops">
+<Species id="Phrynops zuliae">
+<commonNames>
+<name>ZULIA TOAD HEADED SIDENECK</name>
+<name>ZULIA TOAD-HEADED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Phrynops rufipes">
+<commonNames>
+<name>RED SIDE-NECKED TURTLE</name>
+<name>RED TURTLE</name>
+<name>RED-FOOTED SIDENECK TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Phrynops hogei">
+<commonNames>
+<name>HOGE'S SIDENECK TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Phrynops vanderhaegei">
+<commonNames>
+<name>VANDERHAEGE'S TOAD-HEADED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Phrynops dahli">
+<commonNames>
+<name>DAHL'S TOAD-HEADED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Pseudemydura">
+<Species id="Pseudemydura umbrina">
+<commonNames>
+<name>WESTERN SHORT-NECKED TURTLE</name>
+<name>WESTERN SWAMP TURTLE</name>
+<name>PSEUDÉMYDURE DE PERTH</name>
+<name>TORTUE À COL COURT</name>
+<name>TORTUGA SERPENTINA OCCIDENTAL</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="DERMATEMYDIDAE">
+<Genus id="Dermatemys">
+<Species id="Dermatemys mawii">
+<commonNames>
+<name>CENTRAL AMERICAN RIVER TURTLE</name>
+<name>DERMATEMYDE DE MAWE</name>
+<name>TORTUE DE TABASCO</name>
+<name>TORTUGA BLANCA</name>
+<name>TORTUGA RIVEREÑA CENTROAMERICANA</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="CARETTOCHELYIDAE">
+<Genus id="Carettochelys">
+<Species id="Carettochelys insculpta">
+<commonNames>
+<name>FLY RIVER TURTLE</name>
+<name>NEW GUINEA PLATELESS TURTLE</name>
+<name>PIG-NOSE TURTLE</name>
+<name>PIG-NOSED TURTLE</name>
+<name>PITTED-SHELL TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="KINOSTERNIDAE">
+<Genus id="Sternotherus">
+<Species id="Sternotherus depressus">
+<commonNames>
+<name>FLATTENED MUSK TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Staurotypus">
+<Species id="Staurotypus triporcatus">
+<commonNames>
+<name>MEXICAN MUSK TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Staurotypus salvinii">
+<commonNames>
+<name>GIANT MUSK TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Claudius">
+<Species id="Claudius angustatus">
+<commonNames>
+<name>NARROW-BRIDGED MUSK TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Kinosternon">
+<Species id="Kinosternon sonoriense">
+<commonNames>
+<name>SONORA MUD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kinosternon oaxacae">
+<commonNames>
+<name>OAXACA MUD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kinosternon angustipons">
+<commonNames>
+<name>NARROW-BRIDGED MUD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kinosternon dunni">
+<commonNames>
+<name>DUNN'S MUD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kinosternon creaseri">
+<commonNames>
+<name>CREASER'S MUD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kinosternon acutum">
+<commonNames>
+<name>TABASCO MUD TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="BATAGURIDAE">
+<Genus id="Leucocephalon">
+<Species id="Leucocephalon yuwonoi">
+<commonNames>
+<name>SULAWESI FOREST TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Sacalia">
+<Species id="Sacalia pseudocellata">
+<commonNames>
+<name>CHINESE FALSE-EYED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Sacalia quadriocellata">
+<commonNames>
+<name>FOUR-EYED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Sacalia bealei">
+<commonNames>
+<name>BEAL'S-EYED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Geoclemys">
+<Species id="Geoclemys hamiltonii">
+<commonNames>
+<name>BLACK POND TURTLE</name>
+<name>BLACK SPOTTED TURTLE</name>
+<name>HAMILTON'S TERRAPIN</name>
+<name>SPOTTED POND TURTLE</name>
+<name>GÉOCLEMMYDE D' HAMILTON</name>
+<name>TORTUE DE HAMILTON</name>
+<name>GALÁPAGO RAYADO</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Malayemys">
+<Species id="Malayemys subtrijuga">
+</Species>
+</Genus>
+<Genus id="Pyxidea">
+<Species id="Pyxidea mouhotii">
+<commonNames>
+<name>JAGGED-SHELLED TURTLE</name>
+<name>KEEL-BACKED TERRAPIN</name>
+<name>KEELED BOX TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Batagur">
+<Species id="Batagur baska">
+<commonNames>
+<name>BATAGUR</name>
+<name>COMMON BATAGUR</name>
+<name>FOUR-TOED TERRAPIN</name>
+<name>RIVER TERRAPIN</name>
+<name>BATAGUR MALAIS</name>
+<name>GALÁPAGO BATAGUR</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Morenia">
+<Species id="Morenia petersi">
+<commonNames>
+<name>INDIAN EYED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Morenia ocellata">
+<commonNames>
+<name>BENGAL EYED TERRAPIN</name>
+<name>BURMESE EYED TURTLE</name>
+<name>PEACOCK TURTLE</name>
+<name>SWAMP TURTLE</name>
+<name>EMYDE À OCELLES DE BIRMANIE</name>
+<name>TORTUE DE BIRMANIE</name>
+<name>GALÁPAGO OCELADO DE BIRMANIA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Heosemys">
+<Species id="Heosemys leytensis">
+<commonNames>
+<name>PHILIPPINE POND TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Heosemys depressa">
+<commonNames>
+<name>ARAKAN FOREST TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Heosemys grandis">
+<commonNames>
+<name>GIANT ASIAN POND TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Heosemys spinosa">
+<commonNames>
+<name>SPINY TERRAPIN</name>
+<name>SPINY TURTLE</name>
+<name>SUNBURST TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Siebenrockiella">
+<Species id="Siebenrockiella crassicollis">
+</Species>
+</Genus>
+<Genus id="Melanochelys">
+<Species id="Melanochelys trijuga">
+<commonNames>
+<name>INDIAN BLACK TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Melanochelys tricarinata">
+<commonNames>
+<name>THREE-KEELED LAND TORTOISE</name>
+<name>THREE-KEELED LAND TURTLE</name>
+<name>TRICARINATE HILL TURTLE</name>
+<name>EMYDE INDIENNE À TROIS CARÈNES</name>
+<name>GÉOÉMYDE TRICARÉNÉE</name>
+<name>TORTUE TRICARÉNÉE</name>
+<name>GALÁPAGO TERRESTRE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Kachuga">
+<Species id="Kachuga dhongoka">
+<commonNames>
+<name>THREE-STRIPED ROOF TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kachuga trivittata">
+<commonNames>
+<name>BURMESE ROOFED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kachuga sylhetensis">
+<commonNames>
+<name>ASSAM ROOFED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kachuga tentoria">
+<commonNames>
+<name>INDIAN TENT TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kachuga tecta">
+<commonNames>
+<name>INDIAN ROOFED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kachuga kachuga">
+<commonNames>
+<name>BENGAL ROOF TURTLE</name>
+<name>RED-CROWNED ROOFED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Kachuga smithii">
+</Species>
+</Genus>
+<Genus id="Rhinoclemmys">
+<Species id="Rhinoclemmys rubida">
+<commonNames>
+<name>MEXICAN SPOTTED TERRAPIN</name>
+<name>MEXICAN SPOTTED WOOD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Rhinoclemmys nasuta">
+<commonNames>
+<name>LARGE-NOSED WOOD TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Rhinoclemmys annulata">
+<commonNames>
+<name>BROWN LAND TURTLE</name>
+<name>BROWN WOOD TURTLE</name>
+<name>FURROWED LAND TERRAPIN</name>
+</commonNames>
+</Species>
+<Species id="Rhinoclemmys funerea">
+<commonNames>
+<name>BLACK RIVER TURTLE</name>
+<name>BLACK TERRAPIN</name>
+<name>BLACK WOOD TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Mauremys">
+<Species id="Mauremys mutica">
+</Species>
+<Species id="Mauremys japonica">
+</Species>
+<Species id="Mauremys iversoni">
+<commonNames>
+<name>FUJIAN POND TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Mauremys annamensis">
+<commonNames>
+<name>ANNAM LEAF TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Mauremys pritchardi">
+</Species>
+</Genus>
+<Genus id="Ocadia">
+<Species id="Ocadia philippeni">
+<commonNames>
+<name>PHILIPPEN'S STRIPED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Ocadia sinensis">
+<commonNames>
+<name>CHINESE STRIPE-NECKED TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Ocadia glyphistoma">
+</Species>
+</Genus>
+<Genus id="Notochelys">
+<Species id="Notochelys platynota">
+<commonNames>
+<name>MALAYAN FLAT-SHELLED TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Hieremys">
+<Species id="Hieremys annandalii">
+<commonNames>
+<name>YELLOW-HEADED TEMPLE TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Callagur">
+<Species id="Callagur borneoensis">
+<commonNames>
+<name>PAINTED BATAGUR</name>
+<name>PAINTED TERRAPIN</name>
+<name>SAW-JAWED TURTLE</name>
+<name>THREE-STRIPED BATAGUR</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Orlitia">
+<Species id="Orlitia borneensis">
+<commonNames>
+<name>BORNEAN RIVER TURTLE</name>
+<name>MALAYSIAN GIANT TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Chinemys">
+<Species id="Chinemys nigricans">
+<commonNames>
+<name>RED-NECKED POND TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Chinemys megalocephala">
+<commonNames>
+<name>CHINESE BROAD-HEADED POND TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Chinemys reevesii">
+<commonNames>
+<name>CHINESE POND TURTLE</name>
+<name>JAPANESE COIN TURTLE</name>
+<name>GOLDEN TURTLE</name>
+<name>CHINESE THREE-KEELED POND TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Geoemyda">
+<Species id="Geoemyda spengleri">
+<commonNames>
+<name>BLACK-BREASTED HILL TURTLE</name>
+<name>BLACK-BREASTED LEAF TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Geoemyda silvatica">
+<commonNames>
+<name>CANE TURTLE</name>
+<name>COCHIN FOREST CANE TURTLE</name>
+<name>KAVALAI FOREST TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Geoemyda japonica">
+<commonNames>
+<name>RYUKYU LEAF TURTLE</name>
+<name>RYUKYU BLACK-BREASTED LEAF TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Cyclemys">
+<Species id="Cyclemys dentata">
+<commonNames>
+<name>ASIAN LEAF TURTLE</name>
+<name>BROWN STREAM TERRAPIN</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Hardella">
+<Species id="Hardella thurjii">
+<commonNames>
+<name>CROWNED RIVER TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Cuora">
+<Species id="Cuora aurocapitata">
+<commonNames>
+<name>YELLOW-HEADED BOX TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Cuora galbinifrons">
+<commonNames>
+<name>INDOCHINESE BOX TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Cuora trifasciata">
+<commonNames>
+<name>CHINESE THREE-STRIPED BOX TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Cuora zhoui">
+<commonNames>
+<name>ZHOU'S BOX TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Cuora mccordi">
+<commonNames>
+<name>MCCORD'S BOX TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Cuora yunnanensis">
+<commonNames>
+<name>YUNNAN BOX TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Cuora amboinensis">
+<commonNames>
+<name>SOUTH ASIAN BOX TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Cuora pani">
+<commonNames>
+<name>PAN'S BOX TURTLE</name>
+</commonNames>
+</Species>
+<Species id="Cuora flavomarginata">
+<commonNames>
+<name>YELLOW-MARGINED BOX TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+<Family id="CHELONIIDAE">
+<Genus id="Eretmochelys">
+<Species id="Eretmochelys imbricata">
+<commonNames>
+<name>HAWKSBILL TURTLE</name>
+<name>CARET</name>
+<name>TORTUE À BEC FAUCON</name>
+<name>TORTUE À ÉCAILLES</name>
+<name>TORTUE CARET</name>
+<name>TORTUE IMBRIQUÉE</name>
+<name>TORTUGA CAREY</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Natator">
+<Species id="Natator depressus">
+<commonNames>
+<name>FLATBACK</name>
+<name>CHELONÉE À DOS PLAT</name>
+<name>TORTUE MARINE À DOS PLAT</name>
+<name>TORTUGA FRANCA ORIENTAL</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Chelonia">
+<Species id="Chelonia mydas">
+<commonNames>
+<name>GREEN TURTLE</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Caretta">
+<Species id="Caretta caretta">
+<commonNames>
+<name>LOGGERHEAD</name>
+<name>CAOUANNE</name>
+<name>TORTUE CAOUANNE</name>
+<name>CAYUMA</name>
+<name>TORTUGA BOBA</name>
+</commonNames>
+</Species>
+</Genus>
+<Genus id="Lepidochelys">
+<Species id="Lepidochelys olivacea">
+<commonNames>
+<name>OLIVE RIDLEY</name>
+<name>PACIFIC RIDLEY</name>
+<name>RIDLEY DU PACIFIQUE</name>
+<name>TORTUE BÂTARDE</name>
+<name>TORTUE DE RIDLEY</name>
+<name>TORTUE OLIVÂTRE</name>
+<name>TORTUGA GOLFINA</name>
+<name>TORTUGA OLIVACEA</name>
+</commonNames>
+</Species>
+<Species id="Lepidochelys kempii">
+<commonNames>
+<name>ATLANTIC RIDLEY</name>
+<name>GULF RIDLEY</name>
+<name>KEMP'S RIDLEY</name>
+<name>MEXICAN RIDLEY</name>
+<name>LÉPIDOCHELYDE DE KEMP</name>
+<name>RIDLEY DE KEMP</name>
+<name>TORTUE DE KEMP</name>
+<name>COTORRA</name>
+<name>TORTUGA IORA</name>
+<name>TORTUGA MARINA BASTARDA</name>
+</commonNames>
+</Species>
+</Genus>
+</Family>
+</Order>
+</Class>

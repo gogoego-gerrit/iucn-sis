@@ -1,0 +1,25 @@
+<root>
+	<section>
+		<resource>/admin/settings/personal/data/general</resource>
+	
+		<text><![CDATA[General Info]]></text>
+		<field name="defaultEditor" prompt="Default HTML Editor">
+			<option>Rich Text Editor</option>
+			<option>TXT Editor</option>
+		</field>
+		<field name="theme" prompt="GoGoEgo Color Theme">
+			<option>Gray</option>
+			<option>Olive</option>
+			<option>Slate</option>
+			<option>Purple</option>
+			<option>DarkGray</option>
+			<option>Slickness</option>
+			<option>Black</option>
+		</field>
+		<text><![CDATA[Rich Text Editor Settings]]></text>
+		<field name="customizationFile" prompt="Rich Text Customization File" />
+		<field name="customizationStyle" prompt="Rich Text Customized Styles" />
+		<field name="customizationStyle" prompt="Rich Text Customized Editing Styles" />
+	</section>
+
+</root>

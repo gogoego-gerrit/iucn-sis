@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GWT Proxy
+Bundle-SymbolicName: com.solertium.gwtproxy
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.restlet;bundle-version="2.0.0"

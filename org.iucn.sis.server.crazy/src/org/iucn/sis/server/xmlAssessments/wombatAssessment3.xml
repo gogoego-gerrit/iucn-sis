@@ -1,0 +1,22 @@
+<assessment id="w0mb4t3"
+		xsi:noNamespaceSchemaLocation = "assessmentStructure.xsd"
+		xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance">
+
+	<basicInformation>
+		<speciesName>womm wombat3</speciesName>
+		<commonName>Wombat3!</commonName>
+		<taxonomicAuthority>Me</taxonomicAuthority>
+		<assessmentType>
+			<global />
+		</assessmentType>
+		<kingdom>wombatius</kingdom>
+		<phylum>happiness</phylum>
+		<class>funloving</class>
+		<order>cool</order>
+		<family>small</family>
+		<genus>womm</genus>
+		<species>wombat3</species>
+	</basicInformation>
+
+
+</assessment>

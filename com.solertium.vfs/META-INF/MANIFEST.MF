@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Virtual File System
+Bundle-SymbolicName: com.solertium.vfs
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Export-Package: com.solertium.vfs,
+ com.solertium.vfs.events,
+ com.solertium.vfs.provider,
+ com.solertium.vfs.provider.layered,
+ com.solertium.vfs.utils,
+ com.thoughtworks.xstream
+Import-Package: com.solertium.util,
+ com.solertium.util.dom.readonly,
+ net.jcip.annotations,
+ net.sf.ehcache,
+ net.sf.ehcache.store,
+ org.junit
+Bundle-ClassPath: xpp3_min-1.1.4c.jar,
+ xstream-1.3.1.jar,
+ .

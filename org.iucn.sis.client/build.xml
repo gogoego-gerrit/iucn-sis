@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<project name="SIS Client" default="client-build">
+	
+	<property name="project" value="org.iucn.sis.client" />
+	<property name="compiled" value="org.iucn.sis.client.compiled" />
+	<property name="compiled-dir" value="org/iucn/sis/client/compiled" />
+	
+	<path id="client.classpath">
+		<pathelement path="../org.iucn.sis.client/src"/>
+		<pathelement path="../org.iucn.sis.clientshared.bridge/src"/>
+		<pathelement path="../com.solertium.lwxml/src"/>
+		<pathelement path="../com.solertium.lwxml.gwt/src"/>
+		<pathelement path="../com.solertium.util.extjs/src"/>
+		<pathelement path="../com.solertium.util.extjs.docViewer/src"/>
+		<pathelement path="../com.solertium.util.extjs.login/src"/>
+		<pathelement path="../com.solertium.util.gwt/src"/>
+		<pathelement path="../ext.ux.pwd/src"/>
+		<pathelement path="../com.solertium.util.gwt.wizard/src"/>
+		<pathelement path="../com.solertium.util.extjs.login/src"/>
+		<pathelement path="../com.solertium.util.gwt.wizard/src"/>
+		<pathelement path="../com.solertium.util.portable/src"/>
+		<pathelement path="../com.solertium.util.querybuilder/src"/>
+		<pathelement path="../com.solertium.util.querybuilder.gwt.ext/src"/>
+		<pathelement path="../com.google.gwt_2.0.0/gwt-user.jar"/>
+		<pathelement path="../com.google.gwt_2.0.0/gwt-dev.jar"/>
+		<pathelement path="../com.extjs.gwt.2_0/gxt.jar"/>
+		<pathelement path="../ext.ux.pwd/PasswordField.jar"/>
+    </path>
+	
+    <target name="client-build" description="compiles the gwt client">
+        	<delete dir="../${compiled}/src/${compiled-dir}/public" />
+            <java classname="com.google.gwt.dev.Compiler" fork="true">
+                    <classpath refid="client.classpath" />
+                    <jvmarg value="-Xmx512m"/>
+                    <jvmarg value="-Xms256m"/>
+                    <jvmarg value="-XX:PermSize=64M"/>
+                    <jvmarg value="-XX:MaxPermSize=128M"/>
+            		<arg value="-style"/>
+                    <arg value="detailed"/>
+                    <arg value="-war"/>
+                    <arg value="../${compiled}/src/${compiled-dir}/public"/>
+                    <arg value="org.iucn.sis.SIS"/>
+            </java>
+            
+    </target>
+	
+</project>

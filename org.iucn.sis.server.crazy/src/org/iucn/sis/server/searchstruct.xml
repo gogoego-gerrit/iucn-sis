@@ -1,0 +1,15 @@
+<structure id="org.iucn.sis.server.search.structure" version="1">
+	<table name="taxonKeys">
+		<column name="NODE_ID" type="CInteger" key="true"/>
+		<column name="SCI_NAME" type="CString" scale="255"/>
+		<column name="LAST_MODIFIED" type="CString" scale="255"/>
+		<column name="LEVEL" type="CString" scale="255"/>
+		<column name="COUNTRY" type="CString" scale="255"/>
+		<column name="ASSESSOR" type="CString" scale="255"/>
+		<column name="STATUS" type="CString" scale="31" />
+	</table>
+	<table name ="commonNames">
+		<column name="NODE_ID" type="CInteger" index="true"/>
+		<column name="COMMON_NAME" type="CString" scale="255"/>
+	</table>
+</structure>

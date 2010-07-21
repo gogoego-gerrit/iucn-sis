@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ext.ux GWT Wizard
+Bundle-SymbolicName: com.solertium.util.gwt.wizard
+Bundle-Version: 1.0.0
+Bundle-Vendor: EXTJS
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.extjs.gwt;bundle-version="1.0.0",
+ com.google.gwt;bundle-version="1.5.2"
+Export-Package: ext.ux.wizard.client

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.PrimitiveField" table="primitive_field" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native"/>
+		</id>
+		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false" unique="false"/>
+		
+		<many-to-one name="field" cascade="lock" column="fieldid" class="org.iucn.sis.shared.api.models.Field" not-null="true" lazy="no-proxy">
+		</many-to-one>
+		
+		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField" table="boolean_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="boolean" length="1" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.BooleanUnknownPrimitiveField" table="boolean_unknown_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="integer" length="10" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField" table="boolean_range_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="string" length="1024" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass  name="org.iucn.sis.shared.api.models.primitivefields.DatePrimitiveField" table="date_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="java.util.Date" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass  name="org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField" table="float_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="float" length="10" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass  name="org.iucn.sis.shared.api.models.primitivefields.IntegerPrimitiveField" table="integer_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="integer" length="10" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass  name="org.iucn.sis.shared.api.models.primitivefields.RangePrimitiveField" table="range_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="string" length="1024" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField" table="string_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="string" length="1024" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField" table="text_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="text" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField" table="foreign_key_primitive_field">
+			<key column="id"/>
+			<property name="value" column="value" type="integer" length="10" not-null="true" lazy="false"/>
+			<property name="tableID" column="table_id" type="string" length="255" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField" table="foreign_key_list_primitive_field">
+			<key column="id"/>
+				<primitive-array name="fk_list_primitive_values" fetch="join">
+					<key column="fk_list_primitive_id"/>
+					<index column="list_index"/>
+					<element type="integer" column="value"/>
+				</primitive-array>
+			<property name="tableID" column="table_id" type="string" length="255" not-null="true" lazy="false"/>
+		</joined-subclass>
+		
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bootupdater Plug-in
+Bundle-SymbolicName: com.solertium.bootupdater
+Bundle-Version: 1.0.0
+Bundle-Vendor: SOLERTIUM
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

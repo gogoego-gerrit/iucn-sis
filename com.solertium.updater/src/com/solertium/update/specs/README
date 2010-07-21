@@ -1,0 +1,71 @@
+This is the AutoUpdater, HYPERPOWER! (Alpha) release, v. 0.1.2.
+
+-- CHANGE SUMMARY ---
+  (from v. 0.1.1. to v. 0.1.2)
+  added ability to ask for an update summary (i.e. how many updates are available) if path ends in /summary
+  added "targetPath" to update_config.properties that specifies where the file will be unzipped
+
+
+--- SUMMARY ---
+This package can be plugged into an Application that uses the Restlet API and whose
+launching is handled using the BootUpdater project (i.e. after an update, the
+Application quits with an exit code of 42, which BootUpdater uses as a flag to apply
+the appropriate patches, then will restart the patched App).
+
+--- ASSUMPTIONS ---
+1) This AutoUpdater assumes that the file system of an offline copy of the Application
+from the directory containing the application.jar on down is identical. This will
+eventually be changed, allowing the user to specify file system paths in the config
+files.
+
+2) The URL specified by the UPDATE_URL property points to an instance of a 
+com.solertium.update.ServeUpdateResource.
+
+
+--- QUICK STARTUP ---
+Copy and modify update_config.properties and my_component.properties as appropriate
+and place in same directory as application.jar, or add the following lines to your 
+StandardServerComponent's initProperties file specifying their location:
+
+UPDATE_CONFIGURE_PATH=<absolutePath>/update_config.properties
+MY_COMPONENTS_PATH=<absolutePath>/my_components.properties
+
+Also add the following line, specifying the URI of the update server, including
+protocol, full host name, port (if appropriate), and path at which the
+ServeUpdatesResource is mounted:
+UPDATE_URL=http://www.server.com:10000/getUpdates
+
+
+--- THE CONFIGURATION FILES ---
+It is tightly coupled to two configuration files, examples of which are found in the
+com.solertium.update.specs package.  The location of these properties files can be
+specified in the StandardServerComponent's initProperties file, or, by default, they
+will be sought out in the same directory as your application.jar.  To specify custom
+paths, the following name=value pairs should be used:
+
+UPDATE_CONFIGURE_PATH=<absolutePath>/update_config.properties
+MY_COMPONENTS_PATH=<absolutePath>/my_components.properties
+
+The former describes available components, their location, latest version and what
+version to upgrade from.  The ID MUST BE UNIQUE, while the name can be anything.
+Latest version must be an Integer. The path field will be used to find the component
+relative to the directory that contains application.jar (NOTE: This will also be the
+path where the file is unzipped to, on the client.) The UpgradeFromVersion can be
+used to specify "interval" upgrades, e.g. if version 2 of a JAR must be upgraded to
+version 3 before it can be upgraded to 4+. The targetPath denotes where the file(s)
+ 
+  
+<component id="<uniqueID>" name="<name>" latestVersion="<Integer>" 
+	path="<relativePath from directory containing application.jar>" 
+	upgradeFromVersion="*" targetPath="<target path, same "relativity" as path>" />
+
+The file my_components.properties describes the components and versions currently 
+installed in an offline copy of the software. When an update is requested, this file
+is sent to the update server, which checks if the ID of an installed component 
+matches one on the update server, and if its version is LESS THAN the latestVersion
+it includes the updates in the response. Any components specified in the server that
+are not specified in the offline's manifest are also included in the update.
+
+<component id="<uniqueID>" name="<name> JAR" version="<Integer>" />
+
+

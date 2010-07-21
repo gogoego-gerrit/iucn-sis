@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.AssessmentType" table="assessment_type" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="assigned">
+			</generator>
+		</id>
+		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false"/>
+		<!--<set name="Working_set" table="working_set_assessment_type" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="assessment_typeid" not-null="true"/>
+			<many-to-many column="working_setid" class="org.iucn.sis.shared.api.models.WorkingSet">
+			</many-to-many>
+		</set> -->
+		<set name="Assessment" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="assessment_typeid" not-null="false"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.Assessment"/>
+		</set>
+	</class>
+</hibernate-mapping>

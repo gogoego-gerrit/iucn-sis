@@ -1,0 +1,8 @@
+<module>
+
+	<inherits name='com.google.gwt.gears.Gears'/>
+	<source path="targets"/>
+	<source path="processors"/>
+
+</module>
+

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jdbc Plug-in
+Bundle-SymbolicName: com.mysql.jdbc
+Bundle-Version: 1.0.0
+Bundle-Vendor: MYSQL
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ClassPath: mysql-connector-java-5.0.3-bin.jar,
+ .
+Export-Package: com.mysql.jdbc

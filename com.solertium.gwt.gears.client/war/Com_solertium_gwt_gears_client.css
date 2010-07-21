@@ -1,0 +1,5 @@
+/** Add css rules here for your application. */
+
+.dropzone{
+	background-image:url('com_solertium_gwt_gears_client/drop-here.png');
+}

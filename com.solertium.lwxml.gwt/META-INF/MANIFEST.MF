@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: LWXML for GWT
+Bundle-SymbolicName: com.solertium.lwxml.gwt
+Bundle-Version: 1.1.2
+Bundle-Vendor: Solertium
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: com.solertium.lwxml;bundle-version="1.0.0",
+ com.solertium.util.portable;bundle-version="1.1.0",
+ com.google.gwt;bundle-version="1.5.2"
+Import-Package: com.solertium.util.gwt,
+ com.solertium.util.gwt.api,
+ com.solertium.util.gwt.ui
+Export-Package: com.solertium.lwxml.factory,
+ com.solertium.lwxml.gwt,
+ com.solertium.lwxml.gwt.debug,
+ com.solertium.lwxml.gwt.utils,
+ com.solertium.lwxml.gwt.validation

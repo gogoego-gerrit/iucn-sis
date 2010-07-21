@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.Edit" table="edit" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<property name="createdDate" column="created_date" type="java.util.Date" not-null="true" lazy="false"/>
+		<many-to-one name="user" cascade="lock" column="userid" class="org.iucn.sis.shared.api.models.User" not-null="false" lazy="no-proxy">
+		</many-to-one>
+		<set name="Working_set" table="working_set_edit" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="editid" not-null="true"/>
+			<many-to-many column="working_setid" class="org.iucn.sis.shared.api.models.WorkingSet">
+			</many-to-many>
+		</set>
+		<set name="Assessment" table="assessment_edit" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="editid" not-null="true"/>
+			<many-to-many column="assessmentid" class="org.iucn.sis.shared.api.models.Assessment">
+			</many-to-many>
+		</set>
+		<set name="Taxon" table="taxon_edit" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="editid" not-null="true"/>
+			<many-to-many column="taxonid" class="org.iucn.sis.shared.api.models.Taxon">
+			</many-to-many>
+		</set>
+		<set name="Notes" table="notes_edit" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="editid" not-null="true"/>
+			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
+			</many-to-many>
+		</set>
+	</class>
+</hibernate-mapping>

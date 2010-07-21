@@ -1,0 +1,365 @@
+package org.iucn.sis.shared.api.models;
+/**
+ * "Visual Paradigm: DO NOT MODIFY THIS FILE!"
+ * 
+ * This is an automatic generated file. It will be regenerated every time 
+ * you generate persistence class.
+ * 
+ * Modifying its content may cause the program not work, or your work may lost.
+ */
+
+/**
+ * Licensee: 
+ * License Type: Evaluation
+ */
+import java.io.Serializable;
+import java.util.HashSet;
+
+import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNodeList;
+
+public class Synonym implements Serializable {
+
+	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
+	// FIXME -- DELETE TAXON STATUS
+	public final static String ROOT_TAG = "synonym";
+	public final static String ACCEPTED = "ACCEPTED";
+	public final static String ADDED = "ADD";
+	public final static String DELETED = "DELETE";
+	public final static String CHANGED = "CHANGED";
+	public final static String NEW = "NEW";
+	public final static String MERGE = "MERGE";
+	public final static String SPLIT = "SPLIT";
+
+	public Synonym(Taxon taxon) {
+		if (taxon.getTaxonLevel().getLevel() < TaxonLevel.SPECIES) {
+			setName(taxon.getName());
+			setAuthor(taxon.getTaxonomicAuthority());
+		} else {
+			setName(taxon.getFootprint()[TaxonLevel.GENUS]);
+			if (taxon.getTaxonLevel().getLevel() == TaxonLevel.SPECIES) {
+				setSpeciesAuthor(taxon.getTaxonomicAuthority());
+				setSpeciesName(taxon.getName());
+			} else if (taxon.getTaxonLevel().getLevel() == TaxonLevel.INFRARANK) {
+				setSpeciesName(taxon.getFootprint()[TaxonLevel.SPECIES]);
+				setInfrarankAuthor(taxon.getTaxonomicAuthority());
+				setInfraName(taxon.getName());
+			} else if (taxon.getTaxonLevel().getLevel() == TaxonLevel.SUBPOPULATION) {
+				setSpeciesName(taxon.getFootprint()[TaxonLevel.SPECIES]);
+				setStockName(taxon.getName());
+			} else if (taxon.getTaxonLevel().getLevel() == TaxonLevel.INFRARANK_SUBPOPULATION) {
+				setSpeciesName(taxon.getFootprint()[TaxonLevel.SPECIES]);
+				setInfraName(taxon.getFootprint()[TaxonLevel.INFRARANK]);
+				setStockName(taxon.getName());
+			}
+		}
+		setFriendlyName(taxon.getFriendlyName());
+		setStatus(Synonym.NEW);
+		setTaxon(taxon);
+		setTaxon_level(taxon.getTaxonLevel());
+	}
+
+	public static Synonym fromXML(NativeElement synTag, Taxon taxon) {
+		Synonym s = new Synonym();
+		s.setId(Integer.valueOf(synTag.getAttribute("id")));
+		s.setStatus(synTag.getAttribute("status"));
+
+		s.setNotes(new HashSet<Notes>());
+		NativeNodeList notes = synTag.getElementsByTagName("notes");
+		for (int i = 0; i < notes.getLength(); i++)
+			s.getNotes().add(Notes.fromXML(notes.elementAt(i)));
+
+		s.setName(synTag.getElementByTagName("name").getTextContent());
+		s.setSpeciesName(synTag.getElementByTagName("speciesName").getTextContent());
+		s.setInfraName(synTag.getElementByTagName("infrarankName").getTextContent());
+		s.setStockName(synTag.getElementByTagName("stockName").getTextContent());
+		s.setAuthor(synTag.getElementByTagName("author").getTextContent());
+		s.setSpeciesAuthor(synTag.getElementByTagName("speciesAuthor").getTextContent());
+		s.setInfrarankAuthor(synTag.getElementByTagName("infrarankAuthor").getTextContent());
+		s.setFriendlyName(synTag.getElementByTagName("friendlyName").getTextContent());
+		
+		String synLevel = synTag.getElementsByTagName("level").getLength() == 1 ? 
+				synTag.getElementsByTagName("level").elementAt(0).getTextContent() : "";
+
+		if (!(synLevel == null || !synLevel.matches("\\d+")))
+			s.setTaxon_level(TaxonLevel.getTaxonLevel(Integer.parseInt(synLevel)));
+		NativeNodeList list = synTag.getElementsByTagName(Infratype.ROOT_NAME);
+		if (list.getLength() > 0)
+			s.setInfraType(Infratype.fromXML(list.elementAt(0), null));
+		if (taxon != null)
+			taxon.getSynonyms().add(s);
+		s.setTaxon(taxon);
+
+		return s;
+	}
+
+	public String toXML() {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<" + Synonym.ROOT_TAG + " id=\"" + getId() + "\" status=\"" + getStatus() + "\">");
+		xml.append("<name><![CDATA[" + ((getName() == null)? "" : getName()) + "]]></name>");
+		xml.append("<speciesName><![CDATA[" + ((getSpeciesName() == null)? "" : getSpeciesName()) + "]]></speciesName>");
+		xml.append("<infrarankName><![CDATA[" + ((getInfraName() == null)? "" : getInfraName()) + "]]></infrarankName>");
+		xml.append("<stockName><![CDATA[" + ((getStockName() == null)? "" : getStockName()) + "]]></stockName>");
+		xml.append("<author><![CDATA[" + ((getAuthor() == null)? "" : getAuthor()) + "]]></author>");
+		xml.append("<speciesAuthor><![CDATA[" + ((getSpeciesAuthor() == null)? "" : getSpeciesAuthor()) + "]]></speciesAuthor>");
+		xml.append("<infrarankAuthor><![CDATA[" + ((getInfraName() == null)? "" : getInfraName()) + "]]></infrarankAuthor>");
+		xml.append(getTaxon_level() != null ? "<level><![CDATA[" + getTaxon_level().getLevel() + "]]></level>" : ""); 
+		xml.append("<friendlyName><![CDATA[" + ((getFriendlyName() == null)? "" : getFriendlyName()) + "]]></friendlyName>");
+
+
+		for (Notes note : getNotes())
+			xml.append(note.toXML());
+
+		if (getInfraType() != null) {
+			xml.append(getInfraType().toXML());
+		}
+
+		xml.append("</" + Synonym.ROOT_TAG + ">");
+		return xml.toString();
+	}
+
+	public void clearAuthorities() {
+		setAuthor(null);
+		setSpeciesAuthor(null);
+		setInfrarankAuthor(null);
+	}
+
+	public String toDisplayableString() {
+		return getFriendlyName();
+	}
+
+	public void setName(String value) {
+		this.genusName = value;
+	}
+
+	public void setAuthor(String value) {
+		this.genusAuthor = value;
+	}
+
+	public String getAuthor() {
+		return genusAuthor;
+	}
+
+	public String getName() {
+		return genusName;
+	}
+
+	public String getGenusAuthor() {
+		return genusAuthor;
+	}
+
+	public String getGenusName() {
+		return genusName;
+	}
+
+	public void setGenusAuthor(String genusAuthor) {
+		this.genusAuthor = genusAuthor;
+	}
+
+	public void setGenusName(String genusName) {
+		this.genusName = genusName;
+	}
+
+	private String status;
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	private Infratype infraType;
+
+	public void setInfraType(Infratype value) {
+		this.infraType = value;
+	}
+
+	public Infratype getInfraType() {
+		return infraType;
+	}
+
+	public int getTaxaID() {
+		if (taxon != null)
+			return taxon.getId();
+		else
+			return -1;
+	}
+
+	public void setAuthority(String authority, int level) {
+		if (level <= TaxonLevel.GENUS) {
+			setAuthor(authority);
+		} else if (level == TaxonLevel.SPECIES) {
+			setSpeciesAuthor(authority);
+		} else if (level > TaxonLevel.SPECIES) {
+			setInfrarankAuthor(authority);
+		}
+	}
+
+	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
+
+	public Synonym() {
+	}
+
+	public boolean equals(Object obj) {
+		if( obj instanceof Synonym )
+			return getFriendlyName().equals(((Synonym)obj).getFriendlyName());
+		return false;
+	}
+	
+	public int hashCode() {
+		return friendlyName != null ? friendlyName.toLowerCase().hashCode() : 
+			getName() != null ? getName().toLowerCase().hashCode() : super.hashCode();
+	}
+
+	private int id;
+
+	private String friendlyName;
+
+	private String genusName;
+
+	private String speciesName;
+
+	private String infraName;
+
+	private String stockName;
+
+	private String genusAuthor;
+
+	private String speciesAuthor;
+
+	private String infrarankAuthor;
+
+	private TaxonLevel taxon_level;
+
+	private Taxon taxon;
+
+	private java.util.Set<Notes> notes = new java.util.HashSet<Notes>();
+
+	private java.util.Set<Reference> reference = new java.util.HashSet<Reference>();
+
+	public void setId(int value) {
+		this.id = value;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public int getORMID() {
+		return getId();
+	}
+
+	public void setFriendlyName(String value) {
+		this.friendlyName = value;
+	}
+
+	public String getFriendlyName() {
+		if (friendlyName == null) {
+			friendlyName = getName();
+			if (getSpeciesName() != null) {
+				friendlyName += " " + getSpeciesName();
+				if (getInfraName() != null) {
+					friendlyName += " " + getInfraName();
+				}
+				if (getStockName() != null) {
+					friendlyName += " " + getStockName();
+				}
+			}
+
+		}
+		return friendlyName;
+	}
+
+	public void setSpeciesName(String value) {
+		this.speciesName = value;
+	}
+
+	public String getSpeciesName() {
+		return speciesName;
+	}
+
+	public void setInfraName(String value) {
+		this.infraName = value;
+	}
+
+	public String getInfraName() {
+		return infraName;
+	}
+
+	public void setStockName(String value) {
+		this.stockName = value;
+	}
+
+	public String getStockName() {
+		return stockName;
+	}
+
+	public void setSpeciesAuthor(String value) {
+		this.speciesAuthor = value;
+	}
+
+	public String getSpeciesAuthor() {
+		return speciesAuthor;
+	}
+
+	public void setInfrarankAuthor(String value) {
+		this.infrarankAuthor = value;
+	}
+
+	public String getInfrarankAuthor() {
+		return infrarankAuthor;
+	}
+
+	public void setTaxon(Taxon value) {
+		this.taxon = value;
+	}
+
+	public Taxon getTaxon() {
+		return taxon;
+	}
+
+	public void setTaxon_level(TaxonLevel value) {
+		this.taxon_level = value;
+	}
+
+	public TaxonLevel getTaxon_level() {
+		return taxon_level;
+	}
+
+	public void setNotes(java.util.Set<Notes> value) {
+		this.notes = value;
+	}
+
+	public java.util.Set<Notes> getNotes() {
+		return notes;
+	}
+
+	public void setReference(java.util.Set<Reference> value) {
+		this.reference = value;
+	}
+
+	public java.util.Set<Reference> getReference() {
+		return reference;
+	}
+
+	public String toString() {
+		return String.valueOf(getId());
+	}
+
+	private boolean _saved = false;
+
+	public void onSave() {
+		_saved = true;
+	}
+
+	public void onLoad() {
+		_saved = true;
+	}
+
+	public boolean isSaved() {
+		return _saved;
+	}
+
+}

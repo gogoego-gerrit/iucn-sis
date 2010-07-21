@@ -1,0 +1,317 @@
+		<treeRoot>
+			<defaultStructure>
+				<treeStructures>
+					<structure>
+						<singleSelect>
+							<option>Year Round</option>
+							<option>Breeding Season Only</option>
+							<option>Non-breeding Season Only</option>
+							<selected></selected>
+						</singleSelect>
+					</structure>
+					<structure>
+						<boolean>false</boolean>
+					</structure>
+					<structure>
+						<singleSelect>
+							<option>Possibly Extinct</option>
+							<option>Extinct</option>
+							<option>Not extinct</option>
+							<selected></selected>
+						</singleSelect>
+					</structure>
+					<structure>
+						<relatedStructure>
+							<dominantStructures>
+								<structure>
+									<boolean>false</boolean>
+								</structure>
+							</dominantStructures>
+							<dependentStructures>
+								<structure>
+									<relatedStructure>
+										<dominantStructures>
+											<structure>
+												<boolean>false</boolean>
+											</structure>
+										</dominantStructures>
+										<dependentStructures>
+											<structure>
+												<singleSelect>
+													<option>Native</option>
+													<option>Introduced</option>
+													<option>Reintroduced</option>
+													<option>Vagrant</option>
+													<selected>0</selected>
+												</singleSelect>
+											</structure>
+										</dependentStructures>
+										<rules>
+											<booleanRule>
+												<activateOnRule>false</activateOnRule>
+												<actions>
+													<onTrue>show</onTrue>
+													<onFalse>hide</onFalse>
+												</actions>
+											</booleanRule>
+										</rules>
+									</relatedStructure>
+								</structure>
+							</dependentStructures>
+							<rules>
+								<booleanRule>
+									<activateOnRule>false</activateOnRule>
+									<actions>
+										<onTrue>show</onTrue>
+										<onFalse>hide</onFalse>
+									</actions>
+								</booleanRule>
+							</rules>
+						</relatedStructure>
+					</structure>
+				</treeStructures>
+			</defaultStructure>
+			<root id="1" depth="1" codeable="false" expanded="false">
+				<label>Polar</label>
+				<child id="1.1" depth="2" codeable="false"  expanded="false">
+					<label>Boreal</label>
+					<child id="1.1.1" depth="3" expanded="false">
+						<label>Hudson</label>
+					</child>
+					<child id="1.1.2" depth="3" expanded="false">
+						<label>Beaufort</label>
+					</child>
+					<child id="1.1.3" depth="3" expanded="false">
+						<label>Barents</label>
+					</child>
+					<child id="1.1.4" depth="3" expanded="false">
+						<label>Kara</label>
+					</child>
+					<child id="1.1.5" depth="3" expanded="false">
+						<label>Laptev</label>
+					</child>
+					<child id="1.1.6" depth="3" expanded="false">
+						<label>East</label>
+					</child>
+					<child id="1.1.7" depth="3" expanded="false">
+						<label>Chukchi</label>
+					</child>
+					<child id="1.1.8" depth="3" expanded="false">
+						<label>Arctic</label>
+					</child>
+				</child>
+				<child id="1.2" depth="2" codeable="false"  expanded="false">
+					<label>Pacific</label>
+					<child id="1.2.1" depth="3" expanded="false">
+						<label>Eastern</label>
+					</child>
+					<child id="1.2.2" depth="3" expanded="false">
+						<label>Western</label>
+					</child>
+				</child>
+				<child id="1.3" depth="2" codeable="false"  expanded="false">
+					<label>Antarctic</label>
+					<child id="1.3.1" depth="3" expanded="false">
+						<label>Antarctic</label>
+					</child>
+				</child>
+			</root>
+			<root id="2" depth="1" codeable="false" expanded="false">
+				<label>Westerlies</label>
+				<child id="2.1" depth="2" codeable="false"  expanded="false">
+					<label>Atlantic</label>
+					<child id="2.1.1" depth="3" expanded="false">
+						<label>Mediterranean</label>
+					</child>
+					<child id="2.1.2" depth="3" expanded="false">
+						<label>Canary</label>
+					</child>
+					<child id="2.1.3" depth="3" expanded="false">
+						<label>Guinea</label>
+					</child>
+					<child id="2.1.4" depth="3" expanded="false">
+						<label>Benguela</label>
+					</child>
+				</child>
+				<child id="2.2" depth="2" codeable="false"  expanded="false">
+					<label>Pacific</label>
+					<child id="2.2.1" depth="3" expanded="false">
+						<label>Kuroshio</label>
+					</child>
+					<child id="2.2.2" depth="3" expanded="false">
+						<label>Oyashio</label>
+					</child>
+					<child id="2.2.3" depth="3" expanded="false">
+						<label>Gulf</label>
+					</child>
+				</child>
+			</root>
+			<root id="3" depth="1" codeable="false" expanded="false">
+				<label>Trade</label>
+				<child id="3.1" depth="2" codeable="false"  expanded="false">
+					<label>Atlantic</label>
+					<child id="3.1.1" depth="3" expanded="false">
+						<label>Caribbean</label>
+					</child>
+					<child id="3.1.2" depth="3" expanded="false">
+						<label>Gulf</label>
+					</child>
+				</child>
+				<child id="3.2" depth="2" codeable="false"  expanded="false">
+					<label>Pacific</label>
+					<child id="3.2.1" depth="3" expanded="false">
+						<label>Insular</label>
+					</child>
+				</child>
+			</root>
+			<root id="4" depth="1" codeable="false" expanded="false">
+				<label>Coastal</label>
+				<child id="4.1" depth="2" codeable="false"  expanded="false">
+					<label>NW</label>
+					<child id="4.1.1" depth="3" expanded="false">
+						<label>Scotian</label>
+					</child>
+					<child id="4.1.2" depth="3" expanded="false">
+						<label>Newfoundland-Labrador</label>
+					</child>
+					<child id="4.1.3" depth="3" expanded="false">
+						<label>NE</label>
+					</child>
+					<child id="4.1.4" depth="3" expanded="false">
+						<label>SE</label>
+					</child>
+				</child>
+				<child id="4.2" depth="2" codeable="false"  expanded="false">
+					<label>NE</label>
+					<child id="4.2.1" depth="3" expanded="false">
+						<label>West</label>
+					</child>
+					<child id="4.2.2" depth="3" expanded="false">
+						<label>East</label>
+					</child>
+					<child id="4.2.3" depth="3" expanded="false">
+						<label>Iceland</label>
+					</child>
+					<child id="4.2.4" depth="3" expanded="false">
+						<label>Faroe</label>
+					</child>
+					<child id="4.2.5" depth="3" expanded="false">
+						<label>Black</label>
+					</child>
+					<child id="4.2.6" depth="3" expanded="false">
+						<label>North</label>
+					</child>
+					<child id="4.2.7" depth="3" expanded="false">
+						<label>Norwegian</label>
+					</child>
+					<child id="4.2.8" depth="3" expanded="false">
+						<label>Celtic-Biscay</label>
+					</child>
+					<child id="4.2.9" depth="3" expanded="false">
+						<label>Baltic</label>
+					</child>
+					<child id="4.2.10" depth="3" expanded="false">
+						<label>Iberian</label>
+					</child>
+				</child>
+				<child id="4.3" depth="2" codeable="false"  expanded="false">
+					<label>SW</label>
+					<child id="4.3.1" depth="3" expanded="false">
+						<label>East</label>
+					</child>
+					<child id="4.3.2" depth="3" expanded="false">
+						<label>Patagonian</label>
+					</child>
+					<child id="4.3.3" depth="3" expanded="false">
+						<label>North</label>
+					</child>
+					<child id="4.3.4" depth="3" expanded="false">
+						<label>South</label>
+					</child>
+				</child>
+				<child id="4.4" depth="2" codeable="false"  expanded="false">
+					<label>Australian</label>
+					<child id="4.4.1" depth="3" expanded="false">
+						<label>West-Central</label>
+					</child>
+					<child id="4.4.2" depth="3" expanded="false">
+						<label>Northwest</label>
+					</child>
+					<child id="4.4.3" depth="3" expanded="false">
+						<label>Northeast</label>
+					</child>
+					<child id="4.4.4" depth="3" expanded="false">
+						<label>North</label>
+					</child>
+					<child id="4.4.5" depth="3" expanded="false">
+						<label>East-Central</label>
+					</child>
+					<child id="4.4.6" depth="3" expanded="false">
+						<label>Southeast</label>
+					</child>
+					<child id="4.4.7" depth="3" expanded="false">
+						<label>Southwest</label>
+					</child>
+				</child>
+				<child id="4.5" depth="2" codeable="false"  expanded="false">
+					<label>Pacific</label>
+					<child id="4.5.1" depth="3" expanded="false">
+						<label>Gulf</label>
+					</child>
+					<child id="4.5.2" depth="3" expanded="false">
+						<label>California</label>
+					</child>
+					<child id="4.5.3" depth="3" expanded="false">
+						<label>Humboldt</label>
+					</child>
+					<child id="4.5.4" depth="3" expanded="false">
+						<label>Indonesian</label>
+					</child>
+					<child id="4.5.5" depth="3" expanded="false">
+						<label>Sea</label>
+					</child>
+					<child id="4.5.6" depth="3" expanded="false">
+						<label>New</label>
+					</child>
+					<child id="4.5.7" depth="3" expanded="false">
+						<label>Sulu-Celebes</label>
+					</child>
+					<child id="4.5.8" depth="3" expanded="false">
+						<label>Pacific</label>
+					</child>
+					<child id="4.5.9" depth="3" expanded="false">
+						<label>Sea</label>
+					</child>
+					<child id="4.5.10" depth="3" expanded="false">
+						<label>Yellow</label>
+					</child>
+					<child id="4.5.11" depth="3" expanded="false">
+						<label>East</label>
+					</child>
+					<child id="4.5.12" depth="3" expanded="false">
+						<label>South</label>
+					</child>
+					<child id="4.5.13" depth="3" expanded="false">
+						<label>Gulf</label>
+					</child>
+				</child>
+				<child id="4.6" depth="2" codeable="false"  expanded="false">
+					<label>Indian</label>
+					<child id="4.6.1" depth="3" expanded="false">
+						<label>Bay</label>
+					</child>
+					<child id="4.6.2" depth="3" expanded="false">
+						<label>Arabian</label>
+					</child>
+					<child id="4.6.3" depth="3" expanded="false">
+						<label>Somali</label>
+					</child>
+					<child id="4.6.4" depth="3" expanded="false">
+						<label>Agulhas</label>
+					</child>
+					<child id="4.6.5" depth="3" expanded="false">
+						<label>Red</label>
+					</child>
+				</child>
+			</root>
+		</treeRoot>

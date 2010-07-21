@@ -1,0 +1,36 @@
+<assessment id="w0mb4t5.2"
+		xsi:noNamespaceSchemaLocation = "assessmentStructure.xsd"
+		xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance">
+
+	<basicInformation>
+		<speciesName>wommy wombat5</speciesName>
+		<commonName>Wombat3!</commonName>
+		<taxonomicAuthority>Us</taxonomicAuthority>
+		<assessmentType>
+			<global />
+		</assessmentType>
+		<kingdom>wombatius</kingdom>
+		<phylum>sadness</phylum>
+		<class>funhating</class>
+		<order>hot</order>
+		<family>biggest</family>
+		<genus>wommy</genus>
+		<species>wombat5</species>
+	</basicInformation>
+
+	<field id="0">
+			<canonicalName>RangeDocumentation</canonicalName>
+			<description>Geographic Range Information</description>
+			<classOfService>Documentation</classOfService>
+			<location>Distribution</location>
+			<references>
+				<referenceId>1</referenceId>
+				<referenceId>2</referenceId>
+			</references>
+			<structures>
+				<structure>
+					<narrative>I live in the ocean</narrative>
+				</structure>
+			</structures>
+	</field>
+</assessment>

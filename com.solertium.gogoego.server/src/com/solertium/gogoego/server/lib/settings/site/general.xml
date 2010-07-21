@@ -1,0 +1,10 @@
+<root>
+	<section>
+		<resource>/admin/settings/site/data/general</resource>
+	
+		<text><![CDATA[Site Info]]></text>
+		<field name="googleAnalytics" prompt="Google Analytics Key" />
+					
+	</section>
+
+</root>

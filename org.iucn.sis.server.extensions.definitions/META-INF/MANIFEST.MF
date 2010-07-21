@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Definitions Plug-in
+Bundle-SymbolicName: org.iucn.sis.server.extensions.definitions
+Bundle-Version: 1.0.0
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
+ org.iucn.sis.server.api;bundle-version="1.0.0",
+ com.solertium.util.restlet;bundle-version="1.1.2",
+ com.solertium.vfs.restlet;bundle-version="1.1.2",
+ org.restlet;bundle-version="2.0.0",
+ com.solertium.vfs;bundle-version="1.1.2",
+ org.restlet.ext.xml;bundle-version="2.0.0"
+Import-Package: org.osgi.framework;version="1.4.0"
+Bundle-Activator: org.iucn.sis.server.extensions.definitions.ServerActivator
