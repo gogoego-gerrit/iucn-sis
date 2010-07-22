@@ -12,6 +12,7 @@ import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.restlets.assessments.AsmChangesResource;
 import org.iucn.sis.server.restlets.assessments.AssessmentRestlet;
 import org.iucn.sis.server.restlets.baserestlets.AuthzRestlet;
+import org.iucn.sis.server.restlets.taxa.SynonymRestlet;
 import org.iucn.sis.server.restlets.taxa.TaxomaticRestlet;
 import org.iucn.sis.server.restlets.taxa.TaxonByStatusRestlet;
 import org.iucn.sis.server.restlets.taxa.TaxonRestlet;
@@ -68,6 +69,7 @@ public class ServerApplication extends SISApplication{
 	protected void initServiceRoutes() {
 		services.add(new StatusRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new TaxonRestlet(SIS.get().getVfsroot(), app.getContext()));
+		services.add(new SynonymRestlet(app.getContext()));
 		services.add(new FieldRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new WorkingSetRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new AssessmentRestlet(SIS.get().getVfsroot(), app.getContext()));

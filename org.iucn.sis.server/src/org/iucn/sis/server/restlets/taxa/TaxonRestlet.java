@@ -174,20 +174,21 @@ public class TaxonRestlet extends ServiceRestlet {
 				newDoc.parse(nodeString);
 				Taxon newNode = Taxon.fromXML(newDoc);
 //				Set<Edit> edits = new HashSet<Edit>();
-				for (Edit edit : newNode.getEdits()) {
-					System.out.println("looking at edit " + edit.getId());
-					if (edit.getId() != 0) {
-						System.out.println("getting edit from session");
-						Edit editted =(Edit) SISPersistentManager.instance().getSession().get(edit.getClass(), edit.getId());
-						if (editted != null)
-							SISPersistentManager.instance().getSession().evict(editted);
-//						SIS.get().getEditIO().get(edit.getId());
-//						edits.add((Edit) SISPersistentManager.instance().getSession().merge(edit));
-					} else {
-//						edits.add(edit);
-					}
-				}
+//				for (Edit edit : newNode.getEdits()) {
+//					System.out.println("looking at edit " + edit.getId());
+//					if (edit.getId() != 0) {
+//						System.out.println("getting edit from session");
+//						Edit editted =(Edit) SISPersistentManager.instance().getSession().get(edit.getClass(), edit.getId());
+//						if (editted != null)
+//							SISPersistentManager.instance().getSession().evict(editted);
+////						SIS.get().getEditIO().get(edit.getId());
+////						edits.add((Edit) SISPersistentManager.instance().getSession().merge(edit));
+//					} else {
+////						edits.add(edit);
+//					}
+//				}
 //				newNode.setEdits(edits);
+				newNode = (Taxon) SIS.get().getManager().getSession().merge(newNode);
 				nodesToSave.add(newNode);
 				boolean success = SIS.get().getTaxonIO().writeTaxa(nodesToSave, user, true);
 				if (success) {

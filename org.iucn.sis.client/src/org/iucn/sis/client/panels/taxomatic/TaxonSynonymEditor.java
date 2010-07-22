@@ -100,7 +100,7 @@ public class TaxonSynonymEditor extends LayoutContainer {
 
 			public void onLostFocus(Widget sender) {
 				if (currentSynonym != null)
-					name.setText(currentSynonym.getName());
+					name.setText(currentSynonym.getFriendlyName());
 			}
 		};
 		upperLevelName.addFocusListener(focusListener);
@@ -215,7 +215,7 @@ public class TaxonSynonymEditor extends LayoutContainer {
 		data.setTaxon_level(node.getTaxonLevel());
 		allSynonyms.add(data);
 		refreshSynonym(data);
-		return name;
+		return data.getFriendlyName();
 
 	}
 
@@ -280,7 +280,8 @@ public class TaxonSynonymEditor extends LayoutContainer {
 
 	private void drawButtons(BorderLayoutData layoutData) {
 		bar = new ButtonBar();
-		bar.setAlignment(HorizontalAlignment.RIGHT);
+		bar.setAlignment(HorizontalAlignment.LEFT);
+		bar.setWidth("100%");
 		Button save = new Button("Save");
 		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -313,6 +314,30 @@ public class TaxonSynonymEditor extends LayoutContainer {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
+				
+				TaxonomyCache.impl.deleteSynonymn(node, currentSynonym, new GenericCallback<String>() {
+				
+					@Override
+					public void onSuccess(String result) {
+						allSynonyms.remove(currentSynonym);
+						currentSynonym = null;
+						bar.enable();
+						WindowUtils.infoAlert("Saved", "All the synonym data related to " + node.getFullName()
+								+ " has been saved.");
+						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+						
+						refreshListBox();
+						refreshSynonym(currentSynonym);
+				
+					}
+				
+					@Override
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Unable to delete the synonym");
+				
+					}
+				} );
+				
 				// String oldName = name.getName();
 				// boolean found = false;
 				// for (int i = 0; i < synonymList.getItemCount() && !found;
@@ -326,18 +351,19 @@ public class TaxonSynonymEditor extends LayoutContainer {
 				// }
 				// }
 				// if (found)
-				allSynonyms.remove(currentSynonym);
-
-				currentSynonym = null;
-				refreshListBox();
-				refreshSynonym(currentSynonym);
+//				allSynonyms.remove(currentSynonym);
+//
+//				currentSynonym = null;
+//				refreshListBox();
+//				refreshSynonym(currentSynonym);
 			}
 
 		});
 		bar.add(close);
 		bar.add(save);
-		bar.add(saveAndClose);
 		bar.add(delete);
+		bar.add(saveAndClose);
+		
 		add(bar, layoutData);
 	}
 
@@ -422,7 +448,7 @@ public class TaxonSynonymEditor extends LayoutContainer {
 		synonymList.clear();
 		synonymList.addItem("", "");
 		for (int i = 0; i < allSynonyms.size(); i++) {
-			synonymList.addItem(allSynonyms.get(i).getName(), i + "");
+			synonymList.addItem(allSynonyms.get(i).getFriendlyName(), i + "");
 		}
 	}
 
@@ -542,64 +568,75 @@ public class TaxonSynonymEditor extends LayoutContainer {
 				SysDebugger.getInstance().println("In the loop with " + (allSynonyms.get(index)).getName());
 				index++;
 			}
-
 		}
-		SysDebugger.getInstance().println(
-				"Before I just set the node to have all synonyms " + node.toXMLDetailed());
-		node.getSynonyms().clear();
-		node.getSynonyms().addAll(allSynonyms);
-		SysDebugger.getInstance().println(
-				"I just set the node to have all synonyms " + node.toXMLDetailed());
-		TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
-
-			public void onFailure(Throwable arg0) {
-				bar.enable();
-				WindowUtils.errorAlert("Error", "An error occurred when trying to save the synonym data related to "
-						+ node.getFullName() + ".");
-			}
-
-			public void onSuccess(String arg0) {
+		
+		
+		TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
+		
+			@Override
+			public void onSuccess(String result) {
+				allSynonyms.clear();
+				allSynonyms.addAll(node.getSynonyms());
 				bar.enable();
 				WindowUtils.infoAlert("Saved", "All the synonym data related to " + node.getFullName()
 						+ " has been saved.");
 				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
 				refreshListBox();
 				refreshSynonym(null);
+				
 			}
-
+		
+			@Override
+			public void onFailure(Throwable caught) {
+				bar.enable();
+				WindowUtils.errorAlert("Error", "An error occurred when trying to save the synonym data related to "
+						+ node.getFullName() + ".");
+		
+		
+			}
 		});
+		
 	}
 
 	private void saveAndClose() {
 		bar.disable();
 		storePreviousData();
-		int index = 0;
-		for (int i = 0; i < allSynonyms.size(); i++) {
-			if (allSynonyms.get(index) == null)
-				allSynonyms.remove(index);
-			else
-				index++;
-		}
-
-		node.getSynonyms().clear();
-		node.getSynonyms().addAll(allSynonyms);
-		TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
-
-			public void onFailure(Throwable arg0) {
-				bar.enable();
-				WindowUtils.errorAlert("Error", "An error occurred when trying to save the synonym data related to "
-						+ node.getFullName() + ".");
-			}
-
-			public void onSuccess(String arg0) {
+//		int index = 0;
+//		for (int i = 0; i < allSynonyms.size(); i++) {
+//			if (allSynonyms.get(index) == null)
+//				allSynonyms.remove(index);
+//			else
+//				index++;
+//		}
+//
+//		node.getSynonyms().clear();
+//		node.getSynonyms().addAll(allSynonyms);
+		
+		TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
+			
+			@Override
+			public void onSuccess(String result) {
+				
 				bar.enable();
 				WindowUtils.infoAlert("Saved", "All the synonym data related to " + node.getFullName()
 						+ " has been saved.");
 				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
 				close();
+				
 			}
-
+		
+			@Override
+			public void onFailure(Throwable caught) {
+				bar.enable();
+				WindowUtils.errorAlert("Error", "An error occurred when trying to save the synonym data related to "
+						+ node.getFullName() + ".");
+		
+		
+			}
 		});
+		
+		
+		
 	}
 
 	private void storePreviousData() {
@@ -609,34 +646,34 @@ public class TaxonSynonymEditor extends LayoutContainer {
 			if (curLevel < TaxonLevel.GENUS)
 				currentSynonym.setName(upperLevelName.getText());
 			else if (curLevel == TaxonLevel.GENUS) {
-				currentSynonym.setName(genusName.getText());
+				currentSynonym.setGenusName(genusName.getText());
 			} else if (curLevel == TaxonLevel.SPECIES) {
-				currentSynonym.setName(genusName.getText());
+				currentSynonym.setGenusName(genusName.getText());
 				currentSynonym.setSpeciesName(specieName.getText());
 			} else if (curLevel == TaxonLevel.SUBPOPULATION) {
-				currentSynonym.setName(genusName.getText());
+				currentSynonym.setGenusName(genusName.getText());
 				currentSynonym.setSpeciesName(specieName.getText());
 				currentSynonym.setStockName(stockName.getText());
 			} else if (curLevel == TaxonLevel.INFRARANK) {
-				currentSynonym.setName(genusName.getText());
+				currentSynonym.setGenusName(genusName.getText());
 				currentSynonym.setSpeciesName(specieName.getText());
 				currentSynonym.setInfraName(infrarankName.getText());
 
-				if (level.getItemText(level.getSelectedIndex()).equals(
-						TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_SUBSPECIES)))
-					currentSynonym.setInfraType(Infratype.getInfratype(Infratype.INFRARANK_TYPE_SUBSPECIES));
-				if (level.getItemText(level.getSelectedIndex()).equals(
-						TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_VARIETY)))
-					currentSynonym.setInfraType(Infratype.getInfratype(Infratype.INFRARANK_TYPE_VARIETY));
+//				if (level.getItemText(level.getSelectedIndex()).equals(
+//						TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_SUBSPECIES)))
+//					currentSynonym.setInfraType(Infratype.getInfratype(Infratype.INFRARANK_TYPE_SUBSPECIES));
+//				if (level.getItemText(level.getSelectedIndex()).equals(
+//						TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_VARIETY)))
+//					currentSynonym.setInfraType(Infratype.getInfratype(Infratype.INFRARANK_TYPE_VARIETY));
 			} else if (curLevel == TaxonLevel.INFRARANK_SUBPOPULATION) {
-				currentSynonym.setName(genusName.getText());
+				currentSynonym.setGenusName(genusName.getText());
 				currentSynonym.setSpeciesName(specieName.getText());
 				currentSynonym.setInfraName(infrarankName.getText());
 				currentSynonym.setStockName(stockName.getText());
 			}
 
 			currentSynonym.setStatus(status.getItemText(status.getSelectedIndex()));
-
+			
 			currentSynonym.clearAuthorities();
 			
 			if( !authorTextBox.getValue().equals("") )
@@ -647,6 +684,8 @@ public class TaxonSynonymEditor extends LayoutContainer {
 				currentSynonym.setInfrarankAuthor(infraAuthorTextBox.getValue());
 				
 			currentSynonym.setTaxon_level(TaxonLevel.getTaxonLevel(curLevel));
+			currentSynonym.setFriendlyName(null);
+			currentSynonym.getFriendlyName();
 		}
 
 	}

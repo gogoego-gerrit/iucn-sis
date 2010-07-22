@@ -50,6 +50,16 @@ public class Infratype implements Serializable {
 		return getInfratype(code, null);
 	}
 	
+	public static Infratype getInfratype(String name) {
+		Infratype ret = new Infratype();
+		if( name.equals(SUBSPECIES_NAME))
+			ret.id= INFRARANK_TYPE_SUBSPECIES;
+		else
+			ret.id= INFRARANK_TYPE_VARIETY;
+		ret.name = name;
+		return ret;
+	}
+	
 	public static Infratype getInfratype(int code, Taxon taxon) {
 		Infratype ret = new Infratype();
 		if( code == INFRARANK_TYPE_SUBSPECIES )

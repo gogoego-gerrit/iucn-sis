@@ -185,7 +185,7 @@ public class CommonName implements Serializable {
 	
 	@Override
 	public int hashCode() {
-		return getName().toLowerCase().hashCode();
+		return getName() == null? "".hashCode() : getName().toLowerCase().hashCode();
 	}
 	
 	public boolean isPrimary() {

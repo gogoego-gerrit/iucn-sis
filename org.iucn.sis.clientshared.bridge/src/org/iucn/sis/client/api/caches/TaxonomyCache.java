@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.google.gwt.http.client.URL;
@@ -87,10 +88,14 @@ public class TaxonomyCache {
 			}
 
 			public void onSuccess(String arg0) {
+				try{
 				WindowUtils.loadingBox.updateText("Fetch successful. Processing...");
 				List<Taxon> taxa = processDocumentOfTaxa(doc);
 				WindowUtils.hideLoadingAlert();
 				wayBack.onSuccess(Arrays.toString(taxa.toArray()));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -505,6 +510,61 @@ public class TaxonomyCache {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void deleteSynonymn(final Taxon taxon, final Synonym synonym, final GenericCallback<String> callback) {
+		NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.delete(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/synonym/" + synonym.getId(), new GenericCallback<String>() {
+		
+			@Override
+			public void onSuccess(String result) {
+				taxon.getSynonyms().remove(synonym);
+				callback.onSuccess(result);
+			}
+		
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	public void addOrEditSynonymn(final Taxon taxon, final Synonym synonym, final GenericCallback<String> callback) {
+		NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.post(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/synonym", synonym.toXML(), new GenericCallback<String>() {
+		
+			@Override
+			public void onSuccess(String result) {
+				System.out.println("before anything taxon ynonm size is " + taxon.getSynonyms().size());
+				if (synonym.getId() == 0) {
+					synonym.setId(Integer.parseInt(result));
+					taxon.getSynonyms().add(synonym);
+				} 
+//				else {
+//					Synonym deleted = null;
+//					for (Synonym syn : taxon.getSynonyms()) {
+//						if (syn.getId() == synonym.getId()) {
+//							deleted = syn;
+//							System.out.println("found one to remove");
+//							break;
+//						}
+//					}
+//					taxon.getSynonyms().remove(deleted);
+//					System.out.println("this is after delete " + taxon.getSynonyms().size());
+//				}
+				
+				System.out.println("this is size of synonyms now " + taxon.getSynonyms().size());
+				callback.onSuccess(result);
+		
+			}
+		
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+		
+			}
+		});
+		
 	}
 
 }

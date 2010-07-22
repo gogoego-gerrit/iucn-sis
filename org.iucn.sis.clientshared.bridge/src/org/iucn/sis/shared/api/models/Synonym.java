@@ -85,7 +85,7 @@ public class Synonym implements Serializable {
 			s.setTaxon_level(TaxonLevel.getTaxonLevel(Integer.parseInt(synLevel)));
 		NativeNodeList list = synTag.getElementsByTagName(Infratype.ROOT_NAME);
 		if (list.getLength() > 0)
-			s.setInfraType(Infratype.fromXML(list.elementAt(0), null));
+			s.setInfraType(Infratype.fromXML(list.elementAt(0), null).getName());
 		if (taxon != null)
 			taxon.getSynonyms().add(s);
 		s.setTaxon(taxon);
@@ -111,7 +111,7 @@ public class Synonym implements Serializable {
 			xml.append(note.toXML());
 
 		if (getInfraType() != null) {
-			xml.append(getInfraType().toXML());
+			xml.append(Infratype.getInfratype(getInfraType()).toXML());
 		}
 
 		xml.append("</" + Synonym.ROOT_TAG + ">");
@@ -170,13 +170,17 @@ public class Synonym implements Serializable {
 		this.status = status;
 	}
 
-	private Infratype infraType;
+	private String infraType;
 
-	public void setInfraType(Infratype value) {
-		this.infraType = value;
+	public void setInfraTypeObject(Infratype value) {
+		this.infraType = value.getName();
+	}
+	
+	public void setInfraType(String infratypeName) {
+		infraType = infratypeName;
 	}
 
-	public Infratype getInfraType() {
+	public String getInfraType() {
 		return infraType;
 	}
 
@@ -209,8 +213,9 @@ public class Synonym implements Serializable {
 	}
 	
 	public int hashCode() {
-		return friendlyName != null ? friendlyName.toLowerCase().hashCode() : 
-			getName() != null ? getName().toLowerCase().hashCode() : super.hashCode();
+//		return friendlyName != null ? friendlyName.toLowerCase().hashCode() : 
+//			getName() != null ? getName().toLowerCase().hashCode() : super.hashCode();
+		return getFriendlyName().trim().hashCode();
 	}
 
 	private int id;

@@ -28,12 +28,16 @@ public class Notes implements Serializable {
 
 	public static Notes fromXML(NativeElement current) {
 		Notes note = new Notes();
+		try{
 		note.setValue(current.getElementsByTagName("value").item(0).getTextContent());
 		note.setId(Integer.valueOf(current.getAttribute("id")));
 		
 		NativeNodeList edits = current.getElementsByTagName(Edit.ROOT_TAG);
 		for (int i = 0; i < edits.getLength(); i++) {
 			note.getEdits().add(Edit.fromXML(edits.elementAt(i)));
+		}
+		} catch (Exception e) {
+			System.out.println("Need to fix note " );
 		}
 		
 		return note;
