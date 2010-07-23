@@ -21,6 +21,8 @@ import org.restlet.ext.xml.DomRepresentation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.ElementCollection;
 
 /**
@@ -103,33 +105,55 @@ public class RegionRestlet extends ServiceRestlet {
 	}
 
 	private void handlePost(Request request, Response response) {
-		try {
-			Document editedRegions = new DomRepresentation(request.getEntity()).getDocument();
-
-			ElementCollection newRegions = new ElementCollection(editedRegions.getElementsByTagName("region"));
-			for (Element el : newRegions) {
-				final String id = el.getAttribute("id");
-				final String name = XMLUtils.cleanFromXML(el.getElementsByTagName("name").item(0).getTextContent());
-				final String description = XMLUtils.cleanFromXML(el.getElementsByTagName("description").item(0)
-						.getTextContent());
-
-				final Element existingById = regionsDocument.getElementById(id);
-
-				if (existingById == null) {
-					if (!nameToID.containsKey(name))
-						addNewRegion(name, description);
-				} else {
-					updateRegion(id, name, description);
-				}
+		try{
+		String text = request.getEntityAsText();
+		NativeDocument ndoc = SIS.get().newNativeDocument(request.getChallengeResponse());
+		ndoc.parse(text);
+		NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(Region.ROOT_TAG);
+		for (int i = 0; i < list.getLength(); i++) {
+			Region regionUpdated = Region.fromXML(list.elementAt(i));
+			if (!SIS.get().getRegionIO().saveRegion(regionUpdated)) {
+				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+				return;
 			}
-
-			writebackDocument();
-			handleGet(request, response);
-
-		} catch (IOException e) {
-			response.setEntity("Error fetching edited regions out of the request object.", MediaType.TEXT_PLAIN);
+		}
+		handleGet(request, response);
+		} catch (Exception e)  {
+			e.printStackTrace();
 			response.setStatus(Status.SERVER_ERROR_INTERNAL);
 		}
+		
+		
+//		try {
+//			Document editedRegions = new DomRepresentation(request.getEntity()).getDocument();
+//
+//			ElementCollection newRegions = new ElementCollection(editedRegions.getElementsByTagName(Region.ROOT_TAG));
+//			
+//			for (Element el : newRegions) {
+//				
+//				
+//				final String id = el.getAttribute("id");
+//				final String name = XMLUtils.cleanFromXML(el.getElementsByTagName("name").item(0).getTextContent());
+//				final String description = XMLUtils.cleanFromXML(el.getElementsByTagName("description").item(0)
+//						.getTextContent());
+//
+//				final Element existingById = regionsDocument.getElementById(id);
+//
+//				if (existingById == null) {
+//					if (!nameToID.containsKey(name))
+//						addNewRegion(name, description);
+//				} else {
+//					updateRegion(id, name, description);
+//				}
+//			}
+//
+//			writebackDocument();
+//			handleGet(request, response);
+//
+//		} catch (IOException e) {
+//			response.setEntity("Error fetching edited regions out of the request object.", MediaType.TEXT_PLAIN);
+//			response.setStatus(Status.SERVER_ERROR_INTERNAL);
+//		}
 	}
 
 	private void handlePut(Request request, Response response) {

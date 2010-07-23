@@ -7,7 +7,7 @@ License Type: Evaluation
 <hibernate-mapping>
 	<class name="org.iucn.sis.shared.api.models.Region" table="region" lazy="false">
 		<id name="id" column="id" type="integer" unsaved-value="0">
-			<generator class="assigned">
+			<generator class="native">
 			</generator>
 		</id>
 		<property name="name" column="name" type="string" length="55" not-null="false" lazy="false"/>

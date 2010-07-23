@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -42,6 +43,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class RegionPanel extends ContentPanel {
 	
 	private static int DEFAULT_NEW_ID = 0;
+	public static final String ERROR_MESSAGE = "Please enter valid data for all fields.";
 	
 	private boolean built = false;
 
@@ -81,19 +83,19 @@ public class RegionPanel extends ContentPanel {
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 		grid.getSelectionModel().addListener(Events.BeforeSelect, new Listener<SelectionEvent<RegionModel>>() {
 			public void handleEvent(SelectionEvent<RegionModel> be) {
-				be.setCancelled(isPanelDataValid());
+				be.setCancelled(!isPanelDataValid());
 				if (be.isCancelled())
-					WindowUtils.errorAlert("Please enter valid data for all fields.");
+					WindowUtils.errorAlert(ERROR_MESSAGE);
 			}
 		});
-		grid.getSelectionModel().addListener(Events.SelectionChange, new Listener<SelectionEvent<RegionModel>>() {
-			public void handleEvent(SelectionEvent<RegionModel> be) {
-				if (be.getModel() != null) {
-					formBindings.bind(be.getModel());
+		grid.getSelectionModel().addListener(Events.SelectionChange, new Listener<SelectionChangedEvent<RegionModel>>() {
+			public void handleEvent(SelectionChangedEvent<RegionModel> be) {
+				if (be.getSelectedItem() != null) {
+					formBindings.bind(be.getSelectedItem());
 					name.setAllowBlank(false);
 					description.setAllowBlank(false);
 
-					if (be.getModel().get("id").equals(DEFAULT_NEW_ID+""))
+					if (be.getSelectedItem().get("id").equals(DEFAULT_NEW_ID+""))
 						delete.setEnabled(true);
 					else
 						delete.setEnabled(false);
@@ -135,7 +137,7 @@ public class RegionPanel extends ContentPanel {
 					store.getRecord(newone).set("description", "(Description)");
 					grid.getSelectionModel().select(newone, false);
 				} else {
-					WindowUtils.errorAlert("Please enter valid data for all fields.");
+					WindowUtils.errorAlert(ERROR_MESSAGE);
 				}
 			}
 		});
@@ -291,6 +293,9 @@ public class RegionPanel extends ContentPanel {
 	}
 
 	private boolean isPanelDataValid() {
+		System.out.println("grid.getSelectionModel().getSelectedItem() " + grid.getSelectionModel().getSelectedItem());
+		System.out.println("panel.isValid " + panel.isValid());
+		System.out.println("returning " + (grid.getSelectionModel().getSelectedItem() != null) + " "  + (!panel.isValid()) + " " + (!(grid.getSelectionModel().getSelectedItem() != null && !panel.isValid())));
 		return !(grid.getSelectionModel().getSelectedItem() != null && !panel.isValid());
 	}
 
@@ -326,7 +331,7 @@ public class RegionPanel extends ContentPanel {
 				WindowUtils.errorAlert("Nothing to commit!");
 			}
 		} else
-			WindowUtils.errorAlert("Please enter valid data for all fields.");
+			WindowUtils.errorAlert(ERROR_MESSAGE);
 	}
 
 	public void resetStoreData() {

@@ -530,31 +530,18 @@ public class TaxonomyCache {
 	}
 	
 	public void addOrEditSynonymn(final Taxon taxon, final Synonym synonym, final GenericCallback<String> callback) {
-		NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.post(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/synonym", synonym.toXML(), new GenericCallback<String>() {
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.postAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/synonym", synonym.toXML(), new GenericCallback<String>() {
 		
 			@Override
 			public void onSuccess(String result) {
-				System.out.println("before anything taxon ynonm size is " + taxon.getSynonyms().size());
+				String taxaID = ndoc.getText();
 				if (synonym.getId() == 0) {
-					synonym.setId(Integer.parseInt(result));
+					synonym.setId(Integer.parseInt(taxaID));
 					taxon.getSynonyms().add(synonym);
 				} 
-//				else {
-//					Synonym deleted = null;
-//					for (Synonym syn : taxon.getSynonyms()) {
-//						if (syn.getId() == synonym.getId()) {
-//							deleted = syn;
-//							System.out.println("found one to remove");
-//							break;
-//						}
-//					}
-//					taxon.getSynonyms().remove(deleted);
-//					System.out.println("this is after delete " + taxon.getSynonyms().size());
-//				}
 				
-				System.out.println("this is size of synonyms now " + taxon.getSynonyms().size());
-				callback.onSuccess(result);
+				callback.onSuccess(taxaID);
 		
 			}
 		
