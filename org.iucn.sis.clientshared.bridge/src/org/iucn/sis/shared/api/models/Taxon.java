@@ -98,7 +98,7 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 	}
 
 	public String getDisplayableLevel() {
-
+		System.out.println("this is the taxon level " + this.getTaxonLevel().getLevel() + " and id " + this.getTaxonLevel().getId());
 		if (this.getTaxonLevel().getLevel() == TaxonLevel.INFRARANK) {
 			if (getInfratype().getName() == Infratype.SUBSPECIES_NAME) {
 				return "Subspecies";
@@ -376,6 +376,8 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 	private java.util.Set<CommonName> commonNames;
 
 	private Infratype infratype;
+	
+	private String generatedXML;
 
 	public int getId() {
 		return id;
@@ -597,7 +599,12 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 		}
 	
 		xml.append("</" + ROOT_TAG + ">");
+		generatedXML = xml.toString();
 		return xml.toString();
+	}
+	
+	public String getGeneratedXML() {
+		return generatedXML;
 	}
 
 	/**

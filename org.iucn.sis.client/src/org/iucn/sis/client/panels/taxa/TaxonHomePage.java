@@ -516,8 +516,8 @@ public class TaxonHomePage extends LayoutContainer {
 				data.add(new HTML("Name: <s>" + node.getName() + "</s>"));
 
 			data.add(new HTML("&nbsp;&nbsp;Taxon ID: "
-					+ "<a target='_blank' href='http://www.iucnredlist.org/search/details.php/" + node.getId()
-					+ "/summ'>" + node.getId() + "</a>"));
+					+ "<a target='_blank' href='http://www.iucnredlist.org/apps/redlist/details/" + node.getId()
+					+ "'>" + node.getId() + "</a>"));
 
 			if (node.getLevel() >= TaxonLevel.SPECIES) {
 				panelHeight += 10;

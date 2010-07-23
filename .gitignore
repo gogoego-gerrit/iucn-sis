@@ -2,3 +2,4 @@
 bin
 org.iucn.sis.client.compiled/src/org/iucn/sis/client/compiled/public
 .metadata
+org.iucn.sis.client/war

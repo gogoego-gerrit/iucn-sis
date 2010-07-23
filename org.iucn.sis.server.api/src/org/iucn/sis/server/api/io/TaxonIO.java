@@ -22,7 +22,9 @@ import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Edit;
+import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 
@@ -201,7 +203,20 @@ public class TaxonIO {
 					edit.setCreatedDate(date);
 					edit.getTaxon().add(taxon);
 					taxon.getEdits().add(edit);
+					taxon.toXML();
 					System.out.println("Just before taxonDAO.");
+					
+//					for (Synonym syn : taxon.getSynonyms()) {
+//						syn.getNotes();
+//					}
+//					for (CommonName cn : taxon.getCommonNames()) {
+//						cn.getReference();
+//						cn.getNotes();
+//					}
+//					for (Edit e : taxon.getEdits()) {
+//						e.getNotes();
+//					}
+					taxon.getReference();
 					if (!TaxonDAO.save(taxon)) {
 						break;
 					}
@@ -331,8 +346,11 @@ public class TaxonIO {
 	 */
 	public void afterSaveTaxon(Taxon taxon) {
 		Edit edit = taxon.getLastEdit();
-		String xml = taxon.toXML();
+//		String xml = taxon.toXML();
+		String xml = taxon.getGeneratedXML();
 		String taxonPath = ServerPaths.getTaxonURL(taxon.getId());
+		System.out.println("this is vfs " + vfs);
+		System.out.println("this is what i am saving " + xml);
 		DocumentUtils.writeVFSFile(taxonPath, vfs, xml);
 		try {
 			vfs.setLastModified(taxonPath, edit.getCreatedDate());

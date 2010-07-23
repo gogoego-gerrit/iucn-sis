@@ -271,7 +271,7 @@ public class TaxonBasicEditor extends LayoutContainer {
 
 	private void save() {
 		saveInfo();
-		TaxomaticUtils.impl.writeTaxonToFS(node, new GenericCallback<Object>() {
+		TaxomaticUtils.impl.saveTaxon(node, new GenericCallback<Object>() {
 			public void onFailure(Throwable caught) {
 				if( caught instanceof GWTConflictException ) {
 					WindowUtils.infoAlert("Error", node.getFullName() + " has not been saved. A taxon"
@@ -294,7 +294,7 @@ public class TaxonBasicEditor extends LayoutContainer {
 
 	private void saveAndClose() {
 		saveInfo();
-		TaxomaticUtils.impl.writeTaxonToFS(node, new GenericCallback<Object>() {
+		TaxomaticUtils.impl.saveTaxon(node, new GenericCallback<Object>() {
 
 			public void onFailure(Throwable caught) {
 				if( caught instanceof GWTConflictException ) {
@@ -319,23 +319,23 @@ public class TaxonBasicEditor extends LayoutContainer {
 
 	private void saveInfo() {
 		bar.setEnabled(false);
-		// node.setDeprecated(deprecated.getValue(deprecated.getSelectedIndex()).
-		// equalsIgnoreCase("1")
-		// ? true : false);
 
 		if (node.getLevel() >= TaxonLevel.SPECIES)
 			node.setHybrid(hybrid.getValue(hybrid.getSelectedIndex()).equalsIgnoreCase("1") ? true : false);
 
 		if (level.isEnabled()) {
 			int newLevel = Integer.parseInt(level.getValue(level.getSelectedIndex()));
-			Integer infraType = null;
-			if (newLevel > TaxonLevel.INFRARANK_SUBPOPULATION) {
+			int infraType = 1;
+			if (newLevel ==  TaxonLevel.INFRARANK || newLevel == TaxonLevel.INFRARANK_SUBPOPULATION) {
 				infraType = newLevel % (TaxonLevel.INFRARANK * 10);
 				newLevel = Integer.parseInt(level.getValue(level.getSelectedIndex()).substring(0, 1));
-
+				node.setTaxonLevel(TaxonLevel.getTaxonLevel(newLevel));
+				Infratype type = Infratype.getInfratype(infraType, node);
+				node.setInfratype(type);
+			} else {
+				node.setInfratype(null);
 			}
-			node.setTaxonLevel(TaxonLevel.getTaxonLevel(newLevel));
-			node.setInfratype(Infratype.getInfratype(infraType, node));
+			
 		}
 
 		node.setName(name.getText());

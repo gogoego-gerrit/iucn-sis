@@ -595,6 +595,10 @@ public class TaxomaticIO {
 
 		if (!requireLocking || aquirer.isSuccess()) {
 			ArrayList<Taxon> taxa = new ArrayList<Taxon>(taxaToSave);
+			Map<Integer, Taxon> idsToTaxon = new HashMap<Integer, Taxon>();
+			for (Taxon taxon : taxaToSave) {
+				idsToTaxon.put(taxon.getId(), taxon);
+			}
 			Collections.sort(taxa, TaxaComparators.getTaxonComparatorByLevel());
 			
 			try {
@@ -602,15 +606,22 @@ public class TaxomaticIO {
 				for (Taxon taxon : taxa) {
 					
 					//UPDATE FRIENDLY NAME
+					if (idsToTaxon.containsKey(taxon.getParent().getId())) {
+						taxon.setParent(idsToTaxon.get(taxon.getParent().getId()));
+						taxon.getParent().correctFullName();
+						System.out.println("parent was updated with fullname " + taxon.getParent().getName());
+					}
+					System.out.println("this is full name before " + taxon.getFullName());
 					taxon.correctFullName();					
-					
+					System.out.println("this is full name after " + taxon.getFullName());
 					//ADD EDIT						
 					Edit edit = new Edit();
 					edit.setUser(user);
 					edit.setCreatedDate(date);
 					edit.getTaxon().add(taxon);
 					taxon.getEdits().add(edit);
-					
+					taxon.toXML();
+					System.out.println("this is taxon: " + taxon.toXML());
 					SIS.get().getTaxonIO().writeTaxon(taxon, user);
 				}
 				return true;
@@ -667,13 +678,18 @@ public class TaxomaticIO {
 	}
 	
 	boolean writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user, boolean requireLocking) {
+		System.out.println("in taxomatic writeTaxon with 4 args");
 		if (oldTaxon == null || !isTaxomaticOperationNecessary(taxonToSave, oldTaxon)) {
 			return SIS.get().getTaxonIO().writeTaxon(taxonToSave, oldTaxon, user);
 		} else {
 			// TRY TO AQUIRE LOCKS
 			List<Taxon> taxaToSave;
 			try {
+				taxonToSave.toXML();
+				System.out.println("in get children");
 				taxaToSave = SIS.get().getTaxonIO().getChildrenOfTaxonRecurisvely(taxonToSave.getId());
+				System.out.println("this is taxaToSave " + Arrays.toString(taxaToSave.toArray()));
+				System.out.println("after get children");
 			} catch (PersistentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -685,11 +701,13 @@ public class TaxomaticIO {
 				return false;
 			}
 			taxaToSave.add(0, taxonToSave);
+			System.out.println("in taxomaticio right before updateAndSave");
 			return updateAndSave(taxaToSave, user, requireLocking);
 		}
 	}
 	
 	public boolean writeTaxon(Taxon taxonToSave, User user) {
+		System.out.println("in taxon with 2 args");
 		Taxon oldTaxon = SIS.get().getTaxonIO().getTaxonFromVFS(taxonToSave.getId());
 		if (oldTaxon == null)
 			return false;

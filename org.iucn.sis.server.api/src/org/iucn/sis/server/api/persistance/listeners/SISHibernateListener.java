@@ -11,6 +11,10 @@ import org.hibernate.event.PostInsertEvent;
 import org.hibernate.event.PostInsertEventListener;
 import org.hibernate.event.PostUpdateEvent;
 import org.hibernate.event.PostUpdateEventListener;
+import org.hibernate.event.PreInsertEvent;
+import org.hibernate.event.PreInsertEventListener;
+import org.hibernate.event.PreUpdateEvent;
+import org.hibernate.event.PreUpdateEventListener;
 import org.hibernate.event.SaveOrUpdateEvent;
 import org.hibernate.event.def.DefaultSaveOrUpdateEventListener;
 import org.iucn.sis.server.api.application.SIS;
@@ -20,7 +24,7 @@ import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Taxon;
 
-public class SISHibernateListener implements PostUpdateEventListener, PostDeleteEventListener, PostInsertEventListener {
+public class SISHibernateListener implements PreInsertEventListener, PreUpdateEventListener, PostUpdateEventListener, PostDeleteEventListener, PostInsertEventListener {
 
 	/**
 	 * 
@@ -45,7 +49,7 @@ public class SISHibernateListener implements PostUpdateEventListener, PostDelete
 
 	protected void doUpdate(Object obj) {
 		try {
-			System.out.println("in doUpdate hibernate with object " + obj);
+			System.out.println("in doUpdate hibernate with object " + obj.getClass() + " " + obj);
 			if (obj instanceof Assessment) {
 				System.out.println("obj is assessment");
 				SIS.get().getAssessmentIO().afterSaveAssessment((Assessment) obj);
@@ -60,8 +64,10 @@ public class SISHibernateListener implements PostUpdateEventListener, PostDelete
 				}
 				doUpdate(assessment);
 			} else if (obj instanceof Taxon) {
-				System.out.println("obj is taxon with xml " + ((Taxon) obj).toXML());
+//				System.out.println("obj is taxon with xml " + ((Taxon) obj).toXML());
+				
 				SIS.get().getTaxonIO().afterSaveTaxon((Taxon) obj);
+				
 			} else if (obj instanceof Notes) {
 				System.out.println("obj is notes");
 				Notes note = (Notes) obj;
@@ -72,12 +78,27 @@ public class SISHibernateListener implements PostUpdateEventListener, PostDelete
 			} else {
 				System.out.println("obj is " + obj);
 			}
-		} catch (Throwable e) {
+			
+		}catch (AssertionFailure e) {
+			
+		}catch (Throwable e) {
 			
 			// e.printStackTrace();
 			// throw new RuntimeException(e.getCause());
 		}
 
+	}
+
+	@Override
+	public boolean onPreUpdate(PreUpdateEvent event) {
+		System.out.println("in preupdate event with " + event.getEntity().getClass() + " with id " + event.getId());
+		return true;
+	}
+
+	@Override
+	public boolean onPreInsert(PreInsertEvent event) {
+		System.out.println("in preinsert event with "+ event.getEntity().getClass() + " with id " + event.getId());
+		return true;
 	}
 
 }

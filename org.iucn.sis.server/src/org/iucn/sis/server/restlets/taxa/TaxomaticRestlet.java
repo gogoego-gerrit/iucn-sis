@@ -10,6 +10,7 @@ import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -524,9 +525,22 @@ public class TaxomaticRestlet extends ServiceRestlet {
 		ndoc.parse(text);
 		
 		Taxon updatedTaxon = Taxon.fromXML(ndoc);
-		
-		
-		
+		Taxon currentTaxon = SIS.get().getTaxonIO().getTaxon(updatedTaxon.getId());
+		currentTaxon.setName(updatedTaxon.getName());
+		currentTaxon.setTaxonLevel(updatedTaxon.getTaxonLevel());
+		currentTaxon.setHybrid(updatedTaxon.getHybrid());
+		currentTaxon.setTaxonomicAuthority(updatedTaxon.getTaxonomicAuthority());
+		currentTaxon.setStatus(updatedTaxon.getStatusCode());
+		if (updatedTaxon.getInfratype() == null) 
+			currentTaxon.setInfratype(null);
+		else {
+			currentTaxon.setInfratype(SIS.get().getInfratypeIO().getInfratype(updatedTaxon.getInfratype().getName()));
+		}
+		if (SIS.get().getTaxomaticIO().writeTaxon(currentTaxon, SIS.get().getUser(request))) {
+			response.setStatus(Status.SUCCESS_OK);
+		} else {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL);
+		}
 		
 		
 		

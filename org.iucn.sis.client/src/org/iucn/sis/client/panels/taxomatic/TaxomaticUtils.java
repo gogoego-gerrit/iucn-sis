@@ -313,16 +313,16 @@ public class TaxomaticUtils {
 	}
 
 
-	public void writeTaxonToFS(Taxon  node, final GenericCallback<Object> callback) {
+	public void saveTaxon(Taxon  node, final GenericCallback<Object> callback) {
 		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 
-		doc.put(UriBase.getInstance().getSISBase() + "/browse/nodes/" + node.getId(), node.toXMLDetailed(),
+		doc.post(UriBase.getInstance().getSISBase() + "/taxomatic/update/" + node.getId(), node.toXMLDetailed(),
 				new GenericCallback<String>() {
 
 					public void onFailure(Throwable caught) {
 						callback.onFailure(caught);
 					}
-
+					
 					public void onSuccess(String result) {
 						TaxonomyCache.impl.clear();
 						callback.onSuccess(result);
