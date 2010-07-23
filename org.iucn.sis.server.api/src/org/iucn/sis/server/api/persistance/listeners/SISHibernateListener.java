@@ -22,6 +22,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 
 public class SISHibernateListener implements PreInsertEventListener, PreUpdateEventListener, PostUpdateEventListener, PostDeleteEventListener, PostInsertEventListener {
@@ -64,8 +65,6 @@ public class SISHibernateListener implements PreInsertEventListener, PreUpdateEv
 				}
 				doUpdate(assessment);
 			} else if (obj instanceof Taxon) {
-//				System.out.println("obj is taxon with xml " + ((Taxon) obj).toXML());
-				
 				SIS.get().getTaxonIO().afterSaveTaxon((Taxon) obj);
 				
 			} else if (obj instanceof Notes) {
@@ -75,8 +74,14 @@ public class SISHibernateListener implements PreInsertEventListener, PreUpdateEv
 				if (taxon != null)
 					doUpdate(taxon);
 				//TODO: DO FOR FIELDS
-			} else {
-				System.out.println("obj is " + obj);
+			} else if (obj instanceof Synonym){
+				System.out.println("obj is synonymn");
+				Synonym syn = ((Synonym)obj);
+				if (syn.getTaxon() != null)
+					doUpdate(syn.getTaxon());
+				else {
+					System.out.println("no taxon for the synonymn");
+				}
 			}
 			
 		}catch (AssertionFailure e) {

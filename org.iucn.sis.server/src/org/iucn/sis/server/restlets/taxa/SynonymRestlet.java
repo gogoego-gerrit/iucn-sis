@@ -105,6 +105,7 @@ public class SynonymRestlet extends ServiceRestlet{
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 		} else {
 			taxon.getSynonyms().remove(toDelete);
+			taxon.toXML();
 			if (SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request))) {
 				try {
 					SynonymDAO.delete(toDelete);
