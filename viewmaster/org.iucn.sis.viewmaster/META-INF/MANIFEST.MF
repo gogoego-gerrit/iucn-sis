@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Viewmaster
+Bundle-SymbolicName: org.iucn.sis.viewmaster
+Bundle-Version: 1.0.0
+Bundle-Activator: org.iucn.sis.viewmaster.Activator
+Import-Package: org.osgi.framework;version="1.3.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Require-Bundle: org.gogoego.util.db.postgresql;bundle-version="1.0.0",
+ org.gogoego.util.db;bundle-version="1.0.0",
+ org.gogoego.util.getout;bundle-version="1.0.0"

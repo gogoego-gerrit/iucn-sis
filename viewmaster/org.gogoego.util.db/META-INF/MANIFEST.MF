@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Database Session Adapter
+Bundle-SymbolicName: org.gogoego.util.db
+Bundle-Version: 1.0.0
+Bundle-Vendor: GoGoEgo.org
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.apache.commons.dbcp;version="1.4.0",
+ org.gogoego.util.crypto,
+ org.gogoego.util.getout,
+ org.gogoego.util.text
+Export-Package: org.gogoego.util.db,
+ org.gogoego.util.db.fluent,
+ org.gogoego.util.db.query,
+ org.gogoego.util.db.satools,
+ org.gogoego.util.db.shared

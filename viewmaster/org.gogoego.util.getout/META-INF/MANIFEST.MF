@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: GetOut
+Bundle-SymbolicName: org.gogoego.util.getout
+Bundle-Version: 1.0.0
+Bundle-Vendor: GoGoEgo.org
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.gogoego.util.getout

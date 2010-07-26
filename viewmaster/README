@@ -1,0 +1,22 @@
+VIEWMASTER FOR BAIJI
+
+This is an experimental, standalone workspace using latest
+dbsession bits.
+
+It creates a full set of denormalized, updateable views on a copy of
+Baiji.  The Baiji database needs to be loaded with a copy of the
+"universe" table included here as a CSV, and it would be very helpful
+to create the following indexes for performance:
+
+create index field_assessmentid on field (assessmentid);
+create index primitive_field_fieldid on primitive_field (fieldid);
+
+The views are named vw_(field) where each table is an aggregation of
+the primitives composing the field.
+
+The views are also constructed to show only those assessments
+identified in a manually created vw_filter table.  If vw_filter
+does not exist, the scripts will fail.
+
+A nice way to run this is within Eclipse using the OSGi Framework
+target.

@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PostgreSQL Adapter for GoGoEgo DB
+Bundle-SymbolicName: org.gogoego.util.db.postgresql
+Bundle-Version: 1.0.0
+Bundle-Activator: org.gogoego.util.db.postgresql.Activator
+Import-Package: org.apache.commons.dbcp;version="1.4.0",
+ org.gogoego.util.db,
+ org.gogoego.util.db.shared,
+ org.gogoego.util.getout,
+ org.gogoego.util.text,
+ org.osgi.framework;version="1.3.0",
+ org.postgresql
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Export-Package: org.gogoego.util.db.postgresql

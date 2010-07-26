@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Commons DBCP
+Bundle-SymbolicName: org.apache.commons.dbcp
+Bundle-Version: 1.4
+Bundle-ClassPath: commons-dbcp-1.4.jar
+Bundle-Vendor: The Apache Software Foundation
+Export-Package: org.apache.commons.dbcp.cpdsadapter;version="1.4",org.apache.commons.dbcp;version="1.4",org.apache.commons.dbcp.managed;version="1.4",org.apache.commons.jocl;version="1.4",org.apache.commons.dbcp.datasources;version="1.4"
+Bundle-Description: Commons Database Connection Pooling
+Build-Jdk: 1.6.0_17
+Specification-Version: 1.4
+Implementation-Title: Commons DBCP
+Tool: Bnd-0.0.238
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Implementation-Vendor: The Apache Software Foundation
+Specification-Vendor: The Apache Software Foundation
+X-Compile-Target-JDK: 1.6
+X-Compile-Source-JDK: 1.6
+Bundle-DocURL: http://commons.apache.org/dbcp/
+Bnd-LastModified: 1265565112392
+Built-By: philsteitz
+Implementation-Vendor-Id: org.apache
+Created-By: 1.6.0_17 (Apple Inc.)
+Specification-Title: Commons DBCP
+Implementation-Version: 1.4
+Archiver-Version: Plexus Archiver
+Import-Package: javax.naming,javax.naming.spi,javax.sql,javax.transaction,javax.transaction.xa,org.apache.commons.dbcp;version="1.4",org.apache.commons.dbcp.cpdsadapter;version="1.4",org.apache.commons.dbcp.datasources;version="1.4",org.apache.commons.dbcp.managed;version="1.4",org.apache.commons.jocl;version="1.4",org.apache.commons.pool,org.apache.commons.pool.impl,org.xml.sax,org.xml.sax.helpers

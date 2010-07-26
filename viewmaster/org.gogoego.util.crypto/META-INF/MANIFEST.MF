@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Crypto Utilities
+Bundle-SymbolicName: org.gogoego.util.crypto
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: GoGoEgo.org
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.gogoego.util.getout
+Export-Package: org.gogoego.util.crypto

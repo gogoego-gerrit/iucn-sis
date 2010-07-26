@@ -1,0 +1,581 @@
+aoocontinuingdecline_qualifierlookup	1	0	Observed	\N
+aoocontinuingdecline_qualifierlookup	2	1	Projected	\N
+aoocontinuingdecline_qualifierlookup	3	2	Inferred	\N
+aoo	1	range	range_primitive_field	?
+aoo	2	justification	string_primitive_field	?
+aoocontinuingdecline	1	isInContinuingDecline	boolean_range_primitive_field	?
+aoocontinuingdecline	2	qualifier	fk_primitive_field	?
+aoocontinuingdecline	3	justification	string_primitive_field	?
+aooextremefluctuation	1	isFluctuating	boolean_range_primitive_field	?
+aooextremefluctuation	2	justification	string_primitive_field	?
+arearestricted	1	isRestricted	boolean_range_primitive_field	?
+arearestricted	2	justification	string_primitive_field	?
+assessmentgeographicscope_geographicscopelookup	1	0	Global	\N
+assessmentgeographicscope_geographicscopelookup	2	1	Regional	\N
+assessmentgeographicscope_geographicscopelookup	3	2	National	\N
+assessmentgeographicscope	1	geographicScope	fk_primitive_field	?
+assessmentgeographicscope	2	region	string_primitive_field	?
+assessmentgeographicscope	3	country	string_primitive_field	?
+avgannualfecundity	1	fecundity	string_primitive_field	?
+avgreproductiveage_unitslookup	1	0	Days	\N
+avgreproductiveage_unitslookup	2	1	Months	\N
+avgreproductiveage_unitslookup	3	2	Years	\N
+avgreproductiveage	1	age	string_primitive_field	?
+avgreproductiveage	2	units	fk_primitive_field	?
+biogeographicrealm_realmlookup	1	0	Afrotropical	\N
+biogeographicrealm_realmlookup	2	1	Antarctic	\N
+biogeographicrealm_realmlookup	3	2	Australasian	\N
+biogeographicrealm_realmlookup	4	3	Indomalayan	\N
+biogeographicrealm_realmlookup	5	4	Nearctic	\N
+biogeographicrealm_realmlookup	6	5	Neotropical	\N
+biogeographicrealm_realmlookup	7	6	Oceanian	\N
+biogeographicrealm_realmlookup	8	7	Palearctic	\N
+biogeographicrealm	1	realm	fk_list_primitive_field	?
+birthsize	1	size	string_primitive_field	?
+conservationactions	1	ConservationActionsSubfield	field	*
+conservationactionssubfield	1	ConservationActionsLookup	fk_primitive_field	1
+conservationactionsdocumentation	1	narrative	text_primitive_field	?
+countryoccurrence_presencelookup	1	0	Extant	\N
+countryoccurrence_presencelookup	2	1	Possibly Extinct	\N
+countryoccurrence_presencelookup	3	2	Extinct	\N
+countryoccurrence_presencelookup	4	3	Presence Uncertain	\N
+countryoccurrence_originlookup	1	0	Native	\N
+countryoccurrence_originlookup	2	1	Reintroduced	\N
+countryoccurrence_originlookup	3	2	Introduced	\N
+countryoccurrence_originlookup	4	3	Prehistorically Introduced	\N
+countryoccurrence_originlookup	5	4	Vagrant	\N
+countryoccurrence_originlookup	6	5	Origin Uncertain	\N
+countryoccurrence_seasonalitylookup	1	0	Resident	\N
+countryoccurrence_seasonalitylookup	2	1	Breeding Season	\N
+countryoccurrence_seasonalitylookup	3	2	Non-Breeding Season	\N
+countryoccurrence_seasonalitylookup	4	3	Passage	\N
+countryoccurrence_seasonalitylookup	5	4	Seasonal Occurrence Uncertain	\N
+countryoccurrence	1	CountryOccurrenceSubfield	field	*
+countryoccurrencesubfield	1	CountryOccurrenceLookup	fk_primitive_field	1
+countryoccurrencesubfield	2	presence	fk_primitive_field	?
+countryoccurrencesubfield	3	formerlyBred	boolean_unknown_primitive_field	?
+countryoccurrencesubfield	4	origin	fk_primitive_field	?
+countryoccurrencesubfield	5	seasonality	fk_list_primitive_field	?
+cropwildrelative	1	isRelative	boolean_primitive_field	?
+datelastseen	1	lastSeen	date_primitive_field	?
+depthlower	1	limit	float_primitive_field	?
+depthupper	1	limit	float_primitive_field	?
+depthzone_depthzonelookup	1	0	Shallow photic (0-50m)	\N
+depthzone_depthzonelookup	2	1	Deep Photic (51-200m)	\N
+depthzone_depthzonelookup	3	2	Bathyl (201-4,000m)	\N
+depthzone_depthzonelookup	4	3	Abyssal (4,001-6,000m)	\N
+depthzone_depthzonelookup	5	4	Hadal (>6,000m)	\N
+depthzone	1	depthZone	fk_list_primitive_field	?
+eoo	1	range	range_primitive_field	?
+eoo	2	qualifier	fk_primitive_field	?
+eoo_qualifierlookup	1	0	Observed	\N
+eoo_qualifierlookup	2	1	Projected	\N
+eoo_qualifierlookup	3	2	Inferred	\N
+eoocontinuingdecline	1	isContinuingDecline	boolean_range_primitive_field	?
+eoocontinuingdecline	2	qualifier	fk_primitive_field	?
+eoocontinuingdecline	3	justification	string_primitive_field	?
+eoocontinuingdecline_qualifierlookup	1	0	Observed	\N
+eoocontinuingdecline_qualifierlookup	2	1	Projected	\N
+eoocontinuingdecline_qualifierlookup	3	2	Inferred	\N
+eooextremefluctuation	1	isFluctuating	boolean_range_primitive_field	?
+eooextremefluctuation	2	justification	string_primitive_field	?
+ecosystemservices_importancelookup	1	0	1 - Very Important	\N
+ecosystemservices_importancelookup	2	1	2 - Important	\N
+ecosystemservices_importancelookup	3	2	3 - Some Importance	\N
+ecosystemservices_importancelookup	4	3	4 - Not Important/relevant	\N
+ecosystemservices_importancelookup	5	4	5 - Not Known	\N
+ecosystemservices_rangeofbenefitlookup	1	0	Local	\N
+ecosystemservices_rangeofbenefitlookup	2	1	National	\N
+ecosystemservices_rangeofbenefitlookup	3	2	Regional	\N
+ecosystemservices_rangeofbenefitlookup	4	3	Global	\N
+ecosystemservices_rangeofbenefitlookup	5	4	Unknown	\N
+ecosystemservices	1	EcosystemServicesSubfield	field	*
+ecosystemservicessubfield	1	EcosystemServicesLookup	fk_primitive_field	1
+ecosystemservicessubfield	2	importance	fk_primitive_field	?
+ecosystemservicessubfield	3	rangeOfBenefit	fk_primitive_field	?
+ecosystemservicesinsufficientinfo	1	isInsufficient	boolean_primitive_field	?
+ecosystemservicesinsufficientinfo	2	label	string_primitive_field	?
+ecosystemservicesprovidesnone	1	providesNothing	boolean_primitive_field	?
+egglaying	1	layEggs	boolean_unknown_primitive_field	?
+elevationlower	1	limit	float_primitive_field	?
+elevationupper	1	limit	float_primitive_field	?
+extinctionprobabilitygenerations3	1	range	range_primitive_field	?
+extinctionprobabilitygenerations3	2	justification	string_primitive_field	?
+extinctionprobabilitygenerations5	1	range	range_primitive_field	?
+extinctionprobabilitygenerations5	2	justification	string_primitive_field	?
+extinctionprobabilityyears100	1	range	range_primitive_field	?
+extinctionprobabilityyears100	2	justification	string_primitive_field	?
+faooccurrence_presencelookup	1	0	Extant	\N
+faooccurrence_presencelookup	2	1	Possibly Extinct	\N
+faooccurrence_presencelookup	3	2	Extinct	\N
+faooccurrence_presencelookup	4	3	Presence Uncertain	\N
+faooccurrence_originlookup	1	0	Native	\N
+faooccurrence_originlookup	2	1	Reintroduced	\N
+faooccurrence_originlookup	3	2	Introduced	\N
+faooccurrence_originlookup	4	3	Prehistorically Introduced	\N
+faooccurrence_originlookup	5	4	Vagrant	\N
+faooccurrence_originlookup	6	5	Origin Uncertain	\N
+faooccurrence_seasonalitylookup	1	0	Resident	\N
+faooccurrence_seasonalitylookup	2	1	Breeding Season	\N
+faooccurrence_seasonalitylookup	3	2	Non-Breeding Season	\N
+faooccurrence_seasonalitylookup	4	3	Passage	\N
+faooccurrence_seasonalitylookup	5	4	Seasonal Occurrence Uncertain	\N
+faooccurrence	1	FAOOccurrenceSubfield	field	*
+faooccurrencesubfield	1	FAOOccurrenceLookup	fk_primitive_field	1
+faooccurrencesubfield	2	presence	fk_primitive_field	?
+faooccurrencesubfield	3	formerlyBred	boolean_unknown_primitive_field	?
+faooccurrencesubfield	4	origin	fk_primitive_field	?
+faooccurrencesubfield	5	seasonality	fk_list_primitive_field	?
+femalematurityage_unitslookup	1	0	Days	\N
+femalematurityage_unitslookup	2	1	Weeks	\N
+femalematurityage_unitslookup	3	2	Months	\N
+femalematurityage_unitslookup	4	3	Years	\N
+femalematurityage	1	age	string_primitive_field	?
+femalematurityage	2	units	fk_primitive_field	?
+femalematuritysize	1	size	string_primitive_field	?
+freelivinglarvae	1	hasStage	boolean_unknown_primitive_field	?
+generalhabitats_suitabilitylookup	1	0	Suitable	\N
+generalhabitats_suitabilitylookup	2	1	Marginal	\N
+generalhabitats_suitabilitylookup	3	2	Possible	\N
+generalhabitats_majorimportancelookup	1	0	Yes	\N
+generalhabitats_majorimportancelookup	2	1	No	\N
+generalhabitats	1	GeneralHabitatsSubfield	field	*
+generalhabitatssubfield	1	GeneralHabitatsLookup	fk_primitive_field	1
+generalhabitatssubfield	2	suitability	fk_primitive_field	?
+generalhabitatssubfield	3	majorImportance	fk_primitive_field	?
+generationlength	1	range	range_primitive_field	?
+generationlength	2	justification	string_primitive_field	?
+gestationtime_unitslookup	1	0	Days	\N
+gestationtime_unitslookup	2	1	Months	\N
+gestationtime_unitslookup	3	2	Years	\N
+gestationtime	1	time	string_primitive_field	?
+gestationtime	2	units	fk_primitive_field	?
+habitatcontinuingdecline	1	isDeclining	boolean_range_primitive_field	?
+habitatcontinuingdecline	2	qualifier	fk_primitive_field	?
+habitatcontinuingdecline	3	justification	string_primitive_field	?
+habitatcontinuingdecline_qualifierlookup	1	0	Observed	\N
+habitatcontinuingdecline_qualifierlookup	2	1	Projected	\N
+habitatcontinuingdecline_qualifierlookup	3	2	Inferred	\N
+habitatdocumentation	1	narrative	text_primitive_field	?
+inplaceresearch_recoveryplanlookup	1	0	Yes	\N
+inplaceresearch_recoveryplanlookup	2	1	No	\N
+inplaceresearch_recoveryplanlookup	3	2	Unknown	\N
+inplaceresearch_monitoringschemelookup	1	0	Yes	\N
+inplaceresearch_monitoringschemelookup	2	1	No	\N
+inplaceresearch_monitoringschemelookup	3	2	Unknown	\N
+inplaceresearch	1	recoveryPlan	fk_primitive_field	?
+inplaceresearch	2	note	string_primitive_field	?
+inplaceresearch	3	monitoringScheme	fk_primitive_field	?
+inplaceresearch	4	note	string_primitive_field	?
+inplacespeciesmanagement_harvestplanlookup	1	0	Yes	\N
+inplacespeciesmanagement_harvestplanlookup	2	1	No	\N
+inplacespeciesmanagement_harvestplanlookup	3	2	Unknown	\N
+inplacespeciesmanagement_reintroducedlookup	1	0	Yes	\N
+inplacespeciesmanagement_reintroducedlookup	2	1	No	\N
+inplacespeciesmanagement_reintroducedlookup	3	2	Unknown	\N
+inplacespeciesmanagement_exsituconservationlookup	1	0	Yes	\N
+inplacespeciesmanagement_exsituconservationlookup	2	1	No	\N
+inplacespeciesmanagement_exsituconservationlookup	3	2	Unknown	\N
+inplacespeciesmanagement	1	harvestPlan	fk_primitive_field	?
+inplacespeciesmanagement	2	note	string_primitive_field	?
+inplacespeciesmanagement	3	reintroduced	fk_primitive_field	?
+inplacespeciesmanagement	4	note	string_primitive_field	?
+inplacespeciesmanagement	5	exSituConservation	fk_primitive_field	?
+inplacespeciesmanagement	6	note	string_primitive_field	?
+inplacelandwaterprotection_sitesidentifiedlookup	1	0	Yes	\N
+inplacelandwaterprotection_sitesidentifiedlookup	2	1	No	\N
+inplacelandwaterprotection_sitesidentifiedlookup	3	2	Unknown	\N
+inplacelandwaterprotection_rangelookup	1	0	Over entire range	\N
+inplacelandwaterprotection_rangelookup	2	1	Over part of range	\N
+inplacelandwaterprotection_inpalookup	1	0	Yes	\N
+inplacelandwaterprotection_inpalookup	2	1	No	\N
+inplacelandwaterprotection_inpalookup	3	2	Unknown	\N
+inplacelandwaterprotection_areaplannedlookup	1	0	Yes	\N
+inplacelandwaterprotection_areaplannedlookup	2	1	No	\N
+inplacelandwaterprotection_areaplannedlookup	3	2	Unknown	\N
+inplacelandwaterprotection_invasivecontrollookup	1	0	Yes	\N
+inplacelandwaterprotection_invasivecontrollookup	2	1	No	\N
+inplacelandwaterprotection_invasivecontrollookup	3	2	Unknown	\N
+inplacelandwaterprotection	1	sitesIdentified	fk_primitive_field	?
+inplacelandwaterprotection	2	range	fk_primitive_field	?
+inplacelandwaterprotection	3	note	string_primitive_field	?
+inplacelandwaterprotection	4	inPA	fk_primitive_field	?
+inplacelandwaterprotection	5	populationProtected	float_primitive_field	?
+inplacelandwaterprotection	6	note	string_primitive_field	?
+inplacelandwaterprotection	7	areaPlanned	fk_primitive_field	?
+inplacelandwaterprotection	8	note	string_primitive_field	?
+inplacelandwaterprotection	9	invasiveControl	fk_primitive_field	?
+inplacelandwaterprotection	10	explanation	string_primitive_field	?
+inplaceeducation_subjecttoprogramslookup	1	0	Yes	\N
+inplaceeducation_subjecttoprogramslookup	2	1	No	\N
+inplaceeducation_subjecttoprogramslookup	3	2	Unknown	\N
+inplaceeducation_internationallegislationlookup	1	0	Yes	\N
+inplaceeducation_internationallegislationlookup	2	1	No	\N
+inplaceeducation_internationallegislationlookup	3	2	Unknown	\N
+inplaceeducation_controlledlookup	1	0	Yes	\N
+inplaceeducation_controlledlookup	2	1	No	\N
+inplaceeducation_controlledlookup	3	2	Unknown	\N
+inplaceeducation	1	subjectToPrograms	fk_primitive_field	?
+inplaceeducation	2	notes	string_primitive_field	?
+inplaceeducation	3	internationalLegislation	fk_primitive_field	?
+inplaceeducation	4	notes	string_primitive_field	?
+inplaceeducation	5	controlled	fk_primitive_field	?
+inplaceeducation	6	note	string_primitive_field	?
+lakes_alookup	1	0	Year Round	\N
+lakes_alookup	2	1	Breeding Season Only	\N
+lakes_alookup	3	2	Non-breeding Season Only	\N
+lakes_alookup	4	3	Possibly Extinct	\N
+lakes_alookup	5	4	Extinct	\N
+lakes_alookup	6	5	Uncertain	\N
+lakes_lookup	1	0	Native	\N
+lakes_lookup	2	1	Introduced	\N
+lakes_lookup	3	2	Reintroduced	\N
+lakes_lookup	4	3	Vagrant	\N
+lakes_lookup	5	4	Uncertain	\N
+lakes	1	LakesSubfield	field	*
+lakessubfield	1	LakesLookup	fk_primitive_field	1
+lakessubfield	2	a	fk_primitive_field	?
+lakessubfield	3	N/A	boolean_primitive_field	?
+lakessubfield	4	N/A	fk_primitive_field	?
+landcover_nulllookup	1	0	Suitable	\N
+landcover_nulllookup	2	1	Moderately Suitable	\N
+landcover_nulllookup	3	2	Unsuitable	\N
+landcover_nulllookup	4	3	Undefined	\N
+landcover	1	LandCoverSubfield	field	*
+landcoversubfield	1	LandCoverLookup	fk_primitive_field	1
+largemarineecosystems_presencelookup	1	0	Extant	\N
+largemarineecosystems_presencelookup	2	1	Possibly Extinct	\N
+largemarineecosystems_presencelookup	3	2	Extinct	\N
+largemarineecosystems_presencelookup	4	3	Presence Uncertain	\N
+largemarineecosystems_originlookup	1	0	Native	\N
+largemarineecosystems_originlookup	2	1	Reintroduced	\N
+largemarineecosystems_originlookup	3	2	Introduced	\N
+largemarineecosystems_originlookup	4	3	Prehistorically Introduced	\N
+largemarineecosystems_originlookup	5	4	Vagrant	\N
+largemarineecosystems_originlookup	6	5	Origin Uncertain	\N
+largemarineecosystems_seasonalitylookup	1	0	Resident	\N
+largemarineecosystems_seasonalitylookup	2	1	Breeding Season	\N
+largemarineecosystems_seasonalitylookup	3	2	Non-Breeding Season	\N
+largemarineecosystems_seasonalitylookup	4	3	Passage	\N
+largemarineecosystems_seasonalitylookup	5	4	Seasonal Occurrence Uncertain	\N
+largemarineecosystems	1	LargeMarineEcosystemsSubfield	field	*
+largemarineecosystemssubfield	1	LargeMarineEcosystemsLookup	fk_primitive_field	1
+largemarineecosystemssubfield	2	presence	fk_primitive_field	?
+largemarineecosystemssubfield	3	formerlyBred	boolean_unknown_primitive_field	?
+largemarineecosystemssubfield	4	origin	fk_primitive_field	?
+largemarineecosystemssubfield	5	seasonality	fk_list_primitive_field	?
+livebirth	1	liveBirth	boolean_unknown_primitive_field	?
+livelihoods	1	noInfo	boolean_primitive_field	?
+livelihoods	2	LivelihoodsSubfield	field	*
+livelihoodssubfield	1	scale	fk_primitive_field	?
+livelihoodssubfield	2	nameOfLocality	text_primitive_field	?
+livelihoodssubfield	3	date	date_primitive_field	?
+livelihoodssubfield	4	productDescription	text_primitive_field	?
+livelihoodssubfield	5	annualHarvest	text_primitive_field	?
+livelihoodssubfield	6	unitsAnnualHarvest	fk_primitive_field	?
+livelihoodssubfield	7	annualMultiSpeciesHarvest	text_primitive_field	?
+livelihoodssubfield	8	unitsAnnualMultiSpeciesHarvest	fk_primitive_field	?
+livelihoodssubfield	9	percentInHarvest	float_primitive_field	?
+livelihoodssubfield	10	amountInHarvest	text_primitive_field	?
+livelihoodssubfield	11	humanReliance	fk_primitive_field	?
+livelihoodssubfield	12	genderAge	fk_primitive_field	?
+livelihoodssubfield	13	socioEconomic	fk_primitive_field	?
+livelihoodssubfield	14	other	text_primitive_field	?
+livelihoodssubfield	15	totalPopBenefit	fk_primitive_field	?
+livelihoodssubfield	16	householdConsumption	fk_primitive_field	?
+livelihoodssubfield	17	householdIncome	fk_primitive_field	?
+livelihoodssubfield	18	annualCashIncome	float_primitive_field	?
+locationcontinuingdecline	1	inDecline	boolean_range_primitive_field	?
+locationcontinuingdecline	2	qualifier	fk_primitive_field	?
+locationcontinuingdecline	3	justification	string_primitive_field	?
+locationcontinuingdecline_qualifierlookup	1	0	Observed	\N
+locationcontinuingdecline_qualifierlookup	2	1	Projected	\N
+locationcontinuingdecline_qualifierlookup	3	2	Inferred	\N
+locationextremefluctuation	1	isFluctuating	boolean_range_primitive_field	?
+locationextremefluctuation	2	justification	string_primitive_field	?
+locationsnumber	1	range	range_primitive_field	?
+locationsnumber	2	justification	string_primitive_field	?
+longevity_unitslookup	1	0	Days	\N
+longevity_unitslookup	2	1	Months	\N
+longevity_unitslookup	3	2	Years	\N
+longevity	1	longevity	string_primitive_field	?
+longevity	2	units	fk_primitive_field	?
+malematurityage_unitslookup	1	0	Days	\N
+malematurityage_unitslookup	2	1	Weeks	\N
+malematurityage_unitslookup	3	2	Months	\N
+malematurityage_unitslookup	4	3	Years	\N
+malematurityage	1	age	string_primitive_field	?
+malematurityage	2	units	fk_primitive_field	?
+malematuritysize	1	size	string_primitive_field	?
+mapstatus_statuslookup	1	0	Done	\N
+mapstatus_statuslookup	2	1	Missing	\N
+mapstatus_statuslookup	3	2	Incomplete	\N
+mapstatus_statuslookup	4	3	Not possible	\N
+mapstatus	1	status	fk_primitive_field	?
+maxsize	1	size	string_primitive_field	?
+maxsubpopulationsize	1	range	range_primitive_field	?
+movementpatterns_patternlookup	1	0	Nomadic	\N
+movementpatterns_patternlookup	2	1	Congregatory/dispersive	\N
+movementpatterns_patternlookup	3	2	Migratory	\N
+movementpatterns_patternlookup	4	3	Altitudinally migrant	\N
+movementpatterns	1	pattern	fk_list_primitive_field	?
+naturalmortality	1	value	string_primitive_field	?
+nonconsumptiveuse	1	isNonConsumptiveUse	boolean_primitive_field	?
+nonconsumptiveusedescription	1	narrative	text_primitive_field	?
+notutilized	1	isNotUtilized	boolean_primitive_field	?
+nothreats	1	noThreats	boolean_primitive_field	?
+olddempastdecline	1	value	string_primitive_field	?
+olddemperiodpastdecline	1	value	string_primitive_field	?
+olddemfuturedecline	1	value	string_primitive_field	?
+olddemperiodfuturedecline	1	value	string_primitive_field	?
+otherpublication	1	reference	string_primitive_field	?
+pvafile	1	a	string_primitive_field	?
+parthenogenesis	1	exhibitsParthenogenesis	boolean_unknown_primitive_field	?
+plantgrowthforms	1	PlantGrowthFormsSubfield	field	*
+plantgrowthformssubfield	1	PlantGrowthFormsLookup	fk_primitive_field	1
+populationcontinuingdecline	1	isDeclining	boolean_range_primitive_field	?
+populationcontinuingdecline	2	qualifier	fk_primitive_field	?
+populationcontinuingdecline	3	justification	string_primitive_field	?
+populationcontinuingdecline_qualifierlookup	1	0	Observed	\N
+populationcontinuingdecline_qualifierlookup	2	1	Projected	\N
+populationcontinuingdecline_qualifierlookup	3	2	Inferred	\N
+populationdeclinegenerations1	1	range	range_primitive_field	?
+populationdeclinegenerations1	2	qualifier	fk_primitive_field	?
+populationdeclinegenerations1	3	justification	string_primitive_field	?
+populationdeclinegenerations1_qualifierlookup	1	0	Observed	\N
+populationdeclinegenerations1_qualifierlookup	2	1	Projected	\N
+populationdeclinegenerations1_qualifierlookup	3	2	Inferred	\N
+populationdeclinegenerations2	1	range	range_primitive_field	?
+populationdeclinegenerations2	2	qualifier	fk_primitive_field	?
+populationdeclinegenerations2	3	justification	string_primitive_field	?
+populationdeclinegenerations2_qualifierlookup	1	0	Observed	\N
+populationdeclinegenerations2_qualifierlookup	2	1	Projected	\N
+populationdeclinegenerations2_qualifierlookup	3	2	Inferred	\N
+populationdeclinegenerations3	1	range	range_primitive_field	?
+populationdeclinegenerations3	2	qualifier	fk_primitive_field	?
+populationdeclinegenerations3	3	justification	string_primitive_field	?
+populationdeclinegenerations3_qualifierlookup	1	0	Observed	\N
+populationdeclinegenerations3_qualifierlookup	2	1	Projected	\N
+populationdeclinegenerations3_qualifierlookup	3	2	Inferred	\N
+populationdocumentation	1	narrative	text_primitive_field	?
+populationextremefluctuation	1	isFluctuating	boolean_range_primitive_field	?
+populationextremefluctuation	2	justification	string_primitive_field	?
+populationincreaserate	1	narrative	text_primitive_field	?
+populationreductionfuture	1	range	range_primitive_field	?
+populationreductionfuture	2	qualifier	fk_primitive_field	?
+populationreductionfuture	3	justification	string_primitive_field	?
+populationreductionfuture_qualifierlookup	1	0	Observed	\N
+populationreductionfuture_qualifierlookup	2	1	Projected	\N
+populationreductionfuture_qualifierlookup	3	2	Inferred	\N
+populationreductionfuturebasis_valuelookup	1	0	b) an index of abundance appropriate for the taxon	\N
+populationreductionfuturebasis_valuelookup	2	1	c) a decline in area of occupancy, extent of\n\t\t\t\t\toccurrence and/or quality of habitat	\N
+populationreductionfuturebasis_valuelookup	3	2	d) actual or potential levels of exploitation	\N
+populationreductionfuturebasis_valuelookup	4	3	e) the effects of introduced taxa, hybridization,\n\t\t\t\t\tpathogens, pollutants, competitors or parasites)	\N
+populationreductionfuturebasis	1	value	fk_list_primitive_field	?
+populationreductionfutureceased	1	hasCeased	boolean_range_primitive_field	?
+populationreductionfuturereversible	1	isReversible	boolean_range_primitive_field	?
+populationreductionfutureunderstood	1	isUnderstood	boolean_range_primitive_field	?
+populationreductionpast	1	range	range_primitive_field	?
+populationreductionpast	2	qualifier	fk_primitive_field	?
+populationreductionpast	3	justification	string_primitive_field	?
+populationreductionpast_qualifierlookup	1	0	Observed	\N
+populationreductionpast_qualifierlookup	2	1	Projected	\N
+populationreductionpast_qualifierlookup	3	2	Inferred	\N
+populationreductionpastbasis_valuelookup	1	0	a) direct observation	\N
+populationreductionpastbasis_valuelookup	2	1	b) an index of abundance appropriate for the taxon	\N
+populationreductionpastbasis_valuelookup	3	2	c) a decline in area of occupancy, extent of\n\t\t\t\t\toccurrence and/or quality of habitat	\N
+populationreductionpastbasis_valuelookup	4	3	d) actual or potential levels of exploitation	\N
+populationreductionpastbasis_valuelookup	5	4	e) the effects of introduced taxa, hybridization,\n\t\t\t\t\tpathogens, pollutants, competitors or parasites)	\N
+populationreductionpastbasis	1	value	fk_list_primitive_field	?
+populationreductionpastceased	1	value	boolean_range_primitive_field	?
+populationreductionpastreversible	1	value	boolean_range_primitive_field	?
+populationreductionpastunderstood	1	value	boolean_range_primitive_field	?
+populationreductionpastandfuture	1	range	range_primitive_field	?
+populationreductionpastandfuture	2	numYears	float_primitive_field	?
+populationreductionpastandfuture	3	qualifier	fk_primitive_field	?
+populationreductionpastandfuture	4	justification	string_primitive_field	?
+populationreductionpastandfuture_qualifierlookup	1	0	Observed	\N
+populationreductionpastandfuture_qualifierlookup	2	1	Projected	\N
+populationreductionpastandfuture_qualifierlookup	3	2	Inferred	\N
+populationreductionpastandfuturebasis_valuelookup	1	0	a) direct observation	\N
+populationreductionpastandfuturebasis_valuelookup	2	1	b) an index of abundance appropriate for the taxon	\N
+populationreductionpastandfuturebasis_valuelookup	3	2	c) a decline in area of occupancy, extent of\n\t\t\t\t\toccurrence and/or quality of habitat	\N
+populationreductionpastandfuturebasis_valuelookup	4	3	d) actual or potential levels of exploitation	\N
+populationreductionpastandfuturebasis_valuelookup	5	4	e) the effects of introduced taxa,hybridization,\n\t\t\t\t\tpathogens, pollutants,competitors or parasites	\N
+populationreductionpastandfuturebasis	1	value	fk_list_primitive_field	?
+populationreductionpastandfutureceased	1	value	boolean_range_primitive_field	?
+populationreductionpastandfuturereversible	1	value	boolean_range_primitive_field	?
+populationreductionpastandfutureunderstood	1	value	boolean_range_primitive_field	?
+populationsize	1	range	range_primitive_field	?
+populationtrend_valuelookup	1	0	Increasing	\N
+populationtrend_valuelookup	2	1	Decreasing	\N
+populationtrend_valuelookup	3	2	Stable	\N
+populationtrend_valuelookup	4	3	Unknown	\N
+populationtrend	1	value	fk_primitive_field	?
+rangedocumentation	1	narrative	text_primitive_field	?
+redlistassessmentauthors	1	value	string_primitive_field	?
+redlistassessmentdate	1	value	date_primitive_field	?
+redlistassessors	1	text	string_primitive_field	?
+redlistassessors	2	value	fk_list_primitive_field	?
+redlistcategory	1	a	string_primitive_field	?
+redlistcaveat	1	value	boolean_primitive_field	?
+redlistconsistencycheck_progresslookup	1	0	In Progress	\N
+redlistconsistencycheck_progresslookup	2	1	Done	\N
+redlistconsistencycheck_successstatuslookup	1	0	Passed	\N
+redlistconsistencycheck_successstatuslookup	2	1	Rejected	\N
+redlistconsistencycheck_successstatuslookup	3	2	Returned for Improvements	\N
+redlistconsistencycheck	1	progress	fk_primitive_field	?
+redlistconsistencycheck	2	date	date_primitive_field	?
+redlistconsistencycheck	3	successStatus	fk_primitive_field	?
+redlistconsistencycheck	4	reasons	text_primitive_field	?
+redlistconsistencycheck	5	improvementsNeeded	text_primitive_field	?
+redlistcontributors	1	text	string_primitive_field	?
+redlistcontributors	2	value	fk_list_primitive_field	?
+redlistcriteria_critversionlookup	1	0	3.1	\N
+redlistcriteria_critversionlookup	2	1	2.3	\N
+redlistcriteria_critversionlookup	3	2	Earlier Version	\N
+redlistcriteria	1	isManual	boolean_primitive_field	?
+redlistcriteria	2	critVersion	fk_primitive_field	?
+redlistcriteria	3	manualCategory	string_primitive_field	?
+redlistcriteria	4	manualCriteria	string_primitive_field	?
+redlistcriteria	5	autoCategory	string_primitive_field	?
+redlistcriteria	6	autoCriteria	string_primitive_field	?
+redlistcriteria	7	rlHistoryText	string_primitive_field	?
+redlistcriteria	8	possiblyExtinct	boolean_primitive_field	?
+redlistcriteria	9	possiblyExtinctCandidate	boolean_primitive_field	?
+redlistcriteria	10	dateLastSeen	date_primitive_field	?
+redlistcriteria	11	categoryText	string_primitive_field	?
+redlistcriteria	12	dataDeficientReason	string_primitive_field	?
+redlistcriteriaversion_criteriaversionlookup	1	0	3.1	\N
+redlistcriteriaversion_criteriaversionlookup	2	1	2.3	\N
+redlistcriteriaversion_criteriaversionlookup	3	2	Prior Version	\N
+redlistcriteriaversion	1	criteriaVersion	fk_primitive_field	?
+redlistevaluated_statuslookup	1	0	Passed	\N
+redlistevaluated_statuslookup	2	1	Rejected	\N
+redlistevaluated_statuslookup	3	2	Returned for Improvements	\N
+redlistevaluated	1	isEvaluated	boolean_primitive_field	?
+redlistevaluated	2	date	date_primitive_field	?
+redlistevaluated	3	status	fk_primitive_field	?
+redlistevaluated	4	reasons	text_primitive_field	?
+redlistevaluated	5	improvementsNeeded	text_primitive_field	?
+redlistevaluationdate	1	a	date_primitive_field	?
+redlistevaluators	1	text	string_primitive_field	?
+redlistevaluators	2	value	fk_list_primitive_field	?
+redlistfuzzyresult	1	a	string_primitive_field	?
+redlistmanualcategory	1	rlCategory	string_primitive_field	?
+redlistmanualcriteria	1	rlCriteria	string_primitive_field	?
+redlistnotes	1	value	text_primitive_field	?
+redlistpetition	1	value	boolean_primitive_field	?
+redlistpublication	1	value	string_primitive_field	?
+redlistrationale	1	value	text_primitive_field	?
+redlistreasonsforchange_typelookup	1	0	Genuine Change	\N
+redlistreasonsforchange_typelookup	2	1	Nongenuine Change	\N
+redlistreasonsforchange_typelookup	3	2	No change	\N
+redlistreasonsforchange_timeframelookup	1	0	Recent	\N
+redlistreasonsforchange_timeframelookup	2	1	Since first assessent	\N
+redlistreasonsforchange_changereasonslookup	1	0	New Information	\N
+redlistreasonsforchange_changereasonslookup	2	1	Knowledge of criteria	\N
+redlistreasonsforchange_changereasonslookup	3	2	Incorrect data used\n\t\t\t\t\t\t\t\t\t\t\tpreviously	\N
+redlistreasonsforchange_changereasonslookup	4	3	Taxonomy	\N
+redlistreasonsforchange_changereasonslookup	5	4	Criteria Revision	\N
+redlistreasonsforchange_changereasonslookup	6	5	Other	\N
+redlistreasonsforchange_catcritchangeslookup	1	0	Same category and criteria	\N
+redlistreasonsforchange_catcritchangeslookup	2	1	Same category but change in criteria	\N
+redlistreasonsforchange	1	type	fk_primitive_field	?
+redlistreasonsforchange	2	timeframe	fk_primitive_field	?
+redlistreasonsforchange	3	changeReasons	fk_list_primitive_field	?
+redlistreasonsforchange	4	otherReason	string_primitive_field	?
+redlistreasonsforchange	5	catCritChanges	fk_primitive_field	?
+redlistsource	1	value	string_primitive_field	?
+redlisttext	1	value	string_primitive_field	?
+regioninformation	1	regions	fk_list_primitive_field	?
+regioninformation	2	endemic	boolean_primitive_field	?
+regionexpertquestions	1	answers	text_primitive_field	?
+reproduictiveperiodicity	1	value	string_primitive_field	?
+research	1	ResearchSubfield	field	*
+researchsubfield	1	ResearchLookup	fk_primitive_field	1
+rivers_alookup	1	0	Year Round	\N
+rivers_alookup	2	1	Breeding Season Only	\N
+rivers_alookup	3	2	Non-breeding Season Only	\N
+rivers_alookup	4	3	Possibly Extinct	\N
+rivers_alookup	5	4	Extinct	\N
+rivers_alookup	6	5	Uncertain	\N
+rivers_lookup	1	0	Native	\N
+rivers_lookup	2	1	Introduced	\N
+rivers_lookup	3	2	Reintroduced	\N
+rivers_lookup	4	3	Vagrant	\N
+rivers_lookup	5	4	Uncertain	\N
+rivers	1	RiversSubfield	field	*
+riverssubfield	1	RiversLookup	fk_primitive_field	1
+riverssubfield	2	a	fk_primitive_field	?
+riverssubfield	3	N/A	boolean_primitive_field	?
+riverssubfield	4	N/A	fk_primitive_field	?
+severefragmentation	1	isFragmented	boolean_range_primitive_field	?
+severefragmentation	2	justification	string_primitive_field	?
+subpopulationcontinuingdecline	1	isDeclining	boolean_range_primitive_field	?
+subpopulationcontinuingdecline	2	qualifier	fk_primitive_field	?
+subpopulationcontinuingdecline	3	justification	string_primitive_field	?
+subpopulationcontinuingdecline_qualifierlookup	1	0	Observed	\N
+subpopulationcontinuingdecline_qualifierlookup	2	1	Projected	\N
+subpopulationcontinuingdecline_qualifierlookup	3	2	Inferred	\N
+subpopulationextremefluctuation	1	isFluctuating	boolean_range_primitive_field	?
+subpopulationextremefluctuation	2	justification	string_primitive_field	?
+subpopulationnumber	1	range	range_primitive_field	?
+subpopulationnumber	2	justification	string_primitive_field	?
+subpopulationsingle	1	value	boolean_range_primitive_field	?
+system_valuelookup	1	0	Terrestrial	\N
+system_valuelookup	2	1	Freshwater	\N
+system_valuelookup	3	2	Marine	\N
+system	1	value	fk_list_primitive_field	?
+taxonomicnotes	1	value	text_primitive_field	?
+threats_timinglookup	1	0	Past, Unlikely to Return	\N
+threats_timinglookup	2	1	Ongoing	\N
+threats_timinglookup	3	2	Future	\N
+threats_timinglookup	4	3	Unknown	\N
+threats_timinglookup	5	4	Past, Likely to Return	\N
+threats_scopelookup	1	0	Whole (>90%)	\N
+threats_scopelookup	2	1	Majority (50-90%)	\N
+threats_scopelookup	3	2	Minority (<50%)	\N
+threats_scopelookup	4	3	Unknown	\N
+threats_severitylookup	1	0	Very Rapid Declines	\N
+threats_severitylookup	2	1	Rapid Declines	\N
+threats_severitylookup	3	2	Slow, Significant Declines	\N
+threats_severitylookup	4	3	Causing/Could cause fluctuations	\N
+threats_severitylookup	5	4	Negligible declines	\N
+threats_severitylookup	6	5	No decline	\N
+threats_severitylookup	7	6	Unknown	\N
+threats	1	ThreatsSubfield	field	*
+threatssubfield	1	ThreatsLookup	fk_primitive_field	1
+threatssubfield	2	timing	fk_primitive_field	?
+threatssubfield	3	scope	fk_primitive_field	?
+threatssubfield	4	severity	fk_primitive_field	?
+threatssubfield	5	score	string_primitive_field	?
+threatssubfield	6	StressesSubfield	field	*
+stressessubfield	1	stress	fk_primitive_field	*
+threatsdocumentation	1	value	text_primitive_field	?
+threatsunknown	1	value	boolean_primitive_field	?
+trendindomesticofftake_valuelookup	1	0	Increasing	\N
+trendindomesticofftake_valuelookup	2	1	Decreasing	\N
+trendindomesticofftake_valuelookup	3	2	Stable	\N
+trendindomesticofftake_valuelookup	4	3	Not cultivated	\N
+trendindomesticofftake_valuelookup	5	4	Unknown	\N
+trendindomesticofftake	1	value	fk_primitive_field	?
+trendinwildofftake_valuelookup	1	0	Increasing	\N
+trendinwildofftake_valuelookup	2	1	Decreasing	\N
+trendinwildofftake_valuelookup	3	2	Stable	\N
+trendinwildofftake_valuelookup	4	3	Unknown	\N
+trendinwildofftake	1	value	fk_primitive_field	?
+usetradedetails	1	UseTradeSubfield	field	*
+usetradesubfield	1	purpose	fk_primitive_field	?
+usetradesubfield	2	source	fk_primitive_field	?
+usetradesubfield	3	formRemoved	fk_primitive_field	?
+usetradesubfield	4	subsistence	boolean_primitive_field	?
+usetradesubfield	5	national	boolean_primitive_field	?
+usetradesubfield	6	international	boolean_primitive_field	?
+usetradesubfield	7	harvestLevel	text_primitive_field	?
+usetradesubfield	8	units	fk_primitive_field	?
+usetradesubfield	9	possibleThreat	boolean_primitive_field	?
+usetradesubfield	10	justification	text_primitive_field	?
+usetradedocumentation	1	value	text_primitive_field	?
+usetradenoinformation	1	value	boolean_primitive_field	?
+waterbreeding	1	value	boolean_unknown_primitive_field	?
