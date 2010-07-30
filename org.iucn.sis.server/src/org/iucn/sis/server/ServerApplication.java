@@ -12,6 +12,7 @@ import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.restlets.assessments.AsmChangesResource;
 import org.iucn.sis.server.restlets.assessments.AssessmentRestlet;
 import org.iucn.sis.server.restlets.baserestlets.AuthzRestlet;
+import org.iucn.sis.server.restlets.taxa.CommonNameRestlet;
 import org.iucn.sis.server.restlets.taxa.SynonymRestlet;
 import org.iucn.sis.server.restlets.taxa.TaxomaticRestlet;
 import org.iucn.sis.server.restlets.taxa.TaxonByStatusRestlet;
@@ -70,6 +71,7 @@ public class ServerApplication extends SISApplication{
 		services.add(new StatusRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new TaxonRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new SynonymRestlet(app.getContext()));
+		services.add(new CommonNameRestlet(app.getContext()));
 		services.add(new FieldRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new WorkingSetRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new AssessmentRestlet(SIS.get().getVfsroot(), app.getContext()));
@@ -84,6 +86,7 @@ public class ServerApplication extends SISApplication{
 		services.add(new AuthzRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new ProfileRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new SearchRestlet(SIS.get().getVfsroot(), app.getContext()));
+		
 		
 		for (Iterator<ServiceRestlet> iter = services.iterator(); iter.hasNext();)
 			addServiceToRouter(iter.next());

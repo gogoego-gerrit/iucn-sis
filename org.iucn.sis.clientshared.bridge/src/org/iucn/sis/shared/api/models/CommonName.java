@@ -57,12 +57,10 @@ public class CommonName implements Serializable {
 		}
 	
 		NativeNodeList notes = commonNameTag.getElementsByTagName("note");
-	
 		for (int i = 0; i < notes.getLength(); i++) {
 			NativeElement current = (NativeElement) notes.item(i);
 			curName.getNotes().add(Notes.fromXML(current));
 		}
-	
 		return curName;
 	}
 	

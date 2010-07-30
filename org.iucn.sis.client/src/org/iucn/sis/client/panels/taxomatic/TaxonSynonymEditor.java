@@ -338,24 +338,7 @@ public class TaxonSynonymEditor extends LayoutContainer {
 					}
 				} );
 				
-				// String oldName = name.getName();
-				// boolean found = false;
-				// for (int i = 0; i < synonymList.getItemCount() && !found;
-				// i++)
-				// {
-				// if (synonymList.getItemText(i).equalsIgnoreCase(oldName))
-				// {
-				// synonymList.removeItem(i);
-				// synonymList.setSelectedIndex(0);
-				// found = true;
-				// }
-				// }
-				// if (found)
-//				allSynonyms.remove(currentSynonym);
-//
-//				currentSynonym = null;
-//				refreshListBox();
-//				refreshSynonym(currentSynonym);
+				
 			}
 
 		});
@@ -578,8 +561,7 @@ public class TaxonSynonymEditor extends LayoutContainer {
 				allSynonyms.clear();
 				allSynonyms.addAll(node.getSynonyms());
 				bar.enable();
-				WindowUtils.infoAlert("Saved", "All the synonym data related to " + node.getFullName()
-						+ " has been saved.");
+				WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
 				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
 				refreshListBox();
 				refreshSynonym(null);
@@ -601,16 +583,6 @@ public class TaxonSynonymEditor extends LayoutContainer {
 	private void saveAndClose() {
 		bar.disable();
 		storePreviousData();
-//		int index = 0;
-//		for (int i = 0; i < allSynonyms.size(); i++) {
-//			if (allSynonyms.get(index) == null)
-//				allSynonyms.remove(index);
-//			else
-//				index++;
-//		}
-//
-//		node.getSynonyms().clear();
-//		node.getSynonyms().addAll(allSynonyms);
 		
 		TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
 			
@@ -618,8 +590,7 @@ public class TaxonSynonymEditor extends LayoutContainer {
 			public void onSuccess(String result) {
 				
 				bar.enable();
-				WindowUtils.infoAlert("Saved", "All the synonym data related to " + node.getFullName()
-						+ " has been saved.");
+				WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
 				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
 				close();
 				

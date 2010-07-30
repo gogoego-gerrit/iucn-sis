@@ -1,12 +1,18 @@
 package org.iucn.sis.client.panels.taxomatic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.models.CommonName;
+import org.iucn.sis.shared.api.models.IsoLanguage;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -33,6 +39,10 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class TaxonCommonNameEditor extends LayoutContainer {
@@ -49,9 +59,9 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 	private ListBox validated;
 	private ListBox status;
 	private TextBox name;
-	private HTML language;
-
+	private ListBox language;
 	private int numberAdded;
+	private boolean loaded;
 
 	public TaxonCommonNameEditor(PanelManager manager) {
 		this.manager = manager;
@@ -85,18 +95,48 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 		validated.addItem("true", "true");
 		validated.addItem("false", "false");
 
-		language = new HTML();
+		language = new ListBox();
+		language.addItem("", "");
+		final NativeDocument isoDoc = SimpleSISClient.getHttpBasicNativeDocument();
+		isoDoc.get(UriBase.getInstance().getSISBase() +"/raw/utils/ISO-639-2_utf-8.xml", new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				WindowUtils.errorAlert("Error Loading Languages", "Could not load "
+						+ "languages for the drop down. Please check your Internet "
+						+ "connectivity if you are running online, or check your local "
+						+ "server if you are running offline, then try again.");
+			}
 
+			public void onSuccess(String result) {
+				NativeNodeList isolist = isoDoc.getDocumentElement().getElementsByTagName("language");
+				Map<String, String> nameToCode = new HashMap<String, String>();
+				String[] names = new String[isolist.getLength()];
+				for (int i = 0; i < isolist.getLength(); i++) {
+					NativeElement cur = isolist.elementAt(i);
+					
+					String isoCode = cur.getElementByTagName("bibliographic").getText();
+					String lang = cur.getElementByTagName("english").getText();
+					names[i] = lang;
+					nameToCode.put(lang, isoCode);
+				}
+				ArrayUtils.quicksort(names);
+				
+				for (String name : names) {
+					language.addItem(name, nameToCode.get(name));
+				}
+			}
+		});
+		
 		status = new ListBox();
 		for (int i = 0; i < CommonName.reasons.length; i++)
 			status.addItem(CommonName.reasons[i], i + "");
 
+		
 		draw();
 	}
 
 	private void clearData() {
 		name.setText("");
-		language.setText("");
+		language.setSelectedIndex(0);
 		status.setSelectedIndex(0);
 		validated.setSelectedIndex(0);
 
@@ -106,6 +146,29 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 		BaseEvent event = new BaseEvent(this);
 		event.setCancelled(false);
 		fireEvent(Events.Close, event);
+	}
+	
+	public String createNewCommonName() {
+
+		String name = null;
+		do {
+			numberAdded++;
+			name = "new commonname " + numberAdded;
+			boolean found = false;
+			for (int i = 1; i < commonNameList.getItemCount() && !found; i++) {
+				if (commonNameList.getItemText(i).equalsIgnoreCase(name)) {
+					found = true;
+					name = null;
+				}
+			}
+
+		} while (name == null);
+
+		CommonName data = new CommonName();
+		data.setName(name);
+		refreshCommonName(data);
+		return data.getName();
+
 	}
 
 	private void draw() {
@@ -164,24 +227,27 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				// String oldName = name.getName();
-				// boolean found = false;
-				// for (int i = 0; i < commonNameList.getItemCount() && !found;
-				// i++)
-				// {
-				// if (commonNameList.getItemText(i).equalsIgnoreCase(oldName))
-				// {
-				// commonNameList.removeItem(i);
-				// commonNameList.setSelectedIndex(0);
-				// found = true;
-				// }
-				// }
-				// if (found)
-				allCommonNames.remove(currentCommonName);
-
-				currentCommonName = null;
-				refreshListBox();
-				refreshCommonName(currentCommonName);
+				TaxonomyCache.impl.deleteCommonName(node, currentCommonName, new GenericCallback<String>() {
+					
+					@Override
+					public void onSuccess(String result) {
+						allCommonNames.remove(currentCommonName);
+						
+						bar.enable();
+						WindowUtils.infoAlert("Deleted", "Common name " + currentCommonName.getName() + " has been deleted");
+						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+						currentCommonName = null;
+						refreshListBox();
+						refreshCommonName(null);
+				
+					}
+				
+					@Override
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Unable to delete the synonym");
+				
+					}
+				} );
 			}
 
 		});
@@ -219,7 +285,26 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 		commonNameList.setWidth("200px");
 		panel.add(commonNameList);
 		panel.setSpacing(10);
+		html = new HTML(" or ");
+		panel.add(html);
+
+		Button createNew = new Button("Create New Common Name");
+		createNew.addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				String name = createNewCommonName();
+				commonNameList.addItem(name, allCommonNames.size() - 1 + "");
+				commonNameList.setSelectedIndex(commonNameList.getItemCount() - 1);
+			}
+
+		});
+		panel.add(createNew);
+		
+		
+		
 		outterWraper.add(panel);
+		
 
 		LayoutContainer container = new LayoutContainer();
 		ScrollPanel scroller = new ScrollPanel(commonNameInfo);
@@ -280,8 +365,20 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 
 			hp = new HorizontalPanel();
 			html = new HTML("Language / ISO: ");
-			language.setText(getShowableData(currentCommonName.getLanguage()) + " / "
-					+ getShowableData(currentCommonName.getIsoCode()));
+			
+			
+			if (currentCommonName.getIso() == null) {
+				language.setSelectedIndex(0);
+			} else {
+				String iso = currentCommonName.getIsoCode();
+				for (int i = 0; i < language.getItemCount(); i++) {
+					if (language.getValue(i).equalsIgnoreCase(iso)) {
+						language.setSelectedIndex(i);
+						break;
+					}
+				}
+			}
+			
 			hp.setSpacing(5);
 			hp.add(html);
 			hp.add(language);
@@ -330,65 +427,64 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 			}
 
 		}
-		node.getCommonNames().clear();
-		node.getCommonNames().addAll(allCommonNames);
-		TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
-
-			public void onFailure(Throwable arg0) {
+		
+		TaxonomyCache.impl.addOrEditCommonName(node, currentCommonName, new GenericCallback<String>() {
+		
+			@Override
+			public void onSuccess(String result) {
+				allCommonNames.clear();
+				allCommonNames.addAll(node.getCommonNames());
 				bar.enable();
-				WindowUtils.errorAlert("Error", "An error occurred when trying to save the commonName data related to "
+				WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
+				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+				refreshListBox();
+				refreshCommonName(null);
+			}
+		
+			@Override
+			public void onFailure(Throwable caught) {
+				bar.enable();
+				WindowUtils.errorAlert("Error", "An error occurred when trying to save the common name data related to "
 						+ node.getFullName() + ".");
+		
 			}
-
-			public void onSuccess(String arg0) {
-				bar.enable();
-				WindowUtils.infoAlert("Saved", "All the commonName data related to " + node.getFullName()
-						+ " has been saved.");
-				manager.taxonomicSummaryPanel.update(node.getId());
-			}
-
 		});
 	}
 
 	private void saveAndClose() {
 		bar.disable();
 		storePreviousData();
-		int index = 0;
-		for (int i = 0; i < allCommonNames.size(); i++) {
-			if (allCommonNames.get(index) == null)
-				allCommonNames.remove(index);
-			else
-				index++;
-		}
-
-		node.getCommonNames().clear();
-		node.getCommonNames().addAll(allCommonNames);
-		TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
-
-			public void onFailure(Throwable arg0) {
+		
+		TaxonomyCache.impl.addOrEditCommonName(node, currentCommonName, new GenericCallback<String>() {
+			
+			@Override
+			public void onSuccess(String result) {
+				
 				bar.enable();
-				WindowUtils.errorAlert("Error", "An error occurred when trying to save the commonName data related to "
+				WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
+				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+				close();
+				
+			}
+		
+			@Override
+			public void onFailure(Throwable caught) {
+				bar.enable();
+				WindowUtils.errorAlert("Error", "An error occurred when trying to save the common name data related to "
 						+ node.getFullName() + ".");
 			}
-
-			public void onSuccess(String arg0) {
-				bar.enable();
-				WindowUtils.infoAlert("Saved", "All the commonName data related to " + node.getFullName()
-						+ " has been saved.");
-				manager.taxonomicSummaryPanel.update(node.getId());
-				close();
-			}
-
 		});
+		
 	}
 
 	private void storePreviousData() {
 		if (currentCommonName != null) {
 			currentCommonName.setName(name.getText());
-			currentCommonName.setValidated(validated.getValue(validated.getSelectedIndex()).equalsIgnoreCase("true"));
 			currentCommonName.setChangeReason(status.getSelectedIndex());
+			currentCommonName.setValidated(validated.getItemText(validated.getSelectedIndex()).equalsIgnoreCase("true"));
+			currentCommonName.setIso(new IsoLanguage(language.getItemText(language.getSelectedIndex()), language.getValue(language.getSelectedIndex())));
 		}
-
 	}
+	
 
 }

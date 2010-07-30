@@ -244,8 +244,6 @@ public class TaxonHomePage extends LayoutContainer {
 
 																public void onSuccess(Taxon result) {
 																	AssessmentCache.impl.clear();
-																	// AssessmentCache.impl.evictAssessments(String.valueOf(node.getId()),
-																	// assesType);
 																	update(node.getId());
 																	panelManager.recentAssessmentsPanel.update();
 																};
@@ -560,7 +558,7 @@ public class TaxonHomePage extends LayoutContainer {
 
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
 						final Image notesImage = new Image("images/icon-note.png");
-						if (curSyn.getNotes().equals(""))
+						if (curSyn.getNotes().isEmpty())
 							notesImage.setUrl("images/icon-note-grey.png");
 						notesImage.setTitle("Add/Remove Notes");
 						notesImage.addClickHandler(new ClickHandler() {
@@ -675,37 +673,36 @@ public class TaxonHomePage extends LayoutContainer {
 			}
 
 			// ADD COMMON NAMES
-			Image addName = new Image("images/add.png");
-			addName.setSize("14px", "14px");
-			addName.setTitle("Add New Common Name");
-			addName.addClickHandler(new ClickHandler() {
-
-				public void onClick(ClickEvent event) {
-
-					Window addNameBox = CommonNameDisplay.getNewCommonNameDisplay(node, null,
-							new GenericCallback<String>() {
-								public void onFailure(Throwable arg0) {
-									update(node.getId());
-								}
-
-								public void onSuccess(String arg0) {
-									update(node.getId());
-								}
-							});
-
-					addNameBox.show();
-					addNameBox.center();
-				}
-			});
-
+//			Image addName = new Image("images/add.png");
+//			addName.setSize("14px", "14px");
+//			addName.setTitle("Add New Common Name");
+//			addName.addClickHandler(new ClickHandler() {
+//
+//				public void onClick(ClickEvent event) {
+//
+//					Window addNameBox = CommonNameDisplay.getNewCommonNameDisplay(node, null,
+//							new GenericCallback<String>() {
+//								public void onFailure(Throwable arg0) {
+//									update(node.getId());
+//								}
+//
+//								public void onSuccess(String arg0) {
+//									update(node.getId());
+//								}
+//							});
+//
+//					addNameBox.show();
+//					addNameBox.center();
+//				}
+//			});
+//
 			HTML commonNamesHeader = new HTML("<b>Common Name --- Language</b>");
-
 			LayoutContainer commonNamePanel = new LayoutContainer();
-
-			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
-				commonNamePanel.add(addName);
+//
+//			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
+//				commonNamePanel.add(addName);
 			commonNamePanel.add(commonNamesHeader);
-
+//
 			data.add(new HTML("<hr><br />"));
 			data.add(commonNamePanel);
 
@@ -715,19 +712,99 @@ public class TaxonHomePage extends LayoutContainer {
 				if (node.getCommonNames().size() < 5)
 					loop = node.getCommonNames().size();
 				panelHeight += loop * 15 + 20;
-				List<CommonName> namesList = new ArrayList<CommonName>(node.getCommonNames());
-				for (int i = 0; i < loop; i++) {
-					CommonName curName = namesList.get(i);
-					data.add(new CommonNameDisplay(node, curName).show(new GenericCallback<String>() {
-						public void onFailure(Throwable arg0) {
-							update(node.getId());
-						}
+				
+				for (final CommonName curName : node.getCommonNames()) {
+					HorizontalPanel hp = new HorizontalPanel();
 
-						public void onSuccess(String arg0) {
-							update(node.getId());
-						}
-					}));
+					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+						final Image notesImage = new Image("images/icon-note.png");
+						if (curName.getNotes().isEmpty())
+							notesImage.setUrl("images/icon-note-grey.png");
+						notesImage.setTitle("Add/Remove Notes");
+						notesImage.addClickHandler(new ClickHandler() {
+							public void onClick(ClickEvent event) {
+								final Window s = WindowUtils.getWindow(false, false, "Notes for Common Name "
+										+ curName.getName());
+								final LayoutContainer container = s;
+								container.setLayoutOnChange(true);
+								FillLayout layout = new FillLayout(Orientation.VERTICAL);
+								container.setLayout(layout);
+
+								final TextArea area = new TextArea();
+								Set<Notes> notesSet = curName.getNotes();
+								String noteValue = "";
+								for (Notes note : notesSet)
+									noteValue += note.getValue();
+								area.setText(noteValue);
+								area.setSize("400", "75");
+								container.add(area);
+								HorizontalPanel buttonPanel = new HorizontalPanel();
+
+								final Button cancel = new Button();
+								cancel.setText("Cancel");
+								cancel.addListener(Events.Select, new Listener() {
+									public void handleEvent(BaseEvent be) {
+										s.hide();
+
+									}
+								});
+								final Button save = new Button();
+								save.setText("Save");
+								save.addListener(Events.Select, new Listener() {
+									public void handleEvent(BaseEvent be) {
+										Notes newNote = new Notes();
+										newNote.setValue(area.getText());
+										newNote.setCommonName(curName);
+										curName.getNotes().add(newNote);
+										if (!curName.getNotes().isEmpty())
+											notesImage.setUrl("images/icon-note.png");
+										else
+											notesImage.setUrl("images/icon-note-grey.png");
+										s.hide();
+										TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
+											public void onFailure(Throwable caught) {
+
+											};
+
+											public void onSuccess(String result) {
+
+											};
+										});
+									}
+								});
+								buttonPanel.add(cancel);
+								buttonPanel.add(save);
+								container.add(buttonPanel);
+
+								s.setSize(500, 400);
+								s.show();
+								s.center();
+
+							}
+						});
+						hp.add(notesImage);
+					}
+
+					String value = curName.getName();
+					hp.add(new HTML("&nbsp;&nbsp;" + value));
+
+					data.add(hp);
+					
+					
 				}
+//				List<CommonName> namesList = new ArrayList<CommonName>(node.getCommonNames());
+//				for (int i = 0; i < loop; i++) {
+//					CommonName curName = namesList.get(i);
+//					data.add(new CommonNameDisplay(node, curName).show(new GenericCallback<String>() {
+//						public void onFailure(Throwable arg0) {
+//							update(node.getId());
+//						}
+//
+//						public void onSuccess(String arg0) {
+//							update(node.getId());
+//						}
+//					}));
+//				}
 				Html viewAll = new Html("View all...");
 				viewAll.setStyleName("SIS_HyperlinkLookAlike");
 				viewAll.addListener(Events.CellClick, new Listener<BaseEvent>() {
@@ -735,34 +812,6 @@ public class TaxonHomePage extends LayoutContainer {
 						final Window s = WindowUtils.getWindow(false, false, "Edit Common Names");
 						LayoutContainer data = s;
 						data.setScrollMode(Scroll.AUTO);
-
-						ToolBar tBar = new ToolBar();
-						Button item = new Button();
-						item.setText("New Common Name");
-						item.setIconStyle("icon-add");
-						item.addSelectionListener(new SelectionListener<ButtonEvent>() {
-							public void componentSelected(ButtonEvent ce) {
-								s.hide();
-								Window addNameBox = CommonNameDisplay.getNewCommonNameDisplay(TaxonomyCache.impl
-										.getCurrentTaxon(), null, new GenericCallback<String>() {
-									public void onFailure(Throwable arg0) {
-										update(node.getId());
-									}
-
-									public void onSuccess(String arg0) {
-										update(node.getId());
-									}
-								});
-								addNameBox.show();
-								addNameBox.center();
-							}
-						});
-
-						tBar.add(item);
-
-						if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE,
-								node))
-							data.add(tBar);
 
 						HTML commonNamesHeader = new HTML("<b>Common Name --- Language</b>");
 
@@ -774,16 +823,7 @@ public class TaxonHomePage extends LayoutContainer {
 
 						if (TaxonomyCache.impl.getCurrentTaxon().getCommonNames().size() != 0) {
 							for (CommonName curName : TaxonomyCache.impl.getCurrentTaxon().getCommonNames()) {
-								data.add(new CommonNameDisplay(TaxonomyCache.impl.getCurrentTaxon(), curName)
-										.show(new GenericCallback<String>() {
-											public void onFailure(Throwable arg0) {
-												update(node.getId());
-											}
-
-											public void onSuccess(String arg0) {
-												update(node.getId());
-											}
-										}));
+								data.add(new HTML(curName.getName()));
 							}
 						} else
 							data.add(new HTML("No Common Names."));
@@ -814,7 +854,6 @@ public class TaxonHomePage extends LayoutContainer {
 			vp.setWidth((com.google.gwt.user.client.Window.getClientWidth() - 500) / 2);
 			vp.setHeight(200);
 			cp.add(vp);
-			// vp.setStyleName("SIS_taxonSummaryHeader_mapPanel");
 
 			if (node.getAssessments().size() > 0) {
 				Assessment curAssessment = null;
@@ -894,10 +933,8 @@ public class TaxonHomePage extends LayoutContainer {
 
 			RowLayout innerLayout = new RowLayout();
 			innerLayout.setOrientation(Orientation.VERTICAL);
-			// innerLayout.setSpacing(10);
 			wrapper = new DockPanel();
 			FillLayout layout = new FillLayout();
-			// layout.setSpacing(10);
 
 			String name = "";
 			HorizontalPanel hPanel = new HorizontalPanel();
@@ -1058,12 +1095,6 @@ public class TaxonHomePage extends LayoutContainer {
 			final VerticalPanel eBar = new VerticalPanel();
 			eBar.setSize("400", "200");
 
-//			eBar.setScrollMode(Scroll.AUTOY);
-//			eBar.setHeight(200);
-
-//			RowLayout layout = new RowLayout(Orientation.VERTICAL);
-//			eBar.setLayout(layout);
-//			eBar.setLayoutOnChange(true);
 			
 			
 			for (final Notes note : TaxonomyCache.impl.getCurrentTaxon().getNotes()) {
@@ -1091,20 +1122,15 @@ public class TaxonHomePage extends LayoutContainer {
 					}
 				});
 				
-//				RowLayout innerLayout = new RowLayout(Orientation.HORIZONTAL);
-//				a.setLayout(innerLayout);
-//				a.setLayoutOnChange(true);
 				a.setWidth("100%");
 				a.add(deleteNote);
 				a.add(new HTML("<b>" + note.getEdit().getUser().getDisplayableName() + " ["
 						+ FormattedDate.impl.getDate(note.getEdit().getCreatedDate()) + "]</b>  --"
 						+ note.getValue()));// );
 				System.out.println("adding a note with text " + note.getValue());
-				eBar.add(a);
-//				eBar.add(a, new RowData(-1,1));				
+				eBar.add(a);		
 			}
 			
-//			ScrollPanel spanel = new ScrollPanel(eBar);
 			container.add(eBar);
 			container.add(panelAdd);
 			s.setSize(500, 400);
@@ -1142,9 +1168,6 @@ public class TaxonHomePage extends LayoutContainer {
 					imageManager = new ImageManagerPanel(String.valueOf(taxon.getId()));
 
 					imagePopup = WindowUtils.getWindow(false, false, "Photo Station");
-//					imagePopup.setLayout(new FitLayout());
-					// imagePopup.setAutoHide(true);
-					// imagePopup.setShim(true);
 					imagePopup.add(imageManager);
 				}
 
@@ -1199,9 +1222,7 @@ public class TaxonHomePage extends LayoutContainer {
 					if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 							ClientUIContainer.bodyContainer.tabManager.taxonHomePage))
 						inner.updatePanel((Taxon) arg0);
-					// if (((Taxon ) arg0).getLevel() < TaxonLevel.SPECIES) {
 					ClientUIContainer.headerContainer.update();
-					// }
 					add(inner);
 				}
 			});
