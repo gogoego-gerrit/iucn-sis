@@ -22,26 +22,6 @@ public class ReferenceApplication extends Application {
 
 	private static boolean isInit = false;
 
-	public static void createDebugger() {
-		// Set up default logger
-		System.out.setLogLevel(SysDebugger.INFO);
-
-		// Set overriding system debug level
-		System.out.setSystemDebugLevel(SysDebugger.OFF);
-
-		final SysDebugger prepend = new SysDebugger();
-		prepend.setPrepend("## ");
-
-		final SysDebugger force = new SysDebugger();
-		force.setForcePrint(true);
-
-		System.out.addNamedInstance("##", prepend);
-		System.out.addNamedInstance("force", force);
-		System.out.addNamedInstance("fine", new SysDebugger(SysDebugger.FINE));
-		System.out.addNamedInstance("status", new SysDebugger(SysDebugger.CONFIG));
-		System.out.addNamedInstance("error", new SysDebugger(SysDebugger.SEVERE));
-	}
-
 	public static void initializeDatabase() throws DBException {
 		if (isInit)
 			return;
@@ -60,8 +40,6 @@ public class ReferenceApplication extends Application {
 
 	public ReferenceApplication(final Context context) throws DBException {
 		super(context);
-		if (!SysDebugger.isInit())
-			createDebugger();
 		initializeDatabase();
 	}
 

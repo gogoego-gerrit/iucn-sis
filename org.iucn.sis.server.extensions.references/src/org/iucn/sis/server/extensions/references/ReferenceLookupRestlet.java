@@ -7,13 +7,17 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
-import org.hibernate.mapping.Column;
+
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.utils.XMLUtils;
 import org.iucn.sis.shared.api.citations.ReferenceUtils;
 import org.iucn.sis.shared.api.io.AssessmentIOMessage;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -22,9 +26,11 @@ import org.restlet.data.Status;
 
 import com.solertium.db.CString;
 import com.solertium.db.CanonicalColumnName;
+import com.solertium.db.Column;
 import com.solertium.db.DBException;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
+import com.solertium.db.Row;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.InsertQuery;
 import com.solertium.db.query.QConstraint;
@@ -34,7 +40,6 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.ClasspathResources;
-import com.sun.rowset.internal.Row;
 
 public class ReferenceLookupRestlet extends ServiceRestlet {
 
@@ -84,7 +89,7 @@ public class ReferenceLookupRestlet extends ServiceRestlet {
 			select.select("assessment_reference", "*");
 			select.constrain(new CanonicalColumnName("assessment_reference", "ref_id"), QConstraint.CT_EQUALS, curRefID);
 
-			Set set = new Set();
+			Row.Set set = new Row.Set();
 			ec.doQuery(select, set);
 
 			builder.append("<reference id=\"" + curRefID + "\">\n");
@@ -136,14 +141,15 @@ public class ReferenceLookupRestlet extends ServiceRestlet {
 				String payload = request.getEntity().getText();
 
 				NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
-				ndoc.fromXML(payload);
+				ndoc.parse(payload);
+				//ndoc.fromXML(payload);
 
 				NativeElement originalEl = ndoc.getDocumentElement().getElementByTagName("original");
 				NativeElement replacementEl = ndoc.getDocumentElement().getElementByTagName("replacement");
 				NativeElement exclude = ndoc.getDocumentElement().getElementByTagName("exclude");
 
-				ReferenceUI original = new ReferenceUI(originalEl.getElementByTagName("reference"));
-				ReferenceUI replacement = new ReferenceUI(replacementEl.getElementByTagName("reference"));
+				Reference original = Reference.fromXML(originalEl.getElementByTagName("reference"));
+				Reference replacement = Reference.fromXML(replacementEl.getElementByTagName("reference"));
 
 				String excludeID = null;
 				String excludeType = null;
@@ -152,7 +158,7 @@ public class ReferenceLookupRestlet extends ServiceRestlet {
 					excludeType = exclude.getAttribute("type");
 				}
 
-				String ret = replaceReference(SIS.get().getUsername(request), original, replacement,
+				String ret = replaceReference(SIS.get().getUser(request), original, replacement,
 						excludeID, excludeType);
 				response.setStatus(Status.SUCCESS_OK);
 				response.setEntity(ret, MediaType.TEXT_XML);
@@ -165,14 +171,17 @@ public class ReferenceLookupRestlet extends ServiceRestlet {
 		}
 	}
 
-	private String replaceReference(String username, ReferenceUI original, ReferenceUI replacement, String excludeID,
+	private String replaceReference(User username, Reference original, Reference replacement, String excludeID,
 			String excludeType) throws IOException, DBException {
+		final AssessmentIO io = SIS.get().getAssessmentIO();
+		
 		ArrayList<String> list = new ArrayList<String>();
-		list.add(original.getReferenceID());
+		list.add(Integer.toString(original.getReferenceID()));
 
 		String xml = performLookup(list);
 		NativeDocument lookupDoc = NativeDocumentFactory.newNativeDocument();
-		lookupDoc.fromXML(xml);
+		lookupDoc.parse(xml);
+		//lookupDoc.fromXML(xml);
 
 		HashMap<String, Assessment> writeback = new HashMap<String, Assessment>();
 		HashMap<String, Assessment> locked = new HashMap<String, Assessment>();
@@ -194,20 +203,25 @@ public class ReferenceLookupRestlet extends ServiceRestlet {
 
 				if (field.equals("global"))
 					field = "Global";
-
-				Assessment curAss = SIS.get().getAssessmentIO().readAssessment(vfs, id, type, user);
+				
+				Assessment curAss = //SIS.get().getAssessmentIO().readAssessment(vfs, id, type, user);
+					io.getAttachedAssessment(Integer.valueOf(id));
+				
+				final String curAssessmentKey = //curAss.getId() + curAss.getType();
+					"" + curAss.getId();
 
 				if (curAss == null) {
 					System.out.println("Failure to read assessment " + id + ":" + type);
 				} else {
-					if (!writeback.containsKey(curAss.getAssessmentID() + curAss.getType()))
-						writeback.put(curAss.getAssessmentID() + curAss.getType(), curAss);
+					if (!writeback.containsKey(curAssessmentKey))
+						writeback.put(curAssessmentKey, curAss);
 					else
-						curAss = writeback.get(curAss.getAssessmentID() + curAss.getType());
+						curAss = writeback.get(curAssessmentKey);
 
+					
 					if (!curAss.removeReference(original, field))
 						System.out.println("COULD NOT REMOVE REFERENCE " + original + " FOR FIELD " + field
-								+ " FOR ASSESSMENT " + curAss.getAssessmentID());
+								+ " FOR ASSESSMENT " + curAss.getId());
 					else
 						curAss.addReference(replacement, field);
 				}
@@ -218,18 +232,20 @@ public class ReferenceLookupRestlet extends ServiceRestlet {
 		if (writeback.size() == 0)
 			message = "<message></message>";
 		else {
+			final FileLocker locker = SIS.get().getLocker();
+			
 			System.out.println("Writing back assessments with replaced references; turning off verbose lock output.");
-			FileLocker.impl.verboseOutput = false;
-			AssessmentIOMessage ret = SIS.get().getAssessmentIO().writeAssessments(new ArrayList<Assessment>(writeback.values()),
-					username, vfs, true);
-			FileLocker.impl.verboseOutput = true;
+			locker.verboseOutput = false;
+			AssessmentIOMessage ret = io.writeAssessments(
+					new ArrayList<Assessment>(writeback.values()), username, true);
+			locker.verboseOutput = true;
 
 			for (Assessment cur : writeback.values())
-				FileLocker.impl.persistentEagerRelease(cur.getAssessmentID(), cur.getType(), username);
+				locker.persistentEagerRelease(cur.getId(), username);
 
 			Row row = new Row();
-			row.add(new CString("original_ref_id", original.getReferenceID()));
-			row.add(new CString("changed_to_ref_id", replacement.getReferenceID()));
+			row.add(new CString("original_ref_id", Integer.toString(original.getReferenceID())));
+			row.add(new CString("changed_to_ref_id", Integer.toString(replacement.getReferenceID())));
 
 			InsertQuery insert = new InsertQuery("changed_references", row);
 			ec.doUpdate(insert);

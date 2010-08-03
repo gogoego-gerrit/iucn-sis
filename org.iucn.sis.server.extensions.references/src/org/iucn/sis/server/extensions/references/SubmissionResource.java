@@ -6,8 +6,7 @@ import javax.naming.NamingException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.hibernate.mapping.Column;
-import org.iucn.sis.server.ref.ReferenceLabels.LabelMappings;
+import org.iucn.sis.server.extensions.references.ReferenceLabels.LabelMappings;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -23,13 +22,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.solertium.db.CanonicalColumnName;
+import com.solertium.db.Column;
 import com.solertium.db.DBException;
 import com.solertium.db.ExecutionContext;
+import com.solertium.db.Row;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.InsertQuery;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
-import com.sun.rowset.internal.Row;
 
 public class SubmissionResource extends Resource {
 

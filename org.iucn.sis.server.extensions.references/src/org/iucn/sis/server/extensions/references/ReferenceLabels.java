@@ -1,6 +1,5 @@
 package org.iucn.sis.server.extensions.references;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,8 +11,8 @@ import java.util.TreeMap;
 import org.restlet.Context;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
 import com.solertium.util.Replacer;
 
@@ -94,34 +93,29 @@ public class ReferenceLabels {
 	private final Map<String, LabelMappings> lm = new TreeMap<String, LabelMappings>();
 
 	public ReferenceLabels() {
-		try {
-			Document structDoc = DocumentUtils.newDocumentBuilder().fromXML(
-					ReferenceLabels.class.getResourceAsStream("reflabels.xml"));
-			ElementCollection types = new ElementCollection(structDoc.getElementsByTagName("type"));
-			for (Element tEl : types) {
-				final String type = tEl.getAttribute("name");
-				ElementCollection fields = new ElementCollection(tEl.getElementsByTagName("field"));
-				final List<String> o = new ArrayList<String>();
-				final Map<String, String> m = new HashMap<String, String>();
-				final Map<String, String> reverse = new HashMap<String, String>();
-				final Map<String, String> capitalized = new HashMap<String, String>();
-				for (Element fEl : fields) {
-					String label = fEl.getAttribute("label");
-					String name = fEl.getAttribute("name");
-					// System.out.println("  "+name+": "+label);
-					m.put(LabelMappings.normalize(name), label);
-					reverse.put(LabelMappings.normalize(label), name);
-					capitalized.put(LabelMappings.normalize(name), label);
-					o.add(LabelMappings.normalize(name));
-				}
-				lm.put(LabelMappings.normalize(type), new LabelMappings(m, reverse, capitalized, o));
-				System.out.println(
-						"Added " + fields.size() + " label mappings for " + typeNormalize(type));
+		Document structDoc = BaseDocumentUtils.impl.getInputStreamFile(
+			ReferenceLabels.class.getResourceAsStream("reflabels.xml")
+		);
+		ElementCollection types = new ElementCollection(structDoc.getElementsByTagName("type"));
+		for (Element tEl : types) {
+			final String type = tEl.getAttribute("name");
+			ElementCollection fields = new ElementCollection(tEl.getElementsByTagName("field"));
+			final List<String> o = new ArrayList<String>();
+			final Map<String, String> m = new HashMap<String, String>();
+			final Map<String, String> reverse = new HashMap<String, String>();
+			final Map<String, String> capitalized = new HashMap<String, String>();
+			for (Element fEl : fields) {
+				String label = fEl.getAttribute("label");
+				String name = fEl.getAttribute("name");
+				// System.out.println("  "+name+": "+label);
+				m.put(LabelMappings.normalize(name), label);
+				reverse.put(LabelMappings.normalize(label), name);
+				capitalized.put(LabelMappings.normalize(name), label);
+				o.add(LabelMappings.normalize(name));
 			}
-		} catch (IOException io) {
-			throw new RuntimeException("Label mappings are unavailable (IOException).");
-		} catch (SAXException sax) {
-			throw new RuntimeException("Label mappings are unparseable (SAXException).");
+			lm.put(LabelMappings.normalize(type), new LabelMappings(m, reverse, capitalized, o));
+			System.out.println(
+					"Added " + fields.size() + " label mappings for " + typeNormalize(type));
 		}
 	}
 

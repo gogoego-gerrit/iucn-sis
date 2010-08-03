@@ -6,16 +6,16 @@ import java.sql.SQLException;
 
 import javax.naming.NamingException;
 
-import org.hibernate.mapping.Column;
-import org.iucn.sis.server.ref.ReferenceLabels.LabelMappings;
+import org.iucn.sis.server.extensions.references.ReferenceLabels.LabelMappings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.solertium.db.Column;
 import com.solertium.db.ExecutionContext;
+import com.solertium.db.Row;
 import com.solertium.db.RowProcessor;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.util.TrivialExceptionHandler;
-import com.sun.rowset.internal.Row;
 
 public class ReferenceRowProcessor extends RowProcessor {
 

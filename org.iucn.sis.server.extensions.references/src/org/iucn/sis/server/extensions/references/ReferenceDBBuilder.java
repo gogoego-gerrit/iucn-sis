@@ -12,12 +12,13 @@ import javax.naming.NamingException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.hibernate.mapping.Column;
-import org.iucn.sis.server.ServerApplication;
+import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.server.api.utils.ServerPaths;
-import org.iucn.sis.server.ref.ReferenceLabels.LabelMappings;
-import org.iucn.sis.server.taxa.TaxonomyDocUtils;
+import org.iucn.sis.server.extensions.references.ReferenceLabels.LabelMappings;
+import org.iucn.sis.shared.api.assessments.AssessmentUtils;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.restlet.Uniform;
 import org.w3c.dom.Document;
@@ -26,14 +27,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.solertium.db.CanonicalColumnName;
+import com.solertium.db.Column;
 import com.solertium.db.DBException;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
+import com.solertium.db.Row;
 import com.solertium.db.StringLiteral;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.InsertQuery;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ClasspathResources;
 import com.solertium.util.ElementCollection;
 import com.solertium.util.NodeCollection;
@@ -44,13 +48,12 @@ import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.VFSPathToken;
 import com.solertium.vfs.utils.VFSUtils;
 import com.solertium.vfs.utils.VFSUtils.VFSPathParseException;
-import com.sun.rowset.internal.Row;
 
 public class ReferenceDBBuilder implements Runnable {
 
 	private class TrivialAssessment {
 
-		private String asm_type;
+		//private String asm_type;
 
 		/**
 		 * For draft assessments...
@@ -59,12 +62,13 @@ public class ReferenceDBBuilder implements Runnable {
 		 */
 		public TrivialAssessment(final int taxId) throws NotFoundException {
 			try {
-				VFSPath draftRoot = VFSUtils.parseVFSPath(ServerPaths.getDraftAssessmentRootURL("" + taxId));
-				for (VFSPathToken draftURL : ServerApplication.getStaticVFS().list(draftRoot)) {
+				
+				VFSPath draftRoot = VFSUtils.parseVFSPath(ServerPaths.getAssessmentUrl(taxId));
+				for (VFSPathToken draftURL : SIS.get().getVFS().list(draftRoot)) {
 					final Document doc = DocumentUtils.getVFSFileAsDocument(draftRoot.child(draftURL).toString(),
-							ServerApplication.getStaticVFS());
+							SIS.get().getVFS());
 					String id = doc.getElementsByTagName("assessmentID").item(0).getTextContent();
-					asm_type = BaseAssessment.DRAFT_ASSESSMENT_STATUS;
+					//asm_type = BaseAssessment.DRAFT_ASSESSMENT_STATUS;
 					process(id, taxId, doc);
 				}
 			} catch (final DBException ix) {
@@ -84,11 +88,11 @@ public class ReferenceDBBuilder implements Runnable {
 		public TrivialAssessment(final String id, final int taxId) {
 			try {
 				final String fn = "/browse/assessments/" + FilenameStriper.getIDAsStripedPath(id) + ".xml";
-				final Document d = DocumentUtils.getVFSFileAsDocument(fn, ServerApplication.getStaticVFS());
+				final Document d = DocumentUtils.getVFSFileAsDocument(fn, SIS.get().getVFS());
 				if (d == null) {
 					System.err.println("Could not open assessment " + fn);
 				} else {
-					asm_type = BaseAssessment.PUBLISHED_ASSESSMENT_STATUS;
+					//asm_type = BaseAssessment.PUBLISHED_ASSESSMENT_STATUS;
 					process(id, taxId, d);
 				}
 			} catch (final DBException ix) {
@@ -98,7 +102,7 @@ public class ReferenceDBBuilder implements Runnable {
 
 		private void addBibliographyEntry(final Element reference) {
 			try {
-				final Document responseDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+				final Document responseDoc = BaseDocumentUtils.impl.newDocument();
 				final Element rootEl = responseDoc.createElement("references");
 				responseDoc.appendChild(rootEl);
 
@@ -151,8 +155,6 @@ public class ReferenceDBBuilder implements Runnable {
 				ec.doQuery(sq, new ReferenceRowProcessor(responseDoc, rootEl, ReferenceLabels.getInstance()));
 			} catch (final DBException dbx) {
 				dbx.printStackTrace();
-			} catch (final ParserConfigurationException pcx) {
-				pcx.printStackTrace();
 			}
 		}
 
@@ -173,7 +175,7 @@ public class ReferenceDBBuilder implements Runnable {
 			final Row asmRefRow = ec.getRow("assessment_reference");
 			asmRefRow.get("asm_id").setString(id);
 			asmRefRow.get("field").setString(fieldName);
-			asmRefRow.get("asm_type").setString(asm_type);
+			//asmRefRow.get("asm_type").setString(asm_type);
 			asmRefRow.get("user").setObject(null);
 			asmRefRow.get("ref_id").setString(referenceHash);
 			try {
@@ -218,7 +220,7 @@ public class ReferenceDBBuilder implements Runnable {
 			this.export = export;
 
 			try {
-				final Reader r = ServerApplication.getStaticVFS().getReader(ServerPaths.getURLForTaxa("" + id));
+				final Reader r = SIS.get().getVFS().getReader(ServerPaths.getTaxonURL(id));
 				tf = new TagFilter(r);
 				tf.shortCircuitClosingTags = false;
 				tf.registerListener(this);
