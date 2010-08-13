@@ -1,5 +1,6 @@
 package org.iucn.sis.client.panels.filters;
 
+import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
@@ -17,8 +18,11 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 
 public class AssessmentFilterRegionalPanel extends LayoutContainer {
@@ -38,7 +42,6 @@ public class AssessmentFilterRegionalPanel extends LayoutContainer {
 		this.allowAllRegions = allowAllRegions;
 		this.filter = filter;
 		this.allowMatchesAnyRegion = allowMatchesAnyRegion;
-		System.out.println("allowed to match any region " + allowMatchesAnyRegion);
 
 	}
 
@@ -46,9 +49,10 @@ public class AssessmentFilterRegionalPanel extends LayoutContainer {
 		regionPanel.clearData();
 		regionPanel.setRegionsSelected(filter.getRegionIDsCSV());
 		regionPanel.refreshUI();
-		if (allowMatchesAnyRegion && filter.getRegionType().equalsIgnoreCase(Relationship.OR))
+		
+		if (allowMatchesAnyRegion && filter.getRegionType().equalsIgnoreCase(Relationship.OR)){
 			box.setSimpleValue(or);
-		else {
+		}else {
 			box.setSimpleValue(all);
 		}
 		box.setEnabled(allowMatchesAnyRegion);
@@ -67,7 +71,9 @@ public class AssessmentFilterRegionalPanel extends LayoutContainer {
 		box = new SimpleComboBox<String>();
 		box.add(all);
 		box.add(or);
+		
 		box.setVisible(allowMatchesAnyRegion);
+		box.setTriggerAction(TriggerAction.ALL);
 
 		HorizontalPanel boxPanel = new HorizontalPanel();
 		boxPanel.add(new HTML("Locale must match: "));
