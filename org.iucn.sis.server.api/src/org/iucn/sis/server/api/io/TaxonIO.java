@@ -13,6 +13,7 @@ import java.util.Map;
 import org.hibernate.Transaction;
 import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.locking.TaxonLockAquirer;
 import org.iucn.sis.server.api.persistance.AssessmentDAO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
@@ -295,26 +296,24 @@ public class TaxonIO {
 		return false;
 	}
 
-	public boolean deleteTaxon(Taxon taxon, User user) {
-
+	public boolean trashTaxon(Taxon taxon, User user) {
+		
 		try {
 			if (taxon.getChildren().size() > 0)
 				throw new RuntimeException("You can not delete a taxon that has children.");
 
-			Session session = SISPersistentManager.instance().getSession();
-			Transaction transaction = session.beginTransaction();
+			
 			taxon.setState(Taxon.DELETED);
-			TaxonDAO.save(taxon);
+			writeTaxon(taxon, user);
 			for (Assessment assessment : taxon.getAssessments()) {
-				assessment.setState(Assessment.DELETED);
-				AssessmentDAO.save(assessment);
+				AssessmentIOWriteResult result = SIS.get().getAssessmentIO().trashAssessment(assessment, user);
+				if (result.status.isError())
+					throw new PersistentException("Unable to save assessment " + assessment.getId() + " because locked");
 			}
-			transaction.commit();
-			session.close();
+			
 			return true;
 		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
 		}
 		return false;
 	}
@@ -372,7 +371,7 @@ public class TaxonIO {
 			e.printStackTrace();
 			return null;
 		}
-		if (text != null) {
+		if (text != null && !text.trim().equalsIgnoreCase("")) {
 			NativeDocument ndoc = SIS.get().newNativeDocument(null);
 			ndoc.parse(text);
 			return Taxon.fromXML(ndoc);

@@ -381,47 +381,47 @@ public class TaxonHomePageTab extends TabItem {
 							WindowUtils.confirmAlert("Confirm Delete", msg, new WindowUtils.MessageBoxListener() {
 								public void onNo() {
 									// TODO Auto-generated method stub
-									// close();
+									 
 
 								}
 
 								public void onYes() {
-									// close();
-
-									// remove assessments
-
-									// remove node
 									String url = "/taxomatic/";
 
 									final String deleteUrl = url;
 									if (TaxonomyCache.impl.getCurrentTaxon() != null) {
-										final Taxon node = TaxonomyCache.impl.getCurrentTaxon();
+										final Taxon taxon = TaxonomyCache.impl.getCurrentTaxon();
 										final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 
-										doc.delete(UriBase.getInstance().getSISBase() + deleteUrl + node.getId(), new GenericCallback<String>() {
+										doc.delete(UriBase.getInstance().getSISBase() + deleteUrl + taxon.getId(), new GenericCallback<String>() {
 											public void onFailure(Throwable arg0) {
 												if( doc.getStatusText().equals("423") )
 													WindowUtils.errorAlert("Taxomatic In Use", "Sorry, but another " +
 															"taxomatic operation is currently running. Please try " +
 															"again later!");
+												else {
+													WindowUtils.errorAlert("Unable to delete Taxon", "Unable to delete taxon.");
+												}
+												close();
 											}
 
 											public void onSuccess(String arg0) {
-												TaxonomyCache.impl.evict(node.getParentId() + "," + node.getId());
-												TaxonomyCache.impl.fetchTaxon(node.getParentId(), true,
+												TaxonomyCache.impl.evict(taxon.getParentId() + "," + taxon.getId());
+												TaxonomyCache.impl.fetchTaxon(taxon.getParentId(), true,
 														new GenericCallback<Taxon>() {
 															public void onFailure(Throwable caught) {
+																ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(null);
+																panelManager.recentAssessmentsPanel.update();
 															};
 
 															public void onSuccess(Taxon result) {
-																AssessmentCache.impl.clear();
-
+																
 																ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
 																		.update(TaxonomyCache.impl.getCurrentTaxon().getId());
 																panelManager.recentAssessmentsPanel.update();
 															};
 														});
-
+												
 											}
 										});
 									}

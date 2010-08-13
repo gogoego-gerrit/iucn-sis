@@ -365,7 +365,7 @@ public class AssessmentIO {
 			edit.setUser(user);
 			edit.getAssessment().add((assessmentToSave));
 			assessmentToSave.getEdit().add(edit);
-			Session session = SISPersistentManager.instance().getSession();
+			assessmentToSave.toXML();
 
 			
 				try {
@@ -427,6 +427,7 @@ public class AssessmentIO {
 					edit.setUser(user);
 					edit.getAssessment().add((assessmentToSave));
 					assessmentToSave.getEdit().add(edit);
+					assessmentToSave.toXML();
 					AssessmentDAO.save(assessmentToSave);
 					EditDAO.save(edit);
 				}

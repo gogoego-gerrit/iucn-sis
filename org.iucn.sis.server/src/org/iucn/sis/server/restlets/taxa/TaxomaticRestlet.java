@@ -52,10 +52,10 @@ public class TaxomaticRestlet extends ServiceRestlet {
 		paths.add("/taxomatic/{operation}");
 	}
 
-	private void deleteNode(Integer id, Request request, final Response response) {
+	private void trashTaxon(Integer id, Request request, final Response response) {
 		try {
 			Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
-			if (taxon != null && SIS.get().getTaxonIO().deleteTaxon(taxon, SIS.get().getUser(request))) {
+			if (taxon != null && SIS.get().getTaxonIO().trashTaxon(taxon, SIS.get().getUser(request))) {
 				response.setStatus(Status.SUCCESS_OK);
 
 			} else {
@@ -346,7 +346,7 @@ public class TaxomaticRestlet extends ServiceRestlet {
 				getLastTaxomaticOperation(request, response);
 			} else if (method.equals(Method.DELETE)) {
 				Integer id = Integer.valueOf(operation);
-				deleteNode(id, request, response);
+				trashTaxon(id, request, response);
 			} else
 				response.setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
 

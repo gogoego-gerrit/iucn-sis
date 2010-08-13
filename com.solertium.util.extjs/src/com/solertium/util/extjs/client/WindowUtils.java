@@ -95,31 +95,18 @@ public class WindowUtils {
 		noButton.addSelectionListener(new SelectionListener<ButtonEvent>(){
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				listener.onNo();				
+				listener.onNo();	
+				box.close();
 			}
 		});
 		yesButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 		
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				listener.onYes();		
+				listener.onYes();
+				box.close();
 			}
 		});
-		Listener<MessageBoxEvent> boxListener = new Listener<MessageBoxEvent>() {
-
-			public void handleEvent(MessageBoxEvent be) {
-				if (be.getButtonClicked().equals(yesButton)) {
-					listener.onYes();
-					box.close();
-				}else {
-					listener.onNo();
-					box.close();
-				}
-					
-
-			}
-		};
-		box.addCallback(boxListener);
 		box.getDialog().getButtonBar().removeAll();
 		box.getDialog().getButtonBar().add(yesButton);
 		box.getDialog().getButtonBar().add(noButton);

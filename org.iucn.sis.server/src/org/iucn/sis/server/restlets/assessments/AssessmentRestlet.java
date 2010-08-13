@@ -45,21 +45,10 @@ public class AssessmentRestlet extends ServiceRestlet {
 
 	private void deleteAssessment(Request request, Response response, final Integer assessmentID, final User user) {
 
-		Assessment assessment = SIS.get().getAssessmentIO().getAssessment(assessmentID);
+		Assessment assessment = SIS.get().getAssessmentIO().getNonCachedAssessment(assessmentID);
 		if (assessment != null) {
 			AssessmentIOWriteResult deleted = SIS.get().getAssessmentIO().deleteAssessment(assessment, user);
 			if (deleted.status.isSuccess()) {
-				// remove from recent
-				final Request req = new Request(Method.DELETE, "riap://host/recentAssessments/" + user.getUsername()
-						+ assessment.getAssessmentType().getName() + "/" + assessmentID);
-				Response resp = getContext().getClientDispatcher().handle(req);
-				if (!(resp.getStatus()).isSuccess()) {
-					System.out.println("Unable to delete assessment from recent.");
-				} else {
-					// node.removeAssessment(pubAssessments.get(i));
-					System.out.println("Assessment deleted from recent.");
-				}
-
 				response.setStatus(Status.SUCCESS_OK);
 			} else
 				response.setStatus(Status.CLIENT_ERROR_LOCKED);
