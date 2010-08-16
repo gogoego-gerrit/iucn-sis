@@ -147,10 +147,10 @@ public class AssessmentCache {
 		else
 			newAss = new Assessment();
 		
-		newAss.setSpeciesID(taxon.getId());
+		//newAss.setSpeciesID(taxon.getId());
+		newAss.setTaxon(taxon);
 		newAss.setType(type);
-		newAss.setRegions(RegionCache.impl.getRegionsByID(regions));
-		newAss.setEndemic(endemic);
+		newAss.setRegions(RegionCache.impl.getRegionsByID(regions), endemic);
 		
 		if( taxaFetched.containsKey(Integer.valueOf(taxon.getId())) )
 			taxaFetched.remove(Integer.valueOf(taxon.getId()));

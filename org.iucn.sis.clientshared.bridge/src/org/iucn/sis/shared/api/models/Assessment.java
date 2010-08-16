@@ -27,7 +27,6 @@ import java.util.Set;
 import org.iucn.sis.client.api.caches.UserCache;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
-import org.iucn.sis.shared.api.models.fields.RedListPublicationField;
 import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
@@ -61,7 +60,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		this.state = state;
 	}
 	
-	public List<Integer> getRegionIDs() {	
+	public List<Integer> getRegionIDs() {
 		Field regionField = getField(CanonicalNames.RegionInformation);
 		List<Integer> regionIds = (List<Integer>) regionField.getKeyToPrimitiveFields().get(RegionField.PRIMITIVE_FIELD).getValue();
 		return regionIds;
@@ -402,44 +401,26 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		for( Field cur : getField() )
 			cur.getReference().clear();
 	}
-
-	public void setSpeciesID(int id) {
-//		// FIXME
-//		if (taxon == null || taxon.getId() != id) {
-//			setTaxon(TaxonomyCache.impl.getNode(id));
-//		}
-	}
-
-//	public List<Region> setRegionIDs(List<Integer> regionIDs) {
-//		List<Region> regions = new ArrayList<Region>();
-//		for (int id : regionIDs) {
-//			regions.add(RegionCache.impl.getRegionByID(id));
-//		}
-//		// FIXME -- add to field data
-//		return regions;
-//	}
 	
 	public void setRegions(Collection<Region> regions) {
-		//FIXME
+		setRegions(regions, false);
+	}
+	
+	public void setRegions(Collection<Region> regions, boolean endemic) {
+		final List<Integer> regionIDs = new ArrayList<Integer>();
+		for (Region region : regions)
+			regionIDs.add(region.getId());
+		
+		field.add(new RegionField(endemic, regionIDs, this));
 	}
 
 	public void setType(String type) {
 		setAssessmentType(AssessmentType.getAssessmentType(type));
 	}
 
-	//TODO
-	public void setEndemic(boolean endemic) {
-		
-	}
-	//TODO
-	public boolean getEndemic() {
-		return false;
-	}
-
 	public String getSpeciesName() {
 		return getTaxon().getFriendlyName();
-	}
-	
+	}	
 	
 	public Set<Reference> getReferences() {
 		

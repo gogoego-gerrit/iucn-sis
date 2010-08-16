@@ -290,9 +290,7 @@ public class AssessmentRestlet extends ServiceRestlet {
 //		for (Region region : filter.getRegions())
 //			regionsIDS.add(region.getId());
 //		curAss.setRegionIDs(regionsIDS);
-		curAss.setRegions(filter.getRegions());
-		if (!filter.getRegions().contains("-1"))
-			curAss.setEndemic(false);
+		curAss.setRegions(filter.getRegions(), filter.getRegions().contains("-1"));
 		curAss.setType(AssessmentType.DRAFT_ASSESSMENT_TYPE);
 		curAss.setTaxon(taxon);
 		return curAss;
