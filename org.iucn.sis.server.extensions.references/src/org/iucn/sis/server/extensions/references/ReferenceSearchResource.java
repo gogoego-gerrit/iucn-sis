@@ -6,6 +6,7 @@ import javax.naming.NamingException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.utils.SelectCountDBProcessor;
 import org.restlet.Context;
 import org.restlet.data.CharacterSet;

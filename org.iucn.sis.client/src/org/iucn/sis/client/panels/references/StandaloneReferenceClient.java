@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels.references;
 import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.user.client.ui.RootPanel;
 
 public class StandaloneReferenceClient implements EntryPoint {
 	public void onModuleLoad() {
@@ -12,6 +13,8 @@ public class StandaloneReferenceClient implements EntryPoint {
 		ReferenceViewPanel rvp = new ReferenceViewPanel();
 		vp.add(rvp);
 		vp.layout();
+		
+		RootPanel.get().add(vp);
 	}
 
 }

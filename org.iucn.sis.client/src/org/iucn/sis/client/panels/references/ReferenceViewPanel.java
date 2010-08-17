@@ -61,6 +61,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
@@ -85,7 +86,7 @@ public class ReferenceViewPanel extends TabPanel {
 	private Button editExisting;
 	private Button add;
 	
-	private NativeDocument document;
+	//private NativeDocument document;
 	private Table searchTable;
 	private ListStore<ReferenceModel> searchStore;
 	private TableBinder<ReferenceModel> searchBinder;
@@ -101,7 +102,7 @@ public class ReferenceViewPanel extends TabPanel {
 	private boolean fieldsShowing = false;
 
 	private TableColumnModel biblioColumnModel;
-	private TableColumnModel searchColumnModel;
+	//
 
 	private boolean nonUniqueIDs;
 	private HashMap<String, Reference> currentUniqueReferences;
@@ -177,44 +178,40 @@ public class ReferenceViewPanel extends TabPanel {
 
 		currentUniqueReferences = new HashMap<String, Reference>();
 
-		TableColumn[] columns = new TableColumn[4];
-		columns[0] = new TableColumn("author", "Author", 300f);
-		columns[0].setWidth(300);
-		columns[0].setResizable(true);
-		columns[0].setComparator(new PortableAlphanumericComparator());
+		final TableColumn[] searchColumns = new TableColumn[4];
+		searchColumns[0] = new TableColumn("author", "Author", 300f);
+		searchColumns[0].setWidth(300);
+		searchColumns[0].setResizable(true);
+		searchColumns[0].setComparator(new PortableAlphanumericComparator());
 
-		columns[1] = new TableColumn("title", "Title", 300f);
-		columns[1].setWidth(300);
-		columns[1].setResizable(true);
-		columns[1].setComparator(new PortableAlphanumericComparator());
+		searchColumns[1] = new TableColumn("title", "Title", 300f);
+		searchColumns[1].setWidth(300);
+		searchColumns[1].setResizable(true);
+		searchColumns[1].setComparator(new PortableAlphanumericComparator());
 
-		columns[2] = new TableColumn("year", "Year", 50f);
-		columns[2].setWidth(50);
-		columns[2].setResizable(true);
-		columns[2].setComparator(new PortableAlphanumericComparator());
+		searchColumns[2] = new TableColumn("year", "Year", 50f);
+		searchColumns[2].setWidth(50);
+		searchColumns[2].setResizable(true);
+		searchColumns[2].setComparator(new PortableAlphanumericComparator());
 
-		columns[3] = new TableColumn("count", "# used", 50f);
-		columns[3].setWidth(50);
-		columns[3].setResizable(true);
-		columns[3].setComparator(new PortableAlphanumericComparator());
+		searchColumns[3] = new TableColumn("count", "# used", 50f);
+		searchColumns[3].setWidth(50);
+		searchColumns[3].setResizable(true);
+		searchColumns[3].setComparator(new PortableAlphanumericComparator());
 
-		searchColumnModel = new TableColumnModel(columns);
+		final TableColumn[] biblioColumns = new TableColumn[2];
+		biblioColumns[0] = new TableColumn("citation", "Citation", 633f);
+		biblioColumns[0].setMaxWidth(1500);
+		biblioColumns[0].setMinWidth(200);
+		biblioColumns[0].setResizable(true);
+		biblioColumns[0].setComparator(new PortableAlphanumericComparator());
 
-		columns = new TableColumn[2];
-		columns[0] = new TableColumn("citation", "Citation", 633f);
-		columns[0].setMaxWidth(1500);
-		columns[0].setMinWidth(200);
-		columns[0].setResizable(true);
-		columns[0].setComparator(new PortableAlphanumericComparator());
+		biblioColumns[1] = new TableColumn("field", "Field", 67f);
+		biblioColumns[1].setResizable(true);
+		biblioColumns[1].setComparator(new PortableAlphanumericComparator());
+		biblioColumns[1].setHidden(true);
 
-		columns[1] = new TableColumn("field", "Field", 67f);
-		columns[1].setResizable(true);
-		columns[1].setComparator(new PortableAlphanumericComparator());
-		columns[1].setHidden(true);
-
-		biblioColumnModel = new TableColumnModel(columns);
-
-		searchTable = new Table(searchColumnModel);
+		searchTable = new Table(new TableColumnModel(searchColumns));
 		searchTable.setSelectionModel(new TableSelectionModel(SelectionMode.SINGLE));
 		searchTable.setBorders(false);
 		searchTable.setBulkRender(true);
@@ -229,7 +226,7 @@ public class ReferenceViewPanel extends TabPanel {
 		searchStore = new ListStore<ReferenceModel>(searchPagingLoader.getPagingLoader());
 		searchBinder = new TableBinder<ReferenceModel>(searchTable, searchStore);
 
-		bibTable = new Table(biblioColumnModel);
+		bibTable = new Table(new TableColumnModel(biblioColumns));
 		bibTable.setSelectionModel(new TableSelectionModel(SelectionMode.MULTI));
 		bibTable.setBorders(true);
 		bibTable.setBulkRender(false);
@@ -504,41 +501,61 @@ public class ReferenceViewPanel extends TabPanel {
 
 		q.append("</query>");
 
-		document = SimpleSISClient.getHttpBasicNativeDocument();
-		document.post(UriBase.getInstance().getFindReplaceBase() + "/refsvr/search/reference", q.toString(), new GenericCallback<String>() {
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
+		document.post(UriBase.getInstance().getReferenceBase() + "/refsvr/search/reference", q.toString(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				Window.alert("Failure: " + caught.getMessage());
 			}
 
 			public void onSuccess(String result) {
-				NativeNodeList referenceList = null;
-				NativeElement totalCountEl = null;
-				int total = 0;
-				try {
-
-					List<ReferenceModel> ret = new ArrayList<ReferenceModel>();
-					referenceList = document.getDocumentElement().getElementsByTagName("reference");
-					totalCountEl = document.getDocumentElement().getElementByTagName("totalCount");
-					if( totalCountEl != null )
-						total = Integer.parseInt(totalCountEl.getAttribute("total"));
-
-					for (int i = 0; i < referenceList.getLength(); i++) {	
-						final NativeElement currentReference = referenceList.elementAt(i);
-						if (currentReference.getNodeName().equalsIgnoreCase("reference")) {
-							Reference current = Reference.fromXML(currentReference);
-							String count = currentReference.getAttribute("count");
-							if( count == null ) count = "N/A";
-							ret.add(new ReferenceModel(current,  count));
+				final List<ReferenceModel> ret = new ArrayList<ReferenceModel>();
+				final NativeNodeList referenceList = document.getDocumentElement().getChildNodes();
+				
+				int total = referenceList.getLength();
+				
+				for (int i = 0; i < referenceList.getLength(); i++) {
+					final NativeNode node = referenceList.item(i);
+					if ("reference".equals(node.getNodeName())) {
+						final NativeElement currentReference;
+						try {
+							currentReference = (NativeElement)node;
+						} catch (ClassCastException e) {
+							continue;
+						}
+						
+						Reference current;
+						try {
+							current = Reference.fromXML(currentReference);
+						} catch (Throwable e) {
+							e.printStackTrace();
+							continue;
+						}
+						String count = currentReference.getAttribute("count");
+						if (count == null ) 
+							count = "N/A";
+						
+						ret.add(new ReferenceModel(current,  count));
+					}
+					else if ("totalcount".equalsIgnoreCase(node.getNodeName())) {
+						NativeElement totalCountEl;
+						try {
+							totalCountEl = (NativeElement)node;
+							total = Integer.parseInt(totalCountEl.getAttribute("total"));
+						} catch (ClassCastException e) {
+							continue;
+						} catch (NumberFormatException e) {
+							total -= 1;
+							continue;
 						}
 					}
-
-					searchResultCount.setText(total + " Filtered Result(s)");
-					searchPagingLoader.setTotal(total);
-					finishFetchingCallback.onSuccess(ret);
-				} catch (Throwable e) {
-					e.printStackTrace();
-					finishFetchingCallback.onFailure(e);
 				}
+						
+				System.out.println("Found " + total + " references and " + referenceList.getLength() + " in list.");
+
+				searchResultCount.setText(total + " Filtered Result(s)");
+				searchPagingLoader.setTotal(total);
+				
+				finishFetchingCallback.onSuccess(ret);
 			}
 		});
 	}

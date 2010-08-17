@@ -65,7 +65,14 @@ public class ReferenceRowProcessor extends RowProcessor {
 
 			final Element reference = doc.createElement("reference");
 			rootEl.appendChild(reference);
+			
+			try {
+				reference.setAttribute("rowID", r.get("id").toString());
+			} catch (NullPointerException e) {
+				reference.setAttribute("rowID", "0");
+			}
 			reference.setAttribute("id", r.get("Bib_hash").getString());
+			
 			final String type = r.get("Publication_Type").getString();
 			reference.setAttribute("type", type);
 			for (final Column c : r.getColumns()) {

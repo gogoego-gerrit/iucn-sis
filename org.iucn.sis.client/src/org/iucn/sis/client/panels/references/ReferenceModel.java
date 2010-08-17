@@ -41,4 +41,5 @@ public class ReferenceModel extends BaseModelData {
 		set("field", ref.getField());
 		set("citation", ref.getCitation());
 	}
+	
 }

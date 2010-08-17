@@ -20,6 +20,7 @@ import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared;
 import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared.ReturnedCitation;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNodeList;
 public class Reference implements Serializable, AuthorizableObject {
 	
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS*/
@@ -38,6 +39,88 @@ public class Reference implements Serializable, AuthorizableObject {
 	}
 	
 	public static Reference fromXML(NativeElement element) {
+		final Reference reference = new Reference();
+		reference.setId(Integer.parseInt(element.getAttribute("rowID")));
+		reference.setType(element.getAttribute("type"));
+		
+		final NativeNodeList nodes = element.getElementsByTagName("field");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			final NativeElement field = nodes.elementAt(i);
+			final String name = field.getAttribute("name");
+			final String value = field.getTextContent();
+			if ("citationShort".equals(name))
+				reference.setCitationShort(value);
+			else if ("citation".equals(name))
+				reference.setCitation(value);
+			else if ("citationComplete".equals(name) && !isBlank(value))
+				reference.setCitationComplete(Boolean.valueOf(value));
+			else if ("author".equals(name))
+				reference.setAuthor(value);
+			else if ("year".equals(name))
+				reference.setYear(value);
+			else if ("title".equals(name))
+				reference.setTitle(value);
+			else if ("secondaryAuthor".equals(name))
+				reference.setSecondaryAuthor(value);
+			else if ("secondaryTitle".equals(name))
+				reference.setSecondaryTitle(value);
+			else if ("placePublished".equals(name))
+				reference.setPlacePublished(value);
+			else if ("publisher".equals(name))
+				reference.setPublisher(value);
+			else if ("volume".equals(name))
+				reference.setVolume(value);
+			else if ("numberOfVolumes".equals(name))
+				reference.setNumberOfVolumes(value);
+			else if ("number".equals(name))
+				reference.setNumber(value);
+			else if ("pages".equals(name))
+				reference.setPages(value);
+			else if ("section".equals(name))
+				reference.setSection(value);
+			else if ("tertiaryAuthor".equals(name))
+				reference.setTertiaryAuthor(value);
+			else if ("tertiaryTitle".equals(name))
+				reference.setTertiaryTitle(value);
+			else if ("edition".equals(name))
+				reference.setEdition(value);
+			else if ("date".equals(name))
+				reference.setDateValue(value);
+			else if ("subsidiaryAuthor".equals(name))
+				reference.setSubsidiaryAuthor(value);
+			else if ("shortTitle".equals(name))
+				reference.setShortTitle(value);
+			else if ("alternateTitle".equals(name))
+				reference.setAlternateTitle(value);
+			else if ("isbnissn".equals(name))
+				reference.setIsbnIssn(value);
+			else if ("keywords".equals(name))
+				reference.setKeywords(value);
+			else if ("url".equals(name))
+				reference.setUrl(value);
+			else if ("hash".equals(name))
+				reference.setHash(value);
+			else if ("bibCode".equals(name) && !isBlank(value))
+				reference.setBibCode(Integer.valueOf(value));
+			else if ("bibNoInt".equals(name) && !isBlank(value))
+				reference.setBibNoInt(Integer.valueOf(value));
+			else if ("bibNumber".equals(name) && !isBlank(value))
+				reference.setBibNumber(Integer.valueOf(value));
+			else if ("externalBibCode".equals(name))
+				reference.setExternalBibCode(value);
+			else if ("submissionType".equals(name))
+				reference.setSubmissionType(value);
+		}
+		
+		return reference;
+	}
+	
+	private static boolean isBlank(String value) {
+		return value == null || "".equals(value);
+	}
+	
+	@Deprecated
+	public static Reference fromOldXML(NativeElement element) {
 		Reference reference = new Reference();
 		reference.setId(Integer.parseInt(element.getElementsByTagName("id").elementAt(0).getTextContent()));
 		

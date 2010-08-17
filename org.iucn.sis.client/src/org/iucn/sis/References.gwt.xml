@@ -2,13 +2,23 @@
 
 	<!-- Inherit the core Web Toolkit stuff. -->
 	<inherits name='com.google.gwt.user.User'/>
+	<inherits name='com.google.gwt.user.RichText'/>
 	<inherits name='com.extjs.gxt.ui.GXT'/>
+	
+	<!-- HTTP Features -->
+	<inherits name='com.google.gwt.http.HTTP' />
+	
 	<inherits name='com.solertium.lwxml.LWXML' />
+	<inherits name='com.solertium.util.gwt.Util' />
 	<inherits name='com.solertium.util.extjs.ExtGWTUtils' />
-
-	<!-- Specify the app entry point class.
-	     Be sure this is commented out if you are building a full SIS. -->
-	<!--  <entry-point class="org.iucn.sis.client.referenceui.StandaloneReferenceClient"/> -->
+	<inherits name='com.solertium.util.extjs.login.ExtGWTUtils' />
+	<inherits name='com.extjs.gxt.themes.Themes' />
+	<inherits name='ext.ux.wizard.WizardWindow'/>
+	<inherits name='ext.ux.pwd.PasswordField'/>
+	
+	<!-- QueryBuilder -->
+	<inherits name='com.solertium.util.querybuilder.QueryBuilderCore' />
+	<inherits name='com.solertium.util.querybuilder.gwt.QueryBuilderExtSource' />
 	
 	<source path='client'/>
 	<source path='shared'/>
