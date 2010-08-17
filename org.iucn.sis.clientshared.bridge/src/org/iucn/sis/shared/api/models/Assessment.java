@@ -411,7 +411,15 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		for (Region region : regions)
 			regionIDs.add(region.getId());
 		
-		field.add(new RegionField(endemic, regionIDs, this));
+		setField(new RegionField(endemic, regionIDs, this));
+	}
+	
+	public void setField(Field field) {
+		final Field existing = keyToField.get(field.getName());
+		this.field.remove(existing);
+		
+		this.field.add(field);
+		this.keyToField.put(field.getName(), field);
 	}
 
 	public void setType(String type) {
