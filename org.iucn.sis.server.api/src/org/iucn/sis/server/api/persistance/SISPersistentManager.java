@@ -1,10 +1,14 @@
 package org.iucn.sis.server.api.persistance;
 
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import javassist.util.proxy.MethodFilter;
 
 import org.dom4j.DocumentException;
 import org.gogoego.api.plugins.GoGoEgo;
+import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
@@ -23,8 +27,6 @@ public class SISPersistentManager {
 
 	private static SISPersistentManager instance;
 	private SessionFactory sessionFactory;
-	private static final String PROJECT_NAME = "liz";
-	
 
 	public static void setCurrentThread() {
 		MultiClassLoader loader = new MultiClassLoader(SISPersistentManager.class.getClassLoader().getParent());
@@ -64,40 +66,53 @@ public class SISPersistentManager {
 		return sessionFactory.getCurrentSession();
 	}
 
-	public String getProjectName() {
-		return PROJECT_NAME;
-	}
-
 	private Configuration buildConfiguration() {
-		Configuration configuation;
+		Configuration configuration;
 		setCurrentThread();
 		try {
-			configuation = new Configuration();
+			configuration = new Configuration();
 		} catch (Throwable e) {
 			e.getCause().printStackTrace();
 			return null;
 		}
-		configuation.configure(ClassLoaderTester.class.getResource(getProjectName() + ".cfg.xml"));
+		
+		final String configUri = GoGoEgo.getInitProperties().getProperty("org.iucn.sis.server.configuration.uri", "local:SIS");
+		if (configUri.startsWith("file")) {
+			try {
+				configuration.configure(new URL(configUri));
+			} catch (MalformedURLException e) {
+				throw new RuntimeException(configUri + " is not a valid URL", e);
+			} catch (HibernateException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		else if (configUri.startsWith("local:") && !configUri.equals("local:")) {
+			final String name = configUri.substring(configUri.indexOf(':')+1);
+			try {
+				configuration.configure(ClassLoaderTester.class.getResource(name + ".cfg.xml"));
+			} catch (HibernateException e) {
+				throw new RuntimeException(e);
+			}
+		}
 		
 		String driverClass = GoGoEgo.getInitProperties().getProperty("dbsession.sis.driver");
 		String dialect = GoGoEgo.getInitProperties().getProperty("database_dialect");
 		String connectionURL = GoGoEgo.getInitProperties().getProperty("dbsession.sis.uri");
 		String username = GoGoEgo.getInitProperties().getProperty("dbsession.sis.user");
 		String password = GoGoEgo.getInitProperties().getProperty("dbsession.sis.password");
+		
 		SISHibernateListener listener = new SISHibernateListener();
 		
-		configuation.setProperty("hibernate.dialect", dialect);
-		configuation.setProperty("hibernate.connection.driver_class", driverClass);
-		configuation.setProperty("hibernate.connection.url", connectionURL);
-		configuation.setProperty("hibernate.connection.username", username);
-		configuation.setProperty("hibernate.connection.password", password);
-		configuation.setListener("post-update", listener);
-		configuation.setListener("post-delete", listener);
-		configuation.setListener("post-insert", listener);
+		configuration.setProperty("hibernate.dialect", dialect);
+		configuration.setProperty("hibernate.connection.driver_class", driverClass);
+		configuration.setProperty("hibernate.connection.url", connectionURL);
+		configuration.setProperty("hibernate.connection.username", username);
+		configuration.setProperty("hibernate.connection.password", password);
+		configuration.setListener("post-update", listener);
+		configuration.setListener("post-delete", listener);
+		configuration.setListener("post-insert", listener);
 
-		
-		return configuation;
-
+		return configuration;
 	}
 	
 

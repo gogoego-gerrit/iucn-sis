@@ -8,6 +8,7 @@ import org.gogoego.api.plugins.GoGoEgo;
 import org.gogoego.api.utils.MagicDisablingFilter;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SISApplication;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.restlets.assessments.AsmChangesResource;
 import org.iucn.sis.server.restlets.assessments.AssessmentRestlet;
@@ -54,6 +55,7 @@ public class ServerApplication extends SISApplication{
 	
 	public ServerApplication() {
 		super();
+		SISPersistentManager.instance();
 		services = new ArrayList<ServiceRestlet>();
 		
 		if (GoGoEgo.getInitProperties().containsKey("UPDATE_URL"))

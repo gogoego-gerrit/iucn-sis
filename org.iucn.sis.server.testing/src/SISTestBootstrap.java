@@ -26,6 +26,7 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 			System.out.println("Could not create test bootstrap");
 			throw new RuntimeException(e);
 		}
+		
 		try {
 			b.start();
 		} catch (Exception e) {
