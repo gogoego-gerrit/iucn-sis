@@ -40,8 +40,10 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 			new LinkedHashMap<String, GoGoEgoApplication>();
 		
 		map.put("org.iucn.sis.server", new ServerActivator().getApplicationFactory().newInstance());
-		//TODO add additional plugins
+		map.put("org.iucn.sis.server.extensions.references", 
+			new org.iucn.sis.server.extensions.references.ServerActivator().getApplicationFactory().newInstance());
 		
+		//TODO add additional plugins
 		
 		return map;
 	}

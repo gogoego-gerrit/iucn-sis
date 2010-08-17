@@ -1,49 +1,24 @@
 package org.iucn.sis.server.extensions.references;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.iucn.sis.server.api.application.SISApplication;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.restlet.resource.Resource;
 
-public class ServerApplication extends SISApplication{
+public class ServerApplication extends SISApplication {
 	
-	protected final ArrayList<ServiceRestlet> services;
+	private static final boolean ALLOW_ONLINE = true;
+	private static final boolean ALLOW_OFFLINE = true;
+	private static final String PREFIX = "/refsvr";
 	
-	
-	public ServerApplication() {
-		super();
-		services = new ArrayList<ServiceRestlet>();
-		
-	}
-	
-	@Override
 	public void init() {
-		initServiceRoutes();
-		initRoutes();		
+		addResource("/types", TypesResource.class);
+		addResource("/type/{type}", TypeResource.class);
+		addResource("/reference/{refid}", ReferenceResource.class);
+		addResource("/submit", SubmissionResource.class);
+		addResource("/search/reference", ReferenceSearchResource.class);
 	}
 	
-	protected void initServiceRoutes() {
-		
-//		services.add(new RecentAssessmentsRestlet(SIS.get().getVfsroot(), app.getContext()));
-		
-		for (Iterator<ServiceRestlet> iter = services.iterator(); iter.hasNext();)
-			addServiceToRouter(iter.next());
-		
+	private void addResource(String path, Class<? extends Resource> resource) {
+		addResource(resource, PREFIX + path, ALLOW_ONLINE, ALLOW_OFFLINE, false);
 	}
-	
-	private void addServiceToRouter(ServiceRestlet curService) {
-		addResource(curService, curService.getPaths(), true, true, false);
-	}
-	
-	protected void initRoutes() {
-		
-		//TODO: GET COMPILED CLIENT BITS
-				
-		
-	}
-	
-	
-	
 
 }
