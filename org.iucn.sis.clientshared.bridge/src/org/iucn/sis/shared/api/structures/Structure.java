@@ -10,14 +10,10 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import org.iucn.sis.client.api.utils.ChangeTracker;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModel;

@@ -7,7 +7,6 @@ import java.util.List;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
 import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow.SearchResults;
-import org.iucn.sis.shared.api.models.User;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;

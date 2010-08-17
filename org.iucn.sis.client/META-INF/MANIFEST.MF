@@ -18,5 +18,4 @@ Require-Bundle: org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
  com.solertium.util.querybuilder.gwt.ext;bundle-version="1.0.0",
  com.solertium.gwtproxy;bundle-version="1.1.2"
 Import-Package: ext.ux.pwd,
- ext.ux.pwd.client,
- org.restlet.ext.servlet
+ ext.ux.pwd.client

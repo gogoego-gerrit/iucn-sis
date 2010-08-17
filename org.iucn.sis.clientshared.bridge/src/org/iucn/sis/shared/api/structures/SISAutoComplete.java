@@ -2,11 +2,9 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.Set;
 
 import org.iucn.sis.client.api.utils.autocomplete.AutoCompleteTextBox;
 import org.iucn.sis.client.api.utils.autocomplete.SimpleAutoCompletionItems;
-import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 

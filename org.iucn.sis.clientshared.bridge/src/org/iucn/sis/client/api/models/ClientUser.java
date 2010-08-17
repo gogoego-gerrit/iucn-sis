@@ -8,7 +8,6 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.User;
 
-import com.extjs.gxt.ui.client.widget.Info;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;

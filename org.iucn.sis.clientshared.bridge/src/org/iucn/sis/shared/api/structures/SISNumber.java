@@ -5,9 +5,6 @@ import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.IntegerPrimitiveField;
-import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.ClickHandler;

@@ -9,10 +9,6 @@
 
 package org.iucn.sis.shared.api.displays;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
@@ -22,7 +18,6 @@ import org.iucn.sis.shared.api.structures.Structure;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class FieldDisplay extends Display {
 

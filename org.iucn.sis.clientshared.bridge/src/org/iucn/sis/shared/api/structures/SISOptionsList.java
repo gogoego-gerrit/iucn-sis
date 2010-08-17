@@ -8,7 +8,6 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 

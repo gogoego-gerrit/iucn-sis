@@ -8,7 +8,6 @@ import org.iucn.sis.shared.api.findreplace.FindReplaceData;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
-import com.solertium.lwxml.gwt.NativeDocumentSerializer;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;

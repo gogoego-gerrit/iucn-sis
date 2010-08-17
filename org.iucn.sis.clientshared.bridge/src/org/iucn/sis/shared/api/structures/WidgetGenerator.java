@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 
-import org.iucn.sis.shared.api.data.StructureConstructorPackage;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.solertium.lwxml.gwt.debug.SysDebugger;

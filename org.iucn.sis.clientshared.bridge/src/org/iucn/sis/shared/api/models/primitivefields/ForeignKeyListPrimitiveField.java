@@ -1,13 +1,10 @@
 package org.iucn.sis.shared.api.models.primitivefields;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
-// default package
-// Generated Apr 27, 2010 9:30:39 AM by Hibernate Tools 3.3.0.GA
 
 import com.solertium.lwxml.shared.NativeElement;
 

@@ -1,15 +1,12 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.DatePrimitiveField;
-import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;

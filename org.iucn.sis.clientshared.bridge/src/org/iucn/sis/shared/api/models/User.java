@@ -14,7 +14,6 @@ package org.iucn.sis.shared.api.models;
  */
 import java.io.Serializable;
 
-import com.extjs.gxt.ui.client.widget.grid.ColumnHeader.Group;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 public class User implements Serializable {

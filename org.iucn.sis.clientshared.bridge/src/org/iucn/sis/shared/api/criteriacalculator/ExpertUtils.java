@@ -1,6 +1,5 @@
 package org.iucn.sis.shared.api.criteriacalculator;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

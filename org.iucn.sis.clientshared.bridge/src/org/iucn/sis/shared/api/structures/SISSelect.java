@@ -3,10 +3,8 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -21,7 +19,6 @@ import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.util.extjs.client.WindowUtils;
 
 public class SISSelect extends DominantStructure {
 

@@ -10,11 +10,9 @@ import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.models.ClientUser;
-import org.iucn.sis.client.api.utils.ProfileUtils;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.citations.Referenceable;
-import org.iucn.sis.shared.api.models.User;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.solertium.lwxml.factory.NativeDocumentFactory;

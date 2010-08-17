@@ -16,13 +16,11 @@ package org.iucn.sis.shared.api.models;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
-import com.solertium.lwxml.gwt.NativeDocumentSerializer;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 

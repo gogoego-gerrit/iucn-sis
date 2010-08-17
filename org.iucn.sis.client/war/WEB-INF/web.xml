@@ -12,7 +12,7 @@
                 <init-param> <!--  The application specified here is bogus; SIS Bootstrap will
                                    take care of application attachment -->
                   <param-name>org.restlet.application</param-name>
-                  <param-value>com.solertium.gwtproxy.PersistentProxy</param-value>
+                  <param-value>com.solertium.gwtproxy.GWTAwarePersistentProxy</param-value>
                 </init-param>
                 <init-param>
                   <param-name>module</param-name>
@@ -25,7 +25,7 @@
         		<servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
         		<init-param>
 		  			<param-name>org.restlet.application</param-name>
-		  			<param-value>com.solertium.gwtproxy.PersistentProxy</param-value>
+		  			<param-value>com.solertium.gwtproxy.GWTAwarePersistentProxy</param-value>
 				</init-param>
 				<init-param>
 		  			<param-name>module</param-name>
@@ -35,6 +35,6 @@
 
         <servlet-mapping>
                 <servlet-name>adapter</servlet-name>
-                <url-pattern>/r/*</url-pattern>
+                <url-pattern>/proxy-service/*</url-pattern>
         </servlet-mapping>
 </web-app>

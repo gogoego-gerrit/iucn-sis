@@ -1,14 +1,22 @@
 package org.iucn.sis.client.api.utils;
 
+import com.google.gwt.user.client.Window;
+
 public class UriBase {
 
-	public static final boolean hostedMode = true;
 	private static UriBase base;
 	
 	public static final UriBase getInstance() {
 		if (base == null)
 			base = new UriBase();
 		return base;
+	}
+	
+	private final String baseUrl;
+	
+	private UriBase() {
+		final boolean hostedMode = Window.Location.getParameter("gwt.codesvr") != null;
+		baseUrl = hostedMode ? "/proxy-service/apps" : "/apps";
 	}
 	
 	@Override
@@ -106,9 +114,7 @@ public class UriBase {
 	
 	
 	private String getBase() {
-		if (hostedMode)
-			return "/r/apps";
-		return "/apps";
+		return baseUrl;
 	}
 
 }

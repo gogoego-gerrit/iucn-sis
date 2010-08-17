@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.ClickHandler;

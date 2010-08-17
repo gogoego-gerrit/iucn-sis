@@ -1,20 +1,15 @@
 package org.iucn.sis.client.api.assessment;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.assessments.AssessmentUtils;
 import org.iucn.sis.shared.api.displays.Display;
-import org.iucn.sis.shared.api.displays.FieldDisplay;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;

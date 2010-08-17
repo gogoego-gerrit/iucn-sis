@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;

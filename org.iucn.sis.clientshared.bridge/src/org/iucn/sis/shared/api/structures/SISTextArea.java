@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
-import org.iucn.sis.shared.api.utils.XMLUtils;
 import org.iucn.sis.shared.api.utils.clipboard.Clipboard;
 import org.iucn.sis.shared.api.utils.clipboard.UsesClipboard;
 
