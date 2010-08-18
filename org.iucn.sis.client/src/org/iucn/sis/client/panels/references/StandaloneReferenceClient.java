@@ -10,7 +10,8 @@ public class StandaloneReferenceClient implements EntryPoint {
 		final Viewport vp = new Viewport();
 		vp.setLayout(new FillLayout());
 
-		ReferenceViewPanel rvp = new ReferenceViewPanel();
+		//ReferenceViewPanel rvp = new ReferenceViewPanel();
+		ReferenceViewTabPanel rvp = new ReferenceViewTabPanel();
 		vp.add(rvp);
 		vp.layout();
 		

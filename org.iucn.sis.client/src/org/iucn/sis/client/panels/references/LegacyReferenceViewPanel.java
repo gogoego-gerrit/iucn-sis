@@ -74,7 +74,7 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
  * @author carl.scott
  * 
  */
-public class ReferenceViewPanel extends TabPanel {
+public class LegacyReferenceViewPanel extends TabPanel {
 
 	private final int SHOW_COUNT = 25;
 	private int current = 0;
@@ -147,7 +147,7 @@ public class ReferenceViewPanel extends TabPanel {
 		}
 	};
 
-	public ReferenceViewPanel() {
+	public LegacyReferenceViewPanel() {
 		// currentAssessmentID=null;
 		// currentRefs=new ArrayList();
 		TabItem bibTab = new TabItem();

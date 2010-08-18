@@ -4,7 +4,7 @@ import org.iucn.sis.client.panels.assessments.RecentAssessmentsPanel;
 import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
 import org.iucn.sis.client.panels.dem.DEMPanel;
 import org.iucn.sis.client.panels.images.ImagePopupPanel;
-import org.iucn.sis.client.panels.references.ReferenceViewPanel;
+import org.iucn.sis.client.panels.references.ReferenceViewTabPanel;
 import org.iucn.sis.client.panels.taxa.TaxonHomePage;
 import org.iucn.sis.client.panels.utils.SearchPanel;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
@@ -41,7 +41,7 @@ public class PanelManager {
 	public BugPanel bugPanel = null;
 	public BugPanel resolvedBugPanel = null;
 
-	public ReferenceViewPanel refViewPanel = null;
+	public ReferenceViewTabPanel refViewPanel = null;
 
 	public PanelManager() {
 		recentAssessmentsPanel = new RecentAssessmentsPanel(this);
@@ -63,7 +63,7 @@ public class PanelManager {
 		
 		
 		try {
-			refViewPanel = new ReferenceViewPanel();
+			refViewPanel = new ReferenceViewTabPanel();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

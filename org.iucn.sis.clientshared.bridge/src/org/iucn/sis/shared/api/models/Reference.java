@@ -13,6 +13,7 @@ package org.iucn.sis.shared.api.models;
  * License Type: Evaluation
  */
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -319,16 +320,47 @@ public class Reference implements Serializable, AuthorizableObject {
 		xml.append("<externalBibCode><![CDATA[" + getExternalBibCode() + "]]></externalBibCode>");
 		xml.append("<submissionType><![CDATA[" + getSubmissionType() + "]]></submissionType>");
 		xml.append("</" + ROOT_TAG + ">");
-		return xml.toString();
-		
-		
+		return xml.toString();	
 	}
 	
 	public Map<String, String> toMap() {
-		//FIXME
-		return null;
-	}
+		final Map<String, String> map = new HashMap<String, String>();
+		map.put("id", ""+(getId()));
+		map.put("type", getType());
+		map.put("citationShort", getCitationShort());
+		map.put("citation", getCitation());
+		map.put("citationComplete", ""+(getCitationComplete()));
+		map.put("author", getAuthor());
+		map.put("edition", getEdition());
+		map.put("year", getYear());
+		map.put("title", getTitle());
+		map.put("secondaryAuthor", getSecondaryAuthor());
+		map.put("secondaryTitle", getSecondaryTitle());
+		map.put("placePublished", getPlacePublished());
+		map.put("publisher", getPublisher());
+		map.put("volume", getVolume());
+		map.put("numberOfVolumes", getNumberOfVolumes());
+		map.put("number", getNumber());
+		map.put("pages", getPages());
+		map.put("section", getSection());
+		map.put("tertiaryAuthor", getTertiaryAuthor());
+		map.put("tertiaryTitle", getTertiaryTitle());
+		map.put("date", getDateValue());
+		map.put("subsidiaryAuthor", getSubsidiaryAuthor());
+		map.put("shortTitle", getShortTitle());
+		map.put("alternateTitle", getAlternateTitle());
+		map.put("isbnissn", getIsbnIssn());
+		map.put("keywords", getKeywords());
+		map.put("url", getUrl());
+		map.put("hash", getHash());
+		map.put("bibCode", ""+(getBibCode()));
+		map.put("bibNumber", ""+(getBibNumber()));
+		map.put("bibNoInt", ""+(getBibNoInt()));
+		map.put("externalBibCode", getExternalBibCode());
+		map.put("submissionType", getSubmissionType());
 	
+		return map;
+	}
 	public void addField(String name, String value) {
 		
 	}

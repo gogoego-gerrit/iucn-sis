@@ -73,9 +73,9 @@ public class SimpleSISClient extends SISClientBase {
 			Referenceable referenceable, GenericCallback<Object> onAddCallback,
 			GenericCallback<Object> onRemoveCallback) {
 
-		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setReferences(referenceable);
-		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setOnAddSelected(onAddCallback);
-		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setOnRemoveSelected(onRemoveCallback);
+		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setReferences(referenceable, onAddCallback, onRemoveCallback);
+		/*ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setOnAddSelected(onAddCallback);
+		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setOnRemoveSelected(onRemoveCallback);*/
 
 		Window s = WindowUtils.getWindow(false, true, title);
 		s.setIconStyle("icon-book");

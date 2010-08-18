@@ -1,6 +1,8 @@
 package org.iucn.sis.client.panels.references;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -10,19 +12,26 @@ import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Reference;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -42,6 +51,7 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 /**
  * ReferenceEditor.java
@@ -51,9 +61,9 @@ import com.solertium.util.extjs.client.WindowUtils;
  * @author carl.scott
  * 
  */
-public class ReferenceEditor extends Window {
+public class ReferenceEditor extends Window implements DrawsLazily {
 
-	private SimpleComboBox<String> typeChooser;
+	private ComboBox<ReferenceTypeModel> typeChooser;
 	private Reference reference;
 
 	private LayoutContainer formArea;
@@ -83,10 +93,10 @@ public class ReferenceEditor extends Window {
 
 	public ReferenceEditor(final Reference reference, final boolean canEdit) {
 		super();
+		setLayout(new FillLayout());
 		setClosable(true);
 		setSize(600, 400);
 		setIconStyle("icon-book");
-		setLayoutOnChange(true);
 		setScrollMode(Scroll.AUTO);
 
 		this.reference = reference;
@@ -97,52 +107,141 @@ public class ReferenceEditor extends Window {
 
 		formArea = new LayoutContainer();
 		formArea.setLayout(new FlowLayout(0));
-		formArea.setLayoutOnChange(true);
 		formArea.setScrollMode(Scroll.AUTO);
 
-		typeChooser = new SimpleComboBox<String>();
-		typeChooser.addSelectionChangedListener(new SelectionChangedListener<SimpleComboValue<String>>() {
-			
-			@Override
-			public void selectionChanged(SelectionChangedEvent<SimpleComboValue<String>> se) {
-				changedType = true;
-				setCitationWithNewType();
-				updateFormArea(typeChooser.getSelectedText());
+		typeChooser = new ComboBox<ReferenceTypeModel>();
+		typeChooser.setForceSelection(true);
+		
+		show();
+	}
+	
+	public void show() {
+		draw(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				open();
 			}
 		});
-
+	}
+	
+	private void open() {
+		super.show();
+		center();
+	}
+	
+	public void draw(final DrawsLazily.DoneDrawingCallback callback) {
 		final NativeDocument typesDoc = SimpleSISClient.getHttpBasicNativeDocument();
 		typesDoc.get(UriBase.getInstance().getReferenceBase() +"/refsvr/types", new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-
+				WindowUtils.errorAlert("Could not load reference types, please try again later.");
 			}
-
 			public void onSuccess(String result) {
-				NativeNodeList types = typesDoc.getDocumentElement().getElementsByTagName("type");
+				if (reference != null)
+					System.out.println("Loading reference of type " + reference.getType());
+				
 				int articleIndex = -1;
-				boolean set = false;
+				
+				ReferenceTypeModel selected = null;
+				
+				final ListStore<ReferenceTypeModel> store = new ListStore<ReferenceTypeModel>();
+				final NativeNodeList types = typesDoc.getDocumentElement().getChildNodes();
 				for (int i = 0; i < types.getLength(); i++) {
-					NativeNode current = types.item(i);
+					final NativeNode current = types.item(i);
 					if (current.getNodeName().equalsIgnoreCase("type")) {
-						String value = current.getFirstChild().getNodeValue();
-						typeChooser.add(value);
+						final String value = current.getTextContent();
+						final ReferenceTypeModel model = new ReferenceTypeModel(value);
 						
-						if (reference != null && reference.getType().equalsIgnoreCase(value)) {
-							typeChooser.select(typeChooser.getStore().getModels().size()-1);
-							set = true;
-						}
+						if (reference != null && reference.getType().equalsIgnoreCase(value))
+							selected = model;
 						
-						if( value.equalsIgnoreCase("journal article"))
-							articleIndex = typeChooser.getStore().getModels().size()-1;
+						if ("journal article".equalsIgnoreCase(value))
+							articleIndex = store.getModels().size();
+						
+						store.add(model);
 					}
 				}
 				
-				if (!set)
-					typeChooser.select(articleIndex);
-
-				show();
+				typeChooser.setStore(store);
+				
+				if (selected != null)
+					typeChooser.setValue(selected);
+				
+				typeChooser.addSelectionChangedListener(new SelectionChangedListener<ReferenceTypeModel>() {
+					public void selectionChanged(SelectionChangedEvent<ReferenceTypeModel> se) {
+						changedType = true;
+						setCitationWithNewType();
+						updateFormArea(se.getSelectedItem().getValue());
+					}
+				});
+				
+				build(selected, callback);
 			}
 		});
+	}
+	
+	public void build(ReferenceTypeModel initValue, DrawsLazily.DoneDrawingCallback callback) {
+		Button save = new Button();
+		save.setIconStyle("icon-save");
+		save.setText("Save and Close");
+		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				onSave();
+			}
+		});
+
+		Button cancel = new Button();
+		cancel.setIconStyle("icon-cancel");
+		cancel.setText("Cancel");
+		cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				hide();
+			}
+		});
+
+		Button delete = new Button();
+		delete.setIconStyle("icon-trash");
+		delete.setText("Delete");
+		delete.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				WindowUtils.confirmAlert("Confirm Delete", "Are you sure you want to delete this reference?",
+						new WindowUtils.MessageBoxListener() {
+							@Override
+							public void onNo() {
+							}
+
+							@Override
+							public void onYes() {
+								onDelete();
+							}
+						});
+			}
+		});
+
+		final ToolBar header = new ToolBar();
+		header.add(new Button("Reference Type:"));
+		header.add(typeChooser);
+		header.add(new SeparatorToolItem());
+		if (canEdit)
+			header.add(save);
+		header.add(cancel);
+
+		if (reference != null && canEdit) {
+			header.add(new SeparatorToolItem());
+			header.add(delete);
+		}
+
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(header, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
+		container.add(formArea, new BorderLayoutData(LayoutRegion.CENTER));
+		
+		add(container);
+		
+		if (initValue == null)
+			callback.isDrawn();
+		else
+			updateFormArea(initValue.getValue(), callback);
 	}
 
 	private void addCitation(int row, FlexTable table) {
@@ -420,7 +519,7 @@ public class ReferenceEditor extends Window {
 	 * screen
 	 */
 	private void putFieldsIntoReference() {
-		reference.setType(typeChooser.getSelectedText());
+		reference.setType(typeChooser.getValue().getValue());
 
 		for (int i = 0; i < registeredFields.size(); i++) {
 			TextBox current = (TextBox) registeredFields.get(i);
@@ -460,101 +559,43 @@ public class ReferenceEditor extends Window {
 	}
 
 	/**
-	 * Overrides the shell's open method, draws the editor.
-	 */
-	@Override
-	public void show() {
-		super.show();
-
-		ToolBar header = new ToolBar();
-
-		Button save = new Button();
-		save.setIconStyle("icon-save");
-		save.setText("Save and Close");
-		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				onSave();
-			}
-		});
-
-		Button cancel = new Button();
-		cancel.setIconStyle("icon-cancel");
-		cancel.setText("Cancel");
-		cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				hide();
-			}
-		});
-
-		Button delete = new Button();
-		delete.setIconStyle("icon-trash");
-		delete.setText("Delete");
-		delete.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				WindowUtils.confirmAlert("Confirm Delete", "Are you sure you want to delete this reference?",
-						new WindowUtils.MessageBoxListener() {
-							@Override
-							public void onNo() {
-							}
-
-							@Override
-							public void onYes() {
-								onDelete();
-							}
-						});
-			}
-		});
-
-		
-		header.add(new Button("Reference Type:"));
-		header.add(typeChooser);
-		header.add(new SeparatorToolItem());
-		if (canEdit)
-			header.add(save);
-		header.add(cancel);
-
-		if (reference != null && canEdit) {
-			header.add(new SeparatorToolItem());
-			header.add(delete);
-		}
-
-		updateFormArea(typeChooser.getSelectedText());
-
-		add(header);
-		add(formArea);
-
-		center();
-	}
-
-	/**
 	 * Updates the form area based on the given type
 	 * 
 	 * @param type
 	 *            the type of reference
 	 */
 	private void updateFormArea(String type) {
+		updateFormArea(type, new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+	}
+	
+	private void updateFormArea(String type, final DrawsLazily.DoneDrawingCallback callback) {
 		formArea.removeAll();
+		
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.get(UriBase.getInstance().getReferenceBase() + "/refsvr/type/" + type, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-
+				callback.isDrawn();
 			}
-
 			public void onSuccess(String result) {
 				int currentRow = 0;
+				
 				final FlexTable table = new FlexTable();
 				table.setCellSpacing(2);
+				
+				final Map<String, String> data;
+				if (reference == null)
+					data = new HashMap<String, String>();
+				else
+					data = reference.toMap();
+				
 				final NativeNodeList fields = document.getDocumentElement().getElementsByTagName("field");
 				for (int i = 0; i < fields.getLength(); i++) {
 					NativeElement current = fields.elementAt(i);
 					if (current.getNodeName().equalsIgnoreCase("field")) {
 						String fieldName = current.getAttribute("name");
 						String value = "";
-						if (reference != null && reference.hasField(fieldName))
-							value = reference.getField(fieldName);
+						if (data.get(fieldName) != null)
+							value = data.get(fieldName);
 
 						addField(current.getAttribute("label"), fieldName, value, currentRow++, table);
 					}
@@ -567,6 +608,8 @@ public class ReferenceEditor extends Window {
 				formArea.add(table);
 				addCitation(currentRow, table);
 				formArea.layout();
+				
+				callback.isDrawn();
 			}
 		});
 	}
@@ -580,6 +623,22 @@ public class ReferenceEditor extends Window {
 	 */
 	public String validate() {
 		return null;
+	}
+	
+	private static class ReferenceTypeModel extends BaseModelData {
+		
+		private static final long serialVersionUID = 1L;
+		
+		public ReferenceTypeModel(String value) {
+			super();
+			set("text", value);
+			set("value", value);
+		}
+		
+		public String getValue() {
+			return get("value");
+		}
+		
 	}
 
 }
