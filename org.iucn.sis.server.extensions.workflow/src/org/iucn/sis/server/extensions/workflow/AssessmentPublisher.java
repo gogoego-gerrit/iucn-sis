@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -23,49 +25,6 @@ import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.ExperimentalSelectQuery;
 
 public class AssessmentPublisher {
-
-	private Map<String, User> users;
-	
-	public AssessmentPublisher() throws NamingException {
-		getUserInfo();
-	}
-	
-	private void getUserInfo() throws NamingException {
-		users = new HashMap<String, User>();
-		
-		SystemExecutionContext ec2 = new SystemExecutionContext("users");
-		ec2.setExecutionLevel(ExecutionContext.ADMIN);
-		ec2.setAPILevel(ExecutionContext.SQL_ALLOWED);
-		
-		final ExperimentalSelectQuery query = new ExperimentalSelectQuery();
-		query.select("user", "*");
-		query.select("profile", "firstname");
-		query.select("profile", "lastname");
-		query.select("profile", "initials");
-		query.select("profile", "affiliation");
-		
-		final Row.Set rs = new Row.Set();
-		try {
-			ec2.doQuery(query, rs);
-			
-			for( Row curRow : rs.getSet() ) {
-				String f = curRow.get("firstname").getString();
-				String l = curRow.get("lastname").getString();
-				String i = curRow.get("initials").getString();
-				String id = curRow.get("id").getString();
-				
-				User user = new User();
-				user.setFirstName(f);
-				user.setLastName(l);
-				user.setInitials(i);
-				
-				users.put(id, user);
-			}
-		} catch (DBException e) {
-			e.printStackTrace();
-		}
-	}
-
 	
 	
 	/**
@@ -76,6 +35,8 @@ public class AssessmentPublisher {
 	 * @return true if assessment parameter was successfully migrated to Published status
 	 */
 	public boolean publishAssessment(Assessment data, Reference pubRef) {
+		if (true)
+			throw new UnsupportedOperationException();
 		
 		if (data.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
 			data.setType(AssessmentType.PUBLISHED_ASSESSMENT_TYPE);
@@ -85,16 +46,15 @@ public class AssessmentPublisher {
 			}
 			data.addReference(pubRef, CanonicalNames.RedListPublication);
 						
-			putAuthorsIfNotNull(data);
+			//putAuthorsIfNotNull(data);
 			
 			return true;
 		} else
 			return false;
 	}
 	
-	private void putAuthorsIfNotNull(Assessment data) {
+	/*private void putAuthorsIfNotNull(Assessment data) {
 		ArrayList<String> arr;
-		
 		String curAuthors = data.getFirstDataPiece(CanonicalNames.RedListAssessmentAuthors, "");
 		if( curAuthors.equals("") ) {
 			arr = new ArrayList<String>();
@@ -108,7 +68,7 @@ public class AssessmentPublisher {
 						//START AT 2 - index 1 is now just the total number of users...
 						String curID = structures.get(i);
 						if( !curID.equals("0") ) {
-							if( users.containsKey(curID) )
+							if (users.containsKey(curID) )
 								userList.add(users.get(curID));
 							else
 								System.out.println("Could not find user with ID " + curID);
@@ -136,5 +96,5 @@ public class AssessmentPublisher {
 		}
 		
 		return text.toString();
-	}
+	}*/
 }

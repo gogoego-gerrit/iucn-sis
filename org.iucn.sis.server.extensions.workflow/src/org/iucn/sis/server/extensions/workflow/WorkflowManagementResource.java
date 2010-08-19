@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.iucn.sis.server.ServerApplication;
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.application.SISApplication;
-import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.extensions.integrity.IntegrityValidator;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -33,7 +30,6 @@ import com.solertium.db.query.SelectQuery;
 import com.solertium.db.restlet.DBResource;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.NodeCollection;
-import com.solertium.vfs.VFS;
 
 public class WorkflowManagementResource extends DBResource {
 	
@@ -43,7 +39,7 @@ public class WorkflowManagementResource extends DBResource {
 	public WorkflowManagementResource(Context context, Request request, Response response) {
 		super(context, request, response);
 		setModifiable(true);
-		manager = new WorkflowManager(getExecutionContext());
+		manager = new WorkflowManager();
 		workingSet = (String)request.getAttributes().get("working-set");
 	}
 	
@@ -121,7 +117,7 @@ public class WorkflowManagementResource extends DBResource {
 			final WorkingSet  data = SIS.get().getWorkingSetIO().readWorkingSet(Integer.valueOf(workingSet));
 			
 			final Collection<Assessment> assessments = 
-				WorkflowManager.getAllAssessments(ServerApplication.getApplication(getContext()).getVFS(), data);
+				WorkflowManager.getAllAssessments(data);
 			
 			System.out.println("There are " + assessments.size() + " assessments in this working set...");
 			
@@ -133,10 +129,11 @@ public class WorkflowManagementResource extends DBResource {
 			boolean success = true;
 			for (Assessment assessment : assessments) {
 				try {
-					success &= 
-						IntegrityValidator.validate_background(
-								WorkflowManager.getAllAssessments(ServerApplication.getApplication(getContext()).getVFS(), ec, assessment.getAssessmentID(), 
-										AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID)
+					success &= IntegrityValidator.
+						validate_background(ServerApplication.
+							getApplication(getContext()).getVFS(), 
+							ec, assessment.getId(), 
+							AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_TYPE)
 						);
 				} catch (DBException e) {
 					e.printStackTrace();
@@ -152,7 +149,7 @@ public class WorkflowManagementResource extends DBResource {
 			}
 			
 			try {
-				manager.changeStatus(workingSet, user, proposed, comment, notify);
+				manager.changeStatus(Integer.parseInt(workingSet), user, proposed, comment, notify);
 			} catch (WorkflowManagerException e) {
 				die(e);
 				return;

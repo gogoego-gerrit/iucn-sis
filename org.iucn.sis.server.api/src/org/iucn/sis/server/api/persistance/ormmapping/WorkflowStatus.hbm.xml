@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.WorkflowStatus" table="workflow_status" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<property name="status" column="status" type="string" length="255" not-null="true" lazy="false" />
+		<many-to-one name="workingset" cascade="lock" column="workingsetid" class="org.iucn.sis.shared.api.models.WorkingSet" not-null="true" lazy="no-proxy"/>
+		<set name="WorkflowNotes" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="workflowstatusid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.WorkflowNote"/>
+		</set>
+	</class>	
+</hibernate-mapping>

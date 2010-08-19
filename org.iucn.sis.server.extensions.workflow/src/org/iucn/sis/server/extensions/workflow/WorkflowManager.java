@@ -8,41 +8,24 @@ import java.util.List;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
-import org.iucn.sis.server.api.io.WorkingSetIO;
-import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 import org.iucn.sis.shared.api.workflow.WorkflowUserInfo;
 import org.restlet.data.Status;
-import org.restlet.resource.ResourceException;
 
-import com.solertium.db.CDateTime;
-import com.solertium.db.CInteger;
-import com.solertium.db.CString;
-import com.solertium.db.CanonicalColumnName;
-import com.solertium.db.DBException;
-import com.solertium.db.ExecutionContext;
-import com.solertium.db.Row;
-import com.solertium.db.RowID;
-import com.solertium.db.query.InsertQuery;
-import com.solertium.db.query.QConstraint;
-import com.solertium.db.query.SelectQuery;
-import com.solertium.db.query.UpdateQuery;
 import com.solertium.util.TrivialExceptionHandler;
-import com.solertium.vfs.VFS;
 
 public class WorkflowManager {
 	
-	private final ExecutionContext ec;
+	private final PersistenceLayer persistence;
 //	private final VFS vfs;
 	
-	public WorkflowManager(ExecutionContext ec) {
-		this.ec = ec;
+	public WorkflowManager() {
+		this.persistence = new DBSessionPersistenceLayer();
 //		this.vfs = ServerApplication.getStaticVFS();
 	}
 	
@@ -93,13 +76,14 @@ public class WorkflowManager {
 	public Number changeStatus(Integer workingSet, WorkflowUserInfo user, WorkflowStatus status, WorkflowComment comment, Collection<WorkflowUserInfo> notify) throws WorkflowManagerException {
 		if (WorkflowStatus.PUBLISH.equals(status)) {
 			//TODO: ensure that the submitter has proper permission (are RL Unit).
+			//new AssessmentPublisher().publishAssessment(data, pubRef)
 		}
 		
 		WorkflowStatus currentStatus;
 		Number id;
 		List<WorkflowComment> systemComments = new ArrayList<WorkflowComment>();
 		
-		final Row row = getWorkflowRow(workingSet.toString());
+		final org.iucn.sis.shared.api.models.WorkflowStatus row = getWorkflowRow(workingSet.toString());
 		if (row == null) {
 			if (WorkflowStatus.DRAFT.equals(status))
 				throw new WorkflowManagerException("This working set is already in draft status and has not started the review process yet.", Status.CLIENT_ERROR_CONFLICT);
@@ -109,8 +93,8 @@ public class WorkflowManager {
 			}
 		}
 		else {
-			id = row.get("id").getInteger();
-			currentStatus = WorkflowStatus.getStatus(row.get("status").toString());
+			id = row.getId();
+			currentStatus = WorkflowStatus.getStatus(row.getStatus());
 		}
 		
 		// No need to block this
@@ -157,7 +141,7 @@ public class WorkflowManager {
 				id = insertStatus(workingSet.toString(), status);
 			else
 				updateStatus(id, status);
-		} catch (DBException e) {
+		} catch (WorkflowManagerException e) {
 			throw new WorkflowManagerException("Unexpected server failure when trying to update status, please try again later.", e);
 		}
 		
@@ -172,7 +156,7 @@ public class WorkflowManager {
 		
 		try {
 			addComment(id, new WorkflowComment(user, builder.toString()));
-		} catch (DBException ignored) {
+		} catch (WorkflowManagerException ignored) {
 			TrivialExceptionHandler.ignore(this, ignored);
 		}
 		
@@ -207,77 +191,32 @@ public class WorkflowManager {
 	}
 	
 	public void addComment(String workingSet, WorkflowComment comment) throws WorkflowManagerException {
-		final Row row = getWorkflowRow(workingSet);
+		final org.iucn.sis.shared.api.models.WorkflowStatus row = getWorkflowRow(workingSet);
 		if (row == null)
 			throw new WorkflowManagerException("This working set has not started the submission process yet.", Status.CLIENT_ERROR_BAD_REQUEST);
 		
 		try {
-			addComment(row.get("id").getInteger(), comment);
-		} catch (DBException e) {
+			addComment(row.getId(), comment);
+		} catch (WorkflowManagerException e) {
 			throw new WorkflowManagerException("Unexpected server failure when trying to add comment, please try again later.", e);
 		}
 	}
 	
 	
-	private void addComment(Number id, WorkflowComment comment) throws DBException {
-		final Row row = new Row();
-		row.add(new CInteger("id", RowID.get(ec, WorkflowConstants.WORKFLOW_NOTES_TABLE, "id")));
-		row.add(new CInteger("workflowstatusid", id));
-		row.add(new CString("scope", comment.getScope()));
-		row.add(new CString("user", comment.getUser().getName()));
-		row.add(new CString("comment", comment.getComment()));
-		row.add(new CDateTime("date", comment.getDate()));
-		
-		final InsertQuery query = new InsertQuery();
-		query.setRow(row);
-		query.setTable(WorkflowConstants.WORKFLOW_NOTES_TABLE);
-		
-		ec.doUpdate(query);
+	private void addComment(Number id, WorkflowComment comment) throws WorkflowManagerException {
+		persistence.addComment(id, comment);
 	}
 	
-	private Row getWorkflowRow(String workingSet) throws WorkflowManagerException {
-		final SelectQuery query = new SelectQuery();
-		query.select(WorkflowConstants.WORKFLOW_TABLE, "*");
-		query.constrain(new CanonicalColumnName(WorkflowConstants.WORKFLOW_TABLE, "workingsetid"), QConstraint.CT_EQUALS, workingSet);
-		
-		final Row.Loader rl = new Row.Loader();
-		
-		try {
-			ec.doQuery(query, rl);
-		} catch (DBException e) {
-			throw new WorkflowManagerException("Unexpected server error, please try again later.", e);
-		}
-		
-		return rl.getRow();
+	private org.iucn.sis.shared.api.models.WorkflowStatus getWorkflowRow(String workingSet) throws WorkflowManagerException {
+		return persistence.getWorkflowRow(workingSet);
 	}
 	
-	private void updateStatus(Number id, WorkflowStatus status) throws DBException {
-		final Row row = new Row();
-		row.add(new CString("status", status.toString()));
-		
-		final UpdateQuery query = new UpdateQuery();
-		query.setTable(WorkflowConstants.WORKFLOW_TABLE);
-		query.setRow(row);
-		query.constrain(new CanonicalColumnName(WorkflowConstants.WORKFLOW_TABLE, "id"), QConstraint.CT_EQUALS, id);
-		
-		ec.doUpdate(query);
+	private void updateStatus(Number id, WorkflowStatus status) throws WorkflowManagerException {
+		persistence.updateStatus(id, status);
 	}
 	
-	private Number insertStatus(String workingSet, WorkflowStatus status) throws DBException {
-		final Number id;
-		
-		final Row row = new Row();
-		row.add(new CInteger("id", id = RowID.get(ec, WorkflowConstants.WORKFLOW_TABLE, "id")));
-		row.add(new CString("status", status.toString()));
-		row.add(new CString("workingsetid", workingSet));
-		
-		final InsertQuery query = new InsertQuery();
-		query.setTable(WorkflowConstants.WORKFLOW_TABLE);
-		query.setRow(row);
-		
-		ec.doUpdate(query);
-		
-		return id;
+	private Number insertStatus(String workingSet, WorkflowStatus status) throws WorkflowManagerException {
+		return persistence.insertStatus(workingSet, status);
 	}
 	
 	private void lockWorkingSet(Integer workingSetID) throws Exception {
@@ -298,7 +237,6 @@ public class WorkflowManager {
 	}
 	
 	private void unlockWorkingSet(Integer workingSetID) throws Exception {
-		
 		WorkingSet data = SIS.get().getWorkingSetIO().readWorkingSet(workingSetID);
 		SIS.get().getLocker().persistentClearGroup(workingSetID.toString());
 		
@@ -310,98 +248,22 @@ public class WorkflowManager {
 	 * TODO: grant the users specified access to the working set.
 	 */
 	private void copyToNotifiedUsers(Integer workingSet, Collection<WorkflowUserInfo> notify) {
-		final WorkingSetRestletWorker worker = new WorkingSetRestletWorker(vfs);
 		for (WorkflowUserInfo info : notify) {
-			try {
-				worker.subscribeToPublicWorkingSet(workingSet, info.getID());
-			} catch (ResourceException e) {
-				System.out.println("Failed to copy working set to notified users: " + e.getMessage());
-				e.printStackTrace();
-				TrivialExceptionHandler.ignore(this, e);
-			}
+			if (SIS.get().getWorkingSetIO().subscribeToWorkingset(workingSet, info.getID()))
+				System.out.println("Failed to copy working set to notified users " + info.getName());
 		}
 	}
 	
 	private void ensureConsistent(final Integer workingSetID) throws WorkflowManagerException {
-		final Collection<Assessment> assessments = getAllAssessments(workingSetID);
-		System.out.println("Ensuring consistency on " + assessments.size() + " assessments...");
-		
-		final String table = "RedListConsistencyCheck";
-		final Collection<String> failedSpecies = new ArrayList<String>();
-		for (Assessment data : assessments) {
-			final String uid = data.getAssessmentID() + "_" + AssessmentType.DRAFT_ASSESSMENT_TYPE;
-			
-			final SelectQuery query = new SelectQuery();
-			query.select(table, "asm_id");
-			query.constrain(new CanonicalColumnName(table, "status"), QConstraint.CT_EQUALS, Integer.valueOf(2));
-			query.constrain(QConstraint.CG_AND, new CanonicalColumnName(table, "approval_status"), QConstraint.CT_EQUALS, Integer.valueOf(1));
-			query.constrain(QConstraint.CG_AND, new CanonicalColumnName(table, "uid"), QConstraint.CT_EQUALS, uid);
-			
-			final Row.Loader rl = new Row.Loader();
-			
-			try {
-				System.out.println(query.getSQL(ec.getDBSession()));
-				ec.doQuery(query, rl);
-			} catch (DBException e) {
-				failedSpecies.add(data.getSpeciesName());
-				continue;
-			}
-			
-			if (rl.getRow() == null)
-				failedSpecies.add(data.getSpeciesName());
-		}
-		
-		if (!failedSpecies.isEmpty()) {
-			final StringBuilder builder = new StringBuilder();
-			builder.append("The following species have not yet been marked as consistency checked: ");
-			for (Iterator<String> iter = failedSpecies.iterator(); iter.hasNext(); )
-				builder.append(iter.next() + (iter.hasNext() ? ", " : ""));
-			throw new WorkflowManagerException(builder.toString());
-		}
-		
+		persistence.ensureConsistent(workingSetID);
 	}
 	
 	private void ensureEvaluated(final Integer workingSet) throws WorkflowManagerException {
-		ensureEvaluated(SIS.get().getWorkingSetIO().readWorkingSet(workingSet)
-		);
+		ensureEvaluated(SIS.get().getWorkingSetIO().readWorkingSet(workingSet));
 	}
 	
-	private void ensureEvaluated(final WorkingSet  workingSet) throws WorkflowManagerException {
-		final Collection<Assessment> assessments = getAllAssessments(workingSet);
-		System.out.println("Ensuring evaluation on " + assessments.size() + " assessments...");
-		
-		final String table = "RedListEvaluated";
-		final Collection<String> failedSpecies = new ArrayList<String>(); 
-		for (Assessment data : assessments) {
-			final String uid = data.getAssessmentID() + "_" + AssessmentType.DRAFT_ASSESSMENT_TYPE;
-			
-			final SelectQuery query = new SelectQuery();
-			query.select(table, "asm_id");
-			query.constrain(new CanonicalColumnName(table, "is_evaluated"), QConstraint.CT_EQUALS, "true");
-			query.constrain(QConstraint.CG_AND, new CanonicalColumnName(table, "approval_status"), QConstraint.CT_EQUALS, Integer.valueOf(1));
-			query.constrain(QConstraint.CG_AND, new CanonicalColumnName(table, "uid"), QConstraint.CT_EQUALS, uid);
-			
-			final Row.Loader rl = new Row.Loader();
-			
-			try {
-				System.out.println(query.getSQL(ec.getDBSession()));
-				ec.doQuery(query, rl);
-			} catch (DBException e) {
-				failedSpecies.add(data.getSpeciesName());
-				continue;
-			}
-			
-			if (rl.getRow() == null)
-				failedSpecies.add(data.getSpeciesName());
-		}
-		
-		if (!failedSpecies.isEmpty()) {
-			final StringBuilder builder = new StringBuilder();
-			builder.append("The following species have not yet been marked as evaluted: ");
-			for (Iterator<String> iter = failedSpecies.iterator(); iter.hasNext(); )
-				builder.append(iter.next() + (iter.hasNext() ? ", " : ""));
-			throw new WorkflowManagerException(builder.toString());
-		}
+	private void ensureEvaluated(final WorkingSet workingSet) throws WorkflowManagerException {
+		persistence.ensureEvaluated(workingSet);
 	}
 	
 	public static Collection<Assessment> getAllAssessments(final Integer workingSetID) {

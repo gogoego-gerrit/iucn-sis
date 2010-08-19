@@ -1,8 +1,10 @@
 package org.iucn.sis.server.api.persistance;
 
 
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
 
 import javassist.util.proxy.MethodFilter;
 
@@ -45,7 +47,6 @@ public class SISPersistentManager {
 
 	public static synchronized final SISPersistentManager instance() {
 		if (instance == null) {
-			System.out.println("getting new instance");
 			setCurrentThread();
 			instance = new SISPersistentManager();
 			instance.sessionFactory = instance.buildSessionFactory();
@@ -78,6 +79,7 @@ public class SISPersistentManager {
 		
 		final String configUri = GoGoEgo.getInitProperties().getProperty("org.iucn.sis.server.configuration.uri", "local:SIS");
 		if (configUri.startsWith("file")) {
+			System.out.println("Creating new persistence manager from file " + configUri);
 			try {
 				configuration.configure(new URL(configUri));
 			} catch (MalformedURLException e) {
@@ -88,6 +90,7 @@ public class SISPersistentManager {
 		}
 		else if (configUri.startsWith("local:") && !configUri.equals("local:")) {
 			final String name = configUri.substring(configUri.indexOf(':')+1);
+			System.out.println("Creating new persistence manager from local resource " + name);
 			try {
 				configuration.configure(ClassLoaderTester.class.getResource(name + ".cfg.xml"));
 			} catch (HibernateException e) {
@@ -129,8 +132,32 @@ public class SISPersistentManager {
 	public void lockObject(Object obj) throws PersistentException {
 		Session session = getSession();
 		session.lock(obj, LockMode.NONE);
+		//FIXME: should we be using the code below?
+		//session.buildLockRequest(LockOptions.NONE).lock(obj);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public <X> X getObject(Class<X> clazz, Serializable id) throws PersistentException {
+		Session session = getSession();
+		try {
+			return (X) session.get(clazz, id);
+		} catch (ClassCastException e) {
+			throw new PersistentException(e);
+		} catch (HibernateException e) {
+			throw new PersistentException(e);
+		}
+	}
 	
+	@SuppressWarnings("unchecked")
+	public <X> List<X> listObjects(Class<X> criteria) throws PersistentException {
+		Session session = getSession();
+		try {
+			return session.createCriteria(criteria).list();
+		} catch (ClassCastException e) {
+			throw new PersistentException(e);
+		} catch (HibernateException e) {
+			throw new PersistentException(e);
+		}
+	}
 
 }
