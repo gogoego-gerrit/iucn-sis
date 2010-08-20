@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.locking.HibernateLockRepository;
 import org.iucn.sis.server.api.locking.LockRepository;
 import org.iucn.sis.server.api.locking.PersistentLockRepository;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
@@ -33,7 +34,7 @@ public class LockManagementRestlet extends ServiceRestlet {
 	public LockManagementRestlet(String vfsroot, Context context) {
 		super(vfsroot, context);
 		
-		repository = new PersistentLockRepository();
+		repository = new HibernateLockRepository();
 	}
 
 	public void definePaths() {
