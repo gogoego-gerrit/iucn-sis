@@ -1,6 +1,8 @@
 package org.iucn.sis.server.api.locking;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.iucn.sis.shared.api.models.User;
 
@@ -12,6 +14,10 @@ public abstract class LockRepository {
 	public abstract boolean isAssessmentPersistentLocked(Integer id);
 	
 	public abstract LockRepository.Lock getLockedAssessment(Integer id);
+	
+	public abstract Map<String, List<Integer>> listGroups();
+	
+	public abstract List<LockRepository.Lock> listLocks();
 	
 	public abstract LockRepository.Lock lockAssessment(Integer id, User owner, LockType lockType);
 	
@@ -67,10 +73,14 @@ public abstract class LockRepository {
 		boolean restart = true;
 
 		public Lock(Integer id, String username, LockType lockType, LockRepository owner) {
+			this(id, username, lockType, new Date(), owner);
+		}
+		
+		public Lock(Integer id, String username, LockType lockType, Date lockDate, LockRepository owner) {
 			this.username = username;
 			this.lockType = lockType;
 			this.id = id;
-			this.whenLockAcquired = new Date().getTime();
+			this.whenLockAcquired = lockDate.getTime();
 
 //			if( verboseOutput )
 //				System.out.println("Acquiring: " + toString());
@@ -101,12 +111,20 @@ public abstract class LockRepository {
 			return "Lock " + lockType + ", owned by " + username + ", for " + id;
 		}
 		
+		public Integer getLockID() {
+			return id;
+		}
+		
 		public LockType getLockType() {
 			return lockType;
 		}
 		
 		public String getUsername() {
 			return username;
+		}
+		
+		public long getWhenLockAcquired() {
+			return whenLockAcquired;
 		}
 		
 		public String toXML() {

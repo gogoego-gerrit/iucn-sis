@@ -1,8 +1,12 @@
 package org.iucn.sis.server.restlets.utils;
 
-import org.iucn.sis.server.ServerApplication;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.io.WorkingSetIO;
+import org.iucn.sis.server.api.locking.LockRepository;
 import org.iucn.sis.server.api.locking.PersistentLockRepository;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -15,35 +19,28 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
 
+import com.solertium.db.CDateTime;
+import com.solertium.db.CInteger;
 import com.solertium.db.CString;
-import com.solertium.db.CanonicalColumnName;
-import com.solertium.db.DBException;
-import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
-import com.solertium.db.query.DeleteQuery;
-import com.solertium.db.query.QComparisonConstraint;
-import com.solertium.db.query.QConstraint;
-import com.solertium.db.query.SelectQuery;
 import com.solertium.db.utils.QueryUtils;
 import com.solertium.util.BaseDocumentUtils;
-import com.solertium.util.TrivialExceptionHandler;
 
 public class LockManagementRestlet extends ServiceRestlet {
 	
-	private final ExecutionContext ec;
+	private final LockRepository repository;
 	
 	public LockManagementRestlet(String vfsroot, Context context) {
 		super(vfsroot, context);
 		
-		if(SIS.amIOnline())
-			this.ec = PersistentLockRepository.getExecutionContext();
-		else
-			this.ec = null;
+		repository = new PersistentLockRepository();
 	}
 
 	public void definePaths() {
-		paths.add("/management/locks/{protocol}");
-		paths.add("/management/locks/{protocol}/{identifier}");
+		if (SIS.amIOnline()) {
+			paths.add("/management/locks/{protocol}");
+			paths.add("/management/locks/{protocol}/{identifier}");
+		}
 	}
 
 	public void performService(Request request, Response response) {
@@ -67,21 +64,12 @@ public class LockManagementRestlet extends ServiceRestlet {
 	}
 
 	private void doGet(Response response, final String table) {
-		final SelectQuery query = new SelectQuery();
-		query.select(table, "*");
-		
-		final com.solertium.db.Row.Set rs = new Row.Set();
-		
-		try {
-			ec.doQuery(query, rs);
-		} catch (DBException e) {
-			response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
-			return;
-		}
+		final List<Row> rows = new ArrayList<Row>();
 		
 		if (PersistentLockRepository.LOCK_TABLE.equals(table)) {
-			for (Row row : rs.getSet()) {
-				final char[] lockid = row.get("lockid").toString().toCharArray();
+			for (LockRepository.Lock lock : repository.listLocks()) {
+				final Row row = new Row(); 
+				/*final char[] lockid = lock..toCharArray();
 				final StringBuilder idBuilder = new StringBuilder();
 				final StringBuilder typeBuilder = new StringBuilder();
 				
@@ -93,27 +81,42 @@ public class LockManagementRestlet extends ServiceRestlet {
 						haveID = true;
 						typeBuilder.append(lockid[i]);
 					}
-				}
-				Assessment data = SIS.get().getAssessmentIO().getAssessment(Integer.valueOf(idBuilder.toString()));
+				}*/
+				Assessment data = SIS.get().getAssessmentIO().
+					getAssessment(Integer.valueOf(lock.getLockID()));
 				if (data == null)
-					row.add(new CString("species", row.get("lockid").toString()));
+					row.add(new CString("species", lock.getLockID().toString()));
 				else
 					row.add(new CString("species", data.getSpeciesName()));
-				row.add(new CString("status", typeBuilder.toString()));
+				row.add(new CString("status", lock.getLockType().toString()));
+				row.add(new CInteger("lockid", lock.getLockID()));
+				row.add(new CString("owner", lock.getUsername()));
+				row.add(new CDateTime("date", new Date(lock.getWhenLockAcquired())));
 			}
 		}
 		else {
-			for (Row row : rs.getSet()) {
-				WorkingSet  data = SIS.get().getWorkingSetIO().readWorkingSet(Integer.valueOf(row.get("groupid").toString()));
+			for (Map.Entry<String, List<Integer>> entry : repository.listGroups().entrySet()) {
+				WorkingSet data = SIS.get().getWorkingSetIO().readWorkingSet(Integer.valueOf(entry.getKey()));
+				
+				String groupName;
 				if (data == null)
-					row.add(new CString("groupname", row.get("groupid").toString()));
-				else
-					row.add(new CString("groupname", data.getWorkingSetName()));
+					groupName = entry.getKey();
+				else 
+					groupName = data.getWorkingSetName();
+				
+				for (Integer lockID : entry.getValue()) {
+					final Row row = new Row();
+					row.add(new CString("groupid", entry.getKey()));
+					row.add(new CString("groupname", groupName));
+					row.add(new CInteger("persistentlockid", lockID));
+					
+					rows.add(row);
+				}
 			}
 		}
 
 		response.setEntity(new DomRepresentation(
-			MediaType.TEXT_XML, QueryUtils.writeDocumentFromRowSet(rs.getSet())
+			MediaType.TEXT_XML, QueryUtils.writeDocumentFromRowSet(rows)
 		));
 	}
 
@@ -134,66 +137,13 @@ public class LockManagementRestlet extends ServiceRestlet {
 				return;
 			}
 			
-			final DeleteQuery query = new DeleteQuery();
-			query.setTable(table);
-			query.constrain(new CanonicalColumnName(table, "id"), QConstraint.CT_EQUALS, id);
-			
-			try {
-				ec.doUpdate(query);
-			} catch (DBException e) {
-				e.printStackTrace();
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
-				return;
-			}
+			repository.removeLockByID(id);
 
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity(new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createConfirmDocument("Assessment unlocked.")));
 		}
 		else {
-			final QConstraint groupConstraint = new QComparisonConstraint(
-				new CanonicalColumnName(PersistentLockRepository.LOCK_GROUPS_TABLE, "groupid"), 
-				QConstraint.CT_EQUALS, identifier
-			);
-		
-			final Row.Set rs = new Row.Set(); {
-				final SelectQuery query = new SelectQuery();
-				query.select(PersistentLockRepository.LOCK_GROUPS_TABLE, "persistentlockid");
-				query.constrain(groupConstraint);
-			
-				try {
-					ec.doQuery(query, rs);
-				} catch (DBException e) {
-					e.printStackTrace();
-					response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
-					return;
-				}
-			}
-			
-			for (Row row : rs.getSet()) {
-				final DeleteQuery query = new DeleteQuery();
-				query.setTable(PersistentLockRepository.LOCK_TABLE);
-				query.constrain(new CanonicalColumnName(PersistentLockRepository.LOCK_TABLE, "id"), QConstraint.CT_EQUALS, row.get("persistentlockid").getInteger());
-				
-				try {
-					ec.doUpdate(query);
-				} catch (DBException e) {
-					System.out.println("Failed to unlock row with id: " + row.get("persistentlockid"));
-					e.printStackTrace();
-					TrivialExceptionHandler.ignore(this, e);
-				}
-			}
-			
-			final DeleteQuery deleteGroup = new DeleteQuery();
-			deleteGroup.setTable(PersistentLockRepository.LOCK_GROUPS_TABLE);
-			deleteGroup.constrain(groupConstraint);
-			
-			try {
-				ec.doUpdate(deleteGroup); 
-			} catch (DBException e) {
-				//Extra data will lay around, but doesn't affect the locking system.
-				e.printStackTrace();
-				TrivialExceptionHandler.ignore(this, e);
-			}
+			repository.clearGroup(identifier);
 			
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity(new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createConfirmDocument("Assessments unlocked.")));

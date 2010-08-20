@@ -1,6 +1,10 @@
 package org.iucn.sis.server.api.locking;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.naming.NamingException;
 
@@ -16,9 +20,11 @@ import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
 import com.solertium.db.RowID;
+import com.solertium.db.RowProcessor;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.DeleteQuery;
 import com.solertium.db.query.InsertQuery;
+import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.util.BaseDocumentUtils;
@@ -92,7 +98,8 @@ public class PersistentLockRepository extends LockRepository {
 			final Row row = rl.getRow();
 			return new LockRepository.Lock(
 				identifier, row.get("owner").toString(), 
-				LockType.fromString(row.get("type").toString()), this
+				LockType.fromString(row.get("type").toString()), 
+				row.get("date").getDate(), this
 			);
 		}
 	}
@@ -114,6 +121,63 @@ public class PersistentLockRepository extends LockRepository {
 		}
 		
 		return rl.getRow() != null;
+	}
+	
+	@Override
+	public Map<String, List<Integer>> listGroups() {
+		final SelectQuery query = new SelectQuery();
+		query.select(LOCK_GROUPS_TABLE, "*");
+		
+		final Map<String, List<Integer>> map = 
+			new ConcurrentHashMap<String, List<Integer>>();
+		
+		synchronized (this) {
+			try {
+				ec.doQuery(query, new RowProcessor() {
+					public void process(Row row) {
+						final String groupID = row.get("groupid").toString();
+						
+						List<Integer> list = map.get(groupID); 
+						if (list == null)
+							list = new ArrayList<Integer>();
+						
+						list.add(row.get("persistentlockid").getInteger());
+						
+						map.put(groupID, list);
+					}
+				});
+			} catch (DBException e) {
+				TrivialExceptionHandler.ignore(this, e);
+			}
+		};
+		
+		return map;
+	}
+	
+	public List<Lock> listLocks() {
+		final SelectQuery query = new SelectQuery();
+		query.select(LOCK_TABLE, "*");
+		
+		final List<Lock> list = new ArrayList<Lock>();
+		
+		synchronized (this) {
+			try {
+				ec.doQuery(query, new RowProcessor() {
+					public void process(Row row) {
+						list.add(new LockRepository.Lock(
+							row.get("lockid").getInteger(), row.get("owner").toString(), 
+							LockType.fromString(row.get("type").toString()), 
+							row.get("date").getDate(), 
+							PersistentLockRepository.this
+						));
+					}
+				});
+			} catch (DBException e) {
+				TrivialExceptionHandler.ignore(this, e);
+			}
+		};
+		
+		return list;
 	}
 
 	@Override
@@ -239,6 +303,38 @@ public class PersistentLockRepository extends LockRepository {
 	}
 	
 	public void clearGroup(String id) {
+		final QConstraint groupConstraint = new QComparisonConstraint(
+			new CanonicalColumnName(PersistentLockRepository.LOCK_GROUPS_TABLE, "groupid"), 
+			QConstraint.CT_EQUALS, id
+		);
+		
+		final Row.Set rs = new Row.Set(); {
+			final SelectQuery query = new SelectQuery();
+			query.select(PersistentLockRepository.LOCK_GROUPS_TABLE, "persistentlockid");
+			query.constrain(groupConstraint);
+		
+			try {
+				ec.doQuery(query, rs);
+			} catch (DBException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+			
+		for (Row row : rs.getSet()) {
+			final DeleteQuery query = new DeleteQuery();
+			query.setTable(PersistentLockRepository.LOCK_TABLE);
+			query.constrain(new CanonicalColumnName(PersistentLockRepository.LOCK_TABLE, "id"), QConstraint.CT_EQUALS, row.get("persistentlockid").getInteger());
+			
+			try {
+				ec.doUpdate(query);
+			} catch (DBException e) {
+				System.out.println("Failed to unlock row with id: " + row.get("persistentlockid"));
+				e.printStackTrace();
+				TrivialExceptionHandler.ignore(this, e);
+			}
+		}
+		
 		final DeleteQuery query = new DeleteQuery();
 		query.setTable(LOCK_GROUPS_TABLE);
 		query.constrain(new CanonicalColumnName(LOCK_GROUPS_TABLE, "groupid"), QConstraint.CT_EQUALS, id);
