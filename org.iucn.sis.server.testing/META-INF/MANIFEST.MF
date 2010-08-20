@@ -23,4 +23,5 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.iucn.sis.server.extensions.references;bundle-version="1.0.0",
  org.iucn.sis.server.extensions.recentasms;bundle-version="1.0.0",
  org.iucn.sis.server.extensions.tags;bundle-version="1.0.0",
- org.iucn.sis.server.extensions.definitions;bundle-version="1.0.0"
+ org.iucn.sis.server.extensions.definitions;bundle-version="1.0.0",
+ org.iucn.sis.server.extensions.images;bundle-version="1.0.0"

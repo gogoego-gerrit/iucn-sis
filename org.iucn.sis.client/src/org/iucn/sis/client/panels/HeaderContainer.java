@@ -337,11 +337,11 @@ public class HeaderContainer extends LayoutContainer {
 						tabItem.setIconStyle("icon-refresh");
 						tabItem.getHeader().addListener(Events.OnClick, new Listener<BaseEvent>() {
 							public void handleEvent(BaseEvent be) {
-								tabItem.setUrl("/images");
+								tabItem.setUrl(UriBase.getInstance().getImageBase()+"/images");
 								tabItem.layout();
 							}
 						});
-						tabItem.setUrl("/images");
+						tabItem.setUrl(UriBase.getInstance().getImageBase()+"/images");
 						tf.add(tabItem);
 					}
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 

@@ -38,7 +38,9 @@ import org.restlet.representation.StringRepresentation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.CSVTokenizer;
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFSPath;
 
@@ -58,242 +60,292 @@ public class ImageRestlet extends ServiceRestlet {
 	}
 	
 	private void handleGet(Request request, Response response, String taxonId) {
-		try {
-			DomRepresentation domRep = new DomRepresentation(MediaType.TEXT_XML);
-			System.out.println(FilenameStriper.getIDAsStripedPath(taxonId));
-			if (vfs.exists("/images/" + FilenameStriper.getIDAsStripedPath(taxonId) + ".xml")) {
-				domRep.setDocument(DocumentUtils.getVFSFileAsDocument("/images/"
-						+ FilenameStriper.getIDAsStripedPath(taxonId) + ".xml", vfs));
-			} else {
-				String xml = "<images id=\"" + taxonId + "\"></images>";
-				domRep.setDocument(DocumentUtils.createDocumentFromString(xml));
+		final VFSPath stripedPath = 
+			new VFSPath("/images/" + FilenameStriper.getIDAsStripedPath(taxonId) + ".xml");
+		
+		final Document document;
+		if (vfs.exists(stripedPath)) {
+			try {
+				document = vfs.getDocument(stripedPath);
+			} catch (IOException e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+				return;
 			}
-			response.setEntity(domRep);
-			response.setStatus(Status.SUCCESS_OK);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
-
+		else
+			document = 
+				BaseDocumentUtils.impl.createDocumentFromString("<images id=\"" + taxonId + "\"></images>");
+		
+		
+		response.setEntity(new DomRepresentation(MediaType.TEXT_XML, document));
+		response.setStatus(Status.SUCCESS_OK);
 	}
 
 	private void handlePost(Request request, Response response, String taxonId) {
-		RestletFileUpload fileUploaded = new RestletFileUpload(new DiskFileItemFactory());
+		final RestletFileUpload fileUploaded = new RestletFileUpload(new DiskFileItemFactory());
 		
+		final List<FileItem> list;
 		try {
-			List<FileItem> list = fileUploaded.parseRequest(request);
-			FileItem file = null;
-			String encoding = "";
-			for (int i = 0; i < list.size() && file == null; i++) {
-				FileItem item = list.get(i);
-
-				encoding = item.getContentType();
-				System.out.println(encoding);
-
-				if (!item.isFormField()) {
-					file = item;
-				}
-			}
-
-			if (file == null) {
-				System.out.println("file null");
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			}
-
-			else {
-				String extension = "";
-				if (encoding.equals("image/jpeg"))
-					extension = "jpg";
-				if (encoding.equals("image/gif"))
-					extension = "gif";
-				if (encoding.equals("image/png"))
-					extension = "png";
-				if (encoding.equals("image/tiff"))
-					extension = "tif";
-				if (encoding.equals("image/bmp"))
-					extension = "bmp";
-				if (taxonId == null || taxonId.equals("batch"))
-					extension = "zip";
-
-				int id = writeFile(file.get(), extension);
-				
-				if (taxonId == null || taxonId.equals("batch")) {
-					if( !running.getAndSet(true) ) {
-						try {
-							handleBatchUpload(id, response);
-						} finally {
-							running.set(false);
-						}
-					} else {
-						response.setEntity(buildUploadHTML());
-						response.setStatus(Status.SUCCESS_OK);
-					}
-				} else {
-					writeXML(taxonId, String.valueOf(id), encoding, null);
-				}
-			}
-
+			list = fileUploaded.parseRequest(request);
 		} catch (FileUploadException e) {
-			e.printStackTrace();
+			response.setStatus(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+			return;
+		}
+		
+		FileItem file = null;
+		String encoding = "";
+		
+		for (int i = 0; i < list.size() && file == null; i++) {
+			FileItem item = list.get(i);
+			if (!item.isFormField()) {
+				file = item;
+			}
+		}
+
+		if (file == null) {
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
+		else {
+			String extension = "";
+			if (encoding.equals("image/jpeg"))
+				extension = "jpg";
+			else if (encoding.equals("image/gif"))
+				extension = "gif";
+			else if (encoding.equals("image/png"))
+				extension = "png";
+			else if (encoding.equals("image/tiff"))
+				extension = "tif";
+			else if (encoding.equals("image/bmp"))
+				extension = "bmp";
+			else if (taxonId == null || taxonId.equals("batch"))
+				extension = "zip";
 
+			int id;
+			try {
+				id = writeFile(file.get(), extension);
+			} catch (IOException e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+				return;
+			}
+				
+			if (taxonId == null || taxonId.equals("batch")) {
+				if (!running.getAndSet(true)) {
+					try {
+						handleBatchUpload(id, response);
+					} finally {
+						running.set(false);
+					}
+				} else {
+					response.setEntity(buildUploadHTML());
+					response.setStatus(Status.SUCCESS_OK);
+				}
+			} else {
+				writeXML(taxonId, String.valueOf(id), encoding, null);
+			}
+		}
 	}
 
-	private int writeFile(byte[] data, String encoding){
+	private int writeFile(byte[] data, String encoding) throws IOException {
 		Random r = new Random(new Date().getTime());
 		
-		int id = r.nextInt(Integer.MAX_VALUE);
-
+		int id;
+		VFSPath randomImagePath;
+		
 		// check for file already existing
-		while (vfs.exists("/images/bin/" + id + "." + encoding))
-			id = r.nextInt(Integer.MAX_VALUE);
-		try{
-			OutputStream outStream = vfs.getOutputStream("/images/bin/" + id + "." + encoding);
+		while (vfs.exists(randomImagePath = 
+			new VFSPath("/images/bin/" + (id = r.nextInt(Integer.MAX_VALUE)) + "." + encoding)));
+		
+		final OutputStream outStream = vfs.getOutputStream(randomImagePath);
+		
+		try {
 			outStream.write(data);
-			outStream.close();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			try {
+				outStream.close();
+			} catch (Exception f) {
+				TrivialExceptionHandler.ignore(this, f);
+			}
 		}
 			
 		return id;
-		
 	}
 
-	private int writeFile(InputStream is, String encoding){
+	private int writeFile(InputStream is, String encoding) throws IOException {
 		Random r = new Random(new Date().getTime());
 		
-		int id = r.nextInt(Integer.MAX_VALUE);
-
+		int id;
+		VFSPath randomImagePath;
+		
 		// check for file already existing
-		while (vfs.exists("/images/bin/" + id + "." + encoding))
-			id = r.nextInt(Integer.MAX_VALUE);
-		try{
-			OutputStream outStream = vfs.getOutputStream("/images/bin/" + id + "." + encoding);
+		while (vfs.exists(randomImagePath = 
+			new VFSPath("/images/bin/" + (id = r.nextInt(Integer.MAX_VALUE)) + "." + encoding)));
+		
+		final OutputStream outStream = vfs.getOutputStream(randomImagePath);
+		try {
 			while(is.available()>0)
 				outStream.write(is.read());
-			outStream.close();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			try {
+				outStream.close();
+			} catch (IOException f) {
+				TrivialExceptionHandler.ignore(this, f);
+			}
 		}
 			
 		return id;
-		
 	}
 	
 	private void handlePut(Request request, Response response, String taxonId) {
+		final Document document;
 		try {
-			DomRepresentation dom = new DomRepresentation(request.getEntity());
+			document = new DomRepresentation(request.getEntity()).getDocument();
+		} catch (Exception e) {
+			response.setStatus(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+			return;
+		}
+		
+		try {
 			DocumentUtils.writeVFSFile("/images/" + FilenameStriper.getIDAsStripedPath(taxonId) + ".xml", vfs, true,
-					dom.getDocument());
+					document);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		response.setStatus(Status.SUCCESS_CREATED);
 	}
 
-	private void handleBatchUpload(int id, Response response){
-		String xml="<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=cp1252\">" +
-				"</head><body><div>";
-		try{
-			File tempFile= vfs.getTempFile(new VFSPath("/images/bin/" + id + ".zip"));
-			ZipFile zip = new org.apache.commons.compress.archivers.zip.ZipFile(tempFile, "Cp1252");
-			Enumeration entries;
-			entries = zip.getEntries();
-			ZipArchiveEntry csv = null;
-			HashMap<String, Integer> filenames = new HashMap<String, Integer>();
-			HashMap<String, String> encodings = new HashMap<String, String>();
-			while(entries.hasMoreElements()) {
-				ZipArchiveEntry entry = (ZipArchiveEntry)entries.nextElement();
-				if(entry.getName().endsWith(".csv")) 
-					csv = entry;
-				else{
-					String filename = entry.getName().toLowerCase();
-					String ext = filename.substring(filename.lastIndexOf(".")+1);
-					InputStream stream = zip.getInputStream(entry);
-					String encoding = "image/"+ext;
-					if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg")) {
-						encoding = "image/jpeg";
-						ext = "jpg"; //Force it to the three letter extension
-					} else if(ext.equalsIgnoreCase("tif") || ext.equalsIgnoreCase("tiff")) {
-						encoding="image/tiff";
-						ext = "tif";
-					}
-						
+	@SuppressWarnings("unchecked")
+	private void handleBatchUpload(int id, Response response) {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=cp1252\">" +
+				"</head><body><div>");
+		
+		File tempFile;
+		try {
+			tempFile = vfs.getTempFile(new VFSPath("/images/bin/" + id + ".zip"));
+		} catch (NotFoundException e) {
+			e.printStackTrace();
+			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+			response.setStatus(Status.SERVER_ERROR_INTERNAL);
+			return;
+		}	
+			
+		final ZipFile zip;
+		try {
+			zip = new org.apache.commons.compress.archivers.zip.ZipFile(tempFile, "Cp1252");
+		} catch (IOException e) {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+			return;
+		}
+		
+		final Enumeration entries = zip.getEntries();
+			
+		ZipArchiveEntry csv = null;
+		
+		final HashMap<String, Integer> filenames = new HashMap<String, Integer>();
+		final HashMap<String, String> encodings = new HashMap<String, String>();
+			
+		while (entries.hasMoreElements()) {
+			ZipArchiveEntry entry = (ZipArchiveEntry)entries.nextElement();
+			if (entry.getName().endsWith(".csv")) 
+				csv = entry;
+			else {
+				String filename = entry.getName().toLowerCase();
+				String ext = filename.substring(filename.lastIndexOf(".")+1);
+				
+				final InputStream stream;
+				try {
+					stream = zip.getInputStream(entry);
+				} catch (IOException e) {
+					e.printStackTrace();
+					continue;
+				}
+				
+				String encoding = "image/"+ext;
+				if (ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg")) {
+					encoding = "image/jpeg";
+					ext = "jpg"; //Force it to the three letter extension
+				} else if (ext.equalsIgnoreCase("tif") || ext.equalsIgnoreCase("tiff")) {
+					encoding="image/tiff";
+					ext = "tif";
+				}
+				
+				try {
 					filenames.put(filename.replaceAll("[^a-zA-Z0-9]", ""), writeFile(stream, ext));
 					encodings.put(filename.replaceAll("[^a-zA-Z0-9]", ""), encoding);
+				} catch (IOException e) {
+					e.printStackTrace();
+					continue;
+				}
 					
-					System.out.println("Putting into filenames " + filename.replaceAll("[^a-zA-Z0-9]", ""));
-				}
+				System.out.println("Putting into filenames " + filename.replaceAll("[^a-zA-Z0-9]", ""));
+			}
+		}
 			
+		if (!csv.equals(null)) {
+			final HashMap<String, ManagedImageData> map;
+			try {
+				map = parseCSV(zip.getInputStream(csv));
+			} catch (IOException e) {
+				response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+				return;
 			}
 			
-			if(!csv.equals(null)){
-				HashMap<String, ManagedImageData> map = parseCSV(zip.getInputStream(csv));
-				for(String key: map.keySet()){
-					System.out.println("Working with key " + key + ": matching filename is " + filenames.get(key));
-					if(writeXML(map.get(key).getField("sp_id"), String.valueOf(filenames.get(key)), encodings.get(key), map.get(key))){
-						xml+="<div>"+map.get(key).getField("filename")+": Success</div><br/>";
-					}
-					else{
-						xml+="<div>"+map.get(key).getField("filename")+": Failure</div><br/>";
-					}
-					System.out.println(xml);
+			for (String key : map.keySet()) {
+				System.out.println("Working with key " + key + ": matching filename is " + filenames.get(key));
+				if (writeXML(map.get(key).getField("sp_id"), String.valueOf(filenames.get(key)), encodings.get(key), map.get(key))){
+					xml.append("<div>"+map.get(key).getField("filename")+": Success</div><br/>");
 				}
-				
-				xml+="</div></body></html>";
-				response.setEntity(new StringRepresentation(xml, MediaType.TEXT_HTML, Language.DEFAULT, CharacterSet.UTF_8));
-				response.setStatus(Status.SUCCESS_OK);
+				else{
+					xml.append("<div>"+map.get(key).getField("filename")+": Failure</div><br/>");
+				}
+				System.out.println(xml);
 			}
 				
-
-			
+			xml.append("</div></body></html>");
+		
+			response.setEntity(new StringRepresentation(xml.toString(), MediaType.TEXT_HTML, Language.DEFAULT, CharacterSet.UTF_8));
+			response.setStatus(Status.SUCCESS_OK);
 		}
-		catch (NotFoundException e) {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		}		
 	}
 	
-	private HashMap<String, ManagedImageData> parseCSV(InputStream csvStream){
+	private HashMap<String, ManagedImageData> parseCSV(InputStream csvStream) throws IOException {
 		HashMap<String, ManagedImageData> data = new HashMap<String, ManagedImageData>();
-		try{
-			BufferedReader lineReader = new BufferedReader(new InputStreamReader(csvStream, Charset.forName("Cp1252")));
-			while(lineReader.ready()){
-				String line = lineReader.readLine();
-				
-				if (line.contains("sp_id")){
-					System.out.println("found header line. Ignoring...");
-					continue; //ignore xsl export headers
-				}
-				CSVTokenizer tokenizer = new CSVTokenizer(line);
-				
-				String filename = tokenizer.nextToken().toLowerCase();
-				ManagedImageData img = new ManagedImageData();
-				img.setField("sp_id", tokenizer.nextToken());
-				
-				img.setField("credit", tokenizer.nextToken());
-				img.setField("source", tokenizer.nextToken());
-				img.setField("caption", tokenizer.nextToken());
-				
-				img.setField("genus", tokenizer.nextToken());
-				img.setField("species", tokenizer.nextToken());
-				
-				img.setField("showRedlist", "true");
-				img.setField("showSIS", "true");
-				img.setField("filename", filename);
-				
-				data.put(filename.replaceAll("[^a-zA-Z0-9]", ""), img);
-			}
-		}
-		catch (IOException e) {
-			e.printStackTrace();
+		
+		BufferedReader lineReader = new BufferedReader(new InputStreamReader(csvStream, Charset.forName("Cp1252")));
+		while(lineReader.ready()){
+			String line = lineReader.readLine();
 			
-		}
+			if (line.contains("sp_id")){
+				System.out.println("found header line. Ignoring...");
+				continue; //ignore xsl export headers
+			}
+			CSVTokenizer tokenizer = new CSVTokenizer(line);
+			
+			String filename = tokenizer.nextToken().toLowerCase();
+			ManagedImageData img = new ManagedImageData();
+			img.setField("sp_id", tokenizer.nextToken());
+			
+			img.setField("credit", tokenizer.nextToken());
+			img.setField("source", tokenizer.nextToken());
+			img.setField("caption", tokenizer.nextToken());
+			
+			img.setField("genus", tokenizer.nextToken());
+			img.setField("species", tokenizer.nextToken());
+			
+			img.setField("showRedlist", "true");
+			img.setField("showSIS", "true");
+			img.setField("filename", filename);
+			
+			data.put(filename.replaceAll("[^a-zA-Z0-9]", ""), img);
+		}	
 		
 		return data;
 	}
@@ -340,39 +392,46 @@ public class ImageRestlet extends ServiceRestlet {
 	}
 
 	private boolean writeXML(String taxonID, String id, String encoding, ManagedImageData data) {
-		if( taxonID == null || id == null || id.equals("null") ) 
+		if (taxonID == null || id == null || id.equals("null")) 
 			return false;
 
-		try {
-			String stripedID = FilenameStriper.getIDAsStripedPath(taxonID);
-			boolean primary = false;
-			Document xml = null;
-			if (vfs.exists("/images/" + stripedID + ".xml")) {
-				xml = DocumentUtils.getVFSFileAsDocument("/images/" + stripedID + ".xml",
-						vfs);
-			} else {
-				xml = DocumentUtils.createDocumentFromString("<images id=\"" + taxonID + "\"></images>");
-				primary = true;
+		final String stripedID = FilenameStriper.getIDAsStripedPath(taxonID);
+		final VFSPath stripedPath = new VFSPath("/images/" + stripedID + ".xml");
+		
+		boolean primary = false;
+		Document xml = null;
+		if (vfs.exists(stripedPath)) {
+			try {
+				xml = vfs.getDocument(stripedPath);
+			} catch (IOException e) {
+				return false;
 			}
-
-			Element el = xml.createElement("image");
-			el.setAttribute("id", id);
-			el.setAttribute("encoding", encoding);
-			el.setAttribute("primary", Boolean.toString(primary));
-			if(data!=null){
-				if(data.containsField("caption")) el.setAttribute("caption", data.getField("caption"));
-				if(data.containsField("credit")) el.setAttribute("credit", data.getField("credit"));
-				if(data.containsField("source")) el.setAttribute("source", data.getField("source"));
-				if(data.containsField("showRedlist")) el.setAttribute("showRedlist", data.getField("showRedlist"));
-				if(data.containsField("showSIS"))el.setAttribute("showSIS", data.getField("showSIS"));
-			}
-			xml.getDocumentElement().appendChild(el);
-
-			DocumentUtils.writeVFSFile("/images/" + stripedID + ".xml", vfs, true, xml);
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
 		}
+		else {
+			xml = DocumentUtils.createDocumentFromString("<images id=\"" + taxonID + "\"></images>");
+			primary = true;
+		}
+
+		Element el = xml.createElement("image");
+		el.setAttribute("id", id);
+		el.setAttribute("encoding", encoding);
+		el.setAttribute("primary", Boolean.toString(primary));
+		
+		if (data != null) {
+			if (data.containsField("caption")) 
+				el.setAttribute("caption", data.getField("caption"));
+			if (data.containsField("credit")) 
+				el.setAttribute("credit", data.getField("credit"));
+			if (data.containsField("source")) 
+				el.setAttribute("source", data.getField("source"));
+			if (data.containsField("showRedlist")) 
+				el.setAttribute("showRedlist", data.getField("showRedlist"));
+			if (data.containsField("showSIS"))
+				el.setAttribute("showSIS", data.getField("showSIS"));
+		}
+			
+		xml.getDocumentElement().appendChild(el);
+
+		return DocumentUtils.writeVFSFile(stripedPath.toString(), vfs, true, xml);
 	}
 }
