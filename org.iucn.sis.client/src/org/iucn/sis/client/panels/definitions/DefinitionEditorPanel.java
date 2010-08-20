@@ -44,9 +44,7 @@ public class DefinitionEditorPanel extends ContentPanel {
 		setScrollMode(Scroll.AUTO);
 		setHeaderVisible(false);
 		
-		TableLayout defLayout = new TableLayout(3);
-		defLayout.setRenderHidden(true);
-		setLayout(defLayout);
+		setLayout(new TableLayout(3));
 	}
 
 	private TextField<String> addDefinition(String definable, String definition) {
