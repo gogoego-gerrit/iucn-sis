@@ -24,15 +24,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.iucn.sis.client.api.caches.UserCache;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.fields.RegionField;
-import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
-import org.iucn.sis.shared.api.structures.SISCategoryAndCriteria;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.solertium.lwxml.shared.GenericCallback;
@@ -175,34 +170,6 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	@Override
 	public Set<Reference> getReferencesAsList() {
 		return getReferences();
-	}
-	
-	/**
-	 * Convenience method that will attempt to return generated assessors text.
-	 * 
-	 * @return assessors as a String, or an empty string
-	 */
-	public String getDisplayableAssessors() {
-		Field assessors = getField(CanonicalNames.RedListAssessors);
-		if( assessors != null ) {
-			ForeignKeyListPrimitiveField fks = ((ForeignKeyListPrimitiveField)assessors.getKeyToPrimitiveFields().get("assessors"));
-			return UserCache.impl.generateTextFromUserIDs(fks.getValue());
-		} else
-			return "";
-	}
-	
-	/**
-	 * Convenience method that will attempt to return generated assessors text.
-	 * 
-	 * @return assessors as a String, or an empty string
-	 */
-	public String getDisplayableEvaluators() {
-		Field evaluators = getField(CanonicalNames.RedListEvaluators);
-		if( evaluators != null ) {
-			ForeignKeyListPrimitiveField fks = ((ForeignKeyListPrimitiveField)evaluators.getKeyToPrimitiveFields().get("evaluators"));
-			return UserCache.impl.generateTextFromUserIDs(fks.getValue());
-		} else
-			return "";
 	}
 	
 	@Override
@@ -464,42 +431,6 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 			dateModified = edit.getCreatedDate().getTime();
 		}
 		return dateModified;
-	}
-	
-	public String getProperCategoryAbbreviation() {
-		String cat = "";
-		BooleanPrimitiveField isManualPF = (BooleanPrimitiveField) getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.IS_MANUAL_KEY);
-		StringPrimitiveField categoryField;
-		if (isManualPF != null && isManualPF.getValue())
-			categoryField = (StringPrimitiveField) getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.MANUAL_CATEGORY_KEY);	
-		else 
-			categoryField = (StringPrimitiveField) getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.GENERATED_CATEGORY_KEY);
-		
-		if (categoryField != null) {
-			cat = categoryField.getValue();
-		} else {
-			cat = "N/A";
-		}			
-
-		return cat;
-	}
-	
-	public String getProperCriteriaString() {
-		String criteria = "";
-		BooleanPrimitiveField isManualPF = (BooleanPrimitiveField) getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.IS_MANUAL_KEY);
-		StringPrimitiveField criteriaField;
-		if (isManualPF != null && isManualPF.getValue()) 
-			criteriaField = (StringPrimitiveField) getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.MANUAL_CRITERIA_KEY);	
-		else 
-			criteriaField = (StringPrimitiveField) getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.GENERATED_CRITERIA_KEY);
-		
-		if (criteriaField != null) {
-			criteria = criteriaField.getValue();
-		} else {
-			criteria = "N/A";
-		}			
-
-		return criteria;
 	}
 	
 	public String getCategoryFuzzyResult() {

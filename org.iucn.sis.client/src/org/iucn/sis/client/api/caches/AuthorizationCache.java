@@ -14,6 +14,7 @@ import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.utils.PermissionUtils;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -236,7 +237,7 @@ public class AuthorizationCache {
 				return true;
 
 			for( PermissionGroup curGroup : permissionMaps.get(user) ) {
-				ret = ret || curGroup.checkMe(auth, operation);
+//				ret = ret || PermissionUtils.checkMe(curGroup, auth, operation);
 				if( ret ) //SHORT CIRCUIT!
 					break;
 				

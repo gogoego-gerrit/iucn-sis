@@ -32,6 +32,7 @@ import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
+import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -133,17 +134,18 @@ public class TaxonHomePage extends LayoutContainer {
 					assessInfoPanel.add(new HTML("&nbsp;&nbsp;Assessment ID: " + curAssessment.getId()));
 
 					assessInfoPanel.add(new HTML("&nbsp;&nbsp;Category: "
-							+ curAssessment.getProperCategoryAbbreviation()));
-					assessInfoPanel.add(new HTML("&nbsp;&nbsp;Criteria: " + curAssessment.getProperCriteriaString()));
+							+ AssessmentFormatter.getProperCategoryAbbreviation(curAssessment)));
+					assessInfoPanel.add(new HTML("&nbsp;&nbsp;Criteria: " + AssessmentFormatter.getProperCriteriaString(curAssessment)));
 					assessInfoPanel.add(new HTML("&nbsp;&nbsp;Assessed: " + curAssessment.getDateAssessed()));
-					assessInfoPanel.add(new HTML("&nbsp;&nbsp;Assessor: " + curAssessment.getDisplayableAssessors()));
+					assessInfoPanel.add(new HTML("&nbsp;&nbsp;Assessor: " + AssessmentFormatter.getDisplayableAssessors(curAssessment)));
 					assessPanel.add(assessInfoPanel);
 
 					assessPanel.add(new HTML("&nbsp;&nbsp;Major Threats: " + ""));
 					assessPanel.add(new HTML("&nbsp;&nbsp;Population Trend: " + ""));
 					assessPanel.add(new HTML("&nbsp;&nbsp;Major Importance Habitats: " + ""));
 					assessPanel.add(new HTML("&nbsp;&nbsp;Conservation Actions Needed: " + ""));
-					headerAssess.setText(curAssessment.getProperCategoryAbbreviation()
+					headerAssess.setText(
+							AssessmentFormatter.getProperCategoryAbbreviation(curAssessment)
 							+ curAssessment.getDateAssessed());
 				}
 				assessmentInformation.add(assessPanel);
@@ -280,8 +282,8 @@ public class TaxonHomePage extends LayoutContainer {
 
 				Object[] values = new Object[7];
 				values[0] = data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed());
-				values[1] = data.getProperCategoryAbbreviation();
-				values[2] = data.getProperCriteriaString();
+				values[1] = AssessmentFormatter.getProperCategoryAbbreviation(data);
+				values[2] = AssessmentFormatter.getProperCriteriaString(data);
 				values[3] = "Published";
 				values[4] = "";
 				values[5] = "";
@@ -297,8 +299,8 @@ public class TaxonHomePage extends LayoutContainer {
 
 				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, data)) {
 					values[0] = data.getDateAssessed() == null ? "(Not set)" :  FormattedDate.impl.getDate(data.getDateAssessed());
-					values[1] = data.getProperCategoryAbbreviation();
-					values[2] = data.getProperCriteriaString();
+					values[1] = AssessmentFormatter.getProperCategoryAbbreviation(data);
+					values[2] = AssessmentFormatter.getProperCriteriaString(data);
 					if (data.isRegional())
 						values[3] = "Draft - " + RegionCache.impl.getRegionName(data.getRegionIDs());
 					else

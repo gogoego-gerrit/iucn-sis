@@ -13,6 +13,7 @@ import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -358,7 +359,7 @@ public class SearchPanel extends LayoutContainer {
 								
 								if (assessmentList.size() > 0) {
 									Assessment aData = assessmentList.get(0);
-									x[i - start][3] = aData.getProperCategoryAbbreviation();
+									x[i - start][3] = AssessmentFormatter.getProperCategoryAbbreviation(aData);
 								} else
 									x[i - start][3] = "N/A";
 																

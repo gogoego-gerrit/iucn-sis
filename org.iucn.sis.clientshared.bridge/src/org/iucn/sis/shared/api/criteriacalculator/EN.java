@@ -2,8 +2,6 @@ package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
 
-import com.solertium.lwxml.gwt.debug.SysDebugger;
-
 /**
  * Represents the endangered class
  * 
@@ -678,11 +676,11 @@ class EN {
 
 	private void printRange(String descrip, Range range) {
 		if (range != null) {
-			SysDebugger.getInstance().println(
+			System.out.println(
 					"This is the results from " + descrip + " " + range.getLow() + "," + range.getLowBest() + ","
 							+ range.getHighBest() + "," + range.getHigh());
 		} else {
-			SysDebugger.getInstance().println(" " + descrip + " == null");
+			System.out.println(" " + descrip + " == null");
 
 		}
 	}

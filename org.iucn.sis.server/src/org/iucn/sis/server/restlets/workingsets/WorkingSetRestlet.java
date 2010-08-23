@@ -238,7 +238,8 @@ public class WorkingSetRestlet extends ServiceRestlet {
 				AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
 
 				StringBuilder csv = new StringBuilder();
-				for (Taxon taxon : ws.getTaxon()) {
+				//FIXME: This fails because the UserCache is empty on the server.
+				/*for (Taxon taxon : ws.getTaxon()) {
 					List<Assessment> assessments = helper.getAssessments(taxon.getId());
 					if (!assessments.isEmpty()) {
 						csv.append(taxon.getFootprintAsString() + ",");
@@ -246,7 +247,7 @@ public class WorkingSetRestlet extends ServiceRestlet {
 								+ assessments.get(0).getProperCategoryAbbreviation() + "\r\n");
 					}
 
-				}
+				}*/
 				writeReport(csv.toString(), username);
 				response.setEntity("/raw" + getURLToSaveFootprint(username), MediaType.TEXT_ALL);
 				response.setStatus(Status.SUCCESS_CREATED);

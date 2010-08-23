@@ -22,6 +22,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -168,7 +169,7 @@ public class NewAssessmentPanel extends LayoutContainer {
 			else
 				displayable += " --- " + "Global";
 
-			displayable += " --- " + data.getProperCategoryAbbreviation();
+			displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(data);
 			template.addItem(displayable, data.getId()+"");
 		}
 		for (Assessment data : AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId())) {
@@ -181,7 +182,7 @@ public class NewAssessmentPanel extends LayoutContainer {
 			else
 				displayable += " --- " + "Global";
 
-			displayable += " --- " + data.getProperCategoryAbbreviation();
+			displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(data);
 			template.addItem(displayable, data.getId()+"");
 		}
 

@@ -9,6 +9,7 @@ import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -150,8 +151,8 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 		} else if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, assessment ) ) {
 			title.setText("Draft Assessment");
 			dateCreated.setText(displayText(FormattedDate.impl.getDate(assessment.getDateAssessed())));
-			assessors.setText(displayText(assessment.getDisplayableAssessors()));
-			evaluators.setText(displayText(assessment.getDisplayableEvaluators()));
+			assessors.setText(displayText(AssessmentFormatter.getDisplayableAssessors(assessment)));
+			evaluators.setText(displayText(AssessmentFormatter.getDisplayableEvaluators(assessment)));
 			status.setText(displayText(assessment.getCategoryAbbreviation()));
 		} else {
 			title.setText("Insufficient permission to read this assessment.");

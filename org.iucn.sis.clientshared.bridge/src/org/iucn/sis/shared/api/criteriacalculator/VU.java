@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
 
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 /**
  * Represents the vulnerable classification
@@ -337,7 +336,7 @@ class VU {
 
 			if ((or1 != null && !Range.isConstant(or1, 0)) && (or2 != null && !Range.isConstant(or2, 0))
 					&& (or3 != null && !Range.isConstant(or3, 0))) {
-				SysDebugger.getInstance().println("In the first one");
+				System.out.println("In the first one");
 				Range and = Range.independentAND(and1, or1);
 				and = Range.independentAND(and, or2);
 				and = Range.independentAND(and, or3);
@@ -349,9 +348,9 @@ class VU {
 
 			} else if (or1 != null && !Range.isConstant(or1, 0)) {
 
-				SysDebugger.getInstance().println("or1 != null");
+				System.out.println("or1 != null");
 				if (or2 != null && !Range.isConstant(or2, 0)) {
-					SysDebugger.getInstance().println("or2 != null");
+					System.out.println("or2 != null");
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or2);
 					b1 = and;
@@ -360,7 +359,7 @@ class VU {
 						analysis.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
 					return analysis;
 				} else if (or3 != null && !Range.isConstant(or3, 0)) {
-					SysDebugger.getInstance().println("or3 != null");
+					System.out.println("or3 != null");
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or3);
 					b1 = and;
@@ -372,7 +371,7 @@ class VU {
 
 				// NOT ENOUGH DATA
 				else {
-					SysDebugger.getInstance().println("or1!=null and everything else is null");
+					System.out.println("or1!=null and everything else is null");
 					b1 = result;
 					analysis.range = result;
 					if (analysis.range != null && !Range.isConstant(analysis.range, 0))
@@ -393,7 +392,7 @@ class VU {
 
 			// NOT ENOUGH DATA
 			else {
-				SysDebugger.getInstance().println("no 2 aren't null");
+				System.out.println("no 2 aren't null");
 				b1 = result;
 				analysis.range = result;
 				if (analysis.range != null && !Range.isConstant(analysis.range, 0))
@@ -690,11 +689,11 @@ class VU {
 
 	private void printRange(String descrip, Range range) {
 		if (range != null) {
-			SysDebugger.getInstance().println(
+			System.out.println(
 					"This is the results from " + descrip + " " + range.getLow() + "," + range.getLowBest() + ","
 							+ range.getHighBest() + "," + range.getHigh());
 		} else {
-			SysDebugger.getInstance().println(" " + descrip + " == null");
+			System.out.println(" " + descrip + " == null");
 
 		}
 	}

@@ -26,6 +26,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -952,7 +953,7 @@ public class NavigationHeader extends LayoutContainer {
 							else
 								displayable += " --- " + "Global";
 
-							displayable += " --- " + curAss.getProperCategoryAbbreviation();
+//							displayable += " --- " + AssessmentUtils.getProperCategoryAbbreviation(curAss);
 						
 							curItem = new DataListItem(displayable);
 						} else {
@@ -1007,7 +1008,7 @@ public class NavigationHeader extends LayoutContainer {
 								else
 									displayable += " --- " + "Global";
 
-								displayable += " --- " + curAss.getProperCategoryAbbreviation();
+								displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(curAss);
 
 								curItem = new DataListItem(displayable);
 								curItem.setData("assessment", curAss);

@@ -2,18 +2,7 @@ package org.iucn.sis.shared.api.models;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.acl.feature.AuthorizableAssessmentShim;
-import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
@@ -89,37 +78,6 @@ public class PermissionGroup implements Serializable {
 			return getResourceToPermission().get(DEFAULT_PERMISSION_URI).check(operation);
 		} else 
 			return false;
-	}
-	
-	/**
-	 * 		
-	 * @param object
-	 * @param operation
-	 * @return
-	 */
-	public boolean checkMe(AuthorizableObject object, String operation) {
-		boolean hasPermission = getDefaultPermission(operation);
-		
-		if (object != null && object != null && isInScope(object)) {			
-			String uri = object.getFullURI();
-			boolean found = false;			
-			while (uri.indexOf("/") > -1 && !found) {
-				if (getResourceToPermission().containsKey(uri)) {
-					Permission perm = getResourceToPermission().get(uri);
-					hasPermission = perm.check(operation);
-					if (hasPermission) {
-						for (PermissionResourceAttribute cur : perm.getAttributes()) {
-							if (cur != null && cur.getName() != null && cur.getRegex() != null)
-								hasPermission = object.getProperty(cur.getName()).matches(cur.getRegex());
-						}
-					}
-					found = true;
-				} else {
-					uri = uri.substring(0, uri.lastIndexOf("/"));
-				}
-			}
-		}
-		return hasPermission;
 	}
 
 	
@@ -211,113 +169,6 @@ public class PermissionGroup implements Serializable {
 	public java.util.Set<User> getUsers() {
 		return users;
 	}
-
-	
-	/**
-	 * Returns whether the object fits within the criteria set forth by the scopeURI.  
-	 * 
-	 * @param object
-	 * @return
-	 */
-	public boolean isInScope(AuthorizableObject object) {
-		if (getScope() == null || getScope().trim().equals("")) {
-			return true;
-		}
-		else if (object instanceof AuthorizableFeature || object instanceof WorkingSet || object instanceof Reference) {
-			// Features, working sets and references aren't scoped
-			return true;
-		} else if (object instanceof Taxon) {
-			Taxon taxon = (Taxon) object;
-
-			if (getScope().startsWith("taxon")) {
-				String[] split = getScope().split("/");
-				int level = Integer.valueOf(split[1]);
-				boolean kingdomMatch = true;
-
-				if (split.length > 3 && taxon.getFootprint().length > 0)
-					kingdomMatch = split[3].equalsIgnoreCase(taxon.getFootprint()[0]);
-
-				if (taxon.getFootprint().length > level)
-					return kingdomMatch && taxon.getFootprint()[level].equalsIgnoreCase(split[2]);
-				else if (taxon.getLevel() == level)
-					return kingdomMatch && taxon.getFullName().equalsIgnoreCase(split[2]);
-				else
-					return false;
-			} else if (getScope().startsWith("workingSets")) {
-				Map<Integer, WorkingSet> sets = WorkingSetCache.impl.getWorkingSets();
-				for (Entry<Integer, WorkingSet> curEntry : sets.entrySet()) {
-					if (curEntry.getValue().getSpeciesIDs().contains(taxon.getId() + ""))
-						return true;
-				}
-				return false;
-			} else if (getScope().startsWith("workingSet")) {
-				String ids = getScope().substring(getScope().indexOf("/") + 1, getScope().length());
-				Map<Integer, WorkingSet> sets = WorkingSetCache.impl.getWorkingSets();
-
-				String[] split = ids.split(",");
-				boolean ret = false;
-
-				for (String cur : split) {
-					if (sets.containsKey(Integer.valueOf(cur))) {
-						ret = sets.get(Integer.valueOf(cur)).getSpeciesIDs().contains(taxon.getId());
-
-						if (ret)
-							return true;
-					}
-				}
-
-				return false;
-			} else
-				return false;
-		} else if (object instanceof Assessment) {
-			if (getScope().startsWith("workingSet/")) {
-				Assessment assessment = (Assessment) object;
-				String ids = getScope().substring(getScope().indexOf("/") + 1, getScope().length());
-				Map<Integer, WorkingSet> sets = WorkingSetCache.impl.getWorkingSets();
-
-				String[] split = ids.contains(",") ? ids.split(",") : new String[] { ids };
-
-				for (String curStr : split) {
-					Integer cur = Integer.valueOf(curStr);
-
-					if (sets.containsKey(cur)) {
-						if (sets.get(cur).getSpeciesIDs().contains(assessment.getSpeciesID())) {
-							Collection<Region> filterRegionList = sets.get(cur).getFilter().getRegions();
-							List<Integer> filterRegionIDs = new ArrayList<Integer>();
-							for (Region curReg : filterRegionList)
-								filterRegionIDs.add(curReg.getId());
-
-							if (sets.get(cur).getFilter().isAllRegions()) {
-								return true;
-							} else if (sets.get(cur).getFilter().getRegionType().equals(Relationship.AND)) {
-								if (filterRegionIDs.containsAll(assessment.getRegionIDs())
-										&& assessment.getRegionIDs().containsAll(filterRegionIDs)) {
-									return true;
-								}
-							} else if (sets.get(cur).getFilter().getRegionType().equals(Relationship.OR)) {
-								for (Integer curRegion : assessment.getRegionIDs()) {
-									if (filterRegionIDs.contains(curRegion)) {
-										return true;
-									}
-								}
-							}
-						}
-					}
-				}
-
-				return false;
-			} else {
-				Taxon node = TaxonomyCache.impl.getTaxon(((Assessment) object).getSpeciesID());
-				return isInScope(node);
-			}
-		} else if (object instanceof AuthorizableAssessmentShim) {
-			AuthorizableAssessmentShim shim = (AuthorizableAssessmentShim) object;
-			return isInScope(shim.getTaxon());
-		} else
-			return false; // Invalid scope URI
-	}
-
-	
 
 	public void setChildren(java.util.Set<PermissionGroup> children) {
 		this.children = children;

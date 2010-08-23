@@ -3,8 +3,6 @@ package org.iucn.sis.shared.api.data;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.google.gwt.user.client.ui.Image;
-
 public class ManagedImageData {
 
 	public static String getExtensionFromEncoding(String encoding) {
@@ -19,10 +17,6 @@ public class ManagedImageData {
 		if (encoding.equals(IMG_BMP))
 			return "bmp";
 		return null;
-	}
-
-	public static boolean isAcceptedFormat(Image image) {
-		return isAcceptedFormat(image.getUrl());
 	}
 
 	public static boolean isAcceptedFormat(String filename) {

@@ -19,3 +19,8 @@ Require-Bundle: org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
  com.solertium.gwtproxy;bundle-version="1.1.2"
 Import-Package: ext.ux.pwd,
  ext.ux.pwd.client
+Export-Package: org.iucn.sis.client.api.caches,
+ org.iucn.sis.client.api.panels.integrity,
+ org.iucn.sis.client.api.ui.models.image,
+ org.iucn.sis.client.api.utils.autocomplete,
+ org.iucn.sis.shared.api.integrity

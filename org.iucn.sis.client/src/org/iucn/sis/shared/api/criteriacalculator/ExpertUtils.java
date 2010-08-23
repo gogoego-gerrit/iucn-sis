@@ -3,6 +3,9 @@ package org.iucn.sis.shared.api.criteriacalculator;
 import java.util.Arrays;
 import java.util.List;
 
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
+import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
+import org.iucn.sis.shared.api.criteriacalculator.RegionalExpertQuestions;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;

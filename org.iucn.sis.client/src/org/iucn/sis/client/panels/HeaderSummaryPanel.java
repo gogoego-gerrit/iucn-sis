@@ -11,6 +11,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -103,8 +104,8 @@ public class HeaderSummaryPanel extends LayoutContainer {
 			assessmentSummary.add(new HTML("Last Modified: " + (data.getDateModified() != 0 ?
 					FormattedDate.impl.getDate(new Date(data.getDateModified())) + "<br />" : "N/A<br />")));
 
-			String cat = data.getProperCategoryAbbreviation();
-			String crit = data.getProperCriteriaString();
+			String cat = AssessmentFormatter.getProperCategoryAbbreviation(data);
+			String crit = AssessmentFormatter.getProperCriteriaString(data);
 
 			assessmentSummary.add(new HTML("Category: " + cat + "<br />"));
 		} else {

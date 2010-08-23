@@ -10,8 +10,6 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.RangePrimitiveField;
 
-import com.solertium.lwxml.gwt.debug.SysDebugger;
-
 /**
  * Implements the Fuzzy Expert System
  * 
@@ -84,13 +82,13 @@ public class FuzzyExpImpl {
 		result.setLeft(((Line) lines.get(0)).x(rt));
 		result.setRight(((Line) lines.get(2)).x(rt));
 		result.setBest(((Line) lines.get(1)).x(rt));
-		SysDebugger.getInstance().println(
+		System.out.println(
 				"This is highLine (" + ((Line) lines.get(0)).x1 + "," + ((Line) lines.get(0)).y1 + "), ("
 						+ ((Line) lines.get(0)).x2 + "," + ((Line) lines.get(0)).y2 + ")");
-		SysDebugger.getInstance().println(
+		System.out.println(
 				"This is midLine (" + ((Line) lines.get(1)).x1 + "," + ((Line) lines.get(1)).y1 + "), ("
 						+ ((Line) lines.get(1)).x2 + "," + ((Line) lines.get(1)).y2 + ")");
-		SysDebugger.getInstance().println(
+		System.out.println(
 				"This is lowLine (" + ((Line) lines.get(2)).x1 + "," + ((Line) lines.get(2)).y1 + "), ("
 						+ ((Line) lines.get(2)).x2 + "," + ((Line) lines.get(2)).y2 + ")");
 
@@ -124,15 +122,15 @@ public class FuzzyExpImpl {
 		double lowvu = vu.getLow();
 		double highvu = vu.getHigh();
 		double midvu = (lowvu + highvu) / 2;
-		SysDebugger.getInstance().println("" + lowcr);
-		SysDebugger.getInstance().println("" + highcr);
-		SysDebugger.getInstance().println("" + midcr);
-		SysDebugger.getInstance().println("" + lowen);
-		SysDebugger.getInstance().println("" + highen);
-		SysDebugger.getInstance().println("" + miden);
-		SysDebugger.getInstance().println("" + lowvu);
-		SysDebugger.getInstance().println("" + highvu);
-		SysDebugger.getInstance().println("" + midvu);
+		System.out.println("" + lowcr);
+		System.out.println("" + highcr);
+		System.out.println("" + midcr);
+		System.out.println("" + lowen);
+		System.out.println("" + highen);
+		System.out.println("" + miden);
+		System.out.println("" + lowvu);
+		System.out.println("" + highvu);
+		System.out.println("" + midvu);
 
 		if (highcr >= rt) {
 			lineHigh = new Line(x, xCR, y, highcr);
@@ -219,7 +217,7 @@ public class FuzzyExpImpl {
 		ArrayList resultsD = analysisD.results;
 		AnalysisResult analysisE = doAnalysisE(assessment);
 		ArrayList resultsE = analysisE.results;
-		SysDebugger.getInstance().println("finished doing all specific ranges");
+		System.out.println("finished doing all specific ranges");
 
 		// DO FINAL RANGES FOR EACH CLASSIFICATION
 		CriteriaResult finalResultCR = finalResult((CriteriaResult) resultsA.get(resultsA.size() - 3),
@@ -231,7 +229,7 @@ public class FuzzyExpImpl {
 		CriteriaResult finalResultVU = finalResult((CriteriaResult) resultsA.get(resultsA.size() - 1),
 				(CriteriaResult) resultsB.get(resultsB.size() - 1), (CriteriaResult) resultsC.get(resultsC.size() - 1),
 				(CriteriaResult) resultsD.get(resultsD.size() - 1), (CriteriaResult) resultsE.get(resultsE.size() - 1));
-		SysDebugger.getInstance().println("Finished doing all final thingies");
+		System.out.println("Finished doing all final thingies");
 
 		// DO DT IF DIDN'T DO INDIVIDUALLY
 		if (!INDIVIDUALDT) {
@@ -251,7 +249,7 @@ public class FuzzyExpImpl {
 
 		if (finalResultCR.range != null && finalResultEN.range != null && finalResultVU.range != null) {
 			result = calculateResult(finalResultCR.range, finalResultEN.range, finalResultVU.range, assessment);
-			SysDebugger.getInstance().println(
+			System.out.println(
 					"THIS IS THE FINAL RESULT " + result.getLeft() + "," + result.getBest() + "," + result.getRight()
 							+ "   " + result.getResult());
 			String[] criterias = getCriterias(resultsA, resultsB, resultsC, resultsD, resultsE).split("-");
@@ -289,7 +287,7 @@ public class FuzzyExpImpl {
 			pretendEN.setLowBest(0);
 
 			result = calculateResult(pretendCR, pretendEN, finalResultVU.range, assessment);
-			SysDebugger.getInstance().println(
+			System.out.println(
 					"THIS IS THE FINAL RESULT " + result.getLeft() + "," + result.getBest() + "," + result.getRight()
 							+ "   " + result.getResult());
 			String[] criterias = getCriterias(resultsA, resultsB, resultsC, resultsD, resultsE).split("-");
@@ -309,9 +307,9 @@ public class FuzzyExpImpl {
 		}
 
 		if (result != null)
-			SysDebugger.getInstance().println(result.getNotEnoughData());
+			System.out.println(result.getNotEnoughData());
 		else
-			SysDebugger.getInstance().println("woot");
+			System.out.println("woot");
 		// return result;
 		return result;
 
@@ -1078,11 +1076,11 @@ public class FuzzyExpImpl {
 		if (TESTING) {
 			if (range != null) {
 
-				SysDebugger.getInstance().println(
+				System.out.println(
 						"This is the results from " + descrip + " " + range.getLow() + "," + range.getLowBest() + ","
 								+ range.getHighBest() + "," + range.getHigh());
 			} else {
-				SysDebugger.getInstance().println(" " + descrip + " == null");
+				System.out.println(" " + descrip + " == null");
 
 			}
 		}

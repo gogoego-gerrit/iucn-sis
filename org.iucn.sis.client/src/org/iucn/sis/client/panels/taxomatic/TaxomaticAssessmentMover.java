@@ -9,6 +9,7 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -83,7 +84,7 @@ public class TaxomaticAssessmentMover extends LayoutContainer {
 			else
 				displayable += " --- " + "Global";
 
-			displayable += " --- " + data.getProperCategoryAbbreviation();
+			displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(data);
 			item.setText(displayable);
 			item.setData("id", data.getId());
 			assessmentList.add(item);

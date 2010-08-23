@@ -1,6 +1,6 @@
 package org.iucn.sis.shared.api.criteriacalculator;
 
-import com.solertium.lwxml.gwt.debug.SysDebugger;
+
 
 public class Line {
 
@@ -32,7 +32,7 @@ public class Line {
 	public int x(double y) {
 		int x = -1;
 		x = (int) ((y - y1) / slope + x1);
-		SysDebugger.getInstance().println("this is coordinates (" + x + "," + y + ")");
+		System.out.println("this is coordinates (" + x + "," + y + ")");
 		return x;
 	}
 
