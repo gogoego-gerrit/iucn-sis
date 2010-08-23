@@ -183,7 +183,6 @@ public class TaxonIO {
 		for (Taxon taxon : taxaToSave) {
 			if (idToOldTaxa.get(taxon.getId()) != null
 					&& SIS.get().getTaxomaticIO().isTaxomaticOperationNecessary(taxon, idToOldTaxa.get(taxon.getId()))) {
-				System.out.println("Uhhh, apparently it needed to be a taxomatic op.");
 				return false;
 			}
 		}
@@ -220,7 +219,6 @@ public class TaxonIO {
 					if (!TaxonDAO.save(taxon)) {
 						break;
 					}
-					System.out.println("After taxonDAO.");
 				}
 				return true;
 			} catch (PersistentException e) {
@@ -230,7 +228,6 @@ public class TaxonIO {
 			}
 
 		} else {
-			System.out.println("Failed to acquire locks.");
 
 		}
 		return false;
@@ -255,7 +252,7 @@ public class TaxonIO {
 		return false;
 	}
 
-	public Taxon getDeletedTaxon(Integer id) {
+	public Taxon getTrashedTaxon(Integer id) {
 		try {
 			return TaxonDAO.getTrashedTaxon(id);
 		} catch (PersistentException e) {
@@ -285,10 +282,10 @@ public class TaxonIO {
 	}
 
 	public boolean permanentlyDeleteTaxon(Integer taxonID) {
-		Taxon taxon = getDeletedTaxon(taxonID);
+		Taxon taxon = getTrashedTaxon(taxonID);
 		if (taxon != null) {
 			try {
-				TaxonDAO.delete(taxon);
+				return TaxonDAO.delete(taxon);
 			} catch (PersistentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -349,8 +346,6 @@ public class TaxonIO {
 //		String xml = taxon.toXML();
 		String xml = taxon.getGeneratedXML();
 		String taxonPath = ServerPaths.getTaxonURL(taxon.getId());
-		System.out.println("this is vfs " + vfs);
-		System.out.println("this is what i am saving " + xml);
 		DocumentUtils.writeVFSFile(taxonPath, vfs, xml);
 		try {
 			vfs.setLastModified(taxonPath, edit.getCreatedDate());

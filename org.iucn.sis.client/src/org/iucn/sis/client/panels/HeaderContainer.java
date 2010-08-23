@@ -63,7 +63,6 @@ public class HeaderContainer extends LayoutContainer {
 	private BorderLayoutData centerData;
 
 	private FindReplacePanel findReplacePanel;
-	private TrashBinPanel trashBinPanel;
 	private BatchChangePanel batchChangePanel;
 	private TaxonFinderPanel taxonFinderPanel;
 	private DefinitionEditorPanel definitionPanel;
@@ -80,7 +79,6 @@ public class HeaderContainer extends LayoutContainer {
 		setBorders(true);
 
 		findReplacePanel = new FindReplacePanel();
-		trashBinPanel = new TrashBinPanel();
 		batchChangePanel = new BatchChangePanel();
 		taxonFinderPanel = new TaxonFinderPanel();
 		definitionPanel = new DefinitionEditorPanel();

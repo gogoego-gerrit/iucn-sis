@@ -31,9 +31,9 @@ public class TaxonDAO {
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	
 	public static Taxon getTaxon(int id) throws PersistentException {
-		Taxon assessment = TaxonDAO.getTaxonByORMID(id);
-		if (assessment != null && assessment.getState() == Taxon.ACTIVE)
-			return assessment;
+		Taxon taxon = TaxonDAO.getTaxonByORMID(id);
+		if (taxon != null && taxon.getState() == Taxon.ACTIVE)
+			return taxon;
 		return null;
 	}
 	
@@ -50,15 +50,15 @@ public class TaxonDAO {
 	
 	public static Taxon[] getTrashedTaxa() throws PersistentException {
 		TaxonCriteria criteria = new TaxonCriteria();
-		criteria.state.eq(Assessment.DELETED);
+		criteria.state.eq(Taxon.DELETED);
 		return listTaxonByCriteria(criteria);
 	}
 	
 	
 	public static Taxon getTrashedTaxon(int id) throws PersistentException {
-		Taxon assessment = TaxonDAO.getTaxon(id);
-		if (assessment != null && assessment.getState() == Taxon.DELETED)
-			return assessment;
+		Taxon taxon = TaxonDAO.getTaxonByORMID(id);
+		if (taxon != null && taxon.getState() == Taxon.DELETED)
+			return taxon;
 		return null;
 	}
 	

@@ -3,38 +3,23 @@ package org.iucn.sis.client.panels.header;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.widget.table.TableItem;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 
-public class TrashedObject extends TableItem {
-
-	private String id;
-	private String status;
-	private String nodeID;
-	private String user;
-	private String date;
-	private String type;
-	private String parent;
+public class TrashedObject extends BaseModelData {
 
 	public TrashedObject(NativeElement doc) {
-		this(new String[] { doc.getAttribute("date"), doc.getAttribute("type"), doc.getAttribute("id"),
-				doc.getAttribute("display"), doc.getAttribute("status"), doc.getAttribute("user") });
-
-		id = doc.getAttribute("id");
-		nodeID = doc.getAttribute("node");
-		status = doc.getAttribute("status");
-		user = doc.getAttribute("user");
-		date = doc.getAttribute("date");
-		type = doc.getAttribute("type");
-		parent = doc.getAttribute("parent");
-
+		set("id", doc.getAttribute("id"));
+		set("taxon", doc.getAttribute("node"));
+		set("status", doc.getAttribute("status"));
+		set("user", doc.getAttribute("user"));
+		set("date", doc.getAttribute("date"));
+		set("type", doc.getAttribute("type"));
 	}
-
-	public TrashedObject(Object[] values) {
-		super(values);
-	}
+	
 
 	public void delete(final GenericCallback<String> wayback) {
 		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
@@ -52,19 +37,23 @@ public class TrashedObject extends TableItem {
 	}
 
 	public String getID() {
-		return id;
+		return get("id");
 	}
 
 	public String getNodeID() {
-		return nodeID;
+		return get("taxon");
 	}
 
 	public String getStatus() {
-		return status;
+		return get("status");
 	}
 
 	public String getType() {
-		return type;
+		return get("type");
+	}
+	
+	public String getIdentifier() {
+		return getType() + ":" + getStatus();
 	}
 
 	public void restore(boolean recurse, final GenericCallback<String> wayback) {
@@ -84,8 +73,8 @@ public class TrashedObject extends TableItem {
 
 	public String toXML() {
 		String xml = "<trash>";
-		xml += "<data id=\"" + id + "\" parent=\"" + parent + "\" type=\"" + type + "\" status=\"" + status
-				+ "\" user=\"" + user + "\" date=\"" + date + "\" node=\"" + nodeID + "\"></data>";
+		xml += "<data id=\"" + get("id") + "\" type=\"" + get("type") + "\" status=\"" + get("status")
+				+ "\" user=\"" + get("user") + "\" date=\"" + get("date") + "\" node=\"" + get("taxon") + "\"></data>";
 
 		xml += "</trash>";
 		return xml;

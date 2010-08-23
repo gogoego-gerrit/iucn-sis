@@ -53,6 +53,7 @@ public class TrashRestlet extends ServiceRestlet {
 			if (success) {
 				response.setStatus(Status.SUCCESS_OK);
 			} else {
+				response.setEntity(message, MediaType.TEXT_PLAIN);
 				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			}
 			response.setEntity(message, MediaType.TEXT_PLAIN);
@@ -83,21 +84,9 @@ public class TrashRestlet extends ServiceRestlet {
 	 */
 	private void handleGet(Request request, Response response) {
 
-		// String log = "<assessment user=\"" + username;
-		// log += "\" status=\"" +
-		// assessmentType.toLowerCase().replace("_status", "");
-		// log += "\" date=\"" + new Date().toString() + "\" node=\"" +
-		// assessment.getSpeciesName() + "\">"
-		// + assessmentID + "</assessment>";
-		//		
-		// String log = "<taxon user=\"" + username + "\" date=\"" + new
-		// Date().toString() + "\" parent=\"" + parent
-		// + "\" node=\"" + node.getId() + "\" display=\"" + node.getFullName()
-		// + "\">" + id + "</taxon>";
-
 		StringBuilder xml = new StringBuilder("<trash>");
 		try {
-			for (Assessment assessment : SIS.get().getAssessmentIO().getDeletedAssessments()) {
+			for (Assessment assessment : SIS.get().getAssessmentIO().getTrashedAssessments()) {
 				xml.append("<data id=\"" + assessment.getId() + "\" ");
 				xml.append("type=\"assessment\" ");
 				xml.append("status=\"" + assessment.getAssessmentType().getDisplayName() + "\" ");
@@ -110,7 +99,7 @@ public class TrashRestlet extends ServiceRestlet {
 				xml.append("/>");
 			}
 
-			for (Taxon taxon : SIS.get().getTaxonIO().getDeletedTaxa()) {
+			for (Taxon taxon : SIS.get().getTaxonIO().getTrashedTaxa()) {
 				xml.append("<data id=\"" + taxon.getId() + "\" ");
 				xml.append("type=\"taxon\" ");
 				xml.append("status=\"\" ");
@@ -137,27 +126,27 @@ public class TrashRestlet extends ServiceRestlet {
 			Document doc = new DomRepresentation(request.getEntity()).getDocument();
 			Element element = (Element) doc.getDocumentElement().getElementsByTagName("data").item(0);
 			String id = element.getAttribute("id");
-			// String status = element.getAttribute("status");
 			String type = element.getAttribute("type");
 			User user = SIS.get().getUser(request);
-			// String parent = element.getAttribute("parent");
-			// String node = element.getAttribute("node");
 
 			boolean success = false;
 			String message = null;
 			if (type.equalsIgnoreCase("taxon")) {
-				if (SIS.get().getTaxonIO().restoreDeletedTaxon(Integer.valueOf(id), user)) {
+				if (SIS.get().getTaxonIO().restoreTrashedTaxon(Integer.valueOf(id), user)) {
 					if (restoreRelatedAssessments != null && restoreRelatedAssessments.equalsIgnoreCase("true")) {
-						Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(id));
 						AssessmentIOMessage m = SIS.get().getAssessmentIO().restoreDeletedAssessmentsAssociatedWithTaxon(Integer
 								.valueOf(id), SIS.get().getUser(request));
 						message = m.getMessage();
+						if (m.getFailed() == null || m.getFailed().isEmpty()) {
+							success = true;
+						}
+					}else {
+						success = true;
 					}
-					success = true;
+					
 				}
 			} else if (type.equalsIgnoreCase("assessment")) {
-				success = SIS.get().getAssessmentIO().restoreDeletedAssessment(Integer.valueOf(id), SIS.get().getUser(request)).status.isSuccess();
-
+				success = SIS.get().getAssessmentIO().restoreTrashedAssessments(Integer.valueOf(id), SIS.get().getUser(request)).status.isSuccess();
 			} else {
 				message = "Invalid type -- should be assessment or taxon.";
 			}
