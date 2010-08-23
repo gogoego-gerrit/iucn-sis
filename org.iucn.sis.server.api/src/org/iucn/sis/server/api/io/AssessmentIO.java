@@ -273,7 +273,7 @@ public class AssessmentIO {
 
 	}
 
-	public Assessment[] getDeletedAssessments() throws PersistentException {
+	public Assessment[] getTrashedAssessments() throws PersistentException {
 		return AssessmentDAO.getTrashedAssessments();
 	}
 
@@ -285,7 +285,7 @@ public class AssessmentIO {
 	 * @return
 	 * @throws PersistentException
 	 */
-	public AssessmentIOWriteResult restoreDeletedAssessment(Integer assessmentID, User user) throws PersistentException {
+	public AssessmentIOWriteResult restoreTrashedAssessments(Integer assessmentID, User user) throws PersistentException {
 		Assessment ass = AssessmentDAO.getTrashedAssessment(assessmentID);
 		if (ass != null) {
 			ass.setState(Assessment.ACTIVE);
@@ -295,7 +295,7 @@ public class AssessmentIO {
 
 	}
 
-	public AssessmentIOWriteResult deleteAssessment(Assessment assessment, User user) {
+	public AssessmentIOWriteResult trashAssessment(Assessment assessment, User user) {
 		assessment.setState(Assessment.DELETED);
 		return writeAssessment(assessment, user, true);
 	}
@@ -319,7 +319,7 @@ public class AssessmentIO {
 		session = SISPersistentManager.instance().getSession();
 		Transaction tx = session.beginTransaction();
 		try {
-			for (Assessment assessmentToSave : getDeletedAssessments())
+			for (Assessment assessmentToSave : getTrashedAssessments())
 				AssessmentDAO.delete(assessmentToSave);
 
 			tx.commit();

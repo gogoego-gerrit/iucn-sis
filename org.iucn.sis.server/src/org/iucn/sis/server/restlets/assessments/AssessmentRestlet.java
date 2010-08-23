@@ -47,7 +47,7 @@ public class AssessmentRestlet extends ServiceRestlet {
 
 		Assessment assessment = SIS.get().getAssessmentIO().getNonCachedAssessment(assessmentID);
 		if (assessment != null) {
-			AssessmentIOWriteResult deleted = SIS.get().getAssessmentIO().deleteAssessment(assessment, user);
+			AssessmentIOWriteResult deleted = SIS.get().getAssessmentIO().trashAssessment(assessment, user);
 			if (deleted.status.isSuccess()) {
 				response.setStatus(Status.SUCCESS_OK);
 			} else

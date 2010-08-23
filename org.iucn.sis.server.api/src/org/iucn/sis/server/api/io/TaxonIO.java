@@ -204,18 +204,6 @@ public class TaxonIO {
 					edit.getTaxon().add(taxon);
 					taxon.getEdits().add(edit);
 					taxon.toXML();
-					System.out.println("Just before taxonDAO.");
-					
-//					for (Synonym syn : taxon.getSynonyms()) {
-//						syn.getNotes();
-//					}
-//					for (CommonName cn : taxon.getCommonNames()) {
-//						cn.getReference();
-//						cn.getNotes();
-//					}
-//					for (Edit e : taxon.getEdits()) {
-//						e.getNotes();
-//					}
 					taxon.getReference();
 					if (!TaxonDAO.save(taxon)) {
 						break;
@@ -240,7 +228,7 @@ public class TaxonIO {
 		session = SISPersistentManager.instance().getSession();
 		Transaction tx = session.beginTransaction();
 		try {
-			for (Taxon taxon : getDeletedTaxa())
+			for (Taxon taxon : getTrashedTaxa())
 				TaxonDAO.delete(taxon);
 
 			tx.commit();
@@ -263,11 +251,11 @@ public class TaxonIO {
 		}
 	}
 
-	public Taxon[] getDeletedTaxa() throws PersistentException {
+	public Taxon[] getTrashedTaxa() throws PersistentException {
 		return TaxonDAO.getTrashedTaxa();
 	}
 
-	public boolean restoreDeletedTaxon(Integer taxonID, User user) {
+	public boolean restoreTrashedTaxon(Integer taxonID, User user) {
 		Taxon taxon;
 		try {
 			taxon = TaxonDAO.getTrashedTaxon(taxonID);
@@ -342,7 +330,6 @@ public class TaxonIO {
 	 */
 	public void afterSaveTaxon(Taxon taxon) {
 		Edit edit = taxon.getLastEdit();
-//		String xml = taxon.toXML();
 		String xml = taxon.getGeneratedXML();
 		String taxonPath = ServerPaths.getTaxonURL(taxon.getId());
 		DocumentUtils.writeVFSFile(taxonPath, vfs, xml);
