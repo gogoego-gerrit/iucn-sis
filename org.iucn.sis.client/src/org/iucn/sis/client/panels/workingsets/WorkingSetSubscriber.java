@@ -132,20 +132,6 @@ public class WorkingSetSubscriber extends RefreshLayoutContainer {
 			}
 		});
 
-//		store.setStoreSorter(new StoreSorter<WSModel>() {
-//			@Override
-//			public int compare(Store<WSModel> store, WSModel ws1, WSModel ws2, String property) {
-//
-//				int returnvalue = 0;
-//				PortableAlphanumericComparator compare = new PortableAlphanumericComparator();
-//				
-//				if( ws1.get(property) != null && ws2.get(property) != null )
-//					returnvalue = compare.compare(ws1.get(property), ws2.get(property));
-//
-//				return returnvalue;
-//
-//			}
-//		});
 
 		final TextBox textBox = new TextBox();
 		

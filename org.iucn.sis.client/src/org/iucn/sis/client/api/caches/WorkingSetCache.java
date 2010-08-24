@@ -335,7 +335,6 @@ public class WorkingSetCache {
 					WorkingSet ws = WorkingSet.fromXMLMinimal(element);
 
 					if (AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.READ, ws)) {
-						System.out.println("adding working set");
 						subscribableWorkingSets.add(ws);
 					}
 				}
@@ -384,8 +383,9 @@ public class WorkingSetCache {
 	public void setCurrentWorkingSet(WorkingSet ws) {
 		WorkingSet oldCurrent = currentWorkingSet;
 		currentWorkingSet = ws;
-		if (oldCurrent == null && currentWorkingSet != null || oldCurrent != null && currentWorkingSet == null || !oldCurrent.equals(currentWorkingSet))
+		if (oldCurrent == null && currentWorkingSet != null || oldCurrent != null && currentWorkingSet == null || oldCurrent != null && currentWorkingSet != null && !oldCurrent.equals(currentWorkingSet)){
 			SISClientBase.getInstance().onWorkingSetChanged();
+		}
 	}
 
 	/**
@@ -439,7 +439,6 @@ public class WorkingSetCache {
 							parser.parseWorkingSetXML(ndoc);
 							addToWorkingSetCache(parser.getWorkingSets());
 							backInTheDay.onSuccess(arg0);
-							// parseWorkingSetXML(ndoc, backInTheDay);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
