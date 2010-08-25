@@ -41,7 +41,11 @@ public class Reference implements Serializable, AuthorizableObject {
 	
 	public static Reference fromXML(NativeElement element) {
 		final Reference reference = new Reference();
-		reference.setId(Integer.parseInt(element.getAttribute("rowID")));
+		try {
+			reference.setId(Integer.parseInt(element.getAttribute("rowID")));
+		} catch (NumberFormatException e) {
+			System.out.println("References being build from invalid model!");
+		}
 		reference.setType(element.getAttribute("type"));
 		
 		final NativeNodeList nodes = element.getElementsByTagName("field");
