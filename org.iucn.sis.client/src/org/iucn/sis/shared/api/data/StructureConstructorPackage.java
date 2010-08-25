@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.iucn.sis.shared.api.structures.DisplayData;
-
 public class StructureConstructorPackage implements Serializable {
 	/**
 	 * Allows an "object" to be serializable, suprisingly quick.

@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
@@ -68,6 +69,11 @@ public class SISLabel extends Structure {
 	@Override
 	public String getData() {
 		return description;
+	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		return new ArrayList<ClassificationInfo>();
 	}
 
 	/**

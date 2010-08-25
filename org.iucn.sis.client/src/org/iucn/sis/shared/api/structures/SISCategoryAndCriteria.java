@@ -526,6 +526,11 @@ public class SISCategoryAndCriteria extends Structure {
 		ret.add("Category Text");
 		return ret;
 	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		return new ArrayList<ClassificationInfo>();
+	}
 
 	public String getData() {
 		return null;

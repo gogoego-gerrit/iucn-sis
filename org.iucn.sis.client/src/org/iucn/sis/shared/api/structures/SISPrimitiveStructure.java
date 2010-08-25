@@ -2,10 +2,13 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+
+import com.google.gwt.rpc.server.WebModeClientOracle.Triple;
 
 
 public abstract class SISPrimitiveStructure extends Structure {
@@ -89,6 +92,13 @@ public abstract class SISPrimitiveStructure extends Structure {
 		} catch (Exception ignored) {}*/
 		
 		setData(data);
+	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		final ArrayList<ClassificationInfo> list = new ArrayList<ClassificationInfo>();
+		list.add(new ClassificationInfo(description, getData()));
+		return list;
 	}
 	
 	/**

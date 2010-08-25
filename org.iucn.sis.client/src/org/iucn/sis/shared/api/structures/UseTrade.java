@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
@@ -323,6 +324,11 @@ public class UseTrade extends Structure {
 		ret.add("Possible Threat");
 		ret.add("Notes and Justification");
 		return ret;
+	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		return new ArrayList<ClassificationInfo>();
 	}
 
 	/**

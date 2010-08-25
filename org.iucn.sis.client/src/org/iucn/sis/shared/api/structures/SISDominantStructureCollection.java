@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
@@ -80,6 +81,14 @@ public class SISDominantStructureCollection extends Structure implements Dominan
 			ret.addAll(iter.next().extractDescriptions());
 
 		return ret;
+	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		final ArrayList<ClassificationInfo> list = new ArrayList<ClassificationInfo>();
+		for (Structure structure : structures)
+			list.addAll(structure.getClassificationInfo());
+		return list;
 	}
 
 	@Override

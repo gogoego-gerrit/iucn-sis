@@ -19,13 +19,14 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
+import org.iucn.sis.shared.api.data.TreeData;
+import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
+import org.iucn.sis.shared.api.structures.ClassificationInfo;
 import org.iucn.sis.shared.api.structures.Structure;
-import org.iucn.sis.shared.api.structures.TreeData;
-import org.iucn.sis.shared.api.structures.TreeDataRow;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -67,10 +68,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.extjs.client.GenericPagingLoader;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -95,51 +93,36 @@ public class ClassificationScheme extends Display {
 		public ClassificationSchemeEntry(String key, Structure struct) {
 			//super(struct.extractModelData().getProperties());
 			super();
-			this.struct=struct;
-			entryCanonicalName = canonicalName + "." + key;
-
-			set(description.replaceAll("\\s", ""), (String) codeToSelectedDesc.get(key));
-			synchronizeWithModel();
-		}
-
-		public ClassificationSchemeEntry(final Entry<String, Structure> curEntry) {
-			//setSpacing(3);
-			//super(curEntry.getValue().extractModelData().getProperties());
-			super();
-			this.struct=(Structure)curEntry.getValue();
-			this.key = curEntry.getKey();
-
-			entryCanonicalName = canonicalName + "." + curEntry.getKey();
-			set(description.replaceAll("\\s", ""), (String) codeToSelectedDesc.get(curEntry.getKey()));
-
+			this.struct = struct;
+			
+			setKey(key);
 			synchronizeWithModel();
 		}
 
 		public void synchronizeWithModel(){
-			pretty= new ArrayList<String>();
-			String xml = "<root>"+struct.toXML()+"</root>";
+			pretty = new ArrayList<String>();
+			
+			/*String xml = "<root>"+struct.toXML()+"</root>";
 
 			NativeDocument doc = NativeDocumentFactory.newNativeDocument();
 			doc.parse(xml);
 
 			NativeNodeList structs = doc.getDocumentElement().getElementsByTagName("structure");
-
+			 */
+			
 			ArrayList<String> raw = new ArrayList<String>();
-			for(int i=0;i<struct.extractDescriptions().size();i++){
-				if(structs.getLength()>i){
-					set((String)struct.extractDescriptions().get(i), structs.elementAt(i).getTextContent());
-					raw.add(structs.elementAt(i).getTextContent());
-				}
-
+			for (ClassificationInfo info : struct.getClassificationInfo()) {
+			//for(int i=0;i<struct.extractDescriptions().size();i++){
+				//set((String)struct.extractDescriptions().get(i), structs.elementAt(i).getTextContent());
+				//raw.add(structs.elementAt(i).getTextContent());
+				set(info.getDescription(), info.getData());
+				raw.add(info.getData());
 			}
 			try{
 				struct.getDisplayableData(raw, pretty, 0);
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				// ignore. Used to catch dependant structures that we do not care about.
 			}
-
-
 		}
 
 		public Object getKey(){
@@ -777,7 +760,15 @@ public class ClassificationScheme extends Display {
 				continue;
 			}
 
-			pagingLoader.getFullList().add(new ClassificationSchemeEntry(curEntry));
+			//pagingLoader.getFullList().add(new ClassificationSchemeEntry(curEntry));
+			try {
+				pagingLoader.getFullList().add(new ClassificationSchemeEntry(
+					(String)curEntry.getKey(), (Structure)curEntry.getValue()
+				));
+			} catch (ClassCastException e) {
+				System.out.println("Unhandled class cast exception.");
+				e.printStackTrace();
+			}
 		}
 
 		pagingLoader.getPagingLoader().setLimit(15);

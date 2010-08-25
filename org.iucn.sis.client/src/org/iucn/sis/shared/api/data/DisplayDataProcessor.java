@@ -3,7 +3,6 @@ package org.iucn.sis.shared.api.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.iucn.sis.shared.api.structures.DisplayData;
 import org.iucn.sis.shared.api.structures.SISMap;
 import org.iucn.sis.shared.api.structures.SISMapData;
 import org.iucn.sis.shared.api.structures.SISSelect;
@@ -28,6 +27,8 @@ public class DisplayDataProcessor {
 		err += ("Error Message: " + e.getMessage());
 		System.out.println(err);
 		// Window.alert( err );
+		
+		e.printStackTrace();
 	}
 
 	/**

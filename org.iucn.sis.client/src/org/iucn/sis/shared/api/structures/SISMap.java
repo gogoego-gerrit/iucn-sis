@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
@@ -53,7 +54,13 @@ public class SISMap extends Structure {
 	@Override
 	public boolean hasChanged() {
 		// TODO Auto-generated method stub
+	
 		return false;
+	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		return new ArrayList<ClassificationInfo>();
 	}
 	
 	@Override

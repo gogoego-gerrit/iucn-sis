@@ -2,11 +2,11 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
+import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -158,6 +158,11 @@ public class SISOneToMany extends Structure {
 		ArrayList ret = new ArrayList();
 		ret.addAll(structureData.extractDescriptions());
 		return ret;
+	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		return new ArrayList<ClassificationInfo>();
 	}
 
 	/**

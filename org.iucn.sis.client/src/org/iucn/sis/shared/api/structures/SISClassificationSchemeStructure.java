@@ -3,12 +3,13 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.Widget;
@@ -73,6 +74,11 @@ public class SISClassificationSchemeStructure extends Structure {
 		ArrayList ret = new ArrayList();
 		ret.add("No. of " + scheme.getDescription());
 		return ret;
+	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		return new ArrayList<ClassificationInfo>();
 	}
 
 	@Override

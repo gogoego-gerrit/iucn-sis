@@ -2,8 +2,6 @@ package org.iucn.sis.shared.api.data;
 
 import java.util.ArrayList;
 
-import org.iucn.sis.shared.api.structures.DisplayData;
-
 public class TreeDataRow extends DisplayData {
 
 	// Tree data

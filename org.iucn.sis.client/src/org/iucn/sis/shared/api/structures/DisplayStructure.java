@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.iucn.sis.shared.api.models.Field;
 
@@ -16,7 +17,11 @@ public interface DisplayStructure {
 	
 	public Widget generateViewOnly();
 	
+	public String getData();
+	
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset);
+	
+	public List<ClassificationInfo> getClassificationInfo();
 	
 	public boolean hasChanged();
 	

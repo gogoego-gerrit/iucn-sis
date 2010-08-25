@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.client.api.utils.FormattedDate;
@@ -437,6 +438,11 @@ public class SISLivelihoods extends Structure {
 		ret.add("% of household income");
 		ret.add("Value to Economy");
 		return ret;
+	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		return new ArrayList<ClassificationInfo>();
 	}
 
 	public String[] getByGenderAgeOptions() {

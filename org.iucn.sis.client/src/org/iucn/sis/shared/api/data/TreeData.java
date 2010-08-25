@@ -3,8 +3,6 @@ package org.iucn.sis.shared.api.data;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import org.iucn.sis.shared.api.structures.DisplayData;
-
 public class TreeData extends DisplayData implements Serializable {
 
 	/**

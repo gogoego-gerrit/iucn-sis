@@ -248,8 +248,6 @@ public abstract class Structure implements DisplayStructure {
 		return data;
 	}*/
 
-	public abstract String getData();
-
 	/**
 	 * Gets the description of the Structure
 	 * 

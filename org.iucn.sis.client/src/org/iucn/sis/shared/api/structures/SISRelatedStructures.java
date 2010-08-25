@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
@@ -188,6 +189,17 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 			ret.addAll(((Structure) iter.next()).extractDescriptions());
 
 		return ret;
+	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		ArrayList<ClassificationInfo> list = new ArrayList<ClassificationInfo>();
+		
+		list.addAll(dominantStructure.getClassificationInfo());
+		for (Structure structure : dependantStructures)
+			list.addAll(structure.getClassificationInfo());
+		
+		return list;
 	}
 
 	@Override

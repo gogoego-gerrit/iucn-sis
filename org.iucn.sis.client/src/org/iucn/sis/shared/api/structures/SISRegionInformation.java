@@ -243,6 +243,13 @@ public class SISRegionInformation extends Structure {
 		ret.add(description);
 		return ret;
 	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		final ArrayList<ClassificationInfo> list = new ArrayList<ClassificationInfo>();
+		list.add(new ClassificationInfo(description, getData()));
+		return list;
+	}
 
 	@Override
 	public String getData() {

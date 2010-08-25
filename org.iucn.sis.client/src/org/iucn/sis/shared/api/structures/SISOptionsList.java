@@ -92,6 +92,13 @@ public class SISOptionsList extends Structure {
 		ret.add(description);
 		return ret;
 	}
+	
+	@Override
+	public List<ClassificationInfo> getClassificationInfo() {
+		ArrayList<ClassificationInfo> list = new ArrayList<ClassificationInfo>();
+		list.add(new ClassificationInfo(description, getData()));
+		return list;
+	}
 
 	@Override
 	public String getData() {

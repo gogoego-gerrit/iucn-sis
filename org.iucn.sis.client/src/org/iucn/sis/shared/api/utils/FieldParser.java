@@ -2,17 +2,17 @@ package org.iucn.sis.shared.api.utils;
 
 import java.util.ArrayList;
 
+import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
+import org.iucn.sis.shared.api.data.FieldData;
+import org.iucn.sis.shared.api.data.TreeData;
+import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.displays.FieldDisplay;
 import org.iucn.sis.shared.api.structures.BooleanRule;
 import org.iucn.sis.shared.api.structures.ContentRule;
-import org.iucn.sis.shared.api.structures.DisplayData;
-import org.iucn.sis.shared.api.structures.FieldData;
 import org.iucn.sis.shared.api.structures.SelectRule;
-import org.iucn.sis.shared.api.structures.TreeData;
-import org.iucn.sis.shared.api.structures.TreeDataRow;
 
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
