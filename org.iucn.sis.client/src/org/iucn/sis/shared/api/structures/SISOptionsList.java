@@ -27,10 +27,11 @@ public class SISOptionsList extends Structure {
 		super(struct, descript, structID, data);
 		buildContentPanel(Orientation.VERTICAL);
 	}
-
+	
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
+	public boolean hasChanged() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 	
 	@Override
@@ -110,10 +111,12 @@ public class SISOptionsList extends Structure {
 		prettyData.add(offset, rawData.get(0));
 		return ++offset;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	public void setData(Field field) {
+		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		
+		//super.setData(data);
 
 		String text = data.containsKey(TEXT_ACCOUNT_KEY) ? 
 				((StringPrimitiveField)data.get(TEXT_ACCOUNT_KEY)).getValue() : "";
@@ -137,8 +140,8 @@ public class SISOptionsList extends Structure {
 		}
 	}
 
-	@Override
-	protected void setEnabled(boolean isEnabled) {
+	public void setEnabled(boolean isEnabled) {
+		
 	}
 
 	@Override

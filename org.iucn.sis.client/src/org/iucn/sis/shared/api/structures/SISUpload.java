@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -18,11 +19,6 @@ public class SISUpload extends Structure {
 		super(struct, descript, structID);
 		// displayPanel = new HorizontalPanel();
 		buildContentPanel(Orientation.HORIZONTAL);
-	}
-
-	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		return null;
 	}
 	
 	@Override
@@ -58,8 +54,8 @@ public class SISUpload extends Structure {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(description);
 		return ret;
 	}
@@ -85,10 +81,15 @@ public class SISUpload extends Structure {
 	public FileUpload getFileUpload() {
 		return fileUpload;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	public boolean hasChanged() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	
+	@Override
+	public void setData(Field field) {
 		// TODO: ?
 	}
 

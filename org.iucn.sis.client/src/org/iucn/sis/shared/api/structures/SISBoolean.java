@@ -16,7 +16,7 @@ import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 
-public class SISBoolean extends DominantStructure {
+public class SISBoolean extends SISPrimitiveStructure implements DominantStructure {
 
 	private CheckBox checkbox;
 
@@ -66,17 +66,6 @@ public class SISBoolean extends DominantStructure {
 		checkbox = new CheckBox();
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	public CheckBox getCheckbox() {
 		return checkbox;
 	}
@@ -121,7 +110,7 @@ public class SISBoolean extends DominantStructure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		if( data.containsKey(getId()) )
 			checkbox.setValue(((Boolean)(data.get(getId()).getValue())).booleanValue());
 	}

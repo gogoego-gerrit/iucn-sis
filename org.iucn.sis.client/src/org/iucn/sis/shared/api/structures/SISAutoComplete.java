@@ -12,7 +12,7 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISAutoComplete extends Structure {
+public class SISAutoComplete extends SISPrimitiveStructure {
 
 	public AutoCompleteTextBox textbox;
 
@@ -59,17 +59,6 @@ public class SISAutoComplete extends Structure {
 		}
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	@Override
 	public String getData() {
 		return textbox.getText();
@@ -94,7 +83,7 @@ public class SISAutoComplete extends Structure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		if( data.containsKey(getId()) )
 			textbox.setText( (String)data.get(getId()).getValue() );
 	}

@@ -55,14 +55,9 @@ public class SISRegionInformation extends Structure {
 	}
 
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		return null;
-	}
-	
-	@Override
 	public boolean hasChanged() {
 		// TODO Auto-generated method stub
-		return super.hasChanged();
+		return true;
 	}
 	
 	@Override
@@ -283,10 +278,11 @@ public class SISRegionInformation extends Structure {
 		prettyData.add(offset, rawData.get(offset));
 		return ++offset;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	public void setData(Field field) {
+		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		//super.setData(data);
 		
 		regionsSelected = ((ForeignKeyListPrimitiveField)data.get("regions")).getValue();
 		endemic.setValue(((BooleanPrimitiveField)data.get("endemic")).getValue());

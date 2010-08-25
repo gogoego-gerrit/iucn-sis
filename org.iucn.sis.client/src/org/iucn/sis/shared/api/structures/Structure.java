@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.data.BaseModel;
@@ -26,9 +27,9 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public abstract class Structure {
+public abstract class Structure implements DisplayStructure {
 
-	protected ModelData model;
+	//protected ModelData model;
 	
 	protected String structure;
 	protected String description;
@@ -37,7 +38,8 @@ public abstract class Structure {
 	protected Panel displayPanel;
 	protected Widget descriptionLabel;
 
-	protected Map<String, PrimitiveField> currentData;
+	//protected Map<String, PrimitiveField> currentData;
+	//protected Field currentData;
 	
 	protected String id;
 
@@ -80,8 +82,9 @@ public abstract class Structure {
 	 *            an object with structure-specific data
 	 */
 	public Structure(String struct, String descript, String structID, Object data) {
-		model = new BaseModel();
-		currentData = new HashMap<String, PrimitiveField>();
+		//model = new BaseModel();
+		//currentData = new HashMap<String, PrimitiveField>();
+		//currentData = null;
 		
 		this.structure = struct;
 		this.description = descript;
@@ -175,17 +178,13 @@ public abstract class Structure {
 	public void enable() {
 		setEnabled(true);
 	}
-
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
+	
+	/*
+	 * FIXME: there has to be a better way to do this...
 	 */
-	public abstract ArrayList extractDescriptions();
-	
-	
-	public ModelData extractModelData(){
+	/*public ModelData extractModelData(){
 		return model;
-	}
+	}*/
 	
 	/**
 	 * Returns this field in the form of a Widget (Panel to be plopped on a UI).
@@ -245,9 +244,9 @@ public abstract class Structure {
 	 * 
 	 * @return Object data - construction information, sometimes
 	 */
-	public Object getConstructionData() {
+	/*public Object getConstructionData() {
 		return data;
-	}
+	}*/
 
 	public abstract String getData();
 
@@ -320,7 +319,9 @@ public abstract class Structure {
 	public void setCanRemoveDescription(boolean canRemoveDescription) {
 		this.canRemoveDescription = canRemoveDescription;
 	}
-
+	
+/*
+	@Deprecated
 	public void setData(Map<String, PrimitiveField> data){
 		System.out.println("Setting data for structure " + getId() + " to be " + data.get(getId()));
 		if( data.containsKey(getId()) )
@@ -337,16 +338,17 @@ public abstract class Structure {
 				model.set(key, "");
 			}
 		} catch (Exception ignored) {}
-	}
+	}*/
 	
 	/**
 	 * Sets data directory from the Field. By default, this does nothing special.
 	 * 
 	 * @param field
 	 */
-	public void setFieldData(Field field) {
+	/*public void setFieldData(Field field) {
 		setData(field.getKeyToPrimitiveFields());
-	}
+		//this.currentData = field;
+	}*/
 
 	/**
 	 * Sets the description
@@ -358,18 +360,9 @@ public abstract class Structure {
 		this.description = description;
 	}
 
-	/**
-	 * Private Helper function to enable or disable a structure
-	 * 
-	 * @param isEnabled
-	 */
-	protected abstract void setEnabled(boolean isEnabled);
-
 	public void setId(String id) {
 		this.id = id;
 	}
-	
-	
 
 	public void setIsVisible(String isVisible) {
 		if (isVisible != null)
@@ -405,20 +398,10 @@ public abstract class Structure {
 		hiddenWidgets = false;
 		generate();
 	}
-
-	/**
-	 * Sinks Widget data into the appropriate PrimitiveField object(s), associating
-	 * them with the Field argument.
-	 * 
-	 * @return true if the save succeeded, or false if something unexpected occurred
-	 */
+	
 	public void save(Field field) {
-		PrimitiveField newPrim = currentData.get(getId());
-		if( newPrim == null ) { 
-			newPrim = getNewPrimitiveField();
-			newPrim.setName(getId());
-			newPrim.setField(field);
-		}
+		//PrimitiveField newPrim = currentData.get(getId());
+		PrimitiveField newPrim = new StringPrimitiveField(getId(), field);
 		
 		if( getData() != null ) {
 			newPrim.setRawValue(getData());
@@ -426,30 +409,6 @@ public abstract class Structure {
 		} else
 			field.getPrimitiveField().remove(newPrim);
 	}
-	
-	/**
-	 * Compares the data this structure was set with, with what it gets from its widget(s).
-	 * Returns true if they differ.
-	 * @return true or false
-	 */
-	public boolean hasChanged() {
-		String newData = getData();
-		if( newData != null && !newData.equals("") ) {
-			if( currentData.containsKey(getId()) ) {
-				return !newData.equals( currentData.get(getId()).getRawValue() );
-			} else
-				return !newData.equals("");
-		} else
-			return currentData.containsKey(getId());
-	}
-
-	/**
-	 * Returns an empty PrimitiveField object, typed properly for this PrimitiveFieldWidget's
-	 * data type.
-	 * 
-	 * @return a PrimitiveField object
-	 */
-	protected abstract PrimitiveField getNewPrimitiveField();
 	
 	public abstract String toXML();
 

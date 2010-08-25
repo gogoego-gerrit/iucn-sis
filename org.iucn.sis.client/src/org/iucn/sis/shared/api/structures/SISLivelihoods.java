@@ -136,8 +136,8 @@ public class SISLivelihoods extends Structure {
 	}
 	
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
+	public boolean hasChanged() {
+		return true;
 	}
 
 	@Override
@@ -549,9 +549,11 @@ public class SISLivelihoods extends Structure {
 	public HashMap getValues() {
 		return new HashMap();
 	}
-
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	
+	@Override
+	public void setData(Field field) {
+		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		//super.setData(data);
 		
 		scale.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(SCALE_KEY)).getValue());
 		localeName.setText(((StringPrimitiveField)data.get(LOCALITY_NAME_KEY)).getValue());
@@ -579,7 +581,7 @@ public class SISLivelihoods extends Structure {
 	protected void setDataValues(HashMap fieldData) {
 	}
 
-	protected void setEnabled(boolean isEnabled) {
+	public void setEnabled(boolean isEnabled) {
 
 	}
 

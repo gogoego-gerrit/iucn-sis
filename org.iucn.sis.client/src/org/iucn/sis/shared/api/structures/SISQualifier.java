@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 
@@ -11,7 +12,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISQualifier extends Structure {
+public class SISQualifier extends SISPrimitiveStructure {
 
 	private ListBox listbox;
 	private ArrayList items;
@@ -101,11 +102,10 @@ public class SISQualifier extends Structure {
 	public ListBox getListbox() {
 		return listbox;
 	}
-
 	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	protected void setData(Map<String, PrimitiveField> data) {
+		//super.setData(data);
 		Integer datum = data.containsKey(getId()) ? ((ForeignKeyPrimitiveField)data.get(getId())).getValue() : 0;
 		listbox.setSelectedIndex(datum);
 	}

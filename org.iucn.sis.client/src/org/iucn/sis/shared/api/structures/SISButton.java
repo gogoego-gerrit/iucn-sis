@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISButton extends DominantStructure {
+public class SISButton extends SISPrimitiveStructure implements DominantStructure {
 
 	private Button button;
 	private boolean toggleIsActive;
@@ -58,17 +58,6 @@ public class SISButton extends DominantStructure {
 		this.button = new Button(this.description);
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	public Button getButton() {
 		return button;
 	}
@@ -100,7 +89,7 @@ public class SISButton extends DominantStructure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		if( data.containsKey(getId()))
 			button.setText((String)data.get(getId()).getValue());
 	}

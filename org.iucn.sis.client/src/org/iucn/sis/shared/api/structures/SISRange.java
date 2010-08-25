@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class SISRange extends DominantStructure {
+public class SISRange extends SISPrimitiveStructure implements DominantStructure {
 
 	private TextBox range;
 
@@ -151,17 +151,6 @@ public class SISRange extends DominantStructure {
 		});
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	@Override
 	public String getData() {
 		String ret = range.getText().replaceAll("\\s*", "");
@@ -195,7 +184,7 @@ public class SISRange extends DominantStructure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		String datum = data.containsKey(getId()) ? ((RangePrimitiveField)data.get(getId())).getValue() : "";
 		range.setText(datum.replaceAll("\\s*", ""));
 	}

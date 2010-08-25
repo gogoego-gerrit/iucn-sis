@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
@@ -11,7 +12,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISImage extends Structure {
+public class SISImage extends SISPrimitiveStructure {
 
 	public SimplePanel imagePanel;
 	public Image image;
@@ -86,10 +87,10 @@ public class SISImage extends Structure {
 	public Image getImage() {
 		return image;
 	}
-
-	 @Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	
+	@Override
+	protected void setData(Map<String, PrimitiveField> data) {
+		//super.setData(data);
 		String datum = data.containsKey(getId()) ? ((StringPrimitiveField)data.get(getId())).getValue() : "";
 		image.setUrl(datum);
 	}

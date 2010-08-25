@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -50,8 +51,9 @@ public class SISMap extends Structure {
 	}
 
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		return null;
+	public boolean hasChanged() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	@Override
@@ -316,11 +318,11 @@ public class SISMap extends Structure {
 
 		createMapPoints();
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
-
+	public void setData(Field field) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	

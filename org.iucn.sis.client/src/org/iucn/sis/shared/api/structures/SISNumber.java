@@ -15,7 +15,7 @@ import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISNumber extends DominantStructure {
+public class SISNumber extends SISPrimitiveStructure implements DominantStructure {
 
 	private TextBox textbox;
 
@@ -116,7 +116,7 @@ public class SISNumber extends DominantStructure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		Float datum = data.containsKey(getId()) ? ((FloatPrimitiveField)data.get(getId())).getValue() : null;
 		textbox.setText(datum == null ? "" : String.valueOf(datum));
 	}

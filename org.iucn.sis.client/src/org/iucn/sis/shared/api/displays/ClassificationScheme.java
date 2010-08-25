@@ -91,9 +91,10 @@ public class ClassificationScheme extends Display {
 		private Structure struct;
 		private Object key;
 		private ArrayList<String> pretty;
-
+		
 		public ClassificationSchemeEntry(String key, Structure struct) {
-			super(struct.extractModelData().getProperties());
+			//super(struct.extractModelData().getProperties());
+			super();
 			this.struct=struct;
 			entryCanonicalName = canonicalName + "." + key;
 
@@ -103,8 +104,8 @@ public class ClassificationScheme extends Display {
 
 		public ClassificationSchemeEntry(final Entry<String, Structure> curEntry) {
 			//setSpacing(3);
-
-			super(curEntry.getValue().extractModelData().getProperties());
+			//super(curEntry.getValue().extractModelData().getProperties());
+			super();
 			this.struct=(Structure)curEntry.getValue();
 			this.key = curEntry.getKey();
 

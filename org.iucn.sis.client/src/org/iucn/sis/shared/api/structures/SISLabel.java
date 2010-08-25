@@ -30,11 +30,6 @@ public class SISLabel extends Structure {
 	public boolean hasChanged() {
 		return false;
 	}
-	
-	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		return null;
-	}
 
 	@Override
 	public void clearData() {
@@ -64,8 +59,8 @@ public class SISLabel extends Structure {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(description);
 		return ret;
 	}
@@ -86,9 +81,11 @@ public class SISLabel extends Structure {
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
 		return offset;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
+	public void setData(Field field) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override

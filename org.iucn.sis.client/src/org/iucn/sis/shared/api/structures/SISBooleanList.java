@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISBooleanList extends DominantStructure {
+public class SISBooleanList extends SISPrimitiveStructure implements DominantStructure {
 
 	public static final int TRUE_INDEX = 1;
 	public static final int FALSE_INDEX = 2;
@@ -98,17 +98,6 @@ public class SISBooleanList extends DominantStructure {
 		listbox.addItem("Unknown");
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	@Override
 	public String getData() {
 		if (listbox.getSelectedIndex() == 0)
@@ -163,7 +152,7 @@ public class SISBooleanList extends DominantStructure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		if( data.containsKey(getId())) {
 			Integer datum = ((ForeignKeyPrimitiveField)data.get(getId())).getValue();
 			listbox.setSelectedIndex(datum);

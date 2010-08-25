@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISText extends DominantStructure {
+public class SISText extends SISPrimitiveStructure implements DominantStructure {
 
 	private TextBox textbox;
 
@@ -61,18 +61,7 @@ public class SISText extends DominantStructure {
 		descriptionLabel = new HTML(description);
 		textbox = new TextBox();
 	}
-
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
+	
 	@Override
 	public String getData() {
 		return textbox.getText();
@@ -106,7 +95,7 @@ public class SISText extends DominantStructure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		String datum = data.containsKey(getId()) ? ((StringPrimitiveField)data.get(getId())).getValue() : "";
 		textbox.setText(datum);
 	}

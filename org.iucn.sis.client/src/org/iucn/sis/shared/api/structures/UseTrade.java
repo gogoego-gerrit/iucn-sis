@@ -116,8 +116,9 @@ public class UseTrade extends Structure {
 	}
 	
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
+	public boolean hasChanged() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 	
 	public void clearData() {
@@ -388,9 +389,11 @@ public class UseTrade extends Structure {
 	public HashMap getValues() {
 		return new HashMap();
 	}
-
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	
+	@Override
+	public void setData(Field field) {
+		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		//super.setData(data);
 		purpose.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(PURPOSE_KEY)).getValue());
 		source.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(SOURCE_KEY)).getValue());
 		formRemoved.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(FORM_REMOVED_KEY)).getValue());
@@ -408,7 +411,7 @@ public class UseTrade extends Structure {
 	protected void setDataValues(HashMap fieldData) {
 	}
 
-	protected void setEnabled(boolean isEnabled) {
+	public void setEnabled(boolean isEnabled) {
 
 	}
 

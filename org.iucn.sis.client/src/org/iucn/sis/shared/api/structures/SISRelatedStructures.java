@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISRelatedStructures extends DominantStructure {
+public class SISRelatedStructures extends Structure implements DominantStructure {
 
 	public static final int DEFAULT_LAYOUT = 0;
 	public static final int VERTICAL_PANEL = 1;
@@ -55,11 +55,6 @@ public class SISRelatedStructures extends DominantStructure {
 			// You'd better be trying to create a Structure on the
 			// server-side...
 		}
-	}
-
-	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
 	}
 	
 	@Override
@@ -329,18 +324,19 @@ public class SISRelatedStructures extends DominantStructure {
 					structure.disable();
 		}
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
+	public void setData(Field field) {
+		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
 		for (int i = 0; i < dependantStructures.size() + 1; i++) {
 			if (i == 0){
-				dominantStructure.setData(data);
-				model = new BaseModel(dominantStructure.extractModelData().getProperties());
+				dominantStructure.setData(field);
+				//model = new BaseModel(dominantStructure.extractModelData().getProperties());
 			}
 			else{
-				((Structure) dependantStructures.get(i - 1)).setData(data);
-				for(String key: ((Structure) dependantStructures.get(i - 1)).extractModelData().getPropertyNames())
-					model.set(key, ((Structure) dependantStructures.get(i - 1)).extractModelData().get(key));
+				((Structure) dependantStructures.get(i - 1)).setData(field);
+				/*for(String key: ((Structure) dependantStructures.get(i - 1)).extractModelData().getPropertyNames())
+					model.set(key, ((Structure) dependantStructures.get(i - 1)).extractModelData().get(key));*/
 			}
 		}
 	}

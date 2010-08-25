@@ -15,7 +15,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISHideableNote extends Structure {
+public class SISHideableNote extends SISPrimitiveStructure {
 
 	private Image showNotes;
 	private TextArea textarea;
@@ -80,8 +80,8 @@ public class SISHideableNote extends Structure {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(description);
 		return ret;
 	}
@@ -107,10 +107,10 @@ public class SISHideableNote extends Structure {
 	public TextArea getTextarea() {
 		return textarea;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	protected void setData(Map<String, PrimitiveField> data) {
+		//super.setData(data);
 		String datum = data.containsKey(getId()) ? ((StringPrimitiveField)data.get(getId())).getValue() : "";
 		textarea.setText(datum);
 	}

@@ -42,11 +42,6 @@ public class SISStructureCollection extends Structure {
 	}
 
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public void save(Field field) {
 		for( Structure cur : structures )
 			cur.save(field);
@@ -185,13 +180,13 @@ public class SISStructureCollection extends Structure {
 	public ArrayList getStructures() {
 		return structures;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
+	public void setData(Field field) {
 		for (int i = 0; i < structures.size(); i++) {
-			((Structure) structures.get(i)).setData(data);
-			for(String key: ((Structure) structures.get(i)).extractModelData().getPropertyNames())
-				model.set(key, ((Structure) structures.get(i)).extractModelData().get(key));
+			((Structure) structures.get(i)).setData(field);
+			/*for(String key: ((Structure) structures.get(i)).extractModelData().getPropertyNames())
+				model.set(key, ((Structure) structures.get(i)).extractModelData().get(key));*/
 		}
 	}
 

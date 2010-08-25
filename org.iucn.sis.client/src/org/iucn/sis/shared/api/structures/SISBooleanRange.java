@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class SISBooleanRange extends DominantStructure {
+public class SISBooleanRange extends SISPrimitiveStructure implements DominantStructure {
 
 	private ListBox options;
 	private TextBox range;
@@ -195,17 +195,6 @@ public class SISBooleanRange extends DominantStructure {
 		range.setVisible(true);
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	@Override
 	public String getData() {
 		return range.getText().replaceAll("\\s*", "");
@@ -247,7 +236,7 @@ public class SISBooleanRange extends DominantStructure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		
 		String datum = data.containsKey(getId()) ? ((BooleanRangePrimitiveField)data.get(getId())).getValue() : "";
 		range.setText(XMLUtils.cleanFromXML(datum.replaceAll("\\s*", "")));

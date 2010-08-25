@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISSelect extends DominantStructure {
+public class SISSelect extends SISPrimitiveStructure implements DominantStructure {
 
 	public static final String LISTBOX = "listbox";
 
@@ -143,18 +143,7 @@ public class SISSelect extends DominantStructure {
 			});
 		}
 	}
-
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
+	
 	@Override
 	public String getData() {
 		if (listbox.getSelectedIndex() == 0)
@@ -199,7 +188,7 @@ public class SISSelect extends DominantStructure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		Integer datum = data.containsKey(getId()) ? ((ForeignKeyPrimitiveField)data.get(getId())).getValue() : 0;
 		listbox.setSelectedIndex(datum);
 	}

@@ -9,10 +9,7 @@
 
 package org.iucn.sis.shared.api.displays;
 
-import java.util.Map;
-
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.structures.FieldData;
 import org.iucn.sis.shared.api.structures.Structure;
 
@@ -84,10 +81,10 @@ public class FieldDisplay extends Display {
 		
 		if (field != null) {
 			if( field.getFields() == null ) {
-				Map<String, PrimitiveField> prims = field.getKeyToPrimitiveFields();
+				//Map<String, PrimitiveField> prims = field.getKeyToPrimitiveFields();
 				for (Structure cur : getStructures()) {
 					try {
-						cur.setData(prims);
+						cur.setData(field);
 					} catch (Exception e) {
 						cur.clearData();
 						System.out.println(
@@ -99,7 +96,7 @@ public class FieldDisplay extends Display {
 				//It has subfields, most likely. The structure should know how to handle it.
 				for (Structure cur : getStructures()) {
 					try {
-						cur.setFieldData(field);
+						cur.setData(field);
 					} catch (Exception e) {
 						System.out.println(
 								"setData error in FieldWidgetCache for display " + getCanonicalName());

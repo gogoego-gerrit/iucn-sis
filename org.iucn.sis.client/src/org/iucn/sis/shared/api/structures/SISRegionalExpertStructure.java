@@ -6,6 +6,7 @@ import java.util.Map;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.panels.RegionalExpertWidget;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
@@ -13,14 +14,14 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISRegionalExpertStructure extends Structure {
+public class SISRegionalExpertStructure extends SISPrimitiveStructure {
 	private RegionalExpertWidget questionsPanel;
 
 	public SISRegionalExpertStructure(String struct, String descript, String structID) {
 		super(struct, descript, structID);
 		buildContentPanel(Orientation.VERTICAL);
 	}
-
+	
 	@Override
 	protected PrimitiveField getNewPrimitiveField() {
 		return new StringPrimitiveField(getId(), null);
@@ -99,10 +100,10 @@ public class SISRegionalExpertStructure extends Structure {
 		prettyData.add(offset, rawData.get(offset));
 		return ++offset;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	protected void setData(Map<String, PrimitiveField> data) {
+		//super.setData(data);
 		try {
 			String datum = data.containsKey(getId()) ? ((StringPrimitiveField)data.get(getId())).getValue() : "";
 			questionsPanel.setWidgetData(datum);
@@ -122,7 +123,7 @@ public class SISRegionalExpertStructure extends Structure {
 	}
 
 	@Override
-	protected void setEnabled(boolean isEnabled) {
+	public void setEnabled(boolean isEnabled) {
 	}
 
 	@Override

@@ -4,17 +4,9 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.KeyboardListener;
 
-public abstract class DominantStructure extends Structure {
+public interface DominantStructure extends DisplayStructure {
 
-	public DominantStructure(String struct, String descript, String structID) {
-		super(struct, descript, structID);
-	}
-
-	public DominantStructure(String struct, String descript, String structID, Object data) {
-		super(struct, descript, structID, data);
-	}
-
-	public abstract void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
+	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
 			KeyboardListener keyboardListener);
 
 	// public abstract Object getActiveStructure();
@@ -24,6 +16,6 @@ public abstract class DominantStructure extends Structure {
 	 * changeListener, ClickHandler clickListener);
 	 */
 
-	public abstract boolean isActive(Rule activityRule);
+	public boolean isActive(Rule activityRule);
 
 }

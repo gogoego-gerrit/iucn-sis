@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 
-public class SISRichTextArea extends Structure implements UsesClipboard {
+public class SISRichTextArea extends SISPrimitiveStructure implements UsesClipboard {
 
 	// private FCKEditor textarea;
 
@@ -98,17 +98,6 @@ public class SISRichTextArea extends Structure implements UsesClipboard {
 		// "300px", "Default");
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	@Override
 	public String getData() {
 		try {
@@ -143,10 +132,12 @@ public class SISRichTextArea extends Structure implements UsesClipboard {
 			text += (String) items.get(i) + "<br/>";
 		area.setHTML(text);
 	}
+	
+	
 
 	@Override
 	public void setData(final Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		String datum = data.containsKey(getId()) ? ((TextPrimitiveField)data.get(getId())).getValue() : "";
 		System.out.println("In setData for RTA " + getId() + " - datum is " + datum);
 		viewOnlyData = datum.replaceAll("[\\n\\r]", " ").trim();

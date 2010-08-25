@@ -185,11 +185,6 @@ public class SISCategoryAndCriteria extends Structure {
 		//TODO: IMPLEMENT ME! Woo hoo.
 	}
 	
-	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
-	}
-	
 	private void buildPreCategoriesListBox() {
 		if (categoryListBox.getItemCount() == 30)
 			return;
@@ -697,9 +692,11 @@ public class SISCategoryAndCriteria extends Structure {
 			dataDeficientListBox.setSelectedIndex(0);
 		}
 	}
-
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	
+	@Override
+	public void setData(Field field) {
+		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		
 		v3_1Grid.clearWidgets();
 		v2_3Grid.clearWidgets();
 
@@ -736,7 +733,7 @@ public class SISCategoryAndCriteria extends Structure {
 	protected void setDataValues(HashMap fieldData) {
 	}
 
-	protected void setEnabled(boolean isEnabled) {
+	public void setEnabled(boolean isEnabled) {
 	}
 
 	public String toXML() {

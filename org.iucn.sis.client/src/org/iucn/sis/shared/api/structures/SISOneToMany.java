@@ -49,8 +49,9 @@ public class SISOneToMany extends Structure {
 	}
 	
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
+	public boolean hasChanged() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 	
 	@Override
@@ -198,23 +199,17 @@ public class SISOneToMany extends Structure {
 	}
 	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setFieldData(Field field) {
+	public void setData(Field field) {
 		selected.clear();
 		
 		for( Field subField : field.getFields() ) {
 			Structure newStruct = DisplayDataProcessor.processDisplayStructure(defaultStructureData);
-			newStruct.setData(subField.getKeyToPrimitiveFields());
+			newStruct.setData(subField);
 			selected.add(newStruct);
 		}
 	}
 	
-	@Override
-	protected void setEnabled(boolean isEnabled) {
+	public void setEnabled(boolean isEnabled) {
 		for (Iterator iter = selected.listIterator(); iter.hasNext();)
 			((Structure) iter.next()).setEnabled(isEnabled);
 	}

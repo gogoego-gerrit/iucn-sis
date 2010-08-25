@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISReference extends DominantStructure {
+public class SISReference extends SISPrimitiveStructure implements DominantStructure {
 
 	private HTML citation;
 
@@ -101,7 +101,7 @@ public class SISReference extends DominantStructure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		String datum = data.containsKey(getId()) ? ((StringPrimitiveField)data.get(getId())).getValue() : "";
 		citation.setText(datum);
 	}

@@ -14,7 +14,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISTextArea extends Structure implements UsesClipboard {
+public class SISTextArea extends SISPrimitiveStructure implements UsesClipboard {
 
 	private TextArea textarea;
 
@@ -61,17 +61,6 @@ public class SISTextArea extends Structure implements UsesClipboard {
 		textarea.setSize("200px", "100px");
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	@Override
 	public String getData() {
 		return textarea.getText();
@@ -103,7 +92,7 @@ public class SISTextArea extends Structure implements UsesClipboard {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		String datum = data.containsKey(getId()) ? ((TextPrimitiveField)data.get(getId())).getValue() : "";
 		textarea.setText(datum);
 	}

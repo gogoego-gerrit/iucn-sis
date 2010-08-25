@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.gwt.api.DatePicker;
 
-public class SISDate extends Structure {
+public class SISDate extends SISPrimitiveStructure {
 
 	private DatePicker datePicker;
 
@@ -55,17 +55,6 @@ public class SISDate extends Structure {
 		datePicker.setSeparator("-");
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	@Override
 	public String getData() {
 		return datePicker.getText();
@@ -86,7 +75,7 @@ public class SISDate extends Structure {
 
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+		//super.setData(data);
 		Date datum = data.containsKey(getId()) ? ((DatePrimitiveField)data.get(getId())).getValue() : null;
 		if( datum != null )
 			datePicker.setText(FormattedDate.impl.getDate(datum));

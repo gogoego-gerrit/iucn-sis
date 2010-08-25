@@ -22,11 +22,6 @@ public class SISClassificationSchemeStructure extends Structure {
 	}
 	
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
 	public void save(Field field) {
 		for( Entry<String, Structure> cur : scheme.getSelected().entrySet() ) {
 			Field subfield = new Field(field.getName() + "Subfield", field.getAssessment());
@@ -116,27 +111,33 @@ public class SISClassificationSchemeStructure extends Structure {
 		return scheme;
 	}
 
-	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	public void setData(Field field) {
+		//final Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
 		
 		Map<String, Structure> selected = new HashMap<String, Structure>();
-		for (Entry<String, PrimitiveField> entry : data.entrySet()) {
-			String id = entry.getKey();
+		//for (Entry<String, PrimitiveField> entry : data.entrySet()) {
+			//String id = entry.getKey();
 			// DUPLICATE WORK BEING DONE IN SET SELECTED...
 			//Modify this to generate structure FOR THE GIVEN KEY so class schemes can has multiple structs
 			Structure struct = scheme.generateDefaultStructure(); 
-			struct.setData(data);
+			//struct.setData(data);
+			struct.setData(field);
 
 			selected.put(id, struct);
-		}
+		//}
 
 		scheme.setSelectedAsStructures(selected);
 	}
 
 	@Override
-	protected void setEnabled(boolean isEnabled) {
+	public void setEnabled(boolean isEnabled) {
+	}
+	
+	@Override
+	public boolean hasChanged() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 
 	@Override

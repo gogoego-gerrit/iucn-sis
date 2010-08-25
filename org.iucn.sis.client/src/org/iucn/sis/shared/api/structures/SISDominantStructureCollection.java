@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISDominantStructureCollection extends DominantStructure {
+public class SISDominantStructureCollection extends Structure implements DominantStructure {
 
 	private ArrayList<Structure> structures;
 	private boolean activeOnAny = true;
@@ -24,11 +24,6 @@ public class SISDominantStructureCollection extends DominantStructure {
 		// displayPanel = new ContentPanel();
 		buildContentPanel(Orientation.HORIZONTAL);
 		this.structures = (ArrayList) data;
-	}
-
-	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
 	}
 	
 	@Override
@@ -78,11 +73,11 @@ public class SISDominantStructureCollection extends DominantStructure {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 
-		for (Iterator iter = structures.iterator(); iter.hasNext();)
-			ret.addAll(((Structure) iter.next()).extractDescriptions());
+		for (Iterator<Structure> iter = structures.iterator(); iter.hasNext();)
+			ret.addAll(iter.next().extractDescriptions());
 
 		return ret;
 	}
@@ -107,8 +102,16 @@ public class SISDominantStructureCollection extends DominantStructure {
 		return offset;
 	}
 
-	public ArrayList getStructures() {
+	public ArrayList<Structure> getStructures() {
 		return structures;
+	}
+	
+	@Override
+	public boolean hasChanged() {
+		for (Structure structure : structures)
+			if (structure.hasChanged())
+				return true;
+		return false;
 	}
 
 	@Override
@@ -135,10 +138,10 @@ public class SISDominantStructureCollection extends DominantStructure {
 	public void setActiveOnAny(boolean rule) {
 		activeOnAny = rule;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	public void setData(Field field) {
+		// TODO Auto-generated method stub
 	}
 
 	@Override

@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISThreatStructure extends DominantStructure {
+public class SISThreatStructure extends Structure implements DominantStructure {
 
 	public static final int TIMING_PAST_UNLIKELY_RETURN_INDEX = 1;
 	public static final int TIMING_ONGOING_INDEX = 2;
@@ -72,11 +72,6 @@ public class SISThreatStructure extends DominantStructure {
 		
 		field.getPrimitiveField().add(new StringPrimitiveField(SCORE_TIMING_KEY, field, 
 				impactScore.getText()));
-	}
-
-	@Override
-	protected PrimitiveField getNewPrimitiveField() {
-		throw new UnsupportedOperationException();
 	}
 	
 	@Override
@@ -264,6 +259,12 @@ public class SISThreatStructure extends DominantStructure {
 	public ListBox getTiming() {
 		return timing;
 	}
+	
+	@Override
+	public boolean hasChanged() {
+		// TODO Auto-generated method stub
+		return true;
+	}
 
 	// This means non-codeable for me
 	@Override
@@ -278,10 +279,11 @@ public class SISThreatStructure extends DominantStructure {
 	public boolean isActive(Rule activityRule) {
 		return (activeToggle = !activeToggle);
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		super.setData(data);
+	public void setData(Field field) {
+		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		//super.setData(field);
 		timing.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(THREATS_TIMING_KEY)).getValue());
 		scope.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(SCOPE_TIMING_KEY)).getValue());
 		severity.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(SEVERITY_TIMING_KEY)).getValue());
