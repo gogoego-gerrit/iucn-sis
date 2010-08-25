@@ -382,7 +382,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	}
 	
 	public void setField(Field field) {
-		final Field existing = keyToField.get(field.getName());
+		final Field existing = getField(field.getName());
 		this.field.remove(existing);
 		
 		this.field.add(field);
