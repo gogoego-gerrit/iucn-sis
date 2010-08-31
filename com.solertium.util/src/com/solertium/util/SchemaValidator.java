@@ -96,8 +96,8 @@ public class SchemaValidator {
 		final DocumentBuilderFactory factory = 
 			DocumentBuilderFactory.newInstance();	
 		
-		factory.setSchema(schema);		
 		factory.setNamespaceAware(true);
+		factory.setSchema(schema);
 		factory.setValidating(false);	//This is used for DTDs
 		
 		final MyDefaultHandler dh = new MyDefaultHandler();

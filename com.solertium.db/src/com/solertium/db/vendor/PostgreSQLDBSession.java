@@ -140,12 +140,30 @@ public class PostgreSQLDBSession extends DBSession {
 
 	@Override
 	public String getDBColumnType(final CString c) {
+		/*
+		 * FIXME: for some reason, this always returns a 
+		 * Text type.  Not sure why, so the author can 
+		 * remove this comment later if need be.  For now, 
+		 * for consistency with changes made in SIS-1, I 
+		 * am changing this function to follow change at 
+		 * http://review.source.gogoego.com/585 
+		 */
 //		int scale = c.getScale();
 //		if (scale == 0)
 //			scale = 255;
 //		if (scale < 255)
 //			return "VARCHAR(" + scale + ")";
 //		return "LONGVARCHAR";
+//		Was just...
+//		return "TEXT";
+		
+		int scale = c.getScale();
+		if (scale == 0)
+			scale = 255;
+		
+		if (scale <= 255)
+			return "VARCHAR(" + scale + ")";
+		
 		return "TEXT";
 	}
 	

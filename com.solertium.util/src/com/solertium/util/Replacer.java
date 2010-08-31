@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Map;
 
 /**
  * This is a venerable utility class that has been in use since around Java 1.3,
@@ -211,6 +212,50 @@ public class Replacer {
 		} while (found > -1);
 		newsb.append(in.substring(last));
 
+		return newsb.toString();
+	}
+	
+	/**
+	 * Different workhorse method for parameter expansion, which is a
+	 * workhorse of a different color.  Here, we replace things in curly
+	 * braces.  If the term inside the curly braces is a key in the supplied
+	 * Map, the sequence is replaced with the value in the Map.  If "hungry"
+	 * is true, then this will "eat" -- that is, delete -- all curly bracey
+	 * things that don't have a corresponding Map entry.  Otherwise it will
+	 * leave the strings alone.
+	 */
+	public static String replace(String buf, Map<String,String> mapping, boolean hungry){
+		return replace(buf,mapping,hungry,"");
+	}
+	public static String replace(String buf, Map<String,String> mapping, boolean hungry, String hungrySubst){
+		// short circuit eliminates NPEs here
+		if ((buf==null) || (mapping==null)) return buf;
+		int found;
+		int rhs;
+		int last=0;
+		String key;
+		// guess at a reasonable new string buffer size
+		StringBuffer newsb = new StringBuffer(buf.length()+128);
+		do {
+			found = buf.indexOf("${",last);
+			if(found>-1) {
+				newsb.append(buf.substring(last,found));
+				rhs = buf.indexOf('}',found+2);
+				last = rhs+1;
+	         key = buf.substring(found+2,rhs);
+	         Object value = mapping.get(key);
+	         if(value!=null){
+	        	 newsb.append(value.toString());
+	         } else {
+	        	 if(hungry==false){
+	        		 newsb.append(buf.substring(found,rhs+1));
+	        	 } else {
+	        		 newsb.append(hungrySubst);
+	        	 }
+		        }
+			}
+		} while (found>-1);
+		newsb.append(buf.substring(last));
 		return newsb.toString();
 	}
 
