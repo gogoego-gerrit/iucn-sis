@@ -35,7 +35,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISCategoryAndCriteria extends Structure {
+public class SISCategoryAndCriteria extends Structure<Field> {
 
 	// Piece 0: Is manual
 	// Piece 1: Version
@@ -175,13 +175,13 @@ public class SISCategoryAndCriteria extends Structure {
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		//TODO: IMPLEMENT ME! Woo hoo.
 		return false;
 	}
 	
 	@Override
-	public void save(Field field) {
+	public void save(Field parent, Field field) {
 		//TODO: IMPLEMENT ME! Woo hoo.
 	}
 	

@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISThreatStructure extends Structure implements DominantStructure {
+public class SISThreatStructure extends Structure<Field> implements DominantStructure<Field> {
 
 	public static final int TIMING_PAST_UNLIKELY_RETURN_INDEX = 1;
 	public static final int TIMING_ONGOING_INDEX = 2;
@@ -58,12 +58,18 @@ public class SISThreatStructure extends Structure implements DominantStructure {
 	}
 	
 	@Override
-	public void save(Field field) {
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(THREATS_TIMING_KEY, field, 
+	public void save(Field parent, Field field) {
+		if (field == null) {
+			field = new Field();
+			field.setName(getId());
+			field.setParent(parent);
+		}
+		
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(THREATS_TIMING_KEY, field, 
 				Integer.valueOf(timing.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(SCOPE_TIMING_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(SCOPE_TIMING_KEY, field, 
 				Integer.valueOf(scope.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(SEVERITY_TIMING_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(SEVERITY_TIMING_KEY, field, 
 				Integer.valueOf(severity.getSelectedIndex()), null));
 		
 		
@@ -71,7 +77,7 @@ public class SISThreatStructure extends Structure implements DominantStructure {
 		int myScope = Integer.parseInt(scope.getValue(scope.getSelectedIndex()));
 		int mySeverity = Integer.parseInt(severity.getValue(severity.getSelectedIndex()));
 		
-		field.getPrimitiveField().add(new StringPrimitiveField(SCORE_TIMING_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(SCORE_TIMING_KEY, field, 
 				impactScore.getText()));
 	}
 	
@@ -267,7 +273,7 @@ public class SISThreatStructure extends Structure implements DominantStructure {
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		// TODO Auto-generated method stub
 		return true;
 	}
@@ -307,7 +313,6 @@ public class SISThreatStructure extends Structure implements DominantStructure {
 		severity.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

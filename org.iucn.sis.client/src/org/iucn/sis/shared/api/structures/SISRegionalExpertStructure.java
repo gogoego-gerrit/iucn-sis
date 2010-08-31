@@ -1,12 +1,10 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.panels.RegionalExpertWidget;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
@@ -14,7 +12,7 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISRegionalExpertStructure extends SISPrimitiveStructure {
+public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 	private RegionalExpertWidget questionsPanel;
 
 	public SISRegionalExpertStructure(String struct, String descript, String structID) {
@@ -23,7 +21,7 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure {
 	}
 	
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<String> getNewPrimitiveField() {
 		return new StringPrimitiveField(getId(), null);
 	}
 	
@@ -76,8 +74,8 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure {
 	}
 
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add("Regional Expert Questions");
 		return ret;
 	}
@@ -102,10 +100,9 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure {
 	}
 	
 	@Override
-	protected void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
+	public void setData(PrimitiveField<String> field) {
 		try {
-			String datum = data.containsKey(getId()) ? ((StringPrimitiveField)data.get(getId())).getValue() : "";
+			String datum = field != null ? field.getValue() : "";
 			questionsPanel.setWidgetData(datum);
 			
 			clearDisplayPanel();
@@ -126,7 +123,6 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure {
 	public void setEnabled(boolean isEnabled) {
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

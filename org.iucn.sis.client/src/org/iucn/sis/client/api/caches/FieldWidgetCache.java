@@ -101,7 +101,7 @@ public class FieldWidgetCache {
 		return cur;
 	}
 
-	public String getCurrentFields() {
+	/*public String getCurrentFields() {
 
 		Iterator iter = widgetMap.values().iterator();
 		StringBuffer xml = new StringBuffer();
@@ -111,7 +111,7 @@ public class FieldWidgetCache {
 		}
 
 		return xml.toString();
-	}
+	}*/
 
 	/**
 	 * Fetches a list of fields in one call. Supplied argument should be the

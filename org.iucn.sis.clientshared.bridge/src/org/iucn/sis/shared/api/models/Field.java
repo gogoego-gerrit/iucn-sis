@@ -18,70 +18,28 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
+import org.iucn.sis.shared.api.models.parsers.FieldV2Parser;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
 public class Field implements Serializable {
 
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
-	public static final String ROOT_TAG = "field";
+	//public static final String ROOT_TAG = "field";
+	
+	private static final String VERSION = "2";
 
 	public static Field fromXML(NativeElement element) {
-		Field field = new Field();
-		String name = element.getAttribute("name");
-		field.setName(name);
-		String id = element.getAttribute("id");
-		try {
-		field.setId(Integer.valueOf(id).intValue());
-		} catch (NumberFormatException e) {
-			System.out.println("ERROR - FIELD " + name + " DOES NOT HAVE AN ID!!! trying to parse " + id + " with name " + name);
-		}
-		
-		field.setFields(new HashSet<Field>());
-		NativeNodeList subfields = element.getElementsByTagName("subfields");
-		if (subfields.getLength() > 0) {
-			NativeNodeList subsubFields = subfields.elementAt(0).getElementsByTagName(Field.ROOT_TAG);
-			for( int i = 0; i < subsubFields.getLength(); i++ ) {
-				Field cur = Field.fromXML(subsubFields.elementAt(i));
-				cur.setParent(field);
-				field.getFields().add(cur);
-			}
-		}
-		
-		
-		field.setPrimitiveField(new HashSet<PrimitiveField>());
-		NativeNodeList prims = element.getElementsByTagName(PrimitiveField.ROOT_TAG);
-		for( int i = 0; i < prims.getLength(); i++ ) {
-			NativeElement primEl = prims.elementAt(i);
-			PrimitiveField cur = PrimitiveFieldFactory.generatePrimitiveField(primEl.getAttribute(PrimitiveField.TYPE_TAG));
-			cur.fromXML(primEl);
-			cur.setField(field);
-			field.getPrimitiveField().add(cur);
-		}
-		
-		field.setNotes(new HashSet<Notes>());
-		NativeNodeList notes = element.getElementsByTagName(Notes.ROOT_TAG);
-		for( int i = 0; i < notes.getLength(); i++ ) {
-			Notes cur = Notes.fromXML(notes.elementAt(i));
-			cur.setField(field);
-			field.getNotes().add(cur);
-		}
-		
-		field.setReference(new HashSet<Reference>());
-		NativeNodeList refs = element.getElementsByTagName(Reference.ROOT_TAG);
-		for( int i = 0; i < refs.getLength(); i++ ) {
-			Reference cur = Reference.fromXML(refs.elementAt(i));
-			if( cur.getField() == null )
-				cur.setField(new HashSet<Field>());
-			
-			cur.getField().add(field);
-			field.getReference().add(cur);
-		}
-		
-		return field;
+		String version = element.getAttribute("version");
+		if (VERSION.equals(version))
+			return FieldV2Parser.parse(element); 
+		else
+			return FieldV1Parser.parse(element);
 	}
 
 	private int id;
@@ -250,6 +208,42 @@ public class Field implements Serializable {
 		return keyToPrimitiveFields;
 		
 	}
+	
+	public PrimitiveField<?> getPrimitiveField(String fieldName) {
+		if (primitiveField == null)
+			primitiveField = new HashSet<PrimitiveField>();
+		
+		return getKeyToPrimitiveFields().get(fieldName);
+	}
+	
+	public void addPrimitiveField(PrimitiveField<?> field) {
+		if (primitiveField == null)
+			primitiveField = new HashSet<PrimitiveField>();
+		
+		PrimitiveField<?> existing = getPrimitiveField(field.getName());
+		if (existing == null)
+			primitiveField.remove(existing);
+		
+		primitiveField.add(field);
+	}
+	
+	public Field getField(String fieldName) {
+		if (fields == null)
+			fields = new HashSet<Field>();
+		
+		return getKeyToFields().get(fieldName);
+	}
+	
+	public void addField(Field field) {
+		if (fields == null)
+			fields = new HashSet<Field>();
+		
+		Field existing = getField(field.getName());
+		if (existing != null)
+			fields.remove(existing);
+		
+		fields.add(field);
+	}
 
 	public String getName() {
 		return name;
@@ -281,6 +275,12 @@ public class Field implements Serializable {
 
 	public void setAssessment(Assessment value) {
 		this.assessment = value;
+		/*
+		 * FIXME: is this necessary?
+		 */
+		if (fields != null)
+			for (Field field : fields)
+				field.setAssessment(value);
 	}
 
 	public void setFields(java.util.Set<Field> value) {
@@ -316,11 +316,16 @@ public class Field implements Serializable {
 	}
 
 	public String toXML() {
+		return toXML(getName());
+	}
+	
+	public String toXML(String rootTag) {
 		StringBuilder str = new StringBuilder("<");
-		str.append(ROOT_TAG);
-		str.append(" name=\"");
-		str.append(getName());
-		str.append("\" id=\"");
+		str.append(rootTag);
+		str.append(" version=\"");
+		str.append(VERSION);
+		str.append("\"");
+		str.append(" id=\"");
 		str.append(getId());
 		str.append("\">\n");
 		
@@ -331,21 +336,22 @@ public class Field implements Serializable {
 			str.append("</subfields>\n");
 		}
 		
-		for( PrimitiveField cur : getPrimitiveField() ) {
+		for (PrimitiveField<?> cur : getPrimitiveField()) {
 			str.append(cur.toXML());
+			str.append("\n");
 		}
 		
 		if (getReference() != null) {
 			for (Reference ref : getReference())
-				str.append(ref.toXML());
+				str.append(ref.toXML()+"\n");
 		}
 		
 		if (getNotes() != null) {
 			for (Notes note : getNotes())
-				str.append(note.toXML());
+				str.append(note.toXML()+"\n");
 		}
 		
-		str.append("</" + ROOT_TAG + ">\n");
+		str.append("</" + rootTag + ">\n");
 		
 		return str.toString();
 	}

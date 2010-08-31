@@ -1,19 +1,14 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
-import com.google.gwt.rpc.server.WebModeClientOracle.Triple;
-
-
-public abstract class SISPrimitiveStructure extends Structure {
+public abstract class SISPrimitiveStructure<T> extends Structure<PrimitiveField<T>> {
 	
-	protected Map<String, PrimitiveField> currentData;
+	//protected Map<String, PrimitiveField> currentData;
 
 	public SISPrimitiveStructure(String struct, String descript, String structID) {
 		this(struct, descript, structID, null);
@@ -21,7 +16,7 @@ public abstract class SISPrimitiveStructure extends Structure {
 
 	public SISPrimitiveStructure(String struct, String descript, String structID, Object data) {
 		super(struct, descript, structID, data);
-		currentData = new HashMap<String, PrimitiveField>();
+		//currentData = new HashMap<String, PrimitiveField>();
 	}
 	
 	/**
@@ -40,15 +35,24 @@ public abstract class SISPrimitiveStructure extends Structure {
 	 * Returns true if they differ.
 	 * @return true or false
 	 */
-	public boolean hasChanged() {
-		String newData = getData();
-		if (newData != null && !newData.equals("") ) {
+	public boolean hasChanged(PrimitiveField<T> field) {
+		String oldValue = field == null ? null : field.getRawValue();
+		String newValue = getData();
+		if (newValue == null)
+			return oldValue != null;
+		else
+			if (oldValue == null)
+				return true;
+			else
+				return !newValue.equals(oldValue);
+		
+		/*if (newData != null && !newData.equals("") ) {
 			if (currentData.containsKey(getId())) {
 				return !newData.equals( currentData.get(getId()).getRawValue() );
 			} else
 				return !newData.equals("");
 		} else
-			return currentData.containsKey(getId());
+			return currentData.containsKey(getId());*/
 	}
 	
 	/**
@@ -57,7 +61,7 @@ public abstract class SISPrimitiveStructure extends Structure {
 	 * 
 	 * @return true if the save succeeded, or false if something unexpected occurred
 	 */
-	public void save(Field field) {
+	/*public void save(Field field) {
 		//PrimitiveField newPrim = currentData.get(getId());
 		PrimitiveField newPrim = currentData.get(getId());
 		if( newPrim == null ) { 
@@ -71,9 +75,29 @@ public abstract class SISPrimitiveStructure extends Structure {
 			field.getPrimitiveField().add(newPrim);
 		} else
 			field.getPrimitiveField().remove(newPrim);
+	}*/
+	
+	public boolean isPrimitive() {
+		return true;
 	}
 	
-	public final void setData(Field field){
+	@Override
+	public void save(Field parent, PrimitiveField<T> field) {
+		final String data = getData();
+		System.out.println("Saving data for " + getId() + ": " + data);
+		if (getData() != null) {
+			if (field == null) {
+				field = getNewPrimitiveField();
+				field.setField(parent);
+				parent.addPrimitiveField(field);
+			}
+			field.setRawValue(data);
+		}
+		else
+			System.out.println("Skipping" + getId() + ", no data to save");
+	}
+	
+	/*public final void setData(Field field){
 		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
 		System.out.println("Setting data for structure " + getId() + " to be " + data.get(getId()));
 		if( data.containsKey(getId()) )
@@ -82,17 +106,17 @@ public abstract class SISPrimitiveStructure extends Structure {
 		ArrayList<String> keys = extractDescriptions();
 		
 //		if( dataList.size()-dataOffset-keys.size() >= 0 )
-		/*try {
+		try {
 			for(String key: keys) {
 				//FIXME: This needs to properly set both a data and description entry
 				//for each piece of data.
 //				model.set(key, data.get(dataOffset+keys.indexOf(key)));
 				model.set(key, "");
 			}
-		} catch (Exception ignored) {}*/
+		} catch (Exception ignored) {}
 		
 		setData(data);
-	}
+	}*/
 	
 	@Override
 	public List<ClassificationInfo> getClassificationInfo() {
@@ -107,8 +131,8 @@ public abstract class SISPrimitiveStructure extends Structure {
 	 * 
 	 * @return a PrimitiveField object
 	 */
-	protected abstract PrimitiveField getNewPrimitiveField();
+	protected abstract PrimitiveField<T> getNewPrimitiveField();
 	
-	protected abstract void setData(Map<String, PrimitiveField> data);
+	/*protected abstract void setData(Map<String, PrimitiveField> data);*/
 
 }

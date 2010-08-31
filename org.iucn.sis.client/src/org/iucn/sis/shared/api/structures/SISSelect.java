@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISSelect extends SISPrimitiveStructure implements DominantStructure {
+public class SISSelect extends SISPrimitiveStructure<Integer> implements DominantStructure<PrimitiveField<Integer>> {
 
 	public static final String LISTBOX = "listbox";
 
@@ -35,7 +35,7 @@ public class SISSelect extends SISPrimitiveStructure implements DominantStructur
 	}
 
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<Integer> getNewPrimitiveField() {
 		return new ForeignKeyPrimitiveField(getId(), null);
 	}
 	
@@ -185,11 +185,10 @@ public class SISSelect extends SISPrimitiveStructure implements DominantStructur
 	public boolean isSingle() {
 		return structure.equalsIgnoreCase(XMLUtils.SINGLE_SELECT_STRUCTURE);
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		Integer datum = data.containsKey(getId()) ? ((ForeignKeyPrimitiveField)data.get(getId())).getValue() : 0;
+	public void setData(PrimitiveField<Integer> field) {
+		Integer datum = field != null ? field.getValue() : 0;
 		listbox.setSelectedIndex(datum);
 	}
 
@@ -198,7 +197,6 @@ public class SISSelect extends SISPrimitiveStructure implements DominantStructur
 		listbox.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

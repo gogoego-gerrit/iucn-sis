@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISMap extends Structure {
+public class SISMap extends Structure<Field> {
 
 	public static final String MAP = "map";
 	// public static GMarkerOptions MAP_OPTIONS;
@@ -52,7 +52,7 @@ public class SISMap extends Structure {
 	}
 
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		// TODO Auto-generated method stub
 	
 		return false;
@@ -331,6 +331,12 @@ public class SISMap extends Structure {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public void save(Field parent, Field field) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	
 	// Structure functions
@@ -339,7 +345,6 @@ public class SISMap extends Structure {
 		this.displayPanel.setVisible(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

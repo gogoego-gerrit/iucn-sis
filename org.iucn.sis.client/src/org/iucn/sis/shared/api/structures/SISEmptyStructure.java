@@ -2,10 +2,8 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.Widget;
@@ -15,19 +13,24 @@ import com.google.gwt.user.client.ui.Widget;
  * 
  * @author adam.schwartz
  */
-public class SISEmptyStructure extends Structure {
+public class SISEmptyStructure extends Structure<Field> {
+	
 	public SISEmptyStructure(String struct, String descript, String structID, Object data) {
 		super(struct, descript, structID, data);
 		buildContentPanel(Orientation.VERTICAL);
 	}
 	
 	@Override
-	public void save(Field field) {
-		//Nothing to do.
+	public void save(Field parent, Field field) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
+		/*
+		 * Empty structures don't change... 
+		 */
 		return false;
 	}
 	
@@ -90,11 +93,6 @@ public class SISEmptyStructure extends Structure {
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
-	}
-
-	@Override
-	public String toXML() {
-		return "";
 	}
 
 }

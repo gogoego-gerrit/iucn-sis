@@ -13,9 +13,10 @@ public class UriBase {
 	}
 	
 	private final String baseUrl;
+	private final boolean hostedMode;
 	
 	private UriBase() {
-		final boolean hostedMode = Window.Location.getParameter("gwt.codesvr") != null;
+		hostedMode = Window.Location.getParameter("gwt.codesvr") != null;
 		baseUrl = hostedMode ? "/proxy-service/apps" : "/apps";
 	}
 	
@@ -111,7 +112,10 @@ public class UriBase {
 	public String getUserBase() {
 		return getBase() + "/org.iucn.sis.server.extensions.user";
 	}
-	
+
+	public boolean isHostedMode() {
+		return hostedMode;
+	}
 	
 	private String getBase() {
 		return baseUrl;

@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 
-public class SISRichTextArea extends SISPrimitiveStructure implements UsesClipboard {
+public class SISRichTextArea extends SISPrimitiveStructure<String> implements UsesClipboard {
 
 	// private FCKEditor textarea;
 
@@ -34,7 +34,7 @@ public class SISRichTextArea extends SISPrimitiveStructure implements UsesClipbo
 	}
 
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<String> getNewPrimitiveField() {
 		return new TextPrimitiveField(getId(), null);
 	}
 	
@@ -132,13 +132,10 @@ public class SISRichTextArea extends SISPrimitiveStructure implements UsesClipbo
 			text += (String) items.get(i) + "<br/>";
 		area.setHTML(text);
 	}
-	
-	
 
 	@Override
-	public void setData(final Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		String datum = data.containsKey(getId()) ? ((TextPrimitiveField)data.get(getId())).getValue() : "";
+	public void setData(PrimitiveField<String> field) {
+		String datum = field != null ? field.getValue() : "";
 		System.out.println("In setData for RTA " + getId() + " - datum is " + datum);
 		viewOnlyData = datum.replaceAll("[\\n\\r]", " ").trim();
 		viewOnlyData = FormattingStripper.stripText(viewOnlyData);
@@ -150,7 +147,6 @@ public class SISRichTextArea extends SISPrimitiveStructure implements UsesClipbo
 		// textarea.setVisible(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

@@ -33,7 +33,7 @@ public class RangePrimitiveField extends PrimitiveField<String> implements
 
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.RANGE_PRIMITIVE;
+		return PrimitiveFieldType.RANGE_PRIMITIVE.getName();
 	}
 	
 	@Override

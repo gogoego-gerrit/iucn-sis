@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
@@ -15,7 +14,7 @@ import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISNumber extends SISPrimitiveStructure implements DominantStructure {
+public class SISNumber extends SISPrimitiveStructure<Float> implements DominantStructure<PrimitiveField<Float>> {
 
 	private TextBox textbox;
 
@@ -26,7 +25,7 @@ public class SISNumber extends SISPrimitiveStructure implements DominantStructur
 	}
 	
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<Float> getNewPrimitiveField() {
 		return new FloatPrimitiveField(getId(), null);
 	}
 
@@ -113,11 +112,10 @@ public class SISNumber extends SISPrimitiveStructure implements DominantStructur
 	public boolean isActive(Rule activityRule) {
 		return ((ContentRule) activityRule).matchesContent(textbox.getText());
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		Float datum = data.containsKey(getId()) ? ((FloatPrimitiveField)data.get(getId())).getValue() : null;
+	public void setData(PrimitiveField<Float> field) {
+		Float datum = field != null ? field.getValue() : null;
 		textbox.setText(datum == null ? "" : String.valueOf(datum));
 	}
 
@@ -126,7 +124,6 @@ public class SISNumber extends SISPrimitiveStructure implements DominantStructur
 		textbox.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

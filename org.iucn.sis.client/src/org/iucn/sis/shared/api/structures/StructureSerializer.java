@@ -47,7 +47,7 @@ public class StructureSerializer {
 	public static String toXML(SISDominantStructureCollection structure) {
 		String xmlRetString = "";
 		for (int i = 0; i < structure.getStructures().size(); i++) {
-			xmlRetString += ((DominantStructure) structure.getStructures().get(i)).toXML();
+			//xmlRetString += ((DominantStructure) structure.getStructures().get(i)).toXML();
 		}
 		return xmlRetString;
 	}
@@ -116,14 +116,14 @@ public class StructureSerializer {
 	}
 
 	public static String toXML(SISRelatedStructures structure) {
-		String xmlRetString = structure.getDominantStructure().toXML();
+		String xmlRetString = "";/*structure.getDominantStructure().toXML();
 
 		xmlRetString += structure.getDependentXML();
 
 		// for (int i = 0; i < structure.getDependantStructures().size(); i++)
 		// xmlRetString +=
 		// ((Structure)structure.getDependantStructures().get(i)).toXML();
-
+		 */
 		return xmlRetString;
 	}
 
@@ -137,8 +137,8 @@ public class StructureSerializer {
 
 	public static String toXML(SISStructureCollection structure) {
 		String xmlRetString = "";
-		for (int i = 0; i < structure.getStructures().size(); i++)
-			xmlRetString += ((Structure) structure.getStructures().get(i)).toXML();
+		//for (int i = 0; i < structure.getStructures().size(); i++)
+			//xmlRetString += ((Structure) structure.getStructures().get(i)).toXML();
 		return xmlRetString;
 	}
 

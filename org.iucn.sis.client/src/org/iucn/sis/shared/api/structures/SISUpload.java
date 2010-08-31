@@ -2,17 +2,17 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.FileUpload;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISUpload extends Structure {
+public class SISUpload extends Structure<Field> {
 
 	private FileUpload fileUpload;
 
@@ -89,7 +89,7 @@ public class SISUpload extends Structure {
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		// TODO Auto-generated method stub
 		return true;
 	}
@@ -98,13 +98,32 @@ public class SISUpload extends Structure {
 	public void setData(Field field) {
 		// TODO: ?
 	}
+	
+	@Override
+	public void save(Field parent, Field field) {
+		//FIXME: what should this actually do?
+		if (field == null) {
+			field = new Field();
+			field.setName(getId());
+			field.setParent(parent);
+		}
+		
+		/*
+		 * Obviously this will be null...
+		 */
+		if( getData() != null ) {
+			PrimitiveField<String> newPrim = new StringPrimitiveField(getId(), field);
+			newPrim.setRawValue(getData());
+			
+			field.addPrimitiveField(newPrim);
+		}
+	}
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		this.fileUpload.setVisible(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

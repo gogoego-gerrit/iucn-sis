@@ -27,13 +27,16 @@ import java.util.Set;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.fields.RegionField;
+import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
+import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeElementCollection;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
@@ -57,6 +60,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	
 	public List<Integer> getRegionIDs() {
 		Field regionField = getField(CanonicalNames.RegionInformation);
+		
 		List<Integer> regionIds = (List<Integer>) regionField.getKeyToPrimitiveFields().get(RegionField.PRIMITIVE_FIELD).getValue();
 		return regionIds;
 	}
@@ -113,43 +117,82 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		Assessment assessment = new Assessment();
 		assessment.setId(Integer.valueOf(element.getAttribute("id")));
 		assessment.setInternalId(element.getAttribute("internalID"));
-		assessment.setSource(element.getElementsByTagName("source").elementAt(0).getTextContent());
-		assessment.setSourceDate(element.getElementsByTagName("sourceDate").elementAt(0).getTextContent());
-
-		NativeNodeList taxonEl = element.getElementsByTagName(Taxon.ROOT_TAG);
-		assessment.setTaxon(Taxon.fromXMLminimal(taxonEl.elementAt(0)));
-		
-		assessment.setAssessmentType(AssessmentType.fromXML(element.getElementsByTagName(AssessmentType.ROOT_TAG).elementAt(0)));
-		
 		assessment.setEdit(new HashSet<Edit>());
-		NativeElementCollection edits = new NativeElementCollection(element.getElementsByTagName(Edit.ROOT_TAG));
-		for (NativeElement edit : edits) {
-			Edit cur = Edit.fromXML(edit);
-			if( cur.getAssessment() == null )
-				cur.setAssessment(new HashSet<Assessment>());
-			
-			cur.getAssessment().add(assessment);
-			assessment.getEdit().add(cur);
-		}
-		
-		assessment.setReference(new HashSet<Reference>());
-		NativeElementCollection references = new NativeElementCollection(element.getElementsByTagName(Reference.ROOT_TAG));
-		for (NativeElement reference : references) {
-			Reference cur = Reference.fromXML(reference);
-			if( cur.getAssessment() == null )
-				cur.setAssessment(new HashSet<Assessment>());
-			
-			cur.getAssessment().add(assessment);
-			assessment.getReference().add(cur);
-		}
-		
 		assessment.setField(new HashSet<Field>());
-		NativeElementCollection fields = new NativeElementCollection(element.getElementsByTagName(Field.ROOT_TAG));
-		for (NativeElement field : fields) {
-			Field cur = Field.fromXML(field);
+		assessment.setReference(new HashSet<Reference>());
+		
+		
+		final NativeNodeList children = element.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			final NativeNode current = children.item(i);
 			
-			cur.setAssessment(assessment);
-			assessment.getField().add(cur);
+			if ("source".equals(current.getNodeName())) {
+				assessment.setSource(current.getTextContent());		
+			}
+			else if ("sourceDate".equals(current.getNodeName())) {
+				assessment.setSourceDate(current.getTextContent());		
+			}
+			else if (AssessmentType.ROOT_TAG.equals(current.getNodeName())) {
+				assessment.setAssessmentType(AssessmentType.fromXML((NativeElement)current));		
+			}
+			else if (Taxon.ROOT_TAG.equals(current.getNodeName())) {
+				assessment.setTaxon(Taxon.fromXMLminimal((NativeElement)current));		
+			}
+			else if (Edit.ROOT_TAG.equals(current.getNodeName())) {
+				Edit cur = Edit.fromXML((NativeElement)current);
+				if (cur.getAssessment() == null)
+					cur.setAssessment(new HashSet<Assessment>());
+				cur.getAssessment().add(assessment);
+				
+				assessment.getEdit().add(cur);
+			}
+			else if (Reference.ROOT_TAG.equals(current.getNodeName())) {
+				Reference cur = Reference.fromXML((NativeElement)current);
+				if (cur.getAssessment() == null)
+					cur.setAssessment(new HashSet<Assessment>());
+				cur.getAssessment().add(assessment);
+				
+				assessment.getReference().add(cur);
+			}
+			else if ("field".equals(current.getNodeName())) {
+				Field field;
+				try {
+					field = FieldV1Parser.parse((NativeElement)current);
+				} catch (ClassCastException e) {
+					e.printStackTrace();
+					continue;
+				} catch (Throwable e) {
+					e.printStackTrace();
+					continue;
+				}
+				
+				field.setAssessment(assessment);
+				
+				assessment.getField().add(field);
+			}
+			else if ("fields".equals(current.getNodeName())) {
+				final NativeNodeList fields = current.getChildNodes();
+				for (int k = 0; k < fields.getLength(); k++) {
+					final NativeNode child = fields.item(k);
+					if (NativeNode.TEXT_NODE == child.getNodeType())
+						continue;
+					
+					Field field;
+					try {
+						field = Field.fromXML((NativeElement)child);
+					} catch (ClassCastException e) {
+						e.printStackTrace();
+						continue;
+					} catch (Throwable e) {
+						e.printStackTrace();
+						continue;
+					}
+					
+					field.setAssessment(assessment);
+					
+					assessment.getField().add(field);
+				}
+			}
 		}
 		
 		return assessment;
@@ -209,7 +252,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
     }
 	
 	public boolean setDateAssessed(Date dateAssessed) {
-		return setPrimitiveValue(dateAssessed, CanonicalNames.RedListAssessmentDate, "value", PrimitiveFieldFactory.DATE_PRIMITIVE);
+		return setPrimitiveValue(dateAssessed, CanonicalNames.RedListAssessmentDate, "value", PrimitiveFieldType.DATE_PRIMITIVE.toString());
 	}
 	
 	public Date getDateAssessed() {
@@ -230,7 +273,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 			prims.setValue(value);
 			ret = true;
 		} else {
-			PrimitiveField prim = PrimitiveFieldFactory.generatePrimitiveField(PrimitiveFieldFactory.DATE_PRIMITIVE);
+			PrimitiveField prim = PrimitiveFieldFactory.generatePrimitiveField(PrimitiveFieldType.DATE_PRIMITIVE);
 			prim.setField(field);
 			prim.setName(primitiveName);
 			
@@ -319,8 +362,10 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		}
 		
 		if (getField() != null) {
+			xml.append("<fields>");
 			for (Field field : getField())
 				xml.append(field.toXML());
+			xml.append("</fields>");
 		}
 		
 		xml.append("</" + ROOT_TAG + ">");

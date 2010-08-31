@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +24,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class UseTrade extends Structure {
+public class UseTrade extends Structure<Field> {
 
 	public static final String PURPOSE_KEY = "purpose";
 	public static final String SOURCE_KEY = "source";
@@ -39,8 +38,8 @@ public class UseTrade extends Structure {
 	public static final String JUSTIFICATION_KEY = "justification";
 	
 	
-	public static ArrayList generateDefaultDataList() {
-		ArrayList dataList = new ArrayList();
+	public static ArrayList<String> generateDefaultDataList() {
+		ArrayList<String> dataList = new ArrayList<String>();
 		dataList.add("0");
 		dataList.add("0");
 		dataList.add("0");
@@ -88,36 +87,42 @@ public class UseTrade extends Structure {
 		super(struct, descript, structID);
 		buildContentPanel(Orientation.VERTICAL);
 	}
-
+	
 	@Override
-	public void save(Field field) {
+	public void save(Field parent, Field field) {
+		if (field == null) {
+			field = new Field();
+			field.setName(getId());
+			field.setParent(parent);
+		}
+		
 		//for each widget, create new PrimitiveField(field, widget.getValue());
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(PURPOSE_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(PURPOSE_KEY, field, 
 				Integer.valueOf(purpose.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(SOURCE_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(SOURCE_KEY, field, 
 				Integer.valueOf(source.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(FORM_REMOVED_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(FORM_REMOVED_KEY, field, 
 				Integer.valueOf(formRemoved.getSelectedIndex()), null));
 		
-		field.getPrimitiveField().add(new BooleanPrimitiveField(SUBSISTENCE_KEY, field, 
+		field.addPrimitiveField(new BooleanPrimitiveField(SUBSISTENCE_KEY, field, 
 				sub.getValue()));
-		field.getPrimitiveField().add(new BooleanPrimitiveField(NATIONAL_KEY, field, 
+		field.addPrimitiveField(new BooleanPrimitiveField(NATIONAL_KEY, field, 
 				nat.getValue()));
-		field.getPrimitiveField().add(new BooleanPrimitiveField(INTERNATIONAL_KEY, field, 
+		field.addPrimitiveField(new BooleanPrimitiveField(INTERNATIONAL_KEY, field, 
 				intBox.getValue()));
 		
-		field.getPrimitiveField().add(new StringPrimitiveField(HARVEST_LEVEL_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(HARVEST_LEVEL_KEY, field, 
 				harvestLevel.getText()));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(UNITS_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(UNITS_KEY, field, 
 				Integer.valueOf(units.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new BooleanPrimitiveField(POSSIBLE_THREAT_KEY, field, 
+		field.addPrimitiveField(new BooleanPrimitiveField(POSSIBLE_THREAT_KEY, field, 
 				possibleThreat.getValue()));
-		field.getPrimitiveField().add(new TextPrimitiveField(JUSTIFICATION_KEY, field, 
+		field.addPrimitiveField(new TextPrimitiveField(JUSTIFICATION_KEY, field, 
 				justification.getText()));
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		// TODO Auto-generated method stub
 		return true;
 	}
@@ -311,8 +316,8 @@ public class UseTrade extends Structure {
 	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
 	 * if it contains multiples structures, all of those, in order.
 	 */
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add("Purpose");
 		ret.add("Source");
 		ret.add("Form Removed");
@@ -391,10 +396,6 @@ public class UseTrade extends Structure {
 	public String[] getUnitsOptions() {
 		return unitsOptions;
 	}
-
-	public HashMap getValues() {
-		return new HashMap();
-	}
 	
 	@Override
 	public void setData(Field field) {
@@ -412,9 +413,6 @@ public class UseTrade extends Structure {
 		units.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(UNITS_KEY)).getValue());
 		possibleThreat.setValue(((BooleanPrimitiveField)data.get(POSSIBLE_THREAT_KEY)).getValue());
 		justification.setText(((TextPrimitiveField)data.get(JUSTIFICATION_KEY)).getValue());
-	}
-
-	protected void setDataValues(HashMap fieldData) {
 	}
 
 	public void setEnabled(boolean isEnabled) {

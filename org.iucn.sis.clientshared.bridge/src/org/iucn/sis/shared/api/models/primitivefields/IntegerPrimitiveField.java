@@ -25,7 +25,7 @@ public class IntegerPrimitiveField extends PrimitiveField<Integer> implements
 
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.INTEGER_PRIMITIVE;
+		return PrimitiveFieldType.INTEGER_PRIMITIVE.getName();
 	}
 	
 	public Integer getValue() {

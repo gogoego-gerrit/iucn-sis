@@ -1,9 +1,7 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
-import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
@@ -12,7 +10,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISImage extends SISPrimitiveStructure {
+public class SISImage extends SISPrimitiveStructure<String> {
 
 	public SimplePanel imagePanel;
 	public Image image;
@@ -26,7 +24,7 @@ public class SISImage extends SISPrimitiveStructure {
 	}
 
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<String> getNewPrimitiveField() {
 		return new StringPrimitiveField(getId(), null);
 	}
 	
@@ -55,17 +53,6 @@ public class SISImage extends SISPrimitiveStructure {
 			image.addStyleName((String) data);
 	}
 
-	/**
-	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
-	 * if it contains multiples structures, all of those, in order.
-	 */
-	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
-		ret.add(description);
-		return ret;
-	}
-
 	@Override
 	public String getData() {
 		return image.getUrl();
@@ -89,9 +76,8 @@ public class SISImage extends SISPrimitiveStructure {
 	}
 	
 	@Override
-	protected void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		String datum = data.containsKey(getId()) ? ((StringPrimitiveField)data.get(getId())).getValue() : "";
+	public void setData(PrimitiveField<String> field) {
+		String datum = field != null ? field.getValue() : "";
 		image.setUrl(datum);
 	}
 
@@ -100,7 +86,6 @@ public class SISImage extends SISPrimitiveStructure {
 		// Nothing to do here
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

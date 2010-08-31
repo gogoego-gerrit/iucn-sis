@@ -21,6 +21,7 @@ import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.structures.DisplayStructure;
 import org.iucn.sis.shared.api.structures.SISRelatedStructures;
 import org.iucn.sis.shared.api.structures.SISStructureCollection;
 import org.iucn.sis.shared.api.structures.Structure;
@@ -36,6 +37,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -77,9 +79,9 @@ public abstract class Display implements Referenceable {
 
 	protected Field field;
 	
-	protected Panel dockPanel;
+	//protected Panel dockPanel;
 	// UI Display Vars
-	protected List<Structure> myStructures; // List of Structures
+	protected List<DisplayStructure> myStructures; // List of Structures
 	protected ComplexPanel displayPanel; // The panel to add a display to
 	protected HorizontalPanel iconPanel;
 	protected Image infoIcon = null;
@@ -116,13 +118,12 @@ public abstract class Display implements Referenceable {
 		this(displayData.getStructure(), displayData.getDescription(), displayData.getData(), "", displayData
 				.getDisplayId(), displayData.getCanonicalName(), displayData.getClassOfService(), "");
 
-		this.location = displayData.getLocation();
 		this.referenceIds = displayData.getReferences();
 	}
 
 	public Display(String struct, String descript, Object data, String group, String displayID, String canonicalName,
 			String classOfService, String associate) {
-		myStructures = new ArrayList<Structure>();
+		myStructures = new ArrayList<DisplayStructure>();
 
 		this.structure = struct;
 		this.description = descript;
@@ -148,7 +149,7 @@ public abstract class Display implements Referenceable {
 		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, canonicalName, callback);
 	}
 
-	public void addStructure(Structure structureToAdd) {
+	public void addStructure(DisplayStructure structureToAdd) {
 		myStructures.add(structureToAdd);
 	}
 
@@ -223,7 +224,7 @@ public abstract class Display implements Referenceable {
 	 * @see getStructuresThatUseClipboard()
 	 * @return the menu the context menu
 	 */
-	private Menu getClipboardMenu(ArrayList clipList) {
+	private Menu getClipboardMenu(ArrayList<Structure> clipList) {
 		Menu menu = new Menu();
 
 		MenuItem open = new MenuItem();
@@ -282,7 +283,7 @@ public abstract class Display implements Referenceable {
 					try {
 						final UsesClipboard struct = (UsesClipboard) clipList.get(i);
 						MenuItem item = new MenuItem();
-						item.setText(((Structure) clipList.get(i)).getDescription());
+						item.setText((clipList.get(i)).getDescription());
 						item.addSelectionListener(new SelectionListener<MenuEvent>() {
 							@Override
 							public void componentSelected(MenuEvent ce) {
@@ -341,8 +342,8 @@ public abstract class Display implements Referenceable {
 		return displayID;
 	}
 
-	public ArrayList getMyWidgets() {
-		ArrayList retWidgets = new ArrayList();
+	public ArrayList<Widget> getMyWidgets() {
+		ArrayList<Widget> retWidgets = new ArrayList<Widget>();
 		for (int i = 0; i < this.myStructures.size(); i++) {
 			retWidgets.add(this.myStructures.get(i).generate());
 		}
@@ -363,7 +364,7 @@ public abstract class Display implements Referenceable {
 		return field == null ? new HashSet<Reference>() : field.getReference();
 	}
 
-	public List<Structure> getStructures() {
+	public List<DisplayStructure> getStructures() {
 		return myStructures;
 	}
 
@@ -373,21 +374,22 @@ public abstract class Display implements Referenceable {
 	 * 
 	 * @return the list
 	 */
-	private ArrayList getStructuresThatUseClipboard(List<Structure> structures) {
-		ArrayList list = new ArrayList();
-		for (int i = 0; i < structures.size(); i++) {
-			if (structures.get(i) instanceof SISRelatedStructures) {
-				if (((SISRelatedStructures) structures.get(i)).getDominantStructure() instanceof UsesClipboard)
-					list.add(((SISRelatedStructures) structures.get(i)).getDominantStructure());
+	private ArrayList<DisplayStructure> getStructuresThatUseClipboard(List<DisplayStructure> structures) {
+		ArrayList<DisplayStructure> list = new ArrayList<DisplayStructure>();
+		for (DisplayStructure structure : structures) {
+			if (structure instanceof SISRelatedStructures) {
+				if (((SISRelatedStructures) structure).getDominantStructure() instanceof UsesClipboard)
+					list.add(((SISRelatedStructures) structure).getDominantStructure());
 
-				list.addAll(getStructuresThatUseClipboard(((SISRelatedStructures) structures.get(i))
-						.getDependantStructures()));
-			} else if (structures.get(i) instanceof SISStructureCollection) {
-				list
-						.addAll(getStructuresThatUseClipboard(((SISStructureCollection) structures.get(i))
-								.getStructures()));
-			} else if (structures.get(i) instanceof UsesClipboard)
-				list.add(structures.get(i));
+				list.addAll(getStructuresThatUseClipboard(
+					((SISRelatedStructures) structure).getDependantStructures()
+				));
+			} else if (structure instanceof SISStructureCollection) {
+				list.addAll(getStructuresThatUseClipboard(
+					((SISStructureCollection) structure).getStructures()
+				));
+			} else if (structure instanceof UsesClipboard)
+				list.add(structure);
 		}
 		return list;
 	}
@@ -490,9 +492,7 @@ public abstract class Display implements Referenceable {
 			eBar.setLayoutOnChange(true);
 			eBar.setScrollMode(Scroll.AUTO);
 
-			for (Iterator iter = notes.listIterator(); iter.hasNext();) {
-
-				final Notes current = (Notes) iter.next();
+			for (final Notes current : notes) {
 				Image deleteNote = new Image("images/icon-note-delete.png");
 				deleteNote.setTitle("Delete Note");
 				deleteNote.addClickHandler(new ClickHandler() {
@@ -744,13 +744,14 @@ public abstract class Display implements Referenceable {
 
 			myPanel.add(iconPanel, DockPanel.NORTH);
 			myPanel.add(generateContent(viewOnly), DockPanel.CENTER);
-			dockPanel = myPanel;
+			return myPanel;
 		} catch (Exception e) {
-			dockPanel = new VerticalPanel();
 			e.printStackTrace();
+			return new VerticalPanel();
+			
 		}
 
-		return dockPanel;
+		//return dockPanel;
 	}
 
 	public void showStructures() {
@@ -763,13 +764,13 @@ public abstract class Display implements Referenceable {
 		return showDisplay(true);
 	}
 
-	public abstract String toThinXML();
+	//public abstract String toThinXML();
 
 	/**
 	 * Return the XML version of a Display
 	 * 
 	 * @return xml representation of a display
 	 */
-	public abstract String toXML();
+	//public abstract String toXML();
 
 }// class Display

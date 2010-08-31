@@ -2,17 +2,15 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 
-public class SISLabel extends Structure {
+public class SISLabel extends Structure<Field> {
 
 	public static final String LABEL = "label";
 
@@ -23,12 +21,16 @@ public class SISLabel extends Structure {
 	}
 	
 	@Override
-	public void save(Field field) {
-		//Nothing to do.
+	public void save(Field parent, Field field) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
+		/*
+		 * Labels don't change...
+		 */
 		return false;
 	}
 
@@ -99,7 +101,6 @@ public class SISLabel extends Structure {
 		// Nothing to do here
 	}
 
-	@Override
 	public String toXML() {
 		return "";
 	}

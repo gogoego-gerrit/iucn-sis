@@ -184,6 +184,12 @@ public class LoginPanel extends LayoutContainer {
 		loginFields.setSpacing(6);
 
 		userName = new TextBox();
+		if (UriBase.getInstance().isHostedMode()) {
+			String defaultUser = 
+				com.google.gwt.user.client.Window.Location.getParameter("u");
+			if (defaultUser != null)
+				userName.setText(defaultUser);
+		}
 		userName.addKeyboardListener(new KeyboardListenerAdapter() {
 			@Override
 			public void onKeyPress(Widget sender, char keyCode, int modifiers) {
@@ -194,6 +200,12 @@ public class LoginPanel extends LayoutContainer {
 		userName.setTabIndex(0);
 		
 		password = new PasswordTextBox();
+		if (UriBase.getInstance().isHostedMode()) {
+			String defaultPassword = 
+				com.google.gwt.user.client.Window.Location.getParameter("p");
+			if (defaultPassword != null)
+				password.setText(defaultPassword);
+		}
 		password.addKeyboardListener(new KeyboardListenerAdapter() {
 			@Override
 			public void onKeyPress(Widget sender, char keyCode, int modifiers) {

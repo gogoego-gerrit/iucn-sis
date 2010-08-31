@@ -70,11 +70,12 @@ public class ForeignKeyListPrimitiveField extends PrimitiveField<List<Integer>> 
 	
 	@Override
 	public String getRawValue() {
-		if( getFk_list_primitive_values().length == 0 )
+		int[] values = getFk_list_primitive_values();
+		if (values == null || values.length == 0)
 			return "";
 		
 		StringBuilder str = new StringBuilder();
-		for( int cur : getFk_list_primitive_values() )
+		for (int cur : values)
 			str.append(","+cur);
 		
 		return str.substring(1);
@@ -83,11 +84,9 @@ public class ForeignKeyListPrimitiveField extends PrimitiveField<List<Integer>> 
 	@Override
 	public String toXML() {
 		StringBuilder str = new StringBuilder("<");
-		str.append(ROOT_TAG);
+		str.append(getName());
 		str.append(" id=\"");
 		str.append(getId() == null ? "0" : getId());
-		str.append("\" name=\"");
-		str.append(getName());
 		str.append("\" ");
 		str.append(TYPE_TAG);
 		str.append("=\"");
@@ -96,7 +95,7 @@ public class ForeignKeyListPrimitiveField extends PrimitiveField<List<Integer>> 
 		str.append(getTableID());
 		str.append("\"><![CDATA[");
 		str.append(getRawValue());
-		str.append("]]></" + ROOT_TAG + ">");
+		str.append("]]></" + getName() + ">");
 		return str.toString();
 	}
 	
@@ -110,7 +109,7 @@ public class ForeignKeyListPrimitiveField extends PrimitiveField<List<Integer>> 
 	
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.FOREIGN_KEY_LIST_PRIMITIVE;
+		return PrimitiveFieldType.FOREIGN_KEY_LIST_PRIMITIVE.getName();
 	}
 	
 	@Override

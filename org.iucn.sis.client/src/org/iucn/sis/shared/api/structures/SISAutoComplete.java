@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.client.api.utils.autocomplete.AutoCompleteTextBox;
 import org.iucn.sis.client.api.utils.autocomplete.SimpleAutoCompletionItems;
@@ -12,7 +11,7 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISAutoComplete extends SISPrimitiveStructure {
+public class SISAutoComplete extends SISPrimitiveStructure<String> {
 
 	public AutoCompleteTextBox textbox;
 
@@ -80,12 +79,11 @@ public class SISAutoComplete extends SISPrimitiveStructure {
 	public AutoCompleteTextBox getTextbox() {
 		return textbox;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		if( data.containsKey(getId()) )
-			textbox.setText( (String)data.get(getId()).getValue() );
+	public void setData(PrimitiveField<String> field) {
+		if (field != null)
+			textbox.setText(field.getValue());
 	}
 
 	@Override
@@ -104,7 +102,6 @@ public class SISAutoComplete extends SISPrimitiveStructure {
 		return StructureSerializer.toXML(this);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

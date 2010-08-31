@@ -33,7 +33,7 @@ public class BooleanRangePrimitiveField extends PrimitiveField<String> implement
 	
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.BOOLEAN_RANGE_PRIMITIVE;
+		return PrimitiveFieldType.BOOLEAN_RANGE_PRIMITIVE.getName();
 	}
 	
 	@Override

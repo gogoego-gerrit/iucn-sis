@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISBooleanList extends SISPrimitiveStructure implements DominantStructure {
+public class SISBooleanList extends SISPrimitiveStructure<Integer> implements DominantStructure<PrimitiveField<Integer>> {
 
 	public static final int TRUE_INDEX = 1;
 	public static final int FALSE_INDEX = 2;
@@ -149,7 +149,14 @@ public class SISBooleanList extends SISPrimitiveStructure implements DominantStr
 			return false;
 		}
 	}
-
+	
+	@Override
+	public void setData(PrimitiveField<Integer> field) {
+		//Integer datum = (Integer)field.getValue();
+		if (field != null)
+			listbox.setSelectedIndex(field.getValue());
+	}
+/*
 	@Override
 	public void setData(Map<String, PrimitiveField> data) {
 		//super.setData(data);
@@ -157,14 +164,13 @@ public class SISBooleanList extends SISPrimitiveStructure implements DominantStr
 			Integer datum = ((ForeignKeyPrimitiveField)data.get(getId())).getValue();
 			listbox.setSelectedIndex(datum);
 		}
-	}
+	}*/
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		listbox.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

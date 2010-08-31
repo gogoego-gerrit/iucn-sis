@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class SISRange extends SISPrimitiveStructure implements DominantStructure {
+public class SISRange extends SISPrimitiveStructure<String> implements DominantStructure<PrimitiveField<String>> {
 
 	private TextBox range;
 
@@ -30,7 +30,7 @@ public class SISRange extends SISPrimitiveStructure implements DominantStructure
 	}
 	
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<String> getNewPrimitiveField() {
 		return new RangePrimitiveField(getId(), null);
 	}
 
@@ -181,11 +181,11 @@ public class SISRange extends SISPrimitiveStructure implements DominantStructure
 			return false;
 		}
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
+	public void setData(PrimitiveField<String> field) {
 		//super.setData(data);
-		String datum = data.containsKey(getId()) ? ((RangePrimitiveField)data.get(getId())).getValue() : "";
+		String datum = field != null ? field.getValue() : "";
 		range.setText(datum.replaceAll("\\s*", ""));
 	}
 
@@ -194,7 +194,6 @@ public class SISRange extends SISPrimitiveStructure implements DominantStructure
 		range.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

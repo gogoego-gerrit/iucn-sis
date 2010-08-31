@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.structures.DisplayStructure;
 import org.iucn.sis.shared.api.structures.DominantStructure;
 import org.iucn.sis.shared.api.structures.Rule;
 import org.iucn.sis.shared.api.structures.SISStructureCollection;
-import org.iucn.sis.shared.api.structures.Structure;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -34,7 +34,7 @@ public class RelatedDisplays extends Display {
 	private List<Display> dependantDisplays;
 
 	// Rules
-	private ArrayList rules;
+	private ArrayList<Rule> rules;
 
 	// Display Row
 	private Integer dominantDisplayRow;
@@ -61,7 +61,7 @@ public class RelatedDisplays extends Display {
 		dominantDisplay = display;
 		dependantDisplays = new ArrayList();
 		dependantDisplaysRows = new ArrayList();
-		rules = new ArrayList();
+		rules = new ArrayList<Rule>();
 
 		if (dominantDisplay != null)
 			setToListenForActive();
@@ -74,13 +74,13 @@ public class RelatedDisplays extends Display {
 
 	@Override
 	public boolean hasChanged() {
-		for( Structure struct : dominantDisplay.getStructures() )
-			if( struct.hasChanged() )
+		for (DisplayStructure struct : dominantDisplay.getStructures())
+			if (struct.hasChanged(field))
 				return true;
 		
-		for( Display curDep : dependantDisplays )
-			for( Structure struct : curDep.getStructures() )
-				if( struct.hasChanged() )
+		for (Display curDep : dependantDisplays)
+			for (DisplayStructure struct : curDep.getStructures())
+				if (struct.hasChanged(field))
 					return true;
 		
 		return false;
@@ -457,7 +457,7 @@ public class RelatedDisplays extends Display {
 		return "< " + dominantDisplay.displayID + ", " + "relateddisplay" + ", " + description + " >\r\n";
 	}
 
-	@Override
+	/*@Override
 	public String toThinXML() {
 		String xmlRetString = "";
 		xmlRetString += dominantDisplay.toThinXML() + "\n";
@@ -473,7 +473,7 @@ public class RelatedDisplays extends Display {
 		for (int i = 0; i < dependantDisplays.size(); i++)
 			xmlRetString += ((Display) dependantDisplays.get(i)).toXML() + "\n";
 		return xmlRetString;
-	}
+	}*/
 
 	/**
 	 * Change the dependant displays based on the dominant one's result and the

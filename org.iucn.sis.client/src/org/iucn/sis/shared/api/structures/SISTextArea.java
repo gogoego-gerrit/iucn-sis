@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.structures;
 
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
@@ -14,7 +13,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISTextArea extends SISPrimitiveStructure implements UsesClipboard {
+public class SISTextArea extends SISPrimitiveStructure<String> implements UsesClipboard {
 
 	private TextArea textarea;
 
@@ -25,7 +24,7 @@ public class SISTextArea extends SISPrimitiveStructure implements UsesClipboard 
 	}
 	
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<String> getNewPrimitiveField() {
 		return new TextPrimitiveField(getId(), null);
 	}
 
@@ -89,11 +88,10 @@ public class SISTextArea extends SISPrimitiveStructure implements UsesClipboard 
 			text += (String) items.get(i) + "<br/>";
 		textarea.setText(text);
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		String datum = data.containsKey(getId()) ? ((TextPrimitiveField)data.get(getId())).getValue() : "";
+	public void setData(PrimitiveField<String> field) {
+		String datum = field != null ? field.getValue() : "";
 		textarea.setText(datum);
 	}
 
@@ -103,7 +101,6 @@ public class SISTextArea extends SISPrimitiveStructure implements UsesClipboard 
 		this.textarea.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

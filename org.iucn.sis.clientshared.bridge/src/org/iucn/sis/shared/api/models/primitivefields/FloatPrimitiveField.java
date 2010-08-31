@@ -48,7 +48,7 @@ public class FloatPrimitiveField extends PrimitiveField<Float> implements
 	
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.FLOAT_PRIMITIVE;
+		return PrimitiveFieldType.FLOAT_PRIMITIVE.getName();
 	}
 
 	@Override

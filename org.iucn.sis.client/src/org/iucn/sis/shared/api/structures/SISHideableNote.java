@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
@@ -15,7 +14,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISHideableNote extends SISPrimitiveStructure {
+public class SISHideableNote extends SISPrimitiveStructure<String> {
 
 	private Image showNotes;
 	private TextArea textarea;
@@ -109,9 +108,8 @@ public class SISHideableNote extends SISPrimitiveStructure {
 	}
 	
 	@Override
-	protected void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		String datum = data.containsKey(getId()) ? ((StringPrimitiveField)data.get(getId())).getValue() : "";
+	public void setData(PrimitiveField<String> field) {
+		String datum = field != null ? field.getValue() : "";
 		textarea.setText(datum);
 	}
 
@@ -120,7 +118,6 @@ public class SISHideableNote extends SISPrimitiveStructure {
 		this.textarea.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

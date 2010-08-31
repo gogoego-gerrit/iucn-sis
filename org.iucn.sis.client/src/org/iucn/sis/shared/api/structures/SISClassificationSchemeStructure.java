@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -14,7 +13,7 @@ import org.iucn.sis.shared.api.models.Field;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISClassificationSchemeStructure extends Structure {
+public class SISClassificationSchemeStructure extends Structure<Field> {
 	private ClassificationScheme scheme;
 
 	public SISClassificationSchemeStructure(String struct, String descript, String structID, Object data) {
@@ -23,23 +22,31 @@ public class SISClassificationSchemeStructure extends Structure {
 	}
 	
 	@Override
-	public void save(Field field) {
-		for( Entry<String, Structure> cur : scheme.getSelected().entrySet() ) {
+	public void save(Field parent, Field field) {
+		/*if (field == null) {
+			field = new Field();
+			field.setName(getId());
+			field.setParent(parent);
+		}
+			
+		for (Entry<String, DisplayStructure> cur : scheme.getSelected().entrySet() ) {
 			Field subfield = new Field(field.getName() + "Subfield", field.getAssessment());
-			cur.getValue().save(subfield);
+			subfield.setParent(field);
+			
+			cur.getValue().save(field, subfield);
 			
 			field.getFields().add(subfield);
-		}
+		}*/
 	}
 	
 	@Override
 	public void clearData() {
-		scheme.setSelectedAsStructures(new HashMap<String, Structure>());
+		//scheme.setSelectedAsStructures(new HashMap<String, DisplayStructure>());
 	}
 
 	@Override
 	protected Widget createLabel() {
-		clearDisplayPanel();
+		/*clearDisplayPanel();
 		displayPanel.setSize("60%", "100%");
 		Widget p = scheme.getProtectedWidgetContent(false);
 		int h = scheme.recalculateHeightAfterSingleAdd();
@@ -49,7 +56,7 @@ public class SISClassificationSchemeStructure extends Structure {
 			p.setHeight( ((scheme.getSelected().size() * 25) + 20)+"px");
 		scheme.getGrid().setWidth(500);
 		p.setWidth("500px");
-		displayPanel.add(p);
+		displayPanel.add(p);*/
 		return displayPanel;
 	}
 	
@@ -95,7 +102,7 @@ public class SISClassificationSchemeStructure extends Structure {
 	 */
 	@Override
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
-		int num = ((String) rawData.get(offset)).matches("\\d") ? Integer.parseInt((String) rawData.get(offset)) : 0;
+		/*int num = ((String) rawData.get(offset)).matches("\\d") ? Integer.parseInt((String) rawData.get(offset)) : 0;
 		prettyData.add(offset, num+"");
 
 		offset++;
@@ -108,7 +115,7 @@ public class SISClassificationSchemeStructure extends Structure {
 				prettyData.add(offset, cur);
 
 			offset++;
-		}
+		}*/
 
 		return offset;
 	}
@@ -120,8 +127,8 @@ public class SISClassificationSchemeStructure extends Structure {
 	@Override
 	public void setData(Field field) {
 		//final Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
-		
-		Map<String, Structure> selected = new HashMap<String, Structure>();
+		/*
+		Map<String, DisplayStructure> selected = new HashMap<String, DisplayStructure>();
 		//for (Entry<String, PrimitiveField> entry : data.entrySet()) {
 			//String id = entry.getKey();
 			// DUPLICATE WORK BEING DONE IN SET SELECTED...
@@ -133,7 +140,7 @@ public class SISClassificationSchemeStructure extends Structure {
 			selected.put(id, struct);
 		//}
 
-		scheme.setSelectedAsStructures(selected);
+		scheme.setSelectedAsStructures(selected);*/
 	}
 
 	@Override
@@ -141,12 +148,12 @@ public class SISClassificationSchemeStructure extends Structure {
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		// TODO Auto-generated method stub
 		return true;
 	}
 
-	@Override
+	/*@Override
 	public String toXML() {
 		String ret = "<!-- This tag is for the classification scheme, noting how many selections it has -->\r\n";
 		ret += "<structure>" + scheme.getSelected().size() + "</structure>\r\n";
@@ -159,7 +166,7 @@ public class SISClassificationSchemeStructure extends Structure {
 		}
 
 		return ret;
-	}
+	}*/
 	
 
 

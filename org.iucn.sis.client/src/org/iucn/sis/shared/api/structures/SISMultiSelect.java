@@ -10,6 +10,7 @@ import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveFie
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.DataListEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.DataList;
@@ -24,7 +25,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 
-public class SISMultiSelect extends SISPrimitiveStructure implements DominantStructure {
+public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> implements DominantStructure<PrimitiveField<List<Integer>>> {
 
 	public static final String LISTBOX = "listbox";
 
@@ -37,7 +38,7 @@ public class SISMultiSelect extends SISPrimitiveStructure implements DominantStr
 	}
 
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<List<Integer>> getNewPrimitiveField() {
 		return new ForeignKeyListPrimitiveField(getId(), null);
 	}
 	
@@ -126,6 +127,17 @@ public class SISMultiSelect extends SISPrimitiveStructure implements DominantStr
 		};
 		list.setCheckable(true);
 		list.setSelectionMode(SelectionMode.MULTI);
+		list.addListener(Events.CheckChange, new Listener<DataListEvent>() {
+			public void handleEvent(DataListEvent be) {
+				DataListItem item = be.getItem();
+				if (item != null) {
+					if (item.isChecked())
+						checkedItems.add(Integer.parseInt(item.getId()));
+					else
+						checkedItems.remove(Integer.parseInt(item.getId()));
+				}
+			}
+		});
 
 		ArrayList<ArrayList<String>> myData = ((ArrayList<ArrayList<String>>)data);
 		ArrayList<String> listItemsToAdd = myData.get(0);
@@ -222,12 +234,12 @@ public class SISMultiSelect extends SISPrimitiveStructure implements DominantStr
 			return false;
 		}
 	}
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
+	public void setData(PrimitiveField<List<Integer>> field) {
 		clearData();
 
-		List<Integer> keys = data.containsKey(getId()) ? ((ForeignKeyListPrimitiveField)data.get(getId())).getValue() : new ArrayList<Integer>();
+		List<Integer> keys = field != null ? field.getValue() : new ArrayList<Integer>();
 		
 		for (int i = 0; i < keys.size(); i++) {
 			int index = keys.get(i).intValue();
@@ -247,7 +259,6 @@ public class SISMultiSelect extends SISPrimitiveStructure implements DominantStr
 		list.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

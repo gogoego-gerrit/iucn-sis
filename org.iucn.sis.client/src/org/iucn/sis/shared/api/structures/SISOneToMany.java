@@ -27,12 +27,12 @@ import com.solertium.util.extjs.client.WindowUtils;
  * 
  * @author adam.schwartz
  */
-public class SISOneToMany extends Structure {
+public class SISOneToMany extends Structure<Field> {
 
 	/**
 	 * ArrayList<Structure>
 	 */
-	private ArrayList<Structure> selected;
+	private ArrayList<Structure<Object>> selected;
 
 	private DisplayData defaultStructureData;
 
@@ -44,23 +44,36 @@ public class SISOneToMany extends Structure {
 		super(struct, descript, structID);
 		buildContentPanel(Orientation.VERTICAL);
 
-		selected = new ArrayList<Structure>();
+		selected = new ArrayList<Structure<Object>>();
 		defaultStructureData = defaultStructure;
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		// TODO Auto-generated method stub
 		return true;
 	}
 	
 	@Override
-	public void save(Field field) {
-		for( Structure cur : selected ) {
+	public void save(Field parent, Field field) {
+		if (field == null) {
+			field = new Field();
+			field.setName(getId());
+			field.setParent(parent);
+		}
+		
+		String name = field.getName() + "Subfield";
+		
+		/*
+		 * FIXME: Really?
+		 */
+		for (Structure<Object> cur : selected) {
 			Field subfield = new Field(field.getName() + "Subfield", field.getAssessment());
-			cur.save(subfield);
+			subfield.setParent(field);
 			
-			field.getFields().add(subfield);
+			cur.save(field, subfield);
+			
+			field.addField(subfield);
 		}
 	}
 
@@ -75,9 +88,7 @@ public class SISOneToMany extends Structure {
 		selectedPanel.clear();
 		((CellPanel) displayPanel).setSpacing(2);
 
-		for (Iterator<Structure> iter = selected.listIterator(); iter.hasNext();) {
-			final Structure curStruct = (Structure) iter.next();
-
+		for (final Structure<Object> curStruct : selected) {
 			HorizontalPanel structWrapper = new HorizontalPanel();
 
 			Button remove = new Button();
@@ -120,8 +131,8 @@ public class SISOneToMany extends Structure {
 		if (selected.size() == 0)
 			selectedPanel.add(new HTML("No information available."));
 		else
-			for (Iterator iter = selected.listIterator(); iter.hasNext();)
-				selectedPanel.add(((Structure) iter.next()).createViewOnlyLabel());
+			for (Iterator<Structure<Object>> iter = selected.listIterator(); iter.hasNext();)
+				selectedPanel.add(( iter.next()).createViewOnlyLabel());
 
 		displayPanel.add(descriptionLabel);
 		displayPanel.add(selectedPanel);
@@ -140,7 +151,7 @@ public class SISOneToMany extends Structure {
 		addNew.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				Structure newOne = DisplayDataProcessor.processDisplayStructure(defaultStructureData);
+				Structure<Object> newOne = DisplayDataProcessor.processDisplayStructure(defaultStructureData);
 				selected.add(newOne);
 
 				createLabel();
@@ -153,9 +164,11 @@ public class SISOneToMany extends Structure {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		Structure structureData = DisplayDataProcessor.processDisplayStructure(defaultStructureData);
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		Structure<Object> structureData = 
+			DisplayDataProcessor.processDisplayStructure(defaultStructureData);
+		
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.addAll(structureData.extractDescriptions());
 		return ret;
 	}
@@ -191,7 +204,8 @@ public class SISOneToMany extends Structure {
 
 		offset++;
 
-		Structure def = DisplayDataProcessor.processDisplayStructure(defaultStructureData);
+		Structure<Object> def = 
+			DisplayDataProcessor.processDisplayStructure(defaultStructureData);
 
 		for (int i = 0; i < num; i++)
 			offset = def.getDisplayableData(rawData, prettyData, offset);
@@ -199,7 +213,7 @@ public class SISOneToMany extends Structure {
 		return offset;
 	}
 
-	public ArrayList<Structure> getSelected() {
+	public ArrayList<Structure<Object>> getSelected() {
 		return selected;
 	}
 	
@@ -207,25 +221,25 @@ public class SISOneToMany extends Structure {
 	public void setData(Field field) {
 		selected.clear();
 		
-		for( Field subField : field.getFields() ) {
-			Structure newStruct = DisplayDataProcessor.processDisplayStructure(defaultStructureData);
+		for ( Field subField : field.getFields() ) {
+			Structure<Object> newStruct = 
+				DisplayDataProcessor.processDisplayStructure(defaultStructureData);
 			newStruct.setData(subField);
 			selected.add(newStruct);
 		}
 	}
 	
 	public void setEnabled(boolean isEnabled) {
-		for (Iterator iter = selected.listIterator(); iter.hasNext();)
-			((Structure) iter.next()).setEnabled(isEnabled);
+		for (Iterator<Structure<Object>> iter = selected.listIterator(); iter.hasNext();)
+			(iter.next()).setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		String ret = "<!-- This tag is for the OneToMany, noting how many selections it has -->\r\n";
 		ret += "<structure>" + selected.size() + "</structure>\r\n";
 
-		for (Iterator iter = selected.listIterator(); iter.hasNext();)
-			ret += ((Structure) iter.next()).toXML();
+		/*for (Iterator<Structure<Object>> iter = selected.listIterator(); iter.hasNext();)
+			ret += (iter.next()).toXML();*/
 
 		return ret;
 	}

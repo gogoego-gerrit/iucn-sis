@@ -7,14 +7,6 @@ Bundle-Activator: org.iucn.sis.server.ServerActivator
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.commons.fileupload,
- org.iucn.sis.server.api.application,
- org.iucn.sis.server.api.filters,
- org.iucn.sis.server.api.io,
- org.iucn.sis.server.api.locking,
- org.iucn.sis.server.api.persistance,
- org.iucn.sis.server.api.persistance.hibernate,
- org.iucn.sis.server.api.restlets,
- org.iucn.sis.server.api.utils,
  org.osgi.framework;version="1.4.0",
  org.restlet.ext.fileupload,
  org.restlet.ext.xml
@@ -36,5 +28,6 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.apache.commons.fileupload,
  org.apache.commons.compress;bundle-version="1.0.0",
  org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
- org.hibernate;bundle-version="1.0.0"
+ org.hibernate;bundle-version="1.0.0",
+ org.iucn.sis.server.api;bundle-version="1.0.0"
 Export-Package: org.iucn.sis.server

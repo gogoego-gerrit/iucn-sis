@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISRelatedStructures extends Structure implements DominantStructure {
+public class SISRelatedStructures extends Structure<Field> implements DominantStructure<Field> {
 
 	public static final int DEFAULT_LAYOUT = 0;
 	public static final int VERTICAL_PANEL = 1;
@@ -32,7 +32,7 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 	public static final int FLEXTABLE_NODESCRIPTION = 4;
 
 	private DominantStructure dominantStructure;
-	private ArrayList<Structure> dependantStructures;
+	private ArrayList<DisplayStructure> dependantStructures;
 	private ArrayList activityRules;
 	// private ArrayList myWidgets;
 	// private Panel dependantPanel;
@@ -59,62 +59,55 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 	}
 	
 	@Override
-	public void save(Field field) {
-		dominantStructure.save(field);
-		for( Structure cur : dependantStructures )
-			cur.save(field);
+	public void save(Field parent, Field field) {
+		if (field == null) {
+			if (getId() != null) {
+				field = new Field();
+				field.setName(getId());
+				field.setParent(parent);
+				
+				parent.addField(field);
+			}
+			else
+				field = parent;
+		}
+		
+		if (dominantStructure.isPrimitive())
+			dominantStructure.save(field, field.getPrimitiveField(dominantStructure.getId()));
+		else
+			dominantStructure.save(field, field.getField(dominantStructure.getId()));
+		
+		for (DisplayStructure cur : dependantStructures) {
+			if (cur.isPrimitive())
+				cur.save(field, field.getPrimitiveField(cur.getId()));
+			else
+				cur.save(field, field.getField(cur.getId()));
+		}
 	}
 	
 	@Override
-	public boolean hasChanged() {
-		if( dominantStructure.hasChanged() ) {
-			return true;
-		} else {
-			for( Structure cur : dependantStructures )
-				if( cur.hasChanged() )
-					return true;
+	public boolean hasChanged(Field field) {
+		boolean hasChanged = false;
+		
+		hasChanged |= dominantStructure.isPrimitive() ? 
+			dominantStructure.hasChanged(field == null ? null : field.getPrimitiveField(dominantStructure.getId())) : 
+			dominantStructure.hasChanged(field == null ? null : field.getField(dominantStructure.getId()));
+		
+		if (!hasChanged) {
+			for (DisplayStructure cur : dependantStructures)
+				if (cur.isPrimitive())
+					hasChanged |= cur.hasChanged(field == null ? null : field.getPrimitiveField(cur.getId()));
+				else
+					hasChanged |= cur.hasChanged(field == null ? null : field.getField(cur.getId()));
 		}
 		
-		return false;
+		return hasChanged;
 	}
 	
 	@Override
 	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
 			KeyboardListener keyboardListener) {
 		dominantStructure.addListenerToActiveStructure(changeListener, clickListener, keyboardListener);
-
-		// dominantStructure.addListenerToActiveStructure(new ChangeListener() {
-		// public void onChange(Widget sender) { updateDependantPanel(); } },new
-		// ClickHandler() { public void onClick(ClickEvent event) {
-		// updateDependantPanel(); } });
-
-		/*
-		 * if(dominantStructure.structure.equalsIgnoreCase(XMLConstants.
-		 * BOOLEAN_STRUCTURE)) { ((CheckBox)dominantStructure).addListener(null,
-		 * new ClickHandler() { public void onClick(ClickEvent event) {
-		 * updateDependantPanel(); } }); } else if
-		 * (dominantStructure.structure.equalsIgnoreCase
-		 * (XMLConstants.BOOLEAN_UNKNOWN_STRUCTURE) ||
-		 * dominantStructure.structure
-		 * .equalsIgnoreCase(XMLConstants.SINGLE_SELECT_STRUCTURE) ||
-		 * dominantStructure
-		 * .structure.equalsIgnoreCase(XMLConstants.MULTIPLE_SELECT_STRUCTURE)
-		 * ||dominantStructure.structure.equalsIgnoreCase(XMLConstants.
-		 * QUALIFIER_STRUCTURE)) {
-		 * ((ListBox)dominantStructure.getActiveStructure
-		 * ()).addChangeListener(new ChangeListener() { public void
-		 * onChange(Widget sender) { updateDependantPanel(); } }); } else if
-		 * (dominantStructure
-		 * .structure.equalsIgnoreCase(XMLConstants.BUTTON_STRUCTURE)) {
-		 * ((Button)dominantStructure.getActiveStructure()).addClickHandler(new
-		 * ClickHandler() { public void onClick(ClickEvent event) {
-		 * updateDependantPanel(); } }); } else if
-		 * (dominantStructure.structure.equalsIgnoreCase
-		 * (XMLConstants.THREAT_STRUCTURE)) {
-		 * ((Button)dominantStructure.getActiveStructure()).addClickHandler(new
-		 * ClickHandler() { public void onClick(ClickEvent event) {
-		 * updateDependantPanel(); } }); }
-		 */
 	}
 
 	@Override
@@ -122,7 +115,7 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 		dominantStructure.clearData();
 
 		for (int i = 0; i < dependantStructures.size(); i++)
-			((Structure) dependantStructures.get(i)).clearData();
+			(dependantStructures.get(i)).clearData();
 	}
 
 	@Override
@@ -154,9 +147,9 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 
 		for (int i = 0; i < dependantStructures.size(); i++) {
 			if (viewOnly)
-				dependentsPanel.add(((Structure) dependantStructures.get(i)).generateViewOnly());
+				dependentsPanel.add((dependantStructures.get(i)).generateViewOnly());
 			else
-				dependentsPanel.add(((Structure) dependantStructures.get(i)).generate());
+				dependentsPanel.add((dependantStructures.get(i)).generate());
 		}
 
 		displayPanel.add(dependentsPanel);
@@ -181,12 +174,12 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 
 		ret.addAll(dominantStructure.extractDescriptions());
-		for (Iterator iter = dependantStructures.iterator(); iter.hasNext();)
-			ret.addAll(((Structure) iter.next()).extractDescriptions());
+		for (Iterator<DisplayStructure> iter = dependantStructures.iterator(); iter.hasNext();)
+			ret.addAll((iter.next()).extractDescriptions());
 
 		return ret;
 	}
@@ -196,7 +189,7 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 		ArrayList<ClassificationInfo> list = new ArrayList<ClassificationInfo>();
 		
 		list.addAll(dominantStructure.getClassificationInfo());
-		for (Structure structure : dependantStructures)
+		for (DisplayStructure structure : dependantStructures)
 			list.addAll(structure.getClassificationInfo());
 		
 		return list;
@@ -207,11 +200,11 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 		return null;
 	}
 
-	public ArrayList getDependantStructures() {
+	public ArrayList<DisplayStructure> getDependantStructures() {
 		return dependantStructures;
 	}
 
-	public String getDependentXML() {
+	/*public String getDependentXML() {
 		String ret = "";
 
 		for (int i = 0; i < activityRules.size(); i++) {
@@ -243,7 +236,7 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 			ret += ((Structure) dependantStructures.get(i)).toXML();
 
 		return ret;
-	}
+	}*/
 
 	/**
 	 * Pass in the raw data from an Assessment object, and this will return
@@ -265,16 +258,6 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 	public DominantStructure getDominantStructure() {
 		return dominantStructure;
 	}
-
-	/*
-	 * private void updateDependantPanel() { Rule rule; //for (int k = 0; k <
-	 * activityRules.size(); k++) { if ((rule = this.isDominantActive()) !=
-	 * null) { ///A rule returned true
-	 * SysDebugger.getInstance().println("Got a rule!"); for (int i = 0; i <
-	 * dependantStructures.size(); i++) { processRule(true,
-	 * (rule.isIndexAffected(i)?rule.getOnTrue():rule.getOnFalse()),
-	 * (Structure)dependantStructures.get(i)); } } //} }
-	 */
 
 	private void init(String description) {
 		descriptionLabel = new HTML(description);
@@ -338,31 +321,37 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 	}
 	
 	@Override
-	public void setData(Field field) {
-		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
-		for (int i = 0; i < dependantStructures.size() + 1; i++) {
+	public void setData(Field data) {
+		Field field = data;
+		if (getId() != null && field != null)
+			field = field.getField(getId());
+		
+		if (dominantStructure.isPrimitive())
+			dominantStructure.setData(field == null ? null : field.getPrimitiveField(dominantStructure.getId()));
+		else
+			dominantStructure.setData(field == null ? null : field.getField(dominantStructure.getId()));
+		
+		for (DisplayStructure structure : dependantStructures) {
+			if (structure.isPrimitive())
+				structure.setData(field == null ? null : field.getPrimitiveField(structure.getId()));
+			else
+				structure.setData(field == null ? null : field.getField(structure.getId())); 
+		}
+		
+		//Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		/*for (int i = 0; i < dependantStructures.size() + 1; i++) {
 			if (i == 0){
+				if (fie)
 				dominantStructure.setData(field);
 				//model = new BaseModel(dominantStructure.extractModelData().getProperties());
 			}
 			else{
 				((Structure) dependantStructures.get(i - 1)).setData(field);
-				/*for(String key: ((Structure) dependantStructures.get(i - 1)).extractModelData().getPropertyNames())
-					model.set(key, ((Structure) dependantStructures.get(i - 1)).extractModelData().get(key));*/
+				//for(String key: ((Structure) dependantStructures.get(i - 1)).extractModelData().getPropertyNames())
+				//	model.set(key, ((Structure) dependantStructures.get(i - 1)).extractModelData().get(key));
 			}
-		}
+		}*/
 	}
-
-	/*
-	 * public Rule isDominantActive() { for (int i = 0; i <
-	 * activityRules.size(); i++) { if
-	 * (dominantStructure.isActive((Rule)activityRules.get(i))) { return
-	 * (Rule)activityRules.get(i); } else { for (int j = 0; j <
-	 * dependantStructures.size(); j++) { if
-	 * (((Rule)activityRules.get(i)).isIndexAffected(j)) { processRule(true,
-	 * ((Rule)activityRules.get(i)).getOnFalse(),
-	 * (Structure)dependantStructures.get(j)); } } } } return null; }
-	 */
 
 	public void setDependentsLayout(int dependentsLayout) {
 		dependentsDisplayType = dependentsLayout;
@@ -386,7 +375,6 @@ public class SISRelatedStructures extends Structure implements DominantStructure
 		}
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

@@ -1,0 +1,29 @@
+<module>
+
+	<!-- Inherit the core Web Toolkit stuff. -->
+	<inherits name='com.google.gwt.user.User'/>
+	<inherits name='com.google.gwt.user.RichText'/>
+	<inherits name='com.extjs.gxt.ui.GXT'/>
+	
+	<!-- HTTP Features -->
+	<inherits name='com.google.gwt.http.HTTP' />
+	
+	<inherits name='com.solertium.lwxml.LWXML' />
+	<inherits name='com.solertium.util.gwt.Util' />
+	<inherits name='com.solertium.util.extjs.ExtGWTUtils' />
+	<inherits name='com.solertium.util.extjs.login.ExtGWTUtils' />
+	<inherits name='com.solertium.util.Events' />
+	<inherits name='com.extjs.gxt.themes.Themes' />
+	<inherits name='ext.ux.wizard.WizardWindow'/>
+	<inherits name='ext.ux.pwd.PasswordField'/>
+	
+	<!-- QueryBuilder -->
+	<inherits name='com.solertium.util.querybuilder.QueryBuilderCore' />
+	<inherits name='com.solertium.util.querybuilder.gwt.QueryBuilderExtSource' />
+	
+	<source path='client'/>
+	<source path='shared'/>
+	
+	<entry-point class="org.iucn.sis.shared.api.schemes.ClassificationSchemeTestEntryPoint"/>
+	
+</module>

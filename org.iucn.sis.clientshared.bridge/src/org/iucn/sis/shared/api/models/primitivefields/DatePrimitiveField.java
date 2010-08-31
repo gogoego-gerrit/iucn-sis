@@ -37,7 +37,10 @@ public class DatePrimitiveField extends PrimitiveField<Date> implements
 
 	@Override
 	public String getRawValue() {
-		return String.valueOf(getValue().getTime());
+		if (getValue() == null)
+			return "null";
+		else
+			return String.valueOf(getValue().getTime());
 	}
 	
 	@Override
@@ -50,7 +53,7 @@ public class DatePrimitiveField extends PrimitiveField<Date> implements
 	
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.DATE_PRIMITIVE;
+		return PrimitiveFieldType.DATE_PRIMITIVE.getName();
 	}
 	
 	@Override

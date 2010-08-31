@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
@@ -13,7 +12,7 @@ import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISButton extends SISPrimitiveStructure implements DominantStructure {
+public class SISButton extends SISPrimitiveStructure<String> implements DominantStructure<PrimitiveField<String>> {
 
 	private Button button;
 	private boolean toggleIsActive;
@@ -26,7 +25,7 @@ public class SISButton extends SISPrimitiveStructure implements DominantStructur
 	}
 
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<String> getNewPrimitiveField() {
 		return null;
 	}
 	
@@ -86,12 +85,11 @@ public class SISButton extends SISPrimitiveStructure implements DominantStructur
 		this.toggleIsActive = !this.toggleIsActive;
 		return retVal;
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		if( data.containsKey(getId()))
-			button.setText((String)data.get(getId()).getValue());
+	public void setData(PrimitiveField<String> field) {
+		if (field != null)
+			button.setText(field.getValue());
 	}
 
 	@Override
@@ -99,7 +97,6 @@ public class SISButton extends SISPrimitiveStructure implements DominantStructur
 		this.button.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

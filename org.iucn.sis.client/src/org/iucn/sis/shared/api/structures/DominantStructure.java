@@ -1,10 +1,12 @@
 package org.iucn.sis.shared.api.structures;
 
+import org.iucn.sis.shared.api.models.Field;
+
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.KeyboardListener;
 
-public interface DominantStructure extends DisplayStructure {
+public interface DominantStructure<T> extends DisplayStructure<T, Field> {
 
 	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
 			KeyboardListener keyboardListener);

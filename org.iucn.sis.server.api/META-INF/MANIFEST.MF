@@ -23,6 +23,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.junit4
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.iucn.sis.server.api.application,
+ org.iucn.sis.server.api.fields,
  org.iucn.sis.server.api.filters,
  org.iucn.sis.server.api.io,
  org.iucn.sis.server.api.locking,

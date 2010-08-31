@@ -9,16 +9,10 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.data.BaseModel;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -27,7 +21,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public abstract class Structure implements DisplayStructure {
+public abstract class Structure<T> implements DisplayStructure<T, Field> {
 
 	//protected ModelData model;
 	
@@ -257,24 +251,10 @@ public abstract class Structure implements DisplayStructure {
 		return this.description;
 	}
 
-	/**
-	 * Pass in the raw data from an Assessment object, and this will return
-	 * it in happy, displayable String form
-	 * 
-	 * @return ArrayList of Strings, having converted the rawData to nicely
-	 *         displayable String data. Happy days!
-	 */
-	public abstract int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset);
-
 	public String getId() {
 		return id;
 	}
 
-	/**
-	 * Gets a description of the type of structure this is
-	 * 
-	 * @return the structure
-	 */
 	public String getStructureType() {
 		return structure;
 	}
@@ -283,9 +263,6 @@ public abstract class Structure implements DisplayStructure {
 		return title;
 	}
 
-	/**
-	 * Hides a structure
-	 */
 	public void hide() {
 		displayPanel.setVisible(false);
 	}
@@ -318,6 +295,11 @@ public abstract class Structure implements DisplayStructure {
 		this.canRemoveDescription = canRemoveDescription;
 	}
 	
+	@Override
+	public boolean isPrimitive() {
+		return false;
+	}
+	
 /*
 	@Deprecated
 	public void setData(Map<String, PrimitiveField> data){
@@ -348,12 +330,6 @@ public abstract class Structure implements DisplayStructure {
 		//this.currentData = field;
 	}*/
 
-	/**
-	 * Sets the description
-	 * 
-	 * @param description
-	 *            the description
-	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
@@ -381,9 +357,6 @@ public abstract class Structure implements DisplayStructure {
 		this.title = title;
 	}
 
-	/**
-	 * Unhides a structure
-	 */
 	public void show() {
 		displayPanel.setVisible(true);
 	}
@@ -397,7 +370,7 @@ public abstract class Structure implements DisplayStructure {
 		generate();
 	}
 	
-	public void save(Field field) {
+	/*public void save(Field field) {
 		//PrimitiveField newPrim = currentData.get(getId());
 		PrimitiveField newPrim = new StringPrimitiveField(getId(), field);
 		
@@ -406,8 +379,6 @@ public abstract class Structure implements DisplayStructure {
 			field.getPrimitiveField().add(newPrim);
 		} else
 			field.getPrimitiveField().remove(newPrim);
-	}
-	
-	public abstract String toXML();
+	}*/
 
 }// class Structure

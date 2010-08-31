@@ -65,23 +65,23 @@ public class AssessmentClientSaveUtils {
 							public void onSuccess(String result) {
 								//assessmentToSave.setDateModified(Long.valueOf(ndoc.getText()));
 								try {
-								Assessment ret = Assessment.fromXML(ndoc);
-								for( Field curField : ret.getField() ) {
-									Field clientField = assessmentToSave.getField(curField.getName());
-									if( clientField == null ) {
-										System.out.print("Missing the client field " + curField.getName() + "...????");
-										assessmentToSave.getField().add(curField);
-									} else {
-										if( clientField.getId() == 0 )
-											clientField.setId(curField.getId());
-
-										for( PrimitiveField curPrim : curField.getPrimitiveField() ) {
-											PrimitiveField clientPrim = clientField.getKeyToPrimitiveFields().get(curPrim.getName());
-											if( clientPrim.getId() == null || clientPrim.getId().equals(Integer.valueOf(0)))
-												clientPrim.setId(curPrim.getId());
+									Assessment ret = Assessment.fromXML(ndoc);
+									for( Field curField : ret.getField() ) {
+										Field clientField = assessmentToSave.getField(curField.getName());
+										if( clientField == null ) {
+											System.out.print("Missing the client field " + curField.getName() + "...????");
+											assessmentToSave.getField().add(curField);
+										} else {
+											if( clientField.getId() == 0 )
+												clientField.setId(curField.getId());
+	
+											for( PrimitiveField curPrim : curField.getPrimitiveField() ) {
+												PrimitiveField clientPrim = clientField.getKeyToPrimitiveFields().get(curPrim.getName());
+												if( clientPrim.getId() == null || clientPrim.getId().equals(Integer.valueOf(0)))
+													clientPrim.setId(curPrim.getId());
+											}
 										}
 									}
-								}
 								} catch (Throwable e) {
 									e.printStackTrace();
 								}
@@ -124,11 +124,13 @@ public class AssessmentClientSaveUtils {
 
 	protected static void saveWidgetDataToAssessment(final List<Display> fieldWidgets,
 			final Assessment assessmentToSave) {
-		for( Display cur : fieldWidgets ) {
+		
+		for (Display cur : fieldWidgets) {
 			System.out.println("Saving data to Field " + cur.getCanonicalName());
 			cur.save();
+			
 			Field curField = cur.getField();
-			if( curField.getPrimitiveField().size() == 0 && curField.getFields().size() == 0 )
+			if (curField.getPrimitiveField().size() == 0 && curField.getFields().size() == 0)
 				assessmentToSave.getField().remove(curField);
 			else {
 				assessmentToSave.getField().add(curField);

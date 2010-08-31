@@ -29,7 +29,7 @@ public class BooleanPrimitiveField extends PrimitiveField<Boolean> implements
 
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.BOOLEAN_PRIMITIVE;
+		return PrimitiveFieldType.BOOLEAN_PRIMITIVE.getName();
 	}
 	
 	public void setValue(Boolean value) {

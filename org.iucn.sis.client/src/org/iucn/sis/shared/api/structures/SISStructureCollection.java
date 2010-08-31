@@ -1,12 +1,9 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -16,14 +13,14 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISStructureCollection extends Structure {
+public class SISStructureCollection extends Structure<Field> {
 
 	public static final int TREE = 0;
 	public static final int VERTICAL_PANEL = 1;
 	public static final int HORIZONTAL_PANEL = 2;
 	public static final int FLEXTABLE = 3;
 
-	private ArrayList<Structure> structures;
+	private ArrayList<DisplayStructure> structures;
 	private int displayType = 1;
 
 	public SISStructureCollection(String structure, String description, String structID, Object structures) {
@@ -41,18 +38,41 @@ public class SISStructureCollection extends Structure {
 		// }
 		// tracker.setInitValues(initValues);
 	}
-
+	
 	@Override
-	public void save(Field field) {
-		for( Structure cur : structures )
-			cur.save(field);
+	public void save(Field parent, Field field) {
+		if (field == null) {
+			if (getId() != null) {
+				field = new Field();
+				field.setName(getId());
+				field.setParent(parent);
+				
+				parent.addField(field);
+			}
+			else
+				field = parent;
+		}
+		
+		for (DisplayStructure cur : structures) {
+			if (cur.isPrimitive())
+				cur.save(field, field.getPrimitiveField(cur.getId()));
+			else
+				cur.save(field, field.getField(cur.getId()));
+		}
 	}
 
 	@Override
-	public boolean hasChanged() {
-		for( Structure cur : structures )
-			if( cur.hasChanged() )
+	public boolean hasChanged(Field field) {
+		for (DisplayStructure cur : structures) {
+			boolean hasChanged;
+			if (cur.isPrimitive())
+				hasChanged = cur.hasChanged(field == null ? null : field.getPrimitiveField(cur.getId()));
+			else
+				hasChanged = cur.hasChanged(field == null ? null : field.getField(cur.getId()));
+			
+			if (hasChanged)
 				return true;
+		}
 
 		return false;
 	}
@@ -60,7 +80,7 @@ public class SISStructureCollection extends Structure {
 	@Override
 	public void clearData() {
 		for (int i = 0; i < structures.size(); i++)
-			((Structure) structures.get(i)).clearData();
+			(structures.get(i)).clearData();
 	}
 
 	@Override
@@ -83,9 +103,9 @@ public class SISStructureCollection extends Structure {
 			// displayPanel.add(descriptionLabel);
 			for (int i = 0; i < structures.size(); i++) {
 				if (viewOnly)
-					displayPanel.add(((Structure) structures.get(i)).generateViewOnly());
+					displayPanel.add(( structures.get(i)).generateViewOnly());
 				else
-					displayPanel.add(((Structure) structures.get(i)).generate());
+					displayPanel.add(( structures.get(i)).generate());
 			}
 			return displayPanel;
 		}
@@ -97,9 +117,9 @@ public class SISStructureCollection extends Structure {
 			// displayPanel.add(descriptionLabel);
 			for (int i = 0; i < structures.size(); i++) {
 				if (viewOnly)
-					displayPanel.add(((Structure) structures.get(i)).generateViewOnly());
+					displayPanel.add(( structures.get(i)).generateViewOnly());
 				else
-					displayPanel.add(((Structure) structures.get(i)).generate());
+					displayPanel.add(( structures.get(i)).generate());
 			}
 			return displayPanel;
 		}
@@ -128,16 +148,10 @@ public class SISStructureCollection extends Structure {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void createWidget() {
 		structures = (ArrayList) data;
 		descriptionLabel = new HTML(description);
-		
-		/*
-		 * try { for (int i = 0; i < structures.size(); i++) {
-		 * ((Structure)structures.get(i)).createWidget(); } } catch (Exception
-		 * e) { SysDebugger.getInstance().println("Hmm.." + e.getMessage());
-		 * e.printStackTrace(); }
-		 */
 	}
 
 	/**
@@ -145,11 +159,11 @@ public class SISStructureCollection extends Structure {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 
-		for (Iterator iter = structures.iterator(); iter.hasNext();)
-			ret.addAll(((Structure) iter.next()).extractDescriptions());
+		for (DisplayStructure<?, ?> structure : structures)
+			ret.addAll(structure.extractDescriptions());
 
 		return ret;
 	}
@@ -158,7 +172,7 @@ public class SISStructureCollection extends Structure {
 	public List<ClassificationInfo> getClassificationInfo() {
 		ArrayList<ClassificationInfo> list = new ArrayList<ClassificationInfo>();
 		
-		for (Structure structure : structures)
+		for (DisplayStructure<?, ?> structure : structures)
 			list.addAll(structure.getClassificationInfo());
 		
 		return list;
@@ -178,24 +192,27 @@ public class SISStructureCollection extends Structure {
 	 */
 	@Override
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
-		for (int i = 0; i < structures.size(); i++)
-			offset = ((Structure) structures.get(i)).getDisplayableData(rawData, prettyData, offset);
+		for (DisplayStructure<?, ?> structure : structures)
+			offset = (structure.getDisplayableData(rawData, prettyData, offset));
 
 		return offset;
 	}
 
-	public Structure getStructureAt(int index) {
-		return (Structure) structures.get(index);
+	public DisplayStructure<?, ?> getStructureAt(int index) {
+		return structures.get(index);
 	}
 
-	public ArrayList getStructures() {
+	public ArrayList<DisplayStructure> getStructures() {
 		return structures;
 	}
 	
 	@Override
 	public void setData(Field field) {
-		for (int i = 0; i < structures.size(); i++) {
-			((Structure) structures.get(i)).setData(field);
+		for (DisplayStructure structure : structures) {
+			if (structure.isPrimitive())
+				structure.setData(field == null ? null : field.getPrimitiveField(structure.getId()));
+			else
+				structure.setData(field == null ? null : field.getField(structure.getId()));
 			/*for(String key: ((Structure) structures.get(i)).extractModelData().getPropertyNames())
 				model.set(key, ((Structure) structures.get(i)).extractModelData().get(key));*/
 		}
@@ -211,12 +228,10 @@ public class SISStructureCollection extends Structure {
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
-		for (int i = 0; i < structures.size(); i++) {
-			((Structure) structures.get(i)).setEnabled(isEnabled);
-		}
+		for (DisplayStructure<?, ?> structure : structures)
+			structure.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

@@ -20,7 +20,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class SISBooleanRange extends SISPrimitiveStructure implements DominantStructure {
+public class SISBooleanRange extends SISPrimitiveStructure<String> implements DominantStructure<PrimitiveField<String>> {
 
 	private ListBox options;
 	private TextBox range;
@@ -233,12 +233,15 @@ public class SISBooleanRange extends SISPrimitiveStructure implements DominantSt
 			return false;
 		}
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
+	public void setData(PrimitiveField<String> field) {
+		String datum;
+		if (field != null)
+			datum = "";
+		else
+			datum = field.getValue();
 		
-		String datum = data.containsKey(getId()) ? ((BooleanRangePrimitiveField)data.get(getId())).getValue() : "";
 		range.setText(XMLUtils.cleanFromXML(datum.replaceAll("\\s*", "")));
 
 		if (range.getText() != null && range.getText() != "")
@@ -266,7 +269,6 @@ public class SISBooleanRange extends SISPrimitiveStructure implements DominantSt
 		range.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

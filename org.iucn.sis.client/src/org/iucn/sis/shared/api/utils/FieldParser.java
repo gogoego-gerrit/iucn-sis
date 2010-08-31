@@ -12,6 +12,7 @@ import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.displays.FieldDisplay;
 import org.iucn.sis.shared.api.structures.BooleanRule;
 import org.iucn.sis.shared.api.structures.ContentRule;
+import org.iucn.sis.shared.api.structures.Rule;
 import org.iucn.sis.shared.api.structures.SelectRule;
 
 import com.solertium.lwxml.shared.NativeDocument;
@@ -38,6 +39,7 @@ public class FieldParser {
 	private static final String CLASS_OF_SERVICE_TAG_NAME = "classOfService";
 	private static final String LOCATION_TAG_NAME = "location";
 	private static final String REFERENCES_TAG_NAME = "references";
+	private static final String FIELD_DEFINITION_TAG_NAME = "definition";
 
 	protected Display doOperate(DisplayData currentDisplayData) {
 		if (currentDisplayData.getType().equalsIgnoreCase(DisplayData.FIELD)) {
@@ -118,8 +120,9 @@ public class FieldParser {
 	 *            with XML data about structures
 	 * @return an ArrayList containing DisplayData for structures
 	 */
-	private ArrayList parseStructures(NativeNodeList structureTags) {
-		ArrayList structureSet = new ArrayList();
+	private ArrayList<DisplayData> parseStructures(NativeNodeList structureTags) {
+		ArrayList<DisplayData> structureSet = new ArrayList<DisplayData>();
+		
 		DisplayData currentDisplayData;
 
 		NativeElement current = null;
@@ -180,15 +183,16 @@ public class FieldParser {
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.ONE_TO_MANY)) {
-				ArrayList parsedStructs = parseStructures(current.getChildNodes());
+				ArrayList<DisplayData> parsedStructs = parseStructures(current.getChildNodes());
 				currentDisplayData.setData(parsedStructs.get(0));
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.CLASSIFICATION_SCHEME_STRUCTURE)) {
-				NativeElement defaultStructureElement = current.getElementByTagName("defaultStructure");
+				//FIXME: Why is this unused?
+				//NativeElement defaultStructureElement = current.getElementByTagName("defaultStructure");
 
 				NativeNodeList options = current.getElementsByTagName("option");
-				ArrayList data = new ArrayList();
+				ArrayList<String> data = new ArrayList<String>();
 
 				for (int k = 0; k < options.getLength(); k++) {
 					data.add(options.elementAt(k).getText());
@@ -199,7 +203,7 @@ public class FieldParser {
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.RANGE_STRUCTURE)) {
 				NativeNodeList rangeList = current.getChildNodes();
-				ArrayList data = new ArrayList();
+				ArrayList<String> data = new ArrayList<String>();
 
 				for (int k = 0; k < rangeList.getLength(); k++) {
 					if (rangeList.item(k).getNodeName().equalsIgnoreCase(XMLUtils.RANGE_LOW_GUESS))
@@ -221,9 +225,9 @@ public class FieldParser {
 					|| structureType.equalsIgnoreCase(XMLUtils.SINGLE_SELECT_STRUCTURE)) {
 				NativeNodeList selectOptions = current.getChildNodes();
 
-				ArrayList data = new ArrayList();
-				ArrayList options = new ArrayList();
-				ArrayList selected = new ArrayList();
+				ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
+				ArrayList<String> options = new ArrayList<String>();
+				ArrayList<String> selected = new ArrayList<String>();
 
 				for (int k = 0; k < selectOptions.getLength(); k++) {
 					if (selectOptions.item(k).getNodeName().equalsIgnoreCase("option"))
@@ -240,7 +244,7 @@ public class FieldParser {
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.MULTIPLE_TEXT_STRUCTURE)) {
-				ArrayList data = new ArrayList();
+				ArrayList<String> data = new ArrayList<String>();
 				NativeNodeList textNodes = current.getChildNodes();
 
 				for (int i = 0; i < textNodes.getLength(); i++) {
@@ -256,7 +260,7 @@ public class FieldParser {
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.THREAT_STRUCTURE)) {
 				NativeNodeList details = current.getChildNodes();
-				ArrayList threatData = new ArrayList();
+				ArrayList<String> threatData = new ArrayList<String>();
 
 				for (int m = 0; m < details.getLength(); m++) {
 
@@ -291,8 +295,8 @@ public class FieldParser {
 			else if (structureType.equalsIgnoreCase(XMLUtils.RELATED_STRUCTURE)) {
 				// Has 3 children I am interested in ...
 				/* 1 */FieldData dominantStructure = new FieldData();
-				/* 2 */ArrayList dependentStructures = new ArrayList();
-				/* 3 */ArrayList rules = new ArrayList();
+				/* 2 */ArrayList<DisplayData> dependentStructures = new ArrayList<DisplayData>();
+				/* 3 */ArrayList<Rule> rules = new ArrayList<Rule>();
 
 				NativeNodeList children = current.getChildNodes();
 
@@ -300,7 +304,7 @@ public class FieldParser {
 					String key = children.item(i).getNodeName();
 					// Look for dominant
 					if (key.equalsIgnoreCase("dominantStructures")) {
-						ArrayList dominantData = parseStructures(children.elementAt(i).getChildNodes());
+						ArrayList<DisplayData> dominantData = parseStructures(children.elementAt(i).getChildNodes());
 						if (dominantData.size() == 1) {
 							dominantStructure.setStructure(((FieldData) dominantData.get(0)).getStructure());
 							dominantStructure.setData(((FieldData) dominantData.get(0)).getData());
@@ -428,7 +432,7 @@ public class FieldParser {
 					}// else
 				}
 
-				ArrayList relatedStructureData = new ArrayList();
+				ArrayList<Object> relatedStructureData = new ArrayList<Object>();
 				relatedStructureData.add(dominantStructure);
 				relatedStructureData.add(dependentStructures);
 				relatedStructureData.add(rules);
@@ -439,11 +443,11 @@ public class FieldParser {
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.MAP_STRUCTURE)) {
-				ArrayList myMapData = new ArrayList();
-				ArrayList ids = new ArrayList();
-				ArrayList descriptions = new ArrayList();
-				ArrayList latitudes = new ArrayList();
-				ArrayList longitudes = new ArrayList();
+				ArrayList<ArrayList<?>> myMapData = new ArrayList<ArrayList<?>>();
+				ArrayList<String> ids = new ArrayList<String>();
+				ArrayList<String> descriptions = new ArrayList<String>();
+				ArrayList<Double> latitudes = new ArrayList<Double>();
+				ArrayList<Double> longitudes = new ArrayList<Double>();
 
 				NativeNodeList dataPoints = current.getChildNodes();
 				boolean insufficientData = false;
@@ -495,7 +499,7 @@ public class FieldParser {
 								// System.out.println(
 								// "Made default tree structure");
 								defaultTreeStructure = new TreeData();
-								ArrayList defaultTreeStructureSet = parseStructures(currentRoot.getChildNodes()
+								ArrayList<DisplayData> defaultTreeStructureSet = parseStructures(currentRoot.getChildNodes()
 										.elementAt(k).getChildNodes());
 								if (structureSet.size() == 1) {
 									defaultTreeStructure.setStructure(((FieldData) defaultTreeStructureSet.get(0))
@@ -545,18 +549,19 @@ public class FieldParser {
 				displayData.setCanonicalName(XMLUtils.getXMLValue(current).trim());
 			else if (curNodeName.equalsIgnoreCase(CLASS_OF_SERVICE_TAG_NAME))
 				displayData.setClassOfService(XMLUtils.getXMLValue(current));
-			else if (curNodeName.equalsIgnoreCase(LOCATION_TAG_NAME))
-				displayData.setLocation(XMLUtils.getXMLValue(current));
 			else if (curNodeName.equalsIgnoreCase(DESCRIPTION_TAG_NAME))
 				displayData.setDescription(XMLUtils.getXMLValue(current));
 			else if (curNodeName.equalsIgnoreCase(REFERENCES_TAG_NAME)) {
 				NativeNodeList referenceIdNodes = current.getChildNodes();
-				ArrayList refs = new ArrayList();
+				ArrayList<String> refs = new ArrayList<String>();
 				for (int k = 0; k < referenceIdNodes.getLength(); k++)
 					if (referenceIdNodes.item(k).getNodeName().equalsIgnoreCase("referenceId"))
 						refs.add(XMLUtils.getXMLValue(referenceIdNodes.item(k), ""));
 				displayData.setReferences(refs);
 				break;
+			}
+			else if (curNodeName.equalsIgnoreCase(FIELD_DEFINITION_TAG_NAME)) {
+				displayData.setFieldDefinition((NativeElement)current);
 			}
 		}
 	}
@@ -577,17 +582,17 @@ public class FieldParser {
 		currentField.setDisplayId(XMLUtils.getXMLAttribute(root, "id"));
 
 		// Build the structure
-		ArrayList structureSet = parseStructures(structuresTag.getChildNodes());
+		ArrayList<DisplayData> structureSet = parseStructures(structuresTag.getChildNodes());
 		if (structureSet.size() == 1) {
-			currentField.setStructure(((FieldData) structureSet.get(0)).getStructure());
-			currentField.setData(((FieldData) structureSet.get(0)).getData());
-			currentField.setUniqueId(((FieldData) structureSet.get(0)).getUniqueId());
+			currentField.setStructure((structureSet.get(0)).getStructure());
+			currentField.setData((structureSet.get(0)).getData());
+			currentField.setUniqueId((structureSet.get(0)).getUniqueId());
 			// currentField.setDescription(((FieldData)structureSet.get(0)).
 			// getDescription());
 		} else {
 			currentField.setStructure(XMLUtils.STRUCTURE_COLLECTION);
 			currentField.setData(structureSet);
-			((FieldData) structureSet.get(0)).setDescription(currentField.getDescription());
+			(structureSet.get(0)).setDescription(currentField.getDescription());
 
 			String layout = root.getAttribute("layout");
 			if (layout != null)
@@ -599,12 +604,13 @@ public class FieldParser {
 		return currentField;
 	}
 
+	@SuppressWarnings("unused")
 	private void processReferences(DisplayData displayData, NativeNode displayTag) {
 		for (int i = 0; i < displayTag.getChildNodes().getLength(); i++) {
 			NativeNode current = displayTag.getChildNodes().item(i);
 			if (current.getNodeName().equalsIgnoreCase(REFERENCES_TAG_NAME)) {
 				NativeNodeList referenceIdNodes = current.getChildNodes();
-				ArrayList refs = new ArrayList();
+				ArrayList<String> refs = new ArrayList<String>();
 				for (int k = 0; k < referenceIdNodes.getLength(); k++)
 					if (referenceIdNodes.item(k).getNodeName().equalsIgnoreCase("referenceId"))
 						refs.add(XMLUtils.getXMLValue(referenceIdNodes.item(k), ""));
@@ -623,7 +629,6 @@ public class FieldParser {
 	 */
 	private TreeDataRow processRoot(NativeNode currentRoot, TreeData defaultTreeStructure) {
 		String value;
-		ArrayList structureSet;
 		boolean override = false;
 		TreeDataRow currentRow = new TreeDataRow();
 
@@ -643,15 +648,15 @@ public class FieldParser {
 					&& !(value = XMLUtils.getXMLValue(currentRootData.item(k)))
 							.equalsIgnoreCase(XMLUtils.NO_NODE_VALUE_FOUND)) {
 				currentRow.setDescription(value);
-				currentRow.setTitle(XMLUtils.getXMLAttribute(currentRootData.item(k), "title", null));
+				//currentRow.setTitle(XMLUtils.getXMLAttribute(currentRootData.item(k), "title", null));
 			}
 			// As is this
 			else if (currentRootData.item(k).getNodeName().equalsIgnoreCase("treeStructures")) {
 				override = true;
-				structureSet = parseStructures(currentRootData.elementAt(k).getChildNodes());
+				ArrayList<DisplayData> structureSet = parseStructures(currentRootData.elementAt(k).getChildNodes());
 				if (structureSet.size() == 1) {
-					currentRow.setStructure(((FieldData) structureSet.get(0)).getStructure());
-					currentRow.setData(((FieldData) structureSet.get(0)).getData());
+					currentRow.setStructure((structureSet.get(0)).getStructure());
+					currentRow.setData((structureSet.get(0)).getData());
 				} else {
 					currentRow.setStructure(XMLUtils.STRUCTURE_COLLECTION);
 					currentRow.setData(structureSet);
@@ -705,10 +710,10 @@ public class FieldParser {
 					NativeNodeList curList = currentRoot.getChildNodes();
 					if (curList.item(k).getNodeName().equalsIgnoreCase("treeStructures")) {
 						defaultTreeStructure = new TreeData();
-						ArrayList structureSet = parseStructures(curList.elementAt(k).getChildNodes());
+						ArrayList<DisplayData> structureSet = parseStructures(curList.elementAt(k).getChildNodes());
 						if (structureSet.size() == 1) {
-							defaultTreeStructure.setStructure(((FieldData) structureSet.get(0)).getStructure());
-							defaultTreeStructure.setData(((FieldData) structureSet.get(0)).getData());
+							defaultTreeStructure.setStructure((structureSet.get(0)).getStructure());
+							defaultTreeStructure.setData((structureSet.get(0)).getData());
 						} else {
 							defaultTreeStructure.setStructure(XMLUtils.STRUCTURE_COLLECTION);
 							defaultTreeStructure.setData(structureSet);

@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
@@ -13,7 +12,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISReference extends SISPrimitiveStructure implements DominantStructure {
+public class SISReference extends SISPrimitiveStructure<String> implements DominantStructure<PrimitiveField<String>> {
 
 	private HTML citation;
 
@@ -24,7 +23,7 @@ public class SISReference extends SISPrimitiveStructure implements DominantStruc
 	}
 
 	@Override
-	protected PrimitiveField getNewPrimitiveField() {
+	protected PrimitiveField<String> getNewPrimitiveField() {
 		return new StringPrimitiveField(getId(), null);
 	}
 	
@@ -65,8 +64,8 @@ public class SISReference extends SISPrimitiveStructure implements DominantStruc
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(description);
 		return ret;
 	}
@@ -98,11 +97,10 @@ public class SISReference extends SISPrimitiveStructure implements DominantStruc
 			return false;
 		}
 	}
-
+	
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		String datum = data.containsKey(getId()) ? ((StringPrimitiveField)data.get(getId())).getValue() : "";
+	public void setData(PrimitiveField<String> field) {
+		String datum = field != null ? field.getValue() : "";
 		citation.setText(datum);
 	}
 
@@ -111,7 +109,6 @@ public class SISReference extends SISPrimitiveStructure implements DominantStruc
 	public void setEnabled(boolean isEnabled) {
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

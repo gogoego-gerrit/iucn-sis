@@ -1,8 +1,5 @@
 package org.iucn.sis.client.container;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -19,7 +16,7 @@ public class SimpleSISClient extends SISClientBase {
 	
 	public static ClientUIContainer clientContainer;
 	
-	public void onModuleLoad() {
+	public void loadModule() {
 		instance = this;
 
 		clientContainer = new ClientUIContainer();

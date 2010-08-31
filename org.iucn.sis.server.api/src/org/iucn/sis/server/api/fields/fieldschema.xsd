@@ -1,0 +1,128 @@
+<xs:schema xmlns:xs = "http://www.w3.org/2001/XMLSchema">
+
+<!-- PRIMITIVE FIELDS -->
+
+<xs:complexType name="BooleanPrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="xs:boolean">
+			<xs:attribute name="id" type="xs:integer" use="required"/>
+         	<xs:attribute name="type" type="xs:string" use="required" fixed="BooleanPrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<!-- TODO: Boolean range needs to have a simple type that 
+defines a pattern-based restriction that requires:
+{0-100} {0-100,50} {0-100, 25-75} or simply {50}
+--> 
+<xs:complexType name="BooleanRangePrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="xs:string">
+		   	<xs:attribute name="id" type="xs:integer" use="required"/>
+         	<xs:attribute name="type" type="xs:string" use="required" fixed="BooleanRangePrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="BooleanUnknownPrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="BooleanUnknownPrimitiveFieldContent">
+		   	<xs:attribute name="id" type="xs:integer" use="required"/>
+         	<xs:attribute name="type" type="xs:string" use="required" fixed="BooleanUnknownPrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:simpleType name="BooleanUnknownPrimitiveFieldContent">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value="true"/>
+		<xs:enumeration value="false"/>
+		<xs:enumeration value="unknown"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:complexType name="ForeignKeyPrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="xs:integer">
+			<xs:attribute name="id" type="xs:integer" use="required"/>
+			<xs:attribute name="tableID" type="xs:string" use="required"/>
+			<xs:attribute name="type" type="xs:string" use="required" fixed="ForeignKeyPrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<!-- TODO: if you want to attempt to pattern-match a CSV, 
+be my guest... -->
+
+<xs:complexType name="ForeignKeyListPrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="xs:string">
+			<xs:attribute name="id" type="xs:integer" use="required"/>
+			<xs:attribute name="tableID" type="xs:string" use="required"/>
+			<xs:attribute name="type" type="xs:string" use="required" fixed="ForeignKeyListPrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="IntegerPrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="xs:integer">
+			<xs:attribute name="id" type="xs:integer" use="required"/>
+			<xs:attribute name="type" type="xs:string" use="required" fixed="IntegerPrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="StringPrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="xs:string">
+			<xs:attribute name="id" type="xs:integer" use="required"/>
+			<xs:attribute name="type" type="xs:string" use="required" fixed="StringPrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="DatePrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="xs:long">
+			<xs:attribute name="id" type="xs:integer" use="required"/>
+			<xs:attribute name="type" type="xs:string" use="required" fixed="DatePrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="FloatPrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="xs:long">
+			<xs:attribute name="id" type="xs:integer" use="required"/>
+			<xs:attribute name="type" type="xs:string" use="required" fixed="FloatPrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="TextPrimitiveField">
+	<xs:simpleContent>
+		<xs:extension base="xs:string">
+			<xs:attribute name="id" type="xs:integer" use="required"/>
+			<xs:attribute name="type" type="xs:string" use="required" fixed="TextPrimitiveField"/>
+		</xs:extension>
+	</xs:simpleContent>
+</xs:complexType>
+
+<xs:complexType name="RangePrimitiveField">
+	<xs:simpleContent>
+    	<xs:extension base="RangePrimitiveFieldContent">
+         	<xs:attribute name="id" type="xs:integer" use="required"/>
+         	<xs:attribute name="type" type="xs:string" use="required" fixed="RangePrimitiveField"/>
+      	</xs:extension>
+   	</xs:simpleContent>
+</xs:complexType>
+
+<xs:simpleType name="RangePrimitiveFieldContent">
+   <xs:restriction base="xs:double">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="1"/>
+   </xs:restriction>
+</xs:simpleType>
+
+</xs:schema>

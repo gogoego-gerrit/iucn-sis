@@ -33,7 +33,7 @@ public class BooleanUnknownPrimitiveField extends PrimitiveField<Integer> implem
 
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.BOOLEAN_UNKNOWN_PRIMITIVE;
+		return PrimitiveFieldType.BOOLEAN_UNKNOWN_PRIMITIVE.getName();
 	}
 	
 	@Override

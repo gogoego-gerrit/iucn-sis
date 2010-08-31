@@ -13,6 +13,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -239,10 +240,18 @@ public class AssessmentCache {
 						NativeElement el = asses.elementAt(i);
 						try {
 							Assessment ass = Assessment.fromXML(el);
+							if (ass.getId() == 93318) {
+								try {
+									System.out.println(ass.getField(CanonicalNames.LocationsNumber).getKeyToPrimitiveFields());
+									System.out.println(ass.getField(CanonicalNames.LocationsNumber).getPrimitiveField("range").getRawValue());
+								} catch (NullPointerException e) {
+									System.out.println("Couldnt print location value for 93318");
+								}
+							}
 							Taxon t = TaxonomyCache.impl.getTaxon(ass.getSpeciesID());
 							if( t != null )
 								ass.setTaxon(t);
-							System.out.println("Adding ass " + ass.getId());
+							System.out.println("Caching assessment " + ass.getId());
 
 							addAssessment(ass);
 							taxaFetched.put(Integer.valueOf(ass.getSpeciesID()), Boolean.TRUE);

@@ -21,7 +21,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 
-public class SISLivelihoods extends Structure {
+public class SISLivelihoods extends Structure<Field> {
 	// Piece 0: Scale (DropDown)
 	// Piece 1: Name of location/country/region (text)
 	// Piece 2: Date (text)
@@ -137,52 +137,57 @@ public class SISLivelihoods extends Structure {
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		return true;
 	}
-
+	
 	@Override
-	public void save(Field field) {
+	public void save(Field parent, Field field) {
+		if (field == null) {
+			field = new Field();
+			field.setName(getId());
+			field.setParent(parent);
+		}
 		//for each widget
 		//field.addPrimitive(...);
 		//  
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(SCALE_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(SCALE_KEY, field, 
 				Integer.valueOf(scale.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new StringPrimitiveField(LOCALITY_NAME_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(LOCALITY_NAME_KEY, field, 
 				localeName.getText()));
-		field.getPrimitiveField().add(new DatePrimitiveField(DATE_KEY, field, 
+		field.addPrimitiveField(new DatePrimitiveField(DATE_KEY, field, 
 				FormattedDate.impl.getDate(date.getText())));
-		field.getPrimitiveField().add(new StringPrimitiveField(PRODUCT_DESCRIPTION_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(PRODUCT_DESCRIPTION_KEY, field, 
 				product.getText()));
-		field.getPrimitiveField().add(new StringPrimitiveField(ANNUAL_HARVEST_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(ANNUAL_HARVEST_KEY, field, 
 				singleSpeciesHarvest.getText()));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(UNITS_ANNUAL_HARVEST_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(UNITS_ANNUAL_HARVEST_KEY, field, 
 				Integer.valueOf(singleSpeciesHarvestUnits.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new StringPrimitiveField(ANNUAL_MULTI_SPECIES_HARVEST_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(ANNUAL_MULTI_SPECIES_HARVEST_KEY, field, 
 				multiSpeciesHarvest.getText()));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(UNITS_ANNUAL_MULTI_SPECIES_HARVEST_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(UNITS_ANNUAL_MULTI_SPECIES_HARVEST_KEY, field, 
 				Integer.valueOf(multiSpeciesHarvestUnits.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new StringPrimitiveField(PERCENT_IN_HARVEST_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(PERCENT_IN_HARVEST_KEY, field, 
 				multiSpeciesHarvestContributionPercent.getText()));
-		field.getPrimitiveField().add(new StringPrimitiveField(AMOUNT_IN_HARVEST_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(AMOUNT_IN_HARVEST_KEY, field, 
 				multiSpeciesHarvestAmount.getText()));
 		
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(HUMAN_RELIANCE_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(HUMAN_RELIANCE_KEY, field, 
 				Integer.valueOf(humanReliance.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(GENDER_AGE_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(GENDER_AGE_KEY, field, 
 				Integer.valueOf(byGenderAge.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(SOCIO_ECONOMIC_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(SOCIO_ECONOMIC_KEY, field, 
 				Integer.valueOf(bySocioEcon.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new StringPrimitiveField(OTHER_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(OTHER_KEY, field, 
 				other.getText()));
 		
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(TOTAL_POP_BENEFIT_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(TOTAL_POP_BENEFIT_KEY, field, 
 				Integer.valueOf(percentPopulationBenefiting.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(HOUSEHOLD_CONSUMPTION_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(HOUSEHOLD_CONSUMPTION_KEY, field, 
 				Integer.valueOf(percentConsumption.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new ForeignKeyPrimitiveField(HOUSEHOLD_INCOME_KEY, field, 
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(HOUSEHOLD_INCOME_KEY, field, 
 				Integer.valueOf(percentIncome.getSelectedIndex()), null));
-		field.getPrimitiveField().add(new StringPrimitiveField(ANNUAL_CASH_INCOME_KEY, field, 
+		field.addPrimitiveField(new StringPrimitiveField(ANNUAL_CASH_INCOME_KEY, field, 
 				annualCashIncome.getText()));
 
 	}

@@ -15,7 +15,7 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
-public class SISOptionsList extends Structure {
+public class SISOptionsList extends Structure<Field> {
 	public static final int CURRENT_WORKING_SET_USERS = 0;
 
 	public static final String TEXT_ACCOUNT_KEY = "textValue";
@@ -29,24 +29,33 @@ public class SISOptionsList extends Structure {
 	}
 	
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		// TODO Auto-generated method stub
 		return true;
 	}
 	
 	@Override
-	public void save(Field field) {
-		if (theList.hasOldText()) {
-			field.getPrimitiveField().add(new StringPrimitiveField(TEXT_ACCOUNT_KEY, field, 
-					theList.getText()));
-		} else if( theList.getSelectedUsers().size() > 0 ) {
+	public void save(Field parent, Field field) {
+		if (field == null) {
+			field = new Field();
+			field.setName(getId());
+			field.setParent(parent);
+		}
+		
+		if (theList.hasOldText())
+			field.addPrimitiveField(new StringPrimitiveField(
+				TEXT_ACCOUNT_KEY, field, theList.getText()
+			));
+		else if (!theList.getSelectedUsers().isEmpty()) {
 			ForeignKeyListPrimitiveField prim = new ForeignKeyListPrimitiveField(FK_LIST_KEY, field);
+			
 			List<Integer> users = new ArrayList<Integer>();
 			for (User user : theList.getSelectedUsers())
 				users.add(Integer.valueOf(user.getId()));
 			
 			prim.setValue(users);
-			field.getPrimitiveField().add(prim);
+			
+			field.addPrimitiveField(prim);
 		}
 	}
 	
@@ -87,8 +96,8 @@ public class SISOptionsList extends Structure {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(description);
 		return ret;
 	}
@@ -151,7 +160,6 @@ public class SISOptionsList extends Structure {
 		
 	}
 
-	@Override
 	public String toXML() {
 		String ret = "";
 		if (theList.hasOldText())

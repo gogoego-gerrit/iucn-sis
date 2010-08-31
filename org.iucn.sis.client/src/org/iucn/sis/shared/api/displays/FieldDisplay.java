@@ -11,13 +11,15 @@ package org.iucn.sis.shared.api.displays;
 
 import org.iucn.sis.shared.api.data.FieldData;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.structures.DisplayStructure;
 import org.iucn.sis.shared.api.structures.Structure;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.lwxml.shared.NativeElement;
 
 public class FieldDisplay extends Display {
-
+	
 	public FieldDisplay() {
 		super();
 	}
@@ -26,33 +28,35 @@ public class FieldDisplay extends Display {
 		super(data);
 	}
 
-	/**
-	 * Creates a new field object, given all of the data in
-	 */
-	public FieldDisplay(String struct, String descript, Object data, String group, String fieldId, String canonicalName,
-			String classOfService, String associate) {
-		super(struct, descript, data, group, fieldId, canonicalName, classOfService, associate);
-	}
-
 	@Override
 	public boolean hasChanged() {
-		for( Structure struct : myStructures )
-			if( struct.hasChanged() )
+		for (DisplayStructure struct : myStructures) {
+			boolean hasChanged;
+			if (struct.isPrimitive())
+				hasChanged = struct.hasChanged(field == null ? null : field.getPrimitiveField(struct.getId()));
+			else
+				hasChanged = struct.hasChanged(field == null ? null : field.getField(struct.getId()));
+			
+			if (hasChanged)
 				return true;
+		}
 		
 		return false;
 	}
 	
 	@Override
 	public void save() {
-//		if( field.getFields() != null )
-//			field.getFields().clear();
-//		
-//		if( field.getPrimitiveField() != null )
-//			field.getPrimitiveField().clear();
-		
-		for( Structure struct : myStructures )
-			struct.save(field);
+		if (field == null) {
+			field = new Field();
+			field.setName(getCanonicalName());
+		}
+			
+		for (DisplayStructure struct : myStructures) {
+			if (struct.isPrimitive())
+				struct.save(field, field.getPrimitiveField(struct.getId()));
+			else
+				struct.save(field, field.getField(struct.getId()));
+		}
 	}
 	
 	/**
@@ -68,9 +72,9 @@ public class FieldDisplay extends Display {
 
 		for (int i = 0; i < myStructures.size(); i++) {
 			if (viewOnly)
-				displayPanel.add(((Structure) myStructures.get(i)).generateViewOnly());
+				displayPanel.add((myStructures.get(i)).generateViewOnly());
 			else
-				displayPanel.add(((Structure) myStructures.get(i)).generate());
+				displayPanel.add((myStructures.get(i)).generate());
 		}
 		return displayPanel;
 	}
@@ -79,10 +83,16 @@ public class FieldDisplay extends Display {
 	public void setData(Field field) {
 		this.field = field;
 		
-		if (field != null) {
-			if( field.getFields() == null ) {
+		for (DisplayStructure cur : getStructures()) {
+			if (cur.isPrimitive())
+				cur.setData(field == null ? field : field.getPrimitiveField(cur.getId()));
+			else
+				cur.setData(field);
+		}
+			
+			/*if( field.getFields() == null ) {
 				//Map<String, PrimitiveField> prims = field.getKeyToPrimitiveFields();
-				for (Structure cur : getStructures()) {
+				for (DisplayStructure cur : getStructures()) {
 					try {
 						cur.setData(field);
 					} catch (Exception e) {
@@ -94,7 +104,7 @@ public class FieldDisplay extends Display {
 				}
 			} else {
 				//It has subfields, most likely. The structure should know how to handle it.
-				for (Structure cur : getStructures()) {
+				for (DisplayStructure cur : getStructures()) {
 					try {
 						cur.setData(field);
 					} catch (Exception e) {
@@ -103,12 +113,12 @@ public class FieldDisplay extends Display {
 						e.printStackTrace();
 					}
 				}
-			}
+			}*/
 			
-		} else {
-			for (Structure cur : getStructures())
+		/* else {
+			for (DisplayStructure cur : getStructures())
 				cur.clearData();
-		}
+		}*/
 	}
 	
 	/**
@@ -121,17 +131,16 @@ public class FieldDisplay extends Display {
 		return "< " + displayID + ", " + structure + ", " + canonicalName + ", " + description + " >\r\n";
 	}
 
-	@Override
+	/*
 	public String toThinXML() {
 		String xmlRetString = "<field id=\"" + this.displayID + "\">\n";
 		xmlRetString += "\t<canonicalName>" + this.canonicalName + "</canonicalName>\n";
 		for (int i = 0; i < myStructures.size(); i++)
-			xmlRetString += ((Structure) myStructures.get(i)).toXML();
+			xmlRetString += ( myStructures.get(i)).toXML();
 		xmlRetString += "</field>\n";
 		return xmlRetString;
 	}
 
-	@Override
 	public String toXML() {
 		StringBuffer xml = new StringBuffer();
 		xml.append("<field id=\"" + this.canonicalName + "\">\r\n");
@@ -141,6 +150,6 @@ public class FieldDisplay extends Display {
 		xml.append("</field>\r\n");
 
 		return xml.toString();
-	}
+	}*/
 
 }// class Field

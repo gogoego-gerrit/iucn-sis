@@ -1,0 +1,337 @@
+<tree id="17">
+	<canonicalName>Lakes</canonicalName>
+	<description>Lakes</description>
+	<classOfService>Documentation</classOfService>
+	<treeRoot>
+                <defaultStructure>
+                        <treeStructures layout="horizontal">
+                                <structure>
+                                        <relatedStructure>
+                                        <dominantStructures>
+                                                <structure id="a" description="Presence">
+                                                        <singleSelect>
+                                                                <option>Year Round</option>
+                                                                <option>Breeding Season Only</option>
+                                                                <option>Non-breeding Season Only</option>
+                                                                <option>Possibly Extinct</option>
+                                                                <option>Extinct</option>
+                                                                <option>Uncertain</option>
+                                                                <selected>1</selected>
+                                                        </singleSelect>
+                                                </structure>
+                                        </dominantStructures>
+                                        <dependentStructures>
+                                                <structure description="Passage Migrant?">
+                                                        <boolean></boolean>
+                                                </structure>
+                                        </dependentStructures>
+                                        <rules>
+                                                <selectRule>
+                                                        <activateOnIndex>2,3</activateOnIndex>
+                                                        <actions>
+                                                                <onTrue>SHOW</onTrue>
+                                                                <onFalse>HIDE</onFalse>
+                                                        </actions>
+                                                </selectRule>
+                                        </rules>
+                                        </relatedStructure>
+                                </structure>
+                                <structure description="Origin">
+                                        <singleSelect>
+                                                <option>Native</option>
+                                                <option>Introduced</option>
+                                                <option>Reintroduced</option>
+                                                <option>Vagrant</option>
+                                                <option>Uncertain</option>
+                                                <selected>1</selected>
+                                        </singleSelect>
+                                </structure>
+                        </treeStructures>
+                </defaultStructure>
+		<root code="22" codeable="true" depth="1" id="1">
+        <label>Ayamaru Lakes</label>
+    </root>
+    <root code="23" codeable="true" depth="1" id="2">
+        <label>Baq-e-Loveh pool</label>
+    </root>
+    <root code="24" codeable="true" depth="1" id="3">
+        <label>Cuatro Cienegas basin</label>
+    </root>
+    <root code="25" codeable="true" depth="1" id="4">
+        <label>Danau Biru (Lake Holmes)</label>
+    </root>
+    <root code="26" codeable="true" depth="1" id="5">
+        <label>Ghandisagar Reservoir</label>
+    </root>
+    <root code="27" codeable="true" depth="1" id="6">
+        <label>Great Lakes</label>
+    </root>
+    <root code="28" codeable="true" depth="1" id="7">
+        <label>Kerang Lakes area</label>
+    </root>
+    <root code="29" codeable="true" depth="1" id="8">
+        <label>Lake Akgol</label>
+    </root>
+    <root code="30" codeable="true" depth="1" id="9">
+        <label>Lake Alapathar, Lake Marsar</label>
+    </root>
+    <root code="31" codeable="true" depth="1" id="10">
+        <label>Lake Albert</label>
+    </root>
+    <root code="32" codeable="true" depth="1" id="11">
+        <label>Lake Amatitlan</label>
+    </root>
+    <root code="33" codeable="true" depth="1" id="12">
+        <label>Lake Ashangi</label>
+    </root>
+    <root code="34" codeable="true" depth="1" id="13">
+        <label>Lake Baikal</label>
+    </root>
+    <root code="35" codeable="true" depth="1" id="14">
+        <label>Lake Balkhash</label>
+    </root>
+    <root code="36" codeable="true" depth="1" id="15">
+        <label>Lake Baringo, Lake Naivasha</label>
+    </root>
+    <root code="37" codeable="true" depth="1" id="16">
+        <label>Lake Barombi Mbo</label>
+    </root>
+    <root code="38" codeable="true" depth="1" id="17">
+        <label>Lake Barombi ba Kotto,  Lake Mboadong</label>
+    </root>
+    <root code="39" codeable="true" depth="1" id="18">
+        <label>Lake Bear</label>
+    </root>
+    <root code="40" codeable="true" depth="1" id="19">
+        <label>Lake Bemapaza</label>
+    </root>
+    <root code="41" codeable="true" depth="1" id="20">
+        <label>Lake Bermin</label>
+    </root>
+    <root code="42" codeable="true" depth="1" id="21">
+        <label>Lake Beysehir</label>
+    </root>
+    <root code="43" codeable="true" depth="1" id="22">
+        <label>Lake Bratan</label>
+    </root>
+    <root code="44" codeable="true" depth="1" id="23">
+        <label>Lake Bunyoni</label>
+    </root>
+    <root code="45" codeable="true" depth="1" id="24">
+        <label>Lake Burdur, Lake Solda</label>
+    </root>
+    <root code="46" codeable="true" depth="1" id="25">
+        <label>Lake Chad</label>
+    </root>
+    <root code="47" codeable="true" depth="1" id="26">
+        <label>Lake Chungara</label>
+    </root>
+    <root code="48" codeable="true" depth="1" id="27">
+        <label>Lake Dali</label>
+    </root>
+    <root code="49" codeable="true" depth="1" id="28">
+        <label>Lake Dianchi</label>
+    </root>
+    <root code="51" codeable="true" depth="1" id="29">
+        <label>Lake Egridir</label>
+    </root>
+    <root code="52" codeable="true" depth="1" id="30">
+        <label>Lake Ejagham</label>
+    </root>
+    <root code="53" codeable="true" depth="1" id="31">
+        <label>Lake El'gygytgyn</label>
+    </root>
+    <root code="54" codeable="true" depth="1" id="32">
+        <label>Lake Erie</label>
+    </root>
+    <root code="55" codeable="true" depth="1" id="33">
+        <label>Lake Evoron basin</label>
+    </root>
+    <root code="56" codeable="true" depth="1" id="34">
+        <label>Lake Fuxian</label>
+    </root>
+    <root code="57" codeable="true" depth="1" id="35">
+        <label>Lake Garda</label>
+    </root>
+    <root code="58" codeable="true" depth="1" id="36">
+        <label>Lake Huleh</label>
+    </root>
+    <root code="59" codeable="true" depth="1" id="37">
+        <label>Lake Huron  (Georgian Bay)</label>
+    </root>
+    <root code="60" codeable="true" depth="1" id="38">
+        <label>Lake Jackson</label>
+    </root>
+    <root code="61" codeable="true" depth="1" id="39">
+        <label>Lake Junin</label>
+    </root>
+    <root code="62" codeable="true" depth="1" id="40">
+        <label>Lake Kanyaboli</label>
+    </root>
+    <root code="63" codeable="true" depth="1" id="41">
+        <label>Lake Kurumoi</label>
+    </root>
+    <root code="64" codeable="true" depth="1" id="42">
+        <label>Lake Kutubu</label>
+    </root>
+    <root code="65" codeable="true" depth="1" id="43">
+        <label>Lake Kyoga</label>
+    </root>
+    <root code="66" codeable="true" depth="1" id="44">
+        <label>Lake Ladoga</label>
+    </root>
+    <root code="67" codeable="true" depth="1" id="45">
+        <label>Lake Lanao</label>
+    </root>
+    <root code="68" codeable="true" depth="1" id="46">
+        <label>Lake Lerma</label>
+    </root>
+    <root code="69" codeable="true" depth="1" id="47">
+        <label>Lake Loktak swamps</label>
+    </root>
+    <root code="70" codeable="true" depth="1" id="48">
+        <label>Lake Malawi</label>
+    </root>
+    <root code="71" codeable="true" depth="1" id="49">
+        <label>Lake Manguao</label>
+    </root>
+    <root code="72" codeable="true" depth="1" id="50">
+        <label>Lake Maracaibo</label>
+    </root>
+    <root code="73" codeable="true" depth="1" id="51">
+        <label>Lake Matano</label>
+    </root>
+    <root code="74" codeable="true" depth="1" id="52">
+        <label>Lake Mweru</label>
+    </root>
+    <root code="75" codeable="true" depth="1" id="53">
+        <label>Lake Nabugabo</label>
+    </root>
+    <root code="76" codeable="true" depth="1" id="54">
+        <label>Lake Nawampasa</label>
+    </root>
+    <root code="77" codeable="true" depth="1" id="55">
+        <label>Lake Ohrid</label>
+    </root>
+    <root code="78" codeable="true" depth="1" id="56">
+        <label>Lake Patzcuaro</label>
+    </root>
+    <root code="79" codeable="true" depth="1" id="57">
+        <label>Lake Pedder drainage</label>
+    </root>
+    <root code="80" codeable="true" depth="1" id="58">
+        <label>Lake Phelps</label>
+    </root>
+    <root code="81" codeable="true" depth="1" id="59">
+        <label>Lake Poso</label>
+    </root>
+    <root code="82" codeable="true" depth="1" id="60">
+        <label>Lake Prespa</label>
+    </root>
+    <root code="83" codeable="true" depth="1" id="61">
+        <label>Lake Pyramid</label>
+    </root>
+    <root code="84" codeable="true" depth="1" id="62">
+        <label>Lake Ravenel</label>
+    </root>
+    <root code="85" codeable="true" depth="1" id="63">
+        <label>Lake Sentani</label>
+    </root>
+    <root code="86" codeable="true" depth="1" id="64">
+        <label>Lake Sindenreng</label>
+    </root>
+    <root code="87" codeable="true" depth="1" id="65">
+        <label>Lake Skadar</label>
+    </root>
+    <root code="88" codeable="true" depth="1" id="66">
+        <label>Lake Tanganyika</label>
+    </root>
+    <root code="89" codeable="true" depth="1" id="67">
+        <label>Lake Tawar</label>
+    </root>
+    <root code="90" codeable="true" depth="1" id="68">
+        <label>Lake Te-Nggana</label>
+    </root>
+    <root code="91" codeable="true" depth="1" id="69">
+        <label>Lake Tempe</label>
+    </root>
+    <root code="92" codeable="true" depth="1" id="70">
+        <label>Lake Titicaca</label>
+    </root>
+    <root code="93" codeable="true" depth="1" id="71">
+        <label>Lake Toba</label>
+    </root>
+    <root code="94" codeable="true" depth="1" id="72">
+        <label>Lake Tondano</label>
+    </root>
+    <root code="95" codeable="true" depth="1" id="73">
+        <label>Lake Tota</label>
+    </root>
+    <root code="96" codeable="true" depth="1" id="74">
+        <label>Lake Towuti</label>
+    </root>
+    <root code="97" codeable="true" depth="1" id="75">
+        <label>Lake Trichonis</label>
+    </root>
+    <root code="98" codeable="true" depth="1" id="76">
+        <label>Lake Turkana</label>
+    </root>
+    <root code="99" codeable="true" depth="1" id="77">
+        <label>Lake Van</label>
+    </root>
+    <root code="100" codeable="true" depth="1" id="78">
+        <label>Lake Victoria</label>
+    </root>
+    <root code="101" codeable="true" depth="1" id="79">
+        <label>Lake Volvi</label>
+    </root>
+    <root code="102" codeable="true" depth="1" id="80">
+        <label>Lake Waccamaw</label>
+    </root>
+    <root code="103" codeable="true" depth="1" id="81">
+        <label>Lake Wanam</label>
+    </root>
+    <root code="104" codeable="true" depth="1" id="82">
+        <label>Lake Warner basin</label>
+    </root>
+    <root code="105" codeable="true" depth="1" id="83">
+        <label>Lake Xochimilco region</label>
+    </root>
+    <root code="106" codeable="true" depth="1" id="84">
+        <label>Lake Yamur</label>
+    </root>
+    <root code="107" codeable="true" depth="1" id="85">
+        <label>Lake Zelonoe</label>
+    </root>
+    <root code="108" codeable="true" depth="1" id="86">
+        <label>Lake Nihuil (Embalse del Nihuil)</label>
+    </root>
+    <root code="109" codeable="true" depth="1" id="87">
+        <label>Lake Verde</label>
+    </root>
+    <root code="110" codeable="true" depth="1" id="88">
+        <label>Malili Lakes</label>
+    </root>
+    <root code="111" codeable="true" depth="1" id="89">
+        <label>Nabugabo Lakes</label>
+    </root>
+    <root code="112" codeable="true" depth="1" id="90">
+        <label>Oregon Lakes Basin</label>
+    </root>
+    <root code="113" codeable="true" depth="1" id="91">
+        <label>Pedu Reservoir and mining pools</label>
+    </root>
+    <root code="114" codeable="true" depth="1" id="92">
+        <label>Pool at Itapura</label>
+    </root>
+    <root code="115" codeable="true" depth="1" id="93">
+        <label>Pool near Lake Ilgaz</label>
+    </root>
+    <root code="116" codeable="true" depth="1" id="94">
+        <label>Swamp near Lake Powell</label>
+    </root>
+    <root code="117" codeable="true" depth="1" id="95">
+        <label>Pool near Lake Chau</label>
+    </root>
+</treeRoot>
+</tree>

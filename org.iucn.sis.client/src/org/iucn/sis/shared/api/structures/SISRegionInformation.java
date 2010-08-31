@@ -11,6 +11,7 @@ import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Region;
+import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 
@@ -36,7 +37,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class SISRegionInformation extends Structure {
+public class SISRegionInformation extends Structure<Field> {
 
 	private HashMap<Integer, RegionModel> idToModel;
 	private HashMap<ComboBox<RegionModel>, RegionModel> boxesToSelected;
@@ -55,15 +56,30 @@ public class SISRegionInformation extends Structure {
 	}
 
 	@Override
-	public boolean hasChanged() {
+	public boolean hasChanged(Field field) {
 		// TODO Auto-generated method stub
 		return true;
 	}
 	
 	@Override
-	public void save(Field field) {
-		// TODO Auto-generated method stub
-		super.save(field);
+	public void save(Field parent, Field field) {
+		final List<Integer> list = new ArrayList<Integer>();
+		for (String data : getData().split(",")) {
+			try {
+				list.add(Integer.parseInt(data));
+			} catch (Exception e) {
+				continue;
+			}
+		}
+		
+		RegionField prototype = new RegionField(endemic.getValue(), list, null);
+		
+		if (field == null) {
+			//The assessment gets set later, so pass null
+			field = prototype;
+		}
+		else
+			field.setPrimitiveField(prototype.getPrimitiveField());
 	}
 	
 	/**
@@ -303,7 +319,6 @@ public class SISRegionInformation extends Structure {
 		}
 	}
 
-	@Override
 	public String toXML() {
 		String ret = "<structure>" + getData() + "</structure>\n";
 		ret += "<structure>" + endemic.getValue() + "</structure>\n";

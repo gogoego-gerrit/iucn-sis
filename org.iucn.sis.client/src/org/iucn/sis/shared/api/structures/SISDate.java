@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.gwt.api.DatePicker;
 
-public class SISDate extends SISPrimitiveStructure {
+public class SISDate extends SISPrimitiveStructure<Date> {
 
 	private DatePicker datePicker;
 
@@ -74,10 +74,14 @@ public class SISDate extends SISPrimitiveStructure {
 	}
 
 	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		Date datum = data.containsKey(getId()) ? ((DatePrimitiveField)data.get(getId())).getValue() : null;
-		if( datum != null )
+	public void setData(PrimitiveField<Date> field) {
+		final Date datum;
+		if (field == null)
+			datum = null;
+		else
+			datum = field.getValue();
+		
+		if (datum != null)
 			datePicker.setText(FormattedDate.impl.getDate(datum));
 		else
 			datePicker.setText("");
@@ -88,7 +92,6 @@ public class SISDate extends SISPrimitiveStructure {
 		datePicker.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}

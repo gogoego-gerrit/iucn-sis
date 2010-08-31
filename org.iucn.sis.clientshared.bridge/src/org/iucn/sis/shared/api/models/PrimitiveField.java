@@ -95,18 +95,16 @@ public abstract class PrimitiveField<T> implements java.io.Serializable {
 
 	public String toXML() {
 		StringBuilder str = new StringBuilder("<");
-		str.append(ROOT_TAG);
+		str.append(getName());
 		str.append(" id=\"");
 		str.append(getId() == null ? "0" : getId());
-		str.append("\" name=\"");
-		str.append(name);
 		str.append("\" ");
 		str.append(TYPE_TAG);
 		str.append("=\"");
 		str.append(getSimpleName());
 		str.append("\"><![CDATA[");
 		str.append(getRawValue());
-		str.append("]]></" + ROOT_TAG + ">");
+		str.append("]]></" + getName() + ">");
 		return str.toString();
 	}
 	
@@ -114,7 +112,9 @@ public abstract class PrimitiveField<T> implements java.io.Serializable {
 	
 	public void fromXML(NativeElement xml) {
 		String id = xml.getAttribute("id");
-		String name = xml.getAttribute("name");
+		String name = xml.getNodeName();
+		if ("prim".equals(name))
+			name = xml.getAttribute("name");
 		String value = xml.getTextContent();
 		
 		setId(Integer.valueOf(id));

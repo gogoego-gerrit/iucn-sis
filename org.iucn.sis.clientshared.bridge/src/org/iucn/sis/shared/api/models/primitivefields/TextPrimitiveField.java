@@ -25,7 +25,7 @@ public class TextPrimitiveField extends PrimitiveField<String> implements
 
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.TEXT_PRIMITIVE;
+		return PrimitiveFieldType.TEXT_PRIMITIVE.getName();
 	}
 	
 	public String getValue() {

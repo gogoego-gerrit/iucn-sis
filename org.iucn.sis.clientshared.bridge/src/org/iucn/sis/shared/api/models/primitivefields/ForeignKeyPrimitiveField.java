@@ -1,5 +1,7 @@
 package org.iucn.sis.shared.api.models.primitivefields;
 
+import java.util.Map;
+
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
@@ -10,6 +12,8 @@ import com.solertium.lwxml.shared.NativeElement;
  */
 public class ForeignKeyPrimitiveField extends PrimitiveField<Integer> implements
 		java.io.Serializable {
+	
+	private Map<Integer, String> options;
 
 	private Integer value;
 	private String tableID;
@@ -38,7 +42,7 @@ public class ForeignKeyPrimitiveField extends PrimitiveField<Integer> implements
 
 	@Override
 	public String getSimpleName() {
-		return PrimitiveFieldFactory.FOREIGN_KEY_PRIMITIVE;
+		return PrimitiveFieldType.FOREIGN_KEY_PRIMITIVE.getName();
 	}
 	
 	public String getTableID() {
@@ -47,6 +51,10 @@ public class ForeignKeyPrimitiveField extends PrimitiveField<Integer> implements
 
 	public void setTableID(String tableID) {
 		this.tableID = tableID;
+	}
+	
+	public void setOptions(Map<Integer, String> options) {
+		this.options = options;
 	}
 
 	@Override
@@ -67,20 +75,20 @@ public class ForeignKeyPrimitiveField extends PrimitiveField<Integer> implements
 	@Override
 	public String toXML() {
 		StringBuilder str = new StringBuilder("<");
-		str.append(ROOT_TAG);
+		str.append(getName());
 		str.append(" id=\"");
 		str.append(getId() == null ? "0" : getId());
-		str.append("\" name=\"");
-		str.append(getName());
 		str.append("\" ");
 		str.append(TYPE_TAG);
 		str.append("=\"");
 		str.append(getSimpleName());
 		str.append("\" tableID=\"");
 		str.append(getTableID());
-		str.append("\"><![CDATA[");
+		str.append("\">");
+		str.append("<![CDATA[");
 		str.append(getRawValue());
-		str.append("]]></" + ROOT_TAG + ">");
+		str.append("]]>");
+		str.append("</" + getName() + ">");
 		return str.toString();
 	}
 	

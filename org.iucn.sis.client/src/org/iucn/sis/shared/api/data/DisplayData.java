@@ -4,8 +4,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public abstract class DisplayData implements Serializable {
+import com.solertium.lwxml.shared.NativeElement;
 
+public abstract class DisplayData implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+
+	@SuppressWarnings("unchecked")
 	public static class SupportData implements Serializable {
 		private static final long serialVersionUID = 4;
 		private String data1 = null;
@@ -54,27 +59,22 @@ public abstract class DisplayData implements Serializable {
 	public static final String FIELD = "field";
 
 	public static final String TREE = "tree";
-	protected String structure; // name of the structure, e.g. narrative,
-	// number, range
+	protected String structure; // name of the structure, e.g. narrative, number, range
 	protected String description; // the input prompt
-	protected SupportData data; // data specific to the field (string, hashmap,
-	// arraylist)
+	protected SupportData data; // data specific to the field (string, hashmap, arraylist)
 	protected String displayId;
 
 	protected String uniqueId;
 	protected String canonicalName; // the canonical name - unique identifier!
 	protected String classOfService; // the class of service
-	protected String qualified;
-	protected String justification;
-	protected String location; // for complex structures
 
-	protected ArrayList references;
+	protected ArrayList<String> references;
+	protected NativeElement fieldDefinition;
+	
 	// Attributes
 	protected String name;
 	protected String isVisible;
 	protected String style;
-
-	protected String title;
 
 	private String type;
 
@@ -89,10 +89,7 @@ public abstract class DisplayData implements Serializable {
 
 		this.canonicalName = "";
 		this.classOfService = "";
-		this.qualified = null;
-		this.justification = null;
-		this.location = "";
-		this.references = new ArrayList();
+		this.references = new ArrayList<String>();
 	}
 
 	public String getCanonicalName() {
@@ -125,23 +122,11 @@ public abstract class DisplayData implements Serializable {
 		return isVisible;
 	}
 
-	public String getJustification() {
-		return justification;
-	}
-
-	public String getLocation() {
-		return location;
-	}
-
 	public String getName() {
 		return name;
 	}
 
-	public String getQualified() {
-		return qualified;
-	}
-
-	public ArrayList getReferences() {
+	public ArrayList<String> getReferences() {
 		return references;
 	}
 
@@ -153,16 +138,20 @@ public abstract class DisplayData implements Serializable {
 		return style;
 	}
 
-	public String getTitle() {
-		return title;
-	}
-
 	public String getType() {
 		return type;
 	}
 
 	public String getUniqueId() {
 		return uniqueId;
+	}
+	
+	public NativeElement getFieldDefinition() {
+		return fieldDefinition;
+	}
+	
+	public void setFieldDefinition(NativeElement fieldDefinition) {
+		this.fieldDefinition = fieldDefinition;
 	}
 
 	public void setCanonicalName(String canonicalName) {
@@ -209,23 +198,11 @@ public abstract class DisplayData implements Serializable {
 		this.isVisible = isVisible;
 	}
 
-	public void setJustification(String justification) {
-		this.justification = justification;
-	}
-
-	public void setLocation(String location) {
-		this.location = location;
-	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public void setQualified(String qualified) {
-		this.qualified = qualified;
-	}
-
-	public void setReferences(ArrayList references) {
+	public void setReferences(ArrayList<String> references) {
 		this.references = references;
 	}
 
@@ -235,10 +212,6 @@ public abstract class DisplayData implements Serializable {
 
 	public void setStyle(String style) {
 		this.style = style;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
 	}
 
 	public void setUniqueId(String uniqueId) {

@@ -9,10 +9,13 @@ import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.debug.HostedModeDebugger;
+import org.iucn.sis.client.api.debug.LiveDebugger;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.citations.Referenceable;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
@@ -144,7 +147,16 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		return SysDebugger.OFF;
 	}
 
-	public abstract void onModuleLoad();
+	public final void onModuleLoad() {
+		if (UriBase.getInstance().isHostedMode())
+			Debug.setInstance(new HostedModeDebugger());
+		else
+			Debug.setInstance(new LiveDebugger());
+		
+		loadModule();
+	}
+	
+	public abstract void loadModule();
 	
 	public abstract void buildLogin(String message);
 	

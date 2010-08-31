@@ -2,6 +2,9 @@ package org.iucn.sis.shared.api.data;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TreeData extends DisplayData implements Serializable {
 
@@ -26,6 +29,20 @@ public class TreeData extends DisplayData implements Serializable {
 
 	public ArrayList<TreeDataRow> getTreeRoots() {
 		return treeRoots;
+	}
+	
+	public Map<String, TreeDataRow> flattenTree() {
+		final Map<String, TreeDataRow> map = new HashMap<String, TreeDataRow>();
+		for (TreeDataRow row : treeRoots)
+			flattenTree(map, row);
+		
+		return map;
+	}
+	
+	private void flattenTree(Map<String, TreeDataRow> map, TreeDataRow parent) {
+		map.put(parent.getDisplayId(), parent);
+		for (TreeDataRow child : parent.getChildren())
+			flattenTree(map, child);
 	}
 
 	public void setDefaultStructure(TreeData defaultStructure) {

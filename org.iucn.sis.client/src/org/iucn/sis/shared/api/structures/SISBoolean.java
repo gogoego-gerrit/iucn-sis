@@ -16,7 +16,7 @@ import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 
-public class SISBoolean extends SISPrimitiveStructure implements DominantStructure {
+public class SISBoolean extends SISPrimitiveStructure<Boolean> implements DominantStructure<PrimitiveField<Boolean>> {
 
 	private CheckBox checkbox;
 
@@ -70,7 +70,6 @@ public class SISBoolean extends SISPrimitiveStructure implements DominantStructu
 		return checkbox;
 	}
 
-	@Override
 	public String getData() {
 		return new Boolean(checkbox.isChecked()).toString();
 	}
@@ -107,20 +106,24 @@ public class SISBoolean extends SISPrimitiveStructure implements DominantStructu
 			return false;
 		}
 	}
-
+	
 	@Override
+	public void setData(PrimitiveField<Boolean> field) {
+		if (field != null)
+			checkbox.setValue((field.getValue()).booleanValue());
+	}
+
+	/*@Override
 	public void setData(Map<String, PrimitiveField> data) {
 		//super.setData(data);
 		if( data.containsKey(getId()) )
 			checkbox.setValue(((Boolean)(data.get(getId()).getValue())).booleanValue());
-	}
+	}*/
 
-	@Override
 	public void setEnabled(boolean isEnabled) {
 		this.checkbox.setEnabled(isEnabled);
 	}
 
-	@Override
 	public String toXML() {
 		return StructureSerializer.toXML(this);
 	}
