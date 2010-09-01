@@ -32,22 +32,18 @@ public class FieldSchemaGeneratorTesting {
 			throw new RuntimeException(e);
 		}
 		
-		//validateEOO(generator);
+		validateAndFixEOO(generator);
+		
+		System.out.println("----- General Habitats -----");
 		
 		validate(generator, "FAOOccurrence");
 		
-		/*
-		try {
-			System.out.println(generator.getField("GeneralHabitats").toXML());
-			System.out.println("\n\n" + (BaseDocumentUtils.impl.serializeDocumentToString(generator.getSchema("GeneralHabitats"), false, true)));
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		*/
+		System.out.println("----- General Habitats -----");
 		
+		validate(generator, "GeneralHabitats");
 	}
 	
-	private static void validateEOO(FieldSchemaGenerator generator) {
+	private static void validateAndFixEOO(FieldSchemaGenerator generator) {
 		Field field;
 		String schema;
 		try {

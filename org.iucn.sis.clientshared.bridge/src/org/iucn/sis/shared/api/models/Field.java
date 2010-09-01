@@ -14,9 +14,12 @@ package org.iucn.sis.shared.api.models;
  * License Type: Evaluation
  */
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
 import org.iucn.sis.shared.api.models.parsers.FieldV2Parser;
@@ -26,6 +29,7 @@ import org.iucn.sis.shared.api.utils.CanonicalNames;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class Field implements Serializable {
 
@@ -329,16 +333,26 @@ public class Field implements Serializable {
 		str.append(getId());
 		str.append("\">\n");
 		
-		if( getFields().size() > 0 ) {
+		if (!getFields().isEmpty()) {
 			str.append("<subfields>\n");
-			for( Field subfield : getFields() )
+			TreeSet<Field> sorted = new TreeSet<Field>(new FieldNameComparator());
+			sorted.addAll(getFields());
+			
+			for (Field subfield : sorted)
 				str.append(subfield.toXML());
 			str.append("</subfields>\n");
 		}
 		
-		for (PrimitiveField<?> cur : getPrimitiveField()) {
-			str.append(cur.toXML());
-			str.append("\n");
+		if (!getPrimitiveField().isEmpty()) {
+			TreeSet<PrimitiveField> sorted = new TreeSet<PrimitiveField>(
+				new PrimitiveFieldNameComparator()	
+			);
+			sorted.addAll(getPrimitiveField());
+				
+			for (PrimitiveField cur : sorted) {
+				str.append(cur.toXML());
+				str.append("\n");
+			}
 		}
 		
 		if (getReference() != null) {
@@ -356,4 +370,46 @@ public class Field implements Serializable {
 		return str.toString();
 	}
 
+	private static class PrimitiveFieldNameComparator implements Comparator<PrimitiveField> {
+		
+		/*
+		 * I left this here to show that I *don't* want to use 
+		 * our Alphanumeric comparator, because it won't match 
+		 * up on the server because the database isn't smart 
+		 * enough to sort like this.  I don't need the sorting 
+		 * to be correct, I just need it to be consistent.
+		 */
+		/*private final PortableAlphanumericComparator comparator = 
+			new PortableAlphanumericComparator();*/
+		
+		public int compare(PrimitiveField o1, PrimitiveField o2) {
+			if (o1.getName() == null || o2.getName() == null)
+				return o1.getName() == null ? o2.getName() == null ? 0 : 1 : -1;
+			else
+				return o1.getName().compareTo(o2.getName());
+		}
+		
+	}
+	
+	public static class FieldNameComparator implements Comparator<Field> {
+		
+		/*
+		 * I left this here to show that I *don't* want to use 
+		 * our Alphanumeric comparator, because it won't match 
+		 * up on the server because the database isn't smart 
+		 * enough to sort like this.  I don't need the sorting 
+		 * to be correct, I just need it to be consistent.
+		 */
+		/*private final PortableAlphanumericComparator comparator = 
+			new PortableAlphanumericComparator();*/
+		
+		@Override
+		public int compare(Field o1, Field o2) {
+			if (o1.getName() == null || o2.getName() == null)
+				return o1.getName() == null ? o2.getName() == null ? 0 : 1 : -1;
+			else
+				return o1.getName().compareTo(o2.getName());
+		}
+		
+	}
 }

@@ -1,6 +1,7 @@
 package org.iucn.sis.server.api.fields;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,6 +11,7 @@ import javax.naming.NamingException;
 
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
@@ -24,6 +26,7 @@ import com.solertium.db.Row;
 import com.solertium.db.RowProcessor;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.SelectQuery;
+import com.solertium.util.AlphanumericComparator;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
 import com.solertium.util.TrivialExceptionHandler;
@@ -136,9 +139,12 @@ public class FieldSchemaGenerator {
 		
 		for (Row row : rs.getSet()) {
 			String name = row.get("name").toString();
-			PrimitiveFieldType dataType = PrimitiveFieldType.get(row.get("data_type").toString());
+			String data_type = row.get("data_type").toString();
 			
-			if (PrimitiveFieldType.FOREIGN_KEY_PRIMITIVE.equals(dataType)) {
+			PrimitiveFieldType dataType = PrimitiveFieldType.get(data_type);
+			
+			if (PrimitiveFieldType.FOREIGN_KEY_PRIMITIVE.equals(dataType) || 
+					PrimitiveFieldType.FOREIGN_KEY_LIST_PRIMITIVE.equals(dataType)) {
 				String tableName = fieldName;
 				if (name.toLowerCase().endsWith("lookup")) {
 					tableName = name;
@@ -171,7 +177,7 @@ public class FieldSchemaGenerator {
 				if (!mapping.isEmpty())
 					map.put(tableName, mapping);
 			}
-			else if (name.endsWith("Subfield")) {
+			else if ("field".equals(data_type)) {
 				scanForLookups(name, map);
 			}
 		}
@@ -179,7 +185,9 @@ public class FieldSchemaGenerator {
 	
 	private void getSchemaForField(Document document, String fieldName, List<Element> definitions) throws Exception {
 		final SelectQuery query = new SelectQuery();
-		query.select(fieldName, "*");
+		query.select(fieldName, "name", "ASC");
+		query.select(fieldName, "data_type");
+		query.select(fieldName, "number_allowed");
 		
 		final Row.Set rs = new Row.Set();
 		
@@ -204,7 +212,7 @@ public class FieldSchemaGenerator {
 			if (dataType.endsWith("_primitive_field")) {
 				primitiveFields.put(name, row);
 			}
-			else if (name.endsWith("Subfield")) {
+			else if ("field".equals(dataType)) {
 				subfields.put(name, row);
 				getSchemaForField(document, name, definitions);
 			}
@@ -220,6 +228,9 @@ public class FieldSchemaGenerator {
 			rootEl.setAttribute("name", "subfields");
 			rootEl.setAttribute("minOccurs", "1");
 			rootEl.setAttribute("maxOccurs", "1");
+			
+			final List<String> sortedKeys = new ArrayList<String>(subfields.keySet());
+			Collections.sort(sortedKeys, new AlphanumericComparator());
 			
 			for (Map.Entry<String, Row> entry : subfields.entrySet()) {
 				String numberAllowed = entry.getValue().get("number_allowed").toString();
@@ -264,6 +275,7 @@ public class FieldSchemaGenerator {
 		
 			field.appendChild(sequence);
 			field.appendChild(createAttribute(document, "id", "xs:integer"));
+			field.appendChild(createAttribute(document, "version", "xs:string", "optional"));
 			
 			document.getDocumentElement().appendChild(field);
 		}
@@ -324,9 +336,23 @@ public class FieldSchemaGenerator {
 					primitiveField.setField(field);
 					primitiveField.setName(name);
 					
-					if (primitiveField instanceof ForeignKeyPrimitiveField) {
-						ForeignKeyPrimitiveField fk = (ForeignKeyPrimitiveField)primitiveField;
-						fk.setTableID(fieldName + "_" + fk.getName() + "LOOKUP");
+					if (primitiveField instanceof ForeignKeyPrimitiveField || 
+							primitiveField instanceof ForeignKeyListPrimitiveField) {
+						String tableName = fieldName;
+						if (primitiveField.getName().toLowerCase().endsWith("lookup")) {
+							tableName = name;
+						}
+						else {
+							if (tableName.endsWith("Subfield"))
+								tableName = tableName.substring(0, tableName.lastIndexOf("Subfield"));
+							
+							tableName += "_" + primitiveField.getName() + "Lookup";
+						}
+						
+						if (primitiveField instanceof ForeignKeyPrimitiveField)
+							((ForeignKeyPrimitiveField)primitiveField).setTableID(tableName);
+						else if (primitiveField instanceof ForeignKeyListPrimitiveField)
+							((ForeignKeyListPrimitiveField)primitiveField).setTableID(tableName);
 						
 						/*
 						 * TODO: Do we want to pass the lookup values 
@@ -338,7 +364,7 @@ public class FieldSchemaGenerator {
 					field.addPrimitiveField(primitiveField);
 				}
 			}
-			else if (name.endsWith("Subfield")) {
+			else if ("field".equals(dataType)) {
 				Field child = new Field();
 				child.setParent(field);
 				child.setName(name);
