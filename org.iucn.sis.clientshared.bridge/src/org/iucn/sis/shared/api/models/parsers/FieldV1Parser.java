@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.models.parsers;
 
 import java.util.HashSet;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
@@ -22,7 +23,7 @@ public class FieldV1Parser {
 		try {
 		field.setId(Integer.valueOf(id).intValue());
 		} catch (NumberFormatException e) {
-			System.out.println("ERROR - FIELD " + name + " DOES NOT HAVE AN ID!!! trying to parse " + id + " with name " + name);
+			Debug.println("ERROR - FIELD " + name + " DOES NOT HAVE AN ID!!! trying to parse " + id + " with name " + name);
 		}
 		
 		field.setFields(new HashSet<Field>());

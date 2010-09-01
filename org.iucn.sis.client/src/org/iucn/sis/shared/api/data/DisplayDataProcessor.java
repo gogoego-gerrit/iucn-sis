@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.data;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.structures.SISMap;
 import org.iucn.sis.shared.api.structures.SISMapData;
 import org.iucn.sis.shared.api.structures.SISSelect;
@@ -25,7 +26,7 @@ public class DisplayDataProcessor {
 		err += ("Structure type: " + data.getStructure());
 		err += ("Data: " + ((data.getData() == null) ? "null" : data.getData()));
 		err += ("Error Message: " + e.getMessage());
-		System.out.println(err);
+		Debug.println(err);
 		// Window.alert( err );
 		
 		e.printStackTrace();

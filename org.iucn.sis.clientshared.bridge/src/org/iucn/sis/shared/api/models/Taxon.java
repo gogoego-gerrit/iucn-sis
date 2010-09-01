@@ -23,6 +23,7 @@ import java.util.Set;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.LongUtils;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.solertium.lwxml.shared.GenericCallback;
@@ -98,7 +99,7 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 	}
 
 	public String getDisplayableLevel() {
-		System.out.println("this is the taxon level " + this.getTaxonLevel().getLevel() + " and id " + this.getTaxonLevel().getId());
+		Debug.println("this is the taxon level " + this.getTaxonLevel().getLevel() + " and id " + this.getTaxonLevel().getId());
 		if (this.getTaxonLevel().getLevel() == TaxonLevel.INFRARANK) {
 			if (getInfratype().getName() == Infratype.SUBSPECIES_NAME) {
 				return "Subspecies";

@@ -7,6 +7,7 @@ import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.data.FieldData;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.displays.FieldDisplay;
@@ -68,7 +69,7 @@ public class FieldParser {
 				return doOperate(processFieldTag(fieldElement));
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out.println(
+				Debug.println(
 						"Failed to process field " + fieldElement.getElementByTagName("canonicalName").getText());
 			}
 		} else {
@@ -76,7 +77,7 @@ public class FieldParser {
 				return doOperate(processTreeTags(fieldElement));
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out.println(
+				Debug.println(
 						"Failed to process classification scheme "
 								+ fieldElement.getElementByTagName("canonicalName").getText());
 			}
@@ -96,7 +97,7 @@ public class FieldParser {
 				return processFieldTag(fieldElement);
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out.println(
+				Debug.println(
 						"Failed to process field " + fieldElement.getElementByTagName("canonicalName").getText());
 			}
 		} else {
@@ -104,7 +105,7 @@ public class FieldParser {
 				return processTreeTags(fieldElement);
 			} catch (Exception e) {
 				e.printStackTrace();
-				System.out.println(
+				Debug.println(
 						"Failed to process classification scheme "
 								+ fieldElement.getElementByTagName("canonicalName").getText());
 			}

@@ -2,6 +2,8 @@ package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 /**
  * An in-memory representation of an Assessment containing the information the
  * expert system actually cares about.
@@ -143,7 +145,7 @@ public class ExpertAssessment {
 
 	public long getSubpopulationSize() {
 		if (factors.get(Factors.subpopulationSize) == null)
-			System.out.println("Whoopz");
+			Debug.println("Whoopz");
 		return ((Long) factors.get(Factors.subpopulationSize)).longValue();
 	}
 

@@ -2,6 +2,8 @@ package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 /**
  * Represents the endangered class
  * 
@@ -676,11 +678,11 @@ class EN {
 
 	private void printRange(String descrip, Range range) {
 		if (range != null) {
-			System.out.println(
+			Debug.println(
 					"This is the results from " + descrip + " " + range.getLow() + "," + range.getLowBest() + ","
 							+ range.getHighBest() + "," + range.getHigh());
 		} else {
-			System.out.println(" " + descrip + " == null");
+			Debug.println(" " + descrip + " == null");
 
 		}
 	}

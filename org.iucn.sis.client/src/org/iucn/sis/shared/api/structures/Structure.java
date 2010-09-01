@@ -8,8 +8,6 @@
 
 package org.iucn.sis.shared.api.structures;
 
-import java.util.ArrayList;
-
 import org.iucn.sis.shared.api.models.Field;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -76,21 +74,11 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 	 *            an object with structure-specific data
 	 */
 	public Structure(String struct, String descript, String structID, Object data) {
-		//model = new BaseModel();
-		//currentData = new HashMap<String, PrimitiveField>();
-		//currentData = null;
-		
 		this.structure = struct;
 		this.description = descript;
 		this.data = data;
 		
-		try {
-			this.createWidget();
-		} catch (Error e) {
-//			System.out.println("You'd better be trying to create a Structure on the " + "server-side...");
-		}
-
-		// values = getValues();
+		this.createWidget();
 	}
 
 	public void addTitleToLabel() {
@@ -103,19 +91,14 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 	}
 
 	protected void buildContentPanel(Orientation style) {
-		try {
-			if (style == Orientation.HORIZONTAL) {
-				displayPanel = new HorizontalPanel();
-				((HorizontalPanel) displayPanel).setSpacing(2);
-				((HorizontalPanel) displayPanel).setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-			} else {
-				displayPanel = new VerticalPanel();
-				((VerticalPanel) displayPanel).setSpacing(2);
-				((VerticalPanel) displayPanel).setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-			}
-		} catch (Error e) {
-			// Still better be trying to create a Structure on the
-			// server-side...
+		if (style == Orientation.HORIZONTAL) {
+			displayPanel = new HorizontalPanel();
+			((HorizontalPanel) displayPanel).setSpacing(2);
+			((HorizontalPanel) displayPanel).setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+		} else {
+			displayPanel = new VerticalPanel();
+			((VerticalPanel) displayPanel).setSpacing(2);
+			((VerticalPanel) displayPanel).setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		}
 
 		// displayPanel = new ContentPanel( style | Style.HEADER |
@@ -127,8 +110,6 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 	public boolean canRemoveDescription() {
 		return canRemoveDescription;
 	}
-
-	public abstract void clearData();
 
 	protected void clearDisplayPanel() {
 		displayPanel.clear();
@@ -172,13 +153,6 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 	public void enable() {
 		setEnabled(true);
 	}
-	
-	/*
-	 * FIXME: there has to be a better way to do this...
-	 */
-	/*public ModelData extractModelData(){
-		return model;
-	}*/
 	
 	/**
 	 * Returns this field in the form of a Widget (Panel to be plopped on a UI).
@@ -299,36 +273,6 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 	public boolean isPrimitive() {
 		return false;
 	}
-	
-/*
-	@Deprecated
-	public void setData(Map<String, PrimitiveField> data){
-		System.out.println("Setting data for structure " + getId() + " to be " + data.get(getId()));
-		if( data.containsKey(getId()) )
-			currentData.put(getId(), data.get(getId()));
-		
-		ArrayList<String> keys = (ArrayList<String>)extractDescriptions();
-		
-//		if( dataList.size()-dataOffset-keys.size() >= 0 )
-		try {
-			for(String key: keys) {
-				//FIXME: This needs to properly set both a data and description entry
-				//for each piece of data.
-//				model.set(key, data.get(dataOffset+keys.indexOf(key)));
-				model.set(key, "");
-			}
-		} catch (Exception ignored) {}
-	}*/
-	
-	/**
-	 * Sets data directory from the Field. By default, this does nothing special.
-	 * 
-	 * @param field
-	 */
-	/*public void setFieldData(Field field) {
-		setData(field.getKeyToPrimitiveFields());
-		//this.currentData = field;
-	}*/
 
 	public void setDescription(String description) {
 		this.description = description;
@@ -369,16 +313,5 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 		hiddenWidgets = false;
 		generate();
 	}
-	
-	/*public void save(Field field) {
-		//PrimitiveField newPrim = currentData.get(getId());
-		PrimitiveField newPrim = new StringPrimitiveField(getId(), field);
-		
-		if( getData() != null ) {
-			newPrim.setRawValue(getData());
-			field.getPrimitiveField().add(newPrim);
-		} else
-			field.getPrimitiveField().remove(newPrim);
-	}*/
 
 }// class Structure

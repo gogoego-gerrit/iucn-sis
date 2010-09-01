@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 
@@ -37,7 +39,7 @@ public class Notes implements Serializable {
 			note.getEdits().add(Edit.fromXML(edits.elementAt(i)));
 		}
 		} catch (Exception e) {
-			System.out.println("Need to fix note " );
+			Debug.println("Need to fix note " );
 		}
 		
 		return note;

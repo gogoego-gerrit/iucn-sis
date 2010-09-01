@@ -2,6 +2,8 @@ package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 
 /**
  * Represents the vulnerable classification
@@ -336,7 +338,7 @@ class VU {
 
 			if ((or1 != null && !Range.isConstant(or1, 0)) && (or2 != null && !Range.isConstant(or2, 0))
 					&& (or3 != null && !Range.isConstant(or3, 0))) {
-				System.out.println("In the first one");
+				Debug.println("In the first one");
 				Range and = Range.independentAND(and1, or1);
 				and = Range.independentAND(and, or2);
 				and = Range.independentAND(and, or3);
@@ -348,9 +350,9 @@ class VU {
 
 			} else if (or1 != null && !Range.isConstant(or1, 0)) {
 
-				System.out.println("or1 != null");
+				Debug.println("or1 != null");
 				if (or2 != null && !Range.isConstant(or2, 0)) {
-					System.out.println("or2 != null");
+					Debug.println("or2 != null");
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or2);
 					b1 = and;
@@ -359,7 +361,7 @@ class VU {
 						analysis.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
 					return analysis;
 				} else if (or3 != null && !Range.isConstant(or3, 0)) {
-					System.out.println("or3 != null");
+					Debug.println("or3 != null");
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or3);
 					b1 = and;
@@ -371,7 +373,7 @@ class VU {
 
 				// NOT ENOUGH DATA
 				else {
-					System.out.println("or1!=null and everything else is null");
+					Debug.println("or1!=null and everything else is null");
 					b1 = result;
 					analysis.range = result;
 					if (analysis.range != null && !Range.isConstant(analysis.range, 0))
@@ -392,7 +394,7 @@ class VU {
 
 			// NOT ENOUGH DATA
 			else {
-				System.out.println("no 2 aren't null");
+				Debug.println("no 2 aren't null");
 				b1 = result;
 				analysis.range = result;
 				if (analysis.range != null && !Range.isConstant(analysis.range, 0))
@@ -689,11 +691,11 @@ class VU {
 
 	private void printRange(String descrip, Range range) {
 		if (range != null) {
-			System.out.println(
+			Debug.println(
 					"This is the results from " + descrip + " " + range.getLow() + "," + range.getLowBest() + ","
 							+ range.getHighBest() + "," + range.getHigh());
 		} else {
-			System.out.println(" " + descrip + " == null");
+			Debug.println(" " + descrip + " == null");
 
 		}
 	}

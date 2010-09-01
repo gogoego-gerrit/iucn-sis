@@ -6,6 +6,7 @@ import java.util.List;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
 import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
 import org.iucn.sis.shared.api.criteriacalculator.RegionalExpertQuestions;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
@@ -55,7 +56,7 @@ public class ExpertUtils {
 					}
 				}
 			} else {
-				System.out.println("Couldn't find regional expert question data.");
+				Debug.println("Couldn't find regional expert question data.");
 			}
 
 		} else {

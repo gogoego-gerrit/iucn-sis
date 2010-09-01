@@ -19,6 +19,7 @@ import java.util.Map;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared;
 import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared.ReturnedCitation;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
@@ -44,7 +45,7 @@ public class Reference implements Serializable, AuthorizableObject {
 		try {
 			reference.setId(Integer.parseInt(element.getAttribute("rowID")));
 		} catch (NumberFormatException e) {
-			System.out.println("References being build from invalid model!");
+			Debug.println("References being build from invalid model!");
 		}
 		reference.setType(element.getAttribute("type"));
 		

@@ -2,9 +2,9 @@ package org.iucn.sis.shared.api.structures;
 
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.client.panels.gwt.richtextarea.RichTextToolbar;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
 import org.iucn.sis.shared.api.utils.FormattingStripper;
@@ -16,7 +16,6 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class SISRichTextArea extends SISPrimitiveStructure<String> implements UsesClipboard {
 
@@ -107,7 +106,7 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 			return viewOnlyData.replaceAll("[\\n\\r]", " ").trim();
 		} catch (Throwable e) {
 			e.printStackTrace();
-			SysDebugger.getInstance().println("Error getting rich text data...");
+			Debug.println("Error getting rich text data...");
 			return "";
 		}
 	}
@@ -136,7 +135,7 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 	@Override
 	public void setData(PrimitiveField<String> field) {
 		String datum = field != null ? field.getValue() : "";
-		System.out.println("In setData for RTA " + getId() + " - datum is " + datum);
+		Debug.println("In setData for RTA %s - datum is %s", getId(), datum);
 		viewOnlyData = datum.replaceAll("[\\n\\r]", " ").trim();
 		viewOnlyData = FormattingStripper.stripText(viewOnlyData);
 		area.setHTML(viewOnlyData);

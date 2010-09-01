@@ -4,6 +4,8 @@ package org.iucn.sis.shared.api.models;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 
@@ -123,15 +125,15 @@ public class PermissionGroup implements Serializable {
 	 */
 	public HashMap<String, Permission> getResourceToPermission() {
 		if (resourceToPermission == null) {
-			System.out.println("in getResourceTOPermission");
+			Debug.println("in getResourceTOPermission");
 			resourceToPermission = new HashMap<String, Permission>();
 			PermissionGroup group = this;
 			while (group != null) {
-				System.out.println("the size of permissions is for " + group.getName() + "is "  + group.getPermissions());
+				Debug.println("the size of permissions is for " + group.getName() + "is "  + group.getPermissions());
 				for (Permission perm : group.getPermissions()) {
-					System.out.println("in permission " + perm.getUrl());
+					Debug.println("in permission " + perm.getUrl());
 					if (!resourceToPermission.containsKey(perm.getUrl())) {
-						System.out.println("for perm group " + group.getName() + " adding perission for " + perm.getUrl());
+						Debug.println("for perm group " + group.getName() + " adding perission for " + perm.getUrl());
 						resourceToPermission.put(perm.getUrl(), perm);
 					}					
 				}
@@ -162,7 +164,7 @@ public class PermissionGroup implements Serializable {
 			scope = current.getScopeURI();
 			current = current.getParent();
 		}
-		System.out.println("this is scope " + scope);
+		Debug.println("this is scope " + scope);
 		return scope;		
 	}
 

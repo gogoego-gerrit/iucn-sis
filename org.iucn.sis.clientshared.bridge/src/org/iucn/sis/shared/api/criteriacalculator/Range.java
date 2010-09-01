@@ -1,5 +1,7 @@
 package org.iucn.sis.shared.api.criteriacalculator;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 
 
 /**
@@ -381,11 +383,11 @@ public class Range {
 
 	private static void printRange(String descrip, Range range) {
 		if (range != null) {
-			System.out.println(
+			Debug.println(
 					"This is the results from " + descrip + " " + range.getLow() + "," + range.getLowBest() + ","
 							+ range.getHighBest() + "," + range.getHigh());
 		} else {
-			System.out.println(" " + descrip + " == null");
+			Debug.println(" " + descrip + " == null");
 
 		}
 	}

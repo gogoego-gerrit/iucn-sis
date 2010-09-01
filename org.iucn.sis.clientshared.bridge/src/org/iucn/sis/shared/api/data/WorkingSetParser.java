@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.data;
 
 import java.util.ArrayList;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.solertium.lwxml.shared.NativeDocument;
@@ -51,7 +52,7 @@ public class WorkingSetParser {
 		for (int i = 0; i < workingSetList.getLength(); i++) {
 			NativeElement workingSet = workingSetList.elementAt(i);
 			WorkingSet cur = WorkingSet.fromXML(workingSet);
-			System.out.println("Parsed working set " + cur.getWorkingSetName());
+			Debug.println("Parsed working set " + cur.getWorkingSetName());
 			if( cur != null )
 				workingSets.add(cur);
 		}
