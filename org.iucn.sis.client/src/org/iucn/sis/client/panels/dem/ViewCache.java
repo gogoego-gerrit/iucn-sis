@@ -19,6 +19,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class ViewCache {
 
@@ -172,9 +173,11 @@ public class ViewCache {
 			return ((SISView) views.get(viewID)).needPageChange(pageNum, viewOnly);
 	}
 
-	public TabPanel showPage(String viewID, int pageNum, boolean viewOnly) {
+	public void showPage(String viewID, int pageNum, boolean viewOnly, 
+			DrawsLazily.DoneDrawingCallbackWithParam<TabPanel> callback) {
 		currentView = (SISView) views.get(viewID);
 		lastPageViewed.put(viewID, new Integer(pageNum));
-		return ((SISView) views.get(viewID)).showPage(pageNum, viewOnly);
+		
+		((SISView) views.get(viewID)).showPage(pageNum, viewOnly, callback);
 	}
 }

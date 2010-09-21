@@ -61,6 +61,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ClickListener;
@@ -69,6 +70,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 /**
  * Shows an assessment in the following steps:
@@ -817,11 +819,18 @@ public class DEMPanel extends LayoutContainer {
 			ViewCache.impl.getCurrentView().getCurPage().removeMyFields();
 
 		resetAutosaveTimer();
+		
 		scroller.removeAll();
+		scroller.add(new HTML("Loading..."));
+		
+		ViewCache.impl.showPage(currentView.getId(), page, viewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<TabPanel>() {
+			public void isDrawn(TabPanel parameter) {
+				scroller.removeAll();
+				scroller.add(parameter);
+				scroller.layout();
+			}	
+		});
 
-		TabPanel thePage = ViewCache.impl.showPage(currentView.getId(), page, viewOnly);
-
-		scroller.add(thePage);
 		scroller.layout();
 	}
 
@@ -1072,3 +1081,4 @@ w.setSize(400, 250);
 		curPageLabel.addStyleName("bold");
 	}
 }
+

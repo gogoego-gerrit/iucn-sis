@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 /**
  * This class represents a way to view an assessment. It is a collection of
@@ -92,9 +93,10 @@ public class SISView {
 		this.id = id;
 	}
 
-	public TabPanel showPage(int pageNum, boolean viewOnly) {
+	public void showPage(int pageNum, boolean viewOnly, DrawsLazily.DoneDrawingCallbackWithParam
+			<TabPanel> callback) {
 		curPage = ((SISPageHolder) pages.get(pageNum));
-		return curPage.showPage(viewOnly);
+		curPage.showPage(callback, viewOnly);
 	}
 
 }

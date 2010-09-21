@@ -34,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -47,6 +48,7 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class SISPageHolder extends TabPanel {
 
@@ -600,27 +602,33 @@ public class SISPageHolder extends TabPanel {
 		}
 	}
 
-	public TabPanel showPage() {
-		return showPage(false);
+	public void showPage(final DrawsLazily.DoneDrawingCallbackWithParam<TabPanel> callback) {
+		showPage(callback, false);
 	}
 
-	public TabPanel showPage(final boolean viewOnly) {
+	public void showPage(final DrawsLazily.DoneDrawingCallbackWithParam<TabPanel> callback, final boolean viewOnly) {
 		removeAll();
 		// add(new TabItem());
 		// WindowUtils.showLoadingAlert("Loading page...");
 
 		fetchFields(new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-
+				GWT.log("Failed to show page " + pageTitle, caught);
 			}
 
 			public void onSuccess(String arg0) {
 				// new GeneratePageTimer(viewOnly).schedule(500);
-				new GeneratePageTimer(viewOnly).run();
+				generatePage(viewOnly);
+				WindowUtils.hideLoadingAlert();
+				
+				layout();
+				setSelection(getItem(selectedTab));
+				
+				callback.isDrawn(SISPageHolder.this);
 			}
 		});
 
-		return this;
+		//return this;
 	}
 
 	// private void clearDisplays()
