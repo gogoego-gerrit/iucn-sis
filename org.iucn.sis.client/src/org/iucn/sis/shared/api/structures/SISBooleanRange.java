@@ -238,9 +238,9 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 	public void setData(PrimitiveField<String> field) {
 		String datum;
 		if (field != null)
-			datum = "";
-		else
 			datum = field.getValue();
+		else
+			datum = "";
 		
 		range.setText(XMLUtils.cleanFromXML(datum.replaceAll("\\s*", "")));
 

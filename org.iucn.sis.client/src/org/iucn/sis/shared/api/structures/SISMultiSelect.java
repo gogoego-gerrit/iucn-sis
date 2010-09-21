@@ -1,9 +1,12 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.data.LookupData;
+import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 
@@ -30,7 +33,7 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 	public static final String LISTBOX = "listbox";
 
 	private DataList list;
-	private ArrayList<Integer> checkedItems;
+	private ArrayList<String> checkedItems;
 
 	public SISMultiSelect(String struct, String descript, String structID, Object data) {
 		super(struct, descript, structID, data);
@@ -108,12 +111,12 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 
 	@Override
 	public void createWidget() {
-		
-		checkedItems = new ArrayList<Integer>();
+		checkedItems = new ArrayList<String>();
 		
 		try {
 			descriptionLabel = new HTML(description);
 		} catch (Exception e) {
+			//FIXME: What could go wrong here??
 		}
 
 		list = new DataList() {
@@ -121,8 +124,11 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 			protected void afterRender() {
 				super.afterRender();
 
-				for (Integer checked : checkedItems)
-					list.getItem(checked.intValue()).setChecked(true);
+				for (String checked : checkedItems) {
+					DataListItem item = list.getItemByItemId(checked);
+					if (item != null)
+						item.setChecked(true);
+				}
 			}
 		};
 		list.setCheckable(true);
@@ -132,64 +138,43 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 				DataListItem item = be.getItem();
 				if (item != null) {
 					if (item.isChecked())
-						checkedItems.add(Integer.parseInt(item.getId()));
+						checkedItems.add(item.getId());
 					else
-						checkedItems.remove(Integer.parseInt(item.getId()));
+						checkedItems.remove(item.getId());
 				}
 			}
 		});
-
-		ArrayList<ArrayList<String>> myData = ((ArrayList<ArrayList<String>>)data);
-		ArrayList<String> listItemsToAdd = myData.get(0);
-		ArrayList<String> defaults = null;
-		if( myData.size() > 1 )
-			defaults = myData.get(1);
-
 		
-		//model.set(description, defaults);
+		LookupData myData = (LookupData)data;
 		
-		for (int i = 0; i < listItemsToAdd.size(); i++) {
-			String theKey = "" + i;
-			DataListItem curItem = new DataListItem((String) listItemsToAdd.get(i));
-			curItem.setId(theKey);
+		for (LookupDataValue value : myData.getValues()) {
+			DataListItem curItem = new DataListItem();
+			curItem.setText(value.getLabel());
+			curItem.setId(curItem.getId());
 
 			list.add(curItem);
 		}
 		
-		if( defaults != null && !defaults.equals("") ) {
-			String [] split;
-			if( defaults.indexOf(",") > -1 )
-				split = defaults.get(0).split(",");
-			else
-				split = new String[] { defaults.get(0) };
-			
-			try {
-				for( String cur : split ){
-					checkedItems.add(Integer.valueOf(cur));
-					
-				}
-			} catch (Exception e) {
-				SysDebugger.getInstance().println("Invalid default value for multiselect " + description);
-			}
+		for (String defaultValue : myData.getDefaultValues()) {
+			if (list.getItemByItemId(defaultValue) != null)
+				checkedItems.add(defaultValue);
 		}
 		
 	}
 
 	@Override
 	public String getData() {
-		String ret = "";
+		final StringBuilder builder = new StringBuilder();
 
 		if (list.isVisible()) {
-			List<DataListItem> checked = list.getChecked();
-			for (int i = 0; i < checked.size(); i++) {
-				ret += (list.getItems().indexOf(checked.get(i)) + 1) + ",";
-			}
+			for (Iterator<DataListItem> iter = list.getChecked().iterator(); iter.hasNext(); )
+				builder.append(iter.next().getId() + (iter.hasNext() ? "," : ""));
 		} else {
-			for (Integer checked : checkedItems)
-				ret += (checked.intValue() + 1) + ",";
+			for (Iterator<String> iter = checkedItems.iterator(); iter.hasNext(); )
+				builder.append(iter.next() + (iter.hasNext() ? "," : ""));
 		}
 
-		return ret.substring(0, ret.length() == 0 ? 0 : ret.length() - 1);
+		return builder.toString();
 	}
 
 	/**
@@ -202,22 +187,22 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 	@Override
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
 		String indices = (String) rawData.get(offset);
-		String ret = "";
+		StringBuilder ret = new StringBuilder();
 
-		if (indices.equals("0") || indices.equals(""))
-			ret = "(Not Specified)";
+		if (indices == null || indices.equals("0") || indices.equals(""))
+			ret.append("(Not Specified)");
 		else {
 			String[] selections = indices.indexOf(",") > 0 ? indices.split(",") : new String[] { indices };
 
-			ArrayList<ArrayList<String>> myData = ((ArrayList<ArrayList<String>>)data);
-			ArrayList<String> listItemsToAdd = myData.get(0);
-			for (int i = 0; i < selections.length - 1; i++)
-				ret += listItemsToAdd.get(Integer.parseInt(selections[i]) - 1) + ", ";
-
-			ret += listItemsToAdd.get(Integer.parseInt(selections[selections.length - 1]) - 1);
+			LookupData myData = (LookupData)data;
+			for (int i = 0; i < selections.length - 1; i++) {
+				ret.append(myData.getLabel(selections[i]));
+				ret.append(", ");
+			}
+			ret.append(myData.getLabel(selections[selections.length - 1]));
 		}
 
-		prettyData.add(offset, ret);
+		prettyData.add(offset, ret.toString());
 
 		return ++offset;
 	}
@@ -241,14 +226,15 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 
 		List<Integer> keys = field != null ? field.getValue() : new ArrayList<Integer>();
 		
-		for (int i = 0; i < keys.size(); i++) {
-			int index = keys.get(i).intValue();
-
-			if (list.isRendered()) {
-				if (!list.getItem(index).isChecked())
-					list.getItem(index).setChecked(true);
-			} else {
-				checkedItems.add(Integer.valueOf(index));
+		if (field != null) {
+			for (Integer index : field.getValue()) {
+				if (list.isRendered()) {
+					DataListItem item = list.getItemByItemId(index.toString());
+					if (item != null && !item.isChecked())
+						item.setChecked(true);
+				}
+				else
+					checkedItems.add(index.toString());
 			}
 		}
 		

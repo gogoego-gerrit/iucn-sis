@@ -67,6 +67,7 @@ public abstract class DisplayData implements Serializable {
 	protected String uniqueId;
 	protected String canonicalName; // the canonical name - unique identifier!
 	protected String classOfService; // the class of service
+	protected LookupDataContainer lookups;
 
 	protected ArrayList<String> references;
 	protected NativeElement fieldDefinition;
@@ -90,6 +91,10 @@ public abstract class DisplayData implements Serializable {
 		this.canonicalName = "";
 		this.classOfService = "";
 		this.references = new ArrayList<String>();
+	}
+	
+	public void addLookup(String key, LookupData data) {
+		lookups.put(key, data);
 	}
 
 	public String getCanonicalName() {
@@ -120,6 +125,10 @@ public abstract class DisplayData implements Serializable {
 
 	public String getIsVisible() {
 		return isVisible;
+	}
+	
+	public LookupDataContainer getLookups() {
+		return lookups;
 	}
 
 	public String getName() {
@@ -156,6 +165,7 @@ public abstract class DisplayData implements Serializable {
 
 	public void setCanonicalName(String canonicalName) {
 		this.canonicalName = canonicalName;
+		lookups.setFieldName(canonicalName);
 	}
 
 	public void setClassOfService(String classOfService) {
@@ -216,6 +226,42 @@ public abstract class DisplayData implements Serializable {
 
 	public void setUniqueId(String uniqueId) {
 		this.uniqueId = uniqueId;
+	}
+	
+	public static class LookupDataContainer extends HashMap<String, LookupData> {
+		
+		private String fieldName;
+		
+		public LookupDataContainer() {
+			super();
+		}
+		       
+		@Override
+		public LookupData put(String key, LookupData value) {
+		       return super.put(key.toLowerCase(), value);
+		}
+		
+		@Override
+		public LookupData get(Object key) {
+			if (key instanceof String)
+				return super.get(((String)key).toLowerCase());
+			else
+				return null;
+		}
+       
+		public void setFieldName(String fieldName) {
+			this.fieldName = fieldName;
+		}
+		   
+		public String getFieldName() {
+			return fieldName;
+		}
+		
+		public LookupData find(String structureID) {
+			String probableKey = fieldName + "_" + structureID + "lookup";
+		 
+			return get(probableKey);
+		}
 	}
 
 }

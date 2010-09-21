@@ -53,15 +53,8 @@ public class DisplayDataProcessor {
 				|| fieldStructure.equalsIgnoreCase(XMLUtils.SINGLE_SELECT_STRUCTURE)) {
 
 			try {
-				HashMap dataValues = new HashMap();
-
-				dataValues.put(SISSelect.LISTBOX, ((ArrayList) currentDisplayData.getData()).get(1));
-
 				structure = WidgetGenerator.StructureGenerator(fieldStructure, currentDisplayData.getDescription(),
 						uniqueID, currentDisplayData.getData());
-
-				// structure.setValues( dataValues );
-
 			} catch (Exception e) {
 				printDiagnostic(currentDisplayData, e);
 			}
@@ -69,7 +62,6 @@ public class DisplayDataProcessor {
 			ArrayList mapData = (ArrayList) currentDisplayData.getData();
 			ArrayList dataPoints = new ArrayList();
 
-			HashMap dataValues = new HashMap();
 			try {
 				for (int i = 0; i < ((ArrayList) mapData.get(0)).size(); i++) {
 					dataPoints.add(new SISMapData((String) ((ArrayList) mapData.get(0)).get(i),
@@ -78,14 +70,12 @@ public class DisplayDataProcessor {
 							(String) ((ArrayList) mapData.get(3)).get(i)));
 				}
 
-				dataValues.put(SISMap.MAP, dataPoints);
-
 				structure = WidgetGenerator.StructureGenerator(fieldStructure, currentDisplayData.getDescription(),
 						uniqueID, dataPoints);
 
 				// structure.setValues(dataValues);
 			} catch (Exception e) {
-				dataValues.put(SISMap.MAP, null);
+				
 
 				structure = WidgetGenerator.StructureGenerator(fieldStructure, currentDisplayData.getDescription(),
 						uniqueID, null);
@@ -271,9 +261,6 @@ public class DisplayDataProcessor {
 		try {
 			structure.setIsVisible(currentDisplayData.getIsVisible());
 			structure.setName(currentDisplayData.getName());
-			// structure.setStyle(currentDisplayData.getStyle());
-			// structure.setTitle(currentDisplayData.getTitle());
-			System.out.println("Setting ID for structure to be " + currentDisplayData.getUniqueId());
 			structure.setId(currentDisplayData.getUniqueId());
 
 			/* structure.setDisplayData(currentDisplayData); */

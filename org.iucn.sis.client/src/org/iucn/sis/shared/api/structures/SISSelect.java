@@ -1,8 +1,11 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.data.LookupData;
+import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
@@ -106,23 +109,19 @@ public class SISSelect extends SISPrimitiveStructure<Integer> implements Dominan
 		}
 
 		listbox = new ListBox();
-		ArrayList<ArrayList<String>> myData = ((ArrayList<ArrayList<String>>)data);
-		ArrayList<String> listItemsToAdd = myData.get(0);
-		String defaults = null;
-		if( myData.size() > 1 )
-			defaults = myData.get(1).get(0);
-		
+		LookupData myData = ((LookupData)data);
+		List<LookupDataValue> listItemsToAdd = myData.getValues();
+				
 		listbox.addItem("--- Select ---");
 
-		for (int i = 0; i < listItemsToAdd.size(); i++) {
-			String theKey = "" + i;
-			listbox.addItem((String) listItemsToAdd.get(i), theKey);
+		int index = 1;
+		for (LookupDataValue value : listItemsToAdd) {
+			listbox.addItem(value.getLabel(), value.getID());
 			
-			if( defaults != null ) {
-				if( defaults.contains(""+i) )
-					listbox.setSelectedIndex(i);
-				//model.set(id, i);
+			if (myData.getDefaultValues().contains(value.getID())) {
+				listbox.setSelectedIndex(index);
 			}
+			index++;
 		}
 		
 		listbox.setMultipleSelect(!isSingle());
@@ -149,7 +148,7 @@ public class SISSelect extends SISPrimitiveStructure<Integer> implements Dominan
 		if (listbox.getSelectedIndex() == 0)
 			return null;
 		else
-			return "" + listbox.getSelectedIndex();
+			return listbox.getValue(listbox.getSelectedIndex());
 	}
 
 	/**
@@ -161,8 +160,14 @@ public class SISSelect extends SISPrimitiveStructure<Integer> implements Dominan
 	 */
 	@Override
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
-		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				((ArrayList) data).toArray()));
+		String selectedValue = rawData.get(offset);
+
+		String pretty = ((LookupData)data).getLabel(selectedValue);
+		if (pretty == null)
+			pretty = "(Not Specified)";
+
+		prettyData.add(offset, pretty);
+		
 		return ++offset;
 	}
 

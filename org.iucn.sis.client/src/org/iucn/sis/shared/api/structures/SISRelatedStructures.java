@@ -204,40 +204,6 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 		return dependantStructures;
 	}
 
-	/*public String getDependentXML() {
-		String ret = "";
-
-		for (int i = 0; i < activityRules.size(); i++) {
-			if (dominantStructure.isActive((Rule) activityRules.get(i))) {
-				Rule curRule = (Rule) activityRules.get(i);
-				if (dominantStructure.isActive(curRule)) {
-					String rule = (curRule.isIndexAffected(i) ? curRule.getOnTrue() : curRule.getOnFalse());
-
-					for (int j = 0; j < dependantStructures.size(); j++) {
-						Structure curDep = (Structure) dependantStructures.get(j);
-
-						if (rule.equalsIgnoreCase(Rule.HIDE) || rule.equalsIgnoreCase(Rule.DISABLE))
-							curDep.clearData();
-					}
-				}
-			} else {
-				for (int j = 0; j < dependantStructures.size(); j++) {
-					if (((Rule) activityRules.get(i)).isIndexAffected(j)) {
-						String rule = ((Rule) activityRules.get(i)).getOnFalse();
-
-						if (rule.equalsIgnoreCase(Rule.HIDE) || rule.equalsIgnoreCase(Rule.DISABLE))
-							((Structure) dependantStructures.get(j)).clearData();
-					}
-				}
-			}
-		}
-
-		for (int i = 0; i < dependantStructures.size(); i++)
-			ret += ((Structure) dependantStructures.get(i)).toXML();
-
-		return ret;
-	}*/
-
 	/**
 	 * Pass in the raw data from an Assessment object, and this will return
 	 * it in happy, displayable String form

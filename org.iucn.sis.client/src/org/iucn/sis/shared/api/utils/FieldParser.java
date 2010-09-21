@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.data.FieldData;
+import org.iucn.sis.shared.api.data.LookupData;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
+import org.iucn.sis.shared.api.data.DisplayData.LookupDataContainer;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.displays.Display;
@@ -16,6 +18,7 @@ import org.iucn.sis.shared.api.structures.ContentRule;
 import org.iucn.sis.shared.api.structures.Rule;
 import org.iucn.sis.shared.api.structures.SelectRule;
 
+import com.google.gwt.core.client.GWT;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
@@ -39,14 +42,21 @@ public class FieldParser {
 	private static final String DESCRIPTION_TAG_NAME = "description";
 	private static final String CLASS_OF_SERVICE_TAG_NAME = "classOfService";
 	private static final String LOCATION_TAG_NAME = "location";
+	private static final String LOOKUP_VALUE_TAG_NAME = "lookup";
 	private static final String REFERENCES_TAG_NAME = "references";
 	private static final String FIELD_DEFINITION_TAG_NAME = "definition";
 
 	protected Display doOperate(DisplayData currentDisplayData) {
 		if (currentDisplayData.getType().equalsIgnoreCase(DisplayData.FIELD)) {
 			FieldData currentFieldData = (FieldData) currentDisplayData;
+			
 			final FieldDisplay field = new FieldDisplay(currentFieldData);
-			field.addStructure(DisplayDataProcessor.processDisplayStructure(currentDisplayData));
+			try {
+				field.addStructure(DisplayDataProcessor.processDisplayStructure(currentDisplayData));
+			} catch (Throwable e) {
+				e.printStackTrace();
+				GWT.log("FieldParser Error", e);
+			}
 
 			return field;
 		} else if (currentDisplayData.getType().equalsIgnoreCase(DisplayData.TREE)) {
@@ -59,7 +69,21 @@ public class FieldParser {
 	}
 
 	public Display parseField(NativeDocument doc) {
-		return parseField(doc.getDocumentElement());
+		Display display = null;
+		if ("fields".equals(doc.getDocumentElement().getNodeName())) {
+			final NativeNodeList nodes = doc.getDocumentElement().getChildNodes();
+			for (int i = 0; i < nodes.getLength() && display == null; i++) {
+				final NativeNode current = nodes.item(i);
+				if (NativeNode.TEXT_NODE != current.getNodeType() && current instanceof NativeElement) {
+					display = parseField((NativeElement)current);
+				}
+			}
+			return display;
+		}
+		else
+			display = parseField(doc.getDocumentElement());
+		
+		return display;
 	}
 
 	public Display parseField(NativeElement fieldElement) {
@@ -67,7 +91,7 @@ public class FieldParser {
 		if (fieldElement.getNodeName().equalsIgnoreCase(ASSESSMENT_FIELD_TAG_NAME)) {
 			try {
 				return doOperate(processFieldTag(fieldElement));
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				e.printStackTrace();
 				Debug.println(
 						"Failed to process field " + fieldElement.getElementByTagName("canonicalName").getText());
@@ -75,7 +99,7 @@ public class FieldParser {
 		} else {
 			try {
 				return doOperate(processTreeTags(fieldElement));
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				e.printStackTrace();
 				Debug.println(
 						"Failed to process classification scheme "
@@ -121,7 +145,7 @@ public class FieldParser {
 	 *            with XML data about structures
 	 * @return an ArrayList containing DisplayData for structures
 	 */
-	private ArrayList<DisplayData> parseStructures(NativeNodeList structureTags) {
+	private ArrayList<DisplayData> parseStructures(NativeNodeList structureTags, LookupDataContainer lookups) {
 		ArrayList<DisplayData> structureSet = new ArrayList<DisplayData>();
 		
 		DisplayData currentDisplayData;
@@ -184,7 +208,7 @@ public class FieldParser {
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.ONE_TO_MANY)) {
-				ArrayList<DisplayData> parsedStructs = parseStructures(current.getChildNodes());
+				ArrayList<DisplayData> parsedStructs = parseStructures(current.getChildNodes(), lookups);
 				currentDisplayData.setData(parsedStructs.get(0));
 			}
 
@@ -224,24 +248,36 @@ public class FieldParser {
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.MULTIPLE_SELECT_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.SINGLE_SELECT_STRUCTURE)) {
-				NativeNodeList selectOptions = current.getChildNodes();
-
-				ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
-				ArrayList<String> options = new ArrayList<String>();
-				ArrayList<String> selected = new ArrayList<String>();
-
-				for (int k = 0; k < selectOptions.getLength(); k++) {
-					if (selectOptions.item(k).getNodeName().equalsIgnoreCase("option"))
-						options.add(XMLUtils.getXMLValue(selectOptions.item(k), ""));
-
-					if (selectOptions.item(k).getNodeName().equalsIgnoreCase("selected"))
-						selected.add(XMLUtils.getXMLValue(selectOptions.item(k), ""));
+				
+				LookupData options = lookups.find(id);
+				if (options == null) {
+					options = new LookupData();
+					NativeNodeList selectOptions = current.getChildNodes();
+				
+					int optionCount = 0;
+					for (int k = 0; k < selectOptions.getLength(); k++) {
+						if (selectOptions.item(k).getNodeName().equalsIgnoreCase("option"))
+							options.addValue((optionCount++)+"", XMLUtils.getXMLValue(selectOptions.item(k), ""));
+	
+						if (selectOptions.item(k).getNodeName().equalsIgnoreCase("selected")) {
+							String selected = XMLUtils.getXMLValue(selectOptions.item(k), "");
+							if (selected.indexOf(',') != -1) {
+								/*
+								 * Really, this should not be the case, you should 
+								 * just use multiple nodes ... but to support legacy 
+								 * data...
+								 */
+								for (String token : selected.split(",")) {
+									options.addDefaultValue(token);
+								}
+							}
+							else
+								options.addDefaultValue(selected);
+						}
+					}
 				}
-
-				data.add(0, options);
-				data.add(1, selected);
-
-				currentDisplayData.setData(data);
+				System.out.println("For structure " + id + ", setting options to " + options);
+				currentDisplayData.setData(options);
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.MULTIPLE_TEXT_STRUCTURE)) {
@@ -305,7 +341,7 @@ public class FieldParser {
 					String key = children.item(i).getNodeName();
 					// Look for dominant
 					if (key.equalsIgnoreCase("dominantStructures")) {
-						ArrayList<DisplayData> dominantData = parseStructures(children.elementAt(i).getChildNodes());
+						ArrayList<DisplayData> dominantData = parseStructures(children.elementAt(i).getChildNodes(), lookups);
 						if (dominantData.size() == 1) {
 							dominantStructure.setStructure(((FieldData) dominantData.get(0)).getStructure());
 							dominantStructure.setData(((FieldData) dominantData.get(0)).getData());
@@ -321,7 +357,7 @@ public class FieldParser {
 					}
 
 					else if (key.equalsIgnoreCase("dependentStructures")) {
-						dependentStructures = parseStructures(children.elementAt(i).getChildNodes());
+						dependentStructures = parseStructures(children.elementAt(i).getChildNodes(), lookups);
 					}
 
 					else if (key.equalsIgnoreCase("rules")) {
@@ -501,7 +537,7 @@ public class FieldParser {
 								// "Made default tree structure");
 								defaultTreeStructure = new TreeData();
 								ArrayList<DisplayData> defaultTreeStructureSet = parseStructures(currentRoot.getChildNodes()
-										.elementAt(k).getChildNodes());
+										.elementAt(k).getChildNodes(), lookups);
 								if (structureSet.size() == 1) {
 									defaultTreeStructure.setStructure(((FieldData) defaultTreeStructureSet.get(0))
 											.getStructure());
@@ -515,7 +551,7 @@ public class FieldParser {
 							}
 						}
 					} else if (currentRoot.getNodeName().equalsIgnoreCase("root")) {
-						treeData.addTreeRoot(processRoot(currentRoot, defaultTreeStructure));
+						treeData.addTreeRoot(processRoot(currentRoot, defaultTreeStructure, lookups));
 					}
 				}
 
@@ -544,8 +580,7 @@ public class FieldParser {
 				continue;
 
 			String curNodeName = current.getNodeName();
-			// System.out.println("Processing a " +
-			// current.getNodeName() + " tag.");
+			Debug.println("Processing a %s tag.", current.getNodeName());
 			if (curNodeName.equalsIgnoreCase(CANONICAL_NAME_TAG_NAME))
 				displayData.setCanonicalName(XMLUtils.getXMLValue(current).trim());
 			else if (curNodeName.equalsIgnoreCase(CLASS_OF_SERVICE_TAG_NAME))
@@ -564,6 +599,17 @@ public class FieldParser {
 			else if (curNodeName.equalsIgnoreCase(FIELD_DEFINITION_TAG_NAME)) {
 				displayData.setFieldDefinition((NativeElement)current);
 			}
+			else if (LOOKUP_VALUE_TAG_NAME.equalsIgnoreCase(curNodeName)) {
+				final LookupData lookup = new LookupData();
+				final NativeNodeList nodes = current.getChildNodes();
+				for (int k = 0; k < nodes.getLength(); k++) {
+					final NativeNode child = nodes.item(k);
+					if ("option".equals(child.getNodeName())) {
+						lookup.addValue(((NativeElement)child).getAttribute("id"), child.getTextContent());
+					}
+				}
+				displayData.addLookup(((NativeElement)current).getAttribute("id"), lookup);
+			}
 		}
 	}
 
@@ -581,9 +627,11 @@ public class FieldParser {
 		processBasicDisplayData(currentField, root);
 		// processReferences(currentField, fieldTags, i);
 		currentField.setDisplayId(XMLUtils.getXMLAttribute(root, "id"));
+		
+		Debug.println("For %s, found lookups for %s", currentField.getCanonicalName(), currentField.getLookups());
 
 		// Build the structure
-		ArrayList<DisplayData> structureSet = parseStructures(structuresTag.getChildNodes());
+		ArrayList<DisplayData> structureSet = parseStructures(structuresTag.getChildNodes(), currentField.getLookups());
 		if (structureSet.size() == 1) {
 			currentField.setStructure((structureSet.get(0)).getStructure());
 			currentField.setData((structureSet.get(0)).getData());
@@ -628,7 +676,7 @@ public class FieldParser {
 	 *            the NativeNode containing root XML data
 	 * @return a TreeDataRow object representation of the XML
 	 */
-	private TreeDataRow processRoot(NativeNode currentRoot, TreeData defaultTreeStructure) {
+	private TreeDataRow processRoot(NativeNode currentRoot, TreeData defaultTreeStructure, LookupDataContainer lookups) {
 		String value;
 		boolean override = false;
 		TreeDataRow currentRow = new TreeDataRow();
@@ -654,7 +702,7 @@ public class FieldParser {
 			// As is this
 			else if (currentRootData.item(k).getNodeName().equalsIgnoreCase("treeStructures")) {
 				override = true;
-				ArrayList<DisplayData> structureSet = parseStructures(currentRootData.elementAt(k).getChildNodes());
+				ArrayList<DisplayData> structureSet = parseStructures(currentRootData.elementAt(k).getChildNodes(), lookups);
 				if (structureSet.size() == 1) {
 					currentRow.setStructure((structureSet.get(0)).getStructure());
 					currentRow.setData((structureSet.get(0)).getData());
@@ -667,7 +715,7 @@ public class FieldParser {
 			// Now for the (optional) children (recursion!). Recursion halts on
 			// leaf nodes (no child)
 			else if (currentRootData.item(k).getNodeName().equalsIgnoreCase("child")) {
-				currentRow.addChild(processRoot(currentRootData.item(k), defaultTreeStructure));
+				currentRow.addChild(processRoot(currentRootData.item(k), defaultTreeStructure, lookups));
 			}
 		}
 
@@ -698,6 +746,8 @@ public class FieldParser {
 		// Gather Display Data
 		processBasicDisplayData(treeData, root);
 		treeData.setDisplayId(XMLUtils.getXMLAttribute(root, "id"));
+		
+		Debug.println("For %s, found lookups for %s", treeData.getCanonicalName(), treeData.getLookups());
 
 		TreeData defaultTreeStructure = null;
 
@@ -711,7 +761,7 @@ public class FieldParser {
 					NativeNodeList curList = currentRoot.getChildNodes();
 					if (curList.item(k).getNodeName().equalsIgnoreCase("treeStructures")) {
 						defaultTreeStructure = new TreeData();
-						ArrayList<DisplayData> structureSet = parseStructures(curList.elementAt(k).getChildNodes());
+						ArrayList<DisplayData> structureSet = parseStructures(curList.elementAt(k).getChildNodes(), treeData.getLookups());
 						if (structureSet.size() == 1) {
 							defaultTreeStructure.setStructure((structureSet.get(0)).getStructure());
 							defaultTreeStructure.setData((structureSet.get(0)).getData());
@@ -727,7 +777,7 @@ public class FieldParser {
 					}
 				}
 			} else if (curNodeName.equalsIgnoreCase("root")) {
-				treeData.addTreeRoot(processRoot(currentRoot, defaultTreeStructure));
+				treeData.addTreeRoot(processRoot(currentRoot, defaultTreeStructure, treeData.getLookups()));
 			}
 		}
 
