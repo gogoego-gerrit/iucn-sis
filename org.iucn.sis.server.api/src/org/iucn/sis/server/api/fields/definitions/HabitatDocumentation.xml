@@ -1,0 +1,11 @@
+<field id="62">
+	<!-- AAH used General Info -->
+	<canonicalName>HabitatDocumentation</canonicalName>
+	<description>Habitat Information</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="narrative">
+			<richText></richText>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,10 @@
+<field id="101">
+	<canonicalName>NonConsumptiveUseDescription</canonicalName>
+	<description>Explanation of non-consumptive use:</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="narrative">
+			<narrative></narrative>
+		</structure>
+	</structures>
+</field>

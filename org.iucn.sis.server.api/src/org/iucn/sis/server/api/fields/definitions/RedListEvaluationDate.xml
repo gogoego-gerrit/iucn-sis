@@ -1,0 +1,10 @@
+<field id="128">
+	<canonicalName>RedListEvaluationDate</canonicalName>
+	<description>Date of Evaluation</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure id="a">
+			<date></date>
+		</structure>
+	</structures>
+</field>

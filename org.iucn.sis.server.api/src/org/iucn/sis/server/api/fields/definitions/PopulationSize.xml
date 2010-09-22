@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<field id="22">
+	<!-- AAH used General Info -->
+	<canonicalName>PopulationSize</canonicalName>
+	<description>Population Size (mature individuals)</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure id="range">
+			<range></range>
+		</structure>
+	</structures>
+</field>

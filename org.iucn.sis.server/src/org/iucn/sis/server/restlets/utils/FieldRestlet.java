@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
+import org.iucn.sis.server.api.fields.definitions.FieldDefinitionLoader;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -18,7 +19,6 @@ import org.w3c.dom.Element;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.NotFoundException;
-import com.solertium.vfs.VFSPath;
 
 public class FieldRestlet extends ServiceRestlet {
 	// private String fullMasterList = "";
@@ -45,18 +45,23 @@ public class FieldRestlet extends ServiceRestlet {
 	}
 
 	private String getFieldAsString(String fieldName) throws IOException {
-		VFSPath path = new VFSPath("/browse/docs/fields/" + fieldName);
+		/*VFSPath path = new VFSPath("/browse/docs/fields/" + fieldName);
 		if (!vfs.exists(path))
 			path = new VFSPath("/browse/docs/fields/" + fieldName + ".xml");
 		if (!vfs.exists(path))
+			throw new NotFoundException();*/
+		
+		final Document document = FieldDefinitionLoader.get(fieldName);
+		if (document == null)
 			throw new NotFoundException();
 		
 		//final String xml = vfs.getString(path).replaceAll("<\\?xml\\s*(version=.*)?\\s*(encoding=.*)?\\?>", "");
 				
 		if (generator == null)
-			return vfs.getString(path).replaceAll("<\\?xml\\s*(version=.*)?\\s*(encoding=.*)?\\?>", "");
+			return BaseDocumentUtils.impl.serializeDocumentToString(document, true, false);
+			//return vfs.getString(path).replaceAll("<\\?xml\\s*(version=.*)?\\s*(encoding=.*)?\\?>", "");
 		else {
-			final Document document = vfs.getMutableDocument(path);
+			//final Document document = vfs.getMutableDocument(path);
 			
 			if (generator != null) {
 				/*try {

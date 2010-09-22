@@ -1,0 +1,18 @@
+<field id="13">
+	<!-- AAH used General Info -->
+	<canonicalName>DepthZone</canonicalName>
+	<description>Depth Zone</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="depthZone">
+			<multipleSelect>
+				<option>Shallow photic (0-50m)</option>
+				<option>Deep Photic (51-200m)</option>
+				<option>Bathyl (201-4,000m)</option>
+				<option>Abyssal (4,001-6,000m)</option>
+				<option>Hadal (&gt;6,000m)</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,10 @@
+<field id="77">
+	<canonicalName>MaxSize</canonicalName>
+	<description>Maximum Size (in cms)</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="size">
+                        <text></text>
+		</structure>
+	</structures>
+</field>

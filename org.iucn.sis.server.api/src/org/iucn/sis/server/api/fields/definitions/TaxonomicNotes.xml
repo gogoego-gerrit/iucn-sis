@@ -1,0 +1,11 @@
+<field id="199">
+	<!-- AAH used General Info -->
+	<canonicalName>TaxonomicNotes</canonicalName>
+	<description>Taxonomic Notes</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="value">
+			<richText></richText>
+		</structure>
+	</structures>
+</field>

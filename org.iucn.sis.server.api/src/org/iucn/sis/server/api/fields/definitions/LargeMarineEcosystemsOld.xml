@@ -1,0 +1,295 @@
+<tree id="9999">
+	<canonicalName>LargeMarineEcosystems</canonicalName>
+	<description>Large Marine Ecosystems</description>
+	<classOfService>Documentation</classOfService>
+	<treeRoot>
+                <defaultStructure>
+                        <treeStructures layout="horizontal">
+                                <structure>
+                                        <relatedStructure>
+                                        <dominantStructures>
+                                                <structure id="a" description="Presence">
+                                                        <singleSelect>
+                                                                <option>Year Round</option>
+                                                                <option>Breeding Season Only</option>
+                                                                <option>Non-breeding Season Only</option>
+                                                                <option>Possibly Extinct</option>
+                                                                <option>Extinct</option>
+                                                                <option>Uncertain</option>
+                                                                <selected>1</selected>
+                                                        </singleSelect>
+                                                </structure>
+                                        </dominantStructures>
+                                        <dependentStructures>
+                                                <structure description="Passage Migrant?">
+                                                        <boolean></boolean>
+                                                </structure>
+                                        </dependentStructures>
+                                        <rules>
+                                                <selectRule>
+                                                        <activateOnIndex>2,3</activateOnIndex>
+                                                        <actions>
+                                                                <onTrue>SHOW</onTrue>
+                                                                <onFalse>HIDE</onFalse>
+                                                        </actions>
+                                                </selectRule>
+                                        </rules>
+                                        </relatedStructure>
+                                </structure>
+                                <structure description="Origin">
+                                        <singleSelect>
+                                                <option>Native</option>
+                                                <option>Introduced</option>
+                                                <option>Reintroduced</option>
+                                                <option>Vagrant</option>
+                                                <option>Uncertain</option>
+                                                <selected>1</selected>
+                                        </singleSelect>
+                                </structure>
+                        </treeStructures>
+                </defaultStructure>
+<root code="1" codeable="false" depth="1" id="1">
+        <label>Polar Biome</label>
+        <child code="2" codeable="false" depth="2" id="1.1">
+            <label>Boreal Provinces</label>
+            <child code="3" codeable="true" depth="3" id="1.1.1">
+                <label>Hudson Bay</label>
+            </child>
+            <child code="4" codeable="true" depth="3" id="1.1.2">
+                <label>Beaufort Sea</label>
+            </child>
+            <child code="5" codeable="true" depth="3" id="1.1.3">
+                <label>Barents Sea</label>
+            </child>
+            <child code="6" codeable="true" depth="3" id="1.1.4">
+                <label>Kara Sea</label>
+            </child>
+            <child code="7" codeable="true" depth="3" id="1.1.5">
+                <label>Laptev Sea</label>
+            </child>
+            <child code="8" codeable="true" depth="3" id="1.1.6">
+                <label>East Siberian Sea</label>
+            </child>
+            <child code="9" codeable="true" depth="3" id="1.1.7">
+                <label>Chukchi Sea</label>
+            </child>
+            <child code="10" codeable="true" depth="3" id="1.1.8">
+                <label>Arctic Ocean</label>
+            </child>
+        </child>
+        <child code="11" codeable="false" depth="2" id="1.2">
+            <label>Pacific Polar Provinces</label>
+            <child code="12" codeable="true" depth="3" id="1.2.1">
+                <label>Eastern Bering Sea</label>
+            </child>
+            <child code="13" codeable="true" depth="3" id="1.2.2">
+                <label>Western Bering Sea</label>
+            </child>
+        </child>
+        <child code="14" codeable="false" depth="2" id="1.3">
+            <label>Antarctic Polar Provinces</label>
+            <child code="15" codeable="true" depth="3" id="1.3.1">
+                <label>Antarctic</label>
+            </child>
+        </child>
+    </root>
+    <root code="16" codeable="false" depth="1" id="2">
+        <label>Westerlies Biome</label>
+        <child code="17" codeable="false" depth="2" id="2.1">
+            <label>Atlantic Provinces</label>
+            <child code="18" codeable="true" depth="3" id="2.1.1">
+                <label>Mediterranean Sea</label>
+            </child>
+            <child code="19" codeable="true" depth="3" id="2.1.2">
+                <label>Canary Current</label>
+            </child>
+            <child code="20" codeable="true" depth="3" id="2.1.3">
+                <label>Guinea Current</label>
+            </child>
+            <child code="21" codeable="true" depth="3" id="2.1.4">
+                <label>Benguela Current</label>
+            </child>
+        </child>
+        <child code="22" codeable="false" depth="2" id="2.2">
+            <label>Pacific Provinces</label>
+            <child code="23" codeable="true" depth="3" id="2.2.1">
+                <label>Kuroshio Current</label>
+            </child>
+            <child code="24" codeable="true" depth="3" id="2.2.2">
+                <label>Oyashio Current</label>
+            </child>
+            <child code="25" codeable="true" depth="3" id="2.2.3">
+                <label>Gulf of Alaska</label>
+            </child>
+        </child>
+    </root>
+    <root code="26" codeable="false" depth="1" id="3">
+        <label>Trade Winds Biome</label>
+        <child code="27" codeable="false" depth="2" id="3.1">
+            <label>Atlantic Provinces</label>
+            <child code="28" codeable="true" depth="3" id="3.1.1">
+                <label>Caribbean Sea</label>
+            </child>
+            <child code="29" codeable="true" depth="3" id="3.1.2">
+                <label>Gulf of Mexico</label>
+            </child>
+        </child>
+        <child code="30" codeable="false" depth="2" id="3.2">
+            <label>Pacific Provinces</label>
+            <child code="31" codeable="true" depth="3" id="3.2.1">
+                <label>Insular Pacific Hawaiian</label>
+            </child>
+        </child>
+    </root>
+    <root code="32" codeable="false" depth="1" id="4">
+        <label>Coastal Biome</label>
+        <child code="33" codeable="false" depth="2" id="4.1">
+            <label>NW Atlantic Shelves Provinces</label>
+            <child code="34" codeable="true" depth="3" id="4.1.1">
+                <label>Scotian Shelf</label>
+            </child>
+            <child code="35" codeable="true" depth="3" id="4.1.2">
+                <label>Newfoundland-Labrador Shelf</label>
+            </child>
+            <child code="36" codeable="true" depth="3" id="4.1.3">
+                <label>NE US Continental Shelf</label>
+            </child>
+            <child code="37" codeable="true" depth="3" id="4.1.4">
+                <label>SE US Continental Shelf</label>
+            </child>
+        </child>
+        <child code="38" codeable="false" depth="2" id="4.2">
+            <label>NE Atlantic Shelves Provinces</label>
+            <child code="39" codeable="true" depth="3" id="4.2.1">
+                <label>West Greenland Shelf</label>
+            </child>
+            <child code="40" codeable="true" depth="3" id="4.2.2">
+                <label>East Greenland Shelf</label>
+            </child>
+            <child code="41" codeable="true" depth="3" id="4.2.3">
+                <label>Iceland Shelf</label>
+            </child>
+            <child code="42" codeable="true" depth="3" id="4.2.4">
+                <label>Faroe Plateau Shelf</label>
+            </child>
+            <child code="43" codeable="true" depth="3" id="4.2.5">
+                <label>Black Sea</label>
+            </child>
+            <child code="44" codeable="true" depth="3" id="4.2.6">
+                <label>North Sea</label>
+            </child>
+            <child code="45" codeable="true" depth="3" id="4.2.7">
+                <label>Norwegian Sea</label>
+            </child>
+            <child code="46" codeable="true" depth="3" id="4.2.8">
+                <label>Celtic-Biscay</label>
+            </child>
+            <child code="47" codeable="true" depth="3" id="4.2.9">
+                <label>Baltic Sea</label>
+            </child>
+            <child code="48" codeable="true" depth="3" id="4.2.10">
+                <label>Iberian Coastal</label>
+            </child>
+        </child>
+        <child code="49" codeable="false" depth="2" id="4.3">
+            <label>SW Atlantic Shelves Provinces</label>
+            <child code="50" codeable="true" depth="3" id="4.3.1">
+                <label>East Brazil Shelf</label>
+            </child>
+            <child code="51" codeable="true" depth="3" id="4.3.2">
+                <label>Patagonian Shelf</label>
+            </child>
+            <child code="52" codeable="true" depth="3" id="4.3.3">
+                <label>North Brazil Shelf</label>
+            </child>
+            <child code="53" codeable="true" depth="3" id="4.3.4">
+                <label>South Brazil Shelf</label>
+            </child>
+        </child>
+        <child code="54" codeable="false" depth="2" id="4.4">
+            <label>Australian Shelves Provinces</label>
+            <child code="55" codeable="true" depth="3" id="4.4.1">
+                <label>West-Central Australian Shelf</label>
+            </child>
+            <child code="56" codeable="true" depth="3" id="4.4.2">
+                <label>Northwest Australian Shelf</label>
+            </child>
+            <child code="57" codeable="true" depth="3" id="4.4.3">
+                <label>Northeast Australian Shelf</label>
+            </child>
+            <child code="58" codeable="true" depth="3" id="4.4.4">
+                <label>North Australian Shelf</label>
+            </child>
+            <child code="59" codeable="true" depth="3" id="4.4.5">
+                <label>East-Central Australian Shelf</label>
+            </child>
+            <child code="60" codeable="true" depth="3" id="4.4.6">
+                <label>Southeast Australian Shelf</label>
+            </child>
+            <child code="61" codeable="true" depth="3" id="4.4.7">
+                <label>Southwest Australian Shelf</label>
+            </child>
+        </child>
+        <child code="62" codeable="false" depth="2" id="4.5">
+            <label>Pacific Coastal Provinces</label>
+            <child code="63" codeable="true" depth="3" id="4.5.1">
+                <label>Gulf of California</label>
+            </child>
+            <child code="64" codeable="true" depth="3" id="4.5.2">
+                <label>California Current</label>
+            </child>
+            <child code="65" codeable="true" depth="3" id="4.5.3">
+                <label>Humboldt Current</label>
+            </child>
+            <child code="66" codeable="true" depth="3" id="4.5.4">
+                <label>Indonesian Seas</label>
+            </child>
+            <child code="67" codeable="true" depth="3" id="4.5.5">
+                <label>Sea of Japan</label>
+            </child>
+            <child code="68" codeable="true" depth="3" id="4.5.6">
+                <label>New Zealand</label>
+            </child>
+            <child code="69" codeable="true" depth="3" id="4.5.7">
+                <label>Sulu-Celebes Sea</label>
+            </child>
+            <child code="70" codeable="true" depth="3" id="4.5.8">
+                <label>Pacific Central American Coastal</label>
+            </child>
+            <child code="71" codeable="true" depth="3" id="4.5.9">
+                <label>Sea of Okhotsk</label>
+            </child>
+            <child code="72" codeable="true" depth="3" id="4.5.10">
+                <label>Yellow Sea</label>
+            </child>
+            <child code="73" codeable="true" depth="3" id="4.5.11">
+                <label>East China Sea</label>
+            </child>
+            <child code="74" codeable="true" depth="3" id="4.5.12">
+                <label>South China Sea</label>
+            </child>
+            <child code="75" codeable="true" depth="3" id="4.5.13">
+                <label>Gulf of Thailand</label>
+            </child>
+        </child>
+        <child code="76" codeable="false" depth="2" id="4.6">
+            <label>Indian Ocean Provinces</label>
+            <child code="77" codeable="true" depth="3" id="4.6.1">
+                <label>Bay of Bengal</label>
+            </child>
+            <child code="78" codeable="true" depth="3" id="4.6.2">
+                <label>Arabian Sea</label>
+            </child>
+            <child code="79" codeable="true" depth="3" id="4.6.3">
+                <label>Somali Current</label>
+            </child>
+            <child code="80" codeable="true" depth="3" id="4.6.4">
+                <label>Agulhas Current</label>
+            </child>
+            <child code="81" codeable="true" depth="3" id="4.6.5">
+                <label>Red Sea</label>
+            </child>
+        </child>
+    </root>
+		</treeRoot>
+</tree>

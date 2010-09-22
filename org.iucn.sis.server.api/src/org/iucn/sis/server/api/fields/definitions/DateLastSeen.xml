@@ -1,0 +1,13 @@
+<field id="120">
+	<canonicalName>DateLastSeen</canonicalName>
+	<description>
+		Date Last Seen (only for EX, EW, or Possibly EX species): (NOTE:
+		Year format)
+	</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure id="lastSeen">
+			<date></date>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,10 @@
+<field id="83">
+	<canonicalName>AvgAnnualFecundity</canonicalName>
+	<description>Average Annual Fecundity or Litter Size</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="fecundity">
+                        <text></text>
+		</structure>
+	</structures>
+</field>

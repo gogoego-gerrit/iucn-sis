@@ -1,0 +1,31 @@
+<field id="96">
+	<!-- AAH used Ecosystem Services -->
+	<canonicalName>EcosystemServicesInsufficientInfo</canonicalName>
+	<description>Insufficient Information Available</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure>
+		<relatedStructure>
+			<dominantStructures>
+				<structure id="isInsufficient">
+					<boolean></boolean>
+				</structure>
+			</dominantStructures>
+			<dependentStructures>
+				<structure id="label" description="&lt;span class=&quot;redFont&quot;&gt;All coded services should have an importance score of 5 - Not Known.&lt;span&gt;">
+					<label />
+				</structure>
+			</dependentStructures>
+			<rules>
+				<booleanRule>
+					<activateOnRule>true</activateOnRule>
+					<actions>
+						<onTrue>show</onTrue>
+						<onFalse>hide</onFalse>
+					</actions>
+				</booleanRule>
+			</rules>
+		</relatedStructure>
+		</structure>
+	</structures>
+</field>

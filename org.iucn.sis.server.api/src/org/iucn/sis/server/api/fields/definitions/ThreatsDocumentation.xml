@@ -1,0 +1,11 @@
+<field id="91">
+	<!-- AAH used General Info -->
+	<canonicalName>ThreatsDocumentation</canonicalName>
+	<description>Threats Information</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="value">
+			<richText></richText>
+		</structure>
+	</structures>
+</field>

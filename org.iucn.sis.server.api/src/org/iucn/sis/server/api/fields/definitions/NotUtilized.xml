@@ -1,0 +1,10 @@
+<field id="98">
+	<canonicalName>NotUtilized</canonicalName>
+	<description>Species not utilized</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="isNotUtilized">
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>

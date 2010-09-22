@@ -1,0 +1,12 @@
+<field id="90">
+	<canonicalName>WaterBreeding</canonicalName>
+	<description>
+		Does the species require water for breeding? 
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="value">
+			<booleanUnknown/>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<field id="5">
+	<canonicalName>EOOContinuingDecline</canonicalName>
+	<description>
+		Continuing decline in extent of occurrence (EOO)
+	</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="isContinuingDecline">
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="qualifier">
+						<qualifier></qualifier>
+					</structure>
+					<structure id="justification">
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

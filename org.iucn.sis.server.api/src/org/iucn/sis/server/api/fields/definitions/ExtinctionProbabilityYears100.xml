@@ -1,0 +1,32 @@
+<field id="60">
+	<canonicalName>ExtinctionProbabilityYears100</canonicalName>
+	<description>
+		Probability of extinction in the wild within 100 years
+	</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="range">
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="justification">
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

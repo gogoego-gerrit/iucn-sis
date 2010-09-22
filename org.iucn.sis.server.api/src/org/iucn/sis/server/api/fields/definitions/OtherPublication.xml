@@ -1,0 +1,10 @@
+<field id="129">
+	<canonicalName>OtherPublication</canonicalName>
+	<description>Other Publication</description>
+	<classOfService>IUCN Internal</classOfService>
+	<structures>
+		<structure id="reference">
+			<reference></reference>
+		</structure>
+	</structures>
+</field>

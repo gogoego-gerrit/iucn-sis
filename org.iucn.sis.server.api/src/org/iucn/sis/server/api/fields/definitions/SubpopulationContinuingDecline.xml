@@ -1,0 +1,35 @@
+<field id="53">
+	<canonicalName>SubpopulationContinuingDecline</canonicalName>
+	<description>
+		Continuing decline in number of subpopulations
+	</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="isDeclining">
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="qualifier">
+						<qualifier></qualifier>
+					</structure>
+					<structure id="justification">
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

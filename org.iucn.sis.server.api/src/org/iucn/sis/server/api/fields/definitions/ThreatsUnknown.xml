@@ -1,0 +1,11 @@
+<field id="987654">
+        <canonicalName>ThreatsUnknown</canonicalName>
+        <description>The threats to this species are unknown.</description>
+        <classOfService>Documentation</classOfService>
+        <structures>
+                <structure id="value">
+                        <boolean></boolean>
+                </structure>
+        </structures>
+</field>
+

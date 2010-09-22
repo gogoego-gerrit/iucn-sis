@@ -1,0 +1,52 @@
+<!-- SUBSTANTIAL DIFFERENCES -->
+<field id="130">
+	<canonicalName>AssessmentGeographicScope</canonicalName>
+	<description>Assessment Scope</description>
+	<classOfService>Metadata</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="geographicScope">
+						<singleSelect>
+							<option>Global</option>
+							<option>Regional</option>
+							<option>National</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="region" description="Enter Region:">
+						<text></text>
+					</structure>
+					<structure id="country" description="Enter Country:">
+						<text></text>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>1</activateOnIndex>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+							<affectedDependentStructures>
+								0
+							</affectedDependentStructures>
+						</actions>
+					</selectRule>
+					<selectRule>
+						<activateOnIndex>2</activateOnIndex>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+							<affectedDependentStructures>
+								1
+							</affectedDependentStructures>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

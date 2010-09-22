@@ -1,0 +1,10 @@
+<field id="78">
+	<canonicalName>BirthSize</canonicalName>
+	<description>Size at Birth (in cms)</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="size">
+                        <text></text>
+		</structure>
+	</structures>
+</field>

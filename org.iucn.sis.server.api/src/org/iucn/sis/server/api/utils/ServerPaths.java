@@ -10,10 +10,6 @@ public class ServerPaths {
 	public static final String PUBLISHED_ASSESSMENT_STATUS = "published_status";
 	public static final String TAXON = "taxon";
 
-	public static String getFieldURL(String fieldName) {
-		return "/browse/docs/fields/" + fieldName + ".xml";
-	}
-
 	public static String getLastTaxomaticOperationPath() {
 		return "/browse/taxonomy/lastOperation.xml";
 	}

@@ -1,0 +1,26 @@
+<field id="28">
+	<canonicalName>PopulationReductionFutureBasis</canonicalName>
+	<description>Future Population Reduction Basis</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure id="value">
+			<multipleSelect>
+				<option>
+					b) an index of abundance appropriate for the taxon
+				</option>
+				<option>
+					c) a decline in area of occupancy, extent of
+					occurrence and/or quality of habitat
+				</option>
+				<option>
+					d) actual or potential levels of exploitation
+				</option>
+				<option>
+					e) the effects of introduced taxa, hybridization,
+					pathogens, pollutants, competitors or parasites)
+				</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>

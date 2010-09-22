@@ -1,0 +1,10 @@
+<field id="116">
+	<canonicalName>RedListCalculatedCategory</canonicalName>
+	<description>Calculated Red List Assessment Category</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure id="rlCategory">
+			<text></text>
+		</structure>
+	</structures>
+</field>

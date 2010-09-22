@@ -1,0 +1,32 @@
+<field id="54">
+	<canonicalName>LocationExtremeFluctuation</canonicalName>
+	<description>
+		Extreme fluctuations in the number of locations
+	</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="isFluctuating">
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="justification">
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

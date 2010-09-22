@@ -1,0 +1,11 @@
+<field id="4">
+	<!-- AAH used General Info -->
+	<canonicalName>RegionInformation</canonicalName>
+	<description>Regional Information</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure description="Regions" id="b">
+			<regionalInformation/>
+		</structure>
+	</structures>
+</field>

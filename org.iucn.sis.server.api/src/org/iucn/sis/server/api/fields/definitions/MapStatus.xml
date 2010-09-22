@@ -1,0 +1,17 @@
+<field id="15">
+	<!-- AAH used General Info -->
+	<canonicalName>MapStatus</canonicalName>
+	<description>Map Status</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="status">
+			<singleSelect>
+				<option>Done</option>
+				<option>Missing</option>
+				<option>Incomplete</option>
+				<option>Not possible</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>

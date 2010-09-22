@@ -1,0 +1,35 @@
+<field id="4">
+	<!-- AAH used General Info -->
+	<canonicalName>Livelihoods</canonicalName>
+	<description>Livelihoods</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="noInfo" description="No Livelihood Information">
+						<boolean />
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="livelihoodDetails">
+						<oneToMany>
+							<structure>
+								<livelihoods />
+							</structure>
+						</oneToMany>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>true</activateOnRule>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
