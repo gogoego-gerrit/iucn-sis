@@ -121,4 +121,8 @@ public abstract class PrimitiveField<T> implements java.io.Serializable {
 		setName(name);
 		setRawValue(value);
 	}
+	
+	public String toString() {
+		return name + " (" + id + "): " + getRawValue();
+	}
 }

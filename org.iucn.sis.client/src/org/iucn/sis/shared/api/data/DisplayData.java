@@ -91,6 +91,7 @@ public abstract class DisplayData implements Serializable {
 		this.canonicalName = "";
 		this.classOfService = "";
 		this.references = new ArrayList<String>();
+		this.lookups = new LookupDataContainer();
 	}
 	
 	public void addLookup(String key, LookupData data) {

@@ -32,8 +32,12 @@ public class FieldDisplay extends Display {
 			boolean hasChanged;
 			if (struct.isPrimitive())
 				hasChanged = struct.hasChanged(field == null ? null : field.getPrimitiveField(struct.getId()));
-			else
-				hasChanged = struct.hasChanged(field == null ? null : field.getField(struct.getId()));
+			else {
+				if (struct.getId() == null || "".equals(struct.getId()))
+					hasChanged = struct.hasChanged(field);
+				else
+					hasChanged = struct.hasChanged(field.getField(struct.getId()));
+			}
 			
 			if (hasChanged)
 				return true;
@@ -52,8 +56,12 @@ public class FieldDisplay extends Display {
 		for (DisplayStructure struct : getStructures()) {
 			if (struct.isPrimitive())
 				struct.save(field, field.getPrimitiveField(struct.getId()));
-			else
-				struct.save(field, field.getField(struct.getId()));
+			else {
+				if (struct.getId() == null || "".equals(struct.getId()))
+					struct.setData(field);
+				else
+					struct.setData(field.getField(struct.getId()));
+			}
 		}
 	}
 	
@@ -67,12 +75,12 @@ public class FieldDisplay extends Display {
 		displayPanel = new HorizontalPanel();
 		displayPanel.setSize("100%", "100%");
 		// displayPanel.addStyleName("standout");
-
-		for (int i = 0; i < myStructures.size(); i++) {
+		
+		for (DisplayStructure structure : myStructures) {
 			if (viewOnly)
-				displayPanel.add((myStructures.get(i)).generateViewOnly());
+				displayPanel.add((structure).generateViewOnly());
 			else
-				displayPanel.add((myStructures.get(i)).generate());
+				displayPanel.add((structure).generate());
 		}
 		return displayPanel;
 	}
@@ -84,8 +92,12 @@ public class FieldDisplay extends Display {
 		for (DisplayStructure cur : getStructures()) {
 			if (cur.isPrimitive())
 				cur.setData(field == null ? null : field.getPrimitiveField(cur.getId()));
-			else
-				cur.setData(field == null ? null : field.getField(cur.getId()));
+			else {
+				if (cur.getId() == null || "".equals(cur.getId()))
+					cur.setData(field);
+				else
+					cur.setData(field.getField(cur.getId()));
+			}
 		}
 	}
 	

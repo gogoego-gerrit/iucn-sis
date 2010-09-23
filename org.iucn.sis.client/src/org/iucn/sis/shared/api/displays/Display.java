@@ -17,6 +17,7 @@ import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DefinitionPanel;
 import org.iucn.sis.shared.api.data.DisplayData;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
@@ -347,7 +348,7 @@ public abstract class Display implements Referenceable {
 		for (int i = 0; i < this.myStructures.size(); i++) {
 			retWidgets.add(this.myStructures.get(i).generate());
 		}
-		SysDebugger.getInstance().println(
+		Debug.println(
 				"Returned " + myStructures.size() + " widgets to show for " + this.description);
 		return retWidgets;
 	}

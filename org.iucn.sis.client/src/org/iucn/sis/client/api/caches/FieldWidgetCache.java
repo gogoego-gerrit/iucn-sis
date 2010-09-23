@@ -36,7 +36,7 @@ public class FieldWidgetCache {
 	public void addAssessmentToDisplay(Display display) {
 		if (AssessmentCache.impl.getCurrentAssessment() != null && display != null) {
 			Field field = AssessmentCache.impl.getCurrentAssessment().getField(display.getCanonicalName());
-			if( field == null )
+			if (field == null)
 				field = new Field(display.getCanonicalName(), AssessmentCache.impl.getCurrentAssessment());
 		
 			display.setData(field);
