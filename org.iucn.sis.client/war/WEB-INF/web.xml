@@ -7,7 +7,7 @@
     	</context-param>
     	
         <servlet>
-                <servlet-name>adapter</servlet-name>
+                <servlet-name>sis</servlet-name>
                 <servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
                 <init-param> <!--  The application specified here is bogus; SIS Bootstrap will
                                    take care of application attachment -->
@@ -60,7 +60,7 @@
         </servlet>
 
         <servlet-mapping>
-                <servlet-name>schemes</servlet-name>
+                <servlet-name>sis</servlet-name>
                 <url-pattern>/proxy-service/*</url-pattern>
         </servlet-mapping>
 </web-app>
