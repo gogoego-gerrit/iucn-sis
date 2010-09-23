@@ -9,6 +9,7 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
@@ -126,7 +127,7 @@ public class AssessmentClientSaveUtils {
 			final Assessment assessmentToSave) {
 		
 		for (Display cur : fieldWidgets) {
-			System.out.println("Saving data to Field " + cur.getCanonicalName());
+			//Debug.println("Saving data to Field {0}: {1}", cur.getCanonicalName(), cur.getField().getPrimitiveField());
 			cur.save();
 			
 			Field curField = cur.getField();

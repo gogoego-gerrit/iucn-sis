@@ -37,7 +37,10 @@ public class SISDominantStructureCollection extends Structure<Field> implements 
 			if (cur.isPrimitive())
 				cur.save(field, field.getPrimitiveField(cur.getId()));
 			else
-				cur.save(field, field.getField(cur.getId()));
+				if (cur.hasId())
+					cur.save(field, field.getField(cur.getId()));
+				else
+					cur.save(field, null);
 	}
 	
 	@Override
@@ -131,7 +134,10 @@ public class SISDominantStructureCollection extends Structure<Field> implements 
 			if (structure.isPrimitive())
 				hasChanged = structure.hasChanged(field.getPrimitiveField(structure.getId()));
 			else
-				hasChanged = structure.hasChanged(field.getField(structure.getId()));
+				if (structure.hasId())
+					hasChanged = structure.hasChanged(field.getField(structure.getId()));
+				else
+					hasChanged = structure.hasChanged(field);
 			
 			if (hasChanged)
 				return true;

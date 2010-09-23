@@ -10,6 +10,7 @@
 package org.iucn.sis.shared.api.displays;
 
 import org.iucn.sis.shared.api.data.FieldData;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 
@@ -33,7 +34,7 @@ public class FieldDisplay extends Display {
 			if (struct.isPrimitive())
 				hasChanged = struct.hasChanged(field == null ? null : field.getPrimitiveField(struct.getId()));
 			else {
-				if (struct.getId() == null || "".equals(struct.getId()))
+				if (!struct.hasId())
 					hasChanged = struct.hasChanged(field);
 				else
 					hasChanged = struct.hasChanged(field.getField(struct.getId()));
@@ -57,10 +58,10 @@ public class FieldDisplay extends Display {
 			if (struct.isPrimitive())
 				struct.save(field, field.getPrimitiveField(struct.getId()));
 			else {
-				if (struct.getId() == null || "".equals(struct.getId()))
-					struct.setData(field);
+				if (!struct.hasId())
+					struct.save(field, null);
 				else
-					struct.setData(field.getField(struct.getId()));
+					struct.save(field, field.getField(struct.getId()));
 			}
 		}
 	}
@@ -93,7 +94,7 @@ public class FieldDisplay extends Display {
 			if (cur.isPrimitive())
 				cur.setData(field == null ? null : field.getPrimitiveField(cur.getId()));
 			else {
-				if (cur.getId() == null || "".equals(cur.getId()))
+				if (!cur.hasId())
 					cur.setData(field);
 				else
 					cur.setData(field.getField(cur.getId()));

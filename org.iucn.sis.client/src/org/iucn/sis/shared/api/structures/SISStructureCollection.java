@@ -56,8 +56,12 @@ public class SISStructureCollection extends Structure<Field> {
 		for (DisplayStructure cur : structures) {
 			if (cur.isPrimitive())
 				cur.save(field, field.getPrimitiveField(cur.getId()));
-			else
-				cur.save(field, field.getField(cur.getId()));
+			else {
+				if (cur.hasId())
+					cur.save(field, field.getField(cur.getId()));
+				else
+					cur.save(field, null);
+			}
 		}
 	}
 
@@ -212,7 +216,10 @@ public class SISStructureCollection extends Structure<Field> {
 			if (structure.isPrimitive())
 				structure.setData(field == null ? null : field.getPrimitiveField(structure.getId()));
 			else
-				structure.setData(field == null ? null : field.getField(structure.getId()));
+				if (structure.hasId())
+					structure.setData(field == null ? null : field.getField(structure.getId()));
+				else
+					structure.setData(field);
 			/*for(String key: ((Structure) structures.get(i)).extractModelData().getPropertyNames())
 				model.set(key, ((Structure) structures.get(i)).extractModelData().get(key));*/
 		}

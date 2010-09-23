@@ -236,6 +236,10 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 	public String getTitle() {
 		return title;
 	}
+	
+	public boolean hasId() {
+		return !(id == null || "".equals(id));
+	}
 
 	public void hide() {
 		displayPanel.setVisible(false);

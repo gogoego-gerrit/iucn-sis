@@ -35,6 +35,12 @@ public interface DisplayStructure<T, V> {
 	public String getId();
 	
 	/**
+	 * Determine if this structure has an ID
+	 * @return
+	 */
+	public boolean hasId();
+	
+	/**
 	 * Gets a description of the type of structure this is
 	 * 
 	 * @return the structure

@@ -75,13 +75,20 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 		if (dominantStructure.isPrimitive())
 			dominantStructure.save(field, field.getPrimitiveField(dominantStructure.getId()));
 		else
-			dominantStructure.save(field, field.getField(dominantStructure.getId()));
+			if (dominantStructure.hasId())
+				dominantStructure.save(field, field.getField(dominantStructure.getId()));
+			else
+				dominantStructure.save(field, null);
 		
 		for (DisplayStructure cur : dependantStructures) {
 			if (cur.isPrimitive())
 				cur.save(field, field.getPrimitiveField(cur.getId()));
-			else
-				cur.save(field, field.getField(cur.getId()));
+			else {
+				if (cur.hasId())
+					cur.save(field, field.getField(cur.getId()));
+				else
+					cur.save(field, null);
+			}
 		}
 	}
 	
@@ -97,8 +104,12 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 			for (DisplayStructure cur : dependantStructures)
 				if (cur.isPrimitive())
 					hasChanged |= cur.hasChanged(field == null ? null : field.getPrimitiveField(cur.getId()));
-				else
-					hasChanged |= cur.hasChanged(field == null ? null : field.getField(cur.getId()));
+				else {
+					if (cur.hasId())
+						hasChanged |= cur.hasChanged(field == null ? null : field.getField(cur.getId()));
+					else
+						hasChanged |= cur.hasChanged(field);
+				}
 		}
 		
 		return hasChanged;
@@ -301,7 +312,10 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 			if (structure.isPrimitive())
 				structure.setData(field == null ? null : field.getPrimitiveField(structure.getId()));
 			else
-				structure.setData(field == null ? null : field.getField(structure.getId())); 
+				if (structure.hasId())
+					structure.setData(field == null ? null : field.getField(structure.getId()));
+				else
+					structure.setData(field);
 		}
 		
 		//Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();

@@ -36,6 +36,7 @@ public abstract class SISPrimitiveStructure<T> extends Structure<PrimitiveField<
 	public boolean hasChanged(PrimitiveField<T> field) {
 		String oldValue = field == null ? null : field.getRawValue();
 		String newValue = getData();
+		//Debug.println("Comparing {0} to {1}", oldValue, newValue);
 		if (newValue == null)
 			return oldValue != null;
 		else
