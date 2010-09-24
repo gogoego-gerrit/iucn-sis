@@ -37,7 +37,7 @@ import com.solertium.vfs.VFSPathToken;
 
 public class IntegrityValidator {
 	
-	public static boolean validate_background(VFS vfs, ExecutionContext ec, Integer assessmentID, AssessmentType assessmentType) throws DBException {
+	public static boolean validate_background(VFS vfs, ExecutionContext ec, Integer assessmentID) throws DBException {
 		final VFSPathToken[] tokens;
 		try {
 			tokens = vfs.list(ValidationResource.ROOT_PATH);
@@ -58,7 +58,7 @@ public class IntegrityValidator {
 			}
 			
 			IntegrityValidationResponse response = 
-				validate(ec, token.toString(), rule, assessmentID, assessmentType);
+				validate(ec, token.toString(), rule, assessmentID);
 			
 			if (!response.isSuccess()) {
 				success = false;
@@ -84,8 +84,9 @@ public class IntegrityValidator {
 	 * @throws IntegrityValidationResponse
 	 */
 	public static IntegrityValidationResponse validate(ExecutionContext ec,
-			String rule, Document document, Integer assessmentID, AssessmentType assessmentType) throws DBException {
-		final IntegrityValidationResponse preCheck = getExistingValidation(ec, rule, assessmentID, assessmentType);
+			String rule, Document document, Integer assessmentID) throws DBException {
+		final IntegrityValidationResponse preCheck = 
+			getExistingValidation(ec, rule, assessmentID);
 		if (preCheck != null) {
 			System.out.println("Validating based off a previous run; valid? " + preCheck.isSuccess());
 			return preCheck;
@@ -122,7 +123,7 @@ public class IntegrityValidator {
 
 		query.constrain(QConstraint.CG_AND, new QComparisonConstraint(
 				new CanonicalColumnName("assessment", "uid"),
-				QConstraint.CT_EQUALS, assessmentID+"_"+assessmentType));
+				QConstraint.CT_EQUALS, assessmentID));
 		
 		final Row.Set rs = new Row.Set();
 		
@@ -130,10 +131,10 @@ public class IntegrityValidator {
 
 		final IntegrityValidationResponse response = passesValidation(rs, properties) ? new IntegrityValidationResponse()
 				: new IntegrityValidationResponse(getCause(ec,
-						originalConstraints, document, errorMessages, properties, assessmentID, assessmentType));
+						originalConstraints, document, errorMessages, properties, assessmentID));
 		
 		try {
-			updateStatus(ec, rule, assessmentID, assessmentType, response);
+			updateStatus(ec, rule, assessmentID, response);
 		} catch (DBException e) {
 			e.printStackTrace();
 		}
@@ -141,10 +142,10 @@ public class IntegrityValidator {
 		return response;
 	}
 	
-	public static void updateStatus(ExecutionContext ec, String rule, Integer assessmentID, AssessmentType assessmentType, IntegrityValidationResponse response) throws DBException {
+	public static void updateStatus(ExecutionContext ec, String rule, Integer assessmentID, IntegrityValidationResponse response) throws DBException {
 		final SelectQuery query = new SelectQuery();
 		query.select("assessment_integrity_status", "id");
-		query.constrain(new CanonicalColumnName("assessment_integrity_status", "asm_uid"), QConstraint.CT_EQUALS, assessmentID + "_" + assessmentType);
+		query.constrain(new CanonicalColumnName("assessment_integrity_status", "asm_uid"), QConstraint.CT_EQUALS, assessmentID);
 		query.constrain(QConstraint.CG_AND, new CanonicalColumnName("assessment_integrity_status", "rule"), QConstraint.CT_EQUALS, rule);
 		
 		final Row.Loader rl = new Row.Loader();
@@ -174,7 +175,7 @@ public class IntegrityValidator {
 		
 		if (rowID == null) {
 			row.add(new CInteger("id", rowID = Integer.valueOf((int)RowID.get(ec, "assessment_integrity_status", "id"))));
-			row.add(new CString("asm_uid", assessmentID + "_" + assessmentType));
+			row.add(new CString("asm_uid", assessmentID+""));
 			
 			final InsertQuery insert = new InsertQuery();
 			insert.setTable("assessment_integrity_status");
@@ -192,13 +193,13 @@ public class IntegrityValidator {
 		}
 	}
 	
-	private static IntegrityValidationResponse getExistingValidation(ExecutionContext ec, String rule, Integer assessmentID, AssessmentType assessmentType) {
+	private static IntegrityValidationResponse getExistingValidation(ExecutionContext ec, String rule, Integer assessmentID) {
 		final Row row;
 		final Date date;
 		{
 			final SelectQuery query = new SelectQuery();
 			query.select("assessment_integrity_status", "*");
-			query.constrain(new CanonicalColumnName("assessment_integrity_status", "asm_uid"), QConstraint.CT_EQUALS, assessmentID + "_" + assessmentType);
+			query.constrain(new CanonicalColumnName("assessment_integrity_status", "asm_uid"), QConstraint.CT_EQUALS, assessmentID);
 			query.constrain(QConstraint.CG_AND, new CanonicalColumnName("assessment_integrity_status", "rule"), QConstraint.CT_EQUALS, rule);
 		
 			final Row.Loader rl = new Row.Loader();
@@ -220,7 +221,7 @@ public class IntegrityValidator {
 		{
 			final SelectQuery query = new SelectQuery();
 			query.select("assessment", "dateModified");
-			query.constrain(new CanonicalColumnName("assessment", "uid"), QConstraint.CT_EQUALS, assessmentID + "_" + assessmentType);
+			query.constrain(new CanonicalColumnName("assessment", "uid"), QConstraint.CT_EQUALS, assessmentID);
 			
 			final Row.Loader rl = new Row.Loader();
 			
@@ -338,13 +339,13 @@ public class IntegrityValidator {
 	private static Collection<String> getCause(ExecutionContext ec,
 			QConstraintGroup group, Document document, 
 			Map<String, String> errorMessages, Map<String, String> properties,  
-			Integer assessmentID, AssessmentType assessmentType)
+			Integer assessmentID)
 			throws DBException {
 		final Collection<String> causes = new ArrayList<String>();
 
 		final QComparisonConstraint constraint = new QComparisonConstraint(
 				new CanonicalColumnName("assessment", "uid"),
-				QConstraint.CT_EQUALS, assessmentID+"_"+assessmentType);
+				QConstraint.CT_EQUALS, assessmentID);
 
 		final Integer AND = Integer.valueOf(QConstraint.CG_AND);
 
@@ -387,7 +388,7 @@ public class IntegrityValidator {
 				if (!groupsToParse.isEmpty()) {
 					for (QConstraintGroup curGroup : groupsToParse) {
 						final Collection<String> localCauses = getCause(ec,
-								curGroup, document, errorMessages, properties, assessmentID, assessmentType);
+								curGroup, document, errorMessages, properties, assessmentID);
 						doContinue &= !localCauses.isEmpty();
 						if (!localCauses.isEmpty())
 							causes.addAll(localCauses);
@@ -444,7 +445,7 @@ public class IntegrityValidator {
 
 				if (condition instanceof QConstraintGroup)
 					causes.addAll(getCause(ec, (QConstraintGroup) condition,
-							document, errorMessages, properties, assessmentID, assessmentType));
+							document, errorMessages, properties, assessmentID));
 				else {
 					final ExperimentalSelectQuery query = new ExperimentalSelectQuery();
 					try {

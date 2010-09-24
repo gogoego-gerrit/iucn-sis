@@ -1,5 +1,8 @@
 package org.iucn.sis.server.extensions.integrity;
 
+import java.util.List;
+
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.utils.StructureLoader;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -14,6 +17,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.solertium.db.DBException;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.db.restlet.DBResource;
 import com.solertium.util.BaseDocumentUtils;
@@ -28,7 +32,7 @@ import com.solertium.util.ElementCollection;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
-public class QBLookupListResource extends DBResource {
+public class QBLookupListResource extends IntegrityDBResource {
 
 	public QBLookupListResource(Context context, Request request,
 			Response response) {
@@ -45,45 +49,33 @@ public class QBLookupListResource extends DBResource {
 	public Representation represent(Variant variant) throws ResourceException {
 		final Document document = BaseDocumentUtils.impl.newDocument();
 		final Element root = document.createElement("root");
+		
+		final List<String> tables;
+		try {
+			tables = ec.getDBSession().listTables(ec);
+		} catch (DBException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		for (String table : tables) {
+			if (table.toLowerCase().endsWith("lookup") && table.contains("_")) {
+				String[] split = table.split("_");
+				String column = split[1].toLowerCase().replaceAll("lookup", "");
+				
+				final Element el = document.createElement("column");
+				el.setAttribute("canonicalName", split[0] + "."
+						+ column);
 
-		final Document struct = StructureLoader.loadPostgres();
-		final ElementCollection nodes = new ElementCollection(struct
-				.getDocumentElement().getElementsByTagName("table"));
-		for (Element node : nodes) {
-			String table = node.getAttribute("name");
-			final ElementCollection cols = new ElementCollection(node
-					.getElementsByTagName("column"));
-			for (Element col : cols) {
-				if (!BaseDocumentUtils.impl.getAttribute(col, "lookup").equals(
-						"")) {
-					final Element el = document.createElement("column");
-					el.setAttribute("canonicalName", table + "."
-							+ col.getAttribute("name"));
+				final Element child = document.createElement("lookup");
+				child.setAttribute("table", table);
+				child.setAttribute("keyColumn", "id");
+				child.setAttribute("valueColumn", "label");
 
-					final Element child = document.createElement("lookup");
-					child.setAttribute("table", col.getAttribute("lookup"));
-					child.setAttribute("keyColumn", "index");
-					child.setAttribute("valueColumn", "description");
-
-					el.appendChild(child);
-					root.appendChild(el);
-				}
+				el.appendChild(child);
+				
+				root.appendChild(el);
 			}
 		}
-
-		/*
-		 * Explicit
-		 */
-		final Element region = document.createElement("column");
-		{
-			region.setAttribute("canonicalName", "RegionInformation.region_id");
-			final Element child = document.createElement("lookup");
-			child.setAttribute("table", "RegionLookup");
-			child.setAttribute("keyColumn", "region_id");
-			child.setAttribute("valueColumn", "region_name");
-			region.appendChild(child);
-		}
-		root.appendChild(region);
 
 		document.appendChild(root);
 

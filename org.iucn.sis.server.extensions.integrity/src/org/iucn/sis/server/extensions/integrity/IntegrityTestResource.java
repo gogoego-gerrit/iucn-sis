@@ -23,7 +23,7 @@ import com.solertium.db.restlet.DBResource;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
-public class IntegrityTestResource extends DBResource {
+public class IntegrityTestResource extends IntegrityDBResource {
 
 	public IntegrityTestResource(Context context, Request request,
 			Response response) {

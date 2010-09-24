@@ -19,7 +19,7 @@ import com.solertium.vfs.restlet.VFSProvidingApplication;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
-public abstract class BaseIntegrityResource extends DBResource {
+public abstract class BaseIntegrityResource extends IntegrityDBResource {
 
 	protected final static VFSPath ROOT_PATH = new VFSPath("/integrity/rulesets");
 	protected final VFS vfs;

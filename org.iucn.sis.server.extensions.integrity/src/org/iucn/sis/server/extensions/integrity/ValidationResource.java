@@ -196,7 +196,7 @@ public class ValidationResource extends BaseIntegrityResource {
 		final IntegrityValidationResponse resp;
 		try {
 			resp = IntegrityValidator.validate(ec, rulesetName, ruleset,
-					assessmentID, type);
+					assessmentID);
 		} catch (DBException e) {
 			e.printStackTrace();
 			if (attachHeader)
@@ -299,12 +299,11 @@ public class ValidationResource extends BaseIntegrityResource {
 	}
 	
 	protected String getSpeciesName(AssessmentInfo info) {
-		Assessment data = SIS.get().getAssessmentIO().readAssessment(info.getID());
-		if (data == null) {
-			System.out.println("ASSESSMENT OBJECT FOR " + info.getID() + " and " + info.getType() + " is null.");
+		Assessment assessment = SIS.get().getAssessmentIO().getAssessment(info.getID());
+		if (assessment == null) {
 			return info.getID()+"";
 		} else
-			return data.getSpeciesName();
+			return assessment.getSpeciesName();
 	}
 	
 	protected boolean isAvailable(AssessmentInfo info) {
