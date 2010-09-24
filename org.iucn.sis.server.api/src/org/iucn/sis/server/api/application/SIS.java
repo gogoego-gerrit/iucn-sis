@@ -70,7 +70,7 @@ public class SIS {
 	protected final FieldIO fieldIO;
 	protected final EditIO editIO;
 	protected final NoteIO noteIO;
-	protected final ExecutionContext ec;
+	protected final ExecutionContext ec, lookups;
 
 	protected SIS() {
 
@@ -94,10 +94,14 @@ public class SIS {
 			editIO = new EditIO();
 			noteIO = new NoteIO();
 			fieldIO = new FieldIO();
+			
 			ec = new SystemExecutionContext(DBSessionFactory.getDBSession(getDBSessionName()));
 			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
 			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 			
+			lookups = new SystemExecutionContext("sis_lookups");
+			lookups.setAPILevel(ExecutionContext.SQL_ALLOWED);
+			lookups.setExecutionLevel(ExecutionContext.ADMIN);
 		} catch (NotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (NullPointerException e) {
@@ -302,6 +306,8 @@ public class SIS {
 		return ec;
 	}
 
-	
+	public ExecutionContext getLookupDatabase() {
+		return lookups;
+	}
 	
 }
