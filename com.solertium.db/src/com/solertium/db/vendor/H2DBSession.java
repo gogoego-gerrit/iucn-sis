@@ -175,6 +175,7 @@ public class H2DBSession extends DBSession {
 				c.setLocalName(name);				
 				row.add(c);
 			} catch (NullPointerException e) {
+				System.out.println("# ERROR: Failed to convert column of type " + type);
 				e.printStackTrace();
 			}
 		}
@@ -240,7 +241,7 @@ public class H2DBSession extends DBSession {
 				throw new SQLException("Conversion problem: "
 						+ e.getMessage());
 			} 
-		} else if (typename.startsWith("INT")) {
+		} else if (typename.startsWith("INT") || typename.equals("TINYINT")) {
 			c = new CInteger();
 			try {
 				if (i != null)
