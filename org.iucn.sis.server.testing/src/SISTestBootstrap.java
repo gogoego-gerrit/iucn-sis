@@ -50,6 +50,8 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 			new org.iucn.sis.server.extensions.definitions.ServerActivator().getApplicationFactory().newInstance());
 		map.put("org.iucn.sis.server.extensions.images", 
 			new org.iucn.sis.server.extensions.images.ServerActivator().getApplicationFactory().newInstance());
+		map.put("org.iucn.sis.server.extensions.integrity", 
+			new org.iucn.sis.server.extensions.integrity.ServerActivator().getApplicationFactory().newInstance());
 		
 		//TODO add additional plugins
 		
