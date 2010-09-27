@@ -132,8 +132,7 @@ public class WorkflowManagementResource extends DBResource {
 					success &= IntegrityValidator.
 						validate_background(ServerApplication.
 							getApplication(getContext()).getVFS(), 
-							ec, assessment.getId(), 
-							AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_TYPE)
+							ec, assessment.getId()
 						);
 				} catch (DBException e) {
 					e.printStackTrace();
