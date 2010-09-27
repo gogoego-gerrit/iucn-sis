@@ -44,7 +44,7 @@ public class IntegrityRulesetPropertiesEditor extends Window {
 						failureCondition.getName(), (String)failureCondition.getValue().get("value")
 					);
 					
-					close();
+					hide();
 				}
 				else
 					WindowUtils.errorAlert("Please fill in all fields first.");
@@ -52,7 +52,7 @@ public class IntegrityRulesetPropertiesEditor extends Window {
 		}));
 		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				close();
+				hide();
 			}
 		}));
 	}

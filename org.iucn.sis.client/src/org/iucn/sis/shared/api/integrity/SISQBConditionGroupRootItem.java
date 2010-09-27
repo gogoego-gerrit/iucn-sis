@@ -77,12 +77,12 @@ public abstract class SISQBConditionGroupRootItem extends QBConditionGroupRootIt
 								window.addButton(new Button("Set", new SelectionListener<ButtonEvent>() {
 									public void componentSelected(ButtonEvent ce) {
 										query.setErrorMessage(id, area.getValue());
-										window.close();
+										window.hide();
 									}
 								}));
 								window.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 									public void componentSelected(ButtonEvent ce) {
-										window.close();
+										window.hide();
 									}
 								}));
 								window.show();

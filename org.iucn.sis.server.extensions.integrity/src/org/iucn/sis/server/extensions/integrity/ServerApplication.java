@@ -1,5 +1,10 @@
 package org.iucn.sis.server.extensions.integrity;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SISApplication;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
@@ -10,8 +15,7 @@ import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.InputRepresentation;
 
-import com.solertium.db.restlet.DumpResource;
-import com.solertium.db.restlet.QueryResource;
+import com.solertium.util.TrivialExceptionHandler;
 
 public class ServerApplication extends SISApplication {
 	
@@ -21,8 +25,11 @@ public class ServerApplication extends SISApplication {
 		addResource(getStructRestlet(), "/struct", true, true, false);
 		addResource(getStyleSheetRestlet(), "/styles.css", true, true, false);
 		
-		addResource(RuleSetResource.class, "/ruleset", true, true, false);
-		addResource(RuleSetResource.class, "/ruleset/{rule}", true, true, false);
+		List<String> rulesetPaths = new ArrayList<String>();
+		rulesetPaths.add("/ruleset");
+		rulesetPaths.add("/ruleset/{rule}");
+		
+		addResource(RuleSetResource.class, rulesetPaths, true, true, false);
 		
 		addResource(IntegrityDumpResource.class, "/dump", true, true, false);
 		addResource(IntegrityQueryResource.class, "/query", true, true, false);
@@ -38,6 +45,14 @@ public class ServerApplication extends SISApplication {
 		return new Restlet(app.getContext()) {
 			public void handle(Request request, Response response) {
 				if (Method.GET.equals(request.getMethod())) {
+					if ("true".equals(request.getResourceRef().getQueryAsForm().getFirstValue("fresh"))) {
+						try {
+							SIS.get().getVFS().delete(IntegrityStructureGenerator.CACHED_STRUCTURE);
+						} catch (IOException e) {
+							TrivialExceptionHandler.ignore(this, e);
+						}
+					}
+					
 					try {
 						response.setEntity(new DomRepresentation(
 								MediaType.TEXT_XML, IntegrityStructureGenerator.generate()));

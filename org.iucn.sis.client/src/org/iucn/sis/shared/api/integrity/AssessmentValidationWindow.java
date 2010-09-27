@@ -1,6 +1,5 @@
 package org.iucn.sis.shared.api.integrity;
 
-import org.iucn.sis.client.api.panels.integrity.IntegrityApplicationPanel;
 import org.iucn.sis.client.api.panels.integrity.ValidationResultsWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 
@@ -56,7 +55,7 @@ public class AssessmentValidationWindow extends Window implements DrawsLazily {
 	public void draw(final DoneDrawingCallback callback) {
 		final NativeDocument document = NativeDocumentFactory
 				.newNativeDocument();
-		document.get(UriBase.getInstance().getIntegrityBase() + IntegrityApplicationPanel.APP_MOUNT + "/ruleset",
+		document.get(UriBase.getInstance().getIntegrityBase() + "/ruleset",
 				new GenericCallback<String>() {
 					public void onSuccess(String result) {
 						final ListStore<BaseModelData> store = new ListStore<BaseModelData>();
@@ -113,7 +112,7 @@ public class AssessmentValidationWindow extends Window implements DrawsLazily {
 						addButton(new Button("Close",
 								new SelectionListener<ButtonEvent>() {
 									public void componentSelected(ButtonEvent ce) {
-										close();
+										hide();
 									}
 								}));
 
@@ -145,7 +144,7 @@ public class AssessmentValidationWindow extends Window implements DrawsLazily {
 		ClientAssessmentValidator.validate(assessmentID, assessmentType, file,
 				new GenericCallback<NativeDocument>() {
 					public void onSuccess(NativeDocument result) {
-						close();
+						hide();
 						ValidationResultsWindow window = new ValidationResultsWindow(
 								assessmentID, result.getText());
 						window.show();
@@ -153,7 +152,7 @@ public class AssessmentValidationWindow extends Window implements DrawsLazily {
 
 					public void onFailure(Throwable caught) {
 						// Nothing else to do...
-						close();
+						hide();
 					}
 				});
 	}

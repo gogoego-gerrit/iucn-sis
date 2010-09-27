@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.integrity;
 
 import org.iucn.sis.client.api.panels.integrity.IntegrityApplicationPanel;
-import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.google.gwt.user.client.Window;
@@ -63,7 +62,7 @@ public class ClientAssessmentValidator {
 
 		final NativeDocument document = NativeDocumentFactory
 				.newNativeDocument();
-		document.postAsText(UriBase.getInstance().getIntegrityBase() + IntegrityApplicationPanel.createUrl(rulesetName,
+		document.postAsText(IntegrityApplicationPanel.createUrl(rulesetName,
 				"validate"), body, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils

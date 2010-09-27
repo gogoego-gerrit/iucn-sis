@@ -1,9 +1,9 @@
 package org.iucn.sis.server.extensions.integrity;
 
+import java.io.IOException;
 import java.util.List;
 
-import javax.naming.NamingException;
-
+import org.gogoego.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
 import org.w3c.dom.Document;
@@ -12,26 +12,31 @@ import org.w3c.dom.Element;
 import com.solertium.db.DBException;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
-import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.TrivialExceptionHandler;
+import com.solertium.vfs.VFS;
+import com.solertium.vfs.VFSPath;
 
 public class IntegrityStructureGenerator {
 	
+	public static final VFSPath CACHED_STRUCTURE = 
+		new VFSPath("/integrity/struct.xml");
+	
 	public static Document generate() {
+		final VFS vfs = SIS.get().getVFS();
+		if (vfs.exists(CACHED_STRUCTURE))
+			try {
+				return vfs.getDocument(CACHED_STRUCTURE);
+			} catch (IOException e) {
+				//??? meh, regenerate...
+				TrivialExceptionHandler.ignore(vfs, e);
+			}
+			
 		final Document document = BaseDocumentUtils.impl.newDocument();
 		document.appendChild(document.createElement("tables"));
 		
 		ExecutionContext ec = SIS.get().getLookupDatabase();
-		/*try {
-			ec = new SystemExecutionContext("sis_lookups");
-		} catch (NamingException e) {
-			e.printStackTrace();
-			return document;
-		}
-		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
-		ec.setExecutionLevel(ExecutionContext.ADMIN);*/
 		
 		final List<String> allFields =
 			SIS.get().getFieldIO().getAllFields();
@@ -78,6 +83,8 @@ public class IntegrityStructureGenerator {
 			
 			document.getDocumentElement().appendChild(tableEl);
 		}
+		
+		DocumentUtils.writeVFSFile(CACHED_STRUCTURE.toString(), vfs, document);
 		
 		return document;
 	}

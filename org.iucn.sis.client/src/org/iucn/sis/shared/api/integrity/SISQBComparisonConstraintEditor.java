@@ -39,7 +39,7 @@ public class SISQBComparisonConstraintEditor extends QBComparisonConstraintEdito
 			comparison.setComparisonType(Integer.parseInt(box.getValue(box.getSelectedIndex())));
 			comparison.setComparisonValue("${date.now}");
 			comparison.ask = null;
-			close();
+			hide();
 		}
 		super.onSave();
 	}

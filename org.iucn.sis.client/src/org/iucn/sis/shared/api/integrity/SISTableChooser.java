@@ -60,7 +60,11 @@ public class SISTableChooser extends FriendlyNameTableChooser {
 		tableChooser.setHeight("200px");
 		tableChooser.setTooltipSchedule(500);
 
+		try {
 		populateTableListing();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 
 		table.setWidget(0, 0, new StyledHTML("Choose Table", "CIPD_Header"));
 		table.setWidget(1, 0, tableChooser);

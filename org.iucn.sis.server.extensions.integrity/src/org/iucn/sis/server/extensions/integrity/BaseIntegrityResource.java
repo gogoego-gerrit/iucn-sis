@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.integrity;
 
+import org.iucn.sis.server.api.application.SIS;
 import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.data.Request;
@@ -28,7 +29,7 @@ public abstract class BaseIntegrityResource extends IntegrityDBResource {
 			Response response) {
 		super(context, request, response);
 
-		vfs = ((VFSProvidingApplication) Application.getCurrent()).getVFS();
+		vfs = SIS.get().getVFS();
 	}
 
 }

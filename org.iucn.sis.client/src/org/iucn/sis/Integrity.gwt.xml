@@ -20,6 +20,8 @@
 	<inherits name='com.solertium.util.querybuilder.gwt.QueryBuilderExtSource' />
 	<inherits name='com.solertium.util.gwt.Util' />
 	
+	<inherits name='com.solertium.util.Events' />
+	
 	<source path='client'/>
 	<source path='shared'/>
 	

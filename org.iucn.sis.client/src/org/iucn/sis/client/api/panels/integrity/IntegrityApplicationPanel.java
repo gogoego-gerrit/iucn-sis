@@ -63,8 +63,6 @@ import com.solertium.util.querybuilder.struct.DBStructure;
  */
 public class IntegrityApplicationPanel extends LayoutContainer implements DrawsLazily {
 
-	public static final String APP_MOUNT = "/integrity";
-
 	private static final Collection<SelectedField> defaultTables = loadDefaults();
 
 	private static Collection<SelectedField> loadDefaults() {
@@ -125,18 +123,13 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 	public void draw(final DoneDrawingCallback callback) {
 		TableChooserCreator.getInstance().register("SIS", new SISTableChooserFactory());
 		DBStructure.getInstance().setChooserType("SIS");
-		DBStructure.getInstance().setURL(APP_MOUNT + "/struct");
-		DBStructure.getInstance().addPrivateTable("asm_edits");
-		DBStructure.getInstance().addPrivateTable("assessment_integrity_status");
-		DBStructure.getInstance().addPrivateTable("common_name");
-		DBStructure.getInstance().addPrivateTable("synonyms");
-		DBStructure.getInstance().addPrivateTable("taxonomy");
+		DBStructure.getInstance().setURL(UriBase.getInstance().getIntegrityBase() + "/struct");
 		DBStructure.getInstance().load(new GenericCallback<Object>() {
 			public void onSuccess(Object result) {
 				final NativeDocument lookups = NativeDocumentFactory.newNativeDocument();
-				lookups.get(UriBase.getInstance().getIntegrityBase() + APP_MOUNT + "/lookup", new GenericCallback<String>() {
+				lookups.get(UriBase.getInstance().getIntegrityBase() + "/lookup", new GenericCallback<String>() {
 					public void onSuccess(String result) {
-						DBStructure.getInstance().loadLookupTables(APP_MOUNT + "/lookup", lookups);
+						DBStructure.getInstance().loadLookupTables(UriBase.getInstance().getIntegrityBase() + "/lookup", lookups);
 						finish(callback);
 					}
 
@@ -154,7 +147,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 
 	private void finish(final DrawsLazily.DoneDrawingCallback callback) {
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.get(UriBase.getInstance().getIntegrityBase() + APP_MOUNT + "/ruleset", new GenericCallback<String>() {
+		document.get(UriBase.getInstance().getIntegrityBase() + "/ruleset", new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				render(document, callback);
 			}
@@ -216,7 +209,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 				final String ruleName = be.getSelected().get(0).getText();
 				final String selectedUri = createUrl(ruleName);
 				final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-				document.get(UriBase.getInstance().getIntegrityBase() + selectedUri, new GenericCallback<String>() {
+				document.get(selectedUri, new GenericCallback<String>() {
 					public void onSuccess(String result) {
 						final SISQBQuery query = new SISQBQuery();
 						query.load(document);
@@ -329,7 +322,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 
 								public void onYes() {
 									final NativeDocument delete = NativeDocumentFactory.newNativeDocument();
-									delete.delete(UriBase.getInstance().getIntegrityBase() + createUrl(item.getText()), new GenericCallback<String>() {
+									delete.delete(createUrl(item.getText()), new GenericCallback<String>() {
 										public void onFailure(Throwable caught) {
 											WindowUtils.errorAlert("Failed to delete " + item.getText()
 													+ ", please try again later.");
@@ -379,7 +372,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 
 	private void saveQuery(String selectedUri, final GenericCallback<Object> callback) {
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.post(UriBase.getInstance().getIntegrityBase() + selectedUri, designer.getQuery().toXML(), new GenericCallback<String>() {
+		document.post(selectedUri, designer.getQuery().toXML(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				designer.updateSavedXML();
 				Info.display("Success", "Information Saved.");
@@ -401,7 +394,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 	}
 
 	public static String createUrl(String ruleName, String service) {
-		return APP_MOUNT + "/" + service + (ruleName == null ? "" : "/" + ruleName + ".xml");
+		return UriBase.getInstance().getIntegrityBase() + "/" + service + (ruleName == null ? "" : "/" + ruleName + ".xml");
 	}
 
 	public static class ValidateAssessmentWindow extends Window {
@@ -551,7 +544,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 					}
 
 					final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-					document.put(UriBase.getInstance().getIntegrityBase() + createUrl(field.getValue()), getDefaultXML(), new GenericCallback<String>() {
+					document.put(createUrl(field.getValue()), getDefaultXML(), new GenericCallback<String>() {
 						public void onFailure(Throwable caught) {
 							if (caught instanceof GWTConflictException) {
 								WindowUtils.errorAlert("A configuration by this name already exists.");

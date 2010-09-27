@@ -6,7 +6,6 @@ import java.util.Iterator;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -14,7 +13,8 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.ListBox;
@@ -207,11 +207,11 @@ public class QBComparisonConstraintEditor extends Window {
 			comparison.setComparisonValue(null);
 			comparison.ask = null;
 		}
-		close();
+		hide();
 	}
 
 	public void onClose() {
-		close();
+		hide();
 	}
 
 	private ListBox getComparisonTypes(String selected) {
@@ -272,8 +272,8 @@ public class QBComparisonConstraintEditor extends Window {
 
 		public ChooserIcon() {
 			super("images/small/accessories-text-editor.png");
-			addClickListener(new ClickListener() {
-				public void onClick(Widget sender) {
+			addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
 					openContextMenu();
 				}
 			});
