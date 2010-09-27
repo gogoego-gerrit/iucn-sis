@@ -1,12 +1,19 @@
 package org.iucn.sis.server.extensions.workflow;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkflowNote;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.models.fields.RedListConsistencyCheckField;
+import org.iucn.sis.shared.api.models.fields.RedListEvaluatedField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 
 public class HibernatePersistenceLayer implements PersistenceLayer {
@@ -76,14 +83,48 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 	
 	@Override
 	public void ensureConsistent(Integer workingSetID) throws WorkflowManagerException {
-		// TODO Auto-generated method stub
+		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSetID);
+		System.out.println("Ensuring consistency on " + assessments.size() + " assessments...");
 		
+		final Collection<String> failedSpecies = new ArrayList<String>();
+		for (Assessment data : assessments) {
+			RedListConsistencyCheckField rlCC = new RedListConsistencyCheckField(data);
+			rlCC.load(data.getField(CanonicalNames.RedListConsistencyCheck));
+			
+			if (!rlCC.isProgressComplete() || !rlCC.hasPassed())
+				failedSpecies.add(data.getSpeciesName());
+		}
+		
+		if (!failedSpecies.isEmpty()) {
+			final StringBuilder builder = new StringBuilder();
+			builder.append("The following species have not yet been marked as consistency checked: ");
+			for (Iterator<String> iter = failedSpecies.iterator(); iter.hasNext(); )
+				builder.append(iter.next() + (iter.hasNext() ? ", " : ""));
+			throw new WorkflowManagerException(builder.toString());	
+		}
 	}
 	
 	@Override
 	public void ensureEvaluated(WorkingSet workingSet) throws WorkflowManagerException {
-		// TODO Auto-generated method stub
+		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSet);
+		System.out.println("Ensuring evaluation on " + assessments.size() + " assessments...");
 		
+		final Collection<String> failedSpecies = new ArrayList<String>();
+		for (Assessment data : assessments) {
+			RedListEvaluatedField field = new RedListEvaluatedField(data);
+			field.load(data.getField(CanonicalNames.RedListEvaluated));
+			
+			if (!(field.isEvaluated() && field.hasPassed()))
+				failedSpecies.add(data.getSpeciesName());
+		}
+		
+		if (!failedSpecies.isEmpty()) {
+			final StringBuilder builder = new StringBuilder();
+			builder.append("The following species have not yet been marked as evaluted: ");
+			for (Iterator<String> iter = failedSpecies.iterator(); iter.hasNext(); )
+				builder.append(iter.next() + (iter.hasNext() ? ", " : ""));
+			throw new WorkflowManagerException(builder.toString());
+		}
 	}
 	
 	@Override

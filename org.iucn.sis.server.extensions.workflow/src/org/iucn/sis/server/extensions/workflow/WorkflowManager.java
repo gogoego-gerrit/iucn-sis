@@ -25,7 +25,8 @@ public class WorkflowManager {
 //	private final VFS vfs;
 	
 	public WorkflowManager() {
-		this.persistence = new DBSessionPersistenceLayer();
+		//this.persistence = new DBSessionPersistenceLayer();
+		this.persistence = new HibernatePersistenceLayer();
 //		this.vfs = ServerApplication.getStaticVFS();
 	}
 	
