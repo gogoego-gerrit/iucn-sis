@@ -7,12 +7,12 @@ public class ServerActivator extends SISActivator{
 
 	@Override
 	protected String getAppDescription() {
-		return "SIS Integerity Checker";
+		return "SIS Integrity Checker";
 	}
 	
 	@Override
 	protected String getAppName() {
-		return "SIS Integerity Checker";
+		return "SIS Integrity Checker";
 	}
 	
 	@Override

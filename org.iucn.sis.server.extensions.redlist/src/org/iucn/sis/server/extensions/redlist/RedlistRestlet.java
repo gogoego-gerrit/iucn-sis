@@ -41,11 +41,11 @@ public class RedlistRestlet extends ServiceRestlet {
 	public RedlistRestlet(String vfsroot, Context context) {
 		super(vfsroot, context);
 		
-		String pubDestination = GoGoEgo.getInitProperties().getProperty("IMAGE_PUBLISH_URL");
-		if( pubDestination != null && !pubDestination.equals(""))
-			destinationURL = pubDestination;
-		
-		System.out.println("--- Red List image publish destination is: " + destinationURL);
+		/*
+		 * FIXME: make this a setting.
+		 */
+		destinationURL = GoGoEgo.getInitProperties().getProperty(
+			"IMAGE_PUBLISH_URL", "https://rl2009.gogoego.com/admin/files/images/published");
 	}
 
 	@Override
@@ -73,12 +73,9 @@ public class RedlistRestlet extends ServiceRestlet {
 		catch (VFSPathParseException e) {
 			e.printStackTrace();
 		}
-
-
-
 	}
 
-	private void putFiles(Request request, VFSPath directory, String footprint){
+	/*private void putFiles(Request request, VFSPath directory, String footprint){
 		try{
 			VFSPathToken[] listing = vfs.list(directory);
 			for(int i=0;i<listing.length; i++){
@@ -117,7 +114,7 @@ public class RedlistRestlet extends ServiceRestlet {
 		catch (NotFoundException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	@Override
 	public void performService(Request request, Response response) {
@@ -128,8 +125,11 @@ public class RedlistRestlet extends ServiceRestlet {
 
 	}
 
+	/*
+	 * FIXME: stop try/catching everything. 
+	 * 
+	 */
 	private void buildXML(Request request, VFSPath path, boolean put){
-		System.out.println("building xml " + path.toString());
 		try{
 			VFSPathToken[] listing = vfs.list(path);
 			for(int i=0;i<listing.length; i++){
@@ -201,13 +201,11 @@ public class RedlistRestlet extends ServiceRestlet {
 
 								if( put ) {
 									Client client = new Client(Protocol.HTTPS);
-									System.out.println("putting " + destinationURL + "/" + cur.toString().replace("/images/", ""));
 									Request req = new Request(Method.PUT, destinationURL + "/" + cur.toString().replace("/images/", ""));
 									ChallengeResponse cr = new ChallengeResponse(ChallengeScheme.HTTP_BASIC, request.getChallengeResponse().getCredentials());
 									req.setChallengeResponse(cr);
 									req.setEntity(new DomRepresentation(MediaType.TEXT_XML, doc));
-									Response res = client.handle(req);
-									System.out.println(res.getStatus());
+									client.handle(req);
 								} else {
 									aggregate.getDocumentElement().appendChild(aggregate.adoptNode(doc.getDocumentElement()));
 								}

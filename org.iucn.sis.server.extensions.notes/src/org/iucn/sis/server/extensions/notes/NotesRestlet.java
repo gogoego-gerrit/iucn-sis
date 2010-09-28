@@ -1,8 +1,6 @@
 package org.iucn.sis.server.extensions.notes;
 
-import java.io.Writer;
 import java.util.Date;
-import java.util.HashSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -10,7 +8,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
-import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
@@ -23,11 +20,7 @@ import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.restlet.ext.xml.DomRepresentation;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class NotesRestlet extends ServiceRestlet {
 

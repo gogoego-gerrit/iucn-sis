@@ -73,7 +73,6 @@ public class SubmissionResource extends Resource {
 					Column c = r.get(name);
 
 					if (c != null) {
-						System.out.println("  SET: " + name + " = " + value);
 						if (value == null || value.equals(""))
 							c.setObject(null);
 						else
@@ -84,24 +83,18 @@ public class SubmissionResource extends Resource {
 				String newid = r.getMD5Hash();
 				if (id == null || !newid.equals(id)) {
 					// insert new reference
-					System.out.println("Inserting new reference " + newid);
 					r.get("Bib_hash").setObject(newid);
 					InsertQuery query = new InsertQuery("bibliography", r);
-					System.out.println(
-							"## SubmissionResource Insert Query: " + query.getSQL(ec.getDBSession()));
 					try {
 						ec.doUpdate(query);
 					} catch (DBException dbx) {
 						dbx.printStackTrace();
-						System.out.println("Apparently that reference already exists");
 
 						// TODO: COLLISION DETECTED -- NEED TO DO AN UPDATE FOR
 						// TRANSIENT FIELDS, BUT SHOULD DETECT TO ENSURE IT'S
 						// BODILY
 						// THE SAME REFERENCE, AND NOT AN ACTUAL HASH COLLISION
 					}
-				} else {
-					System.out.println("Existing reference " + id + " not materially changed");
 				}
 				// re-query, and glue the canonical representation of this ref
 				// into the response document.

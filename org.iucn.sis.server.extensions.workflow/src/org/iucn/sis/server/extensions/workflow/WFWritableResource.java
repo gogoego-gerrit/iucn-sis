@@ -28,7 +28,7 @@ import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
 import com.solertium.util.NodeCollection;
 
-public class WFWritableResource extends DBResource {
+public class WFWritableResource extends WFDBResource {
 	
 	private final String workingSet;
 

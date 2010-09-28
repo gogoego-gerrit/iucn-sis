@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: SIS Tags Plug-in
+Bundle-Name: SIS Tags
 Bundle-SymbolicName: org.iucn.sis.server.extensions.tags
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.iucn.sis.server.api;bundle-version="1.0.0",
@@ -14,3 +14,4 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
 Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-Activator: org.iucn.sis.server.extensions.tags.ServerActivator
 Export-Package: org.iucn.sis.server.extensions.tags
+Bundle-Vendor: IUCN

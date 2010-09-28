@@ -15,7 +15,7 @@ import com.solertium.db.query.QRelationConstraint;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.db.restlet.DBResource;
 
-public class WFNotesResource extends DBResource {
+public class WFNotesResource extends WFDBResource {
 	
 	private final String workingSet, protocol;
 

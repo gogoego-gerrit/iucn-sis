@@ -25,7 +25,6 @@ public class OfflineCommentResource extends Resource {
 		if (request.getMethod().equals(Method.POST)) {
 			Form f = request.getEntityAsForm();
 			latestComment = f.getFirstValue("comment");
-			System.out.println("latest comment " + latestComment);
 		}
 	}
 
@@ -42,7 +41,6 @@ public class OfflineCommentResource extends Resource {
 				+ "<div style='padding-top:10px'> <span style='font-weight:bold'>liz.schwartz</span> 10 Feb 2008, 8:14 pm</div>"
 				+ "<div>Be sure to use some uncertainty!</div>";
 		if (latestComment != null) {
-			System.out.println("insert " + latestComment);
 			s = s + "<div style='padding-top:10px'> <span style='font-weight:bold'>jim.ragle</span> "
 					+ new Date().toString() + "</div>" + "<div>" + latestComment + "</div>";
 		}
@@ -50,7 +48,6 @@ public class OfflineCommentResource extends Resource {
 				+ "<div style='padding-top:10px'> <span style='font-weight:bold'>Post New Comment</span></div>"
 				+ "<div><textarea name='comment' rows='4' cols='20' style='border:1px solid #a0a0c0; background: #f0f0f0; font-family:Verdana; font-size:x-small'></textarea></div>"
 				+ "<div><input type='submit' value='Post'></div>" + "</form></body></html>";
-		System.out.println("yay " + s);
 		getResponse().setEntity(new StringRepresentation(s, MediaType.TEXT_HTML));
 	}
 

@@ -25,7 +25,6 @@ public class ReferenceApplication extends Application {
 	public static void initializeDatabase() throws DBException {
 		if (isInit)
 			return;
-		System.out.println("Injecting/creating reference database structure");
 		try {
 			ExecutionContext ec = new SystemExecutionContext(DBNAME);
 			ec.setExecutionLevel(ExecutionContext.ADMIN);

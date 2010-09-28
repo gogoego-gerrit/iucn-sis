@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Workflow Plug-in
+Bundle-Name: SIS Workflow
 Bundle-SymbolicName: org.iucn.sis.server.extensions.workflow
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: org.iucn.sis.server.extensions.workflow.ServerActivator
 Require-Bundle: org.restlet;bundle-version="2.0.0",
@@ -19,3 +19,4 @@ Require-Bundle: org.restlet;bundle-version="2.0.0",
  org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
  com.solertium.mail;bundle-version="1.1.2"
 Import-Package: org.osgi.framework;version="1.4.0"
+Bundle-Vendor: IUCN

@@ -9,6 +9,7 @@ import java.util.List;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.locking.LockType;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -111,7 +112,6 @@ public class WorkflowManager {
 		}
 		else {
 			//It can only move up or down.
-			System.out.println("Current status is " + currentStatus + "; can only move up to " + currentStatus.getNextStatus() + " or back to " + currentStatus.getPreviousStatus());
 			if (status.equals(currentStatus.getNextStatus())) {
 				//Moved up in the chain
 				systemComments.add(new WorkflowComment(user, "Status: Working Set status promoted to " + status));
@@ -223,7 +223,7 @@ public class WorkflowManager {
 	private void lockWorkingSet(Integer workingSetID) throws Exception {
 		final WorkingSet  data = SIS.get().getWorkingSetIO().readWorkingSet(workingSetID);
 		
-		System.out.println("Looking to lock all unlocked working sets in " + 
+		Debug.println("Looking to lock all unlocked working sets in " + 
 			workingSetID + "; there are " + data.getSpeciesIDs().size() + 
 			" species in this working set."
 		);
@@ -251,7 +251,7 @@ public class WorkflowManager {
 	private void copyToNotifiedUsers(Integer workingSet, Collection<WorkflowUserInfo> notify) {
 		for (WorkflowUserInfo info : notify) {
 			if (SIS.get().getWorkingSetIO().subscribeToWorkingset(workingSet, info.getID()))
-				System.out.println("Failed to copy working set to notified users " + info.getName());
+				Debug.println("Failed to copy working set to notified users " + info.getName());
 		}
 	}
 	

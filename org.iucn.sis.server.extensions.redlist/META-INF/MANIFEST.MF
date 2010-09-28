@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: SIS Redlist Plug-in
+Bundle-Name: SIS Redlist Application
 Bundle-SymbolicName: org.iucn.sis.server.extensions.redlist
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Activator: org.iucn.sis.server.extensions.redlist.ServerActivator
 Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
@@ -15,3 +15,4 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  com.solertium.util;bundle-version="1.1.2",
  org.iucn.sis.clientshared.bridge;bundle-version="1.0.0"
 Import-Package: org.osgi.framework;version="1.4.0"
+Bundle-Vendor: IUCN

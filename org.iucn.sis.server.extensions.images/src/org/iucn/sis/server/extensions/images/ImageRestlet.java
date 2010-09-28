@@ -284,8 +284,6 @@ public class ImageRestlet extends ServiceRestlet {
 					e.printStackTrace();
 					continue;
 				}
-					
-				System.out.println("Putting into filenames " + filename.replaceAll("[^a-zA-Z0-9]", ""));
 			}
 		}
 			
@@ -299,14 +297,12 @@ public class ImageRestlet extends ServiceRestlet {
 			}
 			
 			for (String key : map.keySet()) {
-				System.out.println("Working with key " + key + ": matching filename is " + filenames.get(key));
 				if (writeXML(map.get(key).getField("sp_id"), String.valueOf(filenames.get(key)), encodings.get(key), map.get(key))){
 					xml.append("<div>"+map.get(key).getField("filename")+": Success</div><br/>");
 				}
 				else{
 					xml.append("<div>"+map.get(key).getField("filename")+": Failure</div><br/>");
 				}
-				System.out.println(xml);
 			}
 				
 			xml.append("</div></body></html>");
@@ -324,7 +320,6 @@ public class ImageRestlet extends ServiceRestlet {
 			String line = lineReader.readLine();
 			
 			if (line.contains("sp_id")){
-				System.out.println("found header line. Ignoring...");
 				continue; //ignore xsl export headers
 			}
 			CSVTokenizer tokenizer = new CSVTokenizer(line);

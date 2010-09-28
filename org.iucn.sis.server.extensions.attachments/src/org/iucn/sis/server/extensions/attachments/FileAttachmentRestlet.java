@@ -191,7 +191,6 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 
 	private void handlePost(Request request, Response response,
 			String assessmentID) {
-		System.out.println("handlePost for assessmentID " + assessmentID);
 		RestletFileUpload fileUploaded = new RestletFileUpload(
 				new DiskFileItemFactory());
 		List<FileItem> list;
@@ -215,16 +214,12 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 		}
 
 		if (isPublished == null || file == null || assessmentID == null) {
-			System.out.println("published is " + isPublished + " file is "
-					+ file + " assessmentID is " + assessmentID);
 			response
 					.setStatus(
 							Status.CLIENT_ERROR_BAD_REQUEST,
 							"File, publish status, and Assessment ID must be sent in order to attach to assessment");
 			return;
 		} else if (!isValidFilename(file.getName())) {
-			System.out.println("isValidFilename is false with filename "
-					+ file.getName());
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,
 					"Filename must not contain \"_\"");
 			return;
@@ -253,12 +248,10 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 				response
 						.setStatus(Status.SERVER_ERROR_INTERNAL,
 								"Unable to add file to the attachment registry, try again later.");
-				System.out.println("failed to add to registry");
 			}
 		} else {
 			response.setStatus(Status.SERVER_ERROR_INTERNAL,
 					"Unable to save attachment");
-			System.out.println("unable to write file");
 		}
 
 	}
@@ -322,7 +315,6 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 		Document doc = DocumentUtils.getVFSFileAsDocument(registryPath
 				.toString(), vfs);
 		if (doc == null) {
-			System.out.println("failed to find document " + registryPath);
 			return false;
 		}
 
@@ -337,7 +329,6 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 		}
 
 		if (elementToModify == null) {
-			System.out.println("failed to find attachmentID " + attachmentID);
 			return false;
 		}
 

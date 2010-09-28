@@ -51,7 +51,6 @@ public class SpeciesSearchResource extends Resource {
 			@SuppressWarnings("unchecked")
 			final Element rootEl = doc.createElement("references");
 			doc.appendChild(rootEl);
-			System.out.println(sq.getSQL(ec.getDBSession()));
 			ec.doQuery(sq, new ReferenceRowProcessor(doc, rootEl, ReferenceLabels.loadFrom(getContext())));
 			return new DomRepresentation(MediaType.TEXT_XML, doc);
 		} catch (final DBException dbx) {

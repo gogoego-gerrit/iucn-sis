@@ -62,9 +62,7 @@ public class MarkedRestlet extends ServiceRestlet {
 	}
 
 	private void putMarked(Request request, Response response, String username) {
-
 		if (!vfs.exists(getUsersFolder(username))) {
-			System.out.println("the user does not exist");
 			response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
 		} else {
 			try {

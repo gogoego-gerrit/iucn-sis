@@ -31,7 +31,7 @@ import com.solertium.db.restlet.DBResource;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.NodeCollection;
 
-public class WorkflowManagementResource extends DBResource {
+public class WorkflowManagementResource extends WFDBResource {
 	
 	private final WorkflowManager manager;
 	private final String workingSet;
@@ -119,8 +119,6 @@ public class WorkflowManagementResource extends DBResource {
 			final Collection<Assessment> assessments = 
 				WorkflowManager.getAllAssessments(data);
 			
-			System.out.println("There are " + assessments.size() + " assessments in this working set...");
-			
 			if (assessments.isEmpty()) {
 				die(new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED, "There are no assessments available in this working set."));
 				return;
@@ -130,8 +128,7 @@ public class WorkflowManagementResource extends DBResource {
 			for (Assessment assessment : assessments) {
 				try {
 					success &= IntegrityValidator.
-						validate_background(ServerApplication.
-							getApplication(getContext()).getVFS(), 
+						validate_background(SIS.get().getVFS(), 
 							ec, assessment.getId()
 						);
 				} catch (DBException e) {

@@ -2,7 +2,6 @@ package org.iucn.sis.server.extensions.recentasms;
 
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
-import org.iucn.sis.server.api.utils.ServerPaths;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;

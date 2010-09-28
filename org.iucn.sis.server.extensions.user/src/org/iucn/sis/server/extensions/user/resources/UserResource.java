@@ -87,8 +87,6 @@ public class UserResource extends Resource {
 
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 		getVariants().add(new Variant(MediaType.TEXT_CSV));
-		
-		System.out.println("in constructor of User resource");
 	}
 
 	/*
@@ -99,8 +97,6 @@ public class UserResource extends Resource {
 	 */
 	@Override
 	public void acceptRepresentation(Representation entity) throws ResourceException {
-		System.out.println("in acceptReprentation");
-		
 		if (uri == null || VFSPath.ROOT.equals(uri))
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 
@@ -335,7 +331,6 @@ public class UserResource extends Resource {
 		}
 		
 		xml.append("</result>");
-		System.out.println("returning xml: " + xml);
 		return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
 		
 	}
@@ -348,8 +343,6 @@ public class UserResource extends Resource {
 		final Form queryStr = getQuery();
 		final String activeOnly = queryStr.getFirstValue("active");
 		final String format = queryStr.getFirstValue("format");
-		System.out.println("uri is " + uri);
-		System.out.println("format is " + format);
 		
 		//GET ALL USER PROFILE INFO
 		if (format == null && uri.equals(VFSPath.ROOT)) {
@@ -503,7 +496,6 @@ public class UserResource extends Resource {
 	 */
 	@Override
 	public void storeRepresentation(Representation entity) throws ResourceException {
-		System.out.println("in store representation");
 		if (uri == null || !VFSPath.ROOT.equals(uri))
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 

@@ -83,7 +83,6 @@ public class CommentRestlet extends ServiceRestlet {
 				String newComment = request.getEntity().getText();
 
 				comments = comments.replace("</comments>", newComment + "\r\n</comments>");
-				System.out.println(comments);
 
 				Writer writer = vfs.getWriter(url);
 				writer.write(comments);

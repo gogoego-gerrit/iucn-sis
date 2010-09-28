@@ -15,8 +15,13 @@ import org.w3c.dom.Document;
 
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
+import com.solertium.vfs.VFSPath;
 
 public class DefinitionsRestlet extends ServiceRestlet {
+	
+	private static final VFSPath DEFINITIONS_LOCATION = 
+		new VFSPath("/browse/docs/definitions.xml");
+	
 	private Document definitions;
 	private long lastModded = -1;
 
@@ -30,24 +35,24 @@ public class DefinitionsRestlet extends ServiceRestlet {
 	}
 
 	private void getDefinitions() throws NotFoundException {
-		if (vfs.getLastModified("/browse/docs/definitions.xml") == lastModded)
+		if (vfs.getLastModified(DEFINITIONS_LOCATION) == lastModded)
 			return;
 
 		try {
-			definitions = DocumentUtils.getVFSFileAsDocument("/browse/docs/definitions.xml", vfs);
-			lastModded = vfs.getLastModified("/browse/docs/definitions.xml");
-		} catch (Exception e) {
-			System.out.println("Could not find definitions document.");
-		}
+			definitions = vfs.getDocument(DEFINITIONS_LOCATION);
+			lastModded = vfs.getLastModified(DEFINITIONS_LOCATION);
+		} catch (IOException e) {
+			throw new NotFoundException();
+		}	
 	}
 	
 	protected void postDefinitions(Request request) throws IOException {
 		Document doc = new DomRepresentation(request.getEntity()).getDocument();
 		
-		if (DocumentUtils.writeVFSFile("/browse/docs/definitions.xml", vfs, doc))
+		if (DocumentUtils.writeVFSFile(DEFINITIONS_LOCATION.toString(), vfs, doc))
 		{
 			definitions = doc;
-			lastModded = vfs.getLastModified("/browse/docs/definitions.xml");
+			lastModded = vfs.getLastModified(DEFINITIONS_LOCATION);
 		}
 		else
 			throw new ConflictException("Unable to save file");		

@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Zendesk Plug-in
+Bundle-Name: SIS ZenDesk
 Bundle-SymbolicName: org.iucn.sis.server.extensions.zendesk
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.restlet;bundle-version="2.0.0",
  com.solertium.db.restlet;bundle-version="1.1.0",
@@ -16,3 +16,4 @@ Require-Bundle: org.restlet;bundle-version="2.0.0",
  com.solertium.vfs.restlet;bundle-version="1.1.2"
 Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-Activator: org.iucn.sis.server.extensions.zendesk.ServerActivator
+Bundle-Vendor: IUCN

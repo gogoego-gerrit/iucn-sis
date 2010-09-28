@@ -87,10 +87,14 @@ public class UserRestlet extends ServerResource {
 						
 					}
 
-					if (SIS.get().getUserIO().saveUser(user))
-						getResponse().setStatus(Status.SUCCESS_OK);
-					else
+					try {
+						if (SIS.get().getUserIO().saveUser(user))
+							getResponse().setStatus(Status.SUCCESS_OK);
+						else
+							getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+					} catch (PersistentException e) {
 						getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+					}
 				}
 
 			} else {
@@ -119,7 +123,6 @@ public class UserRestlet extends ServerResource {
 
 		String queryString = query.getSQL(SIS.get().getExecutionContext().getDBSession());
 		queryString = queryString.replaceAll("JOIN", "LEFT JOIN");
-		System.out.println("THIS IS QUERY: " + queryString);
 
 		final Map<Integer, User> idToUsers = new HashMap<Integer, User>();
 		try {

@@ -107,15 +107,12 @@ public class ReferenceLabels {
 			for (Element fEl : fields) {
 				String label = fEl.getAttribute("label");
 				String name = fEl.getAttribute("name");
-				// System.out.println("  "+name+": "+label);
 				m.put(LabelMappings.normalize(name), label);
 				reverse.put(LabelMappings.normalize(label), name);
 				capitalized.put(LabelMappings.normalize(name), label);
 				o.add(LabelMappings.normalize(name));
 			}
 			lm.put(LabelMappings.normalize(type), new LabelMappings(m, reverse, capitalized, o));
-			System.out.println(
-					"Added " + fields.size() + " label mappings for " + typeNormalize(type));
 		}
 	}
 

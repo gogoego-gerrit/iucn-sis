@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -122,7 +123,7 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 	
 	public void ensureConsistent(Integer workingSetID) throws WorkflowManagerException {
 		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSetID);
-		System.out.println("Ensuring consistency on " + assessments.size() + " assessments...");
+		Debug.println("Ensuring consistency on " + assessments.size() + " assessments...");
 		
 		final String table = "RedListConsistencyCheck";
 		final Collection<String> failedSpecies = new ArrayList<String>();
@@ -139,7 +140,6 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 			final Row.Loader rl = new Row.Loader();
 			
 			try {
-				System.out.println(query.getSQL(ec.getDBSession()));
 				ec.doQuery(query, rl);
 			} catch (DBException e) {
 				failedSpecies.add(data.getSpeciesName());
@@ -161,7 +161,7 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 	
 	public void ensureEvaluated(WorkingSet workingSet) throws WorkflowManagerException {
 		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSet);
-		System.out.println("Ensuring evaluation on " + assessments.size() + " assessments...");
+		Debug.println("Ensuring evaluation on " + assessments.size() + " assessments...");
 		
 		final String table = "RedListEvaluated";
 		final Collection<String> failedSpecies = new ArrayList<String>(); 
@@ -178,7 +178,6 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 			final Row.Loader rl = new Row.Loader();
 			
 			try {
-				System.out.println(query.getSQL(ec.getDBSession()));
 				ec.doQuery(query, rl);
 			} catch (DBException e) {
 				failedSpecies.add(data.getSpeciesName());

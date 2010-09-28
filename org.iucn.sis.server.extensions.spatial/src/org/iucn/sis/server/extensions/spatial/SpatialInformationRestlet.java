@@ -8,6 +8,8 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
 
+import com.solertium.vfs.VFSPath;
+
 public class SpatialInformationRestlet extends ServiceRestlet {
 
 	public SpatialInformationRestlet(String vfsroot, Context context) {
@@ -20,8 +22,8 @@ public class SpatialInformationRestlet extends ServiceRestlet {
 	}
 
 	private void fetchSpatialData(String taxonID, String format, Response response) {
-		System.out.println("Looking for: " + "/browse/spatial/" + taxonID + "." + format);
-		if (vfs.exists("/browse/spatial/" + taxonID + "." + format)) {
+		final VFSPath uri = new VFSPath("/browse/spatial/" + taxonID + "." + format);
+		if (vfs.exists(uri)) {
 			MediaType mt = null;
 			if (format.equalsIgnoreCase("jpg"))
 				mt = MediaType.IMAGE_JPEG;
@@ -31,14 +33,11 @@ public class SpatialInformationRestlet extends ServiceRestlet {
 				mt = MediaType.ALL;
 
 			try {
-				InputRepresentation ir = new InputRepresentation(vfs.getInputStream("/browse/spatial/" + taxonID + "."
-						+ format), mt);
+				InputRepresentation ir = new InputRepresentation(
+						vfs.getInputStream(uri), mt);
 				response.setEntity(ir);
 				response.setStatus(Status.SUCCESS_OK);
 			} catch (Exception e) {
-				e.printStackTrace();
-				System.out.println(
-						"Error reading in spatial information from " + "/browse/spatial/" + taxonID + "." + format);
 				response.setStatus(Status.SERVER_ERROR_INTERNAL);
 			}
 		} else

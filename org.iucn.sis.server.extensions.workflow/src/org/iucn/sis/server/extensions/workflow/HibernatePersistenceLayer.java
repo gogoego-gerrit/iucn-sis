@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkflowNote;
@@ -84,7 +85,7 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 	@Override
 	public void ensureConsistent(Integer workingSetID) throws WorkflowManagerException {
 		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSetID);
-		System.out.println("Ensuring consistency on " + assessments.size() + " assessments...");
+		Debug.println("Ensuring consistency on " + assessments.size() + " assessments...");
 		
 		final Collection<String> failedSpecies = new ArrayList<String>();
 		for (Assessment data : assessments) {
@@ -107,7 +108,7 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 	@Override
 	public void ensureEvaluated(WorkingSet workingSet) throws WorkflowManagerException {
 		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSet);
-		System.out.println("Ensuring evaluation on " + assessments.size() + " assessments...");
+		Debug.println("Ensuring evaluation on " + assessments.size() + " assessments...");
 		
 		final Collection<String> failedSpecies = new ArrayList<String>();
 		for (Assessment data : assessments) {

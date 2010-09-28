@@ -6,6 +6,7 @@ import java.util.Iterator;
 import javax.naming.NamingException;
 
 import org.gogoego.api.plugins.GoGoEgo;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SISApplication;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.StructureLoader;
@@ -34,24 +35,7 @@ public class ServerApplication extends SISApplication{
 	
 	@Override
 	public void init() {
-		
-				
-		try {
-			ec = new SystemExecutionContext(DBSessionFactory.getDBSession("assess"));
-			ec.setAPILevel(ExecutionContext.API_ONLY);
-			ec.setExecutionLevel(ExecutionContext.ADMIN);
-			// Analyzing first to get all the _lookup tables not defined in
-			// struct document
-			ec.setStructure(ec.analyzeExistingStructure());
-			// Append our structure since it has necessary metadata
-			ec.appendStructure(StructureLoader.loadPostgres(), true);
-			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
-		} catch (NamingException e) {
-			throw new RuntimeException("The database was not found", e);
-		} catch (DBException e) {
-			throw new RuntimeException(
-					"The database structure could not be set", e);
-		}
+		ec = SIS.get().getExecutionContext();
 		
 		initServiceRoutes();
 		initRoutes();		
@@ -93,12 +77,5 @@ public class ServerApplication extends SISApplication{
 				
 		
 	}
-	
-	public static ServerApplication getApplication(Context context) {
-		return (ServerApplication)GoGoEgo.get().getApplication(context, "org.iucn.sis.server.extenions.workflow");
-	}
-	
-	
-	
 
 }

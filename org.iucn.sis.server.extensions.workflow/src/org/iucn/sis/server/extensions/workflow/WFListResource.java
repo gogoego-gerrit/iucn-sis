@@ -19,7 +19,7 @@ import com.solertium.db.restlet.DBResource;
  * @author user
  *
  */
-public class WFListResource extends DBResource {
+public class WFListResource extends WFDBResource {
 	
 	public WFListResource(Context context, Request request, Response response) {
 		super(context, request, response);

@@ -89,7 +89,6 @@ public class ZendeskResource extends ServiceRestlet{
 				return;
 			}
 			if(action.equals("remove")) {
-				System.out.println("removing user");
 				removeUser(request, response);
 				return;
 			}
@@ -111,11 +110,7 @@ public class ZendeskResource extends ServiceRestlet{
 			RestletUtils.setHeader(req, "Content-Length", String.valueOf(ent.length()));
 			Client client = new Client(Protocol.HTTP);
 			
-			System.out.println(ent);
-			Response res = client.handle(req);
-			System.out.println(res.getStatus());
-			System.out.println(res.getEntityAsText());
-			
+			client.handle(req);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -130,39 +125,6 @@ public class ZendeskResource extends ServiceRestlet{
 			String id = (String)request.getAttributes().get("id");
 			deleteUser(id, response);
 			
-	}
-
-
-	private String createUser(){
-		String xml = "<user>"+
-		  "<email>aljohson@yourcompany.dk</email>"+
-		  "<name>Al Johnson</name>"+
-		  "<roles>4</roles>"+
-		  "<restriction-id>1</restriction-id>"+
-		  "<groups type='array'>"+
-		  "  <group>2</group>"+
-		  "  <group>3</group>"+
-		  "</groups>"+
-		  "</user>";
-		return xml;
-	}
-	
-	private String createTicket(){
-		String xml = "<ticket>"+
-		"  <description>My printer is not always working</description>"+
-		"  <priority-id>4</priority-id>  "+
-		"  <requester-name>Mike Newson</requester-name>"+   
-		"  <requester-email>mike@nowhere.com</requester-email>"+   
-   	    "  <description>My printer is not working</description>"+
-		"  <priority-id>4</priority-id>"+
-	 	"</ticket>";
-		return xml;
-	}
-	
-	private Document getTicketsByRule(){
-		//GET /rules/#{view-id}.xml
-		return null;
-		
 	}
 	
 	private void logout(Request request, Response response){
@@ -179,8 +141,6 @@ public class ZendeskResource extends ServiceRestlet{
 			  Request req = new Request(Method.GET, baseUrl+"/access/logout");
 			  Client client = new Client(Protocol.HTTP);
 			  Response res = client.handle(req);
-			  System.out.println(res.getStatus());
-			  System.out.println(res.getEntityAsText());
 			  response.setStatus(Status.SUCCESS_OK);
 			
 			  
@@ -198,7 +158,6 @@ public class ZendeskResource extends ServiceRestlet{
 			  Element el = (Element)doc.getDocumentElement().getElementsByTagName("user").item(0);
 	 
 			  String email = el.getAttribute("email");;
-			  System.out.println(email);
 			  if(email.equals("admin")){
 				  response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
 			  }
@@ -220,12 +179,7 @@ public class ZendeskResource extends ServiceRestlet{
 				 }
 			  }
 			  
-			  
-			  System.out.println(res.getStatus());
-			  System.out.println(res.getEntityAsText());
-			  response.setStatus(Status.SUCCESS_OK);
-			
-			  
+			  response.setStatus(Status.SUCCESS_OK);  
 		}
 		catch (Exception e) {
 			e.printStackTrace();

@@ -157,8 +157,6 @@ public class FindReplace {
 		if (result.getSentenceDataList().isEmpty())
 			return null;
 
-		System.out.println("returning result: " + result.toXML());
-
 		return result;
 
 		// DO POSTGRES SEARCH
@@ -362,7 +360,7 @@ public class FindReplace {
 					fieldsToSave.put(pf.getId(), pf.getValue());
 				}
 			}
-			System.out.println("calling updateTextPrimtiveFieldvaluesindatabase");
+			
 			success = SIS.get().getPrimitiveFieldIO().updateTextPrimitiveFieldValuesInDatabase(fieldsToSave, user,
 					assessment);
 
@@ -374,7 +372,6 @@ public class FindReplace {
 	private String javaSearchString(String options, String originalString) {
 		if (isRegex(options)) {
 			if (originalString.contains("*")) {
-				System.out.println("It does contain *");
 				originalString = originalString.replaceAll("\\*", "\\\\E\\\\w+\\\\Q");
 
 				if (originalString.startsWith("\\E")) {
