@@ -206,8 +206,6 @@ public class TaxomaticRestlet extends ServiceRestlet {
 			e.printStackTrace();
 			response.setStatus(Status.CLIENT_ERROR_EXPECTATION_FAILED);
 		}
-		System.out.println("This is infrarankIDs  " + mergedIDs);
-		System.out.println("This is mainID " + mainID);
 
 		List<Taxon> taxa = SIS.get().getTaxonIO().getTaxa(mergedIDs);
 		Taxon main = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(mainID));

@@ -8,6 +8,7 @@ import javax.naming.NamingException;
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
 import org.iucn.sis.server.api.fields.definitions.FieldDefinitionLoader;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -126,9 +127,9 @@ public class FieldRestlet extends ServiceRestlet {
 			try {
 				ret.append(getFieldAsString(fields[i]));
 			} catch (NotFoundException e) {
-				System.out.println("Field " + fields[i] + " not found!  Skipping...");
+				Debug.println("Field " + fields[i] + " not found!  Skipping...");
 			} catch (IOException e) {
-				System.out.println("Field " + fields[i] + " not added!  Skipping...");
+				Debug.println("Field " + fields[i] + " not added!  Skipping...");
 				e.printStackTrace();
 			}
 		}

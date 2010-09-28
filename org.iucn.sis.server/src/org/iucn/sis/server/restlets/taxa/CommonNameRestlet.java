@@ -37,7 +37,7 @@ public class CommonNameRestlet extends ServiceRestlet{
 		
 		String text = request.getEntityAsText();
 		String taxonID = (String) request.getAttributes().get("taxon_id");
-		System.out.println("this is taxonID " + taxonID);
+		
 		Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.parseInt(taxonID));
 		NativeDocument newDoc = SIS.get().newNativeDocument(request.getChallengeResponse());
 		newDoc.parse(text);
@@ -46,18 +46,13 @@ public class CommonNameRestlet extends ServiceRestlet{
 		if (commonName.getId() == 0) {
 			taxon.getCommonNames().add(commonName);
 			commonName.setTaxon(taxon);
-			try{
-			System.out.println("saving the taxon: \n" + taxon.toXML());
+			taxon.toXML();
 			if (SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request))) {
 				response.setStatus(Status.SUCCESS_OK);
 				response.setEntity(commonName.getId()+"", MediaType.TEXT_PLAIN);
 			} else {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL);
 			}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			
 		} else {
 			
 			commonName.setTaxon(taxon);

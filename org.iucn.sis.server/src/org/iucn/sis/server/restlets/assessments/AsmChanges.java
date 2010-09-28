@@ -1,5 +1,6 @@
 package org.iucn.sis.server.restlets.assessments;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.solertium.db.DBException;
@@ -41,7 +42,7 @@ public class AsmChanges {
 				ec.doUpdate("DROP TRIGGER trigger_asm_edit ON \"" + tableName +"\"");
 			} catch (Exception e) {
 				//Probably okay, table doesn't exist yet
-				System.out.println("ERROR -- " + e.getLocalizedMessage());
+				Debug.println("ERROR -- {0}", e.getLocalizedMessage());
 			}
 		}
 		for (String tableName : addedTables)
@@ -49,7 +50,7 @@ public class AsmChanges {
 			try{
 				ec.doUpdate("DROP TRIGGER trigger_asm_edit ON \"" + tableName +"\"");				
 			} catch (Exception e) {
-				System.out.println("ERROR -- " + e.getLocalizedMessage());	
+				Debug.println("ERROR -- {0}", e.getLocalizedMessage());	
 			}
 		}		
 	}
@@ -68,7 +69,7 @@ public class AsmChanges {
 				getTriggerCall(ec, tableName);	
 			} catch (Exception e) {
 				//Probably okay, table doesn't exist yet
-				System.out.println("ERROR -- " + e.getLocalizedMessage());
+				Debug.println("ERROR -- {0}", e.getLocalizedMessage());
 			}
 		}
 		for (String tableName : addedTables)
@@ -76,7 +77,7 @@ public class AsmChanges {
 			try{
 				getTriggerCall(ec, tableName);				
 			} catch (Exception e) {
-				System.out.println("ERROR -- " + e.getLocalizedMessage());	
+				Debug.println("ERROR -- {0}", e.getLocalizedMessage());	
 			}
 		}		
 	}
@@ -134,7 +135,7 @@ public class AsmChanges {
 		"} \n" +
 		"return \"\" \n" +
 		"$$ LANGUAGE 'pltcl'";
-		System.out.println(function);
+		//System.out.println(function);
 		return function;
 	}
 

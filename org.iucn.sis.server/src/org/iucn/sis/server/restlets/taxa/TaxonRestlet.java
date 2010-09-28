@@ -10,6 +10,7 @@ import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -155,7 +156,7 @@ public class TaxonRestlet extends ServiceRestlet {
 			else if (action.equalsIgnoreCase("hierarchy"))
 				getFootprintOfIDsAndChildren(response, Integer.valueOf(first));
 			else {
-				System.out.println("This is a bad request: " + request.getResourceRef().getPath());
+				Debug.println("This is a bad request: " + request.getResourceRef().getPath());
 				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			}
 		} catch (Exception e) {
@@ -257,7 +258,7 @@ public class TaxonRestlet extends ServiceRestlet {
 	private void serveByName(Request request, Response response, String kingdomName, String fullName) {
 		Taxon taxon = SIS.get().getTaxonIO().readTaxonByName(kingdomName, fullName);
 		if (taxon == null) {
-			System.out.println("Node name " + fullName + " is not found.");
+			Debug.println("Node name {0} is not found.", fullName);
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "Node name " + fullName + " is not found.");
 		} else {
 			// System.out.println("Trying to fetch node by id " +

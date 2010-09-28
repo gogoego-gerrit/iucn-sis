@@ -65,8 +65,6 @@ public abstract class AuthorizingRestlet extends Restlet {
 			}
 		}
 
-		System.out.println("Forwarding request " + path + " to authz");
-
 		final Request authzRequest = new Request(Method.GET, request.getResourceRef().getHostIdentifier() + "/authz/"
 				+ user + "/" + method);
 		authzRequest.setEntity(path, MediaType.TEXT_PLAIN);

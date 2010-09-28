@@ -1,10 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: SIS Server Plug-in
+Bundle-Name: Species Information System
 Bundle-SymbolicName: org.iucn.sis.server
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-Activator: org.iucn.sis.server.ServerActivator
-Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.commons.fileupload,
  org.osgi.framework;version="1.4.0",
@@ -31,3 +30,4 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.hibernate;bundle-version="1.0.0",
  org.iucn.sis.server.api;bundle-version="1.0.0"
 Export-Package: org.iucn.sis.server
+Bundle-Vendor: IUCN

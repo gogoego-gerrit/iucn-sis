@@ -12,6 +12,7 @@ import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -205,7 +206,7 @@ public class AssessmentRestlet extends ServiceRestlet {
 			NativeNodeList nodes = doc.getDocumentElement().getElementsByTagName("taxon");
 			boolean useTemplate = Boolean.parseBoolean(doc.getDocumentElement().getElementsByTagName("useTemplate")
 					.elementAt(0).getTextContent());
-			System.out.println("Using template? " + useTemplate);
+			Debug.println("Using template? " + useTemplate);
 
 			for (int i = 0; i < nodes.getLength(); i++) {
 				Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(nodes.elementAt(i).getTextContent()));
@@ -267,7 +268,7 @@ public class AssessmentRestlet extends ServiceRestlet {
 			}
 
 			if (assessments.size() == 0) {
-				System.out.println("No template exists for species " + taxon.getFullName());
+				Debug.println("No template exists for species {0}", taxon.getFullName());
 				curAss = new Assessment(); // No template exists...
 			} else {
 				curAss = assessments.get(0).deepCopy();

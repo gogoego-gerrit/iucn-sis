@@ -25,6 +25,7 @@ import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.FileZipper;
 import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.server.restlets.taxa.TaxonRestlet;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.CommonName;
@@ -129,7 +130,7 @@ public class WorkingSetExportImportRestlet extends ServiceRestlet {
 			// ZIPPING IT!
 			for (String cur : filenames)
 				if (!vfs.exists(new VFSPath(cur)))
-					System.out.println("Will not be able to export file " + cur + " because it does not exist.");
+					Debug.println("Will not be able to export file " + cur + " because it does not exist.");
 
 			FileZipper.zipper(vfs, filenames.toArray(new String[filenames.size()]), getZippedPath(workingsetID + "",
 					user.getUsername()));
@@ -302,8 +303,7 @@ public class WorkingSetExportImportRestlet extends ServiceRestlet {
 			if (newResponse.getStatus().isSuccess())
 				return true;
 			else {
-				System.out.println("Unsuccessfully PUT draft assessment " + assessmentID);
-				System.out.println(newResponse.getStatus().getCode());
+				Debug.println("Unsuccessfully PUT draft assessment {0}: {1}" + assessmentID, newResponse.getStatus());
 				return false;
 			}
 		} catch (Exception e) {
@@ -535,7 +535,6 @@ public class WorkingSetExportImportRestlet extends ServiceRestlet {
 			}
 
 			if (file == null) {
-				System.out.println("Supposed file attachment is NULL...");
 				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			}
 

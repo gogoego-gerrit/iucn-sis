@@ -52,10 +52,8 @@ public class ServerApplication extends SISApplication{
 	
 	protected final ArrayList<ServiceRestlet> services;
 	
-	
 	public ServerApplication() {
 		super();
-		SISPersistentManager.instance();
 		services = new ArrayList<ServiceRestlet>();
 		
 		if (GoGoEgo.getInitProperties().containsKey("UPDATE_URL"))
@@ -64,6 +62,8 @@ public class ServerApplication extends SISApplication{
 	
 	@Override
 	public void init() {
+		SISPersistentManager.instance();
+		
 		initServiceRoutes();
 		initRoutes();		
 		addResource(SIS.get().getGuard(app.getContext()), "/authn", true, true, true);		
@@ -167,6 +167,5 @@ public class ServerApplication extends SISApplication{
 		}
 		
 	}
-	
 
 }

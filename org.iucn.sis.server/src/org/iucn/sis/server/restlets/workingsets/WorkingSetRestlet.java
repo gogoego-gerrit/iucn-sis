@@ -184,7 +184,6 @@ public class WorkingSetRestlet extends ServiceRestlet {
 				xml.append(set.toXMLMinimal());
 			}
 			xml.append("</xml>");
-			System.out.println("these are the unsubscribed working sets " + xml.toString());
 			response.setEntity(xml.toString(), MediaType.TEXT_XML);
 			response.setStatus(Status.SUCCESS_OK);
 		} catch (PersistentException e) {

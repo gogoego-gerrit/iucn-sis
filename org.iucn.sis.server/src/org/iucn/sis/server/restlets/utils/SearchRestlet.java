@@ -3,7 +3,6 @@ package org.iucn.sis.server.restlets.utils;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 
 import org.iucn.sis.server.api.application.SIS;
@@ -84,7 +83,7 @@ public class SearchRestlet extends ServiceRestlet {
 			for (Taxon taxon : taxa)
 				results.append("<result id=\"" + taxon.getId() + "\"/>");
 			results.append("</results>\r\n");
-			System.out.println("returning : " + results);
+			
 			response.setEntity(results.toString(), MediaType.TEXT_XML);
 			response.setStatus(Status.SUCCESS_OK);
 			

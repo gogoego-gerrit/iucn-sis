@@ -11,6 +11,8 @@ import org.w3c.dom.NodeList;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.vfs.NotFoundException;
+import com.solertium.vfs.VFSPath;
+import com.solertium.vfs.VFSPathToken;
 
 public class WorkingsetLogBuilder extends ServiceRestlet {
 
@@ -23,12 +25,11 @@ public class WorkingsetLogBuilder extends ServiceRestlet {
 
 	private void crawlWorkingsets() {
 		Document current;
-		String[] filelist;
+		VFSPathToken[] filelist;
 		try {
-			filelist = vfs.list("/workingsets/");
+			filelist = vfs.list(new VFSPath("/workingsets"));
 			for (int i = 0; i < filelist.length; i++) {
-				if (filelist[i].endsWith(".xml")) {
-					System.out.println(filelist[i]);
+				if (filelist[i].toString().endsWith(".xml")) {
 					current = DocumentUtils.getVFSFileAsDocument("/workingsets/" + filelist[i], vfs);
 					NodeList mode = current.getDocumentElement().getElementsByTagName("mode");
 					if (mode.item(0).getTextContent().equals("public")) {

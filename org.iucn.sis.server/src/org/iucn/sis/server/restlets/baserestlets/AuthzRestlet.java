@@ -53,7 +53,6 @@ public class AuthzRestlet extends ServiceRestlet {
 			throws IOException {
 		// String authorizeMe = request.getEntity().getText();
 		final DomRepresentation rep = getPermissions(request, response, username);
-		System.out.println("dom = " + rep.getText());
 		response.setEntity(rep);
 		// System.out.println("Authz authorized request for " + username +
 		// " to perform a " + method + " on path " + authorizeMe );
@@ -83,11 +82,11 @@ public class AuthzRestlet extends ServiceRestlet {
 	public void performService(final Request request, final Response response) {
 		final ChallengeResponse creds = request.getChallengeResponse();
 
-		try {
+		/*try {
 			if (creds.getIdentifier().equalsIgnoreCase("GoGoRestlet") && creds.getSecret().equals("s3cr3t"))
 				System.out.println("Got a request from a Restlet!");
 		} catch (final Exception ignore) {
-		}
+		}*/
 
 		try {
 			final String username = (String) request.getAttributes().get("username");
