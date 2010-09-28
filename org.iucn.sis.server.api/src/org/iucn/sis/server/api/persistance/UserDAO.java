@@ -17,6 +17,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 
 public class UserDAO {
@@ -304,7 +305,7 @@ public class UserDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println("Error saving user:\n{0}", e);
 			throw new PersistentException(e);
 		}
 	}

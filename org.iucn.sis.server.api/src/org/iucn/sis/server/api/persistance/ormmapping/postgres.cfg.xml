@@ -22,9 +22,7 @@
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Notes.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Permission.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PermissionGroup.hbm.xml" />
-		<!--<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PermissionResource.hbm.xml" />-->
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PermissionResourceAttribute.hbm.xml" />
-		<!--<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PermissionType.hbm.xml" />-->
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PrimitiveField.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Reference.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Region.hbm.xml" />

@@ -9,6 +9,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 
@@ -56,8 +58,8 @@ public class FileZipper {
 				// Complete the entry
 				out.closeEntry();
 			} catch (ZipException e) {
-				e.printStackTrace();
-				System.out.println("*** ERROR occurred with the entry " + filenames[i] + " while building zip file. Bypassing to allow operation to finish...");
+				Debug.println("*** ERROR occurred with the entry {0} while building zip file. " +
+						"Bypassing to allow operation to finish...\n{1}", filenames[i], e);
 			}
 
 			in.close();
@@ -106,8 +108,8 @@ public class FileZipper {
 				// Complete the entry
 				out.closeEntry();
 			} catch (ZipException e) {
-				e.printStackTrace();
-				System.out.println("*** ERROR occurred with the entry " + filenames[i] + " while building zip file. Bypassing to allow operation to finish...");
+				Debug.println("*** ERROR occurred with the entry {0} while building zip file. " +
+						"Bypassing to allow operation to finish...\n{1}", filenames[i], e);
 			}
 			
 			in.close();

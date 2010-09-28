@@ -24,6 +24,8 @@ import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.OnlineUtil;
+import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.debug.Debugger;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.ChallengeResponse;
@@ -73,9 +75,10 @@ public class SIS {
 	protected final ExecutionContext ec, lookups;
 
 	protected SIS() {
-
+		Debug.setInstance(new SISDebugger());
+		
 		try {
-			System.out.println("map of properties is: " + GoGoEgo.getInitProperties().toString());
+			Debug.println("map of properties is: {0}", GoGoEgo.getInitProperties());
 			vfsroot = GoGoEgo.getInitProperties().getProperty("sis_vfs");
 			vfs = VFSFactory.getVFS(new File(vfsroot));
 			taxomaticIO = new TaxomaticIO((VersionedFileVFS) vfs);
@@ -106,7 +109,7 @@ public class SIS {
 			throw new RuntimeException(e);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			System.out.println("map of properties is: " + GoGoEgo.getInitProperties().toString());
+			Debug.println("map of properties is: {0}", GoGoEgo.getInitProperties());
 			throw new RuntimeException(e);
 		} catch (NamingException e) {
 			// TODO Auto-generated catch block
@@ -115,7 +118,6 @@ public class SIS {
 		}
 
 		SISPersistentManager manager = (SISPersistentManager) SISPersistentManager.instance();
-
 	}
 
 	public static SIS get() {
@@ -181,7 +183,6 @@ public class SIS {
 
 			@Override
 			protected void doRemoveUser(final Request request, final Response response, final String domain) {
-				System.out.println("in do remove user");
 				String currentUser = null;
 				if (!bypassAuth(request)) {
 					currentUser = SIS.get().getUsername(request);
@@ -209,7 +210,6 @@ public class SIS {
 							response.setStatus(Status.SERVER_ERROR_INTERNAL);
 						}
 					} catch (AccountNotFoundException e) {
-						System.out.println("Account not found. Delete halted.");
 						response.setStatus(Status.SERVER_ERROR_INTERNAL);
 					}
 				}
@@ -308,6 +308,20 @@ public class SIS {
 
 	public ExecutionContext getLookupDatabase() {
 		return lookups;
+	}
+	
+	public static class SISDebugger implements Debugger {
+		
+		@Override
+		public void println(Object obj) {
+			GoGoEgo.debug().println(obj);
+		}
+		
+		@Override
+		public void println(String template, Object... args) {
+			GoGoEgo.debug().println(template, args);
+		}
+		
 	}
 	
 }

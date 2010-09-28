@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.locking.LockRepository.Lock;
 import org.iucn.sis.server.api.utils.OnlineUtil;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.User;
@@ -199,7 +200,7 @@ public class FileLocker {
 				return Status.SUCCESS_OK;
 			} else {
 				if( verboseOutput )
-					System.out.println("You can't have the lock " + owner + ", it's already owned by " + l.username);
+					Debug.println("You can't have the lock " + owner + ", it's already owned by " + l.username);
 				return Status.CLIENT_ERROR_FORBIDDEN;
 			}
 		} else {

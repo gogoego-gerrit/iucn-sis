@@ -100,7 +100,6 @@ public abstract class LockRepository {
 		public void restartTimer() {
 			// No need to restart timer for CHECKED_OUT locks, at the moment.
 			if (lockType.equals(LockType.SAVE_LOCK)) {
-				System.out.println("Restarting timer: " + toString());
 				restart = true;
 				expiry.interrupt();
 			}

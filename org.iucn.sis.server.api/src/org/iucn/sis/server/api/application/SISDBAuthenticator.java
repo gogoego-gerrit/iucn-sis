@@ -2,36 +2,25 @@ package org.iucn.sis.server.api.application;
 
 import java.util.Date;
 
-import javax.security.auth.login.LoginContext;
-
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 
 import com.solertium.db.ExecutionContext;
 import com.solertium.mail.Mailer;
 import com.solertium.util.MD5Hash;
 import com.solertium.util.restlet.authentication.DBAuthenticator;
-import com.solertium.util.restlet.authentication.Authenticator.AccountExistsException;
 
 public class SISDBAuthenticator extends DBAuthenticator {
 
 	public SISDBAuthenticator(ExecutionContext ec) {
 		super(ec, "user", "username", "password");
-		
-		try {
-			Class.forName("org.postgresql.Driver");
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
-	
-	
 	
 	@Override
 	public String putNewAccount(String login, String password) throws AccountExistsException {
 		if (doesAccountExist(login))
 			throw new AccountExistsException();
-		System.out.println("in putNewAccount");
 		User user = SIS.get().getUserIO().getUserFromUsername(login);
 		if (user == null) {
 			user = new User();
@@ -48,27 +37,17 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		user.setSisUser(true);
 		user.setRapidlistUser(false);
 		
-		System.out.println("before trying to save");
 		try{
-		SIS.get().getUserIO().saveUser(user);
-		} catch (Exception e) {
-			e.printStackTrace();
+			SIS.get().getUserIO().saveUser(user);
+		} catch (PersistentException e) {
 			throw new AccountExistsException(e.getLocalizedMessage());
 		}
-		System.out.println("after trying to save with id " + user.getId());
 		return Integer.toString(user.getId());
 		
 	}
 	
 	@Override
 	public boolean validateAccount(String login, String password) {
-		try {
-			Class.forName("org.postgresql.Driver");
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		//PASSWORD COULD BE EMPTY IF NOT YET ASSIGNED.  DON"T WANT THEM TO BE ABLE TO LOG IN
 		if (password != null && !password.trim().equals("")) {
 			return super.validateAccount(login, password);
@@ -84,7 +63,11 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		if (user == null)
 			throw new AccountNotFoundException("User " + username + " was not found.");
 		user.state = User.DELETED;
-		return SIS.get().getUserIO().saveUser(user);		
+		try {
+			return SIS.get().getUserIO().saveUser(user);
+		} catch (PersistentException e) {
+			return false;
+		}
 	}
 	
 	
@@ -112,11 +95,11 @@ public class SISDBAuthenticator extends DBAuthenticator {
 				
 				return true;
 			} else {
-				System.out.println("Error changing password for user " + username);
+				Debug.println("Error changing password for user {0}", username);
 				return false;
 			}
 		} else {
-			System.out.println("Username requested reset is either admin or empty, so it failed: " + username);
+			Debug.println("Username requested reset is either admin or empty, so it failed: {0}", username);
 			return false;
 		}
 	}
@@ -124,7 +107,7 @@ public class SISDBAuthenticator extends DBAuthenticator {
 	@Override
 	public String emailConfirmationCode(String email) {
 		String confirmationCode = getSHA1Hash(Long.toString(new Date().getTime()) + "some_more_salt");
-		System.out.println("Your confirmation code is " + confirmationCode);
+
 		String body = "Your confirmation code for the Species Information " + "System is " + confirmationCode
 		+ "\r\n\r\n" + "Please visit http://iucnsis.org/authn/confirm/" + confirmationCode
 		+ " to activate your account.";
@@ -144,10 +127,5 @@ public class SISDBAuthenticator extends DBAuthenticator {
 
 		return confirmationCode;
 	}
-	
-	
-	
-	
-	
 
 }

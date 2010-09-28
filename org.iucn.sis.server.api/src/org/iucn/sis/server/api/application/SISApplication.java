@@ -13,6 +13,7 @@ import org.gogoego.api.utils.MagicDisablingFilter;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Restlet;
 import org.restlet.data.Encoding;
 import org.restlet.data.Protocol;
@@ -38,8 +39,6 @@ public abstract class SISApplication extends GoGoEgoApplication {
 	protected HashSet<String> pathsExcludedFromAuthenticator;
 	protected Map<Object, List<String>> onlinePathsToResources;
 	protected Map<Object, List<String>> offlinePathsToResources;
-	
-	
 
 	public SISApplication() {
 		super();
@@ -47,6 +46,9 @@ public abstract class SISApplication extends GoGoEgoApplication {
 		pathsExcludedFromAuthenticator = new HashSet<String>();
 		onlinePathsToResources = new HashMap<Object, List<String>>();
 		offlinePathsToResources = new HashMap<Object, List<String>>();
+		
+		if (Debug.isDefaultInstance())
+			Debug.setInstance(new SIS.SISDebugger());
 	}
 
 	/**
@@ -133,10 +135,10 @@ public abstract class SISApplication extends GoGoEgoApplication {
 		for (Entry<Object, List<String>> entry : pathsToResources.entrySet()) {
 			for (String path : entry.getValue()) {
 				if (pathsExcludedFromAuthenticator.contains(path)) {
-					System.out.println("adding " + entry.getKey() + " the path  " + path + " to root");
+					Debug.println("adding {0} the path {1} to root", entry.getKey(), path);
 					attachUniform(path, entry.getKey(), root);
 				} else {
-					System.out.println("adding " + entry.getKey() + " the path  " + path + " to guarded");
+					Debug.println("adding {0} the path {1} to guared", entry.getKey(), path);
 					attachUniform(path, entry.getKey(), guarded);
 				}
 			}
@@ -146,10 +148,10 @@ public abstract class SISApplication extends GoGoEgoApplication {
 			for (Entry<Object, List<String>> entry : onlinePathsToResources.entrySet()) {
 				for (String path : entry.getValue()) {
 					if (pathsExcludedFromAuthenticator.contains(path)) {
-						System.out.println("adding " + entry.getKey() + " the path  " + path + " to root");
+						Debug.println("adding {0} the path {1} to root", entry.getKey(), path);
 						attachUniform(path, entry.getKey(), root);
 					} else {
-						System.out.println("adding " + entry.getKey() + " the path  " + path + " to guarded");
+						Debug.println("adding {0} the path {1} to guarded", entry.getKey(), path);
 						attachUniform(path, entry.getKey(), guarded);
 					}
 				}
@@ -263,7 +265,7 @@ public abstract class SISApplication extends GoGoEgoApplication {
 			offlinePathsToResources.put(uniform, paths);
 		}
 		if (bypassAuthentication) {
-			System.out.println("Adding the path " + paths.toString() + " to exclude from authenticator");
+			Debug.println("Adding the path {0} to exclude from authenticator", paths);
 			pathsExcludedFromAuthenticator.addAll(paths);
 		}
 	}

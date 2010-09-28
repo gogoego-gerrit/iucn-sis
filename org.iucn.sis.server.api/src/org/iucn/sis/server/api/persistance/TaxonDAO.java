@@ -312,14 +312,11 @@ public class TaxonDAO {
 	}
 	
 	public static boolean save(Taxon taxon) throws PersistentException {
-		System.out.println("in the save of taxonDAO");
 		try {
 			SISPersistentManager.instance().saveObject(taxon);
-			System.out.println("returning true");
 			return true;
 		}
 		catch (Exception e) {
-			System.out.println("Exception in save -- " + e.getMessage());
 			throw new PersistentException(e);
 		}
 	}

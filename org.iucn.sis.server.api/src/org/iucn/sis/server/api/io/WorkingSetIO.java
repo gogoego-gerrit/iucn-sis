@@ -61,7 +61,6 @@ public class WorkingSetIO {
 		String queryString = "SELECT id FROM working_set WHERE id not in (Select working_setid FROM (SELECT id from \"user\" where username='" 
 			+ userName + "') t JOIN working_set_subscribe_user on userid = t.id);";
 		
-		System.out.println(queryString);
 		List<Integer> results  = (List<Integer>) SIS.get().getManager().getSession().createSQLQuery(queryString).list();
 		if (!results.isEmpty()) {
 			WorkingSetCriteria criteria = new WorkingSetCriteria();

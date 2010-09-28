@@ -23,6 +23,7 @@ import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.OnlineUtil;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.server.api.utils.ServerPaths;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.io.AssessmentIOMessage;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -494,9 +495,7 @@ public class AssessmentIO {
 		} catch (NotFoundException e) {
 			e.printStackTrace();
 		}
-
 	}
-
 
 	protected Assessment getFromVFS(Integer id) {
 		try {
@@ -505,7 +504,7 @@ public class AssessmentIO {
 			ndoc.parse(assessmentXML);
 			return Assessment.fromXML(ndoc);
 		} catch (NotFoundException e) {
-			System.out.println("--- Assessment " + id + " not found on File System. Serving DB copy.");
+			Debug.println("--- Assessment " + id + " not found on File System. Serving DB copy.");
 		} catch (BoundsException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

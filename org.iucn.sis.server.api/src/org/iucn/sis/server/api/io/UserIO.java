@@ -6,6 +6,7 @@ import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.api.models.User;
 
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFS;
@@ -22,7 +23,11 @@ public class UserIO {
 		User user = getUserFromUsername(username);
 		if (user != null) {
 			user.setSisUser(false);
-			return saveUser(user);
+			try {
+				return saveUser(user);
+			} catch (PersistentException e) {
+				return false;
+			}
 		}
 		return false;
 	}
@@ -44,29 +49,30 @@ public class UserIO {
 		User user = getUserFromUsername(username);
 		if (user != null) {
 			user.state = User.DELETED;
-			return saveUser(user);
+			try {
+				return saveUser(user);
+			} catch (PersistentException e) {
+				return false;
+			}
 		}
 		return false;
 	}
 
-	public boolean saveUser(User user) {
-		try {
-			if (UserDAO.save(user)) {
+	public boolean saveUser(User user) throws PersistentException {
+		if (UserDAO.save(user)) {
+			try {
 				afterSave(user);
-				return true;
-			}
-		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
-		} catch (NotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ConflictException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			} catch (NotFoundException e) {
+				//FIXME: If you don't care, why throw the exception?
+				TrivialExceptionHandler.ignore(this, e);
+			} catch (ConflictException e) {
+				//FIXME: If you don't care, why throw the exception?
+				TrivialExceptionHandler.ignore(this, e);
+			}	
+			return true;
 		}
-		return false;
+		else
+			return false;
 	}
 
 	public void afterSave(User user) throws NotFoundException, ConflictException {

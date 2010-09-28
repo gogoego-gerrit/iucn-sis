@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.naming.NamingException;
-
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.shared.api.models.User;
 import org.w3c.dom.Document;
 
@@ -16,19 +15,16 @@ import com.solertium.db.CInteger;
 import com.solertium.db.CString;
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
-import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
 import com.solertium.db.RowID;
 import com.solertium.db.RowProcessor;
-import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.DeleteQuery;
 import com.solertium.db.query.InsertQuery;
 import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.util.BaseDocumentUtils;
-import com.solertium.util.SysDebugger;
 import com.solertium.util.TrivialExceptionHandler;
 
 public class PersistentLockRepository extends LockRepository {
@@ -37,7 +33,8 @@ public class PersistentLockRepository extends LockRepository {
 	public static final String LOCK_GROUPS_TABLE = "persistentlockgroup";
 	
 	public static ExecutionContext getExecutionContext() {
-		final ExecutionContext ec;
+		return SIS.get().getExecutionContext();
+		/*final ExecutionContext ec;
 		try {
 			ec = new SystemExecutionContext(DBSessionFactory.getDBSession("assess"));
 			ec.setAPILevel(ExecutionContext.API_ONLY);
@@ -49,7 +46,7 @@ public class PersistentLockRepository extends LockRepository {
 			throw new RuntimeException(
 					"The database structure could not be set", e);
 		}
-		return ec;
+		return ec;*/
 	}
 	
 	private static Document getStructureDocument() {
@@ -61,7 +58,7 @@ public class PersistentLockRepository extends LockRepository {
 	private final ExecutionContext ec;
 	
 	public PersistentLockRepository() {
-		try {
+		/*try {
 			ec = new SystemExecutionContext(DBSessionFactory.getDBSession("assess"));
 			ec.createStructure(getStructureDocument());
 		} catch (NamingException e) {
@@ -71,7 +68,9 @@ public class PersistentLockRepository extends LockRepository {
 					"The database structure could not be set", e);
 		}
 		ec.setAPILevel(ExecutionContext.API_ONLY);
-		ec.setExecutionLevel(ExecutionContext.READ_WRITE);
+		ec.setExecutionLevel(ExecutionContext.READ_WRITE);*/
+		
+		ec = SIS.get().getExecutionContext();
 	}
 
 	@Override
@@ -188,7 +187,6 @@ public class PersistentLockRepository extends LockRepository {
 	@Override
 	public Lock lockAssessment(Integer id, User owner, LockType lockType, String groupID) {
 		if (isAssessmentPersistentLocked(id)) {
-			System.out.println("This assessment is already locked");
 			return getLockedAssessment(id);
 		}
 		
@@ -196,7 +194,6 @@ public class PersistentLockRepository extends LockRepository {
 		try {
 			rowID = Integer.valueOf((int)RowID.get(ec, LOCK_TABLE, "id"));
 		} catch (DBException e) {
-			System.out.println("Could not create lock! " + e.getMessage());
 			return null;
 		}
 		
@@ -214,7 +211,6 @@ public class PersistentLockRepository extends LockRepository {
 		try {
 			ec.doUpdate(query);
 		} catch (DBException e) {
-			System.out.println("Could not add lock: " + e.getMessage());
 			return null;
 		}
 		
@@ -223,7 +219,6 @@ public class PersistentLockRepository extends LockRepository {
 			try {
 				groupRowID = Integer.valueOf((int)RowID.get(ec, LOCK_GROUPS_TABLE, "id"));
 			} catch (DBException e) {
-				System.out.println("Could not create lock group! " + e.getMessage());
 				//return null;
 			}
 			
@@ -266,7 +261,6 @@ public class PersistentLockRepository extends LockRepository {
 		
 		final Integer rowID;
 		if (rl.getRow() == null) {
-			System.out.println("Lock " + id + " not found.");
 			return;
 		}
 		else
@@ -281,9 +275,7 @@ public class PersistentLockRepository extends LockRepository {
 			
 			try {
 				ec.doUpdate(query); 
-				SysDebugger.out.println("Removed lock {0} ({1})", rowID, id);
 			} catch (DBException e) {
-				System.out.println("Delete query failed: " + e.getMessage());
 				TrivialExceptionHandler.ignore(this, e);
 			}
 		}
@@ -329,7 +321,6 @@ public class PersistentLockRepository extends LockRepository {
 			try {
 				ec.doUpdate(query);
 			} catch (DBException e) {
-				System.out.println("Failed to unlock row with id: " + row.get("persistentlockid"));
 				e.printStackTrace();
 				TrivialExceptionHandler.ignore(this, e);
 			}
@@ -342,7 +333,6 @@ public class PersistentLockRepository extends LockRepository {
 		try {
 			ec.doUpdate(query);
 		} catch (DBException e) {
-			System.out.println("Could not clear lock group table of locks for " + id + ": " + e.getMessage());
 			TrivialExceptionHandler.ignore(this, e);
 		}
 	}

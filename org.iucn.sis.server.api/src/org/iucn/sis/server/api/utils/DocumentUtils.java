@@ -21,6 +21,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -224,7 +225,7 @@ public class DocumentUtils {
 			else
 				return null;
 		} catch (Exception e) {
-			System.out.println("DocumentUtils ERROR: getVFSFile (" + uri + "): " + e.getMessage());
+			Debug.println("DocumentUtils ERROR: getVFSFile (" + uri + "): " + e.getMessage());
 //			e.printStackTrace();
 			return null;
 		}
@@ -235,7 +236,7 @@ public class DocumentUtils {
 		try {
 			content = vfs.getString(VFSUtils.parseVFSPath(uri));
 		} catch (NotFoundException nf) {
-			System.err.println("  --" + uri + " not found (probably this is ok)");
+			Debug.println("  --" + uri + " not found (probably this is ok)");
 		} catch (BoundsException retryAsStream) {
 			try {
 				Reader in = vfs.getReader(new VFSPath(uri));
@@ -374,7 +375,7 @@ public class DocumentUtils {
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.out.println("DocumentUtils ERROR: writeVFSFile (" + uri + "): " + e.getMessage());
+			Debug.println("DocumentUtils ERROR: writeVFSFile (" + uri + "): " + e.getMessage());
 			return false;
 		} finally {
 			try {
@@ -452,18 +453,18 @@ public class DocumentUtils {
 			new Thread(new WriteBackStringTask(uri, vfs, forceOverwrite, fileContents)).start();
 		} catch (Exception e) {
 			try {
-				System.out.println(
+				Debug.println(
 						"Detected congestion ... backing off for writing " + BACKOFF_PERIOD_MSECS);
 				Thread.sleep(BACKOFF_PERIOD_MSECS);
 				new Thread(new WriteBackStringTask(uri, vfs, forceOverwrite, fileContents)).start();
 			} catch (Exception e1) {
 				try {
-					System.out.println(
+					Debug.println(
 							"Detected congestion again ... backing off for writing " + BACKOFF_PERIOD_MSECS);
 					Thread.sleep(BACKOFF_PERIOD_MSECS);
 					new Thread(new WriteBackStringTask(uri, vfs, forceOverwrite, fileContents)).start();
 				} catch (InterruptedException e2) {
-					System.out.println("No luck with the writeback. Bailing.");
+					Debug.println("No luck with the writeback. Bailing.");
 				}
 			}
 		}

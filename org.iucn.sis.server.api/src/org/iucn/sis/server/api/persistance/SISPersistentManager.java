@@ -12,6 +12,7 @@ import org.dom4j.DocumentException;
 import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
+import org.hibernate.MappingException;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.classic.Session;
@@ -22,6 +23,7 @@ import org.iucn.sis.server.api.application.MultiClassLoader;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.persistance.listeners.SISHibernateListener;
 import org.iucn.sis.server.api.persistance.ormmapping.ClassLoaderTester;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.postgresql.Driver;
 import org.slf4j.impl.StaticLoggerBinder;
 
@@ -31,6 +33,10 @@ public class SISPersistentManager {
 	private SessionFactory sessionFactory;
 
 	public static void setCurrentThread() {
+		Thread.currentThread().setContextClassLoader(createClassLoader());
+	}
+	
+	private static ClassLoader createClassLoader() {
 		MultiClassLoader loader = new MultiClassLoader(SISPersistentManager.class.getClassLoader().getParent());
 		loader.addClassLoader(SISPersistentManager.class.getClassLoader());
 		loader.addClassLoader(Driver.class.getClassLoader());
@@ -42,11 +48,12 @@ public class SISPersistentManager {
 		loader.addClassLoader(DocumentException.class.getClassLoader());
 		loader.addClassLoader(DocumentException.class.getClassLoader().getParent());
 		loader.addClassLoader(SISHibernateListener.class.getClassLoader());
-		Thread.currentThread().setContextClassLoader(loader);
+		
+		return loader;
 	}
 
 	public static synchronized final SISPersistentManager instance() {
-		if (instance == null) {
+		if (instance == null || instance.sessionFactory == null) {
 			setCurrentThread();
 			instance = new SISPersistentManager();
 			instance.sessionFactory = instance.buildSessionFactory();
@@ -68,18 +75,12 @@ public class SISPersistentManager {
 	}
 
 	private Configuration buildConfiguration() {
-		Configuration configuration;
+		Configuration configuration = new SISPersistenceConfiguration();
 		setCurrentThread();
-		try {
-			configuration = new Configuration();
-		} catch (Throwable e) {
-			e.getCause().printStackTrace();
-			return null;
-		}
 		
 		final String configUri = GoGoEgo.getInitProperties().getProperty("org.iucn.sis.server.configuration.uri", "local:SIS");
 		if (configUri.startsWith("file")) {
-			System.out.println("Creating new persistence manager from file " + configUri);
+			Debug.println("Creating new persistence manager from file " + configUri);
 			try {
 				configuration.configure(new URL(configUri));
 			} catch (MalformedURLException e) {
@@ -90,7 +91,7 @@ public class SISPersistentManager {
 		}
 		else if (configUri.startsWith("local:") && !configUri.equals("local:")) {
 			final String name = configUri.substring(configUri.indexOf(':')+1);
-			System.out.println("Creating new persistence manager from local resource " + name);
+			Debug.println("Creating new persistence manager from local resource " + name);
 			try {
 				configuration.configure(ClassLoaderTester.class.getResource(name + ".cfg.xml"));
 			} catch (HibernateException e) {
@@ -157,6 +158,26 @@ public class SISPersistentManager {
 			throw new PersistentException(e);
 		} catch (HibernateException e) {
 			throw new PersistentException(e);
+		}
+	}
+	
+	private static class SISPersistenceConfiguration extends Configuration {
+		
+		private static final long serialVersionUID = 1L;
+		
+		public SISPersistenceConfiguration() {
+			super();
+		}
+		
+		@Override
+		public Configuration addResource(String arg0) throws MappingException {
+			return addResource(arg0, ClassLoaderTester.class.getClassLoader());
+		}
+		
+		@Override
+		public Configuration addResource(String arg0, ClassLoader arg1)
+				throws MappingException {
+			return addInputStream(arg1.getResourceAsStream(arg0));
 		}
 	}
 

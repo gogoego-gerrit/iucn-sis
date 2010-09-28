@@ -50,12 +50,9 @@ public class SISHibernateListener implements PreInsertEventListener, PreUpdateEv
 
 	protected void doUpdate(Object obj) {
 		try {
-			System.out.println("in doUpdate hibernate with object " + obj.getClass() + " " + obj);
 			if (obj instanceof Assessment) {
-				System.out.println("obj is assessment");
 				SIS.get().getAssessmentIO().afterSaveAssessment((Assessment) obj);
 			} else if (obj instanceof PrimitiveField) {
-				System.out.println("obj is primitive field");
 				// ONE OF THESE TWO CALLS SHOULD BE CORRECT, TRY GETTING FROM
 				// CACHE FIRST
 				Assessment assessment = SIS.get().getPrimitiveFieldIO().getUpdatedAssessment(
@@ -68,22 +65,16 @@ public class SISHibernateListener implements PreInsertEventListener, PreUpdateEv
 				SIS.get().getTaxonIO().afterSaveTaxon((Taxon) obj);
 				
 			} else if (obj instanceof Notes) {
-				System.out.println("obj is notes");
 				Notes note = (Notes) obj;
 				Taxon taxon = SIS.get().getNoteIO().getNoteFromTaxon(note.getId());
 				if (taxon != null)
 					doUpdate(taxon);
 				//TODO: DO FOR FIELDS
 			} else if (obj instanceof Synonym){
-				System.out.println("obj is synonymn");
 				Synonym syn = ((Synonym)obj);
 				if (syn.getTaxon() != null)
 					doUpdate(syn.getTaxon());
-				else {
-					System.out.println("no taxon for the synonymn");
-				}
 			}
-			
 		}catch (AssertionFailure e) {
 			
 		}catch (Throwable e) {
@@ -91,18 +82,17 @@ public class SISHibernateListener implements PreInsertEventListener, PreUpdateEv
 			// e.printStackTrace();
 			// throw new RuntimeException(e.getCause());
 		}
-
 	}
 
 	@Override
 	public boolean onPreUpdate(PreUpdateEvent event) {
-		System.out.println("in preupdate event with " + event.getEntity().getClass() + " with id " + event.getId());
+		//System.out.println("in preupdate event with " + event.getEntity().getClass() + " with id " + event.getId());
 		return true;
 	}
 
 	@Override
 	public boolean onPreInsert(PreInsertEvent event) {
-		System.out.println("in preinsert event with "+ event.getEntity().getClass() + " with id " + event.getId());
+		//System.out.println("in preinsert event with "+ event.getEntity().getClass() + " with id " + event.getId());
 		return true;
 	}
 

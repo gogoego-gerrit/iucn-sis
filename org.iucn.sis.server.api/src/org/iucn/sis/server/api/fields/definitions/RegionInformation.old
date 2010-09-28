@@ -1,0 +1,34 @@
+<field id="4">
+	<!-- AAH used General Info -->
+	<canonicalName>RegionInformation</canonicalName>
+	<description>Regional Information</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="a" description="Regional?" enabled="false">
+						<boolean>false</boolean>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure description="Regions" id="b">
+						<regionalInformation/>
+					</structure>
+					<structure description="Endemic to Region: " id="c">
+						<boolean>false</boolean>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<booleanRule>
+						<activateOnRule>false</activateOnRule>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</booleanRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

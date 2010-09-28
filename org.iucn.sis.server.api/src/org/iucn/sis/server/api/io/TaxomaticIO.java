@@ -3,10 +3,8 @@ package org.iucn.sis.server.api.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +25,7 @@ import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.server.api.utils.TaxaComparators;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
@@ -375,13 +374,11 @@ public class TaxomaticIO {
 		boolean validated = false;
 
 		if (!lockAquirer.isSuccess()) {
-			System.out.println("the locks were not successfully aquired");
 			return false;
 		} else {
 			validated = SIS.get().getLocker().aquireWithRetry(ServerPaths.getLastTaxomaticOperationPath(), 5);
 			if (!validated)
 				return false;
-			System.out.println("aquired lock on taxomaticOperationPath " + validated);
 		}
 
 		try {
@@ -607,11 +604,11 @@ public class TaxomaticIO {
 					if (idsToTaxon.containsKey(taxon.getParent().getId())) {
 						taxon.setParent(idsToTaxon.get(taxon.getParent().getId()));
 						taxon.getParent().correctFullName();
-						System.out.println("parent was updated with fullname " + taxon.getParent().getName());
+						Debug.println("parent was updated with fullname " + taxon.getParent().getName());
 					}
-					System.out.println("this is full name before " + taxon.getFullName());
+					Debug.println("this is full name before " + taxon.getFullName());
 					taxon.correctFullName();					
-					System.out.println("this is full name after " + taxon.getFullName());
+					Debug.println("this is full name after " + taxon.getFullName());
 					//ADD EDIT						
 					Edit edit = new Edit();
 					edit.setUser(user);
@@ -619,7 +616,6 @@ public class TaxomaticIO {
 					edit.getTaxon().add(taxon);
 					taxon.getEdits().add(edit);
 					taxon.toXML();
-					System.out.println("this is taxon: " + taxon.toXML());
 					SIS.get().getTaxonIO().writeTaxon(taxon, user);
 				}
 				return true;
@@ -627,9 +623,6 @@ public class TaxomaticIO {
 			} finally {
 				aquirer.releaseLocks();
 			}
-
-		} else {
-			System.out.println("Failed to acquire locks.");
 
 		}
 		return false;
@@ -676,7 +669,6 @@ public class TaxomaticIO {
 	}
 	
 	boolean writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user, boolean requireLocking) {
-		System.out.println("in taxomatic writeTaxon with 4 args");
 		if (oldTaxon == null || !isTaxomaticOperationNecessary(taxonToSave, oldTaxon)) {
 			return SIS.get().getTaxonIO().writeTaxon(taxonToSave, oldTaxon, user);
 		} else {
@@ -684,28 +676,21 @@ public class TaxomaticIO {
 			List<Taxon> taxaToSave;
 			try {
 				taxonToSave.toXML();
-				System.out.println("in get children");
 				taxaToSave = SIS.get().getTaxonIO().getChildrenOfTaxonRecurisvely(taxonToSave.getId());
-				System.out.println("this is taxaToSave " + Arrays.toString(taxaToSave.toArray()));
-				System.out.println("after get children");
 			} catch (PersistentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return false;
 			} catch (TransientObjectException e) {
 				e.printStackTrace();
-				System.out.println("ERROR: Failed trying to save taxon " + taxonToSave.getId() + 
-						" with name " + taxonToSave.getName());
 				return false;
 			}
 			taxaToSave.add(0, taxonToSave);
-			System.out.println("in taxomaticio right before updateAndSave");
 			return updateAndSave(taxaToSave, user, requireLocking);
 		}
 	}
 	
 	public boolean writeTaxon(Taxon taxonToSave, User user) {
-		System.out.println("in taxon with 2 args");
 		Taxon oldTaxon = SIS.get().getTaxonIO().getTaxonFromVFS(taxonToSave.getId());
 		if (oldTaxon == null)
 			return false;
