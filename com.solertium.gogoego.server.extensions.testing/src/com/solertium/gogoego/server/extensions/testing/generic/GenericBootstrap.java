@@ -316,15 +316,8 @@ public abstract class GenericBootstrap extends StandardServerComponent {
 	public static class TestDebuggingImpl extends SysDebugger implements GoGoDebugger {
 
 		public TestDebuggingImpl() {
-			super();
-		}
-
-		public TestDebuggingImpl(int logLevel, OutputStream output) {
-			super(logLevel, output);
-		}
-
-		public TestDebuggingImpl(int logLevel) {
-			super(logLevel);
+			super(SysDebugger.FINEST, System.out);
+			setSystemDebugLevel(ALL);
 		}
 
 	}
