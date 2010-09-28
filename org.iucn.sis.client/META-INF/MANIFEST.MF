@@ -24,3 +24,4 @@ Export-Package: org.iucn.sis.client.api.caches,
  org.iucn.sis.client.api.ui.models.image,
  org.iucn.sis.client.api.utils.autocomplete,
  org.iucn.sis.shared.api.integrity
+Bundle-Vendor: IUCN

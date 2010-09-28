@@ -21,8 +21,8 @@
 		<pathelement path="../com.solertium.util.portable/src"/>
 		<pathelement path="../com.solertium.util.querybuilder/src"/>
 		<pathelement path="../com.solertium.util.querybuilder.gwt.ext/src"/>
-		<pathelement path="../com.google.gwt_2.0.0/gwt-user.jar"/>
-		<pathelement path="../com.google.gwt_2.0.0/gwt-dev.jar"/>
+		<pathelement path="../com.google.gwt_2.1.2/gwt-user.jar"/>
+		<pathelement path="../com.google.gwt_2.1.2/gwt-dev.jar"/>
 		<pathelement path="../com.extjs.gwt.2_0/gxt.jar"/>
 		<pathelement path="../ext.ux.pwd/PasswordField.jar"/>
     </path>
@@ -41,7 +41,6 @@
                     <arg value="../${compiled}/src/${compiled-dir}/public"/>
                     <arg value="org.iucn.sis.SIS"/>
             </java>
-            
     </target>
 	
 </project>
