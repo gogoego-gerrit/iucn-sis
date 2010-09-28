@@ -2,6 +2,10 @@ package org.iucn.sis.shared.api.debug;
 
 public class Debug {
 	
+	public static boolean isDefaultInstance() {
+		return instance.debugger instanceof SystemDebugger;
+	}
+	
 	public static void setInstance(Debugger debugger) {
 		instance = new Debug(debugger); 
 	}
