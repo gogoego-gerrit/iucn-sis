@@ -45,6 +45,7 @@ import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.extjs.client.ViewerFilterTextBox;
 
 public class TaxonomyBrowserPanel extends LayoutContainer {
+	
 	class OffsetClickListener implements ClickListener {
 		private NativeDocument ndoc;
 		private String footprint;
@@ -79,9 +80,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 	protected PagingToolBar pagingToolBar;
 	protected ViewerFilterTextBox<TaxonListElement> textBox;
 	protected StoreFilter<TaxonListElement> filter;
-
 	protected Taxon lastTaxon = null;
-	
 	protected boolean asCheckable = false;
 
 	public TaxonomyBrowserPanel() {
@@ -343,6 +342,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 					}
 
 					public void onSuccess(String arg0) {
+						loader.getFullList().clear();
 						for (int i = 0; i < options.getLength(); i++) {
 							Taxon node = TaxonomyCache.impl.getTaxon(options.elementAt(i).getText());
 							if( node != null ) {
