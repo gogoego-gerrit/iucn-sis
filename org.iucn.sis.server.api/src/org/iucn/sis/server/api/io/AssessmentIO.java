@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.hibernate.HibernateException;
 import org.hibernate.NonUniqueObjectException;
-import org.hibernate.Transaction;
-import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.server.api.persistance.AssessmentCriteria;
@@ -316,20 +314,15 @@ public class AssessmentIO {
 	}
 
 	public boolean permenantlyDeleteAllTrashedAssessments() {
-		Session session;
-		session = SISPersistentManager.instance().getSession();
-		Transaction tx = session.beginTransaction();
+		
 		try {
 			for (Assessment assessmentToSave : getTrashedAssessments())
 				AssessmentDAO.delete(assessmentToSave);
-
-			tx.commit();
-			session.close();
 			return true;
 		} catch (PersistentException e) {
-			tx.rollback();
+			return false;
 		}
-		return false;
+		
 	}
 
 	public Assessment getDeletedAssessment(Integer assessmentID) {
@@ -418,10 +411,6 @@ public class AssessmentIO {
 		}
 
 		if (lockStatus.isSuccess()) {
-			Session session;
-
-			session = SISPersistentManager.instance().getSession();
-			Transaction tx = session.beginTransaction();
 			try {
 				for (Assessment assessmentToSave : assessments) {
 					Edit edit = new Edit();
@@ -432,13 +421,10 @@ public class AssessmentIO {
 					AssessmentDAO.save(assessmentToSave);
 					EditDAO.save(edit);
 				}
-				tx.commit();
 				success = true;
-				session.close();
-			} catch (PersistentException e) {
-				tx.rollback();
+			} catch (PersistentException e) {	
+				e.printStackTrace();
 			}
-
 		}
 
 		return success;

@@ -17,7 +17,6 @@ import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
 import org.iucn.sis.shared.api.acl.feature.AuthorizablePublishedAssessment;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Relationship;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -53,6 +52,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.ViewerFilterCheckBox;
 import com.solertium.util.extjs.client.ViewerFilterTextBox;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -68,6 +68,10 @@ public class BatchChangePanel extends LayoutContainer {
 	 * Represents a field in a MyGWT Model
 	 */
 	public class FieldListElement extends BaseModel {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		String name;
 		boolean hasData;
 
@@ -132,7 +136,6 @@ public class BatchChangePanel extends LayoutContainer {
 
 		fieldsFilterBox = new ViewerFilterTextBox<FieldListElement>();
 		fieldsFilterBox.bind(fieldStore);
-		// fieldsFilterBox.setHeight("25px");
 
 		fieldFilter = new StoreFilter<FieldListElement>() {
 			public boolean select(Store store, FieldListElement parent, FieldListElement item, String property) {
@@ -155,21 +158,6 @@ public class BatchChangePanel extends LayoutContainer {
 		filterPanel = new AssessmentFilterPanel(new AssessmentFilter(), false, false, true, false);
 		filterPanel.setEnabled(false);
 
-		//		types = new ListBox(false);
-		//		types.addItem("", "");
-		//		types.addItem("Global Draft Assessments", AssessmentType.DRAFT_ASSESSMENT_TYPE);
-		//		types.addItem("Current Published Assessments", AssessmentType.PUBLISHED_ASSESSMENT_TYPE);
-		//		types.addItem("Both Assessments", "Both");
-		//		types.addChangeListener(new ChangeListener() {
-		//			public void onChange(Widget sender) {
-		//				if (types.getSelectedIndex() == 0) {
-		//					workingSets.setSelectedIndex(0);
-		//					workingSets.setEnabled(false);
-		//				} else
-		//					workingSets.setEnabled(true);
-		//			}
-		//		});
-
 		workingSets = new ListBox(false);
 		workingSets.addChangeListener(new ChangeListener() {
 			public void onChange(Widget sender) {
@@ -185,7 +173,6 @@ public class BatchChangePanel extends LayoutContainer {
 				}
 			}
 		});
-		//		workingSets.setEnabled(false);
 
 		submit = new Button("Submit Batch Change Request");
 		submit.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -213,21 +200,16 @@ public class BatchChangePanel extends LayoutContainer {
 		containerFieldList = new LayoutContainer();
 		RowLayout fieldLayout = new RowLayout();
 		fieldLayout.setOrientation(Orientation.VERTICAL);
-		// fieldLayout.setSpacing(3);
 		containerFieldList.setLayout(fieldLayout);
 		containerFieldList.add(new HTML("<u>Choose Source Data from Current Assessment</u>"), new RowData(1, 25));
-		containerFieldList.add(wrapInHorPanel("Show Fields With No Data", filterShowEmptyFields));
+//		containerFieldList.add(wrapInHorPanel("Show Fields With No Data", filterShowEmptyFields));
 		containerFieldList.add(wrapInHorPanel("Filter By Name", fieldsFilterBox));
 		containerFieldList.add(fieldsToUse, new RowData(1, 1));
 
 		containerTypeChooser = new LayoutContainer();
 		FlowLayout innerLayout = new FlowLayout();
-		// innerLayout.setSpacing(3);
 		containerTypeChooser.setLayout(innerLayout);
 		containerTypeChooser.add(new HTML("<u>Choose Destination Assessments</u>"));
-		//		containerTypeChooser.add(wrapInHorPanel("Select Assessment Type", types));
-		// containerTypeChooser.add(wrapInHorPanel("Include Regional Draft Assessments",
-		// regional));
 
 		containerTypeChooser.add(wrapInHorPanel("Select a Working Set", workingSets));
 		containerTypeChooser.add(wrapInHorPanel("Select assessment scope", filterPanel));
@@ -236,10 +218,6 @@ public class BatchChangePanel extends LayoutContainer {
 		containerTypeChooser.add(submit);
 
 		setLayout(new RowLayout());
-		//		LayoutContainer innerPanel = new LayoutContainer();
-		//		innerPanel.setLayout(new RowLayout(Orientation.HORIZONTAL));
-		//		innerPanel.add(containerFieldList, new RowData(-1,1d));
-		//		innerPanel.add(containerTypeChooser, new RowData(1d,1d));
 		com.extjs.gxt.ui.client.widget.HorizontalPanel innerPanel = new com.extjs.gxt.ui.client.widget.HorizontalPanel();
 		innerPanel.add(containerFieldList);
 		containerFieldList.setWidth(350);
@@ -249,9 +227,6 @@ public class BatchChangePanel extends LayoutContainer {
 		containerTypeChooser.setHeight("100%");
 		add(disclaimer, new RowData(1, -1));
 		add(innerPanel, new RowData(1, 1));
-		//		add(disclaimer, new BorderLayoutData(LayoutRegion.NORTH, .14f));
-		//		add(containerFieldList, new BorderLayoutData(LayoutRegion.CENTER, .43f));
-		//		add(containerTypeChooser, new BorderLayoutData(LayoutRegion.EAST, .43f));
 
 		built = true;
 	}
@@ -286,20 +261,17 @@ public class BatchChangePanel extends LayoutContainer {
 			build();
 
 		filterShowEmptyFields.setChecked(true);
-
 		template = AssessmentCache.impl.getCurrentAssessment();
-
 		fieldStore.removeAll();
 		for (int i = 0; i < CanonicalNames.batchChangeSubset.length; i++) {
 			String name = CanonicalNames.batchChangeSubset[i];
-
-			fieldStore.add(new FieldListElement(name, template.getField(
-					CanonicalNames.batchChangeSubset[i]) != null ));
+			if (!CanonicalNames.batchChangeSubset[i].equals(CanonicalNames.RegionInformation))
+				fieldStore.add(new FieldListElement(name, template.getField(
+						CanonicalNames.batchChangeSubset[i]) != null ));
 		}
 
 		filterShowEmptyFields.setChecked(false);
 		fieldStore.applyFilters("");
-
 		workingSets.clear();
 		workingSets.addItem("", "");
 		for (Iterator iter = WorkingSetCache.impl.getWorkingSets().values().iterator(); iter.hasNext();) {
@@ -314,20 +286,20 @@ public class BatchChangePanel extends LayoutContainer {
 
 		if (filter.getRegionType().equalsIgnoreCase(Relationship.ALL) || filter.getRegionType().equalsIgnoreCase(Relationship.OR))
 		{
+			WindowUtils.hideLoadingAlert();
 			WindowUtils.errorAlert("Unable to perform operations on working sets that don't have an exact region match.");
 			return;
 		}
 
 		TaxonomyCache.impl.fetchList(ws.getSpeciesIDs(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
+				WindowUtils.hideLoadingAlert();
 				WindowUtils.errorAlert("Error!", "Error fetching taxa in "
 						+ "selected working set. Please check your connection "
 						+ "or local SIS server status, and try again.");
 			}
 
 			public void onSuccess(String arg0) {
-//				String publishedIDs = null;
-//				String draftIDs = null;
 				String taxaIDs = null;
 				if (filter.isAllPublished() || filter.isRecentPublished())
 				{
@@ -368,17 +340,16 @@ public class BatchChangePanel extends LayoutContainer {
 				}
 
 				if (taxaIDs != null) {
-					Assessment ass = template.deepCopy();
-					ass.setType(template.getType());
 					
+					StringBuffer fieldXML = new StringBuffer("<fields>");
 					for( Entry<String, Field> curEntry : newData.entrySet() )
-						ass.getField().add(curEntry.getValue().deepCopy(false));
+						fieldXML.append("<field>" + curEntry.getValue().getName() + "</field>");
+					fieldXML.append("</fields>");
 					
-					ass.clearReferences();
-
 					StringBuffer xml = new StringBuffer("<batchChange>\n");
-					xml.append(ass.toXML());
+					xml.append("<assessment>" + template.getId() + "</assessment>");
 					xml.append(filter.toXML());
+					xml.append(fieldXML.toString());
 					xml.append("<taxa>" + taxaIDs + "</taxa>");
 					xml.append("<append>" + append.isChecked() + "</append>\n");
 					xml.append("<overwrite>" + overwrite.isChecked() + "</overwrite>\n");
@@ -394,61 +365,38 @@ public class BatchChangePanel extends LayoutContainer {
 						}
 
 						public void onSuccess(String arg0) {
-							String summaryHTML = "";
-
-							// Read in published assessments changed ID list and
-							// summary
-							NativeElement pubs = batchAway.getDocumentElement().getElementByTagName("published");
-							if (pubs != null) {
-								NativeElement pubIDs = pubs.getElementByTagName("publishedIDs");
-								NativeElement pubSummary = pubs.getElementByTagName("publishedSummary");
-
-								if (pubIDs != null && !pubIDs.getText().equals("")) {
-									AssessmentCache.impl.evictAssessments(pubIDs.getText());
+							StringBuffer summaryHTML = new StringBuffer();
+							NativeNodeList assessments = batchAway.getDocumentElement().getElementsByTagName("change");
+							if (assessments.getLength() == 0) {
+								summaryHTML.append("No assessments were updated.");
+							} else {
+								for (int i = 0; i < assessments.getLength(); i++) {
+									NativeElement node = assessments.elementAt(i);
+									summaryHTML.append(node.getText() + " assessment, ");
 								}
-								if (pubSummary != null && !pubSummary.getText().equals(""))
-									summaryHTML += pubSummary.getText();
-							}
-
-							// Read in draft assessments changed ID list and
-							// summary
-							NativeElement drafts = batchAway.getDocumentElement().getElementByTagName("draft");
-							if (drafts != null) {
-								NativeElement draftIDs = drafts.getElementByTagName("draftIDs");
-								NativeElement draftSummary = drafts.getElementByTagName("draftSummary");
-
-//								if (draftIDs != null && !draftIDs.getText().equals(""))
-//									AssessmentCache.impl.evictAssessments(draftIDs.getText(),
-//											AssessmentType.DRAFT_ASSESSMENT_TYPE);
-								if (draftSummary != null && !draftSummary.getText().equals(""))
-									summaryHTML += draftSummary.getText();
 							}
 							AssessmentCache.impl.clear();
 							AssessmentCache.impl.resetCurrentAssessment();
 
 							WindowUtils.hideLoadingAlert();
-
 							LayoutContainer innerContainer = new LayoutContainer();
 							innerContainer.setScrollMode(Scroll.AUTO);
 							VerticalPanel innerPanel = new VerticalPanel();
 							innerPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-							innerPanel.add(new HTML("<u>Detailed Summary:</u><br>" + XMLUtils.cleanFromXML(summaryHTML)));
+							innerPanel.add(new HTML("<u>The following assessments were changed:</u><br/>" + XMLUtils.cleanFromXML(summaryHTML.substring(0, summaryHTML.length()))));
 							innerContainer.add(innerPanel);
 
 							final Dialog d = new Dialog();
 							d.setHeading("Success!");
 							RowLayout layout = new RowLayout(Orientation.VERTICAL);
-							// layout.setSpacing(3);
 							d.setLayout(layout);
 							d.add(new HTML("<b>Batch changes were successful.</b>"), new RowData(1, 25));
 							d.add(innerContainer, new RowData(1, 1));
-d.setHideOnButtonClick(true);
+							d.setHideOnButtonClick(true);
 							d.show();
 							d.setSize(400, 400);
 							d.center();
-
-							// WindowUtils.infoAlert("Success!",
-							// "Batch changes were successful.");
+							submit.setEnabled(true);
 						}
 					});
 				} else

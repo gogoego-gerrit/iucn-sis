@@ -654,6 +654,10 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		
 	}
 	
+	public String getDisplayText() {
+		return getAssessmentType().getDisplayName() + " " + getTaxon().getFriendlyName();
+	}
+	
 	
 
 }
