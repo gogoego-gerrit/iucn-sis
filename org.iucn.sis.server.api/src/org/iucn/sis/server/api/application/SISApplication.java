@@ -1,7 +1,7 @@
 package org.iucn.sis.server.api.application;
 
-import java.sql.BatchUpdateException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +16,7 @@ import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Restlet;
 import org.restlet.data.Encoding;
+import org.restlet.data.MediaType;
 import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.data.Request;
@@ -94,8 +95,24 @@ public abstract class SISApplication extends GoGoEgoApplication {
 				// ADD NO CACHE DIRECTIVE
 				RestletUtils.setHeader(response, "Cache-Control", "no-cache");
 				RestletUtils.setHeader(response, MagicDisablingFilter.MAGIC_DISABLING_KEY, "true");
-				String noHandle = RestletUtils.getHeader(response, NO_TRANSACTION_HANDLE);
 				
+				final MediaType mt;
+				if (response.isEntityAvailable())
+					mt = null;
+				else
+					mt = response.getEntity().getMediaType();
+				
+				final Calendar cal = Calendar.getInstance();
+				if (mt == null)
+					cal.add(Calendar.DATE, -1);
+				else if (MediaType.TEXT_ALL.includes(mt))
+					cal.add(Calendar.HOUR, 24);
+				else
+					cal.add(Calendar.MONTH, 2);
+				
+				response.getEntity().setExpirationDate(cal.getTime());
+				
+				final String noHandle = RestletUtils.getHeader(response, NO_TRANSACTION_HANDLE);
 				if (noHandle == null) {
 					try {
 						Transaction tsx = SISPersistentManager.instance().getSession().getTransaction();
@@ -104,17 +121,12 @@ public abstract class SISApplication extends GoGoEgoApplication {
 						else
 							tsx.rollback();
 					} catch (HibernateException e) {
-						try{
-						((BatchUpdateException)e.getCause()).getNextException().printStackTrace();
-						} catch (NullPointerException e1) {	}
-						e.printStackTrace();
+						Debug.println("Hibernate Error: {0}\n{1}", e.getMessage(), e);
 						response.setStatus(Status.SERVER_ERROR_INTERNAL);
 					}
-				}
-				
+				}				
 
 				try {
-
 					if (SIS.amIOnline()) {
 						if (response.getStatus().isSuccess()) {
 							if (response.isEntityAvailable() && SIS.get().isEncodeableEntity(response.getEntity()))

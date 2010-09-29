@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: SIS Server Api Plug-in
+Bundle-Name: SIS Server API
 Bundle-SymbolicName: org.iucn.sis.server.api
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Require-Bundle: com.solertium.lwxml;bundle-version="1.1.2",
  com.solertium.lwxml.java;bundle-version="1.1.2",
  com.solertium.vfs;bundle-version="1.1.2",
