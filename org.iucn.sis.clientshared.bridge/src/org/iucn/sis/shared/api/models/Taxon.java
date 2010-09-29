@@ -154,13 +154,6 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 			
 		}
 		return fullName.trim();
-		
-
-		
-
-		
-
-		
 	}
 
 	private String[] footprint;
@@ -744,5 +737,17 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 
 		return taxon;
 
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Taxon)
+			return ((Taxon)obj).getId() == this.id;
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode() {
+		return (Taxon.class.toString() + getId()).hashCode();
 	}
 }
