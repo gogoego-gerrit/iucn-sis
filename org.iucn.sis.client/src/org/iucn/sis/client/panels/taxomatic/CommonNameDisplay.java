@@ -151,15 +151,12 @@ public class CommonNameDisplay implements Referenceable {
 		rightPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 
 		HorizontalPanel buttonPanel = new HorizontalPanel();
-
 		if (cName == null)
 			panel.setHeading("Add New Common Name");
 		else
 			panel.setHeading("Edit Common Name");
 
 		TextBox nameBox = new TextBox();
-
-		// TextBox isoBox = new TextBox();
 		final ListBox isoBox = new ListBox();
 		final CheckBox isPrimary = new CheckBox();
 		if (node.getCommonNames().size() == 0) {
@@ -241,7 +238,6 @@ public class CommonNameDisplay implements Referenceable {
 		if (cName != null) {
 			nameBox.setText(cName.getName());
 			isPrimary.setChecked(cName.isPrimary());
-			// isoBox.setText( cName.getLanguage() );
 		}
 
 		HTML nameLabel = new HTML("Name: ");
@@ -547,8 +543,11 @@ public class CommonNameDisplay implements Referenceable {
 			}
 		});
 
+		
 		String display = "&nbsp;&nbsp;" + name.getName() + " --- "
-				+ (name.getLanguage().equals("") ? name.getIsoCode() : name.getLanguage());
+				+ (name.getLanguage().equals("") ? 
+						(name.getIso() != null ? name.getIsoCode() : "No iso") 
+						: name.getLanguage());
 
 		if (name.getChangeReason() != 0) {
 			display += " -- " + CommonName.reasons[name.getChangeReason()];

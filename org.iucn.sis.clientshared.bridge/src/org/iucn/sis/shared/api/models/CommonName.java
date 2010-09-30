@@ -107,7 +107,7 @@ public class CommonName implements Serializable {
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	public CommonName deepCopy() {
 		//FIXME
-		return new CommonName(name, iso.getName(), iso.getCode(), validated, principal);
+		return new CommonName(name, iso == null ? null : iso.getName(), iso == null ? null : iso.getCode(), validated, principal);
 	}
 	
 	@Override
