@@ -148,29 +148,23 @@ public class SISPageHolder extends TabPanel {
 	}
 
 	private void fetchFields(final GenericCallback<String> wayBack) {
-		final ArrayList fieldList = new ArrayList();
-		String fieldNames = "";
-		NativeNodeList fields = pageTag.getElementsByTagName("field");
-		for (int i = 0; i < fields.getLength(); i++) {
-			String curField = fields.elementAt(i).getAttribute("id");
-			fieldNames += curField + ",";
-			fieldList.add(curField);
-		}
+		final ArrayList<String> fieldList = new ArrayList<String>();
+		
+		final NativeNodeList fields = pageTag.getElementsByTagName("field");
+		for (int i = 0; i < fields.getLength(); i++) 
+			fieldList.add(fields.elementAt(i).getAttribute("id"));
 
-		fieldNames = fieldNames.substring(0, fieldNames.length() - 1);
-
-		if (fieldNames.equalsIgnoreCase(""))
+		if (fieldList.isEmpty())
 			NotesCache.impl.fetchNotes(AssessmentCache.impl.getCurrentAssessment(), wayBack);
-		// wayBack.onSuccess("OK");
 		else {
-			FieldWidgetCache.impl.prefetchList(fieldNames, new GenericCallback<String>() {
+			FieldWidgetCache.impl.prefetchList(fieldList, new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					wayBack.onFailure(caught);
 				}
 
 				public void onSuccess(String arg0) {
-					for (Iterator iter = fieldList.iterator(); iter.hasNext();) {
-						String displayName = iter.next().toString();
+					for (Iterator<String> iter = fieldList.iterator(); iter.hasNext();) {
+						String displayName = iter.next();
 						Display dis = FieldWidgetCache.impl.get(displayName);
 						if (dis != null)
 							myFields.add(dis);
