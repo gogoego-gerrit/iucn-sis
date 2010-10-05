@@ -1,0 +1,10 @@
+<field id="84">
+	<canonicalName>PopulationIncreaseRate</canonicalName>
+	<description>Annual Rate of Population Increase</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="narrative">
+			<narrative></narrative>
+		</structure>
+	</structures>
+</field>

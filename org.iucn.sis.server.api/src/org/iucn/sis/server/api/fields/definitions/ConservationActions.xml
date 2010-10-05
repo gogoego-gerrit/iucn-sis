@@ -1,0 +1,201 @@
+<!-- SUBSTANTIAL DIFFERENCES -->
+<tree id="94">
+	<!-- AAH used General Info -->
+	<!-- AAH used Conservation Measures -->
+	<canonicalName>ConservationActions</canonicalName>
+	<description>Conservation Actions Needed</description>
+	<classOfService>Documentation</classOfService>
+	<treeRoot>
+		<defaultStructure>
+			<treeStructures>
+				<structure id="note">
+					<note></note>
+				</structure>
+			</treeStructures>
+		</defaultStructure>
+
+   <root code="1" codeable="false" depth="1" id="1">
+        <label>Land/water protection</label>
+        <child code="2" codeable="true" depth="2" id="1.1">
+            <label>Site/area protection</label>
+        </child>
+        <child code="3" codeable="true" depth="2" id="1.2">
+            <label>Resource &amp; habitat protection</label>
+        </child>
+    </root>
+    <root code="4" codeable="false" depth="1" id="2">
+        <label>Land/water management</label>
+        <child code="5" codeable="true" depth="2" id="2.1">
+            <label>Site/area management</label>
+        </child>
+        <child code="6" codeable="true" depth="2" id="2.2">
+            <label>Invasive/problematic species control</label>
+        </child>
+        <child code="7" codeable="true" depth="2" id="2.3">
+            <label>Habitat &amp; natural process restoration</label>
+        </child>
+    </root>
+    <root code="8" codeable="false" depth="1" id="3">
+        <label>Species management</label>
+        <child code="9" codeable="false" depth="2" id="3.1">
+            <label>Species management</label>
+            <child code="10" codeable="true" depth="3" id="3.1.1">
+                <label>Harvest management</label>
+            </child>
+            <child code="11" codeable="true" depth="3" id="3.1.2">
+                <label>Trade management</label>
+            </child>
+            <child code="12" codeable="true" depth="3" id="3.1.3">
+                <label>Limiting population growth</label>
+            </child>
+        </child>
+        <child code="13" codeable="true" depth="2" id="3.2">
+            <label>Species recovery</label>
+        </child>
+        <child code="14" codeable="false" depth="2" id="3.3">
+            <label>Species re-introduction</label>
+            <child code="15" codeable="true" depth="3" id="3.3.1">
+                <label>Reintroduction</label>
+            </child>
+            <child code="16" codeable="true" depth="3" id="3.3.2">
+                <label>Benign introduction</label>
+            </child>
+        </child>
+        <child code="17" codeable="false" depth="2" id="3.4">
+            <label>Ex-situ conservation</label>
+            <child code="18" codeable="true" depth="3" id="3.4.1">
+                <label>Captive breeding/artificial propagation</label>
+            </child>
+            <child code="19" codeable="true" depth="3" id="3.4.2">
+                <label>Genome resource bank</label>
+            </child>
+        </child>
+    </root>
+    <root code="20" codeable="false" depth="1" id="4">
+        <label>Education &amp; awareness</label>
+        <child code="21" codeable="true" depth="2" id="4.1">
+            <label>Formal education</label>
+        </child>
+        <child code="22" codeable="true" depth="2" id="4.2">
+            <label>Training</label>
+        </child>
+        <child code="23" codeable="true" depth="2" id="4.3">
+            <label>Awareness &amp; communications</label>
+        </child>
+    </root>
+    <root code="24" codeable="false" depth="1" id="5">
+        <label>Law &amp; policy</label>
+        <child code="25" codeable="false" depth="2" id="5.1">
+            <label>Legislation</label>
+            <child code="26" codeable="true" depth="3" id="5.1.1">
+                <label>International level</label>
+            </child>
+            <child code="27" codeable="true" depth="3" id="5.1.2">
+                <label>National level</label>
+            </child>
+            <child code="28" codeable="true" depth="3" id="5.1.3">
+                <label>Sub-national level</label>
+            </child>
+            <child code="42" codeable="true" depth="3" id="5.1.4">
+                <label>Scale unspecified</label>
+            </child>
+        </child>
+        <child code="29" codeable="true" depth="2" id="5.2">
+            <label>Policies and regulations</label>
+        </child>
+        <child code="30" codeable="true" depth="2" id="5.3">
+            <label>Private sector standards &amp; codes</label>
+        </child>
+        <child code="31" codeable="false" depth="2" id="5.4">
+            <label>Compliance and enforcement</label>
+            <child code="32" codeable="true" depth="3" id="5.4.1">
+                <label>International level</label>
+            </child>
+            <child code="33" codeable="true" depth="3" id="5.4.2">
+                <label>National level</label>
+            </child>
+            <child code="34" codeable="true" depth="3" id="5.4.3">
+                <label>Sub-national level</label>
+            </child>
+            <child code="43" codeable="true" depth="3" id="5.4.4">
+                <label>Scale unspecified</label>
+            </child>
+        </child>
+    </root>
+    <root code="35" codeable="false" depth="1" id="6">
+        <label>Livelihood, economic &amp; other incentives</label>
+        <child code="36" codeable="true" depth="2" id="6.1">
+            <label>Linked enterprises &amp; livelihood alternatives</label>
+        </child>
+        <child code="37" codeable="true" depth="2" id="6.2">
+            <label>Substitution</label>
+        </child>
+        <child code="38" codeable="true" depth="2" id="6.3">
+            <label>Market forces</label>
+        </child>
+        <child code="39" codeable="true" depth="2" id="6.4">
+            <label>Conservation payments</label>
+        </child>
+        <child code="40" codeable="true" depth="2" id="6.5">
+            <label>Non-monetary values</label>
+        </child>
+    </root>
+    <child code="41" codeable="true" depth="0" id="7">
+        <label>Other</label>
+    </child>
+    <root code="45" codeable="true" depth="1" id="100.1">
+        <label>OLD 1 Policy-based actions</label>
+    </root>
+    <root code="46" codeable="true" depth="1" id="100.2">
+        <label>OLD 1.1 Policy-based actions-&gt;Management Plans</label>
+    </root>
+    <root code="47" codeable="true" depth="1" id="100.3">
+        <label>OLD 1.1.1 Policy-based actions-&gt;Management Plans-&gt;Development</label>
+    </root>
+    <root code="48" codeable="true" depth="1" id="100.4">
+        <label>OLD 1.1.2 Policy-based actions-&gt;Management Plans-&gt;Implementation</label>
+    </root>
+    <root code="49" codeable="true" depth="1" id="100.5">
+        <label>OLD 1.2 Policy-based actions-&gt;Legislation</label>
+    </root>
+    <root code="50" codeable="true" depth="1" id="100.6">
+        <label>OLD 1.3 Policy-based actions-&gt;Community management</label>
+    </root>
+    <root code="51" codeable="true" depth="1" id="100.7">
+        <label>OLD 1.4 Policy-based actions-&gt;Other</label>
+    </root>
+    <root code="52" codeable="true" depth="1" id="100.8">
+        <label>OLD 2 Communication and Education</label>
+    </root>
+    <root code="53" codeable="true" depth="1" id="100.9">
+        <label>OLD 2.4 Communication and Education-&gt;Other</label>
+    </root>
+    <root code="54" codeable="true" depth="1" id="100.10">
+        <label>OLD 4 Habitat and site-based actions</label>
+    </root>
+    <root code="55" codeable="true" depth="1" id="100.11">
+        <label>OLD 4.4 Habitat and site-based actions-&gt;Protected areas</label>
+    </root>
+    <root code="56" codeable="true" depth="1" id="100.12">
+        <label>OLD 4.6 Habitat and site-based actions-&gt;Other</label>
+    </root>
+    <root code="57" codeable="true" depth="1" id="100.13">
+        <label>OLD 5 Species-based actions</label>
+    </root>
+    <root code="58" codeable="true" depth="1" id="100.14">
+        <label>OLD 5.3 Species-based actions-&gt;Sustainable use</label>
+    </root>
+    <root code="59" codeable="true" depth="1" id="100.15">
+        <label>OLD 5.7 Species-based actions-&gt;Ex situ conservation actions</label>
+    </root>
+    <root code="60" codeable="true" depth="1" id="100.16">
+        <label>OLD 5.8 Species-based actions-&gt;Other</label>
+    </root>
+    <root code="61" codeable="true" depth="1" id="100.17">
+        <label>OLD 6 Other</label>
+    </root>
+    <root code="62" codeable="true" depth="1" id="100.18">
+        <label>OLD 3-Research Actions</label>
+    </root>
+	</treeRoot>
+</tree>

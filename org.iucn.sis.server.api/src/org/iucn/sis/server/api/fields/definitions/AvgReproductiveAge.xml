@@ -1,0 +1,18 @@
+<field id="75">
+	<canonicalName>AvgReproductiveAge</canonicalName>
+	<description>Average Reproductive Age</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="age">
+                        <text></text>
+		</structure>
+		<structure id="units" description="Units:">
+			<singleSelect>
+				<option>Days</option>
+				<option>Months</option>
+				<option>Years</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,89 @@
+<tree id="1776">
+	<canonicalName>LandCover</canonicalName>
+	<description>Land Cover</description>
+	<classOfService>Documentation</classOfService>
+	<treeRoot>
+                <defaultStructure>
+                        <treeStructures>
+                          <structure id="suitability">
+                            <singleSelect>
+                              <option>Suitable</option>
+                              <option>Moderately Suitable</option>
+                              <option>Unsuitable</option>
+                              <option>Undefined</option>
+                              <selected>0</selected>
+                            </singleSelect>
+                          </structure>
+                      </treeStructures>
+                </defaultStructure>
+    <root code="1" codeable="true" depth="1" id="1">
+        <label>Tree Cover, broadleaved, evergreen (&gt;15% tree cover, tree height &gt;3m )</label>
+    </root>
+    <root code="2" codeable="true" depth="1" id="2">
+        <label>Tree Cover, broadleaved, deciduous, closed (&gt;40% tree cover)</label>
+    </root>
+    <root code="3" codeable="true" depth="1" id="3">
+        <label>Tree Cover, broadleaved, deciduous, open (15-40% tree cover)</label>
+    </root>
+    <root code="4" codeable="true" depth="1" id="4">
+        <label>Tree Cover, needle-leaved, evergreen</label>
+    </root>
+    <root code="5" codeable="true" depth="1" id="5">
+        <label>Tree Cover, needle-leaved, deciduous</label>
+    </root>
+    <root code="6" codeable="true" depth="1" id="6">
+        <label>Tree Cover, mixed leaf type</label>
+    </root>
+    <root code="7" codeable="true" depth="1" id="7">
+        <label>Tree Cover, regularly flooded, fresh (and brackish) water</label>
+    </root>
+    <root code="8" codeable="true" depth="1" id="8">
+        <label>Tree Cover, regularly flooded, saline, (daily variation of water level)</label>
+    </root>
+    <root code="9" codeable="true" depth="1" id="9">
+        <label>Mosaic: Tree cover / Other natural vegetation</label>
+    </root>
+    <root code="10" codeable="true" depth="1" id="10">
+        <label>Tree Cover, burnt</label>
+    </root>
+    <root code="11" codeable="true" depth="1" id="11">
+        <label>Shrub Cover, closed-open, evergreen (with or without sparse tree layer)</label>
+    </root>
+    <root code="12" codeable="true" depth="1" id="12">
+        <label>Shrub Cover, closed-open, deciduous (with or without sparse tree layer)</label>
+    </root>
+    <root code="13" codeable="true" depth="1" id="13">
+        <label>Herbaceous Cover, closed-open (natural, pasture, with or without sparse tree layer)</label>
+    </root>
+    <root code="14" codeable="true" depth="1" id="14">
+        <label>Sparse Herbaceous or sparse shrub cover</label>
+    </root>
+    <root code="15" codeable="true" depth="1" id="15">
+        <label>Regularly flooded shrub and/or herbaceous cover</label>
+    </root>
+    <root code="16" codeable="true" depth="1" id="16">
+        <label>Cultivated and managed areas</label>
+    </root>
+    <root code="17" codeable="true" depth="1" id="17">
+        <label>Mosaic: Cropland / Tree Cover / Other natural vegetation</label>
+    </root>
+    <root code="18" codeable="true" depth="1" id="18">
+        <label>Mosaic: Cropland / Shrub and/or Herbaceous cover</label>
+    </root>
+    <root code="19" codeable="true" depth="1" id="19">
+        <label>Bare Areas</label>
+    </root>
+    <root code="20" codeable="true" depth="1" id="20">
+        <label>Water Bodies (natural &amp; artificial)</label>
+    </root>
+    <root code="21" codeable="true" depth="1" id="21">
+        <label>Snow and Ice (natural &amp; artificial)</label>
+    </root>
+    <root code="22" codeable="true" depth="1" id="22">
+        <label>Artificial surfaces and associated areas</label>
+    </root>
+    <root code="23" codeable="true" depth="1" id="23">
+        <label>Unknown</label>
+    </root>
+</treeRoot>
+</tree>

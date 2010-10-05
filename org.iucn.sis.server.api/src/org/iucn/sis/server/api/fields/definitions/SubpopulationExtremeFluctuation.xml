@@ -1,0 +1,32 @@
+<field id="55">
+	<canonicalName>SubpopulationExtremeFluctuation</canonicalName>
+	<description>
+		Extreme fluctuations in the number of subpopulations
+	</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="isFluctuating">
+						<booleanRange></booleanRange>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="justification">
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

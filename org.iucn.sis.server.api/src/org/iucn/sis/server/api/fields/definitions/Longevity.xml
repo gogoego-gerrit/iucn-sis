@@ -1,0 +1,19 @@
+<field id="73">
+	<!-- AAH used General Info -->
+	<canonicalName>Longevity</canonicalName>
+	<description>Longevity</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="longevity">
+	              <text></text>
+		</structure>
+		<structure id="units" description="Units:">
+			<singleSelect>
+				<option>Days</option>
+				<option>Months</option>
+				<option>Years</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,10 @@
+<field id="116">
+	<canonicalName>RedListSource</canonicalName>
+	<description>Red List Source</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure id="value">
+			<text></text>
+		</structure>
+	</structures>
+</field>

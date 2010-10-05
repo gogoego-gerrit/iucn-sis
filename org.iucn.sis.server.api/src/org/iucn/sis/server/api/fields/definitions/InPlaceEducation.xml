@@ -1,0 +1,92 @@
+<field id="6178675309">
+	<!-- AAH used General Info -->
+	<canonicalName>InPlaceEducation</canonicalName>
+	<description>In Place Education and Awareness</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure layout="horizontal">
+				<dominantStructures>
+					<structure id="subjectToPrograms" description="Subject to recent education and awareness programmes">
+						<singleSelect>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="notes">
+						<note></note>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+		<structure>
+			<relatedStructure layout="horizontal">
+				<dominantStructures>
+					<structure id="internationalLegislation" description="Included in international legislation">
+						<singleSelect>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="notes">
+						<note></note>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+		<structure>
+			<relatedStructure layout="horizontal">
+				<dominantStructures>
+					<structure id="controlled" description="Subject to any international management/trade controls">
+						<singleSelect>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="note">
+						<note></note>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

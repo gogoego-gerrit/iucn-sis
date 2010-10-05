@@ -1,0 +1,33 @@
+<field id="24">
+	<canonicalName>PopulationReductionPast</canonicalName>
+	<description>Percent Reduction in past</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="range">
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="qualifier">
+						<qualifier></qualifier>
+					</structure>
+					<structure id="justification">
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

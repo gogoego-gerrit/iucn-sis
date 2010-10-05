@@ -1,0 +1,10 @@
+<field id="72">
+	<canonicalName>MaleMaturitySize</canonicalName>
+	<description>Size at Maturity (in cms): Male</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="size">
+                        <text></text>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,21 @@
+<field id="14">
+	<!-- AAH used General Info -->
+	<canonicalName>BiogeographicRealm</canonicalName>
+	<description>Biogeographic Realm</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="realm">
+			<multipleSelect>
+				<option>Afrotropical</option>
+				<option>Antarctic</option>
+				<option>Australasian</option>
+				<option>Indomalayan</option>
+				<option>Nearctic</option>
+				<option>Neotropical</option>
+				<option>Oceanian</option>
+				<option>Palearctic</option>
+				<selected></selected>
+			</multipleSelect>
+		</structure>
+	</structures>
+</field>

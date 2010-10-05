@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<field id="11">
+	<!-- AAH used General Info -->
+	<canonicalName>DepthUpper</canonicalName>
+	<description>
+		Depth Upper Limit (in metres below sea level)
+	</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="limit">
+			<number></number>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,14 @@
+<field id="105">
+	<canonicalName>UseTradeDetails</canonicalName>
+	<description>Use and Trade Details</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="a">
+			<oneToMany>
+				<structure>
+					<useTrade></useTrade>
+				</structure>	
+			</oneToMany>
+		</structure>
+	</structures>
+</field>

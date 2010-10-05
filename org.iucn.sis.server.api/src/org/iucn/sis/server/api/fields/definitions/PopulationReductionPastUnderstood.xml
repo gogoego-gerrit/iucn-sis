@@ -1,0 +1,10 @@
+<field id="36">
+	<canonicalName>PopulationReductionPastUnderstood</canonicalName>
+	<description>Causes of past reduction understood?</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure id="value">
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>

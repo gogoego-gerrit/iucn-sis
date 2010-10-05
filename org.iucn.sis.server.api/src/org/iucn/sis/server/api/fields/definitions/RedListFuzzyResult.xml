@@ -1,0 +1,10 @@
+<field id="116">
+	<canonicalName>RedListFuzzyResult</canonicalName>
+	<description>Red List Fuzzy Results</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure id="a">
+			<text></text>
+		</structure>
+	</structures>
+</field>

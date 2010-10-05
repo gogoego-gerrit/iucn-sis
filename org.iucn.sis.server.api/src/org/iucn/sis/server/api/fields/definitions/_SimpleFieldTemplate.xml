@@ -1,0 +1,10 @@
+<field id="129">
+	<canonicalName>UniqueCanonicalName</canonicalName>
+	<description>This is a field</description>
+	<classOfService>Type of Data</classOfService>
+	<structures>
+		<structure id="a">
+			<empty/>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,10 @@
+<field id="100">
+	<canonicalName>NonConsumptiveUse</canonicalName>
+	<description>Non-consumptive use of the species?</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="isNonConsumptiveUse">
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>

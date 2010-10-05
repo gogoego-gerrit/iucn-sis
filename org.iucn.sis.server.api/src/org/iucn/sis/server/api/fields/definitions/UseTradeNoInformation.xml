@@ -1,0 +1,10 @@
+<field id="99">
+	<canonicalName>UseTradeNoInformation</canonicalName>
+	<description>No use/trade information for this species</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="value">
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>

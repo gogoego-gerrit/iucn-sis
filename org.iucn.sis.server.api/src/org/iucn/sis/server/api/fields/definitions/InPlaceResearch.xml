@@ -1,0 +1,64 @@
+<field id="8268675309">
+	<!-- AAH used General Info -->
+	<canonicalName>InPlaceResearch</canonicalName>
+	<description>In Place Research, Monitoring and Planning</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure layout="horizontal">
+				<dominantStructures>
+					<structure id="recoveryPlan" description="Action Recovery Plan">
+						<singleSelect>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="note">
+						<note></note>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+		<structure>
+			<relatedStructure layout="horizontal">
+				<dominantStructures>
+					<structure id="monitoringScheme" description="Systematic monitoring scheme">
+						<singleSelect>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="note">
+						<note></note>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

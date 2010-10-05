@@ -1,0 +1,83 @@
+<!-- SUBSTANTIAL DIFFERENCES -->
+<field id="127">
+	<canonicalName>RedListConsistencyCheck</canonicalName>
+	<description>Consistency Check Status</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure>
+		<relatedStructure>
+                     <dominantStructures>
+                            <structure id="progress">
+                                <singleSelect>
+                                  <option>In Progress</option>
+                                  <option>Done</option>
+                                  <selected>0</selected>
+                                </singleSelect>
+                            </structure>
+                      </dominantStructures>
+                      <dependentStructures>
+			<structure id="date" description="Date of Consistency Check:">
+				<date></date>
+			</structure>
+			<structure>
+				<relatedStructure>
+							<dominantStructures>
+								<structure id="successStatus" description="Status:">
+									<singleSelect>
+										<option>Passed</option>
+										<option>Rejected</option>
+										<option>
+											Returned for Improvements
+										</option>
+										<selected>0</selected>
+									</singleSelect>
+								</structure>
+							</dominantStructures>
+							<dependentStructures>
+								<structure id="reasons"
+									description="Reasons for Rejection:">
+									<narrative></narrative>
+								</structure>
+								<structure id="improvementsNeeded"
+									description="Improvements Needed:">
+									<narrative></narrative>
+								</structure>
+							</dependentStructures>
+							<rules>
+								<selectRule>
+									<activateOnIndex>2</activateOnIndex>
+									<actions>
+										<onTrue>show</onTrue>
+										<onFalse>hide</onFalse>
+										<affectedDependentStructures>
+											0
+										</affectedDependentStructures>
+									</actions>
+								</selectRule>
+								<selectRule>
+									<activateOnIndex>3</activateOnIndex>
+									<actions>
+										<onTrue>show</onTrue>
+										<onFalse>hide</onFalse>
+										<affectedDependentStructures>
+											1
+										</affectedDependentStructures>
+									</actions>
+								</selectRule>
+							</rules>
+						</relatedStructure>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>2</activateOnIndex>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,35 @@
+<field id="129">
+	<canonicalName>UniqueCanonicalName</canonicalName>
+	<description>This is a field</description>
+	<classOfService>Type of Data</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure layout="horizontal">
+				<dominantStructures>
+					 <structure id="a" description="Single Select">
+                                                <singleSelect>
+                                                        <option>Yes</option>
+                                                        <option>No</option>
+                                                        <option>Unknown</option>
+                                                        <selected>0</selected>
+                                                </singleSelect>
+                                        </structure>
+                                </dominantStructures>
+                                <dependentStructures>
+                                        <structure id="b">
+                                                <note></note>
+                                        </structure>
+                                </dependentStructures>
+                                <rules>
+                                        <selectRule>
+                                                <activateOnIndex>0</activateOnIndex>
+                                                <actions>
+                                                        <onTrue>hide</onTrue>
+                                                        <onFalse>show</onFalse>
+                                                </actions>
+                                        </selectRule>
+                                </rules>
+                        </relatedStructure>
+		</structure>
+	</structures>
+</field>

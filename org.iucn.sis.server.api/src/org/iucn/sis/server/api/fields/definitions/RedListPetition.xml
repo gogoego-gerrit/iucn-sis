@@ -1,0 +1,10 @@
+<field id="12345">
+	<canonicalName>RedListPetition</canonicalName>
+	<description>Petitioned</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure id="value">
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>

@@ -1,0 +1,10 @@
+<field id="126">
+	<canonicalName>RedListEvaluators</canonicalName>
+	<description>Evaluator(s)</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure id="value">
+			<optionsList></optionsList>
+		</structure>
+	</structures>
+</field>

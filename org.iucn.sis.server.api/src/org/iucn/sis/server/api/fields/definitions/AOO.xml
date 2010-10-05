@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<field id="1">
+	<!-- AAH used General Info -->
+	<canonicalName>AOO</canonicalName>
+	<description>Area of occupancy (AOO) - in km2</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="range">
+						<range></range>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="justification">
+						<justification></justification>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>HIDE</onTrue>
+							<onFalse>SHOW</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

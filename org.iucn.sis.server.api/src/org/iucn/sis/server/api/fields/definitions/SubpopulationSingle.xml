@@ -1,0 +1,10 @@
+<field id="57">
+	<canonicalName>SubpopulationSingle</canonicalName>
+	<description>All individuals in one subpopulation</description>
+	<classOfService>Factor</classOfService>
+	<structures>
+		<structure id="value">
+			<booleanRange></booleanRange>
+		</structure>
+	</structures>
+</field>

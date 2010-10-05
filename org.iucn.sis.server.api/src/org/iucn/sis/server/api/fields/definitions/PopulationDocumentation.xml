@@ -1,0 +1,11 @@
+<field id="19">
+	<!-- AAH used General Info -->
+	<canonicalName>PopulationDocumentation</canonicalName>
+	<description>Population Information</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="narrative">
+			<richText></richText>
+		</structure>
+	</structures>
+</field>

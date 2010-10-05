@@ -1,0 +1,131 @@
+<field id="3178675309">
+	<!-- AAH used General Info -->
+	<canonicalName>InPlaceLandWaterProtection</canonicalName>
+	<description>In Place Land/Water Protection and Management</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure layout="horizontal">
+				<dominantStructures>
+					<structure id="sitesIdentified" description="Conservation sites identified">
+						<singleSelect>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="range">
+						<singleSelect>
+							<option>Over entire range</option>
+							<option>Over part of range</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+					<structure id="note">
+						<note></note>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+		<structure>
+			<relatedStructure layout="horizontal">
+				<dominantStructures>
+					<structure id="inPA" description="Occur in at least one PA">
+						<singleSelect>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="populationProtected" description="Percentage of population protected by PAs (0-100)">
+						<number></number>
+					</structure>
+					<structure id="note">
+						<note></note>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+		<structure>
+			<relatedStructure layout="horizontal">
+				<dominantStructures>
+					<structure id="areaPlanned" description="Area based regional management plan">
+						<singleSelect>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="note">
+						<note></note>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+		<structure>
+                        <relatedStructure layout="horizontal">^M
+                                <dominantStructures>^M
+                                        <structure id="invasiveControl" description="Invasive species control or prevention">
+                                                <singleSelect>
+                                                        <option>Yes</option>
+                                                        <option>No</option>
+                                                        <option>Unknown</option>
+                                                        <selected>0</selected>
+                                                </singleSelect>
+                                        </structure>
+                                </dominantStructures>
+                                <dependentStructures>
+                                        <structure id="explanation">
+                                                <text/>
+                                        </structure>
+                                </dependentStructures>
+                                <rules>
+                                        <selectRule>
+                                                <activateOnIndex>0</activateOnIndex>
+                                                <actions>
+                                                        <onTrue>hide</onTrue>
+                                                        <onFalse>show</onFalse>
+                                                </actions>
+                                        </selectRule>
+                                </rules>
+                        </relatedStructure>
+                </structure>
+
+	</structures>
+</field>

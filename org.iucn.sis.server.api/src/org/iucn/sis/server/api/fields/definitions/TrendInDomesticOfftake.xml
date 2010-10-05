@@ -1,0 +1,19 @@
+<field id="103">
+	<canonicalName>TrendInDomesticOfftake</canonicalName>
+	<description>
+		Trend in level of total offtake from domesticated sources
+	</description>
+	<classOfService>None</classOfService>
+	<structures>
+		<structure id="value">
+			<singleSelect>
+				<option>Increasing</option>
+				<option>Decreasing</option>
+				<option>Stable</option>
+				<option>Not cultivated</option>
+				<option>Unknown</option>
+				<selected></selected>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>

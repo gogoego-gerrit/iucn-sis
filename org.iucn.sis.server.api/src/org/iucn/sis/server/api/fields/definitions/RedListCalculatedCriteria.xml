@@ -1,0 +1,10 @@
+<field id="117">
+	<canonicalName>RedListCalculatedCriteria</canonicalName>
+	<description>Calculated Red List Criteria</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure id="rlCriteria">
+			<text></text>
+		</structure>
+	</structures>
+</field>
