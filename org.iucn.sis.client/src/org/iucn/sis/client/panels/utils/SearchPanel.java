@@ -396,7 +396,6 @@ public class SearchPanel extends LayoutContainer {
 		String searchOptions = "";
 
 		if (searchQuery.matches("^[0-9]+$")) {
-			SysDebugger.getInstance().println("We gots a number to jump to.....");
 			panelManager.taxonomicSummaryPanel.update(Integer.valueOf(searchQuery));
 			searchButton.setEnabled(true);
 			WindowManager.get().hideAll();

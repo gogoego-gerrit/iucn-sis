@@ -1,5 +1,7 @@
 package org.iucn.sis.client.api.container;
 
+import java.util.Date;
+
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.DefinitionCache;
@@ -17,7 +19,16 @@ import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.debug.Debug;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
+import com.google.gwt.user.client.Window;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.gwt.debug.DebuggingApplication;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
@@ -25,6 +36,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.api.FixedSizedQueue;
 
 public abstract class SISClientBase implements EntryPoint, DebuggingApplication {
 	public static class SimpleSupport {
@@ -125,6 +137,37 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 			});
 		}
 	}
+	
+	private static void displayJavascriptError(Throwable e) {
+		final com.extjs.gxt.ui.client.widget.Window window = 
+			new com.extjs.gxt.ui.client.widget.Window();
+		window.setHeading("Javascript Error");
+		window.setModal(false);
+		window.setClosable(true);
+		window.setAutoHide(true);
+		window.setLayout(new FitLayout());
+		window.setButtonAlign(HorizontalAlignment.CENTER);
+		window.setSize(450, 300);
+		window.addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				window.hide();
+			}
+		}));
+		final StringBuilder builder = new StringBuilder();
+		builder.append("A javascript error has occurred.  Please save your work, if " +
+			"possible, and refresh your browser.  If you would like to submit this " +
+			"error as a bug, please file a Zendesk ticket and copy the contents of " +
+			"this textbox into the body of the ticket.  Thank you.\n\n");
+		builder.append("Error occurred on " + new Date() + "\n");
+		builder.append(HostedModeDebugger.serializeThrowable(e));
+		
+		final TextArea area = new TextArea();
+		area.setReadOnly(true);
+		area.setValue(builder.toString());
+		
+		window.add(area);
+		window.show();
+	}
 
 	public static SISClientBase instance;
 	
@@ -142,16 +185,45 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 	public static SISClientBase getInstance() {
 		return instance;
 	}
+	
+	protected FixedSizedQueue logQueue;
 
 	public int getLogLevel() {
 		return SysDebugger.OFF;
 	}
+	
+	public FixedSizedQueue getLog() {
+		return logQueue;
+	}
 
 	public final void onModuleLoad() {
-		if (UriBase.getInstance().isHostedMode())
+		if ("true".equals(Window.Location.getParameter("debug"))) {
+			logQueue = new FixedSizedQueue(500);
+			
+			Debug.setInstance(new HostedModeDebugger() {
+				protected void writeOutput(String output) {
+					super.writeOutput(output);
+					logQueue.add(output);
+				}
+			});
+			
+			GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+				public void onUncaughtException(Throwable e) {
+					Debug.println(e);
+					displayJavascriptError(e);
+				}
+			});
+		}
+		else if (UriBase.getInstance().isHostedMode())
 			Debug.setInstance(new HostedModeDebugger());
-		else
+		else {
+			GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
+				public void onUncaughtException(Throwable e) {
+					displayJavascriptError(e);
+				}
+			});
 			Debug.setInstance(new LiveDebugger());
+		}
 		
 		loadModule();
 	}

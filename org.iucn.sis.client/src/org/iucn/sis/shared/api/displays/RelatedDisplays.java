@@ -145,13 +145,10 @@ public class RelatedDisplays extends Display {
 		retWidgets.addAll(dominantDisplay.getMyWidgets());
 		for (int i = 0; i < dependantDisplays.size(); i++)
 			retWidgets.addAll(((Display) dependantDisplays.get(i)).getMyWidgets());
-		SysDebugger.getInstance().println(
-				"Returned " + myStructures.size() + " widgets to show for " + this.description);
 		return retWidgets;
 	}
 
 	private void processRule(String reaction) {
-		SysDebugger.getInstance().println("The reaction: " + reaction);
 		if (reaction.equalsIgnoreCase(Rule.ENABLE)) {
 			for (int i = 0; i < dependantDisplays.size(); i++)
 				((Display) dependantDisplays.get(i)).enableStructures();
@@ -506,7 +503,6 @@ public class RelatedDisplays extends Display {
 		 * dependantDisplays.size(); i++)
 		 * ((Display)dependantDisplays.get(i)).hideStructures(); }
 		 */
-		SysDebugger.getInstance().println("Updated related displays");
 		processRule(reaction);
 	}
 }

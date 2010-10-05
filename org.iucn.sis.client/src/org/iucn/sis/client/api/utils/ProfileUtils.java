@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.models.ClientUser;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -19,12 +20,12 @@ public class ProfileUtils {
 
 		// backwards compatibility for the moment...
 		if (root.getElementsByTagName("creds").getLength() != 0) {
-			System.out.println("Old version...");
+			Debug.println("Profile detected Old version...");
 			currentUser.setFirstName(root.getElementByTagName("first").getTextContent());
 			currentUser.setLastName(root.getElementByTagName("last").getTextContent());
 			currentUser.setAffiliation(root.getElementByTagName("affiliation").getTextContent());
 		} else {
-			System.out.println("New shiny version!");
+			Debug.println("Profile detected New shiny version!");
 			NativeNodeList nodes = root.getChildNodes();
 			for( int i = 0; i < nodes.getLength(); i++ ) {
 				NativeNode curNode = nodes.item(i);

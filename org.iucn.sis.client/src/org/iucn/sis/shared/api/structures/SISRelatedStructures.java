@@ -291,7 +291,6 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 	}
 
 	private void processRule(boolean isIndexAffected, String rule, Structure structure) {
-		// SysDebugger.getInstance().println("Processing rule " + rule);
 		if (rule.equalsIgnoreCase(Rule.SHOW) || rule.equalsIgnoreCase(Rule.HIDE)) {
 			for (int i = 0; i < dependantStructures.size(); i++)
 				if (isIndexAffected)
@@ -371,8 +370,6 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 
 	private void updateDependantPanel() {
 		ArrayList activeRules = isDominantActive();
-		// SysDebugger.getInstance().println("There are " + activeRules.size() +
-		// " rules active");
 		for (int j = 0; j < activeRules.size(); j++) {
 			Rule rule = (Rule) activeRules.get(j);
 			for (int i = 0; i < dependantStructures.size(); i++) {

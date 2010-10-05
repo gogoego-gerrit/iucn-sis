@@ -13,8 +13,6 @@ public class ContentRule extends Rule {
 	}
 
 	public boolean matchesContent(String content) {
-		// SysDebugger.getInstance().println("Comparing : " + content +
-		// ": to the rule : " + rule + ": ");
 		return rule.equalsIgnoreCase(content);
 	}
 

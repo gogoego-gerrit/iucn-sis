@@ -24,6 +24,7 @@ import org.iucn.sis.client.panels.taxomatic.CommonNameDisplay;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.CommonName;
@@ -277,7 +278,6 @@ public class TaxonHomePage extends LayoutContainer {
 			for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId())) {
 				String date = data.getDateAssessed() == null ? null : FormattedDate.impl
 						.getDate(data.getDateAssessed());
-				SysDebugger.getInstance().println("date " + date);
 
 				Object[] values = new Object[7];
 				values[0] = data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed());
@@ -421,7 +421,6 @@ public class TaxonHomePage extends LayoutContainer {
 							Image map = new Image("/raw/browse/spatial/" + node.getId() + ".jpg");
 							map.addClickHandler(new ClickHandler() {
 								public void onClick(ClickEvent event) {
-									SysDebugger.getInstance().println("on click");
 									Window s = WindowUtils.getWindow(false, false, "Map Distribution Viewer");
 									LayoutContainer content = s;
 									content
@@ -464,9 +463,8 @@ public class TaxonHomePage extends LayoutContainer {
 			final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 			doc.get(UriBase.getInstance().getImageBase() + "/images/" + node.getId(), new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
-					SysDebugger.getInstance().println("failed to fetch xml");
+					Debug.println("failed to fetch xml");
 				}
-
 				public void onSuccess(String result) {
 					taxonImage = null;
 					NativeNodeList list = doc.getDocumentElement().getElementsByTagName("image");
@@ -487,7 +485,6 @@ public class TaxonHomePage extends LayoutContainer {
 						}
 					}
 					if (taxonImage == null) {
-						SysDebugger.getInstance().println("null image set unavaiolable");
 						taxonImage = new Image("images/unavailable.png");
 						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
 								.setImage(taxonImage);
@@ -530,9 +527,7 @@ public class TaxonHomePage extends LayoutContainer {
 						+ "<img src=\"images/icon-tree.png\"></img>");
 				parentHTML.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
-						SysDebugger.getInstance().println("clicking");
 						new TaxonTreePopup(node).show();
-
 					}
 				});
 				data.add(parentHTML);
@@ -955,12 +950,10 @@ public class TaxonHomePage extends LayoutContainer {
 				public void onClick(ClickEvent event) {
 					TaxonomyCache.impl.fetchTaxon(node.getParentId(), true, new GenericCallback<Taxon>() {
 						public void onFailure(Throwable caught) {
-							SysDebugger.getInstance().println("fail" + node.getParentId());
 							inner.updatePanel(node);
 						}
 
 						public void onSuccess(Taxon arg0) {
-							SysDebugger.getInstance().println("suc" + node.getParentId());
 							inner.updatePanel(arg0);
 							ClientUIContainer.headerContainer.update();
 							update(node.getParentId());
@@ -1168,7 +1161,6 @@ public class TaxonHomePage extends LayoutContainer {
 	}
 
 	public void setImage(Image image) {
-		SysDebugger.getInstance().println("setting image");
 		taxonImage = image;
 		taxonImage.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {

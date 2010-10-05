@@ -221,7 +221,6 @@ public class TaxonSynonymEditor extends LayoutContainer {
 
 	private void doShowHide() {
 		int curLevel = Integer.parseInt(level.getValue(level.getSelectedIndex()));
-		System.out.println("in doShowHide with " + curLevel);
 		if (curLevel < TaxonLevel.GENUS)
 			upperLevelPanel.setVisible(true);
 		else
@@ -545,14 +544,11 @@ public class TaxonSynonymEditor extends LayoutContainer {
 		int index = 0;
 		for (int i = 0; i < allSynonyms.size(); i++) {
 			if (allSynonyms.get(index) == null) {
-				SysDebugger.getInstance().println("I am removing index " + index);
 				allSynonyms.remove(index);
 			} else {
-				SysDebugger.getInstance().println("In the loop with " + (allSynonyms.get(index)).getName());
 				index++;
 			}
 		}
-		
 		
 		TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
 		

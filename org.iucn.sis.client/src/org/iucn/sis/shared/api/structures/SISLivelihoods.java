@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.DatePrimitiveField;
@@ -19,7 +20,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class SISLivelihoods extends Structure<Field> {
 	// Piece 0: Scale (DropDown)
@@ -130,8 +130,8 @@ public class SISLivelihoods extends Structure<Field> {
 
 		try {
 			buildWidgets();
-		} catch (Error e) {
-			SysDebugger.getInstance().println("ERROR building widgets for SISLivelihoods.");
+		} catch (Throwable e) {
+			Debug.println("ERROR building widgets for SISLivelihoods.\n{0}", e);
 			// Better be doing this on the client-side...
 		}
 	}

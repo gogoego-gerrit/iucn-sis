@@ -210,7 +210,6 @@ public class DockingScrollableList extends VerticalPanel {
 		titleHTML.addMouseListener(new MouseListenerAdapter() {
 			@Override
 			public void onMouseEnter(Widget sender) {
-				SysDebugger.getInstance().println("Show!");
 				if (!popupWindow.isAttached()) {
 					// popupWindow.setPagePosition( sender.getAbsoluteLeft(),
 					// sender.getAbsoluteTop() );
@@ -247,8 +246,6 @@ public class DockingScrollableList extends VerticalPanel {
 
 		ScrollableListEntry entry = new ScrollableListEntry(name, value);
 		entries.add(entry);
-
-		SysDebugger.getInstance().println("Just added entry " + entry.name);
 	}
 
 	/**
@@ -291,20 +288,17 @@ public class DockingScrollableList extends VerticalPanel {
 			listContainer.add(new HTML("N/A"));
 
 		for (int i = 0; i < topIndex; i++) {
-			SysDebugger.getInstance().println("Adding " + i + " as invisible.");
 			listContainer.add((ScrollableListEntry) entries.get(i));
 			((ScrollableListEntry) entries.get(i)).setVisible(false);
 		}
 
 		for (int i = topIndex; i < numToDisplay; i++) {
-			SysDebugger.getInstance().println("Adding " + i + " as visible.");
 			listContainer.add((ScrollableListEntry) entries.get(i));
 			((ScrollableListEntry) entries.get(i)).setVisible(true);
 			bottomIndex++;
 		}
 
 		for (int i = numToDisplay; i < entries.size(); i++) {
-			SysDebugger.getInstance().println("Adding " + i + " as invisible.");
 			listContainer.add((ScrollableListEntry) entries.get(i));
 			((ScrollableListEntry) entries.get(i)).setVisible(false);
 		}

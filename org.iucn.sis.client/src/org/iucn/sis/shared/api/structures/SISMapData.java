@@ -3,7 +3,6 @@ package org.iucn.sis.shared.api.structures;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class SISMapData {
 
@@ -55,7 +54,6 @@ public class SISMapData {
 	 */
 
 	public boolean equals(SISMapData otherData) {
-		SysDebugger.getInstance().println("Comparing mapdata");
 		return (this.latitude == otherData.latitude && this.longitude == otherData.longitude);
 	}
 

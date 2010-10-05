@@ -313,6 +313,11 @@ public class SIS {
 	public static class SISDebugger implements Debugger {
 		
 		@Override
+		public void println(Throwable e) {
+			GoGoEgo.debug().println("{0}", e);
+		}
+		
+		@Override
 		public void println(Object obj) {
 			GoGoEgo.debug().println(obj);
 		}

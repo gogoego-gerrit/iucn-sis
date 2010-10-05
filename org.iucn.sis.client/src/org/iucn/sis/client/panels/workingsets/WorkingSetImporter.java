@@ -37,8 +37,6 @@ public class WorkingSetImporter extends RefreshLayoutContainer {
 
 	@Override
 	public void refresh() {
-
-		SysDebugger.getInstance().println("In the working set importer refresh");
 		removeAll();
 
 		add(instructions, new TableData());

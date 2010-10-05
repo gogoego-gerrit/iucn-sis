@@ -118,7 +118,6 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 	}
 
 	private void getDraftAssessment() {
-		SysDebugger.getInstance().println("I am in get draft assessment with id " + lastID);
 		AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, lastID), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				// setVisible(false);
@@ -187,15 +186,5 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 			}
 		}
 	}
-
-	// public void setVisible(boolean visible) {
-	// SysDebugger.getInstance().println("Setting visible with show = " + show +
-	// " and visible = " + visible);
-	// if (visible != show){
-	// SysDebugger.getInstance().println("I am different");
-	// }
-	//		
-	// super.setVisible(show);
-	// }
 
 }

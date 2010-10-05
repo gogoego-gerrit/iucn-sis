@@ -189,7 +189,6 @@ public class AutoCompleteTextBox extends TextBox implements KeyboardListener, Ch
 
 				// Find a good top position
 				if (getAbsoluteTop() + getOffsetHeight() + 15 > Window.getClientHeight()) {
-					SysDebugger.getInstance().println("---TOO FAR DOWN!");
 					topPosition = getAbsoluteTop() - getOffsetHeight() - 30;
 				} else {
 					topPosition = getAbsoluteTop() + getOffsetHeight();
@@ -197,15 +196,10 @@ public class AutoCompleteTextBox extends TextBox implements KeyboardListener, Ch
 
 				// Find a good Left position
 				if (getAbsoluteLeft() + getOffsetWidth() + 15 > Window.getClientWidth()) {
-					SysDebugger.getInstance().println("---TOO FAR OVER");
 					leftPosition = getAbsoluteLeft() - getOffsetWidth();
 				} else {
 					leftPosition = getAbsoluteLeft();
 				}
-
-				SysDebugger.getInstance().println("LEFT: " + leftPosition + "; TOP: " + topPosition);
-				SysDebugger.getInstance().println("OFFSET HEIGHT: " + getOffsetHeight());
-				SysDebugger.getInstance().println("WINDOW HEIGHT: " + Window.getClientHeight());
 
 				choicesPopup.setPopupPosition(leftPosition, topPosition);
 				choices.setWidth(this.getOffsetWidth() + "px");

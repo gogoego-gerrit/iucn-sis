@@ -9,6 +9,7 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -240,24 +241,15 @@ public class AssessmentCache {
 						NativeElement el = asses.elementAt(i);
 						try {
 							Assessment ass = Assessment.fromXML(el);
-							if (ass.getId() == 93318) {
-								try {
-									System.out.println(ass.getField(CanonicalNames.LocationsNumber).getKeyToPrimitiveFields());
-									System.out.println(ass.getField(CanonicalNames.LocationsNumber).getPrimitiveField("range").getRawValue());
-								} catch (NullPointerException e) {
-									System.out.println("Couldnt print location value for 93318");
-								}
-							}
 							Taxon t = TaxonomyCache.impl.getTaxon(ass.getSpeciesID());
 							if( t != null )
 								ass.setTaxon(t);
-							System.out.println("Caching assessment " + ass.getId());
 
 							addAssessment(ass);
 							taxaFetched.put(Integer.valueOf(ass.getSpeciesID()), Boolean.TRUE);
 							
 						} catch (Throwable e) {
-							e.printStackTrace();
+							Debug.println("Error caching assessment: {0}", e);
 						}
 					}
 					

@@ -30,6 +30,10 @@ public class Debug {
 		instance.debugger.println(template, objects);
 	}
 	
+	public static void println(Throwable e) {
+		instance.debugger.println(e);
+	}
+	
 	private final Debugger debugger;
 	
 	private Debug(Debugger debugger) {
@@ -37,6 +41,11 @@ public class Debug {
 	}
 	
 	private static class SystemDebugger implements Debugger {
+		
+		public void println(Throwable e) {
+			System.err.println("Using default debugger, please supply a Debugger instance.");
+			e.printStackTrace();
+		}
 		
 		@Override
 		public void println(Object obj) {

@@ -129,7 +129,6 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 
 		html = new HTML("Assessment Scope:  ");
 		html.addStyleName("color-dark-blue");
-		System.out.println("creating new assessmentFilterPanel");
 		filterPanel = new AssessmentFilterPanel(new AssessmentFilter(), false, true, false, true);
 		grid.setWidget(3, 0, html);
 		grid.setWidget(3, 1, filterPanel);

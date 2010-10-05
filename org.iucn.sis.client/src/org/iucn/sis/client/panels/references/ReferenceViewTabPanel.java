@@ -192,7 +192,6 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 					reference.ref, returnedRef, assessmentID, assessmentType), new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils.hideLoadingAlert();
-					System.out.println("ERROR preforming replace.");
 					reference.ref.setReferenceID(returnedRef.getReferenceID());
 
 					afterSave(reference);

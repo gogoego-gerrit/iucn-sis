@@ -195,7 +195,6 @@ public class SplitNodePanel extends LayoutContainer {
 			public void componentSelected(ButtonEvent ce) {
 				final Listener listener = new Listener() {
 					public void handleEvent(BaseEvent be) {
-						SysDebugger.getInstance().println("Handling Event...");
 						CreateNewTaxonPanel.impl.removeListener(Events.StateChange, this);
 						Taxon  newNode = (Taxon ) be.getSource();
 						parentToChildList.put(newNode.getId() + "", new ArrayList());

@@ -53,7 +53,6 @@ public class SISLabel extends Structure<Field> {
 
 	@Override
 	public void createWidget() {
-		SysDebugger.getInstance().println("Created a label with description " + description);
 		this.descriptionLabel = new HTML(this.description);
 	}
 

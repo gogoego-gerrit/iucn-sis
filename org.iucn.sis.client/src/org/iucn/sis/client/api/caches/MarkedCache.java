@@ -119,7 +119,6 @@ public class MarkedCache {
 		// GET Assessments
 		list = draft.getElementsByTagName("assessment");
 		for (int i = 0; i < list.getLength(); i++) {
-			SysDebugger.getInstance().println("This is draft content " + list.item(i).getTextContent());
 			String[] info = list.item(i).getTextContent().split(",");
 			markedAssessments.put(info[0] + "!" + AssessmentType.DRAFT_ASSESSMENT_TYPE, info[1]);
 		}
@@ -197,9 +196,7 @@ public class MarkedCache {
 	}
 
 	public void unmarkAssessment(String id) {
-		SysDebugger.getInstance().println("I am trying to unmark " + id);
 		if (markedAssessments.containsKey(id)) {
-			SysDebugger.getInstance().println("The id was in there");
 			markedAssessments.remove(id);
 			save();
 		}
@@ -207,18 +204,14 @@ public class MarkedCache {
 	}
 
 	public void unmarkTaxon(String id) {
-		SysDebugger.getInstance().println("I am trying to unmark " + id);
 		if (markedTaxa.containsKey(id)) {
-			SysDebugger.getInstance().println("The id was in there");
 			markedTaxa.remove(id);
 			save();
 		}
 	}
 
 	public void unmarkWorkingSet(String id) {
-		SysDebugger.getInstance().println("I am trying to unmark " + id);
 		if (markedWorkingSets.containsKey(id)) {
-			SysDebugger.getInstance().println("The id was in there");
 			markedWorkingSets.remove(id);
 			save();
 		}

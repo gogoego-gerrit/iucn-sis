@@ -418,14 +418,10 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 		int index = 0;
 		for (int i = 0; i < allCommonNames.size(); i++) {
 			if (allCommonNames.get(index) == null) {
-				SysDebugger.getInstance().println("I am removing index " + index);
 				allCommonNames.remove(index);
 			} else {
-				SysDebugger.getInstance().println(
-						"In the loop with " + ((CommonName) allCommonNames.get(index)).getName());
 				index++;
 			}
-
 		}
 		
 		TaxonomyCache.impl.addOrEditCommonName(node, currentCommonName, new GenericCallback<String>() {

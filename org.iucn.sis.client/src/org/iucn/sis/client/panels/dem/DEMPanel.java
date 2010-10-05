@@ -124,8 +124,8 @@ public class DEMPanel extends LayoutContainer {
 				WindowUtils.errorAlert("Auto-save failed. You do not have sufficient "
 						+ "rights to perform this action.");
 			} catch (NullPointerException e1) {
-				SysDebugger.getInstance().println(
-						"Auto-save failed, on NPE. Probably logged " + "out and didn't stop the timer.");
+				Debug.println(
+						"Auto-save failed, on NPE. Probably logged " + "out and didn't stop the timer. {0}", e1);
 			}
 
 		}
@@ -1041,13 +1041,13 @@ w.setSize(400, 250);
 
 	public void startAutosaveTimer() {
 		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl.getCurrentAssessment())) {
-			SysDebugger.getInstance().println("Starting autosave.");
+			Debug.println("Starting autosave.");
 			autoSave.schedule(autoSaveInterval);
 		}
 	}
 
 	public void stopAutosaveTimer() {
-		SysDebugger.getInstance().println("Stopping autosave.");
+		Debug.println("Stopping autosave.");
 		autoSave.cancel();
 	}
 

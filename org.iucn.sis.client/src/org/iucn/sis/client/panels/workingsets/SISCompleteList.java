@@ -309,18 +309,15 @@ public class SISCompleteList extends VerticalPanel {
 
 			public void onClick(ClickEvent event) {
 				if (style) {
-
 					if (!selected.contains(html)) {
 						removeButton.enable();
 						selected.add(html);
 						html.addStyleName(highlightStyle);
 					} else {
-						SysDebugger.getInstance().println("selected did contain html");
 						selected.remove(html);
 						html.removeStyleName(highlightStyle);
 						if (selected.isEmpty()) {
 							removeButton.disable();
-							SysDebugger.getInstance().println("I am in disable");
 						}
 					}
 				}
@@ -339,7 +336,6 @@ public class SISCompleteList extends VerticalPanel {
 		selected.clear();
 		list.clear();
 		listText.clear();
-		SysDebugger.getInstance().println("I cleared the list");
 	}
 
 	public void disable() {

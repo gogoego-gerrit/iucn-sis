@@ -85,7 +85,6 @@ public class AddRegionPanel extends LayoutContainer{
 	 * @param selectedID
 	 */
 	private void addRegionDropdown(String selectedID) {
-		System.out.println("in addRegionDropdown with selectedID " + selectedID);
 		ComboBox<RegionModel> box = buildNewComboBox();
 		HorizontalPanel panel = new HorizontalPanel();
 		panel.setSpacing(1);

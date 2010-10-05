@@ -184,7 +184,6 @@ public class WidgetGenerator {
 			return new SISClassificationSchemeStructure(theStructure, description, structID, data);
 			// return new SISTreeStructure(theStructure, description, structID, data);
 		} */else {
-			SysDebugger.getInstance().println(theStructure + " NULL!!!!!");
 			return null;
 		}
 	}

@@ -49,7 +49,6 @@ public class AssessmentFilterPanel extends HorizontalPanel {
 		this.allowAllPublishedAssessments = allPublishedAssessments;
 		this.allowMatchesAnyRegion = allowMatchesAnyRegion;
 		this.allowAllLocales = allowAllLocales;
-		System.out.println("in assessment filter panel and allowMatchesAnyRegion " + this.allowMatchesAnyRegion);
 		draw();
 	}
 
@@ -161,7 +160,6 @@ public class AssessmentFilterPanel extends HorizontalPanel {
 	private LayoutContainer drawRegions() {
 		regionPanel = new AssessmentFilterRegionalPanel(allowAllLocales, filter, allowMatchesAnyRegion);
 		regionPanel.draw();
-		System.out.println("should have created region filter panel");
 		return regionPanel;		
 	}
 

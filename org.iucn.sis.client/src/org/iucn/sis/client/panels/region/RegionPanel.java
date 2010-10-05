@@ -293,9 +293,6 @@ public class RegionPanel extends ContentPanel {
 	}
 
 	private boolean isPanelDataValid() {
-		System.out.println("grid.getSelectionModel().getSelectedItem() " + grid.getSelectionModel().getSelectedItem());
-		System.out.println("panel.isValid " + panel.isValid());
-		System.out.println("returning " + (grid.getSelectionModel().getSelectedItem() != null) + " "  + (!panel.isValid()) + " " + (!(grid.getSelectionModel().getSelectedItem() != null && !panel.isValid())));
 		return !(grid.getSelectionModel().getSelectedItem() != null && !panel.isValid());
 	}
 

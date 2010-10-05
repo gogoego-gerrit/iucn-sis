@@ -880,10 +880,6 @@ public class FindReplacePanel extends LayoutContainer {
 			int currentIndex) {
 
 		this.description.setText(description);
-		// SysDebugger.getInstance().println("This is the info I got: text=" +
-		// text + " originalWord=" + originalWord +
-		// " currentNumberInFile=" + currentNumberInFile + " currentIndex=" +
-		// currentIndex);
 //		resultTextHTML.setHTML(text);
 		if (currentNumberInFile > 0) {
 			this.currentResult.setHTML("" + currentNumberInFile);
@@ -899,7 +895,6 @@ public class FindReplacePanel extends LayoutContainer {
 	private void updateResults() {
 		if (results.size() < NUMBEROFRESULTSSHOWED) {
 			for (int i = results.size(); i < NUMBEROFRESULTSSHOWED; i++) {
-				// SysDebugger.getInstance().println("I want to update results");
 				FindReplaceData data = FindResultCache.impl.getFindResultData(i);
 
 				// MUST ADD IT TO OUR TABLE

@@ -11,6 +11,7 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workflow.WorkflowNotesWindow;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 import org.iucn.sis.shared.api.workflow.WorkflowUserInfo;
 
@@ -198,9 +199,8 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 		}
 		else {
 			//It can only move up or down.
-			System.out.println("Current status is " + currentStatus + "; " +
-					"can only move up to " + currentStatus.getNextStatus() + 
-					" or back to " + currentStatus.getPreviousStatus());
+			Debug.println("Current status is {0}; can only move up to {1} or back to {2}",
+				currentStatus, currentStatus.getNextStatus(), currentStatus.getPreviousStatus());
 			if (status.equals(currentStatus.getNextStatus())) {
 				//Moved up in the chain
 				return null;
@@ -275,8 +275,6 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 			bodyBuilder.append("</notify>");
 		}
 		bodyBuilder.append("</root>");
-		
-		System.out.println(bodyBuilder.toString());
 		
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.post(UriBase.getInstance().getWorkflowBase() +"/workflow/set/" + WorkingSetCache.impl.getCurrentWorkingSet().getId() + "/status", bodyBuilder.toString(), new GenericCallback<String>() {

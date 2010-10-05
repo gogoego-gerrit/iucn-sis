@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.zendesk;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
@@ -10,8 +11,9 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 
 public class ZendeskPanel extends Window {
-	final TextBox subject;
-	final TextArea ticket;
+	
+	private final TextBox subject;
+	private final TextArea ticket;
 	
 	public ZendeskPanel() {
 		subject = new TextBox();
@@ -21,26 +23,19 @@ public class ZendeskPanel extends Window {
 	}
 	
 	private void build(){
-				
-				final Window w = new Window();
-				getCredentials(new GenericCallback<String>() {
-					
-					public void onFailure(Throwable caught) {
-						// TODO Auto-generated method stub
-						
-					}
-					
-					public void onSuccess(String result) {
-						System.out.println("https://iucnsis.zendesk.com/access/remote/"+result);
-						setUrl("https://iucnsis.zendesk.com/access/remote/"+result);
-						show();
-						
-					}
-				});
-		
+		getCredentials(new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+			}
+			public void onSuccess(String result) {
+				Debug.println("https://iucnsis.zendesk.com/access/remote/"+result);
+				setUrl("https://iucnsis.zendesk.com/access/remote/"+result);
+				show();
+			}
+		});
 	}
 	
-	private void sendTicket(){
+	/*private void sendTicket(){
 		
 		NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 		
@@ -55,9 +50,9 @@ public class ZendeskPanel extends Window {
 			}
 		});
 		
-	}
+	}*/
 	
-	private String buildTicketRequest(String description){
+	/*private String buildTicketRequest(String description){
 		final String email = SimpleSISClient.currentUser.getUsername();
 		String name = SimpleSISClient.currentUser.getFirstName() + " " +  SimpleSISClient.currentUser.getLastName();
 		
@@ -67,8 +62,7 @@ public class ZendeskPanel extends Window {
 		  "<requester-name>"+name+"</requester-name>"+
 		  "<requester-email>"+email+"</requester-email>"+   
 		"</ticket>";
-//		
-	}
+	}*/
 	
 	private void getCredentials(final GenericCallback<String> callback){
 		final String email = SimpleSISClient.currentUser.getUsername();

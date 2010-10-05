@@ -8,6 +8,7 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Reference;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -36,9 +37,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -277,10 +276,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 					}
 				}
 						
-				System.out.println("Found " + total + " references and " + referenceList.getLength() + " in list.");
-
-				/*searchResultCount.setText(total + " Filtered Result(s)");
-				searchPagingLoader.setTotal(total);*/
+				Debug.println("Found {0} references and {1} in list.", total, referenceList.getLength());
 				
 				callback.onSuccess(ret);
 			}

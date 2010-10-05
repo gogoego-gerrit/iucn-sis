@@ -12,7 +12,7 @@ package org.iucn.sis.client.api.utils;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import com.solertium.lwxml.gwt.debug.SysDebugger;
+import org.iucn.sis.shared.api.debug.Debug;
 
 public class ChangeTracker {
 
@@ -96,13 +96,13 @@ public class ChangeTracker {
 	}
 
 	public void printChanges() {
-		SysDebugger.getInstance().println(
+		Debug.println(
 				(changedValues.size() == 0) ? "" : "-----------CHANGE FIELDS (" + changedValues.size()
 						+ ")------------");
 		Iterator iterator = changedValues.keySet().iterator();
 		while (iterator.hasNext()) {
 			Object key = iterator.next();
-			SysDebugger.getInstance().println(key + ": " + changedValues.get(key));
+			Debug.println(key + ": " + changedValues.get(key));
 		}
 	}
 

@@ -491,7 +491,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			/*
 			 * Weed out legacy data
 			 */
-			//System.out.println("Row # is " + row.getRowNumber());
 			if (row.getRowNumber().indexOf('.') < 0) {
 				try {
 					if (Integer.parseInt(row.getRowNumber()) >= 100)
@@ -501,7 +500,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				}
 			}
 			
-			//System.out.println("Codeable? " + row.getCodeable());
 			if ("true".equals(row.getCodeable())) {
 				final CodingOption option = new CodingOption(row);
 				store.add(option);

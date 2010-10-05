@@ -73,7 +73,6 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 						for (int j = 0; j < recentAssessments.size(); j++) {
 							AssessmentInfo curInfo = recentAssessments.get(j);
 							Assessment curAss = AssessmentCache.impl.getAssessment(curInfo.id, false);
-//							System.out.println("this is curAss " + curAss.toXML());
 							if (curAss != null) {
 								grid.setText(j + 1, 0, curAss.getSpeciesName());
 

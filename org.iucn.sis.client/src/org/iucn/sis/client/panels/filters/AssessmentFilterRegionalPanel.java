@@ -1,10 +1,10 @@
 package org.iucn.sis.client.panels.filters;
 
-import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.client.panels.region.AddRegionPanel;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Relationship;
 
@@ -18,11 +18,9 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 
 public class AssessmentFilterRegionalPanel extends LayoutContainer {
@@ -141,11 +139,11 @@ public class AssessmentFilterRegionalPanel extends LayoutContainer {
 			
 			if (box.getSimpleValue().equalsIgnoreCase(all)) {
 				filter.setRegionType(Relationship.AND);
-				System.out.println("setting to and in filter " + filter );
+				Debug.println("setting to and in filter {0}", filter);
 			}
 			else {
 				filter.setRegionType(Relationship.OR);
-				System.out.println("setting to or in filter " + filter );
+				Debug.println("setting to or in filter {0}", filter);
 			}
 		}
 

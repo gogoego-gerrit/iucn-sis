@@ -9,6 +9,7 @@ import java.util.Set;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.api.models.PermissionGroup;
@@ -134,7 +135,7 @@ public class PermissionResourceUI extends LayoutContainer {
 					if( listboxLookup.containsKey(value))
 						panel.add(listboxLookup.get(value));
 					else
-						System.out.println("Couldn't find listbox for value " + value);
+						Debug.println("Permission Resource Couldn't find listbox for value {0}", value);
 					panel.layout();
 				}
 			}
@@ -164,7 +165,7 @@ public class PermissionResourceUI extends LayoutContainer {
 					if( listboxLookup.containsKey(value))
 						panel.add(listboxLookup.get(value));
 					else
-						System.out.println("Couldn't find listbox for value " + value);
+						Debug.println("Permission Resource Couldn't find listbox for value {0}", value);
 
 					if( resources.getStore().indexOf(se.getSelectedItem()) == 1 ) {
 						panel.add(listboxLookup.get("region"));

@@ -711,7 +711,6 @@ public class NavigationHeader extends LayoutContainer {
 						public void onFailure(Throwable caught) {};
 
 						public void onSuccess(String result) {
-							System.out.println("in on success");
 							if (AssessmentCache.impl.getDraftAssessment(curSelectedWorkingSet.getSpeciesIDs().get(0), false) != null) {
 								AssessmentCache.impl.getDraftAssessment(curSelectedWorkingSet.getSpeciesIDs().get(0), true);
 							} else {
@@ -727,7 +726,6 @@ public class NavigationHeader extends LayoutContainer {
 				}
 			});
 		} else {
-			System.out.println("in else");
 			Integer curID = curNavTaxon.getId();
 			boolean found = false;
 			for (Iterator<Integer> iter = curSelectedWorkingSet.getSpeciesIDs().listIterator(); iter.hasNext() && !found;) {
@@ -1013,10 +1011,6 @@ public class NavigationHeader extends LayoutContainer {
 								curItem = new DataListItem(displayable);
 								curItem.setData("assessment", curAss);
 								curItem.setId(curAss.getId() + "!" + curAss.getType());
-								SysDebugger.getInstance().println(
-										"This is the assessment id " + curAss.getId() + " and this is "
-										+ "the style "
-										+ MarkedCache.impl.getAssessmentStyle(curAss.getId() + ""));
 								curItem.addStyleName(MarkedCache.impl.getAssessmentStyle(curItem.getId()));
 								assessmentList.add(curItem);
 
@@ -1114,7 +1108,6 @@ public class NavigationHeader extends LayoutContainer {
 	}
 
 	private void refreshTaxa(final GenericCallback<String> postRefreshCallback) {
-		System.out.println("in refresh taxa");
 		taxonToSelect = null;
 		taxonList.setHeight(LIST_SIZE);
 		taxonList.removeAll();
@@ -1124,8 +1117,6 @@ public class NavigationHeader extends LayoutContainer {
 		DataListItem curItem = null;
 
 		if (curSelectedWorkingSet == null) {
-			System.out.println("the size of the recentely assessed is " + TaxonomyCache.impl.getRecentlyAccessed().size());
-			
 			if (TaxonomyCache.impl.getRecentlyAccessed().size() == 0) {
 				
 				taxa.removeAll();
@@ -1139,8 +1130,6 @@ public class NavigationHeader extends LayoutContainer {
 			} else {
 				for (Iterator iter = TaxonomyCache.impl.getRecentlyAccessed().listIterator(); iter.hasNext();) {
 					Taxon  curTaxon = (Taxon ) iter.next();
-//					System.out.println("looking at taxon: " + curTaxon.toXML());
-//					System.out.println("this is the friendly name: " + curTaxon.getFriendlyName());
 					curItem = new DataListItem(curTaxon.getFriendlyName());
 					curItem.setData("taxon", curTaxon);
 					curItem.setId(curTaxon.getId() + "");
@@ -1174,7 +1163,6 @@ public class NavigationHeader extends LayoutContainer {
 			WindowUtils.loadingBox.updateProgress(0, "Building list...");
 
 			if (curSelectedWorkingSet.getSpeciesIDs().size() == 0) {
-				System.out.println("there aren't taxa in workign set");
 				taxa.removeAll();
 				HTML taxaHeader = new HTML("No taxa in this set.");
 				taxaHeader.addStyleName("bold");
@@ -1185,7 +1173,6 @@ public class NavigationHeader extends LayoutContainer {
 				WindowUtils.hideLoadingAlert();
 
 			} else {
-				System.out.println("there are taxa in working stet");
 				Timer timer = new Timer() {
 					public void run() {
 						WorkingSetCache.impl.fetchTaxaForWorkingSet(curSelectedWorkingSet, new GenericCallback<String>() {
@@ -1211,16 +1198,12 @@ public class NavigationHeader extends LayoutContainer {
 								int i = 0;
 								for (Integer id: curSelectedWorkingSet.getSpeciesIDs()) {
 									Taxon  curTaxon = TaxonomyCache.impl.getTaxon(id);
-									System.out.println("in here with taxaon id " + id + " and current taxon " + curTaxon + "and " + Arrays.toString(curTaxon.getFootprint()));
-
 									if (!currentFamily.equals(curTaxon.getFootprint()[TaxonLevel.FAMILY])) {
-										System.out.println("Thecurrent family is being added " + curTaxon.getFootprint()[TaxonLevel.FAMILY]);
 										currentFamily = curTaxon.getFootprint()[TaxonLevel.FAMILY];
 										taxonPagingLoader.getFullList().add(new TaxonListElement(currentFamily));
 									}
 
 									TaxonListElement curEl = new TaxonListElement(curTaxon, "");
-									System.out.println("adding taxonlist element");
 									
 									taxonPagingLoader.getFullList().add(curEl);
 
@@ -1229,7 +1212,6 @@ public class NavigationHeader extends LayoutContainer {
 
 									WindowUtils.loadingBox.updateProgress((double) i / 100.0, "Building list...");
 									i++;
-									System.out.println("finished adding taxon");
 								}
 
 								taxonPagingLoader.getPagingLoader().load();
@@ -1241,7 +1223,6 @@ public class NavigationHeader extends LayoutContainer {
 								taxa.add(taxaHeader);
 								taxa.add(taxonList);
 								taxa.add(taxonPagingToolBar);
-								System.out.println("finished adding all taxa");
 
 								WindowUtils.hideLoadingAlert();
 								//FIXME: We might need to expose this method to make the header hide properly again

@@ -274,7 +274,6 @@ public class TaxomaticUtils {
 	 * @return
 	 */
 	public void performPromotion(final Taxon  promoteMe, final GenericCallback<String> wayback) {
-		SysDebugger.getInstance().println("I am in perform promotion");
 		String xml = "<xml>\r\n<promoted id=\"" + promoteMe.getId() + "\" />\r\n</xml>";
 		final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
 		ndoc.post(UriBase.getInstance().getSISBase() +"/taxomatic/promote", xml, getDefaultCallback(ndoc, wayback, promoteMe.getId()+""));

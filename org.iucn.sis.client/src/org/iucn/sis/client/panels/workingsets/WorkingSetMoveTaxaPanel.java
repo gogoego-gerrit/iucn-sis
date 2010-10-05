@@ -160,12 +160,10 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 				WindowUtils.errorAlert("Please select only 1 working set.");
 				move.setEnabled(true);
 			} else {
-				SysDebugger.getInstance().println("i am getting checked");
 				List<TaxaData> checkedTaxa = manager.workingSetOptionsPanel.getChecked();
 				if (checkedTaxa != null && !checkedTaxa.isEmpty()) {
 
 					final WorkingSet workingSetToMoveTaxaInto = WorkingSetCache.impl.getWorkingSets().get(Integer.valueOf(checkedList[0].getId()));
-					System.out.println("this is the workingsetToMoveTaxa into " + workingSetToMoveTaxaInto.getName());
 					if (mode == MOVE
 							&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, workingSetToMoveTaxaInto)) {
 						WindowUtils.errorAlert("Insufficient Permissions",
@@ -282,17 +280,11 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 	}
 
 	private void removeChecks() {
-
 		if (list.getChecked().toArray(new DataListItem[0]).length > 0) {
-			SysDebugger.getInstance().println("I am in removeChecks");
 			DataListItem item = list.getChecked().toArray(new DataListItem[0])[0];
 			item.setChecked(false);
 			WorkingSet data = WorkingSetCache.impl.getWorkingSet(Integer.valueOf(item.getId()));
 			item.setText(data.getWorkingSetName() + " -- " + data.getSpeciesIDs().size() + " species");
-			SysDebugger.getInstance().println(
-					"I just set text to " + data.getWorkingSetName() + " -- " + data.getSpeciesIDs().size()
-							+ " species");
-
 		}
 	}
 

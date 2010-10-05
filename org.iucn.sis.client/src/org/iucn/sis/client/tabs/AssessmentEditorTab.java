@@ -24,7 +24,6 @@ public class AssessmentEditorTab extends TabItem {
 		setLayout(new FitLayout());
 
 		add(panelManager.DEM);
-		System.out.println("DEM Panel is added. Swanky.");
 //		panelManager.addPanel(this, panelManager.DEM, null, false, false);
 //		panelManager.layoutPanel(panelManager.DEM);
 

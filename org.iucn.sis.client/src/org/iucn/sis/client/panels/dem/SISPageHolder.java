@@ -403,7 +403,6 @@ public class SISPageHolder extends TabPanel {
 			width = 96 / numCols;
 		} catch (Exception e) {
 		}
-		// SysDebugger.getInstance().println("Width is: " + width);
 
 		for (int k = 0; k < compositeFields.getLength(); k++) {
 			currentNode = compositeFields.elementAt(k);
@@ -451,8 +450,7 @@ public class SISPageHolder extends TabPanel {
 				}
 			}// END try
 			catch (Exception e) {
-				SysDebugger.getInstance().println("SIS Page Holder: ouch");
-				e.printStackTrace();
+				Debug.println(e);
 			}
 		}// End for
 
@@ -487,8 +485,7 @@ public class SISPageHolder extends TabPanel {
 			content.add(myContent);
 
 		} catch (Exception e) {
-			System.err.println("Failed to add " + curField + ". Check your spelling.");
-			e.printStackTrace();
+			Debug.println("Failed to add {0}. Check your spelling.\n{1}", curField, e);
 		}
 	}
 

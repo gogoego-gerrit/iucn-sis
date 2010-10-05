@@ -46,56 +46,48 @@ public class AssessmentClientSaveUtils {
 
 			public void onSuccess(Integer result) {
 				if (result == StatusCache.UNLOCKED || result == StatusCache.HAS_LOCK) {
-					try {
-						if( fieldWidgets != null )
-							saveWidgetDataToAssessment(fieldWidgets, assessmentToSave);
+					if (fieldWidgets != null)
+						saveWidgetDataToAssessment(fieldWidgets, assessmentToSave);
 
-						final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-						ndoc.post(UriBase.getInstance().getSISBase() +"/assessments", assessmentToSave.toXML(), new GenericCallback<String>() {
-							public void onFailure(Throwable caught) {
-								if( ndoc.getStatusText().indexOf("409") > -1 ) {
-									callback.onFailure(new Exception("A draft assessment " +
-											"with the specified regions already exists. Please modify " +
-									"your choice of regions and try again."));
-								} else {
-									callback.onFailure(new Exception("Please check your internet " +
-									"connection and try again."));
-								}
+					final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+					ndoc.post(UriBase.getInstance().getSISBase() +"/assessments", assessmentToSave.toXML(), new GenericCallback<String>() {
+						public void onFailure(Throwable caught) {
+							if (ndoc.getStatusText().indexOf("409") > -1) {
+								callback.onFailure(new Exception("A draft assessment " +
+										"with the specified regions already exists. Please modify " +
+								"your choice of regions and try again."));
+							} else {
+								callback.onFailure(new Exception("Please check your internet " +
+								"connection and try again."));
 							}
-
-							public void onSuccess(String result) {
-								//assessmentToSave.setDateModified(Long.valueOf(ndoc.getText()));
-								try {
-									Assessment ret = Assessment.fromXML(ndoc);
-									for( Field curField : ret.getField() ) {
-										Field clientField = assessmentToSave.getField(curField.getName());
-										if( clientField == null ) {
-											System.out.print("Missing the client field " + curField.getName() + "...????");
-											assessmentToSave.getField().add(curField);
-										} else {
-											if( clientField.getId() == 0 )
-												clientField.setId(curField.getId());
+						}
+						public void onSuccess(String result) {
+							try {
+								Assessment ret = Assessment.fromXML(ndoc);
+								for ( Field curField : ret.getField() ) {
+									Field clientField = assessmentToSave.getField(curField.getName());
+									if( clientField == null ) {
+										Debug.println("Missing the client field " + curField.getName() + "...????");
+										assessmentToSave.getField().add(curField);
+									} else {
+										if( clientField.getId() == 0 )
+											clientField.setId(curField.getId());
 	
-											for( PrimitiveField curPrim : curField.getPrimitiveField() ) {
-												PrimitiveField clientPrim = clientField.getKeyToPrimitiveFields().get(curPrim.getName());
-												if( clientPrim.getId() == null || clientPrim.getId().equals(Integer.valueOf(0)))
-													clientPrim.setId(curPrim.getId());
-											}
-										}
+										for( PrimitiveField curPrim : curField.getPrimitiveField() ) {
+											PrimitiveField clientPrim = clientField.getKeyToPrimitiveFields().get(curPrim.getName());
+											if( clientPrim.getId() == null || clientPrim.getId().equals(Integer.valueOf(0)))
+												clientPrim.setId(curPrim.getId());
+										}	
 									}
-								} catch (Throwable e) {
-									e.printStackTrace();
 								}
-								
-								StatusCache.impl.setStatus(assessmentToSave, StatusCache.HAS_LOCK);
-								callback.onSuccess(result);
+							} catch (Throwable e) {
+								e.printStackTrace();
 							}
-						});
-					} catch (Exception e) {
-						e.printStackTrace();
-						callback.onFailure(e);
-						return;
-					}
+								
+							StatusCache.impl.setStatus(assessmentToSave, StatusCache.HAS_LOCK);
+							callback.onSuccess(result);
+						}
+					});
 				} else {
 					callback.onFailure(new Exception("Assessment locked or needs an update."));
 				}
@@ -114,11 +106,11 @@ public class AssessmentClientSaveUtils {
 			return false;
 		} else {
 			for( Display cur : fieldWidgets ) {
-				System.out.println("Field " + cur.getCanonicalName() + " has changed? " + cur.hasChanged());
-				if( cur.hasChanged() )
+				boolean hasChanged = cur.hasChanged();
+				Debug.println("Field {0} has changed? {1}", cur.getCanonicalName(), hasChanged);
+				if (hasChanged)
 					return true;
 			}
-			
 			return false;
 		}
 	}

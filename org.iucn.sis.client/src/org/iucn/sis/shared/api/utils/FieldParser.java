@@ -276,7 +276,7 @@ public class FieldParser {
 						}
 					}
 				}
-				System.out.println("For structure " + currentDisplayData.getUniqueId() + ", setting options to " + options);
+				Debug.println("For structure {0}, setting options to {1}", currentDisplayData.getUniqueId(), options);
 				currentDisplayData.setData(options);
 			}
 
@@ -399,20 +399,12 @@ public class FieldParser {
 								for (int sRule = 0; sRule < ruleSet.item(ruleCount).getChildNodes().getLength(); sRule++) {
 									if (ruleSet.item(ruleCount).getChildNodes().item(sRule).getNodeName()
 											.equalsIgnoreCase("activateOnIndex")) {
-										// System.out.println(
-										// "Found rule");
 										rule = new SelectRule(XMLUtils.getXMLValue(ruleSet.item(ruleCount)
 												.getChildNodes().item(sRule)));
 									} else if (ruleSet.item(ruleCount).getChildNodes().item(sRule).getNodeName()
 											.equalsIgnoreCase("actions")) {
 										for (int acts = 0; acts < ruleSet.item(ruleCount).getChildNodes().item(sRule)
 												.getChildNodes().getLength(); acts++) {
-											// System.out.println(
-											// "Action: " +
-											// ruleSet.item(ruleCount
-											// ).getChildNodes
-											// ().item(sRule).getChildNodes
-											// ().item(acts).getNodeName());
 											if (ruleSet.item(ruleCount).getChildNodes().item(sRule).getChildNodes()
 													.item(acts).getNodeName().equalsIgnoreCase("onTrue")) {
 												rule.setOnTrue(XMLUtils.getXMLValue(ruleSet.item(ruleCount)
@@ -533,8 +525,6 @@ public class FieldParser {
 					if (currentRoot.getNodeName().equalsIgnoreCase("defaultStructure")) {
 						for (int k = 0; k < currentRoot.getChildNodes().getLength(); k++) {
 							if (currentRoot.getChildNodes().item(k).getNodeName().equalsIgnoreCase("treeStructures")) {
-								// System.out.println(
-								// "Made default tree structure");
 								defaultTreeStructure = new TreeData();
 								ArrayList<DisplayData> defaultTreeStructureSet = parseStructures(currentRoot.getChildNodes()
 										.elementAt(k).getChildNodes(), lookups);
@@ -580,7 +570,6 @@ public class FieldParser {
 				continue;
 
 			String curNodeName = current.getNodeName();
-			Debug.println("Processing a %s tag.", current.getNodeName());
 			if (curNodeName.equalsIgnoreCase(CANONICAL_NAME_TAG_NAME))
 				displayData.setCanonicalName(XMLUtils.getXMLValue(current).trim());
 			else if (curNodeName.equalsIgnoreCase(CLASS_OF_SERVICE_TAG_NAME))
@@ -648,8 +637,6 @@ public class FieldParser {
 				currentField.setStyle(layout);
 		}
 
-//		System.out.println(
-//				currentField.getStructure() + ": " + currentField.getDescription() + ":" + structureSet.size());
 		return currentField;
 	}
 
@@ -721,9 +708,6 @@ public class FieldParser {
 
 		// If there was no overriding structure given
 		if (!override) {
-			// System.out.println(
-			// "No override given, use default data to make a " +
-			// defaultTreeStructure.getStructure());
 			currentRow.setStructure(defaultTreeStructure.getStructure());
 			currentRow.setData(defaultTreeStructure.getData());
 		}

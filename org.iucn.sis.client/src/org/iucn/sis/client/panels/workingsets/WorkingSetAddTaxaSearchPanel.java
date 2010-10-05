@@ -12,6 +12,7 @@ import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.utils.SearchPanel;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -104,7 +105,6 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 
 		@Override
 		public void fillTable() {
-			SysDebugger.getInstance().println("I am in fill table");
 			table.removeAll();
 			List<Integer> fetchList = new ArrayList<Integer>();
 			for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++)
@@ -136,17 +136,13 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 						if (taxaIDs.size() > 0) {
 							AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, taxaIDs), new GenericCallback<String>() {
 								public void onFailure(Throwable caught) {
-									SysDebugger.getInstance().println("Error while searching in addTaxonPanel");
-									SysDebugger.getInstance().println(caught.getMessage());
+									Debug.println("Error while searching in addTaxonPanel: {0}", caught.getMessage());
 									WindowUtils.errorAlert("Error while fetching search results - "
 											+ "please try again.");
 									setButtonsEnabled(false);
 								}
 
 								public void onSuccess(String result) {
-									SysDebugger.getInstance()
-											.println("I am in fetchlist succed in the add taxon panel");
-
 									for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++) {
 										List<Assessment> aData = AssessmentCache.impl.getPublishedAssessmentsForTaxon(
 												Integer.valueOf(x[i - start][3]));

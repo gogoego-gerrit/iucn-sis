@@ -3,6 +3,7 @@ package org.iucn.sis.client.api.utils;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.SaveAndShow;
 
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -73,7 +74,7 @@ public class FlipBookPage extends SimplePanel {
 				Object key = validator.next();
 				try {
 					if (((String) currentData.get(key)).equalsIgnoreCase("")) {
-						SysDebugger.getInstance().println("Field with key " + (String) key + " is invalid!");
+						Debug.println("Field with key {0} is invalid!", key);
 						return false;
 					}
 				} catch (Exception e) {

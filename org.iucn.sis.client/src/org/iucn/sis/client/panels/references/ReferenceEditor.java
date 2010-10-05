@@ -9,6 +9,7 @@ import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Reference;
 
@@ -136,7 +137,7 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 			}
 			public void onSuccess(String result) {
 				if (reference != null)
-					System.out.println("Loading reference of type " + reference.getType());
+					Debug.println("Loading reference of type {0}", reference.getType());
 				
 				int articleIndex = -1;
 				
@@ -482,8 +483,7 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 
 						if (!we.getButtonClicked().getText().equalsIgnoreCase(dialog.cancelText))
 							save();
-					} else
-						System.out.println("Button pressed is null.");
+					}
 				}
 			});
 			dialog.setHeading("Update Citation");

@@ -286,8 +286,6 @@ public class FindResultCache {
 				}
 
 			};
-			// SysDebugger.getInstance().println("Sending for replacement: " +
-			// createXML(sendingObject, options, criteria));
 			ndoc.put(UriBase.getInstance().getFindReplaceBase() +"/replace", createXML(sendingObject, options, criteria), callback);
 		} else {
 			wayback.onFailure(new Throwable("Not sending null object"));

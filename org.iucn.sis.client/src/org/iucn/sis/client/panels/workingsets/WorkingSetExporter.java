@@ -147,7 +147,6 @@ public class WorkingSetExporter extends RefreshLayoutContainer {
 	}
 
 	private void fireExport(final DataListItem[] checked, boolean lock) {
-		System.out.println("in fire export");
 		WorkingSetCache.impl.exportWorkingSet(Integer.valueOf(checked[0].getId()), lock, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				exportButton.setEnabled(true);
@@ -180,8 +179,6 @@ public class WorkingSetExporter extends RefreshLayoutContainer {
 	}
 
 	private void saveExportedZip(final String pathOfZipped, String wsID) {
-		SysDebugger.getInstance().println("This is the path of the zipped " + pathOfZipped);
-
 		Dialog dialog = new Dialog();
 		dialog.setButtons(Dialog.OKCANCEL);
 		dialog.setSize("400px", "300px");

@@ -93,14 +93,7 @@ public class SISStructureCollection extends Structure<Field> {
 	}
 
 	private Widget createLabel(boolean viewOnly) {
-		// SysDebugger.getInstance().println("Display type = " + displayType);
-		// if (this.displayType == 0) {
-		// //TODO: display a tree
-		// SysDebugger.getInstance().println("I want a tree");
-		// return null;
-		// }
-		if (displayType == 1) {
-			// SysDebugger.getInstance().println("Showing a vertical panel");
+		if (displayType == 1) {		
 			// displayPanel = new VerticalPanel();
 			buildContentPanel(Orientation.VERTICAL);
 			((VerticalPanel) displayPanel).setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);

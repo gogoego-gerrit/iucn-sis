@@ -47,12 +47,13 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	private Iterator<Reference> local;
 	
 	private boolean nonUniqueIDs;
-	private HashMap<String, Reference> currentUniqueReferences;
+	private final HashMap<String, Reference> currentUniqueReferences;
 	private Set<Reference> currentReferences;
 	
 	public BibliographyViewTab(ReferenceViewAPI parent) {
 		super();
 		this.parent = parent;
+		this.currentUniqueReferences = new HashMap<String, Reference>();
 		setLayout(new FillLayout());
 		draw();
 	}

@@ -151,7 +151,6 @@ public class AsyncTree {
 		tree = new TreeTable(cm) {
 			@Override
 			public boolean expandPath(String path) {
-				SysDebugger.getInstance().println("This is the path to be expanded " + path);
 				return super.expandPath(path);
 			}
 
@@ -233,7 +232,6 @@ public class AsyncTree {
 				if (selection != null) {
 					String name = selection.get("name");
 					if (selection instanceof Folder) {
-						SysDebugger.getInstance().println("I am in the viewer selection changed listener thingy");
 						store.getChildren(selection);
 						// cp.getChildren(selection, new
 						// IAsyncContentCallback(){

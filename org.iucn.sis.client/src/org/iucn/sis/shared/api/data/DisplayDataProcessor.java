@@ -41,7 +41,6 @@ public class DisplayDataProcessor {
 	 */
 	public static Structure processDisplayStructure(DisplayData currentDisplayData) {
 		if (currentDisplayData == null) {
-			SysDebugger.getInstance().println("No good data to build a Display from.");
 			return null;
 		}
 

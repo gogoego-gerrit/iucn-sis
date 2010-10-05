@@ -394,7 +394,6 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 		if (footprints.length == 0)
 			footprintPanel.add(new HTML("Kingdoms"));
 		else {
-			SysDebugger.getNamedInstance("force").println("CW: " + cellWidth);
 			cellWidth = getOffsetWidth();
 
 			HorizontalPanel inner = generateFootprintSection();

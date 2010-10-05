@@ -681,7 +681,6 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 			recentWorkingSet = WorkingSetCache.impl.getCurrentWorkingSet();
 			callCorrectFilter();
 			putFilterIcon(selectedFilter);
-			SysDebugger.getInstance().println("I did try to freaking refresh in taxa list");
 		}
 
 		// CURRENT WORKING SET IS NULL
