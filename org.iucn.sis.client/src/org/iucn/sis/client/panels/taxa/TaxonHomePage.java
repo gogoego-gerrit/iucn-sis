@@ -159,7 +159,6 @@ public class TaxonHomePage extends LayoutContainer {
 			assessments.setStyleName("x-panel");
 
 			TableColumn[] columns = new TableColumn[6];
-
 			columns[0] = new TableColumn("Assessment Date", 150);
 			columns[1] = new TableColumn("Category", 100);
 			columns[2] = new TableColumn("Criteria", 100);
@@ -763,15 +762,22 @@ public class TaxonHomePage extends LayoutContainer {
 										else
 											notesImage.setUrl("images/icon-note-grey.png");
 										s.hide();
-										TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
-											public void onFailure(Throwable caught) {
-
-											};
-
+										TaxonomyCache.impl.addOrEditCommonName(node, curName, new GenericCallback<String>() {
+											
+											@Override
 											public void onSuccess(String result) {
-
-											};
+												WindowUtils.infoAlert("Saved", "Common name " + curName.getName() + " was saved.");
+												ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+											}
+										
+											@Override
+											public void onFailure(Throwable caught) {
+												WindowUtils.errorAlert("Error", "An error occurred when trying to save the common name data related to "
+														+ node.getFullName() + ".");
+											}
 										});
+										
+										
 									}
 								});
 								buttonPanel.add(cancel);

@@ -1,15 +1,16 @@
 package org.iucn.sis.server.restlets.taxa;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.hibernate.HibernateException;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.CommonNameDAO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
-import org.iucn.sis.server.api.persistance.SynonymDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.shared.api.models.CommonName;
-import org.iucn.sis.shared.api.models.IsoLanguage;
-import org.iucn.sis.shared.api.models.Synonym;
+import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -37,22 +38,33 @@ public class CommonNameRestlet extends ServiceRestlet{
 		
 		String text = request.getEntityAsText();
 		String taxonID = (String) request.getAttributes().get("taxon_id");
-		
 		Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.parseInt(taxonID));
 		NativeDocument newDoc = SIS.get().newNativeDocument(request.getChallengeResponse());
 		newDoc.parse(text);
 		CommonName commonName = CommonName.fromXML(newDoc.getDocumentElement());
 		commonName.setIso(SIS.get().getIsoLanguageIO().getIsoLanguageByCode(commonName.getIsoCode()));
+		Set<Notes> notes = new HashSet<Notes>();
+		for (Notes note : commonName.getNotes()) {
+			if (note.getId() != 0)
+				notes.add(SIS.get().getNoteIO().get(note.getId()));
+			else
+				notes.add(note);
+		}
+		commonName.setNotes(notes);
 		if (commonName.getId() == 0) {
 			taxon.getCommonNames().add(commonName);
 			commonName.setTaxon(taxon);
-			taxon.toXML();
+			try{
 			if (SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request))) {
 				response.setStatus(Status.SUCCESS_OK);
 				response.setEntity(commonName.getId()+"", MediaType.TEXT_PLAIN);
 			} else {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL);
 			}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 		} else {
 			
 			commonName.setTaxon(taxon);
