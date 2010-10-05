@@ -1,99 +1,6 @@
 package org.iucn.sis.client.panels.taxa;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import org.iucn.sis.client.api.caches.AssessmentCache;
-import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.caches.RegionCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.ui.models.image.ManagedImage;
-import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
-import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.api.utils.TaxonPagingLoader;
-import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
-import org.iucn.sis.client.panels.images.ImageManagerPanel;
-import org.iucn.sis.client.panels.taxomatic.CommonNameDisplay;
-import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils;
-import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
-import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
-import org.iucn.sis.shared.api.models.CommonName;
-import org.iucn.sis.shared.api.models.Notes;
-import org.iucn.sis.shared.api.models.Synonym;
-import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.models.TaxonLevel;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
-import org.iucn.sis.shared.api.utils.AssessmentFormatter;
-import org.iucn.sis.shared.api.utils.XMLUtils;
-
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.binder.DataListBinder;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.TableEvent;
-import com.extjs.gxt.ui.client.event.TableListener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.StoreSorter;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.DataList;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.InfoConfig;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.table.CellRenderer;
-import com.extjs.gxt.ui.client.widget.table.Table;
-import com.extjs.gxt.ui.client.widget.table.TableColumn;
-import com.extjs.gxt.ui.client.widget.table.TableColumnModel;
-import com.extjs.gxt.ui.client.widget.table.TableItem;
-import com.extjs.gxt.ui.client.widget.table.TableSelectionModel;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
-import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.NativeElement;
-import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.lwxml.shared.utils.ArrayUtils;
-import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class TaxonHomePage extends LayoutContainer {
 
@@ -808,10 +715,10 @@ public class TaxonHomePage extends LayoutContainer {
 //						}
 //					}));
 //				}
-				Html viewAll = new Html("View all...");
+				HTML viewAll = new HTML("View all...");
 				viewAll.setStyleName("SIS_HyperlinkLookAlike");
-				viewAll.addListener(Events.CellClick, new Listener<BaseEvent>() {
-					public void handleEvent(BaseEvent be) {
+				viewAll.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
 						final Window s = WindowUtils.getWindow(false, false, "Edit Common Names");
 						LayoutContainer data = s;
 						data.setScrollMode(Scroll.AUTO);
