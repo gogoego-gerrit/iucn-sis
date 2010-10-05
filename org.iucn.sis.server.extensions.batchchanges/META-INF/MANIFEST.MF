@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Batchchanges Plug-in
+Bundle-Name: SIS Batch Changer
 Bundle-SymbolicName: org.iucn.sis.server.extensions.batchchanges
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.iucn.sis.server.api;bundle-version="1.0.0",
