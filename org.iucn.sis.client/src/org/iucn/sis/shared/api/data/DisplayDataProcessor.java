@@ -16,7 +16,7 @@ import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class DisplayDataProcessor {
 
-	private static void printDiagnostic(DisplayData data, Exception e) {
+	private static void printDiagnostic(DisplayData data, Throwable e) {
 		// e.printStackTrace();
 
 		String err = "Fatal error. Please report to SIS IT administrators.";
@@ -261,10 +261,9 @@ public class DisplayDataProcessor {
 		try {
 			structure.setIsVisible(currentDisplayData.getIsVisible());
 			structure.setName(currentDisplayData.getName());
-			structure.setId(currentDisplayData.getUniqueId());
 
 			/* structure.setDisplayData(currentDisplayData); */
-		} catch (NullPointerException e) {
+		} catch (Throwable e) {
 			printDiagnostic(currentDisplayData, e);
 		}
 

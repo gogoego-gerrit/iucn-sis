@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.models.primitivefields;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
@@ -125,8 +126,13 @@ public class ForeignKeyListPrimitiveField extends PrimitiveField<List<Integer>> 
 		else {
 			String [] newValue = value.split(",");
 			newList = new int[newValue.length];
-			for( int i = 0; i < newValue.length; i++ )
-				newList[i] = Integer.parseInt(newValue[i].trim());
+			for( int i = 0; i < newValue.length; i++ ) {
+				try {
+					newList[i] = Integer.parseInt(newValue[i].trim());
+				} catch (Throwable e) {
+					Debug.println("Failed to save {0} from {1}", newValue[i], value);
+				}
+			}
 		}
 		
 		setFk_list_primitive_values(newList);

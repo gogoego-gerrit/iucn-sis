@@ -62,7 +62,8 @@ public class SISTextArea extends SISPrimitiveStructure<String> implements UsesCl
 
 	@Override
 	public String getData() {
-		return textarea.getText();
+		String value = textarea.getText();
+		return ("".equals(value)) ? null : value;
 	}
 
 	/**

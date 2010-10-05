@@ -121,6 +121,13 @@ public class RelatedDisplays extends Display {
 			return new SimplePanel();
 		}
 	}
+	
+	@Override
+	public void removeStructures() {
+		/*
+		 * Since we re-draw each time, no need for this implementation
+		 */
+	}
 
 	public List<Display> getDependantDisplays() {
 		return dependantDisplays;

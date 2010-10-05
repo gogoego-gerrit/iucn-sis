@@ -197,7 +197,8 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 
 	@Override
 	public String getData() {
-		return range.getText().replaceAll("\\s*", "");
+		String value = range.getText().replaceAll("\\s*", "");
+		return ("".equals(value)) ? null : value;
 	}
 
 	/**

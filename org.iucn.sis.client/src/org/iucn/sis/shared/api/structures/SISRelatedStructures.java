@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
@@ -96,20 +97,29 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 	public boolean hasChanged(Field field) {
 		boolean hasChanged = false;
 		
-		hasChanged |= dominantStructure.isPrimitive() ? 
-			dominantStructure.hasChanged(field == null ? null : field.getPrimitiveField(dominantStructure.getId())) : 
-			dominantStructure.hasChanged(field == null ? null : field.getField(dominantStructure.getId()));
+		if (dominantStructure.isPrimitive())
+			hasChanged = dominantStructure.hasChanged(field == null ? null : field.getPrimitiveField(dominantStructure.getId()));
+		else if (dominantStructure.hasId())
+			hasChanged = dominantStructure.hasChanged(field == null ? null : field.getField(dominantStructure.getId()));
+		else
+			hasChanged = dominantStructure.hasChanged(field);
+		
+		Debug.println("For {0}, dominant struct {1} changed? {2}", getDescription(), dominantStructure.getId(), hasChanged);
 		
 		if (!hasChanged) {
-			for (DisplayStructure cur : dependantStructures)
+			for (DisplayStructure cur : dependantStructures) {
 				if (cur.isPrimitive())
-					hasChanged |= cur.hasChanged(field == null ? null : field.getPrimitiveField(cur.getId()));
-				else {
-					if (cur.hasId())
-						hasChanged |= cur.hasChanged(field == null ? null : field.getField(cur.getId()));
-					else
-						hasChanged |= cur.hasChanged(field);
-				}
+					hasChanged = cur.hasChanged(field == null ? null : field.getPrimitiveField(cur.getId()));
+				else if (cur.hasId())
+					hasChanged = cur.hasChanged(field == null ? null : field.getField(cur.getId()));
+				else
+					hasChanged = cur.hasChanged(field);
+		
+				Debug.println("For {0}, dep struct {1} changed? {2}", getDescription(), cur.getId(), hasChanged);
+				
+				if (hasChanged)
+					break;
+			}
 		}
 		
 		return hasChanged;

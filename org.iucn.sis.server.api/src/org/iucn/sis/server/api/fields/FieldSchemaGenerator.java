@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
@@ -162,16 +163,21 @@ public class FieldSchemaGenerator {
 				final Map<Integer, String> mapping = new LinkedHashMap<Integer, String>();
 				
 				synchronized(this) {
-					ec.doQuery(lookups, new RowProcessor() {
-						public void process(Row row) {
-							try {
-								mapping.put(row.get("id").getInteger(), row.get("label").toString());
-							} catch (NullPointerException e) {
-								TrivialExceptionHandler.ignore(this, e);
-								//TODO: can we stop processing early?
+					try {
+						ec.doQuery(lookups, new RowProcessor() {
+							public void process(Row row) {
+								try {
+									mapping.put(row.get("id").getInteger(), row.get("label").toString());
+								} catch (NullPointerException e) {
+									TrivialExceptionHandler.ignore(this, e);
+									//TODO: can we stop processing early?
+								}
 							}
-						}
-					});
+						});
+					} catch (DBException e) {
+						Debug.println("Looking listing failed for {0}", tableName);
+						TrivialExceptionHandler.ignore(this, e);
+					}
 				}
 				
 				if (!mapping.isEmpty())

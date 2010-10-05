@@ -30,10 +30,7 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 	protected Panel displayPanel;
 	protected Widget descriptionLabel;
 
-	//protected Map<String, PrimitiveField> currentData;
-	//protected Field currentData;
-	
-	protected String id;
+	protected final String id;
 
 	protected String name;
 	protected boolean isVisible = true;
@@ -77,6 +74,7 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 		this.structure = struct;
 		this.description = descript;
 		this.data = data;
+		this.id = structID;
 		
 		this.createWidget();
 	}
@@ -280,10 +278,6 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public void setIsVisible(String isVisible) {

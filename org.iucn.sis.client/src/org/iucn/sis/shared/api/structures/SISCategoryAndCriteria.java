@@ -1,9 +1,12 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
@@ -119,14 +122,14 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	private Label criteriaStringBox;
 	private HTML invalidCriteriaString;
 
-	private HorizontalPanel categoryPanel;
+	//private HorizontalPanel categoryPanel;
 	private ListBox categoryListBox;
 	private VerticalPanel critAndGridPanel;
 	private CriteriaGrid v3_1Grid;
 
 	private CriteriaGrid v2_3Grid;
 	private ListBox critVersion;
-	private ArrayList critVersionDisclaimerChoices;
+	private ArrayList<String> critVersionDisclaimerChoices;
 
 	private HTML critVersionDisclaimer;
 	private HorizontalPanel manualPanel;
@@ -157,7 +160,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	private String generatedCriteria;
 	private String generatedCategory;
 
-	private String categoryText;
+	//private String categoryText;
 	private ChangeListener critVersionListener;
 
 	private ChangeListener categoryListBoxListener;
@@ -177,12 +180,119 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	@Override
 	public boolean hasChanged(Field field) {
 		//TODO: IMPLEMENT ME! Woo hoo.
+		if (field == null)
+			return true;
+		
+		Field fauxParent = new Field(), fauxChild = new Field();
+		
+		save(fauxParent, fauxChild);
+		
+		Map<String, PrimitiveField> savedFields = fauxChild.getKeyToPrimitiveFields();
+		for (Map.Entry<String, PrimitiveField> entry : savedFields.entrySet()) {
+			PrimitiveField oldPrimField = field.getPrimitiveField(entry.getKey());
+			if (oldPrimField == null)
+				return true;
+			
+			String oldValue = oldPrimField.getRawValue();
+			if ("".equals(oldValue))
+				oldValue = null;
+			
+			String newValue = entry.getValue().getRawValue();
+			if ("".equals(newValue))
+				newValue = null;
+			
+			if (newValue == null) {
+				if (oldValue != null)
+					return true;
+			} else {
+				if (oldValue == null)
+					return true;
+				else if (!newValue.equals(oldValue))
+					return true;
+			}
+		}
+		
 		return false;
 	}
 	
 	@Override
 	public void save(Field parent, Field field) {
 		//TODO: IMPLEMENT ME! Woo hoo.
+		if (field == null) {
+			field = new Field(getId(), null);
+			field.setParent(parent);
+			parent.addField(field);
+		}
+		
+		Map<String, PrimitiveField> map = field.getKeyToPrimitiveFields();
+		if (map.containsKey(IS_MANUAL_KEY))
+			((BooleanPrimitiveField)map.get(IS_MANUAL_KEY)).setValue(isManual);
+		else
+			field.addPrimitiveField(new BooleanPrimitiveField(IS_MANUAL_KEY, field, isManual));
+		
+		if (map.containsKey(CRIT_VERSION_KEY))
+			((ForeignKeyPrimitiveField)map.get(CRIT_VERSION_KEY)).setValue(version);
+		else
+			field.addPrimitiveField(new ForeignKeyPrimitiveField(CRIT_VERSION_KEY, field, version, null));
+		
+		if (map.containsKey(MANUAL_CATEGORY_KEY))
+			((StringPrimitiveField)map.get(MANUAL_CATEGORY_KEY)).setValue(manualCategory);
+		else
+			field.addPrimitiveField(new StringPrimitiveField(MANUAL_CATEGORY_KEY, field, manualCategory));
+		
+		if (map.containsKey(MANUAL_CRITERIA_KEY))
+			((StringPrimitiveField)map.get(MANUAL_CRITERIA_KEY)).setValue(manualCriteria);
+		else
+			field.addPrimitiveField(new StringPrimitiveField(MANUAL_CRITERIA_KEY, field, manualCriteria));
+		
+		if (map.containsKey(GENERATED_CATEGORY_KEY))
+			((StringPrimitiveField)map.get(GENERATED_CATEGORY_KEY)).setValue(generatedCategory);
+		else
+			field.addPrimitiveField(new StringPrimitiveField(GENERATED_CATEGORY_KEY, field, generatedCategory));
+		
+		if (map.containsKey(GENERATED_CRITERIA_KEY))
+			((StringPrimitiveField)map.get(GENERATED_CRITERIA_KEY)).setValue(generatedCriteria);
+		else
+			field.addPrimitiveField(new StringPrimitiveField(GENERATED_CRITERIA_KEY, field, generatedCriteria));
+		
+		if (map.containsKey(RLHISTORY_TEXT_KEY))
+			((StringPrimitiveField)map.get(RLHISTORY_TEXT_KEY)).setValue(rlText.getText());
+		else
+			field.addPrimitiveField(new StringPrimitiveField(RLHISTORY_TEXT_KEY, field, rlText.getText()));
+		
+		if (map.containsKey(POSSIBLY_EXTINCT_KEY))
+			((BooleanPrimitiveField)map.get(POSSIBLY_EXTINCT_KEY)).setValue(possiblyExtinctBox.getValue());
+		else
+			field.addPrimitiveField(new BooleanPrimitiveField(POSSIBLY_EXTINCT_KEY, field, possiblyExtinctBox.getValue()));
+		
+		if (map.containsKey(POSSIBLY_EXTINCT_CANDIDATE_KEY))
+			((BooleanPrimitiveField)map.get(POSSIBLY_EXTINCT_CANDIDATE_KEY)).setValue(possiblyExtinctCandidateBox.getValue());
+		else
+			field.addPrimitiveField(new BooleanPrimitiveField(POSSIBLY_EXTINCT_CANDIDATE_KEY, field, possiblyExtinctCandidateBox.getValue()));
+		
+		Date dateLastSeenValue = null;
+		try {
+			dateLastSeenValue = FormattedDate.impl.getDate(dateLastSeen.getValue()); 
+		} catch (IllegalArgumentException e) {
+		}
+		
+		if (dateLastSeenValue != null) {
+			if (map.containsKey(DATE_LAST_SEEN_KEY))
+				((DatePrimitiveField)map.get(DATE_LAST_SEEN_KEY)).setValue(dateLastSeenValue);
+			else
+				field.addPrimitiveField(new DatePrimitiveField(DATE_LAST_SEEN_KEY, field, dateLastSeenValue));
+		}
+		
+		if (map.containsKey(CATEGORY_TEXT_KEY))
+			((StringPrimitiveField)map.get(CATEGORY_TEXT_KEY)).setValue(categoryTextBox.getText());
+		else
+			field.addPrimitiveField(new StringPrimitiveField(CATEGORY_TEXT_KEY, field, categoryTextBox.getText()));
+		
+		String dataDeficientText = dataDeficientListBox.getValue(dataDeficientListBox.getSelectedIndex());
+		if (map.containsKey(DATA_DEFICIENT_KEY))
+			((StringPrimitiveField)map.get(DATA_DEFICIENT_KEY)).setValue(dataDeficientText);
+		else
+			field.addPrimitiveField(new StringPrimitiveField(DATA_DEFICIENT_KEY, field, dataDeficientText));
 	}
 	
 	private void buildPreCategoriesListBox() {
@@ -305,7 +415,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		manualCriteria = "";
 		generatedCategory = "";
 		generatedCriteria = "";
-		categoryText = "";
+		categoryTextBox.setText("");
 		critVersion.setSelectedIndex(0);
 		categoryListBox.setSelectedIndex(0);
 		criteriaStringBox.setText("");
@@ -399,7 +509,6 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 					v2_3Grid.setVisible(false);
 					v3_1Grid.setVisible(false);
 					criteriaStringBox.setText("N/A");
-					categoryTextBox.setText(categoryText);
 					categoryTextBox.setVisible(true);
 //					build2_3CategoriesListBox();
 					buildPreCategoriesListBox();
@@ -448,9 +557,8 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		};
 		categoryListBox.addChangeListener(categoryListBoxListener);
 
-		categoryText = "";
 		categoryTextBox = new TextBox();
-		categoryTextBox.setText(categoryText);
+		categoryTextBox.setText("");
 		categoryTextBox.setVisible(false);
 
 		criteriaStringBox = new Label();
@@ -511,8 +619,8 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
 	 * if it contains multiples structures, all of those, in order.
 	 */
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add("Is manual");
 		ret.add("Version");
 		ret.add("Manual Category");
@@ -619,10 +727,6 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		return offset;
 	}
 
-	public HashMap getValues() {
-		return new HashMap();
-	}
-
 	private void refreshStructures() {
 		// Not built yet!
 		if (critAndGridPanel == null)
@@ -635,11 +739,6 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			manualOverride.setText("Revert to Calculated");
 		else
 			manualOverride.setText("Enter Manual Data");
-
-		if (categoryText != null && !categoryText.equals(""))
-			categoryTextBox.setText(categoryText);
-		else
-			categoryTextBox.setText("");
 		
 		critVersion.setSelectedIndex(version);
 
@@ -700,7 +799,11 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	
 	@Override
 	public void setData(Field field) {
-		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		Map<String, PrimitiveField> data;
+		if (field == null)
+			data = new HashMap<String, PrimitiveField>();
+		else
+			data = field.getKeyToPrimitiveFields();
 		
 		v3_1Grid.clearWidgets();
 		v2_3Grid.clearWidgets();
@@ -719,8 +822,8 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 				((BooleanPrimitiveField)data.get(POSSIBLY_EXTINCT_CANDIDATE_KEY)).getValue().booleanValue() : false);
 		dateLastSeen.setText(data.containsKey(DATE_LAST_SEEN_KEY) ?
 				FormattedDate.impl.getDate( ((DatePrimitiveField)data.get(DATE_LAST_SEEN_KEY)).getValue()) : "");
-		categoryText = data.containsKey(CATEGORY_TEXT_KEY) ?
-				((StringPrimitiveField)data.get(CATEGORY_TEXT_KEY)).getValue() : "";
+		categoryTextBox.setText(data.containsKey(CATEGORY_TEXT_KEY) ?
+				((StringPrimitiveField)data.get(CATEGORY_TEXT_KEY)).getValue() : "");
 		String dataDeficientText = data.containsKey(DATA_DEFICIENT_KEY) ?
 				((StringPrimitiveField)data.get(DATA_DEFICIENT_KEY)).getValue() : null;
 		
@@ -735,42 +838,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		refreshStructures();
 	}
 
-	protected void setDataValues(HashMap fieldData) {
-	}
-
 	public void setEnabled(boolean isEnabled) {
-	}
-
-	public String toXML() {
-		String ret = "";
-
-		ret += "<structure>" + isManual + "</structure>";
-		ret += "<structure>" + critVersion.getSelectedIndex() + "</structure>";
-
-		if (isManual) {
-			ret += "<structure>" + categoryListBox.getValue(categoryListBox.getSelectedIndex()) + "</structure>";
-			ret += "<structure>" + criteriaStringBox.getText() + "</structure>";
-		} else {
-			ret += "<structure></structure>";
-			ret += "<structure></structure>";
-		}
-		// Generated stuff will be inserted automagically by the expert system
-		ret += "<structure>" + generatedCategory + "</structure>";
-		ret += "<structure>" + generatedCriteria + "</structure>";
-
-		ret += "<structure>" + XMLUtils.clean(rlText.getText()) + "</structure>";
-		ret += "<structure>" + possiblyExtinctBox.isChecked() + "</structure>";
-		ret += "<structure>" + possiblyExtinctCandidateBox.isChecked() + "</structure>";
-		ret += "<structure>" + dateLastSeen.getText() + "</structure>";
-		
-		if( categoryTextBox.isVisible() )
-			ret += "<structure>" + XMLUtils.clean(categoryTextBox.getText()) + "</structure>";
-		else
-			ret += "<structure>" + XMLUtils.clean(categoryText) + "</structure>";
-
-		ret += "<structure>" + dataDeficientListBox.getValue(dataDeficientListBox.getSelectedIndex()) + "</structure>";
-
-		return ret;
 	}
 
 	private void updateResult(String criteriaString, boolean isValidString) {

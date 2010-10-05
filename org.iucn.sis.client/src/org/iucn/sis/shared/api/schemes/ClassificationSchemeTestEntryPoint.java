@@ -37,7 +37,7 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 	public void buildPostLogin() {
 		String field = Window.Location.getParameter("field");
 		if (field == null) 
-			open("/org.iucn.sis.ClassificationSchemes/field/FAOOccurrence.xml");
+			open("/org.iucn.sis.ClassificationSchemes/field/System.xml");
 		else
 			open(UriBase.getInstance().getSISBase() + "/field/" + field);
 	}

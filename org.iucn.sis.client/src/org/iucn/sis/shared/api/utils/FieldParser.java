@@ -276,7 +276,7 @@ public class FieldParser {
 						}
 					}
 				}
-				System.out.println("For structure " + id + ", setting options to " + options);
+				System.out.println("For structure " + currentDisplayData.getUniqueId() + ", setting options to " + options);
 				currentDisplayData.setData(options);
 			}
 

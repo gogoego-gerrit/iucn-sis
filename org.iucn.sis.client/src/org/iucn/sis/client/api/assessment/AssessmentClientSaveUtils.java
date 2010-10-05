@@ -126,14 +126,18 @@ public class AssessmentClientSaveUtils {
 	protected static void saveWidgetDataToAssessment(final List<Display> fieldWidgets,
 			final Assessment assessmentToSave) {
 		
+		Debug.println("Saving assessment...");
 		for (Display cur : fieldWidgets) {
 			//Debug.println("Saving data to Field {0}: {1}", cur.getCanonicalName(), cur.getField().getPrimitiveField());
 			cur.save();
 			
 			Field curField = cur.getField();
-			if (curField.getPrimitiveField().size() == 0 && curField.getFields().size() == 0)
+			if (!curField.hasData()) {
+				Debug.println("+ Removing {0} because it doesn't have any data", curField.getId());
 				assessmentToSave.getField().remove(curField);
+			}
 			else {
+				Debug.println("+ Adding {0}", curField.getId());
 				assessmentToSave.getField().add(curField);
 				curField.setAssessment(assessmentToSave);
 			}

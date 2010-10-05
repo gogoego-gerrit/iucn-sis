@@ -75,8 +75,6 @@ public interface DisplayStructure<T, V> {
 	
 	public void setEnabled(boolean isEnabled);
 	
-	public void setId(String id);
-	
 	/**
 	 * Unhides a structure
 	 */

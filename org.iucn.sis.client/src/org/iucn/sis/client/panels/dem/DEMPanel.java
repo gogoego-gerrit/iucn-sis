@@ -23,6 +23,7 @@ import org.iucn.sis.client.panels.workflow.WorkflowNotesWindow;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -61,7 +62,6 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ClickListener;
@@ -810,7 +810,10 @@ public class DEMPanel extends LayoutContainer {
 	}
 
 	private void doPageChange(int page) {
-		if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl.getCurrentAssessment())) {
+		if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl
+				.getCurrentAssessment())) {
+			Info.display("Insufficient Permissions", "NOTICE: You do not have "
+					+ "permission to save modifications to this assessment.");
 			viewOnly = true;
 			toggleEditViewButton();
 		}
@@ -845,9 +848,12 @@ public class DEMPanel extends LayoutContainer {
 			samePage = ViewCache.impl.getCurrentView().getCurPage().equals(curPage);
 		} catch (Exception somethingsNull) {
 		}
+		
+		if (samePage)
+			return;
 
 		if (!viewOnly && ViewCache.impl.getCurrentView() != null && AssessmentClientSaveUtils.shouldSaveCurrentAssessment(
-				ViewCache.impl.getCurrentView().getCurPage().getMyFields()) && !samePage) {
+				ViewCache.impl.getCurrentView().getCurPage().getMyFields())) {
 			stopAutosaveTimer();
 
 			if (SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.PROMPT) == UserPreferences.PROMPT)
@@ -1014,7 +1020,7 @@ w.setSize(400, 250);
 	private void showCurrentAssessment(int page) {
 		if (!built)
 			return;
-		System.out.println("Redrawing DEM!");
+		Debug.println("Redrawing DEM!");
 
 		if (AssessmentCache.impl.getCurrentAssessment() == null) {
 			WindowUtils.infoAlert("Alert", "No assessment selected.");
@@ -1026,28 +1032,10 @@ w.setSize(400, 250);
 			scroller.removeAll();
 			scroller.layout();
 		} else {
-			if (lastAssessmentShown != null && AssessmentCache.impl.getCurrentAssessment().equals(lastAssessmentShown)) {
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl
-						.getCurrentAssessment())) {
-					Info.display("Insufficient Permissions", "NOTICE: You do not have "
-							+ "permission to save modifications to this assessment.");
-					viewOnly = true;
-				}
-				if (ViewCache.impl.needPageChange(currentView.getId(), page, viewOnly)) {
-					doPageChange(page);
-				}
-			} else {
+			if (lastAssessmentShown == null || !lastAssessmentShown.equals(AssessmentCache.impl.getCurrentAssessment()))
 				lastAssessmentShown = AssessmentCache.impl.getCurrentAssessment();
-
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl
-						.getCurrentAssessment())) {
-					Info.display("Insufficient Permissions", "NOTICE: You do not have "
-							+ "permission to save modifications to this assessment.");
-					viewOnly = true;
-				}
-
-				doPageChange(page);
-			}
+	
+			doPageChange(page);
 		}
 	}
 

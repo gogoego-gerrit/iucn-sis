@@ -97,20 +97,21 @@ public abstract class SISApplication extends GoGoEgoApplication {
 				RestletUtils.setHeader(response, MagicDisablingFilter.MAGIC_DISABLING_KEY, "true");
 				
 				final MediaType mt;
-				if (response.isEntityAvailable())
+				if (!response.isEntityAvailable())
 					mt = null;
-				else
+				else {
 					mt = response.getEntity().getMediaType();
 				
-				final Calendar cal = Calendar.getInstance();
-				if (mt == null)
-					cal.add(Calendar.DATE, -1);
-				else if (MediaType.TEXT_ALL.includes(mt))
-					cal.add(Calendar.HOUR, 24);
-				else
-					cal.add(Calendar.MONTH, 2);
-				
-				response.getEntity().setExpirationDate(cal.getTime());
+					final Calendar cal = Calendar.getInstance();
+					if (mt == null)
+						cal.add(Calendar.DATE, -1);
+					else if (MediaType.TEXT_ALL.includes(mt))
+						cal.add(Calendar.HOUR, 24);
+					else
+						cal.add(Calendar.MONTH, 2);
+					
+					response.getEntity().setExpirationDate(cal.getTime());
+				}
 				
 				final String noHandle = RestletUtils.getHeader(response, NO_TRANSACTION_HANDLE);
 				if (noHandle == null) {

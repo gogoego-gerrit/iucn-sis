@@ -16,7 +16,7 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.NotesCache;
-import org.iucn.sis.client.panels.ClientUIContainer;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.displays.RelatedDisplays;
 import org.iucn.sis.shared.api.structures.BooleanRule;
@@ -165,11 +165,16 @@ public class SISPageHolder extends TabPanel {
 				public void onSuccess(String arg0) {
 					for (Iterator<String> iter = fieldList.iterator(); iter.hasNext();) {
 						String displayName = iter.next();
-						Display dis = FieldWidgetCache.impl.get(displayName);
+						Display dis = null;
+						try {
+							dis = FieldWidgetCache.impl.get(displayName);
+						} catch (Throwable e) {
+							e.printStackTrace();
+						}
 						if (dis != null)
 							myFields.add(dis);
 						else
-							System.out.println("Null display - " + displayName);
+							Debug.println("PageHolder parsed null display - " + displayName);
 					}
 
 					// wayBack.onSuccess("OK");
@@ -589,11 +594,9 @@ public class SISPageHolder extends TabPanel {
 	}
 
 	public void removeMyFields() {
-		for (Iterator iter = myFields.iterator(); iter.hasNext();) {
-			Display dis = (Display) iter.next();
+		for (Display dis : myFields)
 			if (dis != null)
 				dis.removeStructures();
-		}
 	}
 
 	public void showPage(final DrawsLazily.DoneDrawingCallbackWithParam<TabPanel> callback) {
@@ -612,7 +615,12 @@ public class SISPageHolder extends TabPanel {
 
 			public void onSuccess(String arg0) {
 				// new GeneratePageTimer(viewOnly).schedule(500);
-				generatePage(viewOnly);
+				try {
+					generatePage(viewOnly);
+				} catch (Throwable e) {
+					e.printStackTrace();
+					GWT.log("Failed to generate page " + pageTitle, e);
+				}
 				WindowUtils.hideLoadingAlert();
 				
 				layout();

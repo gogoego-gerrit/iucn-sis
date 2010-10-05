@@ -19,6 +19,8 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class FieldDisplay extends Display {
 	
+	private HorizontalPanel displayPanel;
+	
 	public FieldDisplay() {
 		super();
 	}
@@ -84,6 +86,14 @@ public class FieldDisplay extends Display {
 				displayPanel.add((structure).generate());
 		}
 		return displayPanel;
+	}
+	
+	@Override
+	public void removeStructures() {
+		//Why all this instead of displayPanel.clear()?
+		if (displayPanel != null)
+			for (int i = 0; i < displayPanel.getWidgetCount(); i++)
+				displayPanel.getWidget(i).removeFromParent();
 	}
 
 	@Override

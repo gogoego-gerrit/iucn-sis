@@ -7,6 +7,7 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.ChangeListener;
@@ -27,9 +28,8 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 		// displayPanel = new ContentPanel();
 		buildContentPanel(Orientation.HORIZONTAL);
 
-		if (data != null)
-			if (data.toString().equalsIgnoreCase("true"))
-				defaultValue = true;
+		if ("true".equals(data))
+			defaultValue = true;
 	}
 
 	@Override
@@ -66,10 +66,6 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 		checkbox = new CheckBox();
 	}
 
-	public CheckBox getCheckbox() {
-		return checkbox;
-	}
-
 	public String getData() {
 		return new Boolean(checkbox.isChecked()).toString();
 	}
@@ -94,38 +90,25 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 
 	@Override
 	public boolean isActive(Rule activityRule) {
-		try {
+		if (activityRule != null && activityRule instanceof BooleanRule) {
 			if (((BooleanRule) activityRule).isTrue()) {
 				return checkbox.isChecked();
 			} else {
 				return !checkbox.isChecked();
 			}
-		} catch (Exception e) {
-			SysDebugger.getInstance().println("Oh no: " + e.getMessage());
-			e.printStackTrace();
-			return false;
 		}
+		else
+			return false;
 	}
 	
 	@Override
 	public void setData(PrimitiveField<Boolean> field) {
 		if (field != null)
-			checkbox.setValue((field.getValue()).booleanValue());
+			checkbox.setValue((field.getValue()).booleanValue());			
 	}
-
-	/*@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		if( data.containsKey(getId()) )
-			checkbox.setValue(((Boolean)(data.get(getId()).getValue())).booleanValue());
-	}*/
 
 	public void setEnabled(boolean isEnabled) {
 		this.checkbox.setEnabled(isEnabled);
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
 	}
 
 }// class SISBoolean

@@ -83,7 +83,7 @@ public abstract class Display implements Referenceable {
 	//protected Panel dockPanel;
 	// UI Display Vars
 	protected List<DisplayStructure> myStructures; // List of Structures
-	protected ComplexPanel displayPanel; // The panel to add a display to
+	//protected ComplexPanel displayPanel; // The panel to add a display to
 	protected HorizontalPanel iconPanel;
 	protected Image infoIcon = null;
 	protected Image helpIcon = null;
@@ -588,10 +588,7 @@ public abstract class Display implements Referenceable {
 		}
 	}
 
-	public void removeStructures() {
-		for (int i = 0; i < displayPanel.getWidgetCount(); i++)
-			displayPanel.getWidget(i).removeFromParent();
-	}
+	public abstract void removeStructures();
 
 	/*
 	 * public void revert() { for (int i = 0; i < myStructures.size(); i++) {
@@ -764,14 +761,5 @@ public abstract class Display implements Referenceable {
 	public Widget showViewOnly() {
 		return showDisplay(true);
 	}
-
-	//public abstract String toThinXML();
-
-	/**
-	 * Return the XML version of a Display
-	 * 
-	 * @return xml representation of a display
-	 */
-	//public abstract String toXML();
 
 }// class Display

@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,8 +31,70 @@ public class SISOptionsList extends Structure<Field> {
 	
 	@Override
 	public boolean hasChanged(Field field) {
-		// TODO Auto-generated method stub
-		return true;
+		Map<String, PrimitiveField> data;
+		if (field == null)
+			data = new HashMap<String, PrimitiveField>();
+		else
+			data = field.getKeyToPrimitiveFields();
+		
+		//super.setData(data);
+
+		String text = data.containsKey(TEXT_ACCOUNT_KEY) ? 
+				((StringPrimitiveField)data.get(TEXT_ACCOUNT_KEY)).getValue() : "";
+		List<Integer> fks = data.containsKey(FK_LIST_KEY) ? 
+				((ForeignKeyListPrimitiveField)data.get(FK_LIST_KEY)).getValue() : new ArrayList<Integer>();
+		
+		// FOR BACKWARDS COMPATIBILITY
+		if (!"".equals(text)) {
+			theList.setTextAreaEnabled(true);
+			theList.setUserText(text);
+		}
+
+		// FOR FORWARDS COMPATIBILITY =)
+		else {
+			theList.setTextAreaEnabled(false);
+			List<String> ids = new ArrayList<String>();
+			for( Integer fk : fks )
+				ids.add(fk.toString());
+			
+			theList.setUsersId(ids);
+		}
+		
+		if (theList.hasOldText()) {
+			String value = theList.getText();
+			if ("".equals(value))
+				value = null;
+			
+			String oldValue;
+			if (data.get(TEXT_ACCOUNT_KEY) != null)
+				oldValue = data.get(TEXT_ACCOUNT_KEY).getRawValue();
+			else
+				oldValue = null;
+			if ("".equals(oldValue))
+				oldValue = null;
+			
+			if (value == null)
+				return oldValue != null;
+			else
+				return !value.equals(oldValue);
+		}
+		else {
+			List<Integer> newValue = new ArrayList<Integer>();
+			for (User user : theList.getSelectedUsers())
+				newValue.add(Integer.valueOf(user.getId()));
+			
+			List<Integer> oldValue = null;
+			if (data.get(FK_LIST_KEY) != null)
+				oldValue = ((ForeignKeyListPrimitiveField)data.get(FK_LIST_KEY)).getValue();
+			
+			if (oldValue == null)
+				oldValue = new ArrayList<Integer>();
+			
+			if (newValue.isEmpty())
+				return !oldValue.isEmpty();
+			else
+				return !(newValue.size() == oldValue.size() && newValue.containsAll(oldValue));
+		}
 	}
 	
 	@Override
@@ -130,7 +193,11 @@ public class SISOptionsList extends Structure<Field> {
 	
 	@Override
 	public void setData(Field field) {
-		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		Map<String, PrimitiveField> data;
+		if (field == null)
+			data = new HashMap<String, PrimitiveField>();
+		else
+			data = field.getKeyToPrimitiveFields();
 		
 		//super.setData(data);
 
@@ -158,22 +225,6 @@ public class SISOptionsList extends Structure<Field> {
 
 	public void setEnabled(boolean isEnabled) {
 		
-	}
-
-	public String toXML() {
-		String ret = "";
-		if (theList.hasOldText())
-			ret += "<structure>" + XMLUtils.clean(theList.getText()) + "</structure>";
-		else
-			ret += "<structure>" + "</structure>";
-
-		ret += "<structure>" + theList.getSelectedUsers().size()
-				+ "</structure>\r\n";
-
-		for (User user : theList.getSelectedUsers())
-			ret += "<structure>" + user.getId() + "</structure>";
-
-		return ret;
 	}
 
 }

@@ -129,6 +129,13 @@ public class ClassificationScheme extends Display {
 		return panel;
 	}
 	
+	@Override
+	public void removeStructures() {
+		/*
+		 * Since we re-draw each time, no need for this implementation
+		 */
+	}
+	
 	private void buildReadOnlyContainer(VerticalPanel container) {
 		final List<ClassificationSchemeModelData> thinData = new ArrayList<ClassificationSchemeModelData>();
 		if (field != null && field.getFields() != null) {

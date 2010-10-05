@@ -226,9 +226,7 @@ public class AuthorizationCache {
 	}
 
 	public boolean hasRight(ClientUser user, String operation, AuthorizableObject auth) {
-		
 		if (permissionMaps.containsKey(user)) {			
-			
 			boolean ret = false;
 
 			//If it's a working set, test ownership first to escape early
@@ -240,10 +238,7 @@ public class AuthorizationCache {
 				ret = ret || PermissionUtils.checkMe(curGroup, auth, operation);
 				if( ret ) //SHORT CIRCUIT!
 					break;
-				
 			}
-			
-			System.out.println("From hasRight ret is " + ret);
 			return ret;
 		}
 		else

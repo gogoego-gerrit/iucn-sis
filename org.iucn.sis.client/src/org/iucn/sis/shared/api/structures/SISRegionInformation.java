@@ -57,8 +57,36 @@ public class SISRegionInformation extends Structure<Field> {
 
 	@Override
 	public boolean hasChanged(Field field) {
-		// TODO Auto-generated method stub
-		return true;
+		Map<String, PrimitiveField> data;
+		if (field == null)
+			data = new HashMap<String, PrimitiveField>();
+		else
+			data = field.getKeyToPrimitiveFields();
+		
+		String regionsSelected = getData();
+		if ("".equals(regionsSelected))
+			regionsSelected = null;
+		
+		boolean hasChanged = false;
+		if (data.get("regions") != null) {
+			String regionRaw = data.get("regions").getRawValue();
+			if ("".equals(regionRaw))
+				regionRaw = null;
+			
+			if (regionRaw == null && regionsSelected != null)
+				hasChanged = true;
+			else
+				hasChanged = !regionRaw.equals(regionsSelected);			
+		}
+		
+		Boolean endemicVal = endemic.getValue();
+		
+		if (!hasChanged && data.get("endemic") != null) {
+			Boolean val = ((BooleanPrimitiveField)data.get("endemic")).getValue();
+			hasChanged = !val.equals(endemicVal);
+		}
+		
+		return hasChanged;
 	}
 	
 	@Override
@@ -254,8 +282,8 @@ public class SISRegionInformation extends Structure<Field> {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(description);
 		return ret;
 	}
@@ -270,18 +298,20 @@ public class SISRegionInformation extends Structure<Field> {
 	@Override
 	public String getData() {
 		if (boxesToSelected.size() <= 0)
-			return "";
+			return null;
 
 		HashMap<Integer, String> alreadySeen = new HashMap<Integer, String>();
+		
 		StringBuilder select = new StringBuilder();
 		for (Entry<ComboBox<RegionModel>, RegionModel> curSelected : boxesToSelected.entrySet()) {
 			if (curSelected.getValue() != null) {
-				if (!alreadySeen.containsKey(curSelected.getValue().getRegion().getId())) {
-					if( alreadySeen.size() != 0 )
+				Integer identifier = curSelected.getValue().getRegion().getId();
+				if (!alreadySeen.containsKey(identifier)) {
+					if (!alreadySeen.isEmpty())
 						select.append(",");
 						
-					select.append(curSelected.getValue().getRegion().getId());
-					alreadySeen.put(curSelected.getValue().getRegion().getId(), "");
+					select.append(identifier);
+					alreadySeen.put(identifier, "");
 				}
 			}
 		}
@@ -304,11 +334,21 @@ public class SISRegionInformation extends Structure<Field> {
 	
 	@Override
 	public void setData(Field field) {
-		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
+		Map<String, PrimitiveField> data;
+		if (field == null)
+			data = new HashMap<String, PrimitiveField>();
+		else
+			data = field.getKeyToPrimitiveFields();
 		//super.setData(data);
 		
-		regionsSelected = ((ForeignKeyListPrimitiveField)data.get("regions")).getValue();
-		endemic.setValue(((BooleanPrimitiveField)data.get("endemic")).getValue());
+		if (data.containsKey("regions"))
+			regionsSelected = ((ForeignKeyListPrimitiveField)data.get("regions")).getValue();
+		else
+			regionsSelected = new ArrayList<Integer>();
+		
+		if (data.containsKey("endemic"))
+			endemic.setValue(((BooleanPrimitiveField)data.get("endemic")).getValue());
+		
 		refreshUI();
 	}
 
@@ -319,9 +359,4 @@ public class SISRegionInformation extends Structure<Field> {
 		}
 	}
 
-	public String toXML() {
-		String ret = "<structure>" + getData() + "</structure>\n";
-		ret += "<structure>" + endemic.getValue() + "</structure>\n";
-		return ret;
-	}
 }

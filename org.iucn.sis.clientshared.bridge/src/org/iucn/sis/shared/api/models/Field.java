@@ -272,6 +272,33 @@ public class Field implements Serializable {
 	public java.util.Set<Reference> getReference() {
 		return reference;
 	}
+	
+	public boolean hasData() {
+		boolean hasData = false;
+		if (primitiveField != null) {
+			for (PrimitiveField current : primitiveField) {
+				String value = current.getRawValue();
+				if ("".equals(value))
+					value = null;
+				
+				if (value != null) {
+					hasData = true;
+					break;
+				}
+			}
+		}
+		
+		if (hasData)
+			return true;
+		
+		if (fields != null) {
+			for (Field current : fields)
+				if (hasData = current.hasData())
+					break;
+		}
+		
+		return hasData;
+	}
 
 	public boolean isNarrativeField() {
 		return getName().endsWith("Documentation") || getName().equals(CanonicalNames.TaxonomicNotes) || getName().equals(CanonicalNames.RedListRationale);

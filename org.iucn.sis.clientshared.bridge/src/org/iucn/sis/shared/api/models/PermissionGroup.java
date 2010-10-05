@@ -164,7 +164,6 @@ public class PermissionGroup implements Serializable {
 			scope = current.getScopeURI();
 			current = current.getParent();
 		}
-		Debug.println("this is scope " + scope);
 		return scope;		
 	}
 

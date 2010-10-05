@@ -175,9 +175,9 @@ public class ViewCache {
 
 	public void showPage(String viewID, int pageNum, boolean viewOnly, 
 			DrawsLazily.DoneDrawingCallbackWithParam<TabPanel> callback) {
-		currentView = (SISView) views.get(viewID);
+		currentView = views.get(viewID);
 		lastPageViewed.put(viewID, new Integer(pageNum));
 		
-		((SISView) views.get(viewID)).showPage(pageNum, viewOnly, callback);
+		views.get(viewID).showPage(pageNum, viewOnly, callback);
 	}
 }

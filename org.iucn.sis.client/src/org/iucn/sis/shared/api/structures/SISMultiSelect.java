@@ -1,12 +1,13 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.data.LookupData;
 import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 
@@ -26,14 +27,13 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> implements DominantStructure<PrimitiveField<List<Integer>>> {
 
 	public static final String LISTBOX = "listbox";
 
 	private DataList list;
-	private ArrayList<String> checkedItems;
+	private HashSet<String> checkedItems;
 
 	public SISMultiSelect(String struct, String descript, String structID, Object data) {
 		super(struct, descript, structID, data);
@@ -111,19 +111,14 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 
 	@Override
 	public void createWidget() {
-		checkedItems = new ArrayList<String>();
+		checkedItems = new HashSet<String>();
 		
-		try {
-			descriptionLabel = new HTML(description);
-		} catch (Exception e) {
-			//FIXME: What could go wrong here??
-		}
+		descriptionLabel = new HTML(description);
 
 		list = new DataList() {
 			@Override
 			protected void afterRender() {
 				super.afterRender();
-
 				for (String checked : checkedItems) {
 					DataListItem item = list.getItemByItemId(checked);
 					if (item != null)
@@ -150,7 +145,7 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 		for (LookupDataValue value : myData.getValues()) {
 			DataListItem curItem = new DataListItem();
 			curItem.setText(value.getLabel());
-			curItem.setId(curItem.getId());
+			curItem.setItemId(value.getID());
 
 			list.add(curItem);
 		}
@@ -168,13 +163,15 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 
 		if (list.isVisible()) {
 			for (Iterator<DataListItem> iter = list.getChecked().iterator(); iter.hasNext(); )
-				builder.append(iter.next().getId() + (iter.hasNext() ? "," : ""));
+				builder.append(iter.next().getItemId() + (iter.hasNext() ? "," : ""));
 		} else {
 			for (Iterator<String> iter = checkedItems.iterator(); iter.hasNext(); )
 				builder.append(iter.next() + (iter.hasNext() ? "," : ""));
 		}
 
-		return builder.toString();
+		String value = builder.toString();
+		
+		return "".equals(value) ? null : value;
 	}
 
 	/**
@@ -226,28 +223,24 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 
 		List<Integer> keys = field != null ? field.getValue() : new ArrayList<Integer>();
 		
-		if (field != null) {
-			for (Integer index : field.getValue()) {
-				if (list.isRendered()) {
-					DataListItem item = list.getItemByItemId(index.toString());
-					if (item != null && !item.isChecked())
-						item.setChecked(true);
-				}
-				else
-					checkedItems.add(index.toString());
+		for (Integer index : keys) {
+			LookupData myData = (LookupData)data;
+			if (myData.getLabel("" + index) == null)
+				continue;
+			
+			if (list.isRendered()) {
+				DataListItem item = list.getItemByItemId(index.toString());
+				if (item != null && !item.isChecked())
+					item.setChecked(true);
 			}
+			else
+				checkedItems.add(index.toString());
 		}
-		
 	}
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		list.setEnabled(isEnabled);
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
-	
+	}	
 
 }

@@ -2,8 +2,6 @@ package org.iucn.sis.client.api.debug;
 
 import org.iucn.sis.shared.api.debug.Debugger;
 
-import com.extjs.gxt.ui.client.util.Format;
-
 public class HostedModeDebugger implements Debugger {
 	
 	@Override
@@ -26,7 +24,24 @@ public class HostedModeDebugger implements Debugger {
 		while (text.indexOf("%s") != -1 && count < limit)
 			text = text.replaceFirst("%s", "{" + (count++) + "}");
 		
-		System.out.println(Format.substitute(text, args));
+		System.out.println(substitute(text, args));
+	}
+	
+	private String substitute(String text, Object... params) {
+		for (int i = 0; i < params.length; i++) {
+			Object p = params[i];
+			if (p == null)
+				p = "null";
+			text = text.replaceAll("\\{" + i + "}", safeRegexReplacement(p.toString()));
+		}
+		return text;
+	}
+	
+	private String safeRegexReplacement(String replacement) {
+		if (replacement == null)
+			return replacement;
+
+		return replacement.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
 	}
 
 }
