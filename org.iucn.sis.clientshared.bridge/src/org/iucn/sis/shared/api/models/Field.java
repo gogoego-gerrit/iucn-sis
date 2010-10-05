@@ -167,7 +167,7 @@ public class Field implements Serializable {
 	public boolean equals(Object obj) {
 		if (obj instanceof Field) {
 			Field field = (Field) obj;
-			if (getName().equals(field.getName()) && 
+			if (id == (field.id) && getName().equals(field.getName()) && 
 					field.primitiveField.size() == getPrimitiveField().size() && 
 					getFields().size() == field.getFields().size()) {
 				Map<String, PrimitiveField> fieldPF = field.getKeyToPrimitiveFields();

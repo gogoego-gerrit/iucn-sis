@@ -71,17 +71,25 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	
 	@Override
 	public int hashCode() {
-		return getId();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
-		if( obj instanceof Assessment )
-			return ((Assessment) obj).getId() == getId();
-		else
-			return super.equals(obj);
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Assessment other = (Assessment) obj;
+		if (id != other.id)
+			return false;
+		return true;
 	}
-	
 	public String getCategoryAbbreviation() {
 		if( (Boolean)getPrimitiveValue(CanonicalNames.RedListCriteria, "isManual") )
 			return (String)getPrimitiveValue(CanonicalNames.RedListCriteria, "manualCategory");
