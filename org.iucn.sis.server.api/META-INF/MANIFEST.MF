@@ -34,5 +34,6 @@ Export-Package: org.iucn.sis.server.api.application,
 Import-Package: com.solertium.util.restlet,
  com.solertium.util.restlet.authentication,
  org.osgi.framework,
- org.postgresql
+ org.postgresql,
+ org.restlet.ext.xml
 Bundle-Vendor: IUCN

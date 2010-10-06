@@ -10,17 +10,16 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,7 +30,7 @@ import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFSPath;
 
-public class FieldRestlet extends ServiceRestlet {
+public class FieldRestlet extends BaseServiceRestlet {
 	// private String fullMasterList = "";
 	
 	private final FieldSchemaGenerator generator;
@@ -116,48 +115,38 @@ public class FieldRestlet extends ServiceRestlet {
 			return BaseDocumentUtils.impl.serializeDocumentToString(document, true, false);
 		}
 	}
-
+	
 	@Override
-	public void performService(Request request, Response response) {
-		if (Method.GET.equals(request.getMethod())) {
-			String fieldList = (String) request.getAttributes().get("fieldList");
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		String fieldList = (String) request.getAttributes().get("fieldList");
 		
-			List<String> fields;
-			if (fieldList.contains(","))
-				fields = Arrays.asList(fieldList.split(","));
-			else {
-				fields = new ArrayList<String>();
-				fields.add(fieldList);
-			}
+		List<String> fields;
+		if (fieldList.contains(","))
+			fields = Arrays.asList(fieldList.split(","));
+		else {
+			fields = new ArrayList<String>();
+			fields.add(fieldList);
+		}
+	
+		return getFields(fields);
+	}
+	
+	@Override
+	public void handlePost(Representation rep, Request request, Response response) throws ResourceException {
+		final Document entity = getEntityAsDocument(rep);
 		
-			response.setEntity(getFields(fields));
-			response.setStatus(Status.SUCCESS_OK);
+		final List<String> fields = new ArrayList<String>();
+		
+		final NodeCollection nodes = new NodeCollection(
+			entity.getDocumentElement().getChildNodes()
+		);
+		for (Node node : nodes) {
+			if ("field".equals(node.getNodeName()))
+				fields.add(node.getTextContent());
 		}
-		else if (Method.POST.equals(request.getMethod())) {
-			final Document entity;
-			try {
-				entity = new DomRepresentation(request.getEntity()).getDocument();
-			} catch (Exception e) {
-				response.setStatus(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-				return;
-			}
-			
-			final List<String> fields = new ArrayList<String>();
-			
-			final NodeCollection nodes = new NodeCollection(
-				entity.getDocumentElement().getChildNodes()
-			);
-			for (Node node : nodes) {
-				if ("field".equals(node.getNodeName()))
-					fields.add(node.getTextContent());
-			}
-			
-			response.setEntity(getFields(fields));
-			response.setStatus(Status.SUCCESS_OK);
-		}
-		else
-			response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
-
+		
+		response.setEntity(getFields(fields));
+		response.setStatus(Status.SUCCESS_OK);
 	}
 	
 	public Representation getFields(Collection<String> fieldNames) {
