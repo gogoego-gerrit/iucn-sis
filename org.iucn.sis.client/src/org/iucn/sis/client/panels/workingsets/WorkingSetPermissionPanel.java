@@ -31,7 +31,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel {
 		final String permGroupName = "ws" + WorkingSetCache.impl.getCurrentWorkingSet().getId();
 		final String query = "?quickgroup=" + permGroupName + "";
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.get(UriBase.getInstance().getSISBase() + BrowseUsersWindow.CONSTANTS_ATTACHMENT_POINT
+		document.get(UriBase.getInstance().getUserBase()
 				+ "/browse/profile" + query, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				draw();
@@ -86,7 +86,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel {
 		body.append("</updates>");
 
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.post(UriBase.getInstance().getUserBase() + BrowseUsersWindow.CONSTANTS_ATTACHMENT_POINT + "/list/batch", body.toString(),
+		document.post(UriBase.getInstance().getUserBase() + "/list/batch", body.toString(),
 				new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				Info.display("Error", "Could not save changes, please try again later.");
@@ -234,7 +234,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel {
 		body.append("</updates>");
 
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.post(UriBase.getInstance().getUserBase() + BrowseUsersWindow.CONSTANTS_ATTACHMENT_POINT + "/list/batch", body.toString(),
+		document.post(UriBase.getInstance().getUserBase() + "/list/batch", body.toString(),
 				new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				Info.display("Error", "Could not save changes, please try again later.");

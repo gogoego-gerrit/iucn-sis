@@ -144,9 +144,6 @@ public abstract class BrowseUsersWindow extends Window {
 			return c.compare(m1.get("name"), m2.get("name"));
 		}
 	}
-	
-	public static final String CONSTANTS_ATTACHMENT_POINT = "";
-	
 
 	private final ListView<SearchResults> results, selected, recent;
 	private final String basicInstructions;
@@ -423,16 +420,16 @@ public abstract class BrowseUsersWindow extends Window {
 			final Iterator<Map.Entry<String, List<String>>> iter = params.entrySet().iterator();
 			while (iter.hasNext()) {
 				Map.Entry<String, List<String>> entry = iter.next();
-				for (String value : entry.getValue()) {
-					query += entry.getKey() + "=" + value;
-					query += "&";
+				for (Iterator<String> valIter = entry.getValue().iterator(); valIter.hasNext(); ) {
+					query += entry.getKey() + "=" + valIter.next();
+					if (valIter.hasNext())
+						query += "&";
 				}
-
 			}
 		}
 
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.get(UriBase.getInstance().getSISBase() + CONSTANTS_ATTACHMENT_POINT
+		document.get(UriBase.getInstance().getUserBase()
 				+ "/browse/profile" + query, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				callback.onFailure(caught);

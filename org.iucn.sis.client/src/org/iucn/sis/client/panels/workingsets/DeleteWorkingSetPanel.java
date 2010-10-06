@@ -216,7 +216,7 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 		final String permGroupName = "ws" + wsID;
 		final String query = "?quickgroup=" + permGroupName + "";
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.get(UriBase.getInstance().getSISBase() + BrowseUsersWindow.CONSTANTS_ATTACHMENT_POINT
+		document.get(UriBase.getInstance().getUserBase()
 				+ "/browse/profile" + query, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 			}

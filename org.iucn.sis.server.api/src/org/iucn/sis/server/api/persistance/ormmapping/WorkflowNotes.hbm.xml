@@ -6,11 +6,11 @@
 			<generator class="native">
 			</generator>
 		</id>
-		<property name="scope" column="status" type="string" length="255" not-null="true" lazy="false" />
+		<property name="scope" column="scope" type="string" length="255" not-null="true" lazy="false" />
 		<property name="comment" column="comment" type="string" length="1023" not-null="true" lazy="false" />
 		<property name="date" column="date" type="java.util.Date" not-null="true" lazy="false" />
 		<many-to-one name="workflowStatus" cascade="lock" column="workflowstatusid" class="org.iucn.sis.shared.api.models.WorkflowNote" not-null="true" lazy="no-proxy"/>
-		<many-to-one name="user" cascade="lock" column="usersid" class="org.iucn.sis.shared.api.models.User" not-null="true" lazy="no-proxy"/>
+		<many-to-one name="user" cascade="lock" column="userid" class="org.iucn.sis.shared.api.models.User" not-null="true" lazy="no-proxy"/>
 		
 	</class>	
 </hibernate-mapping>

@@ -124,7 +124,7 @@ public abstract class CustomFieldCreator extends Window {
 
 	private void addNew() {
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.put(UriBase.getInstance().getRecentAssessmentsBase() + BrowseUsersWindow.CONSTANTS_ATTACHMENT_POINT + "/manager/custom", getXML(),
+		document.put(UriBase.getInstance().getUserBase() + "/manager/custom", getXML(),
 				new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {
 						WindowUtils.errorAlert("Error", "Could not save, please try again later.");
@@ -297,7 +297,7 @@ public abstract class CustomFieldCreator extends Window {
 
 	private void updateExisting() {
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.post(UriBase.getInstance().getUserBase() + BrowseUsersWindow.CONSTANTS_ATTACHMENT_POINT + "/manager/custom/" + id, getXML(),
+		document.post(UriBase.getInstance().getUserBase() + "/manager/custom/" + id, getXML(),
 				new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {
 						WindowUtils.errorAlert("Error", "Could not save, please try again later.");

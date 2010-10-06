@@ -133,7 +133,7 @@ public class CustomFieldViewPanel extends LayoutContainer implements HasRefresha
 					@Override
 					public void onYes() {
 						final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-						document.delete(UriBase.getInstance().getUserBase() + BrowseUsersWindow.CONSTANTS_ATTACHMENT_POINT + "/manager/custom/"
+						document.delete(UriBase.getInstance().getUserBase() + "/manager/custom/"
 								+ selected.get("id"), new GenericCallback<String>() {
 							public void onFailure(Throwable caught) {
 								WindowUtils.errorAlert("Error", "Could not remove field, please try again later.");
@@ -221,7 +221,7 @@ public class CustomFieldViewPanel extends LayoutContainer implements HasRefresha
 	private void populateStore() {
 		center.removeAll();
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
-		document.get(UriBase.getInstance().getUserBase() + BrowseUsersWindow.CONSTANTS_ATTACHMENT_POINT + "/dump/customfield", new GenericCallback<String>() {
+		document.get(UriBase.getInstance().getUserBase() + "/dump/customfield", new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				add(new HTML("Could not load custom fields."));
 			}
