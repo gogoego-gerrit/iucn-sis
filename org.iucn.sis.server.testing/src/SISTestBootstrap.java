@@ -52,6 +52,12 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 			new org.iucn.sis.server.extensions.images.ServerActivator().getApplicationFactory().newInstance());
 		map.put("org.iucn.sis.server.extensions.integrity", 
 			new org.iucn.sis.server.extensions.integrity.ServerActivator().getApplicationFactory().newInstance());
+		map.put("org.iucn.sis.server.extensions.workflow", 
+			new org.iucn.sis.server.extensions.workflow.ServerActivator().getApplicationFactory().newInstance());
+		map.put("org.iucn.sis.server.extensions.user", 
+			new org.iucn.sis.server.extensions.user.application.ServerActivator().getApplicationFactory().newInstance());
+		map.put("org.iucn.sis.server.extensions.zendesk", 
+			new org.iucn.sis.server.extensions.zendesk.ServerActivator().getApplicationFactory().newInstance());
 		
 		//TODO add additional plugins
 		
