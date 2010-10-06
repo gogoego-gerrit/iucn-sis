@@ -87,6 +87,15 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableBoolean((String) rawData.get(offset)));
 		return ++offset;
 	}
+	
+	@Override
+	public boolean hasChanged(PrimitiveField<Boolean> field) {
+		boolean oldValue = field == null ? defaultValue : field.getValue();
+		
+		boolean newValue = checkbox.isChecked();
+		
+		return oldValue != newValue;
+	}
 
 	@Override
 	public boolean isActive(Rule activityRule) {
