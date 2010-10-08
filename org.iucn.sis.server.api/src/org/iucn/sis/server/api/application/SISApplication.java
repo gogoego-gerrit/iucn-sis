@@ -92,7 +92,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	private Restlet getInteralRouter() {
 		Router router = new FastRouter(app.getContext());
 		
-		BaseServiceRestlet restlet = new SettingsRestlet(getVFS(), app.getContext(), getSettingsKeys());
+		BaseServiceRestlet restlet = new SettingsRestlet(null, app.getContext(), getSettingsKeys());
 		
 		for (String path : restlet.getPaths())
 			router.attach(path, restlet);
