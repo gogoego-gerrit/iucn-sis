@@ -230,6 +230,7 @@ CREATE TABLE ThreatsLookup (id integer auto_increment primary key, code varchar(
 CREATE TABLE Threats_timingLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE Threats_scopeLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE Threats_severityLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE Threats_ancestryLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE StressesLookup (id integer auto_increment primary key, code varchar(63), parentID varchar(63), level integer, codeable tinyint, ref varchar(63), description varchar(255));
 CREATE TABLE Threats (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE ThreatsSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
