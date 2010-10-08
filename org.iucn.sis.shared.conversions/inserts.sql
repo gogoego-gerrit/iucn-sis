@@ -1245,12 +1245,13 @@ INSERT INTO LandCoverLookup (code, parentID, level, codeable, ref, description) 
 INSERT INTO LandCoverLookup (code, parentID, level, codeable, ref, description) VALUES('21', '(root)', 0, true, '21', 'Snow and Ice (natural & artificial)');
 INSERT INTO LandCoverLookup (code, parentID, level, codeable, ref, description) VALUES('22', '(root)', 0, true, '22', 'Artificial surfaces and associated areas');
 INSERT INTO LandCoverLookup (code, parentID, level, codeable, ref, description) VALUES('23', '(root)', 0, true, '23', 'Unknown');
-INSERT INTO LandCover_nullLookup (name, label) VALUES ('0', 'Suitable');
-INSERT INTO LandCover_nullLookup (name, label) VALUES ('1', 'Moderately Suitable');
-INSERT INTO LandCover_nullLookup (name, label) VALUES ('2', 'Unsuitable');
-INSERT INTO LandCover_nullLookup (name, label) VALUES ('3', 'Undefined');
+INSERT INTO LandCover_suitabilityLookup (name, label) VALUES ('0', 'Suitable');
+INSERT INTO LandCover_suitabilityLookup (name, label) VALUES ('1', 'Moderately Suitable');
+INSERT INTO LandCover_suitabilityLookup (name, label) VALUES ('2', 'Unsuitable');
+INSERT INTO LandCover_suitabilityLookup (name, label) VALUES ('3', 'Undefined');
 INSERT INTO LandCover (name, data_type, number_allowed) VALUES ('LandCoverSubfield', 'field', '*');
 INSERT INTO LandCoverSubfield (name, data_type, number_allowed) VALUES ('LandCoverLookup', 'fk_primitive_field', '1');
+INSERT INTO LandCoverSubfield (name, data_type, number_allowed) VALUES ('suitability', 'fk_primitive_field', '?');
 INSERT INTO LargeMarineEcosystemsLookup (code, parentID, level, codeable, ref, description) VALUES('1', '(root)', 0, false, '1', 'Polar Biome');
 INSERT INTO LargeMarineEcosystemsLookup (code, parentID, level, codeable, ref, description) VALUES('2', '1', 1, false, '1.1', 'Boreal Provinces');
 INSERT INTO LargeMarineEcosystemsLookup (code, parentID, level, codeable, ref, description) VALUES('3', '2', 2, true, '1.1.1', 'Hudson Bay');

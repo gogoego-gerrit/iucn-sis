@@ -89,7 +89,7 @@ CREATE TABLE Lakes_originLookup(id integer auto_increment primary key, name varc
 CREATE TABLE Lakes (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE LakesSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE LandCoverLookup (id integer auto_increment primary key, code varchar(63), parentID varchar(63), level integer, codeable tinyint, ref varchar(63), description varchar(255));
-CREATE TABLE LandCover_nullLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE LandCover_suitabilityLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE LandCover (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE LandCoverSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE LargeMarineEcosystemsLookup (id integer auto_increment primary key, code varchar(63), parentID varchar(63), level integer, codeable tinyint, ref varchar(63), description varchar(255));
