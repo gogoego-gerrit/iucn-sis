@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
+import org.iucn.sis.server.api.fields.definitions.FieldDefinitionLoader;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Context;
@@ -26,12 +27,9 @@ import org.w3c.dom.Node;
 
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.NodeCollection;
-import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.NotFoundException;
-import com.solertium.vfs.VFSPath;
 
 public class FieldRestlet extends BaseServiceRestlet {
-	// private String fullMasterList = "";
 	
 	private final FieldSchemaGenerator generator;
 
@@ -56,59 +54,51 @@ public class FieldRestlet extends BaseServiceRestlet {
 	}
 
 	private String getFieldAsString(String fieldName) throws IOException {
-		VFSPath path = new VFSPath("/browse/docs/fields/" + fieldName);
-		if (!vfs.exists(path))
-			path = new VFSPath("/browse/docs/fields/" + fieldName + ".xml");
-		if (!vfs.exists(path))
-			throw new NotFoundException();
+		Document document = FieldDefinitionLoader.get(fieldName);
 		
-		//final String xml = vfs.getString(path).replaceAll("<\\?xml\\s*(version=.*)?\\s*(encoding=.*)?\\?>", "");
-				
 		if (generator == null)
-			return vfs.getString(path).replaceAll("<\\?xml\\s*(version=.*)?\\s*(encoding=.*)?\\?>", "");
+			return BaseDocumentUtils.impl.serializeDocumentToString(document, true, false);
 		else {
-			final Document document = vfs.getMutableDocument(path);
+			//Append field definition
+			/*try {
+				content.append(generator.getField(fieldName).toXML("definition"));
+			} catch (Exception e) {
+				e.printStackTrace();
+				TrivialExceptionHandler.ignore(this, e);
+			}*/
+		
+			//Append lookup table info
+			Map<String, Map<Integer, String>> lookups = null;;
+			try {
+				lookups = generator.scanForLookups(fieldName);
+			} catch (Exception e) {
+				Debug.println(e);
+			}
 			
-			if (generator != null) {
-				/*try {
-					content.append(generator.getField(fieldName).toXML("definition"));
-				} catch (Exception e) {
-					e.printStackTrace();
-					TrivialExceptionHandler.ignore(this, e);
-				}*/
+			if (lookups != null) {
+				for (Map.Entry<String, Map<Integer, String>> entry : lookups.entrySet()) {
+					final Element lookupEl = document.createElement("lookup");
+					lookupEl.setAttribute("id", entry.getKey());
+					
+					for (Map.Entry<Integer, String> options : entry.getValue().entrySet()) {
+						final Element option = BaseDocumentUtils.impl.createCDATAElementWithText(
+							document, "option", options.getValue()
+						);
+						option.setAttribute("id", options.getKey().toString());
+						
+						lookupEl.appendChild(option);
+					}
+					
+					document.getDocumentElement().appendChild(lookupEl);
+				}
+			}
 			
-				Map<String, Map<Integer, String>> lookups = null;;
+			//Add classification scheme info
+			if (document.getElementsByTagName("tree").getLength() > 0) {
 				try {
-					lookups = generator.scanForLookups(fieldName);
+					generator.appendCodesForClassificationScheme(document, fieldName);
 				} catch (Exception e) {
 					e.printStackTrace();
-					TrivialExceptionHandler.ignore(this, e);
-				}
-				
-				if (lookups != null) {
-					for (Map.Entry<String, Map<Integer, String>> entry : lookups.entrySet()) {
-						final Element lookupEl = document.createElement("lookup");
-						lookupEl.setAttribute("id", entry.getKey());
-						
-						for (Map.Entry<Integer, String> options : entry.getValue().entrySet()) {
-							final Element option = BaseDocumentUtils.impl.createCDATAElementWithText(
-								document, "option", options.getValue()
-							);
-							option.setAttribute("id", options.getKey().toString());
-							
-							lookupEl.appendChild(option);
-						}
-						
-						document.getDocumentElement().appendChild(lookupEl);
-					}
-				}
-				
-				if (document.getElementsByTagName("tree").getLength() > 0) {
-					try {
-						generator.appendCodesForClassificationScheme(document, fieldName);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 				}
 			}
 			
@@ -155,9 +145,9 @@ public class FieldRestlet extends BaseServiceRestlet {
 			try {
 				ret.append(getFieldAsString(field));
 			} catch (NotFoundException e) {
-				Debug.println("Field " + field + " not found!  Skipping...");
+				Debug.println("Field {0} not found!  Skipping...", field);
 			} catch (IOException e) {
-				Debug.println("Field " + field + " not added!  Skipping...");
+				Debug.println("Field {0} not added!  Skipping...", field);
 			}
 		}
 		ret.append("</fields>");
