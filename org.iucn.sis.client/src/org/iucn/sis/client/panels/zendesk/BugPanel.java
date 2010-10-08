@@ -6,25 +6,32 @@ import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.widget.Window;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.SourcesTableEvents;
-import com.google.gwt.user.client.ui.TableListener;
+import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.extjs.client.WindowUtils;
 
-public class BugPanel extends RefreshPortlet{
-	private final String rule;
+public class BugPanel extends RefreshPortlet {
+	
 	private static final int NUMBEROFBUGTODISPLAY = 10;
+	
+	private final String rule;
+	
+	@SuppressWarnings("unused")
 	private PanelManager panelManager;
 	private VerticalPanel content;
-	private NativeDocument buglist;
+	private NativeDocument buglist = null;
 	
 	static class Bug {
 		public String subject = "";
@@ -47,35 +54,33 @@ public class BugPanel extends RefreshPortlet{
 		setHeading(header);
 		content = new VerticalPanel();
 		add(content);
-		buglist = SimpleSISClient.getHttpBasicNativeDocument();
-		buglist.get(UriBase.getInstance().getZendeskBase() + "/zendesk/rules/"+ rule, new GenericCallback<String>() {
-			
-			public void onSuccess(String result) {
-				loadBugs();
-				layout();
-				
-			}
-			
-			public void onFailure(Throwable caught) {
-				caught.printStackTrace();
-				
-			}
-		});
+		
+		refresh();
 	}
+	
 	@Override
 	public void refresh() {
 		content.clear();
-		loadBugs();
 		
+		if (buglist != null)
+			loadBugs(buglist);
+		else {
+			buglist = SimpleSISClient.getHttpBasicNativeDocument();
+			buglist.get(UriBase.getInstance().getZendeskBase() + "/zendesk/rules/"+ rule, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					loadBugs(buglist);
+				}
+				public void onFailure(Throwable caught) {
+					caught.printStackTrace();
+				}
+			});
+		}
 	}
 	
-
-	
-	private void loadBugs() {
+	private void loadBugs(NativeDocument buglist) {
+		final NativeNodeList tickets = buglist.getDocumentElement().getElementsByTagName("ticket");
 		
-		NativeNodeList tickets = buglist.getDocumentElement().getElementsByTagName("ticket");
-		
-		final ArrayList bugArrayList = new ArrayList();
+		final ArrayList<Bug> bugArrayList = new ArrayList<Bug>();
 		
 		final Grid bugTable = new Grid(1, 3);
 		bugTable.setWidget(0, 0, new HTML("<b>Id</b>"));
@@ -90,7 +95,6 @@ public class BugPanel extends RefreshPortlet{
 				String from = message.getElementByTagName("req-name").getText();
 				String nid = message.getElementByTagName("nice-id").getText();
 				bugArrayList.add(new Bug(subject, date, from, nid));
-
 			}
 
 			int nm = tickets.getLength();
@@ -99,41 +103,38 @@ public class BugPanel extends RefreshPortlet{
 
 			bugTable.resize(nm + 1, 3);
 			for (int i = 0; i < nm; i++) {
-				bugTable.setWidget(i + 1, 0, new HTML(((Bug) bugArrayList.get(i)).niceId));
-				bugTable.setWidget(i + 1, 1, new HTML(((Bug) bugArrayList.get(i)).subject));
-				bugTable.setWidget(i + 1, 2, new HTML(((Bug) bugArrayList.get(i)).from));
+				bugTable.setWidget(i + 1, 0, new HTML(bugArrayList.get(i).niceId));
+				bugTable.setWidget(i + 1, 1, new HTML(bugArrayList.get(i).subject));
+				bugTable.setWidget(i + 1, 2, new HTML(bugArrayList.get(i).from));
 				bugTable.getRowFormatter().addStyleName(i + 1, "pointerCursor");
-
 			}
-
-			bugTable.addTableListener(new TableListener() {
-				public void onCellClicked(SourcesTableEvents sender, final int row, int cell) {
-					final Window w = new Window(){
-						@Override
-						public void close() {
-							logout();
-//							Cookies.setCookie("_zendesk_session", "", new Date(0), "iucnsis.zendesk.org", "/", false);
-							Cookies.removeCookie("_zendesk_session");
-							super.close();
-						}
-					};
-getCredentials(new GenericCallback<String>() {
-						
+			
+			bugTable.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					final Cell cell = bugTable.getCellForEvent(event);
+					if (cell == null)
+						return;
+					
+					getCredentials(new GenericCallback<String>() {
 						public void onFailure(Throwable caught) {
-							// TODO Auto-generated method stub
-							
+							//TODO: pull site from settings.
+							WindowUtils.errorAlert("Could not load or authenticate you, please visit http://iucnsis.zendesk.com directly.");
 						}
-						
 						public void onSuccess(String result) {
-							w.setUrl("http://iucnsis.zendesk.com/tickets/"+bugTable.getText(row, 0)+"/"+result);
+							final Window w = new Window(){
+								public void hide() {
+									logout();
+//									Cookies.setCookie("_zendesk_session", "", new Date(0), "iucnsis.zendesk.org", "/", false);
+									Cookies.removeCookie("_zendesk_session");
+									super.hide();
+								}
+							};
+							w.setUrl("http://iucnsis.zendesk.com/tickets/"+bugTable.getText(cell.getRowIndex(), 0)+"/"+result);
 							w.setSize(800, 600);
 							w.show();
-							
 						}
 					});
-					
 				}
-
 			});
 
 			bugTable.getColumnFormatter().setWidth(0, "15%");
@@ -142,15 +143,8 @@ getCredentials(new GenericCallback<String>() {
 
 			bugTable.setBorderWidth(1);
 
-			layout();
-
 			content.add(bugTable);
 		}
-
-		else {
-
-		}
-
 	}
 	
 	private void getCredentials(final GenericCallback<String> callback){
@@ -160,42 +154,35 @@ getCredentials(new GenericCallback<String>() {
 		//String external_id = String.valueOf(SimpleSISClient.currentUser.getId());
 		
 		String xml = "<root><user name=\""+name+"\" email=\""+email+"\" organization=\""+organization+"\"/></root>";
-		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 		
-		doc.postAsText(UriBase.getInstance().getZendeskBase() + "/zendesk/authn", xml, new GenericCallback<String>() {
+		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+		doc.postAsText(UriBase.getInstance().getZendeskBase() + "/zendesk/login", xml, new GenericCallback<String>() {
 			public void onSuccess(String result) {
-				callback.onSuccess(doc.getText());
-				
+				callback.onSuccess(doc.getText());				
 			}
 			public void onFailure(Throwable caught) {
-				caught.printStackTrace();
-				
+				callback.onFailure(caught);
 			}
 		});
-
-		
 	}
 
-
-	private void logout(){
+	private void logout() {
 		final String email = SimpleSISClient.currentUser.getEmail();
 		final String name = SimpleSISClient.currentUser.getFirstName() + " " +  SimpleSISClient.currentUser.getLastName();
 		String organization = SimpleSISClient.currentUser.getAffiliation();
 		//String external_id = String.valueOf(SimpleSISClient.currentUser.getId());
 		
 		String xml = "<root><user name=\""+name+"\" email=\""+email+"\" organization=\""+organization+"\"/></root>";
-		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 		
+		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 		doc.postAsText(UriBase.getInstance().getZendeskBase() +"/zendesk/logout", xml, new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				//callback.onSuccess(doc.getText());
-				
+				Debug.println("Zendesk Logout successful");
 			}
 			public void onFailure(Throwable caught) {
-				caught.printStackTrace();
-				
+				Debug.println(caught);				
 			}
 		});
-
 	}
 }

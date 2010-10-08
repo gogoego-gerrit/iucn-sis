@@ -6,8 +6,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
-import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.data.ChallengeResponse;
@@ -19,26 +19,21 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
-import org.restlet.representation.StringRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.solertium.util.restlet.RestletUtils;
 
-public class ZendeskResource extends ServiceRestlet{
+public class ZendeskResource extends BaseServiceRestlet {
 	
-	private final static int NEW     = 0;
-	private final static int OPEN    = 1;
-	private final static int PENDING = 2;
-	private final static int SOLVED  = 3;
-	private final static int CLOSED  = 4;
-	
-	private final String baseUrl = "http://support.iucnsis.org";
+	private final Client client;
 	
 	public ZendeskResource(Context context) {
 		super(context);
-		
+		client = new Client(Protocol.HTTP);
 	}
 	
 	@Override
@@ -48,208 +43,195 @@ public class ZendeskResource extends ServiceRestlet{
 		
 	}
 	
-	@Override
-	public void performService(Request request, Response response) {
-		if(request.getMethod().equals(Method.POST)) handlePost(request, response);
-		if(request.getMethod().equals(Method.GET))  handleGet(request, response);
-		if(request.getMethod().equals(Method.PUT))  handlePut(request, response);
-		if(request.getMethod().equals(Method.DELETE))  handleDelete(request, response);
-	}
-	
-	private void handleGet(Request request, Response response){
-		String action = (String)request.getAttributes().get("action");
-		String url="";
-		if(action.equals("users")) url = "/user.xml";
-		if(action.equals("tickets")) url = "/ticket.xml";
-		if(action.equals("rules")){
-			String id = (String)request.getAttributes().get("id");
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		final String action = (String)request.getAttributes().get("action");
+		final String id = (String)request.getAttributes().get("id");
+		
+		final String url;
+		if ("users".equals(action))
+			url = "/user.xml";
+		else if ("rules".equals(action)) {
+			if (id == null)
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 			url = "/rules/"+id+".xml";
 		}
-		Request req = new Request(Method.GET, baseUrl+url);
-		req.setChallengeResponse(new ChallengeResponse(ChallengeScheme.HTTP_BASIC, "sisproject@solertium.com", "s3cr3t"));
+		else
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
-		Client client = new Client(Protocol.HTTP);
+		final Request req = newRequest(Method.GET, url);
 		
 		Response res = client.handle(req);
-		StringRepresentation ent = new StringRepresentation(res.getEntityAsText());
-		ent.setMediaType(MediaType.TEXT_XML);
-		response.setEntity(ent);
-	}
-	
-	private void handlePut(Request request, Response response){
 		
+		if (res.getStatus().isSuccess())
+			return res.getEntity();
+		else
+			throw new ResourceException(res.getStatus());
 	}
 	
-	private void handlePost(Request request, Response response){
-		try{
-			String url="";
-			String action = (String)request.getAttributes().get("action");
-			if(action.equals("authn")) {
-				validateLogin(request, response);
-				return;
-			}
-			if(action.equals("remove")) {
-				removeUser(request, response);
-				return;
-			}
-			if(action.equals("logout")) {
-				logout(request, response);
-				return;
-			}
-			if(action.equals("users")) url = "/user.xml";
-			if(action.equals("tickets")) url = "/tickets.xml";
-			
-			Request req = new Request(Method.POST, baseUrl+url);
-			
-			String ent = request.getEntityAsText();
-			StringRepresentation rep = new StringRepresentation(ent);
-			rep.setMediaType(MediaType.TEXT_XML);
-			
-			req.setEntity(rep);
-			
-			RestletUtils.setHeader(req, "Content-Length", String.valueOf(ent.length()));
-			Client client = new Client(Protocol.HTTP);
-			
-			client.handle(req);
+	@Override
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		final String action = (String)request.getAttributes().get("action");
+		if ("login".equals(action)) {
+			validateLogin(entity, request, response);
 		}
-		catch (Exception e) {
-			e.printStackTrace();
+		else if ("remove".equals(action)) {
+			removeUser(entity, request, response);
 		}
-	}
-
-	
-	private void handleDelete(Request request, Response response){
+		else if (action.equals("logout")) {
+			logout(entity, request, response);
+		}
+		else {
+			final String url;
 		
-			String url="";
-			String action = (String)request.getAttributes().get("action");
-			String id = (String)request.getAttributes().get("id");
-			deleteUser(id, response);
-			
-	}
-	
-	private void logout(Request request, Response response){
-		String xml = request.getEntityAsText();
-		try{
-			  Document doc = DocumentUtils.createDocumentFromString(xml);
-			  Element el = (Element)doc.getDocumentElement().getElementsByTagName("user").item(0);
-	 
-			  String email = URLEncoder.encode(el.getAttribute("email"), "UTF-8");
-			  if(email.equals("admin")){
-				  email="sisproject@solertium.com";
-			  }
-			  			  
-			  Request req = new Request(Method.GET, baseUrl+"/access/logout");
-			  Client client = new Client(Protocol.HTTP);
-			  Response res = client.handle(req);
-			  response.setStatus(Status.SUCCESS_OK);
-			
-			  
-		}
-		catch (Exception e) {
-			// TODO: handle exception
-		}
+			if ("users".equals(action)) 
+				url = "/user.xml";
+			else if ("tickets".equals(action)) 
+				url = "/tickets.xml";
+			else
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		
-	}
-	
-	private void removeUser(Request request, Response response){
-		String xml = request.getEntityAsText();
-		try{
-			  Document doc = DocumentUtils.createDocumentFromString(xml);
-			  Element el = (Element)doc.getDocumentElement().getElementsByTagName("user").item(0);
-	 
-			  String email = el.getAttribute("email");;
-			  if(email.equals("admin")){
-				  response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
-			  }
-			  			  
-			  Request req = new Request(Method.GET, baseUrl+"/users.xml?role=0");
-			  req.setChallengeResponse(new ChallengeResponse(ChallengeScheme.HTTP_BASIC, "sisproject@solertium.com", "s3cr3t"));
-			  Client client = new Client(Protocol.HTTP);
-			  Response res = client.handle(req);
-			  DomRepresentation dr = new DomRepresentation(res.getEntity());
-			  Document userDoc = dr.getDocument();
-			  
-			  NodeList list= userDoc.getDocumentElement().getElementsByTagName("user");
-			  for(int i=0;i<list.getLength();i++){
-				 Element uel = (Element)list.item(i);
-				 String uemail = uel.getElementsByTagName("email").item(0).getTextContent();
-				 String id = uel.getElementsByTagName("id").item(0).getTextContent();
-				 if(uemail. equals(email)){
-					 deleteUser(id, response);
-				 }
-			  }
-			  
-			  response.setStatus(Status.SUCCESS_OK);  
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-	}
-	
-	private void deleteUser(String id, Response response){
-		try{
-			String url = "/users/"+id+".xml";
-			
-			Request req = new Request(Method.DELETE, baseUrl+url);
-			req.setChallengeResponse(new ChallengeResponse(ChallengeScheme.HTTP_BASIC, "sisproject@solertium.com", "s3cr3t"));
-			Client client = new Client(Protocol.HTTP);
-			
+			Request req = newRequest(Method.POST, url);
+			req.setEntity(entity);
+			RestletUtils.setHeader(req, "Content-Length", String.valueOf(entity.getSize()));
 			
 			Response res = client.handle(req);
-			if(res.getStatus()!=Status.SUCCESS_OK) response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			
+			response.setStatus(res.getStatus());
+			response.setEntity(res.getEntity());
 		}
-		catch (Exception e) {
-			e.printStackTrace();
+	}
+
+	public void handleDelete(Request request, Response response) throws ResourceException {
+		String id = (String)request.getAttributes().get("id");
+		if (id == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		
+		deleteUser(id, response);
+	}
+	
+	private void logout(Representation entity, Request request, Response response) throws ResourceException {
+		Document doc = getEntityAsDocument(entity);
+		
+		Element el = (Element)doc.getDocumentElement().getElementsByTagName("user").item(0);
+	 
+		String email;
+		try {
+			email = URLEncoder.encode(el.getAttribute("email"), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		if (email.equals("admin"))
+			email = SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com");
+	
+		Request req = newRequest(Method.GET, "/access/logout");
+			
+		Response res = client.handle(req);
+		
+		response.setStatus(res.getStatus());
+		response.setEntity(res.getEntity());
+	}
+	
+	private void removeUser(Representation entity, Request request, Response response) throws ResourceException { 
+		Document doc = getEntityAsDocument(entity);
+			  
+		Element el = (Element)doc.getDocumentElement().getElementsByTagName("user").item(0);
+	 
+		String email = el.getAttribute("email");;
+		if (email.equals("admin"))
+			throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+				
+		Request req = newRequest(Method.GET, "/users.xml?role=0");
+		
+		Response res = client.handle(req);
+		
+		if (!res.getStatus().isSuccess()) {
+			response.setStatus(res.getStatus());
+			response.setEntity(res.getEntity());
+		}
+		else {
+			Document userDoc;
+			try {
+				userDoc = new DomRepresentation(res.getEntity()).getDocument();
+			} catch (Exception e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
+			
+			NodeList list = userDoc.getDocumentElement().getElementsByTagName("user");
+			for(int i=0;i<list.getLength();i++){
+				Element uel = (Element)list.item(i);
+				String uemail = uel.getElementsByTagName("email").item(0).getTextContent();
+				String id = uel.getElementsByTagName("id").item(0).getTextContent();
+				if(uemail. equals(email)){
+					deleteUser(id, response);
+				}
+			}
+			  
+			response.setStatus(Status.SUCCESS_OK);  
 		}
 	}
 	
-	private void validateLogin(Request request, Response response){
-		String xml = request.getEntityAsText();
-		try{
-		  Document doc = DocumentUtils.createDocumentFromString(xml);
-		  Element el = (Element)doc.getDocumentElement().getElementsByTagName("user").item(0);
-		  String authToken = "rHHYpql22FzsudXglJL0FdsdVdcTbCOZV75yJ0w4cgoYhnuT";
-		  String name =  el.getAttribute("name");
-		 
-		  String email = el.getAttribute("email");
-		  if(email.equals("admin")){
-			  name = "Solertium";
-			  email="sisproject@solertium.com";
-		  }
-		  
-		  String timestamp =String.valueOf((long)new Date().getTime());
-		  String organization = "SIS Community";//URLEncoder.encode(el.getAttribute("organization"), "UTF-8");;
-		//organization ="Solertium";
-		  MessageDigest m = MessageDigest.getInstance("MD5");
-		  	        m.update((name+email+organization+authToken+timestamp).getBytes());
-		  	        byte s[] = m.digest();
-		  	        String result = "";
-		  	        for (int i = 0; i < s.length; i++) {
-		  	          result += Integer.toHexString((0x000000ff & s[i]) | 0xffffff00).substring(6);
-		  	        }
-		  	       
-		 String eEmail = URLEncoder.encode(email, "UTF-8");
-		 String eName = URLEncoder.encode(name, "UTF-8");
-		 String eOrg = URLEncoder.encode(organization, "UTF-8");
-		 
-		 response.setEntity("?name="+eName+"&email="+eEmail
-			 +"&timestamp="+timestamp+"&organization="+ eOrg +"&hash="+result, MediaType.TEXT_PLAIN);
-
-		 response.setStatus(Status.SUCCESS_OK);
-		}
-		catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		}
-
-		catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		}
-		    
+	private void deleteUser(String id, Response response) throws ResourceException {
+		String url = "/users/"+id+".xml";
 			
+		Request req = newRequest(Method.DELETE, url);
+		
+		Response res = client.handle(req);
+		
+		if (!res.getStatus().isSuccess())
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 	}
+	
+	private void validateLogin(Representation entity, Request request, Response response) throws ResourceException {
+		Document doc = getEntityAsDocument(entity);
+		
+		Element el = (Element)doc.getDocumentElement().getElementsByTagName("user").item(0);
+		String authToken = "rHHYpql22FzsudXglJL0FdsdVdcTbCOZV75yJ0w4cgoYhnuT";
+		String name =  el.getAttribute("name");
+		 
+		String email = el.getAttribute("email");
+		if (email.equals("admin")) {
+			  name = "Solertium";
+			  email = SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com");
+		}
+		  
+		String timestamp =String.valueOf((long)new Date().getTime());
+		String organization = "SIS Community";
+		
+		final MessageDigest m;
+		try {
+			m = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		m.update((name+email+organization+authToken+timestamp).getBytes());
+		byte s[] = m.digest();
+		
+		String result = "";
+		for (int i = 0; i < s.length; i++)
+			result += Integer.toHexString((0x000000ff & s[i]) | 0xffffff00).substring(6);
+		
+		try { 
+			String eEmail = URLEncoder.encode(email, "UTF-8");
+			String eName = URLEncoder.encode(name, "UTF-8");
+			String eOrg = URLEncoder.encode(organization, "UTF-8");
+			 
+			response.setEntity("?name="+eName+"&email="+eEmail
+				 +"&timestamp="+timestamp+"&organization="+ eOrg +"&hash="+result, MediaType.TEXT_PLAIN);
+		} catch (UnsupportedEncodingException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 
+		response.setStatus(Status.SUCCESS_OK);
+	}
+	
+	private Request newRequest(Method method, String url) {
+		Request req = new Request(Method.GET, SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.url", "http://support.iucnsis.org") + url);
+		req.setChallengeResponse(new ChallengeResponse(
+			ChallengeScheme.HTTP_BASIC, 
+			SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com"), 
+			SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.password", "s3cr3t")
+		));
+		return req;
+	}
 }
