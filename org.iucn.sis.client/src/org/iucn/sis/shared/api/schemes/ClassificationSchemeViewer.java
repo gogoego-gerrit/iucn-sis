@@ -28,10 +28,14 @@ public interface ClassificationSchemeViewer {
 	
 	/**
 	 * Return the current set of data and update 
-	 * and change markers. 
+	 * and change markers.
+	 * @param deep - true if the data is saved to the server 
+	 * and the internal hasChanged marker can be cleared, 
+	 * false if this save is being done only to display the 
+	 * data but it is still not saved to the server. 
 	 * @return the data
 	 */
-	public List<ClassificationSchemeModelData> save();
+	public List<ClassificationSchemeModelData> save(boolean deep);
 	
 	/**
 	 * Provides the initial data set for the viewer.  This 

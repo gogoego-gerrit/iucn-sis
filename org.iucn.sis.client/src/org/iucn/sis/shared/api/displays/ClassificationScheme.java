@@ -111,7 +111,7 @@ public class ClassificationScheme extends Display {
 				window.setButtonAlign(HorizontalAlignment.CENTER);
 				window.addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
 					public void componentSelected(ButtonEvent ce) {
-						buildReadOnlyContainer(container, viewer.save());
+						buildReadOnlyContainer(container, viewer.save(false));
 						window.hide();
 					}
 				}));
@@ -180,7 +180,7 @@ public class ClassificationScheme extends Display {
 			field.setName(canonicalName);
 		}
 		
-		for (ClassificationSchemeModelData model : viewer.save()) {
+		for (ClassificationSchemeModelData model : viewer.save(true)) {
 			Field subfield = model.getField();
 			if (subfield == null) {
 				subfield = new Field();

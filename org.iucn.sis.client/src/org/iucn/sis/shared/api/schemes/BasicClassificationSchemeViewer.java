@@ -525,8 +525,9 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 	}
 
 	@Override
-	public List<ClassificationSchemeModelData> save() {
-		hasChanged = false;
+	public List<ClassificationSchemeModelData> save(boolean deep) {
+		if (deep)
+			hasChanged = false;
 		saved = server.getModels();
 		return saved;
 	}
