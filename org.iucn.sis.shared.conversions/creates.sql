@@ -84,8 +84,8 @@ CREATE TABLE InPlaceEducation_internationalLegislationLookup(id integer auto_inc
 CREATE TABLE InPlaceEducation_controlledLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE InPlaceEducation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE LakesLookup (id integer auto_increment primary key, code varchar(63), parentID varchar(63), level integer, codeable tinyint, ref varchar(63), description varchar(255));
-CREATE TABLE Lakes_aLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE Lakes_Lookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE Lakes_presenceLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE Lakes_originLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE Lakes (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE LakesSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE LandCoverLookup (id integer auto_increment primary key, code varchar(63), parentID varchar(63), level integer, codeable tinyint, ref varchar(63), description varchar(255));
@@ -213,8 +213,8 @@ CREATE TABLE ResearchLookup (id integer auto_increment primary key, code varchar
 CREATE TABLE Research (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE ResearchSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RiversLookup (id integer auto_increment primary key, code varchar(63), parentID varchar(63), level integer, codeable tinyint, ref varchar(63), description varchar(255));
-CREATE TABLE Rivers_aLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE Rivers_Lookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE Rivers_presenceLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE Rivers_originLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE Rivers (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RiversSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE SevereFragmentation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));

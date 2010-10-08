@@ -3,7 +3,7 @@
 	<description>Date of Evaluation</description>
 	<classOfService>Outcome</classOfService>
 	<structures>
-		<structure id="a">
+		<structure id="value">
 			<date></date>
 		</structure>
 	</structures>

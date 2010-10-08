@@ -3,7 +3,7 @@
 	<description>Red List Fuzzy Results</description>
 	<classOfService>Outcome</classOfService>
 	<structures>
-		<structure id="a">
+		<structure id="text">
 			<text></text>
 		</structure>
 	</structures>
