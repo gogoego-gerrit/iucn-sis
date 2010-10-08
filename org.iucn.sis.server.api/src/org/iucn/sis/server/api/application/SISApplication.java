@@ -3,7 +3,6 @@ package org.iucn.sis.server.api.application;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,7 +58,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 		if (Debug.isDefaultInstance())
 			Debug.setInstance(new SIS.SISDebugger());
 		
-		internalRoutingRoot = "SIS";//new Date().getTime()+"";
+		internalRoutingRoot = "sis-administration";
 	}
 
 	/**
@@ -78,7 +77,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	
 	@Override
 	public String getSettingsURL() {
-		return "/" + internalRoutingRoot + "/settings";
+		return getPath() + "/" + internalRoutingRoot + "/settings";
 	}
 
 	@Override
@@ -104,10 +103,10 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	@Override
 	public Restlet getPublicRouter() {
 		init();
-		Router root = new FastRouter(app.getContext());
+		Router root = new Router(app.getContext());
 		root.attach("/" + internalRoutingRoot, getInteralRouter());
 		
-		Router guarded = new FastRouter(app.getContext());
+		Router guarded = new Router(app.getContext());
 		AuthnGuard guard = SIS.get().getGuard(app.getContext());
 
 		Filter mainFilter = new Filter(app.getContext(), root) {
