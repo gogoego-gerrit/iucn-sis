@@ -2,6 +2,8 @@ package org.iucn.sis.server.api.application;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,10 +11,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.gogoego.api.applications.GoGoEgoApplication;
+import org.gogoego.api.applications.HasSettingsUI;
 import org.gogoego.api.utils.MagicDisablingFilter;
 import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.server.api.restlets.SettingsRestlet;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Restlet;
 import org.restlet.data.Encoding;
@@ -28,11 +33,12 @@ import org.restlet.resource.ServerResource;
 import org.restlet.routing.Filter;
 import org.restlet.routing.Router;
 
+import com.solertium.util.restlet.FastRouter;
 import com.solertium.util.restlet.RestletUtils;
 import com.solertium.util.restlet.authentication.AuthnGuard;
 import com.solertium.vfs.VFS;
 
-public abstract class SISApplication extends GoGoEgoApplication {
+public abstract class SISApplication extends GoGoEgoApplication implements HasSettingsUI {
 
 	public static final String NO_TRANSACTION_HANDLE = "NO_TRAN";
 	
@@ -40,6 +46,8 @@ public abstract class SISApplication extends GoGoEgoApplication {
 	protected HashSet<String> pathsExcludedFromAuthenticator;
 	protected Map<Object, List<String>> onlinePathsToResources;
 	protected Map<Object, List<String>> offlinePathsToResources;
+	
+	private final String internalRoutingRoot;
 
 	public SISApplication() {
 		super();
@@ -50,12 +58,28 @@ public abstract class SISApplication extends GoGoEgoApplication {
 		
 		if (Debug.isDefaultInstance())
 			Debug.setInstance(new SIS.SISDebugger());
+		
+		internalRoutingRoot = "SIS";//new Date().getTime()+"";
 	}
 
 	/**
 	 * CALLED WHEN ADDING PUBLIC ROUTER, ALL RESOURCES MUST BE ATTACHED BY THEN
 	 */
 	public abstract void init();
+	
+	/**
+	 * If your application exposes settings, enumerate 
+	 * them here, so they can be edited via GoGoEgo.
+	 * @return
+	 */
+	protected Collection<String> getSettingsKeys() {
+		return new ArrayList<String>();
+	}
+	
+	@Override
+	public String getSettingsURL() {
+		return "/" + internalRoutingRoot + "/settings";
+	}
 
 	@Override
 	public Restlet getPrivateRouter() {
@@ -63,23 +87,33 @@ public abstract class SISApplication extends GoGoEgoApplication {
 	}
 
 	public VFS getVFS() {
-		// return app.getVFS();
 		return SIS.get().getVFS();
+	}
+	
+	private Restlet getInteralRouter() {
+		Router router = new FastRouter(app.getContext());
+		
+		BaseServiceRestlet restlet = new SettingsRestlet(getVFS(), app.getContext(), getSettingsKeys());
+		
+		for (String path : restlet.getPaths())
+			router.attach(path, restlet);
+		
+		return router;
 	}
 
 	@Override
 	public Restlet getPublicRouter() {
 		init();
-		Router root = new Router(app.getContext());
-		Router guarded = new Router(app.getContext());
+		Router root = new FastRouter(app.getContext());
+		root.attach("/" + internalRoutingRoot, getInteralRouter());
+		
+		Router guarded = new FastRouter(app.getContext());
 		AuthnGuard guard = SIS.get().getGuard(app.getContext());
 
 		Filter mainFilter = new Filter(app.getContext(), root) {
-
 			@Override
 			protected int beforeHandle(Request request, Response response) {
 				SISPersistentManager.instance().getSession().beginTransaction();
-
 				if (!SIS.get().isHostedMode() && SIS.amIOnline() && request.getProtocol().equals(Protocol.HTTP)) {
 					Reference newRef = new Reference(request.getResourceRef());
 					newRef.setHostPort(Integer.valueOf(443));
@@ -125,7 +159,7 @@ public abstract class SISApplication extends GoGoEgoApplication {
 						Debug.println("Hibernate Error: {0}\n{1}", e.getMessage(), e);
 						response.setStatus(Status.SERVER_ERROR_INTERNAL);
 					}
-				}				
+				}
 
 				try {
 					if (SIS.amIOnline()) {

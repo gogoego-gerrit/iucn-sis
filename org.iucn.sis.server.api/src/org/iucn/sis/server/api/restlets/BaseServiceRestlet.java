@@ -60,8 +60,7 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 				return;
 			}
 			
-			if (!response.getStatus().isSuccess())
-				response.setStatus(Status.SUCCESS_OK);
+			updateStatus(response);
 			
 			if (representation != null)
 				response.setEntity(representation);
@@ -78,8 +77,7 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 				return;
 			}
 			
-			if (!response.getStatus().isSuccess())
-				response.setStatus(Status.SUCCESS_OK);
+			updateStatus(response);
 		}
 		else if (Method.PUT.equals(request.getMethod())) {
 			try {
@@ -93,8 +91,7 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 				return;
 			}
 			
-			if (!response.getStatus().isSuccess())
-				response.setStatus(Status.SUCCESS_CREATED);
+			updateStatus(response);
 		}
 		else if (Method.DELETE.equals(request.getMethod())) {
 			try {
@@ -108,8 +105,7 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 				return;
 			}
 			
-			if (!response.getStatus().isSuccess())
-				response.setStatus(Status.SUCCESS_OK);
+			updateStatus(response);
 		}
 		else  {
 			try {
@@ -123,9 +119,13 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 				return;
 			}
 			
-			if (!response.getStatus().isSuccess())
-				response.setStatus(Status.SUCCESS_OK);
+			updateStatus(response);
 		}
+	}
+	
+	private void updateStatus(Response response) {
+		if (!response.getStatus().isSuccess() && !response.getStatus().isRedirection())
+			response.setStatus(Status.SUCCESS_OK);
 	}
 	
 	public Representation handleGet(Request request, Response response) throws ResourceException {

@@ -1,6 +1,8 @@
 package org.iucn.sis.server.api.application;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.naming.NamingException;
 
@@ -27,6 +29,7 @@ import org.iucn.sis.server.api.utils.OnlineUtil;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.debug.Debugger;
 import org.iucn.sis.shared.api.models.User;
+import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
@@ -43,11 +46,13 @@ import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.restlet.authentication.AuthnGuard;
 import com.solertium.util.restlet.authentication.Authenticator.AccountNotFoundException;
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSFactory;
+import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.provider.VersionedFileVFS;
 
 public class SIS {
@@ -73,12 +78,13 @@ public class SIS {
 	protected final EditIO editIO;
 	protected final NoteIO noteIO;
 	protected final ExecutionContext ec, lookups;
+	protected Properties settings;
 
 	protected SIS() {
 		Debug.setInstance(new SISDebugger());
+		Debug.println("map of properties is: {0}", GoGoEgo.getInitProperties());
 		
 		try {
-			Debug.println("map of properties is: {0}", GoGoEgo.getInitProperties());
 			vfsroot = GoGoEgo.getInitProperties().getProperty("sis_vfs");
 			vfs = VFSFactory.getVFS(new File(vfsroot));
 			taxomaticIO = new TaxomaticIO((VersionedFileVFS) vfs);
@@ -106,13 +112,12 @@ public class SIS {
 			lookups.setAPILevel(ExecutionContext.SQL_ALLOWED);
 			lookups.setExecutionLevel(ExecutionContext.ADMIN);
 		} catch (NotFoundException e) {
+			e.printStackTrace();
 			throw new RuntimeException(e);
 		} catch (NullPointerException e) {
 			e.printStackTrace();
-			Debug.println("map of properties is: {0}", GoGoEgo.getInitProperties());
 			throw new RuntimeException(e);
 		} catch (NamingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new RuntimeException(e);
 		}
@@ -156,6 +161,26 @@ public class SIS {
 	
 	public EditIO getEditIO() {
 		return editIO;
+	}
+	
+	public Properties getSettings() {
+		if (settings != null)
+			return settings;
+		
+		Properties settings = new Properties();
+		try {
+			settings = new Properties();
+			settings.load(GoGoEgo.get().
+				getFromContext(Application.getCurrent().getContext()).getVFS().
+				getInputStream(new VFSPath("/settings/global.properties")));
+		} catch (IOException e) {
+			TrivialExceptionHandler.ignore(this, e);
+			return new Properties();
+		}
+		
+		this.settings = settings;
+		
+		return settings;
 	}
 
 	public AuthnGuard getGuard(Context context) {
