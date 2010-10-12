@@ -2,12 +2,15 @@ package org.iucn.sis.client.api.caches;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 
 import com.solertium.lwxml.shared.GenericCallback;
@@ -31,87 +34,106 @@ public class NotesCache {
 		noteMap = new HashMap<String, HashMap<String, List<Notes>>>();
 	}
 
-	public void addNote(final String canonicalName, Notes currentNote, Assessment assessment,
-			GenericCallback<String> callback) {
+	public void addNote(final Field field, Notes note, final Assessment assessment, final GenericCallback<String> callback) {
 
 		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, assessment)) {
 			WindowUtils.errorAlert("You do not have sufficient permissions to perform " + "this operation.");
 			return;
 		}
-
-		NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
-		String type = assessment.getType();
+		
+		note.setField(field);
+		
+		/*String type = assessment.getType();
 		String url = UriBase.getInstance().getNotesBase() + "/notes/" + type;
 		url += "/" + assessment.getId();
-		url += "/" + canonicalName;
+		url += "/" + canonicalName;*/
 
-		addNoteToCache(canonicalName, currentNote, assessment);
-
-		doc.post(url, currentNote.toXML(), callback);
+		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
+		doc.post(UriBase.getInstance().getNotesBase() + "/notes/field/" + field.getId(), note.toXML(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				final Notes fullNote = Notes.fromXML(doc.getDocumentElement());
+				
+				addNoteToCache(field, fullNote, assessment);
+				
+				if (field.getNotes() == null)
+					field.setNotes(new HashSet<Notes>());
+				field.getNotes().add(fullNote);
+				
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
 	}
 
-	private void addNoteToCache(final String cName, Notes currentNotes, Assessment assessment) {
-		List<Notes> noteList = null;
-		HashMap<String, List<Notes>> assMap = null;
-
+	private void addNoteToCache(final Field field, Notes currentNotes, Assessment assessment) {
+		HashMap<String, List<Notes>> map = null;
 		if (noteMap.containsKey(getNoteMapID(assessment)))
-			assMap = noteMap.get(getNoteMapID(assessment));
+			map = noteMap.get(getNoteMapID(assessment));
 		else
-			assMap = new HashMap<String, List<Notes>>();
+			map = new HashMap<String, List<Notes>>();
+		
+		final String cacheKey = field.getName() + ":" + field.getId();
 
-		if (assMap.containsKey(cName))
-			noteList = assMap.get(cName);
+		List<Notes> noteList = null;
+		if (map.containsKey(cacheKey))
+			noteList = map.get(cacheKey);
 		else
 			noteList = new ArrayList<Notes>();
-
 		noteList.add(currentNotes);
-		assMap.put(cName, noteList);
-		noteMap.put(getNoteMapID(assessment), assMap);
+		
+		map.put(cacheKey, noteList);
+		
+		noteMap.put(getNoteMapID(assessment), map);
 	}
 
-	public void deleteNote(final String canonicalName, Notes currentNote, Assessment assessment,
-			GenericCallback<String> callback) {
-
+	public void deleteNote(final Field field, final Notes currentNote, final Assessment assessment, final GenericCallback<String> callback) {
 		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, assessment)) {
 			WindowUtils.errorAlert("You do not have sufficient permissions to perform " + "this operation.");
 			return;
 		}
 
-		NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
-		String type = AssessmentCache.impl.getCurrentAssessment().getType();
-		String url = UriBase.getInstance().getNotesBase() + "/notes/" + type;
-		url += "/" + AssessmentCache.impl.getCurrentAssessment().getId();
-		url += "/" + canonicalName;
+		String url = UriBase.getInstance().getNotesBase() + "/notes/note/" + currentNote.getId();
 
-		removeNoteFromCache(canonicalName, currentNote, assessment);
-
-		doc.post(url + "?option=remove", currentNote.toXML(), callback);
+		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
+		doc.delete(url, new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				field.getNotes().remove(currentNote);
+				
+				removeNoteFromCache(field, currentNote, assessment);
+				
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
 	}
 
 	public void fetchNotes(final Assessment assessment, final GenericCallback<String> callback) {
 		if (!noteMap.containsKey(getNoteMapID(assessment))) {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-			ndoc.get(UriBase.getInstance().getNotesBase() + "/notes/" + assessment.getType() + "/" + assessment.getId(),
+			ndoc.get(UriBase.getInstance().getNotesBase() + "/notes/assessment/" + assessment.getId(),
 					new GenericCallback<String>() {
-						public void onFailure(Throwable caught) {
-							callback.onSuccess("OK");
-						}
+				public void onFailure(Throwable caught) {
+					Debug.println("Failed to fetch notes for " + assessment.getId());
+				}
+				public void onSuccess(String result) {
+					final HashMap<String, List<Notes>> assessNotes = new HashMap<String, List<Notes>>();
+					
+					final NativeNodeList fieldList = ndoc.getDocumentElement().getElementsByTagName("field");
+					for (int i = 0; i < fieldList.getLength(); i++) {
+						final NativeElement currentField = fieldList.elementAt(i);
+						
+						assessNotes.put(currentField.getAttribute("name"), Notes.notesFromXML(currentField));
+					}
+					
+					noteMap.put(getNoteMapID(assessment), assessNotes);
 
-						public void onSuccess(String result) {
-							HashMap<String, List<Notes>> assessNotes = new HashMap<String, List<Notes>>();
-							NativeNodeList nodeList = ndoc.getDocumentElement().getElementsByTagName("notes");
-
-							for (int i = 0; i < nodeList.getLength(); i++) {
-								NativeElement el = nodeList.elementAt(i);
-								String canonicalName = el.getAttribute("id");
-								assessNotes.put(canonicalName, Notes.notesFromXML(el));
-							}
-
-							noteMap.put(getNoteMapID(assessment), assessNotes);
-
-							callback.onSuccess(result);
-						}
-					});
+					callback.onSuccess(result);
+				}
+			});
 		} else
 			callback.onSuccess("OK");
 	}
@@ -138,10 +160,12 @@ public class NotesCache {
 
 	}
 
-	private void removeNoteFromCache(final String cName, Notes currentNote, Assessment assessment) {
-
-		HashMap<String, List<Notes>> assMap = noteMap.get(getNoteMapID(assessment));
-		List<Notes> noteList = assMap.get(cName);
+	private void removeNoteFromCache(final Field field, Notes currentNote, Assessment assessment) {
+		final String cacheKey = field.getName() + ":" + field.getId();
+		
+		HashMap<String, List<Notes>> map = noteMap.get(getNoteMapID(assessment));
+		
+		List<Notes> noteList = map.get(cacheKey);
 
 		noteList.remove(currentNote);
 	}

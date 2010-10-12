@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.naming.NamingException;
 
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
+import org.iucn.sis.server.api.fields.TreeBuilder;
 import org.iucn.sis.server.api.fields.definitions.FieldDefinitionLoader;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -26,25 +27,31 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.solertium.util.BaseDocumentUtils;
+import com.solertium.util.ElementCollection;
 import com.solertium.util.NodeCollection;
 import com.solertium.vfs.NotFoundException;
 
 public class FieldRestlet extends BaseServiceRestlet {
 	
 	private final FieldSchemaGenerator generator;
+	private final TreeBuilder treeBuilder;
 
 	public FieldRestlet(String vfsroot, Context context) {
 		super(vfsroot, context);
 		
 		FieldSchemaGenerator generator;
+		TreeBuilder builder;
 		try {
 			generator = new FieldSchemaGenerator();
+			builder = new TreeBuilder();
 		} catch (NamingException e) {
 			generator = null;
-			e.printStackTrace();
+			builder = null;
+			Debug.println(e);
 		}
 		
 		this.generator = generator;
+		this.treeBuilder = builder;
 	}
 
 	@Override
@@ -66,39 +73,71 @@ public class FieldRestlet extends BaseServiceRestlet {
 				e.printStackTrace();
 				TrivialExceptionHandler.ignore(this, e);
 			}*/
-		
-			//Append lookup table info
-			Map<String, Map<Integer, String>> lookups = null;;
-			try {
-				lookups = generator.scanForLookups(fieldName);
-			} catch (Exception e) {
-				Debug.println(e);
-			}
-			
-			if (lookups != null) {
-				for (Map.Entry<String, Map<Integer, String>> entry : lookups.entrySet()) {
-					final Element lookupEl = document.createElement("lookup");
-					lookupEl.setAttribute("id", entry.getKey());
-					
-					for (Map.Entry<Integer, String> options : entry.getValue().entrySet()) {
-						final Element option = BaseDocumentUtils.impl.createCDATAElementWithText(
-							document, "option", options.getValue()
-						);
-						option.setAttribute("id", options.getKey().toString());
+			final String dataType = document.getDocumentElement().getNodeName();
+			if ("field".equals(dataType) || "tree".equals(dataType)) {
+				//Append lookup table info
+				Map<String, Map<Integer, String>> lookups = null;
+				try {
+					lookups = generator.scanForLookups(fieldName);
+				} catch (Exception e) {
+					Debug.println(e);
+				}
+				
+				if (lookups != null) {
+					for (Map.Entry<String, Map<Integer, String>> entry : lookups.entrySet()) {
+						final Element lookupEl = document.createElement("lookup");
+						lookupEl.setAttribute("id", entry.getKey());
 						
-						lookupEl.appendChild(option);
+						for (Map.Entry<Integer, String> options : entry.getValue().entrySet()) {
+							final Element option = BaseDocumentUtils.impl.createCDATAElementWithText(
+								document, "option", options.getValue()
+							);
+							option.setAttribute("id", options.getKey().toString());
+							
+							lookupEl.appendChild(option);
+						}
+						
+						document.getDocumentElement().appendChild(lookupEl);
 					}
-					
-					document.getDocumentElement().appendChild(lookupEl);
+				}
+				
+				if ("tree".equals(dataType)) {
+					try {
+						generator.appendCodesForClassificationScheme(document, fieldName);
+					} catch (Exception e) {
+						Debug.println(e);
+					}
 				}
 			}
-			
-			//Add classification scheme info
-			if (document.getElementsByTagName("tree").getLength() > 0) {
-				try {
-					generator.appendCodesForClassificationScheme(document, fieldName);
-				} catch (Exception e) {
-					e.printStackTrace();
+			else {
+				final ElementCollection lookups = new ElementCollection(
+					document.getDocumentElement().getElementsByTagName("lookup")
+				);
+				for (Element el : lookups) {
+					final Map<Integer, String> data;
+					try {
+						data = generator.loadLookup(el.getAttribute("name"));
+					} catch (Exception e) {
+						Debug.println(e);
+						continue;
+					}
+					
+					if (data != null) {
+						for (Map.Entry<Integer, String> options : data.entrySet()) {
+							final Element option = BaseDocumentUtils.impl.createCDATAElementWithText(
+								document, "option", options.getValue()
+							);
+							option.setAttribute("id", options.getKey().toString());
+							
+							el.appendChild(option);
+						}
+					}
+				}
+				final ElementCollection coding = new ElementCollection(
+					document.getDocumentElement().getElementsByTagName("coding")
+				);
+				for (Element el : coding) {
+					treeBuilder.buildTree(el.getAttribute("name"), document, el);
 				}
 			}
 			

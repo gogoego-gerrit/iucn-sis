@@ -15,11 +15,17 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
+import com.google.gwt.core.client.GWT;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 
 public class AssessmentClientSaveUtils {
 
+	public static void saveAssessment(final GenericCallback<Object> callback)
+			throws InsufficientRightsException {
+		saveAssessment(AssessmentCache.impl.getCurrentAssessment(), callback);
+	}
+	
 	public static void saveAssessment(final Assessment assessmentToSave, final GenericCallback<Object> callback)
 			throws InsufficientRightsException {
 		saveAssessment(null, assessmentToSave, callback);
@@ -81,7 +87,7 @@ public class AssessmentClientSaveUtils {
 									}
 								}
 							} catch (Throwable e) {
-								e.printStackTrace();
+								Debug.println(e);
 							}
 								
 							StatusCache.impl.setStatus(assessmentToSave, StatusCache.HAS_LOCK);
@@ -121,17 +127,26 @@ public class AssessmentClientSaveUtils {
 		Debug.println("Saving assessment...");
 		for (Display cur : fieldWidgets) {
 			//Debug.println("Saving data to Field {0}: {1}", cur.getCanonicalName(), cur.getField().getPrimitiveField());
-			cur.save();
-			
-			Field curField = cur.getField();
-			if (!curField.hasData()) {
-				Debug.println("+ Removing {0} because it doesn't have any data", curField.getId());
-				assessmentToSave.getField().remove(curField);
-			}
-			else {
-				Debug.println("+ Adding {0}", curField.getId());
-				assessmentToSave.getField().add(curField);
-				curField.setAssessment(assessmentToSave);
+			try {
+				cur.save();
+				
+				Field curField = cur.getField();
+				if (curField == null)
+					Debug.println("Display {0} yielded a null field after save", cur.getCanonicalName());
+				else { 
+					if (!curField.hasData()) {
+						Debug.println("+ Removing {0} with id {1} because it doesn't have any data", curField.getName(), curField.getId());
+						assessmentToSave.getField().remove(curField);
+					}
+					else {
+						Debug.println("+ Adding {0} with id {1}", curField.getName(), curField.getId());
+						assessmentToSave.getField().add(curField);
+						curField.setAssessment(assessmentToSave);
+					}
+				}
+			} catch (Throwable e) {
+				GWT.log("Failed to save display " + cur.getCanonicalName(), e);
+				Debug.println(e);
 			}
 		}
 	}

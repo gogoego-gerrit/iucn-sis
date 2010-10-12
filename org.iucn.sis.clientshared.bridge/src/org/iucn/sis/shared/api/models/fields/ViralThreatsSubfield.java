@@ -8,12 +8,12 @@ public class ViralThreatsSubfield extends ThreatsSubfield {
 	
 	private static final long serialVersionUID = 1L;
 
-	public ViralThreatsSubfield(ThreatsField parent, Field data) {
-		super(parent, data);
+	public ViralThreatsSubfield(Field data) {
+		super(data);
 	}
 
 	public Integer getVirus() {
-		PrimitiveField<?> field = getPrimitiveField("virus");
+		PrimitiveField<?> field = proxy.getPrimitiveField("virus");
 		if (field == null)
 			return null;
 		else
@@ -21,7 +21,7 @@ public class ViralThreatsSubfield extends ThreatsSubfield {
 	}
 	
 	public void setVirus(Integer virus) {
-		addPrimitiveField(new ForeignKeyPrimitiveField("virus", this, virus, null));
+		proxy.addPrimitiveField(new ForeignKeyPrimitiveField("virus", proxy, virus, null));
 	}
 	
 }

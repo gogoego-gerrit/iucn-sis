@@ -1,11 +1,16 @@
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.gogoego.api.applications.GoGoEgoApplication;
+import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.ServerActivator;
 
 import com.solertium.gogoego.server.extensions.testing.generic.GenericBootstrap;
 import com.solertium.gogoego.server.extensions.testing.generic.MultiAppGenericBootstrap;
+import com.solertium.vfs.NotFoundException;
+import com.solertium.vfs.VFS;
+import com.solertium.vfs.VFSFactory;
 
 /**
  * Use this to run the entire SIS universe.  If you 
@@ -58,10 +63,25 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 			new org.iucn.sis.server.extensions.user.application.ServerActivator().getApplicationFactory().newInstance());
 		map.put("org.iucn.sis.server.extensions.zendesk", 
 			new org.iucn.sis.server.extensions.zendesk.ServerActivator().getApplicationFactory().newInstance());
+		map.put("org.iucn.sis.server.extensions.notes", 
+			new org.iucn.sis.server.extensions.notes.ServerActivator().getApplicationFactory().newInstance());
 		
 		//TODO add additional plugins
 		
 		return map;
+	}
+	
+	@Override
+	protected VFS getVFS() {
+		File file = new File(GoGoEgo.getInitProperties().getProperty("sis_vfs", "/var/sis/newest_vfs"));
+		if (file.exists())
+			try {
+				return VFSFactory.getVersionedVFS(file);
+			} catch (NotFoundException e) {
+				return null;
+			}
+		else
+			return null;
 	}
 
 }

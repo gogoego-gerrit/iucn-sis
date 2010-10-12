@@ -19,11 +19,13 @@ import org.iucn.sis.shared.api.structures.DisplayStructure;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -37,22 +39,27 @@ import com.solertium.util.gwt.ui.StyledHTML;
  */
 public class ClassificationScheme extends Display {
 
-	private final TreeData treeData;
-	private final Map<String, TreeDataRow> flatTree;
-	private final ClassificationSchemeViewer viewer;
+	protected final TreeData treeData;
+	protected final Map<String, TreeDataRow> flatTree;
+	
+	protected final ClassificationSchemeViewer viewer;
 	
 	private String definition = "";
 
 	public ClassificationScheme(TreeData displayData) {
 		super(displayData);
-
 		treeData = displayData;
 		flatTree = treeData.flattenTree();
-		viewer = new BasicClassificationSchemeViewer(description, displayData);
-
+		
+		viewer = createViewer(description, displayData);
+		
 		buildDefinition();
 		
 		DefinitionCache.impl.setDefinition(description.toLowerCase(), definition);
+	}
+	
+	protected ClassificationSchemeViewer createViewer(String description, TreeData displayData) {
+		return new BasicClassificationSchemeViewer(description, displayData);
 	}
 	
 	private void buildDefinition() {
@@ -121,6 +128,12 @@ public class ClassificationScheme extends Display {
 						window.hide();
 					}
 				}));
+				window.addListener(Events.Show, new Listener<ComponentEvent>() {
+					@Override
+					public void handleEvent(ComponentEvent be) {
+						window.layout();
+					}
+				});
 				window.show();
 			}
 		}));
@@ -156,9 +169,9 @@ public class ClassificationScheme extends Display {
 		buildReadOnlyContainer(container, thinData);
 	}
 	
-	private void buildReadOnlyContainer(VerticalPanel container, Collection<ClassificationSchemeModelData> thinData) {
+	private void buildReadOnlyContainer(VerticalPanel container, Collection<? extends ClassificationSchemeModelData> thinData) {
 		container.clear();
-		container.add(new StyledHTML("Selections:", "bold"));
+		container.add(new StyledHTML("Selections for " + description + ":", "bold"));
 		
 		if (thinData.isEmpty()) {
 			container.add(new HTML("No selections made"));
@@ -175,10 +188,8 @@ public class ClassificationScheme extends Display {
 	}
 
 	public void save() {
-		if (field == null) {
-			field = new Field();
-			field.setName(canonicalName);
-		}
+		if (field == null)
+			initializeField();
 		
 		for (ClassificationSchemeModelData model : viewer.save(true)) {
 			Field subfield = model.getField();
@@ -187,16 +198,10 @@ public class ClassificationScheme extends Display {
 				subfield.setParent(field);
 				subfield.setName(canonicalName+"Subfield");
 				
-				/*
-				 * Since I know these two fields have the same name, I want 
-				 * to let the set's pure equals method go to work here, and 
-				 * eliminate based on ID.  This way, I can have two fields 
-				 * with the same name.
-				 */
-				field.getFields().add(subfield);
+				model.setField(subfield);
 			}
 			
-			model.save(subfield, subfield);
+			model.save(field, subfield);
 			
 			PrimitiveField lookup = subfield.getPrimitiveField(canonicalName+"Lookup");
 			if (lookup == null)
@@ -205,6 +210,14 @@ public class ClassificationScheme extends Display {
 			lookup.setRawValue(model.getSelectedRow().getDisplayId());
 			
 			subfield.addPrimitiveField(lookup);
+			
+			/*
+			 * Since I know these two fields have the same name, I want 
+			 * to let the set's pure equals method go to work here, and 
+			 * eliminate based on ID.  This way, I can have two fields 
+			 * with the same name.
+			 */
+			field.getFields().add(subfield);
 		}
 	}
 	
@@ -223,12 +236,10 @@ public class ClassificationScheme extends Display {
 				
 				TreeDataRow row = flatTree.get(lookup.getRawValue());
 				
-				final DisplayStructure structure = 
-					DisplayDataProcessor.processDisplayStructure(treeData.getDefaultStructure());
+				final DisplayStructure structure = generateDefaultDisplayStructure();
 				structure.setData(subfield);
 					
-				ClassificationSchemeModelData model = 
-					new ClassificationSchemeModelData(structure, subfield);
+				ClassificationSchemeModelData model = createModelData(structure, subfield);
 				model.setSelectedRow(row);
 				
 				models.add(model); 
@@ -238,6 +249,14 @@ public class ClassificationScheme extends Display {
 		}
 		else
 			viewer.setData(new ArrayList<ClassificationSchemeModelData>());
+	}
+	
+	protected DisplayStructure generateDefaultDisplayStructure() {
+		return DisplayDataProcessor.processDisplayStructure(treeData.getDefaultStructure());
+	}
+	
+	protected ClassificationSchemeModelData createModelData(DisplayStructure structure, Field field) {
+		return new ClassificationSchemeModelData(structure, field);
 	}
 	
 	@Override
@@ -256,10 +275,7 @@ public class ClassificationScheme extends Display {
 		outer.setSize("100%", "100%");
 		outer.add(vert);
 
-		return generateContent(viewOnly);
-		//return outer;
-		
-		//return dockPanel;
+		return outer;
 	}
 	
 	@Override

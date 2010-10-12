@@ -218,6 +218,10 @@ body,td,div,input,p,select,input,button {
 	background: url(../images/icon-asterisk-orange.png) no-repeat !important;
 }
 
+.icon-cross {
+	background: url(../images/icon-cross.png) no-repeat !important;
+}
+
 .icon-refresh {
 	background: url(../tango/actions/view-refresh.png) no-repeat !important;
 }

@@ -121,7 +121,7 @@ public class ZendeskResource extends BaseServiceRestlet {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		if (email.equals("admin"))
-			email = SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com");
+			email = SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com");
 	
 		Request req = newRequest(Method.GET, "/access/logout");
 			
@@ -191,7 +191,7 @@ public class ZendeskResource extends BaseServiceRestlet {
 		String email = el.getAttribute("email");
 		if (email.equals("admin")) {
 			  name = "Solertium";
-			  email = SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com");
+			  email = SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com");
 		}
 		  
 		String timestamp =String.valueOf((long)new Date().getTime());
@@ -226,11 +226,11 @@ public class ZendeskResource extends BaseServiceRestlet {
 	}
 	
 	private Request newRequest(Method method, String url) {
-		Request req = new Request(Method.GET, SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.url", "http://support.iucnsis.org") + url);
+		Request req = new Request(Method.GET, SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.url", "http://support.iucnsis.org") + url);
 		req.setChallengeResponse(new ChallengeResponse(
 			ChallengeScheme.HTTP_BASIC, 
-			SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com"), 
-			SIS.get().getSettings().getProperty("org.iucn.sis.server.extension.zendesk.password", "s3cr3t")
+			SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com"), 
+			SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.password", "s3cr3t")
 		));
 		return req;
 	}

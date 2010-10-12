@@ -15,6 +15,7 @@ package org.iucn.sis.shared.api.models;
  */
 import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,6 +46,8 @@ public class Field implements Serializable {
 		else
 			return FieldV1Parser.parse(element);
 	}
+	
+	private String generationCode;
 
 	private int id;
 
@@ -69,6 +72,8 @@ public class Field implements Serializable {
 		fields = new java.util.HashSet<Field>();
 		reference = new java.util.HashSet<Reference>();
 		primitiveField = new java.util.HashSet<PrimitiveField>();
+		
+		generationCode = new Date().getTime()+"";
 	}
 
 	public Field(String canonicalName, Assessment assessment) {
@@ -157,31 +162,37 @@ public class Field implements Serializable {
 				field.getFields().add(f.deepCopy(copyReferenceToAssessment));
 			}
 		}
-		
-		
-		return field;
-		
+		return field;	
+	}
+	
+	public String getGenerationCode() {
+		return generationCode;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((generationCode == null) ? 0 : generationCode.hashCode());
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof Field) {
-			Field field = (Field) obj;
-			if (id == (field.id) && getName().equals(field.getName()) && 
-					field.primitiveField.size() == getPrimitiveField().size() && 
-					getFields().size() == field.getFields().size()) {
-				Map<String, PrimitiveField> fieldPF = field.getKeyToPrimitiveFields();
-				Map<String, Field> fieldF = field.getKeyToFields();
-				for (PrimitiveField pf : getPrimitiveField())
-					if (!(fieldPF.get(pf.getName()) != null && fieldPF.get(pf.getName()).equals(pf)))
-						return false;
-				for (Field f : getFields())
-					if (! (fieldF.get(f.getName())!=null && fieldF.get(f.getName()).equals(f)))
-						return false;
-				return true;				
-			}
-		}
-		return false;
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Field other = (Field) obj;
+		if (generationCode == null) {
+			if (other.generationCode != null)
+				return false;
+		} else if (!generationCode.equals(other.generationCode))
+			return false;
+		return true;
 	}
 
 	public Assessment getAssessment() {
@@ -320,6 +331,7 @@ public class Field implements Serializable {
 
 	public void setId(int value) {
 		this.id = value;
+		this.generationCode = value + "";
 	}
 
 	public void setName(String value) {
@@ -343,7 +355,7 @@ public class Field implements Serializable {
 	}
 
 	public String toString() {
-		return "FIELD " + String.valueOf(getId());
+		return "FIELD " + String.valueOf(getId()) + " with gen code " + generationCode;
 	}
 
 	public String toXML() {
@@ -432,10 +444,15 @@ public class Field implements Serializable {
 		
 		@Override
 		public int compare(Field o1, Field o2) {
+			int result;
 			if (o1.getName() == null || o2.getName() == null)
-				return o1.getName() == null ? o2.getName() == null ? 0 : 1 : -1;
+				result = o1.getName() == null ? o2.getName() == null ? 0 : 1 : -1;
 			else
-				return o1.getName().compareTo(o2.getName());
+				result = o1.getName().compareTo(o2.getName());
+			if (result == 0)
+				result =  o1.generationCode.compareTo(o2.generationCode);
+			
+			return result;
 		}
 		
 	}

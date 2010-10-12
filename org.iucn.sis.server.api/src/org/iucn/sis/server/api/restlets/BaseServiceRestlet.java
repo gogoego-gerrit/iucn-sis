@@ -52,7 +52,7 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 			try {
 				representation = handleGet(request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus());
+				response.setStatus(e.getStatus(), e.getMessage());
 				return;
 			} catch (Throwable e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
@@ -69,7 +69,7 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 			try {
 				handlePost(request.getEntity(), request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus());
+				response.setStatus(e.getStatus(), e.getMessage());
 				return;
 			} catch (Throwable e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
@@ -83,7 +83,7 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 			try {
 				handlePut(request.getEntity(), request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus());
+				response.setStatus(e.getStatus(), e.getMessage());
 				return;
 			} catch (Throwable e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
@@ -97,7 +97,7 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 			try {
 				handleDelete(request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus());
+				response.setStatus(e.getStatus(), e.getMessage());
 				return;
 			} catch (Throwable e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
@@ -111,7 +111,7 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 			try {
 				handleMethod(request.getMethod(), request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus());
+				response.setStatus(e.getStatus(), e.getMessage());
 				return;
 			} catch (Throwable e) {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");

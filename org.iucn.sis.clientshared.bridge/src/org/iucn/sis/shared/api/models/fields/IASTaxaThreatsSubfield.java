@@ -8,12 +8,12 @@ public class IASTaxaThreatsSubfield extends ThreatsSubfield {
 	
 	private static final long serialVersionUID = 1L;
 
-	public IASTaxaThreatsSubfield(ThreatsField parent, Field data) {
-		super(parent, data);
+	public IASTaxaThreatsSubfield(Field data) {
+		super(data);
 	}
 	
 	public Integer getIASTaxa() {
-		PrimitiveField<?> field = getPrimitiveField("ias");
+		PrimitiveField<?> field = proxy.getPrimitiveField("ias");
 		if (field == null)
 			return null;
 		else
@@ -21,11 +21,11 @@ public class IASTaxaThreatsSubfield extends ThreatsSubfield {
 	}
 	
 	public void setIASTaxa(Integer taxaID) {
-		addPrimitiveField(new ForeignKeyPrimitiveField("ias", this, taxaID, null));
+		proxy.addPrimitiveField(new ForeignKeyPrimitiveField("ias", proxy, taxaID, null));
 	}
 	
 	public Integer getAncestry() {
-		PrimitiveField<?> field = getPrimitiveField("ancestry");
+		PrimitiveField<?> field = proxy.getPrimitiveField("ancestry");
 		if (field == null)
 			return null;
 		else
@@ -33,7 +33,7 @@ public class IASTaxaThreatsSubfield extends ThreatsSubfield {
 	}
 	
 	public void setAncestry(Integer ancestry) {
-		addPrimitiveField(new ForeignKeyPrimitiveField("ancestry", this, ancestry, null));
+		proxy.addPrimitiveField(new ForeignKeyPrimitiveField("ancestry", proxy, ancestry, null));
 	}
 
 }

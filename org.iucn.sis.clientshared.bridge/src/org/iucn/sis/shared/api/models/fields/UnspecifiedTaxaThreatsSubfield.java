@@ -8,12 +8,12 @@ public class UnspecifiedTaxaThreatsSubfield extends ThreatsSubfield {
 	
 	private static final long serialVersionUID = 1L;
 	
-	public UnspecifiedTaxaThreatsSubfield(ThreatsField parent, Field data) {
-		super(parent, data);
+	public UnspecifiedTaxaThreatsSubfield(Field data) {
+		super(data);
 	}
 	
 	public String getExplanation() {
-		PrimitiveField<?> field = getPrimitiveField("text");
+		PrimitiveField<?> field = proxy.getPrimitiveField("text");
 		if (field == null)
 			return null;
 		else
@@ -21,7 +21,7 @@ public class UnspecifiedTaxaThreatsSubfield extends ThreatsSubfield {
 	}
 	
 	public void setExplanation(String explanation) {
-		addPrimitiveField(new StringPrimitiveField("text", this, explanation));
+		proxy.addPrimitiveField(new StringPrimitiveField("text", proxy, explanation));
 	}
 
 }

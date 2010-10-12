@@ -157,28 +157,7 @@ public class FieldSchemaGenerator {
 					tableName += "_" + name + "Lookup";
 				}
 				
-				final SelectQuery lookups = new SelectQuery();
-				lookups.select(tableName, "*");
-				
-				final Map<Integer, String> mapping = new LinkedHashMap<Integer, String>();
-				
-				synchronized(this) {
-					try {
-						ec.doQuery(lookups, new RowProcessor() {
-							public void process(Row row) {
-								try {
-									mapping.put(row.get("id").getInteger(), row.get("label").toString());
-								} catch (NullPointerException e) {
-									TrivialExceptionHandler.ignore(this, e);
-									//TODO: can we stop processing early?
-								}
-							}
-						});
-					} catch (DBException e) {
-						Debug.println("Looking listing failed for {0}", tableName);
-						TrivialExceptionHandler.ignore(this, e);
-					}
-				}
+				final Map<Integer, String> mapping = loadLookup(tableName);
 				
 				if (!mapping.isEmpty())
 					map.put(tableName, mapping);
@@ -187,6 +166,33 @@ public class FieldSchemaGenerator {
 				scanForLookups(name, map);
 			}
 		}
+	}
+	
+	public Map<Integer, String> loadLookup(final String tableName) {
+		final SelectQuery lookups = new SelectQuery();
+		lookups.select(tableName, "*");
+		
+		final Map<Integer, String> mapping = new LinkedHashMap<Integer, String>();
+		
+		synchronized(this) {
+			try {
+				ec.doQuery(lookups, new RowProcessor() {
+					public void process(Row row) {
+						try {
+							mapping.put(row.get("id").getInteger(), row.get("label").toString());
+						} catch (NullPointerException e) {
+							TrivialExceptionHandler.ignore(this, e);
+							//TODO: can we stop processing early?
+						}
+					}
+				});
+			} catch (DBException e) {
+				Debug.println("Looking listing failed for {0}", tableName);
+				TrivialExceptionHandler.ignore(this, e);
+			}
+		}
+		
+		return mapping;
 	}
 	
 	private void getSchemaForField(Document document, String fieldName, List<Element> definitions) throws Exception {

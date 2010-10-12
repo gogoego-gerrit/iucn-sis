@@ -34,13 +34,9 @@ public class FieldSchemaGeneratorTesting {
 		
 		validateAndFixEOO(generator);
 		
-		System.out.println("----- General Habitats -----");
+		System.out.println("----- Threats -----");
 		
-		validate(generator, "FAOOccurrence");
-		
-		System.out.println("----- General Habitats -----");
-		
-		validate(generator, "GeneralHabitats");
+		validate(generator, "Threats");
 	}
 	
 	private static void validateAndFixEOO(FieldSchemaGenerator generator) {

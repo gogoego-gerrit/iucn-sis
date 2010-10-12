@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.displays;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -13,11 +12,13 @@ import org.iucn.sis.client.api.caches.NotesCache;
 import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.client.panels.notes.NotesViewer;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DefinitionPanel;
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
@@ -38,7 +39,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
@@ -48,18 +48,16 @@ import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.ComplexPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 /**
@@ -144,10 +142,16 @@ public abstract class Display implements Referenceable {
 	@Override
 	public void addReferences(ArrayList<Reference> references,
 			GenericCallback<Object> callback) {
-		ReferenceCache.getInstance().addReferences(AssessmentCache.impl.getCurrentAssessment().getId(),
-				references);
+		ReferenceCache.getInstance().addReferences(references);
+		
+		Assessment assessment = AssessmentCache.impl.getCurrentAssessment(); 
+		Field field = assessment.getField(canonicalName);
+		if (field == null) {
+			initializeField();
+			field.setAssessment(assessment);
+		}
 
-		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, canonicalName, callback);
+		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, field, callback);
 	}
 
 	public void addStructure(DisplayStructure structureToAdd) {
@@ -394,6 +398,10 @@ public abstract class Display implements Referenceable {
 		}
 		return list;
 	}
+	
+	protected void initializeField() {
+		field = new Field(canonicalName, null);
+	}
 
 	public abstract boolean hasChanged();
 	
@@ -416,124 +424,20 @@ public abstract class Display implements Referenceable {
 		}
 	}
 
-	protected void openEditViewNotesPopup(final String cName, final AsyncCallback<String> wayback) {
-		final Window s = WindowUtils.getWindow(true, true, "Notes for " + cName);
-		s.setLayoutOnChange(true);
-
-		FillLayout layout = new FillLayout(Orientation.VERTICAL);
-
-		final VerticalPanel panelAdd = new VerticalPanel();
-		panelAdd.setSpacing(3);
-
-		panelAdd.add(new HTML("Add Note: "));
-
-		final TextArea area = new TextArea();
-		area.setSize("400", "75");
-		panelAdd.add(area);
-
-		Button save = new Button("Add Note");
-		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				if (area.getText().equalsIgnoreCase("")) {
-					WindowUtils.errorAlert("Data Error", "Must enter note body.");
-				} else {
-					Notes currentNote = new Notes();
-					currentNote.setValue(area.getText());
-					currentNote.setField(field);
-
-					NotesCache.impl.addNote(cName, currentNote, AssessmentCache.impl.getCurrentAssessment(),
-							new GenericCallback<String>() {
-								public void onFailure(Throwable caught) {
-								}
-
-								public void onSuccess(String result) {
-									wayback.onSuccess(result);
-									s.hide();
-								}
-							});
-				}
-
-			}
-		});
-		Button close = new Button("Close");
-		close.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				s.hide();
-			}
-		});
-
-		panelAdd.add(save);
-		panelAdd.add(close);
-
-		// final NativeDocument doc =
-		// SISClientBase.getHttpBasicNativeDocument();
-		String type = AssessmentCache.impl.getCurrentAssessment().getType();
-		String url = "/notes/" + type;
-		url += "/" + AssessmentCache.impl.getCurrentAssessment().getId();
-		url += "/" + cName;
-
-		if (type.equals(AssessmentType.USER_ASSESSMENT_TYPE))
-			url += "/" + SISClientBase.currentUser.getUsername();
-
-		final List<Notes> notes = NotesCache.impl.getNotesForCurrentAssessment(cName);
-		if (notes == null || notes.size() == 0) {
-			s.add(new HTML("<div style='padding-top:10px';background-color:grey>"
-					+ "<b>There are no notes for this field.</b></div>"));
-			s.add(panelAdd);
-		} else {
-
-			ContentPanel eBar = new ContentPanel();
-			eBar.setHeight(200);
-
-			FillLayout fl = new FillLayout();
-			fl.setOrientation(Orientation.VERTICAL);
-			eBar.setLayout(fl);
-			eBar.setLayoutOnChange(true);
-			eBar.setScrollMode(Scroll.AUTO);
-
-			for (final Notes current : notes) {
-				Image deleteNote = new Image("images/icon-note-delete.png");
-				deleteNote.setTitle("Delete Note");
-				deleteNote.addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						NotesCache.impl.deleteNote(cName, current, AssessmentCache.impl.getCurrentAssessment(),
-								new GenericCallback<String>() {
-									public void onFailure(Throwable caught) {
-
-									};
-
-									public void onSuccess(String result) {
-										s.hide();
-										if (notes.size() - 1 == 0)
-											notesIcon.setUrl("images/icon-note-grey.png");
-									};
-								});
-					}
-				});
-
-				LayoutContainer a = new LayoutContainer();
-				RowLayout innerLayout = new RowLayout();
-				innerLayout.setOrientation(Orientation.HORIZONTAL);
-				// innerLayout.setSpacing(10);
-				a.setLayout(innerLayout);
-				a.setLayoutOnChange(true);
-				// a.setWidth(400);
-				a.add(deleteNote, new RowData());
-				a.add(new HTML("<b>" + current.getEdit().getUser().getDisplayableName() + 
-						" [" + FormattedDate.impl.getDate(current.getEdit().getCreatedDate()) + 
-						"]</b>  --" + current.getValue()), new RowData(1d, 1d));// );
-
-				eBar.add(a, new RowData(1d, 1d));
-			}
-			s.add(eBar);
-			s.add(panelAdd);
+	protected void openEditViewNotesPopup() {
+		if (field == null) {
+			WindowUtils.errorAlert("Please save your changes before adding notes.");
+			return;
 		}
-
-		s.setSize(500, 400);
-		s.show();
-		s.center();
+		
+		NotesViewer.open(field, new SimpleListener() {
+			public void handleEvent() {
+				if (field.getNotes() == null || field.getNotes().isEmpty())
+					notesIcon.setUrl("images/icon-note-grey.png");
+				else
+					notesIcon.setUrl("images/icon-note.png");
+			}
+		});
 	}
 
 	private void rebuildIconPanel() {
@@ -645,13 +549,7 @@ public abstract class Display implements Referenceable {
 
 		final ClickHandler noteListener = new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				openEditViewNotesPopup(canonicalName, new AsyncCallback<String>() {
-					public void onSuccess(String result) {
-						notesIcon.setUrl("images/icon-book.png");
-					}
-					public void onFailure(Throwable caught) {
-					}
-				});
+				openEditViewNotesPopup();
 			}
 		};
 

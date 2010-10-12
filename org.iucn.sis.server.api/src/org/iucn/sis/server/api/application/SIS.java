@@ -163,15 +163,14 @@ public class SIS {
 		return editIO;
 	}
 	
-	public Properties getSettings() {
+	public Properties getSettings(Context context) {
 		if (settings != null)
 			return settings;
 		
 		Properties settings = new Properties();
 		try {
 			settings = new Properties();
-			settings.load(GoGoEgo.get().
-				getFromContext(Application.getCurrent().getContext()).getVFS().
+			settings.load(GoGoEgo.get().getFromContext(context).getVFS().
 				getInputStream(new VFSPath("/settings/global.properties")));
 		} catch (IOException e) {
 			TrivialExceptionHandler.ignore(this, e);

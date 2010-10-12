@@ -132,7 +132,10 @@ public class User implements Serializable {
 	}
 	
 	public String getDisplayableName() {
-        return this.firstName + " " + this.lastName;
+		if (firstName == null && lastName == null)
+			return email;
+		else
+			return this.firstName + " " + this.lastName;
     }
 	
 	public boolean isSISUser() {

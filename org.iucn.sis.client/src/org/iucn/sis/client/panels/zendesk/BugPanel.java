@@ -62,9 +62,7 @@ public class BugPanel extends RefreshPortlet {
 	public void refresh() {
 		content.clear();
 		
-		if (buglist != null)
-			loadBugs(buglist);
-		else {
+		if (buglist == null || buglist.getPeer() == null) {
 			buglist = SimpleSISClient.getHttpBasicNativeDocument();
 			buglist.get(UriBase.getInstance().getZendeskBase() + "/zendesk/rules/"+ rule, new GenericCallback<String>() {
 				public void onSuccess(String result) {
@@ -75,6 +73,8 @@ public class BugPanel extends RefreshPortlet {
 				}
 			});
 		}
+		else
+			loadBugs(buglist);
 	}
 	
 	private void loadBugs(NativeDocument buglist) {

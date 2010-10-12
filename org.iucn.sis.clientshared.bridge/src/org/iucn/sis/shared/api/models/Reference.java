@@ -40,21 +40,25 @@ public class Reference implements Serializable, AuthorizableObject {
 		return "";
 	}
 	
-	public static Reference fromXML(NativeElement element) {
+	public static Reference fromXML(NativeElement element) throws IllegalArgumentException {
 		final Reference reference = new Reference();
-		try {
-			reference.setId(Integer.parseInt(element.getAttribute("rowID")));
-		} catch (NumberFormatException e) {
-			Debug.println("References being build from invalid model!");
-		}
-		reference.setType(element.getAttribute("type"));
+		reference.setId(-1);
 		
 		final NativeNodeList nodes = element.getElementsByTagName("field");
 		for (int i = 0; i < nodes.getLength(); i++) {
 			final NativeElement field = nodes.elementAt(i);
 			final String name = field.getAttribute("name");
 			final String value = field.getTextContent();
-			if ("citationShort".equals(name))
+			if ("id".equals(name)) {
+				try {
+					reference.setId(Integer.parseInt(value));
+				} catch (NumberFormatException e) {
+					Debug.println("References being build from invalid model!");
+				}
+			}
+			else if ("type".equals(name))
+				reference.setType(value);
+			else if ("citationShort".equals(name))
 				reference.setCitationShort(value);
 			else if ("citation".equals(name))
 				reference.setCitation(value);
@@ -117,6 +121,9 @@ public class Reference implements Serializable, AuthorizableObject {
 			else if ("submissionType".equals(name))
 				reference.setSubmissionType(value);
 		}
+		
+		if (reference.getId() < 0)
+			throw new IllegalArgumentException("Error building reference from node, required fields not present.");
 		
 		return reference;
 	}

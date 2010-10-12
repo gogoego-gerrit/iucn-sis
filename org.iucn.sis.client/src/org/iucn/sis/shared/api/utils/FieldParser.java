@@ -13,6 +13,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.displays.FieldDisplay;
+import org.iucn.sis.shared.api.displays.Threats;
 import org.iucn.sis.shared.api.structures.BooleanRule;
 import org.iucn.sis.shared.api.structures.ContentRule;
 import org.iucn.sis.shared.api.structures.Rule;
@@ -96,6 +97,8 @@ public class FieldParser {
 				Debug.println(
 						"Failed to process field " + fieldElement.getElementByTagName("canonicalName").getText());
 			}
+		} else if (fieldElement.getNodeName().equalsIgnoreCase("threats")) {
+			return new Threats(fieldElement);
 		} else {
 			try {
 				return doOperate(processTreeTags(fieldElement));
@@ -145,7 +148,7 @@ public class FieldParser {
 	 *            with XML data about structures
 	 * @return an ArrayList containing DisplayData for structures
 	 */
-	private ArrayList<DisplayData> parseStructures(NativeNodeList structureTags, LookupDataContainer lookups) {
+	private static ArrayList<DisplayData> parseStructures(NativeNodeList structureTags, LookupDataContainer lookups) {
 		ArrayList<DisplayData> structureSet = new ArrayList<DisplayData>();
 		
 		DisplayData currentDisplayData;
@@ -663,7 +666,7 @@ public class FieldParser {
 	 *            the NativeNode containing root XML data
 	 * @return a TreeDataRow object representation of the XML
 	 */
-	private TreeDataRow processRoot(NativeNode currentRoot, TreeData defaultTreeStructure, LookupDataContainer lookups) {
+	public static TreeDataRow processRoot(NativeNode currentRoot, TreeData defaultTreeStructure, LookupDataContainer lookups) {
 		String value;
 		boolean override = false;
 		TreeDataRow currentRow = new TreeDataRow();

@@ -45,5 +45,5 @@ public interface Referenceable {
 	 * @param references
 	 * @param callback
 	 */
-	public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> callback);
+	public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> listener);
 }

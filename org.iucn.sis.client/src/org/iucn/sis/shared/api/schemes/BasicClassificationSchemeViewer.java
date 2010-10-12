@@ -6,17 +6,20 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.panels.notes.NotesViewer;
 import org.iucn.sis.client.panels.references.PagingPanel;
+import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.structures.Structure;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
@@ -34,13 +37,13 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.HTML;
@@ -53,17 +56,17 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationSchemeModelData> implements ClassificationSchemeViewer {
 	
-	private final ListStore<ClassificationSchemeModelData> server;
-	private List<ClassificationSchemeModelData> saved;
+	protected final ListStore<ClassificationSchemeModelData> server;
+	protected List<ClassificationSchemeModelData> saved;
 	
-	private TreeData treeData;
-	private String description;
+	protected TreeData treeData;
+	protected String description;
 	
-	private LayoutContainer innerContainer;
-	private LayoutContainer displayPanel;
-	private Grid<ClassificationSchemeModelData> grid;
+	protected LayoutContainer innerContainer;
+	protected LayoutContainer displayPanel;
+	protected Grid<ClassificationSchemeModelData> grid;
 	
-	private boolean hasChanged;
+	protected boolean hasChanged;
 	
 	public BasicClassificationSchemeViewer(String description, TreeData treeData) {
 		super();
@@ -90,8 +93,9 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			displayPanel.addStyleName("thinFrameBorder");
 			//displayPanel.setBorderWidth(1);
 			
-			innerContainer = new LayoutContainer();
-			innerContainer.setWidth(900);
+			innerContainer = new LayoutContainer(new FillLayout());
+			innerContainer.setLayoutOnChange(true);
+			//innerContainer.setWidth(900);
 			
 			/*pagingLoader = new GenericPagingLoader<ClassificationSchemeModelData>();
 			
@@ -230,9 +234,9 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 	
 	private void updateInnerContainer(final ClassificationSchemeModelData model, final boolean addToPagingLoader, final boolean isViewOnly) {
 		final ComboBox<CodingOption> box = createClassificationOptions(model.getSelectedRow());
-
-		final HorizontalPanel buttonPanel = new HorizontalPanel();
-		buttonPanel.add(new Button("OK", new SelectionListener<ButtonEvent>() {
+		
+		final ToolBar buttonPanel = new ToolBar();
+		buttonPanel.add(new Button("Save Selection", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				//									if(!((Boolean)box.getSelection().get(0).get("enabled")).booleanValue() || (!init.equals(box.getSelection().get(0).get("key")) && selected.containsKey(box.getSelection().get(0).get("key")))){
 				/*if( (box.getValue(box.getSelectedIndex()).equals("") || (!init.equals(box.getValue(box.getSelectedIndex())) && selected.containsKey(box.getValue(box.getSelectedIndex())) ))){
@@ -243,7 +247,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				//TODO: prevent duplicate entries
 				
 				model.setSelectedRow(box.getValue().getRow());
-				model.getDisplayableData();
+				model.updateDisplayableData();
 				
 				if (addToPagingLoader) {
 					/*pagingLoader.getFullList().add(0, model);
@@ -254,7 +258,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 					server.update(model);
 								
 				hasChanged = true;
-
+				
 				innerContainer.removeAll();
 			}
 		}));
@@ -264,12 +268,21 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			}
 		}));
 		
+		final ToolBar top = new ToolBar();
+		top.add(new LabelToolItem(description+":"));
+		top.add(box);
+		
+		final LayoutContainer widgetContainer = new LayoutContainer(new FillLayout());
+		widgetContainer.setScrollMode(Scroll.AUTO);
+		widgetContainer.add(model.getDetailsWidget(isViewOnly));
+		
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(top, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
+		container.add(widgetContainer ,new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(buttonPanel, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+		
 		innerContainer.removeAll();
-		innerContainer.add(new HTML(description+":"));
-		innerContainer.add(box);
-		innerContainer.add(model.getDetailsWidget(isViewOnly));
-		innerContainer.add(buttonPanel);
-		innerContainer.layout();
+		innerContainer.add(container);
 	}
 	
 	public ToolBar getLabelPanel(final Grid<ClassificationSchemeModelData> grid, boolean isViewOnly){
@@ -283,80 +296,53 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		 * there is an IconButton class in our libraries somewhere that 
 		 * does take an image, but it's nowhere to be found right now. 
 		 */
-		
-		final ToolBar toolBar = new ToolBar();
-		toolBar.setVisible(false);
 
-		final IconButton notesImage = new IconButton("images/icon-note-grey.png");
-		final IconButton refImage = new IconButton("images/icon-book-grey.png");
-		
-		toolBar.addListener(Events.Change, new Listener<BaseEvent>(){
-			public void handleEvent(BaseEvent be) {
-				if (!toolBar.isVisible())
-					toolBar.setVisible(true);
-				
-				/*curRefs = AssessmentCache.impl.getCurrentAssessment().getField(
-						canonicalName + "." + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey()).getReference();
-
-				//if(refIcon==null){
-				if (curRefs == null || curRefs.size() == 0)
-					refImage.changeStyle("images/icon-book-grey.png");
-				else
-					refImage.changeStyle("images/icon-book.png");
-				//}
-
-				curNotes = NotesCache.impl.getNotesForCurrentAssessment(canonicalName + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey());
-
-				if (curNotes == null || curNotes.size() == 0) {
-					notesImage.changeStyle("images/icon-note-grey.png");
-				} else {
-					notesImage.changeStyle("images/icon-note.png");
-				}*/
-			};
-
-		});
-
-
-		//entryCanonicalName = canonicalName + "." + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).curEntry.getKey();
-
-
-		final IconButton remove = new IconButton("images/icon-cross.png");
+		final IconButton remove = new IconButton("icon-cross");
 		remove.addStyleName("pointerCursor");
 		remove.setSize("18px", "18px");
 		remove.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
-				WindowUtils.confirmAlert("Delete Confirm", "Are you sure you want to delete this data?", new WindowUtils.MessageBoxListener() {
-					public void onNo() {
-					}
-					@Override
-					public void onYes() {
-						//ClassificationSchemeEntry curEntry = (ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem();
-						//selected.remove(curEntry.getKey());
-						
-						ClassificationSchemeModelData model = grid.getSelectionModel().getSelectedItem();
-						if (model != null) {
-							server.remove(model);
-							//pagingLoader.getFullList().remove(model);
-						
-							innerContainer.removeAll();
-						
-							toolBar.setVisible(false);
+				final ClassificationSchemeModelData model = grid.getSelectionModel().getSelectedItem();
+				if (model == null)
+					WindowUtils.errorAlert("Please select a row to delete.");
+				else {
+					WindowUtils.confirmAlert("Delete Confirm", "Are you sure you want to delete this data?", new WindowUtils.SimpleMessageBoxListener() {
+						public void onYes() {
+							if (model != null) {
+								server.remove(model);
+							
+								innerContainer.removeAll();
+							}
 						}
-					}
-				});
+					});
+				}
 			}
 		});
 
-		if (!isViewOnly){
-			toolBar.add(remove);
-			toolBar.add(new SeparatorToolItem());
-		}
-
-
-		final IconButton refIcon = new IconButton("images/icon-book-grey.png");
-		refIcon.setStyleName("SIS_iconPanelIcon");
+		final IconButton refIcon = new IconButton("icon-book");
+		refIcon.addStyleName("SIS_iconPanelIcon");
 		refIcon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
+				GenericCallback<Object> callback = new GenericCallback<Object>() {
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Error!", "Error committing changes to the "
+								+ "server. Ensure you are connected to the server, then try " + "the process again.");
+					}
+
+					public void onSuccess(Object result) {
+						
+					}
+				};
+				
+				final ClassificationSchemeModelData model = grid.getSelectionModel().getSelectedItem();
+				if (model == null)
+					WindowUtils.errorAlert("Please select a row to add references.");
+				else {
+					String title = "Add references to " + treeData.getCanonicalName() + 
+						" " + model.getSelectedRow().getLabel(); 
+				
+					SISClientBase.getInstance().onShowReferenceEditor(title, (Referenceable)model, callback, callback);
+				
 				/*SISClientBase.getInstance().onShowReferenceEditor("Add a references to " + canonicalName + " "
 						+ ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey(), 
 						(ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem(), 
@@ -396,11 +382,11 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 						// rebuildIconPanel();
 					};
 				});*/
+				}
 			}
 		});
 
-		toolBar.add(refIcon);
-		toolBar.add(new SeparatorToolItem());
+		
 
 //		final ClickHandler noteListener = new ClickHandler() {
 //			public void onClick(ClickEvent event) {
@@ -410,9 +396,18 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 //		};
 		
 		
-		notesImage.setStyleName("SIS_iconPanelIcon");
+		final IconButton notesImage = new IconButton("icon-note");
+		notesImage.addStyleName("SIS_iconPanelIcon");
 		notesImage.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
+				final ClassificationSchemeModelData model = grid.getSelectionModel().getSelectedItem();
+				if (model == null)
+					WindowUtils.errorAlert("Please select a row to add references.");
+				else if (model.getField() == null)
+					WindowUtils.errorAlert("Please save your changes before adding notes.");
+				else {
+					NotesViewer.open(model.getField(), null);
+				}
 				/*String temp = canonicalName + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey();
 				openEditViewNotesPopup(temp, new AsyncCallback<String>() {
 					public void onSuccess(String result) {
@@ -423,21 +418,27 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				});*/
 			}
 		});
-
-		toolBar.add(notesImage);
+		
+		final ToolBar toolBar = new ToolBar();
+		if (!isViewOnly) {
+			toolBar.add(remove);
+			toolBar.add(new SeparatorToolItem());
+		}
+		toolBar.add(refIcon);
 		toolBar.add(new SeparatorToolItem());
+		toolBar.add(notesImage);
 
 		return toolBar;
 
 	}
 	
-	private ToolBar createToolbar(final boolean isViewOnly) {
+	protected ToolBar createToolbar(final boolean isViewOnly) {
 		final Button addClassification = new Button("Quick Add to " + description);
 		addClassification.setIconStyle("icon-add");
 		addClassification.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				final ClassificationSchemeModelData model = 
-					new ClassificationSchemeModelData(generateDefaultStructure());
+					newInstance(generateDefaultStructure());
 				
 				updateInnerContainer(model, true, isViewOnly);
 			}
@@ -477,7 +478,11 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		return bar;
 	}
 	
-	private ComboBox<CodingOption> createClassificationOptions(TreeDataRow selected) {
+	protected ClassificationSchemeModelData newInstance(Structure structure) {
+		return new ClassificationSchemeModelData(structure);
+	}
+	
+	protected ComboBox<CodingOption> createClassificationOptions(TreeDataRow selected) {
 		/*
 		 * Flatten the tree into a list...
 		 */
@@ -529,6 +534,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		if (deep)
 			hasChanged = false;
 		saved = server.getModels();
+		Debug.println("Classification scheme saved {0} models", saved.size());
 		return saved;
 	}
 
@@ -546,23 +552,12 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		setData(saved);
 	}
 	
-	private Structure generateDefaultStructure() {
+	protected Structure generateDefaultStructure() {
 		return DisplayDataProcessor.processDisplayStructure(treeData.getDefaultStructure());
 	}
 	
-	private ArrayList<ColumnConfig> buildColumnConfig(Structure<?> str){
+	protected ArrayList<ColumnConfig> buildColumnConfig(Structure<?> str){
 		ArrayList<ColumnConfig> cc = new ArrayList<ColumnConfig>();
-
-		GridCellRenderer<ClassificationSchemeModelData> renderer = new GridCellRenderer<ClassificationSchemeModelData>() {
-			public Object render(ClassificationSchemeModelData model, String property, ColumnData config,
-					int rowIndex, int colIndex, ListStore<ClassificationSchemeModelData> store, Grid<ClassificationSchemeModelData> grid) {
-				try {
-					return model.getDisplayableData().get(colIndex-1);
-				} catch (Exception e) {
-					return model.get(property);
-				}
-			}
-		};
 
 		ColumnConfig column = new ColumnConfig();  
 		column.setId("text");
@@ -572,9 +567,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 
 		for (String d : str.extractDescriptions()) {
 			column = new ColumnConfig();
-			column.setRenderer(renderer);
-			String id = d.replaceAll("\\s", "");
-			column.setId(id);
+			column.setId(d);
 			column.setHeader(d);
 			column.setWidth(80);
 			cc.add(column);
@@ -593,7 +586,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		grid.getView().refresh(false);
 	}
 	
-	private static class ClassificationSchemeModelDataComparator implements Comparator<Object> {
+	private class ClassificationSchemeModelDataComparator implements Comparator<Object> {
 		
 		private final TreeDataRowComparator comparator = 
 			new TreeDataRowComparator();
@@ -638,7 +631,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			super();
 			this.row = row;
 			
-			set("text", row.getDescription());
+			set("text", row.getLabel());
 			set("value", row.getDisplayId());
 		}
 		

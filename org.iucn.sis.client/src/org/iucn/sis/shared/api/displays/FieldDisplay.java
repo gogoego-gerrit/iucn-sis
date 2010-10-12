@@ -51,10 +51,8 @@ public class FieldDisplay extends Display {
 	
 	@Override
 	public void save() {
-		if (field == null) {
-			field = new Field();
-			field.setName(getCanonicalName());
-		}
+		if (field == null)
+			initializeField();
 			
 		for (DisplayStructure struct : getStructures()) {
 			if (struct.isPrimitive())

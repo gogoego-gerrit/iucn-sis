@@ -22,6 +22,7 @@ import java.util.Set;
 import org.iucn.sis.shared.api.debug.Debug;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
 public class Notes implements Serializable {
@@ -29,17 +30,22 @@ public class Notes implements Serializable {
 	public static String ROOT_TAG = "note";
 
 	public static Notes fromXML(NativeElement current) {
-		Notes note = new Notes();
-		try{
-		note.setValue(current.getElementsByTagName("value").item(0).getTextContent());
-		note.setId(Integer.valueOf(current.getAttribute("id")));
-		
-		NativeNodeList edits = current.getElementsByTagName(Edit.ROOT_TAG);
-		for (int i = 0; i < edits.getLength(); i++) {
-			note.getEdits().add(Edit.fromXML(edits.elementAt(i)));
+		final Notes note = new Notes();
+		try {
+			note.setId(Integer.valueOf(current.getAttribute("id")));
+		} catch (NullPointerException e) {
+			Debug.println(e);
+		} catch (NumberFormatException e) {
+			Debug.println(e);
 		}
-		} catch (Exception e) {
-			Debug.println("Need to fix note " );
+		
+		final NativeNodeList children = current.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			final NativeNode child = children.item(i);
+			if ("value".equals(child.getNodeName()))
+				note.setValue(child.getTextContent());
+			else if (Edit.ROOT_TAG.equals(child.getNodeName()))
+				note.getEdits().add(Edit.fromXML((NativeElement)child));	
 		}
 		
 		return note;

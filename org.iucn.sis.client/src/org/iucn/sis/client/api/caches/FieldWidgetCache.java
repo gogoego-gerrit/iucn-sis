@@ -16,6 +16,8 @@ import org.iucn.sis.shared.api.utils.FieldParser;
 
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.XMLWritingUtils;
 
@@ -54,26 +56,17 @@ public class FieldWidgetCache {
 				wayBack.onFailure(caught);
 			}
 			public void onSuccess(String arg0) {
-				NativeNodeList fields = doc.getDocumentElement().getElementsByTagName("field");
-				for (int i = 0; i < fields.getLength(); i++) {
-					Display dis = fieldParser.parseField(fields.elementAt(i));
-					if (dis != null && dis.getCanonicalName() != null && !dis.getCanonicalName().equals("")) {
-						widgetMap.put(dis.getCanonicalName(), dis);
-					} else
-						Debug.println(
-								"Parsed a " + "display with null canonical " + "name. Description is: "
-										+ dis.getDescription());
-				}
-
-				NativeNodeList trees = doc.getDocumentElement().getElementsByTagName("tree");
-				for (int i = 0; i < trees.getLength(); i++) {
-					Display dis = fieldParser.parseField(trees.elementAt(i));
-					if (dis != null && dis.getCanonicalName() != null && !dis.getCanonicalName().equals(""))
-						widgetMap.put(dis.getCanonicalName().trim(), dis);
-					else
-						Debug.println(
-								"Parsed a " + "display with null canonical " + "name. Description is: "
-										+ dis.getDescription());
+				final NativeNodeList displays = doc.getDocumentElement().getChildNodes();
+				for (int i = 0; i < displays.getLength(); i++) {
+					final NativeNode current = displays.item(i);
+					if (current.getNodeType() != NativeNode.TEXT_NODE && current instanceof NativeElement) {
+						Display dis = fieldParser.parseField((NativeElement)current);
+						if (dis != null && dis.getCanonicalName() != null && !dis.getCanonicalName().equals("")) {
+							widgetMap.put(dis.getCanonicalName(), dis);
+						} else
+							Debug.println("Parsed a " + "display with null canonical " + 
+								"name. Description is: {0}", dis.getDescription());
+					}
 				}
 
 				wayBack.onSuccess("OK");

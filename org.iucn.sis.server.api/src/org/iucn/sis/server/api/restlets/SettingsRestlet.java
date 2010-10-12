@@ -45,7 +45,7 @@ public class SettingsRestlet extends BaseServiceRestlet {
 	public Representation handleGet(Request request, Response response)
 			throws ResourceException {
 		
-		final Properties properties = SIS.get().getSettings();
+		final Properties properties = SIS.get().getSettings(getContext());
 		
 		final StringBuilder builder = new StringBuilder();
 		builder.append("<html><head>");
@@ -75,7 +75,7 @@ public class SettingsRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
-		final Properties properties = SIS.get().getSettings();
+		final Properties properties = SIS.get().getSettings(getContext());
 		
 		for (String name : form.getNames()) {
 			String value = form.getFirstValue(name);

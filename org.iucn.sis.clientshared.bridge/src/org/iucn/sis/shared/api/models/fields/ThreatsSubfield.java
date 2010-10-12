@@ -1,5 +1,6 @@
 package org.iucn.sis.shared.api.models.fields;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -7,20 +8,19 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 
-public class ThreatsSubfield extends Field {
+public class ThreatsSubfield {
 	
 	private static final long serialVersionUID = 1L;
 	
-	public ThreatsSubfield(ThreatsField parent, Field data) {
-		super(CanonicalNames.Threats+"Subfield", null);
-		setParent(parent);
-		parse(data);
+	protected Field proxy;
+	
+	public ThreatsSubfield(Field data) {
+		this.proxy = data;
 	}
 	
 	public Integer getThreat() {
-		PrimitiveField<?> field = getPrimitiveField("ThreatsLookup");
+		PrimitiveField<?> field = proxy.getPrimitiveField("ThreatsLookup");
 		if (field == null)
 			return null;
 		else
@@ -28,11 +28,23 @@ public class ThreatsSubfield extends Field {
 	}
 	
 	public void setThreat(Integer threatID) {
-		addPrimitiveField(new ForeignKeyPrimitiveField("ThreatsLookup", this, threatID, null));
+		proxy.addPrimitiveField(new ForeignKeyPrimitiveField("ThreatsLookup", proxy, threatID, null));
+	}
+	
+	public Integer getTiming() {
+		PrimitiveField<?> field = proxy.getPrimitiveField("timing");
+		if (field == null)
+			return null;
+		else
+			return ((ForeignKeyPrimitiveField)field).getValue();
+	}
+	
+	public void setTiming(Integer timing) {
+		proxy.addPrimitiveField(new ForeignKeyPrimitiveField("timing", proxy, timing, null));
 	}
 	
 	public Integer getScope() {
-		PrimitiveField<?> field = getPrimitiveField("scope");
+		PrimitiveField<?> field = proxy.getPrimitiveField("scope");
 		if (field == null)
 			return null;
 		else
@@ -40,11 +52,11 @@ public class ThreatsSubfield extends Field {
 	}
 	
 	public void setScope(Integer scope) {
-		addPrimitiveField(new ForeignKeyPrimitiveField("scope", this, scope, null));
+		proxy.addPrimitiveField(new ForeignKeyPrimitiveField("scope", proxy, scope, null));
 	}
 	
 	public String getScore() {
-		PrimitiveField<?> field = getPrimitiveField("score");
+		PrimitiveField<?> field = proxy.getPrimitiveField("score");
 		if (field == null)
 			return null;
 		else
@@ -52,11 +64,11 @@ public class ThreatsSubfield extends Field {
 	}
 	
 	public void setScore(String score) {
-		addPrimitiveField(new StringPrimitiveField("score", this, score));
+		proxy.addPrimitiveField(new StringPrimitiveField("score", proxy, score));
 	}
 	
 	public Integer getSeverity() {
-		PrimitiveField<?> field = getPrimitiveField("severity");
+		PrimitiveField<?> field = proxy.getPrimitiveField("severity");
 		if (field == null)
 			return null;
 		else
@@ -64,25 +76,27 @@ public class ThreatsSubfield extends Field {
 	}
 	
 	public void setSeverity(Integer severity) {
-		addPrimitiveField(new ForeignKeyPrimitiveField("severity", this, severity, null));
+		proxy.addPrimitiveField(new ForeignKeyPrimitiveField("severity", proxy, severity, null));
 	}
 	
 	public Set<StressField> getStresses() {
 		Set<StressField> set = new HashSet<StressField>();
-		if (getFields() != null)
-			for (Field field : getFields())
-				getFields().add(((StressField)field));
+		for (Field field : proxy.getFields())
+			set.add(new StressField(field));
 		return set;
 	}
 	
-	public void setStresses(Set<StressField> stresses) {
-		setFields(new HashSet<Field>(stresses));
-	}
-	
-	public void parse(Field field) {
-		if (field != null){
-			setFields(field.getFields());
-			setPrimitiveField(field.getPrimitiveField());
+	public void setStresses(Collection<Integer> stresses) {
+		proxy.getFields().clear();
+		
+		for (Integer stress : stresses) {
+			Field raw = new Field("StressesSubfield", null);
+			raw.setParent(proxy);
+			
+			StressField field = new StressField(raw);
+			field.setStress(stress);
+			
+			proxy.getFields().add(field.getField());
 		}
 	}
 
