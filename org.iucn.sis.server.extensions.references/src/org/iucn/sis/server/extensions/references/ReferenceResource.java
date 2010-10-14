@@ -4,7 +4,11 @@ import javax.naming.NamingException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.hibernate.criterion.Example;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.SelectCountDBProcessor;
+import org.iucn.sis.shared.api.models.Reference;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -27,6 +31,7 @@ import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.DeleteQuery;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
+import com.solertium.util.BaseDocumentUtils;
 
 public class ReferenceResource extends Resource {
 
@@ -42,58 +47,51 @@ public class ReferenceResource extends Resource {
 
 	@Override
 	public void removeRepresentations() throws ResourceException {
+		final Integer id;
 		try {
-			final ExecutionContext ec = new SystemExecutionContext(ReferenceApplication.DBNAME);
-			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
-			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
-			String refID = (String) getRequest().getAttributes().get("refid");
-
-			String sql = "SELECT COUNT(*) AS rowcount FROM assessment_reference where ref_id="
-					+ ec.formatLiteral(new StringLiteral(refID)) + ";";
-			SelectCountDBProcessor proc = new SelectCountDBProcessor();
-			ec.doQuery(sql, proc);
-
-			if (proc.getCount() == 0) {
-				DeleteQuery dq = new DeleteQuery("bibliography", "Bib_hash", getRequest().getAttributes().get("refid"));
-				ec.doUpdate(dq);
-				getResponse().setStatus(Status.SUCCESS_OK);
-			} else
-				getResponse().setStatus(Status.CLIENT_ERROR_EXPECTATION_FAILED);
-
-		} catch (final DBException dbx) {
-			dbx.printStackTrace();
-			getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-		} catch (final NamingException nx) {
-			nx.printStackTrace();
-			getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+			id = Integer.valueOf((String)getRequest().getAttributes().get("refid"));
+		} catch (NumberFormatException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a valid ID", e);
+		} catch (NullPointerException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "PLease supply an ID", e);
+		}
+		
+		final Reference reference;
+		try {
+			reference = SISPersistentManager.instance().getObject(Reference.class, id);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		if (!reference.getField().isEmpty() || !reference.getSynonym().isEmpty() || 
+				!reference.getTaxon().isEmpty() || !reference.getCommon_name().isEmpty())
+			throw new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED);
+		
+		try {
+			SISPersistentManager.instance().deleteObject(reference);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
 
 	@Override
-	public Representation represent(final Variant variant) {
+	public Representation represent(final Variant variant) throws ResourceException {
+		final Integer id;
 		try {
-			final ExecutionContext ec = new SystemExecutionContext(ReferenceApplication.DBNAME);
-			final SelectQuery sq = new SelectQuery();
-			sq.select("bibliography", "*");
-			sq.constrain(new CanonicalColumnName("bibliography", "Bib_hash"), QConstraint.CT_EQUALS, getRequest()
-					.getAttributes().get("refid"));
-			final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			final Element rootEl = doc.createElement("references");
-			doc.appendChild(rootEl);
-
-			ec.doQuery(sq, new ReferenceRowProcessor(doc, rootEl, ReferenceLabels.loadFrom(getContext())));
-			return new DomRepresentation(MediaType.TEXT_XML, doc);
-		} catch (final DBException dbx) {
-			dbx.printStackTrace();
-			getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("No such reference", MediaType.TEXT_PLAIN);
-		} catch (final NamingException nx) {
-			nx.printStackTrace();
-			getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
-			return new StringRepresentation("Reference database not available", MediaType.TEXT_PLAIN);
-		} catch (final ParserConfigurationException px) {
-			px.printStackTrace();
-			throw new RuntimeException("XML Parser not properly configured", px);
+			id = Integer.valueOf((String)getRequest().getAttributes().get("refid"));
+		} catch (NumberFormatException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a valid ID", e);
+		} catch (NullPointerException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "PLease supply an ID", e);
 		}
+		
+		final Reference reference;
+		try {
+			reference = SISPersistentManager.instance().getObject(Reference.class, id);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		return new StringRepresentation(reference.toXML(), variant.getMediaType());
 	}
 }

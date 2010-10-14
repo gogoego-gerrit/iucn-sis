@@ -11,7 +11,6 @@ import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.client.api.caches.NotesCache;
 import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.client.api.container.SISClientBase;
-import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.panels.notes.NotesViewer;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.citations.Referenceable;
@@ -19,7 +18,6 @@ import org.iucn.sis.shared.api.data.DefinitionPanel;
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
@@ -30,30 +28,22 @@ import org.iucn.sis.shared.api.structures.Structure;
 import org.iucn.sis.shared.api.utils.clipboard.Clipboard;
 import org.iucn.sis.shared.api.utils.clipboard.UsesClipboard;
 
-import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -141,17 +131,28 @@ public abstract class Display implements Referenceable {
 
 	@Override
 	public void addReferences(ArrayList<Reference> references,
-			GenericCallback<Object> callback) {
+			final GenericCallback<Object> callback) {
 		ReferenceCache.getInstance().addReferences(references);
 		
 		Assessment assessment = AssessmentCache.impl.getCurrentAssessment(); 
-		Field field = assessment.getField(canonicalName);
 		if (field == null) {
 			initializeField();
 			field.setAssessment(assessment);
 		}
 
-		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, field, callback);
+		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, field, new GenericCallback<Object>() {
+			public void onSuccess(Object result) {
+				if (field != null && field.getReference().size() == 0)
+					refIcon.setUrl("images/icon-book-grey.png");
+				else
+					refIcon.setUrl("images/icon-book.png");
+				
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
 	}
 
 	public void addStructure(DisplayStructure structureToAdd) {
@@ -416,12 +417,16 @@ public abstract class Display implements Referenceable {
 	}
 
 	public void onReferenceChanged(GenericCallback<Object> callback) {
-		try {
+		/*
+		 * The reference changed, I don't think this requires us 
+		 * saving the assessment...
+		 */
+		/*try {
 			AssessmentClientSaveUtils.saveAssessment(AssessmentCache.impl.getCurrentAssessment(), callback);
 		} catch (InsufficientRightsException e) {
 			WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
 					+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
-		}
+		}*/
 	}
 
 	protected void openEditViewNotesPopup() {
@@ -432,7 +437,8 @@ public abstract class Display implements Referenceable {
 		
 		NotesViewer.open(field, new SimpleListener() {
 			public void handleEvent() {
-				if (field.getNotes() == null || field.getNotes().isEmpty())
+				List<Notes> list = NotesCache.impl.getNotesForCurrentAssessment(field);
+				if (list == null || list.isEmpty())
 					notesIcon.setUrl("images/icon-note-grey.png");
 				else
 					notesIcon.setUrl("images/icon-note.png");
@@ -476,19 +482,24 @@ public abstract class Display implements Referenceable {
 		// iconPanel.add(new Label("Help"));
 	}
 
-	public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> callback) {
-		int removed = 0;
-		for (int i = 0; i < references.size(); i++)
-			if (field != null && field.getReference().remove(references.get(i)))
-				removed++;
-
-		if (removed > 0) {
-			try {
-				AssessmentClientSaveUtils.saveAssessment(AssessmentCache.impl.getCurrentAssessment(), callback);
-			} catch (InsufficientRightsException e) {
-				WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
-						+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
-			}
+	public void removeReferences(ArrayList<Reference> references, final GenericCallback<Object> callback) {
+		try {
+			AssessmentClientSaveUtils.saveAssessment(new GenericCallback<Object>() {
+				public void onSuccess(Object result) {
+					if (field != null && field.getReference().size() == 0)
+						refIcon.setUrl("images/icon-book-grey.png");
+					else
+						refIcon.setUrl("images/icon-book.png");
+					
+					callback.onSuccess(result);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		} catch (InsufficientRightsException e) {
+			WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
+					+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
 		}
 	}
 
@@ -591,9 +602,8 @@ public abstract class Display implements Referenceable {
 			}
 		});
 
-		List<Notes> notes = NotesCache.impl.getNotesForCurrentAssessment(canonicalName);
-
-		if (notes == null || notes.size() == 0) {
+		List<Notes> notes = NotesCache.impl.getNotesForCurrentAssessment(field);
+		if (notes == null || notes.isEmpty()) {
 			notesIcon = new Image("images/icon-note-grey.png");
 		} else {
 			notesIcon = new Image("images/icon-note.png");

@@ -11,6 +11,7 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Reference;
 
@@ -111,25 +112,23 @@ public class ReferenceCache extends HashMap<Integer, Set<Reference>> {
 		}
 
 		if (added > 0) {
-			if (AssessmentCache.impl.getCurrentAssessment().getField().contains(field)) {
-				try {
-					AssessmentClientSaveUtils.saveAssessment(null, AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
-						public void onFailure(Throwable caught) {
-							wayback.onFailure(caught);
-						};
-		
-						public void onSuccess(Object result) {
-							wayback.onSuccess("");
-						};
-					});
-				} catch (InsufficientRightsException e) {
-					WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
-							+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
-					wayback.onFailure(e);
-				}
-			}
-			else {
-				wayback.onSuccess(null);
+			Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+			if (!assessment.getField().contains(field))
+				assessment.getField().add(field);
+			
+			try {
+				AssessmentClientSaveUtils.saveAssessment(null, assessment, new GenericCallback<Object>() {
+					public void onFailure(Throwable caught) {
+						wayback.onFailure(caught);
+					};
+					public void onSuccess(Object result) {
+						wayback.onSuccess("");
+					};
+				});
+			} catch (InsufficientRightsException e) {
+				WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
+						+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
+				wayback.onFailure(e);
 			}
 		} else {
 			final Dialog report = new Dialog();

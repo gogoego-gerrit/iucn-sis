@@ -1,15 +1,16 @@
 package org.iucn.sis.server.extensions.references;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.naming.NamingException;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Restrictions;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
-import org.iucn.sis.server.api.utils.SelectCountDBProcessor;
+import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Reference;
 import org.restlet.Context;
-import org.restlet.data.CharacterSet;
+import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -21,24 +22,114 @@ import org.restlet.representation.Variant;
 import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import com.solertium.db.DBException;
-import com.solertium.db.ExecutionContext;
-import com.solertium.db.SystemExecutionContext;
+import com.solertium.db.Row;
+import com.solertium.db.RowProcessor;
+import com.solertium.util.NodeCollection;
+import com.solertium.util.portable.XMLWritingUtils;
 
 public class ReferenceSearchResource extends Resource {
 
 	public ReferenceSearchResource(final Context context, final Request request, final Response response) {
 		super(context, request, response);
-		getVariants().add(new Variant(MediaType.TEXT_XML));
 		setModifiable(true);
+		
+		getVariants().add(new Variant(MediaType.TEXT_XML));
+	}
+	
+	@Override
+	public Representation represent(Variant variant) throws ResourceException {
+		final Form form = getRequest().getResourceRef().getQueryAsForm();
+		final Map<String, String> constraints = new HashMap<String, String>();
+		for (String key : form.getNames())
+			constraints.put(key, form.getFirstValue(key));
+		
+		return doQuery(constraints);
 	}
 	
 	@Override
 	public void acceptRepresentation(Representation entity) throws ResourceException {
+		final Document document;
+		try {
+			document = new DomRepresentation(entity).getDocument();
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+		}
+		
+		final Map<String, String> constraints = new HashMap<String, String>();
+		final NodeCollection nodes = new NodeCollection(document.getDocumentElement().getChildNodes());
+		for (Node node : nodes)
+			constraints.put(node.getNodeName(), node.getTextContent());
+		
+		getResponse().setEntity(doQuery(constraints));
+		getResponse().setStatus(Status.SUCCESS_OK);
+	}
+	
+	private Representation doQuery(Map<String, String> constraints) throws ResourceException {
+		String where = null;
+		for (Map.Entry<String, String> entry : constraints.entrySet()) {
+			if (!"start".equals(entry.getKey()) && !"limit".equals(entry.getKey())) {
+				if (where == null)
+					where = "WHERE ";
+				else
+					where += " AND ";
+				where += "UPPER(reference." + entry.getKey() + ") like '%" + entry.getValue().toUpperCase() + "%'";
+			}
+		}
+
+		String query = "SELECT reference.id, COUNT(field_reference.fieldid) as usage " +
+			"FROM reference " + 
+			"LEFT JOIN field_reference ON reference.id = field_reference.referenceid";
+		if (where != null)
+			query += " " + where;
+		query += " GROUP BY (reference.id)";
+		
+		final Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+		synchronized (this) {
+			try {
+				SIS.get().getExecutionContext().doQuery(query, new RowProcessor() {
+					public void process(Row row) {
+						map.put(row.get("id").getInteger(), row.get("usage").getInteger());
+					}
+				});
+			} catch (DBException e) {
+				Debug.println(e);
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
+		}
+		
+		if (map.isEmpty())
+			return new StringRepresentation("<root/>", MediaType.TEXT_XML);
+		
+		Criteria crit = 
+			SISPersistentManager.instance().getSession().createCriteria(Reference.class);
+		crit = crit.add(Restrictions.in("id", map.keySet()));
+		
+		final StringBuilder builder = new StringBuilder();
+		builder.append("<root>");
+		for (Object possiblReference : crit.list()) {
+			Reference reference;
+			try {
+				reference = (Reference)possiblReference;
+			} catch (ClassCastException e) {
+				//??
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
+			
+			String count = map.containsKey(reference.getId()) ? map.get(reference.getId()) + "" : "0";
+			builder.append("<reference count=\"" + count + "\">");
+			for (Map.Entry<String, String> entry : reference.toMap().entrySet()) {
+				builder.append(XMLWritingUtils.writeCDATATag(entry.getKey(), entry.getValue(), true));
+			}
+			builder.append("</reference>");
+		}
+		builder.append("</root>");
+		
+		return new StringRepresentation(builder.toString(), MediaType.TEXT_XML);
+		
+		/*
 		try {
 			final ExecutionContext ec = new SystemExecutionContext(ReferenceApplication.DBNAME);
 			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
@@ -114,7 +205,7 @@ public class ReferenceSearchResource extends Resource {
 		} catch (final ParserConfigurationException px) {
 			px.printStackTrace();
 			throw new RuntimeException("XML Parser not properly configured", px);
-		}
+		}*/
 	}
 //
 //	@Override

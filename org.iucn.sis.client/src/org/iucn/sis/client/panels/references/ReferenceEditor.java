@@ -46,6 +46,8 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.lwxml.gwt.utils.ClientDocumentUtils;
+import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -431,11 +433,11 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 		final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
 		ndoc.delete(UriBase.getInstance().getReferenceBase() +"/refsvr/reference/" + reference.getReferenceID(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				if (caught.getMessage().contains("417")) {
+				if (caught instanceof GWTResponseException && ((GWTResponseException)caught).getCode() == 417)
 					WindowUtils.errorAlert("Reference In Use", "This reference cannot be deleted "
 							+ "because it is being used in some assessments. Please remove it from "
 							+ "these assessments before deleting it.");
-				} else
+				else
 					WindowUtils.errorAlert("Error Deleting", "Could not delete this reference. "
 							+ "Please check you are properly connected to the SIS server and try again.");
 			}
@@ -467,33 +469,19 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 			citationComplete = reference.isCitationValid();
 			save();
 		} else if (!citation.equalsIgnoreCase(reference.getCitation())) {
-			final Dialog dialog = new Dialog();
-			dialog.setButtons(Dialog.YESNOCANCEL);
-			dialog.setClosable(false);
-			dialog.setHideOnButtonClick(true);
-			dialog.addWindowListener(new WindowListener() {
-
-				@Override
-				public void windowHide(WindowEvent we) {
-					if (we.getButtonClicked() != null) {
-						if (we.getButtonClicked().getText().equalsIgnoreCase(dialog.yesText)) {
-							citation = reference.getCitation();
-							citationComplete = reference.isCitationValid();
-						}
-
-						if (!we.getButtonClicked().getText().equalsIgnoreCase(dialog.cancelText))
-							save();
-					}
+			String message = 
+				"The citation does not accurately reflect all of the entered information.  "
+				+ "Would you like to update the citation before saving?  The new citation would be: "
+				+ "<br/><br/> " + reference.getCitation();
+			WindowUtils.confirmAlert("Update Citation", message, new WindowUtils.MessageBoxListener() {
+				public void onYes() {
+					citation = reference.getCitation();
+					citationComplete = reference.isCitationValid();
+				}
+				public void onNo() {
+					save();
 				}
 			});
-			dialog.setHeading("Update Citation");
-			HTML html = new HTML("The citation does not accurately reflect all of the entered information.  "
-					+ "Would you like to update the citation before saving?  The new citation would be: "
-					+ "<br/><br/> " + reference.getCitation());
-			dialog.add(html);
-
-			dialog.setSize(400, 300);
-			dialog.show();
 		} else {
 			save();
 		}

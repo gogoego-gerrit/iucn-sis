@@ -164,10 +164,6 @@ public class Field implements Serializable {
 		}
 		return field;	
 	}
-	
-	public String getGenerationCode() {
-		return generationCode;
-	}
 
 	@Override
 	public int hashCode() {

@@ -241,11 +241,13 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 				
 				for (int i = 0; i < referenceList.getLength(); i++) {
 					final NativeNode node = referenceList.item(i);
+					Debug.println("Parsing {0}", node.getNodeName());
 					if ("reference".equals(node.getNodeName())) {
 						final NativeElement currentReference;
 						try {
 							currentReference = (NativeElement)node;
 						} catch (ClassCastException e) {
+							Debug.println(e);
 							continue;
 						}
 						
@@ -253,7 +255,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 						try {
 							current = Reference.fromXML(currentReference);
 						} catch (Throwable e) {
-							e.printStackTrace();
+							Debug.println(e);
 							continue;
 						}
 						String count = currentReference.getAttribute("count");
@@ -276,7 +278,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 					}
 				}
 						
-				Debug.println("Found {0} references and {1} in list.", total, referenceList.getLength());
+				Debug.println("Found {0} references and {1} in list, added {2}.", total, referenceList.getLength(), ret.getCount());
 				
 				callback.onSuccess(ret);
 			}

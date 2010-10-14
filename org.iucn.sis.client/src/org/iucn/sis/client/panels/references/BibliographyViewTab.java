@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels.references;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -43,17 +42,14 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	
 	private Grid<ReferenceModel> grid;
 	
-	private boolean fieldsShowing;
-	private Iterator<Reference> local;
+	//private boolean fieldsShowing;
+	//private Iterator<Reference> local;
 	
-	private boolean nonUniqueIDs;
-	private final HashMap<String, Reference> currentUniqueReferences;
 	private Set<Reference> currentReferences;
 	
 	public BibliographyViewTab(ReferenceViewAPI parent) {
 		super();
 		this.parent = parent;
-		this.currentUniqueReferences = new HashMap<String, Reference>();
 		setLayout(new FillLayout());
 		draw();
 	}
@@ -83,56 +79,9 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 		grid.getView().refresh(false);
 	}
 
-	public void setReferences(Referenceable referenceable) {
-		final Referenceable curReferenceable = parent.getReferenceable();
-		
-		if (curReferenceable != null) {
-			currentReferences = curReferenceable.getReferencesAsList();
-			rebuildUniqueRefs(currentReferences);
-			
-			
-			/*biblioContainer.removeAll();
-			biblioContainer.getHeader().setEnabled(true);*/
-			
-			if (currentUniqueReferences.size() > 0) {
-				showBibliography();
-			} else {
-				WindowUtils.infoAlert("No References.");
-				//biblioContainer.layout();
-			}
-			
-			//add.setEnabled(true);
-		} else {
-			currentReferences = null;
-			//biblioContainer.getHeader().setEnabled(false);
-			
-			//FIXME: TODO: implement
-			//setSelection(searchContainer);
-			
-			//add.setEnabled(false);
-		}
-		
-		nonUniqueIDs = false;
-	}
-	
-	private void rebuildUniqueRefs(Set<Reference> refs) {
-		currentUniqueReferences.clear();
-		for (Reference curRef : refs)
-			addToUniqueReferences(curRef);
-	}
-	
-	/**
-	 * Puts the referenceUI object into the current unique references map.
-	 * Checks first to see if its already in the map, and sets nonUniqueIDs to
-	 * true if applicable;
-	 * 
-	 * @param curRef
-	 */
-	private void addToUniqueReferences(Reference curRef) {
-		if (currentUniqueReferences.containsKey(curRef.getHash()))
-			nonUniqueIDs = true;
-		else
-			currentUniqueReferences.put(curRef.getHash(), curRef);
+	public void setReferences(Referenceable curReferenceable) {
+		currentReferences = curReferenceable.getReferencesAsList();
+		showBibliography();
 	}
 	
 	private void removeFromCurrentList(Reference ref) {
@@ -155,12 +104,13 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 		removeItem.addListener(Events.Select, new SelectionListener<ComponentEvent>() {
 			@Override
 			public void componentSelected(ComponentEvent ce) {
-				if (!fieldsShowing && nonUniqueIDs) {
+				/*if (!fieldsShowing && nonUniqueIDs) {
 					WindowUtils.errorAlert("Cannot remove", "Your bibliography has "
 							+ "the same reference attached to multiple fields. To ensure "
 							+ "the reference is removed from the correct place, please "
 							+ "filter your references by field, then try removing again.");
-				} else if( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, 
+				} else */
+				if( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, 
 						AssessmentCache.impl.getCurrentAssessment()) ) {
 					WindowUtils.errorAlert("Cannot remove", "You do not have permission to edit this " +
 							"assessment, so you may not remove references.");
@@ -175,7 +125,6 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 					}
 					if (!list.isEmpty()) {
 						parent.onRemoveSelected(list);
-						rebuildUniqueRefs(currentReferences);
 					}
 				}
 			}
@@ -235,23 +184,17 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 				column.setHidden(!showing);
 				
 				if (showing) {
-					fieldsShowing = true;
-
 					showFields.setText("Hide Field Info");
 					showFields.setIconStyle("icon-stop");
 
-					local = currentReferences.iterator();
 					refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 					/*populateBibTable(currentReferences.iterator());
 					biblioContainer.layout();
 					bibTable.sort(0, SortDir.ASC);*/
 				} else {
-					fieldsShowing = false;
-
 					showFields.setText("Show Field Info");
 					showFields.setIconStyle("icon-accept");
 
-					local = currentUniqueReferences.values().iterator();
 					refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 					
 					/*populateBibTable(currentUniqueReferences.values().iterator());
@@ -283,11 +226,11 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	
 	@Override
 	protected void getStore(GenericCallback<ListStore<ReferenceModel>> callback) {
-		if (local != null) {
+		if (currentReferences != null) {
 			final ListStore<ReferenceModel> store = new ListStore<ReferenceModel>();
 			store.setStoreSorter(new StoreSorter<ReferenceModel>(new PortableAlphanumericComparator()));
 		
-			while (local.hasNext()) {
+			for (Iterator<Reference> local = currentReferences.iterator(); local.hasNext(); ) {
 				final Reference current = local.next();
 				current.generateCitationIfNotAlreadyGenerate();
 
@@ -305,11 +248,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	 * 
 	 */
 	private void showBibliography() {
-		fieldsShowing = false;
 		grid.getColumnModel().getColumnById("field").setHidden(true);
-
-		if (currentUniqueReferences != null)
-			local = currentUniqueReferences.values().iterator();
 		
 		/*if (biblioBar.getParent() == null) {
 			HorizontalPanel hp = new HorizontalPanel();
@@ -326,7 +265,11 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 			biblioContainer.add(hp, fill_horizontal);
 		}*/
 
-		refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+		refresh(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				layout();
+			}
+		});
 		/*try {
 			biblioContainer.layout();
 			bibTable.sort(0, SortDir.ASC);

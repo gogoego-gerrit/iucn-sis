@@ -78,7 +78,7 @@ public class NotesViewer {
 			}
 		}));
 
-		final List<Notes> notes = NotesCache.impl.getNotesForCurrentAssessment(field.getName());
+		final List<Notes> notes = NotesCache.impl.getNotesForCurrentAssessment(field);
 		if (notes == null || notes.size() == 0) {
 			window.add(new HTML("<div style='padding-top:10px';background-color:grey>"
 					+ "<b>There are no notes for this field.</b></div>"));

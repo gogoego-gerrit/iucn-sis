@@ -142,7 +142,7 @@ public class NotesRestlet extends BaseServiceRestlet {
 	private void appendNotes(Field field, StringBuilder xml) {
 		Field full = SIS.get().getFieldIO().get(field.getId());
 		if (full.getNotes() != null && !full.getNotes().isEmpty()) {
-			xml.append("<field name=\"" + full.getName() + "\">");
+			xml.append("<field name=\"" + full.getName() + ":" + full.getId() + "\">");
 			for (Notes note : full.getNotes()) 
 				xml.append(note.toXML());
 			xml.append("</field>");

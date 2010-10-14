@@ -10,63 +10,59 @@ import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.lwxml.shared.utils.NativeDocumentSerializer;
 
 public class FieldV1Parser {
 	
 	public static Field parse(final NativeElement element) {
-		Field field = new Field();
+		final Field field = new Field();
+		field.setName(element.getAttribute("name"));
 		
-		String name = element.getAttribute("name");
-		field.setName(name);
-		String id = element.getAttribute("id");
+		final String id = element.getAttribute("id");
 		try {
-		field.setId(Integer.valueOf(id).intValue());
+			field.setId(Integer.valueOf(id));
 		} catch (NumberFormatException e) {
-			Debug.println("ERROR - FIELD " + name + " DOES NOT HAVE AN ID!!! trying to parse " + id + " with name " + name);
+			Debug.println("ERROR - FIELD {0} DOES NOT HAVE AN ID!!! " +
+				"trying to parse {1} with name {0}", field.getName(), id);
 		}
 		
-		field.setFields(new HashSet<Field>());
-		NativeNodeList subfields = element.getElementsByTagName("subfields");
-		if (subfields.getLength() > 0) {
-			NativeNodeList subsubFields = subfields.elementAt(0).getElementsByTagName("field");
-			for( int i = 0; i < subsubFields.getLength(); i++ ) {
-				Field cur = Field.fromXML(subsubFields.elementAt(i));
-				cur.setParent(field);
-				field.getFields().add(cur);
+		final NativeNodeList nodes = element.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			final NativeNode current = nodes.item(i);
+			if ("subfields".equals(current.getNodeName())) {
+				NativeNodeList subsubFields = current.getChildNodes();
+				for (int k = 0; k < subsubFields.getLength(); k++) {
+					NativeNode possibleSubField = subsubFields.item(k);
+					if (possibleSubField instanceof NativeElement) {
+						Field subfield = Field.fromXML((NativeElement)possibleSubField);
+						subfield.setParent(field);
+						
+						field.getFields().add(subfield);
+					}
+				}
 			}
-		}
-		
-		
-		field.setPrimitiveField(new HashSet<PrimitiveField>());
-		NativeNodeList prims = element.getElementsByTagName(PrimitiveField.ROOT_TAG);
-		for( int i = 0; i < prims.getLength(); i++ ) {
-			NativeElement primEl = prims.elementAt(i);
-			PrimitiveField cur = PrimitiveFieldFactory.generatePrimitiveField(primEl.getAttribute(PrimitiveField.TYPE_TAG));
-			cur.fromXML(primEl);
-			cur.setField(field);
-			field.getPrimitiveField().add(cur);
-			
-			
-		}
-		
-		field.setNotes(new HashSet<Notes>());
-		NativeNodeList notes = element.getElementsByTagName(Notes.ROOT_TAG);
-		for( int i = 0; i < notes.getLength(); i++ ) {
-			Notes cur = Notes.fromXML(notes.elementAt(i));
-			cur.setField(field);
-			field.getNotes().add(cur);
-		}
-		
-		field.setReference(new HashSet<Reference>());
-		NativeNodeList refs = element.getElementsByTagName(Reference.ROOT_TAG);
-		for( int i = 0; i < refs.getLength(); i++ ) {
-			Reference cur = Reference.fromXML(refs.elementAt(i));
-			if( cur.getField() == null )
-				cur.setField(new HashSet<Field>());
-			
-			cur.getField().add(field);
-			field.getReference().add(cur);
+			else if (PrimitiveField.ROOT_TAG.equals(current.getNodeName())) {
+				NativeElement primEl = (NativeElement)current;
+				PrimitiveField cur = PrimitiveFieldFactory.
+					generatePrimitiveField(primEl.getAttribute(PrimitiveField.TYPE_TAG));
+				cur.fromXML(primEl);
+				cur.setField(field);
+				field.getPrimitiveField().add(cur);
+			}
+			else if (Notes.ROOT_TAG.equals(current.getNodeName())) {
+				Notes cur = Notes.fromXML((NativeElement)current);
+				cur.setField(field);
+				
+				field.getNotes().add(cur);
+			}
+			else if (Reference.ROOT_TAG.equals(current.getNodeName())) {
+				Reference cur = Reference.fromXML(current);
+				cur.getField().add(field);
+				
+				field.getReference().add(cur);
+			}
 		}
 		
 		return field;

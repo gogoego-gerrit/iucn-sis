@@ -35,7 +35,6 @@ public class NotesCache {
 	}
 
 	public void addNote(final Field field, Notes note, final Assessment assessment, final GenericCallback<String> callback) {
-
 		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, assessment)) {
 			WindowUtils.errorAlert("You do not have sufficient permissions to perform " + "this operation.");
 			return;
@@ -74,7 +73,7 @@ public class NotesCache {
 		else
 			map = new HashMap<String, List<Notes>>();
 		
-		final String cacheKey = field.getName() + ":" + field.getId();
+		final String cacheKey = getCacheKey(field);
 
 		List<Notes> noteList = null;
 		if (map.containsKey(cacheKey))
@@ -146,27 +145,28 @@ public class NotesCache {
 		return noteMap.get(getNoteMapID(assessment));
 	}
 
-	public List<Notes> getNotesForCurrentAssessment(String fieldName) {
-		Assessment cur = AssessmentCache.impl.getCurrentAssessment();
-		if (cur == null)
+	public List<Notes> getNotesForCurrentAssessment(Field field) {
+		final Assessment cur = AssessmentCache.impl.getCurrentAssessment();
+		if (cur == null || field == null)
 			return null;
 
-		HashMap<String, List<Notes>> notes = noteMap.get(getNoteMapID(cur));
-
+		final HashMap<String, List<Notes>> notes = noteMap.get(getNoteMapID(cur));
 		if (notes != null)
-			return notes.get(fieldName);
+			return notes.get(getCacheKey(field));
 		else
 			return null;
-
 	}
 
 	private void removeNoteFromCache(final Field field, Notes currentNote, Assessment assessment) {
-		final String cacheKey = field.getName() + ":" + field.getId();
-		
-		HashMap<String, List<Notes>> map = noteMap.get(getNoteMapID(assessment));
-		
-		List<Notes> noteList = map.get(cacheKey);
-
-		noteList.remove(currentNote);
+		final HashMap<String, List<Notes>> map = noteMap.get(getNoteMapID(assessment));
+		if (map != null) {
+			final List<Notes> noteList = map.get(getCacheKey(field));
+			if (noteList != null)
+				noteList.remove(currentNote);
+		}
+	}
+	
+	private String getCacheKey(Field field) {
+		return field.getName() + ":" + field.getId();
 	}
 }

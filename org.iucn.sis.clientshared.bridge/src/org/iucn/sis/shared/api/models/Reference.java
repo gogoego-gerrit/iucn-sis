@@ -13,6 +13,7 @@ package org.iucn.sis.shared.api.models;
  * License Type: Evaluation
  */
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +23,7 @@ import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared.Return
 import org.iucn.sis.shared.api.debug.Debug;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 public class Reference implements Serializable, AuthorizableObject {
 	
@@ -40,14 +42,14 @@ public class Reference implements Serializable, AuthorizableObject {
 		return "";
 	}
 	
-	public static Reference fromXML(NativeElement element) throws IllegalArgumentException {
+	public static Reference fromXML(NativeNode element) throws IllegalArgumentException {
 		final Reference reference = new Reference();
 		reference.setId(-1);
 		
-		final NativeNodeList nodes = element.getElementsByTagName("field");
+		final NativeNodeList nodes = element.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
-			final NativeElement field = nodes.elementAt(i);
-			final String name = field.getAttribute("name");
+			final NativeNode field = nodes.item(i);
+			final String name = field.getNodeName();
 			final String value = field.getTextContent();
 			if ("id".equals(name)) {
 				try {
@@ -122,7 +124,7 @@ public class Reference implements Serializable, AuthorizableObject {
 				reference.setSubmissionType(value);
 		}
 		
-		if (reference.getId() < 0)
+		if (reference.getId() <= 0)
 			throw new IllegalArgumentException("Error building reference from node, required fields not present.");
 		
 		return reference;
@@ -429,7 +431,10 @@ public class Reference implements Serializable, AuthorizableObject {
 	
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS*/
 	
+	private String generationCode;
+	
 	public Reference() {
+		generationCode = new Date().getTime()+"";
 	}
 	
 	private int id;
@@ -561,6 +566,7 @@ public class Reference implements Serializable, AuthorizableObject {
 
 	public void setId(int value) {
 		this.id = value;
+		this.generationCode = value + "";
 	}
 	
 	public void setReferenceID(int value) {
@@ -825,9 +831,37 @@ public class Reference implements Serializable, AuthorizableObject {
 		return taxon;
 	}
 	
-	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((generationCode == null) ? 0 : generationCode.hashCode());
+		result = prime * result + id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Reference other = (Reference) obj;
+		if (generationCode == null) {
+			if (other.generationCode != null)
+				return false;
+		} else if (!generationCode.equals(other.generationCode))
+			return false;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
 	public String toString() {
-		return String.valueOf(getId());
+		return "Reference #" + String.valueOf(getId()) + " with generation code " + generationCode;
 	}
 	
 }

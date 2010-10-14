@@ -15,7 +15,9 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
  com.solertium.db;bundle-version="1.1.2",
  com.solertium.lwxml;bundle-version="1.1.2",
- com.solertium.lwxml.java;bundle-version="1.1.2"
+ com.solertium.lwxml.java;bundle-version="1.1.2",
+ org.hibernate;bundle-version="1.0.0",
+ com.solertium.util.portable;bundle-version="1.1.2"
 Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-Activator: org.iucn.sis.server.extensions.references.ServerActivator
 Export-Package: org.iucn.sis.server.extensions.references

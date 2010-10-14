@@ -69,6 +69,10 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 		add(searchTab);
 	}
 	
+	public void showSearchTab() {
+		setSelection(getItem(1));
+	}
+	
 	@Override
 	public Referenceable getReferenceable() {
 		return curReferenceable;

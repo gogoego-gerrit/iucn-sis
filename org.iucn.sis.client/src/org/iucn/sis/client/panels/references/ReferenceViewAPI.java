@@ -16,5 +16,7 @@ public interface ReferenceViewAPI {
 	public void onRemoveSelected(ArrayList<Reference> selectedValues);
 	
 	public void setReferences(Referenceable referenceable, GenericCallback<Object> addCallback, GenericCallback<Object> removeCallback);
+	
+	public void showSearchTab();
 
 }

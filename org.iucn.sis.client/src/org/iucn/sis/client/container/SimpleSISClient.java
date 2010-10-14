@@ -8,6 +8,7 @@ import org.iucn.sis.client.panels.dem.ViewCache;
 import org.iucn.sis.shared.api.citations.Referenceable;
 
 import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -75,6 +76,7 @@ public class SimpleSISClient extends SISClientBase {
 		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setOnRemoveSelected(onRemoveCallback);*/
 
 		Window s = WindowUtils.getWindow(false, true, title);
+		s.setLayout(new FillLayout());
 		s.setIconStyle("icon-book");
 		s.add(ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel);
 		s.setSize(850, 550);
