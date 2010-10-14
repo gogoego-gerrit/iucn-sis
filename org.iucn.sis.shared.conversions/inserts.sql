@@ -2102,7 +2102,7 @@ INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('score', '
 INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('text', 'string_primitive_field', '?');
 INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('ias', 'fk_primitive_field', '?');
 INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('ancestry', 'fk_primitive_field', '?');
-INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('virus', fk_primitive_field', '?');
+INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('virus', 'fk_primitive_field', '?');
 INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('StressesSubfield', 'field', '*');
 INSERT INTO StressesSubfield (name, data_type, number_allowed) VALUES ('stress', 'fk_primitive_field', '*');
 INSERT INTO ThreatsDocumentation (name, data_type, number_allowed) VALUES ('value', 'text_primitive_field', '?');
