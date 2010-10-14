@@ -13,7 +13,7 @@
  * 2) The GNU General Public License, version 2 or later
  *     http://www.gnu.org/licenses
  ******************************************************************************/
-package com.solertium.lwxml.gwt;
+package com.solertium.lwxml.shared.utils;
 
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -40,25 +40,27 @@ public class NativeDocumentSerializer {
 		return serialize(ndoc.getDocumentElement());
 	}
 
-	public static String serialize(NativeElement root) {
+	public static String serialize(NativeNode root) {
 		StringBuilder ret = new StringBuilder();
 		return serializeRecursive(root, ret, 0);
 	}
 
-	private static String serializeRecursive(NativeElement el, StringBuilder ret, int depth) {
+	private static String serializeRecursive(NativeNode el, StringBuilder ret, int depth) {
 		addTabs(ret, depth);
 
 		ret.append("<");
 		ret.append(el.getNodeName());
 
-		NativeNamedNodeMap attrs = el.getAttributes();
-		for( int j = 0; j < attrs.getLength(); j++ ) {
-			NativeNode curAttr = attrs.item(j);
-			ret.append(" " + curAttr.getNodeName());
-			if( curAttr.getNodeValue() != null && !curAttr.equals("")) {
-				ret.append("=\"");
-				ret.append(curAttr.getNodeValue());
-				ret.append("\"");
+		if (el instanceof NativeElement) {
+			NativeNamedNodeMap attrs = ((NativeElement)el).getAttributes();
+			for( int j = 0; j < attrs.getLength(); j++ ) {
+				NativeNode curAttr = attrs.item(j);
+				ret.append(" " + curAttr.getNodeName());
+				if( curAttr.getNodeValue() != null && !curAttr.equals("")) {
+					ret.append("=\"");
+					ret.append(curAttr.getNodeValue());
+					ret.append("\"");
+				}
 			}
 		}
 
