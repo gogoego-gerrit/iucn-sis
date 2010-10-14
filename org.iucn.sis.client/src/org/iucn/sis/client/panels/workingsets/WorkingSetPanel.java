@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 /**
@@ -165,9 +166,12 @@ public class WorkingSetPanel extends RefreshPortlet {
 					goIcon.addStyleName("pointerCursor");
 					goIcon.addClickListener(new ClickListener() {
 						public void onClick(Widget sender) {
-							WorkingSetCache.impl.setCurrentWorkingSet(nameToID.get(sender.getTitle()));
-							ClientUIContainer.bodyContainer
-									.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
+							WorkingSetCache.impl.setCurrentWorkingSet(nameToID.get(sender.getTitle()), true, new SimpleListener() {
+								public void handleEvent() {
+									ClientUIContainer.bodyContainer
+										.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
+								}
+							});
 						}
 					});
 

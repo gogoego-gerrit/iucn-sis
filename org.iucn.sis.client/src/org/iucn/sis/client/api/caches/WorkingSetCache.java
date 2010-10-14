@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -23,6 +24,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
@@ -370,22 +372,46 @@ public class WorkingSetCache {
 		return workingSets;
 	}
 
+	/**
+	 * Resetting the current working set will presume that 
+	 * property data integrity measures have already been 
+	 * taken.
+	 */
 	public void resetCurrentWorkingSet() {
-		setCurrentWorkingSet((WorkingSet) null);
+		setCurrentWorkingSet((WorkingSet) null, false);
 	}
 
 	public void setCurrentWorkingSet(Integer id) {
-		
-		setCurrentWorkingSet(workingSets.get(id));
-		
+		setCurrentWorkingSet(id, true);
+	}
+	
+	public void setCurrentWorkingSet(Integer id, boolean saveIfNecessary) {
+		setCurrentWorkingSet(id, saveIfNecessary, null);
+	}
+	
+	public void setCurrentWorkingSet(Integer id, boolean saveIfNecessary, SimpleListener afterChange) {
+		setCurrentWorkingSet(workingSets.get(id), saveIfNecessary, afterChange);
+	}
+	
+	public void setCurrentWorkingSet(final WorkingSet ws, boolean saveIfNecessary) {
+		setCurrentWorkingSet(ws, saveIfNecessary, null);
 	}
 
-	public void setCurrentWorkingSet(WorkingSet ws) {
-		WorkingSet oldCurrent = currentWorkingSet;
-		currentWorkingSet = ws;
-		if (oldCurrent == null && currentWorkingSet != null || oldCurrent != null && currentWorkingSet == null || oldCurrent != null && currentWorkingSet != null && !oldCurrent.equals(currentWorkingSet)){
-			SISClientBase.getInstance().onWorkingSetChanged();
-		}
+	public void setCurrentWorkingSet(final WorkingSet ws, boolean saveIfNecessary, final SimpleListener afterChange) {
+		final SimpleListener callback = new SimpleListener() {
+			public void handleEvent() {
+				WorkingSet oldCurrent = currentWorkingSet;
+				currentWorkingSet = ws;
+				if (oldCurrent == null && currentWorkingSet != null || oldCurrent != null && currentWorkingSet == null || oldCurrent != null && currentWorkingSet != null && !oldCurrent.equals(currentWorkingSet))
+					SISClientBase.getInstance().onWorkingSetChanged();
+				if (afterChange != null)
+					afterChange.handleEvent();
+			}
+		};
+		if (saveIfNecessary)
+			AssessmentClientSaveUtils.saveIfNecessary(callback);
+		else
+			callback.handleEvent();
 	}
 
 	/**

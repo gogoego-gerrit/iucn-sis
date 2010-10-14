@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
@@ -58,6 +59,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -346,16 +348,18 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 				if (workingSetList.getSelectedItem() != null) {
 					WorkingSet selected = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
 					if (selected != null) {
-						WorkingSetCache.impl.setCurrentWorkingSet(selected.getId());
+						WorkingSetCache.impl.setCurrentWorkingSet(selected.getId(), true, new SimpleListener() {
+							public void handleEvent() {
+								if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
+										ClientUIContainer.bodyContainer.tabManager.workingSetPage))
+									ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
+								else
+									ClientUIContainer.bodyContainer
+									.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
 
-						if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
-								ClientUIContainer.bodyContainer.tabManager.workingSetPage))
-							ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
-						else
-							ClientUIContainer.bodyContainer
-							.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
-
-						hide();
+								hide();								
+							}
+						});
 					}
 				}
 			}
@@ -388,26 +392,30 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 		goToTaxon.setIconStyle("icon-go-jump");
 		goToTaxon.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				if (curNavWorkingSet != null)
-					WorkingSetCache.impl.setCurrentWorkingSet(curNavWorkingSet.getId());
-				
-				Taxon selected = (Taxon) taxonList.getSelectedItem().getData("taxon");
+				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+					public void handleEvent() {
+						if (curNavWorkingSet != null)
+							WorkingSetCache.impl.setCurrentWorkingSet(curNavWorkingSet.getId(), false);
+						
+						Taxon selected = (Taxon) taxonList.getSelectedItem().getData("taxon");
 
-				if (selected == null && taxonListBinder != null && taxonListBinder.getSelection().size() > 0)
-					selected = taxonListBinder.getSelection().get(0).getNode();
+						if (selected == null && taxonListBinder != null && taxonListBinder.getSelection().size() > 0)
+							selected = taxonListBinder.getSelection().get(0).getNode();
 
-				if (selected != null) {
-					TaxonomyCache.impl.setCurrentTaxon(selected);
+						if (selected != null) {
+							TaxonomyCache.impl.setCurrentTaxon(selected, false);
 
-					if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
-							ClientUIContainer.bodyContainer.tabManager.taxonHomePage))
-						ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
-					else
-						ClientUIContainer.bodyContainer
-						.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);
+							if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
+									ClientUIContainer.bodyContainer.tabManager.taxonHomePage))
+								ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
+							else
+								ClientUIContainer.bodyContainer
+								.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);
 
-					hide();
-				}
+							hide();
+						}
+					}
+				});
 			}
 		});
 		
@@ -713,44 +721,48 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 						header.addStyleName("bold");
 						header.addStyleName("color-dark-blue");
 						
-						final Button goToAss = new Button();
-						goToAss.setIconStyle("icon-go-jump");
-						goToAss.addSelectionListener(new SelectionListener<ButtonEvent>() {
+						final Button jump = new Button();
+						jump.setIconStyle("icon-go-jump");
+						jump.addSelectionListener(new SelectionListener<ButtonEvent>() {
 							public void componentSelected(ButtonEvent ce) {
-								if (workingSetList.getSelectedItem() != null) {
-									WorkingSet selectedSet = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
-									if (selectedSet != null)
-										WorkingSetCache.impl.setCurrentWorkingSet(selectedSet.getId());
-								}
-								
-								if (taxonList.getSelectedItem() != null) {
-									Taxon selectedTaxon = (Taxon) taxonList.getSelectedItem().getData("taxon");
-									if (selectedTaxon != null)
-										TaxonomyCache.impl.setCurrentTaxon(selectedTaxon);
-								}
+								AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+									public void handleEvent() {
+										if (workingSetList.getSelectedItem() != null) {
+											WorkingSet selectedSet = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
+											if (selectedSet != null)
+												WorkingSetCache.impl.setCurrentWorkingSet(selectedSet.getId(), false);
+										}
+										
+										if (taxonList.getSelectedItem() != null) {
+											Taxon selectedTaxon = (Taxon) taxonList.getSelectedItem().getData("taxon");
+											if (selectedTaxon != null)
+												TaxonomyCache.impl.setCurrentTaxon(selectedTaxon, false);
+										}
 
-								Assessment selected = (Assessment) assessmentList.getSelectedItem().getData("assessment");
-								if (selected != null) {
-									AssessmentCache.impl.setCurrentAssessment(selected);
+										Assessment selected = (Assessment) assessmentList.getSelectedItem().getData("assessment");
+										if (selected != null) {
+											AssessmentCache.impl.setCurrentAssessment(selected);
 
-									if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
-											ClientUIContainer.bodyContainer.tabManager.assessmentEditor))
-										ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
-									else
-										ClientUIContainer.bodyContainer
-										.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);
+											if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
+													ClientUIContainer.bodyContainer.tabManager.assessmentEditor))
+												ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
+											else
+												ClientUIContainer.bodyContainer
+												.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);
 
-									hide();
-								}
+											hide();
+										}
+									}
+								});
 							}
 						});
 
 						ToolBar toolBar = new ToolBar();
 						toolBar.add(new SeparatorToolItem());
-						toolBar.add(goToAss);
+						toolBar.add(jump);
 						toolBar.add(new Button("Open Assessment", new SelectionListener<ButtonEvent>() {
 							public void componentSelected(ButtonEvent ce) {
-								goToAss.fireEvent(Events.Select);
+								jump.fireEvent(Events.Select);
 							};
 						}));
 						

@@ -69,6 +69,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class NavigationHeader extends LayoutContainer {
@@ -134,39 +135,11 @@ public class NavigationHeader extends LayoutContainer {
 		nextTaxa.setToolTip("Next Taxon");
 		nextTaxa.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
-				if (AssessmentCache.impl.getCurrentAssessment() != null
-						&& ViewCache.impl.getCurrentView() != null 
-						&& AssessmentClientSaveUtils.shouldSaveCurrentAssessment(
-								ViewCache.impl.getCurrentView().getCurPage().getMyFields())) {
-					WindowUtils.confirmAlert("By the way...", "Navigating away from this page will"
-							+ " revert unsaved changes. Would you like to save?", new Listener<MessageBoxEvent>() {
-						public void handleEvent(MessageBoxEvent be) {
-							if (be.getButtonClicked().getText().equalsIgnoreCase("cancel")) {
-
-							} else if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-								try {
-									AssessmentClientSaveUtils.saveAssessment(AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
-										public void onFailure(Throwable caught) {
-										}
-
-										public void onSuccess(Object arg0) {
-											Info.display("Save Complete", "Successfully saved assessment {0}.",
-													AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
-
-											doMoveNext();
-										};
-									});
-								} catch (InsufficientRightsException e) {
-									WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
-											+ "permission to modify this assessment. The changes you "
-											+ "just made will not be saved.");
-								}
-							} else
-								doMoveNext();
-						}
-					});
-				} else
-					doMoveNext();
+				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+					public void handleEvent() {
+						doMoveNext();
+					}
+				});
 			}
 		});
 
@@ -182,42 +155,11 @@ public class NavigationHeader extends LayoutContainer {
 		prevTaxa.setToolTip("Previous Taxon");
 		prevTaxa.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
-				if (AssessmentCache.impl.getCurrentAssessment() != null
-						&& ViewCache.impl.getCurrentView() != null 
-						&& AssessmentClientSaveUtils.shouldSaveCurrentAssessment(
-								ViewCache.impl.getCurrentView().getCurPage().getMyFields())) {
-					WindowUtils.confirmAlert("By the way...", "Navigating away from this page will"
-							+ " revert unsaved changes. Would you like to save?", new Listener<MessageBoxEvent>() {
-						public void handleEvent(MessageBoxEvent be) {
-							{
-								if (be.getButtonClicked().getText().equalsIgnoreCase("cancel")) {
-
-								} else if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-									try {
-										AssessmentClientSaveUtils.saveAssessment(AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
-											public void onFailure(Throwable caught) {
-											}
-
-											public void onSuccess(Object arg0) {
-												Info.display("Save Complete", "Successfully saved assessment {0}.",
-														AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
-
-												doMovePrev();
-											};
-										});
-									} catch (InsufficientRightsException e) {
-										WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
-												+ "permission to modify this assessment. The changes you "
-												+ "just made will not be saved.");
-									}
-								} else
-									doMovePrev();
-							}
-						}
-					});
-
-				} else
-					doMovePrev();
+				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+					public void handleEvent() {
+						doMovePrev();
+					}
+				});
 			}
 		});
 
@@ -264,6 +206,7 @@ public class NavigationHeader extends LayoutContainer {
 		TaxonomyCache.impl.fetchTaxon(speciesID, true,
 				new GenericCallback<Taxon>() {
 			public void onFailure(Throwable caught) {
+				WindowUtils.errorAlert("Could not fetch species, please try again later.");
 			}
 			public void onSuccess(Taxon  result) {
 				AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, speciesID), new GenericCallback<String>() {

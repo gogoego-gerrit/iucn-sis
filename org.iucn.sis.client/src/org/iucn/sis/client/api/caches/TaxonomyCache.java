@@ -5,8 +5,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -18,6 +20,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class TaxonomyCache {
@@ -456,7 +459,7 @@ public class TaxonomyCache {
 	}
 
 	public void resetCurrentTaxon() {
-		setCurrentTaxon(null);
+		setCurrentTaxon(null, false);
 	}
 
 	public void saveTaxon(Taxon taxon, final GenericCallback<String> callback) {
@@ -499,17 +502,35 @@ public class TaxonomyCache {
 
 	}
 
-	public void setCurrentTaxon(org.iucn.sis.shared.api.models.Taxon newCurrent) {
-		currentNode = newCurrent;
-		try {
-			if (currentNode != null) {
-				recentlyAccessed.remove(currentNode);
-				recentlyAccessed.add(0, currentNode);
-				SISClientBase.getInstance().onTaxonChanged();
+	public void setCurrentTaxon(Taxon newCurrent) {
+		setCurrentTaxon(newCurrent, true);
+	}
+	
+	public void setCurrentTaxon(Taxon newCurrent, boolean saveIfNecessary) {
+		setCurrentTaxon(newCurrent, saveIfNecessary, null);
+	}
+	
+	public void setCurrentTaxon(final Taxon newCurrent, boolean saveIfNecessary, final SimpleListener afterChange) {
+		SimpleListener callback = new SimpleListener() {
+			public void handleEvent() {
+				currentNode = newCurrent;
+				try {
+					if (currentNode != null) {
+						recentlyAccessed.remove(currentNode);
+						recentlyAccessed.add(0, currentNode);
+						SISClientBase.getInstance().onTaxonChanged();
+						if (afterChange != null)
+							afterChange.handleEvent();
+					}
+				} catch (Throwable e) {
+					Debug.println(e);
+				}
 			}
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
+		};
+		if (saveIfNecessary)
+			AssessmentClientSaveUtils.saveIfNecessary(callback);
+		else
+			callback.handleEvent();
 	}
 	
 	public void deleteSynonymn(final Taxon taxon, final Synonym synonym, final GenericCallback<String> callback) {

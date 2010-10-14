@@ -7,6 +7,7 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.panels.dem.ViewCache;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -15,9 +16,12 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
+import com.extjs.gxt.ui.client.widget.Info;
 import com.google.gwt.core.client.GWT;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.events.SimpleListener;
+import com.solertium.util.extjs.client.WindowUtils;
 
 public class AssessmentClientSaveUtils {
 
@@ -149,5 +153,39 @@ public class AssessmentClientSaveUtils {
 				Debug.println(e);
 			}
 		}
+	}
+	
+	public static void saveIfNecessary(final SimpleListener listener) {
+		if (AssessmentCache.impl.getCurrentAssessment() != null
+				&& ViewCache.impl.getCurrentView() != null 
+				&& shouldSaveCurrentAssessment(
+						ViewCache.impl.getCurrentView().getCurPage().getMyFields())) {
+			WindowUtils.confirmAlert("By the way...", "Navigating away from this page will"
+					+ " revert unsaved changes. Would you like to save?", new WindowUtils.MessageBoxListener() {
+				public void onYes() {
+					try {
+						saveAssessment(AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Could not save, please try again later.");
+							}
+							public void onSuccess(Object arg0) {
+								Info.display("Save Complete", "Successfully saved assessment {0}.",
+										AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
+								listener.handleEvent();
+							};
+						});
+					} catch (InsufficientRightsException e) {
+						WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
+								+ "permission to modify this assessment. The changes you "
+								+ "just made will not be saved.");
+					}
+				}
+				@Override
+				public void onNo() {
+					listener.handleEvent();
+				}
+			});
+		} else
+			listener.handleEvent();
 	}
 }

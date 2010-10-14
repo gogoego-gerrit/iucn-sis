@@ -710,7 +710,7 @@ public class WorkingSetFullPanel extends ContentPanel {
 					public void onSuccess(String arg0) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
 						if (saveAndExit) {
-							WorkingSetCache.impl.setCurrentWorkingSet(currentWorkingSet);
+							WorkingSetCache.impl.setCurrentWorkingSet(currentWorkingSet, false);
 							refresh();
 						}
 						// panelManager.workingSetHierarchy.update();
