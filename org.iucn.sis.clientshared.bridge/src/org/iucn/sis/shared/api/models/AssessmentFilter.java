@@ -53,30 +53,30 @@ public class AssessmentFilter {
 	}
 
 	public static AssessmentFilter fromXML(NativeElement assFilterElement) {
-		AssessmentFilter assFilter = new AssessmentFilter(null);
-		assFilter.regions.clear();
-		assFilter.recentPublished = false;
-		assFilter.allPublished = false;
-		assFilter.draft = false;
+		AssessmentFilter filter = new AssessmentFilter(null);
+		filter.regions.clear();
+		filter.recentPublished = false;
+		filter.allPublished = false;
+		filter.draft = false;
 
 		String published = assFilterElement.getElementsByTagName(PUBLISHED_TAG).elementAt(0).getTextContent();
 		if (published.equalsIgnoreCase(RECENT_PUBLISHED))
 		{
-			assFilter.recentPublished = true;
-			assFilter.allPublished = false;
+			filter.recentPublished = true;
+			filter.allPublished = false;
 		}			
 		else if (published.equalsIgnoreCase(ALL_PUBLISHED)) {
-			assFilter.allPublished = true;
-			assFilter.recentPublished = false;
+			filter.allPublished = true;
+			filter.recentPublished = false;
 		}
-		assFilter.draft = AssessmentFilter.hasTag(assFilterElement, DRAFT_TAG);
+		filter.draft = AssessmentFilter.hasTag(assFilterElement, DRAFT_TAG);
 		NativeElement regionsTag = assFilterElement.getElementsByTagName(REGIONS_TAG).elementAt(0);
-		assFilter.setRegionType(regionsTag.getAttribute(REGION_TYPE));
+		filter.setRegionType(regionsTag.getAttribute(REGION_TYPE));
 		NativeNodeList regions = regionsTag.getElementsByTagName(Region.ROOT_TAG);
 		for (int i = 0; i < regions.getLength(); i++) {
-			assFilter.regions.add(Region.fromXML(regions.elementAt(i)));
+			filter.regions.add(Region.fromXML(regions.elementAt(i)));
 		}
-		return assFilter;
+		return filter;
 	}
 	
 	public AssessmentFilter deepCopy() {

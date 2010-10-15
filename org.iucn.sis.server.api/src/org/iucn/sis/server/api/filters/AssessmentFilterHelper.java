@@ -7,24 +7,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Relationship;
-import org.iucn.sis.shared.api.models.WorkingSet;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
 import com.solertium.db.Row;
 import com.solertium.db.RowProcessor;
-import com.solertium.db.query.ExperimentalSelectQuery;
 import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.QConstraintGroup;
@@ -37,54 +35,79 @@ public class AssessmentFilterHelper {
 
 	public AssessmentFilterHelper(AssessmentFilter filter) {
 		this.filter = filter;
+		
+		/*Debug.println("Created an assessment filter with properties: \n" +
+			"Draft: {0}; SI Published: {1}; Recent Published: {2}; " +
+			"Region Relationship: {3}; Regions: {4}", 
+			filter.isDraft(), filter.isAllPublished(), filter.isRecentPublished(), 
+			filter.getRelationshipName(), filter.getRegions()
+		);*/
 	}
 
+	private void reportAssessmentInformation(Assessment assessment) {
+		/*Debug.println("Found assessment {0} with properties: \n" +
+			"Draft: {1}; Is Published: {2}; Is Historical (Not Recent Published): {3}; " +
+			"Regions: {4}", 
+			assessment.getId(), assessment.isDraft(), assessment.isPublished(), 
+			assessment.getIsHistorical(), assessment.getRegionIDs()
+		);*/
+	}
 	
-	public List<Assessment> getAssessments( Integer taxaID) {
-		ArrayList<Assessment> ret = new ArrayList<Assessment>();
+	public List<Assessment> getAssessments(Integer taxaID) {
+		final ArrayList<Assessment> ret = new ArrayList<Assessment>();
 
+		final List<Integer> filterRegions = filter.getRegionIds();
+		
 		if (filter.isDraft()) {
 			List<Assessment> draftAssessments = SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(taxaID);
 			for (Assessment draft : draftAssessments)
-				if (allowAssessment(draft))
-					ret.add(draft);			
+				if (allowAssessment(draft, filterRegions))
+					ret.add(draft);
 		}
 
 		if (filter.isRecentPublished() || filter.isAllPublished()) {
 			List<Assessment> publishedAssessments  = SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(taxaID);
 			Collections.sort(publishedAssessments, new PublishedAssessmentsComparator());
-			for (Assessment published : publishedAssessments) {
-				if (published != null) {
-					if (allowAssessment(published)) {
-						ret.add(published);
-					}
-				}
-				
-			}
+			for (Assessment published : publishedAssessments)
+				if (published != null && allowAssessment(published, filterRegions)) 
+					ret.add(published);
 		}
 
 		return ret;
 	}
-
+	
 	public boolean allowAssessment(Assessment assessment) {
+		return allowAssessment(assessment, filter.getRegionIds());
+	}
+
+	private boolean allowAssessment(Assessment assessment, List<Integer> filterRegions) {
+		reportAssessmentInformation(assessment);
+		
+		boolean result = false;
 		if (filter.isRecentPublished() && assessment.isPublished() && assessment.getIsHistorical() )
-			return false;
-		else if( filter.isDraft() && !assessment.isDraft() )
-			return false;
+			result = false;
+		else if (filter.isDraft() && !assessment.isDraft())
+			result = false;
 		else {
 			if (filter.getRelationshipName().equalsIgnoreCase(Relationship.ALL))
-				return true;
+				result = true;
 			else if (filter.getRelationshipName().equalsIgnoreCase(Relationship.OR)) {
 				List<Integer> regionIds = assessment.getRegionIDs();
 				for (Region region : filter.getRegions())
 					if (regionIds.contains(region.getId()))
-						return true;
+						result |= true;
 				
-				return false; //If it hasn't returned yet, no region matched
+				result |= false; //If it hasn't returned yet, no region matched
 			}
-			else //AssessmentFilter.REGION_TYPE_AND
-				return assessment.getRegionIDs().containsAll(filter.getRegions()) && filter.getRegions().containsAll(assessment.getRegionIDs());
+			else {
+				List<Integer> assessmentRegions = assessment.getRegionIDs();
+				result = assessmentRegions.size() == filterRegions.size() && assessmentRegions.containsAll(filterRegions);
+			}
 		}
+		
+		Debug.println("Assessment {0} is allowed: {1}", assessment.getId(), result);
+		
+		return result;
 	}
 	
 	public Collection<Integer> getAssessmentIds(Integer taxaID) {
