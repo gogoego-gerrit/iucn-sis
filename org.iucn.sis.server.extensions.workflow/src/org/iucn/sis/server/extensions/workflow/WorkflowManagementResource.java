@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.extensions.integrity.IntegrityValidator;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -124,20 +125,20 @@ public class WorkflowManagementResource extends WFDBResource {
 				return;
 			}
 			
-			boolean success = true;
-			for (Assessment assessment : assessments) {
-				try {
-					success &= IntegrityValidator.
-						validate_background(SIS.get().getVFS(), 
-							ec, assessment.getId()
-						);
-				} catch (DBException e) {
-					e.printStackTrace();
-					continue;
+			boolean success = "integrity".equals(comment.getComment());
+			if (!success) {
+				for (Assessment assessment : assessments) {
+					try {
+						success &= IntegrityValidator.
+							validate_background(SIS.get().getVFS(), 
+								ec, assessment.getId()
+							);
+					} catch (DBException e) {
+						Debug.println(e);
+						continue;
+					}
 				}
 			}
-			
-			success |= "integrity".equals(comment.getComment());
 			
 			if (!success) {
 				die(new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED, "Integrity validation failed."));
@@ -176,6 +177,7 @@ public class WorkflowManagementResource extends WFDBResource {
 	}
 	
 	private void die(ResourceException e) {
+		Debug.println(e);
 		getResponse().setStatus(e.getStatus());
 		getResponse().setEntity(new DomRepresentation(MediaType.TEXT_XML, 
 			BaseDocumentUtils.impl.createErrorDocument(e.getMessage())));
