@@ -18,6 +18,7 @@ import org.iucn.sis.client.api.utils.TaxonPagingLoader;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -514,21 +515,26 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 
 								String currentFamily = "";
 								
-								for (int i = 0; i < speciesIDs.size(); i++) {
-									Taxon curTaxon = TaxonomyCache.impl.getTaxon(speciesIDs.get(i));
-									if (!currentFamily.equals(curTaxon.getFootprint()[TaxonLevel.FAMILY])) {
-										currentFamily = curTaxon.getFootprint()[TaxonLevel.FAMILY];
-										taxonPagingLoader.getFullList().add(new TaxonListElement(currentFamily));
+								for (Integer species : speciesIDs) {
+									Taxon curTaxon = TaxonomyCache.impl.getTaxon(species);
+									if (curTaxon != null) {
+										String familyFootprint = curTaxon.getFootprint()[TaxonLevel.FAMILY];
+										if (!currentFamily.equals(familyFootprint))
+											taxonPagingLoader.getFullList().add(
+												new TaxonListElement(currentFamily = familyFootprint)
+											);
+	
+										TaxonListElement curEl = new TaxonListElement(curTaxon, "");
+										
+										taxonPagingLoader.getFullList().add(curEl);
+	
+										if (curTaxon.equals(curNavTaxon)) {
+											selectedTaxon = (DataListItem) 
+												taxonListBinder.findItem(curEl);
+										}
 									}
-
-									TaxonListElement curEl = new TaxonListElement(curTaxon, "");
-									
-									taxonPagingLoader.getFullList().add(curEl);
-
-									if (curTaxon.equals(curNavTaxon)) {
-										selectedTaxon = (DataListItem) 
-											taxonListBinder.findItem(curEl);
-									}
+									else
+										Debug.println("MonkeyNav2.0 found species {0} to be null.", species);
 								}
 
 								taxonPagingLoader.getPagingLoader().load();
