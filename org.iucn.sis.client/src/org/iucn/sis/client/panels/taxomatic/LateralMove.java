@@ -80,22 +80,6 @@ public class LateralMove extends TaxonChooser {
 	}
 
 	@Override
-	public TaxonomyBrowserPanel getTaxonomyBrowserPanel() {
-		return new TaxonomyBrowserPanel() {
-			@Override
-			protected void addViewButtonToFootprint() {
-				footprintPanel.add(new QuickButton("Add", new SelectionListener<ButtonEvent>() {
-					@Override
-					public void componentSelected(ButtonEvent ce) {
-						String display = footprints[footprints.length - 1];
-						addItem(footprints, TaxonomyCache.impl.getTaxon(display));
-					}
-				}));
-			}
-		};
-	}
-
-	@Override
 	public void onSubmit() {
 
 		move.setEnabled(false);

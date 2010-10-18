@@ -40,17 +40,17 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 		}
 
 		public void deselectAll() {
-			for (int i = 0; i < list.getItemCount(); i++)
-				list.getItem(i).setChecked(false);
+			for (int i = 0; i < getList().getItemCount(); i++)
+				getList().getItem(i).setChecked(false);
 		}
 
 		public List<TaxonListElement> getViewerChecked() {
-			return binder.getCheckedSelection();
+			return getBinder().getCheckedSelection();
 		}
 
 		public void selectAll() {
-			for (int i = 0; i < list.getItemCount(); i++)
-				list.getItem(i).setChecked(true);
+			for (int i = 0; i < getList().getItemCount(); i++)
+				getList().getItem(i).setChecked(true);
 		}
 	}
 

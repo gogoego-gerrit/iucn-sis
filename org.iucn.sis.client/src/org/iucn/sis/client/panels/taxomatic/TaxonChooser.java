@@ -90,7 +90,9 @@ public abstract class TaxonChooser extends LayoutContainer {
 		return container;
 	}
 
-	public abstract TaxonomyBrowserPanel getTaxonomyBrowserPanel();
+	public final TaxonomyBrowserPanel getTaxonomyBrowserPanel() {
+		return new TaxomaticTaxonomyBrowserPanel(this);
+	}
 
 	public void load() {
 

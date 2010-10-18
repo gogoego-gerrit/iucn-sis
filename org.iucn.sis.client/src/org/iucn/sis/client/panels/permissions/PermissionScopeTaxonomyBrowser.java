@@ -36,20 +36,15 @@ public class PermissionScopeTaxonomyBrowser extends ContentPanel {
 		currentlySelected = null;
 		
 		scopeBrowser = new TaxonomyBrowserPanel() {
-			@Override
 			protected void addViewButtonToFootprint() {
 				//Don't add anything
 			}
-			
-			@Override
-			protected void onChangedTaxon() {
-				if( footprints.length > 0 ) {
-					String display = footprints[footprints.length - 1];
-					updateCurrent(TaxonomyCache.impl.getTaxon(display));
-				} else
-					updateCurrent(null);
-			}
 		};
+		scopeBrowser.addListener(Events.Change, new Listener<TaxonomyBrowserPanel.TaxonChangeEvent>() {
+			public void handleEvent(TaxonomyBrowserPanel.TaxonChangeEvent be) {
+				updateCurrent(be.getTaxon());
+			}
+		});
 		scopeBrowser.getBinder().setStyleProvider(new ModelStringProvider<TaxonListElement>() {
 			public String getStringValue(TaxonListElement model, String property) {
 				if( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.GRANT, model.getNode()) )
