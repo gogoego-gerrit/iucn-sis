@@ -1,0 +1,10 @@
+<field id="838383">
+	<canonicalName>OldDEMPeriodPastDecline</canonicalName>
+	<description>Period Past Decline from DEM</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="value">
+                        <text></text>
+		</structure>
+	</structures>
+</field>

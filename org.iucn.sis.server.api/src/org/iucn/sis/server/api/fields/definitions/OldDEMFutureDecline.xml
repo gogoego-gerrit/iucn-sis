@@ -1,0 +1,10 @@
+<field id="838383">
+	<canonicalName>OldDEMFutureDecline</canonicalName>
+	<description>Future Decline from DEM</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="value">
+                        <text></text>
+		</structure>
+	</structures>
+</field>
