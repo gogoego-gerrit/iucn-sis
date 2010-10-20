@@ -7,7 +7,7 @@ import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import com.extjs.gxt.ui.client.util.DefaultComparator;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class TaxonComparator extends DefaultComparator<TaxonListElement> {
+public class TaxonComparator extends DefaultComparator<Object> {
 
 	private static TaxonComparator instance = null;
 
