@@ -31,6 +31,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> implements DominantStructure<PrimitiveField<List<Integer>>> {
 
 	public static final String LISTBOX = "listbox";
+	private static final String LOOKUP = "org.iucn.sis.client.multiselect.lookup";
 
 	private DataList list;
 	private HashSet<String> checkedItems;
@@ -70,11 +71,8 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 	public Widget createLabel() {
 		// clearDisplayPanel();
 		VerticalPanel p = ((VerticalPanel) displayPanel);
-
-		for (int i = 0; i < p.getWidgetCount(); i++)
-			p.remove(i);
-
-		((VerticalPanel) displayPanel).setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+		p.clear();
+		p.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 
 		displayPanel.add(descriptionLabel);
 		displayPanel.add(list);
@@ -85,11 +83,8 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 	public Widget createViewOnlyLabel() {
 		// clearDisplayPanel();
 		VerticalPanel p = ((VerticalPanel) displayPanel);
-
-		for (int i = 0; i < p.getWidgetCount(); i++)
-			p.remove(i);
-
-		((VerticalPanel) displayPanel).setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+		p.clear();
+		p.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 
 		displayPanel.add(descriptionLabel);
 
@@ -100,9 +95,10 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 		} else {
 			String text = "";
 
-			for (int i = 0; i < checked.size(); i++)
-				text += checked.get(i) + ", ";
-
+			for (DataListItem item : checked) {
+				LookupDataValue value = item.getData(LOOKUP);
+				text += value.getLabel() + ", ";
+			}
 			displayPanel.add(new HTML(text.substring(0, text.length() - 1)));
 		}
 
@@ -120,9 +116,11 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 			protected void afterRender() {
 				super.afterRender();
 				for (String checked : checkedItems) {
-					DataListItem item = list.getItemByItemId(checked);
-					if (item != null)
-						item.setChecked(true);
+					for (DataListItem item : list.getItems()) {
+						LookupDataValue value = item.getData(LOOKUP);
+						if (value != null && checked.equals(value.getID()))
+							item.setChecked(true);
+					}
 				}
 			}
 		};
@@ -132,10 +130,11 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 			public void handleEvent(DataListEvent be) {
 				DataListItem item = be.getItem();
 				if (item != null) {
+					LookupDataValue value = item.getData(LOOKUP);
 					if (item.isChecked())
-						checkedItems.add(item.getId());
+						checkedItems.add(value.getID());
 					else
-						checkedItems.remove(item.getId());
+						checkedItems.remove(value.getID());
 				}
 			}
 		});
@@ -146,15 +145,13 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 			DataListItem curItem = new DataListItem();
 			curItem.setText(value.getLabel());
 			curItem.setItemId(value.getID());
+			curItem.setData(LOOKUP, value);
 
 			list.add(curItem);
+			
+			if (myData.getDefaultValues().contains(value.getID()))
+				checkedItems.add(value.getID());
 		}
-		
-		for (String defaultValue : myData.getDefaultValues()) {
-			if (list.getItemByItemId(defaultValue) != null)
-				checkedItems.add(defaultValue);
-		}
-		
 	}
 
 	@Override
@@ -162,8 +159,10 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 		final StringBuilder builder = new StringBuilder();
 
 		if (list.isVisible()) {
-			for (Iterator<DataListItem> iter = list.getChecked().iterator(); iter.hasNext(); )
-				builder.append(iter.next().getItemId() + (iter.hasNext() ? "," : ""));
+			for (Iterator<DataListItem> iter = list.getChecked().iterator(); iter.hasNext(); ) {
+				LookupDataValue value = iter.next().getData(LOOKUP);
+				builder.append(value.getID() + (iter.hasNext() ? "," : ""));
+			}
 		} else {
 			for (Iterator<String> iter = checkedItems.iterator(); iter.hasNext(); )
 				builder.append(iter.next() + (iter.hasNext() ? "," : ""));
@@ -229,9 +228,11 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 				continue;
 			
 			if (list.isRendered()) {
-				DataListItem item = list.getItemByItemId(index.toString());
-				if (item != null && !item.isChecked())
-					item.setChecked(true);
+				for (DataListItem item : list.getItems()) {
+					LookupDataValue value = item.getData(LOOKUP);
+					if (index.toString().equals(value.getID()))
+						item.setChecked(true);
+				}
 			}
 			else
 				checkedItems.add(index.toString());
