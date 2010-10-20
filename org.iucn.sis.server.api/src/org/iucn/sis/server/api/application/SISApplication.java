@@ -1,5 +1,7 @@
 package org.iucn.sis.server.api.application;
 
+import java.sql.BatchUpdateException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -32,6 +34,7 @@ import org.restlet.resource.ServerResource;
 import org.restlet.routing.Filter;
 import org.restlet.routing.Router;
 
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.restlet.FastRouter;
 import com.solertium.util.restlet.RestletUtils;
 import com.solertium.util.restlet.authentication.AuthnGuard;
@@ -156,6 +159,11 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 							tsx.rollback();
 					} catch (HibernateException e) {
 						Debug.println("Hibernate Error: {0}\n{1}", e.getMessage(), e);
+						if (e.getCause() instanceof BatchUpdateException) {
+							BatchUpdateException cause = (BatchUpdateException)e.getCause();
+							SQLException sql = cause.getNextException();
+							Debug.println("Caused by SQL Exception: {0}\n{1}", sql.getMessage(), sql);
+						}
 						response.setStatus(Status.SERVER_ERROR_INTERNAL);
 					}
 				}
@@ -169,6 +177,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 					}
 				} catch (Exception e) {
 					// Not online!
+					TrivialExceptionHandler.ignore(this, e);
 				}
 			}
 		};
@@ -222,7 +231,6 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	protected void attachUniform(String path, Object uniform, Router router) {
 		if (uniform instanceof Restlet)
 			attachRestlet(path, (Restlet) uniform, router);
-		
 		else
 			attachResource(path, (Class<?>) uniform, router);
 	}
