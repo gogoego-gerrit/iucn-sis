@@ -160,18 +160,21 @@ public class WorkflowManagementResource extends WFDBResource {
 	}
 	
 	private WorkflowUserInfo parseUserInfo(Node parent) {
-		String id = null, name = null, email = null;
+		Integer id = null;
+		String username = null, displayName = null, email = null;
 		final NodeCollection children = new NodeCollection(parent.getChildNodes());
 		for (Node child : children) {
 			if ("id".equals(child.getNodeName()))
-				id = child.getTextContent();
-			if ("name".equals(child.getNodeName()))
-				name = child.getTextContent();
+				id = Integer.valueOf(child.getTextContent());
+			else if ("username".equals(child.getNodeName()))
+				username = child.getTextContent();
+			else if ("displayname".equals(child.getNodeName()))
+				displayName = child.getTextContent();
 			else if ("email".equals(child.getNodeName()))
 				email = child.getTextContent();
 		}
-		if (id != null && name != null && email != null)
-			return new WorkflowUserInfo(id, name, email);
+		if (id != null && username != null && displayName != null && email != null)
+			return new WorkflowUserInfo(id, username, displayName, email);
 		else
 			return null;
 	}

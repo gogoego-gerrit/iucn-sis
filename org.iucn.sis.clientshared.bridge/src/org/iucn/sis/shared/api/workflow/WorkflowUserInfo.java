@@ -2,13 +2,13 @@ package org.iucn.sis.shared.api.workflow;
 
 public class WorkflowUserInfo {
 	
-	private final String name;
-	private final String email;
-	private final String id;
+	private final String username, displayName, email;
+	private final Integer id;
 	
-	public WorkflowUserInfo(String id, String name, String email) {
+	public WorkflowUserInfo(Integer id, String username, String displayName, String email) {
 		this.id = id;
-		this.name = name;
+		this.username = username;
+		this.displayName = displayName;
 		this.email = email;
 	}
 	
@@ -17,19 +17,23 @@ public class WorkflowUserInfo {
 	}
 	
 	public String getEmailForMailer() {
-		return name + " <" + email + ">";
+		return displayName + " <" + email + ">";
 	}
 	
-	public String getID() {
+	public Integer getID() {
 		return id;
 	}
 	
-	public String getName() {
-		return name;
+	public String getUsername() {
+		return username;
+	}
+	
+	public String getDisplayName() {
+		return displayName;
 	}
 	
 	public String toString() {
-		return name;
+		return username + " (" + id + "): " + getEmailForMailer();
 	}
 
 }

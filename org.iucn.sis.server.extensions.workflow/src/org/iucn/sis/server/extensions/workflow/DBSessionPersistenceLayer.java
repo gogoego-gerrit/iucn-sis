@@ -7,7 +7,6 @@ import java.util.Iterator;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 
@@ -32,7 +31,7 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 		ec = SIS.get().getExecutionContext();
 	}
 	
-	public Number insertStatus(String workingSet, WorkflowStatus status) throws WorkflowManagerException {
+	public Number insertStatus(Integer workingSetID, WorkflowStatus status) throws WorkflowManagerException {
 		final Number id;
 		
 		final Row row = new Row();
@@ -42,7 +41,7 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 			throw new WorkflowManagerException(e);
 		}
 		row.add(new CString("status", status.toString()));
-		row.add(new CString("workingsetid", workingSet));
+		row.add(new CString("workingsetid", workingSetID.toString()));
 		
 		final InsertQuery query = new InsertQuery();
 		query.setTable(WorkflowConstants.WORKFLOW_TABLE);
@@ -67,7 +66,7 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 		}
 		row.add(new CInteger("workflowstatusid", id));
 		row.add(new CString("scope", comment.getScope()));
-		row.add(new CString("user", comment.getUser().getName()));
+		row.add(new CInteger("userid", comment.getUser().getID()));
 		row.add(new CString("comment", comment.getComment()));
 		row.add(new CDateTime("date", comment.getDate()));
 		
@@ -82,10 +81,10 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 		}
 	}
 	
-	public org.iucn.sis.shared.api.models.WorkflowStatus getWorkflowRow(String workingSet) throws WorkflowManagerException {
+	public org.iucn.sis.shared.api.models.WorkflowStatus getWorkflowRow(Integer workingSetID) throws WorkflowManagerException {
 		final SelectQuery query = new SelectQuery();
 		query.select(WorkflowConstants.WORKFLOW_TABLE, "*");
-		query.constrain(new CanonicalColumnName(WorkflowConstants.WORKFLOW_TABLE, "workingsetid"), QConstraint.CT_EQUALS, workingSet);
+		query.constrain(new CanonicalColumnName(WorkflowConstants.WORKFLOW_TABLE, "workingsetid"), QConstraint.CT_EQUALS, workingSetID.toString());
 		
 		final Row.Loader rl = new Row.Loader();
 		
@@ -121,8 +120,8 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 		}
 	}
 	
-	public void ensureConsistent(Integer workingSetID) throws WorkflowManagerException {
-		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSetID);
+	public void ensureConsistent(WorkingSet workingSet) throws WorkflowManagerException {
+		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSet);
 		Debug.println("Ensuring consistency on " + assessments.size() + " assessments...");
 		
 		final String table = "RedListConsistencyCheck";

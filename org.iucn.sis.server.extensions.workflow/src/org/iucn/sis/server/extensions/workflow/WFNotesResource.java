@@ -13,7 +13,6 @@ import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.QConstraintGroup;
 import com.solertium.db.query.QRelationConstraint;
 import com.solertium.db.query.SelectQuery;
-import com.solertium.db.restlet.DBResource;
 
 public class WFNotesResource extends WFDBResource {
 	
@@ -29,10 +28,17 @@ public class WFNotesResource extends WFDBResource {
 		final SelectQuery query = new SelectQuery();
 		query.select(WorkflowConstants.WORKFLOW_NOTES_TABLE, "comment");
 		query.select(WorkflowConstants.WORKFLOW_NOTES_TABLE, "date");
-		query.select(WorkflowConstants.WORKFLOW_NOTES_TABLE, "user");
+		query.select(WorkflowConstants.WORKFLOW_NOTES_TABLE, "userid");
+		query.select("user", "firstname");
+		query.select("user", "lastname");
+		query.select("user", "username");
 		query.join(WorkflowConstants.WORKFLOW_TABLE, new QRelationConstraint(
 			new CanonicalColumnName(WorkflowConstants.WORKFLOW_NOTES_TABLE, "workflowstatusid"), 
 			new CanonicalColumnName(WorkflowConstants.WORKFLOW_TABLE, "id")
+		));
+		query.join("user", new QRelationConstraint(
+			new CanonicalColumnName(WorkflowConstants.WORKFLOW_NOTES_TABLE, "userid"),
+			new CanonicalColumnName("user", "id")
 		));
 		query.constrain(new CanonicalColumnName(WorkflowConstants.WORKFLOW_TABLE, "workingsetid"), QConstraint.CT_EQUALS, workingSet);
 		if (protocol != null && !WorkflowConstants.IS_GLOBAL_STATUS.equals(protocol)) {

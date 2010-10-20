@@ -56,7 +56,7 @@ public class WorkflowManager {
 		builder.append("Notified: ");
 		
 		for (Iterator<WorkflowUserInfo> iter = recipients.iterator(); iter.hasNext(); )
-			builder.append(iter.next().getName() + (iter.hasNext() ? ", " : ". "));
+			builder.append(iter.next().getDisplayName() + (iter.hasNext() ? ", " : ". "));
 		
 		if (notify.size() > recipients.size()) {
 			builder.append("Some users marked for notification did not provide valid " +
@@ -67,7 +67,7 @@ public class WorkflowManager {
 					badUsers.add(current);
 			
 			for (Iterator<WorkflowUserInfo> iter = badUsers.iterator(); iter.hasNext(); )	
-				builder.append(iter.next().getName() + (iter.hasNext() ? ", " : "."));
+				builder.append(iter.next().getDisplayName() + (iter.hasNext() ? ", " : "."));
 		}
 		
 		copyToNotifiedUsers(workingSet, notify);
@@ -85,7 +85,7 @@ public class WorkflowManager {
 		Number id;
 		List<WorkflowComment> systemComments = new ArrayList<WorkflowComment>();
 		
-		final org.iucn.sis.shared.api.models.WorkflowStatus row = getWorkflowRow(workingSet.toString());
+		final org.iucn.sis.shared.api.models.WorkflowStatus row = getWorkflowRow(workingSet);
 		if (row == null) {
 			if (WorkflowStatus.DRAFT.equals(status))
 				throw new WorkflowManagerException("This working set is already in draft status and has not started the review process yet.", Status.CLIENT_ERROR_CONFLICT);
@@ -139,7 +139,7 @@ public class WorkflowManager {
 		//If here, try to do work.
 		try {
 			if (id == null)
-				id = insertStatus(workingSet.toString(), status);
+				id = insertStatus(workingSet, status);
 			else
 				updateStatus(id, status);
 		} catch (WorkflowManagerException e) {
@@ -158,6 +158,7 @@ public class WorkflowManager {
 		try {
 			addComment(id, new WorkflowComment(user, builder.toString()));
 		} catch (WorkflowManagerException ignored) {
+			Debug.println("Failed to add comment on status change:\n{0}", ignored);
 			TrivialExceptionHandler.ignore(this, ignored);
 		}
 		
@@ -192,7 +193,7 @@ public class WorkflowManager {
 	}
 	
 	public void addComment(String workingSet, WorkflowComment comment) throws WorkflowManagerException {
-		final org.iucn.sis.shared.api.models.WorkflowStatus row = getWorkflowRow(workingSet);
+		final org.iucn.sis.shared.api.models.WorkflowStatus row = getWorkflowRow(Integer.parseInt(workingSet));
 		if (row == null)
 			throw new WorkflowManagerException("This working set has not started the submission process yet.", Status.CLIENT_ERROR_BAD_REQUEST);
 		
@@ -208,7 +209,7 @@ public class WorkflowManager {
 		persistence.addComment(id, comment);
 	}
 	
-	private org.iucn.sis.shared.api.models.WorkflowStatus getWorkflowRow(String workingSet) throws WorkflowManagerException {
+	private org.iucn.sis.shared.api.models.WorkflowStatus getWorkflowRow(Integer workingSet) throws WorkflowManagerException {
 		return persistence.getWorkflowRow(workingSet);
 	}
 	
@@ -216,8 +217,8 @@ public class WorkflowManager {
 		persistence.updateStatus(id, status);
 	}
 	
-	private Number insertStatus(String workingSet, WorkflowStatus status) throws WorkflowManagerException {
-		return persistence.insertStatus(workingSet, status);
+	private Number insertStatus(Integer workingSetID, WorkflowStatus status) throws WorkflowManagerException {
+		return persistence.insertStatus(workingSetID, status);
 	}
 	
 	private void lockWorkingSet(Integer workingSetID) throws Exception {
@@ -233,7 +234,8 @@ public class WorkflowManager {
 		for (Assessment assessed : getAllAssessments(data))
 			if (!SIS.get().getLocker().isAssessmentPersistentLocked(assessed.getId())) {
 				SIS.get().getLocker().persistentLockAssessment(
-					assessed.getId(), LockType.UNDER_REVIEW, data.getCreator());
+					assessed.getId(), LockType.UNDER_REVIEW, 
+					data.getCreator(), workingSetID.toString());
 			}
 	}
 	
@@ -250,13 +252,17 @@ public class WorkflowManager {
 	 */
 	private void copyToNotifiedUsers(Integer workingSet, Collection<WorkflowUserInfo> notify) {
 		for (WorkflowUserInfo info : notify) {
-			if (SIS.get().getWorkingSetIO().subscribeToWorkingset(workingSet, info.getID()))
-				Debug.println("Failed to copy working set to notified users " + info.getName());
+			if (!SIS.get().getWorkingSetIO().subscribeToWorkingset(workingSet, info.getUsername()))
+				Debug.println("Failed to copy working set {0} to notified users {1}, {2}", workingSet, info.getDisplayName(), info.getUsername());
 		}
 	}
 	
 	private void ensureConsistent(final Integer workingSetID) throws WorkflowManagerException {
-		persistence.ensureConsistent(workingSetID);
+		ensureConsistent(SIS.get().getWorkingSetIO().readWorkingSet(workingSetID));
+	}
+	
+	private void ensureConsistent(final WorkingSet workingSet) throws WorkflowManagerException {
+		persistence.ensureConsistent(workingSet);
 	}
 	
 	private void ensureEvaluated(final Integer workingSet) throws WorkflowManagerException {

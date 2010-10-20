@@ -260,8 +260,9 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 		final StringBuilder bodyBuilder = new StringBuilder();
 		bodyBuilder.append("<root>");
 		bodyBuilder.append("<user>");
-		bodyBuilder.append(XMLWritingUtils.writeCDATATag("id", SimpleSISClient.currentUser.getUsername()));
-		bodyBuilder.append(XMLWritingUtils.writeCDATATag("name", SimpleSISClient.currentUser.getDisplayableName()));
+		bodyBuilder.append(XMLWritingUtils.writeCDATATag("id", SimpleSISClient.currentUser.getId()+""));
+		bodyBuilder.append(XMLWritingUtils.writeCDATATag("username", SimpleSISClient.currentUser.getUsername()));
+		bodyBuilder.append(XMLWritingUtils.writeCDATATag("displayname", SimpleSISClient.currentUser.getDisplayableName()));
 		bodyBuilder.append(XMLWritingUtils.writeCDATATag("email", SimpleSISClient.currentUser.getEmail()));
 		bodyBuilder.append("</user>");
 		bodyBuilder.append(XMLWritingUtils.writeCDATATag("status", status.toString()));
@@ -269,8 +270,9 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 		bodyBuilder.append(XMLWritingUtils.writeCDATATag("scope", "global"));
 		for (WorkflowUserInfo userInfo : event.getUsers()) {
 			bodyBuilder.append("<notify>");
-			bodyBuilder.append(XMLWritingUtils.writeCDATATag("id", userInfo.getID()));
-			bodyBuilder.append(XMLWritingUtils.writeCDATATag("name", userInfo.getName()));
+			bodyBuilder.append(XMLWritingUtils.writeCDATATag("id", userInfo.getID().toString()));
+			bodyBuilder.append(XMLWritingUtils.writeCDATATag("username", userInfo.getUsername()));
+			bodyBuilder.append(XMLWritingUtils.writeCDATATag("displayname", userInfo.getDisplayName()));
 			bodyBuilder.append(XMLWritingUtils.writeCDATATag("email", userInfo.getEmail()));
 			bodyBuilder.append("</notify>");
 		}
@@ -329,7 +331,7 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 				public void componentSelected(ButtonEvent ce) {
 					close();
 					final GetUsersEvent event = new GetUsersEvent(this);
-					event.addUser("RLU", "Red List Unit", "redlistunit@iucnsis.org");
+					event.addUser(0, "RLU", "Red List Unit", "redlistunit@iucnsis.org");
 					//TODO: who is RLU?!?!?! add 'em 
 					listener.handleEvent(event);
 				}
@@ -363,7 +365,7 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 				String mail = user.getEmail();
 				if (mail == null || mail.equals(""))
 					mail = user.getUsername();
-				event.addUser(user.getUsername(), user.getDisplayableName(), mail);
+				event.addUser(user.getId(), user.getUsername(), user.getDisplayableName(), mail);
 			}
 			listener.handleEvent(event);
 		}
@@ -379,8 +381,8 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 			list = new ArrayList<WorkflowUserInfo>();
 		}
 		
-		public void addUser(String id, String name, String email) {
-			list.add(new WorkflowUserInfo(id, name, email));
+		public void addUser(Integer id, String username, String displayName, String email) {
+			list.add(new WorkflowUserInfo(id, username, displayName, email));
 		}
 		
 		public List<WorkflowUserInfo> getUsers() {

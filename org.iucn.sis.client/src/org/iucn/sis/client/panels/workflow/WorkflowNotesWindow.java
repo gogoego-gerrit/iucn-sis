@@ -85,9 +85,18 @@ public class WorkflowNotesWindow extends Window {
 					
 					for (int i = rows.size()-1; i >= 0; i--) {
 						final RowData current = rows.get(i);
+						String user = current.getField("user");
+						if (user == null && current.getField("userid") != null)
+							user = current.getField("firstname") + " " + 
+								current.getField("lastname");
+						if (user != null && user.trim().equals(""))
+							user = current.getField("username");
+						if (user == null)
+							user = "Unknown";
+						
 						final String text = 
 							"[" + current.getField("date") + "] " + 
-							current.getField("user") + ": " + 
+							user + ": " + 
 							current.getField("comment");
 						final String styleName = 
 							i % 2 == 0 ? "workflow-comment" : "workflow-comment-alternate";
@@ -148,8 +157,9 @@ public class WorkflowNotesWindow extends Window {
 					final StringBuilder bodyBuilder = new StringBuilder();
 					bodyBuilder.append("<root>");
 					bodyBuilder.append("<user>");
-					bodyBuilder.append(XMLWritingUtils.writeCDATATag("id", SimpleSISClient.currentUser.getUsername()));
-					bodyBuilder.append(XMLWritingUtils.writeCDATATag("name", SimpleSISClient.currentUser.getDisplayableName()));
+					bodyBuilder.append(XMLWritingUtils.writeCDATATag("id", SimpleSISClient.currentUser.getId()+""));
+					bodyBuilder.append(XMLWritingUtils.writeCDATATag("username", SimpleSISClient.currentUser.getUsername()));
+					bodyBuilder.append(XMLWritingUtils.writeCDATATag("displayname", SimpleSISClient.currentUser.getDisplayableName()));
 					bodyBuilder.append(XMLWritingUtils.writeCDATATag("email", SimpleSISClient.currentUser.getEmail()));
 					bodyBuilder.append("</user>");
 					bodyBuilder.append(XMLWritingUtils.writeCDATATag("comment", area.getValue()));

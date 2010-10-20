@@ -22,20 +22,18 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 	private final SISPersistentManager manager;
 	
 	public HibernatePersistenceLayer() {
-		manager = new SISPersistentManager();
+		manager = SISPersistentManager.instance();
 	}
 	
 	@Override
-	public Number insertStatus(String workingSet, WorkflowStatus status) throws WorkflowManagerException {
-		final WorkingSet fauxWorkingSet = new WorkingSet();
-		fauxWorkingSet.setId(Integer.parseInt(workingSet));
-		
+	public Number insertStatus(Integer workingSetID, WorkflowStatus status) throws WorkflowManagerException {
 		final org.iucn.sis.shared.api.models.WorkflowStatus model = 
 			new org.iucn.sis.shared.api.models.WorkflowStatus();
 		model.setStatus(status.toString());
-		model.setWorkingset(fauxWorkingSet);
 		
 		try {
+			
+			model.setWorkingset(manager.getObject(WorkingSet.class, workingSetID));
 			manager.saveObject(model);
 		} catch (PersistentException e) {
 			throw new WorkflowManagerException(e);
@@ -83,8 +81,8 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 	}
 	
 	@Override
-	public void ensureConsistent(Integer workingSetID) throws WorkflowManagerException {
-		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSetID);
+	public void ensureConsistent(WorkingSet workingSet) throws WorkflowManagerException {
+		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSet);
 		Debug.println("Ensuring consistency on " + assessments.size() + " assessments...");
 		
 		final Collection<String> failedSpecies = new ArrayList<String>();
@@ -129,11 +127,11 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 	}
 	
 	@Override
-	public org.iucn.sis.shared.api.models.WorkflowStatus getWorkflowRow(String workingSet) throws WorkflowManagerException {
+	public org.iucn.sis.shared.api.models.WorkflowStatus getWorkflowRow(Integer workingSetID) throws WorkflowManagerException {
 		org.iucn.sis.shared.api.models.WorkflowStatus model = 
 			new org.iucn.sis.shared.api.models.WorkflowStatus();
 		try {
-			model.setWorkingset(manager.getObject(WorkingSet.class, workingSet));
+			model.setWorkingset(manager.getObject(WorkingSet.class, workingSetID));
 		} catch (PersistentException e) {
 			throw new WorkflowManagerException(e);
 		}

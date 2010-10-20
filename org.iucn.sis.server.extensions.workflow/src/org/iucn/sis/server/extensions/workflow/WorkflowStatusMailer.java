@@ -48,7 +48,7 @@ public class WorkflowStatusMailer {
 	private String buildBody(WorkflowUserInfo recipient) {
 		bodyBuilder = new StringBuilder();
 		
-		append("Dear " + recipient.getName(), 2);
+		append("Dear " + recipient.getDisplayName(), 2);
 		append("The following working set within SIS has " +
 			"been submitted to you for " + newStatus.getEmailFriendlyDesc() + ":", 2);
 
@@ -58,7 +58,7 @@ public class WorkflowStatusMailer {
 		append("Working Set Description: " + workingSet.getDescription());
 		append("Number of species: " + Integer.toString(workingSet.getSpeciesIDs().size()));
 		append("Submission notes: " + comment.getComment());
-		append("Person submitting: " + sender.getName(), 2);
+		append("Person submitting: " + sender.getDisplayName(), 2);
 		append("Please log into SIS and review the assessments; be sure " +
 			"to provide appropriate notes and to change the status, if necessary, " +
 			"to keep the assessments moving through the submission process.", 2);
