@@ -62,6 +62,10 @@ public class FieldRestlet extends BaseServiceRestlet {
 
 	private String getFieldAsString(String fieldName) throws IOException {
 		Document document = FieldDefinitionLoader.get(fieldName);
+		if (document == null) {
+			Debug.println("FieldRestlet Error: Field {0} not found, skipping", fieldName);
+			return "";
+		}
 		
 		if (generator == null)
 			return BaseDocumentUtils.impl.serializeDocumentToString(document, true, false);
