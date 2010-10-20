@@ -40,8 +40,8 @@ public class FixedSizedQueue {
     public void add(String object) {
     	   	
         if( end == capacity ) {
-            array[start] = object;
-            start = start+1 % capacity;
+        	array[start] = object;
+        	start = (start+1) % capacity;
         } else {
              array[end++] = object;
         }
