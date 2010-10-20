@@ -7,8 +7,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.locking.LockRepository.Lock;
-import org.iucn.sis.server.api.utils.OnlineUtil;
+import org.iucn.sis.server.api.locking.LockRepository.LockInfo;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
@@ -38,11 +37,13 @@ public class FileLocker {
 	public FileLocker() {
 		locks = new ConcurrentHashMap<String, SimpleLock>();
 		//assessmentLocks = new ConcurrentHashMap<String, Lock>();
-		
+		assessmentLocks = new PersistentLockRepository();
+		//assessmentLocks = new HibernateLockRepository();
+		/*
 		if(OnlineUtil.amIOnline())
 			assessmentLocks = new PersistentLockRepository();
 		else
-			assessmentLocks = new MemoryLockRepository();
+			assessmentLocks = new MemoryLockRepository();*/
 	}
 
 	public boolean aquireLock(String url) {
@@ -92,7 +93,7 @@ public class FileLocker {
 	 * @param type
 	 * @return true, if it's locked
 	 */
-	public Lock getAssessmentPersistentLock(Integer assessmentID) {
+	public LockInfo getAssessmentPersistentLock(Integer assessmentID) throws LockException {
 		return assessmentLocks.getLockedAssessment(assessmentID);		
 	}
 
@@ -108,9 +109,9 @@ public class FileLocker {
 	 * @return either lock XML if locked,
 	 * * assessment XML if not locked and user version out of date, or null if not locked and user version is valid
 	 */
-	public String checkAssessmentAvailability(Integer id, String modDate, User user) {
+	public String checkAssessmentAvailability(Integer id, String modDate, User user) throws LockException {
 		if (isAssessmentPersistentLocked(id)) {
-			LockRepository.Lock lock = assessmentLocks.getLockedAssessment(id);
+			LockRepository.LockInfo lock = assessmentLocks.getLockedAssessment(id);
 			return lock.toXML();
 		} else {
 						
@@ -158,21 +159,26 @@ public class FileLocker {
 		List<Assessment> locked = new ArrayList<Assessment>();
 		Status status = null;
 		for (Assessment assessment : assessments) {
-			Status assStatus = persistentLockAssessment(assessment.getId(), lockType, owner);
-			if (assStatus.isError()) {
-				status = assStatus;
-				break;
-			} else {
+			Status result = persistentLockAssessment(assessment.getId(), lockType, owner);
+			if (result.isSuccess())
 				locked.add(assessment);
+			else {
+				status = result;
+				break;
 			}
 		}
 		
 		if (status != null) {
-			for (Assessment ass : locked)
-				persistentEagerRelease(ass.getId(), owner);
-		} else {
+			for (Assessment assessment : locked) {
+				try {
+					persistentEagerRelease(assessment.getId(), owner);
+				} catch (LockException e) {
+					Debug.println(e);
+				}
+			}
+		} else
 			status = Status.SUCCESS_OK;
-		}
+		
 		return status;
 	}
 
@@ -194,7 +200,13 @@ public class FileLocker {
 	
 	public synchronized Status persistentLockAssessment(Integer assessmentID, LockType lockType, User owner, String group) {
 		if (assessmentLocks.isAssessmentPersistentLocked(assessmentID)) {
-			LockRepository.Lock l = assessmentLocks.getLockedAssessment(assessmentID);
+			LockRepository.LockInfo l;
+			try {
+				l = assessmentLocks.getLockedAssessment(assessmentID);
+			} catch (LockException e) {
+				Debug.println(e);
+				return Status.SERVER_ERROR_INTERNAL;
+			}
 			if (l.getUsername().equalsIgnoreCase(owner.getUsername())) {
 				l.restartTimer();
 				return Status.SUCCESS_OK;
@@ -205,7 +217,12 @@ public class FileLocker {
 			}
 		} else {
 			//assessmentLocks.put(id + assessmentType, new Lock(id + assessmentType, owner, lockType));
-			assessmentLocks.lockAssessment(assessmentID, owner, lockType, group);
+			try {
+				assessmentLocks.lockAssessment(assessmentID, owner, lockType, group);
+			} catch (LockException e) {
+				Debug.println(e);
+				return Status.SERVER_ERROR_INTERNAL;
+			}
 			return Status.SUCCESS_OK;
 		}
 	}
@@ -220,9 +237,9 @@ public class FileLocker {
 	 * @param owner
 	 * @return a Status - see above
 	 */
-	public synchronized Status persistentEagerRelease(Integer id, User owner) {
+	public synchronized Status persistentEagerRelease(Integer id, User owner) throws LockException {
 		if (assessmentLocks.isAssessmentPersistentLocked(id)) {
-			LockRepository.Lock l = assessmentLocks.getLockedAssessment(id);
+			LockRepository.LockInfo l = assessmentLocks.getLockedAssessment(id);
 			if (l.getUsername().equalsIgnoreCase(owner.getUsername())) {
 				l.forceExpiration(assessmentLocks);
 				return Status.SUCCESS_OK;
@@ -234,7 +251,7 @@ public class FileLocker {
 		}
 	}
 	
-	public void persistentClearGroup(String groupID) {
+	public void persistentClearGroup(String groupID) throws LockException {
 		assessmentLocks.clearGroup(groupID);
 	}
 

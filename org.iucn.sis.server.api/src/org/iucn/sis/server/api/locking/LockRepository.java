@@ -4,7 +4,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.User;
+
+import com.solertium.util.TrivialExceptionHandler;
 
 
 public abstract class LockRepository {
@@ -13,28 +17,28 @@ public abstract class LockRepository {
 	
 	public abstract boolean isAssessmentPersistentLocked(Integer id);
 	
-	public abstract LockRepository.Lock getLockedAssessment(Integer id);
+	public abstract LockRepository.LockInfo getLockedAssessment(Integer id) throws LockException;
 	
-	public abstract Map<String, List<Integer>> listGroups();
+	public abstract Map<String, List<Integer>> listGroups() throws LockException;
 	
-	public abstract List<LockRepository.Lock> listLocks();
+	public abstract List<LockRepository.LockInfo> listLocks() throws LockException;
 	
-	public abstract LockRepository.Lock lockAssessment(Integer id, User owner, LockType lockType);
+	public abstract LockRepository.LockInfo lockAssessment(Integer id, User owner, LockType lockType) throws LockException;
 	
-	public abstract LockRepository.Lock lockAssessment(Integer id, User owner, LockType lockType, String groupID);
+	public abstract LockRepository.LockInfo lockAssessment(Integer id, User owner, LockType lockType, String groupID) throws LockException;
 	
 	public abstract void removeLockByID(Integer id);
 	
-	public abstract void clearGroup(String id);
+	public abstract void clearGroup(String id) throws LockException;
 	
-	public static class Lock {
+	public static class LockInfo {
 
 		private class LockExpiry implements Runnable {
 
-			private Lock l;
+			private LockInfo l;
 			private LockRepository owner;
 
-			public LockExpiry(Lock lock, LockRepository owner) {
+			public LockExpiry(LockInfo lock, LockRepository owner) {
 				this.l = lock;
 				this.owner = owner;
 			}
@@ -64,22 +68,25 @@ public abstract class LockRepository {
 			}
 		}
 
-		String username;
+		Integer userID;
 		Integer id;
 		LockType lockType;
 		long whenLockAcquired;
 		Thread expiry;
+		String group;
+		String username;
 
 		boolean restart = true;
 
-		public Lock(Integer id, String username, LockType lockType, LockRepository owner) {
-			this(id, username, lockType, new Date(), owner);
+		public LockInfo(Integer id, Integer userID, LockType lockType, String group, LockRepository owner) {
+			this(id, userID, lockType, group, new Date(), owner);
 		}
 		
-		public Lock(Integer id, String username, LockType lockType, Date lockDate, LockRepository owner) {
-			this.username = username;
+		public LockInfo(Integer id, Integer userID, LockType lockType, String group, Date lockDate, LockRepository owner) {
+			this.userID = userID;
 			this.lockType = lockType;
 			this.id = id;
+			this.group = group;
 			this.whenLockAcquired = lockDate.getTime();
 
 //			if( verboseOutput )
@@ -107,7 +114,7 @@ public abstract class LockRepository {
 
 		@Override
 		public String toString() {
-			return "Lock " + lockType + ", owned by " + username + ", for " + id;
+			return "Lock " + lockType + ", owned by " + getUsername() + ", for " + id;
 		}
 		
 		public Integer getLockID() {
@@ -118,7 +125,17 @@ public abstract class LockRepository {
 			return lockType;
 		}
 		
+		public String getGroup() {
+			return group;
+		}
+		
 		public String getUsername() {
+			if (username == null)
+				try {
+					username = SISPersistentManager.instance().getObject(User.class, userID).getUsername();
+				} catch (PersistentException e) {
+					TrivialExceptionHandler.ignore(this, e);
+				}
 			return username;
 		}
 		

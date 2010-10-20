@@ -18,8 +18,9 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
+import org.iucn.sis.server.api.locking.LockException;
 import org.iucn.sis.server.api.locking.LockType;
-import org.iucn.sis.server.api.locking.LockRepository.Lock;
+import org.iucn.sis.server.api.locking.LockRepository.LockInfo;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.FileZipper;
@@ -161,8 +162,13 @@ public class WorkingSetExportImportRestlet extends ServiceRestlet {
 
 		if (!response.getStatus().isSuccess())
 			// Release partially acquired locks...
-			for (Entry<Integer, String> curLocked : locked.entrySet())
-				SIS.get().getLocker().persistentEagerRelease(curLocked.getKey(), user);
+			for (Entry<Integer, String> curLocked : locked.entrySet()) {
+				try {
+					SIS.get().getLocker().persistentEagerRelease(curLocked.getKey(), user);
+				} catch (LockException e) {
+					Debug.println(e);
+				}
+			}
 	}
 
 	private void doLockThings(final User username, final StringBuilder lockLog, WorkingSet ws, Integer assessmentID,
@@ -172,7 +178,12 @@ public class WorkingSetExportImportRestlet extends ServiceRestlet {
 					ws.getId() + "");
 
 			if (!ret.isSuccess()) {
-				Lock lock = SIS.get().getLocker().getAssessmentPersistentLock(assessmentID);
+				LockInfo lock;
+				try {
+					lock = SIS.get().getLocker().getAssessmentPersistentLock(assessmentID);
+				} catch (LockException e) {
+					return;
+				}
 				if (lock.getLockType().equals(LockType.CHECKED_OUT)) {
 					lockLog.append("<div>Global draft assessment for " + curNode.getFullName()
 							+ " is already checked out by " + lock.getUsername());
@@ -773,7 +784,12 @@ public class WorkingSetExportImportRestlet extends ServiceRestlet {
 		else if (assessment.getId() == 0)
 			return SIS.get().getAssessmentIO().allowedToCreateNewAssessment(assessment);
 		else {
-			Lock lock = SIS.get().getLocker().getAssessmentPersistentLock(assessment.getId());
+			LockInfo lock;
+			try {
+				lock = SIS.get().getLocker().getAssessmentPersistentLock(assessment.getId());
+			} catch (LockException e) {
+				return true;
+			}
 			return lock.getUsername().equalsIgnoreCase(username) && lock.getLockType().equals(LockType.CHECKED_OUT);
 		}
 

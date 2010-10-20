@@ -10,18 +10,18 @@ import org.iucn.sis.shared.api.models.User;
 
 public class MemoryLockRepository extends LockRepository {
 	
-	private ConcurrentHashMap<Integer, LockRepository.Lock> assessmentLocks;
+	private ConcurrentHashMap<Integer, LockRepository.LockInfo> assessmentLocks;
 	
 	public MemoryLockRepository() {
-		this.assessmentLocks = new ConcurrentHashMap<Integer, LockRepository.Lock>();
+		this.assessmentLocks = new ConcurrentHashMap<Integer, LockRepository.LockInfo>();
 	}
 	
 	public boolean isAssessmentPersistentLocked(Integer id) {
 		return assessmentLocks.containsKey(id);
 	}
 	
-	public List<Lock> listLocks() {
-		return new ArrayList<Lock>(assessmentLocks.values());
+	public List<LockInfo> listLocks() {
+		return new ArrayList<LockInfo>(assessmentLocks.values());
 	}
 	
 	@Override
@@ -31,15 +31,15 @@ public class MemoryLockRepository extends LockRepository {
 		return new HashMap<String, List<Integer>>();
 	}
 	
-	public LockRepository.Lock lockAssessment(Integer id, User owner, LockType lockType) {
+	public LockRepository.LockInfo lockAssessment(Integer id, User owner, LockType lockType) {
 		return lockAssessment(id, owner, lockType, null);
 	}
 	
-	public LockRepository.Lock lockAssessment(Integer id, User owner, LockType lockType, String groupID) {
+	public LockRepository.LockInfo lockAssessment(Integer id, User owner, LockType lockType, String groupID) {
 		String username = "SIS server";
 		if (owner != null)
 			username = owner.getUsername();
-		final LockRepository.Lock lock = new Lock(id,username, lockType, this);
+		final LockRepository.LockInfo lock = new LockInfo(id, owner.getId(), lockType, null, this);
 		assessmentLocks.put(id, lock);
 		return lock;
 	}
@@ -49,7 +49,7 @@ public class MemoryLockRepository extends LockRepository {
 	}
 
 	@Override
-	public Lock getLockedAssessment(Integer id) {
+	public LockInfo getLockedAssessment(Integer id) {
 		return assessmentLocks.get(id);
 	}
 

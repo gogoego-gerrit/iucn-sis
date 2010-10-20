@@ -1,14 +1,15 @@
 package org.iucn.sis.server.api.locking;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
-import org.w3c.dom.Document;
 
 import com.solertium.db.CDateTime;
 import com.solertium.db.CInteger;
@@ -21,63 +22,19 @@ import com.solertium.db.RowID;
 import com.solertium.db.RowProcessor;
 import com.solertium.db.query.DeleteQuery;
 import com.solertium.db.query.InsertQuery;
-import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
-import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.TrivialExceptionHandler;
 
 public class PersistentLockRepository extends LockRepository {
 	
-	public static final String LOCK_TABLE = "persistentlock";
-	public static final String LOCK_GROUPS_TABLE = "persistentlockgroup";
-	
-	public static ExecutionContext getExecutionContext() {
-		return SIS.get().getExecutionContext();
-		/*final ExecutionContext ec;
-		try {
-			ec = new SystemExecutionContext(DBSessionFactory.getDBSession("assess"));
-			ec.setAPILevel(ExecutionContext.API_ONLY);
-			ec.setExecutionLevel(ExecutionContext.ADMIN);
-			ec.appendStructure(getStructureDocument(), true);
-		} catch (NamingException e) {
-			throw new RuntimeException("The database was not found", e);
-		} catch (DBException e) {
-			throw new RuntimeException(
-					"The database structure could not be set", e);
-		}
-		return ec;*/
-	}
-	
-	private static Document getStructureDocument() {
-		return BaseDocumentUtils.impl.getInputStreamFile(
-			PersistentLockRepository.class.getResourceAsStream("lockstruct.xml")
-		);
-	}
-	
-	private final ExecutionContext ec;
-	
-	public PersistentLockRepository() {
-		/*try {
-			ec = new SystemExecutionContext(DBSessionFactory.getDBSession("assess"));
-			ec.createStructure(getStructureDocument());
-		} catch (NamingException e) {
-			throw new RuntimeException("The database was not found", e);
-		} catch (DBException e) {
-			throw new RuntimeException(
-					"The database structure could not be set", e);
-		}
-		ec.setAPILevel(ExecutionContext.API_ONLY);
-		ec.setExecutionLevel(ExecutionContext.READ_WRITE);*/
-		
-		ec = SIS.get().getExecutionContext();
-	}
+	public static final String LOCK_TABLE = "lock";
 
 	@Override
-	public Lock getLockedAssessment(Integer id) {
+	public LockInfo getLockedAssessment(Integer id) {
 		final Integer identifier = id;
 		final SelectQuery query = new SelectQuery();
-		query.select(LOCK_TABLE, "owner");
+		query.select(LOCK_TABLE, "userid");
 		query.select(LOCK_TABLE, "type");
 		query.constrain(new CanonicalColumnName(LOCK_TABLE, "lockid"), 
 			QConstraint.CT_EQUALS, identifier	
@@ -86,7 +43,7 @@ public class PersistentLockRepository extends LockRepository {
 		final Row.Loader rl = new Row.Loader();
 		
 		try {
-			ec.doQuery(query, rl);
+			SIS.get().getExecutionContext().doQuery(query, rl);
 		} catch (DBException e) {
 			return null;
 		}
@@ -95,9 +52,10 @@ public class PersistentLockRepository extends LockRepository {
 			return null;
 		else {
 			final Row row = rl.getRow();
-			return new LockRepository.Lock(
-				identifier, row.get("owner").toString(), 
+			return new LockRepository.LockInfo(
+				identifier, row.get("userid").getInteger(), 
 				LockType.fromString(row.get("type").toString()), 
+				row.get("group").toString(), 
 				row.get("date").getDate(), this
 			);
 		}
@@ -114,7 +72,7 @@ public class PersistentLockRepository extends LockRepository {
 		final Row.Loader rl = new Row.Loader();
 		
 		try {
-			ec.doQuery(query, rl);
+			SIS.get().getExecutionContext().doQuery(query, rl);
 		} catch (DBException e) {
 			return false;
 		}
@@ -125,22 +83,22 @@ public class PersistentLockRepository extends LockRepository {
 	@Override
 	public Map<String, List<Integer>> listGroups() {
 		final SelectQuery query = new SelectQuery();
-		query.select(LOCK_GROUPS_TABLE, "*");
+		query.select(LOCK_TABLE, "*");
 		
 		final Map<String, List<Integer>> map = 
 			new ConcurrentHashMap<String, List<Integer>>();
 		
 		synchronized (this) {
 			try {
-				ec.doQuery(query, new RowProcessor() {
+				SIS.get().getExecutionContext().doQuery(query, new RowProcessor() {
 					public void process(Row row) {
-						final String groupID = row.get("groupid").toString();
+						final String groupID = row.get("group").toString();
 						
 						List<Integer> list = map.get(groupID); 
 						if (list == null)
 							list = new ArrayList<Integer>();
 						
-						list.add(row.get("persistentlockid").getInteger());
+						list.add(row.get("id").getInteger());
 						
 						map.put(groupID, list);
 					}
@@ -153,25 +111,27 @@ public class PersistentLockRepository extends LockRepository {
 		return map;
 	}
 	
-	public List<Lock> listLocks() {
+	public List<LockInfo> listLocks() {
 		final SelectQuery query = new SelectQuery();
 		query.select(LOCK_TABLE, "*");
 		
-		final List<Lock> list = new ArrayList<Lock>();
+		final List<LockInfo> list = new ArrayList<LockInfo>();
 		
 		synchronized (this) {
 			try {
-				ec.doQuery(query, new RowProcessor() {
+				SIS.get().getExecutionContext().doQuery(query, new RowProcessor() {
 					public void process(Row row) {
-						list.add(new LockRepository.Lock(
-							row.get("lockid").getInteger(), row.get("owner").toString(), 
+						list.add(new LockRepository.LockInfo(
+							row.get("lockid").getInteger(), row.get("userid").getInteger(), 
 							LockType.fromString(row.get("type").toString()), 
+							row.get("group").toString(), 
 							row.get("date").getDate(), 
 							PersistentLockRepository.this
 						));
 					}
 				});
 			} catch (DBException e) {
+				Debug.println(e);
 				TrivialExceptionHandler.ignore(this, e);
 			}
 		};
@@ -180,12 +140,13 @@ public class PersistentLockRepository extends LockRepository {
 	}
 
 	@Override
-	public Lock lockAssessment(Integer id, User owner, LockType lockType) {
+	public LockInfo lockAssessment(Integer id, User owner, LockType lockType) {
 		return lockAssessment(id, owner, lockType, null);
 	}
 	
 	@Override
-	public Lock lockAssessment(Integer id, User owner, LockType lockType, String groupID) {
+	public LockInfo lockAssessment(Integer id, User owner, LockType lockType, String group) {
+		final ExecutionContext ec = SIS.get().getExecutionContext();
 		if (isAssessmentPersistentLocked(id)) {
 			return getLockedAssessment(id);
 		}
@@ -197,12 +158,15 @@ public class PersistentLockRepository extends LockRepository {
 			return null;
 		}
 		
+		final Date date = Calendar.getInstance().getTime();
+		
 		final Row row = new Row();
 		row.add(new CInteger("id", rowID));
-		row.add(new CString("lockid", id.toString()));
-		row.add(new CString("owner", owner.getUsername()));
-		row.add(new CDateTime("date", new Date()));
+		row.add(new CInteger("lockid", id));
+		row.add(new CInteger("userid", owner.getId()));
+		row.add(new CDateTime("date", date));
 		row.add(new CString("type", lockType.toString()));
+		row.add(new CString("group", group));
 
 		final InsertQuery query = new InsertQuery();
 		query.setRow(row);
@@ -214,36 +178,12 @@ public class PersistentLockRepository extends LockRepository {
 			return null;
 		}
 		
-		if (groupID != null) {
-			Integer groupRowID = null;
-			try {
-				groupRowID = Integer.valueOf((int)RowID.get(ec, LOCK_GROUPS_TABLE, "id"));
-			} catch (DBException e) {
-				//return null;
-			}
-			
-			if (groupRowID != null) {
-				final Row groupRow = new Row();
-				groupRow.add(new CInteger("id", groupRowID));
-				groupRow.add(new CInteger("persistentlockid", rowID));
-				groupRow.add(new CString("groupid", groupID));
-				
-				final InsertQuery groupQuery = new InsertQuery();
-				groupQuery.setTable(LOCK_GROUPS_TABLE);
-				groupQuery.setRow(groupRow);
-				
-				try {
-					ec.doUpdate(groupQuery); 
-				} catch (DBException e) {
-					TrivialExceptionHandler.ignore(this, e);
-				}
-			}
-		}
-		
-		return new LockRepository.Lock(id, owner.getUsername(), lockType, this);
+		return new LockRepository.LockInfo(id, owner.getId(), lockType, group, date, this);
 	}
 
 	public void removeLockByID(Integer id) {
+		final ExecutionContext ec = SIS.get().getExecutionContext();
+		
 		final Row.Loader rl = new Row.Loader(); {
 			final SelectQuery query = new SelectQuery();
 			query.select(LOCK_TABLE, "id");
@@ -254,7 +194,7 @@ public class PersistentLockRepository extends LockRepository {
 			try {
 				ec.doQuery(query, rl);
 			} catch (DBException e) {
-				e.printStackTrace();
+				Debug.println(e);
 				return;
 			}
 		}
@@ -279,56 +219,14 @@ public class PersistentLockRepository extends LockRepository {
 				TrivialExceptionHandler.ignore(this, e);
 			}
 		}
-		{
-			final DeleteQuery query = new DeleteQuery();
-			query.setTable(LOCK_GROUPS_TABLE);
-			query.constrain(new CanonicalColumnName(LOCK_GROUPS_TABLE, "persistentlockid"), 
-				QConstraint.CT_EQUALS, rowID
-			);
-			
-			try {
-				ec.doUpdate(query); 
-			} catch (DBException e) {
-				TrivialExceptionHandler.ignore(this, e);
-			}
-		}
 	}
 	
-	public void clearGroup(String id) {
-		final QConstraint groupConstraint = new QComparisonConstraint(
-			new CanonicalColumnName(PersistentLockRepository.LOCK_GROUPS_TABLE, "groupid"), 
-			QConstraint.CT_EQUALS, id
-		);
-		
-		final Row.Set rs = new Row.Set(); {
-			final SelectQuery query = new SelectQuery();
-			query.select(PersistentLockRepository.LOCK_GROUPS_TABLE, "persistentlockid");
-			query.constrain(groupConstraint);
-		
-			try {
-				ec.doQuery(query, rs);
-			} catch (DBException e) {
-				e.printStackTrace();
-				return;
-			}
-		}
-			
-		for (Row row : rs.getSet()) {
-			final DeleteQuery query = new DeleteQuery();
-			query.setTable(PersistentLockRepository.LOCK_TABLE);
-			query.constrain(new CanonicalColumnName(PersistentLockRepository.LOCK_TABLE, "id"), QConstraint.CT_EQUALS, row.get("persistentlockid").getInteger());
-			
-			try {
-				ec.doUpdate(query);
-			} catch (DBException e) {
-				e.printStackTrace();
-				TrivialExceptionHandler.ignore(this, e);
-			}
-		}
+	public void clearGroup(String group) {
+		final ExecutionContext ec = SIS.get().getExecutionContext();
 		
 		final DeleteQuery query = new DeleteQuery();
-		query.setTable(LOCK_GROUPS_TABLE);
-		query.constrain(new CanonicalColumnName(LOCK_GROUPS_TABLE, "groupid"), QConstraint.CT_EQUALS, id);
+		query.setTable(LOCK_TABLE);
+		query.constrain(new CanonicalColumnName(LOCK_TABLE, "group"), QConstraint.CT_EQUALS, group);
 		
 		try {
 			ec.doUpdate(query);

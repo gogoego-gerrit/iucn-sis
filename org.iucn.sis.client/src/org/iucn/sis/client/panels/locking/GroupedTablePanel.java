@@ -3,7 +3,6 @@ package org.iucn.sis.client.panels.locking;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,27 +56,21 @@ public class GroupedTablePanel extends LayoutContainer implements DrawsLazily {
 		
 		final List<ColumnConfig> cols = getColumns();
 		
-		final Map<String, RowData> group = getGroupsForRows();
 		final Map<String, String> groupIDToName = new HashMap<String, String>();
 		final GroupingStore<BaseModelData> store = new GroupingStore<BaseModelData>();
 		for (RowData row : getRows()) {
 			final BaseModelData model = new BaseModelData();
-			model.set("id", row.getField("id"));
 			model.set("lockid", row.getField("lockid"));
 			for (ColumnConfig col : cols)
 				model.set(col.getId(), row.getField(col.getId()));
-			RowData gID = group.get(row.getField("id"));
-			if (gID == null) {
-				model.set("groupid", "none");
-				model.set("groupidentifier", null);
-				groupIDToName.put("none", "No Group Defined");
+		
+			String groupID = row.getField("groupid");
+			if (groupID == null || "".equals(groupID) || "null".equals(groupID)) {
+				model.set("groupid", "null");
+				model.set("groupname", "No Group Specified");
 			}
-			else {
-				model.set("groupid", gID.get("groupid"));
-				model.set("groupidentifier", gID.get("id"));
-				groupIDToName.put(gID.get("groupid"), "Working Set: " + gID.get("groupname"));
-			}
-				
+			groupIDToName.put(groupID, row.getField("groupname"));
+			
 			store.add(model);
 		}
 		store.groupBy("groupid");
@@ -86,7 +79,7 @@ public class GroupedTablePanel extends LayoutContainer implements DrawsLazily {
 		view.setShowGroupedColumn(false);
 		view.setGroupRenderer(new GridGroupRenderer() {
 			public String render(GroupColumnData data) {
-				return groupIDToName.get(data.group);
+				return "Working Set: " + groupIDToName.get(data.group);
 			}
 		});
 		
@@ -96,10 +89,12 @@ public class GroupedTablePanel extends LayoutContainer implements DrawsLazily {
 		grid = new Grid<BaseModelData>(store, new ColumnModel(cols));
 		grid.setSelectionModel(sel);
 		grid.setView(view);
-		grid.addListener(Events.RowClick, new Listener<GridEvent>() {
-			public void handleEvent(GridEvent be) {
-				if (groupButton != null && be != null && be.getModel() != null)
-					groupButton.setEnabled(be.getModel().get("groupidentifier") != null);
+		grid.addListener(Events.RowClick, new Listener<GridEvent<BaseModelData>>() {
+			public void handleEvent(GridEvent<BaseModelData> be) {
+				if (groupButton != null && be != null && be.getModel() != null) {
+					String group = be.getModel().get("groupid");
+					groupButton.setEnabled(group != null && !"null".equals(group));
+				}
 			}
 		});
 		//grid.setWidth(680);
@@ -134,13 +129,6 @@ public class GroupedTablePanel extends LayoutContainer implements DrawsLazily {
 		return cols;
 	}
 	
-	public Map<String, RowData> getGroupsForRows() {
-		final Map<String, RowData> map = new LinkedHashMap<String, RowData>();
-		for (RowData row : LockLoader.impl.getPersistentLockGroups())
-			map.put(row.getField("persistentlockid"), row);
-		return map;
-	}
-	
 	public Collection<RowData> getRows() {
 		return LockLoader.impl.getPersistentLocks();
 	}
@@ -157,9 +145,9 @@ public class GroupedTablePanel extends LayoutContainer implements DrawsLazily {
 				}
 				
 				final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-				document.delete(UriBase.getInstance().getSISBase() + "/management/locks/persistentlock/" + (String)selected.get("id"), new GenericCallback<String>() {
+				document.delete(UriBase.getInstance().getSISBase() + "/management/locks/persistentlock/" + (String)selected.get("lockid"), new GenericCallback<String>() {
 					public void onSuccess(String result) {
-						LockLoader.impl.removePersistentLock((String)selected.get("id"));
+						LockLoader.impl.removePersistentLock((String)selected.get("lockid"));
 						Info.display("Success", "Lock Released.");
 						draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 					}
@@ -183,12 +171,12 @@ public class GroupedTablePanel extends LayoutContainer implements DrawsLazily {
 					public void onSuccess(String result) {
 						final String groupID = (String)selected.get("groupid");
 						final ArrayList<String> lockIDs = new ArrayList<String>();
-						for (RowData row : LockLoader.impl.getPersistentLockGroups()) {
+						for (RowData row : LockLoader.impl.getPersistentLocks()) {
 							if (groupID.equals(row.getField("groupid")))
-								lockIDs.add(row.getField("persistentlockid"));
+								lockIDs.add(row.getField("lockid"));
 						}
 						LockLoader.impl.removePersistentLockGroup(
-							(String)selected.get("id"), lockIDs
+							lockIDs
 						);
 						Info.display("Success", "Lock Released.");
 						draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());

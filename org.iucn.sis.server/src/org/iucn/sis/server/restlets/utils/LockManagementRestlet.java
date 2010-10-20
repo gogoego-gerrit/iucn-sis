@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.locking.HibernateLockRepository;
+import org.iucn.sis.server.api.locking.LockException;
 import org.iucn.sis.server.api.locking.LockRepository;
 import org.iucn.sis.server.api.locking.PersistentLockRepository;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.restlet.Context;
@@ -34,14 +35,13 @@ public class LockManagementRestlet extends ServiceRestlet {
 	public LockManagementRestlet(String vfsroot, Context context) {
 		super(vfsroot, context);
 		
-		repository = new HibernateLockRepository();
+		//repository = new HibernateLockRepository();
+		repository = new PersistentLockRepository();
 	}
 
 	public void definePaths() {
-		if (SIS.amIOnline()) {
-			paths.add("/management/locks/{protocol}");
-			paths.add("/management/locks/{protocol}/{identifier}");
-		}
+		paths.add("/management/locks/{protocol}");
+		paths.add("/management/locks/{protocol}/{identifier}");
 	}
 
 	public void performService(Request request, Response response) {
@@ -59,30 +59,22 @@ public class LockManagementRestlet extends ServiceRestlet {
 			else
 				response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 		} catch (Throwable e) {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
+			Debug.println(e);
+			response.setStatus(Status.SERVER_ERROR_INTERNAL, e, e.getMessage());
 		}
 	}
 
-	private void doGet(Response response, final String table) {
+	private void doGet(Response response, final String table) throws LockException {
 		final List<Row> rows = new ArrayList<Row>();
 		
-		if (PersistentLockRepository.LOCK_TABLE.equals(table)) {
-			for (LockRepository.Lock lock : repository.listLocks()) {
+		if ("persistentlock".equals(table)) {
+			for (LockRepository.LockInfo lock : repository.listLocks()) {
 				final Row row = new Row(); 
-				/*final char[] lockid = lock..toCharArray();
-				final StringBuilder idBuilder = new StringBuilder();
-				final StringBuilder typeBuilder = new StringBuilder();
+				WorkingSet ws = SIS.get().getWorkingSetIO().
+					readWorkingSet(Integer.valueOf(lock.getGroup()));
 				
-				boolean haveID = false;
-				for (int i = 0; i < lockid.length; i++) {
-					if (!haveID && Character.isDigit(lockid[i]))
-						idBuilder.append(lockid[i]);
-					else {
-						haveID = true;
-						typeBuilder.append(lockid[i]);
-					}
-				}*/
+				String groupName = ws == null ? lock.getGroup() : ws.getWorkingSetName();
+				
 				Assessment data = SIS.get().getAssessmentIO().
 					getAssessment(Integer.valueOf(lock.getLockID()));
 				if (data == null)
@@ -93,6 +85,10 @@ public class LockManagementRestlet extends ServiceRestlet {
 				row.add(new CInteger("lockid", lock.getLockID()));
 				row.add(new CString("owner", lock.getUsername()));
 				row.add(new CDateTime("date", new Date(lock.getWhenLockAcquired())));
+				row.add(new CString("groupid", lock.getGroup()));
+				row.add(new CString("groupname", groupName));
+				
+				rows.add(row);
 			}
 		}
 		else {
@@ -121,14 +117,14 @@ public class LockManagementRestlet extends ServiceRestlet {
 		));
 	}
 
-	private void doDelete(Request request, Response response, final String table) {
+	private void doDelete(Request request, Response response, final String table) throws LockException {
 		final String identifier = (String)request.getAttributes().get("identifier");
 		if (identifier == null) {
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply an identifier");
 			return;
 		}
 		
-		if (PersistentLockRepository.LOCK_TABLE.equals(table)) {
+		if ("persistentlock".equals(table)) {
 			final Integer id;
 			try {
 				id = Integer.valueOf(identifier);
@@ -152,8 +148,8 @@ public class LockManagementRestlet extends ServiceRestlet {
 	}
 	
 	private boolean isValid(String table) {
-		return PersistentLockRepository.LOCK_TABLE.equals(table) || 
-			PersistentLockRepository.LOCK_GROUPS_TABLE.equals(table);
+		return "persistentlock".equals(table) || 
+			"persistentlockgroup".equals(table);
 	}
 
 }
