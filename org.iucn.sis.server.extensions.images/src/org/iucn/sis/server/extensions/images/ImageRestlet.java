@@ -19,15 +19,15 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.data.ManagedImageData;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Context;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.Language;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
@@ -35,6 +35,7 @@ import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -44,7 +45,7 @@ import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFSPath;
 
-public class ImageRestlet extends ServiceRestlet {
+public class ImageRestlet extends BaseServiceRestlet {
 
 	private AtomicBoolean running;
 	
@@ -59,7 +60,12 @@ public class ImageRestlet extends ServiceRestlet {
 		paths.add("/images/{taxonId}");
 	}
 	
-	private void handleGet(Request request, Response response, String taxonId) {
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		final String taxonId = (String) request.getAttributes().get("taxonId");
+		if (taxonId == null)
+			return buildUploadHTML();
+		
 		final VFSPath stripedPath = 
 			new VFSPath("/images/" + FilenameStriper.getIDAsStripedPath(taxonId) + ".xml");
 		
@@ -68,32 +74,30 @@ public class ImageRestlet extends ServiceRestlet {
 			try {
 				document = vfs.getDocument(stripedPath);
 			} catch (IOException e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
-				return;
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 		}
 		else
 			document = 
 				BaseDocumentUtils.impl.createDocumentFromString("<images id=\"" + taxonId + "\"></images>");
 		
-		
-		response.setEntity(new DomRepresentation(MediaType.TEXT_XML, document));
-		response.setStatus(Status.SUCCESS_OK);
+		return new DomRepresentation(MediaType.TEXT_XML, document);
 	}
-
-	private void handlePost(Request request, Response response, String taxonId) {
+	
+	@Override
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		final String taxonId = (String) request.getAttributes().get("taxonId");
+		
 		final RestletFileUpload fileUploaded = new RestletFileUpload(new DiskFileItemFactory());
 		
 		final List<FileItem> list;
 		try {
 			list = fileUploaded.parseRequest(request);
 		} catch (FileUploadException e) {
-			response.setStatus(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-			return;
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
 		
 		FileItem file = null;
-		String encoding = "";
 		
 		for (int i = 0; i < list.size() && file == null; i++) {
 			FileItem item = list.get(i);
@@ -103,9 +107,11 @@ public class ImageRestlet extends ServiceRestlet {
 		}
 
 		if (file == null) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "No file uploaded.");
 		}
 		else {
+			String encoding = file.getContentType();
+			Debug.println("Uploading image {0} encoded as {1}", file.getName(), file.getContentType());
 			String extension = "";
 			if (encoding.equals("image/jpeg"))
 				extension = "jpg";
@@ -119,13 +125,14 @@ public class ImageRestlet extends ServiceRestlet {
 				extension = "bmp";
 			else if (taxonId == null || taxonId.equals("batch"))
 				extension = "zip";
+			else
+				throw new ResourceException(Status.CLIENT_ERROR_UNSUPPORTED_MEDIA_TYPE, "Encoding of type " + encoding + " is not supported.");
 
-			int id;
+			final int id;
 			try {
 				id = writeFile(file.get(), extension);
 			} catch (IOException e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
-				return;
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 				
 			if (taxonId == null || taxonId.equals("batch")) {
@@ -199,27 +206,29 @@ public class ImageRestlet extends ServiceRestlet {
 		return id;
 	}
 	
-	private void handlePut(Request request, Response response, String taxonId) {
+	@Override
+	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+		final String taxonId = (String) request.getAttributes().get("taxonId");
+		
 		final Document document;
 		try {
-			document = new DomRepresentation(request.getEntity()).getDocument();
+			document = new DomRepresentation(entity).getDocument();
 		} catch (Exception e) {
-			response.setStatus(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-			return;
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
 		
 		try {
-			DocumentUtils.writeVFSFile("/images/" + FilenameStriper.getIDAsStripedPath(taxonId) + ".xml", vfs, true,
-					document);
+			DocumentUtils.writeVFSFile("/images/" + FilenameStriper.getIDAsStripedPath(taxonId) + 
+				".xml", vfs, true, document);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
 		response.setStatus(Status.SUCCESS_CREATED);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void handleBatchUpload(int id, Response response) {
+	private void handleBatchUpload(int id, Response response) throws ResourceException {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=cp1252\">" +
 				"</head><body><div>");
@@ -228,21 +237,16 @@ public class ImageRestlet extends ServiceRestlet {
 		try {
 			tempFile = vfs.getTempFile(new VFSPath("/images/bin/" + id + ".zip"));
 		} catch (NotFoundException e) {
-			e.printStackTrace();
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return;
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, e);
 		} catch (IOException e) {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-			return;
-		}	
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 			
 		final ZipFile zip;
 		try {
 			zip = new org.apache.commons.compress.archivers.zip.ZipFile(tempFile, "Cp1252");
 		} catch (IOException e) {
-			response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
-			return;
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
 		final Enumeration entries = zip.getEntries();
@@ -363,28 +367,6 @@ public class ImageRestlet extends ServiceRestlet {
 		
 		return new StringRepresentation(sb, MediaType.TEXT_HTML);
 	}
-	
-	@Override
-	public void performService(Request request, Response response) {
-		String taxonId = (String) request.getAttributes().get("taxonId");
-		if (request.getMethod() == Method.GET) {
-			if( taxonId != null ) {
-				handleGet(request, response, taxonId);
-			} else {
-				response.setEntity(buildUploadHTML());
-				response.setStatus(Status.SUCCESS_OK);
-			}
-		} else if (request.getMethod() == Method.POST) {
-			try {
-				handlePost(request, response, taxonId);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else if (request.getMethod() == Method.PUT) {
-			handlePut(request, response, taxonId);
-		}
-
-	}
 
 	private boolean writeXML(String taxonID, String id, String encoding, ManagedImageData data) {
 		if (taxonID == null || id == null || id.equals("null")) 
@@ -413,6 +395,12 @@ public class ImageRestlet extends ServiceRestlet {
 		el.setAttribute("primary", Boolean.toString(primary));
 		
 		if (data != null) {
+			/*
+			 * FIXME: using attributes to store captions or 
+			 * any other user-entered data doesn't sound 
+			 * like a recipe for success.  Should probably  
+			 * wrap this information in a child CDATA node.
+			 */
 			if (data.containsField("caption")) 
 				el.setAttribute("caption", data.getField("caption"));
 			if (data.containsField("credit")) 

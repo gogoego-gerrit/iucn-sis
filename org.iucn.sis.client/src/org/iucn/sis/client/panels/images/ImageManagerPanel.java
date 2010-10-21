@@ -8,12 +8,10 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.utils.FileUploadWidget;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -24,15 +22,15 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FormSubmitCompleteEvent;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -110,8 +108,8 @@ public class ImageManagerPanel extends LayoutContainer {
 			image.getImage().setWidth("50");
 		}
 
-		image.getImage().addClickListener(new ClickListener() {
-			public void onClick(Widget sender) {
+		image.getImage().addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				selected = imageList.indexOf(image);
 				selectImage(selected);
 			}
@@ -133,10 +131,6 @@ public class ImageManagerPanel extends LayoutContainer {
 	}
 
 	protected VerticalPanel buildDetailView(final ManagedImage image) {
-		VerticalPanel details = new VerticalPanel();
-		details.add(new HTML("<b>Description: </b>" + image.getField("caption")));
-		details.add(new HTML("<b>Credit: </b>" + image.getField("credit")));
-		details.add(new HTML("<b>Source: </b>" + image.getField("source")));
 		HorizontalPanel rating = new HorizontalPanel();
 		float ratingNum = Float.valueOf(image.getField("rating")).floatValue();
 		for (int i = 0; i < 5; i++) {
@@ -150,27 +144,32 @@ public class ImageManagerPanel extends LayoutContainer {
 				rating.add(star);
 			}
 		}
-		Button rateIt = new Button("Rate It!");
-		rateIt.addListener(Events.CellClick, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
+		
+		rating.add(new Button("Rate It!", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				displayRateItPopup(image);
 			}
-		});
-		rating.add(rateIt);
-		details.add(rating);
+		}));
+		
 		HTML values = new HTML("Votes: " + image.getField("weight") + " Value: " + image.getField("rating"));
 		values.setStyleName("SIS_hasSmallerHTML");
+		
+		VerticalPanel details = new VerticalPanel();
+		details.add(new HTML("<b>Description: </b>" + image.getField("caption")));
+		details.add(new HTML("<b>Credit: </b>" + image.getField("credit")));
+		details.add(new HTML("<b>Source: </b>" + image.getField("source")));
+		details.add(rating);
 		details.add(values);
+		
 		return details;
 	}
 
 	protected void displayRateItPopup(final ManagedImage image) {
-		final Window s = WindowUtils.getWindow(false, false, "Rate It!");
-		s.setSize(300, 100);
-		final LayoutContainer content = s;
-		content.setLayoutOnChange(true);
+		final Window window = WindowUtils.getWindow(false, false, "Rate It!");
+		window.setSize(300, 100);
+		window.setLayoutOnChange(true);
+		
 		HorizontalPanel hz = new HorizontalPanel();
-		final Button vote = new Button("Rate!");
 
 		final int weight = Integer.valueOf(image.getField("weight")).intValue();
 		final double curRating = Double.valueOf(image.getField("rating")).doubleValue();
@@ -181,8 +180,8 @@ public class ImageManagerPanel extends LayoutContainer {
 			final int w = i;
 			stars[i] = new Image(RATING_OUTLINE);
 			stars[i].setSize("25", "25");
-			stars[i].addClickListener(new ClickListener() {
-				public void onClick(Widget sender) {
+			stars[i].addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
 					for (int j = 0; j < 5; j++) {
 						if (j <= w)
 							stars[j].setUrl(RATING_FILLED);
@@ -192,24 +191,28 @@ public class ImageManagerPanel extends LayoutContainer {
 					image.setField("rating", String
 							.valueOf(((double) (int) ((((w + 1) + weightedRate) / (weight + 1)) * 100) / 100)));
 					image.setField("weight", String.valueOf(weight + 1));
-					content.layout();
+					window.layout();
 				};
 			});
 			hz.add(stars[i]);
 
 		}
-		content.add(hz);
-
-		vote.addListener(Events.CellClick, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
+		window.add(hz);
+		
+		window.addButton(new Button("Rate!", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				writeImagesToFS();
-				s.hide();
+				window.hide();
 			}
-
-		});
-		content.add(vote);
-		s.show();
-		WindowManager.get().bringToFront(s);
+		}));
+		window.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				window.hide();
+			}
+		}));
+		window.setButtonAlign(HorizontalAlignment.CENTER);
+		window.show();
+		WindowManager.get().bringToFront(window);
 	}
 
 	public int getView() {
@@ -336,28 +339,31 @@ public class ImageManagerPanel extends LayoutContainer {
 					WindowUtils.errorAlert("Error", "Must select image to edit.");
 					return;
 				}
+				
 				final Window content = WindowUtils.getWindow(true, true, "Edit Image Details");
-
 				content.setLayout(new RowLayout(Orientation.VERTICAL));
+				
+				final ManagedImage current = imageList.get(selected);
+				
 				final TextBox description = new TextBox();
-				if (((ManagedImage) imageList.get(selected)).getField("caption") != null)
-					description.setText(((ManagedImage) imageList.get(selected)).getField("caption"));
+				if (current.getField("caption") != null)
+					description.setText(current.getField("caption"));
 				description.setSize("300", "150");
 				final TextBox credit = new TextBox();
-				if (((ManagedImage) imageList.get(selected)).getField("credit") != null)
-					credit.setText(((ManagedImage) imageList.get(selected)).getField("credit"));
+				if (current.getField("credit") != null)
+					credit.setText(current.getField("credit"));
 				final TextBox source = new TextBox();
-				if (((ManagedImage) imageList.get(selected)).getField("source") != null)
-					source.setText(((ManagedImage) imageList.get(selected)).getField("source"));
+				if (current.getField("source") != null)
+					source.setText(current.getField("source"));
 				final CheckBox redlist = new CheckBox();
-				if (((ManagedImage) imageList.get(selected)).getField("showRedlist") != null
-						&& ((ManagedImage) imageList.get(selected)).getField("showRedlist").equals("true"))
-					redlist.setChecked(true);
+				if (current.getField("showRedlist") != null
+						&& current.getField("showRedlist").equals("true"))
+					redlist.setValue(true);
 				redlist.setText("Display with credit on IUCN Red List");
 				final CheckBox SIS = new CheckBox();
-				if (((ManagedImage) imageList.get(selected)).getField("showSIS") != null
-						&& ((ManagedImage) imageList.get(selected)).getField("showSIS").equals("true"))
-					SIS.setChecked(true);
+				if (current.getField("showSIS") != null
+						&& current.getField("showSIS").equals("true"))
+					SIS.setValue(true);
 				SIS.setText("Display with credit on IUCN SIS");
 
 				content.add(new HTML("Photo caption/description:"));
@@ -369,19 +375,23 @@ public class ImageManagerPanel extends LayoutContainer {
 				content.add(redlist);
 				content.add(SIS);
 
-				Button save = new Button();
-				save.setText("Save Details");
-				save.addListener(Events.CellClick, new Listener<BaseEvent>() {
-					public void handleEvent(BaseEvent be) {
-						imageList.get(selected).setField("caption", description.getText());
-						imageList.get(selected).setField("credit", credit.getText());
-						imageList.get(selected).setField("source", source.getText());
-						imageList.get(selected).setField("showRedlist", String.valueOf(redlist.isChecked()));
-						imageList.get(selected).setField("showSIS", String.valueOf(SIS.isChecked()));
+				content.addButton(new Button("Save Details", new SelectionListener<ButtonEvent>() {
+					public void componentSelected(ButtonEvent ce) {
+						current.setField("caption", description.getText());
+						current.setField("credit", credit.getText());
+						current.setField("source", source.getText());
+						current.setField("showRedlist", String.valueOf(redlist.getValue()));
+						current.setField("showSIS", String.valueOf(SIS.getValue()));
 						writeImagesToFS();
+						content.hide();
 					}
-				});
-				content.add(save);
+				}));
+				content.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+					public void componentSelected(ButtonEvent ce) {
+						content.hide();
+					}
+				}));
+				content.setButtonAlign(HorizontalAlignment.CENTER);
 
 				content.setHeight(420);
 				content.setWidth(420);
@@ -491,9 +501,8 @@ public class ImageManagerPanel extends LayoutContainer {
 		NativeDocument newDoc = SimpleSISClient.getHttpBasicNativeDocument();
 		newDoc.put(UriBase.getInstance().getImageBase() + "/images/" + groupingId, xml, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				
+				WindowUtils.errorAlert("Could not save image details, please try again later.");
 			}
-
 			public void onSuccess(String result) {
 				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(Integer.valueOf(groupingId));
 				update();
