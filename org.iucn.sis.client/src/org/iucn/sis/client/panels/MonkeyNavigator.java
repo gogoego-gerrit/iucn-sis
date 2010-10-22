@@ -98,11 +98,28 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 		workingSetList = new DataList();
 		workingSetList.setSelectionMode(SelectionMode.SINGLE);
 		workingSetList.setHeight(LIST_SIZE);
+		workingSetList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				DataListItem item = workingSetList.getSelectedItem();
+				if (item == null || item.getData("workingSet") == null)
+					return;
+				
+				markWorkingSet(item, ce.getItem().getItemId());
+			}
+		}));
 		
 		taxonContainer = new LayoutContainer(new FillLayout());
 		taxonList = new DataList();
 		taxonList.setSelectionMode(SelectionMode.SINGLE);
 		taxonList.setHeight(LIST_SIZE);
+		taxonList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				DataListItem item = taxonList.getSelectedItem();
+				String itemID = ""+ taxonListBinder.getSelection().get(0).getNode().getId();
+				
+				markTaxa(item, itemID, ce.getItem().getItemId());
+			}
+		}));
 		
 		taxonPagingLoader = new TaxonPagingLoader();
 		
@@ -136,6 +153,15 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 		assessmentList = new DataList();
 		assessmentList.setSelectionMode(SelectionMode.SINGLE);
 		assessmentList.setHeight(LIST_SIZE);
+		assessmentList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				DataListItem item = assessmentList.getSelectedItem();
+				if (item == null)
+					return;
+
+				markAssessment(item, ce.getItem().getItemId());
+			}
+		}));
 	}
 	
 	public void show() {
@@ -318,16 +344,6 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 	}
 	
 	public LayoutContainer drawWorkingSets() {
-		workingSetList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				DataListItem item = workingSetList.getSelectedItem();
-				if (item == null || item.getData("workingSet") == null)
-					return;
-				
-				markWorkingSet(item, ce.getItem().getItemId());
-			}
-		}));
-		
 		workingSetList.add(new DataListItem("&lt;None&gt;"));
 		
 		for (WorkingSet cur : WorkingSetCache.impl.getWorkingSets().values()) {
@@ -420,15 +436,6 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 			}
 		});
 		
-		taxonList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				DataListItem item = taxonList.getSelectedItem();
-				String itemID = ""+ taxonListBinder.getSelection().get(0).getNode().getId();
-				
-				markTaxa(item, itemID, ce.getItem().getItemId());
-			}
-		}));
-		
 		/**
 		 * By default, show recently assessed taxa.  Why, I don't know, 
 		 * since it's on the homepage...
@@ -437,6 +444,8 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 			if (TaxonomyCache.impl.getRecentlyAccessed().isEmpty()) {
 				callback.isDrawn(getNoTaxaScreen("No Recently Accessed Taxa"));
 			} else {
+				taxonList.removeAll();
+				
 				for (Taxon curTaxon : TaxonomyCache.impl.getRecentlyAccessed()) {
 					DataListItem curItem = new DataListItem(curTaxon.getFriendlyName());
 					curItem.setData("taxon", curTaxon);
@@ -580,17 +589,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 	private void drawAssessments(final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
 		final LayoutContainer assessments = new LayoutContainer();
 		assessments.setScrollMode(Scroll.NONE);
-		
-		assessmentList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				DataListItem item = assessmentList.getSelectedItem();
-				if (item == null)
-					return;
-
-				markAssessment(item, ce.getItem().getItemId());
-			}
-		}));
-		
+		assessmentList.removeAll();
 		if (curNavTaxon == null) {
 			HTML header = new HTML("Please select a taxon.");
 			header.addStyleName("bold");
