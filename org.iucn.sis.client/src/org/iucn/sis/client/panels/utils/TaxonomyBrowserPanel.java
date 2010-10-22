@@ -166,6 +166,10 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 					impl.getTaxon(footprints[footprints.length - 1])));
 		} catch (IndexOutOfBoundsException e) {
 			//It's fine.
+		} catch (NumberFormatException e) {
+			//Also fine
+		} catch (NullPointerException e) {
+			//Also fine.
 		}
 	}
 	
