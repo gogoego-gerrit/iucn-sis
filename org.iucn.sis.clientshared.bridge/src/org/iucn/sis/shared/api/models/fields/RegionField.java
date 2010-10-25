@@ -7,13 +7,18 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 public class RegionField {
 	
 	private final Field proxy;
 	
+	public RegionField() {
+		this(null);
+	}
+	
 	public RegionField(Field field) {
-		this.proxy = field;
+		this.proxy = field == null ? new Field(CanonicalNames.RegionInformation, null) : field;
 	}
 	
 	public void setEndemic(Boolean isEndemic) {

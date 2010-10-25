@@ -59,13 +59,8 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	}
 	
 	public List<Integer> getRegionIDs() {
-		Field regionField = getField(CanonicalNames.RegionInformation);
-		if (regionField == null)
-			return new ArrayList<Integer>();
-		else {
-			RegionField proxy = new RegionField(regionField);
-			return proxy.getRegionIDs();
-		}
+		RegionField proxy = new RegionField(getField(CanonicalNames.RegionInformation));
+		return proxy.getRegionIDs();
 	}
 	
 	public void setId(int value) {
@@ -436,7 +431,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		
 		Field field = getField(CanonicalNames.RegionInformation);
 		if (field == null)
-			field = new Field();
+			field = new Field(CanonicalNames.RegionInformation, this);
 		
 		RegionField proxy = new RegionField(field);
 		proxy.setEndemic(endemic);

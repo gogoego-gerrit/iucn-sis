@@ -349,7 +349,7 @@ public class SISRegionInformation extends Structure<Field> {
 	
 	@Override
 	public void setData(Field field) {
-		RegionField proxy = new RegionField(field == null ? new Field() : field);
+		RegionField proxy = new RegionField(field);
 		
 		regionsSelected = proxy.getRegionIDs();
 		endemic.setValue(proxy.isEndemic());
