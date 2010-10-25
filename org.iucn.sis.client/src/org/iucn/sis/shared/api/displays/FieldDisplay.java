@@ -59,7 +59,7 @@ public class FieldDisplay extends Display {
 				struct.save(field, field.getPrimitiveField(struct.getId()));
 			else {
 				if (!struct.hasId())
-					struct.save(field, null);
+					struct.save(null, field);
 				else
 					struct.save(field, field.getField(struct.getId()));
 			}
@@ -97,7 +97,6 @@ public class FieldDisplay extends Display {
 	@Override
 	public void setData(Field field) {
 		this.field = field;
-		
 		for (DisplayStructure cur : getStructures()) {
 			if (cur.isPrimitive())
 				cur.setData(field == null ? null : field.getPrimitiveField(cur.getId()));
@@ -105,7 +104,7 @@ public class FieldDisplay extends Display {
 				if (!cur.hasId())
 					cur.setData(field);
 				else
-					cur.setData(field.getField(cur.getId()));
+					cur.setData(field == null ? null : field.getField(cur.getId()));
 			}
 		}
 	}

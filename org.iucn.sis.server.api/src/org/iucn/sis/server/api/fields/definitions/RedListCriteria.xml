@@ -3,7 +3,7 @@
 	<description>Red List Criteria</description>
 	<classOfService>Outcome</classOfService>
 	<structures>
-		<structure id="value">
+		<structure>
 			<categoryAndCriteria></categoryAndCriteria>
 			<!-- <relatedStructure>
 				<dominantStructures>

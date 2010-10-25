@@ -13,6 +13,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 
 public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
+	
 	private RegionalExpertWidget questionsPanel;
 
 	public SISRegionalExpertStructure(String struct, String descript, String structID) {
@@ -82,8 +83,7 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 
 	@Override
 	public String getData() {
-		String ret = questionsPanel.getWidgetData();
-		return ret;
+		return questionsPanel.getWidgetData();
 	}
 
 	/**
@@ -101,30 +101,22 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 	
 	@Override
 	public void setData(PrimitiveField<String> field) {
-		try {
-			String datum = field != null ? field.getValue() : "";
-			questionsPanel.setWidgetData(datum);
+		String datum = field != null ? field.getValue() : null;
+		questionsPanel.setWidgetData(datum);
 			
-			clearDisplayPanel();
-			
-			Assessment cur = AssessmentCache.impl.getCurrentAssessment();
-			if (cur != null && cur.isRegional() && !cur.isEndemic())
-				displayPanel.add(new HTML(questionsPanel.getResultString()));
-			else {
-				displayPanel.add(new HTML("<br><i>N/A for non-regional assessments.</i>"));
-				questionsPanel.clearWidgetData();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		clearDisplayPanel();
+		
+		Assessment cur = AssessmentCache.impl.getCurrentAssessment();
+		if (cur != null && cur.isRegional() && !cur.isEndemic())
+			displayPanel.add(new HTML(questionsPanel.getResultString()));
+		else {
+			displayPanel.add(new HTML("<br><i>N/A for non-regional assessments.</i>"));
+			questionsPanel.clearWidgetData();
 		}
 	}
 
 	@Override
 	public void setEnabled(boolean isEnabled) {
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
 	}
 
 }

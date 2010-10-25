@@ -3,10 +3,8 @@ package org.iucn.sis.shared.api.utils;
 import org.iucn.sis.client.api.caches.UserCache;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
-import org.iucn.sis.shared.api.structures.SISCategoryAndCriteria;
 
 public class AssessmentFormatter {
 	
@@ -39,39 +37,19 @@ public class AssessmentFormatter {
 	}
 	
 	public static String getProperCategoryAbbreviation(Assessment assessment) {
-		String cat = "";
-		BooleanPrimitiveField isManualPF = (BooleanPrimitiveField) assessment.getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.IS_MANUAL_KEY);
-		StringPrimitiveField categoryField;
-		if (isManualPF != null && isManualPF.getValue())
-			categoryField = (StringPrimitiveField) assessment.getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.MANUAL_CATEGORY_KEY);	
-		else 
-			categoryField = (StringPrimitiveField) assessment.getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.GENERATED_CATEGORY_KEY);
+		RedListCriteriaField proxy = new RedListCriteriaField(assessment.getField(CanonicalNames.RedListCriteria));
 		
-		if (categoryField != null) {
-			cat = categoryField.getValue();
-		} else {
-			cat = "N/A";
-		}			
-
-		return cat;
+		String category = proxy.isManual() ? proxy.getManualCategory() : proxy.getGeneratedCategory();
+		
+		return "".equals(category) ? "N/A" : category;
 	}
 	
 	public static String getProperCriteriaString(Assessment assessment) {
-		String criteria = "";
-		BooleanPrimitiveField isManualPF = (BooleanPrimitiveField) assessment.getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.IS_MANUAL_KEY);
-		StringPrimitiveField criteriaField;
-		if (isManualPF != null && isManualPF.getValue()) 
-			criteriaField = (StringPrimitiveField) assessment.getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.MANUAL_CRITERIA_KEY);	
-		else 
-			criteriaField = (StringPrimitiveField) assessment.getPrimitiveField(CanonicalNames.RedListCriteria, SISCategoryAndCriteria.GENERATED_CRITERIA_KEY);
+		RedListCriteriaField proxy = new RedListCriteriaField(assessment.getField(CanonicalNames.RedListCriteria));
 		
-		if (criteriaField != null) {
-			criteria = criteriaField.getValue();
-		} else {
-			criteria = "N/A";
-		}			
-
-		return criteria;
+		String criteria = proxy.isManual() ? proxy.getManualCriteria() : proxy.getGeneratedCriteria();
+		
+		return "".equals(criteria) ? "N/A" : criteria;
 	}
 
 }

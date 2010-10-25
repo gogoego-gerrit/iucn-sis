@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.PrimitiveField;
@@ -57,7 +56,11 @@ public class SISDate extends SISPrimitiveStructure<Date> {
 
 	@Override
 	public String getData() {
-		return datePicker.getText();
+		String value = datePicker.getText();
+		if ("".equals(value))
+			value = null;
+		
+		return value;
 	}
 
 	/**
@@ -90,10 +93,6 @@ public class SISDate extends SISPrimitiveStructure<Date> {
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		datePicker.setEnabled(isEnabled);
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
 	}
 
 }

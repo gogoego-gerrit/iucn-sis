@@ -15,10 +15,10 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.Widget;
 
 public class RegionalExpertWidget extends LayoutContainer {
 
@@ -55,7 +55,7 @@ public class RegionalExpertWidget extends LayoutContainer {
 		displayResult = new HTML();
 		displayResult.addStyleName("redFont");
 		amount = new ListBox();
-		amount.addItem(" --- Select --- ", "0");
+		amount.addItem(" --- Select --- ", "");
 		amount.addItem("1", "1");
 		amount.addItem("2", "2");
 		
@@ -102,8 +102,8 @@ public class RegionalExpertWidget extends LayoutContainer {
 		list.addItem("Yes", RegionalExpertQuestions.YES + "");
 		list.addItem("Don't Know", RegionalExpertQuestions.DONTKNOW + "");
 		list.addItem("No", RegionalExpertQuestions.NO + "");
-		list.addChangeListener(new ChangeListener() {
-			public void onChange(Widget sender) {
+		list.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				determineNextMove(list);
 			}
 		});
@@ -123,7 +123,7 @@ public class RegionalExpertWidget extends LayoutContainer {
 			p.add(amount);
 			results.add(p);
 		} else {
-			amount.setSelectedIndex(0);
+			amount.setSelectedIndex(-1);
 		}
 		layout();
 	}
@@ -152,7 +152,6 @@ public class RegionalExpertWidget extends LayoutContainer {
 
 		buildTable();
 		gotResult("");
-		layout();
 	}
 
 	private ListBox determineNextMove(ListBox list) {
@@ -205,8 +204,6 @@ public class RegionalExpertWidget extends LayoutContainer {
 			}
 		}
 
-		layout();
-
 		return ret;
 	}
 
@@ -222,12 +219,17 @@ public class RegionalExpertWidget extends LayoutContainer {
 		String ret = getResultString();
 		if (ret == null)
 			ret = "";
-		ret += "," + amount.getValue(amount.getSelectedIndex());
+		
+		if (amount.getSelectedIndex() > -1) {
+			String amtVal = amount.getValue(amount.getSelectedIndex());
+			if (amtVal != null && !"".equals(amtVal))
+				ret += "," + amtVal;
+		}
 
 		for (Entry<String, String> curEntry : questionToAnswer.entrySet())
 			ret += "," + curEntry.getValue();
 
-		return ret;
+		return ret.trim().equals("") ? null : ret;
 	}
 
 	private void gotResult(String result) {
@@ -247,7 +249,7 @@ public class RegionalExpertWidget extends LayoutContainer {
 	}
 
 	public void setWidgetData(String data) {
-		if (data == null || data.equals(""))
+		if (data == null)
 			clearWidgetData();
 		else {
 			questionToAnswer.clear();
@@ -255,26 +257,22 @@ public class RegionalExpertWidget extends LayoutContainer {
 			questionIndex.clear();
 			tableEmulator.removeAll();
 
-			try {
-				String[] split = data.split(",");
+			String[] split = data.split(",");
 
-				result = split[0];
-				amount.setSelectedIndex(Integer.valueOf(split[1]));
+			result = split[0];
+			amount.setSelectedIndex(Integer.valueOf(split[1]));
 
-				ListBox curBox = addRow(questions.getFirstQuestion());
-				for (int i = 2; i < split.length; i++) {
-					if (curBox != null) {
-						curBox.setSelectedIndex(Integer.valueOf(split[i]));
-						curBox = determineNextMove(curBox);
-					}
+			ListBox curBox = addRow(questions.getFirstQuestion());
+			for (int i = 2; i < split.length; i++) {
+				if (curBox != null) {
+					curBox.setSelectedIndex(Integer.valueOf(split[i]));
+					curBox = determineNextMove(curBox);
 				}
-
-				result = split[0];
-				amount.setSelectedIndex(Integer.valueOf(split[1]));
-				gotResult(result);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
+
+			result = split[0];
+			amount.setSelectedIndex(Integer.valueOf(split[1]));
+			gotResult(result);
 		}
 	}
 

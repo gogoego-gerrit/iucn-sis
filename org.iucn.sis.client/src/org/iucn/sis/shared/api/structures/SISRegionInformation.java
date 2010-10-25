@@ -8,12 +8,14 @@ import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
@@ -50,43 +52,54 @@ public class SISRegionInformation extends Structure<Field> {
 	private VerticalPanel innerPanel;
 	
 	public SISRegionInformation(String struct, String descript, String structID) {
-		super(struct, descript, structID);
+		super(struct, descript, null);
 		// displayPanel = new HorizontalPanel();
 		buildContentPanel(Orientation.VERTICAL);
 	}
 
 	@Override
 	public boolean hasChanged(Field field) {
-		Map<String, PrimitiveField> data;
-		if (field == null)
-			data = new HashMap<String, PrimitiveField>();
-		else
-			data = field.getKeyToPrimitiveFields();
+		Field fauxRegions = new Field(CanonicalNames.RegionInformation, null);
 		
-		String regionsSelected = getData();
-		if ("".equals(regionsSelected))
-			regionsSelected = null;
+		save(null, fauxRegions);
 		
-		boolean hasChanged = false;
-		if (data.get("regions") != null) {
-			String regionRaw = data.get("regions").getRawValue();
-			if ("".equals(regionRaw))
-				regionRaw = null;
+		if (field == null || field.getPrimitiveField().size() != fauxRegions.getPrimitiveField().size())
+			return fauxRegions.hasData();
+		
+		Map<String, PrimitiveField> savedFields = fauxRegions.getKeyToPrimitiveFields();
+		for (Map.Entry<String, PrimitiveField> entry : savedFields.entrySet()) {
+			PrimitiveField oldPrimField = field.getPrimitiveField(entry.getKey());
+			if (oldPrimField == null) {
+				Debug.println("HasChanged in RegionInfo: DB missing new value for {0} of {1}", entry.getKey(), entry.getValue().getRawValue());
+				return true;
+			}
 			
-			if (regionRaw == null && regionsSelected != null)
-				hasChanged = true;
-			else
-				hasChanged = !regionRaw.equals(regionsSelected);			
+			String oldValue = oldPrimField.getRawValue();
+			if ("".equals(oldValue))
+				oldValue = null;
+			
+			String newValue = entry.getValue().getRawValue();
+			if ("".equals(newValue))
+				newValue = null;
+						
+			boolean hasChanged = false;
+			if (newValue == null) {
+				if (oldValue != null)
+					hasChanged = true;
+			} else {
+				if (oldValue == null)
+					hasChanged = true;
+				else if (!newValue.equals(oldValue))
+					hasChanged = true;
+			}
+			
+			Debug.println("HasChanged in RegionInfo: Interrogating {0} with DB value {1} and child value {2}, result is {3}", entry.getKey(), oldValue, newValue, hasChanged);
+			
+			if (hasChanged)
+				return hasChanged;
 		}
 		
-		Boolean endemicVal = endemic.getValue();
-		
-		if (!hasChanged && data.get("endemic") != null) {
-			Boolean val = ((BooleanPrimitiveField)data.get("endemic")).getValue();
-			hasChanged = !val.equals(endemicVal);
-		}
-		
-		return hasChanged;
+		return false;
 	}
 	
 	@Override
@@ -100,14 +113,16 @@ public class SISRegionInformation extends Structure<Field> {
 			}
 		}
 		
-		RegionField prototype = new RegionField(endemic.getValue(), list, null);
-		
 		if (field == null) {
-			//The assessment gets set later, so pass null
-			field = prototype;
+			//This is a problem, why is this ever the case?  oh well...  
+			//doing explicit set, and i know certain info...
+			field = new Field(CanonicalNames.RegionInformation, null);
+			field.setParent(null);
 		}
-		else
-			field.setPrimitiveField(prototype.getPrimitiveField());
+		
+		RegionField proxy = new RegionField(field);
+		proxy.setEndemic(endemic.getValue());
+		proxy.setRegions(list);
 	}
 	
 	/**
@@ -298,7 +313,7 @@ public class SISRegionInformation extends Structure<Field> {
 	@Override
 	public String getData() {
 		if (boxesToSelected.size() <= 0)
-			return null;
+			return "";
 
 		HashMap<Integer, String> alreadySeen = new HashMap<Integer, String>();
 		
@@ -334,20 +349,10 @@ public class SISRegionInformation extends Structure<Field> {
 	
 	@Override
 	public void setData(Field field) {
-		Map<String, PrimitiveField> data;
-		if (field == null)
-			data = new HashMap<String, PrimitiveField>();
-		else
-			data = field.getKeyToPrimitiveFields();
-		//super.setData(data);
+		RegionField proxy = new RegionField(field == null ? new Field() : field);
 		
-		if (data.containsKey("regions"))
-			regionsSelected = ((ForeignKeyListPrimitiveField)data.get("regions")).getValue();
-		else
-			regionsSelected = new ArrayList<Integer>();
-		
-		if (data.containsKey("endemic"))
-			endemic.setValue(((BooleanPrimitiveField)data.get("endemic")).getValue());
+		regionsSelected = proxy.getRegionIDs();
+		endemic.setValue(proxy.isEndemic());
 		
 		refreshUI();
 	}

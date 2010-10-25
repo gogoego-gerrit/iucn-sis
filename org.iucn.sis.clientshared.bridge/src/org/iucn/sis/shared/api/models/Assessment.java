@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
@@ -35,7 +36,6 @@ import org.iucn.sis.shared.api.utils.CanonicalNames;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
-import com.solertium.lwxml.shared.NativeElementCollection;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
@@ -60,9 +60,12 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	
 	public List<Integer> getRegionIDs() {
 		Field regionField = getField(CanonicalNames.RegionInformation);
-		
-		List<Integer> regionIds = (List<Integer>) regionField.getKeyToPrimitiveFields().get(RegionField.PRIMITIVE_FIELD).getValue();
-		return regionIds;
+		if (regionField == null)
+			return new ArrayList<Integer>();
+		else {
+			RegionField proxy = new RegionField(regionField);
+			return proxy.getRegionIDs();
+		}
 	}
 	
 	public void setId(int value) {
@@ -189,10 +192,10 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 					try {
 						field = Field.fromXML((NativeElement)child);
 					} catch (ClassCastException e) {
-						e.printStackTrace();
+						Debug.println(e);
 						continue;
 					} catch (Throwable e) {
-						e.printStackTrace();
+						Debug.println(e);
 						continue;
 					}
 					
@@ -431,7 +434,15 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		for (Region region : regions)
 			regionIDs.add(region.getId());
 		
-		setField(new RegionField(endemic, regionIDs, this));
+		Field field = getField(CanonicalNames.RegionInformation);
+		if (field == null)
+			field = new Field();
+		
+		RegionField proxy = new RegionField(field);
+		proxy.setEndemic(endemic);
+		proxy.setRegions(regionIDs);
+		
+		setField(field);
 	}
 	
 	public void setField(Field field) {

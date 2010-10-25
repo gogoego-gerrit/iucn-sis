@@ -1,36 +1,61 @@
 package org.iucn.sis.shared.api.models.fields;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 
-public class RegionField extends Field {
+public class RegionField {
 	
-	private static final long serialVersionUID = 1L;
+	private final Field proxy;
 	
-	public static String CANONICAL_NAME = CanonicalNames.RegionInformation;
-	public static String PRIMITIVE_FIELD = "regions";
+	public RegionField(Field field) {
+		this.proxy = field;
+	}
 	
-	@SuppressWarnings("unchecked")
-	public RegionField(boolean isEndemic, List<Integer> regionIDs, Assessment assessment) {
-		super(CANONICAL_NAME, assessment);
-		
-		final Set<PrimitiveField> fields = new HashSet<PrimitiveField>();
-		fields.add(new BooleanPrimitiveField("endemic", this, isEndemic));
-		
-		final ForeignKeyListPrimitiveField list = 
-			new ForeignKeyListPrimitiveField(PRIMITIVE_FIELD, this, CANONICAL_NAME + "_regionsLookup");
-		list.setValue(regionIDs);
-		fields.add(list);
-		
-		setPrimitiveField(fields);
+	public void setEndemic(Boolean isEndemic) {
+		PrimitiveField<?> field = proxy.getPrimitiveField("endemic");
+		if (field != null) {
+			if (isEndemic != null)
+				((BooleanPrimitiveField)field).setValue(isEndemic);
+			else
+				proxy.getPrimitiveField().remove(field);
+		}
+		else if (isEndemic != null && !isEndemic.equals(Boolean.FALSE))
+			proxy.addPrimitiveField(new BooleanPrimitiveField("endemic", proxy, isEndemic));
+		else
+			proxy.getPrimitiveField().remove(field);	
+	}
+	
+	public boolean isEndemic() {
+		PrimitiveField<?> field = proxy.getPrimitiveField("endemic");
+		if (field != null)
+			return ((BooleanPrimitiveField)field).getValue();
+		else
+			return false;
+	}
+	
+	public void setRegions(List<Integer> regionIDs) {
+		PrimitiveField<?> field = proxy.getPrimitiveField("regions");
+		if (field != null)
+			((ForeignKeyListPrimitiveField)field).setValue(regionIDs);
+		else {
+			field = new ForeignKeyListPrimitiveField("regions", proxy);
+			((ForeignKeyListPrimitiveField)field).setValue(regionIDs);
+			
+			proxy.addPrimitiveField(field);
+		}
+	}
+	
+	public List<Integer> getRegionIDs() {
+		PrimitiveField<?> field = proxy.getPrimitiveField("regions");
+		if (field == null)
+			return new ArrayList<Integer>();
+		else
+			return ((ForeignKeyListPrimitiveField)field).getValue();
 	}
 
 }
