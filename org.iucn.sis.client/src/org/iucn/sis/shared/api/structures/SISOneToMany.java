@@ -221,11 +221,13 @@ public class SISOneToMany extends Structure<Field> {
 	public void setData(Field field) {
 		selected.clear();
 		
-		for ( Field subField : field.getFields() ) {
-			Structure<Object> newStruct = 
-				DisplayDataProcessor.processDisplayStructure(defaultStructureData);
-			newStruct.setData(subField);
-			selected.add(newStruct);
+		if (field != null) {
+			for ( Field subField : field.getFields() ) {
+				Structure<Object> newStruct = 
+					DisplayDataProcessor.processDisplayStructure(defaultStructureData);
+				newStruct.setData(subField);
+				selected.add(newStruct);
+			}
 		}
 	}
 	
