@@ -26,13 +26,13 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.extjs.client.WindowUtils;
 
 public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 
 	PanelManager manager = null;
 	HTML instructions = null;
 	DataList list = null;
-	Button delete = null;
 
 	public WorkingSetDeleteTaxa(PanelManager manager) {
 		super();
@@ -56,13 +56,12 @@ public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 	private void buildButtons(RowData data) {
 		ButtonBar buttons = new ButtonBar();
 		buttons.setAlignment(HorizontalAlignment.LEFT);
-		delete = new Button("Delete Taxa", new SelectionListener<ButtonEvent>() {
+		buttons.add(new Button("Delete Taxa", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				deleteTaxa();
 			}
-		});
-		buttons.add(delete);
+		}));
 		add(buttons, data);
 	}
 
@@ -81,34 +80,33 @@ public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 	}
 
 	private void deleteTaxa() {
-
+		final WorkingSet ws = WorkingSetCache.impl.getCurrentWorkingSet();
+		if (ws == null) {
+			WindowUtils.errorAlert("Please first select a working set.");
+			return;
+		}
+		
 		if (list.getItemCount() > 0) {
-			delete.setEnabled(false);
-
-			final WorkingSet ws = WorkingSetCache.impl.getCurrentWorkingSet();
 			final Collection<Taxon> taxaToDelete = new HashSet<Taxon>();
-			for (int i = 0; i < list.getItemCount(); i++) {
+			for (int i = 0; i < list.getItemCount(); i++)
 				taxaToDelete.add(TaxonomyCache.impl.getTaxon(list.getItem(i).getId()));
-			}
-			WorkingSetCache.impl.editTaxaInWorkingSet(ws, null, taxaToDelete, new GenericCallback<String>() {
 			
-				@Override
+			WindowUtils.showLoadingAlert("Saving Changes...");
+			WorkingSetCache.impl.editTaxaInWorkingSet(ws, null, taxaToDelete, new GenericCallback<String>() {
 				public void onSuccess(String result) {
+					WindowUtils.hideLoadingAlert();
 					Info.display("Taxa Removed", "Taxa was successfully removed from working set "
 							+ ws.getWorkingSetName() + ".", "");
 					manager.workingSetOptionsPanel.listChanged();
 					list.removeAll();
 				}
-			
-				@Override
 				public void onFailure(Throwable caught) {
+					WindowUtils.hideLoadingAlert();
 					Info.display(new InfoConfig("Error", "Error removing taxa from working set "
 							+ ws.getWorkingSetName() + "."));
-			
 				}
 			});
 		}
-
 	}
 
 	/*
@@ -124,11 +122,8 @@ public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 			instructions.setHTML("<b>Instructions:</b> Select the taxa that you would like to delete from the "
 					+ WorkingSetCache.impl.getCurrentWorkingSet().getWorkingSetName() + " working set.  The taxa that "
 					+ "will be removed are added to the list below.");
-			delete.setEnabled(true);
 		} else {
 			instructions.setHTML("<b>Instructions:</b> Please first select a working set.");
-			delete.setEnabled(false);
-
 		}
 	}
 

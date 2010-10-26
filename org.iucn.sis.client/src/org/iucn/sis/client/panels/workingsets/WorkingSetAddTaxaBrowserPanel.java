@@ -87,26 +87,12 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 	private void buildButtons() {
 		buttons = new ButtonBar();
 
-		Button selectAll = new Button(" Select All ", new SelectionListener<ButtonEvent>() {
+		buttons.add(new Button("Add", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				browser.selectAll();
-			}
-		});
-
-		Button deselectAll = new Button(" Deselect All ", new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				browser.deselectAll();
-			}
-		});
-
-		final Button add = new Button("Add");
-		add.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				add.setEnabled(false);
-				if (workingSet != null) {
+				if (workingSet == null)
+					WindowUtils.errorAlert("Please first select a working set.");
+				else {
 					WindowUtils.showLoadingAlert("Adding taxa to your working set; this "
 							+ "may take some time. If you encounter any \"Unresponsive Script\" "
 							+ "warnings, please continue clicking to let the script continue running "
@@ -115,7 +101,6 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 					List<TaxonListElement> checked = browser.getViewerChecked();
 
 					if (checked.size() == 0) {
-						add.setEnabled(true);
 						WindowUtils.hideLoadingAlert();
 						WindowUtils.errorAlert("Please check one or more taxa.");
 					} else {
@@ -132,9 +117,7 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 								WindowUtils.hideLoadingAlert();
 								WindowUtils.errorAlert("Error loading taxa into this "
 										+ "working set. Please check your Internet connection " + "and try again.");
-								add.setEnabled(true);
 							}
-
 							public void onSuccess(String arg0) {
 								String taxonToAdd = arg0;
 								if (taxonToAdd.length() > 0) {
@@ -150,7 +133,7 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 											WindowUtils.hideLoadingAlert();
 											WindowUtils.infoAlert("Taxon successfully added " + "to working set "
 													+ workingSet.getWorkingSetName());
-											add.setEnabled(true);
+											
 											manager.workingSetOptionsPanel
 													.refreshTaxaList(manager.workingSetOptionsPanel.checkPermissions());
 											manager.workingSetOptionsPanel.listChanged();
@@ -162,27 +145,30 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 											WindowUtils.hideLoadingAlert();
 											WindowUtils.errorAlert("Error adding taxon to " + "working set "
 													+ workingSet.getWorkingSetName());
-											add.setEnabled(true);
-									
 										}
 									});
 								} else {
 									WindowUtils.hideLoadingAlert();
-									add.setEnabled(true);
 									WindowUtils.errorAlert("No taxon to add to working set " + workingSet.getWorkingSetName());
 								}
 							}
 						});
 					}
-				} else {
-					add.setEnabled(true);
 				}
 			}
-		});
-
-		buttons.add(add);
-		buttons.add(selectAll);
-		buttons.add(deselectAll);
+		}));
+		buttons.add(new Button(" Select All ", new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				browser.selectAll();
+			}
+		}));
+		buttons.add(new Button(" Deselect All ", new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				browser.deselectAll();
+			}
+		}));
 
 	}
 
