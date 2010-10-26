@@ -17,7 +17,7 @@ public class ServerActivator extends SISActivator{
 	
 	@Override
 	protected SISApplication getInstance() {
-		return null;
+		return new ServerApplication();
 	}
 	
 }

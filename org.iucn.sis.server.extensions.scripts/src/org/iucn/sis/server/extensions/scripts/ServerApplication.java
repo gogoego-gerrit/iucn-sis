@@ -2,8 +2,12 @@ package org.iucn.sis.server.extensions.scripts;
 
 import org.iucn.sis.server.api.application.SISApplication;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.extensions.scripts.commonnames.WriteAllCommonNamesToXML;
+import org.iucn.sis.shared.api.debug.Debug;
+import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
+import org.restlet.data.Status;
 
 public class ServerApplication extends SISApplication{
 
@@ -24,7 +28,7 @@ public class ServerApplication extends SISApplication{
 				
 				
 			}
-		}, "", true, false, true);
+		}, "/start", true, true, false);
 		
 	}
 

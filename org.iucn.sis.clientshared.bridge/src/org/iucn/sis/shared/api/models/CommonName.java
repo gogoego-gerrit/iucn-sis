@@ -32,6 +32,7 @@ public class CommonName implements Serializable {
 	}	
 	
 	public static CommonName fromXML(NativeElement commonNameTag) {
+		String id = commonNameTag.getAttribute("id");
 		String iso = commonNameTag.getAttribute("iso");
 		String language = commonNameTag.getAttribute("language");
 		boolean validated = commonNameTag.getAttribute("validated")
@@ -42,6 +43,7 @@ public class CommonName implements Serializable {
 		String reason = commonNameTag.getAttribute("reason");
 		
 		CommonName curName = new CommonName();
+		curName.setId(Integer.valueOf(id).intValue());
 		curName.setName(name);
 		if( iso != null || language != null )
 			curName.setIso(new IsoLanguage(language, iso));
@@ -254,7 +256,7 @@ public class CommonName implements Serializable {
 				+ XMLUtils.clean(getIso().getName()) + "\""));
 		xml += " validated=\"" + getValidated() + "\" name=\""
 				+ XMLUtils.clean(getName()) + "\" primary=\""
-				+ getPrincipal() + "\"";
+				+ getPrincipal() + "\" id=\"" + getId() + "\"";
 		if (!getValidated())
 			xml += " reason=\"" + getChangeReason();
 		xml += "\">";
