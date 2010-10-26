@@ -194,7 +194,6 @@ public class FieldParser {
 					|| structureType.equalsIgnoreCase(XMLUtils.JUSTIFICATION_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.IMAGE_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.FILE_STRUCTURE)
-					|| structureType.equalsIgnoreCase(XMLUtils.QUALIFIER_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.BOOLEAN_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.BOOLEAN_UNKNOWN_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.USE_TRADE)
@@ -250,7 +249,8 @@ public class FieldParser {
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.MULTIPLE_SELECT_STRUCTURE)
-					|| structureType.equalsIgnoreCase(XMLUtils.SINGLE_SELECT_STRUCTURE)) {
+					|| structureType.equalsIgnoreCase(XMLUtils.SINGLE_SELECT_STRUCTURE)
+					|| structureType.equalsIgnoreCase(XMLUtils.QUALIFIER_STRUCTURE)) {
 				
 				LookupData options = lookups.find(id);
 				if (options == null) {

@@ -49,7 +49,7 @@ public class WidgetGenerator {
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.MULTIPLE_SELECT_STRUCTURE)) {
 			return new SISMultiSelect(theStructure, description, structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.QUALIFIER_STRUCTURE)) {
-			return new SISQualifier(theStructure, "Qualification: ", structID);
+			return new SISQualifier(theStructure, "Qualification: ", structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.LABEL_STRUCTURE)) {
 			return new SISLabel(theStructure, description, structID);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.OPTIONS_LIST)) {

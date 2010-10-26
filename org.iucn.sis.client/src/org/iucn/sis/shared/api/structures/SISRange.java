@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.RangePrimitiveField;
@@ -192,10 +191,6 @@ public class SISRange extends SISPrimitiveStructure<String> implements DominantS
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		range.setEnabled(isEnabled);
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
 	}
 
 }

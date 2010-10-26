@@ -1,7 +1,11 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.iucn.sis.shared.api.data.LookupData;
+import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 
@@ -13,10 +17,9 @@ import com.google.gwt.user.client.ui.Widget;
 public class SISQualifier extends SISPrimitiveStructure<Integer> {
 
 	private ListBox listbox;
-	private ArrayList items;
 
-	public SISQualifier(String struct, String descript, String structID) {
-		super(struct, descript, structID);
+	public SISQualifier(String struct, String descript, String structID, Object data) {
+		super(struct, descript, structID, data);
 		// displayPanel = new ContentPanel();
 		buildContentPanel(Orientation.HORIZONTAL);
 	}
@@ -51,17 +54,15 @@ public class SISQualifier extends SISPrimitiveStructure<Integer> {
 	@Override
 	public void createWidget() {
 		descriptionLabel = new HTML(description);
+		
 		listbox = new ListBox();
-		items = new ArrayList();
-
-		items.add("---Select---");
-		items.add("Observed");
-		items.add("Projected");
-		items.add("Inferred");
-
-		for (int theKey = 0; theKey < this.items.size(); theKey++) {
-			listbox.addItem((String) this.items.get(theKey), "" + theKey);
-		}
+		listbox.addItem("--- Select ---", "");
+		
+		LookupData myData = ((LookupData)data);
+		List<LookupDataValue> listItemsToAdd = myData.getValues();
+		
+		for (LookupDataValue value : listItemsToAdd)
+			listbox.addItem(value.getLabel(), value.getID());
 	}
 
 	/**
@@ -69,18 +70,18 @@ public class SISQualifier extends SISPrimitiveStructure<Integer> {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(description);
 		return ret;
 	}
 
 	@Override
 	public String getData() {
-		if( listbox.getSelectedIndex() == 0 )
+		if (listbox.getSelectedIndex() <= 0)
 			return null;
 		else
-			return new Integer(listbox.getSelectedIndex()).toString();
+			return listbox.getValue(listbox.getSelectedIndex());
 	}
 
 	/**
@@ -92,8 +93,14 @@ public class SISQualifier extends SISPrimitiveStructure<Integer> {
 	 */
 	@Override
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
-		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				new Object[] { "Observed", "Projected", "Inferred" }));
+		String selectedValue = rawData.get(offset);
+		
+		String pretty = ((LookupData)data).getLabel(selectedValue);
+		if (pretty == null)
+			pretty = "(Not Specified)";
+		
+		prettyData.add(offset, pretty);
+		
 		return ++offset;
 	}
 
@@ -103,18 +110,20 @@ public class SISQualifier extends SISPrimitiveStructure<Integer> {
 	
 	@Override
 	public void setData(PrimitiveField<Integer> field) {
-		//super.setData(data);
-		Integer datum = field != null ? field.getValue() : 0;
-		listbox.setSelectedIndex(datum);
+		String value = field != null ? field.getRawValue() : "";
+		listbox.setSelectedIndex(0);
+		try {
+			for (int i = 1; i < listbox.getItemCount(); i++)
+				if (listbox.getValue(i).equals(value))
+					listbox.setSelectedIndex(i);
+		} catch (IndexOutOfBoundsException unlikely) {
+			Debug.println("Empty select list");
+		}
 	}
 
 	
 	@Override
 	public void setEnabled(boolean isEnabled) {
-		this.listbox.setEnabled(isEnabled);
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
+		listbox.setEnabled(isEnabled);
 	}
 }

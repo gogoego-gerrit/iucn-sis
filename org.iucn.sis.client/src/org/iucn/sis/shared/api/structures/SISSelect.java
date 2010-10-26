@@ -2,10 +2,10 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.data.LookupData;
 import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
@@ -24,8 +24,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 public class SISSelect extends SISPrimitiveStructure<Integer> implements DominantStructure<PrimitiveField<Integer>> {
-
-	public static final String LISTBOX = "listbox";
 
 	private ListBox listbox;
 
@@ -193,8 +191,15 @@ public class SISSelect extends SISPrimitiveStructure<Integer> implements Dominan
 	
 	@Override
 	public void setData(PrimitiveField<Integer> field) {
-		Integer datum = field != null ? field.getValue() : 0;
-		listbox.setSelectedIndex(datum);
+		String value = field != null ? field.getRawValue() : "";
+		listbox.setSelectedIndex(0);
+		try {
+			for (int i = 1; i < listbox.getItemCount(); i++)
+				if (listbox.getValue(i).equals(value))
+					listbox.setSelectedIndex(i);
+		} catch (IndexOutOfBoundsException unlikely) {
+			Debug.println("Empty select list");
+		}
 	}
 
 	@Override
