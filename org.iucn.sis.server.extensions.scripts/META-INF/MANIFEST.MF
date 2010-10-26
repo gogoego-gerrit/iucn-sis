@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SIS Scripts
+Bundle-SymbolicName: org.iucn.sis.server.extensions.scripts
+Bundle-Version: 1.0.0
+Bundle-Activator: org.iucn.sis.server.extensions.scripts.Activator
+Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
+ org.iucn.sis.server.api;bundle-version="2.0.0",
+ org.restlet;bundle-version="2.0.0"
+Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.osgi.framework;version="1.4.0"
