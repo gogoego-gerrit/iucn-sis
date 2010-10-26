@@ -17,7 +17,6 @@ import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DefinitionPanel;
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
@@ -46,6 +45,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.lwxml.shared.GWTNotFoundException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -92,8 +92,6 @@ public abstract class Display implements Referenceable {
 	protected String displayID; // id num for the field
 	protected String associatedFieldId; // id this field is associated with
 
-	protected ArrayList referenceIds;
-
 	protected int dominantStructureIndex = 0;
 
 	/**
@@ -106,8 +104,6 @@ public abstract class Display implements Referenceable {
 	public Display(DisplayData displayData) {
 		this(displayData.getStructure(), displayData.getDescription(), displayData.getData(), "", displayData
 				.getDisplayId(), displayData.getCanonicalName(), displayData.getClassOfService(), "");
-
-		this.referenceIds = displayData.getReferences();
 	}
 
 	public Display(String struct, String descript, Object data, String group, String displayID, String canonicalName,
@@ -122,37 +118,36 @@ public abstract class Display implements Referenceable {
 		this.canonicalName = canonicalName;
 		this.classOfService = classOfService;
 		this.associatedFieldId = associate;
-		this.referenceIds = new ArrayList();
-	}
-
-	public void addReferenceId(String id) {
-		referenceIds.add(id);
 	}
 
 	@Override
-	public void addReferences(ArrayList<Reference> references,
-			final GenericCallback<Object> callback) {
-		ReferenceCache.getInstance().addReferences(references);
-		
-		Assessment assessment = AssessmentCache.impl.getCurrentAssessment(); 
-		if (field == null) {
-			initializeField();
-			field.setAssessment(assessment);
+	public void addReferences(ArrayList<Reference> references, final GenericCallback<Object> callback) {
+		/*
+		 * Should never happen, but just to be on the safe side.
+		 */
+		if (!isSaved()) {
+			WindowUtils.errorAlert("Please save this field first before adding references.");
+			callback.onFailure(new GWTNotFoundException());
 		}
-
-		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, field, new GenericCallback<Object>() {
-			public void onSuccess(Object result) {
-				if (field != null && field.getReference().size() == 0)
-					refIcon.setUrl("images/icon-book-grey.png");
-				else
-					refIcon.setUrl("images/icon-book.png");
-				
-				callback.onSuccess(result);
-			}
-			public void onFailure(Throwable caught) {
-				callback.onFailure(caught);
-			}
-		});
+		else {
+			ReferenceCache.getInstance().addReferences(references);
+			
+			field.setAssessment(AssessmentCache.impl.getCurrentAssessment());
+	
+			ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, field, new GenericCallback<Object>() {
+				public void onSuccess(Object result) {
+					if (field != null && field.getReference().size() == 0)
+						refIcon.setUrl("images/icon-book-grey.png");
+					else
+						refIcon.setUrl("images/icon-book.png");
+					
+					callback.onSuccess(result);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		}
 	}
 
 	public void addStructure(DisplayStructure structureToAdd) {
@@ -362,12 +357,8 @@ public abstract class Display implements Referenceable {
 		return new SimplePanel();
 	}
 
-	public ArrayList getReferenceIds() {
-		return referenceIds;
-	}
-
 	public Set<Reference> getReferencesAsList() {
-		return field == null ? new HashSet<Reference>() : field.getReference();
+		return !isSaved() ? new HashSet<Reference>() : field.getReference();
 	}
 
 	public List<DisplayStructure> getStructures() {
@@ -430,7 +421,7 @@ public abstract class Display implements Referenceable {
 	}
 
 	protected void openEditViewNotesPopup() {
-		if (field == null) {
+		if (!isSaved()) {
 			WindowUtils.errorAlert("Please save your changes before adding notes.");
 			return;
 		}
@@ -483,23 +474,28 @@ public abstract class Display implements Referenceable {
 	}
 
 	public void removeReferences(ArrayList<Reference> references, final GenericCallback<Object> callback) {
-		try {
-			AssessmentClientSaveUtils.saveAssessment(new GenericCallback<Object>() {
-				public void onSuccess(Object result) {
-					if (field != null && field.getReference().size() == 0)
-						refIcon.setUrl("images/icon-book-grey.png");
-					else
-						refIcon.setUrl("images/icon-book.png");
-					
-					callback.onSuccess(result);
-				}
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-			});
-		} catch (InsufficientRightsException e) {
-			WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
-					+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
+		if (!isSaved()) {
+			WindowUtils.errorAlert("Please save this field first before removing references.");
+		}
+		else {
+			try {
+				AssessmentClientSaveUtils.saveAssessment(new GenericCallback<Object>() {
+					public void onSuccess(Object result) {
+						if (field != null && field.getReference().size() == 0)
+							refIcon.setUrl("images/icon-book-grey.png");
+						else
+							refIcon.setUrl("images/icon-book.png");
+						
+						callback.onSuccess(result);
+					}
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+				});
+			} catch (InsufficientRightsException e) {
+				WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
+						+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
+			}
 		}
 	}
 
@@ -539,10 +535,6 @@ public abstract class Display implements Referenceable {
 		this.location = location;
 	}
 
-	public void setReferenceIds(ArrayList referenceIds) {
-		this.referenceIds = referenceIds;
-	}
-
 	public void setStructure(String structure) {
 		this.structure = structure;
 	}
@@ -558,36 +550,32 @@ public abstract class Display implements Referenceable {
 		if (canonicalName == null || canonicalName.equals(""))
 			return;
 
-		final ClickHandler noteListener = new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				openEditViewNotesPopup();
-			}
-		};
-
-		final Set<Reference> refs = field == null ? new HashSet<Reference>() : field.getReference();
-
-		if (refIcon == null)
+		if (refIcon == null) {
 			refIcon = new Image();
-
-		refIcon.setStyleName("SIS_iconPanelIcon");
-
-		refIcon.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				GenericCallback<Object> callback = new GenericCallback<Object>() {
-					public void onFailure(Throwable caught) {
-						WindowUtils.errorAlert("Error!", "Error committing changes to the "
-								+ "server. Ensure you are connected to the server, then try " + "the process again.");
+			refIcon.setStyleName("SIS_iconPanelIcon");
+			refIcon.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					if (!isSaved()) {
+						WindowUtils.errorAlert("Please save this field first before adding references.");
 					}
-
-					public void onSuccess(Object result) {
-						rebuildIconPanel();
+					else {
+						GenericCallback<Object> callback = new GenericCallback<Object>() {
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Error!", "Error committing changes to the "
+										+ "server. Ensure you are connected to the server, then try " + "the process again.");
+							}
+		
+							public void onSuccess(Object result) {
+								rebuildIconPanel();
+							}
+						};
+						SISClientBase.getInstance().onShowReferenceEditor("Add a references to " + canonicalName, 
+								Display.this, callback, callback);
 					}
-				};
-				
-				SISClientBase.getInstance().onShowReferenceEditor("Add a references to " + canonicalName, 
-						Display.this, callback, callback);
-			}
-		});
+				}
+			});
+		}
+		
 		helpIcon = new Image("images/icon-help.png");
 		helpIcon.setStyleName("SIS_iconPanelIcon");
 		helpIcon.addClickHandler(new ClickHandler() {
@@ -610,11 +598,15 @@ public abstract class Display implements Referenceable {
 		}
 
 		notesIcon.setStyleName("SIS_iconPanelIcon");
-		notesIcon.addClickHandler(noteListener);
+		notesIcon.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				openEditViewNotesPopup();
+			}
+		});
 		rebuildIconPanel();
 		
 		if (refIcon != null) {
-			if (field == null || field.getReference().size() == 0)
+			if (!isSaved() || field.getReference().size() == 0)
 				refIcon.setUrl("images/icon-book-grey.png");
 			else
 				refIcon.setUrl("images/icon-book.png");
@@ -668,6 +660,10 @@ public abstract class Display implements Referenceable {
 
 	public Widget showViewOnly() {
 		return showDisplay(true);
+	}
+	
+	public boolean isSaved() {
+		return field != null && field.getId() > 0;
 	}
 
 }// class Display
