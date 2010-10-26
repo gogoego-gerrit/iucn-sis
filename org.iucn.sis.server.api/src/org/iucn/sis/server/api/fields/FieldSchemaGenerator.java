@@ -179,7 +179,8 @@ public class FieldSchemaGenerator {
 				ec.doQuery(lookups, new RowProcessor() {
 					public void process(Row row) {
 						try {
-							mapping.put(row.get("id").getInteger(), row.get("label").toString());
+							if (!"-1".equals(row.get("name").toString()))
+								mapping.put(row.get("id").getInteger(), row.get("label").toString());
 						} catch (NullPointerException e) {
 							TrivialExceptionHandler.ignore(this, e);
 							//TODO: can we stop processing early?
