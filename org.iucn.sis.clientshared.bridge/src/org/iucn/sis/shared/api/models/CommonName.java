@@ -106,10 +106,16 @@ public class CommonName implements Serializable {
 		this.notes = new HashSet<Notes>();
 	}
 	
-	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
+	
 	public CommonName deepCopy() {
-		//FIXME
-		return new CommonName(name, iso == null ? null : iso.getName(), iso == null ? null : iso.getCode(), validated, principal);
+		CommonName cn =  new CommonName(name, iso == null ? null : iso.getName(), iso == null ? null : iso.getCode(), validated, principal);
+		cn.setNotes(new HashSet<Notes>());
+		for (Notes note : getNotes()) {
+			Notes newNote = note.deepCopy();
+			newNote.setCommonName(cn);
+			cn.getNotes().add(newNote);
+		}
+		return cn;
 	}
 	
 	@Override

@@ -328,7 +328,9 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 		allCommonNames.clear();
 		Set<CommonName> temp = node.getCommonNames();
 		for (CommonName cur : temp) {
-			allCommonNames.add(cur.deepCopy());
+			CommonName copy = cur.deepCopy();
+			copy.setId(cur.getId());
+			allCommonNames.add(copy);
 		}
 	}
 

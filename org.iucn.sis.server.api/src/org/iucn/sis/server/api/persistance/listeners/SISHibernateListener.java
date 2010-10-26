@@ -18,7 +18,9 @@ import org.hibernate.event.PreUpdateEventListener;
 import org.hibernate.event.SaveOrUpdateEvent;
 import org.hibernate.event.def.DefaultSaveOrUpdateEventListener;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
@@ -69,12 +71,19 @@ public class SISHibernateListener implements PreInsertEventListener, PreUpdateEv
 				Taxon taxon = SIS.get().getNoteIO().getNoteFromTaxon(note.getId());
 				if (taxon != null)
 					doUpdate(taxon);
+				else if (note.getCommonName() != null) {
+					doUpdate(note.getCommonName());
+				}
 				//TODO: DO FOR FIELDS
 			} else if (obj instanceof Synonym){
 				Synonym syn = ((Synonym)obj);
 				if (syn.getTaxon() != null)
 					doUpdate(syn.getTaxon());
-			}
+			} else if (obj instanceof CommonName) {
+				CommonName cn = ((CommonName)obj);
+				if (cn.getTaxon() != null) 
+					doUpdate(cn.getTaxon());
+			} 
 		}catch (AssertionFailure e) {
 			
 		}catch (Throwable e) {
