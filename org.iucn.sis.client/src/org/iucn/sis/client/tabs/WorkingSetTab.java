@@ -66,54 +66,28 @@ public class WorkingSetTab extends TabItem {
 	 * 
 	 */
 	public void workingSetChanged() {
-		try {
+		final Integer currentlySelectedID = panelManager.workingSetHierarchy.getCurrentlySelectedWorkingSetID();
+		final WorkingSet ws = WorkingSetCache.impl.getCurrentWorkingSet();
+		
+		if (ws != null && currentlySelectedID != null && !currentlySelectedID.equals(ws.getId())) {
+			panelManager.workingSetHierarchy.setCurrentlySelected(ws.getId());
+		} else if (ws == null && currentlySelectedID != null) {
+			WindowUtils.confirmModalAlert("Working Set Change",
+					"There is no current working set, however you are viewing the "
+							+ panelManager.workingSetHierarchy.getCurrentlySelectedWorkingSetName()
+							+ " working set.  " + "Would you like continue working on the "
+							+ panelManager.workingSetHierarchy.getCurrentlySelectedWorkingSetName()
+							+ " working set?", new WindowUtils.MessageBoxListener() {
+				@Override
+				public void onNo() {
+					panelManager.workingSetHierarchy.setCurrentlySelected(null);
+				}
 
-			final Integer currentlySelectedID = panelManager.workingSetHierarchy.getCurrentlySelectedWorkingSetID();
-			final WorkingSet ws = WorkingSetCache.impl.getCurrentWorkingSet();
-			if (ws != null && currentlySelectedID != null && !currentlySelectedID.equals(ws.getId())) {
-				WindowUtils.confirmModalAlert("Working Set Change", "The current working set  was just changed to "
-						+ ws.getWorkingSetName() + " while you were viewing the working set "
-						+ panelManager.workingSetHierarchy.getCurrentlySelectedWorkingSetName() + ".  "
-						+ "Would you like to view the " + ws.getWorkingSetName() + " or the "
-						+ panelManager.workingSetHierarchy.getCurrentlySelectedWorkingSetName() + " working set?",
-						new WindowUtils.MessageBoxListener() {
-
-							@Override
-							public void onNo() {
-								panelManager.workingSetHierarchy.setCurrentlySelected(currentlySelectedID);
-
-							}
-
-							@Override
-							public void onYes() {
-								panelManager.workingSetHierarchy.setCurrentlySelected(ws.getId());
-
-							}
-						}, ws.getWorkingSetName(), panelManager.workingSetHierarchy
-								.getCurrentlySelectedWorkingSetName());
-			} else if (ws == null && currentlySelectedID != null) {
-				WindowUtils.confirmModalAlert("Working Set Change",
-						"There is no current working set, however you are viewing the "
-								+ panelManager.workingSetHierarchy.getCurrentlySelectedWorkingSetName()
-								+ " working set.  " + "Would you like continue working on the "
-								+ panelManager.workingSetHierarchy.getCurrentlySelectedWorkingSetName()
-								+ " working set?", new WindowUtils.MessageBoxListener() {
-
-							@Override
-							public void onNo() {
-								panelManager.workingSetHierarchy.setCurrentlySelected(null);
-
-							}
-
-							@Override
-							public void onYes() {
-								panelManager.workingSetHierarchy.setCurrentlySelected(currentlySelectedID);
-
-							}
-						}, "Yes", "No");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+				@Override
+				public void onYes() {
+					panelManager.workingSetHierarchy.setCurrentlySelected(currentlySelectedID);
+				}
+			}, "Yes", "No");
 		}
 	}
 
