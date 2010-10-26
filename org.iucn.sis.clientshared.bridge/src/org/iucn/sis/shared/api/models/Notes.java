@@ -78,6 +78,7 @@ public class Notes implements Serializable {
 	}
 	public Notes deepCopy() {
 		Notes note = new Notes();
+		note.setId(getId());
 		note.setValue(getValue());
 		return note;
 	}
@@ -160,7 +161,7 @@ public class Notes implements Serializable {
 		this.fields = fields;
 	}
 
-	private void setId(int value) {
+	public void setId(int value) {
 		this.id = value;
 	}
 

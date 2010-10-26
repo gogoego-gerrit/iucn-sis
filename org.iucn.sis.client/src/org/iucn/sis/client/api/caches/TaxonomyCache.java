@@ -10,6 +10,7 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
+import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 
@@ -592,6 +593,27 @@ public class TaxonomyCache {
 		});
 	}
 	
+	public void addNoteToCommonName(final Taxon taxon, final CommonName commonName, final Notes note, final GenericCallback<String> callback) {
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId() + "/note", note.toXML(), new GenericCallback<String>() {
+
+			@Override
+			public void onSuccess(String result) {
+				note.setCommonName(commonName);
+				result = ndoc.getText();
+				note.setId(Integer.parseInt(result));
+				commonName.getNotes().add(note);
+				callback.onSuccess(result);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		
+		});
+	}
+	
 	public void addOrEditCommonName(final Taxon taxon, final CommonName commonName, final GenericCallback<String> callback) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.postAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname", commonName.toXML(), new GenericCallback<String>() {
@@ -602,7 +624,15 @@ public class TaxonomyCache {
 				if (commonName.getId() == 0) {
 					commonName.setId(Integer.parseInt(newId));
 					taxon.getCommonNames().add(commonName);
-				} 
+				} else {
+					for (CommonName c : taxon.getCommonNames()) {
+						if (c.getId() == commonName.getId()) {
+							taxon.getCommonNames().remove(c);
+							taxon.getCommonNames().add(commonName);
+							break;
+						}
+					}
+				}
 				
 				callback.onSuccess(newId);
 		

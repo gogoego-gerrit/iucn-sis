@@ -696,6 +696,7 @@ public class TaxonHomePage extends LayoutContainer {
 							notesImage.setUrl("images/icon-note-grey.png");
 						notesImage.setTitle("Add/Remove Notes");
 						notesImage.addClickHandler(new ClickHandler() {
+							@SuppressWarnings("unchecked")
 							public void onClick(ClickEvent event) {
 								final Window s = WindowUtils.getWindow(false, false, "Notes for Common Name "
 										+ curName.getName());
@@ -728,19 +729,15 @@ public class TaxonHomePage extends LayoutContainer {
 									public void handleEvent(BaseEvent be) {
 										Notes newNote = new Notes();
 										newNote.setValue(area.getText());
-										newNote.setCommonName(curName);
-										curName.getNotes().add(newNote);
-										if (!curName.getNotes().isEmpty())
-											notesImage.setUrl("images/icon-note.png");
-										else
-											notesImage.setUrl("images/icon-note-grey.png");
 										s.hide();
-										TaxonomyCache.impl.addOrEditCommonName(node, curName, new GenericCallback<String>() {
+										TaxonomyCache.impl.addNoteToCommonName(node, curName, newNote, new GenericCallback<String>() {
 											
 											@Override
 											public void onSuccess(String result) {
 												WindowUtils.infoAlert("Saved", "Common name " + curName.getName() + " was saved.");
-												ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+//												ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+												notesImage.setUrl("images/icon-note.png");
+												
 											}
 										
 											@Override
@@ -749,7 +746,6 @@ public class TaxonHomePage extends LayoutContainer {
 														+ node.getFullName() + ".");
 											}
 										});
-										
 										
 									}
 								});
