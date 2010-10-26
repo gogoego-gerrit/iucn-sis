@@ -1,11 +1,14 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -32,7 +35,7 @@ public class SISOneToMany extends Structure<Field> {
 	/**
 	 * ArrayList<Structure>
 	 */
-	private ArrayList<Structure<Object>> selected;
+	private ArrayList<StructureHolder> selected;
 
 	private DisplayData defaultStructureData;
 
@@ -44,14 +47,43 @@ public class SISOneToMany extends Structure<Field> {
 		super(struct, descript, structID);
 		buildContentPanel(Orientation.VERTICAL);
 
-		selected = new ArrayList<Structure<Object>>();
+		selected = new ArrayList<StructureHolder>();
 		defaultStructureData = defaultStructure;
 	}
 	
 	@Override
 	public boolean hasChanged(Field field) {
-		// TODO Auto-generated method stub
-		return true;
+		final Map<Integer, Field> savedFields = new HashMap<Integer, Field>();
+		if (field != null)
+			for (Field subfield : field.getFields())
+				savedFields.put(subfield.getId(), subfield);
+		
+		for (StructureHolder holder : selected) {
+			//Field has never been saved, if there are changes, let's save.
+			if (holder.field == null || holder.field.getId() == 0) {
+				if (holder.structure.hasChanged(holder.field)) {
+					Debug.println("NEW: {0} says it has changed", holder.structure.getClass().getName());
+					return true;
+				}
+				else
+					return false;
+			}
+			else {
+				//We are working with previously saved data that could have changed.
+				Field dataField = savedFields.remove(holder.field.getId());
+				if (dataField == null) { //How??
+					Debug.println("OneToMany hasChanged badness, save to clean up.");
+					return true;
+				}
+				
+				if (holder.structure.hasChanged(dataField)) {
+					Debug.println("OLD: {0} says it has changed", holder.structure.getClass().getName());
+					return true;
+				}
+			}
+		}
+		
+		return !savedFields.isEmpty();
 	}
 	
 	@Override
@@ -62,18 +94,24 @@ public class SISOneToMany extends Structure<Field> {
 			field.setParent(parent);
 		}
 		
-		String name = field.getName() + "Subfield";
+		final List<StructureHolder> unsaved = new ArrayList<StructureHolder>();
 		
-		/*
-		 * FIXME: Really?
-		 */
-		for (Structure<Object> cur : selected) {
+		for (StructureHolder cur : selected) {
+			if (cur.field == null)
+				unsaved.add(cur);
+			else
+				cur.structure.save(field, cur.field);
+		}
+		
+		for (StructureHolder cur : unsaved) {
 			Field subfield = new Field(field.getName() + "Subfield", field.getAssessment());
 			subfield.setParent(field);
 			
-			cur.save(field, subfield);
+			cur.structure.save(field, subfield);
 			
 			field.addField(subfield);
+			
+			cur.field = subfield;
 		}
 	}
 
@@ -86,9 +124,8 @@ public class SISOneToMany extends Structure<Field> {
 	protected Widget createLabel() {
 		clearDisplayPanel();
 		selectedPanel.clear();
-		((CellPanel) displayPanel).setSpacing(2);
 
-		for (final Structure<Object> curStruct : selected) {
+		for (final StructureHolder curStruct : selected) {
 			HorizontalPanel structWrapper = new HorizontalPanel();
 
 			Button remove = new Button();
@@ -110,7 +147,7 @@ public class SISOneToMany extends Structure<Field> {
 			});
 
 			structWrapper.add(remove);
-			structWrapper.add(curStruct.createLabel());
+			structWrapper.add(curStruct.structure.createLabel());
 
 			selectedPanel.add(structWrapper);
 		}
@@ -131,8 +168,8 @@ public class SISOneToMany extends Structure<Field> {
 		if (selected.size() == 0)
 			selectedPanel.add(new HTML("No information available."));
 		else
-			for (Iterator<Structure<Object>> iter = selected.listIterator(); iter.hasNext();)
-				selectedPanel.add(( iter.next()).createViewOnlyLabel());
+			for (Iterator<StructureHolder> iter = selected.listIterator(); iter.hasNext();)
+				selectedPanel.add(iter.next().structure.createViewOnlyLabel());
 
 		displayPanel.add(descriptionLabel);
 		displayPanel.add(selectedPanel);
@@ -149,10 +186,9 @@ public class SISOneToMany extends Structure<Field> {
 		addNew = new Button("Add");
 		addNew.setIconStyle("icon-add");
 		addNew.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
 			public void componentSelected(ButtonEvent ce) {
 				Structure<Object> newOne = DisplayDataProcessor.processDisplayStructure(defaultStructureData);
-				selected.add(newOne);
+				selected.add(new StructureHolder(newOne));
 
 				createLabel();
 			}
@@ -212,37 +248,37 @@ public class SISOneToMany extends Structure<Field> {
 
 		return offset;
 	}
-
-	public ArrayList<Structure<Object>> getSelected() {
-		return selected;
-	}
 	
 	@Override
 	public void setData(Field field) {
 		selected.clear();
 		
-		if (field != null) {
-			for ( Field subField : field.getFields() ) {
-				Structure<Object> newStruct = 
-					DisplayDataProcessor.processDisplayStructure(defaultStructureData);
-				newStruct.setData(subField);
-				selected.add(newStruct);
-			}
-		}
+		if (field != null)
+			for (Field subField : field.getFields())
+				selected.add(new StructureHolder(DisplayDataProcessor.processDisplayStructure(defaultStructureData), subField));
 	}
 	
 	public void setEnabled(boolean isEnabled) {
-		for (Iterator<Structure<Object>> iter = selected.listIterator(); iter.hasNext();)
-			(iter.next()).setEnabled(isEnabled);
+		for (Iterator<StructureHolder> iter = selected.listIterator(); iter.hasNext();)
+			iter.next().structure.setEnabled(isEnabled);
 	}
-
-	public String toXML() {
-		String ret = "<!-- This tag is for the OneToMany, noting how many selections it has -->\r\n";
-		ret += "<structure>" + selected.size() + "</structure>\r\n";
-
-		/*for (Iterator<Structure<Object>> iter = selected.listIterator(); iter.hasNext();)
-			ret += (iter.next()).toXML();*/
-
-		return ret;
+	
+	public static class StructureHolder {
+		
+		private Structure<Object> structure;
+		private Field field;
+		
+		public StructureHolder(Structure<Object> structure) {
+			this(structure, null);
+		}
+		
+		public StructureHolder(Structure<Object> structure, Field field) {
+			this.structure = structure;
+			this.field = field;
+			
+			this.structure.setData(field);
+		}
+		
 	}
+	
 }

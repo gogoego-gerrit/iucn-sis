@@ -3,7 +3,7 @@
 	<description>Use and Trade Details</description>
 	<classOfService>Documentation</classOfService>
 	<structures>
-		<structure id="a">
+		<structure>
 			<oneToMany>
 				<structure>
 					<useTrade></useTrade>

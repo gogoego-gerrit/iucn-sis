@@ -34,9 +34,9 @@ public class FieldSchemaGeneratorTesting {
 		
 		validateAndFixEOO(generator);
 		
-		System.out.println("----- Threats -----");
+		System.out.println("----- Use Trade -----");
 		
-		validate(generator, "Threats");
+		validate(generator, "UseTradeDetails");
 	}
 	
 	private static void validateAndFixEOO(FieldSchemaGenerator generator) {

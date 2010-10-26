@@ -3,9 +3,8 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 
 import org.iucn.sis.shared.api.data.DisplayData;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.utils.XMLUtils;
-
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class WidgetGenerator {
 
@@ -61,7 +60,8 @@ public class WidgetGenerator {
 		else if (theStructure.equalsIgnoreCase(XMLUtils.ONE_TO_MANY)) {
 			return new SISOneToMany(theStructure, description, structID, (DisplayData) data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.USE_TRADE)) {
-			return new UseTrade(theStructure, description, structID);
+			Debug.println("Creating use trade with data type {0}", data.getClass().getName());
+			return new UseTrade(theStructure, description, structID, data);
 		}
 
 		// TEXTAREA

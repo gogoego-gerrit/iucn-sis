@@ -114,17 +114,6 @@ public class DisplayDataProcessor {
 				printDiagnostic(currentDisplayData, e);
 			}
 		}
-
-		else if (fieldStructure.equalsIgnoreCase(XMLUtils.USE_TRADE)) {
-			try {
-				structure = WidgetGenerator.StructureGenerator(fieldStructure, currentDisplayData.getDescription(),
-						uniqueID, null);
-
-			} catch (Exception e) {
-				printDiagnostic(currentDisplayData, e);
-			}
-		}
-
 		else if (fieldStructure.equalsIgnoreCase(XMLUtils.ONE_TO_MANY)) {
 			try {
 				structure = WidgetGenerator.StructureGenerator(fieldStructure, currentDisplayData.getDescription(),

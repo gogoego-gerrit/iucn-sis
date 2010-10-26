@@ -12,7 +12,7 @@
 					</structure>
 				</dominantStructures>
 				<dependentStructures>
-					<structure id="livelihoodDetails">
+					<structure>
 						<oneToMany>
 							<structure>
 								<livelihoods />

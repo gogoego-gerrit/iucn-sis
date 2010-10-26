@@ -88,7 +88,7 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 				if (cur.hasId())
 					cur.save(field, field.getField(cur.getId()));
 				else
-					cur.save(field, null);
+					cur.save(null, field);
 			}
 		}
 	}

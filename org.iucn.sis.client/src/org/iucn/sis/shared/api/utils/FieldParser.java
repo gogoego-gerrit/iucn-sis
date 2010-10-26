@@ -196,11 +196,9 @@ public class FieldParser {
 					|| structureType.equalsIgnoreCase(XMLUtils.FILE_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.BOOLEAN_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.BOOLEAN_UNKNOWN_STRUCTURE)
-					|| structureType.equalsIgnoreCase(XMLUtils.USE_TRADE)
 					|| structureType.equalsIgnoreCase(XMLUtils.OPTIONS_LIST)
 					|| structureType.equalsIgnoreCase(XMLUtils.NOTE_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.LABEL_STRUCTURE)
-					|| structureType.equalsIgnoreCase(XMLUtils.LIVELIHOODS)
 					|| structureType.equalsIgnoreCase(XMLUtils.REFERENCE_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.RED_LIST_CATEGORIES_CRITERIA)
 					|| structureType.equalsIgnoreCase(XMLUtils.EMPTY_STRUCTURE)
@@ -247,7 +245,10 @@ public class FieldParser {
 
 				currentDisplayData.setData(data);
 			}
-
+			else if (structureType.equalsIgnoreCase(XMLUtils.LIVELIHOODS)
+					|| structureType.equalsIgnoreCase(XMLUtils.USE_TRADE)) {
+				currentDisplayData.setData(lookups);
+			}
 			else if (structureType.equalsIgnoreCase(XMLUtils.MULTIPLE_SELECT_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.SINGLE_SELECT_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.QUALIFIER_STRUCTURE)) {

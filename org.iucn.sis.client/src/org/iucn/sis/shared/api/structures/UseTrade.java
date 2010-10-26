@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.data.DisplayData.LookupDataContainer;
+import org.iucn.sis.shared.api.data.LookupData;
+import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
-import org.iucn.sis.shared.api.utils.XMLUtils;
+import org.iucn.sis.shared.api.models.fields.UseTradeField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -26,34 +27,6 @@ import com.google.gwt.user.client.ui.Widget;
 
 public class UseTrade extends Structure<Field> {
 
-	public static final String PURPOSE_KEY = "purpose";
-	public static final String SOURCE_KEY = "source";
-	public static final String FORM_REMOVED_KEY = "formRemoved";
-	public static final String SUBSISTENCE_KEY = "subsistence";
-	public static final String NATIONAL_KEY = "national";
-	public static final String INTERNATIONAL_KEY = "international";
-	public static final String HARVEST_LEVEL_KEY = "harvestLevel";
-	public static final String UNITS_KEY = "units";
-	public static final String POSSIBLE_THREAT_KEY = "possibleThreat";
-	public static final String JUSTIFICATION_KEY = "justification";
-	
-	
-	public static ArrayList<String> generateDefaultDataList() {
-		ArrayList<String> dataList = new ArrayList<String>();
-		dataList.add("0");
-		dataList.add("0");
-		dataList.add("0");
-		dataList.add("false");
-		dataList.add("false");
-		dataList.add("false");
-		dataList.add("");
-		dataList.add("0");
-		dataList.add("false");
-		dataList.add("");
-
-		return dataList;
-	}
-
 	private ListBox purpose;
 	private ListBox source;
 	private ListBox formRemoved;
@@ -68,24 +41,16 @@ public class UseTrade extends Structure<Field> {
 
 	private TextArea justification;
 
-	private final String[] purposeOptions = new String[] { "Food - human", "Food - animal",
-			"Medicine - human and veterinary", "Poisons", "Manufacturing chemicals", "Other chemicals", "Fuel",
-			"Fibre", "Construction/structural materials", "Wearing apparel, accessories", "Other household goods",
-			"Handicrafts, jewellery, decorations, curios, etc.", "Pets/display animals, horticulture", "Research",
-			"Sport hunting/specimen collecting", "Other", "Unknown" };
-
-	private final String[] sourceOptions = new String[] { "Wild", "Captive breeding/farming", "Ranching - ex situ",
-			"Ranching - in situ", "Other", "Unknown", };
-
-	private final String[] formRemovedOptions = new String[] { "Whole animal/plant", "Parts - non-lethal removal",
-			"Parts - lethal removal", "Eggs, fruits, seeds", "Other", "Unknown" };
-
-	private final String[] unitsOptions = new String[] { "Volume (cubic metres)", "Weight (in kilograms)",
-			"Number of Individuals" };
-
-	public UseTrade(String struct, String descript, String structID) {
-		super(struct, descript, structID);
+	public UseTrade(String struct, String descript, String structID, Object data) {
+		super(struct, descript, structID, data);
 		buildContentPanel(Orientation.VERTICAL);
+	}
+	
+	private Integer getDropDownSelection(ListBox listBox) {
+		if (listBox.getSelectedIndex() == -1)
+			return 0;
+		else
+			return Integer.parseInt(listBox.getValue(listBox.getSelectedIndex()));
 	}
 	
 	@Override
@@ -96,48 +61,86 @@ public class UseTrade extends Structure<Field> {
 			field.setParent(parent);
 		}
 		
-		//for each widget, create new PrimitiveField(field, widget.getValue());
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(PURPOSE_KEY, field, 
-				Integer.valueOf(purpose.getSelectedIndex()), null));
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(SOURCE_KEY, field, 
-				Integer.valueOf(source.getSelectedIndex()), null));
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(FORM_REMOVED_KEY, field, 
-				Integer.valueOf(formRemoved.getSelectedIndex()), null));
-		
-		field.addPrimitiveField(new BooleanPrimitiveField(SUBSISTENCE_KEY, field, 
-				sub.getValue()));
-		field.addPrimitiveField(new BooleanPrimitiveField(NATIONAL_KEY, field, 
-				nat.getValue()));
-		field.addPrimitiveField(new BooleanPrimitiveField(INTERNATIONAL_KEY, field, 
-				intBox.getValue()));
-		
-		field.addPrimitiveField(new StringPrimitiveField(HARVEST_LEVEL_KEY, field, 
-				harvestLevel.getText()));
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(UNITS_KEY, field, 
-				Integer.valueOf(units.getSelectedIndex()), null));
-		field.addPrimitiveField(new BooleanPrimitiveField(POSSIBLE_THREAT_KEY, field, 
-				possibleThreat.getValue()));
-		field.addPrimitiveField(new TextPrimitiveField(JUSTIFICATION_KEY, field, 
-				justification.getText()));
+		UseTradeField proxy = new UseTradeField(field);
+		proxy.setPurpose(getDropDownSelection(purpose));
+		proxy.setSource(getDropDownSelection(source));
+		proxy.setFormRemoved(getDropDownSelection(formRemoved));
+		proxy.setSubsistence(sub.getValue());
+		proxy.setNational(nat.getValue());
+		proxy.setInternational(intBox.getValue());
+		proxy.setHarvestLevel(harvestLevel.getText());
+		proxy.setUnits(getDropDownSelection(units));
+		proxy.setPossibleThreat(possibleThreat.getValue());
+		proxy.setJustification(justification.getText());
 	}
 	
 	@Override
 	public boolean hasChanged(Field field) {
-		// TODO Auto-generated method stub
-		return true;
+		Field fauxParent = new Field(), fauxChild = new Field(CanonicalNames.UseTradeDetails, null);
+		
+		save(fauxParent, fauxChild);
+		
+		if (field == null) {
+			boolean childHasData = fauxChild.hasData();
+			if (childHasData)
+				Debug.println("HasChanged in UseTradeDetails: DB has null value, but child hasData, there are {0} primitive fields: \n{1}", fauxChild.getPrimitiveField().size(), fauxChild.getKeyToPrimitiveFields().keySet());
+			else
+				Debug.println("HasChanged in UseTradeDetails: DB has null value, child has no data, no changes.");
+			return childHasData;
+		}
+		
+		if (field.getPrimitiveField().size() != fauxChild.getPrimitiveField().size()) {
+			Debug.println("HasChanged in UseTradeDetails: DB has {0} prims, but child has {1}, there are changes\nDB: {2}\nChild: {3}", field.getPrimitiveField().size(), fauxChild.getPrimitiveField().size(), field.getKeyToPrimitiveFields().keySet(), fauxChild.getKeyToPrimitiveFields().keySet());
+			return true;
+		}
+		
+		Map<String, PrimitiveField> savedFields = fauxChild.getKeyToPrimitiveFields();
+		for (Map.Entry<String, PrimitiveField> entry : savedFields.entrySet()) {
+			PrimitiveField oldPrimField = field.getPrimitiveField(entry.getKey());
+			if (oldPrimField == null) {
+				Debug.println("HasChanged in UseTradeDetails: DB missing new value for {0} of {1}", entry.getKey(), entry.getValue().getRawValue());
+				return true;
+			}
+			
+			String oldValue = oldPrimField.getRawValue();
+			if ("".equals(oldValue))
+				oldValue = null;
+			
+			String newValue = entry.getValue().getRawValue();
+			if ("".equals(newValue))
+				newValue = null;
+						
+			boolean hasChanged = false;
+			if (newValue == null) {
+				if (oldValue != null)
+					hasChanged = true;
+			} else {
+				if (oldValue == null)
+					hasChanged = true;
+				else if (!newValue.equals(oldValue))
+					hasChanged = true;
+			}
+			
+			Debug.println("HasChanged in UseTradeDetails: Interrogating {0} with DB value {1} and child value {2}, result is {3}", entry.getKey(), oldValue, newValue, hasChanged);
+			
+			if (hasChanged)
+				return hasChanged;
+		}
+		
+		return false;
 	}
 	
 	public void clearData() {
 		purpose.setSelectedIndex(0);
 		source.setSelectedIndex(0);
 		formRemoved.setSelectedIndex(0);
-		sub.setChecked(false);
-		nat.setChecked(false);
-		intBox.setChecked(false);
+		sub.setValue(false);
+		nat.setValue(false);
+		intBox.setValue(false);
 
 		harvestLevel.setText("");
 		units.setSelectedIndex(0);
-		possibleThreat.setChecked(false);
+		possibleThreat.setValue(false);
 		justification.setText("");
 		justification.setVisible(false);
 	}
@@ -165,11 +168,11 @@ public class UseTrade extends Structure<Field> {
 
 		final HorizontalPanel panel3 = new HorizontalPanel();
 		panel3.add(wrapInVert("Notes and Justification", justification));
-		panel3.setVisible(possibleThreat.isChecked());
+		panel3.setVisible(possibleThreat.getValue());
 
 		possibleThreat.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				panel3.setVisible(possibleThreat.isChecked());
+				panel3.setVisible(possibleThreat.getValue());
 			}
 		});
 
@@ -207,16 +210,16 @@ public class UseTrade extends Structure<Field> {
 		panel1.add(new HTML("Source: " + source.getItemText(source.getSelectedIndex())));
 		panel1.add(new HTML("Form Removed: " + formRemoved.getItemText(formRemoved.getSelectedIndex())));
 
-		panel2.add(new HTML("Subsistence: " + sub.isChecked()));
-		panel2.add(new HTML("National: " + nat.isChecked()));
-		panel2.add(new HTML("International: " + intBox.isChecked()));
+		panel2.add(new HTML("Subsistence: " + sub.getValue()));
+		panel2.add(new HTML("National: " + nat.getValue()));
+		panel2.add(new HTML("International: " + intBox.getValue()));
 
 		if (!harvestLevel.getText().equals(""))
 			panel2.add(new HTML("Harvest Level: " + harvestLevel.getText() + " - "
 					+ units.getItemText(units.getSelectedIndex())));
 
-		panel3.add(new HTML("Possible Threat: " + possibleThreat.isChecked()));
-		if (possibleThreat.isChecked()) {
+		panel3.add(new HTML("Possible Threat: " + possibleThreat.getValue()));
+		if (possibleThreat.getValue()) {
 			HTML tempHTML = new HTML("Notes and Justification: " + justification.getText());
 			tempHTML.setWordWrap(true);
 			panel3.add(tempHTML);
@@ -231,82 +234,21 @@ public class UseTrade extends Structure<Field> {
 
 	public void createWidget() {
 		purpose = new ListBox();
-		purpose.addItem(" --- Select --- ");
-		purpose.addItem("Food - human", "Food and beverages for human consumption/nutrition");
-		purpose.addItem("Food - animal", "Food and liquids for consumption by domestic/captive animals");
-		purpose
-				.addItem(
-						"Medicine - human and veterinary",
-						"Materials administered specifically to treat or prevent a specific illness of injury.  Items administered as vitamins, tonics etc. should be included under food");
-		purpose.addItem("Poisons", "Eg. pesticides, herbicides, fish poisons");
-		purpose.addItem("Manufacturing chemicals",
-				"Eg. solvents, dyes, adhesives, resins, etc. whether for domestic or commerical/industrial use");
-		purpose.addItem("Other chemicals", "Eg. Incense, perfumes, cosmetics");
-		purpose.addItem("Fuel", "Including wood (and charcoal production therefrom), grasses, etc.");
-		purpose.addItem("Fibre", "Eg. for weaving, sewing, rope, paper, thatch, etc.");
-		purpose.addItem("Construction/structural materials", "Eg. supports, timber, fencing, etc.");
-		purpose.addItem("Wearing apparel, accessories", "Eg. clothing, footwear, belts, bags, trimmings");
-		purpose
-				.addItem("Other household goods",
-						"Eg. containers, furnishings, etc. with primarily utilitarian functions, though potentially highly decorated");
-		purpose.addItem("Handicrafts, jewelry, decorations, curios, etc.",
-				"Finished goods with primarily ornamental/decorative rather than utilitarian functions");
-		purpose.addItem("Pets/display animals, horticulture",
-				"Includes animals used as pets and for display (eg. in zoos, aquaria, circuses)");
-		purpose
-				.addItem(
-						"Research",
-						"Includes specimens used in or as the subject of any type of research (eg. behavioural, medicine, propogation, disease resistance, etc.");
-		purpose.addItem("Sport hunting/specimen collecting");
-		purpose.addItem("Other", "Please specify in the Notes section below");
-		purpose.addItem("Unknown", "Purpose is unknown");
-
+		populate(purpose, UseTradeField.PURPOSE_KEY);
+		
 		source = new ListBox();
-		source.addItem(" --- Select --- ");
-		source
-				.addItem(
-						"Wild",
-						"Specimens taken from natural habitat, with no human intervention in terms of enhancing individual survival or production");
-		source
-				.addItem(
-						"Captive breeding/farming",
-						"Production of offspring in a controlled environment (ex situ) either from parents produced in captivity (F1) or from parents taken from the wild but maintained in captivity, where there is little further input from the wild, eg. essentially a closed cycle");
-		source
-				.addItem(
-						"Ranching - ex situ",
-						"Production of saleable specimens from eggs (including within gravid females), juveniles, immature plant specimens removed from the wild and raised ex site prior to commercial sale");
-		source
-				.addItem(
-						"Ranching - in situ",
-						"Specimens maintained within confined areas of wild habitat, with or without other forms of manipulation, eg. habitat manipulation");
-		source.addItem("Other", "Please specify in the Notes section below");
-		source.addItem("Unknown", "Source is unknown");
-
+		populate(source, UseTradeField.SOURCE_KEY);
+		
 		formRemoved = new ListBox();
-		formRemoved.addItem(" --- Select --- ");
-		formRemoved.addItem("Whole animal/plant", "Removal of the whole individual from the wild population.");
-		formRemoved
-				.addItem(
-						"Parts - non-lethal removal",
-						"Removal of parts without obviously increasing the risk of death or decreasing reproductive ability of the individual, ie. so that it remains a functional part of the wild population");
-		formRemoved
-				.addItem(
-						"Parts - lethal removal",
-						"Removal of parts resulting in the death and or/reproductive incapacity of the individual and therefore its biological removal from the wild population.");
-		formRemoved.addItem("Eggs, fruits, seeds",
-				"Removal of eggs from gravid females should be included under 'parts' above.");
-		formRemoved.addItem("Other", "Please specify in the Notes section below");
-		formRemoved.addItem("Unknown", "Source is unknown");
-
+		populate(formRemoved, UseTradeField.FORM_REMOVED_KEY);
+		
 		sub = new CheckBox();
 		nat = new CheckBox();
 		intBox = new CheckBox();
 
 		harvestLevel = new TextBox();
 		units = new ListBox();
-		units.addItem("Volume (cubic metres)");
-		units.addItem("Weight (in kilograms)");
-		units.addItem("Number of Individuals");
+		populate(units, UseTradeField.UNITS_KEY);
 
 		possibleThreat = new CheckBox();
 		justification = new TextArea();
@@ -355,13 +297,13 @@ public class UseTrade extends Structure<Field> {
 		// displayable!!
 
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				purposeOptions));
+				getOptionLabels(UseTradeField.PURPOSE_KEY)));
 		offset++;
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				sourceOptions));
+				getOptionLabels(UseTradeField.SOURCE_KEY)));
 		offset++;
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				formRemovedOptions));
+				getOptionLabels(UseTradeField.FORM_REMOVED_KEY)));
 		offset++;
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableBoolean((String) rawData.get(offset)));
 		offset++;
@@ -371,7 +313,8 @@ public class UseTrade extends Structure<Field> {
 		offset++;
 		prettyData.add(offset, rawData.get(offset));
 		offset++;
-		prettyData.add(offset, unitsOptions[Integer.parseInt((String) rawData.get(offset))]);
+		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset), 
+				getOptionLabels(UseTradeField.UNITS_KEY)));
 		offset++;
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableBoolean((String) rawData.get(offset)));
 		offset++;
@@ -381,59 +324,81 @@ public class UseTrade extends Structure<Field> {
 		return offset;
 	}
 
-	public String[] getFormRemovedOptions() {
-		return formRemovedOptions;
+	private String[] getOptionLabels(String lookupKey) {
+		LookupDataContainer container;
+		try {
+			container = (LookupDataContainer)data;
+		} catch (ClassCastException e) {
+			return new String[0];
+		}
+		
+		if (container != null) {
+			LookupData data = container.find(lookupKey);
+			if (data != null) {
+				String[] values = new String[data.getValues().size()];
+				int index = 0;
+				for (LookupDataValue value : data.getValues())
+					values[index++] = value.getLabel();
+				
+				return values;
+			}
+		}
+		
+		return new String[0];
 	}
-
-	public String[] getPurposeOptions() {
-		return purposeOptions;
-	}
-
-	public String[] getSourceOptions() {
-		return sourceOptions;
-	}
-
-	public String[] getUnitsOptions() {
-		return unitsOptions;
+	
+	private void populate(ListBox listbox, String lookupKey) {
+		LookupDataContainer container;
+		try {
+			container = (LookupDataContainer)data;
+		} catch (ClassCastException e) {
+			return;
+		}
+		
+		if (container != null) {
+			LookupData data = container.find(lookupKey);
+			if (data != null) {
+				listbox.addItem("--- Select ---", "0");
+				for (LookupDataValue value : data.getValues())
+					listbox.addItem(value.getLabel(), value.getID());
+			}
+		}
 	}
 	
 	@Override
 	public void setData(Field field) {
-		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
-		//super.setData(data);
-		purpose.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(PURPOSE_KEY)).getValue());
-		source.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(SOURCE_KEY)).getValue());
-		formRemoved.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(FORM_REMOVED_KEY)).getValue());
+		UseTradeField proxy = new UseTradeField(field);
 
-		sub.setValue(((BooleanPrimitiveField)data.get(SUBSISTENCE_KEY)).getValue());
-		nat.setValue(((BooleanPrimitiveField)data.get(NATIONAL_KEY)).getValue());
-		intBox.setValue(((BooleanPrimitiveField)data.get(INTERNATIONAL_KEY)).getValue());
+		setDropDownSelection(purpose, proxy.getPurpose());
+		setDropDownSelection(source, proxy.getSource());
+		setDropDownSelection(formRemoved, proxy.getFormRemoved());
 
-		harvestLevel.setText(((StringPrimitiveField)data.get(HARVEST_LEVEL_KEY)).getValue());
-		units.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(UNITS_KEY)).getValue());
-		possibleThreat.setValue(((BooleanPrimitiveField)data.get(POSSIBLE_THREAT_KEY)).getValue());
-		justification.setText(((TextPrimitiveField)data.get(JUSTIFICATION_KEY)).getValue());
+		sub.setValue(proxy.getSubsistence());
+		nat.setValue(proxy.getNational());
+		intBox.setValue(proxy.getInternational());
+
+		harvestLevel.setText(proxy.getHarvestLevel());
+		setDropDownSelection(units, proxy.getUnits());
+		possibleThreat.setValue(proxy.getPossibleThreat());
+		justification.setText(proxy.getJustification());
+	}
+	
+	private void setDropDownSelection(ListBox listBox, Integer value) {
+		if (value.intValue() == 0)
+			listBox.setSelectedIndex(0);
+		else {
+			for (int i = 0; i < listBox.getItemCount(); i++) {
+				String itemValue = listBox.getValue(i);
+				if (value.equals(Integer.parseInt(itemValue))) {
+					listBox.setSelectedIndex(i);
+					break;
+				}
+			}
+		}
 	}
 
 	public void setEnabled(boolean isEnabled) {
 
-	}
-
-	public String toXML() {
-		String xml = "<structure>" + purpose.getSelectedIndex() + "</structure>\r\n";
-		xml += "<structure>" + source.getSelectedIndex() + "</structure>\r\n";
-		xml += "<structure>" + formRemoved.getSelectedIndex() + "</structure>\r\n";
-		xml += "<structure>" + sub.isChecked() + "</structure>\r\n";
-		xml += "<structure>" + nat.isChecked() + "</structure>\r\n";
-		xml += "<structure>" + intBox.isChecked() + "</structure>\r\n";
-
-		xml += "<structure>" + XMLUtils.clean(harvestLevel.getText()) + "</structure>\r\n";
-		xml += "<structure>" + units.getSelectedIndex() + "</structure>\r\n";
-		xml += "<structure>" + possibleThreat.isChecked() + "</structure>\r\n";
-
-		xml += "<structure>" + XMLUtils.clean(justification.getText()) + "</structure>\r\n";
-
-		return xml;
 	}
 
 	private VerticalPanel wrapInVert(String label, Widget widget) {

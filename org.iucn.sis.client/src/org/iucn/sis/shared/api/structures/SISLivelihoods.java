@@ -1,17 +1,18 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.shared.api.data.DisplayData.LookupDataContainer;
+import org.iucn.sis.shared.api.data.LookupData;
+import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.DatePrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
+import org.iucn.sis.shared.api.models.fields.LivelihoodsField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
@@ -41,49 +42,6 @@ public class SISLivelihoods extends Structure<Field> {
 	// Piece 16: percentHouseholdIncome (DropDown)
 	// Piece 17: Annual cash income in US$ (text)
 
-	public static final String SCALE_KEY = "scale";
-	public static final String LOCALITY_NAME_KEY = "nameOfLocality";
-	public static final String DATE_KEY = "date";
-	public static final String PRODUCT_DESCRIPTION_KEY = "productDescription";
-	public static final String ANNUAL_HARVEST_KEY = "annualHarvest";
-	public static final String UNITS_ANNUAL_HARVEST_KEY = "unitsAnnualHarvest";
-	public static final String ANNUAL_MULTI_SPECIES_HARVEST_KEY = "annualMultiSpeciesHarvest";
-	public static final String UNITS_ANNUAL_MULTI_SPECIES_HARVEST_KEY = "unitsAnnualMultiSpeciesHarvest";
-	public static final String PERCENT_IN_HARVEST_KEY = "percentInHarvest";
-	public static final String AMOUNT_IN_HARVEST_KEY = "amountInHarvest";
-	public static final String HUMAN_RELIANCE_KEY = "humanReliance";
-	public static final String GENDER_AGE_KEY = "genderAge";
-	public static final String SOCIO_ECONOMIC_KEY = "socioEconomic";
-	public static final String OTHER_KEY = "other";
-	public static final String TOTAL_POP_BENEFIT_KEY = "totalPopBenefit";
-	public static final String HOUSEHOLD_CONSUMPTION_KEY = "householdConsumption";
-	public static final String HOUSEHOLD_INCOME_KEY = "householdIncome";
-	public static final String ANNUAL_CASH_INCOME_KEY = "annualCashIncome";
-	
-	public static ArrayList generateDefaultDataList() {
-		ArrayList dataList = new ArrayList();
-		dataList.add("0");
-		dataList.add("");
-		dataList.add("");
-		dataList.add("");
-		dataList.add("");
-		dataList.add("0");
-		dataList.add("");
-		dataList.add("0");
-		dataList.add("");
-		dataList.add("");
-		dataList.add("0");
-		dataList.add("0");
-		dataList.add("0");
-		dataList.add("");
-		dataList.add("0");
-		dataList.add("0");
-		dataList.add("0");
-		dataList.add("");
-
-		return dataList;
-	}
-
 	private ListBox scale;
 	private TextBox localeName;
 	private TextBox date;
@@ -108,21 +66,6 @@ public class SISLivelihoods extends Structure<Field> {
 	private ListBox percentIncome;
 
 	private TextBox annualCashIncome;
-	private String[] scaleOptions = new String[] { " --- Select --- ", "Local", "National", "Regional", "Global" };
-	private String[] unitsOptions = new String[] { " --- Select --- ", "Volume (cubic metres)",
-			"Weight (in kilograms)", "Number of individuals" };
-	private String[] humanRelianceOptions = new String[] { " --- Select --- ", "Emergency resource",
-			"Optional alternative", "Essential staple", "Geographically variable", "Not known" };
-	private String[] byGenderAgeOptions = new String[] { " --- Select --- ", "Men", "Women", "Children", "Multiple",
-			"Not Known" };
-	private String[] bySocioEconOptions = new String[] { " --- Select --- ", "Poorer households", "All households",
-			"Richer households", "Other group (specify in notes)", "Not Known" };
-	private String[] percentPopulationBenefitingOptions = new String[] { " --- Select --- ", "0-1%", "2-10%", "11-25%",
-			"26-50%", "51-100%", "Not Known" };
-	private String[] percentConsumptionOptions = new String[] { " --- Select --- ", "0-25%", "26-50%", "51-75%",
-			"76-100%", "Not Known" };
-
-	private String[] percentIncomeOptions = percentConsumptionOptions;
 
 	public SISLivelihoods(String struct, String descript, String structID, Object data) {
 		super(struct, descript, structID, data);
@@ -138,7 +81,58 @@ public class SISLivelihoods extends Structure<Field> {
 	
 	@Override
 	public boolean hasChanged(Field field) {
-		return true;
+		Field fauxParent = new Field(), fauxChild = new Field(CanonicalNames.Livelihoods, null);
+		
+		save(fauxParent, fauxChild);
+		
+		if (field == null) {
+			boolean childHasData = fauxChild.hasData();
+			if (childHasData)
+				Debug.println("HasChanged in Livelihoods: DB has null value, but child hasData, there are {0} primitive fields: \n{1}", fauxChild.getPrimitiveField().size(), fauxChild.getKeyToPrimitiveFields().keySet());
+			else
+				Debug.println("HasChanged in Livelihoods: DB has null value, child has no data, no changes.");
+			return childHasData;
+		}
+		
+		if (field.getPrimitiveField().size() != fauxChild.getPrimitiveField().size()) {
+			Debug.println("HasChanged in Livelihoods: DB has {0} prims, but child has {1}, there are changes\nDB: {2}\nChild: {3}", field.getPrimitiveField().size(), fauxChild.getPrimitiveField().size(), field.getKeyToPrimitiveFields().keySet(), fauxChild.getKeyToPrimitiveFields().keySet());
+			return true;
+		}
+		
+		Map<String, PrimitiveField> savedFields = fauxChild.getKeyToPrimitiveFields();
+		for (Map.Entry<String, PrimitiveField> entry : savedFields.entrySet()) {
+			PrimitiveField oldPrimField = field.getPrimitiveField(entry.getKey());
+			if (oldPrimField == null) {
+				Debug.println("HasChanged in Livelihoods: DB missing new value for {0} of {1}", entry.getKey(), entry.getValue().getRawValue());
+				return true;
+			}
+			
+			String oldValue = oldPrimField.getRawValue();
+			if ("".equals(oldValue))
+				oldValue = null;
+			
+			String newValue = entry.getValue().getRawValue();
+			if ("".equals(newValue))
+				newValue = null;
+						
+			boolean hasChanged = false;
+			if (newValue == null) {
+				if (oldValue != null)
+					hasChanged = true;
+			} else {
+				if (oldValue == null)
+					hasChanged = true;
+				else if (!newValue.equals(oldValue))
+					hasChanged = true;
+			}
+			
+			Debug.println("HasChanged in Livelihoods: Interrogating {0} with DB value {1} and child value {2}, result is {3}", entry.getKey(), oldValue, newValue, hasChanged);
+			
+			if (hasChanged)
+				return hasChanged;
+		}
+		
+		return false;
 	}
 	
 	@Override
@@ -148,54 +142,76 @@ public class SISLivelihoods extends Structure<Field> {
 			field.setName(getId());
 			field.setParent(parent);
 		}
-		//for each widget
-		//field.addPrimitive(...);
-		//  
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(SCALE_KEY, field, 
-				Integer.valueOf(scale.getSelectedIndex()), null));
-		field.addPrimitiveField(new StringPrimitiveField(LOCALITY_NAME_KEY, field, 
-				localeName.getText()));
-		field.addPrimitiveField(new DatePrimitiveField(DATE_KEY, field, 
-				FormattedDate.impl.getDate(date.getText())));
-		field.addPrimitiveField(new StringPrimitiveField(PRODUCT_DESCRIPTION_KEY, field, 
-				product.getText()));
-		field.addPrimitiveField(new StringPrimitiveField(ANNUAL_HARVEST_KEY, field, 
-				singleSpeciesHarvest.getText()));
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(UNITS_ANNUAL_HARVEST_KEY, field, 
-				Integer.valueOf(singleSpeciesHarvestUnits.getSelectedIndex()), null));
-		field.addPrimitiveField(new StringPrimitiveField(ANNUAL_MULTI_SPECIES_HARVEST_KEY, field, 
-				multiSpeciesHarvest.getText()));
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(UNITS_ANNUAL_MULTI_SPECIES_HARVEST_KEY, field, 
-				Integer.valueOf(multiSpeciesHarvestUnits.getSelectedIndex()), null));
-		field.addPrimitiveField(new StringPrimitiveField(PERCENT_IN_HARVEST_KEY, field, 
-				multiSpeciesHarvestContributionPercent.getText()));
-		field.addPrimitiveField(new StringPrimitiveField(AMOUNT_IN_HARVEST_KEY, field, 
-				multiSpeciesHarvestAmount.getText()));
 		
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(HUMAN_RELIANCE_KEY, field, 
-				Integer.valueOf(humanReliance.getSelectedIndex()), null));
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(GENDER_AGE_KEY, field, 
-				Integer.valueOf(byGenderAge.getSelectedIndex()), null));
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(SOCIO_ECONOMIC_KEY, field, 
-				Integer.valueOf(bySocioEcon.getSelectedIndex()), null));
-		field.addPrimitiveField(new StringPrimitiveField(OTHER_KEY, field, 
-				other.getText()));
+		LivelihoodsField proxy = new LivelihoodsField(field);
+		proxy.setScale(getDropDownSelection(scale));
+		proxy.setLocalityName(localeName.getText());
+		try { 
+			proxy.setDate(FormattedDate.impl.getDate(date.getText()));
+		} catch (Exception e) {
+			Debug.println("Invalid livelihood date {0}, changes unsaved", date.getText());
+		}
+		proxy.setProductDescription(product.getText());
+		proxy.setAnnualHarvest(singleSpeciesHarvest.getText());
+		proxy.setAnnualHarvestUnits(getDropDownSelection(singleSpeciesHarvestUnits));
+		proxy.setMultiSpeciesHarvest(multiSpeciesHarvest.getText());
+		proxy.setMultiSpeciesHarvestUnits(getDropDownSelection(multiSpeciesHarvestUnits));
+		proxy.setPercentInHarvest(multiSpeciesHarvestContributionPercent.getText());
+		proxy.setAmountInHarvest(multiSpeciesHarvestAmount.getText());
+		proxy.setHumanReliance(getDropDownSelection(humanReliance));
+		proxy.setGenderAge(getDropDownSelection(byGenderAge));
+		proxy.setSocioEconomic(getDropDownSelection(bySocioEcon));
+		proxy.setOther(other.getText());
+		proxy.setTotalPopulationBenefit(getDropDownSelection(percentPopulationBenefiting));
+		proxy.setHouseholdConsumption(getDropDownSelection(percentConsumption));
+		proxy.setHouseholdIncome(getDropDownSelection(percentIncome));
+		proxy.setAnnualCashIncome(annualCashIncome.getText());
+	}
+	
+	private String[] getOptionLabels(String lookupKey) {
+		LookupDataContainer container;
+		try {
+			container = (LookupDataContainer)data;
+		} catch (ClassCastException e) {
+			return new String[0];
+		}
 		
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(TOTAL_POP_BENEFIT_KEY, field, 
-				Integer.valueOf(percentPopulationBenefiting.getSelectedIndex()), null));
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(HOUSEHOLD_CONSUMPTION_KEY, field, 
-				Integer.valueOf(percentConsumption.getSelectedIndex()), null));
-		field.addPrimitiveField(new ForeignKeyPrimitiveField(HOUSEHOLD_INCOME_KEY, field, 
-				Integer.valueOf(percentIncome.getSelectedIndex()), null));
-		field.addPrimitiveField(new StringPrimitiveField(ANNUAL_CASH_INCOME_KEY, field, 
-				annualCashIncome.getText()));
-
+		if (container != null) {
+			LookupData data = container.find(lookupKey);
+			if (data != null) {
+				String[] values = new String[data.getValues().size()];
+				int index = 0;
+				for (LookupDataValue value : data.getValues())
+					values[index++] = value.getLabel();
+				
+				return values;
+			}
+		}
+		
+		return new String[0];
+	}
+	
+	private void populate(ListBox listbox, String lookupKey) {
+		LookupDataContainer container;
+		try {
+			container = (LookupDataContainer)data;
+		} catch (ClassCastException e) {
+			return;
+		}
+		
+		if (container != null) {
+			LookupData data = container.find(lookupKey);
+			if (data != null) {
+				listbox.addItem("--- Select ---", "0");
+				for (LookupDataValue value : data.getValues())
+					listbox.addItem(value.getLabel(), value.getID());
+			}
+		}
 	}
 	
 	public void buildWidgets() {
 		scale = new ListBox();
-		for (int i = 0; i < scaleOptions.length; i++)
-			scale.addItem(scaleOptions[i]);
+		populate(scale, LivelihoodsField.SCALE_KEY);
 
 		localeName = new TextBox();
 		date = new TextBox();
@@ -203,41 +219,34 @@ public class SISLivelihoods extends Structure<Field> {
 
 		singleSpeciesHarvest = new TextBox();
 		singleSpeciesHarvestUnits = new ListBox();
-		for (int i = 0; i < unitsOptions.length; i++)
-			singleSpeciesHarvestUnits.addItem(unitsOptions[i]);
+		populate(singleSpeciesHarvestUnits, LivelihoodsField.UNITS_ANNUAL_HARVEST_KEY);
 
 		multiSpeciesHarvest = new TextBox();
 		multiSpeciesHarvestUnits = new ListBox();
-		for (int i = 0; i < unitsOptions.length; i++)
-			multiSpeciesHarvestUnits.addItem(unitsOptions[i]);
+		populate(multiSpeciesHarvestUnits, LivelihoodsField.UNITS_ANNUAL_MULTI_SPECIES_HARVEST_KEY);
+		
 		multiSpeciesHarvestAmount = new TextBox();
 		multiSpeciesHarvestContributionPercent = new TextBox();
 
 		humanReliance = new ListBox();
-		for (int i = 0; i < humanRelianceOptions.length; i++)
-			humanReliance.addItem(humanRelianceOptions[i]);
+		populate(humanReliance, LivelihoodsField.HUMAN_RELIANCE_KEY);
 
 		byGenderAge = new ListBox();
-		for (int i = 0; i < byGenderAgeOptions.length; i++)
-			byGenderAge.addItem(byGenderAgeOptions[i]);
+		populate(byGenderAge, LivelihoodsField.GENDER_AGE_KEY);
 
 		bySocioEcon = new ListBox();
-		for (int i = 0; i < bySocioEconOptions.length; i++)
-			bySocioEcon.addItem(bySocioEconOptions[i]);
+		populate(bySocioEcon, LivelihoodsField.SOCIO_ECONOMIC_KEY);
 
 		other = new TextBox();
 
 		percentPopulationBenefiting = new ListBox();
-		for (int i = 0; i < percentPopulationBenefitingOptions.length; i++)
-			percentPopulationBenefiting.addItem(percentPopulationBenefitingOptions[i]);
-
+		populate(percentPopulationBenefiting, LivelihoodsField.TOTAL_POP_BENEFIT_KEY);
+		
 		percentConsumption = new ListBox();
-		for (int i = 0; i < percentConsumptionOptions.length; i++)
-			percentConsumption.addItem(percentConsumptionOptions[i]);
-
+		populate(percentConsumption, LivelihoodsField.HOUSEHOLD_CONSUMPTION_KEY);
+		
 		percentIncome = new ListBox();
-		for (int i = 0; i < percentIncomeOptions.length; i++)
-			percentIncome.addItem(percentIncomeOptions[i]);
+		populate(percentIncome, LivelihoodsField.HOUSEHOLD_INCOME_KEY);
 
 		annualCashIncome = new TextBox();
 	}
@@ -421,8 +430,8 @@ public class SISLivelihoods extends Structure<Field> {
 	 * Returns an ArrayList of descriptions (as Strings) for this structure, and
 	 * if it contains multiples structures, all of those, in order.
 	 */
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add("Number selected.");
 		ret.add("Scale");
 		ret.add("Locale");
@@ -450,14 +459,6 @@ public class SISLivelihoods extends Structure<Field> {
 		return new ArrayList<ClassificationInfo>();
 	}
 
-	public String[] getByGenderAgeOptions() {
-		return byGenderAgeOptions;
-	}
-
-	public String[] getBySocioEconOptions() {
-		return bySocioEconOptions;
-	}
-
 	public String getData() {
 		return null;
 	}
@@ -471,7 +472,7 @@ public class SISLivelihoods extends Structure<Field> {
 	 */
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				scaleOptions));
+				getOptionLabels(LivelihoodsField.SCALE_KEY)));
 		offset++;
 		prettyData.add(offset, rawData.get(offset));
 		offset++;
@@ -483,139 +484,96 @@ public class SISLivelihoods extends Structure<Field> {
 		prettyData.add(offset, rawData.get(offset));
 		offset++;
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				unitsOptions));
+				getOptionLabels(LivelihoodsField.UNITS_ANNUAL_HARVEST_KEY)));
 		offset++;
 		prettyData.add(offset, rawData.get(offset));
 		offset++;
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				unitsOptions));
+				getOptionLabels(LivelihoodsField.UNITS_ANNUAL_MULTI_SPECIES_HARVEST_KEY)));
 		offset++;
 		prettyData.add(offset, rawData.get(offset));
-		offset++;
-		prettyData.add(offset, rawData.get(offset));
-		offset++;
-
-		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				humanRelianceOptions));
-		offset++;
-		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				byGenderAgeOptions));
-		offset++;
-		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				bySocioEconOptions));
 		offset++;
 		prettyData.add(offset, rawData.get(offset));
 		offset++;
 
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				percentPopulationBenefitingOptions));
+				getOptionLabels(LivelihoodsField.HUMAN_RELIANCE_KEY)));
 		offset++;
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				percentConsumptionOptions));
+				getOptionLabels(LivelihoodsField.GENDER_AGE_KEY)));
 		offset++;
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
-				percentIncomeOptions));
+				getOptionLabels(LivelihoodsField.SOCIO_ECONOMIC_KEY)));
+		offset++;
+		prettyData.add(offset, rawData.get(offset));
+		offset++;
+
+		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
+				getOptionLabels(LivelihoodsField.TOTAL_POP_BENEFIT_KEY)));
+		offset++;
+		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
+				getOptionLabels(LivelihoodsField.HOUSEHOLD_CONSUMPTION_KEY)));
+		offset++;
+		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset),
+				getOptionLabels(LivelihoodsField.HOUSEHOLD_INCOME_KEY)));
 		offset++;
 		prettyData.add(offset, rawData.get(offset));
 		offset++;
 
 		return offset;
 	}
-
-	public String[] getHumanRelianceOptions() {
-		return humanRelianceOptions;
-	}
-
-	private int getIndex(String data) {
-		if (data == null || data.equals(""))
-			return 0;
-		else
-			try {
-				return Integer.parseInt(data);
-			} catch (Exception e) {
-				return 0;
-			}
-	}
-
-	public String[] getPercentConsumptionOptions() {
-		return percentConsumptionOptions;
-	}
-
-	public String[] getPercentIncomeOptions() {
-		return percentIncomeOptions;
-	}
-
-	public String[] getPercentPopulationBenefitingOptions() {
-		return percentPopulationBenefitingOptions;
-	}
-
-	public String[] getScaleOptions() {
-		return scaleOptions;
-	}
-
-	public String[] getUnitsOptions() {
-		return unitsOptions;
-	}
-
-	public HashMap getValues() {
-		return new HashMap();
-	}
 	
 	@Override
 	public void setData(Field field) {
-		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
-		//super.setData(data);
+		LivelihoodsField proxy = new LivelihoodsField(field);
 		
-		scale.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(SCALE_KEY)).getValue());
-		localeName.setText(((StringPrimitiveField)data.get(LOCALITY_NAME_KEY)).getValue());
-		date.setText(((StringPrimitiveField)data.get(DATE_KEY)).getValue());
-		product.setText(((StringPrimitiveField)data.get(PRODUCT_DESCRIPTION_KEY)).getValue());
+		setDropDownSelection(scale, proxy.getScale());
+		localeName.setText(proxy.getLocalityName());
+		date.setText(proxy.getDate() == null ? "" : FormattedDate.impl.getDate(proxy.getDate()));
+		product.setText(proxy.getProductDescription());
 
-		singleSpeciesHarvest.setText(((StringPrimitiveField)data.get(ANNUAL_HARVEST_KEY)).getValue());
-		singleSpeciesHarvestUnits.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(UNITS_ANNUAL_HARVEST_KEY)).getValue());
-		multiSpeciesHarvest.setText(((StringPrimitiveField)data.get(ANNUAL_MULTI_SPECIES_HARVEST_KEY)).getValue());
-		multiSpeciesHarvestUnits.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(UNITS_ANNUAL_MULTI_SPECIES_HARVEST_KEY)).getValue());
-		multiSpeciesHarvestContributionPercent.setText(((StringPrimitiveField)data.get(PERCENT_IN_HARVEST_KEY)).getValue());
-		multiSpeciesHarvestAmount.setText(((StringPrimitiveField)data.get(AMOUNT_IN_HARVEST_KEY)).getValue());
+		singleSpeciesHarvest.setText(proxy.getAnnualHarvest());
+		setDropDownSelection(singleSpeciesHarvestUnits, proxy.getAnnualHarvestUnits());
+		multiSpeciesHarvest.setText(proxy.getMultSpeciesHarvest());
+		setDropDownSelection(multiSpeciesHarvestUnits, proxy.getMultiSpeciesHarvestUntils());
+		multiSpeciesHarvestContributionPercent.setText(proxy.getPercentInHarvest());
+		multiSpeciesHarvestAmount.setText(proxy.getAmountInHarvest());
 
-		humanReliance.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(HUMAN_RELIANCE_KEY)).getValue());
-		byGenderAge.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(GENDER_AGE_KEY)).getValue());
-		bySocioEcon.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(SOCIO_ECONOMIC_KEY)).getValue());
-		other.setText(((StringPrimitiveField)data.get(OTHER_KEY)).getValue());
+		setDropDownSelection(humanReliance, proxy.getHumanReliance());
+		setDropDownSelection(byGenderAge, proxy.getGenderAge());
+		setDropDownSelection(bySocioEcon, proxy.getSocioEconomic());
+		other.setText(proxy.getOther());
 
-		percentPopulationBenefiting.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(TOTAL_POP_BENEFIT_KEY)).getValue());
-		percentConsumption.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(HOUSEHOLD_CONSUMPTION_KEY)).getValue());
-		percentIncome.setSelectedIndex(((ForeignKeyPrimitiveField)data.get(HOUSEHOLD_INCOME_KEY)).getValue());
-		annualCashIncome.setText(((StringPrimitiveField)data.get(ANNUAL_CASH_INCOME_KEY)).getValue());
+		setDropDownSelection(percentPopulationBenefiting, proxy.getTotalPopulationBenefit());
+		setDropDownSelection(percentConsumption, proxy.getHouseholdConsumption());
+		setDropDownSelection(percentIncome, proxy.getHouseholdIncome());
+		
+		annualCashIncome.setText(proxy.getAnnualCashIncome());
 	}
-
-	protected void setDataValues(HashMap fieldData) {
+	
+	private void setDropDownSelection(ListBox listBox, Integer value) {
+		if (value.intValue() == 0)
+			listBox.setSelectedIndex(0);
+		else {
+			for (int i = 0; i < listBox.getItemCount(); i++) {
+				String itemValue = listBox.getValue(i);
+				if (value.equals(Integer.parseInt(itemValue))) {
+					listBox.setSelectedIndex(i);
+					break;
+				}
+			}
+		}
+	}
+	
+	private Integer getDropDownSelection(ListBox listBox) {
+		if (listBox.getSelectedIndex() == -1)
+			return 0;
+		else
+			return Integer.parseInt(listBox.getValue(listBox.getSelectedIndex()));
 	}
 
 	public void setEnabled(boolean isEnabled) {
 
 	}
 
-	public String toXML() {
-		String ret = "<structure>" + scale.getSelectedIndex() + "</structure>";
-		ret += "<structure>" + localeName.getText() + "</structure>";
-		ret += "<structure>" + date.getText() + "</structure>";
-		ret += "<structure>" + product.getText() + "</structure>";
-		ret += "<structure>" + singleSpeciesHarvest.getText() + "</structure>";
-		ret += "<structure>" + singleSpeciesHarvestUnits.getSelectedIndex() + "</structure>";
-		ret += "<structure>" + multiSpeciesHarvest.getText() + "</structure>";
-		ret += "<structure>" + multiSpeciesHarvestUnits.getSelectedIndex() + "</structure>";
-		ret += "<structure>" + multiSpeciesHarvestContributionPercent.getText() + "</structure>";
-		ret += "<structure>" + multiSpeciesHarvestAmount.getText() + "</structure>";
-		ret += "<structure>" + humanReliance.getSelectedIndex() + "</structure>";
-		ret += "<structure>" + byGenderAge.getSelectedIndex() + "</structure>";
-		ret += "<structure>" + bySocioEcon.getSelectedIndex() + "</structure>";
-		ret += "<structure>" + other.getText() + "</structure>";
-		ret += "<structure>" + percentPopulationBenefiting.getSelectedIndex() + "</structure>";
-		ret += "<structure>" + percentConsumption.getSelectedIndex() + "</structure>";
-		ret += "<structure>" + percentIncome.getSelectedIndex() + "</structure>";
-		ret += "<structure>" + annualCashIncome.getText() + "</structure>";
-
-		return ret;
-	}
 }

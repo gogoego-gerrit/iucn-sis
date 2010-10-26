@@ -159,7 +159,6 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	
 	@Override
 	public boolean hasChanged(Field field) {
-		//TODO: IMPLEMENT ME! Woo hoo.
 		Field fauxParent = new Field(), fauxChild = new Field(CanonicalNames.RedListCriteria, null);
 		
 		save(fauxParent, fauxChild);
