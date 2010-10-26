@@ -2,8 +2,10 @@ package org.iucn.sis.client.api.caches;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -14,7 +16,6 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -319,37 +320,36 @@ public class AssessmentCache {
 		return getAssessment(id, setAsCurrent);
 	}
 
-	public List<Assessment> getDraftAssessmentsForTaxon(int taxonID) {
+	public Set<Assessment> getDraftAssessmentsForTaxon(int taxonID) {
 		return getDraftAssessmentsForTaxon(Integer.valueOf(taxonID));
 	}
 	
-	public List<Assessment> getDraftAssessmentsForTaxon(Taxon taxon) {
+	public Set<Assessment> getDraftAssessmentsForTaxon(Taxon taxon) {
 		return getDraftAssessmentsForTaxon(taxon.getId());
 	}
 	
-	public List<Assessment> getDraftAssessmentsForTaxon(Integer taxonID) {
+	public Set<Assessment> getDraftAssessmentsForTaxon(Integer taxonID) {
 		return getAssessmentsForTaxon(taxonID, AssessmentType.DRAFT_ASSESSMENT_STATUS_ID);
 	}
 	
-	public List<Assessment> getPublishedAssessmentsForTaxon(int taxonID) {
+	public Set<Assessment> getPublishedAssessmentsForTaxon(int taxonID) {
 		return getPublishedAssessmentsForTaxon(Integer.valueOf(taxonID));
 	}
 	
-	public List<Assessment> getPublishedAssessmentsForTaxon(Integer taxonID) {
+	public Set<Assessment> getPublishedAssessmentsForTaxon(Integer taxonID) {
 		return getAssessmentsForTaxon(taxonID, AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID);
 	}
 	
-	public List<Assessment> getAssessmentsForTaxon(Integer taxonID, int assessmentType) {
+	public Set<Assessment> getAssessmentsForTaxon(Integer taxonID, int assessmentType) {
 		if( taxonToAssessmentCache.containsKey(taxonID) ) {
-			List<Assessment> assessments = new ArrayList<Assessment>();
-			for( Assessment cur : taxonToAssessmentCache.get(taxonID) ) {
-				if( cur.getAssessmentType().getId() == assessmentType ) 
+			Set<Assessment> assessments = new HashSet<Assessment>();
+			for (Assessment cur : taxonToAssessmentCache.get(taxonID)) {
+				if (cur.getAssessmentType().getId() == assessmentType) 
 					assessments.add(cur);
 			}
-			
 			return assessments;
 		} else
-			return new ArrayList<Assessment>();
+			return new HashSet<Assessment>();
 	}
 	
 	public ArrayList<AssessmentInfo> getRecentAssessments() {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -144,12 +145,12 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 
 								public void onSuccess(String result) {
 									for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++) {
-										List<Assessment> aData = AssessmentCache.impl.getPublishedAssessmentsForTaxon(
+										Set<Assessment> aData = AssessmentCache.impl.getPublishedAssessmentsForTaxon(
 												Integer.valueOf(x[i - start][3]));
-										if (aData == null || aData.size() == 0)
+										if (aData == null || aData.isEmpty())
 											x[i - start][3] = "N/A";
 										else
-											x[i - start][3] = aData.get(0).getCategoryAbbreviation();
+											x[i - start][3] = aData.iterator().next().getCategoryAbbreviation();
 
 										Object[] y = new Object[6];
 

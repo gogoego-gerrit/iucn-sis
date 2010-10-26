@@ -1,73 +1,34 @@
 package org.iucn.sis.client.panels;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
-import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
-import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
-import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.api.utils.TaxonPagingLoader;
-import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.dem.ViewCache;
-import org.iucn.sis.shared.api.acl.InsufficientRightsException;
-import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.WorkingSet;
-import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.binder.DataListBinder;
-import com.extjs.gxt.ui.client.data.ModelStringProvider;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.DataListEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MenuEvent;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Params;
-import com.extjs.gxt.ui.client.widget.DataList;
-import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Popup;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.HTML;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -215,10 +176,10 @@ public class NavigationHeader extends LayoutContainer {
 						if (AssessmentCache.impl.getDraftAssessment(speciesID, false) != null) {
 							AssessmentCache.impl.getDraftAssessment(speciesID, true);
 						} else {
-							List<Assessment> draftAssessments = 
+							Set<Assessment> draftAssessments = 
 								AssessmentCache.impl.getDraftAssessmentsForTaxon(speciesID);
 							if (!draftAssessments.isEmpty())
-								AssessmentCache.impl.setCurrentAssessment(draftAssessments.get(0));
+								AssessmentCache.impl.setCurrentAssessment(draftAssessments.iterator().next());
 						}
 						ClientUIContainer.bodyContainer.refreshBody();
 					}

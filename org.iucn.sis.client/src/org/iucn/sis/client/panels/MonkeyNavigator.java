@@ -1,5 +1,6 @@
 package org.iucn.sis.client.panels;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -31,7 +32,6 @@ import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.binder.DataListBinder;
 import com.extjs.gxt.ui.client.data.ModelStringProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.DataListEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -39,13 +39,10 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Popup;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -56,8 +53,6 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
@@ -605,8 +600,8 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 				}
 
 				public void onSuccess(String arg0) {
-					List<Assessment> draftAssessments = 
-						AssessmentCache.impl.getDraftAssessmentsForTaxon(Integer.valueOf(curNavTaxon.getId()));
+					List<Assessment> draftAssessments =
+						new ArrayList<Assessment>(AssessmentCache.impl.getDraftAssessmentsForTaxon(curNavTaxon.getId()));
 
 					if (draftAssessments.size() > 0) {
 						DataListItem curItem = new DataListItem("Draft Assessment(s)");
@@ -671,7 +666,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 					}
 
 					List<Assessment> pubAssessments = 
-						AssessmentCache.impl.getPublishedAssessmentsForTaxon(curNavTaxon.getId());
+						new ArrayList<Assessment>(AssessmentCache.impl.getPublishedAssessmentsForTaxon(curNavTaxon.getId()));
 					if (pubAssessments.size() > 0) {
 						DataListItem curItem = new DataListItem("Published Assessment(s)");
 						curItem.setEnabled(false);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -238,14 +239,14 @@ public class NewAssessmentPanel extends LayoutContainer {
 			}
 
 			if( error == null ) {
-				List<Assessment> checkAgainst = AssessmentCache.impl.getDraftAssessmentsForTaxon(node);
-				for( Assessment cur : checkAgainst ) {
-					if( (cur.isEndemic() || cur.isGlobal()) && isEndemic )
+				Set<Assessment> checkAgainst = AssessmentCache.impl.getDraftAssessmentsForTaxon(node);
+				for (Assessment cur : checkAgainst) {
+					if ((cur.isEndemic() || cur.isGlobal()) && isEndemic)
 						error = "Only one draft assessment for each taxon may exist that is either endemic " +
 						" or global.";
 					else {
-						for( Integer curLocality : locality )
-							if( cur.getRegionIDs().contains(curLocality) ) {
+						for (Integer curLocality : locality)
+							if (cur.getRegionIDs().contains(curLocality)) {
 								error = "An assessment exists that contains the locality " + 
 									RegionCache.impl.getRegionName(curLocality) + ". " +
 										"Only one assessment may use each locality.";

@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -347,7 +348,7 @@ public class SearchPanel extends LayoutContainer {
 							for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++) {
 								Taxon currentNode = TaxonomyCache.impl.getTaxon(((NativeElement) currentResults.item(i))
 										.getAttribute("id"));
-								List<Assessment> assessmentList = AssessmentCache.impl.getPublishedAssessmentsForTaxon(currentNode.getId());
+								Set<Assessment> assessmentList = AssessmentCache.impl.getPublishedAssessmentsForTaxon(currentNode.getId());
 								
 								x[i - start][0] = currentNode.getFullName();
 								if (currentNode.getCommonNames().size() > 0)
@@ -357,8 +358,8 @@ public class SearchPanel extends LayoutContainer {
 								x[i - start][2] = Taxon.getDisplayableLevel(currentNode.getLevel());
 								x[i - start][4] = String.valueOf(currentNode.getId());
 								
-								if (assessmentList.size() > 0) {
-									Assessment aData = assessmentList.get(0);
+								if (!assessmentList.isEmpty()) {
+									Assessment aData = assessmentList.iterator().next();
 									x[i - start][3] = AssessmentFormatter.getProperCategoryAbbreviation(aData);
 								} else
 									x[i - start][3] = "N/A";

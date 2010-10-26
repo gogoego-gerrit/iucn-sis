@@ -1,6 +1,6 @@
 package org.iucn.sis.client.panels.workingsets;
 
-import java.util.List;
+import java.util.Set;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
@@ -130,14 +130,12 @@ public class WorkingSetSummaryPanel extends RefreshLayoutContainer {
 			public void handleEvent(BaseEvent be) {
 				if (taxaList.isFilteredBySpecies()) {
 					String selectedID = taxaList.getSelectedInList();
-					if( selectedID != null ) {
-						List<Assessment> drafts = AssessmentCache.impl.getDraftAssessmentsForTaxon(Integer.valueOf(selectedID));
-						if( drafts.size() > 0 ) {
-							for( Assessment assessment : drafts) {
-								if( assessment.isGlobal() ) {
-									assessmentPanel.refreshPanel(assessment.getId());
-									assessmentPanel.show();
-								}
+					if (selectedID != null) {
+						Set<Assessment> drafts = AssessmentCache.impl.getDraftAssessmentsForTaxon(Integer.valueOf(selectedID));
+						for (Assessment assessment : drafts) {
+							if (assessment.isGlobal()) {
+								assessmentPanel.refreshPanel(assessment.getId());
+								assessmentPanel.show();								
 							}
 						}
 					} else
@@ -171,14 +169,12 @@ public class WorkingSetSummaryPanel extends RefreshLayoutContainer {
 	private void refreshAssessmentPanel() {
 		if (taxaList.isFilteredBySpecies()) {
 			String selectedID = taxaList.getSelectedInList();
-			if( selectedID != null ) {
-				List<Assessment> drafts = AssessmentCache.impl.getDraftAssessmentsForTaxon(Integer.valueOf(selectedID));
-				if( drafts.size() > 0 ) {
-					for( Assessment assessment : drafts) {
-						if( assessment.isGlobal() ) {
-							assessmentPanel.refreshPanel(assessment.getId());
-							assessmentPanel.show();
-						}
+			if (selectedID != null) {
+				Set<Assessment> drafts = AssessmentCache.impl.getDraftAssessmentsForTaxon(Integer.valueOf(selectedID));
+				for (Assessment assessment : drafts) {
+					if (assessment.isGlobal()) {
+						assessmentPanel.refreshPanel(assessment.getId());
+						assessmentPanel.show();
 					}
 				}
 			} else

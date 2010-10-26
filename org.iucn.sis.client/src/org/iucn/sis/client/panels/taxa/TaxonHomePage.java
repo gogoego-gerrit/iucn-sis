@@ -20,8 +20,6 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
-import org.iucn.sis.client.panels.taxomatic.CommonNameDisplay;
-import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -32,8 +30,8 @@ import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -41,18 +39,17 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.binder.DataListBinder;
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.TableEvent;
-import com.extjs.gxt.ui.client.event.TableListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.StoreSorter;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -61,20 +58,16 @@ import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.table.CellRenderer;
-import com.extjs.gxt.ui.client.widget.table.Table;
-import com.extjs.gxt.ui.client.widget.table.TableColumn;
-import com.extjs.gxt.ui.client.widget.table.TableColumnModel;
-import com.extjs.gxt.ui.client.widget.table.TableItem;
-import com.extjs.gxt.ui.client.widget.table.TableSelectionModel;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
@@ -83,10 +76,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -156,57 +147,92 @@ public class TaxonHomePage extends LayoutContainer {
 		}
 
 		private ContentPanel getAssessmentsPanel(final Taxon node) {
-			final ContentPanel assessments = new ContentPanel();
-			assessments.setStyleName("x-panel");
+			final ListStore<BaseModelData> store = new ListStore<BaseModelData>();
+			for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId())) {
+				BaseModelData model = new BaseModelData();
+				model.set("date", data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed()));
+				model.set("category", AssessmentFormatter.getProperCategoryAbbreviation(data));
+				model.set("criteria", AssessmentFormatter.getProperCriteriaString(data));
+				model.set("status", "Published");
+				model.set("edit", "");
+				model.set("trash", "");
+				model.set("id", data.getId());
 
-			TableColumn[] columns = new TableColumn[6];
-			columns[0] = new TableColumn("Assessment Date", 150);
-			columns[1] = new TableColumn("Category", 100);
-			columns[2] = new TableColumn("Criteria", 100);
-			columns[3] = new TableColumn("Status", 100);
-			columns[4] = new TableColumn("Edit/View", 60);
-			columns[4].setRenderer(new CellRenderer<Component>() {
-				public String render(Component item, String property, Object value) {
-					return "<img src =\"images/application_form_edit.png\" class=\"SIS_HyperlinkBehavior\"></img> "
-							+ value;
+				store.add(model);
+			}
+
+			for (Assessment data : AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId())) {
+				BaseModelData model = new BaseModelData();
+
+				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, data)) {
+					model.set("date", data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed()));
+					model.set("category", AssessmentFormatter.getProperCategoryAbbreviation(data));
+					model.set("criteria", AssessmentFormatter.getProperCriteriaString(data));
+					if (data.isRegional())
+						model.set("status", "Draft - " + RegionCache.impl.getRegionName(data.getRegionIDs()));
+					else
+						model.set("status", "Draft");
+					model.set("edit", "");
+					model.set("trash", "");
+					model.set("id", data.getId());
+				} else {
+					model.set("date", "Sorry, you");
+					model.set("category", "do not have");
+					model.set("criteria", "permission");
+					model.set("status", "to view this");
+					model.set("edit", "draft assessment.");
+					model.set("trash", "");
+					model.set("id", data.getId());
+				}
+
+				store.add(model);
+			}
+			
+			List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+
+			columns.add(new ColumnConfig("date", "Assessment Date", 150));
+			columns.add(new ColumnConfig("category", "Category", 100));
+			columns.add(new ColumnConfig("criteria", "Category", 100));
+			columns.add(new ColumnConfig("status", "Category", 100));
+			
+			ColumnConfig editView = new ColumnConfig("edit", "Edit/View", 60);
+			editView.setRenderer(new GridCellRenderer<BaseModelData>() {
+				public Object render(BaseModelData model, String property,
+						ColumnData config, int rowIndex, int colIndex,
+						ListStore<BaseModelData> store, Grid<BaseModelData> grid) {
+					return "<img src =\"images/application_form_edit.png\" class=\"SIS_HyperlinkBehavior\"></img> ";
 				}
 			});
-			columns[5] = new TableColumn("Trash", 60);
-			columns[5].setRenderer(new CellRenderer<Component>() {
-				public String render(Component item, String property, Object value) {
-					if (!((String) value).equals("n"))
-						return "<img src =\"tango/places/user-trash.png\" class=\"SIS_HyperlinkBehavior\"></img> "
-								+ value;
-
-					return "";
+			columns.add(editView);
+			
+			ColumnConfig trash = new ColumnConfig("trash", "Trash", 60);
+			trash.setRenderer(new GridCellRenderer<BaseModelData>() {
+				public Object render(BaseModelData model, String property,
+						ColumnData config, int rowIndex, int colIndex,
+						ListStore<BaseModelData> store, Grid<BaseModelData> grid) {
+					return "<img src =\"tango/places/user-trash.png\" class=\"SIS_HyperlinkBehavior\"></img> ";
 				}
 			});
+			columns.add(trash);
 
-			TableColumnModel cm = new TableColumnModel(columns);
-
-			final Table tbl = new Table(cm);
-			tbl.setSelectionModel(new TableSelectionModel());
+			final Grid<BaseModelData> tbl = new Grid<BaseModelData>(store, new ColumnModel(columns));
 			tbl.setBorders(false);
-			assessments.setWidth(com.google.gwt.user.client.Window.getClientWidth() - 500);
-			assessments.setHeight(panelHeight);
-			tbl.setHeight(panelHeight - 25);
-			tbl.setWidth("100%");
-
-			assessments.setHeading("Assessment List");
-			assessments.setLayoutOnChange(true);
-
 			tbl.removeAllListeners();
-			tbl.addTableListener(new TableListener() {
-
-				public void tableCellClick(TableEvent be) {
-					if (be.getItem() == null)
+			tbl.addListener(Events.RowClick, new Listener<GridEvent<BaseModelData>>() {
+				public void handleEvent(GridEvent<BaseModelData> be) {
+					Info.display("Click", "ON the grid editing " + be.getProperty());
+					if (be.getModel() == null)
 						return;
 
-					final int columnIndex = be.getColumnIndex();
-					final Integer id = (Integer) be.getItem().getValue(6);
-					final String status = (String) be.getItem().getValue(3);
-					final String type = status.equals("Published") ? AssessmentType.PUBLISHED_ASSESSMENT_TYPE : AssessmentType.DRAFT_ASSESSMENT_TYPE;
-					if (columnIndex == 5) {
+					BaseModelData model = be.getModel();
+					
+					int column = be.getColIndex();
+
+					final Integer id = model.get("id");
+					final String status = model.get("status");
+					final String type = status.equals("Published") ? 
+							AssessmentType.PUBLISHED_ASSESSMENT_TYPE : AssessmentType.DRAFT_ASSESSMENT_TYPE;
+					if (column == 5) {
 						if (type == AssessmentType.PUBLISHED_ASSESSMENT_TYPE
 								&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
 										AuthorizableObject.DELETE, AssessmentCache.impl.getPublishedAssessment(id,
@@ -221,43 +247,37 @@ public class TaxonHomePage extends LayoutContainer {
 						} else {
 							WindowUtils.confirmAlert("Confirm Delete",
 									"Are you sure you want to delete this assessment?",
-									new WindowUtils.MessageBoxListener() {
-										public void onNo() {
+									new WindowUtils.SimpleMessageBoxListener() {
+								public void onYes() {
+									if (AssessmentCache.impl.getCurrentAssessment() != null
+											&& AssessmentCache.impl.getCurrentAssessment().getId() == id
+											.intValue())
+										AssessmentCache.impl.resetCurrentAssessment();
+									NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+									doc.delete(UriBase.getInstance().getSISBase() + "/assessments/" + type
+											+ "/" + id, new GenericCallback<String>() {
+										public void onFailure(Throwable arg0) {
+											WindowUtils.errorAlert("Could not delete, please try again later.");
 										}
-
-										public void onYes() {
-											if (AssessmentCache.impl.getCurrentAssessment() != null
-													&& AssessmentCache.impl.getCurrentAssessment().getId() == id
-															.intValue())
-												AssessmentCache.impl.resetCurrentAssessment();
-											NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-											doc.delete(UriBase.getInstance().getSISBase() + "/assessments/" + type
-													+ "/" + id, new GenericCallback<String>() {
-												public void onFailure(Throwable arg0) {
-
-												}
-
-												public void onSuccess(String arg0) {
-													TaxonomyCache.impl.evict(String.valueOf(node.getId()));
-													TaxonomyCache.impl.fetchTaxon(node.getId(), true,
-															new GenericCallback<Taxon>() {
-																public void onFailure(Throwable caught) {
-																};
-
-																public void onSuccess(Taxon result) {
-																	AssessmentCache.impl.clear();
-																	update(node.getId());
-																	panelManager.recentAssessmentsPanel.update();
-																};
-															});
-												}
+										public void onSuccess(String arg0) {
+											TaxonomyCache.impl.evict(String.valueOf(node.getId()));
+											TaxonomyCache.impl.fetchTaxon(node.getId(), true,
+													new GenericCallback<Taxon>() {
+												public void onFailure(Throwable caught) {
+												};
+												public void onSuccess(Taxon result) {
+													AssessmentCache.impl.clear();
+													update(node.getId());
+													panelManager.recentAssessmentsPanel.update();
+												};
 											});
 										}
 									});
+								}
+							});
 						}
-					} else if (columnIndex == 4) {
+					} else if (column == 4) {
 						Assessment fetched = AssessmentCache.impl.getAssessment(id, false);
-						System.out.println("Got assessment " + fetched == null ? fetched : fetched.getId());
 						// CHANGE
 						if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ,
 								fetched)) {
@@ -273,59 +293,17 @@ public class TaxonHomePage extends LayoutContainer {
 
 			});
 
-			
-			
-			for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId())) {
-				String date = data.getDateAssessed() == null ? null : FormattedDate.impl
-						.getDate(data.getDateAssessed());
-
-				Object[] values = new Object[7];
-				values[0] = data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed());
-				values[1] = AssessmentFormatter.getProperCategoryAbbreviation(data);
-				values[2] = AssessmentFormatter.getProperCriteriaString(data);
-				values[3] = "Published";
-				values[4] = "";
-				values[5] = "";
-				values[6] = Integer.valueOf(data.getId());
-
-				TableItem item = new TableItem(values);
-				tbl.add(item);
-			}
-
-			for (Assessment data : AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId())) {
-
-				Object[] values = new Object[7];
-
-				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, data)) {
-					values[0] = data.getDateAssessed() == null ? "(Not set)" :  FormattedDate.impl.getDate(data.getDateAssessed());
-					values[1] = AssessmentFormatter.getProperCategoryAbbreviation(data);
-					values[2] = AssessmentFormatter.getProperCriteriaString(data);
-					if (data.isRegional())
-						values[3] = "Draft - " + RegionCache.impl.getRegionName(data.getRegionIDs());
-					else
-						values[3] = "Draft";
-					values[4] = "";
-					values[5] = "";
-					values[6] = Integer.valueOf(data.getId());
-				} else {
-					values[0] = "Sorry, you";
-					values[1] = "do not have";
-					values[2] = "permission";
-					values[3] = "to view this";
-					values[4] = "draft assessment.";
-					values[5] = "";
-					values[6] = Integer.valueOf(data.getId());
-				}
-
-				TableItem item = new TableItem(values);
-				tbl.add(item);
-
-			}
-
-			tbl.sort(0, SortDir.DESC);
 			ClientUIContainer.headerContainer.update();
+			
+			tbl.getStore().sort("date", SortDir.DESC);
 
+			final ContentPanel assessments = new ContentPanel(new FillLayout());
+			assessments.setHeading("Assessment List");
+			assessments.setStyleName("x-panel");
+			assessments.setWidth(com.google.gwt.user.client.Window.getClientWidth() - 500);
+			assessments.setHeight(panelHeight);
 			assessments.add(tbl);
+			
 			return assessments;
 		}
 
@@ -937,7 +915,6 @@ public class TaxonHomePage extends LayoutContainer {
 			RowLayout innerLayout = new RowLayout();
 			innerLayout.setOrientation(Orientation.VERTICAL);
 			wrapper = new DockPanel();
-			FillLayout layout = new FillLayout();
 
 			String name = "";
 			HorizontalPanel hPanel = new HorizontalPanel();
@@ -1128,7 +1105,7 @@ public class TaxonHomePage extends LayoutContainer {
 				a.add(new HTML("<b>" + note.getEdit().getUser().getDisplayableName() + " ["
 						+ FormattedDate.impl.getDate(note.getEdit().getCreatedDate()) + "]</b>  --"
 						+ note.getValue()));// );
-				System.out.println("adding a note with text " + note.getValue());
+				
 				eBar.add(a);		
 			}
 			
@@ -1186,7 +1163,6 @@ public class TaxonHomePage extends LayoutContainer {
 	}
 
 	public void update(final Integer nodeID) {
-		System.out.println("calling update");
 		WindowUtils.showLoadingAlert("Loading...");
 
 		Timer timer = new Timer() {
