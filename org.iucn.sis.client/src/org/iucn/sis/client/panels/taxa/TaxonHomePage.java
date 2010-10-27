@@ -20,6 +20,10 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
+import org.iucn.sis.client.panels.taxomatic.CommonNameDisplay;
+import org.iucn.sis.client.panels.taxomatic.CommonNameToolPanel;
+import org.iucn.sis.client.panels.taxomatic.EditCommonNamePanel;
+import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -42,6 +46,7 @@ import com.extjs.gxt.ui.client.binder.DataListBinder;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.EventType;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -647,36 +652,35 @@ public class TaxonHomePage extends LayoutContainer {
 			}
 
 			// ADD COMMON NAMES
-//			Image addName = new Image("images/add.png");
-//			addName.setSize("14px", "14px");
-//			addName.setTitle("Add New Common Name");
-//			addName.addClickHandler(new ClickHandler() {
-//
-//				public void onClick(ClickEvent event) {
-//
-//					Window addNameBox = CommonNameDisplay.getNewCommonNameDisplay(node, null,
-//							new GenericCallback<String>() {
-//								public void onFailure(Throwable arg0) {
-//									update(node.getId());
-//								}
-//
-//								public void onSuccess(String arg0) {
-//									update(node.getId());
-//								}
-//							});
-//
-//					addNameBox.show();
-//					addNameBox.center();
-//				}
-//			});
+			Image addName = new Image("images/add.png");
+			addName.setSize("14px", "14px");
+			addName.setTitle("Add New Common Name");
+			addName.addClickHandler(new ClickHandler() {
+
+				public void onClick(ClickEvent event) {
+
+					Window addNameBox = new EditCommonNamePanel(null, taxon, 
+							new GenericCallback<CommonName>() {
+								public void onFailure(Throwable arg0) {
+									
+								}
+
+								public void onSuccess(CommonName arg0) {
+									update(node.getId());
+								}
+							});
+					addNameBox.setSize(550, 250);
+					addNameBox.show();
+					addNameBox.center();
+				}
+			});
 //
 			HTML commonNamesHeader = new HTML("<b>Common Name --- Language</b>");
 			LayoutContainer commonNamePanel = new LayoutContainer();
-//
-//			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
-//				commonNamePanel.add(addName);
+
+			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
+				commonNamePanel.add(addName);
 			commonNamePanel.add(commonNamesHeader);
-//
 			data.add(new HTML("<hr><br />"));
 			data.add(commonNamePanel);
 
@@ -688,100 +692,24 @@ public class TaxonHomePage extends LayoutContainer {
 				panelHeight += loop * 15 + 20;
 				
 				for (final CommonName curName : node.getCommonNames()) {
+					loop--;
+					if (loop < 0)
+						break;
 					HorizontalPanel hp = new HorizontalPanel();
-
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
-						final Image notesImage = new Image("images/icon-note.png");
-						if (curName.getNotes().isEmpty())
-							notesImage.setUrl("images/icon-note-grey.png");
-						notesImage.setTitle("Add/Remove Notes");
-						notesImage.addClickHandler(new ClickHandler() {
-							@SuppressWarnings("unchecked")
-							public void onClick(ClickEvent event) {
-								final Window s = WindowUtils.getWindow(false, false, "Notes for Common Name "
-										+ curName.getName());
-								final LayoutContainer container = s;
-								container.setLayoutOnChange(true);
-								FillLayout layout = new FillLayout(Orientation.VERTICAL);
-								container.setLayout(layout);
-
-								final TextArea area = new TextArea();
-								Set<Notes> notesSet = curName.getNotes();
-								String noteValue = "";
-								for (Notes note : notesSet)
-									noteValue += note.getValue();
-								area.setText(noteValue);
-								area.setSize("400", "75");
-								container.add(area);
-								HorizontalPanel buttonPanel = new HorizontalPanel();
-
-								final Button cancel = new Button();
-								cancel.setText("Cancel");
-								cancel.addListener(Events.Select, new Listener() {
-									public void handleEvent(BaseEvent be) {
-										s.hide();
-
-									}
-								});
-								final Button save = new Button();
-								save.setText("Save");
-								save.addListener(Events.Select, new Listener() {
-									public void handleEvent(BaseEvent be) {
-										Notes newNote = new Notes();
-										newNote.setValue(area.getText());
-										s.hide();
-										TaxonomyCache.impl.addNoteToCommonName(node, curName, newNote, new GenericCallback<String>() {
-											
-											@Override
-											public void onSuccess(String result) {
-												WindowUtils.infoAlert("Saved", "Common name " + curName.getName() + " was saved.");
-//												ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-												notesImage.setUrl("images/icon-note.png");
-												
-											}
-										
-											@Override
-											public void onFailure(Throwable caught) {
-												WindowUtils.errorAlert("Error", "An error occurred when trying to save the common name data related to "
-														+ node.getFullName() + ".");
-											}
-										});
-										
-									}
-								});
-								buttonPanel.add(cancel);
-								buttonPanel.add(save);
-								container.add(buttonPanel);
-
-								s.setSize(500, 400);
-								s.show();
-								s.center();
-
-							}
-						});
-						hp.add(notesImage);
+						CommonNameToolPanel cntp = new CommonNameToolPanel(curName, node);
+						hp.add(cntp);
 					}
 
-					String value = curName.getName();
-					hp.add(new HTML("&nbsp;&nbsp;" + value));
-
+					HTML html = new HTML("&nbsp;&nbsp;" + curName.getName());
+					if (curName.getChangeReason() == CommonName.DELETED)
+						html.addStyleName("deleted");
+					hp.add(html);
 					data.add(hp);
 					
 					
 				}
-//				List<CommonName> namesList = new ArrayList<CommonName>(node.getCommonNames());
-//				for (int i = 0; i < loop; i++) {
-//					CommonName curName = namesList.get(i);
-//					data.add(new CommonNameDisplay(node, curName).show(new GenericCallback<String>() {
-//						public void onFailure(Throwable arg0) {
-//							update(node.getId());
-//						}
-//
-//						public void onSuccess(String arg0) {
-//							update(node.getId());
-//						}
-//					}));
-//				}
+
 				HTML viewAll = new HTML("View all...");
 				viewAll.setStyleName("SIS_HyperlinkLookAlike");
 				viewAll.addClickHandler(new ClickHandler() {
@@ -790,6 +718,38 @@ public class TaxonHomePage extends LayoutContainer {
 						LayoutContainer data = s;
 						data.setScrollMode(Scroll.AUTO);
 
+						ToolBar tBar = new ToolBar();
+						Button item = new Button();
+						item.setText("New Common Name");
+						item.setIconStyle("icon-add");
+						item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+							public void componentSelected(ButtonEvent ce) {
+								s.hide();
+								Window addNameBox = new EditCommonNamePanel(null, taxon, new GenericCallback<CommonName>() {
+
+									@Override
+									public void onSuccess(CommonName result) {
+										// TODO Auto-generated method stub
+										
+									}
+
+									@Override
+									public void onFailure(Throwable caught) {
+										// TODO Auto-generated method stub
+										
+									}
+								});
+								addNameBox.setSize(550, 250);
+								addNameBox.show();
+								addNameBox.center();
+							}
+						});
+
+						tBar.add(item);
+
+						if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
+							data.add(tBar);
+						
 						HTML commonNamesHeader = new HTML("<b>Common Name --- Language</b>");
 
 						LayoutContainer commonNamePanel = new LayoutContainer();
@@ -800,11 +760,33 @@ public class TaxonHomePage extends LayoutContainer {
 
 						if (TaxonomyCache.impl.getCurrentTaxon().getCommonNames().size() != 0) {
 							for (CommonName curName : TaxonomyCache.impl.getCurrentTaxon().getCommonNames()) {
-								data.add(new HTML(curName.getName()));
+								HorizontalPanel panel = new HorizontalPanel();
+								if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
+									panel.add(new CommonNameToolPanel(curName, taxon));
+								HTML html = new HTML(curName.getName());
+								if (curName.getChangeReason() == CommonName.DELETED)
+									html.addStyleName("deleted");
+								panel.add(html);
+								data.add(panel);
 							}
 						} else
 							data.add(new HTML("No Common Names."));
+						s.addListener(Events.Hide, new Listener<BaseEvent>() {
 
+							@Override
+							public void handleEvent(BaseEvent be) {
+								update(taxon.getId());
+								
+							}
+						});
+						s.addListener(Events.Close, new Listener<BaseEvent>() {
+
+							@Override
+							public void handleEvent(BaseEvent be) {
+								update(taxon.getId());
+								
+							}
+						});
 						s.setSize(350, 550);
 						s.show();
 						s.center();
@@ -1078,7 +1060,6 @@ public class TaxonHomePage extends LayoutContainer {
 				deleteNote.addClickHandler(new ClickHandler() {
 					
 					public void onClick(ClickEvent event) {
-						System.out.println("it was clicked");
 						NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 						String url = UriBase.getInstance().getNotesBase() + "/notes/note/" + note.getId();
 
@@ -1101,7 +1082,6 @@ public class TaxonHomePage extends LayoutContainer {
 				a.add(new HTML("<b>" + note.getEdit().getUser().getDisplayableName() + " ["
 						+ FormattedDate.impl.getDate(note.getEdit().getCreatedDate()) + "]</b>  --"
 						+ note.getValue()));// );
-				
 				eBar.add(a);		
 			}
 			

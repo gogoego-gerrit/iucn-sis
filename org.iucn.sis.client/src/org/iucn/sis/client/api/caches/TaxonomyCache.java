@@ -593,6 +593,24 @@ public class TaxonomyCache {
 		});
 	}
 	
+	public void deleteNoteOnCommonNames(final Taxon taxon, final CommonName commonName, final Notes note, final GenericCallback<String> callback) {
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.delete(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId() + "/note/" + note.getId(), new GenericCallback<String>() {
+
+			@Override
+			public void onSuccess(String result) {
+				commonName.getNotes().remove(note);
+				callback.onSuccess(result);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		
+		});
+	}
+	
 	public void addNoteToCommonName(final Taxon taxon, final CommonName commonName, final Notes note, final GenericCallback<String> callback) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId() + "/note", note.toXML(), new GenericCallback<String>() {

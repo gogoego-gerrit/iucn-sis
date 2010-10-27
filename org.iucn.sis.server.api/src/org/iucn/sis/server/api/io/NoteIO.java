@@ -24,7 +24,7 @@ public class NoteIO {
 	}
 	
 	public Taxon getNoteFromTaxon(Integer noteID) {
-		return updatedNoteToTaxon.get(noteID);
+		return updatedNoteToTaxon.remove(noteID);
 	}
 		
 	public Notes get(Integer noteID) {
@@ -52,9 +52,12 @@ public class NoteIO {
 	
 	public boolean delete(Notes note) {
 		try {
-			
+			Taxon taxon = note.getCommonName().getTaxon();
+			note.getCommonNames().remove(note);
+			taxon.toXML();
+			Integer id = note.getId();
 			if (NotesDAO.deleteAndDissociate(note)) {
-				addNoteToTaxon(note);
+				updatedNoteToTaxon.put(id, note.getTaxon());
 				return true;
 			}
 		} catch (PersistentException e) {

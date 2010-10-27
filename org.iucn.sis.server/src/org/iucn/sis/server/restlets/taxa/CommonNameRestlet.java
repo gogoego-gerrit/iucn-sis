@@ -6,6 +6,7 @@ import java.util.Set;
 import org.hibernate.HibernateException;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.CommonNameDAO;
+import org.iucn.sis.server.api.persistance.NotesDAO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
@@ -30,6 +31,7 @@ public class CommonNameRestlet extends ServiceRestlet {
 
 	@Override
 	public void definePaths() {
+		paths.add("/taxon/{taxon_id}/commonname/{id}/note/{note_id}");
 		paths.add("/taxon/{taxon_id}/commonname/{id}/note");
 		paths.add("/taxon/{taxon_id}/commonname/{id}");
 		paths.add("/taxon/{taxon_id}/commonname");
@@ -64,7 +66,6 @@ public class CommonNameRestlet extends ServiceRestlet {
 			response.setStatus(Status.SERVER_ERROR_INTERNAL);
 			return;
 		}
-		
 
 	}
 
@@ -116,6 +117,39 @@ public class CommonNameRestlet extends ServiceRestlet {
 
 	}
 
+	protected void deleteNote(Request request, Response response) {
+		Integer taxonID = Integer.parseInt((String) request.getAttributes().get("taxon_id"));
+		Integer id = Integer.parseInt((String) request.getAttributes().get("id"));
+		Integer noteID = Integer.parseInt((String) request.getAttributes().get("note_id"));
+		try {
+			CommonName commonName = (CommonName) SIS.get().getManager().getObject(CommonName.class, id);
+			Notes noteToDelete = null;
+			for (Notes note : commonName.getNotes()) {
+				if (note.getId() == noteID.intValue()) {
+					noteToDelete = note;
+					break;
+				}
+			}
+
+			if (noteToDelete != null) {
+				commonName.getNotes().remove(noteToDelete);
+				commonName.getTaxon().toXML();
+				System.out.println("this is the taxon xml " + commonName.getTaxon().toXML());
+				if (SIS.get().getNoteIO().delete(noteToDelete)) {
+					response.setStatus(Status.SUCCESS_OK);
+				} else {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL);
+				}
+
+			} else {
+				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+			}
+		} catch (PersistentException e) {
+			Debug.println(e);
+			response.setStatus(Status.SERVER_ERROR_INTERNAL);
+		}
+	}
+
 	protected void deleteCommonName(Request request, Response response) {
 		Integer taxonID = Integer.parseInt((String) request.getAttributes().get("taxon_id"));
 		Integer id = Integer.parseInt((String) request.getAttributes().get("id"));
@@ -151,7 +185,10 @@ public class CommonNameRestlet extends ServiceRestlet {
 		if (request.getMethod().equals(Method.POST)) {
 			addOrEditCommonName(request, response);
 		} else if (request.getMethod().equals(Method.DELETE)) {
-			deleteCommonName(request, response);
+			if (request.getResourceRef().getPath().contains("note")) {
+				deleteNote(request, response);
+			} else
+				deleteCommonName(request, response);
 		} else if (request.getMethod().equals(Method.PUT)) {
 			addNote(request, response);
 		}
