@@ -318,11 +318,9 @@ public class TaxonSynonymEditor extends LayoutContainer {
 				
 					@Override
 					public void onSuccess(String result) {
-						allSynonyms.remove(currentSynonym);
 						currentSynonym = null;
 						bar.enable();
-						WindowUtils.infoAlert("Saved", "All the synonym data related to " + node.getFullName()
-								+ " has been saved.");
+						WindowUtils.infoAlert("Saved", "Synonym has been deleted.");
 						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
 						
 						refreshListBox();

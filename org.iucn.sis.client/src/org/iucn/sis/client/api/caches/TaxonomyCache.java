@@ -540,7 +540,13 @@ public class TaxonomyCache {
 		
 			@Override
 			public void onSuccess(String result) {
-				taxon.getSynonyms().remove(synonym);
+				Synonym toRemove = null;
+				for (Synonym s : taxon.getSynonyms())
+					if (s.getId() == synonym.getId()) {
+						toRemove = s;
+						break;
+					}
+				
 				callback.onSuccess(result);
 			}
 		

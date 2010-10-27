@@ -1,11 +1,17 @@
 package org.iucn.sis.server.restlets.taxa;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.hibernate.HibernateException;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.SynonymDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.CommonName;
+import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.restlet.Context;
@@ -34,54 +40,45 @@ public class SynonymRestlet extends ServiceRestlet{
 		
 		String text = request.getEntityAsText();
 		String taxonID = (String) request.getAttributes().get("taxon_id");
-		
 		Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.parseInt(taxonID));
 		NativeDocument newDoc = SIS.get().newNativeDocument(request.getChallengeResponse());
 		newDoc.parse(text);
-		Synonym synonymn = Synonym.fromXML(newDoc.getDocumentElement(), null);
-		if (synonymn.getId() == 0) {
-			taxon.getSynonyms().add(synonymn);
-			synonymn.setTaxon(taxon);
-			
-			taxon.toXML();
-			if (SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request))) {
-				response.setStatus(Status.SUCCESS_OK);
-				response.setEntity(synonymn.getId()+"", MediaType.TEXT_PLAIN);
-			} else {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL);
-			}
-			
-		} else {
-			Synonym toRemove = null;
-			for (Synonym syn : taxon.getSynonyms()) {
-				if (syn.getId() == synonymn.getId()) {
-					toRemove = syn;
-					break;
-				}
-			}
-//			taxon.getSynonyms().remove(toRemove);
-//			taxon.getSynonyms().add(synonymn);
-			synonymn.setTaxon(taxon);
+		Synonym synonym = Synonym.fromXML(newDoc.getDocumentElement(), null);
+		Set<Notes> notes = new HashSet<Notes>();
+		for (Notes note : synonym.getNotes()) {
+			if (note.getId() != 0)
+				notes.add(SIS.get().getNoteIO().get(note.getId()));
+		}
+		synonym.setNotes(notes);
+		if (synonym.getId() == 0) {
+			taxon.getSynonyms().add(synonym);
+			synonym.setTaxon(taxon);
 			try {
-//				SIS.get().getManager().getSession().update(synonymn);
-//				synonymn = (Synonym) SIS.get().getManager().getSession().merge(synonymn);
-//				SISPersistentManager.instance().getSession().merge(taxon);
-				SISPersistentManager.instance().getSession().merge(synonymn);
+				if (SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request))) {
+					response.setStatus(Status.SUCCESS_OK);
+					response.setEntity(synonym.getId() + "", MediaType.TEXT_PLAIN);
+				} else {
+					response.setStatus(Status.SERVER_ERROR_INTERNAL);
+				}
+			} catch (Exception e) {
+				Debug.println(e);
+			}
+
+		} else {
+			synonym.setTaxon(taxon);
+			try {
+				SISPersistentManager.instance().getSession().merge(synonym);
+				taxon.getSynonyms().add(synonym);
+				taxon.toXML();
+				response.setStatus(Status.SUCCESS_OK);
+				response.setEntity(synonym.getId() + "", MediaType.TEXT_PLAIN);
 			} catch (HibernateException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Debug.println(e);
 				response.setStatus(Status.SERVER_ERROR_INTERNAL);
 				return;
-			} 
-//			catch (PersistentException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//				response.setStatus(Status.SERVER_ERROR_INTERNAL);
-//				return;
-//			}
-			
-//			SIS.get().getTaxonIO().afterSaveTaxon(taxon);
-			
+			}
+
 		}
 		
 	}
