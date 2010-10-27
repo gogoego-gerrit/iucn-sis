@@ -42,6 +42,7 @@ public class CommonName implements Serializable {
 				.equalsIgnoreCase("true");
 		String reason = commonNameTag.getAttribute("reason");
 		
+		
 		CommonName curName = new CommonName();
 		curName.setId(Integer.valueOf(id).intValue());
 		curName.setName(name);
@@ -110,6 +111,7 @@ public class CommonName implements Serializable {
 	public CommonName deepCopy() {
 		CommonName cn =  new CommonName(name, iso == null ? null : iso.getName(), iso == null ? null : iso.getCode(), validated, principal);
 		cn.setNotes(new HashSet<Notes>());
+		cn.setChangeReason(getChangeReason());
 		for (Notes note : getNotes()) {
 			Notes newNote = note.deepCopy();
 			newNote.setCommonName(cn);
@@ -264,8 +266,8 @@ public class CommonName implements Serializable {
 				+ XMLUtils.clean(getName()) + "\" primary=\""
 				+ getPrincipal() + "\" id=\"" + getId() + "\"";
 		if (!getValidated())
-			xml += " reason=\"" + getChangeReason();
-		xml += "\">";
+			xml += " reason=\"" + getChangeReason() + "\"";
+		xml += ">";
 	
 		xml += "<sources>";
 		for (Reference ref : getReference()) {
