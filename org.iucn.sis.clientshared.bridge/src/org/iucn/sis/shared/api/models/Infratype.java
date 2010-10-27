@@ -74,7 +74,6 @@ public class Infratype implements Serializable {
 		return ret;
 	}
 
-	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 
 	public Infratype() {
 	}
@@ -112,6 +111,17 @@ public class Infratype implements Serializable {
 
 	public Set<Taxon> getTaxa() {
 		return taxa;
+	}
+	
+	public String getDisplayString() {
+		return Infratype.getDisplayString(getName());
+	}
+	
+	public static String getDisplayString(String infratype) {
+		if (infratype != null && infratype.equalsIgnoreCase(VARIETY_NAME))
+			return "var.";
+		else
+			return "ssp.";
 	}
 
 

@@ -213,8 +213,6 @@ public class Synonym implements Serializable {
 	}
 	
 	public int hashCode() {
-//		return friendlyName != null ? friendlyName.toLowerCase().hashCode() : 
-//			getName() != null ? getName().toLowerCase().hashCode() : super.hashCode();
 		return getFriendlyName().trim().hashCode();
 	}
 
@@ -262,17 +260,25 @@ public class Synonym implements Serializable {
 
 	public String getFriendlyName() {
 		if (friendlyName == null) {
-			friendlyName = getName();
-			if (getSpeciesName() != null) {
-				friendlyName += " " + getSpeciesName();
-				if (getInfraName() != null) {
-					friendlyName += " " + getInfraName();
-				}
-				if (getStockName() != null) {
-					friendlyName += " " + getStockName();
-				}
+			generateFriendlyName();
+		}
+		return friendlyName;
+	}
+	
+	public String generateFriendlyName() {
+		friendlyName = getName();
+		if (getSpeciesName() != null && !getSpeciesName().trim().equalsIgnoreCase("")) {
+			friendlyName += " " + getSpeciesName();
+			if (getSpeciesAuthor() != null && !getSpeciesAuthor().trim().equalsIgnoreCase("")) 
+				friendlyName += " ("+ getSpeciesAuthor() + ")";
+			if (getInfraName() != null && !getInfraName().trim().equalsIgnoreCase("")) {
+				friendlyName += " " + Infratype.getDisplayString(getInfraType()) + " " + getInfraName();
+				if (getInfrarankAuthor() != null && !getInfrarankAuthor().trim().equalsIgnoreCase("")) 
+					friendlyName += " ("+ getInfrarankAuthor() + ")";
 			}
-
+			if (getStockName() != null) {
+				friendlyName += " " + getStockName();
+			}
 		}
 		return friendlyName;
 	}

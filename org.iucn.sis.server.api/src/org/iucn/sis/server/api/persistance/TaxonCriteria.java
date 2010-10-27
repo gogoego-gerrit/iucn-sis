@@ -62,11 +62,11 @@ public class TaxonCriteria extends AbstractORMCriteria {
 	}
 	
 	public WorkingSetCriteria createWorking_setCriteria() {
-		return new WorkingSetCriteria(createCriteria("working_set"));
+		return new WorkingSetCriteria(createCriteria("Working_set"));
 	}
 	
 	public ReferenceCriteria createReferenceCriteria() {
-		return new ReferenceCriteria(createCriteria("reference"));
+		return new ReferenceCriteria(createCriteria("Reference"));
 	}
 	
 	public TaxonCriteria createParentCriteria() {
@@ -74,19 +74,19 @@ public class TaxonCriteria extends AbstractORMCriteria {
 	}
 	
 	public EditCriteria createEditsCriteria() {
-		return new EditCriteria(createCriteria("edits"));
+		return new EditCriteria(createCriteria("Edits"));
 	}
 	
 	public NotesCriteria createNotesCriteria() {
-		return new NotesCriteria(createCriteria("notes"));
+		return new NotesCriteria(createCriteria("Notes"));
 	}
 	
 	public AssessmentCriteria createAssessmentsCriteria() {
-		return new AssessmentCriteria(createCriteria("assessments"));
+		return new AssessmentCriteria(createCriteria("Assessments"));
 	}
 	
 	public SynonymCriteria createSynonymsCriteria() {
-		return new SynonymCriteria(createCriteria("synonyms"));
+		return new SynonymCriteria(createCriteria("Synonyms"));
 	}
 	
 	public CommonNameCriteria createCommonNamesCriteria() {
