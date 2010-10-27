@@ -110,6 +110,7 @@ public class CommonName implements Serializable {
 	
 	public CommonName deepCopy() {
 		CommonName cn =  new CommonName(name, iso == null ? null : iso.getName(), iso == null ? null : iso.getCode(), validated, principal);
+		cn.setId(getId());
 		cn.setNotes(new HashSet<Notes>());
 		cn.setChangeReason(getChangeReason());
 		for (Notes note : getNotes()) {

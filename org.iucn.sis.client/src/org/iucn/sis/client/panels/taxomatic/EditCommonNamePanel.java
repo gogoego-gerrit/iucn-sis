@@ -178,7 +178,6 @@ public class EditCommonNamePanel extends Window {
 			copy.setTaxon(taxon);
 		} else {
 			copy = cn.deepCopy();
-			copy.setId(cn.getId());
 		}
 		copy.setName(nameBox.getText());;
 		copy.setIso(new IsoLanguage(language.getItemText(language.getSelectedIndex()), language.getValue(language.getSelectedIndex())));
