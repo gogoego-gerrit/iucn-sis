@@ -64,6 +64,7 @@ public class SearchPanel extends LayoutContainer {
 	private PanelManager panelManager = null;
 	private boolean advancedSearch = false;
 	private final CheckBox common;
+	private final CheckBox synonym;
 	private final CheckBox sciName;
 	private final CheckBox countryOfOcc;
 	private final TextBox countryOfOccText;
@@ -95,6 +96,7 @@ public class SearchPanel extends LayoutContainer {
 		advancedOptions.setStyleName("x-panel");
 
 		common = new CheckBox();
+		synonym = new CheckBox();
 		sciName = new CheckBox();
 		countryOfOcc = new CheckBox();
 		countryOfOccText = new TextBox();
@@ -162,6 +164,9 @@ public class SearchPanel extends LayoutContainer {
 
 		common.setChecked(true);
 		common.setText("Search Common Names");
+		
+		synonym.setChecked(true);
+		synonym.setText("Search Synonyms");
 
 		sciName.setText("Search Scientific Names");
 		sciName.setChecked(true);
@@ -177,11 +182,13 @@ public class SearchPanel extends LayoutContainer {
 		hp2.add(assessorText);
 
 		common.setWidth("100px");
+		synonym.setWidth("100px");
 		sciName.setWidth("100px");
 
 		// panel.add(showAdvanced);
 		vp.add(new HTML("<b>Taxon Filters:</b>"));
 		vp.add(common);
+		vp.add(synonym);
 		vp.add(sciName);
 		vp.add(new HTML("<hr><b>Assessment Filters:</b>"));
 		vp.add(hp1);
@@ -444,13 +451,15 @@ public class SearchPanel extends LayoutContainer {
 	protected String searchToXML(String searchQuery) {
 		String xml = "<search>\r\n";
 		if (common.isChecked())
-			xml += "<commonName>" + searchQuery + "</commonName>\r\n";
+			xml += "<commonName><![CDATA[" + searchQuery + "]]></commonName>\r\n";
+		if (synonym.isChecked())
+			xml += "<synonym><![CDATA[" + searchQuery + "]]></synonym>\r\n";
 		if (sciName.isChecked())
-			xml += "<sciName>" + searchQuery + "</sciName>\r\n";
+			xml += "<sciName><![CDATA[" + searchQuery + "]]></sciName>\r\n";
 		if (countryOfOcc.isChecked())
-			xml += "<country>" + countryOfOccText.getText() + "</country>\r\n";
+			xml += "<country><![CDATA[" + countryOfOccText.getText() + "]]></country>\r\n";
 		if (assessor.isChecked())
-			xml += "<assessor>" + assessorText.getText() + "</assessor>\r\n";
+			xml += "<assessor><![CDATA[" + assessorText.getText() + "]]></assessor>\r\n";
 		xml += "</search>";
 		return xml;
 	}
