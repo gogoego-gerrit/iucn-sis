@@ -565,7 +565,8 @@ public class TaxomaticIO {
 
 			Synonym synonym = Taxon.synonymizeTaxon(oldTaxon);
 			synonym.setStatus(Synonym.SPLIT);
-			synonym.setAuthority(synonym.getAuthor() + " <i>pro parte</i>", synonym.getTaxon_level().getLevel());
+			if (synonym.getSpeciesAuthor() != null)
+				synonym.setSpeciesAuthor(synonym.getSpeciesAuthor() + " <i>pro parte</i>");
 			parent.getSynonyms().add(synonym);
 			taxaToSave.add(parent);
 
