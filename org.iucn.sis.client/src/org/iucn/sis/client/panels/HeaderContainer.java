@@ -552,9 +552,8 @@ public class HeaderContainer extends LayoutContainer {
 		Taxon curNode = TaxonomyCache.impl.getCurrentTaxon();
 		WorkingSet curSet = WorkingSetCache.impl.getCurrentWorkingSet();
 
-		if (curSet != null && curNode != null && !curSet.getSpeciesIDs().contains(curNode.getId() + ""))
-			TaxonomyCache.impl.resetCurrentTaxon(); // Will also reset
-		// curAssessment
+		if (curSet != null && curNode != null && !curSet.getSpeciesIDs().contains(curNode.getId()))
+			TaxonomyCache.impl.resetCurrentTaxon(); // Will also reset curAssessment
 		else
 			update();
 

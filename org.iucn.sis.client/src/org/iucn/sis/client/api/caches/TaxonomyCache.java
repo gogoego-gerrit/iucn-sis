@@ -515,16 +515,16 @@ public class TaxonomyCache {
 		SimpleListener callback = new SimpleListener() {
 			public void handleEvent() {
 				currentNode = newCurrent;
-				try {
-					if (currentNode != null) {
-						recentlyAccessed.remove(currentNode);
-						recentlyAccessed.add(0, currentNode);
-						SISClientBase.getInstance().onTaxonChanged();
-						if (afterChange != null)
-							afterChange.handleEvent();
-					}
-				} catch (Throwable e) {
-					Debug.println(e);
+				if (currentNode != null) {
+					recentlyAccessed.remove(currentNode);
+					recentlyAccessed.add(0, currentNode);
+					SISClientBase.getInstance().onTaxonChanged();
+					if (afterChange != null)
+						afterChange.handleEvent();
+				}
+				else {
+					AssessmentCache.impl.resetCurrentAssessment();
+					SISClientBase.getInstance().onTaxonChanged();
 				}
 			}
 		};

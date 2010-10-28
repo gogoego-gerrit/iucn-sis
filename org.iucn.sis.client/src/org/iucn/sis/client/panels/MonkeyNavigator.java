@@ -53,6 +53,8 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
@@ -70,9 +72,9 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 	private final ListStore<TaxonListElement> taxonListStore;
 	private final TaxonPagingLoader taxonPagingLoader;
 
-	private DataListBinder<TaxonListElement> taxonListBinder;
+	private final TaxonDataListBinder taxonListBinder;
 	private PagingToolBar taxonPagingToolBar;
-	private int selectedTaxonPage;
+	//private int selectedTaxonPage;
 	
 	private DataListItem selectedWorkingSet, selectedTaxon, selectedAssessment;
 	
@@ -122,7 +124,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 			new ListStore<TaxonListElement>(taxonPagingLoader.getPagingLoader());
 		
 		taxonListBinder =
-			new DataListBinder<TaxonListElement>(taxonList, taxonListStore);
+			new TaxonDataListBinder(taxonList, taxonListStore);
 		taxonListBinder.setDisplayProperty("fullName");
 		taxonListBinder.setStyleProvider(new ModelStringProvider<TaxonListElement>() {
 			public String getStringValue(TaxonListElement model, String property) {
@@ -159,6 +161,23 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 		}));
 	}
 	
+	@Override
+	protected void afterRender() {
+		super.afterRender();
+		DeferredCommand.addPause();
+		DeferredCommand.addCommand(new Command() {
+			public void execute() {
+				if (selectedTaxon != null) {
+					try {
+						taxonList.scrollIntoView(selectedTaxon);
+					} catch (Throwable e) {
+						Debug.println(e);
+					}
+				}
+			}
+		});
+	}
+	
 	public void show() {
 		draw(new DoneDrawingCallback() {
 			public void isDrawn() {
@@ -181,17 +200,18 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 			public void isDrawn(final LayoutContainer taxa) {
 				drawAssessments(new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
 					public void isDrawn(LayoutContainer assessments) {
-						setSelectionAndAddListeners();
-						
-						final LayoutContainer container = new LayoutContainer(new BorderLayout());
-						
+						workingSetContainer.add(drawWorkingSets());
 						taxonContainer.add(taxa);
 						assessmentContainer.add(assessments);
 						
+						workingSetContainer.setLayoutOnChange(true);
 						taxonContainer.setLayoutOnChange(true);
 						assessmentContainer.setLayoutOnChange(true);
 						
-						container.add(drawWorkingSets(), new BorderLayoutData(LayoutRegion.WEST, .30f, 5, 4000));
+						setSelectionAndAddListeners();
+						
+						final LayoutContainer container = new LayoutContainer(new BorderLayout());
+						container.add(workingSetContainer, new BorderLayoutData(LayoutRegion.WEST, .30f, 5, 4000));
 						container.add(taxonContainer, new BorderLayoutData(LayoutRegion.CENTER, .37f, 5, 4000));
 						container.add(assessmentContainer, new BorderLayoutData(LayoutRegion.EAST, .33f, 5, 4000));
 						
@@ -214,10 +234,17 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 			if (selectedTaxon.getData("taxon") != null)
 				taxonList.getSelectionModel().select(selectedTaxon, false);
 			else {
-				int activePage = ((selectedTaxonPage + 1) / taxonPagingToolBar.getPageSize()) + 1;
+				Integer index = selectedTaxon.getData("index");
+				int activePage;
+				if (index != null)
+					activePage = ((index + 1) / taxonPagingToolBar.getPageSize()) + 1;
+				else
+					activePage = 1;
+				
+				selectedTaxon = taxonList.getItemByItemId(selectedTaxon.getText());
 				
 				taxonPagingToolBar.setActivePage(activePage);
-				taxonList.scrollIntoView(selectedTaxon);
+				
 				taxonList.getSelectionModel().select(selectedTaxon, false);
 			}
 		}
@@ -350,7 +377,6 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 
 			if (cur.equals(curNavWorkingSet))
 				selectedWorkingSet = curItem;
-				//setToSelect = workingSetList.getItemCount() - 1;
 		}
 		
 		final Button goToSet = new Button();
@@ -483,7 +509,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 		else {
 			taxonPagingLoader.getFullList().clear();
 			
-			final PagingToolBar taxonPagingToolBar = new PagingToolBar(40);
+			taxonPagingToolBar = new PagingToolBar(40);
 			taxonPagingToolBar.bind(taxonPagingLoader.getPagingLoader());
 			
 			Button jump = new Button();
@@ -516,9 +542,10 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 							public void onSuccess(String arg0) {								
 								taxonPagingLoader.getFullList().clear();
 								taxonPagingLoader.getPagingLoader().setOffset(0);
-
+								
 								String currentFamily = "";
 								
+								int index = 0;
 								for (Integer species : speciesIDs) {
 									Taxon curTaxon = TaxonomyCache.impl.getTaxon(species);
 									if (curTaxon != null) {
@@ -533,9 +560,12 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 										taxonPagingLoader.getFullList().add(curEl);
 	
 										if (curTaxon.equals(curNavTaxon)) {
-											selectedTaxon = (DataListItem) 
-												taxonListBinder.findItem(curEl);
+											selectedTaxon = new DataListItem(curTaxon.getId()+"");
+											selectedTaxon.setItemId(curTaxon.getId() + "");
+											selectedTaxon.setData("index", index);
 										}
+										
+										index++;
 									}
 									else
 										Debug.println("MonkeyNav2.0 found species {0} to be null.", species);
@@ -775,6 +805,23 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 				}
 			});
 		}
+	}
+	
+	public static class TaxonDataListBinder extends DataListBinder<TaxonListElement> {
+		
+		public TaxonDataListBinder(DataList list, ListStore<TaxonListElement> store) {
+			super(list, store);
+		}
+		
+		@Override
+		protected DataListItem createItem(TaxonListElement model) {
+			DataListItem item = super.createItem(model);
+			if (model != null && model.getNode() != null)
+				item.setItemId(model.getNode().getId() + "");
+				
+			return item;
+		}
+		
 	}
 
 }

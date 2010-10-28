@@ -514,7 +514,7 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 	}
 
 	public String toString() {
-		return String.valueOf(getId());
+		return "Taxon #" + id + " :" + name;
 	}
 
 	public String toXMLMinimal() {
@@ -738,16 +738,28 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 		return taxon;
 
 	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof Taxon)
-			return ((Taxon)obj).getId() == this.id;
-		return super.equals(obj);
-	}
-	
+
 	@Override
 	public int hashCode() {
-		return (Taxon.class.toString() + getId()).hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Taxon other = (Taxon) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+	
+	
 }

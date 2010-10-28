@@ -398,20 +398,25 @@ public class WorkingSetCache {
 	}
 
 	public void setCurrentWorkingSet(final WorkingSet ws, boolean saveIfNecessary, final SimpleListener afterChange) {
-		final SimpleListener callback = new SimpleListener() {
-			public void handleEvent() {
-				WorkingSet oldCurrent = currentWorkingSet;
-				currentWorkingSet = ws;
-				if (oldCurrent == null && currentWorkingSet != null || oldCurrent != null && currentWorkingSet == null || oldCurrent != null && currentWorkingSet != null && !oldCurrent.equals(currentWorkingSet))
+		boolean changeNeeded = ((currentWorkingSet == null && ws != null) || 
+				(currentWorkingSet != null && ws == null) || 
+				(currentWorkingSet != null && ws != null && !currentWorkingSet.equals(ws)));
+		
+		if (changeNeeded) {
+			final SimpleListener callback = new SimpleListener() {
+				public void handleEvent() {
+					currentWorkingSet = ws;
+					
 					SISClientBase.getInstance().onWorkingSetChanged();
-				if (afterChange != null)
-					afterChange.handleEvent();
-			}
-		};
-		if (saveIfNecessary)
-			AssessmentClientSaveUtils.saveIfNecessary(callback);
-		else
-			callback.handleEvent();
+					if (afterChange != null)
+						afterChange.handleEvent();
+				}
+			};
+			if (saveIfNecessary)
+				AssessmentClientSaveUtils.saveIfNecessary(callback);
+			else
+				callback.handleEvent();
+		}
 	}
 
 	/**

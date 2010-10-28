@@ -31,6 +31,8 @@ import com.solertium.lwxml.shared.NativeNodeList;
 
 public class WorkingSet implements Serializable, AuthorizableObject {
 
+	private static final long serialVersionUID = 1L;
+	
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	public static final String ROOT_TAG = "workingSet";
 
@@ -43,6 +45,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 
 	public void setId(int value) {
 		this.id = value;
+		this.generationID = value;
 	}
 
 	public String getFullURI() {
@@ -240,6 +243,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 
 	public WorkingSet() {
+		generationID = new Date().getTime();
 	}
 
 	private int id;
@@ -269,6 +273,8 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	private java.util.Set<User> users = new java.util.HashSet<User>();
 
 	private java.util.Set<AssessmentType> assessmentTypes = new java.util.HashSet<AssessmentType>();
+	
+	private long generationID;
 
 	public int getId() {
 		return id;
@@ -376,7 +382,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	}
 
 	public String toString() {
-		return String.valueOf(getId());
+		return "Working set #" + id + ": " + name + " (" + generationID + ")"; 
 	}
 	
 	public String getNotes() {
@@ -385,6 +391,28 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	
 	public void setNotes(String notes) {
 		this.notes = notes;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (generationID ^ (generationID >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		WorkingSet other = (WorkingSet) obj;
+		if (generationID != other.generationID)
+			return false;
+		return true;
 	}
 
 }
