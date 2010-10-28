@@ -27,10 +27,12 @@ import java.util.Set;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
+import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.solertium.lwxml.shared.GenericCallback;
@@ -493,28 +495,28 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	}
 	
 	public String getCategoryFuzzyResult() {
-		//FIXME
-		return null;
+		Field field = getField(CanonicalNames.RedListFuzzyResult);
+		if (field == null)
+			return "";
+		else
+			return field.getPrimitiveField("text").getRawValue();
 	}
 	
 	public String getCategoryCriteria() {
-		//FIXME
-		return null;
+		RedListCriteriaField field = new RedListCriteriaField(getField(CanonicalNames.RedListCriteria));
+		return field.getGeneratedCriteria();
 	}
 	
 	public String getCrCriteria() {
-		//FIXME
-		return null;
+		return "TODO";
 	}
 	
 	public String getEnCriteria() {
-		//FIXME
-		return null;
+		return "TODO";
 	}
 	
 	public String getVuCriteria() {
-		//FIXME
-		return null;
+		return "TODO";
 	}
 	
 	private Map<String, Field> keyToField;
@@ -645,16 +647,34 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	
 	public void setCategoryCriteria(String criteriaString) {
 		// TODO Auto-generated method stub
-		
+		RedListCriteriaField field = new RedListCriteriaField(getField(CanonicalNames.RedListCriteria));
+		field.setGeneratedCriteria(criteriaString);
 	}
+	
 	public void setCrCriteria(String criteriaStringCR) {
 		// TODO Auto-generated method stub
 		
 	}
 	public void setCategoryFuzzyResult(String string) {
-		// TODO Auto-generated method stub
+		Field field = getField(CanonicalNames.RedListFuzzyResult);
+		if (field == null) {
+			field = new Field(CanonicalNames.RedListFuzzyResult, this);
+			getField().add(field);
+		}
 		
+		PrimitiveField value = field.getPrimitiveField("text");
+		if (value == null) {
+			value = new StringPrimitiveField("text", field);
+			field.getPrimitiveField().add(value);
+		}
+		if (string == null) {
+			if (value != null)
+				field.getPrimitiveField().remove(value);
+		}
+		else
+			value.setRawValue(string);
 	}
+	
 	public void setCategoryAbbreviation(String abbreviatedCategory) {
 		// TODO Auto-generated method stub
 		

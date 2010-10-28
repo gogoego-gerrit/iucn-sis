@@ -192,7 +192,10 @@ public class FuzzyExpImpl {
 				}
 			}
 		}
-		return result.substring(1).toString();
+		
+		String value = result.toString();
+		
+		return "".equals(value) ? value : value.substring(1);
 	}
 
 	/**
