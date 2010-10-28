@@ -12,14 +12,18 @@ import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.DataListEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
@@ -254,9 +258,10 @@ public class TrashBinPanel extends LayoutContainer {
 		taxon.setItemId("taxon:");
 		folders.add(taxon);
 
+		
 		folders.addListener(Events.SelectionChange, new Listener() {
 			public void handleEvent(BaseEvent be) {
-				refresh();
+				refreshStore();
 			}
 		});
 		folders.setHeight(300);
@@ -289,11 +294,25 @@ public class TrashBinPanel extends LayoutContainer {
 				for (int i = 0; i < list.getLength(); i++) {
 					TrashedObject ti = new TrashedObject((NativeElement) list.item(i));
 					folderCount.put(ti.getType(), folderCount.get(ti.getType()) + 1);
+					Debug.println("looking for identifier " + ti.getIdentifier());
 					if (!trashedObjects.containsKey(ti.getIdentifier()))
 						trashedObjects.put(ti.getIdentifier(), new ArrayList<TrashedObject>());
 					trashedObjects.get(ti.getIdentifier()).add(ti);
 					
 				}
+				
+				if (!trashedObjects.containsKey("assessment:published")) {
+					trashedObjects.put("assessment:published", new ArrayList<TrashedObject>());
+				}
+				if (!trashedObjects.containsKey("assessment:draft")) {
+					trashedObjects.put("assessment:draft", new ArrayList<TrashedObject>());
+				}
+				if (!trashedObjects.containsKey("taxon:")) {
+					trashedObjects.put("taxon:", new ArrayList<TrashedObject>());
+				}
+				
+				
+				
 				refreshStore();
 				refreshStatus();
 
@@ -304,13 +323,18 @@ public class TrashBinPanel extends LayoutContainer {
 	protected void refreshStore() {
 		store.removeAll();
 		if (folders.getSelectedItem() != null) {
+			Debug.println("looking for " + folders.getSelectedItem().getItemId());
 			if (trashedObjects.containsKey(folders.getSelectedItem().getItemId())) {
+				Debug.println("adding obj " + trashedObjects.get(folders.getSelectedItem().getItemId()));
 				store.add(trashedObjects.get(folders.getSelectedItem().getItemId()));
 			} else {
+				Debug.println("adding all");
 				for (Entry<String, List<TrashedObject>> entry : trashedObjects.entrySet())
 					store.add(entry.getValue());
 			}
 		}
+		
+		
 	}
 
 	@Override
@@ -347,6 +371,16 @@ public class TrashBinPanel extends LayoutContainer {
 			}
 
 			public void onSuccess(String arg0) {
+				
+				int id = 0;
+				if (TaxonomyCache.impl.getCurrentTaxon() != null)
+					id = TaxonomyCache.impl.getCurrentTaxon().getId();
+				TaxonomyCache.impl.clear();
+				if (id != 0 && ClientUIContainer.bodyContainer.getSelectedItem().equals(
+						ClientUIContainer.bodyContainer.tabManager.taxonHomePage)) {
+					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(new Integer(id));
+				}
+				
 				store.remove(trashed);
 				trashedObjects.get(trashed.getIdentifier()).remove(trashed);
 				
