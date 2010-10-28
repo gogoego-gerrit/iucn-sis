@@ -1,11 +1,14 @@
 package org.iucn.sis.client.panels.taxomatic;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.ClientUIContainer;
+import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -34,7 +37,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class CommonNameToolPanel extends HorizontalPanel {
+public class CommonNameToolPanel extends HorizontalPanel implements Referenceable {
 
 	protected final CommonName cn;
 	protected final Taxon taxon;
@@ -125,9 +128,8 @@ public class CommonNameToolPanel extends HorizontalPanel {
 				final Window s = WindowUtils.getWindow(true, true, "Add a references to Common Name" + cn.getName());
 				s.setIconStyle("icon-book");
 				s.setLayout(new FillLayout());
-				// FIXME
-				// ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setReferences(CommonNameDisplay.this);
-
+				
+				ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setReferences(CommonNameToolPanel.this);
 				s.add(ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel);
 
 				s.setSize(850, 550);
@@ -272,5 +274,26 @@ public class CommonNameToolPanel extends HorizontalPanel {
 		s.center();
 
 	}
+
+	@Override
+	public void addReferences(ArrayList<Reference> references, GenericCallback<Object> callback) {
+		TaxonomyCache.impl.addReferencesToCommonNam(taxon, cn, references, callback);
+	}
+
+	@Override
+	public Set<Reference> getReferencesAsList() {
+		return cn.getReference();
+	}
+
+	@Override
+	public void onReferenceChanged(GenericCallback<Object> callback) {
+		// NOT NECESSARY I DON"T THINK
+	}
+
+	@Override
+	public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> listener) {
+		TaxonomyCache.impl.removeReferencesToCommonNam(taxon, cn, references, listener);
+	}
+	
 
 }

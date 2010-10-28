@@ -2,8 +2,10 @@ package org.iucn.sis.client.api.caches;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -11,6 +13,7 @@ import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 
@@ -636,6 +639,54 @@ public class TaxonomyCache {
 			}
 		
 		});
+	}
+	
+	public void addReferencesToCommonName(final Taxon taxon, final CommonName commonName, final Collection<Reference> refs, final GenericCallback<Object> callback) {
+		StringBuilder xml = new StringBuilder("<references>");
+		for (Reference ref : refs) {
+			xml.append("<action id=\"" + ref.getId() + "\">action</action>");
+		}		
+		xml.append("</references>");
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId() + "/reference", xml.toString(), new GenericCallback<String>() {
+
+			@Override
+			public void onSuccess(String result) {
+				commonName.getReference().addAll(refs);
+				callback.onSuccess(result);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		
+		});
+	}
+	
+	public void removeReferencesToCommonName(final Taxon taxon, final CommonName commonName, final Collection<Reference> refs, final GenericCallback<Object> callback) {
+		StringBuilder xml = new StringBuilder("<references>");
+		for (Reference ref : refs) {
+			xml.append("<action id=\"" + ref.getId() + "\">remove</action>");
+		}		
+		xml.append("</references>");
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId() + "/reference", xml.toString(), new GenericCallback<String>() {
+
+			@Override
+			public void onSuccess(String result) {
+				commonName.getReference().removeAll(refs);
+				callback.onSuccess(result);
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		
+		});
+		
+		
 	}
 	
 	public void addOrEditCommonName(final Taxon taxon, final CommonName commonName, final GenericCallback<String> callback) {

@@ -4,7 +4,6 @@ import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.widget.table.TableItem;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -66,7 +65,6 @@ public class TrashedObject extends BaseModelData {
 
 			public void onSuccess(String arg0) {
 				wayback.onSuccess(arg0);
-
 			}
 		});
 	}
