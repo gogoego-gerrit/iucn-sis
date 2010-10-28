@@ -277,7 +277,7 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 
 	@Override
 	public void addReferences(ArrayList<Reference> references, GenericCallback<Object> callback) {
-		TaxonomyCache.impl.addReferencesToCommonNam(taxon, cn, references, callback);
+		TaxonomyCache.impl.addReferencesToCommonName(taxon, cn, references, callback);
 	}
 
 	@Override
@@ -292,7 +292,7 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 
 	@Override
 	public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> listener) {
-		TaxonomyCache.impl.removeReferencesToCommonNam(taxon, cn, references, listener);
+		TaxonomyCache.impl.removeReferencesToCommonName(taxon, cn, references, listener);
 	}
 	
 
