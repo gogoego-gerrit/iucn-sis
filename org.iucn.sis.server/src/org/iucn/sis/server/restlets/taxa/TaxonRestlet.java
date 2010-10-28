@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.server.api.application.SIS;
@@ -300,8 +301,15 @@ public class TaxonRestlet extends ServiceRestlet {
 
 					StringBuilder retXML = new StringBuilder("<nodes>");
 
+					List<Integer> ids = new ArrayList<Integer>();
 					for (Element curEl : list) {
-						retXML.append(SIS.get().getTaxonIO().getTaxonXML(Integer.valueOf(curEl.getTextContent())));
+						ids.add(Integer.valueOf(curEl.getTextContent()));
+						/*retXML.append(SIS.get().getTaxonIO().
+							getTaxonXML(Integer.valueOf(curEl.getTextContent())));*/
+					}
+					
+					for (Taxon taxon : SIS.get().getTaxonIO().getTaxa(ids.toArray(new Integer[ids.size()]), false)) {
+						retXML.append(taxon.toXML());
 					}
 
 					retXML.append("</nodes>");
