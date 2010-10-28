@@ -17,6 +17,7 @@ import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DefinitionPanel;
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
@@ -45,7 +46,6 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.shared.GWTNotFoundException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -122,32 +122,23 @@ public abstract class Display implements Referenceable {
 
 	@Override
 	public void addReferences(ArrayList<Reference> references, final GenericCallback<Object> callback) {
-		/*
-		 * Should never happen, but just to be on the safe side.
-		 */
-		if (!isSaved()) {
-			WindowUtils.errorAlert("Please save this field first before adding references.");
-			callback.onFailure(new GWTNotFoundException());
-		}
-		else {
-			ReferenceCache.getInstance().addReferences(references);
-			
-			field.setAssessment(AssessmentCache.impl.getCurrentAssessment());
-	
-			ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, field, new GenericCallback<Object>() {
-				public void onSuccess(Object result) {
-					if (field != null && field.getReference().size() == 0)
-						refIcon.setUrl("images/icon-book-grey.png");
-					else
-						refIcon.setUrl("images/icon-book.png");
-					
-					callback.onSuccess(result);
-				}
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-			});
-		}
+		ReferenceCache.getInstance().addReferences(references);
+		
+		field.setAssessment(AssessmentCache.impl.getCurrentAssessment());
+
+		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, field, new GenericCallback<Object>() {
+			public void onSuccess(Object result) {
+				if (field != null && field.getReference().size() == 0)
+					refIcon.setUrl("images/icon-book-grey.png");
+				else
+					refIcon.setUrl("images/icon-book.png");
+				
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
 	}
 
 	public void addStructure(DisplayStructure structureToAdd) {
@@ -419,22 +410,63 @@ public abstract class Display implements Referenceable {
 					+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
 		}*/
 	}
+	
+	private void assignIDToField(final GenericCallback<Object> callback) {
+		if (isSaved())
+			callback.onSuccess(null);
+		
+		final WindowUtils.MessageBoxListener listener = new WindowUtils.SimpleMessageBoxListener() {
+			public void onYes() {
+				Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+				initializeField();
+				assessment.getField().add(field);
+				
+				try {
+					AssessmentClientSaveUtils.saveAssessment(null, assessment, new GenericCallback<Object>() {
+						public void onSuccess(Object result) {
+							Debug.println("New ID assigned to field {0}: {1}", canonicalName, field.getId());
+							callback.onSuccess(result);
+						}
+						public void onFailure(Throwable caught) {
+							WindowUtils.errorAlert("Could not load field information, " +
+								"please try saving this assessment first before continuing.");
+							callback.onFailure(caught);
+						}
+					});
+				} catch (InsufficientRightsException e) {
+					callback.onFailure(e);
+				}
+			}
+		};
+		
+		//WindowUtils.confirmAlert("Confirm", "You must save your changes before continuing.  Proceed?", listener);
+		//Do we want to prompt before doing a server trip?
+		listener.onYes();
+	}
 
 	protected void openEditViewNotesPopup() {
-		if (!isSaved()) {
-			WindowUtils.errorAlert("Please save your changes before adding notes.");
-			return;
-		}
-		
-		NotesViewer.open(field, new SimpleListener() {
-			public void handleEvent() {
-				List<Notes> list = NotesCache.impl.getNotesForCurrentAssessment(field);
-				if (list == null || list.isEmpty())
-					notesIcon.setUrl("images/icon-note-grey.png");
-				else
-					notesIcon.setUrl("images/icon-note.png");
+		final GenericCallback<Object> callback = new GenericCallback<Object>() {
+			public void onSuccess(Object result) {
+				Debug.println("Field saved, now it has an ID of {0}", field.getId());
+				NotesViewer.open(field, new SimpleListener() {
+					public void handleEvent() {
+						List<Notes> list = NotesCache.impl.getNotesForCurrentAssessment(field);
+						if (list == null || list.isEmpty())
+							notesIcon.setUrl("images/icon-note-grey.png");
+						else
+							notesIcon.setUrl("images/icon-note.png");
+					}
+				});
 			}
-		});
+			public void onFailure(Throwable caught) {
+				//methinks this is already alerted elsewhere...
+			}
+		};
+		
+		if (isSaved())
+			callback.onSuccess(null);
+		else
+			assignIDToField(callback);
 	}
 
 	private void rebuildIconPanel() {
@@ -474,28 +506,23 @@ public abstract class Display implements Referenceable {
 	}
 
 	public void removeReferences(ArrayList<Reference> references, final GenericCallback<Object> callback) {
-		if (!isSaved()) {
-			WindowUtils.errorAlert("Please save this field first before removing references.");
-		}
-		else {
-			try {
-				AssessmentClientSaveUtils.saveAssessment(new GenericCallback<Object>() {
-					public void onSuccess(Object result) {
-						if (field != null && field.getReference().size() == 0)
-							refIcon.setUrl("images/icon-book-grey.png");
-						else
-							refIcon.setUrl("images/icon-book.png");
-						
-						callback.onSuccess(result);
-					}
-					public void onFailure(Throwable caught) {
-						callback.onFailure(caught);
-					}
-				});
-			} catch (InsufficientRightsException e) {
-				WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
-						+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
-			}
+		try {
+			AssessmentClientSaveUtils.saveAssessment(new GenericCallback<Object>() {
+				public void onSuccess(Object result) {
+					if (field != null && field.getReference().size() == 0)
+						refIcon.setUrl("images/icon-book-grey.png");
+					else
+						refIcon.setUrl("images/icon-book.png");
+					
+					callback.onSuccess(result);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		} catch (InsufficientRightsException e) {
+			WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
+					+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
 		}
 	}
 
@@ -555,23 +582,29 @@ public abstract class Display implements Referenceable {
 			refIcon.setStyleName("SIS_iconPanelIcon");
 			refIcon.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
-					if (!isSaved()) {
-						WindowUtils.errorAlert("Please save this field first before adding references.");
-					}
-					else {
-						GenericCallback<Object> callback = new GenericCallback<Object>() {
-							public void onFailure(Throwable caught) {
-								WindowUtils.errorAlert("Error!", "Error committing changes to the "
-										+ "server. Ensure you are connected to the server, then try " + "the process again.");
-							}
-		
-							public void onSuccess(Object result) {
-								rebuildIconPanel();
-							}
-						};
-						SISClientBase.getInstance().onShowReferenceEditor("Add a references to " + canonicalName, 
-								Display.this, callback, callback);
-					}
+					final GenericCallback<Object> callback = new GenericCallback<Object>() {
+						public void onSuccess(Object result) {
+							GenericCallback<Object> listener = new GenericCallback<Object>() {
+								public void onFailure(Throwable caught) {
+									WindowUtils.errorAlert("Error!", "Error committing changes to the "
+											+ "server. Ensure you are connected to the server, then try " + "the process again.");
+								}
+			
+								public void onSuccess(Object result) {
+									rebuildIconPanel();
+								}
+							};
+							SISClientBase.getInstance().onShowReferenceEditor("Add a references to " + canonicalName, 
+									Display.this, listener, listener);
+						}
+						public void onFailure(Throwable caught) {
+						}
+					};
+					
+					if (!isSaved())
+						assignIDToField(callback);
+					else
+						callback.onSuccess(null);
 				}
 			});
 		}

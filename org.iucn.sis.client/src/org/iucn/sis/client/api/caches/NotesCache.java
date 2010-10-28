@@ -34,6 +34,13 @@ public class NotesCache {
 		noteMap = new HashMap<String, HashMap<String, List<Notes>>>();
 	}
 
+	/**
+	 * Add a note to a saved field.  Don't send me a field that's not saved.
+	 * @param field
+	 * @param note
+	 * @param assessment
+	 * @param callback
+	 */
 	public void addNote(final Field field, Notes note, final Assessment assessment, final GenericCallback<String> callback) {
 		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, assessment)) {
 			WindowUtils.errorAlert("You do not have sufficient permissions to perform " + "this operation.");
