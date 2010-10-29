@@ -71,8 +71,7 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 						@Override
 						public void onSuccess(String result) {
 							WindowUtils.infoAlert("Successful delete of common name " + cn.getName());
-							ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(cn
-									.getTaxon().getId());
+							ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
 						}
 
 						@Override
