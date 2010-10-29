@@ -376,6 +376,7 @@ public class TrashBinPanel extends LayoutContainer {
 				if (TaxonomyCache.impl.getCurrentTaxon() != null)
 					id = TaxonomyCache.impl.getCurrentTaxon().getId();
 				TaxonomyCache.impl.clear();
+				AssessmentCache.impl.clear();
 				if (id != 0 && ClientUIContainer.bodyContainer.getSelectedItem().equals(
 						ClientUIContainer.bodyContainer.tabManager.taxonHomePage)) {
 					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(new Integer(id));
