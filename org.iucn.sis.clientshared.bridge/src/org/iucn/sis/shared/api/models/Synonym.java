@@ -259,7 +259,7 @@ public class Synonym implements Serializable {
 	}
 
 	public String getFriendlyName() {
-		if (friendlyName == null) {
+		if (friendlyName == null || friendlyName.trim().equals("")) {
 			generateFriendlyName();
 		}
 		return friendlyName;
