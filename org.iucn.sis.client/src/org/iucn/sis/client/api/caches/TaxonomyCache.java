@@ -549,7 +549,7 @@ public class TaxonomyCache {
 						toRemove = s;
 						break;
 					}
-				
+				taxon.getSynonyms().remove(toRemove);
 				callback.onSuccess(result);
 			}
 		
