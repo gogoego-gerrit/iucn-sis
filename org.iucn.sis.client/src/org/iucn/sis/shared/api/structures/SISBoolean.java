@@ -67,7 +67,7 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 	}
 
 	public String getData() {
-		return new Boolean(checkbox.isChecked()).toString();
+		return checkbox.getValue().booleanValue() ? "true" : null;
 	}
 	
 	@Override
