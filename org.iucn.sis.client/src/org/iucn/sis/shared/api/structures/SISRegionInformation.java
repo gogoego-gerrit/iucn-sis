@@ -3,18 +3,14 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.fields.RegionField;
-import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -63,43 +59,24 @@ public class SISRegionInformation extends Structure<Field> {
 		
 		save(null, fauxRegions);
 		
-		if (field == null || field.getPrimitiveField().size() != fauxRegions.getPrimitiveField().size())
-			return fauxRegions.hasData();
-		
-		Map<String, PrimitiveField> savedFields = fauxRegions.getKeyToPrimitiveFields();
-		for (Map.Entry<String, PrimitiveField> entry : savedFields.entrySet()) {
-			PrimitiveField oldPrimField = field.getPrimitiveField(entry.getKey());
-			if (oldPrimField == null) {
-				Debug.println("HasChanged in RegionInfo: DB missing new value for {0} of {1}", entry.getKey(), entry.getValue().getRawValue());
-				return true;
-			}
-			
-			String oldValue = oldPrimField.getRawValue();
-			if ("".equals(oldValue))
-				oldValue = null;
-			
-			String newValue = entry.getValue().getRawValue();
-			if ("".equals(newValue))
-				newValue = null;
-						
-			boolean hasChanged = false;
-			if (newValue == null) {
-				if (oldValue != null)
-					hasChanged = true;
-			} else {
-				if (oldValue == null)
-					hasChanged = true;
-				else if (!newValue.equals(oldValue))
-					hasChanged = true;
-			}
-			
-			Debug.println("HasChanged in RegionInfo: Interrogating {0} with DB value {1} and child value {2}, result is {3}", entry.getKey(), oldValue, newValue, hasChanged);
-			
-			if (hasChanged)
-				return hasChanged;
+		if (field == null) {
+			boolean childHasData = fauxRegions.hasData();
+			if (childHasData)
+				Debug.println("HasChanged in RegionInfo: DB has null value, but child hasData, there are {0} primitive fields: \n{1}", fauxRegions.getPrimitiveField().size(), fauxRegions.getKeyToPrimitiveFields().keySet());
+			else
+				Debug.println("HasChanged in RegionInfo: DB has null value, child has no data, no changes.");
+			return childHasData;
 		}
 		
-		return false;
+		RegionField dbProxy = new RegionField(field);
+		RegionField localProxy = new RegionField(fauxRegions);
+		
+		Debug.println("DB Data: endemic: {0}, regions: {1}", dbProxy.isEndemic(), dbProxy.getRegionIDs());
+		Debug.println("Local Data: endemic: {0}, regions: {1}", localProxy.isEndemic(), localProxy.getRegionIDs());
+		
+		return !(dbProxy.isEndemic() == localProxy.isEndemic() && 
+			dbProxy.getRegionIDs().containsAll(localProxy.getRegionIDs()) && 
+			dbProxy.getRegionIDs().size() == localProxy.getRegionIDs().size());
 	}
 	
 	@Override
@@ -208,7 +185,7 @@ public class SISRegionInformation extends Structure<Field> {
 	protected void checkEndemicEnabled() {
 		for( Entry<ComboBox<RegionModel>, RegionModel> cur : boxesToSelected.entrySet() ) {
 			if (cur.getValue() != null && cur.getValue().getRegion().getId() == Region.GLOBAL_ID) {
-					endemic.setChecked(true);
+					endemic.setValue(true);
 					endemic.setEnabled(false);
 					return;
 				
