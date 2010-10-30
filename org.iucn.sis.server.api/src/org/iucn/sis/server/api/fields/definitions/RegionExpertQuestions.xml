@@ -4,8 +4,8 @@
 	<description>Regional Expert Questions</description>
 	<classOfService>Documentation</classOfService>
 	<structures>
-		<structure>
-			<regionalQuestions id="answers" />
+		<structure id="answers">
+			<regionalQuestions />
 		</structure>
 	</structures>
 </field>

@@ -6,7 +6,7 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.panels.RegionalExpertWidget;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
@@ -23,7 +23,7 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 	
 	@Override
 	protected PrimitiveField<String> getNewPrimitiveField() {
-		return new StringPrimitiveField(getId(), null);
+		return new TextPrimitiveField(getId(), null);
 	}
 	
 	@Override
