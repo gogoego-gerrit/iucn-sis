@@ -173,7 +173,6 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		}
 		
 		if (field.getPrimitiveField().size() != fauxChild.getPrimitiveField().size()) {
-			Debug.println("HasChanged in RLCat&Crit: DB has {0} prims, but child has {1}, there are changes\nDB: {2}\nChild: {3}", field.getPrimitiveField().size(), fauxChild.getPrimitiveField().size(), field.getKeyToPrimitiveFields().keySet(), fauxChild.getKeyToPrimitiveFields().keySet());
 			return true;
 		}
 		

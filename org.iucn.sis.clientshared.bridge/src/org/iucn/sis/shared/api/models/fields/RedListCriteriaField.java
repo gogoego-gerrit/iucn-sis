@@ -44,7 +44,7 @@ public class RedListCriteriaField extends ProxyField {
 	}
 	
 	public void setCriteriaVersion(Integer version) {
-		setForeignKeyPrimitiveField(CRIT_VERSION_KEY, version);
+		setForeignKeyPrimitiveField(CRIT_VERSION_KEY, version.intValue() == 0 ? null : version);
 	}
 	
 	public Integer getCriteriaVersion() {
