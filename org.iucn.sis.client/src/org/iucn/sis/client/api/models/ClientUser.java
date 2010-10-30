@@ -1,17 +1,13 @@
 package org.iucn.sis.client.api.models;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 
-import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.User;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
-import com.solertium.lwxml.shared.NativeNodeList;
 
 public class ClientUser extends User {
 	
@@ -28,8 +24,6 @@ public class ClientUser extends User {
 		properties.put(key, value);
 	}
 	
-	
-	
 	public NativeDocument getHttpBasicNativeDocument() {
 		NativeDocument doc = NativeDocumentFactory.newNativeDocument();
 		doc.setHeader("Authorization", "Basic " + auth);
@@ -42,51 +36,23 @@ public class ClientUser extends User {
 	}
 	
 	public static ClientUser fromXML(NativeElement element) {
-			
-		ClientUser user = new ClientUser();
-		user.setId(Integer.valueOf(element.getElementsByTagName("id").elementAt(0).getTextContent()));
-		user.setProperty("id", user.getId()+"");
+		ClientUser target = new ClientUser();
 		
-		user.setUsername(element.getElementsByTagName("username").elementAt(0).getTextContent());
-		user.setProperty("username", user.getUsername());
-		user.setEmail(element.getElementsByTagName("email").elementAt(0).getTextContent());
-		user.setProperty("email", user.getEmail());
+		User.fromXML(element, target);
 		
-		//FULL XML
-		if (element.getElementsByTagName("state").getLength() > 0) {
-			user.setState(Integer.valueOf(element.getElementsByTagName("state").elementAt(0).getTextContent()));
-			user.setProperty("state", user.getState() + "");
-			user.setFirstName(element.getElementsByTagName("firstName").elementAt(0).getTextContent());
-			user.setProperty("firstName", user.getFirstName());
-			user.setLastName(element.getElementsByTagName("lastName").elementAt(0).getTextContent());
-			user.setProperty("lastName",user.getLastName());
-			user.setInitials(element.getElementsByTagName("initials").elementAt(0).getTextContent());
-			user.setProperty("initials", user.getInitials());
-			user.setAffiliation(element.getElementsByTagName("affiliation").elementAt(0).getTextContent());
-			user.setProperty("affiliation", user.getAffiliation());
-			user.setSisUser("true".equalsIgnoreCase(element.getElementsByTagName("sisUser").elementAt(0).getTextContent()));
-			user.setProperty("sisUser", user.getSisUser().toString());
-			user.setRapidlistUser("true".equalsIgnoreCase(element.getElementsByTagName("rapidListUser").elementAt(0).getTextContent()));
-			user.setProperty("rapidListUser", user.getRapidlistUser().toString());
-			
-		}
+		target.setProperty("id", target.getId()+"");
+		target.setProperty("username", target.getUsername());
+		target.setProperty("email", target.getEmail());
+		target.setProperty("state", target.getState() + "");
+		target.setProperty("firstName", target.getFirstName());
+		target.setProperty("lastName",target.getLastName());
+		target.setProperty("initials", target.getInitials());
+		target.setProperty("affiliation", target.getAffiliation());
+		target.setProperty("sisUser", target.getSisUser().toString());
+		target.setProperty("rapidListUser", target.getRapidlistUser().toString());
+		target.setProperty("quickgroup", target.getQuickGroupString());
 		
-		//FULL XML
-		NativeNodeList permGroups = element.getElementsByTagName(PermissionGroup.ROOT_TAG);
-		for (int i = 0; i < permGroups.getLength(); i++) {
-			user.getPermissionGroups().add(PermissionGroup.fromXML(permGroups.elementAt(i)));
-		}
-		
-		HashSet<PermissionGroup> groups =new HashSet<PermissionGroup>();
-		for (PermissionGroup group : user.getPermissionGroups()) {
-			groups.add(AuthorizationCache.impl.getIdToGroups().get(Integer.valueOf(group.getId())));
-		}
-		user.setPermissionGroups(groups);
-		
-		user.setProperty("quickgroup", user.getQuickGroupString());
-		
-		return user;
-		
+		return target;
 	}
 	
 	/**

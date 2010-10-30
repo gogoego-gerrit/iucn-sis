@@ -15,8 +15,12 @@ package org.iucn.sis.shared.api.models;
 import java.io.Serializable;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.portable.XMLWritingUtils;
 public class User implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS*/
 	public final static String ROOT_TAG = "user";
@@ -33,38 +37,32 @@ public class User implements Serializable {
 	
 	public String toXML() {
 		StringBuilder xml = new StringBuilder("<" + ROOT_TAG + ">");
-		xml.append("<id>" + getId() + "</id>");
-		xml.append("<state>" + getState() + "</state>");
-		xml.append("<username><![CDATA[" + getUsername() + "]]></username>");
-		xml.append("<firstName><![CDATA[" + getFirstName() + "]]></firstName>");
-		xml.append("<lastName><![CDATA[" + getLastName() + "]]></lastName>");
-		xml.append("<initials><![CDATA[");
-		xml.append((getInitials() == null)? "" : getInitials());
-		xml.append("]]></initials>");
-		xml.append("<affiliation><![CDATA[" + getAffiliation() + "]]></affiliation>");
-		xml.append("<sisUser><![CDATA[" + isSISUser() + "]]></sisUser>");
-		xml.append("<rapidListUser><![CDATA[" + getRapidlistUser() + "]]></rapidListUser>");
-		xml.append("<email><![CDATA[" + getEmail() + "]]></email>");
+		xml.append(XMLWritingUtils.writeTag("id", getId()+""));
+		xml.append(XMLWritingUtils.writeTag("state", getState()+"", true));
+		xml.append(XMLWritingUtils.writeCDATATag("username", username));
+		xml.append(XMLWritingUtils.writeCDATATag("firstName", firstName, true));
+		xml.append(XMLWritingUtils.writeCDATATag("lastName", lastName, true));
+		xml.append(XMLWritingUtils.writeCDATATag("initials", initials, true));
+		xml.append(XMLWritingUtils.writeCDATATag("affiliation", affiliation, true));
+		xml.append(XMLWritingUtils.writeCDATATag("sisUser", getSisUser() == null ? null : getSisUser()+"", true));
+		xml.append(XMLWritingUtils.writeCDATATag("rapidListUser", getRapidlistUser() == null ? null : getRapidlistUser()+"", true));
+		xml.append(XMLWritingUtils.writeCDATATag("email", email, true));
 		xml.append("</" + ROOT_TAG + ">");
 		return xml.toString();		
 	}
 	
 	public String toFullXML() {
 		StringBuilder xml = new StringBuilder("<" + ROOT_TAG + ">");
-		
-		xml.append("<id>" + getId() + "</id>");
-		xml.append("<state>" + getState() + "</state>");
-		xml.append("<username><![CDATA[" + getUsername() + "]]></username>");
-		xml.append("<firstName><![CDATA[" + getFirstName() + "]]></firstName>");
-		xml.append("<lastName><![CDATA[" + getLastName() + "]]></lastName>");
-		xml.append("<initials><![CDATA[");
-		xml.append((getInitials() == null)? "" : getInitials());
-		xml.append("]]></initials>");
-		xml.append("<affiliation><![CDATA[" + getAffiliation() + "]]></affiliation>");
-		xml.append("<sisUser><![CDATA[" + isSISUser() + "]]></sisUser>");
-		xml.append("<rapidListUser><![CDATA[" + getRapidlistUser() + "]]></rapidListUser>");
-		xml.append("<email><![CDATA[" + getEmail() + "]]></email>");
-		
+		xml.append(XMLWritingUtils.writeTag("id", getId()+""));
+		xml.append(XMLWritingUtils.writeTag("state", getState()+"", true));
+		xml.append(XMLWritingUtils.writeCDATATag("username", username));
+		xml.append(XMLWritingUtils.writeCDATATag("firstName", firstName, true));
+		xml.append(XMLWritingUtils.writeCDATATag("lastName", lastName, true));
+		xml.append(XMLWritingUtils.writeCDATATag("initials", initials, true));
+		xml.append(XMLWritingUtils.writeCDATATag("affiliation", affiliation, true));
+		xml.append(XMLWritingUtils.writeCDATATag("sisUser", getSisUser() == null ? null : getSisUser()+"", true));
+		xml.append(XMLWritingUtils.writeCDATATag("rapidListUser", getRapidlistUser() == null ? null : getRapidlistUser()+"", true));
+		xml.append(XMLWritingUtils.writeCDATATag("email", email, true));
 		
 		for (PermissionGroup group : getPermissionGroups()) {
 			xml.append(group.toXML());
@@ -86,20 +84,39 @@ public class User implements Serializable {
 	
 	
 	public static User fromXML(NativeElement element) {
-		User user = new User();
-		user.setId(Integer.valueOf(element.getElementsByTagName("id").elementAt(0).getTextContent()));
-		user.setUsername(element.getElementsByTagName("username").elementAt(0).getTextContent());
-		user.setEmail(element.getElementsByTagName("email").elementAt(0).getTextContent());
+		final User user = new User();
 		
-		//REGULAR XML
-		if (element.getElementsByTagName("state").getLength() > 0) {
-			user.setState(Integer.valueOf(element.getElementsByTagName("state").elementAt(0).getTextContent()));
-			user.setFirstName(element.getElementsByTagName("firstName").elementAt(0).getTextContent());
-			user.setLastName(element.getElementsByTagName("lastName").elementAt(0).getTextContent());
-			user.setInitials(element.getElementsByTagName("initials").elementAt(0).getTextContent());
-			user.setAffiliation(element.getElementsByTagName("affiliation").elementAt(0).getTextContent());
-			user.setSisUser("true".equalsIgnoreCase(element.getElementsByTagName("sisUser").elementAt(0).getTextContent()));
-			user.setRapidlistUser("true".equalsIgnoreCase(element.getElementsByTagName("rapidListUser").elementAt(0).getTextContent()));
+		fromXML(element, user);
+		
+		return user;
+	}
+	
+	public static void fromXML(NativeElement element, User user) {
+		final NativeNodeList nodes = element.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			final NativeNode node = nodes.item(i);
+			final String name = node.getNodeName();
+			final String value = node.getTextContent();
+			if ("id".equals(name))
+				user.setId(Integer.valueOf(value));
+			else if ("username".equals(name))
+				user.setUsername(value);
+			else if ("email".equals(name))
+				user.setEmail(value);
+			else if ("affiliation".equals(name))
+				user.setAffiliation(value);
+			else if ("state".equals(name))
+				user.setState(Integer.valueOf(value));
+			else if ("firstName".equals(name))
+				user.setFirstName(value);
+			else if ("lastName".equals(name))
+				user.setLastName(value);
+			else if ("initials".equals(name))
+				user.setInitials(value);
+			else if ("sisUser".equals(name))
+				user.setSisUser("true".equals(value));
+			else if ("rapidListUser".equals(name))
+				user.setRapidlistUser("true".equals(value));
 		}
 		
 		//FULL XML
@@ -107,35 +124,31 @@ public class User implements Serializable {
 		for (int i = 0; i < permGroups.getLength(); i++) {
 			user.getPermissionGroups().add(PermissionGroup.fromXML(permGroups.elementAt(i)));
 		}
-		
-		
-		return user;
-		
 	}
 	
-	
-	
 	public String getCitationName() {
-		String name = "";
-		String firstName = "";
+		String firstName;
 		if (initials != null && !initials.equalsIgnoreCase(""))
-			firstName = initials;
+			firstName = ", " + initials;
 		else if (this.firstName != null && this.firstName.length() > 0)
-			firstName = this.firstName.charAt(0) + ".";
+			firstName = ", " + this.firstName.charAt(0) + ".";
+		else
+			firstName = "";
 
-		if (lastName != null) {
-			name += lastName + ", ";
-		}
-
-		name += firstName;
-		return name;
+		return lastName == null ? firstName : lastName + firstName;
 	}
 	
 	public String getDisplayableName() {
-		if (firstName == null && lastName == null)
+		if (firstName != null && lastName != null)
+			return firstName + " " + lastName;
+		else if (firstName == null && lastName == null)
 			return email;
+		else if (firstName == null)
+			return lastName;
+		else if (lastName == null)
+			return firstName;
 		else
-			return this.firstName + " " + this.lastName;
+			return "(No name supplied)"; //Unreachable
     }
 	
 	public boolean isSISUser() {
@@ -229,7 +242,7 @@ public class User implements Serializable {
 	}
 	
 	public void setFirstName(String value) {
-		this.firstName = value;
+		this.firstName = nullIfStated(value);
 	}
 	
 	public String getFirstName() {
@@ -237,7 +250,7 @@ public class User implements Serializable {
 	}
 	
 	public void setLastName(String value) {
-		this.lastName = value;
+		this.lastName = nullIfStated(value);
 	}
 	
 	public String getLastName() {
@@ -245,7 +258,7 @@ public class User implements Serializable {
 	}
 	
 	public void setInitials(String value) {
-		this.initials = value;
+		this.initials = nullIfStated(value);
 	}
 	
 	public String getInitials() {
@@ -253,7 +266,7 @@ public class User implements Serializable {
 	}
 	
 	public void setAffiliation(String value) {
-		this.affiliation = value;
+		this.affiliation = nullIfStated(value);
 	}
 	
 	public String getAffiliation() {
@@ -322,6 +335,10 @@ public class User implements Serializable {
 	
 	public String toString() {
 		return String.valueOf(getId());
+	}
+	
+	private String nullIfStated(String value) {
+		return value == null || "null".equals(value) ? null : value;
 	}
 	
 }
