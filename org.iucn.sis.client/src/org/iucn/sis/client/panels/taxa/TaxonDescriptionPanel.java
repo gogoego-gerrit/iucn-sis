@@ -81,7 +81,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -199,7 +198,6 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 							wrapper.add(vp, DockPanel.CENTER);
 							wrapper.setSize("100%", "100%");
 							
-							removeAll();
 							add(wrapper);
 							
 							callback.isDrawn();
@@ -654,33 +652,22 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 		}
 	}
 	
-	private Widget getCommonNameDisplay(CommonName curName, Taxon node) {
-		HorizontalPanel hp = new HorizontalPanel();
-		
-		String displayString = "&nbsp;&nbsp;" + curName.getName() ;
-		if (curName.getIso() != null) {
-			displayString += " -- " + curName.getLanguage();
-		}
-		
-		HTML html = new HTML(displayString);
-		if (curName.getChangeReason() == CommonName.DELETED) {
-			html.addStyleName("deleted");
-		} else {
-			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
-				CommonNameToolPanel cntp = new CommonNameToolPanel(curName, node);
-				hp.add(cntp);
-			}
-		}
-		hp.add(html);
-		return hp;
-	}
-	
 	private void addCommonNames(final Taxon node, LayoutContainer data, int loop) {
 		for (final CommonName curName : node.getCommonNames()) {
 			loop--;
 			if (loop < 0)
-				break;			
-			data.add(getCommonNameDisplay(curName, node));
+				break;
+			HorizontalPanel hp = new HorizontalPanel();
+			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+				CommonNameToolPanel cntp = new CommonNameToolPanel(curName, node);
+				hp.add(cntp);
+			}
+
+			HTML html = new HTML("&nbsp;&nbsp;" + curName.getName());
+			if (curName.getChangeReason() == CommonName.DELETED)
+				html.addStyleName("deleted");
+			hp.add(html);
+			data.add(hp);
 		}
 
 		HTML viewAll = new HTML("View all...");
@@ -727,7 +714,15 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 
 				if (TaxonomyCache.impl.getCurrentTaxon().getCommonNames().size() != 0) {
 					for (CommonName curName : TaxonomyCache.impl.getCurrentTaxon().getCommonNames()) {
-						container.add(getCommonNameDisplay(curName, node));
+						HorizontalPanel panel = new HorizontalPanel();
+						if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
+							panel.add(new CommonNameToolPanel(curName, taxon));
+						HTML html = new HTML(curName.getName());
+						if (curName.getChangeReason() == CommonName.DELETED)
+							html.addStyleName("deleted");
+						panel.add(html);
+						
+						container.add(panel);
 					}
 				} else
 					container.add(new HTML("No Common Names."));
