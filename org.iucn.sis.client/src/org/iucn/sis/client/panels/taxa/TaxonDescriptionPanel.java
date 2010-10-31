@@ -119,7 +119,6 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 	}
 	
 	public void updatePanel(final DrawsLazily.DoneDrawingCallback callback) {
-		removeAll();
 		if (taxon != null) {
 			AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, taxon.getId()),
 					new GenericCallback<String>() {
@@ -200,6 +199,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 							wrapper.add(vp, DockPanel.CENTER);
 							wrapper.setSize("100%", "100%");
 							
+							removeAll();
 							add(wrapper);
 							
 							callback.isDrawn();
