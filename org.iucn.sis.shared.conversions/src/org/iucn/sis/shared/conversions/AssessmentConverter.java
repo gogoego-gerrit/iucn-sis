@@ -33,8 +33,6 @@ import org.iucn.sis.shared.api.models.primitivefields.IntegerPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.RangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
-import org.iucn.sis.shared.api.structures.SISLivelihoods;
-import org.iucn.sis.shared.api.structures.UseTrade;
 import org.iucn.sis.shared.data.assessments.AssessmentData;
 import org.iucn.sis.shared.data.assessments.AssessmentParser;
 import org.iucn.sis.shared.data.assessments.CanonicalNames;
@@ -178,7 +176,7 @@ public class AssessmentConverter {
 					String subfieldName = curField.getKey().equals(CanonicalNames.UseTradeDetails) ? 
 							"UseTradeSubfield" : "LivelihoodsSubfield";
 					int subfieldDataSize = curField.getKey().equals(CanonicalNames.UseTradeDetails) ? 
-							UseTrade.generateDefaultDataList().size() : SISLivelihoods.generateDefaultDataList().size();
+							10 : 18;
 					
 					Integer numStresses = dataList.get(0).matches("\\d") ? Integer.valueOf(dataList.get(0)) : 0;
 					dataList.remove(0);
@@ -373,6 +371,12 @@ public class AssessmentConverter {
 								}
 							}
 						}
+					} else if (prim instanceof BooleanPrimitiveField) {
+						//Don't store false/null values
+						if (curPrimitive == null || "false".equals(curPrimitive.toLowerCase()))
+							prim = null;
+						else
+							prim.setRawValue(curPrimitive);
 					} else {
 						try {
 							prim.setRawValue(curPrimitive);
@@ -386,9 +390,11 @@ public class AssessmentConverter {
 						}
 					}
 					
-					prim.setField(field);
-					prim.setName(curRow.get("name").getString());
-					field.getPrimitiveField().add(prim);
+					if (prim != null) {
+						prim.setField(field);
+						prim.setName(curRow.get("name").getString());
+						field.getPrimitiveField().add(prim);
+					}
 					
 					if( lookup.getSet().size() > i+1 ) {
 						i++;
