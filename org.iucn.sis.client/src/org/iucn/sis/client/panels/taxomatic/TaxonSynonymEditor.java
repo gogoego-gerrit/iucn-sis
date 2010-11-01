@@ -322,7 +322,8 @@ public class TaxonSynonymEditor extends LayoutContainer {
 						bar.enable();
 						WindowUtils.infoAlert("Saved", "Synonym has been deleted.");
 						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-						
+						allSynonyms.clear();
+						allSynonyms.addAll(node.getSynonyms());
 						refreshListBox();
 						refreshSynonym(currentSynonym);
 				
