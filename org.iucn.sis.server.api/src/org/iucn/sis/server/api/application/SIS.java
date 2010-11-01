@@ -1,6 +1,7 @@
 package org.iucn.sis.server.api.application;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -167,11 +168,14 @@ public class SIS {
 		if (settings != null)
 			return settings;
 		
+		final String rootFolder = 
+			GoGoEgo.getInitProperties().getProperty("sis_settings", 
+					"/ebs/sis/test/files/settings");
+		
 		Properties settings = new Properties();
 		try {
 			settings = new Properties();
-			settings.load(GoGoEgo.get().getFromContext(context).getVFS().
-				getInputStream(new VFSPath("/settings/global.properties")));
+			settings.load(new FileReader(new File(rootFolder + "/global.properties")));
 		} catch (IOException e) {
 			TrivialExceptionHandler.ignore(this, e);
 			return new Properties();

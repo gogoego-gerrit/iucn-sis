@@ -1,5 +1,7 @@
 package org.iucn.sis.server.api.restlets;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
@@ -18,22 +20,16 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 
 import com.solertium.vfs.VFS;
-import com.solertium.vfs.VFSPath;
 
 public class SettingsRestlet extends BaseServiceRestlet {
 
 	private final Collection<String> settings;
-	private final VFSPath uri;
-	
-	private final VFS vfs;
 	
 	public SettingsRestlet(VFS vfs, Context context, Collection<String> settings) {
 		super(vfs, context);
 		
 		//FIXME: this can be split into multiple files per app?
 		this.settings = settings;
-		this.uri = new VFSPath("/settings/global.properties");
-		this.vfs = GoGoEgo.get().getFromContext(context).getVFS();
 	}
 	
 	@Override
@@ -83,16 +79,20 @@ public class SettingsRestlet extends BaseServiceRestlet {
 				properties.setProperty(name, value);
 		}
 		
-		if (!vfs.exists(uri.getCollection())) {
+		final String rootFolder = 
+			GoGoEgo.getInitProperties().getProperty("sis_settings", "/ebs/sis/test/files/settings");
+		
+		File folder = new File(rootFolder);
+		if (!folder.exists()) {
 			try {
-				vfs.makeCollections(uri.getCollection());
-			} catch (IOException e) {
+				folder.mkdirs();
+			} catch (Exception e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 		}
 		
 		try {
-			properties.store(vfs.getOutputStream(uri), null);
+			properties.store(new FileWriter(new File(folder, "global.properties")), null);
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
