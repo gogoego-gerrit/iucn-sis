@@ -11,11 +11,11 @@ import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.HibernateException;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.shared.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.acl.base.PermissionGroup;
-import org.iucn.sis.shared.acl.base.PermissionParser;
-import org.iucn.sis.shared.acl.base.PermissionResource;
 import org.iucn.sis.shared.api.models.Permission;
+import org.iucn.sis.shared.helpers.AuthorizableObject;
+import org.iucn.sis.shared.helpers.PermissionGroup;
+import org.iucn.sis.shared.helpers.PermissionParser;
+import org.iucn.sis.shared.helpers.PermissionResource;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;

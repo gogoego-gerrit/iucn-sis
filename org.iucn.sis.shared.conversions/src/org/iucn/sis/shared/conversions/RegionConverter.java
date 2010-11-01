@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.shared.data.assessments.Region;
+import org.iucn.sis.shared.helpers.Region;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;

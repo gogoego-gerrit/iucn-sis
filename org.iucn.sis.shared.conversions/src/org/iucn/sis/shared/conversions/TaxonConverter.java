@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 
 import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.HibernateException;
-import org.iucn.sis.client.referenceui.ReferenceUI;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.CommonName;
@@ -22,7 +21,11 @@ import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
-import org.iucn.sis.shared.taxonomyTree.CommonNameData;
+import org.iucn.sis.shared.helpers.CommonNameData;
+import org.iucn.sis.shared.helpers.ReferenceUI;
+import org.iucn.sis.shared.helpers.SynonymData;
+import org.iucn.sis.shared.helpers.TaxonNode;
+import org.iucn.sis.shared.helpers.TaxonNodeFactory;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;

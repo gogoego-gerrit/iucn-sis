@@ -1,4 +1,4 @@
-package org.iucn.sis.shared.conversions;
+package org.iucn.sis.shared.broken;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -9,26 +9,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.gogoego.api.utils.DocumentUtils;
-import org.iucn.sis.client.displays.ClassificationScheme;
-import org.iucn.sis.client.displays.Display;
-import org.iucn.sis.client.displays.Field;
-import org.iucn.sis.shared.DisplayData;
-import org.iucn.sis.shared.DisplayDataProcessor;
-import org.iucn.sis.shared.TreeData;
-import org.iucn.sis.shared.TreeDataRow;
-import org.iucn.sis.shared.data.assessments.CanonicalNames;
-import org.iucn.sis.shared.data.assessments.FieldParser;
-import org.iucn.sis.shared.structures.SISCategoryAndCriteria;
-import org.iucn.sis.shared.structures.SISClassificationSchemeStructure;
-import org.iucn.sis.shared.structures.SISLivelihoods;
-import org.iucn.sis.shared.structures.SISMultiSelect;
-import org.iucn.sis.shared.structures.SISOneToMany;
-import org.iucn.sis.shared.structures.SISRelatedStructures;
-import org.iucn.sis.shared.structures.SISSelect;
-import org.iucn.sis.shared.structures.SISStructureCollection;
-import org.iucn.sis.shared.structures.SISThreatStructure;
-import org.iucn.sis.shared.structures.Structure;
-import org.iucn.sis.shared.structures.UseTrade;
 
 import com.solertium.db.DBException;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
@@ -39,7 +19,7 @@ import com.solertium.vfs.VFSFactory;
 
 public class FieldDefinitionConverter {
 
-	private static FieldParser fieldParser;
+	/*private static FieldParser fieldParser;
 	private static HashMap<String, Display> lookupTables = new HashMap<String, Display>();
 	private static VFS vfs;
 	private static Map<String, String> typeLookup = new HashMap<String, String>();
@@ -120,10 +100,6 @@ public class FieldDefinitionConverter {
 		everythingElse.append(command);
 	}
 	
-	/**
-	 * Reads in the Field Definition XML documents and converts to a new format
-	 * that works with the new data model.
-	 */
 	public static void migrateFieldDefinitionsToDB(VFS fs) {
 		vfs = fs;
 		fieldParser = new FieldParser();
@@ -557,5 +533,5 @@ public class FieldDefinitionConverter {
 		} else
 			for (Object obj : curRow.getChildren())
 				insertClassSchemeLookupRow(fieldName, "(root)", scheme, (TreeDataRow) obj, level);
-	}
+	}*/
 }

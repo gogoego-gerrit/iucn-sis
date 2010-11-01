@@ -1,18 +1,14 @@
-package org.iucn.sis.shared.conversions;
+package org.iucn.sis.shared.helpers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.iucn.sis.client.referenceui.ReferenceUI;
-import org.iucn.sis.client.simple.SimpleSISClient;
-import org.iucn.sis.shared.BaseAssessment;
-import org.iucn.sis.shared.LongUtils;
-import org.iucn.sis.shared.taxonomyTree.CommonNameData;
-import org.iucn.sis.shared.taxonomyTree.CommonNameFactory;
-import org.iucn.sis.shared.taxonomyTree.TaxonomyTree;
-import org.iucn.sis.shared.xml.XMLUtils;
+import org.iucn.sis.shared.api.data.LongUtils;
+import org.iucn.sis.shared.conversions.HighLevelTaxonNode;
+import org.iucn.sis.shared.conversions.LowLevelTaxonNode;
 
+import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
@@ -254,7 +250,7 @@ public class TaxonNodeFactory {
 	}
 
 	public static TaxonNode createNode(String xml, TaxonomyTree tree, boolean thin) {
-		NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+		NativeDocument doc = new JavaNativeDocument();
 		doc.parse(xml);
 
 		return createNode(doc);

@@ -1,11 +1,11 @@
-package org.iucn.sis.shared.conversions;
+package org.iucn.sis.shared.helpers;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.iucn.sis.shared.xml.XMLUtils;
+
 
 public class SynonymData {
 

@@ -3,12 +3,7 @@ package org.iucn.sis.shared.helpers;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.iucn.sis.client.referenceui.ReferenceUI;
-import org.iucn.sis.client.simple.SimpleSISClient;
-import org.iucn.sis.shared.BaseAssessment;
-import org.iucn.sis.shared.LongUtils;
-import org.iucn.sis.shared.xml.XMLUtils;
-
+import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
@@ -83,7 +78,7 @@ public class AssessmentParser {
 
 		String dateMod = safeGetElementText(basicInformation, "dateModified", "");
 		if (dateMod.matches("\\d+"))
-			assessment.setDateModified(LongUtils.safeParseLong(dateMod));
+			assessment.setDateModified(org.iucn.sis.shared.api.data.LongUtils.safeParseLong(dateMod));
 
 		assessment.setDateAdded(safeGetElementText(basicInformation, "dateAdded", ""));
 		assessment.setDateFinalized(safeGetElementText(basicInformation, "dateFinalized", ""));
@@ -227,7 +222,7 @@ public class AssessmentParser {
 				contents = "<references>\n<reference id=\"" + cur.getAttribute("id") + "\">" + contents
 						+ "</reference>\n</references>";
 
-				NativeDocument newRef = SimpleSISClient.getHttpBasicNativeDocument();
+				NativeDocument newRef = new JavaNativeDocument();
 				newRef.parse(contents);
 
 				ReferenceUI ref = new ReferenceUI(newRef.getDocumentElement().getElementByTagName("reference"));

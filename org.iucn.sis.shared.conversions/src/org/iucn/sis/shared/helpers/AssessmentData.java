@@ -8,16 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.iucn.sis.client.data.assessments.AssessmentCache;
-import org.iucn.sis.client.referenceui.ReferenceCache;
-import org.iucn.sis.client.referenceui.ReferenceUI;
-import org.iucn.sis.client.referenceui.Referenceable;
-import org.iucn.sis.shared.BaseAssessment;
-import org.iucn.sis.shared.acl.InsufficientRightsException;
-import org.iucn.sis.shared.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.structures.SISCategoryAndCriteria;
-import org.iucn.sis.shared.xml.XMLUtils;
-
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -81,10 +71,10 @@ public class AssessmentData extends BaseAssessment implements Referenceable, Aut
 	}
 
 	public void addReferences(ArrayList<ReferenceUI> references, GenericCallback<Object> callback) {
-		ReferenceCache.getInstance().addReferences(AssessmentCache.impl.getCurrentAssessment().getAssessmentID(),
+		/*ReferenceCache.getInstance().addReferences(AssessmentCache.impl.getCurrentAssessment().getAssessmentID(),
 				references);
 
-		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, "Global", callback);
+		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, "Global", callback);*/
 	}
 
 	public String buildXml() {
@@ -190,11 +180,13 @@ public class AssessmentData extends BaseAssessment implements Referenceable, Aut
 	}
 
 	public String getCategoryAbbreviation() {
-		return getDataPiece(SISCategoryAndCriteria.GENERATED_CATEGORY_INDEX, CanonicalNames.RedListCriteria, "");
+		return null;
+		//return getDataPiece(SISCategoryAndCriteria.GENERATED_CATEGORY_INDEX, CanonicalNames.RedListCriteria, "");
 	}
 
 	public String getCategoryCriteria() {
-		return getDataPiece(SISCategoryAndCriteria.GENERATED_CRITERIA_INDEX, CanonicalNames.RedListCriteria, "");
+		return null;
+		//return getDataPiece(SISCategoryAndCriteria.GENERATED_CRITERIA_INDEX, CanonicalNames.RedListCriteria, "");
 	}
 
 	//
@@ -207,7 +199,8 @@ public class AssessmentData extends BaseAssessment implements Referenceable, Aut
 	}
 
 	public String getCritVersion() {
-		return getDataPiece(SISCategoryAndCriteria.CRIT_VERSION_INDEX, CanonicalNames.RedListCriteria, "");
+		return null;
+		//return getDataPiece(SISCategoryAndCriteria.CRIT_VERSION_INDEX, CanonicalNames.RedListCriteria, "");
 	}
 
 	public String getCurrentPopulationTrend() {
@@ -293,11 +286,13 @@ public class AssessmentData extends BaseAssessment implements Referenceable, Aut
 	}
 
 	public String getManualCategoryAbbreviation() {
-		return getDataPiece(SISCategoryAndCriteria.MANUAL_CATEGORY_INDEX, CanonicalNames.RedListCriteria, "");
+		return null;
+		//return getDataPiece(SISCategoryAndCriteria.MANUAL_CATEGORY_INDEX, CanonicalNames.RedListCriteria, "");
 	}
 
 	public String getManualCategoryCriteria() {
-		return getDataPiece(SISCategoryAndCriteria.MANUAL_CRITERIA_INDEX, CanonicalNames.RedListCriteria, "");
+		return null;
+		//return getDataPiece(SISCategoryAndCriteria.MANUAL_CRITERIA_INDEX, CanonicalNames.RedListCriteria, "");
 	}
 
 	// public boolean isEndemicToRegion() {
@@ -559,8 +554,9 @@ public class AssessmentData extends BaseAssessment implements Referenceable, Aut
 	//
 
 	public boolean isManual() {
-		return getDataPiece(SISCategoryAndCriteria.IS_MANUAL_INDEX, CanonicalNames.RedListCriteria, "")
-				.equalsIgnoreCase("true");
+		return false;
+		//return getDataPiece(SISCategoryAndCriteria.IS_MANUAL_INDEX, CanonicalNames.RedListCriteria, "")
+			//	.equalsIgnoreCase("true");
 	}
 
 	//
@@ -624,11 +620,11 @@ public class AssessmentData extends BaseAssessment implements Referenceable, Aut
 	}
 
 	public void setCategoryAbbreviation(String criteria) {
-		setDataPiece(SISCategoryAndCriteria.GENERATED_CATEGORY_INDEX, CanonicalNames.RedListCriteria, criteria);
+		//setDataPiece(SISCategoryAndCriteria.GENERATED_CATEGORY_INDEX, CanonicalNames.RedListCriteria, criteria);
 	}
 
 	public void setCategoryCriteria(String criteria) {
-		setDataPiece(SISCategoryAndCriteria.GENERATED_CRITERIA_INDEX, CanonicalNames.RedListCriteria, criteria);
+		//setDataPiece(SISCategoryAndCriteria.GENERATED_CRITERIA_INDEX, CanonicalNames.RedListCriteria, criteria);
 	}
 
 	public void setCategoryFuzzyResult(String result) {
@@ -636,7 +632,7 @@ public class AssessmentData extends BaseAssessment implements Referenceable, Aut
 	}
 
 	public void setCritVersion(String critVersion) {
-		setDataPiece(SISCategoryAndCriteria.CRIT_VERSION_INDEX, CanonicalNames.RedListCriteria, critVersion);
+		//setDataPiece(SISCategoryAndCriteria.CRIT_VERSION_INDEX, CanonicalNames.RedListCriteria, critVersion);
 	}
 
 	public void setData(HashMap data) {
@@ -697,15 +693,15 @@ public class AssessmentData extends BaseAssessment implements Referenceable, Aut
 	}
 
 	public void setIsManual(boolean isManual) {
-		setDataPiece(SISCategoryAndCriteria.IS_MANUAL_INDEX, CanonicalNames.RedListCriteria, "" + isManual);
+		//setDataPiece(SISCategoryAndCriteria.IS_MANUAL_INDEX, CanonicalNames.RedListCriteria, "" + isManual);
 	}
 
 	public void setManualCategoryAbbreviation(String criteria) {
-		setDataPiece(SISCategoryAndCriteria.MANUAL_CATEGORY_INDEX, CanonicalNames.RedListCriteria, criteria);
+		//setDataPiece(SISCategoryAndCriteria.MANUAL_CATEGORY_INDEX, CanonicalNames.RedListCriteria, criteria);
 	}
 
 	public void setManualCategoryCriteria(String criteria) {
-		setDataPiece(SISCategoryAndCriteria.MANUAL_CRITERIA_INDEX, CanonicalNames.RedListCriteria, criteria);
+		//setDataPiece(SISCategoryAndCriteria.MANUAL_CRITERIA_INDEX, CanonicalNames.RedListCriteria, criteria);
 	}
 
 	public void setReferences(HashMap refs) {

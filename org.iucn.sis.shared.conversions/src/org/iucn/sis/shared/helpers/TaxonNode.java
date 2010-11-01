@@ -1,16 +1,11 @@
-package org.iucn.sis.shared.conversions;
+package org.iucn.sis.shared.helpers;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.iucn.sis.client.referenceui.ReferenceUI;
-import org.iucn.sis.client.referenceui.Referenceable;
-import org.iucn.sis.client.taxomatic.TaxomaticUtils;
-import org.iucn.sis.shared.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.data.assessments.Note;
-import org.iucn.sis.shared.taxonomyTree.CommonNameData;
+
 
 import com.solertium.lwxml.shared.GenericCallback;
 

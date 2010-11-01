@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.iucn.sis.shared.data.assessments.AssessmentData;
-import org.iucn.sis.shared.data.assessments.CanonicalNames;
+import org.iucn.sis.shared.helpers.AssessmentData;
+import org.iucn.sis.shared.helpers.CanonicalNames;
+
 
 public class OccurrenceMigratorUtils {
 	/**

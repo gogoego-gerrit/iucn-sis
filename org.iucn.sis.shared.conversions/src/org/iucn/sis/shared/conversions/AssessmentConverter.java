@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import javax.naming.NamingException;
 
 import org.gogoego.api.plugins.GoGoEgo;
-import org.iucn.sis.client.referenceui.ReferenceUI;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -33,9 +32,10 @@ import org.iucn.sis.shared.api.models.primitivefields.IntegerPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.RangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
-import org.iucn.sis.shared.data.assessments.AssessmentData;
-import org.iucn.sis.shared.data.assessments.AssessmentParser;
-import org.iucn.sis.shared.data.assessments.CanonicalNames;
+import org.iucn.sis.shared.helpers.AssessmentData;
+import org.iucn.sis.shared.helpers.AssessmentParser;
+import org.iucn.sis.shared.helpers.CanonicalNames;
+import org.iucn.sis.shared.helpers.ReferenceUI;
 
 import com.solertium.db.DBException;
 import com.solertium.db.ExecutionContext;
