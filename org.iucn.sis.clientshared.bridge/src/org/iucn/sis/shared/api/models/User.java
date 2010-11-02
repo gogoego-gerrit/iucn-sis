@@ -338,7 +338,7 @@ public class User implements Serializable {
 	}
 	
 	private String nullIfStated(String value) {
-		return value == null || "null".equals(value) ? null : value;
+		return value == null || "null".equals(value) ? "" : value;
 	}
 	
 }
