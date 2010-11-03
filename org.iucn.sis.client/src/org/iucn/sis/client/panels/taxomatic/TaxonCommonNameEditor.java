@@ -413,7 +413,10 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 	}
 
 	private void save() {
-
+		if (language.getSelectedIndex() == 0) {
+			WindowUtils.errorAlert("You must first select a language for the common name.");
+			return;
+		}
 		bar.disable();
 		storePreviousData();
 		
@@ -446,6 +449,10 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 	}
 
 	private void saveAndClose() {
+		if (language.getSelectedIndex() == 0) {
+			WindowUtils.errorAlert("You must first select a language for the common name.");
+			return;
+		}
 		bar.disable();
 		storePreviousData();
 		if (currentCommonName != null) {

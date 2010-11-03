@@ -127,23 +127,26 @@ public class EditCommonNamePanel extends Window {
 				for (String name : names) {
 					language.addItem(name, nameToCode.get(name));
 				}
+				
+				if (cn != null) {
+					if (cn.getIso() == null) {
+						language.setSelectedIndex(0);
+					} else {
+						String iso = cn.getIsoCode();
+						for (int i = 0; i < language.getItemCount(); i++) {
+							if (language.getValue(i).equalsIgnoreCase(iso)) {
+								language.setSelectedIndex(i);
+								break;
+							}
+						}
+					}
+				}
 			}
 		});
 
 		if (cn != null) {
 			nameBox.setText(cn.getName());
 			isPrimary.setChecked(cn.isPrimary());
-			if (cn.getIso() == null) {
-				language.setSelectedIndex(0);
-			} else {
-				String iso = cn.getIsoCode();
-				for (int i = 0; i < language.getItemCount(); i++) {
-					if (language.getValue(i).equalsIgnoreCase(iso)) {
-						language.setSelectedIndex(i);
-						break;
-					}
-				}
-			}
 		}
 
 		HTML nameLabel = new HTML("Name: ");
@@ -171,6 +174,11 @@ public class EditCommonNamePanel extends Window {
 	}
 	
 	protected void save() {
+		if (language.getSelectedIndex() == 0) {
+			WindowUtils.errorAlert("You must first select a language for the common name.");
+			return;
+		}
+		
 		hide();
 		final CommonName copy;
 		if (cn == null) {
