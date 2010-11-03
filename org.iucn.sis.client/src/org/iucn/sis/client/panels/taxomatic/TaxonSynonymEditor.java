@@ -313,7 +313,7 @@ public class TaxonSynonymEditor extends LayoutContainer {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				
+				if (currentSynonym != null) {
 				TaxonomyCache.impl.deleteSynonymn(node, currentSynonym, new GenericCallback<String>() {
 				
 					@Override
@@ -334,7 +334,9 @@ public class TaxonSynonymEditor extends LayoutContainer {
 						WindowUtils.errorAlert("Unable to delete the synonym");
 				
 					}
-				} );
+				} );  } else {
+					WindowUtils.infoAlert("Please select synonym to delete.");
+				}
 				
 				
 			}
@@ -540,66 +542,66 @@ public class TaxonSynonymEditor extends LayoutContainer {
 	private void save() {
 		bar.disable();
 		storePreviousData();
-		int index = 0;
-		for (int i = 0; i < allSynonyms.size(); i++) {
-			if (allSynonyms.get(index) == null) {
-				allSynonyms.remove(index);
-			} else {
-				index++;
-			}
+		
+		if (currentSynonym != null) {
+
+			TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
+
+				@Override
+				public void onSuccess(String result) {
+					allSynonyms.clear();
+					allSynonyms.addAll(node.getSynonyms());
+					bar.enable();
+					WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
+					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+					refreshListBox();
+					refreshSynonym(null);
+
+				}
+
+				@Override
+				public void onFailure(Throwable caught) {
+					bar.enable();
+					WindowUtils.errorAlert("Error",
+							"An error occurred when trying to save the synonym data related to " + node.getFullName()
+									+ ".");
+
+				}
+			});
+		} else {
+			WindowUtils.infoAlert("Please select synonym to save.");
 		}
-		
-		TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
-		
-			@Override
-			public void onSuccess(String result) {
-				allSynonyms.clear();
-				allSynonyms.addAll(node.getSynonyms());
-				bar.enable();
-				WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-				refreshListBox();
-				refreshSynonym(null);
-				
-			}
-		
-			@Override
-			public void onFailure(Throwable caught) {
-				bar.enable();
-				WindowUtils.errorAlert("Error", "An error occurred when trying to save the synonym data related to "
-						+ node.getFullName() + ".");
-		
-		
-			}
-		});
 		
 	}
 
 	private void saveAndClose() {
 		bar.disable();
 		storePreviousData();
-		
-		TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
-			
-			@Override
-			public void onSuccess(String result) {
-				
-				bar.enable();
-				WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-				close();
-				
-			}
-		
-			@Override
-			public void onFailure(Throwable caught) {
-				bar.enable();
-				WindowUtils.errorAlert("Error", "An error occurred when trying to save the synonym data related to "
-						+ node.getFullName() + ".");
-		
-		
-			}
-		});
+		if (currentSynonym != null) {
+			TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
+
+				@Override
+				public void onSuccess(String result) {
+
+					bar.enable();
+					WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
+					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+					close();
+
+				}
+
+				@Override
+				public void onFailure(Throwable caught) {
+					bar.enable();
+					WindowUtils.errorAlert("Error",
+							"An error occurred when trying to save the synonym data related to " + node.getFullName()
+									+ ".");
+
+				}
+			});
+		} else {
+			close();
+		}
 		
 		
 		
