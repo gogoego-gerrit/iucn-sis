@@ -156,8 +156,13 @@ public class RegionalExpertWidget extends LayoutContainer {
 
 		for (QuestionRow row : answers)
 			ret += "," + row.getValue();
-
-		return ret.trim().equals("") ? null : ret;
+		
+		ret = ret.trim();
+		
+		//blank result, no amount, no first answer
+		String defaultResult = ",-1,0";
+		
+		return "".equals(ret) || defaultResult.equals(ret) ? null : ret;
 	}
 
 	public void setWidgetData(String data) {
