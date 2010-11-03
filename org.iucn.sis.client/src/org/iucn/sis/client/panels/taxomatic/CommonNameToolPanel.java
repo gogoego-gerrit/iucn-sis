@@ -235,7 +235,10 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 							@Override
 							public void onSuccess(String result) {
 								eBar.remove(alignCorrectly);
-								
+								if (cn.getNotes().isEmpty()) {
+									notesImage.setUrl("images/icon-note-grey.png");
+									ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
+								}
 							}
 
 							@Override
