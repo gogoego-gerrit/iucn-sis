@@ -246,7 +246,7 @@ public class User implements Serializable {
 	}
 	
 	public String getFirstName() {
-		return firstName;
+		return nullIfStated(firstName);
 	}
 	
 	public void setLastName(String value) {
@@ -254,7 +254,7 @@ public class User implements Serializable {
 	}
 	
 	public String getLastName() {
-		return lastName;
+		return nullIfStated(lastName);
 	}
 	
 	public void setInitials(String value) {
@@ -262,7 +262,7 @@ public class User implements Serializable {
 	}
 	
 	public String getInitials() {
-		return initials;
+		return nullIfStated(initials);
 	}
 	
 	public void setAffiliation(String value) {
@@ -270,7 +270,7 @@ public class User implements Serializable {
 	}
 	
 	public String getAffiliation() {
-		return affiliation;
+		return nullIfStated(affiliation);
 	}
 	
 	public void setSisUser(boolean value) {

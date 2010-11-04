@@ -19,7 +19,8 @@ public class UserModelData extends BaseModelData implements Comparable<UserModel
 	public <X> X get(String property) {
 		String prop = user.getProperty(property);
 		if (prop == null)
-			return super.get(property);
+			prop = "";
+		
 		return (X) prop;
 	}
 	

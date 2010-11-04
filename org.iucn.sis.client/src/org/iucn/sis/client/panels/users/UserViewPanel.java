@@ -4,33 +4,23 @@
 package org.iucn.sis.client.panels.users;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.caches.UserCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
-import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
 import org.iucn.sis.client.api.ui.users.panels.ContentManager;
 import org.iucn.sis.client.api.ui.users.panels.HasRefreshableContent;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.client.panels.dem.SISView;
-import org.iucn.sis.client.panels.dem.ViewCache;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
-import org.iucn.sis.shared.api.models.PermissionGroup;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -45,50 +35,34 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Popup;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.Validator;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.LabelAlign;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
-import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.http.client.UrlBuilder;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.KeyboardListener;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
-import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
-import com.solertium.lwxml.shared.utils.RowData;
-import com.solertium.lwxml.shared.utils.RowParser;
 import com.solertium.util.extjs.client.CheckboxMultiTriggerField;
 import com.solertium.util.extjs.client.GenericPagingLoader;
 import com.solertium.util.extjs.client.PagingLoaderFilter;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
-
-import ext.ux.pwd.client.PasswordField;
 
 /**
  * UserViewPanel.java
@@ -159,15 +133,17 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 
 		loader.setFilter(new PagingLoaderFilter<UserModelData>() {
 			public boolean filter(UserModelData item, String property) {
-				if (activeAccountFilter.getValue() != null
-						&& filterOut(activeAccountFilter.getValue().getValue().equals("") ? null : activeAccountFilter
-								.getValue().getValue(), (String) item.get("sis")))
+				String active = (activeAccountFilter.getValue() == null || 
+					"".equals(activeAccountFilter.getValue().getValue())) ? 
+					null : activeAccountFilter.getValue().getValue();
+				
+				if (active != null & filterOut(active, (String) item.get("sis")))
 					return true;
 				if (filterOut(usernameFilter.getValue(), (String) item.get("username")))
 					return true;
-				if (filterOut(firstFilter.getValue(), (String) item.get("firstname")))
+				if (filterOut(firstFilter.getValue(), (String) item.get("firstName")))
 					return true;
-				if (filterOut(lastFilter.getValue(), (String) item.get("lastname")))
+				if (filterOut(lastFilter.getValue(), (String) item.get("lastName")))
 					return true;
 				if (filterOut(affiliationFilter.getValue(), (String) item.get("affiliation")))
 					return true;
@@ -176,7 +152,8 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 			}
 
 			private boolean filterOut(String value, String filterBy) {
-				return value == null ? false : !filterBy.toLowerCase().startsWith(value.toLowerCase());
+				String text = value == null || "".equals(value) ? null : value.toLowerCase();
+				return text != null && !filterBy.toLowerCase().startsWith(value.toLowerCase());
 			}
 		});
 
