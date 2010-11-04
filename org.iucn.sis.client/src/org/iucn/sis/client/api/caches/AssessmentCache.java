@@ -19,6 +19,7 @@ import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.google.gwt.core.client.GWT;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -414,7 +415,11 @@ public class AssessmentCache {
 			currentAssessment = assessment;
 
 			if (currentAssessment != null) {
-				updateRecentAssessments();
+				try {
+					updateRecentAssessments();
+				} catch (Throwable e) {
+					GWT.log("Failed to update recent assessments", e);
+				}
 				StatusCache.impl.checkStatus(currentAssessment, true, new GenericCallback<Integer>() {
 					public void onFailure(Throwable caught) {
 						// Nothing to do, really.

@@ -271,27 +271,28 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		boolean ret = false;
 		
 		Field field = getField(canonicalName);
-		if( field == null ) {
+		if (field == null) {
 			field = new Field(canonicalName, this);
 			field.setPrimitiveField(new HashSet<PrimitiveField>());
+			
+			this.field.add(field);
 		}
 
 		PrimitiveField prims = field.getKeyToPrimitiveFields().get(primitiveName);
-		if( prims != null ) {
+		if (prims != null) {
 			prims.setValue(value);
 			ret = true;
 		} else {
 			PrimitiveField prim = PrimitiveFieldFactory.generatePrimitiveField(PrimitiveFieldType.DATE_PRIMITIVE);
 			prim.setField(field);
 			prim.setName(primitiveName);
+			prim.setValue(value);
 			
-			if( prim != null ) {
-				prim.setValue(value);
-				field.getPrimitiveField().add(prim);
-				ret = true;
-			}
+			field.getPrimitiveField().add(prim);
+			
+			ret = true;
 		}
-	
+		
 		return ret;
 	}
 	
@@ -304,9 +305,8 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	
 	public PrimitiveField getPrimitiveField(String canonicalName, String primitiveName) {
 		Field field = getField(canonicalName);
-		if( field != null ) {
+		if (field != null)
 			return field.getKeyToPrimitiveFields().get(primitiveName);
-		}		
 		return null;
 	}
 
@@ -520,7 +520,8 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	}
 	
 	private Map<String, Field> keyToField;
-	private void generateFields() {
+	
+	public void generateFields() {
 		keyToField = new HashMap<String, Field>();
 		for (Field field : getField()) {
 			keyToField.put(field.getName(), field);

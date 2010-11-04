@@ -638,21 +638,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 						curItem.setEnabled(false);
 						assessmentList.add(curItem);
 						
-						Collections.sort(draftAssessments, new Comparator<Assessment>() {
-							public int compare(Assessment o1, Assessment o2) {
-								Date date1 = o1.getDateAssessed();
-								Date date2 = o2.getDateAssessed();
-								
-								if( date1 == null && date2 == null )
-									return 0;
-								else if( date1 == null )
-									return 1;
-								else if( date2 == null )
-									return -1;
-								else
-									return date1.compareTo(date2) * -1;
-							}
-						});
+						Collections.sort(draftAssessments, new AssessmentDateComparator());
 					}
 					
 					DataListItem selected = null;
@@ -702,19 +688,15 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 						curItem.setEnabled(false);
 						assessmentList.add(curItem);
 
-						Collections.sort(pubAssessments, new Comparator<Assessment>() {
-							public int compare(Assessment o1, Assessment o2) {
-								Date date1 = o1.getDateAssessed();
-								Date date2 = o2.getDateAssessed();
-								return date1.compareTo(date2) * -1;
-							}
-						});
+						Collections.sort(pubAssessments, new AssessmentDateComparator());
 
 						for (Assessment current : pubAssessments) {
 							if (current != null) {
 								String displayable;
-
-								displayable = FormattedDate.impl.getDate(current.getDateAssessed());
+								if (current.getDateAssessed() != null)
+									displayable = FormattedDate.impl.getDate(current.getDateAssessed());
+								else
+									displayable = "";
 
 								if (current.isRegional())
 									displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
@@ -821,6 +803,24 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 				
 			return item;
 		}
+		
+	}
+	
+	public static class AssessmentDateComparator implements Comparator<Assessment> {
+		
+		public int compare(Assessment o1, Assessment o2) {
+			Date date1 = o1.getDateAssessed();
+			Date date2 = o2.getDateAssessed();
+			
+			if (date1 == null && date2 == null)
+				return 0;
+			else if (date1 == null)
+				return 1;
+			else if (date2 == null)
+				return -1;
+			else
+				return date1.compareTo(date2) * -1;
+		}		
 		
 	}
 
