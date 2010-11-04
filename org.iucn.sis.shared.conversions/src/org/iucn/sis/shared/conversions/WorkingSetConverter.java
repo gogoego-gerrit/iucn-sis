@@ -29,9 +29,51 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFS;
 
-public class WorkingSetConverter {
+public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 	
-	protected static Map<String, Document> getSubscribedDocs(VFS vfs) throws NotFoundException {
+	@Override
+	protected void run() throws Exception {
+		convertAllWorkingSets(data.getOldVFS());
+	}
+	
+	public void convertAllWorkingSets(VFS oldVFS) throws Exception {
+		List<File> allFiles = FileListing.main(data.getOldVFSPath() + "/HEAD/workingsets");
+		Map<String, HashSet<String>> oldWSIDToUserNames = parseSubscribedDocs(oldVFS);
+		//long converted = 0;
+
+		for (File file : allFiles) {
+			try {
+				if (file.getPath().endsWith(".xml")) {
+					NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
+					ndoc.parse(FileListing.readFileAsString(file));
+					WorkingSetData data = new WorkingSetParser().parseSingleWorkingSet(ndoc.getDocumentElement());
+					WorkingSet set = convertWorkingSetData(data, oldWSIDToUserNames.get(data.getId()));
+					if (set != null) {
+						SIS.get().getManager().getSession().save(set);
+						//converted++;
+					} else {
+						print("The set " + file.getPath() + " is null");
+					}
+/*
+					if( converted % 10 == 0 ) {
+						SIS.get().getManager().getSession().getTransaction().commit();
+						SIS.get().getManager().getSession().beginTransaction();
+					}*/
+					
+				}
+			} catch (Exception e) {
+				print("Failed on file " + file.getPath());
+				throw e;
+			}
+		}
+		
+		/*if( converted % 10 == 0 ) {
+			SIS.get().getManager().getSession().getTransaction().commit();
+			SIS.get().getManager().getSession().beginTransaction();
+		}*/
+	}
+	
+	private Map<String, Document> getSubscribedDocs(VFS vfs) throws NotFoundException {
 		Map<String, Document> userToDoc = new HashMap<String, Document>();
 		String[] usersDir = vfs.list(ServerPaths.getUserRootPath());
 		for (String userDir : usersDir) {
@@ -45,7 +87,7 @@ public class WorkingSetConverter {
 		return userToDoc;		
 	}
 	
-	protected static Map<String, HashSet<String>> parseSubscribedDocs(VFS vfs) throws NotFoundException {
+	private Map<String, HashSet<String>> parseSubscribedDocs(VFS vfs) throws NotFoundException {
 	
 		Map<String, HashSet<String>> oldWSIDToUserNames = new HashMap<String, HashSet<String>>();		
 		Map<String, Document> userToDoc = getSubscribedDocs(vfs);
@@ -59,55 +101,14 @@ public class WorkingSetConverter {
 					oldWSIDToUserNames.put(workingSetID, new HashSet<String>());
 				} 
 				oldWSIDToUserNames.get(workingSetID).add(username);
-				System.out.println("added " + workingSetID + " with user " + username);
+				print("added " + workingSetID + " with user " + username);
 			}		
 		}
 		
 		return oldWSIDToUserNames;		
-	}	
-	
-	public static void convertAllWorkingSets(VFS oldVFS) throws Throwable {
-		List<File> allFiles = FileListing.main(GoGoEgo.getInitProperties().get("sis_old_vfs") + "/HEAD/workingsets");
-		Map<String, HashSet<String>> oldWSIDToUserNames = parseSubscribedDocs(oldVFS);
-		long converted = 0;
-		
-
-		
-		
-		for (File file : allFiles) {
-			try {
-				if (file.getPath().endsWith(".xml")) {
-					NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
-					ndoc.parse(FileListing.readFileAsString(file));
-					WorkingSetData data = new WorkingSetParser().parseSingleWorkingSet(ndoc.getDocumentElement());
-					WorkingSet set = convertWorkingSetData(data, oldWSIDToUserNames.get(data.getId()));
-					if (set != null) {
-						SIS.get().getManager().getSession().save(set);
-						converted++;
-					} else {
-						System.out.println("The set " + file.getPath() + " is null");
-					}
-
-					if( converted % 10 == 0 ) {
-						SIS.get().getManager().getSession().getTransaction().commit();
-						SIS.get().getManager().getSession().beginTransaction();
-					}
-					
-				}
-			} catch (Throwable e) {
-				System.out.println("Failed on file " + file.getPath());
-				e.printStackTrace();
-				throw e;
-			}
-		}
-		
-		if( converted % 10 == 0 ) {
-			SIS.get().getManager().getSession().getTransaction().commit();
-			SIS.get().getManager().getSession().beginTransaction();
-		}
 	}
 	
-	public static WorkingSet convertWorkingSetData(WorkingSetData data, Set<String> subscribedUsernames) throws Exception {
+	public WorkingSet convertWorkingSetData(WorkingSetData data, Set<String> subscribedUsernames) throws Exception {
 		
 		WorkingSet ws = new WorkingSet();
 		ws.setDescription(data.getDescription());
@@ -147,7 +148,7 @@ public class WorkingSetConverter {
 		//ADD USERS
 		User creator = SIS.get().getUserIO().getUserFromUsername(data.getCreator());
 		if( creator == null ) {
-			System.out.println("Couldn't find user " + data.getCreator());
+			print("Couldn't find user " + data.getCreator());
 			return null;
 		}
 		ws.setCreator(creator);
@@ -174,7 +175,7 @@ public class WorkingSetConverter {
 					ws.getTaxon().add(taxon);
 				}
 			} catch (Exception e) {
-				System.out.println("failed while trying taxonID " + taxonID);
+				print("failed while trying taxonID " + taxonID);
 				throw e;
 			}
 		}

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.HibernateException;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -30,14 +29,15 @@ import org.iucn.sis.shared.helpers.TaxonNodeFactory;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 
-public class TaxonConverter {
+public class TaxonConverter extends GenericConverter<String> {
 
-	static long taxaConverted = 0;
-	
-	public static void convertAllNodes() throws Throwable {
-		
-		List<File> allFiles = FileListing.main(GoGoEgo.getInitProperties().get("sis_old_vfs") + "/HEAD/browse/nodes");
+	@Override
+	protected void run() throws Exception {
+		List<File> allFiles = FileListing.main(data + "/HEAD/browse/nodes");
 		User user = SIS.get().getUserIO().getUserFromUsername("admin");
+		if (user == null)
+			throw new NullPointerException("No user admin exists");
+		
 		Date date = new Date();
 		
 		Map<Integer, Taxon> taxa = new HashMap<Integer, Taxon>();
@@ -101,9 +101,9 @@ public class TaxonConverter {
 
 				}
 			} catch (Throwable e) {
-				System.out.println("Failed on file " + file.getPath());
+				print("Failed on file " + file.getPath());
 				e.printStackTrace();
-				throw e;
+				throw new Exception(e);
 			}
 		}
 		
@@ -147,33 +147,29 @@ public class TaxonConverter {
 			writeTaxon(infrarankSubpopulationList.remove(0), taxa);
 
 		}
-
-		if( taxaConverted % 100 != 0 ) {
-			SIS.get().getManager().getSession().getTransaction().commit();
-			SIS.get().getManager().getSession().beginTransaction();
-		}
 		
 	}
 	
-	protected static void writeTaxon(Taxon taxon, Map<Integer, Taxon> taxa ) throws HibernateException, PersistentException {
+	protected void writeTaxon(Taxon taxon, Map<Integer, Taxon> taxa ) throws HibernateException, PersistentException {
 		
 		if (taxon.getParent() != null) {
 			taxon.setParent(taxa.get(taxon.getParentId()));
 		}
-		SIS.get().getManager().getSession().save(taxon);
+		session.save(taxon);
 		
-		taxaConverted++;
+		/*taxaConverted++;
 		
 		if( taxaConverted % 100 == 0 ) {
 			SIS.get().getManager().getSession().getTransaction().commit();
 			SIS.get().getManager().getSession().beginTransaction();
-		}
+		}*/
 		
-		taxon.getFootprint();
+		//taxon.getFootprint();
+		taxon.toXML();
 		SIS.get().getTaxonIO().afterSaveTaxon(taxon);
 	}
 
-	public static Taxon convertTaxonNode(TaxonNode taxon, Date lastModified) throws PersistentException {
+	public Taxon convertTaxonNode(TaxonNode taxon, Date lastModified) throws PersistentException {
 
 		Taxon newTaxon = new Taxon();
 		newTaxon.state = Taxon.ACTIVE;
@@ -259,7 +255,7 @@ public class TaxonConverter {
 			if (ref != null) {
 				newTaxon.getReference().add(ref);
 			} else {
-				System.out.println("ERROR -- Couldn't find reference " + hash + " in taxon " + taxon.getId());
+				print("ERROR -- Couldn't find reference " + hash + " in taxon " + taxon.getId());
 			}
 		}
 

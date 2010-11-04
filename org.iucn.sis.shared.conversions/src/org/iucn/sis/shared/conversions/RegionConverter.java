@@ -1,21 +1,19 @@
 package org.iucn.sis.shared.conversions;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.helpers.Region;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
 
-public class RegionConverter {
-
-	public static void generateRegions() throws PersistentException, IOException {
-		File file = new File(GoGoEgo.getInitProperties().get("sis_old_vfs") + "/HEAD/regions/regions.xml");
+public class RegionConverter extends GenericConverter<String> {
+	
+	@Override
+	protected void run() throws Exception {
+		File file = new File(data + "/HEAD/regions/regions.xml");
 		NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 		ndoc.parse(FileListing.readFileAsString(file));
 		NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName("region");

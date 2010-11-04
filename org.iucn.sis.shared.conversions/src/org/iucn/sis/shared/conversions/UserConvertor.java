@@ -1,14 +1,10 @@
 package org.iucn.sis.shared.conversions;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.naming.NamingException;
 
 import org.hibernate.HibernateException;
 import org.iucn.sis.server.api.application.SIS;
@@ -16,7 +12,6 @@ import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.User;
 
-import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
@@ -27,9 +22,10 @@ import com.solertium.util.SHA1Hash;
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
 
-public class UserConvertor {
-
-	public static void convertAllUsers() throws NamingException, DBException, Exception {
+public class UserConvertor extends Converter {
+	
+	@Override
+	protected void run() throws Exception {
 		final Map<String, String> userHashToHashes = new HashMap<String, String>();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(UserConvertor.class.getResourceAsStream("hamsterfish"))); 
 		
@@ -56,13 +52,13 @@ public class UserConvertor {
 				User user = new User();
 				user.setUsername(row.get("USERNAME").getString());
 				user.setId(row.get("ID").getInteger());
-				user.setFirstName(row.get("FIRSTNAME").getString());
-				user.setLastName(row.get("LASTNAME").getString());
+				user.setFirstName(row.get("FIRSTNAME").toString());
+				user.setLastName(row.get("LASTNAME").toString());
 				user.setEmail(getEmailAddresses(row));
-				user.setAffiliation(row.get("AFFILIATION").getString());
+				user.setAffiliation(row.get("AFFILIATION").toString());
 				user.setSisUser(row.get("SIS").getString() != null && row.get("SIS").getString().equals("true"));
 				user.setRapidlistUser(row.get("RAPIDLIST").getString() != null && row.get("RAPIDLIST").getString().equals("true"));
-				user.setInitials(row.get("INITIALS").getString());
+				user.setInitials(row.get("INITIALS").toString());
 				user.setPassword(userHashToHashes.get(getSHA1Hash(user.getUsername())));
 				
 				String quickgroup = row.get("QUICKGROUP").getString();
@@ -103,19 +99,16 @@ public class UserConvertor {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				
 			}
 		});
-
 	}
 	
-	public static String getSHA1Hash(String in) {
+	public String getSHA1Hash(String in) {
 		SHA1Hash hash = new SHA1Hash(in);
 		return hash.toString();
 	}
 
-	protected static String getEmailAddresses(Row row) {
+	protected String getEmailAddresses(Row row) {
 		String email = row.get("USERNAME").getString();
 		if (!email.contains("@")) {
 			if (email.equalsIgnoreCase("craig.ht"))

@@ -1,13 +1,10 @@
 package org.iucn.sis.shared.conversions;
 
-import javax.naming.NamingException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hibernate.HibernateException;
-import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Reference;
 
-import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
@@ -15,19 +12,18 @@ import com.solertium.db.Row;
 import com.solertium.db.RowProcessor;
 import com.solertium.db.SystemExecutionContext;
 
+public class ReferenceConverter extends Converter {
 
-public class ReferenceConverter {
-
-	static long converted = 0;
-	
-	public static void convertAllReferences() throws NamingException, DBException {
+	@Override
+	protected void run() throws Exception {
+		final AtomicInteger converted = new AtomicInteger(0);
+		
 		DBSession db = DBSessionFactory.getDBSession("ref_lookup");
 		ExecutionContext ec = new SystemExecutionContext(db);
 		ec.setExecutionLevel(ExecutionContext.SQL_ALLOWED);
 		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 		
 		ec.doQuery("SELECT * FROM BIBLIOGRAPHY;", new RowProcessor() {
-		
 			@Override
 			public void process(Row row) {
 				Reference ref = new Reference();
@@ -65,22 +61,17 @@ public class ReferenceConverter {
 				ref.setSubmissionType(row.get("SUBMISSION_TYPE").getString());
 				
 				try {
-					SIS.get().getManager().getSession().save(ref);
-					converted++;
+					session.saveOrUpdate(ref);
 					
-					if( converted % 20 == 0 ) {
-						SIS.get().getManager().getSession().getTransaction().commit();
-						SIS.get().getManager().getSession().beginTransaction();
+					if (converted.addAndGet(1) % 20 == 0) {
+						commitAndStartTransaction();
 					}
 				} catch (HibernateException e) {
 					throw new RuntimeException(e);
-				} catch (PersistentException e) {
-					throw new RuntimeException(e);
 				}
-				
 			}
 		});
-		
+		/*
 		try {
 			if( converted % 20 != 0 ) {
 				SIS.get().getManager().getSession().getTransaction().commit();
@@ -90,7 +81,7 @@ public class ReferenceConverter {
 			throw new RuntimeException(e);
 		} catch (PersistentException e) {
 			throw new RuntimeException(e);
-		}
+		}*/
 
 	}
 }

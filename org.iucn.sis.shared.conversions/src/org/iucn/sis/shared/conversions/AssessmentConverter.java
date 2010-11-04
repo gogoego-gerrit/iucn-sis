@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.conversions;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.NamingException;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -44,86 +45,27 @@ import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.Row.Set;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.VFS;
 
-public class AssessmentConverter {
-
-	public static void convertAllPublished(VFS oldVFS, VFS newVFS) throws Throwable {
-		convertAll("/HEAD/browse/assessments", oldVFS, newVFS);
+public class AssessmentConverter extends GenericConverter<VFSInfo> {
+	
+	private static final DateFormat shortfmt = new SimpleDateFormat("yyyy-MM-dd");
+	
+	public static enum ConversionMode {
+		DRAFT, PUBLISHED, ALL
 	}
 	
-	public static void convertAllDrafts(VFS oldVFS, VFS newVFS) throws Throwable {
-		convertAll("/HEAD/drafts", oldVFS, newVFS);
-	}
-	
-	public static void convertAll(String rootURL, VFS oldVFS, VFS newVFS) throws Throwable {
-
-		List<File> allFiles = FileListing.main(GoGoEgo.getInitProperties().get("sis_old_vfs") + rootURL);
-		// List<File> allFiles = new ArrayList<File>();
-		// File aFile = new File(GoGoEgo.getInitProperties().get("sis_vfs") +
-		// "/HEAD/browse/nodes/100/100001.xml");
-		// allFiles.add(aFile);
-
-		long assessmentsConverted = 0;
-		AssessmentConverter converter = new AssessmentConverter("sis_lookups");
-		AssessmentParser parser = new AssessmentParser();
-
-		User user = SIS.get().getUserIO().getUserFromUsername("admin");
-		
-		
-		for (File file : allFiles) {
-			try {
-				if (file.getPath().endsWith(".xml")) {
-					NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
-					ndoc.parse(FileListing.readFileAsString(file));
-					parser.parse(ndoc);
-					Assessment assessment = null;
-
-					assessment = converter.assessmentDataToAssessment(parser.getAssessment());
-					if (assessment != null) {
-						if( assessment.getTaxon() != null ) {
-							//						SIS.get().getManager().getSession().save(assessment);
-							User userToSave;
-							if (assessment.getLastEdit() != null)  {
-								userToSave = assessment.getLastEdit().getUser();
-							} else {
-								userToSave = user;
-							}
-							if (!SIS.get().getAssessmentIO().writeAssessment(assessment, userToSave, false).status.isSuccess()) {
-								throw new Exception("The assessment " + file.getPath() + " did not want to save");
-							}
-							assessmentsConverted++;
-
-							if( assessmentsConverted % 50 == 0 ) {
-								SIS.get().getManager().getSession().getTransaction().commit();
-								SIS.get().getManager().getSession().beginTransaction();
-							}
-						} else {
-							System.out.println("The taxon " + parser.getAssessment().getSpeciesID() + " is null");
-						}
-					} else {
-						System.out.println("The assessment " + file.getPath() + " is null");
-					}
-
-				}
-			} catch (Throwable e) {
-				System.out.println("Failed on file " + file.getPath());
-				e.printStackTrace();
-				throw e;
-			}
-		}
-		
-		if( assessmentsConverted % 50 != 0 ) {
-			SIS.get().getManager().getSession().getTransaction().commit();
-			SIS.get().getManager().getSession().beginTransaction();
-		}
-
-	}
-
 	private ExecutionContext ec;
 	private Map<String, Set> lookups;
 
 	private Map<String, Class> typeLookup;
+	
+	private ConversionMode mode = ConversionMode.ALL;
+	
+	public AssessmentConverter() throws NamingException {
+		this("sis_lookups");
+	}
 
 	public AssessmentConverter(String dbSessionName) throws NamingException {
 		ec = new SystemExecutionContext(dbSessionName);
@@ -145,6 +87,92 @@ public class AssessmentConverter {
 		typeLookup.put("string_primitive_field", StringPrimitiveField.class);
 		typeLookup.put("field", Object.class);
 	}
+	
+	public void setConversionMode(ConversionMode mode) {
+		this.mode = mode;
+	}
+	
+	@Override
+	protected void run() throws Exception {
+		if (ConversionMode.DRAFT.equals(mode))
+			convertAllDrafts(data.getOldVFS(), data.getNewVFS());
+		else if (ConversionMode.PUBLISHED.equals(mode))
+			convertAllPublished(data.getOldVFS(), data.getNewVFS());
+		else {
+			convertAllDrafts(data.getOldVFS(), data.getNewVFS());
+			convertAllPublished(data.getOldVFS(), data.getNewVFS());
+		}
+	}
+
+	public void convertAllPublished(VFS oldVFS, VFS newVFS) throws Exception {
+		convertAll("/HEAD/browse/assessments", oldVFS, newVFS);
+	}
+	
+	public void convertAllDrafts(VFS oldVFS, VFS newVFS) throws Exception {
+		convertAll("/HEAD/drafts", oldVFS, newVFS);
+	}
+	
+	public void convertAll(String rootURL, VFS oldVFS, VFS newVFS) throws Exception {
+
+		List<File> allFiles = FileListing.main(data.getOldVFSPath() + rootURL);
+		// List<File> allFiles = new ArrayList<File>();
+		// File aFile = new File(GoGoEgo.getInitProperties().get("sis_vfs") +
+		// "/HEAD/browse/nodes/100/100001.xml");
+		// allFiles.add(aFile);
+
+		//long assessmentsConverted = 0;
+		AssessmentParser parser = new AssessmentParser();
+
+		User user = SIS.get().getUserIO().getUserFromUsername("admin");
+		
+		final AtomicInteger converted = new AtomicInteger(0);
+		for (File file : allFiles) {
+			try {
+				if (file.getPath().endsWith(".xml")) {
+					NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
+					ndoc.parse(FileListing.readFileAsString(file));
+					parser.parse(ndoc);
+					Assessment assessment = null;
+
+					assessment = assessmentDataToAssessment(parser.getAssessment());
+					if (assessment != null) {
+						if( assessment.getTaxon() != null ) {
+							//						SIS.get().getManager().getSession().save(assessment);
+							User userToSave;
+							if (assessment.getLastEdit() != null)  {
+								userToSave = assessment.getLastEdit().getUser();
+							} else {
+								userToSave = user;
+							}
+							if (!SIS.get().getAssessmentIO().writeAssessment(assessment, userToSave, false).status.isSuccess()) {
+								throw new Exception("The assessment " + file.getPath() + " did not want to save");
+							}
+							
+							if (converted.addAndGet(1) % 50 == 0) {
+								commitAndStartTransaction();
+							}
+						} else {
+							print("The taxon " + parser.getAssessment().getSpeciesID() + " is null");
+						}
+					} else {
+						print("The assessment " + file.getPath() + " is null");
+					}
+
+				}
+			} catch (Throwable e) {
+				print("Failed on file " + file.getPath());
+				e.printStackTrace();
+				throw new Exception(e);
+			}
+		}
+		
+		/*
+		if( assessmentsConverted % 50 != 0 ) {
+			SIS.get().getManager().getSession().getTransaction().commit();
+			SIS.get().getManager().getSession().beginTransaction();
+		}*/
+
+	}
 
 	public Assessment assessmentDataToAssessment(AssessmentData assessData) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
@@ -155,10 +183,35 @@ public class AssessmentConverter {
 		assessment.setSource(assessData.getSource());
 		assessment.setSourceDate(assessData.getSourceDate());
 		assessment.setType(assessData.getType());
+		assessment.setDateFinalized(assessData.getDateFinalized());
 		assessment.setTaxon(SIS.get().getTaxonIO().getTaxon(Integer.valueOf(assessData.getSpeciesID())));
+		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType())) {
+			try {
+				assessment.setDateAssessed(shortfmt.parse(assessData.getDateAssessed()));
+			} catch (Exception e) {
+				e.printStackTrace();
+				TrivialExceptionHandler.ignore(this, e);
+			}
+		}
+		else {
+			if (assessData.getDateAssessed() == null || "".equals(assessData.getDateAssessed()))
+				assessData.setDateAssessed("1900-01-01");
+			
+			try {
+				assessment.setDateAssessed(shortfmt.parse(assessData.getDateAssessed()));
+			} catch (Exception e) {
+				e.printStackTrace();
+				TrivialExceptionHandler.ignore(this, e);
+			}
+			
+			System.out.println(assessData.getType() + " assessment with date " + assessData.getDateAssessed() + " translated to " + assessment.getDateAssessed());
+			if (assessment.getDateAssessed() == null)
+				throw new NullPointerException("No date assessed!");
+		}
+		assessment.generateFields();
 
 		for (Entry<String, Object> curField : assessData.getDataMap().entrySet()) {
-//			System.out.println("on current field " + curField.getKey());
+//			print("on current field " + curField.getKey());
 			
 			Set lookup = getLookup(curField.getKey());
 			Field field = new Field(curField.getKey(), assessment);
@@ -273,12 +326,12 @@ public class AssessmentConverter {
 		int i = 0;
 		for (String curPrimitive : rawData) {
 			if( lookup.getSet().size() <= i ) {
-				System.out.println("**** Extra piece of data found for " + canonicalName + ". Eliding.");
+				print("**** Extra piece of data found for " + canonicalName + ". Eliding.");
 				continue;
 			}
 				
 			curRow = lookup.getSet().get(i);
-//			System.out.println("Looking at row " + curRow.get("name").getString() + " with index " + i);
+//			print("Looking at row " + curRow.get("name").getString() + " with index " + i);
 			
 			String type = curRow.get("data_type").getString();
 			if (typeLookup.get(type) != Object.class) {
@@ -291,7 +344,7 @@ public class AssessmentConverter {
 					
 					if( prim instanceof StringPrimitiveField ) {
 						if( curPrimitive.length() >= 1023 ) {
-							System.out.println("on current field " + field.getName() + "found some too-long string data in assessment " + field.getAssessment().getInternalId());
+							print("on current field " + field.getName() + "found some too-long string data in assessment " + field.getAssessment().getInternalId());
 							
 							try {
 								Thread.sleep(10000);
@@ -308,7 +361,7 @@ public class AssessmentConverter {
 						if( index > -1 )
 							prim.setValue(index);
 						else {
-							System.out.println("...in assessment " + field.getAssessment().getInternalId());
+							print("...in assessment " + field.getAssessment().getInternalId());
 							continue;
 						}
 					} else if( prim instanceof ForeignKeyListPrimitiveField ) {
@@ -320,7 +373,7 @@ public class AssessmentConverter {
 							prim.setRawValue(curPrimitive);
 						} catch (Exception e) {
 							e.printStackTrace();
-							System.out.println("ERROR setting data " + curPrimitive + 
+							print("ERROR setting data " + curPrimitive + 
 									" for primitive " + prim.getName() + " in field " + field.getName());
 						}
 						
@@ -360,7 +413,7 @@ public class AssessmentConverter {
 										
 										prim.setValue(formatterYear.parse(curPrimitive));
 									} catch (ParseException e3) {
-										System.out.println("*****UNABLE TO PARSE DATE " + curPrimitive + " on assessment " + field.getAssessment().getInternalId());
+										print("*****UNABLE TO PARSE DATE " + curPrimitive + " on assessment " + field.getAssessment().getInternalId());
 										prim.setValue(new Date());
 										
 										Notes note = new Notes();
@@ -381,7 +434,7 @@ public class AssessmentConverter {
 						try {
 							prim.setRawValue(curPrimitive);
 						} catch (NumberFormatException e) {
-							System.out.println("*****NUMBER FORMAT ISSUES WITH DATA " + curPrimitive + "on field " + field.getName() + " in assessment " + field.getAssessment().getInternalId() );
+							print("*****NUMBER FORMAT ISSUES WITH DATA " + curPrimitive + "on field " + field.getName() + " in assessment " + field.getAssessment().getInternalId() );
 							Notes note = new Notes();
 							note.setValue("Unable to port data '" + curPrimitive + "' because it is not a number.");
 							field.getNotes().add(note);
@@ -427,7 +480,7 @@ public class AssessmentConverter {
 				return row.get("id").getInteger();
 		}
 		if( !value.equals("0") ) {
-			System.out.println("Didn't match value " + value + " to lookup " + libraryTable);
+			print("Didn't match value " + value + " to lookup " + libraryTable);
 			return -1;
 		} else
 			return 0;

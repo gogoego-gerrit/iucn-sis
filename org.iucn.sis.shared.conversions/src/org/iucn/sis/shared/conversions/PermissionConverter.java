@@ -1,16 +1,12 @@
 package org.iucn.sis.shared.conversions;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.gogoego.api.plugins.GoGoEgo;
-import org.hibernate.HibernateException;
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.helpers.AuthorizableObject;
 import org.iucn.sis.shared.helpers.PermissionGroup;
@@ -20,11 +16,11 @@ import org.iucn.sis.shared.helpers.PermissionResource;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 
-public class PermissionConverter {
+public class PermissionConverter extends GenericConverter<String> {
 	
-	public static void convertAllPermissions() throws IOException, HibernateException, PersistentException {
-		
-		File file = new File(GoGoEgo.getInitProperties().get("sis_vfs") + "/HEAD/acl/groups.xml");
+	@Override
+	protected void run() throws Exception {
+		File file = new File(data + "/HEAD/acl/groups.xml");
 		NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 		ndoc.parse(FileListing.readFileAsString(file));
 		
@@ -50,7 +46,7 @@ public class PermissionConverter {
 		
 	}
 	
-	private static org.iucn.sis.shared.api.models.PermissionGroup fromOldToNewPermissionGroup(PermissionGroup oldGroup) {
+	private org.iucn.sis.shared.api.models.PermissionGroup fromOldToNewPermissionGroup(PermissionGroup oldGroup) {
 			org.iucn.sis.shared.api.models.PermissionGroup newGroup = new org.iucn.sis.shared.api.models.PermissionGroup();
 			
 			
