@@ -16,6 +16,7 @@ import org.iucn.sis.shared.api.utils.CanonicalNames;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
@@ -28,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.CheckBox;
@@ -44,7 +46,7 @@ public class SISRegionInformation extends Structure<Field> {
 	private CheckBox endemic;
 	
 	private List<Integer> regionsSelected;
-	private Button add;
+	//private Button add;
 	private VerticalPanel innerPanel;
 	
 	public SISRegionInformation(String struct, String descript, String structID) {
@@ -129,29 +131,24 @@ public class SISRegionInformation extends Structure<Field> {
 		innerPanel.add(panel);
 	}
 
-	private Button buildDeleteButton(final ComboBox<RegionModel> box, final LayoutContainer container) {
-		Button delete = new Button("", new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
+	private Widget buildDeleteButton(final ComboBox<RegionModel> box, final LayoutContainer container) {
+		return new IconButton("icon-world-delete", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
 				WindowUtils.confirmAlert("Delete Region", "Are you sure you want to " + "delete this region?",
-						new Listener<MessageBoxEvent>() {
-							public void handleEvent(MessageBoxEvent be) {
-								if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-									if( boxesToSelected.size() > 1 ) {
-									RegionModel removed = boxesToSelected.remove(box);
-									if(removed != null && removed.getRegion().getId() == Region.GLOBAL_ID)
-										endemic.setEnabled(true);
-									container.removeFromParent();
-									} else
-										WindowUtils.errorAlert("Cannot Delete", "You must have " +
-												"at least one locality selected.");
-								}
-							}
-						});
+						new WindowUtils.SimpleMessageBoxListener() {
+					public void onYes() {
+						if ( boxesToSelected.size() > 1 ) {
+							RegionModel removed = boxesToSelected.remove(box);
+							if(removed != null && removed.getRegion().getId() == Region.GLOBAL_ID)
+								endemic.setEnabled(true);
+							container.removeFromParent();
+						} else
+							WindowUtils.errorAlert("Cannot Delete", "You must have " +
+							"at least one locality selected.");
+					}
+				});
 			}
 		});
-		delete.setIconStyle("icon-world-delete");
-		return delete;
 	}
 
 	private ComboBox<RegionModel> buildNewComboBox() {
@@ -214,8 +211,23 @@ public class SISRegionInformation extends Structure<Field> {
 	public Widget createLabel() {
 		clearDisplayPanel();
 		displayPanel.add(descriptionLabel);
-		add.setIconStyle("icon-world-add");
-		displayPanel.add(add);
+		
+		final HorizontalPanel iconButton = new HorizontalPanel();
+		iconButton.setSpacing(1);
+		iconButton.add(new IconButton("icon-world-add", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				addRegionDropdown(null);
+				innerPanel.layout();
+			}
+		}));
+		iconButton.add(new Button("Add New Region", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				addRegionDropdown(null);
+				innerPanel.layout();
+			}
+		}));
+		
+		displayPanel.add(iconButton);
 
 		refreshUI();
 		displayPanel.add(innerPanel);
@@ -255,14 +267,6 @@ public class SISRegionInformation extends Structure<Field> {
 			store.add(model);
 			idToModel.put(cur.getId(), model);
 		}
-		
-		add = new Button("Add New Region", new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				addRegionDropdown(null);
-				innerPanel.layout();
-			}
-		});
 		
 		endemic = new CheckBox("Is Endemic? ");
 		

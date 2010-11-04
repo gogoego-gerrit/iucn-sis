@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.DatePrimitiveField;
 
@@ -74,6 +75,24 @@ public class SISDate extends SISPrimitiveStructure<Date> {
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
 		prettyData.add(offset, rawData.get(offset));
 		return ++offset;
+	}
+	
+	@Override
+	public boolean hasChanged(PrimitiveField<Date> field) {
+		Date oldValue = field == null ? null : field.getValue();
+		
+		String newValue = getData();
+		
+		if (newValue == null)
+			return oldValue != null;
+		else
+			if (oldValue == null)
+				return true;
+			else {
+				String oldValueFormatted = FormattedDate.impl.getDate(oldValue);
+				Debug.println("Comparing {0} to {1}", oldValue, newValue);
+				return !newValue.equals(oldValueFormatted);
+			}
 	}
 
 	@Override
