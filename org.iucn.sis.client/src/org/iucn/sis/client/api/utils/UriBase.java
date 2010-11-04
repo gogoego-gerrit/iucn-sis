@@ -112,6 +112,10 @@ public class UriBase {
 	public String getUserBase() {
 		return getBase() + "/org.iucn.sis.server.extensions.user";
 	}
+	
+	public String getVirusBase() {
+		return getBase() + "/org.iucn.sis.server.extensions.viruses";
+	}
 
 	public boolean isHostedMode() {
 		return hostedMode;

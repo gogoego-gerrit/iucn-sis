@@ -20,12 +20,13 @@ public class AuthorizableFeature implements AuthorizableObject {
 	public static final String INTEGRITY_CHECK = "integrityCheck";
 	public static final String LOCK_MANAGEMENT = "assessmentLockManagement"; 
 	public static final String BATCH_UPLOAD = "batchUpload";
-	public static final String REDLIST = "redlist"; 
+	public static final String REDLIST = "redlist";
+	public static final String VIRUS_MANAGEMENT = "viursManagement";
 	
 	public static String [] featureNames = new String [] { TAXOMATIC, BATCH_CHANGE, 
 		FIND_REPLACE, DEM_UPLOAD, TAXON_FINDER, EDIT_REGIONS, REFERENCE_REPLACE, 
 		PERMISSION_MANAGEMENT, ACCESS_EXPORT, WORKING_SET_ACCESS_EXPORT, USER_MANAGEMENT, 
-		DEFINITION_MANAGEMENT, DELETE_USERS, INTEGRITY_CHECK };
+		DEFINITION_MANAGEMENT, DELETE_USERS, INTEGRITY_CHECK, VIRUS_MANAGEMENT };
 	
 	public static AuthorizableFeature TAXOMATIC_FEATURE = new AuthorizableFeature(TAXOMATIC); 
 	public static AuthorizableFeature BATCH_CHANGE_FEATURE = new AuthorizableFeature(BATCH_CHANGE);
@@ -44,6 +45,7 @@ public class AuthorizableFeature implements AuthorizableObject {
 	public static AuthorizableFeature LOCK_MANAGEMENT_FEATURE = new AuthorizableFeature(LOCK_MANAGEMENT);
 	public static AuthorizableFeature BATCH_UPLOAD_FEATURE = new AuthorizableFeature(BATCH_UPLOAD);
 	public static AuthorizableFeature REDLIST_FEATURE = new AuthorizableFeature(REDLIST);
+	public static AuthorizableFeature VIRUS_MANAGEMENT_FEATURE = new AuthorizableFeature(VIRUS_MANAGEMENT);
 	
 	private String featureName;
 	

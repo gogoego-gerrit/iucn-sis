@@ -18,6 +18,7 @@ import org.iucn.sis.client.panels.redlist.RedlistPanel;
 import org.iucn.sis.client.panels.region.RegionPanel;
 import org.iucn.sis.client.panels.taxa.TaxonFinderPanel;
 import org.iucn.sis.client.panels.users.UserModelTabPanel;
+import org.iucn.sis.client.panels.viruses.VirusManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -69,6 +70,7 @@ public class HeaderContainer extends LayoutContainer {
 	private IntegrityApplicationPanel integrityPanel;
 	private LockManagementPanel lockManagementPanel;
 	private RedlistPanel redlistPanel;
+	private VirusManager virusManagerPanel;
 	
 	private PermissionGroupEditor permEditor;
 	private UserModelTabPanel userModelPanel;
@@ -85,6 +87,7 @@ public class HeaderContainer extends LayoutContainer {
 		integrityPanel = new IntegrityApplicationPanel();
 		lockManagementPanel = new LockManagementPanel();
 		redlistPanel = new RedlistPanel();
+		virusManagerPanel = new VirusManager();
 		
 		leftData = new BorderLayoutData(LayoutRegion.WEST, 155f);
 		rightData = new BorderLayoutData(LayoutRegion.EAST, 205f);
@@ -350,6 +353,18 @@ public class HeaderContainer extends LayoutContainer {
 						redlistPanel.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
 								tabItem.add(redlistPanel);
+							}
+						});
+						tf.add(tabItem);
+					}
+					
+					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.VIRUS_MANAGEMENT_FEATURE)) {
+						final TabItem tabItem = new TabItem();
+						tabItem.setText("Virus Management");
+						tabItem.setLayout(new FitLayout());
+						virusManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								tabItem.add(virusManagerPanel);
 							}
 						});
 						tf.add(tabItem);

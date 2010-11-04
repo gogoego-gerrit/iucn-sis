@@ -7,7 +7,7 @@
 			</generator>
 		</id>
 		<property name="name" column="name" type="string" not-null="true" lazy="false" />
-		<property name="comments" column="comments" type="string" not-null="true" lazy="false" />
+		<property name="comments" column="comments" type="string" not-null="false" lazy="false" />
 		<property name="added" column="added" type="java.util.Date" not-null="true" lazy="false" />
 		<many-to-one name="user" cascade="lock" column="userid" class="org.iucn.sis.shared.api.models.User" not-null="true" lazy="false" /> 
 	</class>	

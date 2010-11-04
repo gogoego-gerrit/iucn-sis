@@ -18,6 +18,7 @@ import org.restlet.resource.ResourceException;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.BaseDocumentUtils;
 
 public class VirusResource extends Resource {
 	
@@ -64,6 +65,7 @@ public class VirusResource extends Resource {
 		try {
 			list = manager.listObjects(Virus.class);
 		} catch (PersistentException e) {
+			e.printStackTrace();
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
@@ -80,7 +82,11 @@ public class VirusResource extends Resource {
 	
 	@Override
 	public void acceptRepresentation(Representation entity) throws ResourceException {
+		if (identifier == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply an identifier");
+		
 		writeVirus(entity);
+		getResponse().setStatus(Status.SUCCESS_OK);
 	}
 	
 	@Override
@@ -95,6 +101,7 @@ public class VirusResource extends Resource {
 	@Override
 	public void storeRepresentation(Representation entity) throws ResourceException {
 		writeVirus(entity);
+		getResponse().setStatus(Status.SUCCESS_CREATED);
 	}
 	
 	private void writeVirus(Representation entity) throws ResourceException {
@@ -113,8 +120,44 @@ public class VirusResource extends Resource {
 		try {
 			manager.saveObject(virus);
 		} catch (PersistentException e) {
+			BaseDocumentUtils.impl.createErrorDocument("Failed to save due to database error.");
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
+		
+		getResponse().setEntity(virus.toXML(), MediaType.TEXT_XML);
+	}
+	
+	@Override
+	public void removeRepresentations() throws ResourceException {
+		if (identifier == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply an identifier");
+		
+		Integer id;
+		try {
+			id = Integer.valueOf(identifier);
+		} catch (NumberFormatException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a valid ID");
+		}
+		
+		final Virus virus;
+		try {
+			virus = manager.getObject(Virus.class, id);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, e);
+		}
+		
+		if (virus == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		
+		//TODO: Is this virus being used by a threat??  If so, no deleting?
+		
+		try {
+			manager.deleteObject(virus);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		getResponse().setStatus(Status.SUCCESS_OK);
 	}
 
 }

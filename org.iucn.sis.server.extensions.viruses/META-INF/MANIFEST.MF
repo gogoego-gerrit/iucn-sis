@@ -9,7 +9,8 @@ Require-Bundle: org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
  org.iucn.sis.server.api;bundle-version="2.0.0",
  org.gogoego.api;bundle-version="1.1.2",
  com.solertium.lwxml;bundle-version="1.1.2",
- com.solertium.lwxml.java;bundle-version="1.1.2"
+ com.solertium.lwxml.java;bundle-version="1.1.2",
+ com.solertium.util;bundle-version="1.1.2"
 Import-Package: org.osgi.framework;version="1.4.0",
  org.restlet,
  org.restlet.data,
@@ -19,3 +20,4 @@ Import-Package: org.osgi.framework;version="1.4.0",
  org.restlet.routing,
  org.restlet.service,
  org.restlet.util
+Export-Package: org.iucn.sis.server.extensions.viruses

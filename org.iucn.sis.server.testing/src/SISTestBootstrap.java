@@ -67,6 +67,8 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 			new org.iucn.sis.server.extensions.notes.ServerActivator().getApplicationFactory().newInstance());
 		map.put("org.iucn.sis.server.extensions.scripts", 
 			new org.iucn.sis.server.extensions.scripts.ServerActivator().getApplicationFactory().newInstance());
+		map.put("org.iucn.sis.server.extensions.viruses", 
+			new org.iucn.sis.server.extensions.viruses.ServerActivator().getApplicationFactory().newInstance());
 		
 		//TODO add additional plugins
 		

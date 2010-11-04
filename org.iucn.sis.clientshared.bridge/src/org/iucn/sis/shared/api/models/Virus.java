@@ -110,9 +110,9 @@ public class Virus {
 		StringBuilder out = new StringBuilder();
 		out.append("<virus>");
 		out.append(XMLWritingUtils.writeTag("id", getId()+""));
-		out.append(XMLWritingUtils.writeTag("name", name));
-		out.append(XMLWritingUtils.writeTag("comments", comments));
-		out.append(XMLWritingUtils.writeTag("date", String.valueOf(added.getTime())));
+		out.append(XMLWritingUtils.writeCDATATag("name", name));
+		out.append(XMLWritingUtils.writeCDATATag("comments", comments));
+		out.append(XMLWritingUtils.writeTag("added", String.valueOf(added.getTime())));
 		out.append(user.toXML());
 		out.append("</virus>");
 		
