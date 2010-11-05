@@ -12,6 +12,8 @@ import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.shared.api.debug.Debug;
 
+import com.solertium.util.TrivialExceptionHandler;
+
 public abstract class Converter {
 	
 	protected BufferedWriter writer;
@@ -37,7 +39,7 @@ public abstract class Converter {
 		session.beginTransaction();
 		
 		Date start = Calendar.getInstance().getTime();
-		printf("! -- Starting conversion at %s", start.toString());
+		printf("! -- Starting %s conversion at %s", getClass().getSimpleName(), start.toString());
 		
 		boolean success;
 		try {
@@ -67,17 +69,23 @@ public abstract class Converter {
 		millis = millis / 1000;
 		
 		if (success) {
-			printf("! -- Finished conversion successfully in %s seconds at %s", millis, start.toString());
+			printf("! -- Finished %s conversion successfully in %s seconds at %s", getClass().getSimpleName(), millis, start.toString());
 			try {
 				session.getTransaction().commit();
 			} catch (Exception e) {
 				printf("Conversion successful, but transaction commit failed: %s", e.getMessage());
 				e.printStackTrace();
+				if (e.getCause() instanceof BatchUpdateException)
+					try {
+						((BatchUpdateException)e).getNextException().printStackTrace();
+					} catch (NullPointerException f) {
+						printf("Batch Update exception has no cause.");
+					}
 				success = false;
 			}
 		}
 		else {
-			printf("X -- Failed to finished conversion in %s seconds at %s", millis, start.toString());
+			printf("X -- Failed to finished %s conversion in %s seconds at %s", getClass().getSimpleName(), millis, start.toString());
 			try {
 				session.getTransaction().rollback();
 			} catch (Exception e) {

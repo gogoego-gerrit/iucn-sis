@@ -223,7 +223,8 @@ public class TaxonConverter extends GenericConverter<String> {
 			else
 				synonym.setName(synData.getUpperLevelName());
 
-			synonym.setFriendlyName(synData.getName());
+			//This is now auto-generated.
+			//synonym.setFriendlyName(synData.getName());
 			synonym.setStatus(synData.getStatus());
 
 			if (synData.getNotes() != null) {

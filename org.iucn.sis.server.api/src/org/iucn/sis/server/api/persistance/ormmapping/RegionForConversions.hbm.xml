@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.Region" table="region" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="assigned">
+			</generator>
+		</id>
+		<property name="name" column="name" type="string" length="55" not-null="false" lazy="false"/>
+		<property name="description" column="description" type="string" length="1023" not-null="false" lazy="false"/>
+		<set name="Working_set" table="working_set_region" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="regionid" not-null="true"/>
+			<many-to-many column="working_setid" class="org.iucn.sis.shared.api.models.WorkingSet">
+			</many-to-many>
+		</set>
+	</class>
+</hibernate-mapping>

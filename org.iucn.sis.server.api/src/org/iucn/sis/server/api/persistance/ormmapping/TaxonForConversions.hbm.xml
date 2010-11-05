@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.Taxon" table="taxon" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="assigned">
+			</generator>
+		</id>
+		<many-to-one name="taxonLevel" cascade="lock" column="taxon_levelid" class="org.iucn.sis.shared.api.models.TaxonLevel" not-null="true" lazy="no-proxy">
+		</many-to-one>
+		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="friendlyName" column="friendly_name" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="hybrid" column="hybrid" type="boolean" length="1" not-null="true" lazy="false"/>
+		<property name="taxonomicAuthority" column="taxonomic_authority" type="text" not-null="false" lazy="false"/>
+		<property name="state" column="state" type="integer" length="8" not-null="true" lazy="false"/>
+		<many-to-one name="taxonStatus" cascade="lock" column="taxon_statusid" class="org.iucn.sis.shared.api.models.TaxonStatus" not-null="true" lazy="no-proxy">
+		</many-to-one>
+		<many-to-one name="infratype" cascade="lock" column="taxon_infratype_id" class="org.iucn.sis.shared.api.models.Infratype" not-null="false" lazy="no-proxy">
+		</many-to-one>
+		<many-to-one name="parent" cascade="lock" column="parentid" class="org.iucn.sis.shared.api.models.Taxon" not-null="false" lazy="no-proxy">
+		</many-to-one>
+		<set name="Working_set" table="working_set_taxon" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="taxonid" not-null="true"/>
+			<many-to-many column="working_setid" class="org.iucn.sis.shared.api.models.WorkingSet">
+			</many-to-many>
+		</set>
+		<set name="Reference" table="reference_taxon" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="taxonid" not-null="true"/>
+			<many-to-many column="referenceid" class="org.iucn.sis.shared.api.models.Reference">
+			</many-to-many>
+		</set>
+		<set name="Children" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="parentid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.Taxon"/>
+		</set>
+		<set name="Edits" table="taxon_edit" lazy="true" cascade="save-update,lock">
+			<key column="taxonid" not-null="true"/>
+			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
+			</many-to-many>
+		</set>
+		<set name="Notes" table="taxon_notes" lazy="true" cascade="save-update,lock">
+			<key column="taxonid" not-null="true"/>
+			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
+			</many-to-many>
+		</set>
+		<set name="Assessments" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="taxonid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.Assessment"/>
+		</set>
+		<set name="Synonyms" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="taxonid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.Synonym"/>
+		</set>
+		<set name="CommonNames" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="taxonid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.CommonName"/>
+		</set>
+		
+	</class>
+</hibernate-mapping>

@@ -132,12 +132,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 					ndoc.parse(FileListing.readFileAsString(file));
 					parser.parse(ndoc);
-					Assessment assessment = null;
-
-					assessment = assessmentDataToAssessment(parser.getAssessment());
+					
+					Assessment assessment = assessmentDataToAssessment(parser.getAssessment());
 					if (assessment != null) {
 						if( assessment.getTaxon() != null ) {
-							//						SIS.get().getManager().getSession().save(assessment);
 							User userToSave;
 							if (assessment.getLastEdit() != null)  {
 								userToSave = assessment.getLastEdit().getUser();
@@ -186,11 +184,14 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		assessment.setDateFinalized(assessData.getDateFinalized());
 		assessment.setTaxon(SIS.get().getTaxonIO().getTaxon(Integer.valueOf(assessData.getSpeciesID())));
 		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType())) {
-			try {
-				assessment.setDateAssessed(shortfmt.parse(assessData.getDateAssessed()));
-			} catch (Exception e) {
-				e.printStackTrace();
-				TrivialExceptionHandler.ignore(this, e);
+			String dateAssessed = assessData.getDateAssessed();
+			if (dateAssessed != null && !"".equals(dateAssessed)) {
+				try {
+					assessment.setDateAssessed(shortfmt.parse(dateAssessed));
+				} catch (Exception e) {
+					e.printStackTrace();
+					TrivialExceptionHandler.ignore(this, e);
+				}
 			}
 		}
 		else {
@@ -204,19 +205,17 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				TrivialExceptionHandler.ignore(this, e);
 			}
 			
-			System.out.println(assessData.getType() + " assessment with date " + assessData.getDateAssessed() + " translated to " + assessment.getDateAssessed());
 			if (assessment.getDateAssessed() == null)
 				throw new NullPointerException("No date assessed!");
 		}
 		assessment.generateFields();
 
 		for (Entry<String, Object> curField : assessData.getDataMap().entrySet()) {
-//			print("on current field " + curField.getKey());
-			
 			Set lookup = getLookup(curField.getKey());
+			
 			Field field = new Field(curField.getKey(), assessment);
-			assessment.getField().add(field);
 			field.setAssessment(assessment);
+			
 			List<Field> subfields = new ArrayList<Field>();
 
 			if (curField.getKey().equals(CanonicalNames.Lakes) || curField.getKey().equals(CanonicalNames.Rivers)) {
@@ -292,19 +291,17 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				}
 			}
 
-			boolean addedRefs = false;
 			for (ReferenceUI curRef : assessData.getReferences(curField.getKey())) {
 				Reference ref = SIS.get().getReferenceIO().getReferenceByHashCode(curRef.getReferenceID());
 				if (ref != null) {
 					field.getReference().add(ref);
 //					ref.getField().add(field);
-					addedRefs = true;
 				}
 			}
 			
-			if( !addedRefs && field.getPrimitiveField().size() == 0 && field.getFields().size() == 0
-					&& field.getNotes().size() == 0 )
-				assessment.getField().remove(field);
+			//TODO: don't see where notes are being parsed...
+			if (field.hasData() || !field.getReference().isEmpty() || !field.getNotes().isEmpty())
+				assessment.getField().add(field);
 		}
 
 		for (ReferenceUI curRef : assessData.getReferences("global")) {
@@ -331,7 +328,6 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 				
 			curRow = lookup.getSet().get(i);
-//			print("Looking at row " + curRow.get("name").getString() + " with index " + i);
 			
 			String type = curRow.get("data_type").getString();
 			if (typeLookup.get(type) != Object.class) {
@@ -382,7 +378,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							List<Integer> newData = new ArrayList<Integer>();
 							
 							for( Integer cur : data )
-								newData.add(0, RegionConverter.getNewRegionID(cur));
+								newData.add(RegionConverter.getNewRegionID(cur));
 							
 							prim.setValue(newData);
 						}
