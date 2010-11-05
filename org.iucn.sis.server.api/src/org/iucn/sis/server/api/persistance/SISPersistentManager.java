@@ -150,6 +150,17 @@ public class SISPersistentManager {
 	}
 	
 	@SuppressWarnings("unchecked")
+	public <X> X loadObject(Class<X> clazz, Serializable id) throws PersistentException {
+		Session session = getSession();
+		try {
+			return (X) session.load(clazz, id);
+		} catch (ClassCastException e) {
+			throw new PersistentException(e);
+		} catch (HibernateException e) {
+			throw new PersistentException(e);
+		}
+	}
+	@SuppressWarnings("unchecked")
 	public <X> List<X> listObjects(Class<X> criteria) throws PersistentException {
 		Session session = getSession();
 		try {
