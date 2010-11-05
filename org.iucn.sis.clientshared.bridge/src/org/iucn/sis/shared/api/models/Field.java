@@ -80,6 +80,8 @@ public class Field implements Serializable {
 		this();
 		this.name = canonicalName;
 		this.assessment = assessment;
+		
+		generationCode = new Date().getTime()+canonicalName;
 	}
 
 	/**
