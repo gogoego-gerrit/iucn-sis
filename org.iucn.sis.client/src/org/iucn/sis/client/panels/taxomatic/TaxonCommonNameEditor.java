@@ -413,6 +413,12 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 	}
 
 	private void save() {
+		
+		if (currentCommonName == null) {
+			WindowUtils.infoAlert("Please select a common name to save.");
+			return;
+		}
+		
 		if (language.getSelectedIndex() == 0) {
 			WindowUtils.errorAlert("You must first select a language for the common name.");
 			return;
@@ -420,7 +426,7 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 		bar.disable();
 		storePreviousData();
 		
-		if (currentCommonName != null) {
+		
 		
 		TaxonomyCache.impl.addOrEditCommonName(node, currentCommonName, new GenericCallback<String>() {
 		
@@ -443,44 +449,44 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 		
 			}
 		});
-		} else {
-			WindowUtils.infoAlert("Please select a common name to save.");
-		}
+		
+			
 	}
 
 	private void saveAndClose() {
+		if (currentCommonName == null) {
+			close();
+			return;
+		}
+		
 		if (language.getSelectedIndex() == 0) {
 			WindowUtils.errorAlert("You must first select a language for the common name.");
 			return;
 		}
 		bar.disable();
 		storePreviousData();
-		if (currentCommonName != null) {
-			TaxonomyCache.impl.addOrEditCommonName(node, currentCommonName, new GenericCallback<String>() {
 
-				@Override
-				public void onSuccess(String result) {
+		TaxonomyCache.impl.addOrEditCommonName(node, currentCommonName, new GenericCallback<String>() {
 
-					bar.enable();
-					WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
-					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-					close();
+			@Override
+			public void onSuccess(String result) {
 
-				}
+				bar.enable();
+				WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
+				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+				close();
 
-				@Override
-				public void onFailure(Throwable caught) {
-					bar.enable();
-					WindowUtils.errorAlert(
-							"Error",
-							"An error occurred when trying to save the common name data related to "
-									+ node.getFullName() + ".");
-				}
-			});
-		} else {
-			close();
-		}
-		
+			}
+
+			@Override
+			public void onFailure(Throwable caught) {
+				bar.enable();
+				WindowUtils.errorAlert("Error",
+						"An error occurred when trying to save the common name data related to " + node.getFullName()
+								+ ".");
+			}
+		});
+
 	}
 
 	private void storePreviousData() {
