@@ -123,21 +123,11 @@ public class CommonName implements Serializable {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
-			return false;
 		if (obj instanceof CommonName) {
-			CommonName other = (CommonName) obj;
-			if ((other.name == null && getName() != null) || (other.name != null && getName() == null))
-				return false;
-			if ((other.iso == null && getIso() != null) || (other.iso != null && getIso() == null))
-				return false;
-			if (other.name == null && getName() == null && getIso() == null && other.getIso() == null)
-				return true;
-			if (other.name != null && getName() != null && getIso() == null && other.getIso() == null)
-				return false;
-			return (other.name.equalsIgnoreCase(getName()) && other.getIso().equals(getIso()));
+			return ((CommonName)obj).getId() == getId();
+		} else {
+			return super.equals(obj);
 		}
-		return super.equals(obj);
 	}
 	
 	public int getChangeReason() {
@@ -194,7 +184,7 @@ public class CommonName implements Serializable {
 	
 	@Override
 	public int hashCode() {
-		return getName() == null? "".hashCode() : getName().toLowerCase().hashCode();
+		return ("CommonName"+getId()).hashCode();
 	}
 	
 	public boolean isPrimary() {

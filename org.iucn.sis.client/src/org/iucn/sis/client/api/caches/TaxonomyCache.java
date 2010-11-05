@@ -698,17 +698,18 @@ public class TaxonomyCache {
 				String newId = ndoc.getText();
 				if (commonName.getId() == 0) {
 					commonName.setId(Integer.parseInt(newId));
-					taxon.getCommonNames().add(commonName);
+					
 				} else {
+					CommonName toRemove = null;
 					for (CommonName c : taxon.getCommonNames()) {
 						if (c.getId() == commonName.getId()) {
-							taxon.getCommonNames().remove(c);
-							taxon.getCommonNames().add(commonName);
+							toRemove = c;
 							break;
 						}
 					}
+					taxon.getCommonNames().remove(toRemove);
 				}
-				
+				taxon.getCommonNames().add(commonName);
 				callback.onSuccess(newId);
 		
 			}
