@@ -27,6 +27,7 @@ import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
 public class WorkingSet implements Serializable, AuthorizableObject {
@@ -49,7 +50,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	}
 
 	public String getFullURI() {
-		return "resource/workingSet/" + getId();
+		return "workingSet/" + getId();
 	}
 
 	public String getProperty(String key) {
@@ -141,12 +142,15 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	}
 
 	public static WorkingSet fromXMLMinimal(NativeElement element) {
-		Date date = new Date(Long.valueOf(element.getAttribute("date")));
-		WorkingSet set = new WorkingSet();
+		return fromXMLMinimal(new WorkingSet(), element);
+	}
+	
+	public static WorkingSet fromXMLMinimal(WorkingSet set, NativeElement element) {
 		set.setCreator(element.getAttribute("creator"));
 		set.setId(Integer.valueOf(element.getAttribute("id")));
-		set.setCreatedDate(date);
+		set.setCreatedDate(new Date(Long.valueOf(element.getAttribute("date"))));
 		set.setName(XMLUtils.cleanFromXML(element.getAttribute("name")));
+		
 		return set;
 	}
 
@@ -155,33 +159,36 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	}
 
 	public static WorkingSet fromXML(NativeElement element) {
-		WorkingSet set = fromXMLMinimal(element);
-		set.setWorkflow(element.getElementByTagName("workflow").getTextContent());
-		set.setDescription(element.getElementByTagName("description").getTextContent());
-		set.setNotes(element.getElementByTagName("notes").getTextContent());
-		set.setRelationship(Relationship.fromXML(element.getElementByTagName(Relationship.ROOT_TAG)));
-		set.setCreator(element.getAttribute("creator"));
-		set.setIsMostRecentPublished(Boolean.valueOf(element.getElementByTagName("mostRecentPublished").getTextContent()));
-
-		NativeNodeList regions = element.getElementsByTagName(Region.ROOT_TAG);
-		for (int i = 0; i < regions.getLength(); i++) {
-			set.getRegion().add(Region.fromXML(regions.elementAt(i)));
+		return fromXML(new WorkingSet(), element);
+	}
+	
+	public static WorkingSet fromXML(WorkingSet set, NativeElement element) {
+		fromXMLMinimal(set, element);
+		
+		final NativeNodeList nodes = element.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			final NativeNode node = nodes.item(i);
+			final String nodeName = node.getNodeName(); 
+			
+			if ("workflow".equals(nodeName))
+				set.setWorkflow(node.getTextContent());		
+			else if ("description".equals(nodeName))
+				set.setDescription(node.getTextContent());
+			else if ("notes".equals(nodeName))
+				set.setNotes(node.getTextContent());
+			else if (Relationship.ROOT_TAG.equals(nodeName))
+				set.setRelationship(Relationship.fromXML((NativeElement)node));
+			else if ("mostRecentPublished".equals(nodeName))
+				set.setIsMostRecentPublished(Boolean.valueOf(node.getTextContent()));
+			else if (Region.ROOT_TAG.equals(nodeName))
+				set.getRegion().add(Region.fromXML((NativeElement)node));
+			else if (Taxon.ROOT_TAG.equals(nodeName))
+				set.getTaxon().add(Taxon.fromXMLminimal((NativeElement)node));
+			else if (User.ROOT_TAG.equals(nodeName))
+				set.getUsers().add(User.fromXML((NativeElement)node));
+			else if (AssessmentType.ROOT_TAG.equals(nodeName))
+				set.getAssessmentTypes().add(AssessmentType.fromXML((NativeElement)node));	
 		}
-
-		NativeNodeList taxa = element.getElementsByTagName(Taxon.ROOT_TAG);
-		for (int i = 0; i < taxa.getLength(); i++) {
-			set.getTaxon().add(Taxon.fromXMLminimal(taxa.elementAt(i)));
-		}
-
-		NativeNodeList users = element.getElementsByTagName(User.ROOT_TAG);
-		for (int i = 0; i < users.getLength(); i++) {
-			set.getUsers().add(User.fromXML(users.elementAt(i)));
-		}
-
-		NativeNodeList types = element.getElementsByTagName(AssessmentType.ROOT_TAG);
-		for (int i = 0; i < types.getLength(); i++)
-			set.getAssessmentTypes().add(AssessmentType.fromXML(types.elementAt(i)));
-
 		
 		return set;
 	}
@@ -189,7 +196,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	public String toXML() {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + " creator=\"" + getCreatorUsername() + "\" id=\"" + getId() + "\" date=\""
-				+ getCreatedDate().getTime() + "\" name=\"" + org.iucn.sis.shared.api.utils.XMLUtils.clean(getName())
+				+ getCreatedDate().getTime() + "\" name=\"" + XMLUtils.clean(getName())
 				+ "\">");
 
 		if (workflow == null)
@@ -216,7 +223,6 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 			xml.append(at.toXML());
 
 		xml.append("</" + ROOT_TAG + ">");
-		
 		
 		return xml.toString();
 	}

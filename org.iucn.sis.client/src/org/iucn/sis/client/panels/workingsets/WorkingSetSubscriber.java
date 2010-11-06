@@ -2,76 +2,59 @@ package org.iucn.sis.client.panels.workingsets;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.workingset.WSModel;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
-import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
+import org.iucn.sis.client.panels.references.PagingPanel;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.binder.TableBinder;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.table.CellRenderer;
-import com.extjs.gxt.ui.client.widget.table.Table;
-import com.extjs.gxt.ui.client.widget.table.TableColumn;
-import com.extjs.gxt.ui.client.widget.table.TableColumnModel;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.util.extjs.client.GenericPagingLoader;
-import com.solertium.util.extjs.client.PagingLoaderFilter;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class WorkingSetSubscriber extends RefreshLayoutContainer {
+public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 
-	private PanelManager manager = null;
-	private Button actionButton = null;	
-	private Table table = null;
-	private TableBinder<WSModel> binder = null;
+	private final TextBox textBox;
 	
-	private PagingToolBar pagingBar = null;
-	private GenericPagingLoader<WSModel> pagingLoader = null;
+	private Grid<WSModel> grid;
+	private Button actionButton = null;
 	
-
 	public WorkingSetSubscriber(PanelManager manager) {
 		super();
-		this.manager = manager;
-		build();
-	}
-
-	private void build() {
-
+		setLayout(new BorderLayout());
 		addStyleName("gwt-background");
 
-		BorderLayout layout = new BorderLayout();
-		// layout.setSpacing(8);
+		textBox = new TextBox();
 
-		setLayout(new BorderLayout());
 		BorderLayoutData north = new BorderLayoutData(LayoutRegion.NORTH, 70f);
 		BorderLayoutData center = new BorderLayoutData(LayoutRegion.CENTER);
 
 		buildInstructions(north);
 		buildList(center);
-
 	}
 
 	private void buildInstructions(BorderLayoutData data) {
@@ -82,180 +65,148 @@ public class WorkingSetSubscriber extends RefreshLayoutContainer {
 				+ "working sets by name, " + "creator or date by clicking on the applicable button.", true);
 		add(bar, data);
 	}
+	
+	private ColumnModel getColumnModel() {
+		List<ColumnConfig> list = new ArrayList<ColumnConfig>();
+		
+		list.add(new ColumnConfig("name", "Working Set Name", 300));
+		
+		ColumnConfig creatorConfig = new ColumnConfig("creator", "Creator", 200);
+		creatorConfig.setRenderer(new GridCellRenderer<WSModel>() {
+			public Object render(WSModel model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<WSModel> store, Grid<WSModel> grid) {
+				User user = model.get(property);
+				return user.getUsername();
+			}
+		});
+		list.add(creatorConfig);
+		
+		ColumnConfig dateConfig = new ColumnConfig("date", "Date Created", 100);
+		dateConfig.setRenderer(new GridCellRenderer<WSModel>() {
+			public Object render(WSModel model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<WSModel> store, Grid<WSModel> grid) {
+				Date date = model.get(property);
+				return FormattedDate.impl.getDate(date);
+			}
+		});
+		list.add(dateConfig);
+		
+		return new ColumnModel(list);
+	}
+	
+	public void refresh() {
+		refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+	}
+	
+	@Override
+	protected void refreshView() {
+		grid.getView().refresh(false);
+	}
 
 	private void buildList(BorderLayoutData data) {
-
-		TableColumn[] columns = new TableColumn[3];
-
-		columns[0] = new TableColumn("name", "Working Set Name", .6f);
-		columns[0].setMinWidth(50);
-		columns[0].setMaxWidth(500);
-
-		columns[1] = new TableColumn("creator", "Creator", .2f);
-		columns[1].setMinWidth(50);
-		columns[1].setMaxWidth(200);
-
-		columns[2] = new TableColumn("date", "Date Created", .2f);
-		columns[2].setMinWidth(50);
-		columns[2].setMaxWidth(100);
-
-		TableColumnModel cm = new TableColumnModel(columns);
-		table = new Table(cm);
-		table.setSelectionMode(SelectionMode.SINGLE);
-		table.addStyleName("gwt-background");
+		grid = new Grid<WSModel>(getStoreInstance(), getColumnModel());
 		
-		pagingBar = new PagingToolBar(35);
-		pagingLoader = new GenericPagingLoader<WSModel>();
-		pagingBar.bind(pagingLoader.getPagingLoader());
-		
-		binder = new TableBinder<WSModel>(table, new ListStore<WSModel>(pagingLoader.getPagingLoader()));
-		binder.init();
-
-		TableColumn col = cm.getColumn(0);
-		col.setRenderer(new CellRenderer() {
-			public String render(Component item, String property, Object value) {
-				return (String) value;
-			}
-		});
-
-		col = cm.getColumn(1);
-		col.setRenderer(new CellRenderer() {
-			public String render(Component item, String property, Object value) {
-				return ((User) value).getUsername();
-			}
-		});
-
-		col = cm.getColumn(2);
-		col.setRenderer(new CellRenderer() {
-			public String render(Component item, String property, Object value) {
-				return FormattedDate.impl.getDate(((Date) value));
-			}
-		});
-
-
-		final TextBox textBox = new TextBox();
-		
-		pagingLoader.setFilter(new PagingLoaderFilter<WSModel>() {
-			public boolean filter(WSModel item, String property) {
-				if (textBox.getText().length() == 0)
-					return false;
-
-				String compareWith = property.startsWith("name") ? item.getName().toLowerCase() : 
-					property.startsWith("date") ? item.getDate().toLowerCase() :
-					item.getCreator().toLowerCase();
-				String text = textBox.getText().toLowerCase();
-				if (compareWith.startsWith(text))
-					return false;
-				else
-					return true;
-			}
-		});
-		
-		final Button filterByDateButton = new Button("date");
-		final Button filterByCreatorButton = new Button("creator");
-		final Button filterByNameButton = new Button("name");
 		final SelectionListener<ButtonEvent> event = new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				pagingLoader.applyFilter(ce.getButton().getText());
+				getProxy().getStore().applyFilters(ce.getButton().getText());
+				/*pagingLoader.applyFilter(ce.getButton().getText());
 				pagingBar.setActivePage(1);
-				pagingLoader.getPagingLoader().load();
+				pagingLoader.getPagingLoader().load();*/
 			}
 		};
-		filterByNameButton.addSelectionListener(event);
-		filterByDateButton.addSelectionListener(event);
-		filterByCreatorButton.addSelectionListener(event);
+		
+		final Button filterByDateButton = new Button("date", event);
+		final Button filterByCreatorButton = new Button("creator", event);
+		final Button filterByNameButton = new Button("name", event);
 
-		actionButton = new Button();
-		actionButton.setText("Subscribe");
+		actionButton = new Button("Subscribe", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				WSModel model = grid.getSelectionModel().getSelectedItem();
+				if (model != null)
+					subscribe(model);
+			}
+		});
 		actionButton.setToolTip("Subscribe to checked working sets");
-		SelectionListener listener = new SelectionListener<ComponentEvent>() {
-			@Override
-			public void componentSelected(ComponentEvent ce) {
-				if (binder.getSelection().get(0) != null)
-					subscribe();
+		actionButton.setWidth("70px");
 
-			}
-		};
-		actionButton.addSelectionListener(listener);
-		actionButton.setWidth("50px");
-
-		HorizontalPanel hp = new HorizontalPanel();
+		com.extjs.gxt.ui.client.widget.HorizontalPanel hp = 
+			new com.extjs.gxt.ui.client.widget.HorizontalPanel();
 		hp.add(new HTML("<b>Filter by:</b> "));
 		hp.add(textBox);
 		hp.setSpacing(2);
 		hp.add(filterByNameButton);
 		hp.add(filterByCreatorButton);
 		hp.add(filterByDateButton);
+		
+		final ToolBar bar = new ToolBar();
+		bar.add(actionButton);
+		bar.add(new SeparatorToolItem());
+		bar.add(new SeparatorToolItem());
+		bar.add(hp);
+		
 
-		LayoutContainer container = new LayoutContainer();
-		container.setLayout(new RowLayout(Orientation.VERTICAL));
-		container.add(hp);
-		container.add(table, new RowData(1d, 1d));
-		container.add(pagingBar, new RowData(1d, 30d));
-		container.add(actionButton);
+		LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(bar, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
+		container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+		//container.add(actionButton);
 
 //		store.addFilter(filterByName);
 //		filterByNameButton.disable();
 		add(container, data);
 	}
-
+	
 	@Override
-	public void refresh() {
-		refreshList();
-		layout();
-	}
-
-	private void refreshList() {
-
-		actionButton.disable();
-		pagingLoader.getFullList().clear();
+	protected void getStore(final GenericCallback<ListStore<WSModel>> callback) {
+		//actionButton.disable();
 		WorkingSetCache.impl.getAllSubscribableWorkingSets(new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
+				WindowUtils.errorAlert("Could not load working sets, please try again later.");
 			}
-
 			public void onSuccess(String arg0) {
-				try {
-					ArrayList<WorkingSet> workingsets = WorkingSetCache.impl.getSubscribable();
-					for (int i = 0; i < workingsets.size(); i++) {
-						WorkingSet wsData = workingsets.get(i);
-						WSModel ws = new WSModel(wsData);
-						pagingLoader.getFullList().add(ws);
+				ArrayList<WorkingSet> workingsets = WorkingSetCache.impl.getSubscribable();
+				final ListStore<WSModel> store = new ListStore<WSModel>();
+				store.addFilter(new StoreFilter<WSModel>() {
+					public boolean select(Store<WSModel> store, WSModel parent, WSModel item, String property) {
+						if (textBox.getText().length() == 0)
+							return true;
+
+						String compareWith = property.startsWith("name") ? item.getName().toLowerCase() : 
+							property.startsWith("date") ? item.getDate().toLowerCase() :
+							item.getCreator().toLowerCase();
+						String text = textBox.getText().toLowerCase();
+						
+						return compareWith.startsWith(text);
 					}
-					
-					pagingLoader.getPagingLoader().load();
-					actionButton.enable();
-				} catch (Throwable e) {
-					e.printStackTrace();
-				}
+				});
+				for (WorkingSet workingSet : workingsets)
+					store.add(new WSModel(workingSet));
+				
+				callback.onSuccess(store);
 			}
 		});
 	}
 
-	private void subscribe() {
+	private void subscribe(final WSModel model) {
 		actionButton.disable();
-		final WSModel ws = binder.getSelection().get(0);
-		WorkingSetCache.impl.subscribeToWorkingSet(ws.getID().toString(), new GenericCallback<String>() {
-
+		WorkingSetCache.impl.subscribeToWorkingSet(model.getID().toString(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-
-				WindowUtils.errorAlert(ws.getName()
+				WindowUtils.errorAlert(model.getName()
 						+ " was unable to be added to your working sets.  Please try again.");
 				actionButton.enable();
 			}
 
 			public void onSuccess(String arg0) {
-				WindowUtils.infoAlert("Working Set Added", ws.getName()
-						+ " was successfully added to your working sets.  To view this " + ws.getName()
+				WindowUtils.infoAlert("Working Set Added", model.getName()
+						+ " was successfully added to your working sets.  To view this " + model.getName()
 						+ " click on the quick summary tab.");
 				actionButton.enable();
 				// refreshList();
-				pagingLoader.getFullList().remove(ws);
-				pagingLoader.getPagingLoader().load();
 				WSStore.getStore().update();
 			}
-
 		});
-
 	}
 
 }

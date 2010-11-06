@@ -1,14 +1,12 @@
 package org.iucn.sis.server.restlets.users;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
-import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
@@ -17,23 +15,19 @@ import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.restlet.ext.xml.DomRepresentation;
-import org.w3c.dom.Document;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
-import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
-import com.solertium.db.query.ExperimentalSelectQuery;
-import com.solertium.db.query.QRelationConstraint;
+import com.solertium.lwxml.java.JavaNativeDocument;
+import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeNode;
+import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.vfs.VFS;
-import com.solertium.vfs.VFSPath;
 
-public class PermissionGroupsRestlet extends ServiceRestlet {
-
-	private long lastModified = 0;
+public class PermissionGroupsRestlet extends BaseServiceRestlet {
 
 	private final int DELETE_ELEMENT = 0;
 	private final int ADD_ELEMENT = 1;
@@ -53,32 +47,25 @@ public class PermissionGroupsRestlet extends ServiceRestlet {
 		paths.add("/acl/group/{groupName}");
 	}
 
-	@Override
-	public void performService(Request request, Response response) {
-		try {
-			if( request.getMethod().equals(Method.DELETE) )
-				handleDelete(request, response);
-			else if( request.getMethod().equals(Method.GET) )
-				handleGet(request, response);
-			else if( request.getMethod().equals(Method.POST) )
-				handlePost(request, response);
-			else
-				response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
-		} catch (IOException e) {
-			e.printStackTrace();
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		} catch (Throwable e) {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		}
-	}
-
-	private void handleDelete(Request request, Response response) throws IOException {
+	public void handleDelete(Request request, Response response) throws ResourceException {
 		String groupName = (String)request.getAttributes().get("groupName");
-		if( groupName == null ) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		} else if( groupName.contains(",") ) {
-			for( String curGroup : groupName.split(",") ) {
+		if (groupName == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		else if (groupName.contains(",")) {
+			for (String curGroup : groupName.split(",") ) {
+				PermissionGroup group;
+				try {
+					group = SIS.get().getPermissionIO().getPermissionGroup(curGroup);
+					
+					if (group == null)
+						throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+					
+					SISPersistentManager.instance().deleteObject(group);
+				} catch (PersistentException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+				
+				//FIXME: remove the permission group
 //				/*NodeList list = permissionsDoc.getElementsByTagName(curGroup);
 //				if( list == null || list.getLength() == 0 )
 //					response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
@@ -89,10 +76,11 @@ public class PermissionGroupsRestlet extends ServiceRestlet {
 //					operateOnDocument(els, DELETE_ELEMENT);
 //				}*/
 				
-				response.setEntity("Remove successful.", MediaType.TEXT_PLAIN);
-				response.setStatus(Status.SUCCESS_OK);
+				/*response.setEntity("Remove successful.", MediaType.TEXT_PLAIN);
+				response.setStatus(Status.SUCCESS_OK);*/
 			}
 		} else {
+			//FIXME: remove the permission group
 //			NodeList list = permissionsDoc.getElementsByTagName(groupName);
 //			if( list == null || list.getLength() == 0 )
 //				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
@@ -105,37 +93,58 @@ public class PermissionGroupsRestlet extends ServiceRestlet {
 //				response.setEntity(DocumentUtils.serializeNodeToString(el), MediaType.TEXT_XML);
 //				response.setStatus(Status.SUCCESS_OK);
 //			}
+			
+			response.setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
 		}
 	}
-
-	private void handleGet(Request request, Response response) {
-		
+	
+	public Representation handleGet(Request request, Response response) throws ResourceException {	
 		String username = (String) request.getAttributes().get("username");
 		if (username != null) {
 			User user = SIS.get().getUserIO().getUserFromUsername(username);
-			if (user != null) {
-				StringBuilder xml = new StringBuilder("<permissions>");
-				for (PermissionGroup group : user.getPermissionGroups()) {
-					xml.append(group.toBasicXML());
-				}
-				xml.append("</permissions>");
-				response.setStatus(Status.SUCCESS_OK);
-				response.setEntity(xml.toString(), MediaType.TEXT_XML);
-			} else {
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			}
+			if (user == null)
+				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 			
+			StringBuilder xml = new StringBuilder("<permissions>");
+			for (PermissionGroup group : user.getPermissionGroups())
+				xml.append(group.toBasicXML());
+			xml.append("</permissions>");
+			
+			return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
 		} else {
 			try {
-				response.setEntity(SIS.get().getPermissionIO().getPermissionGroupsXML(), MediaType.TEXT_XML);
-				response.setStatus(Status.SUCCESS_OK);
+				return new StringRepresentation(SIS.get().getPermissionIO().getPermissionGroupsXML(), MediaType.TEXT_XML);
 			} catch (DBException e) {
-				e.printStackTrace();
-				response.setStatus(Status.SERVER_ERROR_INTERNAL);
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 		}
+	}
+	
+	@Override
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		final NativeDocument document = new JavaNativeDocument();
+		try {
+			document.parse(entity.getText());
+		} catch (Exception e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 		
-		
+		final StringBuilder builder = new StringBuilder();
+		builder.append("<groups>");
+		final NativeNodeList nodes = document.getDocumentElement().getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			final NativeNode node = nodes.item(i);
+			if (PermissionGroup.ROOT_TAG.equals(node.getNodeName())) {
+				PermissionGroup group = PermissionGroup.fromXML(node);
+				try {
+					SISPersistentManager.instance().saveObject(group);
+				} catch (PersistentException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+				builder.append(group.toXML());
+			}
+		}
+		builder.append("</groups>");
 	}
 
 	private void handlePost(Request request, Response response) throws IOException {

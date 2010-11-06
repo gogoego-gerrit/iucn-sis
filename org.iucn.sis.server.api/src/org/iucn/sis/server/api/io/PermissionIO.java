@@ -1,7 +1,6 @@
 package org.iucn.sis.server.api.io;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,10 +8,10 @@ import java.util.Map.Entry;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.PermissionGroupCriteria;
 import org.iucn.sis.server.api.persistance.PermissionGroupDAO;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.api.models.PermissionGroup;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
@@ -20,7 +19,6 @@ import com.solertium.db.Row;
 import com.solertium.db.RowProcessor;
 import com.solertium.db.query.ExperimentalSelectQuery;
 import com.solertium.db.query.QRelationConstraint;
-import com.solertium.db.query.SelectQuery;
 
 /**
  * Performs file system IO operations for Access Control (permission) related
@@ -32,8 +30,7 @@ import com.solertium.db.query.SelectQuery;
 public class PermissionIO {
 
 	public List<PermissionGroup> getPermissionGroups() throws PersistentException {
-		return (List<PermissionGroup>) SIS.get().getManager().getSession().createCriteria(PermissionGroup.class).list();
-
+		return SISPersistentManager.instance().listObjects(PermissionGroup.class);
 	}
 
 	public String getPermissionGroupsXML() throws DBException {

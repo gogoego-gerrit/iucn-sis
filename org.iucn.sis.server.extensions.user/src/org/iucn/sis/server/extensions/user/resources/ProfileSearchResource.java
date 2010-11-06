@@ -5,15 +5,10 @@ import java.util.List;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.IdentifierEqExpression;
-import org.hibernate.criterion.IlikeExpression;
-import org.hibernate.criterion.LogicalExpression;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
-import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.extensions.user.application.UserManagementApplication;
-import org.iucn.sis.shared.api.criteriacalculator.CriteriaResult;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
@@ -22,24 +17,16 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.solertium.db.CanonicalColumnName;
-import com.solertium.db.DBException;
 import com.solertium.db.ExecutionContext;
-import com.solertium.db.Row;
-import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
-import com.solertium.db.query.QConstraintGroup;
-import com.solertium.db.query.QRelationConstraint;
-import com.solertium.db.query.SelectQuery;
-import com.solertium.db.utils.QueryUtils;
 import com.solertium.util.BaseDocumentUtils;
 
 /**
@@ -113,6 +100,28 @@ public class ProfileSearchResource extends Resource {
 		for (User user : users) {
 			try {
 				final Element row = document.createElement("row");
+				final String quickGroup = user.getQuickGroupString();
+				if (form.getFirstValue("quickgroup") != null) {
+					String permString = null;
+					for (String current : form.getValuesArray("quickgroup")) {
+						if (quickGroup.matches(".*?" + current + "rwg(\\b|,).*"))
+							permString = "read,write,grant";
+						else if (quickGroup.matches(".*?" + current + "rw(\\b|,).*"))
+							permString = "read,write";
+						else if (quickGroup.matches(".*?" + current + "rg(\\b|,).*"))
+							permString = "read,grant";
+						else if (quickGroup.matches(".*?" + current + "r(\\b|,).*"))
+							permString = "read";
+						
+						if (permString != null)
+							break;
+					}
+					Debug.println("Quick group for {0} is {1}, resulting in {2}", user.getUsername(), quickGroup, permString);
+					if (permString == null)
+						continue;
+					else
+						appendField(document, row, "permissions", permString);
+				}
 				appendField(document, row, "firstName", user.getFirstName());
 				appendField(document, row, "lastName", user.getLastName());
 				appendField(document, row, "initials", user.getInitials());
@@ -120,6 +129,7 @@ public class ProfileSearchResource extends Resource {
 				appendField(document, row, "userid", user.getId()+"");
 				appendField(document, row, "username", user.getUsername());
 				appendField(document, row, "affiliation", user.getAffiliation());
+				appendField(document, row, "quickGroup", user.getQuickGroupString());
 				
 				root.appendChild(row);
 			} catch (Exception e) {
@@ -129,7 +139,7 @@ public class ProfileSearchResource extends Resource {
 		
 		document.appendChild(root);
 		
-		return new DomRepresentation(variant.getMediaType(), document);
+		return new StringRepresentation(BaseDocumentUtils.impl.serializeDocumentToString(document, true, true), MediaType.TEXT_XML);
 	}
 	
 	private void appendField(Document document, Element row, String name, String value) {

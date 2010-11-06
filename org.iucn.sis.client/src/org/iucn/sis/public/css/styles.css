@@ -1846,6 +1846,8 @@ SIS_Header_Summary_Title {
 	border: none !important;	
 }
 
-
+.sis_ws_permissionpanel_row_selected {
+	border: 1px dotted black;
+}
 
 

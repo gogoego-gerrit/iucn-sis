@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.permissions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -12,16 +13,18 @@ import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.StoreFilter;
+import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
@@ -36,8 +39,15 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.solertium.util.extjs.client.CheckboxMultiTriggerField;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -59,10 +69,11 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 	private int widthOfPermissionColumn = 200;
 	private String defaultPermission = read;
 
+	private PermissionUserModel selectedItem = null;
+	
 	protected ToolBar toolBar;
 	protected Button removeButton;
 	protected ListStore<PermissionUserModel> associatedPermissions;
-	protected EditorGrid<PermissionUserModel> permissionGrid;
 
 	public WorkingSetPermissionGiverPanel() {
 		allowRead = true;
@@ -90,7 +101,114 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 	}
 
 	private boolean containsModel(int userID) {
-		return permissionGrid.getStore().findModel("id", Integer.valueOf(userID)) != null;
+		return associatedPermissions.findModel("id", Integer.valueOf(userID)) != null;
+	}
+	
+	public void drawSimple() {
+		final WorkingSet curWS = WorkingSetCache.impl.getCurrentWorkingSet();
+		final ClientUser curUser = SimpleSISClient.currentUser;
+		setAllowWrite(AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS));
+		
+		associatedPermissions.addFilter(new StoreFilter<PermissionUserModel>() {
+			public boolean select(Store<PermissionUserModel> store, PermissionUserModel parent,
+					PermissionUserModel item, String property) {
+				if( property.equals("permission") && item.getPermission() != null && item.getPermission().indexOf("write") > -1 )
+					return AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS);
+				else
+					return true;
+			}
+		});
+		
+		if (!AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS))
+			associatedPermissions.filter("permission");
+		
+		final boolean showAssessorColumn;
+		if (AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.GRANT, curWS) 
+				&& (curUser.getProperty("quickGroup").contains("ws" + curWS.getId() + "assessor")
+						|| curUser.getProperty("quickGroup").contains("rlu")
+						|| curUser.getProperty("quickGroup").contains("sysAdmin"))) {
+			showAssessorColumn = true;
+		} else
+			showAssessorColumn = false;
+		
+		final FlexTable grid = new FlexTable();
+		grid.setSize("100%", "100%");
+		grid.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				Cell cell = grid.getCellForEvent(event);
+				if (cell == null) return;
+				for (int i = 0; i < grid.getRowCount(); i++)
+					if (i == cell.getRowIndex())
+						grid.getRowFormatter().addStyleName(i, "sis_ws_permissionpanel_row_selected");
+					else
+						grid.getRowFormatter().removeStyleName(i, "sis_ws_permissionpanel_row_selected");
+				selectedItem = associatedPermissions.getAt(grid.getRowCount());
+			}
+		});
+		grid.setHTML(0, 0, "<b>Name</b>");
+		grid.setHTML(0, 1, "<b>Basic Permissions</b>");
+		if (showAssessorColumn)
+			grid.setHTML(0, 2, "<b>Assessor</b>");
+		
+		int row = 1;
+		for (PermissionUserModel model : associatedPermissions.getModels())
+			addRowToGrid(grid, row++, showAssessorColumn, model);
+		
+		associatedPermissions.addStoreListener(new StoreListener<PermissionUserModel>() {
+			public void storeAdd(StoreEvent<PermissionUserModel> se) {
+				for (PermissionUserModel model : se.getModels())
+					addRowToGrid(grid, grid.getRowCount(), showAssessorColumn, model);
+			}
+			public void storeRemove(StoreEvent<PermissionUserModel> se) {
+				grid.removeRow(associatedPermissions.indexOf(se.getModel()));
+			}
+			@Override
+			public void storeClear(StoreEvent<PermissionUserModel> se) {
+				grid.removeAllRows();
+			}
+			@Override
+			public void storeDataChanged(StoreEvent<PermissionUserModel> se) {
+				for (PermissionUserModel model : se.getModels())
+					addRowToGrid(grid, associatedPermissions.indexOf(model), showAssessorColumn, model);
+			}
+		});
+		
+		getSaveButtons();
+		
+		RowLayout layout = new RowLayout();
+		setLayout(layout);
+		add(toolBar, new RowData(1, 25));
+		add(new HTML(instructions, true), new RowData(1, -1));
+		add(grid, new RowData(1, 1));
+		add(drawButtons(), new RowData(1, -1));
+		
+	}
+	
+	private void addRowToGrid(final FlexTable table, final int row, boolean showAssessorColumn, final PermissionUserModel model) {
+		table.setHTML(row, 0, model.getName());
+		table.getCellFormatter().setWidth(row, 0, "150px");
+		
+		table.setWidget(row, 1, new CheckBoxPermissionPanel(getOptions(), defaultPermission, model));
+		table.getCellFormatter().setWidth(row, 0, "250px");
+		
+		if (showAssessorColumn) {
+			final CheckBox box = new CheckBox();
+			box.setName("assessor");
+			box.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					model.set("assessor", box.getValue());
+				}
+			});
+			box.setValue(model.isAssessor());
+			
+			final HorizontalPanel panel = new HorizontalPanel();
+			panel.setWidth("100%");
+			panel.add(box);
+			
+			table.setWidget(row, 2, panel);
+			table.getCellFormatter().setWidth(row, 0, "100px");
+		}
+		
 	}
 
 	/**
@@ -101,7 +219,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		final WorkingSet curWS = WorkingSetCache.impl.getCurrentWorkingSet();
 		final ClientUser curUser = SimpleSISClient.currentUser;
 		
-		setAllowWrite(AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS));
+		setAllowWrite(AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, WorkingSetCache.impl.getCurrentWorkingSet()));
 		
 		ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		ColumnConfig nameColumn = new ColumnConfig("name", "Name", widthOfNameColumn);
@@ -122,8 +240,12 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 					setRawValue(read);
 					layout();
 					return true;
-				} else
-					return super.validateValue(value);
+				} else if (super.validateValue(value))
+					return true;
+				else{
+					Window.alert("failed");
+					return true;
+				}
 			}
 		};
 		CellEditor editor = new CellEditor(permissionField);
@@ -145,7 +267,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 
 		ColumnModel cm = new ColumnModel(columns);
 
-		permissionGrid = new EditorGrid<PermissionUserModel>(associatedPermissions, cm);
+		final EditorGrid<PermissionUserModel> permissionGrid = new EditorGrid<PermissionUserModel>(associatedPermissions, cm);
 		permissionGrid.addPlugin(assessorColumn);
 		associatedPermissions.addFilter(new StoreFilter<PermissionUserModel>() {
 			public boolean select(Store<PermissionUserModel> store, PermissionUserModel parent,
@@ -163,27 +285,30 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		GridSelectionModel<PermissionUserModel> model = new GridSelectionModel<PermissionUserModel>();
 		model.bindGrid(permissionGrid);
 		model.setFiresEvents(true);
-		model.addListener(Events.SelectionChange,
-				new Listener<SelectionEvent<PermissionUserModel>>() {
-
-					public void handleEvent(SelectionEvent se) {
-						removeButton.setEnabled(permissionGrid
-								.getSelectionModel().getSelectedItem() != null);
-					}
-				});
+		model.addSelectionChangedListener(new SelectionChangedListener<PermissionUserModel>() {
+			public void selectionChanged(SelectionChangedEvent<PermissionUserModel> se) {
+				selectedItem = se.getSelectedItem();
+				removeButton.setEnabled(selectedItem != null);
+			}
+		});
 
 		permissionGrid.setSelectionModel(model);
 		permissionGrid.setAutoExpandColumn("permission");
 		permissionGrid.setBorders(true);
 		permissionGrid.addListener(Events.RowClick, new Listener<GridEvent>() {
-
 			public void handleEvent(GridEvent be) {
 				permissionGrid.getView().focusRow(be.getRowIndex());
 			}
 		});
 		
 		getSaveButtons();
-		layoutWidgets();
+		
+		RowLayout layout = new RowLayout();
+		setLayout(layout);
+		add(toolBar, new RowData(1, 25));
+		add(new HTML(instructions, true), new RowData(1, -1));
+		add(permissionGrid, new RowData(1, 1));
+		add(drawButtons(), new RowData(1, -1));
 	}
 
 	protected abstract void onRemoveUsers(List<PermissionUserModel> removed);
@@ -193,51 +318,54 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		buttonBar.setAlignment(HorizontalAlignment.RIGHT);
 		removeButton = new Button("Remove User",
 				new SelectionListener<ButtonEvent>() {
-
-					public void componentSelected(ButtonEvent ce) {
-						List<PermissionUserModel> toRemove = permissionGrid.getSelectionModel().getSelectedItems();
-						if (toRemove.size() != 0) {
-							for (PermissionUserModel cur : toRemove) {
-								associatedPermissions.remove(cur);
-							}
-							
-							onRemoveUsers(toRemove);
-						} else {
-							WindowUtils.errorAlert("Must first choose user to remove from permission group.");
-						}
-					}
-
-				});
+			public void componentSelected(ButtonEvent ce) {
+				if (selectedItem != null) {
+					associatedPermissions.remove(selectedItem);
+					List<PermissionUserModel> l = new ArrayList<PermissionUserModel>();
+					l.add(selectedItem);
+					onRemoveUsers(l);
+				} else {
+					WindowUtils.errorAlert("Must first choose user to remove from permission group.");
+				}
+			}
+		});
 
 		Button addButton = new Button("Add User(s)", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-						BrowseUsersWindow window = new BrowseUsersWindow() {
-							@Override
-							public void onSelect(ArrayList<ClientUser> selectedUsers) {
-								for (ClientUser user : selectedUsers) {
-									if (!containsModel(user.getId())) {
-										PermissionUserModel model = new PermissionUserModel(user, defaultPermission, false);
-										associatedPermissions.add(model);
-									}
-								}
-
+				BrowseUsersWindow window = new BrowseUsersWindow() {
+					@Override
+					public void onSelect(ArrayList<ClientUser> selectedUsers) {
+						for (ClientUser user : selectedUsers) {
+							if (!containsModel(user.getId())) {
+								PermissionUserModel model = new PermissionUserModel(user, defaultPermission, false);
+								associatedPermissions.add(model);
 							}
-						};
-						window.setSelectedUsersHeading("Users to Add");
-						window.setPossibleUsersHeading("Search results");
-						window.setInstructions("<b>Add User:</b> Choose a recent user or search for a user and then drag and drop the user to the \"Users to Add\" list.  </br></br>");
-
-						List<ClientUser> users = new ArrayList<ClientUser>();
-						// for (PermissionUserModel model :
-						// permissionGrid.getStore().getModels())
-						// users.add(model.getUser());
-						window.refresh(users);
-						window.show();
+						}
 					}
-				});
+				};
+				window.setSelectedUsersHeading("Users to Add");
+				window.setPossibleUsersHeading("Search results");
+				window.setInstructions("<b>Add User:</b> Choose a recent user or search for a user and then drag and drop the user to the \"Users to Add\" list.  </br></br>");
+				
+				List<ClientUser> users = new ArrayList<ClientUser>();
+				// for (PermissionUserModel model :
+				// permissionGrid.getStore().getModels())
+				// users.add(model.getUser());
+				window.refresh(users);
+				window.show();
+			}
+		});
 
 		buttonBar.add(removeButton);
 		buttonBar.add(addButton);
+		buttonBar.add(new Button("Remove All Users", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				if (!associatedPermissions.getModels().isEmpty()) {
+					associatedPermissions.removeAll();
+					onRemoveUsers(associatedPermissions.getModels());
+				}
+			}
+		}));
 
 		return buttonBar;
 
@@ -271,21 +399,14 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		return options;
 	}
 
-	public EditorGrid<PermissionUserModel> getPermissionGrid() {
-		return permissionGrid;
-	}
-
 	protected void getSaveButtons() {
-
-		Button save = new Button();
-		save.setText("Save");
-		save.setIconStyle("icon-save");
-		save.setTitle("Save and Continue Editing");
-		save.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		Button save = new Button("Save", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				onSave();
 			}
 		});
+		save.setIconStyle("icon-save");
+		save.setTitle("Save and Continue Editing");
 
 		addToolItem(save);
 	}
@@ -308,15 +429,6 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 
 	public boolean isAllowWrite() {
 		return allowWrite;
-	}
-
-	protected void layoutWidgets() {
-		RowLayout layout = new RowLayout();
-		setLayout(layout);
-		add(toolBar, new RowData(1, 25));
-		add(new HTML(instructions, true), new RowData(1, -1));
-		add(permissionGrid, new RowData(1, 1));
-		add(drawButtons(), new RowData(1, -1));
 	}
 
 	public abstract void onSave();
@@ -354,8 +466,59 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		this.instructions = instructions;
 	}
 
-	public void setPermissionGrid(EditorGrid<PermissionUserModel> permissionGrid) {
-		this.permissionGrid = permissionGrid;
+	private static class CheckBoxPermissionPanel extends HorizontalPanel {
+		
+		private final PermissionUserModel model;
+		private final String defaultPermission;
+		
+		public CheckBoxPermissionPanel(List<String> options, String defaultPermission, PermissionUserModel model) {
+			super();
+			this.defaultPermission = defaultPermission;
+			this.model = model;
+			String value = model.getPermission();
+			for (String option : options) {
+				CheckBox box = new CheckBox();
+				box.setName(option);
+				box.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						updateModel();
+					}
+				});
+				box.setValue(value.contains(option));
+				add(box);
+				add(new HTML(option));
+			}
+		}
+		
+		private void updateModel() {
+			final List<String> selected = new ArrayList<String>();
+			CheckBox defaultBox = null;
+			for (int i = 0; i < getWidgetCount(); i += 2) {
+				Widget current = getWidget(i);
+				if (current instanceof CheckBox) {
+					CheckBox box = (CheckBox)current;
+					if (defaultPermission.equals(box))
+						defaultBox = box;
+					
+					if (box.getValue())
+						selected.add(box.getName());
+				}
+			}
+			if (selected.isEmpty()) {
+				WindowUtils.errorAlert("Must give user some permission or remove them from permission list.");
+				if (defaultBox != null) {
+					selected.add(defaultBox.getName());
+					defaultBox.setValue(true);
+				}
+			}
+			
+			StringBuilder csv = new StringBuilder();
+			for (Iterator<String> iter = selected.listIterator(); iter.hasNext(); )
+				csv.append(iter.next() + (iter.hasNext() ? "," : ""));
+			
+			model.set("permission", csv.toString());
+		}
+		
 	}
-
+	
 }

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
 public class PermissionGroup implements Serializable {
@@ -14,28 +15,28 @@ public class PermissionGroup implements Serializable {
 	public final static String ROOT_TAG = "permGroup";
 	public static final String DEFAULT_PERMISSION_URI = "default";
 
-	public static PermissionGroup fromXML(NativeElement element) {
-
-		PermissionGroup group = new PermissionGroup();
-		group.setName(element.getElementsByTagName("name").elementAt(0).getTextContent());
-		group.setId(Integer.parseInt(element.getElementsByTagName("id").elementAt(0).getText()));
-		group.setScopeURI(element.getElementsByTagName("scopeURI").elementAt(0).getTextContent());
-
-		NativeNodeList permissions = element.getElementsByTagName(Permission.ROOT_TAG);
-		for (int i = 0; i < permissions.getLength(); i++) {
-			group.getPermissions().add(Permission.fromXML(permissions.elementAt(i), group));
-		}
-
-		NativeNodeList users = element.getElementsByTagName(User.ROOT_TAG);
-		for (int i = 0; i < users.getLength(); i++)
-			group.getUsers().add(User.fromXML(users.elementAt(i)));
-
-		NativeNodeList parents = element.getElementsByTagName("parent");
-		if (parents.getLength() == 1) {
-			PermissionGroup parent = new PermissionGroup();
-			parent.setId(Integer.valueOf(parents.elementAt(0).getAttribute("id")));
-			parent.setName(parents.elementAt(0).getTextContent());
-			group.setParent(parent);
+	public static PermissionGroup fromXML(NativeNode element) {
+		final PermissionGroup group = new PermissionGroup();
+		final NativeNodeList nodes = element.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			final NativeNode node = nodes.item(i);
+			if ("name".equals(node.getNodeName()))
+				group.setName(node.getTextContent());
+			else if ("id".equals(node.getNodeName()))
+				group.setId(Integer.parseInt(node.getTextContent()));
+			else if ("scopeURI".equals(node.getNodeName()))
+				group.setScopeURI(node.getTextContent());
+			else if (Permission.ROOT_TAG.equals(node.getNodeName()))
+				group.getPermissions().add(Permission.fromXML((NativeElement)node, group));	
+			else if (User.ROOT_TAG.equals(node.getNodeName()))
+				group.getUsers().add(User.fromXML((NativeElement)node));
+			else if ("parent".equals(node.getNodeName())) {
+				NativeElement el = (NativeElement)node;
+				PermissionGroup parent = new PermissionGroup();
+				parent.setId(Integer.valueOf(el.getAttribute("id")));
+				parent.setName(el.getTextContent());
+				group.setParent(parent);		
+			}
 		}
 
 		return group;
@@ -69,9 +70,7 @@ public class PermissionGroup implements Serializable {
 	public PermissionGroup(String name) {
 		this();
 		this.name = name;
-
 	}
-
 	
 	public boolean getDefaultPermission(String operation) {
 		if (getResourceToPermission().containsKey(DEFAULT_PERMISSION_URI)) {
@@ -79,7 +78,6 @@ public class PermissionGroup implements Serializable {
 		} else 
 			return false;
 	}
-
 	
 	@Override
 	public boolean equals(Object obj) {
@@ -97,11 +95,9 @@ public class PermissionGroup implements Serializable {
 		return id;
 	}
 
-
 	public String getName() {
 		return name;
 	}
-
 
 	public int getORMID() {
 		return getId();
@@ -138,13 +134,9 @@ public class PermissionGroup implements Serializable {
 		return resourceToPermission;			
 	}
 
-
-
-
 	public String getScopeURI() {
 		return scopeURI;
 	}
-
 
 	/**
 	 * Gets the true scope of the permission group

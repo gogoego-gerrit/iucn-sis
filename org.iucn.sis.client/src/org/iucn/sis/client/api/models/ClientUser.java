@@ -1,27 +1,25 @@
 package org.iucn.sis.client.api.models;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.iucn.sis.shared.api.models.User;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.utils.RowData;
 
 public class ClientUser extends User {
 	
 	public String auth;
 	public String password;
-	public Map<String,String> properties;
+	public RowData properties;
 	
 	public ClientUser() {
 		super();
-		properties = new HashMap<String, String>();
+		properties = new RowData();
 	}
 	
 	public void setProperty(String key, String value) {
-		properties.put(key, value);
+		properties.addField(key, value);
 	}
 	
 	public NativeDocument getHttpBasicNativeDocument() {
@@ -32,7 +30,7 @@ public class ClientUser extends User {
 	}
 
 	public String getProperty(String prop) {
-		return properties.get(prop);
+		return properties.getField(prop);
 	}
 	
 	public static ClientUser fromXML(NativeElement element) {
@@ -65,10 +63,8 @@ public class ClientUser extends User {
 	 * @return - will never be NULL
 	 */
 	public String getPreference(String property, String notFoundValue) {
-		if (properties.containsKey(property))
-			return properties.get(property);
-		else
-			return notFoundValue;
+		String value = properties.getField(property);
+		return value == null ? notFoundValue : property;
 	}
 
 }

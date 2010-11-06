@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.models.ClientUser;
-import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
 import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow.SearchResults;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.panels.permissions.PermissionUserModel;
@@ -24,50 +23,53 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.utils.RowData;
 import com.solertium.lwxml.shared.utils.RowParser;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel {
+public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel implements DrawsLazily {
 
-	public WorkingSetPermissionPanel() {
+	@Override
+	public void draw(final DoneDrawingCallback callback) {
 		final String permGroupName = "ws" + WorkingSetCache.impl.getCurrentWorkingSet().getId();
 		final String query = "?quickgroup=" + permGroupName + "";
+		
 		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
 		document.get(UriBase.getInstance().getUserBase()
 				+ "/browse/profile" + query, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				draw();
-				layout();
+				callback.isDrawn();
 			}
 
 			public void onSuccess(String result) {
-				try {
-					final RowParser parser = new RowParser(document);
-					ListStore<PermissionUserModel> model = new ListStore<PermissionUserModel>();
-
-					for( RowData curData : parser.getRows() ) {
-						SearchResults curSearchResult = new SearchResults(curData);
-						String quickGroup = curSearchResult.getUser().getProperty("quickGroup");
-						String permString = null;
-						boolean assessor = quickGroup.matches(".*?" + permGroupName + "assessor(\\b|,).*");
+				final RowParser parser = new RowParser(document);
+				final ListStore<PermissionUserModel> model = new ListStore<PermissionUserModel>();
+				
+				for (RowData curData : parser.getRows()) {
+					final SearchResults curSearchResult = new SearchResults(curData);
+					final String quickGroup = curSearchResult.getUser().getProperty("quickGroup");
+					boolean assessor = quickGroup.matches(".*?" + permGroupName + "assessor(\\b|,).*");
 						
-						if( quickGroup.matches(".*?" + permGroupName + "r(\\b|,).*"))
-							permString = "read";
-						else if( quickGroup.matches(".*?" + permGroupName + "rw(\\b|,).*"))
-							permString = "read,write";
-						else if( quickGroup.matches(".*?" + permGroupName + "rwg(\\b|,).*"))
+					String permString = curSearchResult.getUser().getProperty("permissions");
+					if (permString == null) {
+						if (quickGroup.matches(".*?" + quickGroup + "rwg(\\b|,).*"))
 							permString = "read,write,grant";
-						else if( quickGroup.matches(".*?" + permGroupName + "rg(\\b|,).*"))
+						else if (quickGroup.matches(".*?" + quickGroup + "rw(\\b|,).*"))
+							permString = "read,write";
+						else if (quickGroup.matches(".*?" + quickGroup + "rg(\\b|,).*"))
 							permString = "read,grant";
-						
-						if( permString != null )
-							model.add(new PermissionUserModel(curSearchResult.getUser(), permString, assessor));
+						else if (quickGroup.matches(".*?" + quickGroup + "r(\\b|,).*"))
+							permString = "read";
 					}
-
-					setAssociatedPermissions(model);
-					draw();
-					layout();
-				} catch (Throwable e) {
-					e.printStackTrace();
+						
+					if (permString != null)
+						model.add(new PermissionUserModel(curSearchResult.getUser(), permString, assessor));
 				}
+
+				setAssociatedPermissions(model);
+				//draw();
+				drawSimple();
+				
+				callback.isDrawn();
 			}
 		});
 	}

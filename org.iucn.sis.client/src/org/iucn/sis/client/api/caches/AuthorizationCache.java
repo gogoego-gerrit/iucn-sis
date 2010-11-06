@@ -19,6 +19,7 @@ import org.iucn.sis.shared.api.utils.PermissionUtils;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
 public class AuthorizationCache {
@@ -117,12 +118,20 @@ public class AuthorizationCache {
 			str.append(group.toXML());
 		str.append("</groups>");
 		
-		NativeDocument ndoc = getNativeDocument();
+		final NativeDocument ndoc = getNativeDocument();
 		ndoc.post(UriBase.getInstance() + "/acl/groups", str.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
-				for( PermissionGroup group : groupList )
-					groups.put(group.getName(), group);
-				
+				final NativeNodeList nodes = ndoc.getDocumentElement().getChildNodes();
+				for (int i = 0; i < nodes.getLength(); i++) {
+					final NativeNode node = nodes.item(i);
+					if (PermissionGroup.ROOT_TAG.equals(node.getNodeName())) {
+						PermissionGroup group = PermissionGroup.fromXML(node);
+						if (groups.containsKey(group.getName()))
+							groups.get(group.getName()).setID(group.getId());
+						
+						groups.put(group.getName(), group);
+					}
+				}
 				saveCallback.onSuccess(result);
 			}
 			public void onFailure(Throwable caught) {

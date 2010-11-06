@@ -3,23 +3,17 @@
  */
 package org.iucn.sis.server.extensions.user.application;
 
-import javax.naming.NamingException;
-
 import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SISApplication;
-import org.iucn.sis.server.api.utils.Constants;
+import org.iucn.sis.server.extensions.user.resources.BatchUpdateRestlet;
 import org.iucn.sis.server.extensions.user.resources.CustomFieldManager;
 import org.iucn.sis.server.extensions.user.resources.DumpResource;
 import org.iucn.sis.server.extensions.user.resources.ProfileSearchResource;
-import org.iucn.sis.server.extensions.user.resources.UserResource;
 import org.iucn.sis.server.extensions.user.resources.UserRestlet;
 import org.restlet.Context;
 
-import com.solertium.db.DBSession;
-import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
-import com.solertium.db.SystemExecutionContext;
 
 /**
  * UserManagementApplication.java
@@ -37,6 +31,10 @@ public final class UserManagementApplication extends SISApplication {
 		
 		addServerResource(UserRestlet.class, UserRestlet.getPaths(), true, true, false);
 //		addResource(UserResource.class, "/list", true, true, true);
+		
+		final BatchUpdateRestlet restlet =  new BatchUpdateRestlet(app.getContext());
+		
+		addResource(restlet, restlet.getPaths(), true, true, false);
 		addResource(DumpResource.class, "/dump", true, true, false);
 		addResource(CustomFieldManager.class, "/manager/custom", true, true, false);
 		addResource(CustomFieldManager.class, "/manager/custom/{id}", true, true, false);

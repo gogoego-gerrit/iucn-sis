@@ -14,6 +14,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Window;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -259,8 +260,13 @@ public class WorkingSetBrowser extends TabPanel {
 		else if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.GRANT, 
 				WorkingSetCache.impl.getCurrentWorkingSet())) {
 				permissionsTab.removeAll();
-				permissionsTab.add(new WorkingSetPermissionPanel());
-				setSelection(permissionsTab);
+				final WorkingSetPermissionPanel panel = new WorkingSetPermissionPanel();
+				panel.draw(new DrawsLazily.DoneDrawingCallback() {
+					public void isDrawn() {
+						permissionsTab.add(panel);
+						setSelection(permissionsTab);	
+					}
+				});
 		} else
 			WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission to manage " +
 					"the permissions for this Working Set.");

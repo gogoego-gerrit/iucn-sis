@@ -1,6 +1,5 @@
 package org.iucn.sis.server.api.io;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -9,6 +8,7 @@ import org.iucn.sis.server.api.persistance.UserDAO;
 import org.iucn.sis.server.api.persistance.WorkingSetCriteria;
 import org.iucn.sis.server.api.persistance.WorkingSetDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -77,8 +77,7 @@ public class WorkingSetIO {
 		try {
 			return WorkingSetDAO.deleteAndDissociate(workingSet);
 		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Debug.println(e);
 			return false;
 		}
 	}
@@ -99,36 +98,36 @@ public class WorkingSetIO {
 				
 				return true;
 			} catch (PersistentException e) {
-				e.printStackTrace();
-				
+				Debug.println(e);
 			}
-
 		}
 		return false;
 	}
 
 	public boolean subscribeToWorkingset(Integer workingsetID, String username) {
 		WorkingSet ws = readWorkingSet(workingsetID);
-		if (ws != null) {
-			User user = SIS.get().getUserIO().getUserFromUsername(username);
-			if (user != null) {
-				ws.getUsers().add(user);
-				user.getSubscribedWorkingSets().add(ws);
+		if (ws == null)
+			return false;
+		
+		User user = SIS.get().getUserIO().getUserFromUsername(username);
+		if (user == null)
+			return false;
 				
-				try {
-					WorkingSetDAO.save(ws);
-					UserDAO.save(user);
-					// TODO: MIGHT NEED TO FIGURE OUT HOW TO REFERENCE ALL
-					// FIELDS... THAT WOULD BE SAD
-					afterSaveWS(ws);
+		ws.getUsers().add(user);
+		user.getSubscribedWorkingSets().add(ws);
+				
+		try {
+			WorkingSetDAO.save(ws);
+			UserDAO.save(user);
+			
+			// TODO: MIGHT NEED TO FIGURE OUT HOW TO REFERENCE ALL FIELDS... THAT WOULD BE SAD
+			afterSaveWS(ws);
 					
-					return true;
-				} catch (PersistentException e) {
-					e.printStackTrace();
-				}
-
-			}
+			return true;
+		} catch (PersistentException e) {
+			Debug.println(e);
 		}
+		
 		return false;
 	}
 

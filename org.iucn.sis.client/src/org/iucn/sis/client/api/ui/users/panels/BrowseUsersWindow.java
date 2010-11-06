@@ -89,13 +89,12 @@ public abstract class BrowseUsersWindow extends Window {
 					user.setEmail(rowData.getField(property));
 				else if (property.equalsIgnoreCase("userid"))
 					user.setId(Integer.parseInt(rowData.getField(property)));
-				//FIXME:
-//				else if (property.equalsIgnoreCase("quickgroup"))
-//					user.setProperty("quickGroup", rowData.getField(property));
+				else if (property.equalsIgnoreCase("quickgroup"))
+					user.setProperty("quickGroup", rowData.getField(property));
 				else if (property.equalsIgnoreCase("username"))
 					user.setUsername(rowData.getField(property));
-//				else
-//					user.setProperty(property, rowData.getField(property));
+				else
+					user.setProperty(property, rowData.getField(property));
 			}
 
 			set("name", user.getDisplayableName());

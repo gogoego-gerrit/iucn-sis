@@ -24,26 +24,24 @@
 package org.iucn.sis.server.restlets.users;
 
 import java.io.IOException;
-import java.util.HashSet;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.io.PermissionIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
-import org.iucn.sis.shared.api.models.Permission;
-import org.iucn.sis.shared.api.models.PermissionGroup;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 
-public class ProfileRestlet extends ServiceRestlet {
+public class ProfileRestlet extends BaseServiceRestlet {
 
 	public ProfileRestlet(final String vfsroot, final Context context) {
 		super(vfsroot, context);
@@ -54,61 +52,42 @@ public class ProfileRestlet extends ServiceRestlet {
 		paths.add("/profile");
 		paths.add("/profile/{username}");
 	}
-
-	private void fetchUserProfile(final Request request, final Response response, final String username) {
-		User user = SIS.get().getUserIO().getUserFromUsername(username);
-		if (user != null) {
-			if (user.isSISUser()) {
-				response.setEntity(user.toXML(), MediaType.TEXT_XML);
-				response.setStatus(Status.SUCCESS_OK);
-			} else {
-				response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
-			}
-		} else {
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-		}
+	
+	private String getUsername(Request request) throws ResourceException {
+		String username = (String) request.getAttributes().get("username");
+		if (username == null && request.getChallengeResponse() != null)
+			username = SIS.get().getUsername(request);
+		
+		if (username == null)
+			throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+		
+		return username;
+	}
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		final String username = getUsername(request);
+		final User user = SIS.get().getUserIO().getUserFromUsername(username);
+		if (user == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		
+		if (!user.isSISUser())
+			throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+		
+		return new StringRepresentation(user.toFullXML(), MediaType.TEXT_XML);
 	}
 
-	private void deleteUserProfile(final Request request, final Response response, final String username) {
-
+	@Override
+	public void handleDelete(Request request, Response response) throws ResourceException {
+		final String username = getUsername(request);
 		if (SIS.get().getUserIO().trashUser(username))
 			response.setStatus(Status.SUCCESS_OK);
 		else
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-
 	}
-
+	
 	@Override
-	public void performService(final Request request, final Response response) {
-		try {
-			String username = (String) request.getAttributes().get("username");
-
-			try {
-				if (username == null)
-					username = SIS.get().getUsername(request);
-			} catch (final Exception ignoringChallengeResponseIsNull) {
-			}
-
-			if (username != null && !username.equalsIgnoreCase("")) {
-				if (request.getMethod().equals(Method.GET))
-					fetchUserProfile(request, response, username);
-				else if (request.getMethod().equals(Method.DELETE))
-					deleteUserProfile(request, response, username);
-				else if (request.getMethod().equals(Method.PUT))
-					putUserProfile(request, response, username);
-				else if (request.getMethod().equals(Method.POST))
-					updateUserProfile(request, response, username);
-				else
-					response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
-			} else
-				response.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
-		} catch (final Exception e) {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		}
-	}
-
-	private void putUserProfile(final Request request, final Response response, final String username) {
+	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
 		// SHOULD NOT DO A PUT HERE... ONLY DONE THROUGH THE SISDBAUTHENTICATOR
 		// try {
 		// User user = new User();
@@ -126,37 +105,31 @@ public class ProfileRestlet extends ServiceRestlet {
 		// response.setStatus(Status.SERVER_ERROR_INTERNAL);
 		// }
 	}
-
-	private void updateUserProfile(final Request request, final Response response, final String username) {
+	
+	@Override
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
 		NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 		try {
-			ndoc.parse(request.getEntity().getText());
-
+			ndoc.parse(entity.getText());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			return;
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
 
+		User user = User.fromXML(ndoc.getDocumentElement());
+		
 		try {
-			User user = User.fromXML(ndoc.getDocumentElement());
-
-			if (user.getPermissionGroups().isEmpty()) {
+			if (user.getPermissionGroups().isEmpty())
 				user.getPermissionGroups().add(SIS.get().getPermissionIO().getPermissionGroup("guest"));
-			}
 			user = (User) SIS.get().getManager().getSession().merge(user);
+			
 			if (SIS.get().getUserIO().saveUser(user)) {
 				response.setStatus(Status.SUCCESS_OK);
-				response.setEntity(user.toXML(), MediaType.TEXT_XML);
+				response.setEntity(user.toFullXML(), MediaType.TEXT_XML);
 			} else {
 				response.setStatus(Status.SERVER_ERROR_INTERNAL);
 			}
 		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
-
 	}
 }
