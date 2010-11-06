@@ -72,7 +72,7 @@ public class ProfileSearchResource extends Resource {
 	public Representation represent(Variant variant) throws ResourceException {
 		Session session = SISPersistentManager.instance().getSession();
 		Criteria criteria = session.createCriteria(User.class);
-
+		
 		final Form form = getRequest().getResourceRef().getQueryAsForm();
 
 		for (int i = 0; i < searchable.length; i++) {
@@ -80,12 +80,22 @@ public class ProfileSearchResource extends Resource {
 				int constraintCompare = searchable[i].equals("userid") ? QConstraint.CT_EQUALS : 
 					QConstraint.CT_CONTAINS_IGNORE_CASE;
 				
+				Criterion current = null;
 				for (String value : form.getValuesArray(searchable[i].toLowerCase())) {
+					Criterion crit;
 					if (constraintCompare == QConstraint.CT_EQUALS)
-						criteria = criteria.add(Restrictions.eq("id", value));
+						crit = Restrictions.eq("id", Integer.valueOf(value));
 					else
-						criteria = criteria.add(Restrictions.ilike(searchable[i], value, MatchMode.ANYWHERE));
+						crit = Restrictions.ilike(searchable[i], value, MatchMode.ANYWHERE);
+					
+					if (current == null)
+						current = crit;
+					else
+						current = Restrictions.or(current, crit);
 				}
+				
+				if (current != null)
+					criteria = criteria.add(current);
 			}
 		}
 
