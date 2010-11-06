@@ -2,6 +2,7 @@ package org.iucn.sis.server;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.gogoego.api.classloader.SimpleClasspathResource;
 import org.gogoego.api.plugins.GoGoEgo;
@@ -25,6 +26,7 @@ import org.iucn.sis.server.restlets.utils.LockManagementRestlet;
 import org.iucn.sis.server.restlets.utils.RegionRestlet;
 import org.iucn.sis.server.restlets.utils.SearchRestlet;
 import org.iucn.sis.server.restlets.utils.StatusRestlet;
+import org.iucn.sis.server.restlets.utils.TaxaTaggingResource;
 import org.iucn.sis.server.restlets.utils.TrashRestlet;
 import org.iucn.sis.server.restlets.workingsets.WorkingSetExportImportRestlet;
 import org.iucn.sis.server.restlets.workingsets.WorkingSetRestlet;
@@ -89,6 +91,10 @@ public class ServerApplication extends SISApplication{
 		services.add(new ProfileRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new SearchRestlet(SIS.get().getVfsroot(), app.getContext()));
 		
+		final List<String> taxaPaths = new ArrayList<String>();
+		taxaPaths.add("/tagging/taxa/{tag}");
+		taxaPaths.add("/tagging/taxa/{tag}/{mode}");
+		addResource(TaxaTaggingResource.class, taxaPaths, true, true, false);
 		
 		for (Iterator<ServiceRestlet> iter = services.iterator(); iter.hasNext();)
 			addServiceToRouter(iter.next());

@@ -5,12 +5,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
@@ -153,50 +151,45 @@ public class TaxonomyCache {
 	 * @param wayback
 	 *            - returns the ids of the lowest level taxa
 	 */
-	public void fetchLowestLevelTaxa(final String ids, final GenericCallback<String> wayback) {
-		if (ids != null) {
-
-			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-			ndoc.post(UriBase.getInstance().getSISBase() + "/browse/lowestTaxa", ids, new GenericCallback<String>() {
-				public void onFailure(Throwable caught) {
-					wayback.onFailure(caught);
-				}
-
-				public void onSuccess(String arg0) {
-					if (!arg0.equals("204")) {
-
-						NativeElement docElement = ndoc.getDocumentElement();
-						if (docElement.getNodeName().equalsIgnoreCase("nodes")) {
-							NativeNodeList nodes = docElement.getChildNodes();
-							String ids = "";
-
-							for (int i = 0; i < nodes.getLength(); i++) {
-								if (nodes.item(i).getNodeType() == Node.TEXT_NODE)
-									continue;
-
-								Taxon newNode = Taxon.fromXML(nodes.elementAt(i));
-								putTaxon(newNode);
-								ids += newNode.getId() + ",";
-							}
-
-							if (ids.length() > 0)
-								ids = ids.substring(0, ids.length() - 1);
-							wayback.onSuccess(ids);
-						} else {
-							Taxon newNode = Taxon.fromXML(docElement);
-							putTaxon(newNode);
-							wayback.onSuccess(newNode.getId() + "");
-						}
-					} else
-						wayback.onSuccess("");
-				}
-
-			});
-
-		} else {
-			wayback.onSuccess("");
+	public void fetchLowestLevelTaxa(final String ids, final GenericCallback<List<Taxon>> wayback) {
+		if (ids == null) {
+			wayback.onSuccess(new ArrayList<Taxon>());
+			return;
 		}
+		
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.post(UriBase.getInstance().getSISBase() + "/browse/lowestTaxa", ids, new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				wayback.onFailure(caught);
+			}
+			public void onSuccess(String arg0) {
+				if (!arg0.equals("204")) {
+					List<Taxon> ids = new ArrayList<Taxon>();
+					NativeElement docElement = ndoc.getDocumentElement();
+					if (docElement.getNodeName().equalsIgnoreCase("nodes")) {
+						NativeNodeList nodes = docElement.getChildNodes();
+						for (int i = 0; i < nodes.getLength(); i++) {
+							if (nodes.item(i).getNodeType() == Node.TEXT_NODE)
+								continue;
+						
+							Taxon newNode = Taxon.fromXML(nodes.elementAt(i));
+							putTaxon(newNode);
+							ids.add(newNode);
+						}
+					} else {
+						Taxon newNode = Taxon.fromXML(docElement);
+						putTaxon(newNode);
+						ids.add(newNode);
+					}
+					wayback.onSuccess(ids);
+				} else {
+					//FIXME: Should this be a failure?
+					wayback.onSuccess(new ArrayList<Taxon>());
+				}
+			}
+		});
 	}
+	
 
 	public void fetchList(final List<Integer> ids, final GenericCallback<String> wayBack) {
 		final StringBuilder idsToFetch = new StringBuilder("<ids>");
@@ -535,6 +528,75 @@ public class TaxonomyCache {
 			AssessmentClientSaveUtils.saveIfNecessary(callback);
 		else
 			callback.handleEvent();
+	}
+	
+	public void getTaggedTaxa(final String tag, final GenericCallback<List<Taxon>> callback) {
+		final String url = UriBase.getInstance().getSISBase() + "/tagging/taxa/" + tag;
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.get(url, new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				final List<Taxon> results = new ArrayList<Taxon>();
+				final NativeNodeList nodes = document.
+					getDocumentElement().getElementsByTagName("taxon");
+				for (int i = 0; i < nodes.getLength(); i++) {
+					final Taxon taxon = Taxon.fromXML(nodes.elementAt(i));
+					if (!containsNode(taxon))
+						putTaxon(taxon);
+					
+					results.add(taxon);
+				}
+				callback.onSuccess(results);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	public void tagTaxa(final String tag, final List<Taxon> taxa, final GenericCallback<Object> callback) {
+		doTaxaMarking(tag, taxa, true, callback);
+	}
+	
+	public void untagTaxa(final String tag, final List<Taxon> taxa, final GenericCallback<Object> callback) {
+		doTaxaMarking(tag, taxa, false, callback);
+	}
+	
+	private void doTaxaMarking(final String tag, final List<Taxon> taxa, final boolean isMarked, 
+			final GenericCallback<Object> callback) {
+		boolean found = false;
+		
+		final StringBuilder builder = new StringBuilder();
+		builder.append("<root>");
+		for (Taxon taxon : taxa) {
+			if (taxon.getId() != 0) {
+				found = true;
+				builder.append("<taxon id=\"" + taxon.getId() + "\" />");
+			}
+		}
+		builder.append("</root>");
+		
+		if (!found)
+			callback.onSuccess(null);
+		else {
+			final String url = UriBase.getInstance().getSISBase() + 
+				"/tagging/taxa/" + tag + (isMarked ? "/marked" : "/unmarked");
+			final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+			document.post(url, builder.toString(), new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					for (Taxon taxon : taxa) {
+						if ("feral".equals(tag))
+							taxon.setFeral(isMarked);
+						else if ("invasive".equals(tag))
+							taxon.setInvasive(isMarked);
+					}
+					
+					callback.onSuccess(null);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		}
 	}
 	
 	public void deleteSynonymn(final Taxon taxon, final Synonym synonym, final GenericCallback<String> callback) {

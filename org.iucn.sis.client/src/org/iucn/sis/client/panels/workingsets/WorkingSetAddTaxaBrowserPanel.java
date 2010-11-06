@@ -112,23 +112,15 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 						}
 						ids.append("</ids>");
 
-						TaxonomyCache.impl.fetchLowestLevelTaxa(ids.toString(), new GenericCallback<String>() {
+						TaxonomyCache.impl.fetchLowestLevelTaxa(ids.toString(), new GenericCallback<List<Taxon>>() {
 							public void onFailure(Throwable caught) {
 								WindowUtils.hideLoadingAlert();
 								WindowUtils.errorAlert("Error loading taxa into this "
 										+ "working set. Please check your Internet connection " + "and try again.");
 							}
-							public void onSuccess(String arg0) {
-								String taxonToAdd = arg0;
-								if (taxonToAdd.length() > 0) {
-									String [] ids = taxonToAdd.split(",");
-									Collection<Taxon> taxaToAdd = new HashSet<Taxon>();
-									for (String id : ids) {
-										taxaToAdd.add(TaxonomyCache.impl.getTaxon(id));
-									}
+							public void onSuccess(List<Taxon> taxaToAdd) {
+								if (!taxaToAdd.isEmpty()) {
 									WorkingSetCache.impl.editTaxaInWorkingSet(workingSet, taxaToAdd, null, new GenericCallback<String>() {
-									
-										@Override
 										public void onSuccess(String result) {
 											WindowUtils.hideLoadingAlert();
 											WindowUtils.infoAlert("Taxon successfully added " + "to working set "
@@ -139,8 +131,6 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 											manager.workingSetOptionsPanel.listChanged();
 									
 										}
-									
-										@Override
 										public void onFailure(Throwable caught) {
 											WindowUtils.hideLoadingAlert();
 											WindowUtils.errorAlert("Error adding taxon to " + "working set "

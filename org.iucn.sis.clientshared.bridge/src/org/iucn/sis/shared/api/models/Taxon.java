@@ -350,6 +350,10 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 	private String taxonomicAuthority;
 
 	private TaxonStatus taxonStatus;
+	
+	private boolean invasive;
+	
+	private boolean feral;
 
 	private Taxon parent;
 
@@ -403,6 +407,22 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 
 	public boolean getHybrid() {
 		return hybrid;
+	}
+	
+	public void setInvasive(boolean invasive) {
+		this.invasive = invasive;
+	}
+	
+	public boolean getInvasive() {
+		return invasive;
+	}
+	
+	public void setFeral(boolean feral) {
+		this.feral = feral;
+	}
+	
+	public boolean getFeral() {
+		return feral;
 	}
 
 	public void setTaxonomicAuthority(String value) {

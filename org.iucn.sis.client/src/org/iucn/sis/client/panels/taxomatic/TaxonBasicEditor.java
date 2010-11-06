@@ -15,6 +15,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -40,6 +41,7 @@ public class TaxonBasicEditor extends LayoutContainer {
 	private ListBox status;
 	private TextBox taxonomicAuthority;
 	private ListBox level;
+	private CheckBox invasive, feral;
 
 	public TaxonBasicEditor(PanelManager manager) {
 		super();
@@ -263,6 +265,32 @@ public class TaxonBasicEditor extends LayoutContainer {
 		editor.add(panel);
 		height = panel.getOffsetHeight() + 15;
 		editor.setCellHeight(panel, height + "px");
+		
+		if (node.getLevel() == TaxonLevel.SPECIES) {
+			html = new HTML("Invasive?" );
+			html.setWidth(htmlWidth);
+			invasive = new CheckBox();
+			invasive.setValue(node.getInvasive());
+			panel = new HorizontalPanel();
+			panel.setSpacing(4);
+			panel.add(html);
+			panel.add(invasive);
+			editor.add(panel);
+			height = panel.getOffsetHeight() + 15;
+			editor.setCellHeight(panel, height + "px");
+			
+			html = new HTML("Feral? ");
+			html.setWidth(htmlWidth);
+			feral = new CheckBox();
+			feral.setValue(node.getFeral());
+			panel = new HorizontalPanel();
+			panel.setSpacing(4);
+			panel.add(html);
+			panel.add(feral);
+			editor.add(panel);
+			height = panel.getOffsetHeight() + 15;
+			editor.setCellHeight(panel, height + "px");
+		}
 	}
 
 	private void refresh() {
@@ -342,6 +370,10 @@ public class TaxonBasicEditor extends LayoutContainer {
 		node.correctFullName();
 		node.setStatus(status.getValue(status.getSelectedIndex()));
 		node.setTaxonomicAuthority(taxonomicAuthority.getText());
+		if (node.getLevel() == TaxonLevel.SPECIES) {
+			node.setInvasive(invasive.getValue());
+			node.setFeral(feral.getValue());
+		}
 		close.setText("Close");
 	}
 }

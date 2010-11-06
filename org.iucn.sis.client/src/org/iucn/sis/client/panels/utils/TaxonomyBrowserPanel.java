@@ -69,6 +69,8 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 	private final StoreFilter<TaxonListElement> filter;
 	private final DataList list;
 	
+	private int checkableLevel;
+	
 	private int cellWidth = 0;
 	
 	private boolean asCheckable = false;
@@ -80,6 +82,8 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 		list = new DataList();
 		list.setScrollMode(Scroll.AUTOY);
 		list.setSelectionMode(SelectionMode.SIMPLE);
+		
+		checkableLevel = TaxonLevel.ORDER;
 
 		loader = new TaxonPagingLoader();
 
@@ -116,6 +120,10 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 
 		pagingToolBar = new PagingToolBar(40);
 		pagingToolBar.bind(loader.getPagingLoader());
+	}
+	
+	public void setCheckableLevel(int checkableLevel) {
+		this.checkableLevel = checkableLevel;
 	}
 
 	protected void addViewButtonToFootprint() {
@@ -319,7 +327,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 			
 			final String foot = footprint;
 			
-			list.setCheckable(asCheckable && footprints.length >= TaxonLevel.ORDER);
+			list.setCheckable(asCheckable && footprints.length >= checkableLevel);
 			
 			// CREATE CSV TO USE TO FECTH ELEMENTS
 			final List<Integer> idList = new ArrayList<Integer>();

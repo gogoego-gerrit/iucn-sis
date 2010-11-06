@@ -17,6 +17,7 @@ import org.iucn.sis.client.panels.permissions.PermissionGroupEditor;
 import org.iucn.sis.client.panels.redlist.RedlistPanel;
 import org.iucn.sis.client.panels.region.RegionPanel;
 import org.iucn.sis.client.panels.taxa.TaxonFinderPanel;
+import org.iucn.sis.client.panels.taxa.tagging.TaxaTagManager;
 import org.iucn.sis.client.panels.users.UserModelTabPanel;
 import org.iucn.sis.client.panels.viruses.VirusManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -71,6 +72,7 @@ public class HeaderContainer extends LayoutContainer {
 	private LockManagementPanel lockManagementPanel;
 	private RedlistPanel redlistPanel;
 	private VirusManager virusManagerPanel;
+	private TaxaTagManager taxaTagManagerPanel;
 	
 	private PermissionGroupEditor permEditor;
 	private UserModelTabPanel userModelPanel;
@@ -88,6 +90,7 @@ public class HeaderContainer extends LayoutContainer {
 		lockManagementPanel = new LockManagementPanel();
 		redlistPanel = new RedlistPanel();
 		virusManagerPanel = new VirusManager();
+		taxaTagManagerPanel = new TaxaTagManager();
 		
 		leftData = new BorderLayoutData(LayoutRegion.WEST, 155f);
 		rightData = new BorderLayoutData(LayoutRegion.EAST, 205f);
@@ -365,6 +368,18 @@ public class HeaderContainer extends LayoutContainer {
 						virusManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
 								tabItem.add(virusManagerPanel);
+							}
+						});
+						tf.add(tabItem);
+					}
+					
+					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.TAXA_TAGGING_FEATURE)) {
+						final TabItem tabItem = new TabItem();
+						tabItem.setText("Taxon Tag Management");
+						tabItem.setLayout(new FitLayout());
+						taxaTagManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								tabItem.add(taxaTagManagerPanel);
 							}
 						});
 						tf.add(tabItem);
