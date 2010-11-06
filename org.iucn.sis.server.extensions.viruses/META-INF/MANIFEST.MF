@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SIS Virus Tracking
 Bundle-SymbolicName: org.iucn.sis.server.extensions.viruses
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
  org.iucn.sis.server;bundle-version="2.0.0",
@@ -21,3 +21,4 @@ Import-Package: org.osgi.framework;version="1.4.0",
  org.restlet.service,
  org.restlet.util
 Export-Package: org.iucn.sis.server.extensions.viruses
+Bundle-Activator: org.iucn.sis.server.extensions.viruses.ServerActivator
