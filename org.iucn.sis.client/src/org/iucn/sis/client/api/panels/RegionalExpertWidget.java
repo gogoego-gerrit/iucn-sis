@@ -160,9 +160,13 @@ public class RegionalExpertWidget extends LayoutContainer {
 		ret = ret.trim();
 		
 		//blank result, no amount, no first answer
-		String defaultResult = ",-1,0";
+		ArrayList<String> defaultAnswers = new ArrayList<String>();
+		defaultAnswers.add(",-1,0");
+		defaultAnswers.add(",-1");
+		defaultAnswers.add(",0");
+		defaultAnswers.add("");
 		
-		return "".equals(ret) || defaultResult.equals(ret) ? null : ret;
+		return defaultAnswers.contains(ret) ? null : ret;
 	}
 
 	public void setWidgetData(String data) {
