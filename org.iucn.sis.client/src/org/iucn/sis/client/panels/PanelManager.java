@@ -6,6 +6,7 @@ import org.iucn.sis.client.panels.dem.DEMPanel;
 import org.iucn.sis.client.panels.images.ImagePopupPanel;
 import org.iucn.sis.client.panels.references.ReferenceViewTabPanel;
 import org.iucn.sis.client.panels.taxa.TaxonHomePage;
+import org.iucn.sis.client.panels.utils.BasicSearchPanel;
 import org.iucn.sis.client.panels.utils.SearchPanel;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetAddTaxaSearchPanel;
@@ -52,7 +53,8 @@ public class PanelManager {
 		DEM = new DEMPanel(this);
 		expertPanel = new ExpertPanel(this);
 		imageViewerPanel = new ImagePopupPanel(this);
-		taxonomySearchPanel = new SearchPanel(this);
+		taxonomySearchPanel = new BasicSearchPanel(this);
+		
 		workingSetFullPanel = new WorkingSetFullPanel(this);
 		workingSetHierarchy = new WorkingSetHierarchy(this);
 		addTaxonPanel = new WorkingSetAddTaxaSearchPanel(this);

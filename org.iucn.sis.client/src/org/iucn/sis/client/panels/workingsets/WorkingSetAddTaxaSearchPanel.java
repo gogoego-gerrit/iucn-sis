@@ -34,7 +34,6 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -47,13 +46,12 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 	class MySearchPanel extends SearchPanel {
 
 		public MySearchPanel(PanelManager manager) {
-			super(manager);
+			super();
 		}
 
 		@Override
 		protected void buildTable() {
-
-			columns = new TableColumn[6];
+			TableColumn[] columns = new TableColumn[6];
 
 			columns[0] = new TableColumn("", .01f);
 			columns[0].setMinWidth(25);
@@ -91,7 +89,7 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 
 			expandableResults.setLayout(new BorderLayout());
 			expandableResults.add(table, new BorderLayoutData(LayoutRegion.CENTER));
-			expandableResults.add(toolbar, new BorderLayoutData(LayoutRegion.SOUTH, 30));
+			expandableResults.add(buildToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 30));
 
 		}
 
@@ -249,11 +247,6 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 			}
 		}
 
-		// OVERRIDE TO CHANGE SELECTION BEHAVIOR
-		@Override
-		protected void setSelectionModelForTable() {
-		}
-
 		public void updateTable() {
 			if (workingSet != null) {
 				for (int i = 0; i < table.getItemCount(); i++) {
@@ -268,7 +261,7 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 				}
 			} else {
 				table.removeAll();
-				searchBox.setText("");
+				resetSearchBox();
 			}
 		}
 

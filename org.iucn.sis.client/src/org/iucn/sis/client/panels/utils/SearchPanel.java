@@ -1,16 +1,17 @@
 package org.iucn.sis.client.panels.utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -20,6 +21,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.ContainerEvent;
@@ -28,7 +30,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -41,15 +42,16 @@ import com.extjs.gxt.ui.client.widget.table.TableColumnModel;
 import com.extjs.gxt.ui.client.widget.table.TableItem;
 import com.extjs.gxt.ui.client.widget.table.TableSelectionModel;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -57,12 +59,15 @@ import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class SearchPanel extends LayoutContainer {
-
-	protected HorizontalPanel expandableSearch;
-	protected ContentPanel expandableResults;
-	private ContentPanel advancedOptions;
-	private PanelManager panelManager = null;
-	private boolean advancedSearch = false;
+	
+	public enum SearchEvents {
+		BeforeSearch, Select
+	}
+	
+	protected final int NUMBER_OF_RESULTS = 20;
+	
+	protected final Table table;
+	
 	private final CheckBox common;
 	private final CheckBox synonym;
 	private final CheckBox sciName;
@@ -70,20 +75,21 @@ public class SearchPanel extends LayoutContainer {
 	private final TextBox countryOfOccText;
 	private final CheckBox assessor;
 	private final TextBox assessorText;
-	protected final int NUMBER_OF_RESULTS = 20;
-	protected int start = 0;
+	private final TextBox searchBox;
+	private final Map<SearchEvents, List<Listener<SearchEvent>>> events;
+	
+	protected HorizontalPanel expandableSearch;
+	protected ContentPanel expandableResults;
 	protected NativeNodeList currentResults;
-	protected final Table table;
-	protected TableColumn[] columns;
-	protected ToolBar toolbar;
-	private Button next;
-	private Button prev;
-	protected final TextBox searchBox;
+	protected int start = 0;
 	protected Button searchButton;
+	
+	private ContentPanel advancedOptions;
+	private boolean advancedSearch = false;
+	private Button next;
+	private Button prev;	
 
-	public SearchPanel(PanelManager manager) {
-		panelManager = manager;
-
+	public SearchPanel() {
 		// BUILDING ALL FINAL STUFFS
 		expandableResults = new ContentPanel();
 		expandableResults.setStyleName("x-panel");
@@ -102,20 +108,44 @@ public class SearchPanel extends LayoutContainer {
 		countryOfOccText = new TextBox();
 		assessor = new CheckBox();
 		assessorText = new TextBox();
-		table = new Table();
-		table.setBulkRender(false);
+		
 		searchBox = new TextBox();
-		searchBox.addKeyboardListener(new KeyboardListenerAdapter() {
-			@Override
-			public void onKeyPress(Widget sender, char keyCode, int modifiers) {
-				if (keyCode == KEY_ENTER)
+		searchBox.addKeyPressHandler(new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				char keyCode = event.getCharCode();
+				if (keyCode == KeyCodes.KEY_ENTER)
 					searchButton.fireEvent(Events.Select);
 			}
 		});
+		
+		table = new Table();
+		table.setBulkRender(false);
+		
+		events = new HashMap<SearchEvents, List<Listener<SearchEvent>>>();
 
-		// setLayoutOnChange(true);
 		build();
-
+	}
+	
+	public void addBeforeSearchListener(Listener<SearchEvent<String>> listener) {
+		addListener(SearchEvents.BeforeSearch, listener);
+	}
+	
+	public void addSearchSelectionListener(Listener<SearchEvent<Integer>> listener) {
+		addListener(SearchEvents.Select, listener);
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected void addListener(SearchEvents eventType, Listener listener) {
+		List<Listener<SearchEvent>> list = events.get(eventType);
+		if (list == null)
+			list = new ArrayList<Listener<SearchEvent>>();
+		list.add(listener);
+		
+		events.put(eventType, list);
+	}
+	
+	public void resetSearchBox() {
+		searchBox.setText("");
 	}
 
 	protected void build() {
@@ -162,14 +192,14 @@ public class SearchPanel extends LayoutContainer {
 		VerticalPanel vp = new VerticalPanel();
 		advancedOptions.setLayout(new FillLayout());
 
-		common.setChecked(true);
+		common.setValue(true);
 		common.setText("Search Common Names");
 		
-		synonym.setChecked(true);
+		synonym.setValue(true);
 		synonym.setText("Search Synonyms");
 
 		sciName.setText("Search Scientific Names");
-		sciName.setChecked(true);
+		sciName.setValue(true);
 
 		HorizontalPanel hp1 = new HorizontalPanel();
 		countryOfOcc.setText("Country of Occurrence");
@@ -205,7 +235,6 @@ public class SearchPanel extends LayoutContainer {
 	}
 
 	private void buildSearchPanel() {
-
 		expandableSearch.add(searchBox);
 		searchBox.setWidth("100%");
 		searchButton = new Button("Search", new SelectionListener<ButtonEvent>() {
@@ -220,10 +249,10 @@ public class SearchPanel extends LayoutContainer {
 		});
 
 		expandableSearch.add(searchButton);
+		
 		final HTML showAdvanced = new HTML("Show Advanced Search");
-		showAdvanced.addClickListener(new ClickListener() {
-			public void onClick(Widget sender) {
-
+		showAdvanced.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				if (!advancedSearch) {
 					advancedSearch = true;
 					showAdvanced.setText("Hide Advanced Search");
@@ -234,15 +263,12 @@ public class SearchPanel extends LayoutContainer {
 				}
 
 				layout();
-
 			}
 		});
-
 	}
 
 	protected void buildTable() {
-
-		columns = new TableColumn[7];
+		TableColumn[] columns = new TableColumn[7];
 
 		columns[0] = new TableColumn("Scientific Name", .27f);
 		columns[0].setMinWidth(75);
@@ -280,12 +306,11 @@ public class SearchPanel extends LayoutContainer {
 
 		expandableResults.setLayout(new BorderLayout());
 		expandableResults.add(table, new BorderLayoutData(LayoutRegion.CENTER));
-		expandableResults.add(toolbar, new BorderLayoutData(LayoutRegion.SOUTH, 30));
-
+		expandableResults.add(buildToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 30));
 	}
 
-	private void buildToolbar() {
-		toolbar = new ToolBar();
+	protected ToolBar buildToolbar() {
+		ToolBar toolbar = new ToolBar();
 
 		next = new Button();
 		next.setIconStyle("icon-next");
@@ -323,6 +348,7 @@ public class SearchPanel extends LayoutContainer {
 		toolbar.add(prev);
 		toolbar.add(next);
 
+		return toolbar;
 	}
 
 	public void fillTable() {
@@ -395,31 +421,27 @@ public class SearchPanel extends LayoutContainer {
 
 	@Override
 	protected void onAttach() {
-		// TODO Auto-generated method stub
 		super.onAttach();
 		advancedOptions.setExpanded(false);
 	}
+	
+	private boolean onBeforeSearch(String value) {
+		return execute(SearchEvents.BeforeSearch, new SearchEvent<String>(this, value));
+	}
 
 	private void search(String searchQuery) {
-		String searchOptions = "";
-
-		if (searchQuery.matches("^[0-9]+$")) {
-			panelManager.taxonomicSummaryPanel.update(Integer.valueOf(searchQuery));
+		if (onBeforeSearch(searchQuery)) {
 			searchButton.setEnabled(true);
-			WindowManager.get().hideAll();
 			return;
 		}
 
 		final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
-
 		ndoc.post(UriBase.getInstance().getSISBase() +"/search", searchToXML(searchQuery), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.hideLoadingAlert();
 				WindowUtils.errorAlert("Error loading results. Inconsistency in index table.");
 			}
-
 			public void onSuccess(String result) {
-
 				currentResults = ndoc.getDocumentElement().getElementsByTagName("result");
 				if (currentResults.getLength() > NUMBER_OF_RESULTS)
 					next.setVisible(true);
@@ -463,29 +485,48 @@ public class SearchPanel extends LayoutContainer {
 		xml += "</search>";
 		return xml;
 	}
+	
+	private boolean onSearchSelect(Integer taxonID) {
+		return execute(SearchEvents.Select, new SearchEvent<Integer>(this, taxonID));
+	}
+	
+	private boolean execute(SearchEvents eventType, SearchEvent event) {
+		boolean cancelled = false;
+		for (Listener<SearchEvent> listener : events.get(eventType)) {
+			try {
+				listener.handleEvent(event);
+			} catch (Throwable e) {
+				Debug.println("Failed to run {0} search listener: {1}", SearchEvents.BeforeSearch, e);
+			}
+			cancelled |= event.isCancelled();
+		}
+		return cancelled;
+	}
 
-	protected void setSelectionModelForTable() {
+	private void setSelectionModelForTable() {
 		table.setSelectionModel(new TableSelectionModel(SelectionMode.SINGLE) {
-						
-			@Override
 			protected void onMouseDown(ContainerEvent ce) {
 				super.onMouseDown(ce);
 				if (table.getSelectedItem() != null) {
-					TaxonomyCache.impl.fetchTaxon(Integer.valueOf((String)table.getSelectedItem().getValues()[4]), true,
-							new GenericCallback<Taxon >() {
-								public void onFailure(Throwable caught) {
-								}
-
-								public void onSuccess(Taxon  result) {
-									panelManager.taxonomicSummaryPanel
-											.update(Integer.valueOf((String)table.getSelectedItem().getValues()[4]));
-									WindowManager.get().hideAll();
-								}
-							});
+					onSearchSelect(Integer.valueOf((String)table.getSelectedItem().getValues()[4]));
 				}
-				
 			}
 		});
+	}
+	
+	public static class SearchEvent<T> extends BaseEvent {
+		
+		private final T value;
+		
+		public SearchEvent(Object source, T data) {
+			super(source);
+			this.value = data;
+		}
+		
+		public T getValue() {
+			return value;
+		}
+		
 	}
 
 }
