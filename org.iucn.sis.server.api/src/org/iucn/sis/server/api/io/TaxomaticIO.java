@@ -639,12 +639,15 @@ public class TaxomaticIO {
 	 * 
 	 */
 	private void updateRLHistoryText(Taxon taxon) {
-		
-		for (Assessment curAss : SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(taxon)) {
-			Field field = curAss.getField(CanonicalNames.RedListCriteria);
-			String text = (String) field.getKeyToPrimitiveFields().get(RedListCriteriaField.RL_HISTORY_TEXT).getValue();
+		for (Assessment current : SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(taxon)) {
+			Field field = current.getField(CanonicalNames.RedListCriteria);
+			if (field == null)
+				field = new Field(CanonicalNames.RedListCriteria, current);
+			
+			RedListCriteriaField proxy = new RedListCriteriaField(field);
+			String text = proxy.getRLHistoryText();
 			if (text == null || text.equals("")) {
-				field.getKeyToPrimitiveFields().get(RedListCriteriaField.RL_HISTORY_TEXT).setValue("as " + generateRLHistoryText(taxon));
+				proxy.setRLHistoryText("as " + generateRLHistoryText(taxon));
 			}
 		}
 	}
