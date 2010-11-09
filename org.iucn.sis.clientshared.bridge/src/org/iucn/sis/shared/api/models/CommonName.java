@@ -13,6 +13,7 @@ package org.iucn.sis.shared.api.models;
  * License Type: Evaluation
  */
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashSet;
 
 import org.iucn.sis.shared.api.utils.XMLUtils;
@@ -87,6 +88,7 @@ public class CommonName implements Serializable {
 	private Taxon taxon;
 	private java.util.Set<Reference> reference;
 	private java.util.Set<Notes> notes;
+	private long generationID;
 	
 	public CommonName() {
 		this(null, null, null);
@@ -105,6 +107,7 @@ public class CommonName implements Serializable {
 		this.principal = isPrimary;
 		this.reference = new HashSet<Reference>();
 		this.notes = new HashSet<Notes>();
+		this.generationID = new Date().getTime();
 	}
 	
 	
@@ -121,13 +124,24 @@ public class CommonName implements Serializable {
 		return cn;
 	}
 	
+	
+	@Override
+	public int hashCode() {
+		return new Long(generationID).hashCode();
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof CommonName) {
-			return ((CommonName)obj).getId() == getId();
-		} else {
-			return super.equals(obj);
-		}
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CommonName other = (CommonName) obj;
+		if (generationID != other.generationID)
+			return false;
+		return true;
 	}
 	
 	public int getChangeReason() {
@@ -182,10 +196,6 @@ public class CommonName implements Serializable {
 		return validated;
 	}
 	
-	@Override
-	public int hashCode() {
-		return ("CommonName"+getId()).hashCode();
-	}
 	
 	public boolean isPrimary() {
 		return getPrincipal();
@@ -199,6 +209,7 @@ public class CommonName implements Serializable {
 	
 	public void setId(int value) {
 		this.id = value;
+		this.generationID = value;
 	}
 	
 	public void setIso(IsoLanguage value) {

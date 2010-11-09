@@ -13,6 +13,7 @@ package org.iucn.sis.shared.api.models;
  * License Type: Evaluation
  */
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashSet;
 
 import com.solertium.lwxml.shared.NativeElement;
@@ -32,6 +33,7 @@ public class Synonym implements Serializable {
 	public final static String SPLIT = "SPLIT";
 
 	public Synonym(Taxon taxon) {
+		this();
 		if (taxon.getTaxonLevel().getLevel() < TaxonLevel.SPECIES) {
 			setName(taxon.getName());
 			setAuthor(taxon.getTaxonomicAuthority());
@@ -204,16 +206,26 @@ public class Synonym implements Serializable {
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 
 	public Synonym() {
+		this.generationID = new Date().getTime();
 	}
 
-	public boolean equals(Object obj) {
-		if( obj instanceof Synonym )
-			return getFriendlyName().equals(((Synonym)obj).getFriendlyName());
-		return false;
-	}
-	
+	@Override
 	public int hashCode() {
-		return getFriendlyName().trim().hashCode();
+		return new Long(generationID).hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Synonym other = (Synonym) obj;
+		if (generationID != other.generationID)
+			return false;
+		return true;
 	}
 
 	private int id;
@@ -241,9 +253,12 @@ public class Synonym implements Serializable {
 	private java.util.Set<Notes> notes = new java.util.HashSet<Notes>();
 
 	private java.util.Set<Reference> reference = new java.util.HashSet<Reference>();
+	
+	protected long generationID;
 
 	public void setId(int value) {
 		this.id = value;
+		this.generationID = value;
 	}
 
 	public int getId() {
