@@ -137,6 +137,17 @@ public class SISPersistentManager {
 		//session.buildLockRequest(LockOptions.NONE).lock(obj);
 	}
 	
+	public <X> X mergeObject(X obj) throws PersistentException {
+		Session session = getSession();
+		try {
+			return (X) session.merge(obj);
+		} catch (ClassCastException e) {
+			throw new PersistentException(e);
+		} catch (HibernateException e) {
+			throw new PersistentException(e);
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	public <X> X getObject(Class<X> clazz, Serializable id) throws PersistentException {
 		Session session = getSession();

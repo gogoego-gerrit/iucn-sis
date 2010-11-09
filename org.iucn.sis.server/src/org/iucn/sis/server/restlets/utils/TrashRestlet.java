@@ -6,6 +6,7 @@ import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.FormattedDate;
+import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.io.AssessmentIOMessage;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -133,26 +134,36 @@ public class TrashRestlet extends ServiceRestlet {
 			boolean success = false;
 			String message = null;
 			if (type.equalsIgnoreCase("taxon")) {
-				if (SIS.get().getTaxonIO().restoreTrashedTaxon(Integer.valueOf(id), user)) {
-					if (restoreRelatedAssessments != null && restoreRelatedAssessments.equalsIgnoreCase("true")) {
-						AssessmentIOMessage m = SIS.get().getAssessmentIO().restoreDeletedAssessmentsAssociatedWithTaxon(Integer
-								.valueOf(id), SIS.get().getUser(request));
-						message = m.getMessage();
-						if (m.getFailed() == null || m.getFailed().isEmpty()) {
-							success = true;
-						}
-					}else {
+				try {
+					SIS.get().getTaxonIO().restoreTrashedTaxon(Integer.valueOf(id), user);
+				} catch (TaxomaticException e) {
+					response.setEntity(new DomRepresentation(MediaType.TEXT_XML, e.getErrorAsDocument()));
+					response.setStatus(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL);
+					return;
+				}
+				
+				if (restoreRelatedAssessments != null && restoreRelatedAssessments.equalsIgnoreCase("true")) {
+					AssessmentIOMessage m = SIS.get().getAssessmentIO().restoreDeletedAssessmentsAssociatedWithTaxon(Integer
+							.valueOf(id), SIS.get().getUser(request));
+					message = m.getMessage();
+					if (m.getFailed() == null || m.getFailed().isEmpty()) {
 						success = true;
 					}
-					
+				} else {
+					success = true;
 				}
 			} else if (type.equalsIgnoreCase("assessment")) {
-				
 				success = SIS.get().getAssessmentIO().restoreTrashedAssessments(Integer.valueOf(id), SIS.get().getUser(request)).status.isSuccess();
 				if (success) {
 					Taxon taxon = SIS.get().getAssessmentIO().getNonCachedAssessment(Integer.valueOf(id)).getTaxon();
-					if (taxon.getState() == Taxon.DELETED) 
-						success = SIS.get().getTaxonIO().restoreTrashedTaxon(taxon.getId(), SIS.get().getUser(request));
+					if (taxon.getState() == Taxon.DELETED) {
+						try {
+							SIS.get().getTaxonIO().restoreTrashedTaxon(taxon.getId(), SIS.get().getUser(request));
+						} catch (TaxomaticException e) {
+							Debug.println(e);
+							success = false;
+						}
+					}
 				}
 			} else {
 				message = "Invalid type -- should be assessment or taxon.";

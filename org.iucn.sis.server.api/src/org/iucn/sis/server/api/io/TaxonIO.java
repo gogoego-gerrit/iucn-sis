@@ -9,20 +9,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Transaction;
+import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.locking.TaxonLockAquirer;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.persistance.TaxonDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.ServerPaths;
+import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 
+import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.vfs.BoundsException;
 import com.solertium.vfs.ConflictException;
@@ -123,13 +128,12 @@ public class TaxonIO {
 		return list;
 	}
 
-	public boolean writeTaxon(Taxon taxonToSave, User user) {
+	public void writeTaxon(Taxon taxonToSave, User user) throws TaxomaticException {
 		Taxon oldTaxon = getTaxonFromVFS(taxonToSave.getId());
-		if (oldTaxon != null) {
-			return writeTaxon(taxonToSave, oldTaxon, user);
-		} else {
-			return writeTaxon(taxonToSave, taxonToSave, user);
-		}
+		if (oldTaxon != null)
+			writeTaxon(taxonToSave, oldTaxon, user);
+		else
+			writeTaxon(taxonToSave, taxonToSave, user);
 	}
 
 	/**
@@ -140,21 +144,21 @@ public class TaxonIO {
 	 * @param nodeToSave
 	 * @return summary
 	 */
-	public boolean writeTaxon(Taxon nodeToSave, User user, boolean requireLocking) {
+	public void writeTaxon(Taxon nodeToSave, User user, boolean requireLocking) throws TaxomaticException {
 		ArrayList<Taxon> list = new ArrayList<Taxon>();
 		list.add(nodeToSave);
-		return writeTaxa(list, user, requireLocking);
+		
+		writeTaxa(list, user, requireLocking);
 	}
 
-	boolean writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user) {
-
+	void writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user) throws TaxomaticException {
 		ArrayList<Taxon> list = new ArrayList<Taxon>();
 		list.add(taxonToSave);
 
 		Map<Integer, Taxon> idToOldTaxa = new HashMap<Integer, Taxon>();
 		idToOldTaxa.put(taxonToSave.getId(), oldTaxon);
-		return writeTaxa(list, idToOldTaxa, user, true);
-
+		
+		writeTaxa(list, idToOldTaxa, user, true);
 	}
 
 	/**
@@ -163,23 +167,21 @@ public class TaxonIO {
 	 * opertaions, use taxomaticIO
 	 * 
 	 */
-	public boolean writeTaxa(Collection<Taxon> nodesToSave, User user, boolean requireLocking) {
-
+	public void writeTaxa(Collection<Taxon> nodesToSave, User user, boolean requireLocking) throws TaxomaticException {
 		Map<Integer, Taxon> idToOldTaxa = new HashMap<Integer, Taxon>();
-		for (Taxon taxon : nodesToSave) {
+		for (Taxon taxon : nodesToSave)
 			idToOldTaxa.put(taxon.getId(), getTaxonFromVFS(taxon.getId()));
-		}
-		return writeTaxa(nodesToSave, idToOldTaxa, user, requireLocking);
-
+		
+		writeTaxa(nodesToSave, idToOldTaxa, user, requireLocking);
 	}
 
-	boolean writeTaxa(Collection<Taxon> taxaToSave, Map<Integer, Taxon> idToOldTaxa, User user, boolean requireLocking) {
+	void writeTaxa(Collection<Taxon> taxaToSave, Map<Integer, Taxon> idToOldTaxa, User user, boolean requireLocking) throws TaxomaticException {
 
 		// DO NOT ALLOW ANY TAXOMATIC OPERATION SAVES
 		for (Taxon taxon : taxaToSave) {
 			if (idToOldTaxa.get(taxon.getId()) != null
 					&& SIS.get().getTaxomaticIO().isTaxomaticOperationNecessary(taxon, idToOldTaxa.get(taxon.getId()))) {
-				return false;
+				throw new TaxomaticException("Taxomatic operation necessary, can not save.", false);
 			}
 		}
 
@@ -190,7 +192,6 @@ public class TaxonIO {
 
 		if (!requireLocking || aquirer.isSuccess()) {
 			try {
-
 				Date date = new Date();
 				for (Taxon taxon : taxaToSave) {
 					Edit edit = new Edit();
@@ -199,22 +200,18 @@ public class TaxonIO {
 					edit.getTaxon().add(taxon);
 					taxon.getEdits().add(edit);
 					taxon.toXML();
-					taxon.getReference();
-					if (!TaxonDAO.save(taxon)) {
-						break;
-					}
+					
+					TaxonDAO.save(taxon);
 				}
-				return true;
 			} catch (PersistentException e) {
-				e.printStackTrace();
+				Debug.println("Failed to save taxa list: \n{0}", e);
+				throw new TaxomaticException("Failed to save taxa changes due to server error.", false);
 			} finally {
 				aquirer.releaseLocks();
 			}
-
-		} else {
-
 		}
-		return false;
+		else
+			throw new TaxomaticException("Failed to acquire lock to save taxa.", false);
 	}
 
 	public boolean permenantlyDeleteAllTrashedTaxa() {
@@ -248,19 +245,20 @@ public class TaxonIO {
 		return TaxonDAO.getTrashedTaxa();
 	}
 
-	public boolean restoreTrashedTaxon(Integer taxonID, User user) {
+	public void restoreTrashedTaxon(Integer taxonID, User user) throws TaxomaticException {
 		Taxon taxon;
 		try {
 			taxon = TaxonDAO.getTrashedTaxon(taxonID);
 		} catch (PersistentException e) {
-			e.printStackTrace();
-			return false;
+			taxon = null;
 		}
-		if (taxon != null) {
-			taxon.setState(Taxon.ACTIVE);
-			return writeTaxon(taxon, user);
-		}
-		return false;
+		
+		if (taxon == null)
+			throw new TaxomaticException("Could not find taxon " + taxonID + " in the trash to restore.");
+		
+		taxon.setState(Taxon.ACTIVE);
+		
+		writeTaxon(taxon, user);
 	}
 
 	public boolean permanentlyDeleteTaxon(Integer taxonID) {
@@ -277,25 +275,19 @@ public class TaxonIO {
 		return false;
 	}
 
-	public boolean trashTaxon(Taxon taxon, User user) {
+	public void trashTaxon(Taxon taxon, User user) throws TaxomaticException {
+		if (taxon.getChildren().size() > 0)
+			throw new TaxomaticException("You can not delete a taxon that has children.");
 		
-		try {
-			if (taxon.getChildren().size() > 0)
-				throw new RuntimeException("You can not delete a taxon that has children.");
-			
-			taxon.setState(Taxon.DELETED);
-			writeTaxon(taxon, user);
-			for (Assessment assessment : taxon.getAssessments()) {
-				AssessmentIOWriteResult result = SIS.get().getAssessmentIO().trashAssessment(assessment, user);
-				if (result.status.isError())
-					throw new PersistentException("Unable to save assessment " + assessment.getId() + " because locked");
-			}
-			
-			return true;
-		} catch (PersistentException e) {
-			
+		taxon.setState(Taxon.DELETED);
+		
+		writeTaxon(taxon, user);
+		
+		for (Assessment assessment : taxon.getAssessments()) {
+			AssessmentIOWriteResult result = SIS.get().getAssessmentIO().trashAssessment(assessment, user);
+			if (result.status.isError())
+				throw new TaxomaticException("Unable to save assessment " + assessment.getId() + ", it may be locked");
 		}
-		return false;
 	}
 
 	public Taxon readTaxonByName(String kingdomName, String name) {
@@ -345,29 +337,20 @@ public class TaxonIO {
 	}
 
 	public Taxon getTaxonFromVFS(Integer taxonID) {
-		String text;
+		final String text;
 		try {
 			text = getXMLFromVFS(taxonID);
-		} catch (NotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		} catch (BoundsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Debug.println("Failed to load taxon {0} from VFS: \n{1}", taxonID, e);
 			return null;
 		}
 		if (text != null && !text.trim().equalsIgnoreCase("")) {
-			NativeDocument ndoc = SIS.get().newNativeDocument(null);
+			NativeDocument ndoc = new JavaNativeDocument();
 			ndoc.parse(text);
 			return Taxon.fromXML(ndoc);
 		}
-		return null;
-
+		else
+			return null;
 	}
 
 	public Taxon[] getChildrenOfTaxon(Integer parentTaxonID) throws PersistentException {

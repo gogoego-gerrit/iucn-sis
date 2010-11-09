@@ -131,17 +131,18 @@ public class AssessmentIO {
 	 * @throws PersistentException
 	 * @throws HibernateException
 	 */
-	public Assessment getAttachedAssessment(Integer id) throws DBException {
+	public Assessment getAttachedAssessment(Integer id) {
 		Assessment assessment = getFromVFS(id);
 		try {
-			assessment = (Assessment) SIS.get().getManager().getSession().merge(assessment);
-		} catch (HibernateException e) {
-			throw new DBException(e);
+			assessment = SIS.get().getManager().mergeObject(assessment);
 		} catch (PersistentException e) {
-			throw new DBException(e);
+			//Guess we're getting it uncached...
+			assessment = null;
 		}
+		
 		if (assessment == null)
 			assessment = getNonCachedAssessment(id);
+		
 		return assessment;
 	}
 
@@ -404,6 +405,12 @@ public class AssessmentIO {
 		return ret;
 	}
 
+	/**
+	 * FIXME: this is bad for obvious reasons.
+	 * @param assessments
+	 * @param user
+	 * @return
+	 */
 	public boolean saveAssessmentsWithNoFail(Collection<Assessment> assessments, User user) {
 		Status lockStatus = Status.SUCCESS_OK;
 		boolean success = false;
@@ -424,7 +431,7 @@ public class AssessmentIO {
 				}
 				success = true;
 			} catch (PersistentException e) {	
-				e.printStackTrace();
+				Debug.println(e);
 			}
 		}
 

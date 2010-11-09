@@ -2,18 +2,15 @@ package org.iucn.sis.server.restlets.taxa;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.models.Edit;
-import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
@@ -25,9 +22,11 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.ElementCollection;
 import com.solertium.vfs.NotFoundException;
@@ -160,56 +159,50 @@ public class TaxonRestlet extends ServiceRestlet {
 				Debug.println("This is a bad request: " + request.getResourceRef().getPath());
 				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			}
+		} catch (ResourceException e) {
+			Debug.println("Failure in taxon restlet: \n{0}", e);
+			response.setStatus(e.getStatus(), e);
 		} catch (Exception e) {
-			e.printStackTrace();
+			Debug.println("Uncaught failure in taxon restlet: \n{0}", e);
 			response.setStatus(Status.SERVER_ERROR_INTERNAL);
 		}
 	}
 
-	private void updateTaxon(Request request, Response response, Integer nodeID) {
+	private void updateTaxon(Request request, Response response, Integer nodeID) throws ResourceException {
 		if (nodeID != null) {
 			ArrayList<Taxon> nodesToSave = new ArrayList<Taxon>();
+			User user = SIS.get().getUser(request);
+			
+			NativeDocument newDoc = new JavaNativeDocument();
 			try {
-				User user = SIS.get().getUser(request);
-				String nodeString = request.getEntity().getText();
-				NativeDocument newDoc = SIS.get().newNativeDocument(request.getChallengeResponse());
-				newDoc.parse(nodeString);
-				Taxon newNode = Taxon.fromXML(newDoc);
-//				Set<Edit> edits = new HashSet<Edit>();
-//				for (Edit edit : newNode.getEdits()) {
-//					System.out.println("looking at edit " + edit.getId());
-//					if (edit.getId() != 0) {
-//						System.out.println("getting edit from session");
-//						Edit editted =(Edit) SISPersistentManager.instance().getSession().get(edit.getClass(), edit.getId());
-//						if (editted != null)
-//							SISPersistentManager.instance().getSession().evict(editted);
-////						SIS.get().getEditIO().get(edit.getId());
-////						edits.add((Edit) SISPersistentManager.instance().getSession().merge(edit));
-//					} else {
-////						edits.add(edit);
-//					}
-//				}
-//				newNode.setEdits(edits);
-				newNode = (Taxon) SIS.get().getManager().getSession().merge(newNode);
-				nodesToSave.add(newNode);
-				boolean success = SIS.get().getTaxonIO().writeTaxa(nodesToSave, user, true);
-				if (success) {
-					StringBuilder xml = new StringBuilder();
-					xml.append("<nodes>");
-					for (Taxon taxon : nodesToSave) {
-						xml.append(taxon.getId() + ",");
-					}
-					xml.append("</nodes>");
-					response.setStatus(Status.SUCCESS_OK);
-					response.setEntity(xml.toString(), MediaType.TEXT_XML);
-				} else {
-					response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
-				}
-
+				newDoc.parse(request.getEntity().getText());
 			} catch (Exception e) {
-				e.printStackTrace();
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+				throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 			}
+				
+			Taxon newNode = Taxon.fromXML(newDoc);
+			try {
+				newNode = SIS.get().getManager().mergeObject(newNode);
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
+			
+			nodesToSave.add(newNode);
+			try {
+				SIS.get().getTaxonIO().writeTaxa(nodesToSave, user, true);
+			} catch (TaxomaticException e) {
+				throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e);
+			}
+				
+			StringBuilder xml = new StringBuilder();
+			xml.append("<nodes>");
+			for (Taxon taxon : nodesToSave) {
+				xml.append(taxon.getId() + ",");
+			}
+			xml.append("</nodes>");
+			response.setStatus(Status.SUCCESS_OK);
+			response.setEntity(xml.toString(), MediaType.TEXT_XML);
+			
 		} else
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 	}

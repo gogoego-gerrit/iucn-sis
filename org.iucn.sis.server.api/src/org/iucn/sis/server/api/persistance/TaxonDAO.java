@@ -311,12 +311,10 @@ public class TaxonDAO {
 		return new Taxon();
 	}
 	
-	public static boolean save(Taxon taxon) throws PersistentException {
+	public static void save(Taxon taxon) throws PersistentException {
 		try {
 			SISPersistentManager.instance().saveObject(taxon);
-			return true;
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			throw new PersistentException(e);
 		}
 	}

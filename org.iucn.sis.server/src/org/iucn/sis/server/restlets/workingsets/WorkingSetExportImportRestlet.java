@@ -25,6 +25,7 @@ import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.FileZipper;
 import org.iucn.sis.server.api.utils.ServerPaths;
+import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.server.restlets.taxa.TaxonRestlet;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -467,11 +468,21 @@ public class WorkingSetExportImportRestlet extends ServiceRestlet {
 		if (sisTaxon == null) {
 			// THE TAXON IS NEW!
 			importedTaxon.setId(0);
-			SIS.get().getTaxomaticIO().saveNewTaxon(importedTaxon, user);
+			try {
+				SIS.get().getTaxomaticIO().saveNewTaxon(importedTaxon, user);
+			} catch (TaxomaticException e) {
+				Debug.println(e);
+				return;
+			}
 		} else {
 			importSynonyms(importedTaxon, sisTaxon);
 			importCommonNames(importedTaxon, sisTaxon);
-			SIS.get().getTaxonIO().writeTaxon(sisTaxon, user);
+			try {
+				SIS.get().getTaxonIO().writeTaxon(sisTaxon, user);
+			} catch (TaxomaticException e) {
+				Debug.println(e);
+				return;
+			}
 			idsToImportedTaxon.put(importedID, sisTaxon);
 		}
 
