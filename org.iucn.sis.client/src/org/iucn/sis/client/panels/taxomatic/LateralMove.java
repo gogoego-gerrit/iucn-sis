@@ -6,7 +6,6 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
-import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -15,7 +14,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.util.extjs.client.QuickButton;
 import com.solertium.util.extjs.client.WindowUtils;
 
 /**
@@ -32,7 +30,6 @@ public class LateralMove extends TaxonChooser {
 	private Button cancel;
 	private final int level;
 	private Taxon  parentNode;
-	private PanelManager manager;
 	private List<String> childrenNodes;
 
 	public LateralMove(PanelManager manager) {
@@ -41,13 +38,6 @@ public class LateralMove extends TaxonChooser {
 		level = parentNode.getLevel();
 		childrenNodes = new ArrayList<String>();
 		load();
-	}
-
-	public ArrayList getApplicableTaxonLevels() {
-		ArrayList list = new ArrayList();
-		int level = parentNode.getLevel();
-		list.add((level + 1) + "");
-		return list;
 	}
 
 	@Override
@@ -88,13 +78,9 @@ public class LateralMove extends TaxonChooser {
 		if (childrenNodes.size() > 0) {
 			TaxomaticUtils.impl.lateralMove(parentNode.getId() + "", childrenNodes, new GenericCallback<String>() {
 				public void onFailure(Throwable arg0) {
-					WindowUtils.errorAlert("Error", "Unable to complete the move of the selected taxa.  "
-							+ "Please confirm that no one else is currently on the system and try again.");
 					move.setEnabled(true);
 					cancel.setEnabled(true);
-
 				}
-
 				public void onSuccess(String arg0) {
 					WindowUtils.infoAlert("Success",
 							"All selected taxa have been successfully moved to be children of "
@@ -105,9 +91,7 @@ public class LateralMove extends TaxonChooser {
 							.getId());
 					TaxonomyCache.impl.evictPaths();
 					onClose();
-
 				}
-
 			});
 		} else {
 			WindowUtils.infoAlert("You must choose at least one taxon to move.");

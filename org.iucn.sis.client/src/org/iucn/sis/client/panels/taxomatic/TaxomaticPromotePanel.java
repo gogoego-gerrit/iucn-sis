@@ -9,7 +9,6 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -26,11 +25,9 @@ public class TaxomaticPromotePanel extends LayoutContainer {
 	private HTML message;
 	private ButtonBar bar;
 	private Taxon  currentNode;
-	private PanelManager manager;
 	private boolean error;
 
 	public TaxomaticPromotePanel(PanelManager manager) {
-		this.manager = manager;
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
 		build();
 	}
@@ -64,21 +61,16 @@ public class TaxomaticPromotePanel extends LayoutContainer {
 
 		if (!error) {
 			cancelButton.setText("Cancel");
-			final Button promoteButton = new Button("Promote taxon");
-			SelectionListener listener = new SelectionListener<ComponentEvent>() {
-				@Override
-				public void componentSelected(ComponentEvent ce) {
+			bar.add(new Button("Promote taxon", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					final Button source = ce.getButton();
 					cancelButton.setEnabled(false);
-					promoteButton.setEnabled(false);
+					source.setEnabled(false);
 
 					TaxomaticUtils.impl.performPromotion(currentNode, new GenericCallback<String>() {
-
 						public void onFailure(Throwable arg0) {
 							cancelButton.setEnabled(true);
-							promoteButton.setEnabled(true);
-							WindowUtils.errorAlert("Error", "There was an error while trying to " + " promote "
-									+ currentNode.getFullName() + ". Please make sure "
-									+ "that no one else is currently using SIS and try again later.");
+							source.setEnabled(true);
 						}
 
 						public void onSuccess(String arg0) {
@@ -86,14 +78,9 @@ public class TaxomaticPromotePanel extends LayoutContainer {
 							WindowUtils
 									.infoAlert("Success", currentNode.getName() + " has successfully been promoted.");
 						}
-
 					});
-
 				}
-
-			};
-			promoteButton.addSelectionListener(listener);
-			bar.add(promoteButton);
+			}));
 		}
 
 	}

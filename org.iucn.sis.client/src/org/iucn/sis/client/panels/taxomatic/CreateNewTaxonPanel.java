@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.panels.ClientUIContainer;
+import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -36,6 +37,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -255,12 +257,20 @@ public class CreateNewTaxonPanel extends Window {
 			fullName = newNode.generateFullName();
 			newNode.setFriendlyName(fullName);
 
-			TaxomaticUtils.createNewTaxon(newNode, parent, new GenericCallback<Taxon>() {
+			TaxomaticUtils.impl.createNewTaxon(newNode, parent, new GenericCallback<Taxon>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils.hideLoadingAlert();
-					WindowUtils.errorAlert("Failure!", "New node " + newNode.getFullName() + " failed to save."
-							+ " Either you have a bad connection to your server, or there "
-							+ "already exists a node with the same name.");
+					if (caught instanceof TaxonomyException) {
+						WindowUtils.errorAlert(caught.getMessage());
+					}
+					else if (caught instanceof GWTResponseException && ((GWTResponseException)caught).getCode() == 423)
+						WindowUtils.errorAlert("Taxomatic In Use", "Sorry, but another " +
+								"taxomatic operation is currently running. Please try " +
+								"again later!");
+					else
+						WindowUtils.errorAlert("Failure!", "New node " + newNode.getFullName() + " failed to save."
+								+ " Either you have a bad connection to your server, or there "
+								+ "already exists a node with the same name.");
 				}
 
 				public void onSuccess(Taxon arg0) {

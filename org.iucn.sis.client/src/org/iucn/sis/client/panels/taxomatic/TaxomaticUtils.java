@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -14,7 +15,8 @@ import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
-import com.solertium.lwxml.gwt.debug.SysDebugger;
+import com.solertium.lwxml.gwt.utils.ClientDocumentUtils;
+import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -31,26 +33,32 @@ public class TaxomaticUtils {
 		return new GenericCallback<String>() {
 
 			public void onFailure(Throwable arg0) {
-				if( ndoc.getStatusText().equals("423") )
+				String status = ClientDocumentUtils.parseStatus(ndoc);
+				if (!"".equals(status))
+					WindowUtils.errorAlert(status);
+				else if (ndoc.getStatusText().equals("423"))
 					WindowUtils.errorAlert("Taxomatic In Use", "Sorry, but another " +
 							"taxomatic operation is currently running. Please try " +
-							"again later!");
+							"again later.");
+				else
+					WindowUtils.errorAlert("An unexpected error caused this operation to fail.  Please try again later.");
 				
 				wayback.onFailure(arg0);
 			}
 
 			public void onSuccess(String arg0) {
-				afterTaxomaticOperation(Integer.valueOf(idToReturn), new GenericCallback<String>() {
-
-					public void onFailure(Throwable arg0) {
-						wayback.onSuccess(null);
-					}
-
-					public void onSuccess(String arg0) {
-						wayback.onSuccess(arg0);
-					}
-
-				});
+				if (idToReturn != null)
+					afterTaxomaticOperation(Integer.valueOf(idToReturn), new GenericCallback<String>() {
+	
+						public void onFailure(Throwable arg0) {
+							wayback.onSuccess(null);
+						}
+	
+						public void onSuccess(String arg0) {
+							wayback.onSuccess(arg0);
+						}
+	
+					});
 			}
 
 		};
@@ -63,8 +71,7 @@ public class TaxomaticUtils {
 	 * @param newTaxon
 	 * @param parent
 	 */
-	public static void createNewTaxon (final Taxon newTaxon, Taxon parent, final GenericCallback<Taxon > wayback) {
-		
+	public void createNewTaxon (final Taxon newTaxon, Taxon parent, final GenericCallback<Taxon > wayback) {
 		// Update the parent
 		if (parent != null) {
 			newTaxon.setParent(parent);
@@ -86,10 +93,7 @@ public class TaxomaticUtils {
 		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
 		doc.putAsText(UriBase.getInstance().getSISBase() + "/taxomatic/new", newTaxon.toXMLDetailed(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				if( doc.getStatusText().equals("423") )
-					WindowUtils.errorAlert("Taxomatic In Use", "Sorry, but another " +
-							"taxomatic operation is currently running. Please try " +
-							"again later!");
+				handleFailure(doc, caught, wayback);
 				
 				wayback.onFailure(caught);
 			}
@@ -161,7 +165,7 @@ public class TaxomaticUtils {
 			final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
 			ndoc.post(UriBase.getInstance().getSISBase() +"/taxomatic/move", xml.toString(), getDefaultCallback(ndoc, wayback, parentID));
 		} else
-			wayback.onFailure(new Throwable(""));
+			wayback.onFailure(new TaxonomyException(401, "Invalid parameters specified for lateral move."));
 	}
 
 	public void moveAssessments(final String idMoveAssessmentsOutOF, final String idMoveAssessmentsInto,
@@ -191,17 +195,11 @@ public class TaxomaticUtils {
 	 * @param newNode
 	 * @param newParent
 	 */
-	public void performMerge(final ArrayList nodes, final Taxon  newNode, final GenericCallback<String> wayback) {
-		final StringBuffer ret = new StringBuffer("<u>Performed Merge into new Node <b>" + newNode.getName()
-				+ "</b></u>");
-		String mergedNodes = "";
-		for (Iterator iter = nodes.iterator(); iter.hasNext();) {
-			Taxon  curMerger = (Taxon ) iter.next();
-			mergedNodes += curMerger.getId() + ",";
-		}
-
-		if (mergedNodes.length() > 0) {
-			mergedNodes = mergedNodes.substring(0, mergedNodes.length() - 1);
+	public void performMerge(final ArrayList<Taxon> nodes, final Taxon  newNode, final GenericCallback<String> wayback) {
+		StringBuilder mergedNodes = new StringBuilder();
+		for (Iterator<Taxon> iter = nodes.iterator(); iter.hasNext();) {
+			mergedNodes.append(iter.next());
+			mergedNodes.append(iter.hasNext() ? "," : "");
 		}
 
 		final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
@@ -223,15 +221,12 @@ public class TaxomaticUtils {
 			final GenericCallback<String> wayback) {
 
 		if (infrarankIDS.size() > 0) {
-			final StringBuffer ret = new StringBuffer("<u>The infraranks are now merged into <b>" + name + "</b></u>");
-
 			StringBuilder infraIds = new StringBuilder();
-			for (String id : infrarankIDS) {
-				infraIds.append(id + ",");
-			}
+			for (Iterator<String> iter = infrarankIDS.iterator(); iter.hasNext(); )
+				infraIds.append(iter.next() + (iter.hasNext() ? "," : ""));
 
 			final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
-			String xml = "<xml>\r\n" + "<infrarank>" + infraIds.substring(0, infraIds.length() - 1)
+			String xml = "<xml>\r\n" + "<infrarank>" + infraIds.toString()
 					+ "</infrarank>\r\n";
 			xml += "<species>" + speciesID + "</species>\r\n</xml>";
 			ndoc.post(UriBase.getInstance().getSISBase() +"/taxomatic/mergeupinfrarank", xml, getDefaultCallback(ndoc, wayback, speciesID+""));
@@ -292,16 +287,13 @@ public class TaxomaticUtils {
 		String xml = "<root>";
 		xml += XMLWritingUtils.writeTag("current", "" + oldNode.getId());
 
-		Iterator iterator = parentToChild.keySet().iterator();
-		while (iterator.hasNext()) {
-			String curID = (String) iterator.next();
-			xml += "<parent id=\"" + curID + "\">";
+		for (Map.Entry<String, ArrayList<String>> entry : parentToChild.entrySet()) {
+			xml += "<parent id=\"" + entry.getKey() + "\">";
 
-			ArrayList values = parentToChild.get(curID);
-			for (int i = 0; i < values.size(); i++) {
-				Taxon  curChild = (Taxon ) values.get(i);
-				xml += XMLWritingUtils.writeTag("child", curChild.getId() + "");
-			}
+			ArrayList<String> values = entry.getValue();
+			for (String taxonID : values)
+				xml += XMLWritingUtils.writeTag("child", taxonID);
+			
 			xml += "</parent>";
 		}
 
@@ -314,18 +306,43 @@ public class TaxomaticUtils {
 
 	public void saveTaxon(Taxon  node, final GenericCallback<Object> callback) {
 		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-
 		doc.post(UriBase.getInstance().getSISBase() + "/taxomatic/update/" + node.getId(), node.toXMLDetailed(),
 				new GenericCallback<String>() {
-
-					public void onFailure(Throwable caught) {
-						callback.onFailure(caught);
-					}
-					
-					public void onSuccess(String result) {
-						TaxonomyCache.impl.clear();
-						callback.onSuccess(result);
-					}
-				});
+			public void onFailure(Throwable caught) {
+				handleFailure(doc, caught, callback);
+			}
+			public void onSuccess(String result) {
+				TaxonomyCache.impl.clear();
+				callback.onSuccess(result);
+			}
+		});
+	}
+	
+	public void deleteTaxon(final Taxon taxon, final GenericCallback<String> wayback) {
+		final String deleteUrl = "/taxomatic/" + taxon.getId();
+		
+		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+		doc.delete(UriBase.getInstance().getSISBase() + deleteUrl, getDefaultCallback(doc, wayback, null));
+	}
+	
+	/*
+	 * I don't care what the callback type is, I just need to call onfailure.
+	 */
+	private void handleFailure(final NativeDocument document, Throwable caught, final GenericCallback<?> callback) {
+		String status = ClientDocumentUtils.parseStatus(document);
+		if ("".equals(status))
+			callback.onFailure(caught);
+		else
+			callback.onFailure(new TaxonomyException(((GWTResponseException)caught).getCode(), status));
+	}
+	
+	public static class TaxonomyException extends GWTResponseException {
+		
+		private static final long serialVersionUID = 1L;
+		
+		public TaxonomyException(int code, String message) {
+			super(code, message);
+		}
+		
 	}
 }

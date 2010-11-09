@@ -2,7 +2,6 @@ package org.iucn.sis.client.panels.taxomatic;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.PanelManager;
-import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
@@ -16,7 +15,6 @@ import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.util.extjs.client.QuickButton;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class TaxomaticDemotePanel extends TaxonChooser {
@@ -46,15 +44,12 @@ public class TaxomaticDemotePanel extends TaxonChooser {
 		});
 		bar.add(cancelButton);
 
-		final Button promoteButton = new Button("Demote taxon");
-		SelectionListener listener = new SelectionListener<ComponentEvent>() {
-			@Override
-			public void componentSelected(ComponentEvent ce) {
+		final Button promoteButton = new Button("Demote taxon", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				onSubmit();
 			}
 
-		};
-		promoteButton.addSelectionListener(listener);
+		});
 		bar.add(promoteButton);
 	}
 
@@ -84,16 +79,10 @@ public class TaxomaticDemotePanel extends TaxonChooser {
 
 		if (parentid != null) {
 			TaxomaticUtils.impl.performDemotion(currentNode, parentid, new GenericCallback<String>() {
-
 				public void onFailure(Throwable arg0) {
 					for (Component button : bar.getItems())
 						button.setEnabled(true);
-
-					WindowUtils.errorAlert("Error", "There was an error while trying to " + " demote "
-							+ currentNode.getFullName() + ". Please make sure "
-							+ "that no one else is currently using SIS and try again later.");
 				}
-
 				public void onSuccess(String arg0) {
 					for (Component button : bar.getItems())
 						button.setEnabled(true);
@@ -102,7 +91,6 @@ public class TaxomaticDemotePanel extends TaxonChooser {
 					WindowUtils.infoAlert("Success", currentNode.getName() + " has successfully been demoted.");
 					manager.taxonomicSummaryPanel.update(currentNode.getId());
 				}
-
 			});
 		}
 

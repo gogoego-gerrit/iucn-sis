@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -28,14 +27,14 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class MergePanel extends TaxonChooser {
 
 	protected final int level;
-	protected final HashMap selectedNodes;
+	protected final HashMap<String, Taxon> selectedNodes;
 	protected final Taxon  currentNode;
 
 	public MergePanel() {
 		super();
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
 		level = currentNode.getLevel();
-		selectedNodes = new HashMap();
+		selectedNodes = new HashMap<String, Taxon>();
 		load();
 	}
 
@@ -80,16 +79,13 @@ public class MergePanel extends TaxonChooser {
 	@Override
 	public void onSubmit() {
 		if (currentNode != null) {
-			final ArrayList nodes = new ArrayList(selectedNodes.values());
+			final ArrayList<Taxon> nodes = new ArrayList<Taxon>(selectedNodes.values());
 
 			if (nodes.size() > 0) {
 				TaxomaticUtils.impl.performMerge(nodes, currentNode, new GenericCallback<String>() {
 					public void onFailure(Throwable arg0) {
-						WindowUtils.errorAlert("Error", "Internal Server Error.  Other people may also "
-								+ "be modifying taxa right now.  Please try again later.");
-
+						//Error already reported by default callback.
 					}
-
 					public void onSuccess(String arg0) {
 						String nodeString = "";
 						for (int i = 0; i < nodes.size(); i++)
@@ -100,7 +96,6 @@ public class MergePanel extends TaxonChooser {
 								+ " has (have) been merged into taxon " + currentNode.getFullName() + ".");
 						close();
 					}
-
 				});
 			}
 		} else {

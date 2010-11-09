@@ -2,6 +2,7 @@ package org.iucn.sis.client.panels.taxomatic;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.PanelManager;
+import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -22,6 +23,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.solertium.lwxml.gwt.utils.ClientDocumentUtils;
 import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -64,7 +66,7 @@ public class TaxonBasicEditor extends LayoutContainer {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				save();
+				save(false);
 			}
 
 		});
@@ -73,7 +75,7 @@ public class TaxonBasicEditor extends LayoutContainer {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				saveAndClose();
+				save(true);
 			}
 
 		});
@@ -297,49 +299,33 @@ public class TaxonBasicEditor extends LayoutContainer {
 		manager.taxonomicSummaryPanel.update(node.getId());
 	}
 
-	private void save() {
+	private void save(final boolean closeAfterSave) {
 		saveInfo();
 		TaxomaticUtils.impl.saveTaxon(node, new GenericCallback<Object>() {
 			public void onFailure(Throwable caught) {
-				if( caught instanceof GWTConflictException ) {
+				if (caught instanceof TaxonomyException)
+					WindowUtils.errorAlert(caught.getMessage());
+				else if (caught instanceof GWTConflictException) {
 					WindowUtils.infoAlert("Error", node.getFullName() + " has not been saved. A taxon"
 							+ " in the kingdom " + node.getKingdomName() + " already exists.");
 					TaxonomyCache.impl.evict(node.getId()+"");
-				} else
-					WindowUtils.infoAlert("Error", node.getFullName() + " has not been saved.  "
+				} else {
+					WindowUtils.errorAlert(node.getFullName() + " has not been saved.  "
 							+ "Please try again later.");
+				}
 				bar.setEnabled(true);
 			}
 
 			public void onSuccess(Object arg0) {
 				WindowUtils.infoAlert("Success", node.getFullName() + " has been saved.");
-				bar.setEnabled(true);
-				refresh();
-			}
-
-		});
-	}
-
-	private void saveAndClose() {
-		saveInfo();
-		TaxomaticUtils.impl.saveTaxon(node, new GenericCallback<Object>() {
-
-			public void onFailure(Throwable caught) {
-				if( caught instanceof GWTConflictException ) {
-					WindowUtils.infoAlert("Error", node.getFullName() + " has not been saved. A taxon"
-							+ " in the kingdom " + node.getKingdomName() + " already exists.");
-					TaxonomyCache.impl.evict(node.getId()+"");
-				} else
-					WindowUtils.infoAlert("Error", node.getFullName() + " has not been saved.  "
-						+ "Please try again later.");
-				bar.setEnabled(true);
-
-			}
-
-			public void onSuccess(Object arg0) {
-				close();
-				WindowUtils.infoAlert("Success", node.getFullName() + " has been saved.");
-				refresh();
+				if (closeAfterSave) {
+					hide();
+					refresh();
+				}
+				else {
+					bar.setEnabled(true);
+					refresh();
+				}
 			}
 
 		});

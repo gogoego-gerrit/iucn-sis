@@ -2,7 +2,6 @@ package org.iucn.sis.client.tabs;
 
 import java.util.List;
 
-import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
@@ -20,6 +19,7 @@ import org.iucn.sis.client.panels.taxomatic.SplitNodePanel;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticAssessmentMover;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticDemotePanel;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticPromotePanel;
+import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils;
 import org.iucn.sis.client.panels.taxomatic.TaxonBasicEditor;
 import org.iucn.sis.client.panels.taxomatic.TaxonChooser;
 import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
@@ -30,9 +30,6 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Info;
@@ -354,8 +351,8 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setText("Split Taxon");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					Taxon node = TaxonomyCache.impl.getCurrentTaxon();
 					// TODO:
+					//Taxon node = TaxonomyCache.impl.getCurrentTaxon();
 					// if( !node.isDeprecatedStatus() )
 					popupChooser("Peform Partition", "icon-split", new SplitNodePanel());
 					// else
@@ -378,57 +375,34 @@ public class TaxonHomePageTab extends TabItem {
 							String msg = "If this taxon has assessments, these will be moved to the trash as well. Move"
 										+ node.generateFullName() + " to the trash?";
 							
-							WindowUtils.confirmAlert("Confirm Delete", msg, new WindowUtils.MessageBoxListener() {
-								public void onNo() {
-									// TODO Auto-generated method stub
-									 
-
-								}
-
+							WindowUtils.confirmAlert("Confirm Delete", msg, new WindowUtils.SimpleMessageBoxListener() {
 								public void onYes() {
-									String url = "/taxomatic/";
-
-									final String deleteUrl = url;
-									if (TaxonomyCache.impl.getCurrentTaxon() != null) {
-										final Taxon taxon = TaxonomyCache.impl.getCurrentTaxon();
-										final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-
-										doc.delete(UriBase.getInstance().getSISBase() + deleteUrl + taxon.getId(), new GenericCallback<String>() {
-											public void onFailure(Throwable arg0) {
-												if( doc.getStatusText().equals("423") )
-													WindowUtils.errorAlert("Taxomatic In Use", "Sorry, but another " +
-															"taxomatic operation is currently running. Please try " +
-															"again later!");
-												else {
-													WindowUtils.errorAlert("Unable to delete Taxon", "Unable to delete taxon.");
-												}
-												close();
-											}
-
-											public void onSuccess(String arg0) {
+									final Taxon taxon = TaxonomyCache.impl.getCurrentTaxon();
+									if (taxon != null) {
+										TaxomaticUtils.impl.deleteTaxon(taxon, new GenericCallback<String>() {
+											public void onSuccess(String result) {
 												TaxonomyCache.impl.evict(taxon.getParentId() + "," + taxon.getId());
 												TaxonomyCache.impl.fetchTaxon(taxon.getParentId(), true,
 														new GenericCallback<Taxon>() {
-															public void onFailure(Throwable caught) {
-																ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(null);
-																panelManager.recentAssessmentsPanel.update();
-															};
-
-															public void onSuccess(Taxon result) {
-																
-																ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
-																		.update(TaxonomyCache.impl.getCurrentTaxon().getId());
-																panelManager.recentAssessmentsPanel.update();
-															};
-														});
-												
+													public void onFailure(Throwable caught) {
+														ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(null);
+														panelManager.recentAssessmentsPanel.update();
+													};
+													public void onSuccess(Taxon result) {
+														ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
+															.update(TaxonomyCache.impl.getCurrentTaxon().getId());
+														panelManager.recentAssessmentsPanel.update();
+													};
+												});
+											}
+											public void onFailure(Throwable caught) {
+												close();
 											}
 										});
 									}
 								}
 
-							}, "Yes", "No");
-
+							});
 						}
 
 						public void onSuccess(List<TaxonListElement> result) {
@@ -542,12 +516,6 @@ public class TaxonHomePageTab extends TabItem {
 
 	private void popupChooser(String title, String iconStyle, LayoutContainer chooser) {
 		final Window shell = WindowUtils.getWindow(true, false, title);
-		chooser.sinkEvents(Events.Close.getEventCode());
-		chooser.addListener(Events.Close, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
-				shell.close();
-			}
-		});
 		shell.setLayout(new FillLayout());
 		shell.add(chooser);
 		shell.show();
@@ -557,12 +525,6 @@ public class TaxonHomePageTab extends TabItem {
 
 	private void popupChooserPromote(String title, String iconStyle, LayoutContainer chooser) {
 		final Window shell = WindowUtils.getWindow(false, false, title);
-		chooser.sinkEvents(Events.Close.getEventCode());
-		chooser.addListener(Events.Close, new Listener() {
-			public void handleEvent(BaseEvent be) {
-				shell.close();
-			}
-		});
 		shell.setLayout(new FillLayout());
 		shell.add(chooser);
 		shell.show();

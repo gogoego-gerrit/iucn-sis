@@ -275,10 +275,7 @@ public class SplitNodePanel extends LayoutContainer {
 			TaxomaticUtils.impl.performSplit(currentNode, parentToChildList, new GenericCallback<String>() {
 
 				public void onFailure(Throwable arg0) {
-					WindowUtils.infoAlert("Error", "An error occurred while " + "splitting the nodes.  The new nodes "
-							+ "have been created, but the split has not occurred. "
-							+ "Check to make sure that no one else" + " is currently using the taxa, and retry.");
-
+					//Error message already displayed by default callback.
 				}
 
 				public void onSuccess(String arg0) {

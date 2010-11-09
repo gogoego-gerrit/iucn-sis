@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.taxomatic;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -29,26 +30,26 @@ public class MergeUpInfrarank extends MergePanel {
 	public void onSubmit() {
 
 		if (currentNode != null) {
-			final ArrayList infrarankIDS = new ArrayList(selectedNodes.keySet());
+			final ArrayList<String> infrarankIDS = new ArrayList<String>(selectedNodes.keySet());
 
 			if (infrarankIDS.size() > 0) {
 				TaxomaticUtils.impl.performMergeUpInfrarank(infrarankIDS, currentNode.getId(), currentNode
 						.getFullName(), new GenericCallback<String>() {
 					public void onFailure(Throwable arg0) {
-						WindowUtils.errorAlert("Error", "Internal Server Error.  Other people may also "
-								+ "be modifying taxa right now.  Please try again later.");
-
+						//Error already displayed by default callback.
 					}
 
 					public void onSuccess(String arg0) {
 						StringBuilder nodeString = new StringBuilder();
-						ArrayList nodes = new ArrayList(selectedNodes.values());
-						for (int i = 0; i < nodes.size(); i++)
-							nodeString.append(((Taxon ) nodes.get(i)).getFullName() + ",");
+						for (Iterator<Taxon> iter = selectedNodes.values().iterator(); iter.hasNext(); )
+							nodeString.append(iter.next().getFullName() + (iter.hasNext() ? ", " : ""));
 
-						WindowUtils.infoAlert("Successful Merge", "The taxon (taxa) "
-								+ nodeString.substring(0, nodeString.length() - 1)
-								+ " has (have) been merged into taxon " + currentNode.getFullName() + ".");
+						String noun = selectedNodes.size() == 1 ? "taxon" : "taxa";
+						String verb = selectedNodes.size() == 1 ? "has" : "have";
+						
+						WindowUtils.infoAlert("Successful Merge", "The " + noun + " " 
+								+ nodeString + " " + verb + " " 
+								+ "been merged into taxon " + currentNode.getFullName() + ".");
 						close();
 					}
 
