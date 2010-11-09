@@ -276,7 +276,7 @@ public class PrimitiveFieldDAO {
 			throw new PersistentException(e);
 		}
 	}
-	/**
+	
 	public static boolean deleteAndDissociate(PrimitiveField primitiveField)throws PersistentException {
 		try {
 			if(primitiveField.getField() != null) {
@@ -291,25 +291,8 @@ public class PrimitiveFieldDAO {
 		}
 	}
 	
-	public static boolean deleteAndDissociate(PrimitiveField primitiveField, org.orm.Session session)throws PersistentException {
-		try {
-			if(primitiveField.getField() != null) {
-				primitiveField.getField().getPrimitiveField().remove(primitiveField);
-			}
-			
-			try {
-				session.delete(primitiveField);
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	**/
+	
+	
 	
 	public static boolean refresh(PrimitiveField primitiveField) throws PersistentException {
 		try {

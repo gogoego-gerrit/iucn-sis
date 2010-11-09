@@ -86,7 +86,7 @@ public class TrashBinPanel extends LayoutContainer {
 
 		buildWestPanel();
 		buildCenterPanel();
-		
+
 		fillTrash();
 
 		add(centerPanel, centerData);
@@ -95,8 +95,7 @@ public class TrashBinPanel extends LayoutContainer {
 
 	private void buildCenterPanel() {
 		List<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-		
-		
+
 		ColumnConfig column = new ColumnConfig();
 		column.setId("date");
 		column.setHeader("Date Removed");
@@ -137,7 +136,7 @@ public class TrashBinPanel extends LayoutContainer {
 		trashTable = new Grid<TrashedObject>(store, new ColumnModel(configs));
 		trashTable.setWidth(585);
 		trashTable.setHeight(475);
-		
+
 		centerPanel.add(buildToolBar());
 		centerPanel.add(trashTable);
 	}
@@ -152,18 +151,18 @@ public class TrashBinPanel extends LayoutContainer {
 				final TrashedObject trashed = ((TrashedObject) trashTable.getSelectionModel().getSelectedItem());
 				String id = trashed.getID();
 				String type = trashed.getType();
-				
+
 				// **************************
 				// check is assessments exist to restore with taxa
 				boolean recurse = false;
 				if (type.equalsIgnoreCase("TAXON")) {
-//					Iterator<TableItem> iter = trashTable.iterator();
+					// Iterator<TableItem> iter = trashTable.iterator();
 					for (TrashedObject obj : store.getModels()) {
 						if (obj.getNodeID().equals(trashed.getNodeID()) && obj.getType().equalsIgnoreCase("ASSESSMENT")) {
 							recurse = true;
-						}	
+						}
 					}
-					
+
 					if (recurse) {
 						WindowUtils.confirmAlert("Restore Assessments",
 								"This taxa has related assessments in the trash bin. Do you wish to restore these?",
@@ -218,7 +217,7 @@ public class TrashBinPanel extends LayoutContainer {
 		tItem.addListener(Events.Select, new Listener() {
 			public void handleEvent(BaseEvent be) {
 				final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-				doc.post(UriBase.getInstance().getSISBase() +"/trash/deleteall", "", new GenericCallback<String>() {
+				doc.post(UriBase.getInstance().getSISBase() + "/trash/deleteall", "", new GenericCallback<String>() {
 					public void onFailure(Throwable arg0) {
 
 					}
@@ -258,7 +257,6 @@ public class TrashBinPanel extends LayoutContainer {
 		taxon.setItemId("taxon:");
 		folders.add(taxon);
 
-		
 		folders.addListener(Events.SelectionChange, new Listener() {
 			public void handleEvent(BaseEvent be) {
 				refreshStore();
@@ -283,9 +281,10 @@ public class TrashBinPanel extends LayoutContainer {
 
 			public void onSuccess(String arg0) {
 				// TODO Auto-generated method stub
-				
+
 				trashedObjects.clear();
-				
+				store.removeAll();
+
 				NativeNodeList list = doc.getDocumentElement().getElementsByTagName("data");
 				total = list.getLength();
 				folderCount.put("assessment", 0);
@@ -298,9 +297,9 @@ public class TrashBinPanel extends LayoutContainer {
 					if (!trashedObjects.containsKey(ti.getIdentifier()))
 						trashedObjects.put(ti.getIdentifier(), new ArrayList<TrashedObject>());
 					trashedObjects.get(ti.getIdentifier()).add(ti);
-					
+
 				}
-				
+
 				if (!trashedObjects.containsKey("assessment:published")) {
 					trashedObjects.put("assessment:published", new ArrayList<TrashedObject>());
 				}
@@ -310,16 +309,14 @@ public class TrashBinPanel extends LayoutContainer {
 				if (!trashedObjects.containsKey("taxon:")) {
 					trashedObjects.put("taxon:", new ArrayList<TrashedObject>());
 				}
-				
-				
-				
+
 				refreshStore();
 				refreshStatus();
 
 			}
 		});
 	}
-	
+
 	protected void refreshStore() {
 		store.removeAll();
 		if (folders.getSelectedItem() != null) {
@@ -333,8 +330,7 @@ public class TrashBinPanel extends LayoutContainer {
 					store.add(entry.getValue());
 			}
 		}
-		
-		
+
 	}
 
 	@Override
@@ -365,41 +361,46 @@ public class TrashBinPanel extends LayoutContainer {
 	private void restore(final boolean recurse, final TrashedObject trashed) {
 		trashed.restore(recurse, new GenericCallback<String>() {
 			public void onFailure(Throwable arg0) {
-				WindowUtils.errorAlert("Unable to restore", "Unable to restore this object." + 
-						(trashed.getType().startsWith("draft") ? " Ensure a draft assessment with " +
-								"the same regions does not already exist for this taxon." : "" ));
+				WindowUtils.errorAlert("Unable to restore", "Unable to restore this object."
+						+ (trashed.getType().startsWith("draft") ? " Ensure a draft assessment with "
+								+ "the same regions does not already exist for this taxon." : ""));
 			}
 
 			public void onSuccess(String arg0) {
-				
+
 				int id = 0;
 				if (TaxonomyCache.impl.getCurrentTaxon() != null)
 					id = TaxonomyCache.impl.getCurrentTaxon().getId();
 				TaxonomyCache.impl.clear();
 				AssessmentCache.impl.clear();
-				if (id != 0 && ClientUIContainer.bodyContainer.getSelectedItem().equals(
-						ClientUIContainer.bodyContainer.tabManager.taxonHomePage)) {
-					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(new Integer(id));
+				if (id != 0
+						&& ClientUIContainer.bodyContainer.getSelectedItem().equals(
+								ClientUIContainer.bodyContainer.tabManager.taxonHomePage)) {
+					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
+							.update(new Integer(id));
 				}
-				
-				store.remove(trashed);
-				trashedObjects.get(trashed.getIdentifier()).remove(trashed);
-				
-				if (recurse && trashed.getType().equalsIgnoreCase("taxon")) {
-					for (Entry<String, List<TrashedObject>> entry : trashedObjects.entrySet() ) {
-						if (!entry.getKey().equalsIgnoreCase(trashed.getIdentifier())) {
-							List<TrashedObject> objs = new ArrayList<TrashedObject>();
-							for (TrashedObject obj : entry.getValue()) {
-								if (obj.getNodeID().equalsIgnoreCase(trashed.getNodeID())) {
-									store.remove(obj);
-									objs.add(obj);
-								}
-							}
-							entry.getValue().removeAll(objs);
-						}
-					}
-				} 
-			
+				fillTrash();
+
+//				store.remove(trashed);
+//				trashedObjects.get(trashed.getIdentifier()).remove(trashed);
+//
+//				if (trashed.getType().equalsIgnoreCase("taxon")) {
+//					if (recurse) {
+//						for (Entry<String, List<TrashedObject>> entry : trashedObjects.entrySet()) {
+//							if (!entry.getKey().equalsIgnoreCase(trashed.getIdentifier())) {
+//								List<TrashedObject> objs = new ArrayList<TrashedObject>();
+//								for (TrashedObject obj : entry.getValue()) {
+//									if (obj.getNodeID().equalsIgnoreCase(trashed.getNodeID())) {
+//										store.remove(obj);
+//										objs.add(obj);
+//									}
+//								}
+//								entry.getValue().removeAll(objs);
+//							}
+//						}
+//					}
+//				
+//
 			}
 		});
 

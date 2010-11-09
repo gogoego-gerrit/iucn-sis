@@ -18,6 +18,9 @@ import org.hibernate.Query;
 import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.Reference;
 
 public class FieldDAO {
 	public static Field loadFieldByORMID(int id) throws PersistentException {
@@ -279,32 +282,35 @@ public class FieldDAO {
 			throw new PersistentException(e);
 		}
 	}
-	/**
+	
 	public static boolean deleteAndDissociate(Field field)throws PersistentException {
 		try {
 			if(field.getAssessment() != null) {
 				field.getAssessment().getField().remove(field);
 			}
 			
+			if (field.getParent() != null) {
+				field.setParent(null);
+			}
+			
 			if(field.getFields() != null) {
-				field.getFields().getChildren().remove(field);
+				for (Field childField :field.getFields()){
+					FieldDAO.deleteAndDissociate(childField);
+				}
 			}
 			
 			Notes[] lNotess = (Notes[])field.getNotes().toArray(new Notes[field.getNotes().size()]);
 			for(int i = 0; i < lNotess.length; i++) {
-				lNotess[i].getField().remove(field);
+				lNotess[i].getFields().remove(field);
 			}
-			Field[] lParents = (Field[])field.getChildren().toArray(new Field[field.getChildren().size()]);
-			for(int i = 0; i < lParents.length; i++) {
-				lParents[i].setFields(null);
-			}
+			
 			Reference[] lReferences = (Reference[])field.getReference().toArray(new Reference[field.getReference().size()]);
 			for(int i = 0; i < lReferences.length; i++) {
 				lReferences[i].getField().remove(field);
 			}
 			PrimitiveField[] lPrimitiveFields = (PrimitiveField[])field.getPrimitiveField().toArray(new PrimitiveField[field.getPrimitiveField().size()]);
 			for(int i = 0; i < lPrimitiveFields.length; i++) {
-				lPrimitiveFields[i].setField(null);
+				PrimitiveFieldDAO.deleteAndDissociate(lPrimitiveFields[i]);
 			}
 			return delete(field);
 		}
@@ -314,46 +320,6 @@ public class FieldDAO {
 		}
 	}
 	
-	public static boolean deleteAndDissociate(Field field, org.orm.Session session)throws PersistentException {
-		try {
-			if(field.getAssessment() != null) {
-				field.getAssessment().getField().remove(field);
-			}
-			
-			if(field.getFields() != null) {
-				field.getFields().getChildren().remove(field);
-			}
-			
-			Notes[] lNotess = (Notes[])field.getNotes().toArray(new Notes[field.getNotes().size()]);
-			for(int i = 0; i < lNotess.length; i++) {
-				lNotess[i].getField().remove(field);
-			}
-			Field[] lParents = (Field[])field.getChildren().toArray(new Field[field.getChildren().size()]);
-			for(int i = 0; i < lParents.length; i++) {
-				lParents[i].setFields(null);
-			}
-			Reference[] lReferences = (Reference[])field.getReference().toArray(new Reference[field.getReference().size()]);
-			for(int i = 0; i < lReferences.length; i++) {
-				lReferences[i].getField().remove(field);
-			}
-			PrimitiveField[] lPrimitiveFields = (PrimitiveField[])field.getPrimitiveField().toArray(new PrimitiveField[field.getPrimitiveField().size()]);
-			for(int i = 0; i < lPrimitiveFields.length; i++) {
-				lPrimitiveFields[i].setField(null);
-			}
-			try {
-				session.delete(field);
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	**/
 	
 	public static boolean refresh(Field field) throws PersistentException {
 		try {

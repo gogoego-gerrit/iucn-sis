@@ -18,6 +18,8 @@ import org.hibernate.Query;
 import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.CommonName;
+import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.models.Reference;
 
 public class CommonNameDAO {
 	public static CommonName loadCommonNameByORMID(int id) throws PersistentException {
@@ -279,15 +281,15 @@ public class CommonNameDAO {
 			throw new PersistentException(e);
 		}
 	}
-	/**
+	
 	public static boolean deleteAndDissociate(CommonName commonName)throws PersistentException {
 		try {
-			if(commonName.getIso_language() != null) {
-				commonName.getIso_language().getCommonName().remove(commonName);
+			if(commonName.getIso() != null) {
+				commonName.getIso().getCommonName().remove(commonName);
 			}
 			
 			if(commonName.getTaxon() != null) {
-				commonName.getTaxon().getCommonNames().remove(commonName);
+				commonName.setTaxon(null);
 			}
 			
 			Reference[] lReferences = (Reference[])commonName.getReference().toArray(new Reference[commonName.getReference().size()]);
@@ -296,7 +298,7 @@ public class CommonNameDAO {
 			}
 			Notes[] lNotess = (Notes[])commonName.getNotes().toArray(new Notes[commonName.getNotes().size()]);
 			for(int i = 0; i < lNotess.length; i++) {
-				lNotess[i].getCommonName().remove(commonName);
+				lNotess[i].getCommonNames().remove(commonName);
 			}
 			return delete(commonName);
 		}
@@ -306,37 +308,6 @@ public class CommonNameDAO {
 		}
 	}
 	
-	public static boolean deleteAndDissociate(CommonName commonName, org.orm.Session session)throws PersistentException {
-		try {
-			if(commonName.getIso_language() != null) {
-				commonName.getIso_language().getCommonName().remove(commonName);
-			}
-			
-			if(commonName.getTaxon() != null) {
-				commonName.getTaxon().getCommonNames().remove(commonName);
-			}
-			
-			Reference[] lReferences = (Reference[])commonName.getReference().toArray(new Reference[commonName.getReference().size()]);
-			for(int i = 0; i < lReferences.length; i++) {
-				lReferences[i].getCommon_name().remove(commonName);
-			}
-			Notes[] lNotess = (Notes[])commonName.getNotes().toArray(new Notes[commonName.getNotes().size()]);
-			for(int i = 0; i < lNotess.length; i++) {
-				lNotess[i].getCommonName().remove(commonName);
-			}
-			try {
-				session.delete(commonName);
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	**/
 	
 	public static boolean refresh(CommonName commonName) throws PersistentException {
 		try {

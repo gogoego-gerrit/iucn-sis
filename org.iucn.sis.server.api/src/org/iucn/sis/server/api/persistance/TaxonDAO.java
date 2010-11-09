@@ -355,29 +355,29 @@ public class TaxonDAO {
 			for(int i = 0; i < lReferences.length; i++) {
 				lReferences[i].getTaxon().remove(taxon);
 			}
-			Taxon[] lParents = (Taxon[])taxon.getChildren().toArray(new Taxon[taxon.getChildren().size()]);
-			for(int i = 0; i < lParents.length; i++) {
-				lParents[i].setParent(null);
+			Taxon[] children = (Taxon[])taxon.getChildren().toArray(new Taxon[taxon.getChildren().size()]);
+			for(int i = 0; i < children.length; i++) {
+				children[i].setParent(null);
 			}
-			Edit[] lEditss = (Edit[])taxon.getEdits().toArray(new Edit[taxon.getEdits().size()]);
-			for(int i = 0; i < lEditss.length; i++) {
-				lEditss[i].getTaxon().remove(taxon);
+			Edit[] edits = (Edit[])taxon.getEdits().toArray(new Edit[taxon.getEdits().size()]);
+			for(int i = 0; i < edits.length; i++) {
+				edits[i].getTaxon().remove(taxon);
 			}
-			Notes[] lNotess = (Notes[])taxon.getNotes().toArray(new Notes[taxon.getNotes().size()]);
-			for(int i = 0; i < lNotess.length; i++) {
-				lNotess[i].setTaxon(null);
+			Notes[] notes = (Notes[])taxon.getNotes().toArray(new Notes[taxon.getNotes().size()]);
+			for(int i = 0; i < notes.length; i++) {
+				NotesDAO.deleteAndDissociate(notes[i]);
 			}
 			Assessment[] lAssessmentss = (Assessment[])taxon.getAssessments().toArray(new Assessment[taxon.getAssessments().size()]);
 			for(int i = 0; i < lAssessmentss.length; i++) {
-				lAssessmentss[i].setTaxon(null);
+				AssessmentDAO.deleteAndDissociate(lAssessmentss[i]);
 			}
 			Synonym[] lSynonymss = (Synonym[])taxon.getSynonyms().toArray(new Synonym[taxon.getSynonyms().size()]);
 			for(int i = 0; i < lSynonymss.length; i++) {
-				lSynonymss[i].setTaxon(null);
+				SynonymDAO.deleteAndDissociate(lSynonymss[i]);
 			}
 			CommonName[] lCommonNamess = (CommonName[])taxon.getCommonNames().toArray(new CommonName[taxon.getCommonNames().size()]);
 			for(int i = 0; i < lCommonNamess.length; i++) {
-				lCommonNamess[i].setTaxon(null);
+				CommonNameDAO.deleteAndDissociate(lCommonNamess[i]);
 			}
 			if(taxon.getInfratype() != null) {
 				taxon.getInfratype().getTaxa().remove(taxon);

@@ -323,7 +323,7 @@ public class AssessmentDAO {
 		}
 	}
 	
-	protected static boolean deleteAndDissociate(Assessment assessment)throws PersistentException {
+	public static boolean deleteAndDissociate(Assessment assessment) throws PersistentException {
 		try {
 			if(assessment.getAssessmentType() != null) {
 				assessment.getAssessmentType().getAssessment().remove(assessment);
@@ -343,7 +343,7 @@ public class AssessmentDAO {
 			}
 			Field[] lFields = (Field[])assessment.getField().toArray(new Field[assessment.getField().size()]);
 			for(int i = 0; i < lFields.length; i++) {
-				lFields[i].setAssessment(null);
+				FieldDAO.deleteAndDissociate(lFields[i]);
 			}
 			return delete(assessment);
 		}
@@ -353,7 +353,7 @@ public class AssessmentDAO {
 		}
 	}
 	
-	protected static boolean deleteAndDissociate(Assessment assessment, Session session)throws PersistentException {
+	public static boolean deleteAndDissociate(Assessment assessment, Session session)throws PersistentException {
 		try {
 			if(assessment.getAssessmentType() != null) {
 				assessment.getAssessmentType().getAssessment().remove(assessment);

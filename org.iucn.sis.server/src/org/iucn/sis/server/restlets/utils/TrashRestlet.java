@@ -6,6 +6,7 @@ import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.FormattedDate;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.io.AssessmentIOMessage;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -65,7 +66,7 @@ public class TrashRestlet extends ServiceRestlet {
 	}
 
 	private void handleDeleteAll(Request request, Response response) {
-		boolean success = SIS.get().getTaxonIO().permenantlyDeleteAllTrashedTaxa() && SIS.get().getAssessmentIO().permenantlyDeleteAllTrashedAssessments();
+		boolean success = SIS.get().getAssessmentIO().permenantlyDeleteAllTrashedAssessments() && SIS.get().getTaxonIO().permenantlyDeleteAllTrashedTaxa();
 		if (success) {
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity("All trashed items have been deleted.", MediaType.TEXT_PLAIN);
@@ -146,7 +147,13 @@ public class TrashRestlet extends ServiceRestlet {
 					
 				}
 			} else if (type.equalsIgnoreCase("assessment")) {
+				
 				success = SIS.get().getAssessmentIO().restoreTrashedAssessments(Integer.valueOf(id), SIS.get().getUser(request)).status.isSuccess();
+				if (success) {
+					Taxon taxon = SIS.get().getAssessmentIO().getNonCachedAssessment(Integer.valueOf(id)).getTaxon();
+					if (taxon.getState() == Taxon.DELETED) 
+						success = SIS.get().getTaxonIO().restoreTrashedTaxon(taxon.getId(), SIS.get().getUser(request));
+				}
 			} else {
 				message = "Invalid type -- should be assessment or taxon.";
 			}

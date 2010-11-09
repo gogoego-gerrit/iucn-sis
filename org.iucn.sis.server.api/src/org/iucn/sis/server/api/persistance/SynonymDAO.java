@@ -17,6 +17,8 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 
 public class SynonymDAO {
@@ -279,24 +281,20 @@ public class SynonymDAO {
 			throw new PersistentException(e);
 		}
 	}
-	/**
+	
 	public static boolean deleteAndDissociate(Synonym synonym)throws PersistentException {
 		try {
-			if(synonym.getTaxon_status() != null) {
-				synonym.getTaxon_status().getSynonym().remove(synonym);
-			}
-			
 			if(synonym.getTaxon_level() != null) {
-				synonym.getTaxon_level().getSynonym().remove(synonym);
+				synonym.getTaxon_level().getSynonyms().remove(synonym);
 			}
 			
 			if(synonym.getTaxon() != null) {
-				synonym.getTaxon().getSynonyms().remove(synonym);
+				synonym.setTaxon(null);
 			}
 			
 			Notes[] lNotess = (Notes[])synonym.getNotes().toArray(new Notes[synonym.getNotes().size()]);
 			for(int i = 0; i < lNotess.length; i++) {
-				lNotess[i].getSynonym().remove(synonym);
+				lNotess[i].getSynonyms().remove(synonym);
 			}
 			Reference[] lReferences = (Reference[])synonym.getReference().toArray(new Reference[synonym.getReference().size()]);
 			for(int i = 0; i < lReferences.length; i++) {
@@ -310,42 +308,7 @@ public class SynonymDAO {
 		}
 	}
 	
-	public static boolean deleteAndDissociate(Synonym synonym, org.orm.Session session)throws PersistentException {
-		try {
-			if(synonym.getTaxon_status() != null) {
-				synonym.getTaxon_status().getSynonym().remove(synonym);
-			}
-			
-			if(synonym.getTaxon_level() != null) {
-				synonym.getTaxon_level().getSynonym().remove(synonym);
-			}
-			
-			if(synonym.getTaxon() != null) {
-				synonym.getTaxon().getSynonyms().remove(synonym);
-			}
-			
-			Notes[] lNotess = (Notes[])synonym.getNotes().toArray(new Notes[synonym.getNotes().size()]);
-			for(int i = 0; i < lNotess.length; i++) {
-				lNotess[i].getSynonym().remove(synonym);
-			}
-			Reference[] lReferences = (Reference[])synonym.getReference().toArray(new Reference[synonym.getReference().size()]);
-			for(int i = 0; i < lReferences.length; i++) {
-				lReferences[i].getSynonym().remove(synonym);
-			}
-			try {
-				session.delete(synonym);
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	**/
-	
+		
 	public static boolean refresh(Synonym synonym) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(synonym);

@@ -303,11 +303,9 @@ public class AssessmentIO {
 		Assessment ass = getDeletedAssessment(assessmentID);
 		if (ass != null) {
 			try {
-				AssessmentDAO.delete(ass);
+				return AssessmentDAO.deleteAndDissociate(ass);
 			} catch (PersistentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
+				Debug.println(e);
 			}
 		}
 		return false;
@@ -317,11 +315,14 @@ public class AssessmentIO {
 		
 		try {
 			for (Assessment assessmentToSave : getTrashedAssessments())
-				AssessmentDAO.delete(assessmentToSave);
+				if (!AssessmentDAO.deleteAndDissociate(assessmentToSave)) {
+					throw new PersistentException("Unable to delete assessment " + assessmentToSave.getId());
+				}
 			return true;
 		} catch (PersistentException e) {
-			return false;
+			Debug.println(e);
 		}
+		return false;
 		
 	}
 

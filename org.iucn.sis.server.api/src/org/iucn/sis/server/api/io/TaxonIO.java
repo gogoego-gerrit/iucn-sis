@@ -6,31 +6,26 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Transaction;
-import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.locking.TaxonLockAquirer;
-import org.iucn.sis.server.api.persistance.AssessmentDAO;
-import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.persistance.TaxonDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.ServerPaths;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Edit;
-import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.vfs.BoundsException;
+import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.provider.VersionedFileVFS;
 
@@ -223,22 +218,20 @@ public class TaxonIO {
 	}
 
 	public boolean permenantlyDeleteAllTrashedTaxa() {
-		Session session;
-
-		session = SISPersistentManager.instance().getSession();
-		Transaction tx = session.beginTransaction();
-		try {
-			for (Taxon taxon : getTrashedTaxa())
-				TaxonDAO.delete(taxon);
-
-			tx.commit();
-			session.close();
-			return true;
-		} catch (PersistentException e) {
-			tx.rollback();
-		}
-
-		return false;
+		
+			try {
+				for (Taxon taxon : getTrashedTaxa())
+					if (!TaxonDAO.delete(taxon)) {
+						throw new PersistentException("Unable to delete taxon " + taxon);
+					}
+				return true;
+			} catch (PersistentException e) {
+				// TODO Auto-generated catch block
+				Debug.println(e);
+			}
+			
+			return false;
+		
 	}
 
 	public Taxon getTrashedTaxon(Integer id) {
@@ -274,7 +267,7 @@ public class TaxonIO {
 		Taxon taxon = getTrashedTaxon(taxonID);
 		if (taxon != null) {
 			try {
-				return TaxonDAO.delete(taxon);
+				return TaxonDAO.deleteAndDissociate(taxon);
 			} catch (PersistentException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -289,7 +282,6 @@ public class TaxonIO {
 		try {
 			if (taxon.getChildren().size() > 0)
 				throw new RuntimeException("You can not delete a taxon that has children.");
-
 			
 			taxon.setState(Taxon.DELETED);
 			writeTaxon(taxon, user);
@@ -332,7 +324,18 @@ public class TaxonIO {
 		Edit edit = taxon.getLastEdit();
 		String xml = taxon.getGeneratedXML();
 		String taxonPath = ServerPaths.getTaxonURL(taxon.getId());
-		DocumentUtils.writeVFSFile(taxonPath, vfs, xml);
+		if (xml != null) {
+			DocumentUtils.writeVFSFile(taxonPath, vfs, xml);
+		} else {
+			try {
+				vfs.delete(taxonPath);
+			} catch (NotFoundException e) {
+				Debug.println(e);
+			} catch (ConflictException e) {
+				Debug.println(e);
+			}
+		}
+		
 		try {
 			vfs.setLastModified(taxonPath, edit.getCreatedDate());
 		} catch (NotFoundException e) {
