@@ -141,6 +141,7 @@ public class TrashBinPanel extends LayoutContainer {
 		centerPanel.add(trashTable);
 	}
 
+	@SuppressWarnings({ "unchecked" })
 	private ToolBar buildToolBar() {
 		ToolBar bar = new ToolBar();
 
@@ -148,10 +149,10 @@ public class TrashBinPanel extends LayoutContainer {
 		tItem.setText("Restore");
 		tItem.addListener(Events.Select, new Listener() {
 			public void handleEvent(BaseEvent be) {
+				
 				final TrashedObject trashed = ((TrashedObject) trashTable.getSelectionModel().getSelectedItem());
 				String id = trashed.getID();
 				String type = trashed.getType();
-
 				// **************************
 				// check is assessments exist to restore with taxa
 				boolean recurse = false;
@@ -179,10 +180,13 @@ public class TrashBinPanel extends LayoutContainer {
 
 									}
 								});
+					} else {
+						restore(false, trashed);
 					}
 				} else {
 					restore(false, trashed);
 				}
+				
 
 				// ***************************
 
