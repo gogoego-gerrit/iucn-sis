@@ -14,6 +14,7 @@ package org.iucn.sis.server.api.persistance;
  */
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -40,10 +41,12 @@ public class TaxonDAO {
 	public static Taxon getTaxonNonLazily(int id) throws PersistentException {
 		Taxon taxon = getTaxon(id); 
 		if (taxon != null) {
-			taxon.getReference().size();
-			taxon.getEdits().size();
-			taxon.getAssessments().size();
-			taxon.getNotes().size();
+			Hibernate.initialize(taxon.getReference());
+			Hibernate.initialize(taxon.getEdits());
+			Hibernate.initialize(taxon.getAssessments());
+			Hibernate.initialize(taxon.getNotes());
+			Hibernate.initialize(taxon.getCommonNames());
+			Hibernate.initialize(taxon.getSynonyms());
 		}
 		return taxon;
 	}

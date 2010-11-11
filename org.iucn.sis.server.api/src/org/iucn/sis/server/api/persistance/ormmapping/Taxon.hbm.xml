@@ -49,7 +49,7 @@ License Type: Evaluation
 			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
 			</many-to-many>
 		</set>
-		<set name="Assessments" lazy="true" cascade="save-update,lock" inverse="true">
+		<set name="Assessments" lazy="true" cascade="none" inverse="true">
 			<key column="taxonid" not-null="true"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.Assessment"/>
 		</set>

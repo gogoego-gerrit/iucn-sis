@@ -231,13 +231,13 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		Element parentElement = (Element) documentElement.getElementsByTagName("parent").item(0);
 		String parentID = parentElement.getAttribute("id");
 		
-		final Taxon parentNode = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(parentID));
+		final Taxon parentNode = SIS.get().getTaxonIO().getTaxonNonLazy(Integer.valueOf(parentID));
 		
 		final Collection<Taxon> childrenTaxa = new ArrayList<Taxon>();
 		NodeList newChildren = documentElement.getElementsByTagName("child");
 		for (int i = 0; i < newChildren.getLength(); i++) {
 			String id = ((Element) newChildren.item(i)).getAttribute("id");
-			childrenTaxa.add(SIS.get().getTaxonIO().getTaxon(Integer.valueOf(id)));
+			childrenTaxa.add(SIS.get().getTaxonIO().getTaxonNonLazy(Integer.valueOf(id)));
 		}
 
 		SIS.get().getTaxomaticIO().moveTaxa(parentNode, childrenTaxa, SIS.get().getUser(request));
@@ -259,7 +259,8 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 		} catch (TaxomaticException e){
 			response.setEntity(new DomRepresentation(MediaType.TEXT_XML, e.getErrorAsDocument()));
-			response.setStatus(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL);
+			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : 
+				Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		} finally {
 			if (acquired)
 				lock.release();
@@ -299,7 +300,8 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 		} catch (TaxomaticException e){
 			response.setEntity(new DomRepresentation(MediaType.TEXT_XML, e.getErrorAsDocument()));
-			response.setStatus(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL);
+			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : 
+				Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		} finally {
 			if (acquired)
 				lock.release();
@@ -324,7 +326,8 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 		} catch (TaxomaticException e){
 			response.setEntity(new DomRepresentation(MediaType.TEXT_XML, e.getErrorAsDocument()));
-			response.setStatus(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL);
+			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : 
+				Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		} finally {
 			if (acquired)
 				lock.release();
@@ -345,7 +348,8 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		} catch (TaxomaticException e){
 			response.setEntity(new DomRepresentation(MediaType.TEXT_XML, e.getErrorAsDocument()));
-			response.setStatus(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL);
+			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : 
+				Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		} finally {
 			if (acquired)
 				lock.release();

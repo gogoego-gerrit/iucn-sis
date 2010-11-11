@@ -232,8 +232,10 @@ public class TaxonRestlet extends ServiceRestlet {
 
 		xml += "<options>\r\n";
 		if (root != null)
-			for (Taxon child : root.getChildren())
-				xml += "<option>" + child.getId() + "</option>\r\n";
+			for (Taxon child : root.getChildren()) {
+				if (Taxon.ACTIVE == child.getState())
+					xml += "<option>" + child.getId() + "</option>\r\n";
+			}
 		else {
 			xml += "<option>" + SIS.get().getTaxonIO().readTaxonByName("ANIMALIA", "ANIMALIA").getId()
 					+ "</option>\r\n";
@@ -376,19 +378,6 @@ public class TaxonRestlet extends ServiceRestlet {
 			response.setEntity("<empty></empty>", MediaType.TEXT_XML);
 			response.setStatus(Status.SUCCESS_OK);
 		}
-
-	}
-
-	/**
-	 * Returns level, or -1 if not found
-	 * 
-	 * @param nodeID
-	 *            -- id of the taxa
-	 * @return
-	 */
-	private String taxaLevel(String nodeID) {
-		String level = "-1";
-		return SIS.get().getTaxonIO().getTaxon(Integer.valueOf(nodeID)).getLevel() + "";
 	}
 
 }

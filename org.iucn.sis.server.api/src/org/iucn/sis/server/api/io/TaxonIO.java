@@ -9,12 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Transaction;
-import org.hibernate.classic.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.locking.TaxonLockAquirer;
-import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.persistance.TaxonDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -32,6 +29,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.vfs.BoundsException;
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
+import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.provider.VersionedFileVFS;
 
 public class TaxonIO {
@@ -60,8 +58,7 @@ public class TaxonIO {
 		try {
 			return TaxonDAO.getTaxon(id);
 		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Debug.println(e);
 			return null;
 		}
 	}
@@ -179,9 +176,10 @@ public class TaxonIO {
 
 		// DO NOT ALLOW ANY TAXOMATIC OPERATION SAVES
 		for (Taxon taxon : taxaToSave) {
-			if (idToOldTaxa.get(taxon.getId()) != null
-					&& SIS.get().getTaxomaticIO().isTaxomaticOperationNecessary(taxon, idToOldTaxa.get(taxon.getId()))) {
-				throw new TaxomaticException("Taxomatic operation necessary, can not save.", false);
+			Taxon oldTaxon = idToOldTaxa.get(taxon.getId());
+			if (oldTaxon != null && SIS.get().getTaxomaticIO().
+					isTaxomaticOperationNecessary(taxon, oldTaxon)) {
+				throw new TaxomaticException("Server Error: Taxon can not be saved until taxomatic operations are complete.", false);
 			}
 		}
 
@@ -315,9 +313,9 @@ public class TaxonIO {
 	public void afterSaveTaxon(Taxon taxon) {
 		Edit edit = taxon.getLastEdit();
 		String xml = taxon.getGeneratedXML();
-		String taxonPath = ServerPaths.getTaxonURL(taxon.getId());
+		VFSPath taxonPath = new VFSPath(ServerPaths.getTaxonURL(taxon.getId()));
 		if (xml != null) {
-			DocumentUtils.writeVFSFile(taxonPath, vfs, xml);
+			DocumentUtils.writeVFSFile(taxonPath.toString(), vfs, xml);
 		} else {
 			try {
 				vfs.delete(taxonPath);
@@ -327,13 +325,12 @@ public class TaxonIO {
 				Debug.println(e);
 			}
 		}
-		
 		try {
 			vfs.setLastModified(taxonPath, edit.getCreatedDate());
-		} catch (NotFoundException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			//probably NPE
+			Debug.println("Warning: Modification date not set on taxon {0} due to exception: \n{1}", taxonPath, e);
 		}
-
 	}
 
 	public Taxon getTaxonFromVFS(Integer taxonID) {
@@ -370,7 +367,7 @@ public class TaxonIO {
 	}
 
 	protected String getXMLFromVFS(Integer id) throws NotFoundException, BoundsException, IOException {
-		return vfs.getString(ServerPaths.getTaxonURL(id));
+		return vfs.getString(new VFSPath(ServerPaths.getTaxonURL(id)));
 	}
 
 }

@@ -123,6 +123,8 @@ public class TaxonLevel implements Serializable, Comparable<TaxonLevel> {
 
 	@Override
 	public int compareTo(TaxonLevel o) {
+		if (this == o)
+			return 0;
 		//RETURNS KINGDOM AS HIGHEST, AND SO ON 
 		return Integer.valueOf(o.getLevel()).compareTo(Integer.valueOf(this.getLevel()));
 	}

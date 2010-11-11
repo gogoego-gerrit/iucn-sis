@@ -38,10 +38,13 @@ import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
+import com.solertium.util.NodeCollection;
 import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.provider.VersionedFileVFS;
 import com.solertium.vfs.utils.VFSUtils;
@@ -80,7 +83,7 @@ public class TaxomaticIO {
 			Synonym synonym = Taxon.synonymizeTaxon(child);
 			synonym.setStatus(Synonym.NEW);
 			child.getSynonyms().add(synonym);
-			updateRLHistoryText(child);
+			updateRLHistoryText(child, user);
 			child.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.INFRARANK_SUBPOPULATION));
 			taxa.add(child);
 		}
@@ -88,7 +91,7 @@ public class TaxomaticIO {
 		Synonym synonym = Taxon.synonymizeTaxon(taxon);
 		synonym.setStatus(Synonym.NEW);
 		taxon.getSynonyms().add(synonym);
-		updateRLHistoryText(taxon);
+		updateRLHistoryText(taxon, user);
 		taxon.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.INFRARANK));
 		taxon.setInfratype(SIS.get().getInfratypeIO().getInfratype(Infratype.SUBSPECIES_NAME));
 		taxon.setParent(newParent);
@@ -157,16 +160,21 @@ public class TaxomaticIO {
 			if (vfs.exists(VFSUtils.parseVFSPath(ServerPaths.getLastTaxomaticOperationPath()))) {
 				Document operationDoc = vfs.getDocument(VFSUtils.parseVFSPath(ServerPaths
 						.getLastTaxomaticOperationPath()));
-
-				Element operationEl = operationDoc.getDocumentElement();
-				lastOperationDate = new Date(Long.parseLong(operationEl.getElementsByTagName("timestamp").item(0).getTextContent()));
-				lastOperationUsername = operationEl.getElementsByTagName("username").item(0).getTextContent();
-				lastOperationType = operationEl.getElementsByTagName("type").item(0).getTextContent();
 				
 				taxaIDsChanged = new HashSet<Integer>();
-				ElementCollection collection = new ElementCollection(operationEl.getElementsByTagName("taxa"));
-				for (Element taxon : collection) {
-					taxaIDsChanged.add(Integer.valueOf(taxon.getAttribute("id")));
+				
+				final NodeCollection nodes = new NodeCollection(operationDoc.getDocumentElement().getChildNodes());
+				for (Node node : nodes) {
+					if ("username".equals(node.getNodeName()))
+						lastOperationUsername = node.getTextContent();
+					else if ("timestamp".equals(node.getNodeName()))
+						lastOperationDate = new Date(Long.parseLong(node.getTextContent()));
+					else if ("type".equals(node.getNodeName()))
+						lastOperationType = node.getTextContent();
+					else if ("taxon".equals(node.getNodeName()))
+						taxaIDsChanged.add(Integer.valueOf(node.getTextContent()));
+					else if ("taxa".equals(node.getNodeName()))
+						taxaIDsChanged.add(Integer.valueOf(BaseDocumentUtils.impl.getAttribute(node, "id")));
 				}
 			}
 		} catch (VFSPathParseException e) {
@@ -261,7 +269,7 @@ public class TaxomaticIO {
 	public void moveTaxa(Taxon newParent, Collection<Taxon> children, User user) throws TaxomaticException {
 		Set<Taxon> changed = new HashSet<Taxon>();
 		for (Taxon child : children)
-			changed.addAll(moveTaxon(newParent, child, Synonym.NEW, true));
+			changed.addAll(moveTaxon(newParent, child, user, Synonym.NEW, true));
 		
 		updateAndSave(changed, user, true);
 		
@@ -283,7 +291,7 @@ public class TaxomaticIO {
 	 *            -- if true, then updates teh assessment names
 	 * @return
 	 */
-	private Set<Taxon> moveTaxon(Taxon newParent, Taxon child, String synStatus, boolean updateAssessments) {
+	private Set<Taxon> moveTaxon(Taxon newParent, Taxon child, User user, String synStatus, boolean updateAssessments) {
 		Set<Taxon> changed = new HashSet<Taxon>();
 		Taxon oldParent = child.getParent();
 
@@ -314,7 +322,7 @@ public class TaxomaticIO {
 							current.getSynonyms().add(syn);
 						}
 						if (updateAssessments) {
-							updateRLHistoryText(current);
+							updateRLHistoryText(current, user);
 						}
 						child.setFriendlyName(newName);
 
@@ -383,13 +391,13 @@ public class TaxomaticIO {
 				List<Taxon> taxaToSave = new ArrayList<Taxon>();
 				List<Assessment> assessmentsToSave = new ArrayList<Assessment>();
 				
-				Taxon currentTaxon = SIS.get().getTaxonIO().getTaxon(taxaID);
+				Taxon currentTaxon = SIS.get().getTaxonIO().getTaxonNonLazy(taxaID);
 				
 				//THERE ARE NO OTHER REVISIONS, THEREFORE IT WAS CREATED ON 
 				if (revision.size() == 0) {
 					taxaToSave.add(currentTaxon);
 					TaxonDAO.deleteAndDissociate(currentTaxon);
-				} else {						
+				} else {
 					InputStream in = vfs.getInputStream(uri, revision.get(0));
 					StringBuilder out = new StringBuilder();
 					byte[] b = new byte[4096];
@@ -430,7 +438,7 @@ public class TaxomaticIO {
 				}
 				
 				for (Taxon taxon : taxaToSave)
-					SIS.get().getTaxonIO().writeTaxon(taxon, user);
+					writeTaxon(taxon, user);
 				
 				for (Assessment assessment : assessmentsToSave)
 					SIS.get().getAssessmentIO().writeAssessment(assessment, user, true);
@@ -470,7 +478,7 @@ public class TaxomaticIO {
 			Synonym synonym = Taxon.synonymizeTaxon(current);
 			synonym.setStatus(Synonym.NEW);
 			current.getSynonyms().add(synonym);
-			updateRLHistoryText(current);
+			updateRLHistoryText(current, user);
 
 			if (current.getLevel() == TaxonLevel.INFRARANK)
 				current.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.SPECIES));
@@ -542,7 +550,7 @@ public class TaxomaticIO {
 
 			// MOVE EACH CHILD AND ADD SYNONYMS
 			for (Taxon child : children) {
-				taxaToSave.addAll(moveTaxon(parent, child, Synonym.SPLIT, false));
+				taxaToSave.addAll(moveTaxon(parent, child, user, Synonym.SPLIT, false));
 			}
 		}
 
@@ -586,7 +594,7 @@ public class TaxomaticIO {
 				taxon.getEdits().add(edit);
 				taxon.toXML();
 				
-				SIS.get().getTaxonIO().writeTaxon(taxon, user);
+				writeTaxon(taxon, user);
 			}
 		} finally {
 			acquirer.releaseLocks();
@@ -601,7 +609,7 @@ public class TaxomaticIO {
 	 * changed
 	 * 
 	 */
-	private void updateRLHistoryText(Taxon taxon) {
+	private void updateRLHistoryText(Taxon taxon, User user) {
 		for (Assessment current : SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(taxon)) {
 			Field field = current.getField(CanonicalNames.RedListCriteria);
 			if (field == null)
@@ -612,6 +620,8 @@ public class TaxomaticIO {
 			if (text == null || text.equals("")) {
 				proxy.setRLHistoryText("as " + generateRLHistoryText(taxon));
 			}
+			
+			SIS.get().getAssessmentIO().writeAssessment(current, user, false);
 		}
 	}
 	
@@ -627,7 +637,7 @@ public class TaxomaticIO {
 					xml.append("<taxon>" + taxaID + "</taxon>");
 				xml.append("</operation>");
 
-				if (DocumentUtils.writeVFSFile(ServerPaths.getLastTaxomaticOperationPath(), vfs, xml.toString()))
+				if (!DocumentUtils.writeVFSFile(ServerPaths.getLastTaxomaticOperationPath(), vfs, xml.toString()))
 					throw new TaxomaticException("Failed to write operation history file.", false);
 			} finally {
 				SIS.get().getLocker().releaseLock(ServerPaths.getLastTaxomaticOperationPath());

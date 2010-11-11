@@ -52,6 +52,9 @@ public class Edit implements Serializable, Comparable<Edit> {
 	
 	@Override
 	public int compareTo(Edit o) {
+		if (this == o)
+			return 0;
+			
 		Date d = new Date(getCreatedDate().getTime());
 		Date od = new Date(o.getCreatedDate().getTime());
 		

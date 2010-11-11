@@ -677,7 +677,6 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 	}
 	
 	public static Taxon fromXML(NativeElement nodeElement) {
-		Taxon taxon = null;
 		long id = LongUtils.safeParseLong(nodeElement.getAttribute("id"));
 		String name = nodeElement.getAttribute("name");
 		String fullName = nodeElement.getAttribute("fullname");
@@ -685,7 +684,7 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 		boolean hybrid = (nodeElement.getAttribute("hybrid") != null && nodeElement.getAttribute("hybrid").equals(
 				"true"));
 		
-		taxon = Taxon.createNode(id, name, level, hybrid);
+		Taxon taxon = Taxon.createNode(id, name, level, hybrid);
 		taxon.setFriendlyName(fullName);
 		
 		
@@ -722,25 +721,33 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 		NativeNodeList names = nodeElement.getElementsByTagName(CommonName.ROOT_TAG);
 		taxon.setCommonNames(new HashSet<CommonName>());
 		for (int i = 0; i < names.getLength(); i++) {
-			taxon.getCommonNames().add(CommonName.fromXML(names.elementAt(i)));
+			CommonName commonName = CommonName.fromXML(names.elementAt(i));
+			commonName.setTaxon(taxon);
+			taxon.getCommonNames().add(commonName);
 		}
 		
 		NativeNodeList notes = nodeElement.getElementsByTagName(Notes.ROOT_TAG);
 		taxon.setNotes(new HashSet<Notes>());
 		for (int i = 0; i < notes.getLength(); i++) {
-			taxon.getNotes().add(Notes.fromXML(notes.elementAt(i)));
+			Notes note = Notes.fromXML(notes.elementAt(i));
+			note.setTaxon(taxon);
+			taxon.getNotes().add(note);
 		}
 
 		NativeNodeList edits = nodeElement.getElementsByTagName(Edit.ROOT_TAG);
 		taxon.setEdits(new HashSet<Edit>());
 		for (int i = 0; i < edits.getLength(); i++) {
-			taxon.getEdits().add(Edit.fromXML(edits.elementAt(i)));
+			Edit edit = Edit.fromXML(edits.elementAt(i));
+			edit.getTaxon().add(taxon);
+			taxon.getEdits().add(edit);
 		}
 
 		NativeNodeList synonyms = nodeElement.getElementsByTagName(Synonym.ROOT_TAG);
 		taxon.setSynonyms(new HashSet<Synonym>());
-		for (int i = 0; i < synonyms.getLength(); i++)
+		for (int i = 0; i < synonyms.getLength(); i++) {
+			
 			taxon.getSynonyms().add(Synonym.fromXML(synonyms.elementAt(i), taxon));
+		}
 
 		NativeNodeList assessments = nodeElement.getElementsByTagName(Assessment.ROOT_TAG);
 		taxon.setAssessments(new HashSet<Assessment>());
@@ -752,8 +759,11 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 
 		NativeNodeList references = nodeElement.getElementsByTagName(Reference.ROOT_TAG);
 		taxon.setReference(new HashSet<Reference>());
-		for (int i = 0; i < references.getLength(); i++)
-			taxon.getReference().add(Reference.fromXML(references.elementAt(i)));
+		for (int i = 0; i < references.getLength(); i++) {
+			Reference reference = Reference.fromXML(references.elementAt(i));
+			reference.getTaxon().add(taxon);
+			taxon.getReference().add(reference);
+		}
 
 		return taxon;
 
@@ -780,6 +790,5 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 			return false;
 		return true;
 	}
-	
 	
 }
