@@ -49,16 +49,15 @@ public class TaxomaticUtils {
 			public void onSuccess(String arg0) {
 				if (idToReturn != null)
 					afterTaxomaticOperation(Integer.valueOf(idToReturn), new GenericCallback<String>() {
-	
 						public void onFailure(Throwable arg0) {
 							wayback.onSuccess(null);
 						}
-	
 						public void onSuccess(String arg0) {
 							wayback.onSuccess(arg0);
 						}
-	
 					});
+				else
+					wayback.onSuccess(null);
 			}
 
 		};

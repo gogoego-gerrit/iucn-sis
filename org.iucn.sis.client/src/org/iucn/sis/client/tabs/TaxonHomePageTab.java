@@ -381,6 +381,7 @@ public class TaxonHomePageTab extends TabItem {
 									if (taxon != null) {
 										TaxomaticUtils.impl.deleteTaxon(taxon, new GenericCallback<String>() {
 											public void onSuccess(String result) {
+												TaxonomyCache.impl.clear();
 												TaxonomyCache.impl.evict(taxon.getParentId() + "," + taxon.getId());
 												TaxonomyCache.impl.fetchTaxon(taxon.getParentId(), true,
 														new GenericCallback<Taxon>() {
