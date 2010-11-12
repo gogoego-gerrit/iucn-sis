@@ -542,8 +542,12 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 			size = 5;
 
 		for (final Synonym curSyn : node.getSynonyms()) {
+			size--;
+			if (size < 0)
+				break;
+			
 			HorizontalPanel hp = new HorizontalPanel();
-
+			
 			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
 				final Image notesImage = new Image("images/icon-note.png");
 				if (curSyn.getNotes().isEmpty())
