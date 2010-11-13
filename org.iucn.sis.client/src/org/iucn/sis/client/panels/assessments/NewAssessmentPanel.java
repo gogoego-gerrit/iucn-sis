@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.assessments;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -349,6 +350,6 @@ public class NewAssessmentPanel extends LayoutContainer {
 				regions.add(new RegionModel(cur));
 		}
 		
-		regionsPanel.setRegionsSelected(Region.GLOBAL_ID+"");
+		regionsPanel.setSelectedRegions(Arrays.asList(Region.getGlobalRegion()));
 	}
 }

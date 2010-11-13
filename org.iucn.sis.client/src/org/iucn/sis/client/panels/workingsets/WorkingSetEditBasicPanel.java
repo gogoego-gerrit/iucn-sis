@@ -6,6 +6,7 @@ import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -72,8 +73,13 @@ public class WorkingSetEditBasicPanel extends WorkingSetNewWSPanel {
 		workingSetName.setText(ws.getWorkingSetName());
 		description.setText(ws.getDescription());
 		notes.setText(ws.getNotes());
-		filterPanel.setFilter(ws.getFilter());
-
+		filterPanel.setFilter(getFilter());
+	}
+	
+	@Override
+	protected AssessmentFilter getFilter() {
+		WorkingSet ws = WorkingSetCache.impl.getCurrentWorkingSet();
+		return ws.getFilter();
 	}
 
 }

@@ -128,9 +128,9 @@ public class AssessmentFilter {
 		return regions;
 	}
 	
-	public List<Integer> getRegionIds() {
+	public List<Integer> listRegionIDs() {
 		List<Integer> filterRegionIDs = new ArrayList<Integer>();
-		for( Region curReg : regions )
+		for (Region curReg : regions)
 			filterRegionIDs.add(curReg.getId());
 		return filterRegionIDs;
 	}

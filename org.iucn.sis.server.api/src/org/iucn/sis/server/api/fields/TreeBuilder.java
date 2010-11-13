@@ -59,7 +59,8 @@ private final ExecutionContext ec;
 		try {
 			ec.doQuery(query, rs);
 		} catch (DBException e) {
-			Debug.println(e);
+			//Debug.println(e);
+			return;
 		}
 		
 		final List<TreeNode> roots = new ArrayList<TreeBuilder.TreeNode>();

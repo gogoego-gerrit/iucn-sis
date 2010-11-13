@@ -1,13 +1,11 @@
 package org.iucn.sis.client.panels.workingsets;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.workingset.WSModel;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
-import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.PanelManager;
@@ -18,9 +16,10 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binder.DataListBinder;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Info;
@@ -31,7 +30,6 @@ import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.HTML;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.utils.RowParser;
@@ -40,7 +38,6 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class DeleteWorkingSetPanel extends LayoutContainer {
 
 	private PanelManager manager = null;
-	private HashMap workingSets = null;
 	// HorizontalPanel buttons = null;
 	private ButtonBar buttons = null;
 	// private DataListItem selectedItem = null;
@@ -81,24 +78,17 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 		add(list, new RowData(1d, 1d));
 		list.setScrollMode(Scroll.AUTOY);
 
-		final Button delete = new Button("Delete");
-		delete.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		final Button delete = new Button("Delete", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				if (list.getSelectedItem() != null) {
 					WindowUtils.confirmAlert("Delete working set?", "Are you sure you want to delete the working set "
-							+ list.getSelectedItem().getText() + "?", new Listener<MessageBoxEvent>() {
-						public void handleEvent(MessageBoxEvent be) {
-							if (be.getButtonClicked().getText().equalsIgnoreCase("YES")) {
-								// remove(list.getSelectedItem().getId(), "");
-								List<WSModel> data = binder.getSelection();
-								if (data.size() > 0) {
-									remove(data.get(0), true);
-								}
-								// remove()
-							}
-
+							+ list.getSelectedItem().getText() + "?", new WindowUtils.SimpleMessageBoxListener() {
+						@Override
+						public void onYes() {
+							List<WSModel> data = binder.getSelection();
+							if (data.size() > 0)
+								remove(data.get(0), true);
 						}
-
 					});
 				} else {
 					WindowUtils.errorAlert("Error", "Please first select a working set to delete.");
@@ -106,26 +96,18 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 			}
 		});
 
-		final Button unsubscribe = new Button("Unsubscribe");
-		unsubscribe.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		final Button unsubscribe = new Button("Unsubscribe", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				if (list.getSelectedItem() != null) {
 					WindowUtils.confirmAlert("Unsubscribe?", "Are you sure you want to unsubscribe " +
 							"to the working set " + list.getSelectedItem().getText() + "? " +
 							"You will be able to subscribe again if your permissions are unchanged.",
-								new Listener<MessageBoxEvent>() {
-						public void handleEvent(MessageBoxEvent be) {
-							if (be.getButtonClicked().getText().equalsIgnoreCase("YES")) {
-								// remove(list.getSelectedItem().getId(), "");
-								List<WSModel> data = binder.getSelection();
-								if (data.size() > 0) {
-									remove(data.get(0), false);
-								}
-								// remove()
-							}
-
+								new WindowUtils.SimpleMessageBoxListener() {
+						public void onYes() {
+							List<WSModel> data = binder.getSelection();
+							if (data.size() > 0)
+								remove(data.get(0), false);
 						}
-
 					});
 				} else {
 					WindowUtils.errorAlert("Error", "Please first select a working set to delete.");
@@ -215,7 +197,7 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 	private void ensurePermissionsCleared(final Integer wsID, final GenericCallback<String> callback) {
 		final String permGroupName = "ws" + wsID;
 		final String query = "?quickgroup=" + permGroupName + "";
-		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.get(UriBase.getInstance().getUserBase()
 				+ "/browse/profile" + query, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {

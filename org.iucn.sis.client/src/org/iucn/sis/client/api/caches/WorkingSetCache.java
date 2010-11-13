@@ -195,7 +195,7 @@ public class WorkingSetCache {
 		if (workingSets.containsKey(ws.getId())) {
 			NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 			ndoc.post(UriBase.getInstance().getSISBase() + "/workingSet/public/"
-					+ SISClientBase.currentUser.getUsername() + "/", ws.toXML(), new GenericCallback<String>() {
+					+ SISClientBase.currentUser.getUsername() + "/" + ws.getId(), ws.toXML(), new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					wayback.onFailure(caught);
 				}

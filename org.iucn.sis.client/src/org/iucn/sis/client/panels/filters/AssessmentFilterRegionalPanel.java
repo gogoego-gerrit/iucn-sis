@@ -4,7 +4,6 @@ import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.client.panels.region.AddRegionPanel;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Relationship;
 
@@ -45,7 +44,7 @@ public class AssessmentFilterRegionalPanel extends LayoutContainer {
 
 	public void setFilter(AssessmentFilter filter) {
 		regionPanel.clearData();
-		regionPanel.setRegionsSelected(filter.getRegionIDsCSV());
+		regionPanel.setSelectedRegions(filter.getRegions());
 		regionPanel.refreshUI();
 		
 		if (allowMatchesAnyRegion && filter.getRegionType().equalsIgnoreCase(Relationship.OR)){
@@ -110,10 +109,7 @@ public class AssessmentFilterRegionalPanel extends LayoutContainer {
 		data2.setMargins(new Margins(4,10, 4, 93));
 		add(regionPanel, data2);			
 		setFilter(this.filter);
-
-
 	}
-
 
 	public void addDescriptions(boolean addDescriptions) {
 		this.addDescriptions = addDescriptions;
@@ -121,53 +117,40 @@ public class AssessmentFilterRegionalPanel extends LayoutContainer {
 
 	public void putIntoAssessmentFilter(AssessmentFilter filter) {
 		if (allCheck!=null && allCheck.getValue())
-		{
 			filter.setAllRegions();
-		}
-		else
-		{
-			filter.getRegionIds().clear();
-
-			for (Entry<ComboBox<RegionModel>, RegionModel> entry : regionPanel.getBoxesToSelected().entrySet())
-			{ 
-				if (entry != null)
-				{
-					entry.getValue().sinkModelDataIntoRegion();
-					filter.getRegionIds().add(entry.getValue().getRegion().getId());
+		else {
+			filter.getRegions().clear();
+			for (Entry<ComboBox<RegionModel>, RegionModel> entry : regionPanel.getBoxesToSelected().entrySet()) { 
+				if (entry.getValue() != null) {
+					//entry.getValue().sinkModelDataIntoRegion();
+					filter.getRegions().add(entry.getValue().getRegion());
 				}	
 			}
 			
 			if (box.getSimpleValue().equalsIgnoreCase(all)) {
 				filter.setRegionType(Relationship.AND);
-				Debug.println("setting to and in filter {0}", filter);
 			}
 			else {
 				filter.setRegionType(Relationship.OR);
-				Debug.println("setting to or in filter {0}", filter);
 			}
 		}
-
 	}
 
-
-	public boolean anyRegionSelected() {
-
-		
+	public boolean anyRegionSelected() {	
 		if (allCheck != null) {
 			return !regionPanel.getSelectedRegions().isEmpty() || allCheck.getValue();
 		} else {
 			return !regionPanel.getSelectedRegions().isEmpty();
-		}
-		
+		}		
 	}
 
 
 	@Override
-		public void setEnabled(boolean enabled) {
-			super.setEnabled(enabled);
-			if (enabled && !allowMatchesAnyRegion) {
-				box.setEnabled(false);
-			}
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		if (enabled && !allowMatchesAnyRegion) {
+			box.setEnabled(false);
 		}
+	}
 
 }

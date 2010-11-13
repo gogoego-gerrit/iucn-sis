@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,21 +68,19 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	// FIXME
 	public AssessmentFilter getFilter() {
 		AssessmentFilter filter = new AssessmentFilter();
-
 		filter.setAllPublished(getAssessmentTypes().contains(
 				AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_TYPE))
 				&& !isMostRecentPublished);
-
 		filter.setRecentPublished(getAssessmentTypes().contains(
 				AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_TYPE))
 				&& isMostRecentPublished);
-
 		filter.setDraft(getAssessmentTypes().contains(
 				AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_TYPE)));
 
 		if (getRegion().isEmpty() && getRelationship().getName().equals(Relationship.ALL))
 			filter.setAllRegions();
-		else {
+		else if (!getRegion().isEmpty()) {
+			filter.getRegions().clear();
 			filter.getRegions().addAll(getRegion());
 		}
 		
@@ -123,10 +122,12 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 		return getCreator().getUsername();
 	}
 
-	public void setCreator(String creator) {
-		User user = new User();
-		user.setUsername(creator);
-		setCreator(user);
+	public void setCreator(String creatorName) {
+		if (creator == null || !creator.getUsername().equals(creatorName)) {
+			User user = new User();
+			user.setUsername(creatorName);
+			setCreator(user);
+		}
 	}
 
 	public String getWorkflowStatus() {
@@ -165,6 +166,8 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	public static WorkingSet fromXML(WorkingSet set, NativeElement element) {
 		fromXMLMinimal(set, element);
 		
+		final Set<Region> newRegions = new HashSet<Region>();
+		
 		final NativeNodeList nodes = element.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			final NativeNode node = nodes.item(i);
@@ -181,13 +184,27 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 			else if ("mostRecentPublished".equals(nodeName))
 				set.setIsMostRecentPublished(Boolean.valueOf(node.getTextContent()));
 			else if (Region.ROOT_TAG.equals(nodeName))
-				set.getRegion().add(Region.fromXML((NativeElement)node));
+				newRegions.add(Region.fromXML((NativeElement)node));
 			else if (Taxon.ROOT_TAG.equals(nodeName))
 				set.getTaxon().add(Taxon.fromXMLminimal((NativeElement)node));
-			else if (User.ROOT_TAG.equals(nodeName))
+			else if (User.ROOT_TAG.equals(nodeName)) {
 				set.getUsers().add(User.fromXML((NativeElement)node));
+			}
 			else if (AssessmentType.ROOT_TAG.equals(nodeName))
 				set.getAssessmentTypes().add(AssessmentType.fromXML((NativeElement)node));	
+		}
+		
+		if (set.getRegion().isEmpty()) {
+			set.getRegion().addAll(newRegions);
+		}
+		else {
+			final List<Region> toRemove = new ArrayList<Region>();
+			for (Region region : set.getRegion())
+				if (!newRegions.contains(region))
+					toRemove.add(region);
+			
+			for (Region region : toRemove)
+				set.getRegion().remove(region);
 		}
 		
 		return set;

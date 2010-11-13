@@ -79,6 +79,10 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		this.manager = manager;
 		build();
 	}
+	
+	protected AssessmentFilter getFilter() {
+		return new AssessmentFilter();
+	}
 
 	protected void addItemsToToolBar() {
 		toolbar.add(saveAndAddTaxa);
@@ -293,6 +297,7 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		
 		if (errorFilter != null) {
 			WindowUtils.errorAlert(errorFilter);
+			return;
 		}
 
 		else if (descriptionText == null || descriptionText.trim().equals("")) {
@@ -338,6 +343,7 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		if (id == null) {
 			WorkingSetCache.impl.createWorkingSet(currentWorkingSet, new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
+					enableSaveButtons(true);
 					Info.display("ERROR", "Error saving working set " + name + ".", "Please" + " try saving again.");
 				}
 
@@ -366,6 +372,7 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		else if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, WorkingSetCache.impl.getCurrentWorkingSet())) {
 			WorkingSetCache.impl.editWorkingSet(currentWorkingSet, new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
+					enableSaveButtons(true);
 					Info.display("ERROR", "Error saving working set " + name + ".", "Please" + " try saving again.");
 				}
 

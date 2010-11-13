@@ -34,11 +34,7 @@ public class Region implements Serializable {
 		String id = el.getAttribute("id");
 		String name = el.getAttribute("name");
 		String description = el.getTextContent();
-		Region region = new Region();
-		region.setId(Integer.valueOf(id));
-		region.setDescription(description);
-		region.setName(name);
-		return region;
+		return new Region(Integer.parseInt(id), name, description);
 	}
 	
 	public String toXML() {
@@ -115,20 +111,29 @@ public class Region implements Serializable {
 	
 	
 	public String toString() {
-		return String.valueOf(getId());
+		return "Region #" + getId() + " (" + name + ")";
 	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof Region) {
-			return ((Region)obj).id == getId();
-		}
-		return false;
-	}
-	
+
 	@Override
 	public int hashCode() {
-		return Integer.valueOf(getId()).hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Region other = (Region) obj;
+		if (id != other.id)
+			return false;
+		return true;
 	}
 	
 }

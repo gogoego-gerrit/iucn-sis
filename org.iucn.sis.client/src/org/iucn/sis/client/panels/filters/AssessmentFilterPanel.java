@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.filters;
 
-import org.iucn.sis.client.api.caches.RegionCache;
+import java.util.Iterator;
+
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Region;
 
@@ -36,6 +37,10 @@ public class AssessmentFilterPanel extends HorizontalPanel {
 
 
 	protected AssessmentFilterRegionalPanel regionPanel;
+	
+	public AssessmentFilterPanel(AssessmentFilter filter, boolean addDescription) {
+		this(filter, addDescription, false, false, false);
+	}
 
 	/**
 	 * Called with whether to display as admin functionality or with regular functionality
@@ -51,12 +56,6 @@ public class AssessmentFilterPanel extends HorizontalPanel {
 		this.allowAllLocales = allowAllLocales;
 		draw();
 	}
-
-	public AssessmentFilterPanel(AssessmentFilter filter, boolean addDescription) {
-		this(filter, addDescription, false, false, false);
-	}
-
-
 
 	/**
 	 * Returns an error message if not valid, otherwise returns null
@@ -142,7 +141,7 @@ public class AssessmentFilterPanel extends HorizontalPanel {
 			return typeChecks;
 		}
 		else {
-			RadioGroup typeChecks = new RadioGroup("assTypes");
+			RadioGroup typeChecks = new RadioGroup("assessmentTypes");
 			typeChecks.setSpacing(4);
 			typeChecks.setAutoWidth(true);
 			typeChecks.setFieldLabel("Select assessment type");
@@ -188,29 +187,21 @@ public class AssessmentFilterPanel extends HorizontalPanel {
 		vp.add(drawRegions());
 		add(vp);
 		this.layout();
-		
-		
-		
 	}
-	
-	
 
 	public AssessmentFilter getFilter() {
 		putIntoAssessmentFilter();
+		
 		return filter;
 	}
 
 	public boolean putIntoAssessmentFilter() {
 		if (checkValidity() == null) {
-			try{
 			filter.setAllPublished(allPublished.getValue());
 			filter.setDraft(allDraft.getValue());
 			filter.setRecentPublished(recentPublisheds.getValue());
 
 			regionPanel.putIntoAssessmentFilter(filter);
-			} catch (Throwable e) {
-				e.printStackTrace();
-			}
 
 			return true;
 		}
@@ -218,73 +209,53 @@ public class AssessmentFilterPanel extends HorizontalPanel {
 	}
 
 	public static String getString(AssessmentFilter filter) {
-		String str = new String();
+		StringBuilder str = new StringBuilder();
 
 		if (filter.isAllPublished() && filter.isDraft()	&& filter.isAllRegions())
-			str = "all assessments";
+			str.append("all assessments");
 		else {
 			if (filter.isAllPublished()) {
-				str += "all published";
+				str.append("all published");
 				if (filter.isDraft())
-					str += " and draft";
-				str += " assessments";
+					str.append(" and draft");
+				str.append(" assessments");
 
 			} else if (filter.isRecentPublished()) {
-				str += "most recent published";
+				str.append("most recent published");
 				if (filter.isDraft())
-					str += " and draft";
-				str += " assessments";
+					str.append(" and draft");
+				str.append(" assessments");
 			}
 
 			else if (filter.isDraft())
-				str += "draft assessments";
+				str.append("draft assessments");
 
-			if (!filter.isAllRegions()) {
-
-				String regionText = "";
-				for (int i = 0; i < filter.getRegionIds().size(); i++) {
-					Integer regionID = filter.getRegionIds().get(i);
-					Region region = RegionCache.impl.getRegionByID(regionID);
-					if (i == filter.getRegionIds().size() - 1
-							&& filter.getRegionIds().size() > 1)
-						regionText += filter.getRegionType() + " " + region.getName();
-					else if (filter.getRegionIds().size() > 1)
-						regionText += region.getRegionName() + ", ";
-					else
-						regionText += region.getRegionName();
-				}
-
-				str += " with " + regionText + " locality";
-			}
+			str.append(getRegionString(filter));
 		}
 
-		return str;
-
+		return str.toString();
 	}
 	
 	public static String getRegionString(AssessmentFilter filter) {
-		String str = new String();
+		StringBuilder regionText = new StringBuilder();
 		if (!filter.isAllRegions()) {
-
-			String regionText = "";
-			for (int i = 0; i < filter.getRegionIds().size(); i++) {
-				Integer regionID = filter.getRegionIds().get(i);
-				Region region = RegionCache.impl.getRegionByID(regionID);
-				if (i == filter.getRegionIds().size() - 1
-						&& filter.getRegionIds().size() > 1)
-					regionText += filter.getRegionType() + " " + region.getRegionName();
-				else if (filter.getRegionIds().size() > 1)
-					regionText += region.getRegionName() + ", ";
-				else
-					regionText += region.getRegionName();
+			regionText.append(" with ");
+			for (Iterator<Region> iter = filter.getRegions().iterator(); iter.hasNext(); ) {
+				Region region = iter.next();
+				if (!iter.hasNext() && !"".equals(regionText.toString()))
+					regionText.append(filter.getRegionType() + " " + region.getRegionName());
+				else {
+					regionText.append(region.getRegionName());
+					if (iter.hasNext())
+						regionText.append(", ");
+				}
 			}
-
-			str += " with " + regionText + " locality";
+			regionText.append(" locality");
 		}
 		else {
-			str = "all regions";
+			regionText.append(" for all regions");
 		}
-		return str;
+		return regionText.toString();
 	}
 
 

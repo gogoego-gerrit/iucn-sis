@@ -56,7 +56,7 @@ public class AssessmentFilterHelper {
 	public List<Assessment> getAssessments(Integer taxaID) {
 		final ArrayList<Assessment> ret = new ArrayList<Assessment>();
 
-		final List<Integer> filterRegions = filter.getRegionIds();
+		final List<Integer> filterRegions = filter.listRegionIDs();
 		
 		if (filter.isDraft()) {
 			List<Assessment> draftAssessments = SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(taxaID);
@@ -77,7 +77,7 @@ public class AssessmentFilterHelper {
 	}
 	
 	public boolean allowAssessment(Assessment assessment) {
-		return allowAssessment(assessment, filter.getRegionIds());
+		return allowAssessment(assessment, filter.listRegionIDs());
 	}
 
 	private boolean allowAssessment(Assessment assessment, List<Integer> filterRegions) {
@@ -176,13 +176,13 @@ public class AssessmentFilterHelper {
 		if (!filter.isAllRegions()) {
 			if (filter.getRelationshipName().equalsIgnoreCase(Relationship.OR)) {
 				for (Entry<Integer, Set<Integer>> entry : idsToRegions.entrySet()) {
-					if (entry.getValue().containsAll(filter.getRegionIds()))
+					if (entry.getValue().containsAll(filter.listRegionIDs()))
 						ids.add(entry.getKey());
 				}
 				
 			} else if (filter.getRelationshipName().equalsIgnoreCase(Relationship.AND)) {
 				for (Entry<Integer, Set<Integer>> entry : idsToRegions.entrySet()) {
-					for (Integer id : filter.getRegionIds()) {
+					for (Integer id : filter.listRegionIDs()) {
 						if (entry.getValue().contains(id)) {
 							ids.add(entry.getKey());
 							break;

@@ -58,7 +58,6 @@ public class WorkingSetBrowser extends TabPanel {
 				refresh();
 			}
 		});
-
 		build();
 	}
 

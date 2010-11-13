@@ -118,21 +118,4 @@ public class Relationship implements Serializable {
 		return String.valueOf(getId());
 	}
 	
-//	private boolean _saved = false;
-//	
-//	public void onSave() {
-//		_saved=true;
-//	}
-//	
-//	
-//	public void onLoad() {
-//		_saved=true;
-//	}
-//	
-//	
-//	public boolean isSaved() {
-//		return _saved;
-//	}
-//	
-	
 }

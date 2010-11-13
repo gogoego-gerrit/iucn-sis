@@ -1,8 +1,7 @@
 package org.iucn.sis.client.panels.region;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -13,8 +12,6 @@ import org.iucn.sis.shared.api.models.Region;
 
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -34,12 +31,12 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class AddRegionPanel extends LayoutContainer{
 
-	private Button add;
-	private HashMap<ComboBox<RegionModel>, RegionModel> boxesToSelected;
-	private HashMap<Integer, RegionModel> idToModel;
-	private VerticalPanel innerPanel;
-	private ListStore<RegionModel> store;
-	private String regionsSelected = "";
+	private final HashMap<ComboBox<RegionModel>, RegionModel> boxesToSelected;
+	private final HashMap<Integer, RegionModel> idToModel;
+	private final VerticalPanel innerPanel;
+	private final ListStore<RegionModel> store;
+	
+	private Collection<Region> userSelection;
 
 	public AddRegionPanel() {
 		innerPanel = new VerticalPanel();
@@ -52,15 +49,6 @@ public class AddRegionPanel extends LayoutContainer{
 					return false;
 				else
 					return true;
-			}
-		});
-		
-		
-		add = new Button("Add New Region", new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				addRegionDropdown(null);
-				innerPanel.layout();
 			}
 		});
 	}
@@ -84,21 +72,22 @@ public class AddRegionPanel extends LayoutContainer{
 	 * 
 	 * @param selectedID
 	 */
-	private void addRegionDropdown(String selectedID) {
+	private void addRegionDropdown(Region region) {
+		RegionModel model = idToModel.get(region.getId());
+		if (model == null)
+			return;
+		
 		ComboBox<RegionModel> box = buildNewComboBox();
+		box.setAutoValidate(true);
+		box.setValue(model);
+		
 		HorizontalPanel panel = new HorizontalPanel();
 		panel.setSpacing(1);
 		panel.setVerticalAlign(VerticalAlignment.MIDDLE);
 		panel.add(box);
 		panel.insert(buildDeleteButton(box, panel), 0);
-		box.setAutoValidate(true);
-
-		if (selectedID != null && !selectedID.trim().equalsIgnoreCase("")) {
-			ArrayList<RegionModel> selectedRegion = new ArrayList<RegionModel>();
-			selectedRegion.add(idToModel.get(Integer.valueOf(selectedID)));
-			box.setSelection(selectedRegion);
-			boxesToSelected.put(box, idToModel.get(Integer.valueOf(selectedID)));
-		}
+		
+		boxesToSelected.put(box, model);		
 
 		innerPanel.add(panel);
 	}
@@ -127,12 +116,10 @@ public class AddRegionPanel extends LayoutContainer{
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				WindowUtils.confirmAlert("Delete Region", "Are you sure you want to " + "delete this region?",
-						new Listener<MessageBoxEvent>() {
-					public void handleEvent(MessageBoxEvent be) {
-						if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-							boxesToSelected.remove(box);
-							container.removeFromParent();
-						}
+						new WindowUtils.SimpleMessageBoxListener() {
+					public void onYes() {
+						boxesToSelected.remove(box);
+						container.removeFromParent();
 					}
 				});
 			}
@@ -145,25 +132,16 @@ public class AddRegionPanel extends LayoutContainer{
 		boxesToSelected.clear();
 		innerPanel.removeAll();
 		refreshStore();
-		
-		String[] selected;
-		if (regionsSelected.indexOf(",") > 0)
-			selected = regionsSelected.split(",");
-		else
-			selected = new String[] { regionsSelected };
 
-		HashMap<String, String> alreadySeen = new HashMap<String, String>();
-		for (String cur : selected) {
-			if (!alreadySeen.containsKey(cur)) {
-				addRegionDropdown(cur);
-				alreadySeen.put(cur, "");
-			}
-		}
+		if (userSelection != null)
+			for (Region region : userSelection)
+				addRegionDropdown(region);
+		
 		innerPanel.layout();
 	}
 
 	public void clearData() {
-		regionsSelected = "";
+		userSelection = null;
 		refreshUI();
 	}
 
@@ -175,48 +153,31 @@ public class AddRegionPanel extends LayoutContainer{
 		bottom.setMargins(new Margins(10,0,10,45));
 		setLayout(layout);
 		this.add(innerPanel, new RowData());
-		this.add(add, bottom);
+		this.add(new Button("Add New Region", new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				addRegionDropdown(null);
+				innerPanel.layout();
+			}
+		}), bottom);
 		layout();
 	}
 
-	public String getRegionsSelected() {
-		return regionsSelected;
-	}
-
-	public void setRegionsSelected(String regionsSelected) {
-		this.regionsSelected = regionsSelected;
-	}
-
-	public void setRegionsSelected(List<String> regionsSelected) {
-		StringBuilder csv = new StringBuilder();
-		for (String region : regionsSelected)
-			csv.append(region + ",");
-		if (csv.length() > 0)
-			setRegionsSelected(csv.substring(0, csv.length()-1));
-		else
-			setRegionsSelected("");
+	public void setSelectedRegions(Collection<Region> regionsSelected) {
+		this.userSelection = regionsSelected;
 	}
 
 	public HashMap<ComboBox<RegionModel>, RegionModel> getBoxesToSelected() {
 		return boxesToSelected;
 	}
-
-	public void setBoxesToSelected(
-			HashMap<ComboBox<RegionModel>, RegionModel> boxesToSelected) {
-		this.boxesToSelected = boxesToSelected;
-	}
-
 	
 	public List<Region> getSelectedRegions() {
 		List<Region> regions = new ArrayList<Region>();
-		for (Entry<ComboBox<RegionModel>, RegionModel> entry: getBoxesToSelected().entrySet()) {
+		for (Entry<ComboBox<RegionModel>, RegionModel> entry: getBoxesToSelected().entrySet())
 			if (entry.getValue() != null)
 				regions.add(entry.getValue().getRegion());
-		}
-		return regions;
-			
+		
+		return regions;		
 	}
-
-
 
 }

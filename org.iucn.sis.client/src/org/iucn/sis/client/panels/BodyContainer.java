@@ -2,6 +2,7 @@ package org.iucn.sis.client.panels;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.tabs.TabManager;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -61,7 +62,7 @@ public class BodyContainer extends TabPanel {
 			tabManager.panelManager.workingSetPanel.refresh();
 			tabManager.panelManager.recentAssessmentsPanel.refresh();
 			} catch (Exception e) {
-				e.printStackTrace();
+				Debug.println(e);
 			}
 		}
 	}

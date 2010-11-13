@@ -13,6 +13,7 @@ package org.iucn.sis.shared.api.models;
  * License Type: Evaluation
  */
 import java.io.Serializable;
+import java.util.Date;
 
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
@@ -192,6 +193,7 @@ public class User implements Serializable {
 	
 	public User() {
 		this.state = ACTIVE;
+		this.generationID = new Date().getTime();
 	}
 	
 	private int id;
@@ -220,9 +222,11 @@ public class User implements Serializable {
 	
 	private java.util.Set<Edit> edit = new java.util.HashSet<Edit>();
 	
+	private long generationID;
 	
 	public void setId(int value) {
 		this.id = value;
+		this.generationID = value;
 	}
 	
 	public int getId() {
@@ -331,10 +335,31 @@ public class User implements Serializable {
 	public java.util.Set<Edit> getEdit() {
 		return edit;
 	}
-		
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (generationID ^ (generationID >>> 32));
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (generationID != other.generationID)
+			return false;
+		return true;
+	}
 	
 	public String toString() {
-		return String.valueOf(getId());
+		return "User #" + getId() + " (" + generationID + ")";
 	}
 	
 	private String nullIfStated(String value) {

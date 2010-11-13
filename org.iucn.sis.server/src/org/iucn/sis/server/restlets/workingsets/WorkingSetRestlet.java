@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
@@ -14,6 +15,7 @@ import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
+import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -404,9 +406,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		//Now, load in the changes...
 		WorkingSet.fromXML(ws, ndoc.getDocumentElement());
 		
-		// NEEDED BECAUSE WORKINGSET UI DOESN"T KNOW USER's ID
-		ws.setCreator(SIS.get().getUserIO().getUserFromUsername(ws.getCreatorUsername()));
-		
+				
 		User user = SIS.get().getUserIO().getUserFromUsername(username);
 		if (user == null || !SIS.get().getWorkingSetIO().saveWorkingSet(ws, user))
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
