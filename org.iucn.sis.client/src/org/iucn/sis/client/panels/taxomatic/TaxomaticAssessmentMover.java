@@ -14,7 +14,6 @@ import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
@@ -30,14 +29,17 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.QuickButton;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class TaxomaticAssessmentMover extends LayoutContainer {
+public class TaxomaticAssessmentMover extends TaxomaticWindow {
 
 	protected final Taxon  nodeToMoveAssessmentsOutOf;
 	protected final Html htmlOfNodeToMoveAssessmentsINTO;
 	protected final DataList assessmentList;
 	protected final Button submitButton;
 
-	public TaxomaticAssessmentMover(Taxon  currentNode) {
+	public TaxomaticAssessmentMover(Taxon currentNode) {
+		super();
+		setHeading("Move Assessments");
+		setIconStyle("icon-document-move");
 		nodeToMoveAssessmentsOutOf = currentNode;
 		htmlOfNodeToMoveAssessmentsINTO = new Html("No taxon selected");
 		assessmentList = new DataList();
@@ -107,14 +109,8 @@ public class TaxomaticAssessmentMover extends LayoutContainer {
 	}
 
 	protected void load() {
-		BorderLayout layout = new BorderLayout();
-		// layout.setMargin(5);
-		// layout.setSpacing(5);
-
-		LayoutContainer full = new LayoutContainer();
-		full.setLayout(layout);
-		full.setLayoutOnChange(true);
-
+		LayoutContainer full = new LayoutContainer(new BorderLayout());
+		
 		TaxonomyBrowserPanel tp = new TaxonomyBrowserPanel() {
 			@Override
 			protected void addViewButtonToFootprint() {
@@ -174,47 +170,36 @@ public class TaxomaticAssessmentMover extends LayoutContainer {
 			}
 			TaxomaticUtils.impl.performMoveAssessments(ids, nodeToMoveAssessmentsOutOf.getId() + "", nodeID,
 					new GenericCallback<String>() {
-
-						public void onFailure(Throwable caught) {
-							WindowUtils
-									.errorAlert("Error",
-											"An error occurred while moving assessments, and the assessments were not successfully moved.");
-
-						}
-
-						public void onSuccess(String result) {
-							if (assessmentList.getChecked().size() == assessmentList.getItemCount()) {
-								WindowUtils.infoAlert("Success", "The selected assessments were moved from "
-										+ nodeToMoveAssessmentsOutOf.getFullName() + " into "
-										+ htmlOfNodeToMoveAssessmentsINTO.getHtml() + ".");
-							} else {
-								WindowUtils.confirmAlert("Success", "The selected assessments were moved from "
-										+ nodeToMoveAssessmentsOutOf.getFullName() + " into "
-										+ htmlOfNodeToMoveAssessmentsINTO.getHtml() + ".  Would you like to move more "
-										+ "assessments from " + nodeToMoveAssessmentsOutOf.getFullName() + "?",
-										new WindowUtils.MessageBoxListener() {
-
-											@Override
-											public void onNo() {
-												fireEvent(Events.Close);
-
-											}
-
-											@Override
-											public void onYes() {
-												for (DataListItem item : checked) {
-													assessmentList.remove(item);
-												}
-
-											}
-										}, "Move More Assessments", "Finished");
+				public void onFailure(Throwable caught) {
+					WindowUtils
+						.errorAlert("Error",
+						"An error occurred while moving assessments, and the assessments were not successfully moved.");
+				}
+				public void onSuccess(String result) {
+					if (assessmentList.getChecked().size() == assessmentList.getItemCount()) {
+						WindowUtils.infoAlert("Success", "The selected assessments were moved from "
+								+ nodeToMoveAssessmentsOutOf.getFullName() + " into "
+								+ htmlOfNodeToMoveAssessmentsINTO.getHtml() + ".");
+					} else {
+						WindowUtils.confirmAlert("Success", "The selected assessments were moved from "
+								+ nodeToMoveAssessmentsOutOf.getFullName() + " into "
+								+ htmlOfNodeToMoveAssessmentsINTO.getHtml() + ".  Would you like to move more "
+								+ "assessments from " + nodeToMoveAssessmentsOutOf.getFullName() + "?",
+								new WindowUtils.MessageBoxListener() {
+							@Override
+							public void onNo() {
+								TaxomaticAssessmentMover.this.hide();
 							}
-
-						}
-					});
-
+							public void onYes() {
+								for (DataListItem item : checked) {
+									assessmentList.remove(item);
+								}
+							}
+						}, "Move More Assessments", "Finished");
+					}
+				}
+			});
 		}
-
 	}
 
 }

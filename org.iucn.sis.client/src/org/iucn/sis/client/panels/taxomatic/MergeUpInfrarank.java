@@ -13,6 +13,8 @@ public class MergeUpInfrarank extends MergePanel {
 
 	public MergeUpInfrarank() {
 		super();
+		setHeading("Perform Merge Up Subspecies");
+		setIconStyle("icon-merge-up");
 	}
 
 	@Override
@@ -50,7 +52,7 @@ public class MergeUpInfrarank extends MergePanel {
 						WindowUtils.infoAlert("Successful Merge", "The " + noun + " " 
 								+ nodeString + " " + verb + " " 
 								+ "been merged into taxon " + currentNode.getFullName() + ".");
-						close();
+						onClose();
 					}
 
 				});

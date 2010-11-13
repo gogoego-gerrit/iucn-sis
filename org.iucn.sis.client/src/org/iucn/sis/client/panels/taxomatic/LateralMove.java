@@ -34,6 +34,8 @@ public class LateralMove extends TaxonChooser {
 
 	public LateralMove(PanelManager manager) {
 		super();
+		setHeading("Perform Lateral Move");
+		setIconStyle("icon-lateral-move");
 		parentNode = TaxonomyCache.impl.getCurrentTaxon();
 		level = parentNode.getLevel();
 		childrenNodes = new ArrayList<String>();
@@ -41,7 +43,7 @@ public class LateralMove extends TaxonChooser {
 	}
 
 	@Override
-	public ButtonBar getButtonBar() {
+	public ButtonBar createButtonBar() {
 		ButtonBar bar = new ButtonBar();
 		bar.setAlignment(HorizontalAlignment.CENTER);
 		move = new Button("Move Taxa", new SelectionListener<ButtonEvent>() {

@@ -26,6 +26,8 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.FocusListener;
 import com.google.gwt.user.client.ui.HTML;
@@ -45,9 +47,8 @@ import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class TaxonCommonNameEditor extends LayoutContainer {
+public class TaxonCommonNameEditor extends TaxomaticWindow {
 
-	private final PanelManager manager;
 	private final Taxon  node;
 	private final VerticalPanel commonNameInfo;
 	private final List<CommonName> allCommonNames;
@@ -64,7 +65,10 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 	private boolean loaded;
 
 	public TaxonCommonNameEditor(PanelManager manager) {
-		this.manager = manager;
+		super();
+		setHeading("Common Names Validator");
+		setIconStyle("icon-note-edit");
+		
 		this.node = TaxonomyCache.impl.getCurrentTaxon();
 		commonNameInfo = new VerticalPanel();
 		allCommonNames = new ArrayList<CommonName>();
@@ -141,12 +145,6 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 		validated.setSelectedIndex(0);
 
 	}
-
-	private void close() {
-		BaseEvent event = new BaseEvent(this);
-		event.setCancelled(false);
-		fireEvent(Events.Close, event);
-	}
 	
 	public String createNewCommonName() {
 
@@ -194,7 +192,7 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 
 	private void drawButtons(BorderLayoutData layoutData) {
 		bar = new ButtonBar();
-		bar.setAlignment(HorizontalAlignment.RIGHT);
+		bar.setAlignment(HorizontalAlignment.CENTER);
 		Button save = new Button("Save");
 		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -218,7 +216,7 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				close();
+				hide();
 			}
 
 		});
@@ -244,7 +242,7 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 				
 					@Override
 					public void onFailure(Throwable caught) {
-						WindowUtils.errorAlert("Unable to delete the synonym");
+						WindowUtils.errorAlert("Unable to delete the common name");
 				
 					}
 				} );
@@ -272,13 +270,13 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 
 		commonNameList = new ListBox(false);
 		commonNameList.addItem("", "");
-		commonNameList.addChangeListener(new ChangeListener() {
-			public void onChange(Widget arg0) {
+		commonNameList.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				String value = commonNameList.getValue(commonNameList.getSelectedIndex());
 				if (value.equalsIgnoreCase("")) {
 					refreshCommonName(null);
 				} else {
-					refreshCommonName((CommonName) allCommonNames.get(Integer.parseInt(value)));
+					refreshCommonName(allCommonNames.get(Integer.parseInt(value)));
 				}
 			}
 		});
@@ -455,7 +453,7 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 
 	private void saveAndClose() {
 		if (currentCommonName == null) {
-			close();
+			hide();
 			return;
 		}
 		
@@ -474,7 +472,7 @@ public class TaxonCommonNameEditor extends LayoutContainer {
 				bar.enable();
 				WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
 				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-				close();
+				hide();
 
 			}
 

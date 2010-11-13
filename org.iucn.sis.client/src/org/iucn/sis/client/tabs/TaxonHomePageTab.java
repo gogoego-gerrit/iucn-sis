@@ -18,10 +18,9 @@ import org.iucn.sis.client.panels.taxomatic.MergeUpInfrarank;
 import org.iucn.sis.client.panels.taxomatic.SplitNodePanel;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticAssessmentMover;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticDemotePanel;
-import org.iucn.sis.client.panels.taxomatic.TaxomaticPromotePanel;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils;
+import org.iucn.sis.client.panels.taxomatic.TaxomaticWindow;
 import org.iucn.sis.client.panels.taxomatic.TaxonBasicEditor;
-import org.iucn.sis.client.panels.taxomatic.TaxonChooser;
 import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
 import org.iucn.sis.client.panels.taxomatic.TaxonSynonymEditor;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -33,7 +32,6 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -203,8 +201,7 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setIconStyle("icon-note-edit");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					popupChooserPromote("Basic Taxon Information Editor", "icon-note-edit", new TaxonBasicEditor(
-							panelManager));
+					popupChooser(new TaxonBasicEditor(panelManager));
 				}
 			});
 			mainMenu.add(mItem);
@@ -214,7 +211,7 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setIconStyle("icon-note-edit");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					popupChooser("Synonym Editor", "icon-note-edit", new TaxonSynonymEditor());
+					popupChooser(new TaxonSynonymEditor());
 				}
 			});
 			mainMenu.add(mItem);
@@ -224,7 +221,7 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setIconStyle("icon-note-edit");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					popupChooser("Common Names Validator", "icon-note-edit", new TaxonCommonNameEditor(panelManager));
+					popupChooser(new TaxonCommonNameEditor(panelManager));
 				}
 			});
 			mainMenu.add(mItem);
@@ -236,9 +233,13 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
 					Taxon curNode = TaxonomyCache.impl.getCurrentTaxon();
+
 					if (curNode != null) {
-						if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, curNode) )
-							CreateNewTaxonPanel.impl.open(TaxonomyCache.impl.getCurrentTaxon());
+						if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, curNode)) {
+							CreateNewTaxonPanel panel = new CreateNewTaxonPanel(TaxonomyCache.impl.getCurrentTaxon());
+							panel.setHeading("Add New Child Taxon");
+							panel.show();
+						}
 						else
 							WindowUtils.errorAlert("Insufficient Permission", "Sorry. You do not have create permissions for this taxon.");
 					} else {
@@ -253,7 +254,7 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setIconStyle("icon-lateral-move");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					popupChooser("Perform Lateral Move", "icon-lateral-move", new LateralMove(panelManager));
+					popupChooser(new LateralMove(panelManager));
 				}
 			});
 			mainMenu.add(mItem);
@@ -263,11 +264,29 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setIconStyle("icon-promote");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					Taxon node = TaxonomyCache.impl.getCurrentTaxon();
-					if (node != null && node.getLevel() == TaxonLevel.INFRARANK)
-						popupChooserPromote("Promote Taxon", "icon-promote", new TaxomaticPromotePanel(panelManager));
-					else
-						WindowUtils.infoAlert("Not allowed", "You can only promote an infrarank.");
+					final Taxon currentNode = TaxonomyCache.impl.getCurrentTaxon();
+					if (currentNode == null)  //Not possible??
+						WindowUtils.errorAlert("Please first select a taxon");
+					else if (currentNode.getLevel() != TaxonLevel.INFRARANK)
+						WindowUtils.errorAlert("You may only promote infraranks.");
+					else {
+						String message = "<b>Instructions:</b> By promoting " + currentNode.getFullName() + ", "
+							+ currentNode.getFullName() + " will become a species " + " and will have the same parent that "
+							+ currentNode.getParentName() + " has.";
+						
+						WindowUtils.confirmAlert("Confirm", message, new WindowUtils.SimpleMessageBoxListener() {
+							public void onYes() {
+								TaxomaticUtils.impl.performPromotion(currentNode, new GenericCallback<String>() {
+									public void onFailure(Throwable arg0) {
+										//Error message handled via default callback
+									}
+									public void onSuccess(String arg0) {
+										WindowUtils.infoAlert("Success", currentNode.getName() + " has successfully been promoted.");
+									}
+								});
+							}
+						}, "OK", "Cancel");
+					}
 				}
 			});
 			mainMenu.add(mItem);
@@ -281,7 +300,7 @@ public class TaxonHomePageTab extends TabItem {
 					if (node == null || node.getLevel() != TaxonLevel.SPECIES)
 						WindowUtils.infoAlert("Not allowed", "You can only demote a species.");
 					else
-						popupChooser("Demote Taxon", "icon-demote", new TaxomaticDemotePanel(panelManager));
+						popupChooser(new TaxomaticDemotePanel(panelManager));
 				}
 			});
 			mainMenu.add(mItem);
@@ -293,8 +312,7 @@ public class TaxonHomePageTab extends TabItem {
 				public void componentSelected(MenuEvent ce) {
 					Taxon node = TaxonomyCache.impl.getCurrentTaxon();
 					if (node != null)
-						popupChooser("Perform Merge", "icon-merge", new MergePanel());
-
+						popupChooser(new MergePanel());
 				}
 			});
 			mainMenu.add(mItem);
@@ -312,13 +330,10 @@ public class TaxonHomePageTab extends TabItem {
 								+ "visit the species you wish to merge a subspecies into.");
 					} else {
 						TaxonomyCache.impl.getTaxonChildren(node.getId() + "", new GenericCallback<List<Taxon>>() {
-
 							public void onFailure(Throwable caught) {
-								WindowUtils.infoAlert("Not Allowed", "There was an internal error while trying to "
+								WindowUtils.infoAlert("Error", "There was an internal error while trying to "
 										+ "fetch the children of " + node.getFullName());
-
 							}
-
 							public void onSuccess(List<Taxon> list) {
 								boolean show = false;
 								for (Taxon childNode : list) {
@@ -328,14 +343,11 @@ public class TaxonHomePageTab extends TabItem {
 									}
 								}
 								if (show) {
-									popupChooser("Perform Merge Up Subspecies", "icon-merge-up", new MergeUpInfrarank());
+									popupChooser(new MergeUpInfrarank());
 								} else {
-									WindowUtils
-											.infoAlert(
-													"Not Allowed",
-													node.getFullName()
-															+ " does not have any "
-															+ "subspecies to promote.  You can only merge subspecies with their parent.");
+									WindowUtils.infoAlert("Not Allowed", node.getFullName()
+											+ " does not have any subspecies to promote.  " 
+											+ "You can only merge subspecies with their parent.");
 								}
 
 							}
@@ -354,7 +366,7 @@ public class TaxonHomePageTab extends TabItem {
 					// TODO:
 					//Taxon node = TaxonomyCache.impl.getCurrentTaxon();
 					// if( !node.isDeprecatedStatus() )
-					popupChooser("Peform Partition", "icon-split", new SplitNodePanel());
+					popupChooser(new SplitNodePanel());
 					// else
 					// WindowUtils.errorAlert("Error",
 					// "Taxon selected for merging is not a valid taxon" +
@@ -425,7 +437,6 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setIconStyle("icon-undo");
 			mItem.setText("Undo Taxomatic Operation");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-
 				@Override
 				public void componentSelected(MenuEvent ce) {
 					final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
@@ -442,95 +453,61 @@ public class TaxonHomePageTab extends TabItem {
 						public void onSuccess(String result) {
 							WindowUtils.confirmAlert("Undo Last Taxomatic Operation", doc.getText()
 									+ "  Are you sure you want to undo this operation?",
-									new WindowUtils.MessageBoxListener() {
-
-										@Override
-										public void onNo() {
-											// TODO Auto-generated method stub
-
+									new WindowUtils.SimpleMessageBoxListener() {
+								public void onYes() {
+									final NativeDocument postDoc = SimpleSISClient.getHttpBasicNativeDocument();
+									postDoc.post(UriBase.getInstance().getSISBase() +"/taxomatic/undo", "", new GenericCallback<String>() {
+										public void onFailure(Throwable caught) {
+											WindowUtils.errorAlert(
+												"Unable to undo the last operation.  " +
+												"Please undo the operation manually."
+											);
 										}
-
-										@Override
-										public void onYes() {
-											final NativeDocument postDoc = SimpleSISClient.getHttpBasicNativeDocument();
-											postDoc.post(UriBase.getInstance().getSISBase() +"/taxomatic/undo", "", new GenericCallback<String>() {
-
+										public void onSuccess(String result) {
+											Taxon currentNode = TaxonomyCache.impl.getCurrentTaxon();
+											TaxonomyCache.impl.clear();
+											TaxonomyCache.impl.fetchTaxon(currentNode.getId(), true,
+													new GenericCallback<Taxon>() {
 												public void onFailure(Throwable caught) {
-													WindowUtils
-															.errorAlert("Unable to undo the last operation.  Please undo the operation manually.");
-
+													WindowUtils	.infoAlert("Success",
+													"Successfully undid the last taxomatic operation, " +
+													"but was unable to refresh the current taxon.");
 												}
-
-												public void onSuccess(String result) {
-													Taxon currentNode = TaxonomyCache.impl.getCurrentTaxon();
-													TaxonomyCache.impl.clear();
-													TaxonomyCache.impl.fetchTaxon(currentNode.getId(), true,
-															new GenericCallback<Taxon>() {
-
-																public void onFailure(Throwable caught) {
-
-																	WindowUtils
-																			.infoAlert("Success",
-																					"Successfully undid the last taxomatic operation, but was unable to refresh the current taxon.");
-
-																}
-
-																public void onSuccess(Taxon result) {
-																	ClientUIContainer.bodyContainer.refreshBody();
-																	WindowUtils
-																			.infoAlert("Success",
-																					"Successfully undid the last taxomatic operation.");
-
-																}
-															});
-
+												public void onSuccess(Taxon result) {
+													ClientUIContainer.bodyContainer.refreshBody();
+													WindowUtils.infoAlert("Success",
+													"Successfully undid the last taxomatic operation.");
 												}
 											});
-
 										}
 									});
-
+								}
+							});
 						}
 					});
-
 				}
 			});
 		}
 		mainMenu.add(mItem);
 
 		mItem = new MenuItem();
-		mItem.setText("Move assessments");
+		mItem.setText("Move Assessments");
+		mItem.setIconStyle("icon-document-move");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-
-			@Override
 			public void componentSelected(MenuEvent ce) {
-				TaxomaticAssessmentMover mover = new TaxomaticAssessmentMover(TaxonomyCache.impl.getCurrentTaxon());
-				popupChooser("Move Assessments", "icon-document-move", mover);
+				popupChooser(new TaxomaticAssessmentMover(TaxonomyCache.impl.getCurrentTaxon()));
 			}
 		});
-		mItem.setIconStyle("icon-document-move");
+		
 
 		mainMenu.add(mItem);
 
 		return toolbar;
 	}
 
-	private void popupChooser(String title, String iconStyle, LayoutContainer chooser) {
-		final Window shell = WindowUtils.getWindow(true, false, title);
-		shell.setLayout(new FillLayout());
-		shell.add(chooser);
-		shell.show();
-		shell.setSize(TaxonChooser.PANEL_WIDTH + 30, TaxonChooser.PANEL_HEIGHT + 50);
-		shell.center();
-	}
-
-	private void popupChooserPromote(String title, String iconStyle, LayoutContainer chooser) {
-		final Window shell = WindowUtils.getWindow(false, false, title);
-		shell.setLayout(new FillLayout());
-		shell.add(chooser);
-		shell.show();
-		shell.setSize(500, 300);
-		shell.center();
+	private void popupChooser(TaxomaticWindow chooser) {
+		chooser.show();
+		chooser.center();
 	}
 
 	public void setAppropriateRights(Taxon node) {

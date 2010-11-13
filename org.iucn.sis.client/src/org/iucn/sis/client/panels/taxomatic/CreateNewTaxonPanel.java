@@ -14,12 +14,12 @@ import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.TaxonStatus;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Params;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
@@ -27,89 +27,62 @@ import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
-import com.google.gwt.user.client.ui.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class CreateNewTaxonPanel extends Window {
-	public static CreateNewTaxonPanel impl = new CreateNewTaxonPanel();
-
-	private TextBox name;
-	private TextBox taxonomicAuthority;
-	private ListBox rank;
-	private ListBox status;
-	private CheckBox hybrid;
-	private boolean refresh;
-
-	private Button save;
-	private Button cancel;
-
-	private Taxon parent;
-
-	private final String DATA_KEY = "dataKeyString";
+public class CreateNewTaxonPanel extends TaxomaticWindow {
 	
-	private CreateNewTaxonPanel() {
-		super();
+	private static final String DATA_KEY = "dataKeyString";
 
+	private final Taxon parentNode;
+	
+	private FormPanel form;
+	private TextField<String> name;
+	private TextField<String> taxonomicAuthority;
+	private ComboBox<ComboOption> rank;
+	private ComboBox<ComboOption> status;
+	private CheckBox hybrid;
+	
+	public CreateNewTaxonPanel(Taxon parent) {
+		super();
+		this.parentNode = parent;
+		
+		setSize(350, 250);
+		setHeading("Create New Taxon");
+		setIconStyle("icon-new-document");
 		setModal(true);
 
-		name = new TextBox();
-		taxonomicAuthority = new TextBox();
-		rank = new ListBox();
-		status = new ListBox();
-		hybrid = new CheckBox();
-		hybrid.setText(" Hybrid");
-
-		save = new Button("Save and Close");
-		save.setIconStyle("icon-save");
-		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
+		addButton(new Button("Save and Close", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				performSave();
 			}
-		});
+		}));
 
-		cancel = new Button("Cancel");
-		cancel.setIconStyle("icon-cancel");
-		cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
+		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				hide();
 			}
-		});
-
-		FlowLayout layout = new FlowLayout(0);
-		setLayout(layout);
-		add(wrap("Name: ", name));
-		add(wrap("Authority: ", taxonomicAuthority));
-		add(wrap("Rank: ", rank));
-		add(wrap("Status: ", status));
-		add(wrap("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;", hybrid));
-		add(wrap(save, cancel));
-
-		refresh = true;
+		}));
 	}
 
 	private void addToWorkingSet(final Taxon newNode) {
 		if (newNode.getLevel() >= TaxonLevel.SPECIES) {
 			WindowUtils.confirmAlert("Add To Working Set", "Would you like to add this taxon to a working set?",
-					new Listener<MessageBoxEvent>() {
-						public void handleEvent(MessageBoxEvent be) {
-							if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-								createWorkingSetSelector(newNode);
-							}
-						}
-					});
+					new WindowUtils.SimpleMessageBoxListener() {
+				public void onYes() {
+					createWorkingSetSelector(newNode);
+				}
+			});
 		}
 	}
 
@@ -177,133 +150,164 @@ public class CreateNewTaxonPanel extends Window {
 		s.show();
 		s.center();
 	}
+	
+	public void show() {
+		draw();
+		super.show();
+	}
 
-	public void open(Taxon parentNode) {
-		parent = parentNode;
-
-		name.setText("");
-		taxonomicAuthority.setText("");
-		rank.clear();
-
-		status.clear();
-		for (Entry<String, String> entry : TaxonStatus.displayableStatus.entrySet()) {
-			status.addItem(entry.getValue(), entry.getKey());
-		}
-
+	private void draw() {
+		name = FormBuilder.createTextField("name", null, "Name", true);
+		name.getMessages().setBlankText("Name must be specified.");
+		
+		taxonomicAuthority = FormBuilder.createTextField("authority", null, "Authority", false);
+		
+		ListStore<ComboOption> statusStore = new ListStore<ComboOption>();
+		for (Entry<String, String> entry : TaxonStatus.displayableStatus.entrySet())
+			statusStore.add(new ComboOption(entry.getValue(), entry.getKey()));
 		if (parentNode.getLevel() >= TaxonLevel.GENUS)
-			status.addItem("Undescribed", "U");
-		status.setSelectedIndex(0);
-
+			statusStore.add(new ComboOption("Undescribed", "U"));
+		status = new ComboBox<ComboOption>();
+		status.setTriggerAction(TriggerAction.ALL);
+		status.setFieldLabel("Status");
+		status.setAllowBlank(false);
+		status.setForceSelection(true);
+		status.setStore(statusStore);
+		status.setValue(statusStore.getAt(0));
+		
+		rank = new ComboBox<ComboOption>();
+		rank.setTriggerAction(TriggerAction.ALL);
+		rank.setFieldLabel("Rank");
+		rank.setAllowBlank(false);
+		rank.setForceSelection(true);
+		
+		hybrid = new CheckBox();
+		hybrid.setName("hybrid");
+		hybrid.setFieldLabel(" Hybrid");
+		hybrid.setValue(Boolean.FALSE);
+		
+		ListStore<ComboOption> rankStore = new ListStore<ComboOption>();
 		if (parentNode.getLevel() == TaxonLevel.SPECIES) {
-			rank.addItem("Subspecies", TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_SUBSPECIES);
+			rankStore.add(new ComboOption("Subspecies", TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_SUBSPECIES));
 			if (!parentNode.getFootprintAsString().contains("ANIMALIA"))
-				rank.addItem("Variety", TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_VARIETY);
-			rank.addItem("Subpopulation", "" + TaxonLevel.SUBPOPULATION);
+				rankStore.add(new ComboOption("Variety", TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_VARIETY));
+			rankStore.add(new ComboOption("Subpopulation", "" + TaxonLevel.SUBPOPULATION));
 			rank.setEnabled(true);
 			hybrid.setVisible(true);
 		} else {
-			if (parent.getLevel() == TaxonLevel.INFRARANK)
-				rank.addItem(Taxon.getDisplayableLevel(TaxonLevel.INFRARANK_SUBPOPULATION), ""
-						+ TaxonLevel.INFRARANK_SUBPOPULATION);
+			if (parentNode.getLevel() == TaxonLevel.INFRARANK)
+				rankStore.add(new ComboOption(Taxon.getDisplayableLevel(TaxonLevel.INFRARANK_SUBPOPULATION), ""
+						+ TaxonLevel.INFRARANK_SUBPOPULATION));
 			else
-				rank
-						.addItem(Taxon.getDisplayableLevel(parentNode.getLevel() + 1), ""
-								+ (parentNode.getLevel() + 1));
+				rankStore.add(new ComboOption(Taxon.getDisplayableLevel(parentNode.getLevel() + 1), ""
+								+ (parentNode.getLevel() + 1)));
 
 			rank.setEnabled(false);
 			hybrid.setVisible(false);
 		}
+		rank.setStore(rankStore);
+		rank.setValue(rankStore.getAt(0));
+		
+		form = new FormPanel();
+		form.setLayout(new FormLayout());
+		form.setHeaderVisible(false);
+		form.setBodyBorder(false);
+		form.setBorders(false);
+		form.add(name);
+		form.add(taxonomicAuthority);
+		form.add(rank);
+		form.add(status);
+		form.add(hybrid);
+		
 
-		show();
+		add(form);
 	}
 
 	private void performSave() {
-		String message = "";
-		int level = Integer.parseInt(rank.getValue(rank.getSelectedIndex()));
-
+		if (!form.isValid())
+			return;
+		
+		int level = rank.getValue().getValue();
 		Integer infraType = null;
 		if (level > TaxonLevel.INFRARANK_SUBPOPULATION) {
 			infraType = level % (TaxonLevel.INFRARANK * 10);
-			level = Integer.parseInt(rank.getValue(rank.getSelectedIndex()).substring(0, 1));
-
+			level = Integer.parseInt(rank.getValue().getValueString().substring(0, 1));
 		}
 
-		if (name.getText().equals(""))
-			message += "Name must be specified.<br />";
-		if (level >= TaxonLevel.SPECIES && taxonomicAuthority.getText().equals(""))
-			message += "A taxonomic authority must be specified.<br />";
+		if (level >= TaxonLevel.SPECIES && (taxonomicAuthority.getValue() == null || taxonomicAuthority.getValue().equals(""))) {
+			taxonomicAuthority.markInvalid("A taxonomic authority must be specified.");
+			return;
+		}		
 
-		if (!message.equals("")) {
-			WindowUtils.errorAlert(message);
-		} else {
-			WindowUtils.showLoadingAlert("Saving taxon...");
+		WindowUtils.showLoadingAlert("Saving taxon...");
 
-			String fullName = "";
+		String fullName = "";
+		
+		final Taxon newNode = Taxon.createNode(0, name.getValue(), level, hybrid.getValue()); 
+		newNode.setParent(parentNode);
+		newNode.setStatus(status.getValue().getValueString());
+		newNode.setTaxonomicAuthority(taxonomicAuthority.getValue());
+		if (infraType != null)
+			newNode.setInfratype(Infratype.getInfratype(infraType, newNode));
 
-			final Taxon newNode = Taxon.createNode(0, name.getText(), level, hybrid.getValue()); 
-			newNode.setParent(parent);
-			newNode.setStatus(status.getValue(status.getSelectedIndex()));
-			newNode.setTaxonomicAuthority(taxonomicAuthority.getText());
-			if( infraType != null )
-				newNode.setInfratype(Infratype.getInfratype(infraType, newNode));
+		String[] newFootprint = new String[parentNode.getFootprint().length + 1];
 
-			String[] newFootprint = new String[parent.getFootprint().length + 1];
+		for (int i = 0; i < newFootprint.length - 1; i++)
+			newFootprint[i] = parentNode.getFootprint()[i];
 
-			for (int i = 0; i < newFootprint.length - 1; i++)
-				newFootprint[i] = parent.getFootprint()[i];
+		newFootprint[newFootprint.length - 1] = parentNode.getName();
+		newNode.setFootprint(newFootprint);
+		fullName = newNode.generateFullName();
+		newNode.setFriendlyName(fullName);
 
-			newFootprint[newFootprint.length - 1] = parent.getName();
-			newNode.setFootprint(newFootprint);
-			fullName = newNode.generateFullName();
-			newNode.setFriendlyName(fullName);
-
-			TaxomaticUtils.impl.createNewTaxon(newNode, parent, new GenericCallback<Taxon>() {
-				public void onFailure(Throwable caught) {
-					WindowUtils.hideLoadingAlert();
-					if (caught instanceof TaxonomyException) {
-						WindowUtils.errorAlert(caught.getMessage());
-					}
-					else if (caught instanceof GWTResponseException && ((GWTResponseException)caught).getCode() == 423)
-						WindowUtils.errorAlert("Taxomatic In Use", "Sorry, but another " +
-								"taxomatic operation is currently running. Please try " +
-								"again later!");
-					else
-						WindowUtils.errorAlert("Failure!", "New node " + newNode.getFullName() + " failed to save."
-								+ " Either you have a bad connection to your server, or there "
-								+ "already exists a node with the same name.");
+		TaxomaticUtils.impl.createNewTaxon(newNode, parentNode, new GenericCallback<Taxon>() {
+			public void onFailure(Throwable caught) {
+				WindowUtils.hideLoadingAlert();
+				if (caught instanceof TaxonomyException) {
+					WindowUtils.errorAlert(caught.getMessage());
 				}
-
-				public void onSuccess(Taxon arg0) {
-					WindowUtils.hideLoadingAlert();
-					Info.display(new InfoConfig("Taxon Created", "New taxon {0} was created successfully!", new Params(
-							newNode.getFullName())));
-					TaxonomyCache.impl.evictPaths();
-					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(arg0.getId());
-					BaseEvent be = new BaseEvent(newNode);
-					be.setCancelled(false);
-					fireEvent(Events.StateChange, be);
-					hide();
-					addToWorkingSet(newNode);
-				}
-			});
+				else if (caught instanceof GWTResponseException && ((GWTResponseException)caught).getCode() == 423)
+					WindowUtils.errorAlert("Taxomatic In Use", "Sorry, but another " +
+							"taxomatic operation is currently running. Please try " +
+						"again later!");
+				else
+					WindowUtils.errorAlert("Failure!", "New node " + newNode.getFullName() + " failed to save."
+							+ " Either you have a bad connection to your server, or there "
+							+ "already exists a node with the same name.");
+			}
+			public void onSuccess(Taxon arg0) {
+				WindowUtils.hideLoadingAlert();
+				Info.display(new InfoConfig("Taxon Created", "New taxon {0} was created successfully!", new Params(
+						newNode.getFullName())));
+				TaxonomyCache.impl.evictPaths();
+				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(arg0.getId());
+				BaseEvent be = new BaseEvent(newNode);
+				be.setCancelled(false);
+				fireEvent(Events.StateChange, be);
+				hide();
+				addToWorkingSet(newNode);
+			}
+		});
+	}
+	
+	private static class ComboOption extends BaseModelData {
+		
+		private static final long serialVersionUID = 1L;
+		
+		public ComboOption(String text, String value) {
+			super();
+			set("text", text);
+			set("value", value);
 		}
+		
+		public String getValueString() {
+			return get("value");
+		}
+		
+		public int getValue() {
+			return Integer.parseInt(getValueString());
+		}
+		
 	}
-
-	public void setRefresh(boolean refresh) {
-		this.refresh = refresh;
-	}
-
-	private HorizontalPanel wrap(String label, Widget widget) {
-		return wrap(new HTML(label), widget);
-	}
-
-	private HorizontalPanel wrap(Widget one, Widget two) {
-		HorizontalPanel panel = new HorizontalPanel();
-		panel.setSpacing(3);
-		panel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-		panel.add(one);
-		panel.add(two);
-
-		return panel;
-	}
+	
 }

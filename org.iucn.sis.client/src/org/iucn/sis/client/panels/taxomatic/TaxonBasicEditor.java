@@ -8,11 +8,8 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -23,15 +20,15 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.solertium.lwxml.gwt.utils.ClientDocumentUtils;
 import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class TaxonBasicEditor extends LayoutContainer {
+public class TaxonBasicEditor extends TaxomaticWindow {
 	private final VerticalPanel editor;
 	private final PanelManager manager;
+	
 	private ButtonBar bar;
 	private Button close;
 	private Button save;
@@ -47,6 +44,10 @@ public class TaxonBasicEditor extends LayoutContainer {
 
 	public TaxonBasicEditor(PanelManager manager) {
 		super();
+		setHeading("Basic Taxon Information Editor");
+		setIconStyle("icon-note-edit");
+		setSize(500, 300);
+		
 		this.manager = manager;
 		node = TaxonomyCache.impl.getCurrentTaxon();
 		editor = new VerticalPanel();
@@ -59,8 +60,7 @@ public class TaxonBasicEditor extends LayoutContainer {
 	}
 
 	private void buildButtons() {
-		bar = new ButtonBar();
-		bar.setAlignment(HorizontalAlignment.RIGHT);
+		bar = getButtonBar();
 		save = new Button("Save");
 		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
@@ -84,7 +84,7 @@ public class TaxonBasicEditor extends LayoutContainer {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				close();
+				hide();
 			}
 
 		});
@@ -93,14 +93,7 @@ public class TaxonBasicEditor extends LayoutContainer {
 		bar.add(saveAndClose);
 	}
 
-	private void close() {
-		BaseEvent be = new BaseEvent(this);
-		be.setCancelled(false);
-		fireEvent(Events.Close, be);
-	}
-
 	private void draw() {
-		setLayout(new FillLayout());
 		addStyleName("gwt-background");
 		add(editor);
 		editor.setStyleName("gwt-background");

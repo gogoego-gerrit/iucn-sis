@@ -6,10 +6,7 @@ import java.util.HashMap;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.shared.api.models.Taxon;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -32,22 +29,17 @@ public class MergePanel extends TaxonChooser {
 
 	public MergePanel() {
 		super();
+		setHeading("Perform Merge");
+		setIconStyle("icon-merge");
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
 		level = currentNode.getLevel();
 		selectedNodes = new HashMap<String, Taxon>();
 		load();
 	}
 
-	protected void close() {
-		BaseEvent be = new BaseEvent(this);
-		be.setCancelled(false);
-		fireEvent(Events.Close, be);
-	}
-
 	@Override
-	public ButtonBar getButtonBar() {
+	public ButtonBar createButtonBar() {
 		ButtonBar bar = new ButtonBar();
-		bar.setAlignment(HorizontalAlignment.CENTER);
 
 		bar.add(new QuickButton("Merge Taxa", new SelectionListener<ButtonEvent>() {
 			@Override
@@ -94,7 +86,7 @@ public class MergePanel extends TaxonChooser {
 						WindowUtils.infoAlert("Successful Merge", "The taxon (taxa) "
 								+ nodeString.substring(0, nodeString.length() - 1)
 								+ " has (have) been merged into taxon " + currentNode.getFullName() + ".");
-						close();
+						onClose();
 					}
 				});
 			}

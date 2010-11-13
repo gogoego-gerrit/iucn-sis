@@ -4,9 +4,8 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Taxon;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.DataList;
@@ -28,7 +27,7 @@ import com.google.gwt.user.client.ui.HTML;
  * @author carl.scott
  * 
  */
-public abstract class TaxonChooser extends LayoutContainer {
+public abstract class TaxonChooser extends TaxomaticWindow {
 
 	public static final int HEADER_HEIGHT = 65;
 	public static final int PANEL_HEIGHT = 400;
@@ -48,7 +47,7 @@ public abstract class TaxonChooser extends LayoutContainer {
 		}
 	}
 
-	public abstract ButtonBar getButtonBar();
+	public abstract ButtonBar createButtonBar();
 
 	public abstract String getDescription();
 
@@ -71,12 +70,13 @@ public abstract class TaxonChooser extends LayoutContainer {
 	}
 
 	public LayoutContainer getRightSide() {
-		BorderLayout layout = new BorderLayout();
-
 		LayoutContainer container = new LayoutContainer();
-		container.setLayout(layout);
+		container.setLayout(new BorderLayout());
+		
+		final ButtonBar bar = createButtonBar();
+		bar.setAlignment(HorizontalAlignment.CENTER);
 
-		container.add(getButtonBar(), new BorderLayoutData(LayoutRegion.SOUTH, .1F));
+		container.add(bar, new BorderLayoutData(LayoutRegion.SOUTH, .1F));
 
 		selected = new DataList();
 		selected.setContextMenu(getListMenu());
@@ -95,16 +95,7 @@ public abstract class TaxonChooser extends LayoutContainer {
 	}
 
 	public void load() {
-
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
-
-		BorderLayout layout = new BorderLayout();
-		// layout.setMargin(5);
-		// layout.setSpacing(5);
-
-		LayoutContainer full = new LayoutContainer();
-		full.setLayout(layout);
-		full.setLayoutOnChange(true);
 
 		TaxonomyBrowserPanel tp = getTaxonomyBrowserPanel();
 
@@ -121,20 +112,20 @@ public abstract class TaxonChooser extends LayoutContainer {
 		left.setSize(size, PANEL_HEIGHT);
 		left.add(tp);
 
+		LayoutContainer full = new LayoutContainer();
+		full.setLayout(new BorderLayout());
 		full.add(new HTML("<b> Instructions:</b> " + getDescription()), new BorderLayoutData(LayoutRegion.NORTH,
 				HEADER_HEIGHT));
 		full.add(left, new BorderLayoutData(LayoutRegion.WEST, size));
 		full.add(getRightSide(), new BorderLayoutData(LayoutRegion.CENTER, size));
 
-		full.setSize(PANEL_WIDTH, PANEL_HEIGHT);
+		//full.setSize(PANEL_WIDTH, PANEL_HEIGHT);
 
 		add(full);
 	}
 
 	public void onClose() {
-		BaseEvent be = new BaseEvent(this);
-		be.setCancelled(false);
-		fireEvent(Events.Close, be);
+		hide();
 	}
 
 	public abstract void onSubmit();

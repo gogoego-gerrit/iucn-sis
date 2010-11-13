@@ -6,10 +6,7 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -26,6 +23,8 @@ public class TaxomaticDemotePanel extends TaxonChooser {
 
 	public TaxomaticDemotePanel(PanelManager manager) {
 		super();
+		setHeading("Demote Taxon");
+		setIconStyle("icon-demote");
 		this.manager = manager;
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
 		load();
@@ -53,15 +52,8 @@ public class TaxomaticDemotePanel extends TaxonChooser {
 		bar.add(promoteButton);
 	}
 
-	private void close() {
-		manager.taxonomicSummaryPanel.update(currentNode.getId());
-		BaseEvent be = new BaseEvent(this);
-		be.setCancelled(false);
-		fireEvent(Events.Close, be);
-	}
-
 	@Override
-	public ButtonBar getButtonBar() {
+	public ButtonBar createButtonBar() {
 		buildButtons();
 		return bar;
 	}
@@ -87,7 +79,7 @@ public class TaxomaticDemotePanel extends TaxonChooser {
 					for (Component button : bar.getItems())
 						button.setEnabled(true);
 
-					close();
+					hide();
 					WindowUtils.infoAlert("Success", currentNode.getName() + " has successfully been demoted.");
 					manager.taxonomicSummaryPanel.update(currentNode.getId());
 				}

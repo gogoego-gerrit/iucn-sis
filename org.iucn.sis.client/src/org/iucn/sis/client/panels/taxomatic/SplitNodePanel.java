@@ -23,26 +23,23 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class SplitNodePanel extends LayoutContainer {
+public class SplitNodePanel extends TaxomaticWindow {
 
 	private DataList children;
 	private HashMap<String, ArrayList<String>> parentToChildList;
@@ -50,10 +47,13 @@ public class SplitNodePanel extends LayoutContainer {
 
 	private static final int HEADER_HEIGHT = 65;
 
-	public static final int PANEL_HEIGHT = 410;
-	public static final int PANEL_WIDTH = 590;
+	public static final int PANEL_HEIGHT = TaxonChooser.PANEL_HEIGHT - 10;
+	public static final int PANEL_WIDTH = TaxonChooser.PANEL_WIDTH;
 
 	public SplitNodePanel() {
+		super();
+		setHeading("Peform Partition");
+		setIconStyle("icon-split");
 		parentToChildList = new HashMap<String, ArrayList<String>>();
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
 		load();
@@ -86,12 +86,11 @@ public class SplitNodePanel extends LayoutContainer {
 				WindowUtils.errorAlert("Error", "Could not fetch children, please try again later.");
 			}
 
-			public void onSuccess(List<Taxon > result) {
-				Iterator it = ((ArrayList) result).listIterator();
-				while (it.hasNext()) {
-					Taxon  next = (Taxon ) it.next();
-					DataListItem li = new DataListItem(next.getFullName());
-					li.setData("node", next);
+			public void onSuccess(List<Taxon> result) {
+				for (Taxon taxon : result) {
+					DataListItem li = new DataListItem(taxon.getFullName());
+					li.setData("nodeID", "" + taxon.getId());
+					li.setData("node", taxon);
 					children.add(li);
 				}
 			}
@@ -125,16 +124,19 @@ public class SplitNodePanel extends LayoutContainer {
 
 		final DataList moveList = new DataList();
 		final ListBox listBox = new ListBox();
-		listBox.addChangeListener(new ChangeListener() {
-			public void onChange(Widget sender) {
+		listBox.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				moveList.removeAll();
-				ArrayList list = parentToChildList.get(listBox.getValue(listBox.getSelectedIndex()));
+				ArrayList<String> list = parentToChildList.get(listBox.getValue(listBox.getSelectedIndex()));
 				if (list == null)
 					return;
-				Iterator iterator = list.listIterator();
+				Iterator<String> iterator = list.listIterator();
 				while (iterator.hasNext()) {
-					Taxon  cur = (Taxon ) iterator.next();
+					//FIXME: look at this, i just fix this and dont know if it's right. CS
+					String nodeID = iterator.next();
+					Taxon  cur = TaxonomyCache.impl.getTaxon(nodeID);
 					DataListItem li = new DataListItem(cur.getFullName());
+					li.setData("nodeID", nodeID);
 					li.setData("node", cur);
 					moveList.add(li);
 				}
@@ -149,10 +151,10 @@ public class SplitNodePanel extends LayoutContainer {
 			@Override
 			public void componentSelected(MenuEvent ce) {
 				DataListItem item = (DataListItem) ce.getSource();
-				ArrayList list = parentToChildList.get(listBox.getValue(listBox.getSelectedIndex()));
+				ArrayList<String> list = parentToChildList.get(listBox.getValue(listBox.getSelectedIndex()));
 				if (list != null)
-					list.remove(item.getData("node"));
-
+					list.remove(item.getData("nodeID"));
+				
 				moveList.remove(item);
 				children.add(item);
 				layout();
@@ -175,12 +177,14 @@ public class SplitNodePanel extends LayoutContainer {
 				List<DataListItem> sel = children.getSelectedItems();
 				if (sel == null)
 					return;
-				ArrayList list = parentToChildList.get(listBox.getValue(listBox.getSelectedIndex()));
+				ArrayList<String> list = parentToChildList.get(listBox.getValue(listBox.getSelectedIndex()));
 				for (DataListItem selected : sel) {
 					children.remove(selected);
-					if (!list.contains(selected.getData("node"))) {
-						list.add(selected.getData("node"));
+					String nodeID = selected.getData("nodeID");
+					if (!list.contains(nodeID)) {
+						list.add(nodeID);
 						DataListItem item = new DataListItem(selected.getText());
+						item.setData("nodeID", nodeID);
 						item.setData("node", selected.getData("node"));
 						moveList.add(item);
 					}
@@ -193,29 +197,28 @@ public class SplitNodePanel extends LayoutContainer {
 		bar.add(new Button("Create New Taxon", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				final Listener listener = new Listener() {
-					public void handleEvent(BaseEvent be) {
-						CreateNewTaxonPanel.impl.removeListener(Events.StateChange, this);
-						Taxon  newNode = (Taxon ) be.getSource();
-						parentToChildList.put(newNode.getId() + "", new ArrayList());
-						listBox.addItem(newNode.getFullName(), newNode.getId() + "");
-						listBox.setSelectedIndex(listBox.getItemCount() - 1);
-						listBox.setEnabled(true);
-						moveList.removeAll();
-						addChild.setEnabled(true);
-					}
-				};
 				TaxonomyCache.impl.fetchTaxon(currentNode.getParentId(), false, new GenericCallback<Taxon >() {
 					public void onFailure(Throwable caught) {
 						WindowUtils.errorAlert("Error", "Could not "
 								+ "find parent level to attach new taxonomic concept to.");
 					}
 
-					public void onSuccess(Taxon  result) {
-						CreateNewTaxonPanel.impl.setRefresh(false);
-						CreateNewTaxonPanel.impl.addListener(Events.StateChange, listener);
-						CreateNewTaxonPanel.impl.open(result);
+					public void onSuccess(Taxon result) {
 						complete.setEnabled(true);
+						
+						final CreateNewTaxonPanel panel = new CreateNewTaxonPanel(result);
+						panel.addListener(Events.StateChange, new Listener<BaseEvent>() {
+							public void handleEvent(BaseEvent be) {
+								Taxon  newNode = (Taxon) be.getSource();
+								parentToChildList.put(newNode.getId() + "", new ArrayList<String>());
+								listBox.addItem(newNode.getFullName(), newNode.getId() + "");
+								listBox.setSelectedIndex(listBox.getItemCount() - 1);
+								listBox.setEnabled(true);
+								moveList.removeAll();
+								addChild.setEnabled(true);
+							}
+						});
+						panel.show();
 					}
 				});
 			}
@@ -242,15 +245,11 @@ public class SplitNodePanel extends LayoutContainer {
 		full.add(getInstructions(), new BorderLayoutData(LayoutRegion.NORTH, HEADER_HEIGHT));
 		full.add(getLeftSide(), new BorderLayoutData(LayoutRegion.WEST, PANEL_WIDTH / 2 - 5));
 		full.add(getRightSide(), new BorderLayoutData(LayoutRegion.CENTER, PANEL_WIDTH / 2 - 5));
-		full.setSize(PANEL_WIDTH + 10, PANEL_HEIGHT + 5);
+		//full.setSize(PANEL_WIDTH + 10, PANEL_HEIGHT + 5);
 		add(full);
 	}
 
 	public void onClose() {
-
-		final BaseEvent be = new BaseEvent(this);
-		be.setCancelled(false);
-
 		String errorMessage = null;
 
 		if (currentNode.getLevel() < TaxonLevel.SPECIES) {
@@ -258,9 +257,7 @@ public class SplitNodePanel extends LayoutContainer {
 				errorMessage = "You must create at least one new taxon to split " + currentNode.getFullName()
 						+ " into.";
 			}
-
 		}
-
 		else {
 			if (parentToChildList.size() < 2) {
 				errorMessage = "You must create at least two new taxon to split " + currentNode.getFullName()
@@ -268,54 +265,32 @@ public class SplitNodePanel extends LayoutContainer {
 			} else if (children.getItems().size() != 0) {
 				errorMessage = "You must remove all children from " + currentNode.getFullName() + ".";
 			}
-
 		}
 
 		if (errorMessage == null) {
 			TaxomaticUtils.impl.performSplit(currentNode, parentToChildList, new GenericCallback<String>() {
-
 				public void onFailure(Throwable arg0) {
 					//Error message already displayed by default callback.
 				}
-
 				public void onSuccess(String arg0) {
-
+					hide();
 					if (currentNode.getLevel() < TaxonLevel.SPECIES) {
 						WindowUtils.confirmAlert("Saved", "The split was successful.  However, the status of "
 								+ currentNode.getFullName()
 								+ " was not modified.  Would you like to edit the status of "
-								+ currentNode.getFullName() + "?", new WindowUtils.MessageBoxListener() {
-
-							@Override
-							public void onNo() {
-								// TODO Auto-generated method stub
-
-							}
-
+								+ currentNode.getFullName() + "?", new WindowUtils.SimpleMessageBoxListener() {
 							@Override
 							public void onYes() {
-								final Window shell = WindowUtils.getWindow(false, false,
-										"Basic Taxon Information Editor");
 								TaxonBasicEditor editor = new TaxonBasicEditor(
 										ClientUIContainer.bodyContainer.tabManager.panelManager);
-								editor.addListener(Events.Close, new Listener() {
-									public void handleEvent(BaseEvent be) {
-										shell.hide();
-									}
-								});
-								shell.setLayout(new FillLayout());
-								shell.add(editor);
-								shell.show();
-								shell.setSize(500, 300);
-								shell.center();
+								editor.show();
+								editor.center();
 
 							}
 						}, "Yes, edit", "No, all finished");
 					} else {
 						WindowUtils.infoAlert("Saved", "Changes saved.");
 					}
-					fireEvent(Events.Close, be);
-
 				}
 
 			});

@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ChangeListener;
@@ -37,7 +38,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class TaxonSynonymEditor extends LayoutContainer {
+public class TaxonSynonymEditor extends TaxomaticWindow {
 
 	private final Taxon node;
 	private final VerticalPanel synonymInfo;
@@ -74,6 +75,11 @@ public class TaxonSynonymEditor extends LayoutContainer {
 	private int numberAdded;
 
 	public TaxonSynonymEditor() {
+		super();
+		setHeading("Synonym Editor");
+		setIconStyle("icon-note-edit");
+		
+		
 		this.node = TaxonomyCache.impl.getCurrentTaxon();
 		synonymInfo = new VerticalPanel();
 		allSynonyms = new ArrayList<Synonym>();
@@ -187,12 +193,6 @@ public class TaxonSynonymEditor extends LayoutContainer {
 		// authorTextBox.setText("");
 	}
 
-	private void close() {
-		BaseEvent event = new BaseEvent(this);
-		event.setCancelled(false);
-		fireEvent(Events.Close, event);
-	}
-
 	public String createNewSynonym() {
 
 		String name = null;
@@ -284,7 +284,7 @@ public class TaxonSynonymEditor extends LayoutContainer {
 
 	private void drawButtons(BorderLayoutData layoutData) {
 		bar = new ButtonBar();
-		bar.setAlignment(HorizontalAlignment.LEFT);
+		bar.setAlignment(HorizontalAlignment.CENTER);
 		bar.setWidth("100%");
 		Button save = new Button("Save");
 		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
