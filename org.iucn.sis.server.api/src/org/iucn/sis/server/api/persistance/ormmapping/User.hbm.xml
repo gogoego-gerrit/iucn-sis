@@ -13,6 +13,7 @@ License Type: Evaluation
 		<property name="username" column="username" unique="true" type="string" length="255" not-null="true" lazy="false"/>
 		<property name="firstName" column="first_name" type="string" length="255" not-null="true" lazy="false"/>
 		<property name="lastName" column="last_name" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="nickname" column="nickname" type="string" length="255" not-null="false" lazy="false"/>
 		<property name="password" column="password" type="string" length="255" not-null="false" lazy="false"/>
 		<property name="initials" column="initials" type="string" length="255" not-null="false" lazy="false"/>
 		<property name="affiliation" column="affiliation" type="string" length="255" not-null="false" lazy="false"/>

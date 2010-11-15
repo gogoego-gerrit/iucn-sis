@@ -47,6 +47,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.utils.RowData;
 import com.solertium.lwxml.shared.utils.RowParser;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
@@ -59,7 +60,7 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
-public abstract class BrowseUsersWindow extends Window {
+public class BrowseUsersWindow extends Window {
 
 	/**
 	 * Wrapper for the RowData results returned from a search query.
@@ -83,6 +84,8 @@ public abstract class BrowseUsersWindow extends Window {
 					user.setFirstName(rowData.getField(property));
 				else if (property.equalsIgnoreCase("lastname"))
 					user.setLastName(rowData.getField(property));
+				else if (property.equalsIgnoreCase("nickname"))
+					user.setNickname(rowData.getField("nickname"));
 				else if (property.equalsIgnoreCase("initials"))
 					user.setInitials(rowData.getField(property));
 				else if (property.equalsIgnoreCase("email"))
@@ -157,6 +160,8 @@ public abstract class BrowseUsersWindow extends Window {
 	private Html selectedUsersHeading = new Html("<b>Selected Users</b>");
 	private Html possibleUsersHeading = new Html("<b>Possible Users</b>");
 	private boolean drawn = false;
+	
+	private ComplexListener<List<ClientUser>> listener;
 
 	public BrowseUsersWindow() {
 		super();
@@ -220,6 +225,8 @@ public abstract class BrowseUsersWindow extends Window {
 			first.setName("firstname");
 			final TextBox last = new TextBox();
 			last.setName("lastname");
+			final TextBox nickname = new TextBox();
+			nickname.setName("nickname");
 			final TextBox affiliation = new TextBox();
 			affiliation.setName("affiliation");
 
@@ -248,10 +255,12 @@ public abstract class BrowseUsersWindow extends Window {
 			form.setWidget(0, 1, first);
 			form.setHTML(1, 0, "Last Name: ");
 			form.setWidget(1, 1, last);
-			form.setHTML(2, 0, "Affiliation: ");
-			form.setWidget(2, 1, affiliation);
-			form.setWidget(3, 0, bar);
-			form.getFlexCellFormatter().setColSpan(3, 0, 2);
+			form.setHTML(2, 0, "Nickname: ");
+			form.setWidget(2, 1, nickname);
+			form.setHTML(3, 0, "Affiliation: ");
+			form.setWidget(3, 1, affiliation);
+			form.setWidget(4, 0, bar);
+			form.getFlexCellFormatter().setColSpan(4, 0, 2);
 
 			final LayoutContainer container = new LayoutContainer();
 			final TableLayout clayout = new TableLayout(3);
@@ -381,7 +390,14 @@ public abstract class BrowseUsersWindow extends Window {
 	 * 
 	 * @param selectedUsers
 	 */
-	public abstract void onSelect(final ArrayList<ClientUser> selectedUsers);
+	public final void onSelect(final ArrayList<ClientUser> selectedUsers) {
+		if (listener != null)
+			listener.handleEvent(selectedUsers);
+	}
+	
+	public void setSelectionListener(ComplexListener<List<ClientUser>> listener) {
+		this.listener = listener;
+	}
 
 	public void refresh(List<ClientUser> selected) {
 		ListStore<SearchResults> store = new ListStore<SearchResults>();

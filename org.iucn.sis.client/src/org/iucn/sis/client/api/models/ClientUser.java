@@ -44,6 +44,7 @@ public class ClientUser extends User {
 		target.setProperty("state", target.getState() + "");
 		target.setProperty("firstName", target.getFirstName());
 		target.setProperty("lastName",target.getLastName());
+		target.setProperty("nickname", target.getNickname());
 		target.setProperty("initials", target.getInitials());
 		target.setProperty("affiliation", target.getAffiliation());
 		target.setProperty("sisUser", target.getSisUser().toString());

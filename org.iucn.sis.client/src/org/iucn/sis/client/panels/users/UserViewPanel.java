@@ -15,7 +15,6 @@ import org.iucn.sis.client.api.ui.users.panels.HasRefreshableContent;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -85,6 +84,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 	private TextField<String> usernameFilter;
 	private TextField<String> firstFilter;
 	private TextField<String> lastFilter;
+	private TextField<String> nicknameFilter;
 	private TextField<String> affiliationFilter;
 	private SimpleComboBox<String> activeAccountFilter;
 	private FormPanel filterPanel;
@@ -119,6 +119,8 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		firstFilter.setFieldLabel("First Name");
 		lastFilter = new TextField<String>();
 		lastFilter.setFieldLabel("Last Name");
+		nicknameFilter = new TextField<String>();
+		nicknameFilter.setFieldLabel("Nickname");
 		affiliationFilter = new TextField<String>();
 		affiliationFilter.setFieldLabel("Affiliation");
 		activeAccountFilter = new SimpleComboBox<String>();
@@ -144,6 +146,8 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 				if (filterOut(firstFilter.getValue(), (String) item.get("firstName")))
 					return true;
 				if (filterOut(lastFilter.getValue(), (String) item.get("lastName")))
+					return true;
+				if (filterOut(nicknameFilter.getValue(), (String) item.get("nickname")))
 					return true;
 				if (filterOut(affiliationFilter.getValue(), (String) item.get("affiliation")))
 					return true;
@@ -366,6 +370,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		filterPanel.add(usernameFilter);
 		filterPanel.add(firstFilter);
 		filterPanel.add(lastFilter);
+		filterPanel.add(nicknameFilter);
 		filterPanel.add(affiliationFilter);
 		filterPanel.add(activeAccountFilter);
 		final Button applyFilters = new Button("Apply Filters", new SelectionListener<ButtonEvent>() {
@@ -385,6 +390,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		usernameFilter.addKeyListener(enter);
 		firstFilter.addKeyListener(enter);
 		lastFilter.addKeyListener(enter);
+		nicknameFilter.addKeyListener(enter);
 		affiliationFilter.addKeyListener(enter);
 
 		filterPanel.getButtonBar().add(applyFilters);
@@ -394,6 +400,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 				usernameFilter.setValue("");
 				firstFilter.setValue("");
 				lastFilter.setValue("");
+				nicknameFilter.setValue("");
 				affiliationFilter.setValue("");
 				activeAccountFilter.setValue(activeAccountFilter.findModel(""));
 				loader.applyFilter("");
@@ -455,6 +462,19 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 			last.setEditor(new CellEditor(text));
 		}
 		configs.add(last);
+		
+		final ColumnConfig nickname = new ColumnConfig();
+		nickname.setId("nickname");
+		nickname.setWidth(100);
+		nickname.setHeader("Nickname");
+		{
+			final TextField<String> text = new TextField<String>();
+			text.setAllowBlank(false);
+			text.setAutoValidate(true);
+			text.setMaxLength(255);
+			nickname.setEditor(new CellEditor(text));
+		}
+		configs.add(nickname);
 
 		final ColumnConfig initials = new ColumnConfig();
 		initials.setId("initials");

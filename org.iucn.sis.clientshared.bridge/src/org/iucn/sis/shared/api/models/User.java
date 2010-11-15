@@ -43,6 +43,7 @@ public class User implements Serializable {
 		xml.append(XMLWritingUtils.writeCDATATag("username", username));
 		xml.append(XMLWritingUtils.writeCDATATag("firstName", firstName, true));
 		xml.append(XMLWritingUtils.writeCDATATag("lastName", lastName, true));
+		xml.append(XMLWritingUtils.writeCDATATag("nickname", nickname, true));
 		xml.append(XMLWritingUtils.writeCDATATag("initials", initials, true));
 		xml.append(XMLWritingUtils.writeCDATATag("affiliation", affiliation, true));
 		xml.append(XMLWritingUtils.writeCDATATag("sisUser", getSisUser() == null ? null : getSisUser()+"", true));
@@ -112,6 +113,8 @@ public class User implements Serializable {
 				user.setFirstName(value);
 			else if ("lastName".equals(name))
 				user.setLastName(value);
+			else if ("nickname".equals(name))
+				user.setNickname(value);
 			else if ("initials".equals(name))
 				user.setInitials(value);
 			else if ("sisUser".equals(name))
@@ -204,6 +207,8 @@ public class User implements Serializable {
 	
 	private String lastName;
 	
+	private String nickname;
+	
 	private String initials;
 	
 	private String affiliation;
@@ -259,6 +264,14 @@ public class User implements Serializable {
 	
 	public String getLastName() {
 		return nullIfStated(lastName);
+	}
+	
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+	
+	public String getNickname() {
+		return nullIfStated(nickname);
 	}
 	
 	public void setInitials(String value) {

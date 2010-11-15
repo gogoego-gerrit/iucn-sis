@@ -37,6 +37,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.utils.RowData;
 import com.solertium.lwxml.shared.utils.RowParser;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.api.XMLWritingUtils;
@@ -302,7 +303,7 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 		window.show();
 	}
 	
-	private static class UserNotificationWindow extends BrowseUsersWindow {
+	private static class UserNotificationWindow extends BrowseUsersWindow implements ComplexListener<List<ClientUser>> {
 		
 		private final Listener<GetUsersEvent> listener;
 		
@@ -315,7 +316,8 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 					"the Red List unit and they will determine who should " +
 					"get notified</span>", true);
 			setHeight(600);
-// setAlignment(HorizontalAlignment.CENTER);
+			
+			
 		}
 		
 		@Override
@@ -359,7 +361,8 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 			return button;
 		}
 		
-		public void onSelect(ArrayList<ClientUser> selectedUsers) {
+		@Override
+		public void handleEvent(List<ClientUser> selectedUsers) {
 			final GetUsersEvent event = new GetUsersEvent(this);
 			for (ClientUser user : selectedUsers) {
 				String mail = user.getEmail();

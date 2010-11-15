@@ -8,7 +8,6 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
-import org.iucn.sis.server.extensions.user.application.UserManagementApplication;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
@@ -25,7 +24,6 @@ import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.solertium.db.ExecutionContext;
 import com.solertium.db.query.QConstraint;
 import com.solertium.util.BaseDocumentUtils;
 
@@ -43,14 +41,12 @@ import com.solertium.util.BaseDocumentUtils;
 public class ProfileSearchResource extends Resource {
 
 	private final String[] searchable;
-	private final ExecutionContext ec;
 
 	public ProfileSearchResource(Context context, Request request, Response response) {
 		super(context, request, response);
 		setModifiable(false);
 
-		ec = UserManagementApplication.getFromContext(context).getExecutionContext();
-		searchable = new String[] { "firstName", "lastName", "affiliation", "userid" };
+		searchable = new String[] { "firstName", "lastName", "nickname", "affiliation", "userid" };
 
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
@@ -116,7 +112,6 @@ public class ProfileSearchResource extends Resource {
 						if (permString != null)
 							break;
 					}
-					Debug.println("Quick group for {0} is {1}, resulting in {2}", user.getUsername(), quickGroup, permString);
 					if (permString == null)
 						continue;
 					else

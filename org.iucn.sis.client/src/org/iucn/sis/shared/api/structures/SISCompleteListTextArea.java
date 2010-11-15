@@ -15,6 +15,7 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class SISCompleteListTextArea extends VerticalPanel {
@@ -43,15 +44,13 @@ public class SISCompleteListTextArea extends VerticalPanel {
 		textArea = new TextArea();
 		addButton = new Button("Add User");
 		selectedUsers = new ArrayList<ClientUser>();
-		browseUserWindow = new BrowseUsersWindow() {
-
-			@Override
-			public void onSelect(ArrayList<ClientUser> selectedUsers) {
+		browseUserWindow = new BrowseUsersWindow();
+		browseUserWindow.setSelectionListener(new ComplexListener<List<ClientUser>>() {
+			public void handleEvent(List<ClientUser> selectedUsers) {
 				SISCompleteListTextArea.this.selectedUsers = selectedUsers;
 				generateTextFromUsers();
 			}
-
-		};
+		});
 		highlightStyle = "redFont";
 
 		setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);

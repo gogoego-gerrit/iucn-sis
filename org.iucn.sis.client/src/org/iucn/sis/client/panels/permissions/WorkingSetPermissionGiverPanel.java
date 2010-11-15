@@ -48,6 +48,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.CheckboxMultiTriggerField;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -295,8 +296,8 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		permissionGrid.setSelectionModel(model);
 		permissionGrid.setAutoExpandColumn("permission");
 		permissionGrid.setBorders(true);
-		permissionGrid.addListener(Events.RowClick, new Listener<GridEvent>() {
-			public void handleEvent(GridEvent be) {
+		permissionGrid.addListener(Events.RowClick, new Listener<GridEvent<PermissionUserModel>>() {
+			public void handleEvent(GridEvent<PermissionUserModel> be) {
 				permissionGrid.getView().focusRow(be.getRowIndex());
 			}
 		});
@@ -332,9 +333,9 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 
 		Button addButton = new Button("Add User(s)", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				BrowseUsersWindow window = new BrowseUsersWindow() {
-					@Override
-					public void onSelect(ArrayList<ClientUser> selectedUsers) {
+				BrowseUsersWindow window = new BrowseUsersWindow();
+				window.setSelectionListener(new ComplexListener<List<ClientUser>>() {
+					public void handleEvent(List<ClientUser> selectedUsers) {
 						for (ClientUser user : selectedUsers) {
 							if (!containsModel(user.getId())) {
 								PermissionUserModel model = new PermissionUserModel(user, defaultPermission, false);
@@ -342,7 +343,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 							}
 						}
 					}
-				};
+				});
 				window.setSelectedUsersHeading("Users to Add");
 				window.setPossibleUsersHeading("Search results");
 				window.setInstructions("<b>Add User:</b> Choose a recent user or search for a user and then drag and drop the user to the \"Users to Add\" list.  </br></br>");
