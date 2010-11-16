@@ -22,6 +22,7 @@ import org.iucn.sis.server.restlets.taxa.TaxonRestlet;
 import org.iucn.sis.server.restlets.users.PermissionGroupsRestlet;
 import org.iucn.sis.server.restlets.users.ProfileRestlet;
 import org.iucn.sis.server.restlets.utils.FieldRestlet;
+import org.iucn.sis.server.restlets.utils.LanguageRestlet;
 import org.iucn.sis.server.restlets.utils.LockManagementRestlet;
 import org.iucn.sis.server.restlets.utils.RegionRestlet;
 import org.iucn.sis.server.restlets.utils.SearchRestlet;
@@ -91,6 +92,7 @@ public class ServerApplication extends SISApplication{
 		services.add(new AuthzRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new ProfileRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new SearchRestlet(SIS.get().getVfsroot(), app.getContext()));
+		services.add(new LanguageRestlet(SIS.get().getVfsroot(), app.getContext()));
 		
 		for (Iterator<ServiceRestlet> iter = services.iterator(); iter.hasNext();)
 			addServiceToRouter(iter.next());

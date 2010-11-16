@@ -1,13 +1,12 @@
 package org.iucn.sis.client.panels.taxomatic;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
+import org.iucn.sis.client.api.caches.LanguageCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.taxomatic.CommonNameDisplay.AddCommonNameClickListener;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.IsoLanguage;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -25,13 +24,12 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.NativeElement;
-import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.lwxml.shared.utils.ArrayUtils;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class EditCommonNamePanel extends Window {
+public class EditCommonNamePanel extends Window implements DrawsLazily {
 
 	protected final CommonName cn;
 	protected final Taxon taxon;
@@ -41,15 +39,37 @@ public class EditCommonNamePanel extends Window {
 	protected TextBox nameBox;
 	
 	public EditCommonNamePanel(CommonName cn, Taxon taxon, GenericCallback<CommonName> callback) {
-		
+		super();
 		this.cn = cn;
 		this.taxon = taxon;
 		this.callback = callback;
-		
-		draw();
 	}
 	
-	protected void draw() {
+	@Override
+	public void show() {
+		draw(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				open();
+			}
+		});
+	}
+	
+	private void open() {
+		super.show();
+	}
+	
+	@Override
+	public void draw(final DoneDrawingCallback callback) {
+		LanguageCache.impl.list(new ComplexListener<List<IsoLanguage>>() {
+			public void handleEvent(List<IsoLanguage> eventData) {
+				draw(eventData);
+				
+				callback.isDrawn();
+			}
+		});
+	}
+	
+	protected void draw(List<IsoLanguage> languages) {
 		VerticalPanel contentPanel = new VerticalPanel();
 		contentPanel.setSpacing(5);
 
@@ -70,7 +90,7 @@ public class EditCommonNamePanel extends Window {
 		nameBox = new TextBox();
 		isPrimary = new CheckBox();
 		if (taxon.getCommonNames().size() == 0) {
-			isPrimary.setChecked(true);
+			isPrimary.setValue(true);
 			isPrimary.setEnabled(false);
 		}
 		isPrimary.setText("Primary Name");
@@ -100,53 +120,29 @@ public class EditCommonNamePanel extends Window {
 
 		language = new ListBox();
 		language.addItem("", "");
-		final NativeDocument isoDoc = SimpleSISClient.getHttpBasicNativeDocument();
-		isoDoc.get(UriBase.getInstance().getSISBase() +"/raw/utils/ISO-639-2_utf-8.xml", new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				WindowUtils.errorAlert("Error Loading Languages", "Could not load "
-						+ "languages for the drop down. Please check your Internet "
-						+ "connectivity if you are running online, or check your local "
-						+ "server if you are running offline, then try again.");
-				hide();
-			}
 
-			public void onSuccess(String result) {
-				NativeNodeList isolist = isoDoc.getDocumentElement().getElementsByTagName("language");
-				Map<String, String> nameToCode = new HashMap<String, String>();
-				String[] names = new String[isolist.getLength()];
-				for (int i = 0; i < isolist.getLength(); i++) {
-					NativeElement cur = isolist.elementAt(i);
-					
-					String isoCode = cur.getElementByTagName("bibliographic").getText();
-					String lang = cur.getElementByTagName("english").getText();
-					names[i] = lang;
-					nameToCode.put(lang, isoCode);
-				}
-				ArrayUtils.quicksort(names);
-				
-				for (String name : names) {
-					language.addItem(name, nameToCode.get(name));
-				}
-				
-				if (cn != null) {
-					if (cn.getIso() == null) {
-						language.setSelectedIndex(0);
-					} else {
-						String iso = cn.getIsoCode();
-						for (int i = 0; i < language.getItemCount(); i++) {
-							if (language.getValue(i).equalsIgnoreCase(iso)) {
-								language.setSelectedIndex(i);
-								break;
-							}
-						}
+		Collections.sort(languages, new IsoLanguageComparator());		
+		for (IsoLanguage current : languages) {
+			language.addItem(current.getName(), current.getCode());
+		}
+		
+		if (cn != null) {
+			if (cn.getIso() == null) {
+				language.setSelectedIndex(0);
+			} else {
+				String iso = cn.getIsoCode();
+				for (int i = 0; i < language.getItemCount(); i++) {
+					if (language.getValue(i).equalsIgnoreCase(iso)) {
+						language.setSelectedIndex(i);
+						break;
 					}
 				}
 			}
-		});
+		}
 
 		if (cn != null) {
 			nameBox.setText(cn.getName());
-			isPrimary.setChecked(cn.isPrimary());
+			isPrimary.setValue(cn.isPrimary());
 		}
 
 		HTML nameLabel = new HTML("Name: ");
@@ -189,7 +185,7 @@ public class EditCommonNamePanel extends Window {
 		}
 		copy.setName(nameBox.getText());;
 		copy.setIso(new IsoLanguage(language.getItemText(language.getSelectedIndex()), language.getValue(language.getSelectedIndex())));
-		copy.setPrincipal(isPrimary.isChecked());
+		copy.setPrincipal(isPrimary.getValue());
 		
 		TaxonomyCache.impl.addOrEditCommonName(taxon, copy, new GenericCallback<String>() {
 			
@@ -212,5 +208,19 @@ public class EditCommonNamePanel extends Window {
 		});
 	}
 	
+	private static class IsoLanguageComparator implements Comparator<IsoLanguage> {
+		
+		private final PortableAlphanumericComparator comparator;
+		
+		public IsoLanguageComparator() {
+			comparator = new PortableAlphanumericComparator();
+		}
+		
+		@Override
+		public int compare(IsoLanguage o1, IsoLanguage o2) {
+			return comparator.compare(o1.getName(), o2.getName());
+		}
+		
+	}
 	
 }
