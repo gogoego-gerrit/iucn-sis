@@ -509,7 +509,25 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 
 			hp = new HorizontalPanel();
 			html = new HTML("Level: ");
-			level.setSelectedIndex(currentSynonym.getTaxon_level().getLevel());
+			int taxonLevel = currentSynonym.getTaxon_level().getLevel();
+			final int offset;
+			if (taxonLevel < TaxonLevel.INFRARANK)
+				offset = 0;
+			else if (TaxonLevel.INFRARANK == taxonLevel) {
+				String iName = currentSynonym.getInfraType();
+				if (Infratype.SUBSPECIES_NAME.equals(iName))
+					offset = 0;
+				else if (Infratype.VARIETY_NAME.equals(iName))
+					offset = 1;
+				else {
+					taxonLevel = -1;
+					offset = 0;
+				}
+			}
+			else
+				offset = 1;
+			
+			level.setSelectedIndex(taxonLevel + offset);
 			hp.setSpacing(5);
 			hp.add(html);
 			hp.add(level);

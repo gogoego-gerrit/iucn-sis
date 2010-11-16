@@ -9,8 +9,7 @@ import java.util.List;
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.ClientUIContainer;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
@@ -101,7 +100,7 @@ public class TaxonomyCache {
 				WindowUtils.hideLoadingAlert();
 				wayBack.onSuccess(Arrays.toString(taxa.toArray()));
 				} catch (Throwable e) {
-					e.printStackTrace();
+					Debug.println(e);
 				}
 			}
 		});
@@ -194,6 +193,11 @@ public class TaxonomyCache {
 	
 
 	public void fetchList(final List<Integer> ids, final GenericCallback<String> wayBack) {
+		if (ids == null || ids.isEmpty()) {
+			wayBack.onSuccess("OK");
+			return;
+		}
+		
 		final StringBuilder idsToFetch = new StringBuilder("<ids>");
 		int toFetch = 0;
 		boolean needToFetch = false;
@@ -625,27 +629,36 @@ public class TaxonomyCache {
 	}
 	
 	public void addOrEditSynonymn(final Taxon taxon, final Synonym synonym, final GenericCallback<String> callback) {
-		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.postAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/synonym", synonym.toXML(), new GenericCallback<String>() {
+		String uri = UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/synonym";
+		if (synonym.getId() != 0) {
+			uri += "/" + synonym.getId();
+		}
 		
-			@Override
-			public void onSuccess(String result) {
-				String newId = ndoc.getText();
-				if (synonym.getId() == 0) {
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		if (synonym.getId() != 0) {
+			ndoc.postAsText(uri, synonym.toXML(), new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					callback.onSuccess(result);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		}
+		else {
+			ndoc.putAsText(uri, synonym.toXML(), new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					String newId = ndoc.getText();
 					synonym.setId(Integer.parseInt(newId));
 					taxon.getSynonyms().add(synonym);
-				} 
-				
-				callback.onSuccess(newId);
-		
-			}
-		
-			@Override
-			public void onFailure(Throwable caught) {
-				callback.onFailure(caught);
-		
-			}
-		});
+					
+					callback.onSuccess(result);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);	
+				}
+			});
+		}
 		
 	}
 	
