@@ -1,15 +1,11 @@
 package org.iucn.sis.server.restlets.taxa;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.SynonymDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.TaxomaticException;
-import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.restlet.Context;
@@ -35,9 +31,62 @@ public class SynonymRestlet extends BaseServiceRestlet {
 		paths.add("/taxon/{taxon_id}/synonym");
 	}
 	
+	private Taxon getTaxon(Request request) throws ResourceException {
+		final Taxon taxon;
+		try {
+			taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf((String)request.getAttributes().get("taxon_id")));
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Node not found, or could not be loaded.", e);
+		}
+		if (taxon == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Taxon not found");
+		return taxon;
+	}
+	
+	private Integer getSynonymID(Request request) throws ResourceException {
+		try {
+			return Integer.valueOf((String)request.getAttributes().get("id"));
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
+	}
+	
+	@Override
+	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+		final Taxon taxon = getTaxon(request);
+		
+		final NativeDocument newDoc = new JavaNativeDocument();
+		try {
+			newDoc.parse(entity.getText());
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+		}
+		
+		Synonym synonym = Synonym.fromXML(newDoc.getDocumentElement(), taxon);
+		
+		try {
+			SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request));
+		} catch (TaxomaticException e) { 
+			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
+		}
+		
+		response.setStatus(Status.SUCCESS_OK);
+		response.setEntity(synonym.getId() + "", MediaType.TEXT_PLAIN);
+	}
+	
 	@Override
 	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
-		String taxonID = (String) request.getAttributes().get("taxon_id");
+		final Taxon taxon = getTaxon(request);
+		
+		final Synonym synonym;
+		try {
+			synonym = SynonymDAO.getSynonymByORMID(getSynonymID(request));
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Synonym not found, or could not be loaded.", e);			
+		}
+		
+		if (synonym == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Synonym not found.");
 		
 		NativeDocument newDoc = new JavaNativeDocument();
 		try {
@@ -46,51 +95,27 @@ public class SynonymRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
 		
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.parseInt(taxonID));
+		Synonym.fromXML(synonym, newDoc.getDocumentElement(), null);
 		
-		Synonym synonym = Synonym.fromXML(newDoc.getDocumentElement(), null);
-		Set<Notes> notes = new HashSet<Notes>();
-		for (Notes note : synonym.getNotes()) {
-			if (note.getId() != 0)
-				notes.add(SIS.get().getNoteIO().get(note.getId()));
+		synonym.setTaxon(taxon);
+		
+		try {
+			SISPersistentManager.instance().saveObject(synonym);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
-		synonym.setNotes(notes);
-		if (synonym.getId() == 0) {
-			taxon.getSynonyms().add(synonym);
-			synonym.setTaxon(taxon);
+					
+		taxon.toXML();
 			
-			try {
-				SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request));
-			} catch (TaxomaticException e) { 
-				throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
-			}
-			
-			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity(synonym.getId() + "", MediaType.TEXT_PLAIN);
-		} else {
-			synonym.setTaxon(taxon);
-			try {
-				SISPersistentManager.instance().mergeObject(synonym);
-			} catch (PersistentException e) {
-				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-			}
-				
-			//FIXME: shouldn't this added synonym get saved to the database?
-			taxon.getSynonyms().add(synonym);
-			
-			taxon.toXML();
-			
-			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity(synonym.getId() + "", MediaType.TEXT_PLAIN);
-		}
+		response.setStatus(Status.SUCCESS_OK);
+		response.setEntity(synonym.getId() + "", MediaType.TEXT_PLAIN);
+		
 	}
 	
 	@Override
 	public void handleDelete(Request request, Response response) throws ResourceException {
-		Integer taxonID = Integer.parseInt((String)request.getAttributes().get("taxon_id"));
-		Integer id = Integer.parseInt((String)request.getAttributes().get("id"));
-		
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(taxonID);
+		Integer id = getSynonymID(request);
+		Taxon taxon = getTaxon(request);
 		Synonym toDelete = null;
 		for (Synonym syn : taxon.getSynonyms()) {
 			if (syn.getId() == id) {

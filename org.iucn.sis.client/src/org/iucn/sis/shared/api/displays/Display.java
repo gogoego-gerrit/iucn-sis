@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.displays;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,7 +12,8 @@ import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.client.api.caches.NotesCache;
 import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.client.api.container.SISClientBase;
-import org.iucn.sis.client.panels.notes.NotesViewer;
+import org.iucn.sis.client.panels.notes.NoteAPI;
+import org.iucn.sis.client.panels.notes.NotesWindow;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DefinitionPanel;
@@ -47,7 +49,7 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.util.events.SimpleListener;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 /**
@@ -448,15 +450,8 @@ public abstract class Display implements Referenceable {
 		final GenericCallback<Object> callback = new GenericCallback<Object>() {
 			public void onSuccess(Object result) {
 				Debug.println("Field saved, now it has an ID of {0}", field.getId());
-				NotesViewer.open(field, new SimpleListener() {
-					public void handleEvent() {
-						List<Notes> list = NotesCache.impl.getNotesForCurrentAssessment(field);
-						if (list == null || list.isEmpty())
-							notesIcon.setUrl("images/icon-note-grey.png");
-						else
-							notesIcon.setUrl("images/icon-note.png");
-					}
-				});
+				NotesWindow window = new NotesWindow(createNoteAPI());
+				window.show();
 			}
 			public void onFailure(Throwable caught) {
 				//methinks this is already alerted elsewhere...
@@ -467,6 +462,47 @@ public abstract class Display implements Referenceable {
 			callback.onSuccess(null);
 		else
 			assignIDToField(callback);
+	}
+	
+	private NoteAPI createNoteAPI() {
+		return new NoteAPI() {
+			@Override
+			public void addNote(Notes note, final GenericCallback<Object> callback) {
+				NotesCache.impl.addNote(field, note, AssessmentCache.impl.getCurrentAssessment(),
+						new GenericCallback<String>() {
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+					public void onSuccess(String result) {
+						callback.onSuccess(result);
+					}
+				});
+			}
+			
+			public void deleteNote(Notes note, final GenericCallback<Object> callback) {
+				NotesCache.impl.deleteNote(field, note, AssessmentCache.impl.getCurrentAssessment(),
+						new GenericCallback<String>() {
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+					public void onSuccess(String result) {
+						callback.onSuccess(result);
+					};
+				});
+			}
+			
+			public void loadNotes(ComplexListener<Collection<Notes>> listener) {
+				listener.handleEvent(NotesCache.impl.getNotesForCurrentAssessment(field));
+			}
+			
+			public void onClose() {
+				List<Notes> list = NotesCache.impl.getNotesForCurrentAssessment(field);
+				if (list == null || list.isEmpty())
+					notesIcon.setUrl("images/icon-note-grey.png");
+				else
+					notesIcon.setUrl("images/icon-note.png");
+			}
+		};
 	}
 
 	private void rebuildIconPanel() {

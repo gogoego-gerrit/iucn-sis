@@ -42,18 +42,10 @@ public class NotesRestlet extends BaseServiceRestlet {
 		if (type.equalsIgnoreCase("note")) {
 			Notes note = SIS.get().getNoteIO().get(id);
 			if (note != null) {
-				if (note.getField() != null) {
-					note.getField().getNotes().remove(note);
-					try {
-						FieldDAO.save(note.getField());
-					} catch (PersistentException e) {
-						throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-					}
-				} else if (note.getTaxon() != null) {
-					note.getTaxon().getNotes().remove(note);
-				}
-				SIS.get().getNoteIO().delete(note);
-				response.setStatus(Status.SUCCESS_OK);
+				if (SIS.get().getNoteIO().delete(note))
+					response.setStatus(Status.SUCCESS_OK);
+				else
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 			} else
 				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No " + type + " found for " + id);
 			

@@ -13,10 +13,14 @@ package org.iucn.sis.shared.api.models;
  * License Type: Evaluation
  */
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
 public class Synonym implements Serializable {
@@ -63,36 +67,62 @@ public class Synonym implements Serializable {
 
 	public static Synonym fromXML(NativeElement synTag, Taxon taxon) {
 		Synonym s = new Synonym();
+		fromXML(s, synTag, taxon);
+		return s;
+	}
+	
+	public static void fromXML(Synonym s, NativeElement synTag, Taxon taxon) {
 		s.setId(Integer.valueOf(synTag.getAttribute("id")));
 		s.setStatus(synTag.getAttribute("status"));
-
-		s.setNotes(new HashSet<Notes>());
-		NativeNodeList notes = synTag.getElementsByTagName("notes");
-		for (int i = 0; i < notes.getLength(); i++)
-			s.getNotes().add(Notes.fromXML(notes.elementAt(i)));
-
-		s.setName(synTag.getElementByTagName("name").getTextContent());
-		s.setSpeciesName(synTag.getElementByTagName("speciesName").getTextContent());
-		s.setInfraName(synTag.getElementByTagName("infrarankName").getTextContent());
-		s.setStockName(synTag.getElementByTagName("stockName").getTextContent());
-		s.setAuthor(synTag.getElementByTagName("author").getTextContent());
-		s.setSpeciesAuthor(synTag.getElementByTagName("speciesAuthor").getTextContent());
-		s.setInfrarankAuthor(synTag.getElementByTagName("infrarankAuthor").getTextContent());
-		s.setFriendlyName(synTag.getElementByTagName("friendlyName").getTextContent());
 		
-		String synLevel = synTag.getElementsByTagName("level").getLength() == 1 ? 
-				synTag.getElementsByTagName("level").elementAt(0).getTextContent() : "";
-
-		if (!(synLevel == null || !synLevel.matches("\\d+")))
-			s.setTaxon_level(TaxonLevel.getTaxonLevel(Integer.parseInt(synLevel)));
-		NativeNodeList list = synTag.getElementsByTagName(Infratype.ROOT_NAME);
-		if (list.getLength() > 0)
-			s.setInfraType(Infratype.fromXML(list.elementAt(0), null).getName());
+		final Set<Notes> newNotes = new HashSet<Notes>();
+		
+		final NativeNodeList nodes = synTag.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			final NativeNode node = nodes.item(i);
+			String name = node.getNodeName();
+			if ("name".equals(name))
+				s.setName(node.getTextContent());
+			else if("speciesName".equals(name))
+				s.setSpeciesName(node.getTextContent());
+			else if ("infrarankName".equals(name))
+				s.setInfraName(node.getTextContent());
+			else if ("notes".equals(name))
+				newNotes.add(Notes.fromXML((NativeElement)node));
+			else if ("stockName".equals(name))
+				s.setStockName(node.getTextContent());
+			else if ("author".equals(name))
+				s.setAuthor(node.getTextContent());
+			else if ("speciesAuthor".equals(name))
+				s.setSpeciesAuthor(node.getTextContent());
+			else if ("infrarankAuthor".equals(name))
+				s.setInfrarankAuthor(node.getTextContent());
+			else if ("friendlyName".equals(name))
+				s.setFriendlyName(node.getTextContent());
+			else if ("level".equals(name)) {
+				String synLevel = node.getTextContent();
+				if (!(synLevel == null || !synLevel.matches("\\d+")))
+					s.setTaxon_level(TaxonLevel.getTaxonLevel(Integer.parseInt(synLevel)));
+			}
+			else if (Infratype.ROOT_NAME.equals(name)) {
+				s.setInfraType(Infratype.fromXML((NativeElement)node, null).getName());
+			}
+		}
+		
+		if (s.getNotes().isEmpty())
+			s.getNotes().addAll(newNotes);
+		else {
+			final List<Notes> toRemove = new ArrayList<Notes>();
+			for (Notes note : s.getNotes())
+				if (!newNotes.contains(note))
+					toRemove.add(note);
+			
+			for (Notes note : toRemove)
+				s.getNotes().remove(note);
+		}
 		if (taxon != null)
 			taxon.getSynonyms().add(s);
 		s.setTaxon(taxon);
-
-		return s;
 	}
 
 	public String toXML() {
@@ -207,6 +237,7 @@ public class Synonym implements Serializable {
 
 	public Synonym() {
 		this.generationID = new Date().getTime();
+		this.notes = new HashSet<Notes>();
 	}
 
 	@Override

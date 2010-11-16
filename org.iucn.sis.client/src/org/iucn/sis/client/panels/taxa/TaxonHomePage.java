@@ -1,32 +1,25 @@
 package org.iucn.sis.client.panels.taxa;
 
+import java.util.Collection;
+
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
+import org.iucn.sis.client.panels.notes.NoteAPI;
+import org.iucn.sis.client.panels.notes.NotesWindow;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BoxComponentEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.TextArea;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.events.ComplexListener;
@@ -50,104 +43,9 @@ public class TaxonHomePage extends LayoutContainer {
 	}
 
 	public void buildNotePopup() {
-		final Window s = WindowUtils.getWindow(false, false, "Notes for " + taxon.getFullName());
-		final LayoutContainer container = s;
-		container.setLayoutOnChange(true);
-		final VerticalPanel panelAdd = new VerticalPanel();
-		panelAdd.setSpacing(3);
-		panelAdd.add(new HTML("Add Note: "));
-
-		final TextArea area = new TextArea();
-		area.setSize("400", "75");
-		panelAdd.add(area);
-
-		Button save = new Button("Add Note");
-		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				if (area.getText().trim().equalsIgnoreCase("")) {
-					WindowUtils.errorAlert("Must enter note body.");
-
-				} else {
-					final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-					String url = UriBase.getInstance().getNotesBase() + "/notes/taxon/"+ taxon.getId();
-					
-					doc.post(url, area.getText().trim(), new GenericCallback<String>() {
-						public void onFailure(Throwable caught) {
-							WindowUtils.errorAlert("Unable to create note.");							
-						};
-
-						public void onSuccess(String result) {
-							Notes note = Notes.fromXML(doc.getDocumentElement());
-							taxon.getNotes().add(note);
-						};
-					});
-
-					s.hide();
-				}
-			}
-		});
-		Button close = new Button("Close");
-		close.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				s.hide();
-			}
-		});
-
-		panelAdd.add(save);
-		panelAdd.add(close);
-		
-		if (taxon == null || taxon.getNotes().isEmpty()) {
-			container.add(new HTML("<div style='padding-top:10px';background-color:grey><b>There are no notes for this taxon.</b></div>"));
-			container.add(panelAdd);
-			s.setSize(500, 400);
-			s.show();
-			s.center();
-		} else {
-			
-			final VerticalPanel eBar = new VerticalPanel();
-			eBar.setSize("400", "200");
-
-			
-			
-			for (final Notes note : TaxonomyCache.impl.getCurrentTaxon().getNotes()) {
-				final HorizontalPanel a = new HorizontalPanel();
-				Image deleteNote = new Image("images/icon-note-delete.png");
-				deleteNote.setTitle("Delete Note");
-				deleteNote.addClickHandler(new ClickHandler() {
-					
-					public void onClick(ClickEvent event) {
-						NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-						String url = UriBase.getInstance().getNotesBase() + "/notes/note/" + note.getId();
-
-						doc.post(url + "?option=remove", note.toXML(), new GenericCallback<String>() {
-							public void onFailure(Throwable caught) {
-								WindowUtils.errorAlert("Unable to delete note.");
-							};
-
-							public void onSuccess(String result) {
-								taxon.getNotes().remove(note);
-								eBar.remove(a);
-							};
-						});
-
-					}
-				});
-				
-				a.setWidth("100%");
-				a.add(deleteNote);
-				a.add(new HTML("<b>" + note.getEdit().getUser().getDisplayableName() + " ["
-						+ FormattedDate.impl.getDate(note.getEdit().getCreatedDate()) + "]</b>  --"
-						+ note.getValue()));// );
-				eBar.add(a);		
-			}
-			
-			container.add(eBar);
-			container.add(panelAdd);
-			s.setSize(500, 400);
-			s.show();
-			s.center();
-		}
+		final NotesWindow window = new NotesWindow(new TaxonNoteAPI(taxon));
+		window.setHeading("Notes for " + taxon.getFullName());
+		window.show();	
 	}
 
 	public void buildReferencePopup() {
@@ -223,5 +121,60 @@ public class TaxonHomePage extends LayoutContainer {
 				}
 			});
 		}
+	}
+	
+	private static class TaxonNoteAPI implements NoteAPI {
+		
+		private final Taxon taxon;
+		
+		public TaxonNoteAPI(Taxon taxon) {
+			this.taxon = taxon;
+		}
+		
+		@Override
+		public void addNote(final Notes note, final GenericCallback<Object> callback) {
+			final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+			String url = UriBase.getInstance().getNotesBase() + "/notes/taxon/"+ taxon.getId();
+			
+			doc.post(url, note.toXML(), new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);							
+				};
+
+				public void onSuccess(String result) {
+					Notes note = Notes.fromXML(doc.getDocumentElement());
+					taxon.getNotes().add(note);
+					callback.onSuccess(result);
+				};
+			});
+		}
+		
+		@Override
+		public void deleteNote(final Notes note, final GenericCallback<Object> callback) {
+			NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+			String url = UriBase.getInstance().getNotesBase() + "/notes/note/" + note.getId();
+
+			doc.delete(url, new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				};
+
+				public void onSuccess(String result) {
+					taxon.getNotes().remove(note);
+					callback.onSuccess(result);
+				};
+			});
+		}
+		
+		@Override
+		public void loadNotes(ComplexListener<Collection<Notes>> listener) {
+			listener.handleEvent(taxon.getNotes());
+		}
+		
+		@Override
+		public void onClose() {
+			//Nothing to do
+		}
+		
 	}
 }

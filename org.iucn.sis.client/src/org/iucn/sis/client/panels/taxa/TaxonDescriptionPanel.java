@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.taxa;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -20,6 +21,8 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
+import org.iucn.sis.client.panels.notes.NoteAPI;
+import org.iucn.sis.client.panels.notes.NotesWindow;
 import org.iucn.sis.client.panels.taxomatic.CommonNameToolPanel;
 import org.iucn.sis.client.panels.taxomatic.EditCommonNamePanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -36,7 +39,6 @@ import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -79,7 +81,6 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -555,56 +556,8 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 				notesImage.setTitle("Add/Remove Notes");
 				notesImage.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
-						final Window container = WindowUtils.getWindow(false, false, "Notes for Synonym "
-								+ curSyn.getName());
-						container.setLayout(new FillLayout(Orientation.VERTICAL));
-						container.setLayoutOnChange(true);
-
-						final TextArea area = new TextArea();
-						Set<Notes> notesSet = curSyn.getNotes();
-						String noteValue = "";
-						for (Notes note : notesSet)
-							noteValue += note.getValue();
-						area.setText(noteValue);
-						area.setSize("400", "75");
-						container.add(area);
-						
-
-						final Button cancel = new Button("Cancel", new SelectionListener<ButtonEvent>() {
-							public void componentSelected(ButtonEvent ce) {
-								container.hide();
-							}
-						});
-						
-						final Button save = new Button("Save", new SelectionListener<ButtonEvent>() {
-							public void componentSelected(ButtonEvent ce) {
-								Notes newNote = new Notes();
-								newNote.setValue(area.getText());
-								newNote.setSynonym(curSyn);
-								curSyn.getNotes().add(newNote);
-								if (!curSyn.getNotes().equals(""))
-									notesImage.setUrl("images/icon-note.png");
-								else
-									notesImage.setUrl("images/icon-note-grey.png");
-								container.hide();
-								TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
-									public void onFailure(Throwable caught) {
-
-									};
-
-									public void onSuccess(String result) {
-
-									};
-								});
-							}
-						});
-						container.addButton(save);
-						container.addButton(cancel);
-						container.setButtonAlign(HorizontalAlignment.CENTER);
-
-						container.setSize(500, 400);
-						container.show();
-						container.center();
+						final NotesWindow window = new NotesWindow(new SynonymNoteAPI(taxon, curSyn));
+						window.show();
 					}
 				});
 				hp.add(notesImage);
@@ -969,5 +922,59 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 			}
 		});
 	}
+	
+	private static class SynonymNoteAPI implements NoteAPI {
+		
+		private final Synonym synonym;
+		private final Taxon taxon;
+		
+		public SynonymNoteAPI(Taxon taxon, Synonym synonym) {
+			this.synonym = synonym;
+			this.taxon = taxon;
+		}
+
+		@Override
+		public void addNote(Notes note, final GenericCallback<Object> callback) {
+			note.setSynonym(synonym);
+			synonym.getNotes().add(note);
+			
+			TaxonomyCache.impl.addOrEditSynonymn(taxon, synonym, new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+
+				public void onSuccess(String result) {
+					callback.onSuccess(result);
+				}
+			});
+		}
+		
+		@Override
+		public void deleteNote(Notes note, final GenericCallback<Object> callback) {
+			synonym.getNotes().remove(note);
+			
+			TaxonomyCache.impl.deleteSynonymn(taxon, synonym, new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+
+				public void onSuccess(String result) {
+					callback.onSuccess(result);
+				}
+			});
+		}
+		
+		@Override
+		public void loadNotes(ComplexListener<Collection<Notes>> listener) {
+			listener.handleEvent(synonym.getNotes());
+		}
+		
+		@Override
+		public void onClose() {
+			ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
+		}
+		
+	}
+	
 	
 }
