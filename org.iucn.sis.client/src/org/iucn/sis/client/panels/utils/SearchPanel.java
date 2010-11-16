@@ -57,6 +57,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class SearchPanel extends LayoutContainer {
 	
@@ -266,8 +267,8 @@ public class SearchPanel extends LayoutContainer {
 			}
 		});
 	}
-
-	protected void buildTable() {
+	
+	protected TableColumnModel getColumnModel() {
 		TableColumn[] columns = new TableColumn[7];
 
 		columns[0] = new TableColumn("Scientific Name", .27f);
@@ -301,8 +302,42 @@ public class SearchPanel extends LayoutContainer {
 		columns[6].setMaxWidth(100);
 		columns[6].setAlignment(HorizontalAlignment.RIGHT);
 
-		TableColumnModel cm = new TableColumnModel(columns);
-		table.setColumnModel(cm);
+		return new TableColumnModel(columns);
+	}
+	
+	protected TableItem buildTableItem(Taxon taxon, Object[] row) {
+		Set<Assessment> assessmentList = AssessmentCache.impl.getPublishedAssessmentsForTaxon(taxon.getId());
+		
+		row[0] = taxon.getFullName();
+		if (taxon.getCommonNames().size() > 0)
+			row[1] = (new ArrayList<CommonName>(taxon.getCommonNames()).get(0)).getName().toLowerCase();
+		else
+			row[1] = "";
+		row[2] = Taxon.getDisplayableLevel(taxon.getLevel());
+		row[4] = String.valueOf(taxon.getId());
+		
+		if (!assessmentList.isEmpty()) {
+			Assessment aData = assessmentList.iterator().next();
+			row[3] = AssessmentFormatter.getProperCategoryAbbreviation(aData);
+		} else
+			row[3] = "N/A";
+										
+		if (taxon.getFootprint().length >= 5) {
+			row[5] = taxon.getFootprint()[4];
+		}
+		else
+			row[5] = "N/A";
+		if (taxon.getFootprint().length >= 6) {
+			row[6] = taxon.getFootprint()[5];
+		}
+		else
+			row[5] = "N/A";
+		
+		return new TableItem(row); 
+	}
+
+	protected void buildTable() {
+		table.setColumnModel(getColumnModel());
 
 		expandableResults.setLayout(new BorderLayout());
 		expandableResults.add(table, new BorderLayoutData(LayoutRegion.CENTER));
@@ -323,7 +358,7 @@ public class SearchPanel extends LayoutContainer {
 					next.setEnabled(false);
 				if (start > 0)
 					prev.setEnabled(true);
-				fillTable();
+				fillTable(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 			}
 		});
 
@@ -340,8 +375,7 @@ public class SearchPanel extends LayoutContainer {
 					prev.setEnabled(false);
 				if (start + NUMBER_OF_RESULTS < currentResults.getLength())
 					next.setEnabled(true);
-				fillTable();
-
+				fillTable(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 			}
 		});
 
@@ -351,7 +385,7 @@ public class SearchPanel extends LayoutContainer {
 		return toolbar;
 	}
 
-	public void fillTable() {
+	public void fillTable(final DrawsLazily.DoneDrawingCallback callback) {
 		table.removeAll();
 		final List<Integer> fetchList = new ArrayList<Integer>();
 		for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++)
@@ -362,61 +396,35 @@ public class SearchPanel extends LayoutContainer {
 				public void onFailure(Throwable arg0) {
 					WindowUtils.hideLoadingAlert();
 					WindowUtils.errorAlert("Error loading results. Inconsistency in index table.");
-				}
-
-				public void onSuccess(String arg0) {
 					
+					callback.isDrawn();
+				}
+				public void onSuccess(String arg0) {	
 					AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, fetchList),
 							new GenericCallback<String>() {
 						public void onFailure(Throwable caught) {
-							drawResults();
+							onSuccess(null);
 						}
 						
 						public void onSuccess(String result) {
-							drawResults();
-						}
-
-						private void drawResults() {
-							final String[][] x = new String[20][7];
+							final Object[][] x = new Object[20][table.getColumnCount()];
 							for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++) {
 								Taxon currentNode = TaxonomyCache.impl.getTaxon(((NativeElement) currentResults.item(i))
 										.getAttribute("id"));
-								Set<Assessment> assessmentList = AssessmentCache.impl.getPublishedAssessmentsForTaxon(currentNode.getId());
-								
-								x[i - start][0] = currentNode.getFullName();
-								if (currentNode.getCommonNames().size() > 0)
-									x[i - start][1] = (new ArrayList<CommonName>(currentNode.getCommonNames()).get(0)).getName().toLowerCase();
-								else
-									x[i - start][1] = "";
-								x[i - start][2] = Taxon.getDisplayableLevel(currentNode.getLevel());
-								x[i - start][4] = String.valueOf(currentNode.getId());
-								
-								if (!assessmentList.isEmpty()) {
-									Assessment aData = assessmentList.iterator().next();
-									x[i - start][3] = AssessmentFormatter.getProperCategoryAbbreviation(aData);
-								} else
-									x[i - start][3] = "N/A";
-																
-								if (currentNode.getFootprint().length >= 5) {
-									x[i - start][5] = currentNode.getFootprint()[4];
-								}
-								else
-									x[i - start][5] = "N/A";
-								if (currentNode.getFootprint().length >= 6) {
-									x[i - start][6] = currentNode.getFootprint()[5];
-								}
-								else
-									x[i - start][5] = "N/A";
-								
-								TableItem tItem = new TableItem(x[i - start]);
-								table.add(tItem);
 
+								try {
+									table.add(buildTableItem(currentNode, x[i - start]));
+								} catch (Throwable e) {
+									e.printStackTrace();
+								}
 							}
+							callback.isDrawn();
 						}
 					});
 				}
 			});
-
+		else
+			callback.isDrawn();
 	}
 
 	@Override
@@ -447,25 +455,27 @@ public class SearchPanel extends LayoutContainer {
 					next.setVisible(true);
 				expandableResults.setHeading("Search Results [" + currentResults.getLength() + " results]");
 
-				fillTable();
+				fillTable(new DrawsLazily.DoneDrawingCallback() {
+					public void isDrawn() {
+						if (currentResults.getLength() > 0) {
+							next.setVisible(true);
+							next.setEnabled(true);
+							if (!(currentResults.getLength() > NUMBER_OF_RESULTS))
+								next.setEnabled(false);
+							prev.setVisible(true);
+							prev.setEnabled(false);
+						}
 
-				if (currentResults.getLength() > 0) {
-					next.setVisible(true);
-					next.setEnabled(true);
-					if (!(currentResults.getLength() > NUMBER_OF_RESULTS))
-						next.setEnabled(false);
-					prev.setVisible(true);
-					prev.setEnabled(false);
-				}
+						else {
+							// expandableResults.add(new HTML("No Results."));
+							prev.setEnabled(false);
+							next.setEnabled(false);
+						}
 
-				else {
-					// expandableResults.add(new HTML("No Results."));
-					prev.setEnabled(false);
-					next.setEnabled(false);
-				}
-
-				setSelectionModelForTable();
-				searchButton.setEnabled(true);
+						setSelectionModelForTable();
+						searchButton.setEnabled(true);
+					}
+				});
 			}
 		});
 	}
@@ -492,13 +502,15 @@ public class SearchPanel extends LayoutContainer {
 	
 	private boolean execute(SearchEvents eventType, SearchEvent event) {
 		boolean cancelled = false;
-		for (Listener<SearchEvent> listener : events.get(eventType)) {
-			try {
-				listener.handleEvent(event);
-			} catch (Throwable e) {
-				Debug.println("Failed to run {0} search listener: {1}", SearchEvents.BeforeSearch, e);
+		if (events.containsKey(eventType)) {
+			for (Listener<SearchEvent> listener : events.get(eventType)) {
+				try {
+					listener.handleEvent(event);
+				} catch (Throwable e) {
+					Debug.println("Failed to run {0} search listener: {1}", SearchEvents.BeforeSearch, e);
+				}
+				cancelled |= event.isCancelled();
 			}
-			cancelled |= event.isCancelled();
 		}
 		return cancelled;
 	}
@@ -508,10 +520,14 @@ public class SearchPanel extends LayoutContainer {
 			protected void onMouseDown(ContainerEvent ce) {
 				super.onMouseDown(ce);
 				if (table.getSelectedItem() != null) {
-					onSearchSelect(Integer.valueOf((String)table.getSelectedItem().getValues()[4]));
+					onSearchSelect(getTaxonID(table.getSelectedItem()));
 				}
 			}
 		});
+	}
+	
+	protected Integer getTaxonID(TableItem item) {
+		return Integer.valueOf((String)item.getValue(4));
 	}
 	
 	public static class SearchEvent<T> extends BaseEvent {

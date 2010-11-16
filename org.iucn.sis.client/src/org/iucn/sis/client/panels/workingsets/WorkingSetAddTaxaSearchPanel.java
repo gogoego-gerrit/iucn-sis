@@ -37,6 +37,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 /**
  * Panel that allows users to add taxon to their working set
@@ -103,7 +104,7 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 		}
 
 		@Override
-		public void fillTable() {
+		public void fillTable(final DrawsLazily.DoneDrawingCallback callback) {
 			table.removeAll();
 			List<Integer> fetchList = new ArrayList<Integer>();
 			for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++)
@@ -113,6 +114,7 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 				TaxonomyCache.impl.fetchList(fetchList, new GenericCallback<String>() {
 					public void onFailure(Throwable arg0) {
 						WindowUtils.errorAlert("Failure while fetching search results.");
+						callback.isDrawn();
 					}
 
 					public void onSuccess(String arg0) {
@@ -139,6 +141,7 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 									WindowUtils.errorAlert("Error while fetching search results - "
 											+ "please try again.");
 									setButtonsEnabled(false);
+									callback.isDrawn();
 								}
 
 								public void onSuccess(String result) {
@@ -176,6 +179,7 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 									} else {
 										setButtonsEnabled(false);
 									}
+									callback.isDrawn();
 								}
 							});
 						} else {
@@ -212,13 +216,14 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 							} else {
 								setButtonsEnabled(false);
 							}
+							callback.isDrawn();
 						}
-
 					}
 				});
-			else
+			else {
 				setButtonsEnabled(false);
-
+				callback.isDrawn();
+			}
 		}
 
 		public int getNumberToDisplay() {
