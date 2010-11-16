@@ -121,7 +121,7 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 		language = new ListBox();
 		language.addItem("", "");
 
-		Collections.sort(languages, new IsoLanguageComparator());		
+		Collections.sort(languages, new IsoLanguageComparator());
 		for (IsoLanguage current : languages) {
 			language.addItem(current.getName(), current.getCode());
 		}
@@ -208,7 +208,7 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 		});
 	}
 	
-	private static class IsoLanguageComparator implements Comparator<IsoLanguage> {
+	public static class IsoLanguageComparator implements Comparator<IsoLanguage> {
 		
 		private final PortableAlphanumericComparator comparator;
 		

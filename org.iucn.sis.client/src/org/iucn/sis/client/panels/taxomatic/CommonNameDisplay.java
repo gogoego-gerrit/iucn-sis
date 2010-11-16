@@ -1,9 +1,11 @@
 package org.iucn.sis.client.panels.taxomatic;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.LanguageCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -12,6 +14,7 @@ import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.CommonName;
+import org.iucn.sis.shared.api.models.IsoLanguage;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -45,6 +48,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class CommonNameDisplay implements Referenceable {
@@ -182,59 +186,28 @@ public class CommonNameDisplay implements Referenceable {
 			}
 		});
 
-		final NativeDocument isoDoc = SimpleSISClient.getHttpBasicNativeDocument();
-		isoDoc.get(UriBase.getInstance().getSISBase() +"/raw/utils/ISO-639-2_utf-8.xml", new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				destroy();
-				WindowUtils.errorAlert("Error Loading Languages", "Could not load "
-						+ "languages for the drop down. Please check your Internet "
-						+ "connectivity if you are running online, or check your local "
-						+ "server if you are running offline, then try again.");
-			}
+		LanguageCache.impl.list(new ComplexListener<List<IsoLanguage>>() {
+			public void handleEvent(List<IsoLanguage> eventData) {
+				int index = 0;
+				for (IsoLanguage language : eventData) {
+					String lang = language.getName();
+					String iso = language.getCode();
 
-			public void onSuccess(String result) {
-				NativeNodeList isolist = isoDoc.getDocumentElement().getElementsByTagName("language");
-
-				String[] names = new String[isolist.getLength()];
-
-				for (int i = 0; i < isolist.getLength(); i++) {
-					NativeElement cur = isolist.elementAt(i);
-
-					String isoCode = cur.getElementByTagName("bibliographic").getText();
-					String lang = cur.getElementByTagName("english").getText();
-
-					if (cName != null) {
-						if (cName.getIsoCode() == null || cName.getIsoCode().equals(""))
-							if (cName.getLanguage() != null && cName.getLanguage().equals(lang))
-								cName.setIsoCode(isoCode);
-
-						if (cName.getLanguage() == null || cName.getLanguage().equals(""))
-							if (cName.getIsoCode() != null && cName.getIsoCode().equals(isoCode))
-								cName.setLanguage(lang);
-					}
-
-					names[i] = lang + " | " + isoCode;
-				}
-
-				ArrayUtils.quicksort(names);
-
-				for (int i = 0; i < names.length; i++) {
-					String lang = names[i].substring(0, names[i].indexOf(" |"));
-					String iso = names[i].substring(names[i].indexOf("| ") + 2);
-
-					isoBox.addItem(names[i]);
+					isoBox.addItem(lang, iso);
 
 					if (cName != null && iso.equals(cName.getIsoCode()))
-						isoBox.setSelectedIndex(i);
+						isoBox.setSelectedIndex(index);
 
 					if (cName == null && lang.equals("English"))
-						isoBox.setSelectedIndex(i);
+						isoBox.setSelectedIndex(index);
+					
+					index++;
 				}
 
 				add.setEnabled(true);
 			}
 		});
-
+		
 		if (cName != null) {
 			nameBox.setText(cName.getName());
 			isPrimary.setChecked(cName.isPrimary());

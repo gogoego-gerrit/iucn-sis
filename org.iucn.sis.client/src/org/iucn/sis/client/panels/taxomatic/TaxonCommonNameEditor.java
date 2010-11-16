@@ -1,25 +1,22 @@
 package org.iucn.sis.client.panels.taxomatic;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import org.iucn.sis.client.api.caches.LanguageCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
+import org.iucn.sis.client.panels.taxomatic.EditCommonNamePanel.IsoLanguageComparator;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.IsoLanguage;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -28,7 +25,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.FocusListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -39,15 +35,12 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.NativeElement;
-import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.lwxml.shared.utils.ArrayUtils;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class TaxonCommonNameEditor extends TaxomaticWindow {
+public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazily {
 
 	private final Taxon  node;
 	private final VerticalPanel commonNameInfo;
@@ -101,41 +94,10 @@ public class TaxonCommonNameEditor extends TaxomaticWindow {
 
 		language = new ListBox();
 		language.addItem("", "");
-		final NativeDocument isoDoc = SimpleSISClient.getHttpBasicNativeDocument();
-		isoDoc.get(UriBase.getInstance().getSISBase() +"/raw/utils/ISO-639-2_utf-8.xml", new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				WindowUtils.errorAlert("Error Loading Languages", "Could not load "
-						+ "languages for the drop down. Please check your Internet "
-						+ "connectivity if you are running online, or check your local "
-						+ "server if you are running offline, then try again.");
-			}
-
-			public void onSuccess(String result) {
-				NativeNodeList isolist = isoDoc.getDocumentElement().getElementsByTagName("language");
-				Map<String, String> nameToCode = new HashMap<String, String>();
-				String[] names = new String[isolist.getLength()];
-				for (int i = 0; i < isolist.getLength(); i++) {
-					NativeElement cur = isolist.elementAt(i);
-					
-					String isoCode = cur.getElementByTagName("bibliographic").getText();
-					String lang = cur.getElementByTagName("english").getText();
-					names[i] = lang;
-					nameToCode.put(lang, isoCode);
-				}
-				ArrayUtils.quicksort(names);
-				
-				for (String name : names) {
-					language.addItem(name, nameToCode.get(name));
-				}
-			}
-		});
 		
 		status = new ListBox();
 		for (int i = 0; i < CommonName.reasons.length; i++)
 			status.addItem(CommonName.reasons[i], i + "");
-
-		
-		draw();
 	}
 
 	private void clearData() {
@@ -167,6 +129,32 @@ public class TaxonCommonNameEditor extends TaxomaticWindow {
 		refreshCommonName(data);
 		return data.getName();
 
+	}
+	
+	@Override
+	public void show() {
+		draw(new DoneDrawingCallback() {
+			public void isDrawn() {
+				open();
+			}
+		});
+	}
+	
+	private void open() {
+		super.show();
+	}
+	
+	@Override
+	public void draw(final DoneDrawingCallback callback) {
+		LanguageCache.impl.list(new ComplexListener<List<IsoLanguage>>() {
+			public void handleEvent(List<IsoLanguage> eventData) {
+				Collections.sort(eventData, new IsoLanguageComparator());
+				for (IsoLanguage current : eventData)
+					language.addItem(current.getName(), current.getCode());
+				draw();
+				callback.isDrawn();
+			}
+		});
 	}
 
 	private void draw() {
