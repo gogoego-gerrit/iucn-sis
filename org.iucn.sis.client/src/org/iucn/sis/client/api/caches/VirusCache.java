@@ -135,7 +135,7 @@ public class VirusCache {
 	
 	public void update(final Virus virus, final GenericCallback<Virus> callback) {
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-		document.put(UriBase.getInstance().getVirusBase() + "/viruses/" + virus.getId(), virus.toXML(), new GenericCallback<String>() {
+		document.post(UriBase.getInstance().getVirusBase() + "/viruses/" + virus.getId(), virus.toXML(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				callback.onSuccess(virus);
 			}
