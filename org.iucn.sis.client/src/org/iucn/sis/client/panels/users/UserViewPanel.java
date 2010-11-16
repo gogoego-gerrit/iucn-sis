@@ -352,7 +352,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 					// filterPopup.setShadow(true);
 					filterPopup.add(filterPanel);
 					filterPopup.setLayout(new FitLayout());
-					filterPopup.setSize(380, 190);
+					filterPopup.setSize(380, 230);
 					filterPopup.show();
 					filterPopup.setPagePosition(ce.getButton().getAbsoluteLeft() - 160 > 0 ? ce.getButton()
 							.getAbsoluteLeft() - 160 : 0, ce.getButton().getAbsoluteTop() + 30);
