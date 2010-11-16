@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.container.SimpleSISClient;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -34,7 +35,6 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.HTML;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.utils.RowData;
@@ -132,7 +132,7 @@ public class CustomFieldViewPanel extends LayoutContainer implements HasRefresha
 
 					@Override
 					public void onYes() {
-						final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+						final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 						document.delete(UriBase.getInstance().getUserBase() + "/manager/custom/"
 								+ selected.get("id"), new GenericCallback<String>() {
 							public void onFailure(Throwable caught) {
@@ -220,7 +220,7 @@ public class CustomFieldViewPanel extends LayoutContainer implements HasRefresha
 
 	private void populateStore() {
 		center.removeAll();
-		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.get(UriBase.getInstance().getUserBase() + "/dump/customfield", new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				add(new HTML("Could not load custom fields."));

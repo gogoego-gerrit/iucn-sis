@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.integrity;
 
 import org.iucn.sis.client.api.panels.integrity.ValidationResultsWindow;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.container.SimpleSISClient;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -13,7 +14,6 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -53,8 +53,7 @@ public class AssessmentValidationWindow extends Window implements DrawsLazily {
 	}
 
 	public void draw(final DoneDrawingCallback callback) {
-		final NativeDocument document = NativeDocumentFactory
-				.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.get(UriBase.getInstance().getIntegrityBase() + "/ruleset",
 				new GenericCallback<String>() {
 					public void onSuccess(String result) {

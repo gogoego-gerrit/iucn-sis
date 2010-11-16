@@ -1,10 +1,10 @@
 package org.iucn.sis.shared.api.integrity;
 
 import org.iucn.sis.client.api.panels.integrity.IntegrityApplicationPanel;
+import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.google.gwt.user.client.Window;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -60,8 +60,7 @@ public class ClientAssessmentValidator {
 		final String body = "<root><assessment type=\"" + assessmentType + "\">" + assessmentID
 				+ "</assessment></root>";
 
-		final NativeDocument document = NativeDocumentFactory
-				.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.postAsText(IntegrityApplicationPanel.createUrl(rulesetName,
 				"validate"), body, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {

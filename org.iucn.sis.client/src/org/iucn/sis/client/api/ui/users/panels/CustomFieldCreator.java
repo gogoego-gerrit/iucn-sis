@@ -6,6 +6,7 @@ package org.iucn.sis.client.api.ui.users.panels;
 import java.util.List;
 
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.container.SimpleSISClient;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -29,7 +30,6 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -123,7 +123,7 @@ public abstract class CustomFieldCreator extends Window {
 	}
 
 	private void addNew() {
-		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.put(UriBase.getInstance().getUserBase() + "/manager/custom", getXML(),
 				new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {
@@ -296,7 +296,7 @@ public abstract class CustomFieldCreator extends Window {
 	}
 
 	private void updateExisting() {
-		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.post(UriBase.getInstance().getUserBase() + "/manager/custom/" + id, getXML(),
 				new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {

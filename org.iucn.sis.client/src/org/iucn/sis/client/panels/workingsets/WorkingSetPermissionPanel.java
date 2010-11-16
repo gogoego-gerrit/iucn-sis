@@ -10,6 +10,7 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow.SearchResults;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.permissions.PermissionUserModel;
 import org.iucn.sis.client.panels.permissions.WorkingSetPermissionGiverPanel;
 import org.iucn.sis.shared.api.models.Permission;
@@ -32,7 +33,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 		final String permGroupName = "ws" + WorkingSetCache.impl.getCurrentWorkingSet().getId();
 		final String query = "?quickgroup=" + permGroupName + "";
 		
-		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.get(UriBase.getInstance().getUserBase()
 				+ "/browse/profile" + query, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
@@ -87,7 +88,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 		}
 		body.append("</updates>");
 
-		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.post(UriBase.getInstance().getUserBase() + "/list/batch", body.toString(),
 				new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
@@ -235,7 +236,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 
 		body.append("</updates>");
 
-		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.post(UriBase.getInstance().getUserBase() + "/list/batch", body.toString(),
 				new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {

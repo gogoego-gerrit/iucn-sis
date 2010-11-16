@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.integrity.AssessmentValidationDesigner;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
 import org.iucn.sis.shared.api.integrity.HelpWindow;
@@ -36,7 +37,6 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -126,7 +126,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 		DBStructure.getInstance().setURL(UriBase.getInstance().getIntegrityBase() + "/struct");
 		DBStructure.getInstance().load(new GenericCallback<Object>() {
 			public void onSuccess(Object result) {
-				final NativeDocument lookups = NativeDocumentFactory.newNativeDocument();
+				final NativeDocument lookups = SimpleSISClient.getHttpBasicNativeDocument();
 				lookups.get(UriBase.getInstance().getIntegrityBase() + "/lookup", new GenericCallback<String>() {
 					public void onSuccess(String result) {
 						DBStructure.getInstance().loadLookupTables(UriBase.getInstance().getIntegrityBase() + "/lookup", lookups);
@@ -146,7 +146,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 	}
 
 	private void finish(final DrawsLazily.DoneDrawingCallback callback) {
-		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.get(UriBase.getInstance().getIntegrityBase() + "/ruleset", new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				render(document, callback);
@@ -208,7 +208,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 
 				final String ruleName = be.getSelected().get(0).getText();
 				final String selectedUri = createUrl(ruleName);
-				final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+				final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 				document.get(selectedUri, new GenericCallback<String>() {
 					public void onSuccess(String result) {
 						final SISQBQuery query = new SISQBQuery();
@@ -321,7 +321,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 								}
 
 								public void onYes() {
-									final NativeDocument delete = NativeDocumentFactory.newNativeDocument();
+									final NativeDocument delete = SimpleSISClient.getHttpBasicNativeDocument();
 									delete.delete(createUrl(item.getText()), new GenericCallback<String>() {
 										public void onFailure(Throwable caught) {
 											WindowUtils.errorAlert("Failed to delete " + item.getText()
@@ -371,7 +371,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 	}
 
 	private void saveQuery(String selectedUri, final GenericCallback<Object> callback) {
-		final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.post(selectedUri, designer.getQuery().toXML(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				designer.updateSavedXML();
@@ -543,7 +543,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 						return;
 					}
 
-					final NativeDocument document = NativeDocumentFactory.newNativeDocument();
+					final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 					document.put(createUrl(field.getValue()), getDefaultXML(), new GenericCallback<String>() {
 						public void onFailure(Throwable caught) {
 							if (caught instanceof GWTConflictException) {
