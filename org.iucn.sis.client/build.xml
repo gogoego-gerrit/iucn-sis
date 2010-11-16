@@ -5,6 +5,9 @@
 	<property name="compiled" value="org.iucn.sis.client.compiled" />
 	<property name="compiled-dir" value="org/iucn/sis/client/compiled" />
 	
+	<property name="gwt" value="com.google.gwt_2.1.2" />
+	<property name="ext" value="com.extjs.gwt_2.2.1" />
+	
 	<path id="client.classpath">
 		<pathelement path="../org.iucn.sis.client/src"/>
 		<pathelement path="../org.iucn.sis.clientshared.bridge/src"/>
@@ -21,9 +24,10 @@
 		<pathelement path="../com.solertium.util.portable/src"/>
 		<pathelement path="../com.solertium.util.querybuilder/src"/>
 		<pathelement path="../com.solertium.util.querybuilder.gwt.ext/src"/>
-		<pathelement path="../com.google.gwt_2.1.2/gwt-user.jar"/>
-		<pathelement path="../com.google.gwt_2.1.2/gwt-dev.jar"/>
-		<pathelement path="../com.extjs.gwt.2_0/gxt.jar"/>
+		<pathelement path="../${gwt}/gwt-user.jar"/>
+		<pathelement path="../${gwt}/gwt-dev.jar"/>
+		<pathelement path="../${ext}/gxt.jar"/>
+		<pathelement path="../${ext}/src"/>
 		<pathelement path="../ext.ux.pwd/PasswordField.jar"/>
     </path>
 	

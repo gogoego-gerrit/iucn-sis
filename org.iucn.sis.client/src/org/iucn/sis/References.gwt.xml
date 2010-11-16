@@ -13,6 +13,7 @@
 	<inherits name='com.solertium.util.extjs.ExtGWTUtils' />
 	<inherits name='com.solertium.util.extjs.login.ExtGWTUtils' />
 	<inherits name='com.solertium.util.Events' />
+	<inherits name='com.extjs.gwt.Resources' />
 	<inherits name='com.extjs.gxt.themes.Themes' />
 	<inherits name='ext.ux.wizard.WizardWindow'/>
 	<inherits name='ext.ux.pwd.PasswordField'/>

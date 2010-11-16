@@ -3,7 +3,6 @@
 	<!-- Inherit libraries -->
 	<inherits name='com.google.gwt.user.User'/>
 	<inherits name='com.google.gwt.user.RichText'/>
-	<inherits name='com.extjs.gxt.ui.GXT'/>
 	<inherits name='com.google.gwt.xml.XML' />
 	
 	<inherits name='com.solertium.lwxml.LWXML' />
@@ -11,6 +10,9 @@
 	<inherits name='com.solertium.util.Portable' />
 	<inherits name='com.solertium.util.extjs.ExtGWTUtils' />
 	<inherits name='com.solertium.util.extjs.login.ExtGWTUtils' />
+	
+	<inherits name='com.extjs.gwt.Resources' />
+	<inherits name='com.extjs.gxt.ui.GXT'/>
 	<inherits name='com.extjs.gxt.themes.Themes' />
 	
 	<inherits name='ext.ux.wizard.WizardWindow'/>

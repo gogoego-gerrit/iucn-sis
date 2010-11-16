@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Ext GWT Migration Guide</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  font-size: small;
+  margin: 20px;
+}
+
+h1 {
+  font-family: verdana, arial, sans-serif;
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: -1px;
+  margin: 7px 0pt;
+}
+
+li {
+  margin-bottom: 0.5em;
+}
+
+li div {
+  margin-top: 0.2em;
+}
+
+code {
+  font-size: medium;
+}
+</style>
+</head>
+<body>
+<h2>Breaking API Changes</h2>
+<ul>
+  <li>MyMessages renamed to XMessages.</li>
+  <li>Added LoadConfig interface, ListLoadConfig now extends LoadConfig. With this change, and properties of the load config object will be passed as request parameters when using a HttpProxy or
+  ScriptTagProxy.</li>
+  <li>Removed AppEvent type parameters, added unkeyed getData and setData.</li>
+  <li>Removed LoadEvent type parameters, add getData and setData methods.</li>
+  <li>Removed parent generic from TreeModel.</li>
+  <li>All public event fields replaced with getters / setters.</li>
+  <li>BaseEvent doit field replaced with setCancelled and isCancelled methods.</li>
+  <li>Replaced int based event types with EventType class.</li>
+  <li>Removed setDecimalSeparator / getDecimalSeparator from NumberField.</li>
+  <li>XDOM moved from com.extjs.gxt.ui.client to com.extjs.gxt.ui.client.core.</li>
+  <li>Events and KeyboardEvents moved from from com.extjs.gxt.ui.client to from com.extjs.gxt.ui.client.event.</li>
+  <li>All public fields is Resizable converted to getters and setters.</li>
+  <li>ext-all.css renamed to gxt-all.css. Both images and css folder moved into new gxt folder.</li>
+  <li>Ext GWT CSS and images are no longer on the classpath. See the resources folder in the GXT distribution.</li>
+  <li>Themes not require the full url for the theme file.</li>
+  <li>Removed TextToolItem, buttons can be added directly to toolbars.</li>
+  <li>PagingToolBar moved to toolbar package.</li>
+  <li>PagingToolBar is now a ToolBar, rather than wrapping one.</li>
+  <li>ButtonBar is now a ToolBar</li>
+  <li>ContentPanel (Windows, Dialog) now uses a ToolBar for its buttons. New ToolBar looks and behaves like a button bar.</li>
+  <li>Controller forwardToView methods changed from static to instance methods.</li>
+  <li>keepSelected boolean added to selection methods in selection models.</li>
+  <li>XmlReader changed to return any data type.</li>
+  <li>Added XmlLoadResultReader which returns ListLoadResult instances.</li>
+  <li>JsonReader changed to return any data type.</li>
+  <li>Added JsonLoadResultReader which returns ListLoadResult instances.</li>
+  <li>Removed JsonTreeReader.</li>
+  <li>Removed public field XDOM.isVisibleBox - use GXT.isBorderBox instead</li>
+  <li>Added 2 new methods to Observable interface (hasListeners).</li>
+  <li>Added type generic to SummaryType</li>
+  <li>SummaryRender render method first argument changed from Double to Number</li>
+  <li>FormPanel List&lt;Field&lt;Object&gt;&gt; getFields() change to List&lt;Field&lt;?&gt;&gt; getFields()</li>
+  <li>MultiField class generics changed to "public class MultiField&lt;D> extends Field&lt;D>".</li>
+  <li>GridCellRenderer return type changed to Object from String. Now allows widgets to be returned.</li>
+  <li>Added Grid parameter to GridCellRenderer render function.</li>
+  <li>Table Resize event width field changed to tableWidth.</li>
+  <li>Window closing and CloseMode removed. Windows can now only be hidden and shown. Windows do not fire Events.Close, must use Events.Hide.</li>
+  <li>Shadow class deleted. Shadow functionality built into Layer.</li>
+  <li>StateManager data format changed to Json, which now supports nested data structures such as List and Maps.</li>
+  <li>HtmlContainer made public properties requestData, deferDownload, and httpMethod to getters / setters</li> 
+</ul>
+</body>
+</html>
