@@ -507,7 +507,7 @@ public class TaxonHomePageTab extends TabItem {
 
 	private void popupChooser(TaxomaticWindow chooser) {
 		chooser.show();
-		chooser.center();
+		//chooser.center();
 	}
 
 	public void setAppropriateRights(Taxon node) {
