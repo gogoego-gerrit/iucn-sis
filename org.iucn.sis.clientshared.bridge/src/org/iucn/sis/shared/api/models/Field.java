@@ -138,6 +138,10 @@ public class Field implements Serializable {
 	 * @return
 	 */
 	public Field deepCopy(boolean copyReferenceToAssessment) {
+		return deepCopy(copyReferenceToAssessment, false);
+	}
+	
+	public Field deepCopy(boolean copyReferenceToAssessment, boolean copyFieldReferences) {
 		Field field = new Field();
 		field.setName(getName());
 		
@@ -150,6 +154,12 @@ public class Field implements Serializable {
 			field.setNotes(new HashSet<Notes>());
 			for (Notes note : getNotes())
 				field.getNotes().add(note.deepCopy());
+		}
+		
+		if (copyFieldReferences && this.getReference() != null) {
+			field.setReference(new HashSet<Reference>());
+			for (Reference reference : getReference())
+				field.getReference().add(reference.deepCopy());
 		}
 		
 		if (this.getPrimitiveField() != null) {

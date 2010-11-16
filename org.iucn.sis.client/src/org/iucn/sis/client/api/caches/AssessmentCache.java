@@ -15,7 +15,11 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
+import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -144,23 +148,22 @@ public class AssessmentCache {
 	 */
 	public void createNewAssessment(final Taxon taxon, final String type, Assessment template, 
 			List<Integer> regions, boolean endemic, final GenericCallback<String> wayback) {
-		Assessment newAss = null;
+		Assessment newAssessment = null;
 		
-		if( template != null )
-			newAss = template.deepCopy();
+		if (template != null)
+			newAssessment = template.deepCopy(new AssessmentCopyFilter());
 		else
-			newAss = new Assessment();
+			newAssessment = new Assessment();
 		
-		//newAss.setSpeciesID(taxon.getId());
-		newAss.setTaxon(taxon);
-		newAss.setType(type);
-		newAss.setRegions(RegionCache.impl.getRegionsByID(regions), endemic);
+		newAssessment.setTaxon(taxon);
+		newAssessment.setType(type);
+		newAssessment.setRegions(RegionCache.impl.getRegionsByID(regions), endemic);
 		
-		if( taxaFetched.containsKey(Integer.valueOf(taxon.getId())) )
+		if (taxaFetched.containsKey(Integer.valueOf(taxon.getId())))
 			taxaFetched.remove(Integer.valueOf(taxon.getId()));
 		
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/assessments", newAss.toXML(), new GenericCallback<String>() {
+		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/assessments", newAssessment.toXML(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				final String newID = ndoc.getText();
 				fetchAssessments(new AssessmentFetchRequest(Integer.valueOf(newID)), new GenericCallback<String>() {
@@ -496,5 +499,62 @@ public class AssessmentCache {
 				saveRecentAssessments();
 			}
 		}
+	}
+	
+	private static class AssessmentCopyFilter implements Assessment.DeepCopyFilter {
+		
+		private final List<String> excluded;
+		
+		public AssessmentCopyFilter() {
+			excluded = new ArrayList<String>();
+			excluded.add("RedListAssessmentDate");
+			excluded.add("RedListEvaluators");
+			excluded.add("RedListAssessmentAuthors");
+			excluded.add("RedListReasonsForChange");
+			excluded.add("RedListPetition");
+			excluded.add("RedListEvaluated");
+			excluded.add("RedListConsistencyCheck");
+		}
+		
+		@Override
+		public Field copy(Assessment assessment, Field field) {
+			if (excluded.contains(field.getName())) {
+				/*
+				 * First, exclude certain fields.
+				 */
+				return null;
+			}
+			else if (CanonicalNames.RedListCriteria.equals(field.getName())) {
+				RedListCriteriaField proxy = new RedListCriteriaField(field);
+				Integer version = proxy.getCriteriaVersion();
+				if (0 == version.intValue()) {
+					/*
+					 * Will be 0 if there is no data or if 
+					 * the most current version is selected. 
+					 * Either way, we want to remove the data.
+					 */
+					return null;
+				}
+				else {
+					/*
+					 * Return the field, but remove the history text.
+					 */
+					Field copy = field.deepCopy(false, true);
+					PrimitiveField<?> historyText = 
+						copy.getPrimitiveField(RedListCriteriaField.RLHISTORY_TEXT_KEY);
+					if (historyText != null)
+						copy.getPrimitiveField().remove(historyText);
+					
+					return copy;
+				}
+			}
+			else {
+				/*
+				 * Else, return a copy of the field
+				 */
+				return field.deepCopy(false, true);
+			}
+		}
+		
 	}
 }

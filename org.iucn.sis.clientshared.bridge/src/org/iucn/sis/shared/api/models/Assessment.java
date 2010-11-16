@@ -390,7 +390,14 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	}
 
 	public Assessment deepCopy() {
-		
+		return deepCopy(new DeepCopyFilter() {
+			public Field copy(Assessment assessment, Field field) {
+				return field.deepCopy(false, true);
+			}
+		});
+	}
+	
+	public Assessment deepCopy(DeepCopyFilter filter) {
 		Assessment assessment = new Assessment();
 		assessment.setAssessmentType(getAssessmentType());
 		assessment.setDateFinalized(getDateFinalized());
@@ -400,15 +407,17 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		assessment.setTaxon(getTaxon());
 		
 		assessment.setField(new HashSet<Field>());
-		for (Field field : getField())
-			assessment.getField().add(field.deepCopy(false));
+		for (Field field : getField()) {
+			Field copy = filter.copy(assessment, field);
+			if (copy != null)
+				assessment.getField().add(copy);
+		}
 		
 		assessment.setReference(new HashSet<Reference>());
 		for (Reference ref : getReference())
 			assessment.getReference().add(ref.deepCopy());	
 		
 		return assessment;
-
 	}
 
 //	public String getAssessmentID() {
@@ -685,6 +694,10 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		return getAssessmentType().getDisplayName() + " " + getTaxon().getFriendlyName();
 	}
 	
-	
+	public static interface DeepCopyFilter {
+		
+		public Field copy(Assessment assessment, Field field);
+		
+	}
 
 }

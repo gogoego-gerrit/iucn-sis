@@ -425,8 +425,44 @@ public class Reference implements Serializable, AuthorizableObject {
 	}
 	
 	public Reference deepCopy() {
-		//FIXME
-		return null;
+		Reference copy = new Reference();
+		copy.setId(getId());
+		copy.setAlternateTitle(getAlternateTitle());
+		copy.setAuthor(getAuthor());
+		copy.setBibCode(getBibCode());
+		copy.setBibNoInt(getBibNoInt());
+		copy.setBibNumber(getBibNumber());
+		copy.setCitation(getCitation());
+		copy.setCitationComplete(getCitationComplete());
+		copy.setCitationShort(getCitationShort());
+		copy.setDateValue(getDateValue());
+		copy.setEdition(getEdition());
+		copy.setExternalBibCode(getExternalBibCode());
+		copy.setHash(getHash());
+		copy.setIsbnIssn(getIsbnIssn());
+		copy.setKeywords(getKeywords());
+		copy.setNumber(getNumber());
+		copy.setNumberOfVolumes(getNumberOfVolumes());
+		copy.setPages(getPages());
+		copy.setPlacePublished(getPlacePublished());
+		copy.setPublisher(getPublisher());
+		copy.setReferenceID(getReferenceID());
+		copy.setReturnedCitation(getReturnedCitation());
+		copy.setSecondaryAuthor(getSecondaryAuthor());
+		copy.setSecondaryTitle(getSecondaryTitle());
+		copy.setSection(getSection());
+		copy.setShortTitle(getShortTitle());
+		copy.setSubmissionType(getSubmissionType());
+		copy.setSubsidiaryAuthor(getSubsidiaryAuthor());
+		copy.setTertiaryAuthor(getTertiaryAuthor());
+		copy.setTertiaryTitle(getTertiaryTitle());
+		copy.setTitle(getTitle());
+		copy.setType(getType());
+		copy.setUrl(getUrl());
+		copy.setVolume(getVolume());
+		copy.setYear(getYear());
+		
+		return copy;
 	}
 	
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS*/
