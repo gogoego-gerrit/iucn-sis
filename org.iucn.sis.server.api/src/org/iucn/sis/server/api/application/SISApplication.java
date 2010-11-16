@@ -46,8 +46,6 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	
 	protected Map<Object, List<String>> pathsToResources;
 	protected HashSet<String> pathsExcludedFromAuthenticator;
-	protected Map<Object, List<String>> onlinePathsToResources;
-	protected Map<Object, List<String>> offlinePathsToResources;
 	
 	private final String internalRoutingRoot;
 
@@ -55,8 +53,6 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 		super();
 		pathsToResources = new HashMap<Object, List<String>>();
 		pathsExcludedFromAuthenticator = new HashSet<String>();
-		onlinePathsToResources = new HashMap<Object, List<String>>();
-		offlinePathsToResources = new HashMap<Object, List<String>>();
 		
 		if (Debug.isDefaultInstance())
 			Debug.setInstance(new SIS.SISDebugger());
@@ -65,9 +61,35 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	}
 
 	/**
-	 * CALLED WHEN ADDING PUBLIC ROUTER, ALL RESOURCES MUST BE ATTACHED BY THEN
+	 * Initialize all online resources.  SIS is assumed to 
+	 * be running online unless otherwise stated.  Thus, 
+	 * this function is called by default.
+	 * 
+	 * This function will NOT be called when SIS is running 
+	 * offline.  Instead, initOffline will be called.  You 
+	 * may override that function to add any resources you 
+	 * may need.  If you need to re-use online resources in 
+	 * offline mode, you'll need to initialize those in that 
+	 * function as well.
 	 */
-	public abstract void init();
+	protected void initOnline() {
+		//Override if you want to...
+	}
+	
+	/**
+	 * Initialize all offline resources.  SIS is only running 
+	 * offline when explicitly stated via property.
+	 * 
+	 * This function will NOT be called when SIS is running 
+	 * online.  Instead, initOnline will be called.  You 
+	 * may override that function to add any resources you 
+	 * may need.  If you need to re-use offline resources in 
+	 * online mode, you'll need to initialize those in that 
+	 * function as well.
+	 */
+	protected void initOffline() {
+		//Override if you want to...
+	}
 	
 	/**
 	 * If your application exposes settings, enumerate 
@@ -105,7 +127,11 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 
 	@Override
 	public Restlet getPublicRouter() {
-		init();
+		if (SIS.amIOnline())
+			initOnline();
+		else
+			initOffline();
+		
 		Router root = new Router(app.getContext());
 		root.attach("/" + internalRoutingRoot, getInteralRouter());
 		
@@ -116,7 +142,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 			@Override
 			protected int beforeHandle(Request request, Response response) {
 				SISPersistentManager.instance().getSession().beginTransaction();
-				if (!SIS.get().isHostedMode() && SIS.amIOnline() && request.getProtocol().equals(Protocol.HTTP)) {
+				if (!SIS.get().isHostedMode() && SIS.amIOnline() && SIS.forceHTTPS() && request.getProtocol().equals(Protocol.HTTP)) {
 					Reference newRef = new Reference(request.getResourceRef());
 					newRef.setHostPort(Integer.valueOf(443));
 					newRef.setProtocol(Protocol.HTTPS);
@@ -130,7 +156,6 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 			protected void afterHandle(Request request, Response response) {
 				// ADD NO CACHE DIRECTIVE
 				RestletUtils.setHeader(response, "Cache-Control", "no-cache");
-				RestletUtils.setHeader(response, MagicDisablingFilter.MAGIC_DISABLING_KEY, "true");
 				
 				final MediaType mt;
 				if (!response.isEntityAvailable())
@@ -199,33 +224,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 			}
 		}
 
-		if (SIS.amIOnline()) {
-			for (Entry<Object, List<String>> entry : onlinePathsToResources.entrySet()) {
-				for (String path : entry.getValue()) {
-					if (pathsExcludedFromAuthenticator.contains(path)) {
-						Debug.println("adding {0} the path {1} to root", entry.getKey(), path);
-						attachUniform(path, entry.getKey(), root);
-					} else {
-						Debug.println("adding {0} the path {1} to guarded", entry.getKey(), path);
-						attachUniform(path, entry.getKey(), guarded);
-					}
-				}
-			}
-		} else {
-			for (Entry<Object, List<String>> entry : offlinePathsToResources.entrySet()) {
-				for (String path : entry.getValue()) {
-					if (pathsExcludedFromAuthenticator.contains(path)) {
-						attachUniform(path, entry.getKey(), root);
-					} else {
-						attachUniform(path, entry.getKey(), guarded);
-					}
-				}
-			}
-		}
-		// httpsFilter.setNext(root);
-
-		return mainFilter;
-
+		return new MagicDisablingFilter(app.getContext(), mainFilter);
 	}
 
 	protected void attachUniform(String path, Object uniform, Router router) {
@@ -255,18 +254,11 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	 * @param allowOffline
 	 * @param bypassAuthentication
 	 */
-	public void addResource(Class<? extends Resource> uniform, List<String> paths, boolean allowOnline,
-			boolean allowOffline, boolean bypassAuthentication) {
-		if (allowOnline && allowOffline) {
-			pathsToResources.put(uniform, paths);
-		} else if (allowOnline) {
-			onlinePathsToResources.put(uniform, paths);
-		} else if (allowOffline) {
-			offlinePathsToResources.put(uniform, paths);
-		}
+	public void addResource(Class<? extends Resource> uniform, List<String> paths, boolean bypassAuthentication) {
+		pathsToResources.put(uniform, paths);
+		
 		if (bypassAuthentication)
 			pathsExcludedFromAuthenticator.addAll(paths);
-
 	}
 
 	/**
@@ -280,22 +272,21 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	 * @param allowOffline
 	 * @param bypassAuthentication
 	 */
-	public void addResource(Class<? extends Resource> uniform, String path, boolean allowOnline, boolean allowOffline,
+	public void addResource(Class<? extends Resource> uniform, String path, 
 			boolean bypassAuthentication) {
 		List<String> paths = new ArrayList<String>();
 		paths.add(path);
-		addResource(uniform, paths, allowOnline, allowOffline, bypassAuthentication);
+		addResource(uniform, paths, bypassAuthentication);
 	}
 
-	public void addServerResource(Class<? extends ServerResource> uniform, String path, boolean allowOnline, boolean allowOffline, boolean bypassAuthentication) {
+	public void addServerResource(Class<? extends ServerResource> uniform, String path, boolean bypassAuthentication) {
 		List<String> paths = new ArrayList<String>();
 		paths.add(path);
-		addResource(uniform, paths, allowOnline, allowOffline, bypassAuthentication);
+		addResource(uniform, paths, bypassAuthentication);
 	}
 	
-	public void addServerResource(Class<? extends ServerResource> uniform, List<String> paths, boolean allowOnline, boolean allowOffline, boolean bypassAuthentication) {
-		
-		addResource(uniform, paths, allowOnline, allowOffline, bypassAuthentication);
+	public void addServerResource(Class<? extends ServerResource> uniform, List<String> paths, boolean bypassAuthentication) {
+		addResource(uniform, paths, bypassAuthentication);
 	}
 
 	/**
@@ -309,15 +300,9 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	 * @param allowOffline
 	 * @param bypassAuthentication
 	 */
-	public void addResource(Restlet uniform, List<String> paths, boolean allowOnline, boolean allowOffline,
-			boolean bypassAuthentication) {
-		if (allowOnline && allowOffline) {
-			pathsToResources.put(uniform, paths);
-		} else if (allowOnline) {
-			onlinePathsToResources.put(uniform, paths);
-		} else if (allowOffline) {
-			offlinePathsToResources.put(uniform, paths);
-		}
+	public void addResource(Restlet uniform, List<String> paths, boolean bypassAuthentication) {
+		pathsToResources.put(uniform, paths);
+		
 		if (bypassAuthentication) {
 			Debug.println("Adding the path {0} to exclude from authenticator", paths);
 			pathsExcludedFromAuthenticator.addAll(paths);
@@ -335,11 +320,10 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	 * @param allowOffline
 	 * @param bypassAuthentication
 	 */
-	public void addResource(Restlet uniform, String path, boolean allowOnline, boolean allowOffline,
-			boolean bypassAuthentication) {
+	public void addResource(Restlet uniform, String path, boolean bypassAuthentication) {
 		List<String> paths = new ArrayList<String>();
 		paths.add(path);
-		addResource(uniform, paths, allowOnline, allowOffline, bypassAuthentication);
+		addResource(uniform, paths, bypassAuthentication);
 	}
 
 	/**
@@ -353,15 +337,9 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	 * @param allowOffline
 	 * @param bypassAuthentication
 	 */
-	private void addResource(Object uniform, List<String> paths, boolean allowOnline, boolean allowOffline,
-			boolean bypassAuthentication) {
-		if (allowOnline && allowOffline) {
-			pathsToResources.put(uniform, paths);
-		} else if (allowOnline) {
-			onlinePathsToResources.put(uniform, paths);
-		} else if (allowOffline) {
-			offlinePathsToResources.put(uniform, paths);
-		}
+	private void addResource(Object uniform, List<String> paths, boolean bypassAuthentication) {
+		pathsToResources.put(uniform, paths);
+		
 		if (bypassAuthentication)
 			pathsExcludedFromAuthenticator.addAll(paths);
 	}

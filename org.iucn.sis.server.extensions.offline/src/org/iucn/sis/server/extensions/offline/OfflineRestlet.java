@@ -39,22 +39,12 @@ public class OfflineRestlet extends ServiceRestlet {
 
 	@Override
 	public void performService(Request request, Response response) {
-		if (OnlineUtil.amIOnline()) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			response
-					.setEntity(
-							"This operation can only be performed on offline copies of SIS.",
-							MediaType.TEXT_PLAIN);
-			return;
-		}
-
 		String action = (String) request.getAttributes().get("action");
 		if ("clear".equalsIgnoreCase(action)) {
 			performDataDeletion(request, response);
 		} else {
 			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 		}
-
 	}
 
 	protected void performDataDeletion(Request request, Response response) {

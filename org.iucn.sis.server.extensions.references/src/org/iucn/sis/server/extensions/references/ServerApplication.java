@@ -1,12 +1,10 @@
 package org.iucn.sis.server.extensions.references;
 
-import org.iucn.sis.server.api.application.SISApplication;
+import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.restlet.resource.Resource;
 
-public class ServerApplication extends SISApplication {
+public class ServerApplication extends SimpleSISApplication {
 	
-	private static final boolean ALLOW_ONLINE = true;
-	private static final boolean ALLOW_OFFLINE = true;
 	private static final String PREFIX = "/refsvr";
 	
 	public void init() {
@@ -18,7 +16,7 @@ public class ServerApplication extends SISApplication {
 	}
 	
 	private void addResource(String path, Class<? extends Resource> resource) {
-		addResource(resource, PREFIX + path, ALLOW_ONLINE, ALLOW_OFFLINE, false);
+		addResource(resource, PREFIX + path, false);
 	}
 
 }

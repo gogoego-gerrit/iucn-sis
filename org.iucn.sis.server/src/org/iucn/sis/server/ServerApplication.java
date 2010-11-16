@@ -62,13 +62,14 @@ public class ServerApplication extends SISApplication{
 			GoGoEgo.getInitProperties().put("UPDATE_URL", "http://sis.iucnsis.org/getUpdates");
 	}
 	
-	@Override
-	public void init() {
+	/**
+	 * Attached whether online or offline.
+	 */
+	public void initDual() {
 		SISPersistentManager.instance();
 		
 		initServiceRoutes();
-		initRoutes();		
-		addResource(SIS.get().getGuard(app.getContext()), "/authn", true, true, true);		
+		initDualRoutes();
 	}
 	
 	protected void initServiceRoutes() {
@@ -91,24 +92,24 @@ public class ServerApplication extends SISApplication{
 		services.add(new ProfileRestlet(SIS.get().getVfsroot(), app.getContext()));
 		services.add(new SearchRestlet(SIS.get().getVfsroot(), app.getContext()));
 		
-		final List<String> taxaPaths = new ArrayList<String>();
-		taxaPaths.add("/tagging/taxa/{tag}");
-		taxaPaths.add("/tagging/taxa/{tag}/{mode}");
-		addResource(TaxaTaggingResource.class, taxaPaths, true, true, false);
-		
 		for (Iterator<ServiceRestlet> iter = services.iterator(); iter.hasNext();)
 			addServiceToRouter(iter.next());
-		
 	}
 	
 	private void addServiceToRouter(ServiceRestlet curService) {
-		addResource(curService, curService.getPaths(), true, true, false);
+		addResource(curService, curService.getPaths(), false);
 	}
 	
-	protected void initRoutes() {
-		addResource(GWTClientResource.class, "/SIS", true, true, true);
+	protected void initDualRoutes() {
+		addResource(SIS.get().getGuard(app.getContext()), "/authn", true);
+		addResource(GWTClientResource.class, "/SIS", true);
+		
+		final List<String> taxaPaths = new ArrayList<String>();
+		taxaPaths.add("/tagging/taxa/{tag}");
+		taxaPaths.add("/tagging/taxa/{tag}/{mode}");
+		addResource(TaxaTaggingResource.class, taxaPaths, false);
+		
 		addResource(new Restlet() {
-			@Override
 			public void handle(Request request, Response response) {
 				try {
 					response.setEntity(new InputRepresentation(SIS.get().getVFS().getInputStream(new VFSPath("/images/favicon.ico")),
@@ -117,14 +118,19 @@ public class ServerApplication extends SISApplication{
 				} catch (NotFoundException e) {
 					response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 				}
-
 			}
-		}, "/favicon.ico", true, true, true);
-		addResource(SISVFSResource.class, "/raw", true, true, true);
-//		addResource(VFSVersionAccessResource.class, "/revisions", true, true, true);
-		addResource(AsmChangesResource.class, "/asmchanges/{asm_id}", true, true, false);		
-		addResource(ServeUpdatesResource.class, "/getUpdates", true, false, true);
-		addResource(ServeUpdatesResource.class, "/getUpdates/summary", true, false, true);
+		}, "/favicon.ico",  true);
+		
+		addResource(SISVFSResource.class, "/raw", true);
+		addResource(AsmChangesResource.class, "/asmchanges/{asm_id}", false);
+	}
+	
+	@Override
+	protected void initOnline() {
+		initDual();
+		
+		addResource(ServeUpdatesResource.class, "/getUpdates", true);
+		addResource(ServeUpdatesResource.class, "/getUpdates/summary", true);
 		addResource(new Restlet(app.getContext()) {
 			@Override
 					public void handle(Request request, Response response) {
@@ -132,10 +138,15 @@ public class ServerApplication extends SISApplication{
 						response.setEntity("<html><body>The online environment does not "
 								+ "support automatic updates.", MediaType.TEXT_HTML);
 					}
-		}, "/update", true, false, true);
+		}, "/update", true);
+	}
+	
+	@Override
+	protected void initOffline() {
+		initDual();
 		
-		addResource(UpdateResource.class, "/update", false, true, true);
-		addResource(UpdateResource.class, "/update/summary", false, true, true);
+		addResource(UpdateResource.class, "/update", true);
+		addResource(UpdateResource.class, "/update/summary", true);
 		addResource(new Restlet(app.getContext()) {
 			@Override
 			public void handle(Request request, Response response) {
@@ -143,7 +154,7 @@ public class ServerApplication extends SISApplication{
 				response.setEntity("<html><body>Serving updates can only be done in " + "the online environment.",
 						MediaType.TEXT_HTML);
 			}
-		}, "/getUpdates", false, true, true);
+		}, "/getUpdates", true);
 	}
 	
 	public static class GWTClientResource extends SimpleClasspathResource {

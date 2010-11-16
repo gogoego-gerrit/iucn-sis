@@ -1,12 +1,12 @@
 package org.iucn.sis.shared.conversions;
 
-import org.iucn.sis.server.api.application.SISApplication;
+import org.iucn.sis.server.api.application.SimpleSISApplication;
 
-public class Application extends SISApplication {
+public class Application extends SimpleSISApplication {
 
 	@Override
 	public void init() {
-		addResource(new ConverterResource(), "", true, true, true);		
+		addResource(new ConverterResource(), "", true);		
 	}
 	
 	

@@ -5,7 +5,7 @@ package org.iucn.sis.server.extensions.user.application;
 
 import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.application.SISApplication;
+import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.iucn.sis.server.extensions.user.resources.BatchUpdateRestlet;
 import org.iucn.sis.server.extensions.user.resources.CustomFieldManager;
 import org.iucn.sis.server.extensions.user.resources.DumpResource;
@@ -19,27 +19,26 @@ import com.solertium.db.ExecutionContext;
  * UserManagementApplication.java
  * 
  * User Management application. Controls the database of SIS users. Created for
- * SIS-216
+ * SIS-216.  Available online and offline
  * 
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
-public final class UserManagementApplication extends SISApplication {
+public final class UserManagementApplication extends SimpleSISApplication {
 
 	@Override
 	public void init() {		
 		
-		addServerResource(UserRestlet.class, UserRestlet.getPaths(), true, true, false);
+		addServerResource(UserRestlet.class, UserRestlet.getPaths(), false);
 //		addResource(UserResource.class, "/list", true, true, true);
 		
 		final BatchUpdateRestlet restlet =  new BatchUpdateRestlet(app.getContext());
 		
-		addResource(restlet, restlet.getPaths(), true, true, false);
-		addResource(DumpResource.class, "/dump", true, true, false);
-		addResource(CustomFieldManager.class, "/manager/custom", true, true, false);
-		addResource(CustomFieldManager.class, "/manager/custom/{id}", true, true, false);
-		addResource(ProfileSearchResource.class, "/browse/profile", true, true, false);
-		
+		addResource(restlet, restlet.getPaths(), false);
+		addResource(DumpResource.class, "/dump", false);
+		addResource(CustomFieldManager.class, "/manager/custom", false);
+		addResource(CustomFieldManager.class, "/manager/custom/{id}", false);
+		addResource(ProfileSearchResource.class, "/browse/profile", false);
 	}
 
 

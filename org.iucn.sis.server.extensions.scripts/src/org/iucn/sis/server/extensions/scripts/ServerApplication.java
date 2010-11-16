@@ -1,15 +1,18 @@
 package org.iucn.sis.server.extensions.scripts;
 
-import org.iucn.sis.server.api.application.SISApplication;
+import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
-import org.iucn.sis.server.extensions.scripts.commonnames.WriteAllCommonNamesToXML;
-import org.iucn.sis.shared.api.debug.Debug;
-import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
-import org.restlet.data.Status;
 
-public class ServerApplication extends SISApplication{
+public class ServerApplication extends SimpleSISApplication {
+	
+	/**
+	 * For internal use only -- hopefully never used.
+	 */
+	public ServerApplication() {
+		super(RunMode.ONLINE);
+	}
 
 	@Override
 	public void init() {
@@ -28,7 +31,7 @@ public class ServerApplication extends SISApplication{
 				
 				
 			}
-		}, "/start", true, true, false);
+		}, "/start", false);
 		
 	}
 

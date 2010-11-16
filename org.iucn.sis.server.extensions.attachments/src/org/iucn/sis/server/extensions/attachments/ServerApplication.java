@@ -1,50 +1,19 @@
 package org.iucn.sis.server.extensions.attachments;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.application.SISApplication;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.application.SimpleSISApplication;
 
-public class ServerApplication extends SISApplication{
-	
-	protected final ArrayList<ServiceRestlet> services;
-	
-	
+public class ServerApplication extends SimpleSISApplication {
+
 	public ServerApplication() {
-		super();
-		services = new ArrayList<ServiceRestlet>();
-		
+		super(RunMode.ONLINE);
 	}
-	
-	@Override
+
+	/**
+	 * Attachments are available online only.
+	 */
 	public void init() {
-		initServiceRoutes();
-		initRoutes();		
+		addServiceToRouter(new FileAttachmentRestlet(SIS.get().getVfsroot(), app.getContext()));
 	}
-	
-	protected void initServiceRoutes() {
-		
-		services.add(new FileAttachmentRestlet(SIS.get().getVfsroot(), app.getContext()));
-		
-		for (Iterator<ServiceRestlet> iter = services.iterator(); iter.hasNext();)
-			addServiceToRouter(iter.next());
-		
-	}
-	
-	private void addServiceToRouter(ServiceRestlet curService) {
-		addResource(curService, curService.getPaths(), true, true, false);
-	}
-	
-	protected void initRoutes() {
-		
-		//TODO: GET COMPILED CLIENT BITS
-				
-		
-	}
-	
-	
-	
 
 }

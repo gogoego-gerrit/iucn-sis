@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.application.SISApplication;
+import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
@@ -17,28 +17,29 @@ import org.restlet.representation.InputRepresentation;
 
 import com.solertium.util.TrivialExceptionHandler;
 
-public class ServerApplication extends SISApplication {
+public class ServerApplication extends SimpleSISApplication {
 	
-	
-	@Override
+	/**
+	 * Validation available online & offline
+	 */
 	public void init() {
-		addResource(getStructRestlet(), "/struct", true, true, false);
-		addResource(getStyleSheetRestlet(), "/styles.css", true, true, false);
+		addResource(getStructRestlet(), "/struct", false);
+		addResource(getStyleSheetRestlet(), "/styles.css", false);
 		
 		List<String> rulesetPaths = new ArrayList<String>();
 		rulesetPaths.add("/ruleset");
 		rulesetPaths.add("/ruleset/{rule}");
 		
-		addResource(RuleSetResource.class, rulesetPaths, true, true, false);
+		addResource(RuleSetResource.class, rulesetPaths, false);
 		
-		addResource(IntegrityDumpResource.class, "/dump", true, true, false);
-		addResource(IntegrityQueryResource.class, "/query", true, true, false);
+		addResource(IntegrityDumpResource.class, "/dump", false);
+		addResource(IntegrityQueryResource.class, "/query", false);
 		
-		addResource(MultipleValidationResource.class, "/validate", true, true, false);
-		addResource(ValidationResource.class, "/validate/{rule}", true, true, false);
-		addResource(QBLookupListResource.class, "/lookup", true, true, false);
+		addResource(MultipleValidationResource.class, "/validate", false);
+		addResource(ValidationResource.class, "/validate/{rule}", false);
+		addResource(QBLookupListResource.class, "/lookup", false);
 		
-		addResource(IntegrityTestResource.class, "/test", true, true, false);
+		addResource(IntegrityTestResource.class, "/test", false);
 	}
 	
 	private Restlet getStructRestlet() {

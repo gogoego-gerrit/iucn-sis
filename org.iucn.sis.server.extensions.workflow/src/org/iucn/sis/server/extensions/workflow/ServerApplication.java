@@ -1,7 +1,7 @@
 package org.iucn.sis.server.extensions.workflow;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.application.SISApplication;
+import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.restlet.Restlet;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -10,18 +10,14 @@ import com.solertium.db.DBException;
 import com.solertium.db.query.DeleteQuery;
 import com.solertium.util.TrivialExceptionHandler;
 
-public class ServerApplication extends SISApplication {
-	
-	public ServerApplication() {
-		super();
-	}
+public class ServerApplication extends SimpleSISApplication {
 	
 	@Override
 	public void init() {
-		addResource(WFListResource.class, "/workflow/set", true, true, false);
-		addResource(WFNotesResource.class, "/workflow/set/{working-set}/notes", true, true, false);
-		addResource(WFNotesResource.class, "/workflow/set/{working-set}/notes/{protocol}", true, true, false);
-		addResource(WorkflowManagementResource.class, "/workflow/set/{working-set}/status", true, true, false);
+		addResource(WFListResource.class, "/workflow/set",  false);
+		addResource(WFNotesResource.class, "/workflow/set/{working-set}/notes", false);
+		addResource(WFNotesResource.class, "/workflow/set/{working-set}/notes/{protocol}", false);
+		addResource(WorkflowManagementResource.class, "/workflow/set/{working-set}/status", false);
 		addResource(new Restlet(app.getContext()) {
 			public void handle(Request arg0, Response arg1) {
 				for (String table : new String[] { WorkflowConstants.WORKFLOW_TABLE, WorkflowConstants.WORKFLOW_NOTES_TABLE }) {
@@ -35,7 +31,7 @@ public class ServerApplication extends SISApplication {
 					}
 				}
 			}
-		}, "/workflow/clear", true, true, false);
+		}, "/workflow/clear", false);
 	}
 
 }

@@ -2,30 +2,20 @@ package org.iucn.sis.server.extensions.zendesk;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
-import org.iucn.sis.server.api.application.SISApplication;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.application.SimpleSISApplication;
 
-public class ServerApplication extends SISApplication {
-	
-	protected final ArrayList<ServiceRestlet> services;
+public class ServerApplication extends SimpleSISApplication {
 	
 	public ServerApplication() {
-		super();
-		services = new ArrayList<ServiceRestlet>();
+		super(RunMode.ONLINE);
 	}
 	
-	@Override
+	/**
+	 * Requires hitting ZenDesk API, only available online.
+	 */
 	public void init() {
-		services.add(new ZendeskResource(app.getContext()));
-		
-		for (Iterator<ServiceRestlet> iter = services.iterator(); iter.hasNext();)
-			addServiceToRouter(iter.next());
-	}
-	
-	private void addServiceToRouter(ServiceRestlet curService) {
-		addResource(curService, curService.getPaths(), true, true, false);
+		addServiceToRouter(new ZendeskResource(app.getContext()));
 	}
 	
 	@Override

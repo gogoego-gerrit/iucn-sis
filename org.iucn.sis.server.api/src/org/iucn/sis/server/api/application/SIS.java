@@ -26,11 +26,9 @@ import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.utils.OnlineUtil;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.debug.Debugger;
 import org.iucn.sis.shared.api.models.User;
-import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
@@ -53,7 +51,6 @@ import com.solertium.util.restlet.authentication.Authenticator.AccountNotFoundEx
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSFactory;
-import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.provider.VersionedFileVFS;
 
 public class SIS {
@@ -282,8 +279,23 @@ public class SIS {
 		return ndoc;
 	}
 
+	/**
+	 * SIS is running online unless otherwise 
+	 * stated via property.
+	 * @return
+	 */
 	public static boolean amIOnline() {
-		return OnlineUtil.amIOnline();
+		//return OnlineUtil.amIOnline();
+		return !"false".equals(GoGoEgo.getInitProperties().getProperty("org.iucn.sis.online", "true"));
+	}
+	
+	/**
+	 * SIS does NOT force users to use HTTPS 
+	 * unless otherwise stated via property 
+	 * @return
+	 */
+	public static boolean forceHTTPS() {
+		return "true".equals(GoGoEgo.getInitProperties().getProperty("org.iucn.sis.forcehttps", "false"));
 	}
 
 	boolean isEncodeableEntity(Representation entity) {
