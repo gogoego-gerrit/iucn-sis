@@ -16,7 +16,7 @@ public class ThreatsSubfield {
 	protected Field proxy;
 	
 	public ThreatsSubfield(Field data) {
-		this.proxy = data;
+		this.proxy = data == null ? new Field("ThreatsSubfield", null) : data;
 	}
 	
 	public Integer getThreat() {

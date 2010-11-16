@@ -110,7 +110,7 @@ public class ClassificationScheme extends Display {
 		panel.add(new Button("Make Changes", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				final Window window = new Window();
-				window.setSize(700, 600);
+				window.setSize(800, 600);
 				window.setHeading(description);
 				window.setLayout(new FillLayout());
 				window.setLayoutOnChange(true);

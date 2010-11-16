@@ -1,6 +1,10 @@
 package org.iucn.sis.shared.api.schemes;
 
+import java.util.List;
+
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.models.ClientUser;
+import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.displays.Display;
@@ -22,6 +26,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class ClassificationSchemeTestEntryPoint extends SISClientBase {

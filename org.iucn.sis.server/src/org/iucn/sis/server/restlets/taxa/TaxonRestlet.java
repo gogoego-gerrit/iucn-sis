@@ -1,13 +1,12 @@
 package org.iucn.sis.server.restlets.taxa;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -17,76 +16,140 @@ import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
+import org.restlet.util.Triple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.ElementCollection;
-import com.solertium.vfs.NotFoundException;
 
-public class TaxonRestlet extends ServiceRestlet {
+public class TaxonRestlet extends BaseServiceRestlet {
 
 	public TaxonRestlet(String vfsroot, Context context) {
 		super(vfsroot, context);
 	}
-
-	/**
-	 * DELETES a taxa
-	 * 
-	 * @param request
-	 * @param response
-	 * @param nodeID
-	 */
-	private void deleteTaxa(Request request, Response response, Integer nodeID) {
-		// SHOULD BE DONE FROM TAXOMATICRESTLET`
-
-		// Taxon taxon = SIS.get().getTaxonIO().getTaxon(nodeID);
-		// if (taxon != null) {
-		// if (SIS.get().getTaxonIO().deleteTaxon(taxon,
-		// SIS.get().getUser(request))) {
-		// response.setEntity("Taxa has been deleted", MediaType.TEXT_PLAIN);
-		// response.setStatus(Status.SUCCESS_OK);
-		// } else {
-		// response.setEntity("Taxa was unable to be deleted",
-		// MediaType.TEXT_PLAIN);
-		// response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		// }
-		// } else {
-		// response.setEntity("Taxon does not exist", MediaType.TEXT_PLAIN);
-		// response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		// }
-
+	
+	@Override
+	public void definePaths() {
+		paths.add("/browse/{action}");
+		paths.add("/browse/{action}/{first}");
+		paths.add("/browse/{action}/{first}/{second}");
 	}
-
-	/**
-	 * 
-	 * @param response
-	 * @param id
-	 */
-	private void getFootprintOfIDsAndChildren(Response response, Integer id) {
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
-		response.setEntity(taxon.getXMLofFootprintAndChildren(), MediaType.TEXT_XML);
-		response.setStatus(Status.SUCCESS_OK);
+	
+	private Triple<String, String, String> getParameters(Request request) {
+		String action = (String) request.getAttributes().get("action");
+		String first = (String) request.getAttributes().get("first");
+		String second = (String) request.getAttributes().get("second");
+		
+		return new Triple<String, String, String>(action, first, second);
 	}
-
-	private void getFullFootprint(Request request, Response response, String ids) throws IOException {
-		String[] taxaIDs;
-		if (ids == null || ids.equals("") || ids.equalsIgnoreCase("null"))
-			taxaIDs = request.getEntity().getText().split(",");
+	
+	private Integer parseIdentifier(String identifier) throws ResourceException {
+		try {
+			return Integer.valueOf(identifier);
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
+	}
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		Triple<String, String, String> parameters = getParameters(request);
+		
+		final String action = parameters.getFirst();
+		final Representation representation;
+		if (action.equalsIgnoreCase("hierarchy"))
+			representation = getFootprintOfIDsAndChildren(parseIdentifier(parameters.getSecond()));
+		else if (action.equalsIgnoreCase("children"))
+			representation = serveChildrenByID(parseIdentifier(parameters.getSecond()));
+		else if (action.equalsIgnoreCase("nodes"))
+			representation = serveInfo(parameters.getSecond());
+		else if (action.equalsIgnoreCase("taxonName"))
+			representation = serveByName(parameters.getSecond(), parameters.getThird());
+		else if (action.equalsIgnoreCase("taxonomy"))
+			representation = serveBrowsing(parameters.getSecond());
+		else if (action.equalsIgnoreCase("footprint")) {
+			representation = getFullFootprint(parameters.getSecond());
+		}
+		else if (action.equalsIgnoreCase("footprintIDs"))
+			representation = getFullFootprintOfIDs(response, parseIdentifier(parameters.getSecond()));
 		else
-			taxaIDs = ids.split(",");
+			throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+		
+		return representation;
+	}
+	
+	@Override
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		Triple<String, String, String> parameters = getParameters(request);
+		
+		final String action = parameters.getFirst();
+		if (action.equalsIgnoreCase("nodes") && "list".equals(parameters.getSecond())) {
+			Document doc = getEntityAsDocument(entity);
+			ElementCollection list = new ElementCollection(doc.getElementsByTagName("id"));
+
+			StringBuilder retXML = new StringBuilder("<nodes>");
+			List<Integer> ids = new ArrayList<Integer>();
+			for (Element curEl : list)
+				ids.add(parseIdentifier(curEl.getTextContent()));
+				
+			for (Taxon taxon : SIS.get().getTaxonIO().getTaxa(ids.toArray(new Integer[ids.size()]), false))
+				retXML.append(taxon.toXML());
+			
+			retXML.append("</nodes>");
+			
+			response.setEntity(retXML.toString(), MediaType.TEXT_XML);
+			response.getEntity().setCharacterSet(CharacterSet.UTF_8);
+			response.setStatus(Status.SUCCESS_OK);
+		}
+		else if (action.equalsIgnoreCase("lowestTaxa"))
+			serveLowestTaxa(response, entity);
+		else if (action.equalsIgnoreCase("footprint")) {
+			String values = parameters.getSecond();
+			if (values != null)
+				Debug.println("WARNING: TaxonRestlet -- You should be GET instead of POST here.");
+			else {
+				try {
+					values = entity.getText();
+				} catch (Exception e ) {
+					throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+				}
+			}
+			response.setEntity(getFullFootprint(values));
+		}
+	}
+	
+	@Override
+	public void handlePut(Representation entity, Request request,
+			Response response) throws ResourceException {
+		Triple<String, String, String> parameters = getParameters(request);
+		
+		final String action = parameters.getFirst();
+		if (action.equalsIgnoreCase("nodes"))
+			updateTaxon(request, response, parseIdentifier(parameters.getSecond()));
+	}
+
+	private Representation getFootprintOfIDsAndChildren(Integer id) {
+		Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
+		
+		return new StringRepresentation(taxon.getXMLofFootprintAndChildren(), MediaType.TEXT_XML);
+	}
+
+	private Representation getFullFootprint(String ids) throws ResourceException {
+		String[] taxaIDs = ids.split(",");
 
 		StringBuilder xml = new StringBuilder("<taxa>");
 
 		for (int i = 0; i < taxaIDs.length; i++) {
-			Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(taxaIDs[i]));
+			Taxon taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(taxaIDs[i]));
 			if (taxon != null) {
 				String name = taxon.getLevel() == TaxonLevel.KINGDOM ? taxon.getName() : taxon.getFootprintAsString(0,
 						",")
@@ -98,75 +161,23 @@ public class TaxonRestlet extends ServiceRestlet {
 		}
 
 		xml.append("</taxa>");
-		response.setStatus(Status.SUCCESS_OK);
 
 		// FIXME: Cannot return just the String for whatever bizarre reason -
 		// must be transformed
 		// to a Document first, even if we trip, then wrap everything in CDATA.
 		// Anyone know why?
 		Document doc = DocumentUtils.createDocumentFromString(xml.toString());
-		response.setEntity(new DomRepresentation(MediaType.TEXT_XML, doc));
+		return new DomRepresentation(MediaType.TEXT_XML, doc);
 	}
 
-	private void getFullFootprintOfIDs(Response response, Integer id) {
-		try {
-			String xml = "<ids>" + SIS.get().getTaxonIO().getTaxon(id).getIDFootprintAsString(0, ",") + "</ids>\r\n";
-			response.setEntity(xml, MediaType.TEXT_XML);
-			response.setStatus(Status.SUCCESS_OK);
-
-		} catch (NullPointerException e) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		}
-	}
-
-	@Override
-	public void definePaths() {
-		paths.add("/browse/{action}");
-		paths.add("/browse/{action}/{first}");
-		paths.add("/browse/{action}/{first}/{second}");
-	}
-
-	@Override
-	public void performService(Request request, Response response) {
-		String action = (String) request.getAttributes().get("action");
-		String first = (String) request.getAttributes().get("first");
-		String second = (String) request.getAttributes().get("second");
-
-		try {
-			if (action.equalsIgnoreCase("nodes")) {
-
-				if (request.getMethod() == Method.PUT)
-					updateTaxon(request, response, Integer.valueOf(first));
-				else if (request.getMethod() == Method.DELETE) {
-					deleteTaxa(request, response, Integer.valueOf(first));
-				} else
-					serveInfo(request, response, first);
-			} else if (action.equalsIgnoreCase("taxonName"))
-				serveByName(request, response, first, second);
-			else if (action.equalsIgnoreCase("children"))
-				serveChildrenByID(request, response, Integer.valueOf(first));
-			else if (action.equalsIgnoreCase("taxonomy"))
-				serveBrowsing(response, first);
-			else if (action.equalsIgnoreCase("lowestTaxa"))
-				serveLowestTaxa(request, response);
-			else if (action.equalsIgnoreCase("footprint"))
-				getFullFootprint(request, response, first);
-			else if (action.equalsIgnoreCase("footprintIDs"))
-				getFullFootprintOfIDs(response, Integer.valueOf(first));
-			else if (action.equalsIgnoreCase("hierarchy"))
-				getFootprintOfIDsAndChildren(response, Integer.valueOf(first));
-			else {
-				Debug.println("This is a bad request: " + request.getResourceRef().getPath());
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			}
-		} catch (ResourceException e) {
-			Debug.println("Failure in taxon restlet: \n{0}", e);
-			response.setStatus(e.getStatus(), e);
-		} catch (Exception e) {
-			Debug.println("Uncaught failure in taxon restlet: \n{0}", e);
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		}
-	}
+	private Representation getFullFootprintOfIDs(Response response, Integer id) throws ResourceException {
+		final Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
+		if (taxon == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		
+		return new StringRepresentation("<ids>" + taxon.getIDFootprintAsString(0, ",") + "</ids>", 
+				MediaType.TEXT_XML);
+	}	
 
 	private void updateTaxon(Request request, Response response, Integer nodeID) throws ResourceException {
 		if (nodeID != null) {
@@ -184,6 +195,7 @@ public class TaxonRestlet extends ServiceRestlet {
 			try {
 				newNode = SIS.get().getManager().mergeObject(newNode);
 			} catch (PersistentException e) {
+				Debug.println(e);
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 			
@@ -207,23 +219,19 @@ public class TaxonRestlet extends ServiceRestlet {
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 	}
 
-	private void serveBrowsing(Response response, String hierarchy) throws NotFoundException {
-		Taxon yeah = null;
+	private Representation serveBrowsing(String hierarchy) throws ResourceException {
+		Taxon taxon = null;
 
 		if (hierarchy != null) {
 			if (hierarchy.indexOf("-") < 0) {
-				yeah = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(hierarchy));
-
-				response.setEntity(getHierarchyFootprintXML(yeah), MediaType.TEXT_XML);
-				response.setStatus(Status.SUCCESS_OK);
+				taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(hierarchy));
 			} else {
 				String[] split = hierarchy.split("-");
-				yeah = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(split[split.length - 1]));
+				taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(split[split.length - 1]));
 			}
 		}
 
-		response.setEntity(getHierarchyFootprintXML(yeah), MediaType.TEXT_XML);
-		response.setStatus(Status.SUCCESS_OK);
+		return new StringRepresentation(getHierarchyFootprintXML(taxon), MediaType.TEXT_XML);
 	}
 
 	private String getHierarchyFootprintXML(Taxon root) {
@@ -251,110 +259,67 @@ public class TaxonRestlet extends ServiceRestlet {
 		return xml;
 	}
 
-	private void serveByName(Request request, Response response, String kingdomName, String fullName) {
+	private Representation serveByName(String kingdomName, String fullName) throws ResourceException {
 		Taxon taxon = SIS.get().getTaxonIO().readTaxonByName(kingdomName, fullName);
-		if (taxon == null) {
-			Debug.println("Node name {0} is not found.", fullName);
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "Node name " + fullName + " is not found.");
-		} else {
-			// System.out.println("Trying to fetch node by id " +
-			// taxon.getId());
-			serveInfo(request, response, taxon.getId() + "");
-		}
+		if (taxon == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Node name " + fullName + " is not found.");
+		
+		return serveInfo(taxon.getId() + "");
 	}
 
-	private void serveChildrenByID(Request request, Response response, Integer nodeID) {
+	private Representation serveChildrenByID(Integer nodeID) throws ResourceException {
+		final Taxon taxon = SIS.get().getTaxonIO().getTaxon(nodeID);
+		if (taxon == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		
+		String ids = taxon.getChildrenCSV();
+		if ("".equals(ids))
+			return new StringRepresentation("<empty></empty>", MediaType.TEXT_XML); 
+		else
+			return serveInfo(ids);
+	}
 
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(nodeID);
-		if (taxon == null) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			return;
-		} else {
-			String ids = taxon.getChildrenCSV();
-			if (!ids.equals("")) {
-				serveInfo(request, response, ids);
-				// try {
-				// System.out.println("----");
-				// System.out.println(response.getEntity().getText());
-				// System.out.println("----");
-				// } catch (Exception e) {
-				// }
-			} else {
-				response.setEntity("<empty></empty>", MediaType.TEXT_XML);
-				response.setStatus(Status.SUCCESS_OK);
+	private Representation serveInfo(String nodeID) throws ResourceException {
+		if (nodeID == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+		
+		Representation representation;
+		if (nodeID.contains(",")) {
+			String[] list = nodeID.split(",");
+			StringBuilder retXML = new StringBuilder("<nodes>\r\n");
+
+			for (int i = 0; i < list.length; i++) {
+				Taxon taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(list[i]));
+				if (taxon != null)
+					retXML.append(taxon.toXML());
 			}
+			retXML.append("</nodes>");
+
+			representation = new StringRepresentation(retXML.toString(), MediaType.TEXT_XML);
+
+		} else {
+			Taxon taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(nodeID));
+			if (taxon == null)
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+									
+			StringBuilder retXML = new StringBuilder("<nodes>\r\n");
+			retXML.append(taxon.toXML());
+			retXML.append("</nodes>");
+
+			representation = new StringRepresentation(retXML.toString(), MediaType.TEXT_XML);
 		}
+		
+		representation.setCharacterSet(CharacterSet.UTF_8);
+		return representation;
 	}
 
-	private void serveInfo(Request request, Response response, String nodeID) {
-		if (nodeID != null) {
-			if (nodeID.equalsIgnoreCase("list")) {
-				try {
-
-					Document doc = new DomRepresentation(request.getEntity()).getDocument();
-					ElementCollection list = new ElementCollection(doc.getElementsByTagName("id"));
-
-					StringBuilder retXML = new StringBuilder("<nodes>");
-
-					List<Integer> ids = new ArrayList<Integer>();
-					for (Element curEl : list) {
-						ids.add(Integer.valueOf(curEl.getTextContent()));
-						/*retXML.append(SIS.get().getTaxonIO().
-							getTaxonXML(Integer.valueOf(curEl.getTextContent())));*/
-					}
-					
-					for (Taxon taxon : SIS.get().getTaxonIO().getTaxa(ids.toArray(new Integer[ids.size()]), false)) {
-						retXML.append(taxon.toXML());
-					}
-
-					retXML.append("</nodes>");
-					response.setEntity(retXML.toString(), MediaType.TEXT_XML);
-					response.getEntity().setCharacterSet(CharacterSet.UTF_8);
-					response.setStatus(Status.SUCCESS_OK);
-				} catch (IOException e) {
-					e.printStackTrace();
-					response.setEntity("Unprocessable entity: " + request.getEntityAsText(), MediaType.TEXT_PLAIN);
-					response.setStatus(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
-				}
-			} else if (nodeID.contains(",")) {
-				String[] list = nodeID.split(",");
-				StringBuilder retXML = new StringBuilder("<nodes>\r\n");
-
-				for (int i = 0; i < list.length; i++) {
-					Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(list[i]));
-					if (taxon != null)
-						retXML.append(taxon.toXML());
-				}
-				retXML.append("</nodes>");
-				response.setEntity(retXML.toString(), MediaType.TEXT_XML);
-				response.getEntity().setCharacterSet(CharacterSet.UTF_8);
-				response.setStatus(Status.SUCCESS_OK);
-
-			} else {
-				Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(nodeID));
-				if (taxon == null) {
-					response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-					return;
-				}
-				StringBuilder retXML = new StringBuilder("<nodes>\r\n");
-				retXML.append(taxon.toXML());
-				retXML.append("</nodes>");
-
-				response.setEntity(retXML.toString(), MediaType.TEXT_XML);
-				response.setStatus(Status.SUCCESS_OK);
-			}
-		} else
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-	}
-
-	private void serveLowestTaxa(Request request, Response response) throws IOException {
-
-		Document idsDoc = new DomRepresentation(request.getEntity()).getDocument();
+	private void serveLowestTaxa(Response response, Representation entity) throws ResourceException {
+		Document idsDoc = getEntityAsDocument(entity);
 		ElementCollection idsList = new ElementCollection(idsDoc.getElementsByTagName("id"));
 		ArrayList<Taxon> idsLeftToCheck = new ArrayList<Taxon>();
 
 		for (Element curCode : idsList) {
-			idsLeftToCheck.add(SIS.get().getTaxonIO().getTaxon(Integer.valueOf(curCode.getTextContent())));
+			idsLeftToCheck.add(SIS.get().getTaxonIO().getTaxon(parseIdentifier(curCode.getTextContent())));
 		}
 
 		StringBuffer idsToFetch = new StringBuffer();
@@ -372,12 +337,15 @@ public class TaxonRestlet extends ServiceRestlet {
 					idsLeftToCheck.add(curChild);
 			}
 		}
-		if (idsToFetch.length() > 0) {
-			serveInfo(request, response, idsToFetch.substring(0, idsToFetch.length() - 1));
-		} else {
-			response.setEntity("<empty></empty>", MediaType.TEXT_XML);
-			response.setStatus(Status.SUCCESS_OK);
-		}
+		
+		final Representation representation;
+		if (idsToFetch.length() > 0)
+			representation = serveInfo(idsToFetch.substring(0, idsToFetch.length() - 1));
+		else
+			representation = new StringRepresentation("<empty></empty>", MediaType.TEXT_XML);
+		
+		response.setStatus(Status.SUCCESS_OK);
+		response.setEntity(representation);
 	}
 
 }

@@ -36,6 +36,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -180,7 +181,12 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				if (selected != null) {
 					gridBar.fireEvent(Events.Change);
 					
-					updateInnerContainer(selected, false, isViewOnly);
+					updateInnerContainer(selected, false, isViewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
+						public void isDrawn(LayoutContainer container) {
+							innerContainer.removeAll();
+							innerContainer.add(container);
+						}
+					});
 				}
 				else{
 					gridBar.setVisible(false);
@@ -232,7 +238,8 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		return displayPanel;
 	}
 	
-	private void updateInnerContainer(final ClassificationSchemeModelData model, final boolean addToPagingLoader, final boolean isViewOnly) {
+	protected void updateInnerContainer(final ClassificationSchemeModelData model, 
+			final boolean addToPagingLoader, final boolean isViewOnly, final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
 		final ComboBox<CodingOption> box = createClassificationOptions(model.getSelectedRow());
 		
 		final ToolBar buttonPanel = new ToolBar();
@@ -281,8 +288,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		container.add(widgetContainer ,new BorderLayoutData(LayoutRegion.CENTER));
 		container.add(buttonPanel, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
 		
-		innerContainer.removeAll();
-		innerContainer.add(container);
+		callback.isDrawn(container);
 	}
 	
 	public ToolBar getLabelPanel(final Grid<ClassificationSchemeModelData> grid, boolean isViewOnly){
@@ -440,7 +446,12 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				final ClassificationSchemeModelData model = 
 					newInstance(generateDefaultStructure());
 				
-				updateInnerContainer(model, true, isViewOnly);
+				updateInnerContainer(model, true, isViewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
+					public void isDrawn(LayoutContainer container) {
+						innerContainer.removeAll();
+						innerContainer.add(container);
+					}
+				});
 			}
 		});
 		
@@ -516,6 +527,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		final ComboBox<CodingOption> box = new ComboBox<CodingOption>();
 		box.setStore(store);
 		box.setForceSelection(true);
+		box.setTriggerAction(TriggerAction.ALL);
 		box.setWidth(500);
 		
 		if (selectedOption != null)
@@ -621,7 +633,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		
 	}
 	
-	private static class CodingOption extends BaseModelData {
+	protected static class CodingOption extends BaseModelData {
 		
 		private static final long serialVersionUID = 1L;
 		
