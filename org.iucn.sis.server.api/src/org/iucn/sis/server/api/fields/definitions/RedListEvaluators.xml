@@ -3,7 +3,7 @@
 	<description>Evaluator(s)</description>
 	<classOfService>Outcome</classOfService>
 	<structures>
-		<structure id="value">
+		<structure>
 			<optionsList></optionsList>
 		</structure>
 	</structures>

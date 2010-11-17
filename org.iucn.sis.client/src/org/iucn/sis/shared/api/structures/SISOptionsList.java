@@ -8,6 +8,7 @@ import java.util.Map;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
@@ -31,19 +32,7 @@ public class SISOptionsList extends Structure<Field> {
 	
 	@Override
 	public boolean hasChanged(Field field) {
-		Map<String, PrimitiveField> data;
-		if (field == null)
-			data = new HashMap<String, PrimitiveField>();
-		else
-			data = field.getKeyToPrimitiveFields();
-		
-		//super.setData(data);
-
-		String text = data.containsKey(TEXT_ACCOUNT_KEY) ? 
-				((StringPrimitiveField)data.get(TEXT_ACCOUNT_KEY)).getValue() : "";
-		List<Integer> fks = data.containsKey(FK_LIST_KEY) ? 
-				((ForeignKeyListPrimitiveField)data.get(FK_LIST_KEY)).getValue() : new ArrayList<Integer>();
-		
+		/*
 		// FOR BACKWARDS COMPATIBILITY
 		if (!"".equals(text)) {
 			theList.setTextAreaEnabled(true);
@@ -58,7 +47,13 @@ public class SISOptionsList extends Structure<Field> {
 				ids.add(fk.toString());
 			
 			theList.setUsersId(ids);
-		}
+		}*/
+		
+		Map<String, PrimitiveField> data;
+		if (field == null)
+			data = new HashMap<String, PrimitiveField>();
+		else
+			data = field.getKeyToPrimitiveFields();
 		
 		if (theList.hasOldText()) {
 			String value = theList.getText();
@@ -105,20 +100,16 @@ public class SISOptionsList extends Structure<Field> {
 			field.setParent(parent);
 		}
 		
-		if (theList.hasOldText())
-			field.addPrimitiveField(new StringPrimitiveField(
-				TEXT_ACCOUNT_KEY, field, theList.getText()
-			));
-		else if (!theList.getSelectedUsers().isEmpty()) {
-			ForeignKeyListPrimitiveField prim = new ForeignKeyListPrimitiveField(FK_LIST_KEY, field);
-			
+		ProxyField proxy = new ProxyField(field);
+		if (theList.hasOldText()) {
+			proxy.setStringPrimitiveField(TEXT_ACCOUNT_KEY, theList.getText());
+		}
+		else {
 			List<Integer> users = new ArrayList<Integer>();
 			for (User user : theList.getSelectedUsers())
 				users.add(Integer.valueOf(user.getId()));
 			
-			prim.setValue(users);
-			
-			field.addPrimitiveField(prim);
+			proxy.setForeignKeyListPrimitiveField(FK_LIST_KEY, users);
 		}
 	}
 	

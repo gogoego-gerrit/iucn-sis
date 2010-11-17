@@ -100,7 +100,7 @@ public class UseTradeField extends ProxyField {
 	}
 	
 	@Override
-	protected void setForeignKeyPrimitiveField(String key, Integer value) {
+	public void setForeignKeyPrimitiveField(String key, Integer value) {
 		Integer toSave = value;
 		if (toSave.intValue() == 0)
 			toSave = null;
