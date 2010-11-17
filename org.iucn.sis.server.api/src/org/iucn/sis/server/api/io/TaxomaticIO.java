@@ -37,13 +37,11 @@ import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.BaseDocumentUtils;
-import com.solertium.util.ElementCollection;
 import com.solertium.util.NodeCollection;
 import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.provider.VersionedFileVFS;
@@ -427,7 +425,7 @@ public class TaxomaticIO {
 								field = new Field(CanonicalNames.RedListCriteria, assessment);
 							
 							RedListCriteriaField proxy = new RedListCriteriaField(field);
-							String currentValue = proxy.getRLHistoryText();
+							String currentValue = "as " + proxy.getRLHistoryText();
 							if (currentValue.equalsIgnoreCase(generateRLHistoryText(currentTaxon))) {
 								proxy.setRLHistoryText("");
 								assessment.getField().add(field);
