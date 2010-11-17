@@ -109,28 +109,26 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 						if (username.equalsIgnoreCase("admin"))
 							currentUser.setProperty(UserPreferences.AUTO_SAVE, UserPreferences.DO_ACTION);
 
-					AuthorizationCache.impl.setCredentials(authn);
+						AuthorizationCache.impl.setCredentials(authn);
 						AuthorizationCache.impl.init(new GenericCallback<String>() {
 							public void onSuccess(String result) {
 								try {
-								if( !iAmOnline )
-									currentUser.setProperty("quickGroup", "offline");
-								AuthorizationCache.impl.addUser(currentUser);
-
-								instance.buildPostLogin();
+									if( !iAmOnline )
+										currentUser.setProperty("quickGroup", "offline");
+									AuthorizationCache.impl.addUser(currentUser);
+	
+									instance.initializeCaches();
+									instance.buildPostLogin();
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}
 							public void onFailure(Throwable caught) {
 								WindowUtils.errorAlert("Error Initializing Oracle", caught.getMessage());
-
+								instance.initializeCaches();
 								instance.buildPostLogin();
 							}
-						});
-
-						DefinitionCache.impl.getDefinables();
-						RegionCache.impl.fetchRegions(SISClientBase.getHttpBasicNativeDocument());
+						});						
 					} else
 						instance.buildLogin("Login " + username + " not active.");
 				}
@@ -226,6 +224,11 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		}
 		
 		loadModule();
+	}
+	
+	protected void initializeCaches() {
+		DefinitionCache.impl.getDefinables();
+		RegionCache.impl.fetchRegions(SISClientBase.getHttpBasicNativeDocument());
 	}
 	
 	public abstract void loadModule();

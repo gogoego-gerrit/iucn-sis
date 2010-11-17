@@ -49,6 +49,11 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 	}
 	
 	@Override
+	protected void initializeCaches() {
+		// TODO Auto-generated method stub
+	}
+	
+	@Override
 	public void buildPostLogin() {
 		String field = Window.Location.getParameter("field");
 		if (field == null) 
