@@ -1,6 +1,5 @@
 package org.iucn.sis.shared.api.criteriacalculator;
 
-import org.iucn.sis.shared.api.debug.Debug;
 
 
 
@@ -34,7 +33,6 @@ public class Line {
 	public int x(double y) {
 		int x = -1;
 		x = (int) ((y - y1) / slope + x1);
-		Debug.println("this is coordinates (" + x + "," + y + ")");
 		return x;
 	}
 

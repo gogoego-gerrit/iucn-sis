@@ -31,4 +31,6 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.iucn.sis.server.extensions.zendesk;bundle-version="2.0.0",
  org.iucn.sis.server.extensions.notes;bundle-version="1.0.0",
  org.iucn.sis.server.extensions.scripts;bundle-version="1.0.0",
- org.iucn.sis.server.extensions.viruses;bundle-version="1.0.0"
+ org.iucn.sis.server.extensions.viruses;bundle-version="1.0.0",
+ org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
+ com.solertium.db;bundle-version="1.1.2"

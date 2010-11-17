@@ -2,8 +2,6 @@ package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
 
-import org.iucn.sis.shared.api.debug.Debug;
-
 
 /**
  * Represents the vulnerable classification
@@ -11,7 +9,7 @@ import org.iucn.sis.shared.api.debug.Debug;
  * @author liz.schwartz
  * 
  */
-class VU {
+class VU extends Classification {
 
 	// NUMBER OF CRITERIA PER LETTER
 	public final int criteriaA = 4;
@@ -85,11 +83,11 @@ class VU {
 	private final int eExtinctionYears100 = 10; // >=10
 
 	public VU() {
-
+		super("VU");
 	}
 
-	public CriteriaResult a1(HashMap factors, String populationReductionBasis) {
-		CriteriaResult analysis = new CriteriaResult();
+	public CriteriaResult a1(HashMap<String, Range> factors, String populationReductionBasis) {
+		CriteriaResult analysis = new CriteriaResult(name, "a1");
 		Range result = null;
 		String[] csv = populationReductionBasis.split(",");
 
@@ -109,13 +107,13 @@ class VU {
 		analysis.resultString = createAString(result, csv, "1");
 		if (analysis.resultString.equalsIgnoreCase(""))
 			analysis.range = null;
-		
+		analysis.printRange();
 		return analysis;
 	}
 
-	public CriteriaResult a2(HashMap factors, String populationReductionBasis) {
+	public CriteriaResult a2(HashMap<String, Range> factors, String populationReductionBasis) {
 		Range result = null;
-		CriteriaResult analysis = new CriteriaResult();
+		CriteriaResult analysis = new CriteriaResult(name, "a2");
 		String[] csv = populationReductionBasis.split(",");
 
 		if (!(csv.length == 1 && csv[0] == "0")) {
@@ -139,14 +137,13 @@ class VU {
 		analysis.resultString = createAString(result, csv, "2");
 		if (analysis.resultString.equalsIgnoreCase(""))
 			analysis.range = null;
-		
+		analysis.printRange();
 		return analysis;
-
 	}
 
 	public CriteriaResult a3(Range prf, String populationReductionFutureBasis) {
 		Range result = null;
-		CriteriaResult analysis = new CriteriaResult();
+		CriteriaResult analysis = new CriteriaResult(name, "a3");
 		String[] csv = populationReductionFutureBasis.split(",");
 
 		if (!(csv.length == 1 && csv[0] == "0")) {
@@ -158,13 +155,13 @@ class VU {
 		analysis.resultString = createA3String(result, csv);
 		if (analysis.resultString.equalsIgnoreCase(""))
 			analysis.range = null;
-		
+		analysis.printRange();
 		return analysis;
 	}
 
-	public CriteriaResult a4(HashMap factors, String populationReductionEitherBasis) {
+	public CriteriaResult a4(HashMap<String, Range> factors, String populationReductionEitherBasis) {
 		Range result = null;
-		CriteriaResult analysis = new CriteriaResult();
+		CriteriaResult analysis = new CriteriaResult(name, "a4");
 		String[] csv = populationReductionEitherBasis.split(",");
 
 		if (!(csv.length == 1 && csv[0] == "0")) {
@@ -186,13 +183,13 @@ class VU {
 		analysis.resultString = createAString(result, csv, "4");
 		if (analysis.resultString.equalsIgnoreCase(""))
 			analysis.range = null;
-		
+		analysis.printRange();
 		return analysis;
 	}
 
-	public CriteriaResult b1(HashMap factors) {
+	public CriteriaResult b1(HashMap<String, Range> factors) {
 		Range result = null;
-		CriteriaResult analysis = new CriteriaResult();
+		CriteriaResult analysis = new CriteriaResult(name, "b1");
 		analysis.resultString = "";
 
 		Range extent = (Range) factors.get(Factors.extent);
@@ -238,7 +235,6 @@ class VU {
 				analysis.range = and;
 				if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 					analysis.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return analysis;
 
 			} else if (or1 != null && !Range.isConstant(or1, 0)) {
 
@@ -249,7 +245,6 @@ class VU {
 					analysis.range = and;
 					if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 						analysis.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return analysis;
 				} else if (or3 != null && !Range.isConstant(or3, 0)) {
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or3);
@@ -257,7 +252,6 @@ class VU {
 					analysis.range = and;
 					if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 						analysis.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return analysis;
 				}
 
 				// NOT ENOUGH DATA
@@ -266,7 +260,6 @@ class VU {
 					analysis.range = result;
 					if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 						analysis.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return analysis;
 				}
 			}
 
@@ -277,7 +270,6 @@ class VU {
 				analysis.range = and;
 				if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 					analysis.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return analysis;
 			}
 
 			// NOT ENOUGH DATA
@@ -286,7 +278,6 @@ class VU {
 				analysis.range = result;
 				if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 					analysis.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return analysis;
 			}
 
 		}
@@ -294,13 +285,16 @@ class VU {
 		else {
 			b1 = result;
 			analysis.range = result;
-			return analysis;
 		}
+		
+		analysis.printRange();
+		
+		return analysis;
 	}
 
-	public CriteriaResult b2(HashMap factors) {
+	public CriteriaResult b2(HashMap<String, Range> factors) {
 		Range result = null;
-		CriteriaResult analysis = new CriteriaResult();
+		CriteriaResult analysis = new CriteriaResult(name, "b2");
 		analysis.resultString = "";
 
 		Range area = (Range) factors.get(Factors.area);
@@ -338,7 +332,6 @@ class VU {
 
 			if ((or1 != null && !Range.isConstant(or1, 0)) && (or2 != null && !Range.isConstant(or2, 0))
 					&& (or3 != null && !Range.isConstant(or3, 0))) {
-				Debug.println("In the first one");
 				Range and = Range.independentAND(and1, or1);
 				and = Range.independentAND(and, or2);
 				and = Range.independentAND(and, or3);
@@ -346,39 +339,33 @@ class VU {
 				analysis.range = and;
 				if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 					analysis.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return analysis;
 
 			} else if (or1 != null && !Range.isConstant(or1, 0)) {
-
-				Debug.println("or1 != null");
 				if (or2 != null && !Range.isConstant(or2, 0)) {
-					Debug.println("or2 != null");
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or2);
 					b1 = and;
 					analysis.range = and;
 					if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 						analysis.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return analysis;
+					
 				} else if (or3 != null && !Range.isConstant(or3, 0)) {
-					Debug.println("or3 != null");
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or3);
 					b1 = and;
 					analysis.range = and;
 					if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 						analysis.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return analysis;
+					
 				}
 
 				// NOT ENOUGH DATA
 				else {
-					Debug.println("or1!=null and everything else is null");
 					b1 = result;
 					analysis.range = result;
 					if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 						analysis.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return analysis;
+					
 				}
 			}
 
@@ -389,17 +376,16 @@ class VU {
 				analysis.range = and;
 				if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 					analysis.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return analysis;
+				
 			}
 
 			// NOT ENOUGH DATA
 			else {
-				Debug.println("no 2 aren't null");
 				b1 = result;
 				analysis.range = result;
 				if (analysis.range != null && !Range.isConstant(analysis.range, 0))
 					analysis.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return analysis;
+				
 			}
 
 		}
@@ -407,13 +393,15 @@ class VU {
 		else {
 			b1 = result;
 			analysis.range = result;
-			return analysis;
-
 		}
+		
+		analysis.printRange();
+		
+		return analysis;
 	}
 
-	public CriteriaResult c1(HashMap factors) {
-		CriteriaResult analysis = new CriteriaResult();
+	public CriteriaResult c1(HashMap<String, Range> factors) {
+		CriteriaResult analysis = new CriteriaResult(name, "c1");
 
 		Range ps = (Range) factors.get(Factors.populationSize);
 		Range pdg3 = (Range) factors.get(Factors.populationDeclineGenerations3);
@@ -425,12 +413,13 @@ class VU {
 		analysis.range = and1;
 		if ((c1 != null) && (!Range.isConstant(c1, 0)))
 			analysis.resultString = "C1";
+		
+		analysis.printRange();
 		return analysis;
-
 	}
 
-	public CriteriaResult c2(HashMap factors) {
-		CriteriaResult analysis = new CriteriaResult();
+	public CriteriaResult c2(HashMap<String, Range> factors) {
+		CriteriaResult analysis = new CriteriaResult(name, "c2");
 
 		Range ps = (Range) factors.get(Factors.populationSize);
 		Range ps1 = Range.lessthan(ps, cPopulationSize);
@@ -454,6 +443,7 @@ class VU {
 			analysis.resultString = createC2String(sps, div, pf);
 		else
 			analysis.resultString = "";
+		analysis.printRange();
 		return analysis;
 
 	}
@@ -660,7 +650,7 @@ class VU {
 	}
 
 	public CriteriaResult d1(Range ps) {
-		CriteriaResult analysis = new CriteriaResult();
+		CriteriaResult analysis = new CriteriaResult(name, "d1");
 		d1 = Range.lessthan(ps, dPopulationSize);
 		analysis.range = d1;
 		if ((d1 != null) && (!(Range.isConstant(d1, 0)))) {
@@ -670,7 +660,7 @@ class VU {
 	}
 
 	public CriteriaResult d2(Range ar) {
-		CriteriaResult analysis = new CriteriaResult();
+		CriteriaResult analysis = new CriteriaResult(name, "d2");
 		d2 = ar;
 		analysis.range = d2;
 		if ((d2 != null) && (!(Range.isConstant(d2, 0)))) {
@@ -680,24 +670,13 @@ class VU {
 	}
 
 	public CriteriaResult e(Range eg3) {
-		CriteriaResult analysis = new CriteriaResult();
+		CriteriaResult analysis = new CriteriaResult(name, "e");
 		e = Range.greaterthanequal(eg3, eExtinctionYears100);
 		analysis.range = e;
 		if ((e != null) && (!(Range.isConstant(e, 0)))) {
 			analysis.resultString = "E";
 		}
 		return analysis;
-	}
-
-	private void printRange(String descrip, Range range) {
-		if (range != null) {
-			Debug.println(
-					"This is the results from " + descrip + " " + range.getLow() + "," + range.getLowBest() + ","
-							+ range.getHighBest() + "," + range.getHigh());
-		} else {
-			Debug.println(" " + descrip + " == null");
-
-		}
 	}
 
 }

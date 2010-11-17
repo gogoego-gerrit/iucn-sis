@@ -21,8 +21,9 @@ public class ExpertUtils {
 		ExpertResult expertResult = expert.doAnalysis(currentAssessment);
 		
 		currentAssessment.setCategoryCriteria(expertResult.getCriteriaString());
-		currentAssessment.setCrCriteria(expertResult.getCriteriaStringCR());
-		//TODO: Add this Field data AND shortcut methods
+		
+		//TODO: Add this Field data AND shortcut methods IF necessary
+		//currentAssessment.setCrCriteria(expertResult.getCriteriaStringCR());
 		//currentAssessment.setEnCriteria(expertResult.getCriteriaStringEN());
 		//currentAssessment.setVuCriteria(expertResult.getCriteriaStringVU());
 

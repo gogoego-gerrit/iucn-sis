@@ -686,8 +686,8 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	}
 	
 	public void setCategoryAbbreviation(String abbreviatedCategory) {
-		// TODO Auto-generated method stub
-		
+		RedListCriteriaField field = new RedListCriteriaField(getField(CanonicalNames.RedListCriteria));
+		field.setGeneratedCategory(abbreviatedCategory);
 	}
 	
 	public String getDisplayText() {

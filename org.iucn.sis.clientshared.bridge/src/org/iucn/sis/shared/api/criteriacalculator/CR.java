@@ -10,7 +10,7 @@ import org.iucn.sis.shared.api.debug.Debug;
  * @author liz.schwartz
  * 
  */
-class CR {
+class CR extends Classification {
 
 	// NUMBER OF CRITERIA PER LETTER
 	public final int criteriaA = 4;
@@ -81,21 +81,19 @@ class CR {
 	private final int eExtinctionGenerations3 = 50; // >=50
 
 	public CR() {
-
+		super("CR");
 	}
 
-	public CriteriaResult a1(HashMap factors, String populationReductionPastBasis) {
-		CriteriaResult returnResult = new CriteriaResult();
+	public CriteriaResult a1(HashMap<String, Range> factors, String populationReductionPastBasis) {
+		CriteriaResult returnResult = new CriteriaResult(name, "a1");
 		Range result = null;
-
 		String[] csv = populationReductionPastBasis.split(",");
-
 		if (!(csv.length == 1 && csv[0] == "0")) {
-			Range ppr = Range.greaterthanequal((Range) factors.get(Factors.populationReductionPast),
+			Range ppr = Range.greaterthanequal(factors.get(Factors.populationReductionPast),
 					(float) aPopulationReductionPast1);
-			Range prpr = (Range) factors.get(Factors.populationReductionPastReversible);
-			Range prpu = (Range) factors.get(Factors.populationReductionPastUnderstood);
-			Range prpc = (Range) factors.get(Factors.populationReductionPastCeased);
+			Range prpr = factors.get(Factors.populationReductionPastReversible);
+			Range prpu = factors.get(Factors.populationReductionPastUnderstood);
+			Range prpc = factors.get(Factors.populationReductionPastCeased);
 			result = Range.independentAND(ppr, prpr);
 			result = Range.independentAND(result, prpu);
 			result = Range.independentAND(result, prpc);
@@ -105,24 +103,25 @@ class CR {
 		a1 = result;
 		returnResult.range = result;
 		returnResult.resultString = createAString(result, csv, "1");
-		if (returnResult.resultString.equalsIgnoreCase(""))
+		if (returnResult.resultString.equals(""))
 			returnResult.range = null;
+		
+		returnResult.printRange();
 		
 		return returnResult;
 	}
 
-	public CriteriaResult a2(HashMap factors, String populationReductionPastBasis) {
-
-		CriteriaResult returnResult = new CriteriaResult();
+	public CriteriaResult a2(HashMap<String, Range> factors, String populationReductionPastBasis) {
+		CriteriaResult returnResult = new CriteriaResult(name, "a2");
 		Range result = null;
 		String[] csv = populationReductionPastBasis.split(",");
 
 		if (!(csv.length == 1 && csv[0] == "0")) {
-			Range ppr = Range.greaterthanequal((Range) factors.get(Factors.populationReductionPast),
+			Range ppr = Range.greaterthanequal(factors.get(Factors.populationReductionPast),
 					(float) aPopulationReductionPast2);
-			Range prpr = (Range) factors.get(Factors.populationReductionPastReversible);
-			Range prpu = (Range) factors.get(Factors.populationReductionPastUnderstood);
-			Range prpc = (Range) factors.get(Factors.populationReductionPastCeased);
+			Range prpr = factors.get(Factors.populationReductionPastReversible);
+			Range prpu = factors.get(Factors.populationReductionPastUnderstood);
+			Range prpc = factors.get(Factors.populationReductionPastCeased);
 
 			prpc = Range.isFalse(prpc);
 			prpu = Range.isFalse(prpu);
@@ -136,15 +135,16 @@ class CR {
 		a2 = result;
 		returnResult.range = result;
 		returnResult.resultString = createAString(result, csv, "2");
-		if (returnResult.resultString.equalsIgnoreCase(""))
+		if (returnResult.resultString.equals(""))
 			returnResult.range = null;
 		
+		returnResult.printRange();
+		
 		return returnResult;
-
 	}
 
 	public CriteriaResult a3(Range prf, String populationReductionFutureBasis) {
-		CriteriaResult returnResult = new CriteriaResult();
+		CriteriaResult returnResult = new CriteriaResult(name, "a3");
 		Range result = null;
 		String[] csv = populationReductionFutureBasis.split(",");
 
@@ -158,11 +158,13 @@ class CR {
 		if (returnResult.resultString.equalsIgnoreCase(""))
 			returnResult.range = null;
 		
+		returnResult.printRange();
+		
 		return returnResult;
 	}
 
-	public CriteriaResult a4(HashMap factors, String populationReductionEitherBasis) {
-		CriteriaResult returnResult = new CriteriaResult();
+	public CriteriaResult a4(HashMap<String, Range> factors, String populationReductionEitherBasis) {
+		CriteriaResult returnResult = new CriteriaResult(name, "a4");
 		Range result = null;
 		String[] csv = populationReductionEitherBasis.split(",");
 
@@ -186,11 +188,13 @@ class CR {
 		if (returnResult.resultString.equalsIgnoreCase(""))
 			returnResult.range = null;
 		
+		returnResult.printRange();
+		
 		return returnResult;
 	}
 
-	public CriteriaResult b1(HashMap factors) {
-		CriteriaResult returnResult = new CriteriaResult();
+	public CriteriaResult b1(HashMap<String, Range> factors) {
+		CriteriaResult returnResult = new CriteriaResult(name, "b1");
 		Range result = null;
 		returnResult.resultString = "";
 
@@ -237,7 +241,6 @@ class CR {
 				returnResult.range = and;
 				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 					returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return returnResult;
 
 			} else if (or1 != null && !Range.isConstant(or1, 0)) {
 
@@ -248,7 +251,6 @@ class CR {
 					returnResult.range = and;
 					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 						returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return returnResult;
 				} else if (or3 != null && !Range.isConstant(or3, 0)) {
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or3);
@@ -256,7 +258,6 @@ class CR {
 					returnResult.range = and;
 					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 						returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return returnResult;
 				}
 
 				// NOT ENOUGH DATA
@@ -265,7 +266,6 @@ class CR {
 					returnResult.range = result;
 					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 						returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return returnResult;
 				}
 			}
 
@@ -276,7 +276,6 @@ class CR {
 				returnResult.range = and;
 				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 					returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return returnResult;
 			}
 
 			// NOT ENOUGH DATA
@@ -285,7 +284,6 @@ class CR {
 				returnResult.range = result;
 				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 					returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return returnResult;
 			}
 
 		}
@@ -293,12 +291,15 @@ class CR {
 		else {
 			b1 = result;
 			returnResult.range = result;
-			return returnResult;
 		}
+		
+		returnResult.printRange();
+		
+		return returnResult;
 	}
 
-	public CriteriaResult b2(HashMap factors) {
-		CriteriaResult returnResult = new CriteriaResult();
+	public CriteriaResult b2(HashMap<String, Range> factors) {
+		CriteriaResult returnResult = new CriteriaResult(name, "b2");
 		Range result = null;
 		returnResult.resultString = "";
 
@@ -345,7 +346,6 @@ class CR {
 				returnResult.range = and;
 				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 					returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return returnResult;
 
 			} else if (or1 != null && !Range.isConstant(or1, 0)) {
 
@@ -356,7 +356,7 @@ class CR {
 					returnResult.range = and;
 					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 						returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return returnResult;
+					
 				} else if (or3 != null && !Range.isConstant(or3, 0)) {
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or3);
@@ -364,7 +364,7 @@ class CR {
 					returnResult.range = and;
 					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 						returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return returnResult;
+					
 				}
 
 				// NOT ENOUGH DATA
@@ -372,7 +372,7 @@ class CR {
 					b2 = result;
 					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 						returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-					return returnResult;
+				
 				}
 			}
 
@@ -383,7 +383,6 @@ class CR {
 				returnResult.range = and;
 				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 					returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return returnResult;
 			}
 
 			// NOT ENOUGH DATA
@@ -392,7 +391,6 @@ class CR {
 				returnResult.range = result;
 				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
 					returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				return returnResult;
 			}
 
 		}
@@ -400,12 +398,15 @@ class CR {
 		else {
 			b2 = result;
 			returnResult.range = result;
-			return returnResult;
 		}
+		
+		returnResult.printRange();
+		
+		return returnResult;
 	}
 
-	public CriteriaResult c(HashMap factors) {
-		CriteriaResult returnResult = new CriteriaResult();
+	public CriteriaResult c(HashMap<String, Range> factors) {
+		CriteriaResult returnResult = new CriteriaResult(name, "c");
 		returnResult.resultString = "";
 
 		// Range ps = (Range) factors.get(Factors.populationSize);
@@ -460,6 +461,9 @@ class CR {
 		if (result != null && (!Range.isConstant(result, 0))) {
 			returnResult.resultString = createCString(pdg1, sps, div, pf);
 		}
+		
+		returnResult.printRange();
+		
 		return returnResult;
 
 	}
@@ -675,35 +679,30 @@ class CR {
 	}
 
 	public CriteriaResult d(Range ps) {
-		CriteriaResult returnResult = new CriteriaResult();
+		CriteriaResult returnResult = new CriteriaResult(name, "d");
 		d = Range.lessthan(ps, dPopulationSize);
 		returnResult.range = d;
 
 		if ((d != null) && (!(Range.isConstant(d, 0)))) {
 			returnResult.resultString = "D";
 		}
+		
+		returnResult.printRange();
+		
 		return returnResult;
 	}
 
 	public CriteriaResult e(Range eg3) {
-		CriteriaResult returnResult = new CriteriaResult();
+		CriteriaResult returnResult = new CriteriaResult(name, "e");
 		e = Range.greaterthanequal(eg3, eExtinctionGenerations3);
 		returnResult.range = e;
 		if ((e != null) && (!(Range.isConstant(e, 0)))) {
 			returnResult.resultString = "E";
 		}
+		
+		returnResult.printRange();
+		
 		return returnResult;
-	}
-
-	private void printRange(String descrip, Range range) {
-		if (range != null) {
-			Debug.println(
-					"This is the results from " + descrip + " " + range.getLow() + "," + range.getLowBest() + ","
-							+ range.getHighBest() + "," + range.getHigh());
-		} else {
-			Debug.println(" " + descrip + " == null");
-
-		}
 	}
 
 }

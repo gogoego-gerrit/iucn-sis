@@ -25,7 +25,7 @@ public class Range {
 	}
 
 	public static Range dependentOR(Range a, Range b) {
-		if (a != null & b != null)
+		if (a != null && b != null)
 			return max(a, b);
 		else if (a == null)
 			return b;
@@ -381,17 +381,6 @@ public class Range {
 		return mult;
 	}
 
-	private static void printRange(String descrip, Range range) {
-		if (range != null) {
-			Debug.println(
-					"This is the results from " + descrip + " " + range.getLow() + "," + range.getLowBest() + ","
-							+ range.getHighBest() + "," + range.getHigh());
-		} else {
-			Debug.println(" " + descrip + " == null");
-
-		}
-	}
-
 	private static Range subtract(int constant, Range a) {
 		double al = a.getLow();
 		double ar = a.getHigh();
@@ -507,7 +496,7 @@ public class Range {
 			makeType();
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 		}
 
 	}
@@ -530,6 +519,10 @@ public class Range {
 
 	public void setType(String type) {
 		this.type = type;
+	}
+	
+	public String toString() {
+		return "Range type " + type + " low = " + low + ", lowBest = " + lowBest + ", highbest = "+ highBest + ", high = " + high;
 	}
 
 }

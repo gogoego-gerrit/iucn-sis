@@ -24,8 +24,9 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
  * 
  */
 public class ExpertPanel extends LayoutContainer {
+	
 	public final static String titleText = "Criteria Generator";
-	private PanelManager panelManager;
+	
 	private HTML title;
 	private HorizontalPanel expertBar;
 	private HTML criteria;
@@ -46,7 +47,6 @@ public class ExpertPanel extends LayoutContainer {
 
 	public ExpertPanel(PanelManager manager) {
 		super();
-		panelManager = manager;
 		setLayout(new BorderLayout());
 		setSize(520, 300);
 		criteriaConstant = "Criteria String: ";
@@ -128,7 +128,7 @@ public class ExpertPanel extends LayoutContainer {
 		bar1.add(new HTML("&nbsp"));
 		barsize = bestInt - leftInt;
 		if (barsize < 0)
-			barsize = barsize = 0;
+			barsize = 0;
 		bar1.setSize(barsize + "px", "20px");
 		bar1.addStyleName("expert-line");
 		HorizontalPanel bar2 = new HorizontalPanel();
@@ -187,82 +187,90 @@ public class ExpertPanel extends LayoutContainer {
 	}
 
 	public void update() {
-
 		Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
 		expertBar.removeAll();
-
 		range.setText("");
-
-		if (assessment != null) {
-			Integer assessmentName = assessment.getId();
-			String speciesName = assessment.getSpeciesName();
-
-			title.setText(speciesName.toUpperCase() + " - " + assessmentName + "\r\n \r\n");
-			title.addStyleName("expert-title");
-			title.setWordWrap(false);
-
-			String[] expertResults = assessment.getCategoryFuzzyResult().split(",");
-			int leftInt;
-			int bestInt;
-			int rightInt;
-
-			// THEY ARE OPENING IT WITHOUT CHANGING DATA, AND DIDN'T NEED TO
-			// SAVE
-			if (expertResults.length != 3) {
-				FuzzyExpImpl expert = new FuzzyExpImpl();
-				ExpertResult result = expert.doAnalysis(AssessmentCache.impl.getCurrentAssessment());
-				leftInt = result.getLeft();
-				bestInt = result.getBest();
-				rightInt = result.getRight();
-
-			} else {
-				leftInt = Integer.valueOf(expertResults[0]).intValue();
-				bestInt = Integer.valueOf(expertResults[1]).intValue();
-				rightInt = Integer.valueOf(expertResults[2]).intValue();
-			}
-
-			// CHECK TO MAKE SURE ENOUGH INFORMATION FOR RESULT
-
-			if (leftInt >= 0) {
-				if( expertBar.getParent() != null )
-					centerWidget.remove(expertBar);
-				expertBar = createDisplay(leftInt, bestInt, rightInt);
-				expertBar.addStyleName("expert-background");
-				expertBar.addStyleName("expert-border");
-
-				centerWidget.insert(expertBar, 2);
-
-				getRange(leftInt, bestInt, rightInt);
-				String criteriaString = assessment.getCategoryCriteria();
-				if (criteriaString != null)
-					criteria.setHTML(criteriaConstant + criteriaString);
-				
-				CR.setVisible(true);
-				EN.setVisible(true);
-				VU.setVisible(true);
-			} else {
-				if( expertBar.getParent() != null )
-					centerWidget.remove(expertBar);
-				criteria.setHTML("<b>Not enough saved information to run the criteria calculator. <br /></b>");
-				
-				CR.setVisible(false);
-				EN.setVisible(false);
-				VU.setVisible(false);
-			}
-			
-			CR.setHTML("CR Criteria: " + (assessment.getCrCriteria().equals("") ? "N/A" : assessment.getCrCriteria()));
-			EN.setHTML("EN Criteria: " + (assessment.getEnCriteria().equals("") ? "N/A" : assessment.getEnCriteria()));
-			VU.setHTML("VU Criteria: " + (assessment.getVuCriteria().equals("") ? "N/A" : assessment.getVuCriteria()));
-
-			try {
-				layout();
-			} catch (Exception e) {
-			}
-		} else {
+		
+		if (assessment == null) {
 			criteria.setHTML("Please select an assessment before starting criteria calculator. <br />");
-
+			return;
 		}
 
+		Integer assessmentName = assessment.getId();
+		String speciesName = assessment.getSpeciesName();
+
+		title.setText(speciesName.toUpperCase() + " - " + assessmentName + "\r\n \r\n");
+		title.addStyleName("expert-title");
+		title.setWordWrap(false);
+		
+		String[] expertResults = assessment.getCategoryFuzzyResult().split(",");
+		int leftInt;
+		int bestInt;
+		int rightInt;
+
+		String CRString, ENString, VUString, criteriaStr;
+		
+		// THEY ARE OPENING IT WITHOUT CHANGING DATA, AND DIDN'T NEED TO
+		// SAVE
+		if (expertResults.length != 3) {
+			FuzzyExpImpl expert = new FuzzyExpImpl();
+			ExpertResult result = expert.doAnalysis(AssessmentCache.impl.getCurrentAssessment());
+			
+			leftInt = result.getLeft();
+			bestInt = result.getBest();
+			rightInt = result.getRight();
+			
+			CRString = result.getCriteriaStringCR();
+			ENString = result.getCriteriaStringEN();
+			VUString = result.getCriteriaStringVU();
+			
+			criteriaStr = result.getCriteriaString();
+		} else {
+			leftInt = Integer.valueOf(expertResults[0]).intValue();
+			bestInt = Integer.valueOf(expertResults[1]).intValue();
+			rightInt = Integer.valueOf(expertResults[2]).intValue();
+			
+			CRString = ENString = VUString = "N/A";
+			
+			criteriaStr = assessment.getCategoryCriteria();
+		}
+
+		// CHECK TO MAKE SURE ENOUGH INFORMATION FOR RESULT
+		if (leftInt >= 0) {
+			if (expertBar.getParent() != null)
+				centerWidget.remove(expertBar);
+			expertBar = createDisplay(leftInt, bestInt, rightInt);
+			expertBar.addStyleName("expert-background");
+			expertBar.addStyleName("expert-border");
+			
+			centerWidget.insert(expertBar, 2);
+
+			getRange(leftInt, bestInt, rightInt);
+			
+			if (criteriaStr != null)
+				criteria.setHTML(criteriaConstant + criteriaStr);
+				
+			CR.setVisible(true);
+			EN.setVisible(true);
+			VU.setVisible(true);
+		} else {
+			if (expertBar.getParent() != null)
+				centerWidget.remove(expertBar);
+			criteria.setHTML("<b>Not enough saved information to run the criteria calculator. <br /></b>");
+				
+			CR.setVisible(false);
+			EN.setVisible(false);
+			VU.setVisible(false);
+		}
+			
+		CR.setHTML("CR Criteria: " + CRString);
+		EN.setHTML("EN Criteria: " + ENString);
+		VU.setHTML("VU Criteria: " + VUString);
+
+		try {
+			layout();
+		} catch (Exception e) {
+		}
 	}
 
 }
