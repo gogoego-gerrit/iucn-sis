@@ -344,6 +344,8 @@ public class Field implements Serializable {
 
 	public void setName(String value) {
 		this.name = value;
+		if (id == 0)
+			generationCode += value;
 	}
 
 	public void setNotes(java.util.Set<Notes> value) {
