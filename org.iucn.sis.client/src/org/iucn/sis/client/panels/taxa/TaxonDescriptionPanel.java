@@ -37,6 +37,7 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
+import org.iucn.sis.shared.api.utils.CommonNameComparator;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -633,7 +634,9 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 	}
 	
 	private void addCommonNames(final Taxon node, LayoutContainer data, int loop) {
-		for (final CommonName curName : node.getCommonNames()) {
+		final ArrayList<CommonName> commonNames = new ArrayList<CommonName>(node.getCommonNames());
+		Collections.sort(commonNames, new CommonNameComparator());
+		for (final CommonName curName : commonNames) {
 			loop--;
 			if (loop < 0)
 				break;			
@@ -682,8 +685,8 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 				container.add(new HTML("<hr><br />"));
 				container.add(commonNamePanel);
 
-				if (TaxonomyCache.impl.getCurrentTaxon().getCommonNames().size() != 0) {
-					for (CommonName curName : TaxonomyCache.impl.getCurrentTaxon().getCommonNames()) {
+				if (commonNames.size() != 0) {
+					for (CommonName curName : commonNames) {
 						container.add(getCommonNameDisplay(curName, node));
 					}
 				} else
