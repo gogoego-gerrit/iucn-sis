@@ -43,6 +43,7 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.extjs.client.WindowUtils.MessageBoxListener;
+import com.solertium.util.extjs.client.WindowUtils.SimpleMessageBoxListener;
 
 public class TrashBinPanel extends LayoutContainer {
 
@@ -200,17 +201,28 @@ public class TrashBinPanel extends LayoutContainer {
 		tItem.setIconStyle("icon-remove");
 		tItem.addListener(Events.Select, new Listener() {
 			public void handleEvent(BaseEvent be) {
-				final TrashedObject trashed = ((TrashedObject) trashTable.getSelectionModel().getSelectedItem());
-				trashed.delete(new GenericCallback<String>() {
-					public void onFailure(Throwable arg0) {
-					};
+				WindowUtils.confirmAlert("Delete item", "Are you sure you want to delete this item?  This operation can not" +
+						" be undone.", new SimpleMessageBoxListener() {
+							
+							@Override
+							public void onYes() {
+								final TrashedObject trashed = ((TrashedObject) trashTable.getSelectionModel().getSelectedItem());
+								trashed.delete(new GenericCallback<String>() {
+									public void onFailure(Throwable arg0) {
+										WindowUtils.errorAlert("Unable to delete trashed item.");
+									};
 
-					public void onSuccess(String arg0) {
-						trashedObjects.get(trashed.getIdentifier()).remove(trashed);
-						store.remove(trashed);
-						refresh();
-					}
-				});
+									public void onSuccess(String arg0) {
+										trashedObjects.get(trashed.getIdentifier()).remove(trashed);
+										store.remove(trashed);
+										refresh();
+									}
+								});
+							}
+							
+							
+						}, "Delete item", "Cancel");
+				
 			}
 		});
 		bar.add(tItem);
@@ -220,19 +232,29 @@ public class TrashBinPanel extends LayoutContainer {
 		tItem.setIconStyle("icon-bomb");
 		tItem.addListener(Events.Select, new Listener() {
 			public void handleEvent(BaseEvent be) {
-				final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-				doc.post(UriBase.getInstance().getSISBase() + "/trash/deleteall", "", new GenericCallback<String>() {
-					public void onFailure(Throwable arg0) {
+				WindowUtils.confirmAlert("Delete all items", "Are you sure you want to delete all trashed items?  This operation can not" +
+						" be undone.", new SimpleMessageBoxListener() {
+							
+							@Override
+							public void onYes() {
+								final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+								doc.post(UriBase.getInstance().getSISBase() + "/trash/deleteall", "", new GenericCallback<String>() {
+									public void onFailure(Throwable arg0) {
+										WindowUtils.errorAlert("Unable to delete all trashed items.");
+									}
 
-					}
+									public void onSuccess(String arg0) {
+										trashedObjects.clear();
+										store.removeAll();
+										refresh();
 
-					public void onSuccess(String arg0) {
-						trashedObjects.clear();
-						store.removeAll();
-						refresh();
-
-					}
-				});
+									}
+								});
+							}
+							
+						}, "Delete all items", "Cancel");
+				
+				
 			}
 		});
 		bar.add(tItem);
@@ -324,12 +346,9 @@ public class TrashBinPanel extends LayoutContainer {
 	protected void refreshStore() {
 		store.removeAll();
 		if (folders.getSelectedItem() != null) {
-			Debug.println("looking for " + folders.getSelectedItem().getItemId());
 			if (trashedObjects.containsKey(folders.getSelectedItem().getItemId())) {
-				Debug.println("adding obj " + trashedObjects.get(folders.getSelectedItem().getItemId()));
 				store.add(trashedObjects.get(folders.getSelectedItem().getItemId()));
 			} else {
-				Debug.println("adding all");
 				for (Entry<String, List<TrashedObject>> entry : trashedObjects.entrySet())
 					store.add(entry.getValue());
 			}
@@ -385,26 +404,6 @@ public class TrashBinPanel extends LayoutContainer {
 				}
 				fillTrash();
 
-//				store.remove(trashed);
-//				trashedObjects.get(trashed.getIdentifier()).remove(trashed);
-//
-//				if (trashed.getType().equalsIgnoreCase("taxon")) {
-//					if (recurse) {
-//						for (Entry<String, List<TrashedObject>> entry : trashedObjects.entrySet()) {
-//							if (!entry.getKey().equalsIgnoreCase(trashed.getIdentifier())) {
-//								List<TrashedObject> objs = new ArrayList<TrashedObject>();
-//								for (TrashedObject obj : entry.getValue()) {
-//									if (obj.getNodeID().equalsIgnoreCase(trashed.getNodeID())) {
-//										store.remove(obj);
-//										objs.add(obj);
-//									}
-//								}
-//								entry.getValue().removeAll(objs);
-//							}
-//						}
-//					}
-//				
-//
 			}
 		});
 
