@@ -60,6 +60,7 @@ public class User implements Serializable {
 		xml.append(XMLWritingUtils.writeCDATATag("username", username));
 		xml.append(XMLWritingUtils.writeCDATATag("firstName", firstName, true));
 		xml.append(XMLWritingUtils.writeCDATATag("lastName", lastName, true));
+		xml.append(XMLWritingUtils.writeCDATATag("nickname", nickname, true));
 		xml.append(XMLWritingUtils.writeCDATATag("initials", initials, true));
 		xml.append(XMLWritingUtils.writeCDATATag("affiliation", affiliation, true));
 		xml.append(XMLWritingUtils.writeCDATATag("sisUser", getSisUser() == null ? null : getSisUser()+"", true));

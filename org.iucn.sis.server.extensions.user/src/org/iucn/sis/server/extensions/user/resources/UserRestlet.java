@@ -55,10 +55,12 @@ public class UserRestlet extends ServerResource {
 					Element field = (Element) fields.item(i);
 					String name = field.getAttribute("name");
 					String value = field.getTextContent();
-					if ("firstname".equalsIgnoreCase(name)) {
+					if ("firstname".equalsIgnoreCase(name))
 						user.setFirstName(value);
-					} else if ("lastname".equalsIgnoreCase(name))
+					else if ("lastname".equalsIgnoreCase(name))
 						user.setLastName(value);
+					else if ("nickname".equalsIgnoreCase(name))
+						user.setNickname(value);
 					else if ("initials".equalsIgnoreCase(name))
 						user.setInitials(value);
 					else if ("affiliation".equalsIgnoreCase(name))
@@ -85,6 +87,10 @@ public class UserRestlet extends ServerResource {
 							}
 						}
 						
+					}
+					else {
+						getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "The property " + name + " is invalid.");
+						return;
 					}
 
 					try {
