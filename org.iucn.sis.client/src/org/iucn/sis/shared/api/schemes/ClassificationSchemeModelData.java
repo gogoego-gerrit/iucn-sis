@@ -50,7 +50,15 @@ public class ClassificationSchemeModelData implements ModelData, Referenceable {
 		if (field != null) {
 			if (field.getReference() != null)
 				references = field.getReference();
-			structure.setData(field);
+			
+			if (structure.isPrimitive())
+				structure.setData(field.getPrimitiveField(structure.getId()));
+			else {
+				if (structure.hasId())
+					structure.setData(field.getField(structure.getId()));
+				else
+					structure.setData(field);
+			}
 		}
 		
 		updateDisplayableData();
