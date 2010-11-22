@@ -33,32 +33,39 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class VirusManager extends PagingPanel<VirusModelData> implements DrawsLazily {
 	
+	private boolean isDrawn;
+	
 	private Grid<VirusModelData> grid;
 	
 	public VirusManager() {
 		super();
 		setLayout(new FillLayout());
+		isDrawn = false;
 	}
 	
 	@Override
 	public void draw(final DoneDrawingCallback callback) {
-		grid = new Grid<VirusModelData>(getStoreInstance(), getColumnModel());
-		grid.setAutoExpandColumn("comments");
-		grid.setBorders(false);
-		grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<VirusModelData>>() {
-			public void handleEvent(GridEvent<VirusModelData> be) {
-				if (be.getModel() != null)
-					editVirus(be.getModel());
-			}
-		});
-		
-		final LayoutContainer container = new LayoutContainer(new BorderLayout());
-		container.add(createToolbar(), new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
-		container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
-		container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
-		
-		removeAll();
-		add(container);
+		if (!isDrawn) {
+			grid = new Grid<VirusModelData>(getStoreInstance(), getColumnModel());
+			grid.setAutoExpandColumn("comments");
+			grid.setBorders(false);
+			grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<VirusModelData>>() {
+				public void handleEvent(GridEvent<VirusModelData> be) {
+					if (be.getModel() != null)
+						editVirus(be.getModel());
+				}
+			});
+			
+			final LayoutContainer container = new LayoutContainer(new BorderLayout());
+			container.add(createToolbar(), new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
+			container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
+			container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+			
+			removeAll();
+			add(container);
+			
+			isDrawn = true;
+		}
 		
 		refresh(new DoneDrawingCallback() {
 			public void isDrawn() {
