@@ -4,7 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.NoteIO;
 import org.iucn.sis.server.api.persistance.CommonNameDAO;
+import org.iucn.sis.server.api.persistance.NotesDAO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -110,12 +112,15 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 		}
 		
 		Notes note = Notes.fromXML(ndoc.getDocumentElement());
+		
 		try {
 			CommonName commonName = SIS.get().getManager()
 					.getObject(CommonName.class, Integer.valueOf(id));
 			note.setCommonName(commonName);
-			note = SIS.get().getManager().mergeObject(note);
 			commonName.getNotes().add(note);
+			
+			NotesDAO.save(note);
+			
 			commonName.getTaxon().toXML();
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity(note.getId() + "", MediaType.TEXT_PLAIN);
@@ -249,8 +254,38 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
 		if (request.getResourceRef().getPath().contains("reference")) {
 			addOrRemoveReference(entity, request, response);
-		} else
-			addOrEditCommonName(entity, request, response);
+		} else {
+			final Integer id;
+			try {
+				id = Integer.valueOf((String) request.getAttributes().get("id"));
+			} catch (NumberFormatException e) {
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+			} catch (NullPointerException e) {
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+			}
+			
+			final NativeDocument ndoc = new JavaNativeDocument();
+			try {
+				ndoc.parse(entity.getText());
+			} catch (Exception e) {
+				throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+			}
+			
+			Notes note = Notes.fromXML(ndoc.getDocumentElement());
+			try {
+				CommonName commonName = SIS.get().getManager()
+						.getObject(CommonName.class, Integer.valueOf(id));
+				note.setCommonName(commonName);
+				note = SIS.get().getManager().mergeObject(note);
+				commonName.getNotes().add(note);
+				commonName.getTaxon().toXML();
+				response.setStatus(Status.SUCCESS_OK);
+				response.setEntity(note.getId() + "", MediaType.TEXT_PLAIN);
+			} catch (PersistentException e) {
+				Debug.println(e);
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}	
+		}
 	}
 
 }
