@@ -237,7 +237,15 @@ public class ClassificationScheme extends Display {
 				TreeDataRow row = flatTree.get(lookup.getRawValue());
 				
 				final DisplayStructure structure = generateDefaultDisplayStructure();
-				structure.setData(subfield);
+				if (structure.isPrimitive())
+					structure.setData(subfield.getPrimitiveField(structure.getId()));
+				else {
+					if (structure.hasId())
+						structure.setData(subfield.getField(structure.getId()));
+					else
+						structure.setData(subfield);
+				}
+				
 					
 				ClassificationSchemeModelData model = createModelData(structure, subfield);
 				model.setSelectedRow(row);

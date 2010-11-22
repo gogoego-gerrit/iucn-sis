@@ -6,7 +6,7 @@
 	<treeRoot>
 		<defaultStructure>
 			<treeStructures>
-				<structure id="a">
+				<structure>
 					<relatedStructure layout="horizontal">
 						<dominantStructures>
 							<structure description="Suitability" id="suitability">

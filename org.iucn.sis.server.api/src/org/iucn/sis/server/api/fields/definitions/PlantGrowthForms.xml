@@ -6,7 +6,7 @@
 	<treeRoot>
 		<defaultStructure>
 			<treeStructures>
-				<structure id="a">
+				<structure>
 					<empty />
 				</structure>
 			</treeStructures>
