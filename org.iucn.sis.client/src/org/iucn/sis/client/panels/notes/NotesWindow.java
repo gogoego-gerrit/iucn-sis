@@ -1,8 +1,12 @@
 package org.iucn.sis.client.panels.notes;
 
 import java.util.Collection;
+import java.util.Date;
 
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Notes;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -26,7 +30,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
@@ -94,14 +97,7 @@ public class NotesWindow extends Window implements DrawsLazily {
 
 						LayoutContainer a = new LayoutContainer(new RowLayout(Orientation.HORIZONTAL));
 						a.add(deleteNote, new RowData());
-						
-						try {
-							a.add(new HTML("<b>" + current.getEdit().getUser().getDisplayableName() + 
-									" [" + FormattedDate.impl.getDate(current.getEdit().getCreatedDate()) + 
-									"]</b>  --" + current.getValue()), new RowData(1d, 1d));// );
-						} catch (NullPointerException e) {
-							a.add(new HTML("<i>Edit information unavailable</i>  --" + current.getValue()), new RowData(1d, 1d));// );
-						}
+						a.add(new HtmlContainer(createEditLabelText(current) + " -- " + current.getValue()), new RowData(1d, 1d));
 
 						eBar.add(a, new RowData(1d, 1d));
 					}
@@ -120,8 +116,13 @@ public class NotesWindow extends Window implements DrawsLazily {
 						if (area.getValue() == null || "".equals(area.getValue())) {
 							WindowUtils.errorAlert("Data Error", "Must enter note body.");
 						} else {
+							Edit edit = new Edit();
+							edit.setCreatedDate(new Date());
+							edit.setUser(SimpleSISClient.currentUser);
+							
 							Notes currentNote = new Notes();
 							currentNote.setValue(area.getValue());
+							currentNote.setEdit(edit);
 
 							api.addNote(currentNote, new GenericCallback<Object>() {
 								public void onSuccess(Object result) {
@@ -151,6 +152,22 @@ public class NotesWindow extends Window implements DrawsLazily {
 				callback.isDrawn();
 			}
 		});
+	}
+	
+	protected String createEditLabelText(Notes note) {
+		final String defaultValue = "<i>Edit information unavailable</i>";
+		if (note.getEdits() == null || note.getEdits().isEmpty())
+			return defaultValue;
+		
+		final Edit edit = note.getEdit();
+		try {
+			return "<b>" + edit.getUser().getDisplayableName() + 
+			" [" + FormattedDate.impl.getDate(edit.getCreatedDate()) + 
+			"]</b>";
+		} catch (Throwable e) {
+			Debug.println(e);
+			return defaultValue;
+		}
 	}
 
 }
