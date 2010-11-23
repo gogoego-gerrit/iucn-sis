@@ -13,25 +13,18 @@ public class ReferenceModel extends BaseModelData {
 	protected Reference ref;
 
 	public ReferenceModel(Reference ref) {
+		this.ref = ref;
 		set("author", ref.getAuthor());
 		set("title", ref.getTitle());
 		set("year", ref.getYear());
 		set("count", "");
 		set("field", ref.getField());
-		set("citation", ref.getCitation());
-
-		this.ref = ref;
+		set("citation", getVisibleCitation());
 	}
 
 	public ReferenceModel(Reference ref, String count) {
-		set("author", ref.getAuthor());
-		set("title", ref.getTitle());
-		set("year", ref.getYear());
-		set("field", ref.getField());
-		set("citation", ref.getCitation());
+		this(ref);
 		set("count", count);
-
-		this.ref = ref;
 	}
 
 	public void rebuild() {
@@ -39,7 +32,15 @@ public class ReferenceModel extends BaseModelData {
 		set("title", ref.getTitle());
 		set("year", ref.getYear());
 		set("field", ref.getField());
-		set("citation", ref.getCitation());
+		set("citation", getVisibleCitation());
+	}
+	
+	private String getVisibleCitation() {
+		String citation = ref.getCitation();
+		if (citation == null || "".equals(citation.trim()))
+			return "<i>(Unable to generate citation for reference of type " + ref.getType() + ")</i>";
+		else
+			return citation;
 	}
 	
 }

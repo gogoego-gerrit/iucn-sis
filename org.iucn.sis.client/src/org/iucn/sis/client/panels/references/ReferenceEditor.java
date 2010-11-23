@@ -139,9 +139,8 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 				if (reference != null)
 					Debug.println("Loading reference of type {0}", reference.getType());
 				
-				int articleIndex = -1;
-				
 				ReferenceTypeModel selected = null;
+				ReferenceTypeModel other = null;
 				
 				final ListStore<ReferenceTypeModel> store = new ListStore<ReferenceTypeModel>();
 				final NativeNodeList types = typesDoc.getDocumentElement().getChildNodes();
@@ -154,8 +153,8 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 						if (reference != null && reference.getType().equalsIgnoreCase(value))
 							selected = model;
 						
-						if ("journal article".equalsIgnoreCase(value))
-							articleIndex = store.getModels().size();
+						if ("other".equals(value))
+							other = model;
 						
 						store.add(model);
 					}
@@ -163,8 +162,10 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 				
 				typeChooser.setStore(store);
 				
-				if (selected != null)
-					typeChooser.setValue(selected);
+				if (selected == null)
+					selected = other;
+				
+				typeChooser.setValue(selected);
 				
 				typeChooser.addSelectionChangedListener(new SelectionChangedListener<ReferenceTypeModel>() {
 					public void selectionChanged(SelectionChangedEvent<ReferenceTypeModel> se) {

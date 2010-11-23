@@ -16,6 +16,8 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.StoreSorter;
@@ -62,6 +64,11 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 		grid = new Grid<ReferenceModel>(getStoreInstance(), getColumnModel());
 		grid.setAutoExpandColumn("citation");
 		grid.setSelectionModel(sm);
+		grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<ReferenceModel>>() {
+			public void handleEvent(GridEvent<ReferenceModel> be) {
+				editReference(be.getModel());
+			}
+		});
 		
 		final LayoutContainer wrapper = new LayoutContainer();
 		wrapper.add(getPagingToolbar());
@@ -135,42 +142,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 		editExisting.addListener(Events.Select, new SelectionListener<ComponentEvent>() {
 			@Override
 			public void componentSelected(ComponentEvent ce) {
-				final List<ReferenceModel> selection = grid.getSelectionModel().getSelectedItems();
-				if (selection.size() > 1)
-					WindowUtils.errorAlert("Error", "Please select only one record to view.");
-				else if (selection.isEmpty())
-					WindowUtils.errorAlert("Error", "Please select a record to view.");
-				else {
-					final ComplexListener<ReferenceModel> saveListener = new ComplexListener<ReferenceModel>() {
-						public void handleEvent(ReferenceModel reference) {
-							if (reference != null && getProxy().getStore() != null) {
-								reference.rebuild();
-								getProxy().getStore().update(reference);
-								//fromStore.update(reference);
-							}
-							
-							final Referenceable curReferenceable = parent.getReferenceable();
-
-							if (curReferenceable != null) {
-								setReferences(curReferenceable);
-								showBibliography();
-							}
-							
-							curReferenceable.onReferenceChanged(new GenericCallback<Object>() {
-								public void onFailure(Throwable caught) {
-									WindowUtils.errorAlert("Error!", "Error committing changes to the "
-											+ "server. Ensure you are connected to the server, then try " + "the process again.");
-								}
-
-								public void onSuccess(Object result) {
-									WindowUtils.infoAlert("Success!", "Successfully committed reference " + "changes.");
-								}
-							});
-						}
-					};
-					
-					ReferenceViewTabPanel.openEditor(selection.get(0), saveListener, true, true);
-				}
+				editReference(grid.getSelectionModel().getSelectedItem());
 			}
 		});
 		final ToggleButton showFields = new ToggleButton();
@@ -209,6 +181,42 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 		biblioBar.add(showFields);
 		
 		return biblioBar;
+	}
+	
+	private void editReference(ReferenceModel selection) {
+		if (selection == null)
+			WindowUtils.errorAlert("Error", "Please select a record to view.");
+		else {
+			final ComplexListener<ReferenceModel> saveListener = new ComplexListener<ReferenceModel>() {
+				public void handleEvent(ReferenceModel reference) {
+					if (reference != null && getProxy().getStore() != null) {
+						reference.rebuild();
+						getProxy().getStore().update(reference);
+						//fromStore.update(reference);
+					}
+					
+					final Referenceable curReferenceable = parent.getReferenceable();
+
+					if (curReferenceable != null) {
+						setReferences(curReferenceable);
+						showBibliography();
+					}
+					
+					curReferenceable.onReferenceChanged(new GenericCallback<Object>() {
+						public void onFailure(Throwable caught) {
+							WindowUtils.errorAlert("Error!", "Error committing changes to the "
+									+ "server. Ensure you are connected to the server, then try " + "the process again.");
+						}
+
+						public void onSuccess(Object result) {
+							WindowUtils.infoAlert("Success!", "Successfully committed reference " + "changes.");
+						}
+					});
+				}
+			};
+			
+			ReferenceViewTabPanel.openEditor(selection, saveListener, true, true);
+		}
 	}
 	
 	private ColumnModel getColumnModel() {

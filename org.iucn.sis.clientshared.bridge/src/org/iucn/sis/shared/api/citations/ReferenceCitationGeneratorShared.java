@@ -534,8 +534,21 @@ public class ReferenceCitationGeneratorShared {
 		return generateBookCitation(fields);
 	}
 
+	/**
+	 * FIXME: Personal communication is apparently not a supported 
+	 * type anymore, but we probably don't want to just return 
+	 * null.  If anything, personal communication will now be 
+	 * treated as "other", so this function will never be called.
+	 * 
+	 * If this is wrong, fix it.  But /refsvr/types does not 
+	 * emit personal communication as a type, so I'm treating it 
+	 * as Other.
+	 * 
+	 * @deprecated
+	 */
 	public static ReturnedCitation generatePersonalCommunicationCitation(Map<String, String> fields) {
-		return null;
+		//return null;
+		return generateOtherCitation(fields);
 	}
 
 	public static ReturnedCitation generateReportCitation(Map<String, String> fields) {
@@ -672,7 +685,7 @@ public class ReferenceCitationGeneratorShared {
 	}
 
 	private static boolean isBlank(String text) {
-		return (text == null || text.equalsIgnoreCase(""));
+		return (text == null || text.equals(""));
 	}
 
 }

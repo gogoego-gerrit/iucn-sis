@@ -24,40 +24,39 @@ public class ReferenceCitationGeneratorServer {
 
 			if (!checkFirst || shouldGenerateCitation(fields)) {
 				ReturnedCitation citation = null;
-				if (type.equalsIgnoreCase("book"))
+				if (matches(type, "book"))
 					citation = ReferenceCitationGeneratorShared.generateBookChapterCitation(fields);
-				else if (type.equalsIgnoreCase("book_section"))
+				else if (matches(type, "book_section", "book section"))
 					citation = ReferenceCitationGeneratorShared.generateBookChapterCitation(fields);
-				else if (type.equalsIgnoreCase("edited_book"))
-					citation = ReferenceCitationGeneratorShared.generateEditedBookCitation(fields);
-				else if (type.equalsIgnoreCase("journal_article"))
-					citation = ReferenceCitationGeneratorShared.generateJournalArticleCitation(fields);
-				else if (type.equalsIgnoreCase("conference_proceedings"))
-					citation = ReferenceCitationGeneratorShared.generateConferenceProceedingsCitation(fields);
-				else if (type.equalsIgnoreCase("computer_program"))
+				else if (matches(type, "computer_program", "computer program"))
 					citation = ReferenceCitationGeneratorShared.generateComputerProgramCitation(fields);
-				else if (type.equalsIgnoreCase("electronic_source"))
+				else if (matches(type, "conference_proceedings"))
+					citation = ReferenceCitationGeneratorShared.generateConferenceProceedingsCitation(fields);
+				else if (matches(type, "edited_book", "edited book"))
+					citation = ReferenceCitationGeneratorShared.generateEditedBookCitation(fields);
+				else if (matches(type, "electronic_source", "electronic source"))
 					citation = ReferenceCitationGeneratorShared.generateElectronicSourceCitation(fields);
-				else if ((type.equalsIgnoreCase("generic")) || (type.equalsIgnoreCase("other")))
-					citation = generateGenericCitation(referenceElement);
-				else if (type.equalsIgnoreCase("manuscript"))
-					citation = ReferenceCitationGeneratorShared.generateManuscriptCitation(fields);
-				else if (type.equalsIgnoreCase("magazine_article"))
+				else if (matches(type, "journal_article", "journal article"))
+					citation = ReferenceCitationGeneratorShared.generateJournalArticleCitation(fields);
+				else if (matches(type, "magazine_article", "magazine article"))
 					citation = ReferenceCitationGeneratorShared.generateMagazineCitation(fields);
-				else if (type.equalsIgnoreCase("newspaper_article"))
+				else if (matches(type, "manuscript"))
+					citation = ReferenceCitationGeneratorShared.generateManuscriptCitation(fields);
+				else if (matches(type, "newspaper_article", "newspaper article"))
 					citation = ReferenceCitationGeneratorShared.generateNewspaperCitation(fields);
-				else if (type.equalsIgnoreCase("personal_communication"))
+				else if (matches(type, "personal_communication", "personal communication"))
 					citation = ReferenceCitationGeneratorShared.generatePersonalCommunicationCitation(fields);
-				else if (type.equalsIgnoreCase("report"))
+				else if (matches(type, "report"))
 					citation = ReferenceCitationGeneratorShared.generateReportCitation(fields);
-				else if (type.equalsIgnoreCase("rldb"))
+				else if (matches(type, "rldb"))
 					citation = ReferenceCitationGeneratorShared.generateRLDBCitation(fields);
-				else if (type.equalsIgnoreCase("thesis"))
+				else if (matches("thesis"))
 					citation = ReferenceCitationGeneratorShared.generateThesisCitation(fields);
+				else if (matches(type, "generic", "other"))
+					citation = generateGenericCitation(referenceElement);
 
-				if (citation == null) {
+				if (citation == null)
 					citation = new ReturnedCitation(false, "");
-				}
 
 				setCitation(referenceElement, doc, citation);
 			}
@@ -66,6 +65,13 @@ public class ReferenceCitationGeneratorServer {
 			e.printStackTrace();
 		}
 
+	}
+	
+	private static boolean matches(String type, String... potentialTypes) {
+		for (String current : potentialTypes)
+			if (type.equalsIgnoreCase(current))
+				return true;
+		return false;
 	}
 
 	/**
