@@ -394,8 +394,12 @@ public class AssessmentCache {
 
 	
 	public void setCurrentAssessment(final Assessment assessment) {
+		setCurrentAssessment(assessment, true);
+	}
+	
+	public void setCurrentAssessment(final Assessment assessment, boolean saveIfNecessary) {
 		if (assessment != null) {
-			TaxonomyCache.impl.fetchTaxon(assessment.getSpeciesID(), true, new GenericCallback<Taxon>() {
+			TaxonomyCache.impl.fetchTaxon(assessment.getSpeciesID(), true, saveIfNecessary, new GenericCallback<Taxon>() {
 				public void onSuccess(Taxon result) {
 					doSetCurrentAssessment(assessment);
 				}
@@ -403,10 +407,8 @@ public class AssessmentCache {
 					doSetCurrentAssessment(assessment);
 				}
 			});
-		} else {
+		} else
 			doSetCurrentAssessment(assessment);
-		}
-		
 	}
 	
 	private void doSetCurrentAssessment(Assessment assessment) {

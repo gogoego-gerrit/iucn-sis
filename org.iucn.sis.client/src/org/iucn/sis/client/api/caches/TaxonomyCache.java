@@ -238,14 +238,14 @@ public class TaxonomyCache {
 		}
 	}
 
-	public void fetchTaxon(int id, boolean asCurrent, GenericCallback<Taxon> wayback) {
-		fetchTaxon(Integer.valueOf(id), asCurrent, wayback);
-	}
-
 	public void fetchTaxon(final Integer id, final boolean asCurrent, GenericCallback<Taxon> wayback) {
+		fetchTaxon(id, asCurrent, true, wayback);
+	}
+	
+	public void fetchTaxon(final Integer id, final boolean asCurrent, final boolean saveIfNecessary, final GenericCallback<Taxon> wayback) {
 		if (getTaxon(id) != null) {
 			if (asCurrent)
-				setCurrentTaxon(cache.get(id));
+				setCurrentTaxon(cache.get(id), saveIfNecessary);
 
 			wayback.onSuccess(cache.get(id));
 		} else {
@@ -275,7 +275,7 @@ public class TaxonomyCache {
 						}
 
 						if (asCurrent) {
-							setCurrentTaxon(defaultNode);
+							setCurrentTaxon(defaultNode, saveIfNecessary);
 						}
 
 						invokeCallbacks(id, defaultNode);

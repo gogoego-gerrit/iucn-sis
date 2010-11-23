@@ -164,8 +164,7 @@ public class NavigationHeader extends LayoutContainer {
 	}
 	
 	private void fetchTaxon(final int speciesID) {
-		TaxonomyCache.impl.fetchTaxon(speciesID, true,
-				new GenericCallback<Taxon>() {
+		TaxonomyCache.impl.fetchTaxon(speciesID, true, false, new GenericCallback<Taxon>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Could not fetch species, please try again later.");
 			}
@@ -179,7 +178,7 @@ public class NavigationHeader extends LayoutContainer {
 							Set<Assessment> draftAssessments = 
 								AssessmentCache.impl.getDraftAssessmentsForTaxon(speciesID);
 							if (!draftAssessments.isEmpty())
-								AssessmentCache.impl.setCurrentAssessment(draftAssessments.iterator().next());
+								AssessmentCache.impl.setCurrentAssessment(draftAssessments.iterator().next(), false);
 						}
 						ClientUIContainer.bodyContainer.refreshBody();
 					}

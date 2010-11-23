@@ -745,15 +745,20 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 												WorkingSetCache.impl.setCurrentWorkingSet(selectedSet.getId(), false);
 										}
 										
+										/*
+										 * Don't need to do this, since this will happen when the assessment 
+										 * changes.
+										 */
+										/*
 										if (taxonList.getSelectedItem() != null) {
 											Taxon selectedTaxon = (Taxon) taxonList.getSelectedItem().getData("taxon");
 											if (selectedTaxon != null)
 												TaxonomyCache.impl.setCurrentTaxon(selectedTaxon, false);
 										}
-
+										*/
 										Assessment selected = (Assessment) assessmentList.getSelectedItem().getData("assessment");
 										if (selected != null) {
-											AssessmentCache.impl.setCurrentAssessment(selected);
+											AssessmentCache.impl.setCurrentAssessment(selected, false);
 
 											if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 													ClientUIContainer.bodyContainer.tabManager.assessmentEditor))
