@@ -231,10 +231,9 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 
 		@Override
 		public void onSaveSuccessful(final Reference returnedRef) {
-			// WindowUtils.infoAlert("Success", "Save Successful.");\
 			if (reference == null)
 				afterSave(null);
-			else if (promptToReplace && !(reference.ref.getReferenceID() == returnedRef.getReferenceID())
+			else if (promptToReplace && reference.ref.getReferenceID() != returnedRef.getReferenceID()
 					&& AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.REFERENCE_REPLACE_FEATURE)) {
 				promptToReplace(reference, returnedRef);
 			} else {

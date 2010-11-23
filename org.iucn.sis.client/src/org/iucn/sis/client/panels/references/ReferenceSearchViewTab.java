@@ -16,6 +16,8 @@ import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.StoreSorter;
@@ -93,6 +95,11 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 		sm.setSelectionMode(SelectionMode.MULTI);
 		
 		grid = new Grid<ReferenceModel>(getStoreInstance(), new ColumnModel(getColumnConfig()));
+		grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<ReferenceModel>>() {
+			public void handleEvent(GridEvent<ReferenceModel> be) {
+				editReference(be.getModel());
+			}
+		});
 		grid.setSelectionModel(sm);
 		grid.setAutoExpandColumn("title");
 		
@@ -139,31 +146,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 		editExisting.setText("Edit/View Selected Reference");
 		editExisting.addListener(Events.Select, new SelectionListener<ComponentEvent>() {
 			public void componentSelected(ComponentEvent ce) {
-				ReferenceModel model = grid.getSelectionModel().getSelectedItem();
-				if (model == null)
-					WindowUtils.errorAlert("Error", "Please select a record to view.");
-				else {
-					/*
-					String count = searchTable.getSelectedItem().getValue(3).toString();
-					openEditor(searchBinder.getSelection().get(0), searchStore, !count.trim().equals("0"));
-					*/
-					
-					final ComplexListener<ReferenceModel> saveListener = new ComplexListener<ReferenceModel>() {
-						public void handleEvent(ReferenceModel reference) {
-							//showSearchPanel();
-							refreshView();
-						}
-					};
-					
-					final SimpleListener deleteListener = new SimpleListener() {
-						public void handleEvent() {
-							refreshView();
-						}
-					};
-
-					String count = model.get("count").toString();
-					ReferenceViewTabPanel.openEditor(model, saveListener, deleteListener, !count.trim().equals("0"), false);
-				}
+				editReference(grid.getSelectionModel().getSelectedItem());
 			}
 		});
 
@@ -200,6 +183,33 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 		toolBar.add(add);
 		
 		return toolBar;
+	}
+	
+	private void editReference(ReferenceModel model) {
+		if (model == null)
+			WindowUtils.errorAlert("Error", "Please select a record to view.");
+		else {
+			/*
+			String count = searchTable.getSelectedItem().getValue(3).toString();
+			openEditor(searchBinder.getSelection().get(0), searchStore, !count.trim().equals("0"));
+			*/
+			
+			final ComplexListener<ReferenceModel> saveListener = new ComplexListener<ReferenceModel>() {
+				public void handleEvent(ReferenceModel reference) {
+					//showSearchPanel();
+					refreshView();
+				}
+			};
+			
+			final SimpleListener deleteListener = new SimpleListener() {
+				public void handleEvent() {
+					refreshView();
+				}
+			};
+
+			String count = model.get("count").toString();
+			ReferenceViewTabPanel.openEditor(model, saveListener, deleteListener, !count.trim().equals("0"), false);
+		}
 	}
 	
 	private List<ColumnConfig> getColumnConfig() {

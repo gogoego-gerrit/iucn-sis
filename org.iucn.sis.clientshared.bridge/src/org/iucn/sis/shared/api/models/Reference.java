@@ -14,7 +14,7 @@ package org.iucn.sis.shared.api.models;
  */
 import java.io.Serializable;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -22,9 +22,9 @@ import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared;
 import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared.ReturnedCitation;
 import org.iucn.sis.shared.api.debug.Debug;
 
-import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.portable.XMLWritingUtils;
 public class Reference implements Serializable, AuthorizableObject {
 	
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS*/
@@ -42,7 +42,25 @@ public class Reference implements Serializable, AuthorizableObject {
 		return "";
 	}
 	
+	public static Reference fromMap(Map<String, String> map) {
+		Reference reference = new Reference();
+		reference.setId(0);
+		
+		fromMap(reference, map);
+		
+		return reference;
+	}
+	
+	public static void fromMap(Reference reference, Map<String, String> map) {
+		for (Map.Entry<String, String> entry : map.entrySet())
+			addField(reference, entry.getKey(), entry.getValue());
+	}
+	
 	public static Reference fromXML(NativeNode element) throws IllegalArgumentException {
+		return fromXML(element, false);
+	}
+	
+	public static Reference fromXML(NativeNode element, boolean allowNew) {
 		final Reference reference = new Reference();
 		reference.setId(-1);
 		
@@ -51,295 +69,128 @@ public class Reference implements Serializable, AuthorizableObject {
 			final NativeNode field = nodes.item(i);
 			final String name = field.getNodeName();
 			final String value = field.getTextContent();
-			if ("id".equals(name)) {
-				try {
-					reference.setId(Integer.parseInt(value));
-				} catch (NumberFormatException e) {
-					Debug.println("References being build from invalid model!");
-				}
-			}
-			else if ("type".equals(name))
-				reference.setType(value);
-			else if ("citationShort".equals(name))
-				reference.setCitationShort(value);
-			else if ("citation".equals(name))
-				reference.setCitation(value);
-			else if ("citationComplete".equals(name) && !isBlank(value))
-				reference.setCitationComplete(Boolean.valueOf(value));
-			else if ("author".equals(name))
-				reference.setAuthor(value);
-			else if ("year".equals(name))
-				reference.setYear(value);
-			else if ("title".equals(name))
-				reference.setTitle(value);
-			else if ("secondaryAuthor".equals(name))
-				reference.setSecondaryAuthor(value);
-			else if ("secondaryTitle".equals(name))
-				reference.setSecondaryTitle(value);
-			else if ("placePublished".equals(name))
-				reference.setPlacePublished(value);
-			else if ("publisher".equals(name))
-				reference.setPublisher(value);
-			else if ("volume".equals(name))
-				reference.setVolume(value);
-			else if ("numberOfVolumes".equals(name))
-				reference.setNumberOfVolumes(value);
-			else if ("number".equals(name))
-				reference.setNumber(value);
-			else if ("pages".equals(name))
-				reference.setPages(value);
-			else if ("section".equals(name))
-				reference.setSection(value);
-			else if ("tertiaryAuthor".equals(name))
-				reference.setTertiaryAuthor(value);
-			else if ("tertiaryTitle".equals(name))
-				reference.setTertiaryTitle(value);
-			else if ("edition".equals(name))
-				reference.setEdition(value);
-			else if ("date".equals(name))
-				reference.setDateValue(value);
-			else if ("subsidiaryAuthor".equals(name))
-				reference.setSubsidiaryAuthor(value);
-			else if ("shortTitle".equals(name))
-				reference.setShortTitle(value);
-			else if ("alternateTitle".equals(name))
-				reference.setAlternateTitle(value);
-			else if ("isbnissn".equals(name))
-				reference.setIsbnIssn(value);
-			else if ("keywords".equals(name))
-				reference.setKeywords(value);
-			else if ("url".equals(name))
-				reference.setUrl(value);
-			else if ("hash".equals(name))
-				reference.setHash(value);
-			else if ("bibCode".equals(name) && !isBlank(value))
-				reference.setBibCode(Integer.valueOf(value));
-			else if ("bibNoInt".equals(name) && !isBlank(value))
-				reference.setBibNoInt(Integer.valueOf(value));
-			else if ("bibNumber".equals(name) && !isBlank(value))
-				reference.setBibNumber(Integer.valueOf(value));
-			else if ("externalBibCode".equals(name))
-				reference.setExternalBibCode(value);
-			else if ("submissionType".equals(name))
-				reference.setSubmissionType(value);
+	
+			addField(reference, name, value);
 		}
 		
-		if (reference.getId() <= 0)
+		if (!allowNew && reference.getId() <= 0)
 			throw new IllegalArgumentException("Error building reference from node, required fields not present.");
 		
 		return reference;
+	}
+	
+	public static void addField(Reference reference, String name, String value) {
+		if ("id".equals(name)) {
+			try {
+				reference.setId(Integer.parseInt(value));
+			} catch (NumberFormatException e) {
+				Debug.println("References being build from invalid model!");
+			}
+		}
+		else if ("type".equals(name))
+			reference.setType(value);
+		else if ("citationShort".equals(name))
+			reference.setCitationShort(value);
+		else if ("citation".equals(name))
+			reference.setCitation(value);
+		else if ("citationComplete".equals(name) && !isBlank(value))
+			reference.setCitationComplete(Boolean.valueOf(value));
+		else if ("author".equals(name))
+			reference.setAuthor(value);
+		else if ("year".equals(name))
+			reference.setYear(value);
+		else if ("title".equals(name))
+			reference.setTitle(value);
+		else if ("secondaryAuthor".equals(name))
+			reference.setSecondaryAuthor(value);
+		else if ("secondaryTitle".equals(name))
+			reference.setSecondaryTitle(value);
+		else if ("placePublished".equals(name))
+			reference.setPlacePublished(value);
+		else if ("publisher".equals(name))
+			reference.setPublisher(value);
+		else if ("volume".equals(name))
+			reference.setVolume(value);
+		else if ("numberOfVolumes".equals(name))
+			reference.setNumberOfVolumes(value);
+		else if ("number".equals(name))
+			reference.setNumber(value);
+		else if ("pages".equals(name))
+			reference.setPages(value);
+		else if ("section".equals(name))
+			reference.setSection(value);
+		else if ("tertiaryAuthor".equals(name))
+			reference.setTertiaryAuthor(value);
+		else if ("tertiaryTitle".equals(name))
+			reference.setTertiaryTitle(value);
+		else if ("edition".equals(name))
+			reference.setEdition(value);
+		else if ("date".equals(name))
+			reference.setDateValue(value);
+		else if ("subsidiaryAuthor".equals(name))
+			reference.setSubsidiaryAuthor(value);
+		else if ("shortTitle".equals(name))
+			reference.setShortTitle(value);
+		else if ("alternateTitle".equals(name))
+			reference.setAlternateTitle(value);
+		else if ("isbnissn".equals(name))
+			reference.setIsbnIssn(value);
+		else if ("keywords".equals(name))
+			reference.setKeywords(value);
+		else if ("url".equals(name))
+			reference.setUrl(value);
+		else if ("hash".equals(name))
+			reference.setHash(value);
+		else if ("bibCode".equals(name) && !isBlank(value))
+			reference.setBibCode(Integer.valueOf(value));
+		else if ("bibNoInt".equals(name) && !isBlank(value))
+			reference.setBibNoInt(Integer.valueOf(value));
+		else if ("bibNumber".equals(name) && !isBlank(value))
+			reference.setBibNumber(Integer.valueOf(value));
+		else if ("externalBibCode".equals(name))
+			reference.setExternalBibCode(value);
+		else if ("submissionType".equals(name))
+			reference.setSubmissionType(value);
 	}
 	
 	private static boolean isBlank(String value) {
 		return value == null || "".equals(value);
 	}
 	
-	@Deprecated
-	public static Reference fromOldXML(NativeElement element) {
-		Reference reference = new Reference();
-		reference.setId(Integer.parseInt(element.getElementsByTagName("id").elementAt(0).getTextContent()));
+	private static String toStringOrNull(Object value) {
+		if (value == null)
+			return null;
 		
-		String type = element.getElementsByTagName("type").elementAt(0).getTextContent();
-		if (!type.equalsIgnoreCase("null")) {
-			reference.setType(type);
-		}
+		String ret = value.toString();
 		
-		String citationShort = element.getElementsByTagName("citationShort").elementAt(0).getTextContent();
-		if (!citationShort.equalsIgnoreCase("null")) {
-			reference.setCitationShort(citationShort);
-		}
-		
-		String citation = element.getElementsByTagName("citation").elementAt(0).getTextContent();
-		if (!citation.equalsIgnoreCase("null")) {
-			reference.setCitation(citation);
-		}
-		
-		String citationComplete = element.getElementsByTagName("citationComplete").elementAt(0).getTextContent();
-		if (!citationComplete.equalsIgnoreCase("null")) {
-			reference.setCitationComplete(Boolean.valueOf(citationComplete));
-		}
-		
-		String author = element.getElementsByTagName("author").elementAt(0).getTextContent();
-		if (!author.equalsIgnoreCase("null")) {
-			reference.setAuthor(author);
-		}
-		
-		String year = element.getElementsByTagName("year").elementAt(0).getTextContent();
-		if (!year.equalsIgnoreCase("null")) {
-			reference.setYear(year);
-		}
-		
-		String title = element.getElementsByTagName("title").elementAt(0).getTextContent();
-		if (!title.equalsIgnoreCase("null")) {
-			reference.setTitle(title);
-		}
-		String secondaryAuthor = element.getElementsByTagName("secondaryAuthor").elementAt(0).getTextContent();
-		if (!secondaryAuthor.equalsIgnoreCase("null")) {
-			reference.setSecondaryAuthor(secondaryAuthor);
-		}
-		
-		String secondaryTitle = element.getElementsByTagName("secondaryTitle").elementAt(0).getTextContent();
-		if (!secondaryTitle.equalsIgnoreCase("null")) {
-			reference.setSecondaryTitle(secondaryTitle);
-		}
-		
-		String placePublished = element.getElementsByTagName("placePublished").elementAt(0).getTextContent();
-		if (!placePublished.equalsIgnoreCase("null")) {
-			reference.setPlacePublished(placePublished);
-		}
-		
-		String publisher = element.getElementsByTagName("publisher").elementAt(0).getTextContent();
-		if (!publisher.equalsIgnoreCase("null")) {
-			reference.setPublisher(publisher);
-		}
-		
-		String volume = element.getElementsByTagName("volume").elementAt(0).getTextContent();
-		if (!volume.equalsIgnoreCase("null")) {
-			reference.setVolume(volume);
-		}
-		
-		String numberOfVolumes = element.getElementsByTagName("numberOfVolumes").elementAt(0).getTextContent();
-		if (!numberOfVolumes.equalsIgnoreCase("null")) {
-			reference.setNumberOfVolumes(numberOfVolumes);
-		}
-		
-		String number = element.getElementsByTagName("number").elementAt(0).getTextContent();
-		if (!number.equalsIgnoreCase("null")) {
-			reference.setNumber(number);
-		}
-		
-		String pages = element.getElementsByTagName("pages").elementAt(0).getTextContent();
-		if (!pages.equalsIgnoreCase("null")) {
-			reference.setPages(pages);
-		}
-		
-		String section = element.getElementsByTagName("section").elementAt(0).getTextContent();
-		if (!section.equalsIgnoreCase("null")) {
-			reference.setSection(section);
-		}
-		
-		String tertiaryAuthor = element.getElementsByTagName("tertiaryAuthor").elementAt(0).getTextContent();
-		if (!tertiaryAuthor.equalsIgnoreCase("null")) {
-			reference.setTertiaryAuthor(tertiaryAuthor);
-		}
-		
-		String tertiaryTitle = element.getElementsByTagName("tertiaryTitle").elementAt(0).getTextContent();
-		if (!tertiaryTitle.equalsIgnoreCase("null")) {
-			reference.setTertiaryTitle(tertiaryTitle);
-		}
-		
-		String edition = element.getElementsByTagName("edition").elementAt(0).getTextContent();
-		if (!edition.equalsIgnoreCase("null")) {
-			reference.setEdition(edition);
-		}
-		
-		String date = element.getElementsByTagName("date").elementAt(0).getTextContent();
-		if (!date.equalsIgnoreCase("null")) {
-			reference.setDateValue(date);
-		}
-		
-		String subsidiaryAuthor = element.getElementsByTagName("subsidiaryAuthor").elementAt(0).getTextContent();
-		if (!subsidiaryAuthor.equalsIgnoreCase("null")) {
-			reference.setSecondaryAuthor(subsidiaryAuthor);
-		}
-		
-		String shortTitle = element.getElementsByTagName("shortTitle").elementAt(0).getTextContent();
-		if (!shortTitle.equalsIgnoreCase("null")) {
-			reference.setShortTitle(shortTitle);
-		}
-		
-		String alternateTitle = element.getElementsByTagName("alternateTitle").elementAt(0).getTextContent();
-		if (!alternateTitle.equalsIgnoreCase("null")) {
-			reference.setAlternateTitle(alternateTitle);
-		}
-		
-		String isbnissn = element.getElementsByTagName("isbnissn").elementAt(0).getTextContent();
-		if (!isbnissn.equalsIgnoreCase("null")) {
-			reference.setIsbnIssn(isbnissn);
-		}
-		
-		String keywords = element.getElementsByTagName("keywords").elementAt(0).getTextContent();
-		if (!keywords.equalsIgnoreCase("null")) {
-			reference.setKeywords(keywords);
-		}
-		
-		String url = element.getElementsByTagName("url").elementAt(0).getTextContent();
-		if (!url.equalsIgnoreCase("null")) {
-			reference.setUrl(url);
-		}
-		
-		String hash = element.getElementsByTagName("hash").elementAt(0).getTextContent();
-		if (!hash.equalsIgnoreCase("null")) {
-			reference.setHash(hash);
-		}
-		
-		String bibCode = element.getElementsByTagName("bibCode").elementAt(0).getTextContent();
-		if (!bibCode.equalsIgnoreCase("null")) {
-			reference.setBibCode(Integer.valueOf(bibCode));
-		}
-		String bibNoInt = element.getElementsByTagName("bibNoInt").elementAt(0).getTextContent();
-		if (!bibNoInt.equalsIgnoreCase("null")) {
-			reference.setBibNoInt(Integer.valueOf(bibNoInt));
-		}
-		String bibNumber = element.getElementsByTagName("bibNumber").elementAt(0).getTextContent();
-		if (!bibNumber.equalsIgnoreCase("null")) {
-			reference.setBibNumber(Integer.valueOf(bibNumber));
-		}
-		String externalBibCode = element.getElementsByTagName("externalBibCode").elementAt(0).getTextContent();
-		if (!externalBibCode.equalsIgnoreCase("null")) {
-			reference.setExternalBibCode(externalBibCode);
-		}
-		String submissionType = element.getElementsByTagName("submissionType").elementAt(0).getTextContent();
-		if (!submissionType.equalsIgnoreCase("null")) {
-			reference.setSubmissionType(submissionType);
-		}
-		
-		return reference;
+		return isBlank(ret) ? null : ret;
 	}
 	
 	public String toXML() {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + ">");
-		xml.append("<id>" + getId() + "</id>");
-		xml.append("<type>" + getType() + "</type>");
-		xml.append("<citationShort><![CDATA[" + getCitationShort() + "]]></citationShort>");
-		xml.append("<citation><![CDATA[" + getCitation() + "]]></citation>");
-		xml.append("<citationComplete><![CDATA[" + getCitationComplete() + "]]></citationComplete>");
-		xml.append("<author><![CDATA[" + getAuthor() + "]]></author>");
-		xml.append("<edition><![CDATA[" + getEdition() + "]]></edition>");
-		xml.append("<year><![CDATA[" + getYear() + "]]></year>");
-		xml.append("<title><![CDATA[" + getTitle() + "]]></title>");
-		xml.append("<secondaryAuthor><![CDATA[" + getSecondaryAuthor() + "]]></secondaryAuthor>");
-		xml.append("<secondaryTitle><![CDATA[" + getSecondaryTitle() + "]]></secondaryTitle>");
-		xml.append("<placePublished><![CDATA[" + getPlacePublished() + "]]></placePublished>");
-		xml.append("<publisher><![CDATA[" + getPublisher() + "]]></publisher>");
-		xml.append("<volume><![CDATA[" + getVolume() + "]]></volume>");
-		xml.append("<numberOfVolumes><![CDATA[" + getNumberOfVolumes() + "]]></numberOfVolumes>");
-		xml.append("<number><![CDATA[" + getNumber() + "]]></number>");
-		xml.append("<pages><![CDATA[" + getPages() + "]]></pages>");
-		xml.append("<section><![CDATA[" + getSection() + "]]></section>");
-		xml.append("<tertiaryAuthor><![CDATA[" + getTertiaryAuthor() + "]]></tertiaryAuthor>");
-		xml.append("<tertiaryTitle><![CDATA[" + getTertiaryTitle() + "]]></tertiaryTitle>");
-		xml.append("<date><![CDATA[" + getDateValue() + "]]></date>");
-		xml.append("<subsidiaryAuthor><![CDATA[" + getSubsidiaryAuthor() + "]]></subsidiaryAuthor>");
-		xml.append("<shortTitle><![CDATA[" + getShortTitle() + "]]></shortTitle>");
-		xml.append("<alternateTitle><![CDATA[" + getAlternateTitle() + "]]></alternateTitle>");
-		xml.append("<isbnissn><![CDATA[" + getIsbnIssn() + "]]></isbnissn>");
-		xml.append("<keywords><![CDATA[" + getKeywords() + "]]></keywords>");
-		xml.append("<url><![CDATA[" + getUrl() + "]]></url>");
-		xml.append("<hash><![CDATA[" + getHash() + "]]></hash>");
-		xml.append("<bibCode><![CDATA[" + getBibCode() + "]]></bibCode>");
-		xml.append("<bibNumber><![CDATA[" + getBibNumber() + "]]></bibNumber>");
-		xml.append("<bibNoInt><![CDATA[" + getBibNoInt() + "]]></bibNoInt>");
-		xml.append("<externalBibCode><![CDATA[" + getExternalBibCode() + "]]></externalBibCode>");
-		xml.append("<submissionType><![CDATA[" + getSubmissionType() + "]]></submissionType>");
+		for (Map.Entry<String, String> entry : toMap().entrySet())
+			xml.append(XMLWritingUtils.writeCDATATag(entry.getKey(), entry.getValue(), true));
 		xml.append("</" + ROOT_TAG + ">");
 		return xml.toString();	
 	}
 	
+	/**
+	 * Returns a map of fields that exist for this reference. 
+	 * If the field value is blank or null, it will not be in  
+	 * the data map.
+	 * @return
+	 */
 	public Map<String, String> toMap() {
-		final Map<String, String> map = new HashMap<String, String>();
-		map.put("id", ""+(getId()));
+		final Map<String, String> map = new LinkedHashMap<String, String>() {
+			public String put(String key, String value) {
+				if (isBlank(value))
+					return null;
+				else
+					return super.put(key, value);
+			}
+		};
+		map.put("id", toStringOrNull(getId()));
 		map.put("type", getType());
 		map.put("citationShort", getCitationShort());
 		map.put("citation", getCitation());
@@ -367,16 +218,13 @@ public class Reference implements Serializable, AuthorizableObject {
 		map.put("keywords", getKeywords());
 		map.put("url", getUrl());
 		map.put("hash", getHash());
-		map.put("bibCode", ""+(getBibCode()));
-		map.put("bibNumber", ""+(getBibNumber()));
-		map.put("bibNoInt", ""+(getBibNoInt()));
+		map.put("bibCode", toStringOrNull(getBibCode()));
+		map.put("bibNumtoStringOrNull", toStringOrNull(getBibNumber()));
+		map.put("bibNoInt", toStringOrNull(getBibNoInt()));
 		map.put("externalBibCode", getExternalBibCode());
 		map.put("submissionType", getSubmissionType());
 	
 		return map;
-	}
-	public void addField(String name, String value) {
-		
 	}
 	
 	public String getField(String name) {

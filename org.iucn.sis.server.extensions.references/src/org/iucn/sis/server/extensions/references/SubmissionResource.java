@@ -19,6 +19,7 @@ import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.TrivialExceptionHandler;
 
 public class SubmissionResource extends Resource {
 
@@ -37,13 +38,13 @@ public class SubmissionResource extends Resource {
 		}
 		
 		final StringBuilder responseDoc = new StringBuilder();
-		responseDoc.append("references");
+		responseDoc.append("<references>");
 		
 		final NativeNodeList nodes = doc.getDocumentElement().getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			final NativeNode node = nodes.item(i);
 			if ("reference".equals(node.getNodeName())) {
-				Reference reference = Reference.fromXML(node);
+				final Reference reference = Reference.fromXML(node, true);
 
 				try {
 					SISPersistentManager.instance().saveObject(reference);

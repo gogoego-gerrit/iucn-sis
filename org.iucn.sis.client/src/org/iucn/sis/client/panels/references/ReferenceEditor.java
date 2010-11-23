@@ -70,7 +70,7 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 	private Reference reference;
 
 	private LayoutContainer formArea;
-	private ArrayList registeredFields;
+	private ArrayList<TextBox> registeredFields;
 
 	private boolean canEdit;
 
@@ -79,8 +79,6 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 	private HTML citationHTML;
 	private boolean changedType;
 	private ListBox submissionType;
-
-	private Assessment openedUsing;
 
 	/**
 	 * Constructor. Takes a reference object, or null if you intend to create a
@@ -106,7 +104,7 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 		this.canEdit = canEdit;
 		changedType = false;
 
-		registeredFields = new ArrayList();
+		registeredFields = new ArrayList<TextBox>();
 
 		formArea = new LayoutContainer();
 		formArea.setLayout(new FlowLayout(0));
@@ -464,7 +462,7 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 
 		reference.generateCitation();
 
-		if (citation.equalsIgnoreCase("")) {
+		if (citation.equals("")) {
 			citation = reference.getCitation();
 			citationComplete = reference.isCitationValid();
 			save();
@@ -509,13 +507,11 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 	private void putFieldsIntoReference() {
 		reference.setType(typeChooser.getValue().getValue());
 
-		for (int i = 0; i < registeredFields.size(); i++) {
-			TextBox current = (TextBox) registeredFields.get(i);
-			reference.addField(current.getName(), current.getText());
-		}
+		for (TextBox current : registeredFields)
+			Reference.addField(reference, current.getName(), current.getValue());
 
 		if (submissionType != null)
-			reference.addField("submission_type", submissionType.getItemText(submissionType.getSelectedIndex()));
+			Reference.addField(reference, "submission_type", submissionType.getItemText(submissionType.getSelectedIndex()));
 
 		reference.setCitation(citationHTML.getHTML());
 	}
