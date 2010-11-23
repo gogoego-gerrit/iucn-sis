@@ -279,16 +279,20 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		top.add(new LabelToolItem(description+":"));
 		top.add(box);
 		
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(top, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
+		container.add(createWidgetContainer(model, isViewOnly), new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(buttonPanel, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+		
+		callback.isDrawn(container);
+	}
+	
+	protected LayoutContainer createWidgetContainer(ClassificationSchemeModelData model, boolean isViewOnly) {
 		final LayoutContainer widgetContainer = new LayoutContainer(new FillLayout());
 		widgetContainer.setScrollMode(Scroll.AUTO);
 		widgetContainer.add(model.getDetailsWidget(isViewOnly));
 		
-		final LayoutContainer container = new LayoutContainer(new BorderLayout());
-		container.add(top, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
-		container.add(widgetContainer ,new BorderLayoutData(LayoutRegion.CENTER));
-		container.add(buttonPanel, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
-		
-		callback.isDrawn(container);
+		return widgetContainer;
 	}
 	
 	public ToolBar getLabelPanel(final Grid<ClassificationSchemeModelData> grid, boolean isViewOnly){

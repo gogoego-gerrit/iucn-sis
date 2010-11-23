@@ -9,7 +9,7 @@ public class IASTaxaThreatsSubfield extends ThreatsSubfield {
 	private static final long serialVersionUID = 1L;
 
 	public IASTaxaThreatsSubfield(Field data) {
-		super(data);
+		super(data == null ? new Field() : data);
 	}
 	
 	public Integer getIASTaxa() {

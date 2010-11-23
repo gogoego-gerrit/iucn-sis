@@ -19,6 +19,9 @@ import org.iucn.sis.shared.api.structures.Structure;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.DataListEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -31,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -39,14 +43,32 @@ import com.solertium.util.gwt.ui.DrawsLazily.DoneDrawingCallbackWithParam;
 
 public class ThreatsClassificationSchemeViewer extends
 		BasicClassificationSchemeViewer {
+	
+	private LayoutContainer threatContainer;
 
 	public ThreatsClassificationSchemeViewer(String description, TreeData treeData) {
 		super(description, treeData);
+		threatContainer = new LayoutContainer(new FillLayout());
+		threatContainer.setLayoutOnChange(true);
 	}
 	
 	@Override
 	protected ThreatClassificationSchemeModelData newInstance(Structure structure) {
 		return new ThreatClassificationSchemeModelData(structure);
+	}
+	
+	@Override
+	protected LayoutContainer createWidgetContainer(ClassificationSchemeModelData model, boolean isViewOnly) {
+		if (model.getSelectedRow() != null && "Named taxa".equals(model.getSelectedRow().getDescription())) {
+			threatContainer.removeAll();
+			IASTaxaThreatsSubfield field = new IASTaxaThreatsSubfield(model.getField());
+			if (field.getIASTaxa() != null)
+				threatContainer.add(super.createWidgetContainer(model, isViewOnly));
+			
+			return threatContainer;
+		}
+		else
+			return super.createWidgetContainer(model, isViewOnly);
 	}
 	
 	@Override
@@ -58,7 +80,7 @@ public class ThreatsClassificationSchemeViewer extends
 		if (model.getSelectedRow() != null && "Named taxa".equals(model.getSelectedRow().getDescription())) {
 			final Map<ClassificationSchemeModelData, Integer> map = 
 				new HashMap<ClassificationSchemeModelData, Integer>();
-			map.put(model, null);
+			//map.put(model, null);
 			for (ClassificationSchemeModelData current : server.getModels()) {
 				if (current.getSelectedRow().getDisplayId().equals(model.getSelectedRow().getDisplayId())) {
 					IASTaxaThreatsSubfield field = new IASTaxaThreatsSubfield(current.getField());
@@ -71,6 +93,18 @@ public class ThreatsClassificationSchemeViewer extends
 					ThreatsClassificationSchemeViewer.super.updateInnerContainer(model, addToPagingLoader, isViewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
 						public void isDrawn(LayoutContainer parameter) {
 							final DataList list = new DataList();
+							list.addListener(Events.SelectionChange, new Listener<DataListEvent>() {
+								public void handleEvent(DataListEvent be) {
+									if (be.getSelected().isEmpty())
+										return;
+									
+									DataListItem item = be.getSelected().get(0);
+									ClassificationSchemeModelData model = item.getData("value");
+									
+									threatContainer.removeAll();
+									threatContainer.add(createWidgetContainer(model, isViewOnly));
+								}
+							});
 							for (Map.Entry<ClassificationSchemeModelData, Integer> entry : map.entrySet()) {
 								DataListItem item = new DataListItem();
 								if (entry.getValue() == null)
@@ -113,18 +147,30 @@ public class ThreatsClassificationSchemeViewer extends
 											}
 											
 											for (Map.Entry<Integer, Taxon> entry : map.entrySet()) {
-												DataListItem item = new DataListItem();
-												item.setText(entry.getValue().getFullName());
-												item.setData("taxon", entry.getKey());
-												
 												ClassificationSchemeModelData model = 
 													newInstance(generateNamedTaxaStructure());
 												model.setField(new Field("ThreatsSubfield", null));
+												model.updateDisplayableData();
 												
 												IASTaxaThreatsSubfield field = new IASTaxaThreatsSubfield(model.getField());
 												field.setIASTaxa(entry.getKey());
 												
-												list.add(item);				
+												if (addToPagingLoader) {
+													/*pagingLoader.getFullList().add(0, model);
+													pagingLoader.getPagingLoader().load();*/
+													server.add(model);
+												}
+												else
+													server.update(model);
+																
+												hasChanged = true;
+												
+												DataListItem item = new DataListItem();
+												item.setText(entry.getValue().getFullName());
+												item.setData("taxon", entry.getKey());
+												item.setData("value", model);
+												
+												list.add(item);
 											}
 											window.hide();
 										}
@@ -142,7 +188,16 @@ public class ThreatsClassificationSchemeViewer extends
 								public void componentSelected(ButtonEvent ce) {
 									WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove this row?", new WindowUtils.SimpleMessageBoxListener() {
 										public void onYes() {
-											//TODO: delete row
+											DataListItem item = list.getSelectedItem();
+											if (item == null)
+												return;
+											
+											ClassificationSchemeModelData model = item.getData("value");
+											server.remove(model);
+											
+											hasChanged = true;
+											
+											list.remove(item);
 										}
 									});
 								}
