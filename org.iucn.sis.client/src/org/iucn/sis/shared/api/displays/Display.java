@@ -506,6 +506,9 @@ public abstract class Display implements Referenceable {
 	}
 
 	private void rebuildIconPanel() {
+		if (iconPanel == null)
+			return;
+		
 		iconPanel.clear();
 		iconPanel.setSpacing(5);
 
@@ -528,12 +531,13 @@ public abstract class Display implements Referenceable {
 			iconPanel.add(iconButton);
 		}
 		iconPanel.add(notesIcon);
-		// iconPanel.add(new Label("Notes"));
-
-		if (field != null && field.getReference().size() == 0)
-			refIcon.setUrl("images/icon-book-grey.png");
-		else
+		
+		
+		
+		if (field != null && !field.getReference().isEmpty())
 			refIcon.setUrl("images/icon-book.png");
+		else
+			refIcon.setUrl("images/icon-book-grey.png");
 
 		iconPanel.add(refIcon);
 		// iconPanel.add(new Label("References"));
@@ -579,8 +583,13 @@ public abstract class Display implements Referenceable {
 	public void setClassOfService(String classOfService) {
 		this.classOfService = classOfService;
 	}
+	
+	public final void setData(Field field) {
+		setField(field);
+		rebuildIconPanel();
+	}
 
-	public abstract void setData(Field field);
+	public abstract void setField(Field field);
 	
 	public void setDescription(String description) {
 		this.description = description;
@@ -673,13 +682,6 @@ public abstract class Display implements Referenceable {
 			}
 		});
 		rebuildIconPanel();
-		
-		if (refIcon != null) {
-			if (!isSaved() || field.getReference().size() == 0)
-				refIcon.setUrl("images/icon-book-grey.png");
-			else
-				refIcon.setUrl("images/icon-book.png");
-		}
 	}
 
 	/**

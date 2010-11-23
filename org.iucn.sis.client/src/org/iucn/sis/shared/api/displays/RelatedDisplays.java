@@ -187,7 +187,7 @@ public class RelatedDisplays extends Display {
 	}
 	
 	@Override
-	public void setData(Field field) {
+	public void setField(Field field) {
 		//TODO: Implement
 	}
 

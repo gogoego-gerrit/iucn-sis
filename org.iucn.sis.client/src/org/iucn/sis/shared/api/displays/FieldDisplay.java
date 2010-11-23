@@ -95,7 +95,7 @@ public class FieldDisplay extends Display {
 	}
 
 	@Override
-	public void setData(Field field) {
+	public void setField(Field field) {
 		this.field = field;
 		for (DisplayStructure cur : getStructures()) {
 			if (cur.isPrimitive())

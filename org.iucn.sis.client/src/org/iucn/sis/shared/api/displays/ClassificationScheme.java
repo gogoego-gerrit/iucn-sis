@@ -222,7 +222,7 @@ public class ClassificationScheme extends Display {
 	}
 	
 	@Override
-	public void setData(Field field) {
+	public void setField(Field field) {
 		this.field = field;
 		if (field != null) {
 			//TODO: This should create the appropriate models based off the subfields...
