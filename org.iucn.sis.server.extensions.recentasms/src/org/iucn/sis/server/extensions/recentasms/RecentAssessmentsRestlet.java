@@ -1,23 +1,31 @@
 package org.iucn.sis.server.extensions.recentasms;
 
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import java.io.IOException;
+import java.util.List;
+
+import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Region;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+import com.solertium.util.ElementCollection;
 import com.solertium.util.NodeCollection;
 import com.solertium.vfs.VFSPath;
 
-public class RecentAssessmentsRestlet extends ServiceRestlet {
+public class RecentAssessmentsRestlet extends BaseServiceRestlet {
 
 	public RecentAssessmentsRestlet(String vfsroot, Context context) {
 		super(vfsroot, context);
@@ -28,132 +36,145 @@ public class RecentAssessmentsRestlet extends ServiceRestlet {
 		paths.add("/recentAssessments/{username}");
 		paths.add("/recentAssessments/{username}/{status}/{id}");
 	}
-
-	public void doDelete(Request request, Response response) {
+	
+	@Override
+	public void handleDelete(Request request, Response response) throws ResourceException {
 		String username = (String) request.getAttributes().get("username");
 		String status = (String) request.getAttributes().get("status");
 		String id = (String) request.getAttributes().get("id");
 
 		if (vfs.exists(new VFSPath("/users/" + username))) {
-			try {
-				String url = "/users/" + username + "/recentlyViewed.xml";
-				String contents;
+			final String url = "/users/" + username + "/recentlyViewed.xml";
 
-				if (vfs.exists(new VFSPath(url))) {
-					Document doc = DocumentUtils.getVFSFileAsDocument(url, vfs);
-					NodeCollection nodes = new NodeCollection(doc.getElementsByTagName("assessment"));
-					String xml = "<recent>";
-					for (Node node : nodes) {
-						Element el = (Element) node;
-						if (el.getAttribute("status").equals(status) && el.getTextContent().equals(id)) {
-							// removing assessment from recent
-						} else {
-							xml += "<assessment status=\"" + el.getAttribute("status") + "\">" + el.getTextContent()
-									+ "</assessment>";
-						}
-					}
-					xml += "</recent>";
-					DocumentUtils.writeVFSFile("/users/" + username + "/recentlyViewed.xml", vfs, xml);
-					response.setStatus(Status.SUCCESS_OK);
-				} else {
-					response.setStatus(Status.SUCCESS_OK);
-					return;
+			if (vfs.exists(new VFSPath(url))) {
+				Document doc;
+				try {
+					doc = vfs.getDocument(new VFSPath(url));
+				} catch (IOException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+				
+				NodeCollection nodes = new NodeCollection(doc.getElementsByTagName("assessment"));
+				
+				StringBuilder xml = new StringBuilder();
+				xml.append("<recent>");
+				
+				for (Node node : nodes) {
+					Element el = (Element) node;
+					if (!(el.getAttribute("status").equals(status) && el.getTextContent().equals(id))) {
+						xml.append("<assessment status=\"" + el.getAttribute("status") + "\">" + el.getTextContent()
+								+ "</assessment>");
+					}
+				}
+				
+				xml.append("</recent>");
+				
+				if (DocumentUtils.writeVFSFile(url, vfs, xml.toString()))
+					response.setStatus(Status.SUCCESS_OK);
+				else
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+			} else {
+				//FIXME: Maybe NOT_FOUND is more appropriate?
+				response.setStatus(Status.SUCCESS_OK);
 			}
 		} else {
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
 	}
-
-	private void doGet(Request request, Response response) {
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
 		String username = (String) request.getAttributes().get("username");
 		
-		if (vfs.exists(new VFSPath("/users/" + username))) {
-			try {
-				String recent = DocumentUtils.getVFSFileAsString(
-						"/users/" + username + "/recentlyViewed.xml", vfs);
-				
-				if( recent != null && !recent.trim().equals("") ) {
-					Document doc = DocumentUtils.createDocumentFromString(recent);
-
-					if (doc != null) {
-						NodeList resourceList = doc.getElementsByTagName("assessment");
-
-//						for (int i = 0; i < resourceList.getLength(); i++)
-//						{
-//							Element e = (Element) resourceList.item(i);
-//							String id = e.getTextContent();
-//							if (e.getAttribute("status").equals("published_status")) {
-//								if (!vfs.exists(new VFSPath(ServerPaths.getPublishedAssessmentURL(id))))
-//									e.getParentNode().removeChild(e);
-//							} else if (e.getAttribute("status").equals("draft_status")) {
-//								String uri = ServerPaths.getDraftAssessmentURL(id);
-//								
-//								if (!vfs.exists(new VFSPath(uri)))
-//									e.getParentNode().removeChild(e);
-//							}
-//						}
-						
-						response.setEntity(new DomRepresentation(MediaType.TEXT_XML, doc));
-						response.setStatus(Status.SUCCESS_OK);
-					} else {
-						response.setEntity(recent, MediaType.TEXT_XML);
-						response.setStatus(Status.SUCCESS_OK);
+		final VFSPath url = 
+			new VFSPath("/users/" + username + "/recentlyViewed.xml");
+		
+		if (!vfs.exists(url))
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		
+		boolean thin = 
+			"true".equals(request.getResourceRef().getQueryAsForm().getFirstValue("thin"));
+		
+		final Document document;
+		try {
+			document = vfs.getDocument(url); 
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		if (thin)
+			return new DomRepresentation(MediaType.TEXT_XML, document);
+		else {
+			final StringBuilder builder = new StringBuilder();
+			builder.append("<recent>");
+			final ElementCollection elements = new ElementCollection(document.getDocumentElement().getElementsByTagName("assessment"));
+			for (Element el : elements) {
+				String id = el.getTextContent();
+				Assessment assessment = SIS.get().getAssessmentIO().getAssessment(Integer.valueOf(id));
+				if (assessment != null) {
+					String region;
+					if (assessment.isRegional()) {
+						List<Integer> regions = assessment.getRegionIDs();
+						if (regions.isEmpty())
+							region = "(Unspecified Region)";
+						else {
+							Region r = SIS.get().getRegionIO().getRegion(regions.get(0));
+							if (r == null)
+								region = "(Invalid Region ID)";
+							else if (regions.size() == 1)
+								region = r.getName();
+							else
+								region = r.getName() + " + " + (regions.size() - 1) + " more...";
+						}
+						if (assessment.isEndemic())
+							region += " -- Endemic";
 					}
-				} else
-					response.setStatus(Status.SUCCESS_NO_CONTENT);
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+					else
+						region = "Global";
+					
+					builder.append("<row>");
+					builder.append("<field name=\"id\">" + id + "</field>");
+					builder.append("<field name=\"status\">" + el.getAttribute("status") + "</field>");
+					builder.append("<field name=\"species\"><![CDATA[" + assessment.getSpeciesName() + "]]></field>");
+					builder.append("<field name=\"region\"><![CDATA[" + region + "]]></field>");
+					builder.append("</row>");
+				}
 			}
-		} else {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+			builder.append("</recent>");
+			
+			return new StringRepresentation(builder.toString(), MediaType.TEXT_XML);
 		}
 	}
-
-	private void doPost(Request request, Response response) {
+	
+	@Override
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
 		String username = (String) request.getAttributes().get("username");
+		
 		String xml;
-
 		try {
 			xml = request.getEntity().getText();
 		} catch (Exception e) {
-			response.setStatus(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY);
-			return;
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
-
-		try {
-			if (vfs.exists("/users/" + username)) {
-				DocumentUtils.writeVFSFile("/users/" + username + "/recentlyViewed.xml", vfs, xml);
-//				Writer writer = vfs.getWriter("/users/" + username + "/recentlyViewed.xml");
-//				writer.write(xml);
-//				writer.close();
-
-				response.setEntity("<html><head></head><body>Recently viewed "
-						+ "assessments were saved just fine.</body></html>", MediaType.TEXT_HTML);
-				response.setStatus(Status.SUCCESS_OK);
-			} else {
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+		
+		final VFSPath url = 
+			new VFSPath("/users/" + username + "/recentlyViewed.xml");
+		
+		if (!vfs.exists(url.getCollection())) {
+			try {
+				vfs.makeCollections(url);
+			} catch (IOException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Directory not found and could not be created.");
 			}
-		} catch (Exception e) {
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 		}
 
-	}
+		if (DocumentUtils.writeVFSFile("/users/" + username + "/recentlyViewed.xml", vfs, xml)) {
+			response.setEntity("<html><head></head><body>Recently viewed "
+				+ "assessments were saved just fine.</body></html>", MediaType.TEXT_HTML);
+			response.setStatus(Status.SUCCESS_OK);
+		}
+		else
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Could not save");
 
-	@Override
-	public void performService(Request request, Response response) {
-		if (request.getMethod().equals(Method.GET))
-			doGet(request, response);
-		else if (request.getMethod().equals(Method.POST))
-			doPost(request, response);
-		else if (request.getMethod().equals(Method.DELETE))
-			doDelete(request, response);
 	}
 
 }

@@ -17,6 +17,7 @@ import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
@@ -28,6 +29,8 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.lwxml.shared.utils.RowData;
+import com.solertium.lwxml.shared.utils.RowParser;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class AssessmentCache {
@@ -39,12 +42,42 @@ public class AssessmentCache {
 	 * 
 	 */
 	public class AssessmentInfo {
-		public String status;
+		public String type, name, region;
 		public Integer id;
+		
+		public AssessmentInfo(Assessment assessment) {
+			this.id = assessment.getId();
+			this.type = assessment.getType();
+			this.name = assessment.getSpeciesName();
+			
+			String region;
+			if (assessment.isRegional()) {
+				List<Integer> regions = assessment.getRegionIDs();
+				if (regions.isEmpty())
+					region = "(Unspecified Region)";
+				else {
+					Region r = RegionCache.impl.getRegionByID(regions.get(0));
+					if (r == null)
+						region = "(Invalid Region ID)";
+					else if (regions.size() == 1)
+						region = r.getName();
+					else
+						region = r.getName() + " + " + (regions.size() - 1) + " more...";
+				}
+				if (assessment.isEndemic())
+					region += " -- Endemic";
+			}
+			else
+				region = "Global";
+			
+			this.region = region;
+		}
 
-		public AssessmentInfo(String status, Integer id) {
-			this.status = status;
+		public AssessmentInfo(Integer id, String type, String name, String region) {
 			this.id = id;
+			this.type = type;
+			this.name = name;
+			this.region = region;
 		}
 	}
 
@@ -189,18 +222,10 @@ public class AssessmentCache {
 	}
 
 	public void evictAssessments(String ids) {
-		if (ids == null)
-			return;
-		else {
-			String[] assIDs = null;
-
-			if (ids.indexOf(",") > -1)
-				assIDs = ids.split(",");
-			else
-				assIDs = new String[] { ids };
-
-			for (int i = 0; i < assIDs.length; i++)
-				remove(assIDs[i]);
+		if (ids != null) {
+			String[] array = ids.indexOf(",") > -1 ? ids.split(",") : new String[] { ids } ;
+			for (String id : array)
+				remove(id);
 		}
 	}
 
@@ -245,13 +270,13 @@ public class AssessmentCache {
 					for (int i = 0; i < asses.getLength(); i++) {
 						NativeElement el = asses.elementAt(i);
 						try {
-							Assessment ass = Assessment.fromXML(el);
-							Taxon t = TaxonomyCache.impl.getTaxon(ass.getSpeciesID());
-							if( t != null )
-								ass.setTaxon(t);
+							Assessment current = Assessment.fromXML(el);
+							Taxon t = TaxonomyCache.impl.getTaxon(current.getSpeciesID());
+							if (t != null)
+								current.setTaxon(t);
 
-							addAssessment(ass);
-							taxaFetched.put(Integer.valueOf(ass.getSpeciesID()), Boolean.TRUE);
+							addAssessment(current);
+							taxaFetched.put(Integer.valueOf(current.getSpeciesID()), Boolean.TRUE);
 							
 						} catch (Throwable e) {
 							Debug.println("Error caching assessment: {0}", e);
@@ -265,22 +290,6 @@ public class AssessmentCache {
 					callback.onFailure(caught);
 				}
 			});
-		}
-	}
-	
-	public String fetchRecentAssessments() {
-		StringBuffer csv = new StringBuffer();
-		if (recentAssessments != null) {
-			for (int i = 0; i < recentAssessments.size(); i++) {
-				AssessmentInfo temp = (AssessmentInfo) recentAssessments.get(i);
-				csv.append(temp.id + ":" + temp.status + ",");
-			}
-			if (csv.length() > 0)
-				return csv.toString().substring(0, csv.length() - 1);
-			else
-				return csv.toString();
-		} else {
-			return null;
 		}
 	}
 
@@ -371,19 +380,16 @@ public class AssessmentCache {
 
 			public void onSuccess(String arg0) {
 				recentAssessments = new ArrayList<AssessmentInfo>();
-			
-				if( !ndoc.getStatusText().equals("204") ) {	
-					NativeNodeList assessments = ndoc.getDocumentElement().getElementsByTagName("assessment");
-
-					for (int i = 0; i < assessments.getLength(); i++) {
-						NativeElement assessment = assessments.elementAt(i);
-						String status = assessment.getAttribute("status");
-						String id = assessment.getTextContent();
-						recentAssessments.add(i, new AssessmentInfo(status, Integer.valueOf(id)));
-					}
+				
+				final RowParser parser = new RowParser(ndoc);
+				for (RowData row : parser.getRows()) {
+					recentAssessments.add(new AssessmentInfo(
+						Integer.valueOf(row.getField("id")), row.getField("status"), 
+						row.getField("species"), row.getField("region")
+					));
 				}
+				
 				wayBacks.onSuccess(arg0);
-
 			}
 		});
 	}
@@ -449,7 +455,7 @@ public class AssessmentCache {
 		StringBuffer xml = new StringBuffer("<recent>\r\n");
 		for (int i = 0; i < recentAssessments.size(); i++) {
 			AssessmentInfo temp = (AssessmentInfo) recentAssessments.get(i);
-			xml.append("<assessment status=\"" + temp.status + "\">" + temp.id + "</assessment>\r\n");
+			xml.append("<assessment status=\"" + temp.type + "\">" + temp.id + "</assessment>\r\n");
 		}
 		xml.append("</recent>");
 		NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
@@ -465,26 +471,25 @@ public class AssessmentCache {
 	
 	private void updateRecentAssessments() {
 		if (recentAssessments != null) {
-			Assessment currentAss = getCurrentAssessment();
-			String status = currentAss.getType();
+			Assessment currentAssessment = getCurrentAssessment();
+			String status = currentAssessment.getType();
 
 			int index = -1;
 
 			for (int i = 0; i < recentAssessments.size() && index < 0; i++) {
 				AssessmentInfo current = recentAssessments.get(i);
-
-				if (status.equals(current.status)) {
-					if (current.id.equals(currentAss.getId()))
+				if (status.equals(current.type)) {
+					if (current.id.equals(currentAssessment.getId()))
 						index = i;
 				}
 			}
 
 			// NOT ALREADY IN LIST
 			if (index < 0) {
-				Integer id = currentAss.getId();
+				Integer id = currentAssessment.getId();
 
 				if (id != null) {
-					recentAssessments.add(0, new AssessmentInfo(status, id));
+					recentAssessments.add(0, new AssessmentInfo(currentAssessment));
 					if (recentAssessments.size() > NUMRECENTASSESSMENTS) {
 						recentAssessments.remove(NUMRECENTASSESSMENTS);
 					}
