@@ -567,6 +567,15 @@ public class TaxonomyCache {
 		doTaxaMarking(tag, taxa, false, callback);
 	}
 	
+	private boolean isTagged(final String tag, final Taxon taxon) {
+		if ("invasive".equals(tag))
+			return taxon.getInvasive();
+		else if ("feral".equals(tag))
+			return taxon.getFeral();
+		else
+			return false;
+	}
+	
 	private void doTaxaMarking(final String tag, final List<Taxon> taxa, final boolean isMarked, 
 			final GenericCallback<Object> callback) {
 		boolean found = false;
@@ -574,7 +583,7 @@ public class TaxonomyCache {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("<root>");
 		for (Taxon taxon : taxa) {
-			if (taxon.getId() != 0) {
+			if (taxon.getId() != 0 && !isTagged(tag, taxon)) {
 				found = true;
 				builder.append("<taxon id=\"" + taxon.getId() + "\" />");
 			}

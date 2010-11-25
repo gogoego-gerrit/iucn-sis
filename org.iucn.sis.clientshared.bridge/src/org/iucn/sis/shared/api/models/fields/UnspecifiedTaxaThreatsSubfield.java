@@ -1,8 +1,6 @@
 package org.iucn.sis.shared.api.models.fields;
 
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
 public class UnspecifiedTaxaThreatsSubfield extends ThreatsSubfield {
 	
@@ -13,15 +11,11 @@ public class UnspecifiedTaxaThreatsSubfield extends ThreatsSubfield {
 	}
 	
 	public String getExplanation() {
-		PrimitiveField<?> field = proxy.getPrimitiveField("text");
-		if (field == null)
-			return null;
-		else
-			return ((StringPrimitiveField)field).getValue();
+		return getStringPrimitiveField("text");
 	}
 	
 	public void setExplanation(String explanation) {
-		proxy.addPrimitiveField(new StringPrimitiveField("text", proxy, explanation));
+		setStringPrimitiveField("text", explanation);
 	}
 
 }

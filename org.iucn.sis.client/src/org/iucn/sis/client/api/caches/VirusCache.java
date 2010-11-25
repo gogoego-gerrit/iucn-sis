@@ -58,6 +58,12 @@ public class VirusCache {
 		});
 	}
 	
+	/**
+	 * Fetch a virus either from cache or server, whichever 
+	 * is necessary.  Guarantees that you will get a result.
+	 * @param id
+	 * @param callback
+	 */
 	public void get(Integer id, final ComplexListener<Virus> callback) {
 		List<Integer> list = new ArrayList<Integer>();
 		list.add(id);
@@ -82,6 +88,16 @@ public class VirusCache {
 				callback.handleEvent(list);
 			}
 		});
+	}
+	
+	/**
+	 * Fetch a virus explicitly from the cache.  Returns null 
+	 * if this virus is not cached.
+	 * @param id
+	 * @return
+	 */
+	public Virus getFromCache(Integer id) {
+		return cache.get(id);
 	}
 	
 	public void list(final ComplexListener<List<Virus>> callback) {

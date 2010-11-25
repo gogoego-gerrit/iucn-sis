@@ -236,7 +236,7 @@ public class ClassificationScheme extends Display {
 				
 				TreeDataRow row = flatTree.get(lookup.getRawValue());
 				
-				final DisplayStructure structure = generateDefaultDisplayStructure();
+				final DisplayStructure structure = generateDefaultDisplayStructure(row);
 					
 				ClassificationSchemeModelData model = createModelData(structure, subfield);
 				model.setSelectedRow(row);
@@ -250,7 +250,7 @@ public class ClassificationScheme extends Display {
 			viewer.setData(new ArrayList<ClassificationSchemeModelData>());
 	}
 	
-	protected DisplayStructure generateDefaultDisplayStructure() {
+	protected DisplayStructure generateDefaultDisplayStructure(TreeDataRow row) {
 		return DisplayDataProcessor.processDisplayStructure(treeData.getDefaultStructure());
 	}
 	

@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.displays.threats;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.iucn.sis.shared.api.data.LookupData;
@@ -9,6 +10,7 @@ import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.fields.StressField;
 import org.iucn.sis.shared.api.models.fields.ThreatsSubfield;
+import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
 import org.iucn.sis.shared.api.structures.ClassificationInfo;
 import org.iucn.sis.shared.api.structures.Structure;
 
@@ -40,7 +42,7 @@ public class BasicThreatViewer extends Structure<Field> {
 	private DataList stresses;
 	
 	public BasicThreatViewer(ThreatsTreeData data) {
-		super(null, data.getDescription(), "none", data);
+		super(null, data.getDescription(), null, data);
 		
 		timingImpact = new int[] { 0, 30, 3, 1, -10, 20	};
 		scopeImpact = new int[] { 0, 3, 2, 1, -10 };
@@ -91,7 +93,13 @@ public class BasicThreatViewer extends Structure<Field> {
 		
 		stresses = new DataList();
 		stresses.setCheckable(true);
-		for (TreeDataRow row : treeData.getTreeData("Stresses").flattenTree().values()) {
+		
+		ArrayList<TreeDataRow> rows = new ArrayList<TreeDataRow>(
+			treeData.getTreeData("Stresses").flattenTree().values()	
+		);
+		Collections.sort(rows, new BasicClassificationSchemeViewer.TreeDataRowComparator());
+		
+		for (TreeDataRow row : rows) {
 			DataListItem item = new DataListItem();
 			item.setItemId(row.getDisplayId());
 			item.setId(row.getDisplayId());
@@ -101,7 +109,7 @@ public class BasicThreatViewer extends Structure<Field> {
 		}
 	}
 	
-	private void initializeListBox(ListBox box, LookupData data) {
+	protected void initializeListBox(ListBox box, LookupData data) {
 		box.addItem("--- Select ---", null);
 		for (LookupDataValue value : data.getValues())
 			box.addItem(value.getLabel(), value.getID());
@@ -136,7 +144,7 @@ public class BasicThreatViewer extends Structure<Field> {
 			hasListSelectionChanged(field.getSeverity(), severity);
 	}
 	
-	private boolean hasListSelectionChanged(Integer oldValue, ListBox newValueContainer) {
+	protected boolean hasListSelectionChanged(Integer oldValue, ListBox newValueContainer) {
 		Integer selected = null;
 		if (hasListValue(newValueContainer))
 			selected = Integer.valueOf(newValueContainer.getValue(newValueContainer.getSelectedIndex()));
@@ -147,27 +155,27 @@ public class BasicThreatViewer extends Structure<Field> {
 			return selected.equals(oldValue);
 	}
 	
-	private boolean hasListValue(ListBox listBox) {
+	protected boolean hasListValue(ListBox listBox) {
 		return listBox.getSelectedIndex() > 0;
 	}
 	
-	private Integer getListValue(ListBox listBox) {
+	protected Integer getListValue(ListBox listBox) {
 		return getListValue(listBox, null);
 	}
 	
-	private Integer getListValue(ListBox listBox, Integer defaultValue) {
+	protected Integer getListValue(ListBox listBox, Integer defaultValue) {
 		return hasListValue(listBox) ? 
 			Integer.valueOf(listBox.getValue(listBox.getSelectedIndex())) : 
 			defaultValue;
 	}
 	
-	private String getListText(ListBox listBox) {
+	protected String getListText(ListBox listBox) {
 		return hasListValue(listBox) ? 
 			listBox.getItemText(listBox.getSelectedIndex()) : 
 			"(Not specified)";
 	}
 	
-	private void setListValue(ListBox listBox, Integer value) {
+	protected void setListValue(ListBox listBox, Integer value) {
 		if (value != null)
 			for (int i = 1; i < listBox.getItemCount(); i++) {
 				if (value.equals(Integer.valueOf(listBox.getValue(i)))) {
@@ -245,31 +253,23 @@ public class BasicThreatViewer extends Structure<Field> {
 	
 	@Override
 	protected Widget createLabel() {
-		displayPanel = new HorizontalPanel();
+		displayPanel = new VerticalPanel();
 		
-		final VerticalPanel left = new VerticalPanel();
-		final Grid grid = new Grid(4, 2);
-		grid.setHTML(0, 0, "Timing: ");
-		grid.setWidget(0, 1, timing);
-		grid.setHTML(1, 0, "Scope: ");
-		grid.setWidget(1, 1, scope);
-		grid.setHTML(2, 0, "Severity: ");
-		grid.setWidget(2, 1, severity);
-		grid.setHTML(3, 0, "Impact Score: ");
-		grid.setWidget(3, 1, impactScore);
-		
-		left.add(grid);
-		
-		displayPanel.add(left);
-		displayPanel.add(stresses);
+		displayPanel.add(createBasicEditor());
 		
 		return displayPanel;
 	}
 	
 	@Override
 	protected Widget createViewOnlyLabel() {
-		displayPanel = new HorizontalPanel();
+		displayPanel = new VerticalPanel();
 		
+		displayPanel.add(createBasicEditor());
+		
+		return displayPanel;
+	}
+	
+	protected HorizontalPanel createBasicEditor() {
 		final VerticalPanel left = new VerticalPanel();
 		final Grid grid = new Grid(4, 2);
 		grid.setHTML(0, 0, "Timing: ");
@@ -283,10 +283,11 @@ public class BasicThreatViewer extends Structure<Field> {
 		
 		left.add(grid);
 		
-		displayPanel.add(left);
-		displayPanel.add(stresses);
+		final HorizontalPanel basic = new HorizontalPanel();
+		basic.add(left);
+		basic.add(stresses);
 		
-		return displayPanel;
+		return basic;
 	}
 	
 	@Override

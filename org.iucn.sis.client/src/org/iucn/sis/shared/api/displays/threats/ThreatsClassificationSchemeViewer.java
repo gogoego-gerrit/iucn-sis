@@ -2,44 +2,27 @@ package org.iucn.sis.shared.api.displays.threats;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.fields.IASTaxaThreatsSubfield;
 import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
+import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditor;
 import org.iucn.sis.shared.api.structures.Structure;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.DataListEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.DataList;
-import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.gwt.ui.DrawsLazily;
-import com.solertium.util.gwt.ui.DrawsLazily.DoneDrawingCallbackWithParam;
 
 public class ThreatsClassificationSchemeViewer extends
 		BasicClassificationSchemeViewer {
@@ -57,194 +40,74 @@ public class ThreatsClassificationSchemeViewer extends
 		return new ThreatClassificationSchemeModelData(structure);
 	}
 	
-	@Override
-	protected LayoutContainer createWidgetContainer(ClassificationSchemeModelData model, boolean isViewOnly) {
-		if (model.getSelectedRow() != null && "Named taxa".equals(model.getSelectedRow().getDescription())) {
-			threatContainer.removeAll();
-			IASTaxaThreatsSubfield field = new IASTaxaThreatsSubfield(model.getField());
-			if (field.getIASTaxa() != null)
-				threatContainer.add(super.createWidgetContainer(model, isViewOnly));
+	/**
+	 * Overriden to provide a GroupedRowEditor when necessary, 
+	 * only for the Named Taxa sections -- 8.5.2 is a special 
+	 * case that is grouped, but for viruses instead of taxa. 
+	 * The rest of the Named Taxa sections are, indeed, taxa, 
+	 * and can use the IAS grouping.
+	 * 
+	 * All others are singular, not grouped, and can have the 
+	 * standard row editor, with the threat viewer used being 
+	 * determined by the row number.
+	 */
+	protected ClassificationSchemeRowEditor createRowEditor(ClassificationSchemeModelData model, boolean isViewOnly) {
+		if (model.getSelectedRow() == null)
+			return super.createRowEditor(model, isViewOnly); 
+		
+		if ("8.5.2".equals(model.getSelectedRow().getRowNumber())) {
+			final Collection<ClassificationSchemeModelData> models = 
+				new ArrayList<ClassificationSchemeModelData>();
+			for (ClassificationSchemeModelData current : server.getModels())
+				if (current.getSelectedRow().getDisplayId().equals(model.getSelectedRow().getDisplayId()))
+					models.add(current);
 			
-			return threatContainer;
-		}
-		else
-			return super.createWidgetContainer(model, isViewOnly);
-	}
-	
-	@Override
-	protected void updateInnerContainer(final ClassificationSchemeModelData model,
-			final boolean addToPagingLoader, final boolean isViewOnly,
-			final DoneDrawingCallbackWithParam<LayoutContainer> callback) {
-		if (model.getSelectedRow() != null)
-			Debug.println("Updating container for {0}", model.getSelectedRow().getDescription());
-		if (model.getSelectedRow() != null && "Named taxa".equals(model.getSelectedRow().getDescription())) {
-			final Map<ClassificationSchemeModelData, Integer> map = 
-				new HashMap<ClassificationSchemeModelData, Integer>();
-			//map.put(model, null);
-			for (ClassificationSchemeModelData current : server.getModels()) {
-				if (current.getSelectedRow().getDisplayId().equals(model.getSelectedRow().getDisplayId())) {
-					IASTaxaThreatsSubfield field = new IASTaxaThreatsSubfield(current.getField());
-					map.put(current, field.getIASTaxa());
-				}
-			}
-			
-			TaxonomyCache.impl.fetchList(new ArrayList<Integer>(map.values()), new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					ThreatsClassificationSchemeViewer.super.updateInnerContainer(model, addToPagingLoader, isViewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
-						public void isDrawn(LayoutContainer parameter) {
-							final DataList list = new DataList();
-							list.addListener(Events.SelectionChange, new Listener<DataListEvent>() {
-								public void handleEvent(DataListEvent be) {
-									if (be.getSelected().isEmpty())
-										return;
-									
-									DataListItem item = be.getSelected().get(0);
-									ClassificationSchemeModelData model = item.getData("value");
-									
-									threatContainer.removeAll();
-									threatContainer.add(createWidgetContainer(model, isViewOnly));
-								}
-							});
-							for (Map.Entry<ClassificationSchemeModelData, Integer> entry : map.entrySet()) {
-								DataListItem item = new DataListItem();
-								if (entry.getValue() == null)
-									item.setText("(No taxon selected)");
-								else {
-									Taxon taxon = TaxonomyCache.impl.getTaxon(entry.getValue());
-									if (taxon != null)
-										item.setText(taxon.getFullName());
-									else //Taxon specified doesnt exist.
-										continue;
-								}
-								item.setData("taxon", entry.getValue());
-								item.setData("value", entry.getKey());
-								
-								IASTaxaThreatsSubfield field = new IASTaxaThreatsSubfield(entry.getKey().getField());
-								field.setIASTaxa(entry.getValue());
-								
-								list.add(item);
-							}
-							
-							final ButtonBar bar = new ButtonBar();
-							bar.add(new Button("Add Taxa", new SelectionListener<ButtonEvent>() {
-								public void componentSelected(ButtonEvent ce) {
-									final ThreatTaggedSpeciesLocator locator = 
-										new ThreatTaggedSpeciesLocator();
-									final Window window = new Window();
-									window.setHeading("Taxonomy Finder");
-									window.setButtonAlign(HorizontalAlignment.CENTER);
-									window.setSize(600, 600);
-									window.setLayout(new FitLayout());
-									window.addButton(new Button("Add Selected", new SelectionListener<ButtonEvent>() {
-										public void componentSelected(ButtonEvent ce) {
-											final Map<Integer, Taxon> map = new HashMap<Integer, Taxon>();
-											for (Taxon taxon : locator.getSelection())
-												map.put(taxon.getId(), taxon);
-											
-											for (DataListItem item : list.getItems()) {
-												Integer value = item.getData("taxon");
-												map.remove(value);
-											}
-											
-											for (Map.Entry<Integer, Taxon> entry : map.entrySet()) {
-												ClassificationSchemeModelData model = 
-													newInstance(generateNamedTaxaStructure());
-												model.setField(new Field("ThreatsSubfield", null));
-												model.updateDisplayableData();
-												
-												IASTaxaThreatsSubfield field = new IASTaxaThreatsSubfield(model.getField());
-												field.setIASTaxa(entry.getKey());
-												
-												if (addToPagingLoader) {
-													/*pagingLoader.getFullList().add(0, model);
-													pagingLoader.getPagingLoader().load();*/
-													server.add(model);
-												}
-												else
-													server.update(model);
-																
-												hasChanged = true;
-												
-												DataListItem item = new DataListItem();
-												item.setText(entry.getValue().getFullName());
-												item.setData("taxon", entry.getKey());
-												item.setData("value", model);
-												
-												list.add(item);
-											}
-											window.hide();
-										}
-									}));
-									window.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
-										public void componentSelected(ButtonEvent ce) {
-											window.hide();
-										}
-									}));
-									window.add(locator);
-									window.show();
-								}
-							}));
-							bar.add(new Button("Remove Taxon", new SelectionListener<ButtonEvent>() {
-								public void componentSelected(ButtonEvent ce) {
-									WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove this row?", new WindowUtils.SimpleMessageBoxListener() {
-										public void onYes() {
-											DataListItem item = list.getSelectedItem();
-											if (item == null)
-												return;
-											
-											ClassificationSchemeModelData model = item.getData("value");
-											server.remove(model);
-											
-											hasChanged = true;
-											
-											list.remove(item);
-										}
-									});
-								}
-							}));
-							
-							final LayoutContainer left = new LayoutContainer(new BorderLayout());
-							left.add(list, new BorderLayoutData(LayoutRegion.CENTER));
-							left.add(bar,new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
-							
-							final LayoutContainer container = new LayoutContainer(new BorderLayout());
-							container.add(left, new BorderLayoutData(LayoutRegion.WEST, 150));
-							container.add(parameter, new BorderLayoutData(LayoutRegion.CENTER));
-							
-							callback.isDrawn(container);
-						}
-					});
-				}
-				
-				@Override
-				public void onFailure(Throwable caught) {
-					onSuccess(null);
+			ViralThreatRowEditor editor = new ViralThreatRowEditor(models, treeData, isViewOnly);
+			editor.setRemoveListener(new ComplexListener<ClassificationSchemeModelData>() {
+				public void handleEvent(ClassificationSchemeModelData model) {
+					server.remove(model);
+					
+					hasChanged = true;
 				}
 			});
+			
+			return editor;
+		}
+		else if ("Named taxa".equals(model.getSelectedRow().getDescription())) {
+			final Collection<ClassificationSchemeModelData> models = 
+				new ArrayList<ClassificationSchemeModelData>();
+			for (ClassificationSchemeModelData current : server.getModels())
+				if (current.getSelectedRow().getDisplayId().equals(model.getSelectedRow().getDisplayId()))
+					models.add(current);
+			
+			IASThreatRowEditor editor = new IASThreatRowEditor(models, treeData, isViewOnly);
+			editor.setRemoveListener(new ComplexListener<ClassificationSchemeModelData>() {
+				public void handleEvent(ClassificationSchemeModelData model) {
+					server.remove(model);
+					
+					hasChanged = true;
+				}
+			});
+			
+			return editor;
 		}
 		else
-			super.updateInnerContainer(model, addToPagingLoader, isViewOnly, callback);
-	}
-	
-	private void populateListWithTaxon(DataList list, Collection<Taxon> taxa) {
-		
+			return super.createRowEditor(model, isViewOnly);
 	}
 	
 	@Override
 	protected Structure generateDefaultStructure() {
-		ThreatsTreeData treeData = (ThreatsTreeData) this.treeData;
-		
-		BasicThreatViewer structure = new BasicThreatViewer(treeData);
-		structure.setIsVisible(treeData.getIsVisible());
-		structure.setName(treeData.getName());
-		
-		return structure;
+		return generateDefaultStructure(null);
 	}
 	
-	private Structure generateNamedTaxaStructure() {
+	protected Structure generateDefaultStructure(TreeDataRow row) {
 		ThreatsTreeData treeData = (ThreatsTreeData) this.treeData;
 		
-		BasicThreatViewer structure = new BasicThreatViewer(treeData);
+		BasicThreatViewer structure;
+		if (row != null)
+			structure = ThreatViewerFactory.generateStructure(treeData, row);
+		else
+			structure = new BasicThreatViewer(treeData);
 		structure.setIsVisible(treeData.getIsVisible());
 		structure.setName(treeData.getName());
 		
@@ -259,11 +122,8 @@ public class ThreatsClassificationSchemeViewer extends
 				//TODO: create the right structure based on the selection...
 				CodingOption selection = se.getSelectedItem();
 				if (selection != null) {
-					final ClassificationSchemeModelData model;
-					if ("Named taxa".equals(selection.getRow().getDescription()))
-						model = newInstance(generateNamedTaxaStructure());
-					else
-						model = newInstance(generateDefaultStructure());
+					final ClassificationSchemeModelData model = 
+						newInstance(generateDefaultStructure(selection.getRow()));
 					model.setSelectedRow(selection.getRow());
 				
 					updateInnerContainer(model, true, false, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
@@ -276,6 +136,39 @@ public class ThreatsClassificationSchemeViewer extends
 			}
 		});
 		return box;
+	}
+	
+	@Override
+	public List<ClassificationSchemeModelData> save(boolean deep) {
+		List<ClassificationSchemeModelData> saved = super.save(deep);
+		if (!deep)
+			return saved;
+		
+		final List<Taxon> taxa = new ArrayList<Taxon>();
+		for (ClassificationSchemeModelData model : saved) {
+			if (ThreatViewerFactory.hasTaxa(model.getSelectedRow())) {
+				IASTaxaThreatsSubfield field = new IASTaxaThreatsSubfield(model.getField());
+				Integer value = field.getIASTaxa();
+				if (value != null) {
+					Taxon taxon = TaxonomyCache.impl.getTaxon(value);
+					if (taxon != null)
+						taxa.add(taxon);
+				}
+			}
+		}
+		
+		if (!taxa.isEmpty()) {
+			TaxonomyCache.impl.tagTaxa("invasive", taxa, new GenericCallback<Object>() {
+				public void onFailure(Throwable caught) {
+					Debug.println("Failed to tag taxa as invasive.");
+				}
+				public void onSuccess(Object result) {
+					Debug.println("Tagged {0} taxa as invasive.", taxa.size());
+				}
+			});
+		}
+		
+		return saved;
 	}
 
 }

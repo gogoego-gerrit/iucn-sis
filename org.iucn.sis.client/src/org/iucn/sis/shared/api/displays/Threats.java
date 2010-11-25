@@ -1,9 +1,11 @@
 package org.iucn.sis.shared.api.displays;
 
 import org.iucn.sis.shared.api.data.TreeData;
+import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.threats.BasicThreatViewer;
 import org.iucn.sis.shared.api.displays.threats.ThreatClassificationSchemeModelData;
+import org.iucn.sis.shared.api.displays.threats.ThreatViewerFactory;
 import org.iucn.sis.shared.api.displays.threats.ThreatsClassificationSchemeViewer;
 import org.iucn.sis.shared.api.displays.threats.ThreatsTreeData;
 import org.iucn.sis.shared.api.models.Field;
@@ -20,10 +22,10 @@ public class Threats extends ClassificationScheme {
 	}
 	
 	@Override
-	protected BasicThreatViewer generateDefaultDisplayStructure() {
+	protected BasicThreatViewer generateDefaultDisplayStructure(TreeDataRow row) {
 		ThreatsTreeData treeData = (ThreatsTreeData) this.treeData;
 		
-		BasicThreatViewer structure = new BasicThreatViewer(treeData);
+		BasicThreatViewer structure = ThreatViewerFactory.generateStructure(treeData, row);
 		structure.setIsVisible(treeData.getIsVisible());
 		structure.setName(treeData.getName());
 		

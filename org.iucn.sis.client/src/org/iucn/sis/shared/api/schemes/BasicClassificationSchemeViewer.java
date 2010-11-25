@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.store.StoreSorter;
-import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -43,11 +42,9 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
@@ -238,61 +235,97 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		return displayPanel;
 	}
 	
+	protected ClassificationSchemeRowEditor createRowEditor(ClassificationSchemeModelData model, boolean isViewOnly) {
+		return new ClassificationSchemeRowEditor(isViewOnly);
+	}
+	
 	protected void updateInnerContainer(final ClassificationSchemeModelData model, 
 			final boolean addToPagingLoader, final boolean isViewOnly, final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
 		final ComboBox<CodingOption> box = createClassificationOptions(model.getSelectedRow());
 		
-		final ToolBar buttonPanel = new ToolBar();
-		buttonPanel.add(new Button("Save Selection", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				//									if(!((Boolean)box.getSelection().get(0).get("enabled")).booleanValue() || (!init.equals(box.getSelection().get(0).get("key")) && selected.containsKey(box.getSelection().get(0).get("key")))){
-				/*if( (box.getValue(box.getSelectedIndex()).equals("") || (!init.equals(box.getValue(box.getSelectedIndex())) && selected.containsKey(box.getValue(box.getSelectedIndex())) ))){
-					WindowUtils.errorAlert("This is not a selectable option. Please try again.");
-					return;
-				}*/
+		final ClassificationSchemeRowEditor editor = createRowEditor(model, isViewOnly);
+		editor.setModel(model);
+		editor.setSaveListener(new ComplexListener<ClassificationSchemeModelData>() {
+			public void handleEvent(ClassificationSchemeModelData eventData) {
+				//TODO: prevent duplicate entries, prevent select non-codeable options
 				
-				//TODO: prevent duplicate entries
-				
-				model.setSelectedRow(box.getValue().getRow());
-				model.updateDisplayableData();
+				eventData.setSelectedRow(box.getValue().getRow());
+				eventData.updateDisplayableData();
 				
 				if (addToPagingLoader) {
-					/*pagingLoader.getFullList().add(0, model);
-					pagingLoader.getPagingLoader().load();*/
-					server.add(model);
+					server.add(eventData);
 				}
 				else
-					server.update(model);
+					server.update(eventData);
 								
 				hasChanged = true;
 				
-				innerContainer.removeAll();
+				if (editor.isHideAfterOperation())
+					innerContainer.removeAll();
 			}
-		}));
-		buttonPanel.add(new Button("Cancel", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				innerContainer.removeAll();
+		});
+		editor.setCancelListener(new SimpleListener() {
+			public void handleEvent() {
+				if (editor.isHideAfterOperation())
+					innerContainer.removeAll();
 			}
-		}));
-		
-		final ToolBar top = new ToolBar();
-		top.add(new LabelToolItem(description+":"));
-		top.add(box);
-		
-		final LayoutContainer container = new LayoutContainer(new BorderLayout());
-		container.add(top, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
-		container.add(createWidgetContainer(model, isViewOnly), new BorderLayoutData(LayoutRegion.CENTER));
-		container.add(buttonPanel, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
-		
-		callback.isDrawn(container);
+		});
+		editor.draw(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				final ToolBar top = new ToolBar();
+				top.add(new LabelToolItem(description+":"));
+				top.add(createClassificationOptions(model.getSelectedRow()));
+				
+				final LayoutContainer container = new LayoutContainer(new BorderLayout());
+				container.add(top, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
+				container.add(editor, new BorderLayoutData(LayoutRegion.CENTER));
+				
+				callback.isDrawn(container);
+			}
+		});
 	}
 	
-	protected LayoutContainer createWidgetContainer(ClassificationSchemeModelData model, boolean isViewOnly) {
-		final LayoutContainer widgetContainer = new LayoutContainer(new FillLayout());
-		widgetContainer.setScrollMode(Scroll.AUTO);
-		widgetContainer.add(model.getDetailsWidget(isViewOnly));
+	protected ComboBox<CodingOption> createClassificationOptions(TreeDataRow selected) {
+		/*
+		 * Flatten the tree into a list...
+		 */
+		final List<TreeDataRow> list = new ArrayList<TreeDataRow>(treeData.flattenTree().values());
+		Collections.sort(list, new BasicClassificationSchemeViewer.TreeDataRowComparator());
 		
-		return widgetContainer;
+		final ListStore<CodingOption> store = new ListStore<CodingOption>();
+		
+		CodingOption selectedOption = null;
+		for (TreeDataRow row : list) {
+			/*
+			 * Weed out legacy data
+			 */
+			if (row.getRowNumber().indexOf('.') < 0) {
+				try {
+					if (Integer.parseInt(row.getRowNumber()) >= 100)
+						continue;
+				} catch (NumberFormatException e) {
+					continue;
+				}
+			}
+			
+			if ("true".equals(row.getCodeable())) {
+				final CodingOption option = new CodingOption(row);
+				store.add(option);
+				if (row.equals(selected))
+					selectedOption = option;
+			}
+		}
+		
+		final ComboBox<CodingOption> box = new ComboBox<CodingOption>();
+		box.setStore(store);
+		box.setForceSelection(true);
+		box.setTriggerAction(TriggerAction.ALL);
+		box.setWidth(500);
+		
+		if (selectedOption != null)
+			box.setValue(selectedOption);
+		
+		return box;
 	}
 	
 	public ToolBar getLabelPanel(final Grid<ClassificationSchemeModelData> grid, boolean isViewOnly){
@@ -496,49 +529,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 	protected ClassificationSchemeModelData newInstance(Structure structure) {
 		return new ClassificationSchemeModelData(structure);
 	}
-	
-	protected ComboBox<CodingOption> createClassificationOptions(TreeDataRow selected) {
-		/*
-		 * Flatten the tree into a list...
-		 */
-		final List<TreeDataRow> list = new ArrayList<TreeDataRow>(treeData.flattenTree().values());
-		Collections.sort(list, new TreeDataRowComparator());
-		
-		final ListStore<CodingOption> store = new ListStore<CodingOption>();
-		
-		CodingOption selectedOption = null;
-		for (TreeDataRow row : list) {
-			/*
-			 * Weed out legacy data
-			 */
-			if (row.getRowNumber().indexOf('.') < 0) {
-				try {
-					if (Integer.parseInt(row.getRowNumber()) >= 100)
-						continue;
-				} catch (NumberFormatException e) {
-					continue;
-				}
-			}
-			
-			if ("true".equals(row.getCodeable())) {
-				final CodingOption option = new CodingOption(row);
-				store.add(option);
-				if (row.equals(selected))
-					selectedOption = option;
-			}
-		}
-		
-		final ComboBox<CodingOption> box = new ComboBox<CodingOption>();
-		box.setStore(store);
-		box.setForceSelection(true);
-		box.setTriggerAction(TriggerAction.ALL);
-		box.setWidth(500);
-		
-		if (selectedOption != null)
-			box.setValue(selectedOption);
-		
-		return box;
-	}
 
 	@Override
 	public boolean hasChanged() {
@@ -626,13 +616,13 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		
 	}
 	
-	private static class TreeDataRowComparator implements Comparator<TreeDataRow> {
+	public static class TreeDataRowComparator implements Comparator<TreeDataRow> {
 		
 		private final PortableAlphanumericComparator comparator = 
 			new PortableAlphanumericComparator();
 		
 		public int compare(TreeDataRow o1, TreeDataRow o2) {
-			return comparator.compare(o1.getDescription(), o2.getDescription());
+			return comparator.compare(o1.getLabel(), o2.getLabel());
 		}
 		
 	}
