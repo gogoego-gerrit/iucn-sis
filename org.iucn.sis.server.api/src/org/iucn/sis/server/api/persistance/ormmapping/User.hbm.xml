@@ -26,7 +26,7 @@ License Type: Evaluation
 			<many-to-many column="working_setid" class="org.iucn.sis.shared.api.models.WorkingSet">
 			</many-to-many>
 		</set>
-		<set name="PermissionGroups" table="user_permission" lazy="true" cascade="save-update,lock">
+		<set name="PermissionGroups" table="user_permission" lazy="false" cascade="save-update,lock">
 			<key column="user_id" not-null="true"/>
 			<many-to-many column="permission_group_id" class="org.iucn.sis.shared.api.models.PermissionGroup">
 			</many-to-many>

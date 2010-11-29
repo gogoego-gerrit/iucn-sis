@@ -29,7 +29,6 @@ public final class UserManagementApplication extends SimpleSISApplication {
 	@Override
 	public void init() {		
 		
-		addServerResource(UserRestlet.class, UserRestlet.getPaths(), false);
 //		addResource(UserResource.class, "/list", true, true, true);
 		
 		final BatchUpdateRestlet restlet =  new BatchUpdateRestlet(app.getContext());
@@ -39,6 +38,8 @@ public final class UserManagementApplication extends SimpleSISApplication {
 		addResource(CustomFieldManager.class, "/manager/custom", false);
 		addResource(CustomFieldManager.class, "/manager/custom/{id}", false);
 		addResource(ProfileSearchResource.class, "/browse/profile", false);
+		
+		addServiceToRouter(new UserRestlet(app.getContext()));
 	}
 
 

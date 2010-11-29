@@ -1,23 +1,27 @@
 package org.iucn.sis.server.extensions.user.resources;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.persistance.UserDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.User;
+import org.restlet.Context;
 import org.restlet.data.MediaType;
+import org.restlet.data.Request;
+import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -31,90 +35,100 @@ import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.QRelationConstraint;
 
-public class UserRestlet extends ServerResource {
-
-	private String getUsername() {
-		return (String) getRequest().getAttributes().get("username");
+public class UserRestlet extends BaseServiceRestlet {
+	
+	public UserRestlet(Context context) {
+		super(context);
+	}
+	
+	@Override
+	public void definePaths() {
+		paths.add("/users/{username}");
+		paths.add("/users");
 	}
 
-	@Post
-	public void updateUser(Representation entity) {
-		String username = getUsername();
-		if (username != null) {
-			User user = SIS.get().getUserIO().getUserFromUsername(username);
-			if (user != null) {
-				Document doc;
-				try {
-					doc = new DomRepresentation(entity).getDocument();
-				} catch (IOException e) {
-					getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-					return;
-				}
-				NodeList fields = doc.getElementsByTagName("field");
-				for (int i = 0; i < fields.getLength(); i++) {
-					Element field = (Element) fields.item(i);
-					String name = field.getAttribute("name");
-					String value = field.getTextContent();
-					if ("firstname".equalsIgnoreCase(name))
-						user.setFirstName(value);
-					else if ("lastname".equalsIgnoreCase(name))
-						user.setLastName(value);
-					else if ("nickname".equalsIgnoreCase(name))
-						user.setNickname(value);
-					else if ("initials".equalsIgnoreCase(name))
-						user.setInitials(value);
-					else if ("affiliation".equalsIgnoreCase(name))
-						user.setAffiliation(value);
-					else if ("sisUser".equalsIgnoreCase(name))
-						user.setSisUser(Boolean.valueOf(value));
-					else if ("rapidListUser".equalsIgnoreCase(name))
-						user.setRapidlistUser(Boolean.valueOf(value));
-					else if ("quickgroup".equalsIgnoreCase(name)){
-						user.getPermissionGroups().clear();
-						for (String permName : value.split(",")) {
-							try {
-								PermissionGroup group = SIS.get().getPermissionIO().getPermissionGroup(permName);
-								if (group != null)
-									user.getPermissionGroups().add(group);
-								else {
-									getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-									getResponse().setEntity("The permission group " + permName + " does not exist.", MediaType.TEXT_PLAIN);
-									return;
-								}
-							} catch (PersistentException e) {
-								getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
-								return;
-							}
-						}
-						
-					}
-					else {
-						getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "The property " + name + " is invalid.");
-						return;
-					}
-
+	private String getUsername(Request request) {
+		return (String) request.getAttributes().get("username");
+	}
+	
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		String username = getUsername(request);
+		if (username == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please provide a username");
+		
+		User user = SIS.get().getUserIO().getUserFromUsername(username);
+		if (user == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "User not found.");
+		
+		Document doc = getEntityAsDocument(entity);
+		
+		NodeList fields = doc.getElementsByTagName("field");
+		for (int i = 0; i < fields.getLength(); i++) {
+			Element field = (Element) fields.item(i);
+			String name = field.getAttribute("name");
+			String value = field.getTextContent();
+			if ("firstname".equalsIgnoreCase(name))
+				user.setFirstName(value);
+			else if ("lastname".equalsIgnoreCase(name))
+				user.setLastName(value);
+			else if ("nickname".equalsIgnoreCase(name))
+				user.setNickname(value);
+			else if ("initials".equalsIgnoreCase(name))
+				user.setInitials(value);
+			else if ("affiliation".equalsIgnoreCase(name))
+				user.setAffiliation(value);
+			else if ("sisUser".equalsIgnoreCase(name))
+				user.setSisUser(Boolean.valueOf(value));
+			else if ("rapidListUser".equalsIgnoreCase(name))
+				user.setRapidlistUser(Boolean.valueOf(value));
+			else if ("quickgroup".equalsIgnoreCase(name)){
+				user.getPermissionGroups().clear();
+				for (String permName : value.split(",")) {
 					try {
-						if (SIS.get().getUserIO().saveUser(user))
-							getResponse().setStatus(Status.SUCCESS_OK);
-						else
-							getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+						PermissionGroup group = SIS.get().getPermissionIO().getPermissionGroup(permName);
+						if (group != null)
+							user.getPermissionGroups().add(group);
+						else {
+							response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+							response.setEntity("The permission group " + permName + " does not exist.", MediaType.TEXT_PLAIN);
+							return;
+						}
 					} catch (PersistentException e) {
-						getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+						throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 					}
 				}
-
-			} else {
-				getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+			}
+			else {
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "The property " + name + " is invalid.");
 			}
 
-		} else {
-			getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+			try {
+				if (SIS.get().getUserIO().saveUser(user))
+					response.setStatus(Status.SUCCESS_OK);
+				else
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
 		}
 	}
-
-	@Get("xml")
-	public Representation getUsers() {
-
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		List<User> list;
+		try {
+			list = SIS.get().getManager().listObjects(User.class);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		StringBuilder results = new StringBuilder("<xml>");
+		for (User user : list)
+			results.append(user.toFullXML());
+		results.append("</xml>");
+		
+		return new StringRepresentation(results.toString(), MediaType.TEXT_XML);
+		/*
 		ExperimentalSelectQuery query = new ExperimentalSelectQuery();
 		query.select("user", "*");
 		query.select("user_permission", "permission_group_id");
@@ -171,14 +185,7 @@ public class UserRestlet extends ServerResource {
 		}
 		results.append("</xml>");
 		return new StringRepresentation(results.toString(), MediaType.TEXT_XML);
-
-	}
-
-	public static List<String> getPaths() {
-		List<String> paths = new ArrayList<String>();
-		paths.add("/users/{username}");
-		paths.add("/users");
-		return paths;
+*/
 	}
 
 }
