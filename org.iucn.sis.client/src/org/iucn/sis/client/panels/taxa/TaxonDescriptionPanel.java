@@ -931,9 +931,13 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 		private final Synonym synonym;
 		private final Taxon taxon;
 		
+		private boolean hasChanged;
+		
 		public SynonymNoteAPI(Taxon taxon, Synonym synonym) {
 			this.synonym = synonym;
 			this.taxon = taxon;
+			
+			hasChanged = false;
 		}
 
 		@Override
@@ -950,6 +954,8 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 					
 					synonym.getNotes().add(note);
 					
+					hasChanged = true;
+					
 					callback.onSuccess(result);
 				}public void onFailure(Throwable caught) {
 					callback.onFailure(caught);
@@ -963,6 +969,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 			document.delete(UriBase.getInstance().getNotesBase() + "/notes/note/" + note.getId(), new GenericCallback<String>() {
 				public void onSuccess(String result) {
 					synonym.getNotes().remove(note);
+					hasChanged = true;
 					callback.onSuccess(result);
 				}
 				public void onFailure(Throwable caught) {
@@ -978,7 +985,8 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 		
 		@Override
 		public void onClose() {
-			//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
+			if (hasChanged)
+				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
 		}
 		
 	}
