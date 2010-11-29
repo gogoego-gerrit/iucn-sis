@@ -17,6 +17,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.extjs.client.WindowUtils;
 
 public class RecentAssessmentsPanel extends RefreshPortlet {
 
@@ -97,12 +98,15 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 	}
 
 	public void setAsCurrentAssessment(final Integer id, final String status) {
+		WindowUtils.showLoadingAlert("Loading...");
 		AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(id), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
+				WindowUtils.hideLoadingAlert();
 			}
 
 			public void onSuccess(String arg0) {
 				AssessmentCache.impl.getAssessment(id, true);
+				WindowUtils.hideLoadingAlert();
 			}
 		});
 	}

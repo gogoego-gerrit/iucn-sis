@@ -23,10 +23,8 @@ import java.util.ArrayList;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.CardPanel;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -281,19 +279,20 @@ public class WizardWindow extends Window {
 	protected void onRender(Element parent, int pos) {
 		setLayout(new BorderLayout());
 
-		prevBtn = new Button(previousButtonText);
-		nextBtn = new Button(nextButtonText);
-		cancelBtn = new Button(cancelButtonText);
+		SelectionListener<ButtonEvent> listener = new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				onButtonPressed(ce.getButton());
+			}
+		};
+		
+		prevBtn = new Button(previousButtonText, listener);
+		nextBtn = new Button(nextButtonText, listener);
+		cancelBtn = new Button(cancelButtonText, listener);
 
 		ButtonBar buttonBar = getButtonBar();
 		buttonBar.add(prevBtn);
 		buttonBar.add(nextBtn);
 		buttonBar.add(cancelBtn);
-		buttonBar.addListener(Events.Select, new Listener<ButtonEvent>() {
-			public void handleEvent(ButtonEvent bbe) {
-				onButtonPressed(bbe.getButton());
-			}
-		});
 		
 		super.onRender(parent, pos);
 

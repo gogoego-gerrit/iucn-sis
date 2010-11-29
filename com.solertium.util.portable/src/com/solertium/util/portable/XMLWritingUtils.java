@@ -62,5 +62,21 @@ public class XMLWritingUtils {
 	private static boolean isNull(String contents) {
 		return contents == null || contents.equals("");
 	}
+	
+	/**
+	 * Determine if a value matches any of the values 
+	 * specified in the given list of test values.  
+	 * Returns true if one is equal, false otherwise. 
+	 * Does not except null values, will throw NPE. 
+	 * @param value
+	 * @param tests
+	 * @return
+	 */
+	public static boolean matches(String value, String... tests) {
+		for (String test : tests)
+			if (value.equals(test))
+				return true;
+		return false;
+	}
 
 }

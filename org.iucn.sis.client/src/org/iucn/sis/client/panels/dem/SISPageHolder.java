@@ -37,18 +37,23 @@ import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment.HorizontalAlignmentConstant;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.gwt.ui.StyledHTML;
+import com.solertium.util.portable.XMLWritingUtils;
 
 public class SISPageHolder extends TabPanel {
 
@@ -285,7 +290,7 @@ public class SISPageHolder extends TabPanel {
 					// }
 
 					// Insert a block of text
-					else if (fieldArrangement.equalsIgnoreCase("text")) {
+					else if (XMLWritingUtils.matches(fieldArrangement, "text", "h1", "h2", "h3")) {
 						currentColumn = 0;
 						/*
 						 * contentTable.setWidget(currentRow++, currentColumn,
@@ -293,17 +298,53 @@ public class SISPageHolder extends TabPanel {
 						 * HTML(XMLUtils.getXMLValue(currentNode.getChildNodes
 						 * ().item(j))));
 						 */
+						HorizontalAlignmentConstant align;
+						String alignStr = XMLUtils.getXMLAttribute(curArrangementNode, "align", "left");
+						if ("right".equals(alignStr))
+							align = HasHorizontalAlignment.ALIGN_RIGHT;
+						else if ("center".equals(alignStr))
+							align = HasHorizontalAlignment.ALIGN_CENTER;
+						else
+							align = HasHorizontalAlignment.ALIGN_LEFT;
+
+						HTML myContent = new HTML(XMLUtils.getXMLValue(curArrangementNode,
+								"&nbsp;&nbsp;&nbsp;"));
+						myContent.addStyleName("SIS_dataBrowserCustomText_" + fieldArrangement);
+
 						VerticalPanel wrapper = new VerticalPanel();
-						// wrapper.addStyleName("SIS_titleTableRow");
 						wrapper.addStyleName("outsetFrameBorder");
 						wrapper.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-
-						HTML myContent = new HTML(XMLUtils.getXMLValue(currentNode.getChildNodes().item(j),
-								"&nbsp;&nbsp;&nbsp;"));
-						// myContent.addStyleName("SIS_titleTableRow");
+						wrapper.setHorizontalAlignment(align);
 						wrapper.add(myContent);
-						wrapper.setSize("96%", "20px");
-
+						wrapper.setWidth("96%");
+						
+						content.add(wrapper);
+					}
+					else if (XMLWritingUtils.matches(fieldArrangement, "warning", "information")) {
+						currentColumn = 0;
+						
+						Grid grid = new Grid(1, 2);
+						grid.addStyleName("SIS_dataBrowserCustomText_container");
+						grid.setWidth("100%");
+						grid.getCellFormatter().setWidth(0, 0, "20%");
+						grid.getCellFormatter().setWidth(0, 1, "80%");
+						grid.getCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
+						grid.getCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
+						
+						final VerticalPanel textWrapper = new VerticalPanel();
+						textWrapper.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+						textWrapper.add(new StyledHTML(XMLUtils.getXMLValue(curArrangementNode,
+						"&nbsp;&nbsp;&nbsp;"), "SIS_dataBrowserCustomText_" + fieldArrangement));
+						
+						grid.setWidget(0, 0, new Image("tango/status/dialog-" + fieldArrangement + ".png"));
+						grid.setWidget(0, 1, textWrapper);
+						
+						VerticalPanel wrapper = new VerticalPanel();
+						wrapper.addStyleName("outsetFrameBorder");
+						wrapper.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+						wrapper.add(grid);
+						wrapper.setWidth("96%");
+						
 						content.add(wrapper);
 					}
 				}// for all the organizations children...
