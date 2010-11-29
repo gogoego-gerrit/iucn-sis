@@ -953,16 +953,15 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 		}
 		
 		@Override
-		public void deleteNote(Notes note, final GenericCallback<Object> callback) {
-			synonym.getNotes().remove(note);
-			
-			TaxonomyCache.impl.deleteSynonymn(taxon, synonym, new GenericCallback<String>() {
+		public void deleteNote(final Notes note, final GenericCallback<Object> callback) {
+			final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
+			document.delete(UriBase.getInstance().getNotesBase() + "/notes/note/" + note.getId(), new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					synonym.getNotes().remove(note);
+					callback.onSuccess(result);
+				}
 				public void onFailure(Throwable caught) {
 					callback.onFailure(caught);
-				}
-
-				public void onSuccess(String result) {
-					callback.onSuccess(result);
 				}
 			});
 		}
