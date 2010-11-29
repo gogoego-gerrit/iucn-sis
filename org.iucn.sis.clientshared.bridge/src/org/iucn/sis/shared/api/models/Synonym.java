@@ -87,7 +87,7 @@ public class Synonym implements Serializable {
 				s.setSpeciesName(node.getTextContent());
 			else if ("infrarankName".equals(name))
 				s.setInfraName(node.getTextContent());
-			else if ("notes".equals(name))
+			else if ("note".equals(name))
 				newNotes.add(Notes.fromXML((NativeElement)node));
 			else if ("stockName".equals(name))
 				s.setStockName(node.getTextContent());

@@ -66,11 +66,11 @@ public class NoteIO {
 		}
 		else if (note.getCommonName() != null) {
 			note.getCommonName().getNotes().remove(note);
-			note.getCommonName().getTaxon();
+			taxonToSave = note.getCommonName().getTaxon();
 		}
 		else if (note.getSynonym() != null) {
 			note.getSynonym().getNotes().remove(note);
-			note.getSynonym().getTaxon();
+			taxonToSave = note.getSynonym().getTaxon();
 		}
 		else if (note.getEdit() != null)
 			note.getEdit().getNotes().remove(note);
@@ -83,6 +83,14 @@ public class NoteIO {
 					updatedNoteToTaxon.put(id, note.getTaxon());
 					return true;
 				}
+			} catch (PersistentException e) {
+				Debug.println(e);
+			}
+		}
+		else {
+			try {
+				if (NotesDAO.deleteAndDissociate(note))
+					return true;
 			} catch (PersistentException e) {
 				Debug.println(e);
 			}

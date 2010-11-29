@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.FieldDAO;
+import org.iucn.sis.server.api.persistance.NotesDAO;
+import org.iucn.sis.server.api.persistance.SynonymDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -174,6 +176,8 @@ public class NotesRestlet extends BaseServiceRestlet {
 			edit.setUser(SIS.get().getUser(request));
 			edit.setCreatedDate(new Date());
 			edit.getNotes().add(note);
+			
+			note.getEdits().clear();
 			note.getEdits().add(edit);
 			
 			if (type.equalsIgnoreCase("field")) {
@@ -217,6 +221,29 @@ public class NotesRestlet extends BaseServiceRestlet {
 				} else {
 					throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No " + type + " found for " + id);
 				}
+			} else if (type.equals("synonym")) {
+				org.iucn.sis.shared.api.models.Synonym synonym;
+				try {
+					synonym = SIS.get().getManager().getObject(org.iucn.sis.shared.api.models.Synonym.class, id);
+				} catch (PersistentException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+				if (synonym == null)
+					throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No " + type + " found for " + id);
+				
+				try {
+					note.setSynonym(synonym);
+					synonym.getNotes().add(note);
+					
+					NotesDAO.save(note);
+				} catch (PersistentException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+				
+				synonym.getTaxon().toXML();
+				
+				response.setStatus(Status.SUCCESS_OK);
+				response.setEntity(note.toXML(), MediaType.TEXT_XML);
 			} else 
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid type specified: " + type);
 		}		

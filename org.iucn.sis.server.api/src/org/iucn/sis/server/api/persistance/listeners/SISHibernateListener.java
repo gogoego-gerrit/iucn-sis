@@ -74,6 +74,8 @@ public class SISHibernateListener implements PreInsertEventListener, PreUpdateEv
 				else if (note.getCommonName() != null) {
 					doUpdate(note.getCommonName());
 				}
+				else if (note.getSynonym() != null)
+					doUpdate(note.getSynonym());
 				//TODO: DO FOR FIELDS
 			} else if (obj instanceof Synonym){
 				Synonym syn = ((Synonym)obj);

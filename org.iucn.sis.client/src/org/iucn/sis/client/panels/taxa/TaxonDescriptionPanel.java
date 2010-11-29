@@ -937,17 +937,22 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 		}
 
 		@Override
-		public void addNote(Notes note, final GenericCallback<Object> callback) {
+		public void addNote(final Notes note, final GenericCallback<Object> callback) {
 			note.setSynonym(synonym);
-			synonym.getNotes().add(note);
 			
-			TaxonomyCache.impl.addOrEditSynonymn(taxon, synonym, new GenericCallback<String>() {
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-
+			final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
+			document.put(UriBase.getInstance().getNotesBase() + "/notes/synonym/" + synonym.getId(), note.toXML(), new GenericCallback<String>() {
 				public void onSuccess(String result) {
+					Notes newNote = Notes.fromXML(document.getDocumentElement());
+					
+					note.setEdits(newNote.getEdits());
+					note.setId(newNote.getId());
+					
+					synonym.getNotes().add(note);
+					
 					callback.onSuccess(result);
+				}public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
 				}
 			});
 		}
@@ -973,7 +978,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 		
 		@Override
 		public void onClose() {
-			ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
+			//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
 		}
 		
 	}
