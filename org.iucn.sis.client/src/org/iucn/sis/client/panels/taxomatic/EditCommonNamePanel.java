@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.LanguageCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.IsoLanguage;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -16,13 +15,9 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -33,13 +28,14 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 
 	protected final CommonName cn;
 	protected final Taxon taxon;
-	protected final GenericCallback<CommonName> callback;
+	private final ComplexListener<CommonName> callback;
 	protected ListBox language;
 	protected CheckBox isPrimary;
 	protected TextBox nameBox;
 	
-	public EditCommonNamePanel(CommonName cn, Taxon taxon, GenericCallback<CommonName> callback) {
+	public EditCommonNamePanel(CommonName cn, Taxon taxon, ComplexListener<CommonName> callback) {
 		super();
+		setSize(550, 250);
 		this.cn = cn;
 		this.taxon = taxon;
 		this.callback = callback;
@@ -70,18 +66,6 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 	}
 	
 	protected void draw(List<IsoLanguage> languages) {
-		VerticalPanel contentPanel = new VerticalPanel();
-		contentPanel.setSpacing(5);
-
-		VerticalPanel leftPanel = new VerticalPanel();
-		leftPanel.setSpacing(5);
-		leftPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-
-		VerticalPanel rightPanel = new VerticalPanel();
-		rightPanel.setSpacing(5);
-		rightPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
-
-		HorizontalPanel buttonPanel = new HorizontalPanel();
 		if (cn == null)
 			setHeading("Add New Common Name");
 		else
@@ -93,30 +77,6 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 			isPrimary.setValue(true);
 			isPrimary.setEnabled(false);
 		}
-		isPrimary.setText("Primary Name");
-
-		final Button add = new Button();
-		if (cn == null)
-			add.setText("Add Common Name");
-		else
-			add.setText("Save");
-		add.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				save();
-			}
-		});
-		
-
-		Button cancel = new Button();
-		cancel.setText("Cancel");
-		cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				hide();
-			}
-		});
 
 		language = new ListBox();
 		language.addItem("", "");
@@ -138,44 +98,50 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 					}
 				}
 			}
-		}
-
-		if (cn != null) {
+			
 			nameBox.setText(cn.getName());
 			isPrimary.setValue(cn.isPrimary());
 		}
 
-		HTML nameLabel = new HTML("Name: ");
-		HTML langLabel = new HTML("Language: ");
+		Grid grid = new Grid(3, 2);
+		grid.setCellSpacing(8);
+		grid.getColumnFormatter().setWidth(0, "150px");
+		grid.setHTML(0, 0, "Name: ");
+		grid.setWidget(0, 1, nameBox);
+		grid.setHTML(1, 0, "Language: ");
+		grid.setWidget(1, 1, language);
+		grid.setHTML(2, 0, "Primary? ");
+		grid.setWidget(2, 1, isPrimary);
 
-		leftPanel.add(nameLabel);
-		rightPanel.add(nameBox);
-
-		leftPanel.add(langLabel);
-		rightPanel.add(language);
-		rightPanel.add(isPrimary);
-
-		buttonPanel.add(add);
-		buttonPanel.add(cancel);
-
-		HorizontalPanel wrap = new HorizontalPanel();
-		wrap.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		wrap.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		wrap.add(leftPanel);
-		wrap.add(rightPanel);
-
-		contentPanel.add(wrap);
-		contentPanel.add(buttonPanel);
-		add(contentPanel);
+		add(grid);
+		
+		addButton(new Button(cn == null ? "Add Common Name" : "Save", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				save();
+			}
+		}));
+		
+		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				hide();
+			}
+		}));
 	}
 	
 	protected void save() {
-		if (language.getSelectedIndex() == 0) {
+		int languageIndex = language.getSelectedIndex();
+		String name = nameBox.getText();
+		if (languageIndex == 0) {
 			WindowUtils.errorAlert("You must first select a language for the common name.");
+			return;
+		}
+		else if (name == null || "".equals(name)) {
+			WindowUtils.errorAlert("Please provide a common name.");
 			return;
 		}
 		
 		hide();
+		
 		final CommonName copy;
 		if (cn == null) {
 			copy = new CommonName();
@@ -183,29 +149,38 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 		} else {
 			copy = cn.deepCopy();
 		}
-		copy.setName(nameBox.getText());;
-		copy.setIso(new IsoLanguage(language.getItemText(language.getSelectedIndex()), language.getValue(language.getSelectedIndex())));
+		copy.setName(name);;
+		copy.setIso(new IsoLanguage(language.getItemText(languageIndex), language.getValue(languageIndex)));
 		copy.setPrincipal(isPrimary.getValue());
 		
-		TaxonomyCache.impl.addOrEditCommonName(taxon, copy, new GenericCallback<String>() {
-			
-			@Override
-			public void onSuccess(String result) {
+		if (cn == null) {
+			TaxonomyCache.impl.addCommonName(taxon, copy, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					WindowUtils.infoAlert("Saved", "Common name " + copy.getName() + " was saved.");
+					
+					callback.handleEvent(copy);
+				}
 				
-				WindowUtils.infoAlert("Saved", "Common name " + copy.getName() + " was saved.");
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
-				callback.onSuccess(copy);
-				
-			}
-		
-			@Override
-			public void onFailure(Throwable caught) {
-				
-				WindowUtils.errorAlert("Error", "An error occurred when trying to save the common name data related to "
-						+ taxon.getFullName() + ".");
-				
-			}
-		});
+				@Override
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Error", "An error occurred when trying to save the common name data related to "
+							+ taxon.getFullName() + ".");
+				}
+			});
+		}
+		else {
+			TaxonomyCache.impl.editCommonName(taxon, copy, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					WindowUtils.infoAlert("Saved", "Common name " + copy.getName() + " was saved.");
+					
+					callback.handleEvent(copy);
+				}
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Error", "An error occurred when trying to save the common name data related to "
+							+ taxon.getFullName() + ".");
+				}
+			});
+		}
 	}
 	
 	public static class IsoLanguageComparator implements Comparator<IsoLanguage> {

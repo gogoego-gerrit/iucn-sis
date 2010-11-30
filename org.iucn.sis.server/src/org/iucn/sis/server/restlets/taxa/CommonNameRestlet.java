@@ -4,9 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.io.NoteIO;
 import org.iucn.sis.server.api.persistance.CommonNameDAO;
-import org.iucn.sis.server.api.persistance.NotesDAO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -37,11 +35,29 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 
 	@Override
 	public void definePaths() {
-		paths.add("/taxon/{taxon_id}/commonname/{id}/note/{note_id}");
-		paths.add("/taxon/{taxon_id}/commonname/{id}/note");
 		paths.add("/taxon/{taxon_id}/commonname/{id}/reference");
 		paths.add("/taxon/{taxon_id}/commonname/{id}");
 		paths.add("/taxon/{taxon_id}/commonname");
+	}
+	
+	protected Integer getCommonNameID(Request request) throws ResourceException {
+		try {
+			return Integer.valueOf((String) request.getAttributes().get("id"));
+		} catch (NumberFormatException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		} catch (NullPointerException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
+	}
+	
+	protected Integer getTaxonID(Request request) throws ResourceException {
+		try {
+			return Integer.valueOf((String) request.getAttributes().get("taxon_id"));
+		} catch (NumberFormatException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		} catch (NullPointerException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
 	}
 
 	protected void addOrRemoveReference(Representation entity, Request request, Response response) throws ResourceException {
@@ -52,14 +68,7 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
 		
-		Integer id;
-		try {
-			id = Integer.valueOf((String) request.getAttributes().get("id"));
-		} catch (NumberFormatException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
-		} catch (NullPointerException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
-		}
+		Integer id = getCommonNameID(request);
 		
 		try {
 			CommonName commonName = SIS.get().getManager().getObject(CommonName.class, id);
@@ -95,42 +104,11 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
-		final Integer id;
-		try {
-			id = Integer.valueOf((String) request.getAttributes().get("id"));
-		} catch (NumberFormatException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
-		} catch (NullPointerException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
-		}
-		
-		final NativeDocument ndoc = new JavaNativeDocument();
-		try {
-			ndoc.parse(entity.getText());
-		} catch (Exception e) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-		}
-		
-		Notes note = Notes.fromXML(ndoc.getDocumentElement());
-		
-		try {
-			CommonName commonName = SIS.get().getManager()
-					.getObject(CommonName.class, Integer.valueOf(id));
-			note.setCommonName(commonName);
-			commonName.getNotes().add(note);
-			
-			NotesDAO.save(note);
-			
-			commonName.getTaxon().toXML();
-			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity(note.getId() + "", MediaType.TEXT_PLAIN);
-		} catch (PersistentException e) {
-			Debug.println(e);
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
+		//Adding a new common name
+		addOrEditCommonName(entity, request, response);
 	}
 
-	protected void addOrEditCommonName(Representation entity, Request request, Response response) throws ResourceException {
+	private void addOrEditCommonName(Representation entity, Request request, Response response) throws ResourceException {
 		NativeDocument newDoc = new JavaNativeDocument();
 		try {
 			newDoc.parse(entity.getText());
@@ -138,9 +116,7 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
 		
-		String taxonID = (String) request.getAttributes().get("taxon_id");
-		
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.parseInt(taxonID));
+		Taxon taxon = SIS.get().getTaxonIO().getTaxon(getTaxonID(request));
 		
 		CommonName commonName = CommonName.fromXML(newDoc.getDocumentElement());
 		commonName.setIso(SIS.get().getIsoLanguageIO().getIsoLanguageByCode(commonName.getIsoCode()));
@@ -177,43 +153,10 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 		}
 	}
 
-	protected void deleteNote(Request request, Response response) {
-		Integer id = Integer.parseInt((String) request.getAttributes().get("id"));
-		Integer noteID = Integer.parseInt((String) request.getAttributes().get("note_id"));
-		try {
-			CommonName commonName = SIS.get().getManager().getObject(CommonName.class, id);
-			Notes noteToDelete = null;
-			for (Notes note : commonName.getNotes()) {
-				if (note.getId() == noteID.intValue()) {
-					noteToDelete = note;
-					break;
-				}
-			}
+	public void handleDelete(Request request, Response response) throws ResourceException {
+		Integer id = getCommonNameID(request);
 
-			if (noteToDelete != null) {
-				commonName.getNotes().remove(noteToDelete);
-				commonName.getTaxon().toXML();
-				Debug.println("this is the taxon xml " + commonName.getTaxon().toXML());
-				if (SIS.get().getNoteIO().delete(noteToDelete)) {
-					response.setStatus(Status.SUCCESS_OK);
-				} else {
-					response.setStatus(Status.SERVER_ERROR_INTERNAL);
-				}
-
-			} else {
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			}
-		} catch (PersistentException e) {
-			Debug.println(e);
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		}
-	}
-
-	protected void deleteCommonName(Request request, Response response) throws ResourceException {
-		Integer taxonID = Integer.parseInt((String) request.getAttributes().get("taxon_id"));
-		Integer id = Integer.parseInt((String) request.getAttributes().get("id"));
-
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(taxonID);
+		Taxon taxon = SIS.get().getTaxonIO().getTaxon(getTaxonID(request));
 		CommonName toDelete = null;
 		for (CommonName syn : taxon.getCommonNames()) {
 			if (syn.getId() == id) {
@@ -243,48 +186,11 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
-		if (request.getResourceRef().getPath().contains("note")) {
-			deleteNote(request, response);
-		} else
-			deleteCommonName(request, response);
-	}
-	
-	@Override
 	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
-		if (request.getResourceRef().getPath().contains("reference")) {
+		if (request.getResourceRef().getPath().contains("reference"))
 			addOrRemoveReference(entity, request, response);
-		} else {
-			final Integer id;
-			try {
-				id = Integer.valueOf((String) request.getAttributes().get("id"));
-			} catch (NumberFormatException e) {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
-			} catch (NullPointerException e) {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
-			}
-			
-			final NativeDocument ndoc = new JavaNativeDocument();
-			try {
-				ndoc.parse(entity.getText());
-			} catch (Exception e) {
-				throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-			}
-			
-			Notes note = Notes.fromXML(ndoc.getDocumentElement());
-			try {
-				CommonName commonName = SIS.get().getManager()
-						.getObject(CommonName.class, Integer.valueOf(id));
-				note.setCommonName(commonName);
-				note = SIS.get().getManager().mergeObject(note);
-				commonName.getNotes().add(note);
-				commonName.getTaxon().toXML();
-				response.setStatus(Status.SUCCESS_OK);
-				response.setEntity(note.getId() + "", MediaType.TEXT_PLAIN);
-			} catch (PersistentException e) {
-				Debug.println(e);
-				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-			}	
+		else {
+			addOrEditCommonName(entity, request, response);
 		}
 	}
 

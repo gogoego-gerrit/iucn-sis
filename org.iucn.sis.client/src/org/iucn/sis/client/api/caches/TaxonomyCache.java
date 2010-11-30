@@ -9,6 +9,7 @@ import java.util.List;
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.panels.taxomatic.CommonNameDisplay;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
@@ -690,7 +691,7 @@ public class TaxonomyCache {
 	
 	public void deleteNoteOnCommonNames(final Taxon taxon, final CommonName commonName, final Notes note, final GenericCallback<String> callback) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.delete(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId() + "/note/" + note.getId(), new GenericCallback<String>() {
+		ndoc.delete(UriBase.getInstance().getNotesBase() + "/notes/note/" + note.getId(), new GenericCallback<String>() {
 
 			@Override
 			public void onSuccess(String result) {
@@ -708,9 +709,7 @@ public class TaxonomyCache {
 	
 	public void addNoteToCommonName(final Taxon taxon, final CommonName commonName, final Notes note, final GenericCallback<String> callback) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId() + "/note", note.toXML(), new GenericCallback<String>() {
-
-			@Override
+		ndoc.putAsText(UriBase.getInstance().getNotesBase() + "/notes/commonName/" + commonName.getId(), note.toXML(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				note.setCommonName(commonName);
 				result = ndoc.getText();
@@ -775,9 +774,30 @@ public class TaxonomyCache {
 		
 	}
 	
-	public void addOrEditCommonName(final Taxon taxon, final CommonName commonName, final GenericCallback<String> callback) {
+	public void editCommonName(final Taxon taxon, final CommonName commonName, final GenericCallback<String> callback) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.postAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname", commonName.toXML(), new GenericCallback<String>() {
+		ndoc.postAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId(), commonName.toXML(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				CommonName toRemove = null;
+				for (CommonName c : taxon.getCommonNames()) {
+					if (c.getId() == commonName.getId()) {
+						toRemove = c;
+						break;
+					}
+				}
+				taxon.getCommonNames().remove(toRemove);
+				taxon.getCommonNames().add(commonName);
+				callback.onSuccess(null);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	public void addCommonName(final Taxon taxon, final CommonName commonName, final GenericCallback<String> callback) {
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname", commonName.toXML(), new GenericCallback<String>() {
 		
 			@Override
 			public void onSuccess(String result) {

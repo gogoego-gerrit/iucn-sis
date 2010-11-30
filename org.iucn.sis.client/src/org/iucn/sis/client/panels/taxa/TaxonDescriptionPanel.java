@@ -657,17 +657,12 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 					item.addSelectionListener(new SelectionListener<ButtonEvent>() {
 						public void componentSelected(ButtonEvent ce) {
 							container.hide();
-							Window addNameBox = new EditCommonNamePanel(null, taxon, new GenericCallback<CommonName>() {
-								public void onSuccess(CommonName result) {
-									// TODO Auto-generated method stub
-								}
-								public void onFailure(Throwable caught) {
-								// TODO Auto-generated method stub
+							Window addNameBox = new EditCommonNamePanel(null, taxon, new ComplexListener<CommonName>() {
+								public void handleEvent(CommonName eventData) {
+									update(node.getId());
 								}
 							});
-							addNameBox.setSize(550, 250);
 							addNameBox.show();
-							addNameBox.center();
 						}
 					});
 
@@ -691,12 +686,6 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 					}
 				} else
 					container.add(new HTML("No Common Names."));
-				container.addListener(Events.Hide, new Listener<WindowEvent>() {
-					public void handleEvent(WindowEvent be) {
-						update(taxon.getId());
-						
-					}
-				});
 				container.setSize(350, 550);
 				container.show();
 				container.center();
@@ -805,16 +794,12 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 				addName.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
 						Window addNameBox = new EditCommonNamePanel(null, taxon, 
-								new GenericCallback<CommonName>() {
-							public void onFailure(Throwable arg0) {
-							}
-							public void onSuccess(CommonName arg0) {
+								new ComplexListener<CommonName>() {
+							public void handleEvent(CommonName eventData) {
 								update(node.getId());
 							}
 						});
-						addNameBox.setSize(550, 250);
 						addNameBox.show();
-						addNameBox.center();
 					}
 				});
 		//

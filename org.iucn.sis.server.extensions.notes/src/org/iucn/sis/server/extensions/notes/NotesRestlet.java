@@ -9,6 +9,7 @@ import org.iucn.sis.server.api.persistance.SynonymDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
@@ -244,6 +245,29 @@ public class NotesRestlet extends BaseServiceRestlet {
 				
 				response.setStatus(Status.SUCCESS_OK);
 				response.setEntity(note.toXML(), MediaType.TEXT_XML);
+			} else if (type.equalsIgnoreCase("commonName")) {
+				CommonName commonName;
+				try {
+					commonName = SIS.get().getManager().getObject(CommonName.class, id);
+				} catch (PersistentException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+				if (commonName == null)
+					throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No " + type + " found for " + id);
+				
+				try {
+					note.setCommonName(commonName);
+					commonName.getNotes().add(note);
+					
+					NotesDAO.save(note);
+				} catch (PersistentException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+				
+				commonName.getTaxon().toXML();
+				
+				response.setStatus(Status.SUCCESS_OK);
+				response.setEntity(note.getId() + "", MediaType.TEXT_PLAIN);
 			} else 
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid type specified: " + type);
 		}		

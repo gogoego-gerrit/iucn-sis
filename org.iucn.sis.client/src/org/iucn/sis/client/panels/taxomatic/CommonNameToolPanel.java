@@ -50,24 +50,24 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		removeImage.setTitle("Remove this common name");
 		removeImage.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				if (com.google.gwt.user.client.Window.confirm("Really remove this common name?")) {
-					cn.setChangeReason(CommonName.DELETED);
-					cn.setValidated(false);
-					TaxonomyCache.impl.addOrEditCommonName(taxon, cn, new GenericCallback<String>() {
+				WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove this common name?", new WindowUtils.SimpleMessageBoxListener() {
+					public void onYes() {
+						cn.setChangeReason(CommonName.DELETED);
+						cn.setValidated(false);
+						TaxonomyCache.impl.editCommonName(taxon, cn, new GenericCallback<String>() {
+							public void onSuccess(String result) {
+								WindowUtils.infoAlert("Successful delete of common name " + cn.getName());
+								ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
+							}
 
-						@Override
-						public void onSuccess(String result) {
-							WindowUtils.infoAlert("Successful delete of common name " + cn.getName());
-							ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
-						}
-
-						@Override
-						public void onFailure(Throwable caught) {
-							WindowUtils.errorAlert("Common name was unable to be deleted");
-							
-						}
-					});
-				}
+							@Override
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Common name was unable to be deleted");
+								
+							}
+						});
+					}
+				});
 			}
 		});
 		return removeImage;
@@ -80,22 +80,12 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		editImage.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				WindowManager.get().hideAll();
-				Window temp = new EditCommonNamePanel(cn, taxon, new GenericCallback<CommonName>() {
-
-					@Override
-					public void onSuccess(CommonName result) {
+				Window temp = new EditCommonNamePanel(cn, taxon, new ComplexListener<CommonName>() {
+					public void handleEvent(CommonName eventData) {
 						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
 					}
-
-					@Override
-					public void onFailure(Throwable caught) {
-						// TODO Auto-generated method stub
-
-					}
 				});
-				temp.setSize(550, 250);
 				temp.show();
-				temp.center();
 			}
 		});
 		return editImage;
@@ -171,15 +161,20 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		private final CommonName commonName;
 		private final Taxon taxon;
 		
+		private boolean hasChanged;
+		
 		public CommonNameNoteAPI(Taxon taxon, CommonName commonName) {
 			this.taxon = taxon;
 			this.commonName = commonName;
+			
+			hasChanged = false;
 		}
 		
 		@Override
 		public void addNote(Notes note, final GenericCallback<Object> callback) {
 			TaxonomyCache.impl.addNoteToCommonName(taxon, commonName, note, new GenericCallback<String>() {
 				public void onSuccess(String result) {
+					hasChanged = true;
 					callback.onSuccess(result);
 				}
 				public void onFailure(Throwable caught) {
@@ -192,6 +187,7 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		public void deleteNote(Notes note, final GenericCallback<Object> callback) {
 			TaxonomyCache.impl.deleteNoteOnCommonNames(taxon, commonName, note, new GenericCallback<String>() {
 				public void onSuccess(String result) {
+					hasChanged = true;
 					callback.onSuccess(result);
 				}
 				public void onFailure(Throwable caught) {
@@ -202,7 +198,8 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		
 		@Override
 		public void onClose() {
-			ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
+			if (hasChanged)
+				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
 		}
 		
 		@Override

@@ -399,80 +399,63 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 	}
 
 	private void save() {
-		
-		if (currentCommonName == null) {
+		if (currentCommonName == null)
 			WindowUtils.infoAlert("Please select a common name to save.");
-			return;
+		else {
+			doSave(new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					allCommonNames.clear();
+					allCommonNames.addAll(node.getCommonNames());
+					bar.enable();
+					WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
+					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+					refreshListBox();
+					refreshCommonName(null);
+				}
+				public void onFailure(Throwable caught) {
+					bar.enable();
+					WindowUtils.errorAlert("Error", "An error occurred when trying to save the common name data related to "
+							+ node.getFullName() + ".");
+				}
+			});
 		}
-		
-		if (language.getSelectedIndex() == 0) {
-			WindowUtils.errorAlert("You must first select a language for the common name.");
-			return;
-		}
-		bar.disable();
-		storePreviousData();
-		
-		
-		
-		TaxonomyCache.impl.addOrEditCommonName(node, currentCommonName, new GenericCallback<String>() {
-		
-			@Override
-			public void onSuccess(String result) {
-				allCommonNames.clear();
-				allCommonNames.addAll(node.getCommonNames());
-				bar.enable();
-				WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-				refreshListBox();
-				refreshCommonName(null);
-			}
-		
-			@Override
-			public void onFailure(Throwable caught) {
-				bar.enable();
-				WindowUtils.errorAlert("Error", "An error occurred when trying to save the common name data related to "
-						+ node.getFullName() + ".");
-		
-			}
-		});
-		
-			
 	}
 
 	private void saveAndClose() {
-		if (currentCommonName == null) {
+		if (currentCommonName == null)
 			hide();
-			return;
+		else {
+			doSave(new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					bar.enable();
+					WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
+					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+					hide();
+				}
+
+				@Override
+				public void onFailure(Throwable caught) {
+					bar.enable();
+					WindowUtils.errorAlert("Error",
+							"An error occurred when trying to save the common name data related to " + node.getFullName()
+									+ ".");
+				}
+			});
 		}
-		
+	}
+	
+	private void doSave(final GenericCallback<String> callback) {
 		if (language.getSelectedIndex() == 0) {
 			WindowUtils.errorAlert("You must first select a language for the common name.");
 			return;
 		}
 		bar.disable();
 		storePreviousData();
-
-		TaxonomyCache.impl.addOrEditCommonName(node, currentCommonName, new GenericCallback<String>() {
-
-			@Override
-			public void onSuccess(String result) {
-
-				bar.enable();
-				WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-				hide();
-
-			}
-
-			@Override
-			public void onFailure(Throwable caught) {
-				bar.enable();
-				WindowUtils.errorAlert("Error",
-						"An error occurred when trying to save the common name data related to " + node.getFullName()
-								+ ".");
-			}
-		});
-
+		
+		if (currentCommonName.getId() == 0)
+			TaxonomyCache.impl.addCommonName(node, currentCommonName, callback);
+		else
+			TaxonomyCache.impl.editCommonName(node, currentCommonName, callback);
 	}
 
 	private void storePreviousData() {
