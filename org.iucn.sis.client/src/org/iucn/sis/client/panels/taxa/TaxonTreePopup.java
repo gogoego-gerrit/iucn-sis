@@ -112,7 +112,7 @@ public class TaxonTreePopup extends Window {
 						}
 
 						public void onSuccess(Taxon result) {
-							SISClientBase.getInstance().onTaxonChanged();
+							//SISClientBase.getInstance().onTaxonChanged();
 						}
 					});
 

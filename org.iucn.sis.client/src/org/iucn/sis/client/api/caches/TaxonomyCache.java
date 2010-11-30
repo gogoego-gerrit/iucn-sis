@@ -9,7 +9,6 @@ import java.util.List;
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.client.panels.taxomatic.CommonNameDisplay;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
@@ -246,9 +245,9 @@ public class TaxonomyCache {
 	public void fetchTaxon(final Integer id, final boolean asCurrent, final boolean saveIfNecessary, final GenericCallback<Taxon> wayback) {
 		if (getTaxon(id) != null) {
 			if (asCurrent)
-				setCurrentTaxon(cache.get(id), saveIfNecessary);
+				setCurrentTaxon(getTaxon(id), saveIfNecessary);
 
-			wayback.onSuccess(cache.get(id));
+			wayback.onSuccess(getTaxon(id));
 		} else {
 			if (requested.containsKey(id))
 				requested.get(id).add(wayback);
@@ -265,10 +264,10 @@ public class TaxonomyCache {
 					public void onSuccess(String arg0) {
 						Taxon defaultNode;
 
-						// LOOKS LIKE I LOST TO A RACE CONDITION ... JUST
+						// ___ FIXME ___ LOOKS LIKE I LOST TO A RACE CONDITION ... JUST
 						// RETURNING THE NODE
 						if (contains(id)) {
-							defaultNode = cache.get(id);
+							defaultNode = getTaxon(id);
 						} else {
 							List<Taxon> list = processDocumentOfTaxa(ndoc);
 							defaultNode = list.get(0);
@@ -300,27 +299,23 @@ public class TaxonomyCache {
 			final GenericCallback<Taxon> wayback) {
 		if (!kingdom.trim().equals("") && !otherInfo.trim().equals("")) {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-			ndoc.get(
-					URL.encode(UriBase.getInstance().getSISBase() + "/browse/taxonName/" + kingdom + "/" + otherInfo),
+			ndoc.get(URL.encode(UriBase.getInstance().getSISBase() + "/browse/taxonName/" + kingdom + "/" + otherInfo),
 					new GenericCallback<String>() {
-						public void onFailure(Throwable caught) {
-							wayback.onFailure(caught);
-						}
-
-						public void onSuccess(String arg0) {
-							Taxon defaultNode = Taxon.fromXML(ndoc.getDocumentElement().getElementByTagName(Taxon.ROOT_TAG));
-							if (!contains(defaultNode.getId())) {
-								putTaxon(defaultNode);
-								if (asCurrent)
-									setCurrentTaxon(defaultNode);
-							} else if (asCurrent) {
-								setCurrentTaxon(cache.get(defaultNode.getId() + ""));
-							}
-							wayback.onSuccess(cache.get(defaultNode.getId() + ""));
-
-						}
-					});
-
+				public void onFailure(Throwable caught) {
+					wayback.onFailure(caught);
+				}
+				public void onSuccess(String arg0) {
+					Taxon defaultNode = Taxon.fromXML(ndoc.getDocumentElement().getElementByTagName(Taxon.ROOT_TAG));
+					if (!contains(defaultNode.getId())) {
+						putTaxon(defaultNode);
+						if (asCurrent)
+							setCurrentTaxon(defaultNode);
+					} else if (asCurrent) {
+						setCurrentTaxon(getTaxon(defaultNode.getId()));
+					}
+					wayback.onSuccess(getTaxon(defaultNode.getId()));
+				}
+			});
 		} else {
 			wayback.onFailure(new Throwable("Nothing to fetch"));
 		}
