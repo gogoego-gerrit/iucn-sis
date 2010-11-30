@@ -23,12 +23,11 @@ public class MemoryProxy<T extends ModelData> implements DataProxy<BasePagingLoa
 	private SortDir currentSortDir;
 	private String currentSortField;
 	
-	private SimpleEqualityFilter filter;
+	private StoreFilter<T> filter;
 	
 	private boolean sort;
 	
 	public MemoryProxy() {
-		filter = new SimpleEqualityFilter();
 		sort = true;
 	}
 	
@@ -44,9 +43,16 @@ public class MemoryProxy<T extends ModelData> implements DataProxy<BasePagingLoa
 		return store;
 	}
 	
+	public void setFilter(StoreFilter<T> filter) {
+		this.filter = filter;
+	}
+	
 	public void filter(String property, String match) {
 		store.addFilter(filter);
-		filter.setMatchingValue(match);
+		if (filter == null) {
+			filter = new SimpleEqualityFilter();
+			((SimpleEqualityFilter)filter).setMatchingValue(match);
+		}
 		store.filter(property);
 	}
 	

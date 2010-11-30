@@ -3,23 +3,26 @@ package org.iucn.sis.client.panels.assessments;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.ui.models.assessment.ChangesModelData;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.references.PagingPanel;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -29,16 +32,16 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.layout.RowData;
-import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.util.extjs.client.GenericPagingLoader;
-import com.solertium.util.extjs.client.PagingLoaderFilter;
+import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 /**
  * UI that allows you to view the changes that have been done to the assessment
@@ -46,54 +49,105 @@ import com.solertium.util.extjs.client.PagingLoaderFilter;
  * @author liz.schwartz
  *
  */
-public class AssessmentChangesPanel extends LayoutContainer{
+public class AssessmentChangesPanel extends PagingPanel<ChangesModelData> implements DrawsLazily {
 
-	protected Grid<ChangesModelData> grid = null;
-	protected ListStore<ChangesModelData> listStore = null;
-	protected Assessment ass = null;
-	protected GenericPagingLoader<ChangesModelData> loader;
-	protected PagingToolBar pagingBar = null;
-
-	protected TextField<String> usernameFilter;
-	protected TextField<String> fieldFilter;
-	protected TextField<String>  nameFilter;
-	protected TextField<String>  valueFilter;
-	protected DateField dateBeforeFilter;
-	protected DateField dateAfterFilter;
-
+	private final Assessment assessment;
+	
+	private Grid<ChangesModelData> grid;
+	
+	private TextField<String> usernameFilter;
+	private TextField<String> fieldFilter;
+	private TextField<String>  nameFilter;
+	private TextField<String>  valueFilter;
+	private DateField dateBeforeFilter;
+	private DateField dateAfterFilter;
 
 	public AssessmentChangesPanel() {
-		ass = AssessmentCache.impl.getCurrentAssessment();
-
-		if (ass == null) {
+		super();
+		setLayout(new FillLayout());
+		setPageCount(20);
+		getProxy().setFilter(new ChangeFilter());
+		
+		assessment = AssessmentCache.impl.getCurrentAssessment();
+	}
+	
+	@Override
+	public void draw(DoneDrawingCallback callback) {
+		if (assessment == null) {
 			Window.alert("Unable to view changes.  Please set your current assessment to the assessment you want to view");
 		} else {
-			initGrid();
-			getChanges();
-			draw();
+			grid = new Grid<ChangesModelData>(getStoreInstance(), getColumnModel());
+			
+			final LayoutContainer container = new LayoutContainer(new BorderLayout());
+			container.add(createFilterPanel(), new BorderLayoutData(LayoutRegion.NORTH, 225, 225, 225));
+			container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
+			container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+			
+			add(container);
+			
+			refresh(callback);
 		}
-		
-		setScrollMode(Scroll.AUTO);
-
 	}
+	
+	protected ColumnModel getColumnModel() {
+		ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
+		configs.add(new ColumnConfig(ChangesModelData.FIELD, ChangesModelData.FIELD_NAME, 200));
+		configs.add(new ColumnConfig(ChangesModelData.NAME, ChangesModelData.NAME, 150));
+		configs.add(new ColumnConfig(ChangesModelData.VALUE, ChangesModelData.VALUE, 150));
 
-	protected void draw() {
+		ColumnConfig config = new ColumnConfig(ChangesModelData.DATE, ChangesModelData.DATE, 125);
+		config.setRenderer(new GridCellRenderer<ChangesModelData>() {
+			public Object render(ChangesModelData model, String property, ColumnData config, 
+					int rowIndex, int colIndex, ListStore<ChangesModelData> store, 
+					Grid<ChangesModelData> grid) {
+				Date date = (Date) model.get(ChangesModelData.DATE);
+				DateTimeFormat formatter = DateTimeFormat.getFormat("HH:mm yyyy-MM-dd");
+				return formatter.format(date);
+			}
+		});
+		configs.add(config);
+
+		configs.add(new ColumnConfig(ChangesModelData.USER, ChangesModelData.USER, 125));
+		
+		return new ColumnModel(configs);
+	}
+	
+	private String generateTitle() {
 		String assessmentTitle = "";
-		if (ass.isRegional())
+		if (assessment.isRegional())
 			assessmentTitle = "Regional ";
 
-		if (ass.getType().equalsIgnoreCase(AssessmentType.DRAFT_ASSESSMENT_TYPE))
+		if (assessment.getType().equalsIgnoreCase(AssessmentType.DRAFT_ASSESSMENT_TYPE))
 			assessmentTitle += "Draft Assessment";
-		else if (ass.getType().equalsIgnoreCase(AssessmentType.PUBLISHED_ASSESSMENT_TYPE))
+		else if (assessment.getType().equalsIgnoreCase(AssessmentType.PUBLISHED_ASSESSMENT_TYPE))
 			assessmentTitle += "Published Assessment";
 		else
 			assessmentTitle += "User Assessment";
 
-		assessmentTitle += " for " + ass.getSpeciesName(); 
+		assessmentTitle += " for " + assessment.getSpeciesName(); 
+		
+		return assessmentTitle;
+	}
+	
+	protected LayoutContainer createFilterPanel() {
+		usernameFilter = new TextField<String>();
+		usernameFilter.setFieldLabel(ChangesModelData.USER);
+		fieldFilter = new TextField<String>();
+		fieldFilter.setFieldLabel(ChangesModelData.FIELD);
+		nameFilter = new TextField<String>();
+		nameFilter.setFieldLabel(ChangesModelData.NAME);
+		valueFilter = new TextField<String>();
+		valueFilter.setFieldLabel(ChangesModelData.VALUE);
+		dateAfterFilter = new DateField();
+		dateAfterFilter.setFormatValue(true);
+		dateAfterFilter.getPropertyEditor().setFormat(FormattedDate.impl.getDateTimeFormat());
+		dateAfterFilter.setFieldLabel("from");
+		dateBeforeFilter = new DateField();
+		dateBeforeFilter.setFieldLabel("to");
+		dateBeforeFilter.setFormatValue(true);
+		dateBeforeFilter.getPropertyEditor().setFormat(FormattedDate.impl.getDateTimeFormat());
 
-		setLayout(new RowLayout());
-
-		Html html = new Html(assessmentTitle);		
+		Html html = new Html(generateTitle());		
 		html.addStyleName("changesTitle");
 
 		HorizontalPanel formPanels = new HorizontalPanel();
@@ -118,13 +172,10 @@ public class AssessmentChangesPanel extends LayoutContainer{
 		formPanel.add(dateBeforeFilter);
 		formPanel.setBodyBorder(false);
 		formPanel.addStyleName("changesFormPanel");
+		
 		Button button = new Button("Filter", new SelectionListener<ButtonEvent>() {
-
 			public void componentSelected(ButtonEvent ce) {
-				loader.applyFilter("");
-				pagingBar.setActivePage(1);
-				loader.getPagingLoader().load();
-
+				getProxy().filter("", "");
 			}
 		});
 		formPanel.addButton(button);
@@ -132,35 +183,40 @@ public class AssessmentChangesPanel extends LayoutContainer{
 		formPanels.add(formPanel);
 
 
-		VerticalPanel vp = new VerticalPanel();
-		vp.add(html);
-		vp.add(formPanels);
+		LayoutContainer container = new LayoutContainer();
+		container.add(html);
+		container.add(formPanels);
 
-
-
-
-		add(vp, new RowData(1, -1));
-		add(grid, new RowData(1,1));
-		add(pagingBar, new RowData(1, -1));
-
-
-
+		return container;
+	}
+	
+	@Override
+	protected void refreshView() {
+		grid.getView().refresh(false);
 	}
 
-	private void getChanges() {
+	@Override
+	protected void getStore(final GenericCallback<ListStore<ChangesModelData>> callback) {
 		final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
-		ndoc.get(UriBase.getInstance().getSISBase() + "/asmchanges/" + ass.getId(), new GenericCallback<String>() {
-
-			public void onSuccess(String result) {
-				loader.getFullList().clear();
+		ndoc.get(UriBase.getInstance().getSISBase() + "/asmchanges/" + assessment.getId(), new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				//callback.onFailure(caught);
+				
+				/*ListStore<ChangesModelData> result = new ListStore<ChangesModelData>();
+				//result.add(store);
+				
+				callback.onSuccess(result);*/
+				
+				WindowUtils.errorAlert("This feature is not yet available in SIS 2.0");
+			}
+			public void onSuccess(String nullString) {
+				final List<ChangesModelData> store = new ArrayList<ChangesModelData>();
 
 				NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(ChangesModelData.CHANGE);
-				for (int i = 0; i < list.getLength(); i++) {
-					loader.getFullList().add(new ChangesModelData(list.elementAt(i)));	
-
-				}
-
-				com.solertium.lwxml.shared.utils.ArrayUtils.quicksort(loader.getFullList(), new Comparator<ChangesModelData>(){
+				for (int i = 0; i < list.getLength(); i++)
+					store.add(new ChangesModelData(list.elementAt(i)));	
+				
+				com.solertium.lwxml.shared.utils.ArrayUtils.quicksort(store, new Comparator<ChangesModelData>(){
 					public int compare(ChangesModelData o1, ChangesModelData o2) {
 						if (o1.deleted)
 							return 1;
@@ -177,123 +233,62 @@ public class AssessmentChangesPanel extends LayoutContainer{
 							return ((String)o1.get(ChangesModelData.FIELD)).compareTo((String)o2.get(ChangesModelData.FIELD));
 					}
 				});
-
-				loader.getPagingLoader().load(0,20);
-				pagingBar.setActivePage(1);
-				layout();
-
-
-			}
-
-			public void onFailure(Throwable caught) {
-				Window.alert("Unable to get changes.");
+				
+				ListStore<ChangesModelData> result = new ListStore<ChangesModelData>();
+				result.add(store);
+				
+				callback.onSuccess(result);
 			}
 		});
 	}
 
-	private void initGrid() {
-		ArrayList<ColumnConfig> configs = new ArrayList<ColumnConfig>();
-		configs.add(new ColumnConfig(ChangesModelData.FIELD, ChangesModelData.FIELD_NAME, 200));
-		configs.add(new ColumnConfig(ChangesModelData.NAME, ChangesModelData.NAME, 150));
-		configs.add(new ColumnConfig(ChangesModelData.VALUE, ChangesModelData.VALUE, 150));
-
-		ColumnConfig config = new ColumnConfig(ChangesModelData.DATE, ChangesModelData.DATE, 125);
-		config.setRenderer(new GridCellRenderer<ChangesModelData>() {
-			public Object render(ChangesModelData model, String property, ColumnData config, 
-					int rowIndex, int colIndex, ListStore<ChangesModelData> store, 
-					Grid<ChangesModelData> grid) {
-				Date date = (Date) model.get(ChangesModelData.DATE);
-				DateTimeFormat formatter = DateTimeFormat.getFormat("HH:mm yyyy-MM-dd");
-				return formatter.format(date);
+	private class ChangeFilter implements StoreFilter<ChangesModelData> {
+		
+		@Override
+		public boolean select(Store<ChangesModelData> store, ChangesModelData parent, ChangesModelData item, String property) {
+			boolean result = false;
+			try{
+				if (filterOut( (String)item.get(ChangesModelData.USER), (String)usernameFilter.getRawValue())
+						|| filterOut((String)item.get(ChangesModelData.FIELD), (String)fieldFilter.getRawValue())
+						|| filterOut((String)item.get(ChangesModelData.NAME), (String)nameFilter.getRawValue())
+						|| filterOut((String)item.get(ChangesModelData.VALUE), (String)valueFilter.getRawValue())
+						|| filterOutDate((Date)item.get(ChangesModelData.DATE), (Date)dateAfterFilter.getValue(), true)
+						|| filterOutDate((Date)item.get(ChangesModelData.DATE), (Date)dateBeforeFilter.getValue(), false))
+					result = true;
+			} catch (Throwable e) {
+				//TODO: debug
 			}
-		});
-		configs.add(config);
+			
+			return result; //or !result?
+		}
 
-		configs.add(new ColumnConfig(ChangesModelData.USER, ChangesModelData.USER, 125));
-		ColumnModel cm = new ColumnModel(configs);
-
-		loader = new GenericPagingLoader<ChangesModelData>();		
-		listStore = new ListStore<ChangesModelData>(loader.getPagingLoader());
-
-		grid = new Grid<ChangesModelData>(listStore, cm);
-
-		pagingBar = new PagingToolBar(20);
-		pagingBar.bind(loader.getPagingLoader());
-
-		usernameFilter = new TextField<String>();
-		usernameFilter.setFieldLabel(ChangesModelData.USER);
-		fieldFilter = new TextField<String>();
-		fieldFilter.setFieldLabel(ChangesModelData.FIELD);
-		nameFilter = new TextField<String>();
-		nameFilter.setFieldLabel(ChangesModelData.NAME);
-		valueFilter = new TextField<String>();
-		valueFilter.setFieldLabel(ChangesModelData.VALUE);
-		dateAfterFilter = new DateField();
-		dateAfterFilter.setFormatValue(true);
-		dateAfterFilter.getPropertyEditor().setFormat(FormattedDate.impl.getDateTimeFormat());
-		dateAfterFilter.setFieldLabel("from");
-		dateBeforeFilter = new DateField();
-		dateBeforeFilter.setFieldLabel("to");
-		dateBeforeFilter.setFormatValue(true);
-		dateBeforeFilter.getPropertyEditor().setFormat(FormattedDate.impl.getDateTimeFormat());
-
-		loader.setFilter(new PagingLoaderFilter<ChangesModelData>() {
-
-			public boolean filter(ChangesModelData item, String property) {
-				try{
-					if (filterOut( (String)item.get(ChangesModelData.USER), (String)usernameFilter.getRawValue())
-							|| filterOut((String)item.get(ChangesModelData.FIELD), (String)fieldFilter.getRawValue())
-							|| filterOut((String)item.get(ChangesModelData.NAME), (String)nameFilter.getRawValue())
-							|| filterOut((String)item.get(ChangesModelData.VALUE), (String)valueFilter.getRawValue())
-							|| filterOutDate((Date)item.get(ChangesModelData.DATE), (Date)dateAfterFilter.getValue(), true)
-							|| filterOutDate((Date)item.get(ChangesModelData.DATE), (Date)dateBeforeFilter.getValue(), false))
-						return true;
-
-
-					return false;
-				} catch (Throwable e) {
-					e.printStackTrace();
-					return false;
-				}
-			}
-
-			private boolean filterOutDate(Date value, Date givenDate, boolean after) {					
-				if (givenDate == null)
-					return false;
-				if (value == null)
-					return true;
-				if (!after)
-					givenDate.setTime(givenDate.getTime() + (1*24 * 60 * 60 * 1000));
-				if (value.equals(givenDate))
-					return false;
-				if (after && value.after(givenDate))
-					return false;
-				if (!after && value.before(givenDate))
-					return false;
-				return true;					
-			}
-
-			private boolean filterOut(String value, String filterBy) {
-				if (filterBy.equalsIgnoreCase(""))
-					return false;
-				if (value == null || value.equalsIgnoreCase(""))
-					return false;
-				if (!value.toLowerCase().startsWith(filterBy.toLowerCase()))
-					return true;
+		private boolean filterOutDate(Date value, Date givenDate, boolean after) {					
+			if (givenDate == null)
 				return false;
+			if (value == null)
+				return true;
+			if (!after)
+				givenDate.setTime(givenDate.getTime() + (1*24 * 60 * 60 * 1000));
+			if (value.equals(givenDate))
+				return false;
+			if (after && value.after(givenDate))
+				return false;
+			if (!after && value.before(givenDate))
+				return false;
+			return true;					
+		}
 
-			}
+		private boolean filterOut(String value, String filterBy) {
+			if (filterBy.equalsIgnoreCase(""))
+				return false;
+			if (value == null || value.equalsIgnoreCase(""))
+				return false;
+			if (!value.toLowerCase().startsWith(filterBy.toLowerCase()))
+				return true;
+			return false;
 
-		});
-
-
-
-
-
-
-
+		}
+		
 	}
-
-
 
 }

@@ -571,13 +571,19 @@ public class DEMPanel extends LayoutContainer {
 		mItem.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				if( SimpleSISClient.iAmOnline ) {
-					AssessmentChangesPanel panel = new AssessmentChangesPanel();
-					Window window = WindowUtils.getWindow(true, false, "Assessment Changes");
+					final AssessmentChangesPanel panel = new AssessmentChangesPanel();
+					
+					final Window window = WindowUtils.getWindow(true, false, "Assessment Changes");
 					window.setClosable(true);
 					window.setSize(900, 500);
 					window.setLayout(new FillLayout());
-					window.add(panel);
-					window.show();
+					
+					panel.draw(new DrawsLazily.DoneDrawingCallback() {
+						public void isDrawn() {
+							window.add(panel);	
+							window.show();	
+						}
+					});
 				} else {
 					WindowUtils.errorAlert("Not available offline.", "Sorry, this feature is not " +
 							"available offline.");
