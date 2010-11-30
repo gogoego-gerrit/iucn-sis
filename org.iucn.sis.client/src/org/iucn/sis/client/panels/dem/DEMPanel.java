@@ -16,8 +16,7 @@ import org.iucn.sis.client.panels.assessments.AssessmentChangesPanel;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
 import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
-import org.iucn.sis.client.panels.taxomatic.CommonNameDisplay;
-import org.iucn.sis.client.panels.taxomatic.TaxonChooser;
+import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
 import org.iucn.sis.client.panels.taxomatic.TaxonSynonymEditor;
 import org.iucn.sis.client.panels.workflow.WorkflowNotesWindow;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
@@ -27,7 +26,6 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
-import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 
@@ -67,7 +65,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
@@ -311,11 +308,10 @@ public class DEMPanel extends LayoutContainer {
 		toolbar.add(item);
 		toolbar.add(new SeparatorToolItem());
 
-		item = new Button();
+		item = new Button("Save");
 		item.setIconStyle("icon-save");
-		item.setText("Save");
-		item.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				if (AssessmentCache.impl.getCurrentAssessment() == null)
 					return;
 
@@ -361,8 +357,8 @@ public class DEMPanel extends LayoutContainer {
 		item.setIconStyle("icon-attachment");
 		item.setText("Attachments");
 		item.setEnabled(SimpleSISClient.iAmOnline);
-		item.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
 					WindowUtils.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
 					return;
@@ -370,9 +366,7 @@ public class DEMPanel extends LayoutContainer {
 
 				final AssessmentAttachmentPanel attachPanel = new AssessmentAttachmentPanel(AssessmentCache.impl.getCurrentAssessment().getInternalId());
 				attachPanel.draw(new AsyncCallback<String>() {
-
 					public void onSuccess(String result) {
-
 						final Window uploadShell = WindowUtils.getWindow(true, true, "");
 						uploadShell.setLayout(new FitLayout());
 						uploadShell.setWidth(800);
@@ -382,15 +376,11 @@ public class DEMPanel extends LayoutContainer {
 						uploadShell.show();
 						uploadShell.center();
 						uploadShell.layout();
-
 					}
-
 					public void onFailure(Throwable caught) {
 						WindowUtils.errorAlert("Server error: Unable to get file attachments for this assessment");				
 					}
 				});
-
-
 			}
 		});
 
@@ -408,8 +398,8 @@ public class DEMPanel extends LayoutContainer {
 		MenuItem mItem = new MenuItem();
 		mItem.setIconStyle("icon-expert");
 		mItem.setText("Quick " + ExpertPanel.titleText + " Result");
-		mItem.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				if (AssessmentCache.impl.getCurrentAssessment() == null) {
 					WindowUtils.infoAlert("Alert", "Please select an assessment first.");
 					return;
@@ -447,7 +437,6 @@ public class DEMPanel extends LayoutContainer {
 		mItem.setIconStyle("icon-text-bold");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-
 				if (TaxonomyCache.impl.getCurrentTaxon() == null) {
 					Info.display(new InfoConfig("No Taxa Selected", "Please select a taxa first."));
 					return;
@@ -458,80 +447,9 @@ public class DEMPanel extends LayoutContainer {
 					.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
 					return;
 				}
-
-				final Window s = WindowUtils.getWindow(false, false, "Edit Common Names");
-				LayoutContainer data = s;
-
-				ToolBar tBar = new ToolBar();
-				Button item = new Button();
-				item.setText("New Common Name");
-				item.setIconStyle("icon-add");
-				// item.setMenu(newMenu);
-				item.addSelectionListener(new SelectionListener<ButtonEvent>() {
-					public void componentSelected(ButtonEvent ce) {
-						s.hide();
-						Window addNameBox = CommonNameDisplay.getNewCommonNameDisplay(TaxonomyCache.impl
-								.getCurrentTaxon(), null, new GenericCallback<String>() {
-							public void onFailure(Throwable arg0) {
-							}
-
-							public void onSuccess(String arg0) {
-								// update( new Long(
-								// TaxonomyCache.impl.getCurrentNode().getId()
-								// ).toString() );
-
-							}
-						});
-
-						addNameBox.show();
-						addNameBox.center();
-					}
-				});
-
-				tBar.add(item);
-				data.add(tBar);
-				// Image addName = new Image("images/add.png");
-				// addName.setSize("14px", "14px");
-				// addName.setTitle("Add New Common Name");
-				/*
-				 * addName.addClickListener(new ClickListener(){
-				 * 
-				 * public void onClick(Widget sender) { //add( addNameBox ); }
-				 * });
-				 */
-				HTML commonNamesHeader = new HTML("<b>Common Name --- Language</b>");
-
-				LayoutContainer commonNamePanel = new LayoutContainer();
-				// commonNamePanel.add( addName );
-				commonNamePanel.add(commonNamesHeader);
-
-				data.add(new HTML("<hr><br />"));
-				data.add(commonNamePanel);
-
-				if (TaxonomyCache.impl.getCurrentTaxon().getCommonNames().size() != 0) {
-					for (int i = 0; i < TaxonomyCache.impl.getCurrentTaxon().getCommonNames().size(); i++) {
-						CommonName curName = (CommonName) TaxonomyCache.impl.getCurrentTaxon().getPrimaryCommonName();
-						data.add(new CommonNameDisplay(TaxonomyCache.impl.getCurrentTaxon(), curName)
-						.show(new GenericCallback<String>() {
-							public void onFailure(Throwable arg0) {
-							}
-
-							public void onSuccess(String arg0) {
-								// update( new Long(
-								// TaxonomyCache.impl.getCurrentNode().
-								// getId()
-								// ).toString() );
-							}
-						}));
-					}
-				} else
-					data.add(new HTML("No Common Names."));
-
-				s.setSize(350, 550);
-				s.show();
-				s.center();
-				// TODO edit common names popup
-				// DEMToolsPopups.buildBibliographyPopup();
+				
+				TaxonCommonNameEditor editor = new TaxonCommonNameEditor(panelManager);
+				editor.show();
 			}
 		});
 		mainMenu.add(mItem);
@@ -552,19 +470,8 @@ public class DEMPanel extends LayoutContainer {
 					return;
 				}
 
-				final Window shell = WindowUtils.getWindow(true, false, "Edit Synonyms");
 				TaxonSynonymEditor editor = new TaxonSynonymEditor();
-				editor.sinkEvents(Events.Close.getEventCode());
-				editor.addListener(Events.Close, new Listener<BaseEvent>() {
-					public void handleEvent(BaseEvent be) {
-						shell.close();
-					}
-				});
-				shell.setLayout(new FillLayout());
-				shell.add(editor);
-				shell.show();
-				shell.setSize(TaxonChooser.PANEL_WIDTH + 30, TaxonChooser.PANEL_HEIGHT + 50);
-				shell.center();
+				editor.show();
 			}
 		});
 		mainMenu.add(mItem);
