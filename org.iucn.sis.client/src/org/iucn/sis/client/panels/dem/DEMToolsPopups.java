@@ -1,73 +1,75 @@
 package org.iucn.sis.client.panels.dem;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.notes.NoteAPI;
+import org.iucn.sis.client.panels.notes.NotesWindow;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Notes;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class DEMToolsPopups {
 	
 
 	public static void buildNotePopup() {
-		Assessment curAss = AssessmentCache.impl.getCurrentAssessment();
+		Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
 
-		if (curAss == null)
+		if (assessment == null)
 			return;
 
-		Window s = WindowUtils.getWindow(false, false, "Notes for " + curAss.getSpeciesName());
-		final LayoutContainer container = s;
-
-		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-		String type = AssessmentCache.impl.getCurrentAssessment().getType();
-		String url = UriBase.getInstance().getNotesBase() + "/notes/" + type;
-		url += "/" + AssessmentCache.impl.getCurrentAssessment().getId();
-
-		if (type.equals(AssessmentType.USER_ASSESSMENT_TYPE))
-			url += "/" + SimpleSISClient.currentUser.getUsername();
-
-		doc.get(url, new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				container.add(new HTML("There are no notes for this assessment."));
-				container.layout();
-			}
-
-			public void onSuccess(String result) {
-				List<Notes> notes = Notes.notesFromXML(doc.getDocumentElement());
-				if (notes == null || notes.size() == 0)
-					container.add(new HTML("There are no notes for this assessment."));
-				else {
-					// VerticalPanel panel = new VerticalPanel();
-					// panel.setSpacing( 3 );
-
-					for (Iterator iter = notes.listIterator(); iter.hasNext();) {
-						Notes current = (Notes) iter.next();
-						container.add(new HTML("<div style='padding-top:10px'> <span style='font-weight:bold'>"
-								+ current.getEdit().getUser().getUsername() + "</span> " + current.getEdit().getCreatedDate().toString() + "</div>" + "<div> ["
-								+ current.getField().getName() + "] " + current.getValue() + "</div>"));
-					}
-					// container.add( panel );
+		NotesWindow window = new NotesWindow(new AssessmentNotes(assessment));
+		window.setHeading("Notes for " + assessment.getSpeciesName());
+		window.show();
+	}
+	
+	private static class AssessmentNotes implements NoteAPI {
+		
+		private final Assessment assessment;
+		
+		public AssessmentNotes(Assessment assessment) {
+			this.assessment = assessment;
+		}
+		
+		@Override
+		public void addNote(Notes note, GenericCallback<Object> callback) {
+			WindowUtils.errorAlert("Adding notes is not supported at this level.");
+		}
+		
+		public void deleteNote(Notes note, com.solertium.lwxml.shared.GenericCallback<Object> callback) {
+			WindowUtils.errorAlert("Removing notes is not supported at this level.");
+		}
+		
+		@Override
+		public void loadNotes(final ComplexListener<Collection<Notes>> listener) {
+			String url = UriBase.getInstance().getNotesBase() + "/notes/assessment/" + assessment.getId();
+			/*if (type.equals(AssessmentType.USER_ASSESSMENT_TYPE))
+				url += "/" + SimpleSISClient.currentUser.getUsername();*/
+			
+			final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+			doc.get(url, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					listener.handleEvent(Notes.notesFromXML(doc.getDocumentElement()));
 				}
-				container.layout();
-			}
-		});
-		s.setScrollMode(Scroll.AUTO);
-		s.setSize(400, 500);
-
-		s.show();
-		s.center();
+				public void onFailure(Throwable caught) {
+					listener.handleEvent(new ArrayList<Notes>());
+				}
+			});
+		}
+		
+		@Override
+		public void onClose() {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 
 	

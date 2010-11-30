@@ -8,12 +8,15 @@ import java.util.Set;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.panels.notes.NotesViewer;
+import org.iucn.sis.client.panels.notes.NotesWindow;
 import org.iucn.sis.client.panels.references.PagingPanel;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.displays.FieldNotes;
+import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.structures.Structure;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -449,7 +452,13 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				else if (model.getField() == null)
 					WindowUtils.errorAlert("Please save your changes before adding notes.");
 				else {
-					NotesViewer.open(model.getField(), null);
+					NotesWindow window = new NotesWindow(new FieldNotes(model.getField()) {
+						public void onClose(List<Notes> list) {
+							
+						}
+					});
+					window.show();
+					//NotesViewer.open(model.getField(), null);
 				}
 				/*String temp = canonicalName + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey();
 				openEditViewNotesPopup(temp, new AsyncCallback<String>() {

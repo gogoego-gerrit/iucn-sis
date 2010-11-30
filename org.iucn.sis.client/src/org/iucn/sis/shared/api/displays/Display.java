@@ -465,38 +465,8 @@ public abstract class Display implements Referenceable {
 	}
 	
 	private NoteAPI createNoteAPI() {
-		return new NoteAPI() {
-			@Override
-			public void addNote(Notes note, final GenericCallback<Object> callback) {
-				NotesCache.impl.addNote(field, note, AssessmentCache.impl.getCurrentAssessment(),
-						new GenericCallback<String>() {
-					public void onFailure(Throwable caught) {
-						callback.onFailure(caught);
-					}
-					public void onSuccess(String result) {
-						callback.onSuccess(result);
-					}
-				});
-			}
-			
-			public void deleteNote(Notes note, final GenericCallback<Object> callback) {
-				NotesCache.impl.deleteNote(field, note, AssessmentCache.impl.getCurrentAssessment(),
-						new GenericCallback<String>() {
-					public void onFailure(Throwable caught) {
-						callback.onFailure(caught);
-					}
-					public void onSuccess(String result) {
-						callback.onSuccess(result);
-					};
-				});
-			}
-			
-			public void loadNotes(ComplexListener<Collection<Notes>> listener) {
-				listener.handleEvent(NotesCache.impl.getNotesForCurrentAssessment(field));
-			}
-			
-			public void onClose() {
-				List<Notes> list = NotesCache.impl.getNotesForCurrentAssessment(field);
+		return new FieldNotes(field) {
+			public void onClose(List<Notes> list) {
 				if (list == null || list.isEmpty())
 					notesIcon.setUrl("images/icon-note-grey.png");
 				else
