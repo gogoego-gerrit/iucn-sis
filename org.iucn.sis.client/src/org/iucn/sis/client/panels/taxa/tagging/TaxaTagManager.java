@@ -41,13 +41,6 @@ public class TaxaTagManager extends LayoutContainer implements DrawsLazily {
 	public TaxaTagManager() {
 		super(new FillLayout());
 		
-		browser = new TaxaTaggingBrowser(new SimpleListener() {
-			public void handleEvent() {
-				refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
-			}
-		});
-		browser.setCurrentTag("invasive");
-		
 		list = new DataList();
 		list.setCheckable(true);
 		list.setSelectionMode(SelectionMode.MULTI);
@@ -61,6 +54,13 @@ public class TaxaTagManager extends LayoutContainer implements DrawsLazily {
 		}
 		
 		isDrawn = true;
+		
+		browser = new TaxaTaggingBrowser(new SimpleListener() {
+			public void handleEvent() {
+				refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+			}
+		});
+		browser.setCurrentTag("invasive");
 		
 		final LayoutContainer left = new LayoutContainer(new BorderLayout());
 		left.add(createToolBar(), new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
