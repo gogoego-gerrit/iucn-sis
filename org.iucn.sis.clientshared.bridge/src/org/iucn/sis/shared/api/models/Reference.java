@@ -27,6 +27,8 @@ import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.XMLWritingUtils;
 public class Reference implements Serializable, AuthorizableObject {
 	
+	private static final long serialVersionUID = 1L;
+
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS*/
 	public static final String ROOT_TAG = "reference";
 	
@@ -79,7 +81,9 @@ public class Reference implements Serializable, AuthorizableObject {
 		return reference;
 	}
 	
-	public static void addField(Reference reference, String name, String value) {
+	public static void addField(Reference reference, String name, String rawValue) {
+		String value = toStringOrBlank(rawValue);
+		
 		if ("id".equals(name)) {
 			try {
 				reference.setId(Integer.parseInt(value));
@@ -164,6 +168,10 @@ public class Reference implements Serializable, AuthorizableObject {
 		String ret = value.toString();
 		
 		return isBlank(ret) ? null : ret;
+	}
+	
+	private static String toStringOrBlank(String value) {
+		return value == null || "null".equals(value) ? "" : value;
 	}
 	
 	public String toXML() {
@@ -257,7 +265,7 @@ public class Reference implements Serializable, AuthorizableObject {
 	}
 	
 	public String generateCitationIfNotAlreadyGenerate() {
-		if (citation == null || citation.trim().equalsIgnoreCase(""))
+		if (toStringOrBlank(citation).trim().equals(""))
 			return generateCitation();
 		return citation;
 	}

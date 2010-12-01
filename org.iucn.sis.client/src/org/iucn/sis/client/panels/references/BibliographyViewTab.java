@@ -62,7 +62,6 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 		sm.setSelectionMode(SelectionMode.MULTI);
 		
 		grid = new Grid<ReferenceModel>(getStoreInstance(), getColumnModel());
-		grid.setAutoExpandColumn("citation");
 		grid.setSelectionModel(sm);
 		grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<ReferenceModel>>() {
 			public void handleEvent(GridEvent<ReferenceModel> be) {
@@ -220,7 +219,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	}
 	
 	private ColumnModel getColumnModel() {
-		final ColumnConfig citation = new ColumnConfig("citation", "Citation", 633);
+		final ColumnConfig citation = new ColumnConfig("citation", "Citation", 500);
 
 		final ColumnConfig field = new ColumnConfig("field", "Field", 67);
 		field.setHidden(true);

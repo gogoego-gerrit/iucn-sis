@@ -36,7 +36,7 @@ public class ReferenceModel extends BaseModelData {
 	}
 	
 	private String getVisibleCitation() {
-		String citation = ref.getCitation();
+		String citation = ref.generateCitationIfNotAlreadyGenerate();
 		if (citation == null || "".equals(citation.trim()))
 			return "<i>(Unable to generate citation for reference of type " + ref.getType() + ")</i>";
 		else
