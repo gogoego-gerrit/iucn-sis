@@ -620,6 +620,11 @@ public class DEMPanel extends LayoutContainer {
 //		mainMenu.add(mItem);
 		toolbar.add(item);
 
+		/*
+		 * The three items below are not and will not 
+		 * be ready for SIS 2.0 launch.
+		 */
+		/*
 		mItem = new MenuItem();
 		mItem.setText("View Report");
 		mItem.setIconStyle("icon-report");
@@ -638,11 +643,7 @@ public class DEMPanel extends LayoutContainer {
 				runIntegrityValidator();
 			}
 		});
-		/*
-		 * Comment in the line below to add validation 
-		 * to the Tools menu.  Don't forget to add the 
-		 * IntegrityApplication to SISBootstrap.
-		 */
+		
 		mainMenu.add(integrity);
 		
 		final MenuItem workflow = new MenuItem();
@@ -656,7 +657,7 @@ public class DEMPanel extends LayoutContainer {
 			}
 		});
 		
-		mainMenu.add(workflow);
+		mainMenu.add(workflow);*/
 
 		toolbar.add(new SeparatorToolItem());
 		
