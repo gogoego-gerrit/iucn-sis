@@ -9,12 +9,15 @@ import org.iucn.sis.client.panels.references.PagingPanel;
 import org.iucn.sis.shared.api.displays.threats.ThreatTaggedSpeciesLocator.Selectable;
 import org.iucn.sis.shared.api.models.Taxon;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
-import com.extjs.gxt.ui.client.widget.grid.CheckColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.gwt.ui.DrawsLazily;
@@ -49,16 +52,24 @@ public class SelectExistingIASTaxaPanel extends PagingPanel<TaxonFootprintModel>
 		
 		grid = 
 			new Grid<TaxonFootprintModel>(getStoreInstance(), getColumnModel(sm.getColumn()));
-		grid.addPlugin((CheckColumnConfig)sm.getColumn());
+		grid.addPlugin(sm);
 		grid.setSelectionModel(sm);
 		
-		add(grid);
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+		
+		add(container);
 		
 		callback.isDrawn();
 	}
 	
 	public void refresh() {
-		refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+		refresh(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				layout();
+			}
+		});
 	}
 	
 	protected void getStore(final GenericCallback<ListStore<TaxonFootprintModel>> callback) {
