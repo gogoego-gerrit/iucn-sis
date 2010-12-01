@@ -18,7 +18,6 @@ import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
 import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
 import org.iucn.sis.client.panels.taxomatic.TaxonSynonymEditor;
-import org.iucn.sis.client.panels.workflow.WorkflowNotesWindow;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -60,14 +59,15 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.portable.XMLWritingUtils;
 
 /**
  * Shows an assessment in the following steps:
@@ -699,9 +699,13 @@ public class DEMPanel extends LayoutContainer {
 					final HTML curPageLabel = new HTML(curPage.getPageTitle());
 					curPageLabel.addStyleName("SIS_HyperlinkBehavior");
 					curPageLabel.addStyleName("padded-viewContainer");
-					curPageLabel.addClickListener(new ClickListener() {
-						public void onClick(Widget arg0) {
-							doPageChangeRequested(curView, curPage, curPageLabel);
+					curPageLabel.addClickHandler(new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							try {
+								doPageChangeRequested(curView, curPage, curPageLabel);
+							} catch (Throwable e) {
+								Debug.println(e);
+							}
 						}
 					});
 					curItem.add(curPageLabel);
@@ -770,15 +774,18 @@ public class DEMPanel extends LayoutContainer {
 				ViewCache.impl.getCurrentView().getCurPage().getMyFields())) {
 			stopAutosaveTimer();
 
-			if (SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.PROMPT) == UserPreferences.PROMPT)
-				openChangesMadePopup(curView, curPage, curPageLabel);
-			else if (SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.PROMPT) == UserPreferences.DO_ACTION)
+			String savePreference = 
+				SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.PROMPT);
+			
+			if (savePreference.equals(UserPreferences.DO_ACTION))
 				doSaveCurrentAssessment(curView, curPage, curPageLabel);
-			else if (SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.PROMPT) == UserPreferences.IGNORE) {
+			else if (savePreference.equals(UserPreferences.IGNORE)) {
 				currentView = curView;
 				updateBoldedPage(curPageLabel);
 				showCurrentAssessment(curView.getPages().indexOf(curPage));
 			}
+			else
+				openChangesMadePopup(curView, curPage, curPageLabel);
 		} else {
 			currentView = curView;
 			updateBoldedPage(curPageLabel);
@@ -788,7 +795,8 @@ public class DEMPanel extends LayoutContainer {
 
 	private void doSaveCurrentAssessment(final SISView curView, final SISPageHolder curPage, final HTML curPageLabel) {
 		try {
-			AssessmentClientSaveUtils.saveAssessment(AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
+			AssessmentClientSaveUtils.saveAssessment(ViewCache.impl.getCurrentView().getCurPage().getMyFields(), 
+					AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
 				public void onFailure(Throwable arg0) {
 					WindowUtils.hideLoadingAlert();
 					layout();
@@ -893,22 +901,17 @@ w.setSize(400, 250);
 
 	private void openChangesMadePopup(final SISView curView, final SISPageHolder curPage, final HTML curPageLabel) {
 		WindowUtils.confirmAlert("By the way...", "Navigating away from this page will"
-				+ " revert unsaved changes. Would you like to save?", new Listener<MessageBoxEvent>() {
-			public void handleEvent(MessageBoxEvent be) {
-				{
-					startAutosaveTimer();
+				+ " revert unsaved changes. Would you like to save?", new WindowUtils.MessageBoxListener() {
+			public void onYes() {
+				startAutosaveTimer();
 
-					if (be.getButtonClicked().getText().equalsIgnoreCase("cancel")) {
-
-					} else if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-						WindowUtils.showLoadingAlert("Saving assessment...");
-						doSaveCurrentAssessment(curView, curPage, curPageLabel);
-					} else {
-						currentView = curView;
-						updateBoldedPage(curPageLabel);
-						showCurrentAssessment(curView.getPages().indexOf(curPage));
-					}
-				}
+				WindowUtils.showLoadingAlert("Saving assessment...");
+				doSaveCurrentAssessment(curView, curPage, curPageLabel);
+			}
+			public void onNo() {
+				currentView = curView;
+				updateBoldedPage(curPageLabel);
+				showCurrentAssessment(curView.getPages().indexOf(curPage));		
 			}
 		});
 	}

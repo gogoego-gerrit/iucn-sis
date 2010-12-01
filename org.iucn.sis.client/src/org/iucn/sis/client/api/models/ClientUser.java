@@ -65,7 +65,7 @@ public class ClientUser extends User {
 	 */
 	public String getPreference(String property, String notFoundValue) {
 		String value = properties.getField(property);
-		return value == null ? notFoundValue : property;
+		return value == null ? notFoundValue : value;
 	}
 
 }

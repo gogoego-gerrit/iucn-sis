@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.panels.RegionalExpertWidget;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
@@ -15,6 +16,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 	
 	private RegionalExpertWidget questionsPanel;
+	private ArrayList<String> defaultValues;
 
 	public SISRegionalExpertStructure(String struct, String descript, String structID) {
 		super(struct, descript, structID);
@@ -38,16 +40,13 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 		displayPanel.setWidth("100%");
 		displayPanel.add(descriptionLabel);
 
-		Assessment cur = AssessmentCache.impl.getCurrentAssessment();
-
-		if (cur != null && cur.isRegional() && !cur.isEndemic()) {
+		if (isAssessmentApplicable())
 			displayPanel.add(questionsPanel);
-			questionsPanel.layout();
-		} else {
+		else 
 			displayPanel.add(new HTML("<br><i>N/A for global or endemic assessments.</i>"));
-			questionsPanel.layout();
-		}
-
+		
+		questionsPanel.layout();
+		
 		return displayPanel;
 	}
 
@@ -58,9 +57,7 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 		displayPanel.setWidth("100%");
 		displayPanel.add(descriptionLabel);
 
-		Assessment cur = AssessmentCache.impl.getCurrentAssessment();
-
-		if (cur != null && cur.isRegional() && !cur.isEndemic())
+		if (isAssessmentApplicable())
 			displayPanel.add(new HTML(questionsPanel.getResultString()));
 		else
 			displayPanel.add(new HTML("<br><i>N/A for non-regional assessments.</i>"));
@@ -70,8 +67,14 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 
 	@Override
 	public void createWidget() {
+		defaultValues = new ArrayList<String>();
+		defaultValues.add(",-1,0");
+		defaultValues.add(",-1");
+		defaultValues.add(",0");
+		defaultValues.add("");
+		
 		descriptionLabel = new HTML(description);
-		questionsPanel = new RegionalExpertWidget();
+		questionsPanel = new RegionalExpertWidget(defaultValues);
 	}
 
 	@Override
@@ -83,7 +86,10 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 
 	@Override
 	public String getData() {
-		return questionsPanel.getWidgetData();
+		if (isAssessmentApplicable())
+			return questionsPanel.getWidgetData();
+		else
+			return null;
 	}
 
 	/**
@@ -100,19 +106,49 @@ public class SISRegionalExpertStructure extends SISPrimitiveStructure<String> {
 	}
 	
 	@Override
+	public boolean hasChanged(PrimitiveField<String> field) {
+		String oldValue = field == null ? null : field.getRawValue();
+		if ("".equals(oldValue) || defaultValues.contains(oldValue))
+			oldValue = null;
+		
+		String newValue = getData();
+		if ("".equals(newValue) || defaultValues.contains(newValue))
+			newValue = null;
+		
+		Debug.println("Comparing {0} to {1}", oldValue, newValue);
+		
+		if (newValue == null)
+			return oldValue != null;
+		else
+			if (oldValue == null)
+				return true;
+			else
+				return !newValue.equals(oldValue);
+	}
+	
+	@Override
 	public void setData(PrimitiveField<String> field) {
 		String datum = field != null ? field.getValue() : null;
 		questionsPanel.setWidgetData(datum);
 			
 		clearDisplayPanel();
 		
-		Assessment cur = AssessmentCache.impl.getCurrentAssessment();
-		if (cur != null && cur.isRegional() && !cur.isEndemic())
+		if (isAssessmentApplicable())
 			displayPanel.add(new HTML(questionsPanel.getResultString()));
 		else {
 			displayPanel.add(new HTML("<br><i>N/A for non-regional assessments.</i>"));
 			questionsPanel.clearWidgetData();
 		}
+	}
+	
+	/**
+	 * Determines if this structure should display 
+	 * for this assessment.
+	 * @return
+	 */
+	private boolean isAssessmentApplicable() {
+		Assessment cur = AssessmentCache.impl.getCurrentAssessment();
+		return cur != null && cur.isRegional() && !cur.isEndemic();
 	}
 
 	@Override

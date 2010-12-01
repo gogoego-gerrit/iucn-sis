@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.ListBox;
 public class RegionalExpertWidget extends LayoutContainer {
 
 	private final RegionalExpertQuestions questions;
+	private final ArrayList<String> defaultValues;
 	
 	private HTML displayResult;
 	private VerticalPanel results;
@@ -34,8 +35,9 @@ public class RegionalExpertWidget extends LayoutContainer {
 	private String result;
 	private ListBox amount;
 
-	public RegionalExpertWidget() {
+	public RegionalExpertWidget(ArrayList<String> defaultValues) {
 		super(new RowLayout(Orientation.VERTICAL));
+		this.defaultValues = defaultValues;
 		
 		result = "";
 		
@@ -159,14 +161,7 @@ public class RegionalExpertWidget extends LayoutContainer {
 		
 		ret = ret.trim();
 		
-		//blank result, no amount, no first answer
-		ArrayList<String> defaultAnswers = new ArrayList<String>();
-		defaultAnswers.add(",-1,0");
-		defaultAnswers.add(",-1");
-		defaultAnswers.add(",0");
-		defaultAnswers.add("");
-		
-		return defaultAnswers.contains(ret) ? null : ret;
+		return defaultValues.contains(ret) ? null : ret;
 	}
 
 	public void setWidgetData(String data) {
