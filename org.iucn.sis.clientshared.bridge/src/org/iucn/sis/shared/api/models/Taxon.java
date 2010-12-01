@@ -18,20 +18,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.LongUtils;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
-import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 
-public class Taxon implements AuthorizableObject, Serializable, Referenceable {
+public class Taxon implements AuthorizableObject, Serializable {
 
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	private static final long serialVersionUID = -3917537005947441129L;
@@ -47,27 +44,6 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 
 	public void setState(int state) {
 		this.state = state;
-	}
-
-	@Override
-	public void addReferences(ArrayList<Reference> references, GenericCallback<Object> callback) {
-		getReference().addAll(references);
-		callback.onSuccess(getReference());
-	}
-
-	@Override
-	public Set<Reference> getReferencesAsList() {
-		return getReference();
-	}
-
-	@Override
-	public void onReferenceChanged(GenericCallback<Object> callback) {
-
-	}
-
-	@Override
-	public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> callback) {
-		callback.onSuccess(Boolean.valueOf(getReference().removeAll(references)));
 	}
 
 	public String getXMLofFootprintAndChildren() {
@@ -557,12 +533,6 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 	}
 
 	public String toXML() {
-		return toXMLDetailed();
-	}
-
-	public String toXMLDetailed() {
-	
-	
 		// TRY TO GET THE PARENT NAME FROM THE SOURCE, IF APPLICABLE
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + " id=\"" + getId() + "\" name=\"" + getName() + "\" hybrid=\""
@@ -595,7 +565,7 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 	
 		if (getReference() != null) {
 			for (Reference note : getReference())
-				xml.append(note.toXML());
+				xml.append("\r\n" + note.toXML());
 		}
 	
 		if (getSynonyms() != null) {
@@ -687,8 +657,6 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 		Taxon taxon = Taxon.createNode(id, name, level, hybrid);
 		taxon.setFriendlyName(fullName);
 		
-		
-		
 		NativeNodeList status = nodeElement.getElementsByTagName(TaxonStatus.ROOT_TAG);
 		if (status.getLength() > 0)
 			taxon.setTaxonStatus(TaxonStatus.fromXML(status.elementAt(0)));
@@ -764,9 +732,7 @@ public class Taxon implements AuthorizableObject, Serializable, Referenceable {
 			reference.getTaxon().add(taxon);
 			taxon.getReference().add(reference);
 		}
-
 		return taxon;
-
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package org.iucn.sis.server.restlets.taxa;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -10,6 +11,7 @@ import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
@@ -92,23 +94,28 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		Triple<String, String, String> parameters = getParameters(request);
 		
 		final String action = parameters.getFirst();
-		if (action.equalsIgnoreCase("nodes") && "list".equals(parameters.getSecond())) {
-			Document doc = getEntityAsDocument(entity);
-			ElementCollection list = new ElementCollection(doc.getElementsByTagName("id"));
-
-			StringBuilder retXML = new StringBuilder("<nodes>");
-			List<Integer> ids = new ArrayList<Integer>();
-			for (Element curEl : list)
-				ids.add(parseIdentifier(curEl.getTextContent()));
+		if (action.equalsIgnoreCase("nodes")) {
+			if ("list".equals(parameters.getSecond())) {
+				Document doc = getEntityAsDocument(entity);
+				ElementCollection list = new ElementCollection(doc.getElementsByTagName("id"));
+	
+				StringBuilder retXML = new StringBuilder("<nodes>");
+				List<Integer> ids = new ArrayList<Integer>();
+				for (Element curEl : list)
+					ids.add(parseIdentifier(curEl.getTextContent()));
+					
+				for (Taxon taxon : SIS.get().getTaxonIO().getTaxa(ids.toArray(new Integer[ids.size()]), false))
+					retXML.append(taxon.toXML());
 				
-			for (Taxon taxon : SIS.get().getTaxonIO().getTaxa(ids.toArray(new Integer[ids.size()]), false))
-				retXML.append(taxon.toXML());
-			
-			retXML.append("</nodes>");
-			
-			response.setEntity(retXML.toString(), MediaType.TEXT_XML);
-			response.getEntity().setCharacterSet(CharacterSet.UTF_8);
-			response.setStatus(Status.SUCCESS_OK);
+				retXML.append("</nodes>");
+				
+				response.setEntity(retXML.toString(), MediaType.TEXT_XML);
+				response.getEntity().setCharacterSet(CharacterSet.UTF_8);
+				response.setStatus(Status.SUCCESS_OK);
+			}
+			else if ("references".equals(parameters.getThird())) {
+				updateReferences(entity, parseIdentifier(parameters.getSecond()), request, response);
+			}
 		}
 		else if (action.equalsIgnoreCase("lowestTaxa"))
 			serveLowestTaxa(response, entity);
@@ -135,6 +142,34 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		final String action = parameters.getFirst();
 		if (action.equalsIgnoreCase("nodes"))
 			updateTaxon(request, response, parseIdentifier(parameters.getSecond()));
+	}
+	
+	private void updateReferences(Representation entity, Integer taxonID, Request request, Response response) throws ResourceException {
+		Taxon taxon = SIS.get().getTaxonIO().getTaxonNonLazy(taxonID);
+		if (taxon == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		
+		Document document = getEntityAsDocument(entity);
+		
+		taxon.getReference().clear();
+		for (Element el : new ElementCollection(document.getDocumentElement().getElementsByTagName("reference"))) {
+			try {
+				Reference reference = 
+					SIS.get().getManager().getObject(Reference.class, Integer.valueOf(el.getAttribute("id")));
+				if (reference.getTaxon() == null)
+					reference.setTaxon(new HashSet<Taxon>());
+				reference.getTaxon().add(taxon);
+				taxon.getReference().add(reference);
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "No reference with the ID " + el.getAttribute("id") + " was found.");
+			}
+		}
+		
+		try {
+			SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request));
+		} catch (TaxomaticException e) {
+			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e);
+		}
 	}
 
 	private Representation getFootprintOfIDsAndChildren(Integer id) {

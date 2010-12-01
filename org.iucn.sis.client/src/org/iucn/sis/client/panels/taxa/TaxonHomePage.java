@@ -1,15 +1,19 @@
 package org.iucn.sis.client.panels.taxa;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.notes.NoteAPI;
 import org.iucn.sis.client.panels.notes.NotesWindow;
+import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -17,12 +21,11 @@ import com.extjs.gxt.ui.client.event.BoxComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.Timer;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.events.ComplexListener;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -49,18 +52,15 @@ public class TaxonHomePage extends LayoutContainer {
 	}
 
 	public void buildReferencePopup() {
-		final Window s = WindowUtils.getWindow(false, false, "Add a references to " + taxon.getFullName());
-		s.setIconStyle("icon-book");
-		LayoutContainer container = s;
-		container.setLayout(new FillLayout());
-
-		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setReferences(taxon);
-
-		container.add(ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel);
-
-		s.setSize(850, 550);
-		s.show();
-		s.center();
+		SimpleSISClient.getInstance().onShowReferenceEditor(
+			"Manage References for " + taxon.getFullName(), 
+			new ReferenceableTaxon(taxon, new SimpleListener() {
+				public void handleEvent() {
+					update(taxon.getId());
+				}
+			}), 
+			null, null
+		);
 	}
 
 	/*public void onResize(int width, int height) {
@@ -121,6 +121,50 @@ public class TaxonHomePage extends LayoutContainer {
 				}
 			});
 		}
+	}
+	
+	public static class ReferenceableTaxon implements Referenceable {
+		
+		private final Taxon taxon;
+		private final SimpleListener afterChangeListener;
+		
+		public ReferenceableTaxon(Taxon taxon, SimpleListener afterChangeListener) {
+			this.taxon = taxon;
+			this.afterChangeListener = afterChangeListener;
+		}
+		
+		public void addReferences(ArrayList<Reference> references, GenericCallback<Object> callback) {
+			taxon.getReference().addAll(references);
+			persist(callback);
+		}
+		
+		public Set<Reference> getReferencesAsList() {
+			return new HashSet<Reference>(taxon.getReference());
+		}
+
+		public void onReferenceChanged(GenericCallback<Object> callback) {
+
+		}
+
+		public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> callback) {
+			taxon.getReference().removeAll(references);
+			persist(callback);
+		}
+		
+		private void persist(final GenericCallback<Object> callback) {
+			TaxonomyCache.impl.saveReferences(taxon, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					if (afterChangeListener != null)
+						afterChangeListener.handleEvent();
+					
+					callback.onSuccess(result);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		}
+		
 	}
 	
 	private static class TaxonNoteAPI implements NoteAPI {

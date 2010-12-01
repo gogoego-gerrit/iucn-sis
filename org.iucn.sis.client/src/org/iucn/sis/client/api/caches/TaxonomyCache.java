@@ -460,23 +460,33 @@ public class TaxonomyCache {
 	public void resetCurrentTaxon() {
 		setCurrentTaxon(null, false);
 	}
+	
+	public void saveReferences(Taxon taxon, final GenericCallback<String> callback) {
+		final StringBuilder out = new StringBuilder();
+		out.append("<root>");
+		for (Reference ref : taxon.getReference())
+			out.append("<reference id=\"" + ref.getId() + "\" />");
+		out.append("</root>");
+		
+		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
+		doc.post(UriBase.getInstance().getSISBase() + "/browse/nodes/" + taxon.getId() + "/references", 
+				out.toString(), callback);
+	}
 
 	public void saveTaxon(Taxon taxon, final GenericCallback<String> callback) {
-
+		/*
+		 * TODO: do we need to check permissions?
+		 */
 		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
-
-		doc.put(UriBase.getInstance().getSISBase() + "/browse/nodes/" + taxon.getId(), taxon.toXMLDetailed(),
+		doc.put(UriBase.getInstance().getSISBase() + "/browse/nodes/" + taxon.getId(), taxon.toXML(),
 				new GenericCallback<String>() {
-
-					public void onFailure(Throwable caught) {
-						callback.onFailure(caught);
-					}
-
-					public void onSuccess(String result) {
-						callback.onSuccess(result);
-					}
-				});
-
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+			public void onSuccess(String result) {
+				callback.onSuccess(result);
+			}
+		});
 	}
 
 	/**

@@ -23,6 +23,7 @@ import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
 import org.iucn.sis.client.panels.notes.NoteAPI;
 import org.iucn.sis.client.panels.notes.NotesWindow;
+import org.iucn.sis.client.panels.taxa.TaxonHomePage.ReferenceableTaxon;
 import org.iucn.sis.client.panels.taxomatic.CommonNameToolPanel;
 import org.iucn.sis.client.panels.taxomatic.EditCommonNamePanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -32,6 +33,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -90,6 +92,7 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.events.ComplexListener;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.gwt.ui.StyledHTML;
@@ -780,6 +783,36 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 
 				data.add(new HTML("Status: " + node.getStatusCode()));
 				data.add(new HTML("Hybrid: " + node.getHybrid()));
+				
+				HorizontalPanel refPanel = new HorizontalPanel(); {
+					int size = node.getReference().size();
+					final HTML display = new HTML("References (" + size + "): ");
+					
+					final Image image = new Image(size > 0 ? "images/icon-book.png" : "images/icon-book-grey.png");
+					image.addClickHandler(new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							SimpleSISClient.getInstance().onShowReferenceEditor(
+								"Manage References for " + taxon.getFullName(), 
+								new ReferenceableTaxon(taxon, new SimpleListener() {
+									public void handleEvent() {
+										//Short way...
+										int size = node.getReference().size();
+										display.setHTML("References (" + size + "): ");
+										image.setUrl(size > 0 ? "images/icon-book.png" : "images/icon-book-grey.png");
+										
+										//Long way
+										//update(taxon.getId());
+									}
+								}), 
+								null, null
+							);
+						}
+					});
+					
+					refPanel.add(display);
+					refPanel.add(image);
+				}
+				data.add(refPanel);
 
 				// ADD SYNONYMS
 				if (!node.getSynonyms().isEmpty()) {

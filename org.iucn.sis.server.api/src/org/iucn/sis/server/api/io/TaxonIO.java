@@ -197,9 +197,10 @@ public class TaxonIO {
 					edit.setCreatedDate(date);
 					edit.getTaxon().add(taxon);
 					taxon.getEdits().add(edit);
-					taxon.toXML();
 					
 					TaxonDAO.save(taxon);
+					
+					taxon.toXML();
 				}
 			} catch (PersistentException e) {
 				Debug.println("Failed to save taxa list: \n{0}", e);

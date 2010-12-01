@@ -90,7 +90,7 @@ public class TaxomaticUtils {
 		
 		
 		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
-		doc.putAsText(UriBase.getInstance().getSISBase() + "/taxomatic/new", newTaxon.toXMLDetailed(), new GenericCallback<String>() {
+		doc.putAsText(UriBase.getInstance().getSISBase() + "/taxomatic/new", newTaxon.toXML(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				handleFailure(doc, caught, wayback);
 				
@@ -305,7 +305,7 @@ public class TaxomaticUtils {
 
 	public void saveTaxon(Taxon  node, final GenericCallback<Object> callback) {
 		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-		doc.post(UriBase.getInstance().getSISBase() + "/taxomatic/update/" + node.getId(), node.toXMLDetailed(),
+		doc.post(UriBase.getInstance().getSISBase() + "/taxomatic/update/" + node.getId(), node.toXML(),
 				new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				handleFailure(doc, caught, callback);
