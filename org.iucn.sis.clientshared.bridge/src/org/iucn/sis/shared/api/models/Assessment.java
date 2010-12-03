@@ -42,8 +42,11 @@ import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
+import com.solertium.util.portable.XMLWritingUtils;
 
 public class Assessment implements Serializable, AuthorizableObject, Referenceable {
+	
+	public static final String DEFAULT_SCHEMA = "org.iucn.sis.server.schemas.redlist";
 
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	public static final String ROOT_TAG = "assessment";
@@ -140,6 +143,8 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 			else if ("sourceDate".equals(current.getNodeName())) {
 				assessment.setSourceDate(current.getTextContent());		
 			}
+			else if ("schema".equals(current.getNodeName()))
+				assessment.setSchema(current.getTextContent());
 			else if (AssessmentType.ROOT_TAG.equals(current.getNodeName())) {
 				assessment.setAssessmentType(AssessmentType.fromXML((NativeElement)current));		
 			}
@@ -356,6 +361,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		xml.append("<" + ROOT_TAG + " id=\"" + getId() + "\" internalID=\"" + getInternalId() + "\">");
 		xml.append("<source><![CDATA[" + getSource() + "]]></source>");
 		xml.append("<sourceDate><![CDATA[" + getSourceDate() + "]]></sourceDate>");
+		xml.append(XMLWritingUtils.writeCDATATag("schema", getSchema(), true));
 		xml.append(getTaxon().toXMLMinimal());
 		xml.append(getAssessmentType().toXML());
 		
@@ -403,6 +409,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		assessment.setDateFinalized(getDateFinalized());
 		assessment.setSource(getSource());
 		assessment.setSourceDate(getSourceDate());
+		assessment.setSchema(getSchema());
 		assessment.setState(getState());
 		assessment.setTaxon(getTaxon());
 		
@@ -566,6 +573,8 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	private String source;
 
 	private String sourceDate;
+	
+	private String schema;
 
 	private Taxon taxon;
 
@@ -601,6 +610,18 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 
 	public String getSourceDate() {
 		return sourceDate;
+	}
+	
+	public String getSchema() {
+		return schema;
+	}
+	
+	public String getSchema(String defaultValue) {
+		return schema == null || "".equals(schema) ? defaultValue : schema; 
+	}
+	
+	public void setSchema(String schema) {
+		this.schema = schema;
 	}
 
 	public void setInternalId(String value) {

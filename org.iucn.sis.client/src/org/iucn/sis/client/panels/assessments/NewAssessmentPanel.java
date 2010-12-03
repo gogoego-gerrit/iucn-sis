@@ -10,7 +10,9 @@ import java.util.Set;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
@@ -26,13 +28,16 @@ import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.ChangeListener;
@@ -42,12 +47,15 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class NewAssessmentPanel extends LayoutContainer {
+public class NewAssessmentPanel extends Window implements DrawsLazily {
 
 	private ListBox type = null;
 	private ListBox template = null;
+	private ListBox schema = null;
 //	private RadioButton isGlobal = null;
 //	private RadioButton isRegional = null;
 //	private ComboBox<RegionModel> region = null;
@@ -61,6 +69,7 @@ public class NewAssessmentPanel extends LayoutContainer {
 	private ListBox endemic = null;
 	private Button createAssessment = null;
 	private Label typeLabel = null;
+	private Label schemaLabel = null;
 	private Label regionLabel = null;
 	private Label endemicLabel = null;
 
@@ -68,22 +77,26 @@ public class NewAssessmentPanel extends LayoutContainer {
 
 	private TextBox newDescription = new TextBox();
 
-	private Taxon  node = null;
+	private final Taxon node;
 	private boolean canCreateDraft;
 	private boolean canCreateDraftRegional;
 	private boolean canCreateDraftGlobal;
 
-	public NewAssessmentPanel(PanelManager manager) {
-		refresh();
+	public NewAssessmentPanel() {
+		this(TaxonomyCache.impl.getCurrentTaxon());
+	}
+	
+	public NewAssessmentPanel(Taxon taxon) {
+		this.node = taxon;
 	}
 
 	private void build() {
-		removeAll();
 		buildType();
+		buildSchema();
 		buildRegionWidgets();
 		buildSaveButton();
-		buildTemplate();
-
+		buildTemplate(); 
+		
 		TableLayout layout = new TableLayout(2);
 		layout.setCellSpacing(10);
 		TableData leftData = new TableData("25%", "100%");
@@ -91,18 +104,34 @@ public class NewAssessmentPanel extends LayoutContainer {
 		TableData span = new TableData();
 		span.setColspan(2);
 
-		setLayout(layout);
-		add(typeLabel, leftData);
-		add(type, rightData);
-		add(templateLable, leftData);
-		add(template, rightData);
-		add(regionLabel, leftData);
-		add(regionsPanel, rightData);
-		add(endemicLabel, leftData);
-		add(endemic, rightData);
-		add(createAssessment, span);
+		final LayoutContainer container = new LayoutContainer(layout);
+		
+		container.add(typeLabel, leftData);
+		container.add(type, rightData);
+		
+		if (schema != null) {
+			container.add(schemaLabel, leftData);
+			container.add(schema, rightData);
+		}
+		
+		container.add(templateLable, leftData);
+		container.add(template, rightData);
+		
+		container.add(regionLabel, leftData);
+		container.add(regionsPanel, rightData);
+		
+		container.add(endemicLabel, leftData);
+		container.add(endemic, rightData);
+		
 		regionsPanel.draw();
-		layout();
+		
+		add(container);
+		addButton(createAssessment);
+		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				hide();
+			}
+		}));
 	}
 
 	private void buildRegionWidgets() {
@@ -208,6 +237,24 @@ public class NewAssessmentPanel extends LayoutContainer {
 
 		typeLabel = new Label("Assessment Type: ");
 	}
+	
+	private void buildSchema() {
+		List<AssessmentSchema> list = SchemaCache.impl.listFromCache();
+		if (!list.isEmpty()) {
+			schema = new ListBox();
+			int selection = -1, index = 0;
+			for (AssessmentSchema current : list) {
+				schema.addItem(current.getName(), current.getId());
+				if (Assessment.DEFAULT_SCHEMA.equals(current.getId()))
+					selection = index;
+				
+				index++;
+			}
+			schema.setSelectedIndex(selection);
+		
+			schemaLabel = new Label("Assessment Schema: ");
+		}
+	}
 
 	private String checkValidity() {
 		String error = null;
@@ -270,6 +317,12 @@ public class NewAssessmentPanel extends LayoutContainer {
 		for( Entry<ComboBox<RegionModel>, RegionModel> cur : regionsPanel.getBoxesToSelected().entrySet() )
 			locality.add(cur.getValue().getRegion().getId());
 		
+		final String selSchema;
+		if (schema.getSelectedIndex() != -1)
+			selSchema = schema.getValue(schema.getSelectedIndex());
+		else
+			selSchema = null;
+		
 		// CHECK TEMPLATE
 		if (template.getSelectedIndex() != 0) {
 			final Integer assessmentID = Integer.valueOf(template.getValue(template.getSelectedIndex()));
@@ -288,16 +341,16 @@ public class NewAssessmentPanel extends LayoutContainer {
 
 				public void onSuccess(String result) {
 					Assessment data = AssessmentCache.impl.getAssessment(assessmentID, false);
-					doCreate(endemicArg, data, localityArg);
+					doCreate(endemicArg, selSchema, data, localityArg);
 				}
 			});
 		} else
-			doCreate(isEndemic, null, locality);
+			doCreate(isEndemic, selSchema, null, locality);
 	}
 
-	private void doCreate(boolean isEndemic, Assessment theTemplate, List<Integer> locality) {
+	private void doCreate(boolean isEndemic, String schema, Assessment theTemplate, List<Integer> locality) {
 		AssessmentCache.impl.createNewAssessment(node, type.getItemText(type.getSelectedIndex()), 
-				theTemplate, locality, isEndemic, new GenericCallback<String>() {
+				schema, theTemplate, locality, isEndemic, new GenericCallback<String>() {
 
 			public void onFailure(Throwable caught) {
 				String message = "An error occurred while creating an assessment for " + node.getFullName() + ".";
@@ -314,13 +367,29 @@ public class NewAssessmentPanel extends LayoutContainer {
 
 		});
 	}
-
-	private void refresh() {
-		node = TaxonomyCache.impl.getCurrentTaxon();
-
+	
+	@Override
+	public void show() {
+		draw(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				open();
+			}
+		});
+	}
+	
+	private void open() {
+		super.show();
+	}
+	
+	@Override
+	public void draw(final DoneDrawingCallback callback) {
 		if (node == null) {
 			WindowUtils.errorAlert("You must have a taxon selected first.");
 		} else {
+			setHeading("New " + node.getFullName() + " Assessment");
+			setSize(550, 300);
+			setLayout(new FitLayout());
+			setButtonAlign(HorizontalAlignment.CENTER);
 			AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, node.getId()), new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils
@@ -331,11 +400,16 @@ public class NewAssessmentPanel extends LayoutContainer {
 				}
 
 				public void onSuccess(String result) {
-					build();
+					SchemaCache.impl.list(new ComplexListener<List<AssessmentSchema>>() {
+						public void handleEvent(List<AssessmentSchema> eventData) {
+							build();
+							
+							callback.isDrawn();
+						}
+					});
 				}
 			});
 		}
-
 	}
 
 	private void refreshRegionStore() {

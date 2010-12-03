@@ -26,6 +26,7 @@ import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.schema.AssessmentSchemaBroker;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.debug.Debugger;
 import org.iucn.sis.shared.api.models.User;
@@ -76,6 +77,7 @@ public class SIS {
 	protected final EditIO editIO;
 	protected final NoteIO noteIO;
 	protected final ExecutionContext ec, lookups;
+	protected final AssessmentSchemaBroker broker;
 	protected Properties settings;
 
 	protected SIS() {
@@ -109,6 +111,8 @@ public class SIS {
 			lookups = new SystemExecutionContext("sis_lookups");
 			lookups.setAPILevel(ExecutionContext.SQL_ALLOWED);
 			lookups.setExecutionLevel(ExecutionContext.ADMIN);
+			
+			broker = new AssessmentSchemaBroker();
 		} catch (NotFoundException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
@@ -131,6 +135,10 @@ public class SIS {
 
 	public AssessmentIO getAssessmentIO() {
 		return assessmentIO;
+	}
+	
+	public AssessmentSchemaBroker getAssessmentSchemaBroker() {
+		return broker;
 	}
 
 	public PermissionIO getPermissionIO() {

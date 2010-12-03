@@ -1,8 +1,12 @@
 package org.iucn.sis.client.panels.dem;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -36,20 +40,21 @@ public class ViewCache {
 
 		public ViewChooser() {
 			options = new ListBox();
-			Iterator iterator = getAvailableKeys().iterator();
+			Iterator<String> iterator = getAvailableKeys().iterator();
 			while (iterator.hasNext()) {
-				String key = (String) iterator.next();
+				String key = iterator.next();
 				options.addItem(getView(key).getDisplayableTitle(), getView(key).getId());
 			}
 			options.setSelectedIndex(0);
 		}
 
-		public HashMap saveDataToHashMap() {
-			HashMap saveData = new HashMap();
+		public HashMap<String, String> saveDataToHashMap() {
+			HashMap<String, String> saveData = new HashMap<String, String>();
 			saveData.put("view", options.getValue(options.getSelectedIndex()));
 			return saveData;
 		}
 
+		@SuppressWarnings("unchecked")
 		public Widget show(HashMap displaySetToUse) {
 			HorizontalPanel display = new HorizontalPanel();
 			display.add(new HTML("Choose a view"));
@@ -58,104 +63,105 @@ public class ViewCache {
 		}
 	}
 
-	private class ViewParser {
-
-		ViewParser() {
-		}
-
-		void doParse() {
-			NativeNodeList viewElements = viewsDocument.getDocumentElement().getElementsByTagName("view");
-
-			for (int i = 0; i < viewElements.getLength(); i++)
-				parseViews(viewElements.elementAt(i));
-		}
-
-		private void parsePages(NativeNodeList pages, SISView curView) {
-			SISPageHolder curPage;
-
-			for (int i = 0; i < pages.getLength(); i++) {
-				NativeElement rootPageTag = (NativeElement) pages.item(i);
-				// Create new SISPageHolders for each page in the view
-				if (rootPageTag.getNodeName().equalsIgnoreCase("page")) {
-					curPage = new SISPageHolder(XMLUtils.getXMLAttribute(rootPageTag, "title", null), XMLUtils
-							.getXMLAttribute(rootPageTag, "id"), rootPageTag);
-
-					curView.addPage(curPage);
-				}
-			}
-		}
-
-		private void parseViews(NativeElement root) {
-			SISView curView = new SISView();
-
-			curView.setDisplayableTitle(root.getAttribute("title"));
-			curView.setId(root.getAttribute("id"));
-
-			parsePages(root.getElementsByTagName("page"), curView);
-
-			views.put(curView.getId(), curView);
-		}
-	}
-
 	public static final ViewCache impl = new ViewCache();
 
-	private HashMap<String, SISView> views;
-	private NativeDocument viewsDocument;
-
-	private HashMap lastPageViewed;
-
-	private ViewParser parser;
+	private Map<String, Map<String, SISView>> schemaToViews;
+	private Map<String, SISView> currentViewMap;
+	
+	private HashMap<String, Integer> lastPageViewed;
 
 	SISView currentView = null;
+	String currentSchema = null;
 
 	private ViewCache() {
-
-		viewsDocument = SISClientBase.getHttpBasicNativeDocument();
-		views = new HashMap<String, SISView>();
-		lastPageViewed = new HashMap();
-		parser = new ViewParser();
+		schemaToViews = new HashMap<String, Map<String,SISView>>();
+		lastPageViewed = new HashMap<String, Integer>();
 	}
 
 	public void doLogout() {
-		views.clear();
+		schemaToViews.clear();
 		lastPageViewed.clear();
 	}
 
-	public void fetchViews(final GenericCallback<String> wayback) {
-		viewsDocument.get(UriBase.getInstance().getSISBase() + "/raw/browse/docs/views.xml", new GenericCallback<String>() {
-			public void onFailure(Throwable arg0) {
-				wayback.onFailure(arg0);
-			}
-
-			public void onSuccess(String arg0) {
-				parser.doParse();
-				wayback.onSuccess(null);
-			}
-		});
+	public void fetchViews(final String schema, final GenericCallback<String> wayback) {
+		if (schemaToViews.containsKey(schema)) {
+			currentViewMap = schemaToViews.get(schema);
+			currentSchema = schema;
+			wayback.onSuccess(null);
+		}
+		else {
+			final NativeDocument viewsDocument = SISClientBase.getHttpBasicNativeDocument();
+			viewsDocument.get(UriBase.getInstance().getSISBase() + "/application/schema/" + schema + "/view", new GenericCallback<String>() {
+				public void onFailure(Throwable arg0) {
+					wayback.onFailure(arg0);
+				}
+	
+				public void onSuccess(String arg0) {
+					NativeNodeList viewElements = viewsDocument.getDocumentElement().getElementsByTagName("view");
+					Map<String, SISView> views = new LinkedHashMap<String, SISView>();
+					for (int i = 0; i < viewElements.getLength(); i++) {
+						NativeElement root = viewElements.elementAt(i);
+						SISView curView = new SISView();
+	
+						curView.setDisplayableTitle(root.getAttribute("title"));
+						curView.setId(root.getAttribute("id"));
+	
+						NativeNodeList pages = root.getElementsByTagName("page");
+						for (int k = 0; k < pages.getLength(); k++) {
+							NativeElement rootPageTag = pages.elementAt(k);
+							// Create new SISPageHolders for each page in the view
+							if (rootPageTag.getNodeName().equalsIgnoreCase("page")) {
+								SISPageHolder curPage = new SISPageHolder(XMLUtils.getXMLAttribute(rootPageTag, "title", null), XMLUtils
+										.getXMLAttribute(rootPageTag, "id"), rootPageTag);
+	
+								curView.addPage(curPage);
+							}
+						}
+	
+						views.put(curView.getId(), curView);
+					}
+					schemaToViews.put(schema, views);
+					
+					currentViewMap = views;
+					currentSchema = schema;
+					wayback.onSuccess(null);
+				}
+			});
+		}
 	}
 
 	public Set<String> getAvailableKeys() {
-		return views.keySet();
+		if (currentViewMap != null)
+			return currentViewMap.keySet();
+		else
+			return new HashSet<String>();
 	}
 
 	public Collection<SISView> getAvailableViews() {
-		return views.values();
+		if (currentViewMap != null)
+			return currentViewMap.values();
+		else
+			return new ArrayList<SISView>();
 	}
 
 	public SISView getCurrentView() {
 		return currentView;
 	}
+	
+	public String getCurrentSchema() {
+		return currentSchema;
+	}
 
 	public int getLastPageViewed(String viewID) {
 		try {
-			return ((Integer) lastPageViewed.get(viewID)).intValue();
+			return lastPageViewed.get(viewID).intValue();
 		} catch (Exception e) {
 			return 0;
 		}
 	}
 
 	public SISView getView(String viewID) {
-		return (SISView) views.get(viewID);
+		return currentViewMap.get(viewID);
 	}
 
 	public ViewChooser getViewChooser() {
@@ -163,21 +169,21 @@ public class ViewCache {
 	}
 
 	public boolean isEmpty() {
-		return views.isEmpty();
+		return currentViewMap.isEmpty();
 	}
 
 	public boolean needPageChange(String viewID, int pageNum, boolean viewOnly) {
 		if (currentView == null || !currentView.getId().equals(viewID))
 			return true;
 		else
-			return ((SISView) views.get(viewID)).needPageChange(pageNum, viewOnly);
+			return currentViewMap.get(viewID).needPageChange(pageNum, viewOnly);
 	}
 
 	public void showPage(String viewID, int pageNum, boolean viewOnly, 
 			DrawsLazily.DoneDrawingCallbackWithParam<TabPanel> callback) {
-		currentView = views.get(viewID);
+		currentView = currentViewMap.get(viewID);
 		lastPageViewed.put(viewID, new Integer(pageNum));
 		
-		views.get(viewID).showPage(pageNum, viewOnly, callback);
+		currentViewMap.get(viewID).showPage(pageNum, viewOnly, callback);
 	}
 }

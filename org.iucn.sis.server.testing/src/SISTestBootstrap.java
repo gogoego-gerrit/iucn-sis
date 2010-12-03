@@ -5,6 +5,8 @@ import java.util.Map;
 import org.gogoego.api.applications.GoGoEgoApplication;
 import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.ServerActivator;
+import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.schemas.usetrade.Activator;
 
 import com.solertium.gogoego.server.extensions.testing.generic.GenericBootstrap;
 import com.solertium.gogoego.server.extensions.testing.generic.MultiAppGenericBootstrap;
@@ -71,6 +73,9 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 			new org.iucn.sis.server.extensions.viruses.ServerActivator().getApplicationFactory().newInstance());
 		
 		//TODO add additional plugins
+		SIS.get().getAssessmentSchemaBroker().addLocalReference("org.iucn.sis.server.schemas.usetrade",
+			new Activator().getService()
+		);
 		
 		return map;
 	}

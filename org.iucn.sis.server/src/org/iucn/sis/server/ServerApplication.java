@@ -1,7 +1,6 @@
 package org.iucn.sis.server;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.gogoego.api.classloader.SimpleClasspathResource;
@@ -14,6 +13,7 @@ import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.restlets.assessments.AsmChangesResource;
 import org.iucn.sis.server.restlets.assessments.AssessmentRestlet;
 import org.iucn.sis.server.restlets.baserestlets.AuthzRestlet;
+import org.iucn.sis.server.restlets.schema.AssessmentSchemaRestlet;
 import org.iucn.sis.server.restlets.taxa.CommonNameRestlet;
 import org.iucn.sis.server.restlets.taxa.SynonymRestlet;
 import org.iucn.sis.server.restlets.taxa.TaxomaticRestlet;
@@ -51,13 +51,10 @@ import com.solertium.update.UpdateResource;
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFSPath;
 
-public class ServerApplication extends SISApplication{
-	
-	protected final ArrayList<ServiceRestlet> services;
+public class ServerApplication extends SISApplication{ 
 	
 	public ServerApplication() {
 		super();
-		services = new ArrayList<ServiceRestlet>();
 		
 		if (GoGoEgo.getInitProperties().containsKey("UPDATE_URL"))
 			GoGoEgo.getInitProperties().put("UPDATE_URL", "http://sis.iucnsis.org/getUpdates");
@@ -74,28 +71,26 @@ public class ServerApplication extends SISApplication{
 	}
 	
 	protected void initServiceRoutes() {
-		services.add(new StatusRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new TaxonRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new SynonymRestlet(app.getContext()));
-		services.add(new CommonNameRestlet(app.getContext()));
-		services.add(new FieldRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new WorkingSetRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new AssessmentRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new TaxomaticRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new WorkingSetExportImportRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new WorkingsetLogBuilder(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new TrashRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new RegionRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new TaxonByStatusRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new PermissionGroupsRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new LockManagementRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new AuthzRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new ProfileRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new SearchRestlet(SIS.get().getVfsroot(), app.getContext()));
-		services.add(new LanguageRestlet(SIS.get().getVfsroot(), app.getContext()));
-		
-		for (Iterator<ServiceRestlet> iter = services.iterator(); iter.hasNext();)
-			addServiceToRouter(iter.next());
+		addServiceToRouter(new StatusRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new TaxonRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new SynonymRestlet(app.getContext()));
+		addServiceToRouter(new CommonNameRestlet(app.getContext()));
+		addServiceToRouter(new FieldRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new AssessmentSchemaRestlet(app.getContext()));
+		addServiceToRouter(new WorkingSetRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new AssessmentRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new TaxomaticRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new WorkingSetExportImportRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new WorkingsetLogBuilder(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new TrashRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new RegionRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new TaxonByStatusRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new PermissionGroupsRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new LockManagementRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new AuthzRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new ProfileRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new SearchRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new LanguageRestlet(SIS.get().getVfsroot(), app.getContext()));
 	}
 	
 	private void addServiceToRouter(ServiceRestlet curService) {

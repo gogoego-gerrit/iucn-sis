@@ -16,6 +16,7 @@ License Type: Evaluation
 		<property name="isHistorical" column="historical" type="boolean" length="1" not-null="true" lazy="false"/>
 		<property name="source" column="source" type="string" length="1023" not-null="false" lazy="false"/>
 		<property name="sourceDate" column="source_date" type="string" length="127" not-null="false" lazy="false"/>
+		<property name="schema" column="schema" type="string" length="1023" not-null="false" lazy="false"/>
 		<many-to-one name="taxon" cascade="lock" column="taxonid" class="org.iucn.sis.shared.api.models.Taxon" not-null="false" lazy="no-proxy">
 		</many-to-one>
 		<property name="internalId" column="internal_id" type="string" length="255" not-null="false" lazy="false"/>

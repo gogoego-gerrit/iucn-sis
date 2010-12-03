@@ -179,7 +179,7 @@ public class AssessmentCache {
 	 * @param endemic TODO
 	 * @param wayback - a GenericCallback
 	 */
-	public void createNewAssessment(final Taxon taxon, final String type, Assessment template, 
+	public void createNewAssessment(final Taxon taxon, final String type, final String schema, Assessment template, 
 			List<Integer> regions, boolean endemic, final GenericCallback<String> wayback) {
 		Assessment newAssessment = null;
 		
@@ -190,6 +190,7 @@ public class AssessmentCache {
 		
 		newAssessment.setTaxon(taxon);
 		newAssessment.setType(type);
+		newAssessment.setSchema(schema);
 		newAssessment.setRegions(RegionCache.impl.getRegionsByID(regions), endemic);
 		
 		if (taxaFetched.containsKey(Integer.valueOf(taxon.getId())))

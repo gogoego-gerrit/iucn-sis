@@ -128,8 +128,6 @@ public class DEMPanel extends LayoutContainer {
 		}
 	}
 
-	private boolean built;
-
 	private boolean viewOnly = false;
 	private LayoutContainer scroller;
 	private BorderLayoutData scrollerData;
@@ -163,13 +161,8 @@ public class DEMPanel extends LayoutContainer {
 
 		panelManager = manager;
 
-		built = false;
 		autoSave = new AutosaveTimer();
 
-		build();
-	}
-
-	public void build() {
 //		setVisible(false);
 		viewChooser = new AccordionLayout();
 
@@ -190,23 +183,6 @@ public class DEMPanel extends LayoutContainer {
 		add(toolBar, toolBarData);
 		add(scroller, scrollerData);
 		add(viewWrapper, viewWrapperData);
-
-		ViewCache.impl.fetchViews(new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				caught.printStackTrace();
-			}
-
-			public void onSuccess(String arg0) {
-				try {
-					buildViewChooser();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-//		setVisible(true);
-		built = true;
 	}
 
 	private ToolBar buildToolBar() {
@@ -259,12 +235,17 @@ public class DEMPanel extends LayoutContainer {
 							+ "You can select a different taxon using the navigator, the search function, "
 							+ " or the browser.");
 				} else {
-					Window shell = WindowUtils.getWindow(false, false, "New "
-							+ TaxonomyCache.impl.getCurrentTaxon().getFullName() + " Assessment");
-					shell.setLayout(new FillLayout());
-					shell.setSize(400, 400);
-					shell.add(new NewAssessmentPanel(panelManager));
-					shell.show();
+					final NewAssessmentPanel panel = new NewAssessmentPanel();
+					panel.draw(new DrawsLazily.DoneDrawingCallback() {
+						public void isDrawn() {
+							Window shell = WindowUtils.getWindow(false, false, "New "
+									+ TaxonomyCache.impl.getCurrentTaxon().getFullName() + " Assessment");
+							shell.setLayout(new FillLayout());
+							shell.setSize(400, 400);
+							shell.add(panel);
+							shell.show();
+						}
+					});
 				}
 			}
 
@@ -682,41 +663,57 @@ public class DEMPanel extends LayoutContainer {
 		}
 	}
 	
-	private void buildViewChooser() {
-		String prefs = SimpleSISClient.currentUser.getPreference(UserPreferences.VIEW_CHOICES, null);
-		List<String> viewsToShow = null;
-		if( prefs != null && !prefs.equals("") )
-			viewsToShow = Arrays.asList(prefs.split(","));
-
-		for (final SISView curView : ViewCache.impl.getAvailableViews()) {
-			if( viewsToShow == null || viewsToShow.contains(curView.getId()) ) {
-				final ContentPanel curItem = new ContentPanel();
-				curItem.setHeading(curView.getDisplayableTitle());
-				FlowLayout layout = new FlowLayout();
-				curItem.setLayout(layout);
-
-				for (final SISPageHolder curPage : curView.getPages()) {
-					final HTML curPageLabel = new HTML(curPage.getPageTitle());
-					curPageLabel.addStyleName("SIS_HyperlinkBehavior");
-					curPageLabel.addStyleName("padded-viewContainer");
-					curPageLabel.addClickHandler(new ClickHandler() {
-						public void onClick(ClickEvent event) {
-							try {
-								doPageChangeRequested(curView, curPage, curPageLabel);
-							} catch (Throwable e) {
-								Debug.println(e);
-							}
-						}
-					});
-					curItem.add(curPageLabel);
+	private void buildViewChooser(final String assessmentSchema, final GenericCallback<Object> callback) {
+		Debug.println("Creating view chooser for {0}", assessmentSchema);
+		if (assessmentSchema.equals(ViewCache.impl.getCurrentSchema()))
+			callback.onSuccess(null);
+		else {
+			ViewCache.impl.fetchViews(assessmentSchema, new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
 				}
-
-				viewWrapper.add(curItem);
-			}
+				public void onSuccess(String arg0) {
+					viewWrapper.removeAll();
+					
+					String prefs = SimpleSISClient.currentUser.getPreference(UserPreferences.VIEW_CHOICES, null);
+					List<String> viewsToShow = null;
+					if (prefs != null && !prefs.equals(""))
+						viewsToShow = Arrays.asList(prefs.split(","));
+	
+					for (final SISView curView : ViewCache.impl.getAvailableViews()) {
+						if (viewsToShow == null || viewsToShow.contains(curView.getId())) {
+							final ContentPanel curItem = new ContentPanel();
+							curItem.setHeading(curView.getDisplayableTitle());
+	
+							for (final SISPageHolder curPage : curView.getPages()) {
+								final HTML curPageLabel = new HTML(curPage.getPageTitle());
+								curPageLabel.addStyleName("SIS_HyperlinkBehavior");
+								curPageLabel.addStyleName("padded-viewContainer");
+								curPageLabel.addClickHandler(new ClickHandler() {
+									public void onClick(ClickEvent event) {
+										try {
+											doPageChangeRequested(curView, curPage, curPageLabel);
+										} catch (Throwable e) {
+											Debug.println(e);
+										}
+									}
+								});
+								curItem.add(curPageLabel);
+							}
+	
+							viewWrapper.add(curItem);
+						}
+					}
+	
+					if (viewWrapper.getItemCount() > 0)
+						viewChooser.setActiveItem(viewWrapper.getItem(0));
+					
+					viewWrapper.layout();
+					
+					callback.onSuccess(assessmentSchema);
+				}
+			});
 		}
-
-		if (viewWrapper.getItemCount() > 0)
-			viewChooser.setActiveItem(viewWrapper.getItem(0));
 	}
 
 	public void clearDEM() {
@@ -885,10 +882,6 @@ w.setSize(400, 250);
 		w.center();
 	}
 
-	public boolean isBuilt() {
-		return built;
-	}
-
 	protected void onDetach() {
 		stopAutosaveTimer();
 		super.onDetach();
@@ -917,15 +910,20 @@ w.setSize(400, 250);
 	}
 
 	public void redraw() {
-		if (built && currentView != null) {
-			showCurrentAssessment(ViewCache.impl.getLastPageViewed(currentView.getId()));
-		}
-	}
-
-	public void redraw(boolean viewOnly) {
-		this.viewOnly = viewOnly;
-		if (built && currentView != null) {
-			showCurrentAssessment(ViewCache.impl.getLastPageViewed(currentView.getId()));
+		if (AssessmentCache.impl.getCurrentAssessment() != null) {
+			String schema = AssessmentCache.impl.getCurrentAssessment().getSchema(Assessment.DEFAULT_SCHEMA);
+			Debug.println("Redrawing DEM via redraw");
+			buildViewChooser(schema, new GenericCallback<Object>() {
+				public void onSuccess(Object result) {
+					if (result == null && currentView != null)
+						doPageChange(ViewCache.impl.getLastPageViewed(currentView.getId()));
+					else
+						doPageChange(0);
+				}
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Error loading schema, could not render DEM.");
+				}
+			});
 		}
 	}
 
@@ -934,10 +932,8 @@ w.setSize(400, 250);
 		startAutosaveTimer();
 	}
 
-	private void showCurrentAssessment(int page) {
-		if (!built)
-			return;
-		Debug.println("Redrawing DEM!");
+	private void showCurrentAssessment(final int page) {
+		Debug.println("Redrawing DEM via showCurrentAssessment");
 
 		if (AssessmentCache.impl.getCurrentAssessment() == null) {
 			WindowUtils.infoAlert("Alert", "No assessment selected.");
@@ -951,8 +947,18 @@ w.setSize(400, 250);
 		} else {
 			if (lastAssessmentShown == null || !lastAssessmentShown.equals(AssessmentCache.impl.getCurrentAssessment()))
 				lastAssessmentShown = AssessmentCache.impl.getCurrentAssessment();
-	
-			doPageChange(page);
+			
+			buildViewChooser(lastAssessmentShown.getSchema(Assessment.DEFAULT_SCHEMA), new GenericCallback<Object>() {
+				public void onSuccess(Object result) {
+					if (result == null)
+						doPageChange(page);
+					else
+						doPageChange(0);
+				}
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Error loading schema, could not render DEM.");
+				}
+			});
 		}
 	}
 

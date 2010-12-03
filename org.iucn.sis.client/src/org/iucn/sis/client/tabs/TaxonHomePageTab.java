@@ -45,6 +45,7 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class TaxonHomePageTab extends TabItem {
 	private PanelManager panelManager = null;
@@ -119,14 +120,9 @@ public class TaxonHomePageTab extends TabItem {
 							+ "You can select a different taxon using the navigator, the search function, "
 							+ " or the browser.");
 				} else {
-					Window shell = WindowUtils.getWindow(true, false, "New "
-							+ TaxonomyCache.impl.getCurrentTaxon().getFriendlyName() + " Assessment");
-					shell.setLayout(new FillLayout());
-					shell.setSize(550, 250);
-					shell.add(new NewAssessmentPanel(panelManager));
-					shell.show();
+					final NewAssessmentPanel panel = new NewAssessmentPanel();
+					panel.show();
 				}
-
 			}
 		});
 
