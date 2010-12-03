@@ -154,7 +154,7 @@ public class WorkingSetHierarchy extends LayoutContainer {
 		WorkingSetCache.impl.update(new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				WSStore.getStore().update();
-				ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.updateWorkflowStatus();
+				//ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.updateWorkflowStatus();
 				callback.onSuccess(null);
 			}
 			public void onFailure(Throwable caught) {

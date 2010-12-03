@@ -333,32 +333,30 @@ public class AssessmentCache {
 	public Assessment getPublishedAssessment(Integer id, boolean setAsCurrent) {
 		return getAssessment(id, setAsCurrent);
 	}
-
-	public Set<Assessment> getDraftAssessmentsForTaxon(int taxonID) {
-		return getDraftAssessmentsForTaxon(Integer.valueOf(taxonID));
-	}
-	
-	public Set<Assessment> getDraftAssessmentsForTaxon(Taxon taxon) {
-		return getDraftAssessmentsForTaxon(taxon.getId());
-	}
 	
 	public Set<Assessment> getDraftAssessmentsForTaxon(Integer taxonID) {
-		return getAssessmentsForTaxon(taxonID, AssessmentType.DRAFT_ASSESSMENT_STATUS_ID);
+		return getDraftAssessmentsForTaxon(taxonID, Assessment.DEFAULT_SCHEMA);
 	}
 	
-	public Set<Assessment> getPublishedAssessmentsForTaxon(int taxonID) {
-		return getPublishedAssessmentsForTaxon(Integer.valueOf(taxonID));
+	public Set<Assessment> getDraftAssessmentsForTaxon(Integer taxonID, String schema) {
+		return getAssessmentsForTaxon(taxonID, AssessmentType.DRAFT_ASSESSMENT_STATUS_ID, schema);
 	}
 	
 	public Set<Assessment> getPublishedAssessmentsForTaxon(Integer taxonID) {
-		return getAssessmentsForTaxon(taxonID, AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID);
+		return getPublishedAssessmentsForTaxon(taxonID, Assessment.DEFAULT_SCHEMA);
 	}
 	
-	public Set<Assessment> getAssessmentsForTaxon(Integer taxonID, int assessmentType) {
-		if( taxonToAssessmentCache.containsKey(taxonID) ) {
+	public Set<Assessment> getPublishedAssessmentsForTaxon(Integer taxonID, String schema) {
+		return getAssessmentsForTaxon(taxonID, AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID, schema);
+	}
+	
+	public Set<Assessment> getAssessmentsForTaxon(Integer taxonID, int assessmentType, String schema) {
+		if ( taxonToAssessmentCache.containsKey(taxonID)) {
 			Set<Assessment> assessments = new HashSet<Assessment>();
 			for (Assessment cur : taxonToAssessmentCache.get(taxonID)) {
-				if (cur.getAssessmentType().getId() == assessmentType) 
+				String curSchema = cur.getSchema(Assessment.DEFAULT_SCHEMA);
+				if ((schema == null || schema.equals(curSchema)) && 
+						cur.getAssessmentType().getId() == assessmentType)
 					assessments.add(cur);
 			}
 			return assessments;

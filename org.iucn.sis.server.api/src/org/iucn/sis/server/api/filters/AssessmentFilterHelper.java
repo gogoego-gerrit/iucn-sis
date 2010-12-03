@@ -54,6 +54,10 @@ public class AssessmentFilterHelper {
 	}
 	
 	public List<Assessment> getAssessments(Integer taxaID) {
+		return getAssessments(taxaID, Assessment.DEFAULT_SCHEMA);
+	}
+	
+	public List<Assessment> getAssessments(Integer taxaID, String schema) {
 		final ArrayList<Assessment> ret = new ArrayList<Assessment>();
 
 		final List<Integer> filterRegions = filter.listRegionIDs();
@@ -61,7 +65,7 @@ public class AssessmentFilterHelper {
 		if (filter.isDraft()) {
 			List<Assessment> draftAssessments = SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(taxaID);
 			for (Assessment draft : draftAssessments)
-				if (allowAssessment(draft, filterRegions))
+				if (allowAssessment(draft, schema, filterRegions))
 					ret.add(draft);
 		}
 
@@ -69,7 +73,7 @@ public class AssessmentFilterHelper {
 			List<Assessment> publishedAssessments  = SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(taxaID);
 			Collections.sort(publishedAssessments, new PublishedAssessmentsComparator());
 			for (Assessment published : publishedAssessments)
-				if (published != null && allowAssessment(published, filterRegions)) 
+				if (published != null && allowAssessment(published, schema, filterRegions)) 
 					ret.add(published);
 		}
 
@@ -77,10 +81,10 @@ public class AssessmentFilterHelper {
 	}
 	
 	public boolean allowAssessment(Assessment assessment) {
-		return allowAssessment(assessment, filter.listRegionIDs());
+		return allowAssessment(assessment, Assessment.DEFAULT_SCHEMA, filter.listRegionIDs());
 	}
 
-	private boolean allowAssessment(Assessment assessment, List<Integer> filterRegions) {
+	private boolean allowAssessment(Assessment assessment, String schema, List<Integer> filterRegions) {
 		reportAssessmentInformation(assessment);
 		
 		boolean result = false;
@@ -105,17 +109,32 @@ public class AssessmentFilterHelper {
 			}
 		}
 		
+		if (schema != null)
+			result = schema.equals(assessment.getSchema(Assessment.DEFAULT_SCHEMA));
+		
 		Debug.println("Assessment {0} is allowed: {1}", assessment.getId(), result);
 		
 		return result;
 	}
 	
 	public Collection<Integer> getAssessmentIds(Integer taxaID) {
+		return getAssessmentIds(taxaID, null);
+	}
+	
+	public Collection<Integer> getAssessmentIds(Integer taxaID, String schema) {
+		QConstraintGroup schemaConstraintGroup = new QConstraintGroup();
+		if (schema == null) {
+			schemaConstraintGroup.addConstraint(new QComparisonConstraint(new CanonicalColumnName("assessment", "schema"), QConstraint.CT_EQUALS, null));
+			schemaConstraintGroup.addConstraint(QConstraint.CG_OR, new QComparisonConstraint(new CanonicalColumnName("assessment", "schema"), QConstraint.CT_EQUALS, Assessment.DEFAULT_SCHEMA));
+		}
+		else
+			schemaConstraintGroup.addConstraint(QConstraint.CG_OR, new QComparisonConstraint(new CanonicalColumnName("assessment", "schema"), QConstraint.CT_EQUALS, schema));	
 		
 		SelectQuery query = new SelectQuery();
 		query.select("assessment", "*");
 		query.constrain(new QComparisonConstraint(new CanonicalColumnName("assessment","taxonid"), QConstraint.CT_EQUALS, taxaID));
 		query.constrain(new QComparisonConstraint(new CanonicalColumnName("assessment","state"), QConstraint.CT_EQUALS, Assessment.ACTIVE));
+		query.constrain(schemaConstraintGroup);
 		
 		if (filter.isAllPublished() || filter.isRecentPublished()) {
 			

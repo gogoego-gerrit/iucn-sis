@@ -11,7 +11,9 @@ import java.util.Set;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
 import org.iucn.sis.client.api.ui.models.image.ManagedImage;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.utils.FormattedDate;
@@ -56,6 +58,7 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.WindowEvent;
+import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -71,6 +74,9 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
+import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
+import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -268,8 +274,10 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 	}
 
 	private ContentPanel getAssessmentsPanel(final Taxon node) {
-		final ListStore<BaseModelData> store = new ListStore<BaseModelData>();
-		for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId())) {
+		final GroupingStore<BaseModelData> store = new GroupingStore<BaseModelData>();
+		store.groupBy("schema");
+		
+		for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId(), null)) {
 			BaseModelData model = new BaseModelData();
 			model.set("date", data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed()));
 			model.set("category", AssessmentFormatter.getProperCategoryAbbreviation(data));
@@ -277,12 +285,13 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 			model.set("status", "Published");
 			model.set("edit", "");
 			model.set("trash", "");
+			model.set("schema", data.getSchema(Assessment.DEFAULT_SCHEMA));
 			model.set("id", data.getId());
 
 			store.add(model);
 		}
 
-		for (Assessment data : AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId())) {
+		for (Assessment data : AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId(), null)) {
 			BaseModelData model = new BaseModelData();
 
 			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, data)) {
@@ -295,6 +304,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 					model.set("status", "Draft");
 				model.set("edit", "");
 				model.set("trash", "");
+				model.set("schema", data.getSchema(Assessment.DEFAULT_SCHEMA));
 				model.set("id", data.getId());
 			} else {
 				model.set("date", "Sorry, you");
@@ -303,6 +313,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 				model.set("status", "to view this");
 				model.set("edit", "draft assessment.");
 				model.set("trash", "");
+				model.set("schema", data.getSchema(Assessment.DEFAULT_SCHEMA));
 				model.set("id", data.getId());
 			}
 
@@ -335,10 +346,19 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 			}
 		});
 		columns.add(trash);
+		columns.add(new ColumnConfig("schema", "Schema", 100));
 
+		final GroupingView view = new GroupingView();
+		view.setShowGroupedColumn(false);
+		view.setGroupRenderer(new GridGroupRenderer() {
+			public String render(GroupColumnData data) {
+				return SchemaCache.impl.getFromCache(data.group).getName();
+			}
+		});
+		
 		final Grid<BaseModelData> tbl = new Grid<BaseModelData>(store, new ColumnModel(columns));
+		tbl.setView(view);
 		tbl.setBorders(false);
-		tbl.removeAllListeners();
 		tbl.addListener(Events.RowClick, new Listener<GridEvent<BaseModelData>>() {
 			public void handleEvent(GridEvent<BaseModelData> be) {
 				if (be.getModel() == null)

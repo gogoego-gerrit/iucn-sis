@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -58,6 +59,10 @@ public class SchemaCache {
 		});
 	}
 	
+	public AssessmentSchema getFromCache(String id) {
+		return cache.get(id);
+	}
+	
 	public void list(final ComplexListener<List<AssessmentSchema>> callback) {
 		init(new SimpleListener() {
 			public void handleEvent() {
@@ -71,6 +76,18 @@ public class SchemaCache {
 			return new ArrayList<AssessmentSchema>();
 		else
 			return new ArrayList<AssessmentSchema>(cache.values());
+	}
+	
+	public void loadAsync() {
+		init(new SimpleListener() {
+			public void handleEvent() {
+				Debug.println("Async load complete");
+				if (cache != null)
+					Debug.println("Loaded {0} schemas", cache.size());
+				else
+					Debug.println("Failed to load schemas.");
+			}
+		});
 	}
 	
 	public static class AssessmentSchema {

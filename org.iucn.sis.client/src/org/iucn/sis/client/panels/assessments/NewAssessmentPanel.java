@@ -40,6 +40,8 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -147,8 +149,8 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 		endemic.insertItem("no", 1);
 		endemic.insertItem("yes", 2);
 		endemic.setSelectedIndex(2);
-		endemic.addChangeListener(new ChangeListener() {
-			public void onChange(Widget sender) {
+		endemic.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				if( endemic.getSelectedIndex() != 2 )
 					for( Entry<ComboBox<RegionModel>, RegionModel> cur : regionsPanel.getBoxesToSelected().entrySet() ) {
 						if( cur.getValue().getRegion().getId() == (Region.GLOBAL_ID) ) {
@@ -259,35 +261,37 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 	private String checkValidity() {
 		String error = null;
 
-		if( type.getItemText(type.getSelectedIndex()).equals(AssessmentType.DRAFT_ASSESSMENT_TYPE) ) {
+		if (type.getSelectedIndex() == 0)
+			error = "Please select an assessment type.";
+		else if (type.getItemText(type.getSelectedIndex()).equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
 			List<Integer> locality = new ArrayList<Integer>();
 			boolean isEndemic = false;
 
-			if (type.getSelectedIndex() == 0) {
-				error = "Please select an assessment type.";
+			HashMap<ComboBox<RegionModel>, RegionModel> regionMap = regionsPanel.getBoxesToSelected();
+				
+			if (regionMap.isEmpty()) {
+				error = "Please select a region.";
+			} else if (endemic.getSelectedIndex() == 0) {
+				error = "Please select whether the new assessment should be endemic.";
 			} else {
-				HashMap<ComboBox<RegionModel>, RegionModel> regionMap = regionsPanel.getBoxesToSelected();
-					
-				if (regionMap.size() == 0) {
-					error = "Please select a region.";
-				} else if (endemic.getSelectedIndex() == 0) {
-					error = "Please select whether the new assessment should be endemic.";
-				} else {
-					isEndemic = endemic.getItemText(endemic.getSelectedIndex()).equalsIgnoreCase("yes");
+				isEndemic = endemic.getItemText(endemic.getSelectedIndex()).equalsIgnoreCase("yes");
 
-					for( Entry<ComboBox<RegionModel>, RegionModel> cur : regionMap.entrySet() )
-						locality.add(cur.getValue().getRegion().getId());
-					
-					if( locality.contains(Region.GLOBAL_ID) && !isEndemic ) {
-						WindowUtils.infoAlert("Global is Endemic", "A Global assessment must be " +
-							"also flagged endemic. This has been fixed for you.");
-						endemic.setSelectedIndex(2);
-					}
+				for (Entry<ComboBox<RegionModel>, RegionModel> cur : regionMap.entrySet())
+					locality.add(cur.getValue().getRegion().getId());
+				
+				if (locality.contains(Region.GLOBAL_ID) && !isEndemic) {
+					WindowUtils.infoAlert("Global is Endemic", "A Global assessment must be " +
+						"also flagged endemic. This has been fixed for you.");
+					endemic.setSelectedIndex(2);
 				}
 			}
 
-			if( error == null ) {
-				Set<Assessment> checkAgainst = AssessmentCache.impl.getDraftAssessmentsForTaxon(node);
+			if (error == null) {
+				String selectedSchema = schema.getValue(schema.getSelectedIndex());
+				
+				Set<Assessment> checkAgainst = AssessmentCache.impl.
+					getAssessmentsForTaxon(node.getId(), AssessmentType.DRAFT_ASSESSMENT_STATUS_ID, selectedSchema);
+				
 				for (Assessment cur : checkAgainst) {
 					if ((cur.isEndemic() || cur.isGlobal()) && isEndemic)
 						error = "Only one draft assessment for each taxon may exist that is either endemic " +

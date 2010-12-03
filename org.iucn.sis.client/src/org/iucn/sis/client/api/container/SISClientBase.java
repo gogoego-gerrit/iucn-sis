@@ -8,6 +8,7 @@ import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
 import org.iucn.sis.client.api.caches.RegionCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
@@ -229,6 +230,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 	protected void initializeCaches() {
 		DefinitionCache.impl.getDefinables();
 		RegionCache.impl.fetchRegions(SISClientBase.getHttpBasicNativeDocument());
+		SchemaCache.impl.loadAsync();
 	}
 	
 	public abstract void loadModule();

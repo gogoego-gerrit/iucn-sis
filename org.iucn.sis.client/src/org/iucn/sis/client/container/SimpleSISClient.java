@@ -44,7 +44,7 @@ public class SimpleSISClient extends SISClientBase {
 	@Override
 	public void onAssessmentChanged() {
 		if( AssessmentCache.impl.getCurrentAssessment() != null ) {
-			ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.updateWorkflowStatus();
+			//ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.updateWorkflowStatus();
 			ClientUIContainer.headerContainer.assessmentChanged();
 		} else
 			ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.clearDEM();
@@ -62,7 +62,7 @@ public class SimpleSISClient extends SISClientBase {
 	@Override
 	public void onWorkingSetChanged() {
 		// TODO Auto-generated method stub
-		ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.updateWorkflowStatus();
+		//ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.updateWorkflowStatus();
 		ClientUIContainer.headerContainer.workingSetChanged();
 	}
 	
