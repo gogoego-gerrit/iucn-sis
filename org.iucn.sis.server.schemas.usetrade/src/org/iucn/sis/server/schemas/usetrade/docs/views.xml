@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<views>
+	<view id="FullView" title="All Fields View" xsi:noNamespaceSchemaLocation="views.xsd" 
+
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<pages>
+		<page title="Text Formatting Examples" id="TestingText">
+				<pageOrganizations>
+					<organization title="Simple Text Options">
+						<h1>Text in h1 mode</h1>
+						<h1 align="center">h1 text, center aligned</h1>
+						<h2>Text in h2 mode</h2>
+						<h2 align="right">right-aligned h2 text</h2>
+						<h3>h3 text mode, the smallest allowed</h3>
+						<text>Simple text, legacy mode</text>
+					</organization>
+					<organization title="Advanced Text Options">
+						<information>Information block, with an appropriate icon to denote that yes, this is something 
+
+important that you should note before continuing on.</information>
+						<warning>Similar to the information block, but it has a different icon and the text is red, so 
+
+that you KNOW this is something important -- you're being warned.</warning>
+					</organization>
+				</pageOrganizations>
+		</page>
+	</pages>
+	</view>
+</views>
