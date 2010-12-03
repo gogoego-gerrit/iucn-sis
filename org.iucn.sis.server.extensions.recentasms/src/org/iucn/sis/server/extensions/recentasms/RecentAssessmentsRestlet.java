@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -109,8 +110,16 @@ public class RecentAssessmentsRestlet extends BaseServiceRestlet {
 			final ElementCollection elements = new ElementCollection(document.getDocumentElement().getElementsByTagName("assessment"));
 			for (Element el : elements) {
 				String id = el.getTextContent();
-				Assessment assessment = SIS.get().getAssessmentIO().getAssessment(Integer.valueOf(id));
-				if (assessment != null) {
+				
+				final Assessment assessment;
+				try {
+					assessment = SIS.get().getManager().loadObject(Assessment.class, Integer.valueOf(id));
+					//SIS.get().getAssessmentIO().getAssessment(Integer.valueOf(id));
+				} catch (PersistentException e) {
+					continue;
+				}
+					
+				if (assessment != null && assessment.getState() != Assessment.DELETED) {
 					String region;
 					if (assessment.isRegional()) {
 						List<Integer> regions = assessment.getRegionIDs();
