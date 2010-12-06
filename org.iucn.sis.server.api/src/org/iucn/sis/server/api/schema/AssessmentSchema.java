@@ -8,6 +8,8 @@ public interface AssessmentSchema {
 	
 	public String getDescription();
 	
+	public String getTablePrefix();
+	
 	public Document getViews();
 	
 	public Document getField(String fieldName);

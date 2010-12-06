@@ -40,6 +40,10 @@ public enum PrimitiveFieldType {
 		return name;
 	}
 	
+	public String[] getMatches() {
+		return matches;
+	}
+	
 	public String toString() {
 		return name;
 	}

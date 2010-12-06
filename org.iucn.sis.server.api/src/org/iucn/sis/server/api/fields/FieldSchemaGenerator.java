@@ -37,13 +37,21 @@ public class FieldSchemaGenerator {
 	private final ExecutionContext ec;
 	
 	public FieldSchemaGenerator() throws NamingException {
-		this(DBSessionFactory.getDBSession("sis_lookups"));
+		this("sis_lookups");
+	}
+	
+	public FieldSchemaGenerator(String session) throws NamingException {
+		this(DBSessionFactory.getDBSession(session));
 	}
 	
 	public FieldSchemaGenerator(DBSession session) {
 		ec = new SystemExecutionContext(session);
 		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 		ec.setExecutionLevel(ExecutionContext.ADMIN);
+	}
+	
+	public ExecutionContext getExecutionContext() {
+		return ec;
 	}
 	
 	/**

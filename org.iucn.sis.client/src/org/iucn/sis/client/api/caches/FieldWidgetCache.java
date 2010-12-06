@@ -51,7 +51,9 @@ public class FieldWidgetCache {
 		builder.append("</fields>");
 		
 		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
-		doc.post(UriBase.getInstance().getSISBase() + "/field", builder.toString(), new GenericCallback<String>() {
+		final String uri = UriBase.getInstance().getSISBase() + "/application/schema/" + 
+			AssessmentCache.impl.getCurrentAssessment().getSchema() + "/field";
+		doc.post(uri, builder.toString(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				wayBack.onFailure(caught);
 			}

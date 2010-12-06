@@ -15,6 +15,11 @@ public class RedListAssessmentSchema implements AssessmentSchema {
 	public String getDescription() {
 		return "Red List Assessments";
 	}
+	
+	@Override
+	public String getTablePrefix() {
+		return "";
+	}
 
 	@Override
 	public Document getField(String fieldName) {
