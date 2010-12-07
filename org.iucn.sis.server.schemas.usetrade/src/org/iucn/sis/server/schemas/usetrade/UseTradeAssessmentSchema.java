@@ -15,6 +15,11 @@ public class UseTradeAssessmentSchema implements AssessmentSchema {
 	public Document getField(String fieldName) {
 		return DocumentLoader.getField(fieldName);
 	}
+	
+	@Override
+	public String getTablePrefix() {
+		return "UT";
+	}
 
 	@Override
 	public String getName() {
