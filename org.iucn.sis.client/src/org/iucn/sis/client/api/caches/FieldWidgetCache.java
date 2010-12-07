@@ -11,6 +11,7 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.Display;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.utils.FieldParser;
 
@@ -52,7 +53,7 @@ public class FieldWidgetCache {
 		
 		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
 		final String uri = UriBase.getInstance().getSISBase() + "/application/schema/" + 
-			AssessmentCache.impl.getCurrentAssessment().getSchema() + "/field";
+			AssessmentCache.impl.getCurrentAssessment().getSchema(Assessment.DEFAULT_SCHEMA) + "/field";
 		doc.post(uri, builder.toString(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				wayBack.onFailure(caught);
