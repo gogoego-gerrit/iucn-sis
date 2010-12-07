@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app>
+        
+		<context-param>
+        		<param-name>org.restlet.clients</param-name>
+        		<param-value>HTTP HTTPS</param-value>
+    	</context-param>
+    	
+        <servlet>
+        		<servlet-name>fields</servlet-name>
+        		<servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
+        		<init-param>
+		  			<param-name>org.restlet.application</param-name>
+		  			<param-value>com.solertium.gwtproxy.GWTAwarePersistentProxy</param-value>
+				</init-param>
+				<init-param>
+		  			<param-name>module</param-name>
+		  			<param-value>org.iucn.sis.FieldManager</param-value>
+				</init-param>
+        </servlet>
+        
+
+        <servlet-mapping>
+                <servlet-name>fields</servlet-name>
+                <url-pattern>/proxy-service/*</url-pattern>
+        </servlet-mapping>
+</web-app>

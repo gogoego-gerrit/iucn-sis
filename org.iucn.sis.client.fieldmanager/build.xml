@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project name="SIS Field Manager Client" default="client-build">
+	
+	<property name="project" value="org.iucn.sis.client.fieldmanager" />
+	<property name="compiled" value="org.iucn.sis.client.fieldmanager.compiled" />
+	<property name="compiled-dir" value="org/iucn/sis/client/fieldmanager/compiled" />
+	
+	<property name="gwt" value="com.google.gwt_2.1.2" />
+	
+	<path id="client.classpath">
+		<pathelement path="../org.iucn.sis.client.fieldmanager/src"/>
+		<pathelement path="../org.iucn.sis.clientshared.bridge/src"/>
+		<pathelement path="../com.solertium.lwxml/src"/>
+		<pathelement path="../com.solertium.lwxml.gwt/src"/>
+		<pathelement path="../com.solertium.util.gwt/src"/>
+		<pathelement path="../com.solertium.util.portable/src"/>
+		<pathelement path="../${gwt}/gwt-user.jar"/>
+		<pathelement path="../${gwt}/gwt-dev.jar"/>
+    </path>
+	
+    <target name="client-build" description="compiles the gwt client">
+        	<delete dir="../${compiled}/src/${compiled-dir}/public" />
+            <java classname="com.google.gwt.dev.Compiler" fork="true">
+                    <classpath refid="client.classpath" />
+                    <jvmarg value="-Xmx512m"/>
+                    <jvmarg value="-Xms256m"/>
+                    <jvmarg value="-XX:PermSize=64M"/>
+                    <jvmarg value="-XX:MaxPermSize=128M"/>
+            		<arg value="-style"/>
+                    <arg value="detailed"/>
+                    <arg value="-war"/>
+                    <arg value="../${compiled}/src/${compiled-dir}/public"/>
+                    <arg value="org.iucn.sis.FieldManager"/>
+            </java>
+    </target>
+	
+</project>

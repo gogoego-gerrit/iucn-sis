@@ -1,0 +1,17 @@
+<module>
+
+	<!-- Inherit libraries -->
+	<inherits name='com.google.gwt.user.User'/>
+	<inherits name='com.google.gwt.user.theme.standard.Standard'/>
+	
+	<inherits name='com.solertium.lwxml.LWXML' />
+	<inherits name='com.solertium.util.gwt.Util' />
+	<inherits name='com.solertium.util.Portable' />
+	<inherits name='com.solertium.util.Events' />
+
+	<entry-point class="org.iucn.sis.client.fieldmanager.container.FieldManager"/>
+	
+	<source path='client'/>
+	<source path='shared'/> 
+
+</module>

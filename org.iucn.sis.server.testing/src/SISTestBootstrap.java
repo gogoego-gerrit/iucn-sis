@@ -71,6 +71,8 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 			new org.iucn.sis.server.extensions.scripts.ServerActivator().getApplicationFactory().newInstance());
 		map.put("org.iucn.sis.server.extensions.viruses", 
 			new org.iucn.sis.server.extensions.viruses.ServerActivator().getApplicationFactory().newInstance());
+		map.put("org.iucn.sis.server.extensions.fieldmanager", 
+			new org.iucn.sis.server.extensions.fieldmanager.Activator().getApplicationFactory().newInstance());
 		
 		//TODO add additional plugins
 		SIS.get().getAssessmentSchemaBroker().addLocalReference("org.iucn.sis.server.schemas.usetrade",
