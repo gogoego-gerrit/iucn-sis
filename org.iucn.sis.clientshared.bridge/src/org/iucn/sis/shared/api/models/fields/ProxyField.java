@@ -8,8 +8,10 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.DatePrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.IntegerPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
 
@@ -72,6 +74,46 @@ public class ProxyField {
 			
 			proxy.addPrimitiveField(newField);
 		}
+	}
+	
+	public Float getFloatPrimitiveField(String key) {
+		PrimitiveField<?> field = proxy.getPrimitiveField(key);
+		if (field == null)
+			return null;
+		else
+			return ((FloatPrimitiveField)field).getValue();
+	}
+	
+	public void setFloatPrimitiveField(String key, Float value) {
+		PrimitiveField<?> field = proxy.getPrimitiveField(key);
+		if (field != null) {
+			if (value != null && !"".equals(value))
+				((FloatPrimitiveField)field).setValue(value);
+			else
+				proxy.getPrimitiveField().remove(field);
+		}
+		else if (value != null && !"".equals(value))
+			proxy.addPrimitiveField(new FloatPrimitiveField(key, proxy, value));
+	}
+	
+	public Integer getIntegerPrimitiveField(String key) {
+		PrimitiveField<?> field = proxy.getPrimitiveField(key);
+		if (field == null)
+			return null;
+		else
+			return ((IntegerPrimitiveField)field).getValue();
+	}
+	
+	public void setIntegerPrimitiveField(String key, Integer value) {
+		PrimitiveField<?> field = proxy.getPrimitiveField(key);
+		if (field != null) {
+			if (value != null && !"".equals(value))
+				((IntegerPrimitiveField)field).setValue(value);
+			else
+				proxy.getPrimitiveField().remove(field);
+		}
+		else if (value != null && !"".equals(value))
+			proxy.addPrimitiveField(new IntegerPrimitiveField(key, proxy, value));
 	}
 	
 	public String getStringPrimitiveField(String key) {
