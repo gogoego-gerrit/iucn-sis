@@ -95,7 +95,7 @@ public class ClassificationSchemeModelData implements ModelData, Referenceable {
 	public void setSelectedRow(TreeDataRow selectedRow) {
 		this.selectedRow = selectedRow;
 		if (selectedRow != null)
-			set("text", selectedRow.getLabel());
+			set("text", selectedRow.getFullLineage());
 	}
 	
 	public void updateDisplayableData() {

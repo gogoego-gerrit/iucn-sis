@@ -646,7 +646,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			super();
 			this.row = row;
 			
-			set("text", row.getLabel());
+			set("text", row.getFullLineage());
 			set("value", row.getDisplayId());
 		}
 		

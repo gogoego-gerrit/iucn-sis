@@ -668,9 +668,13 @@ public class FieldParser {
 	 * @return a TreeDataRow object representation of the XML
 	 */
 	public static TreeDataRow processRoot(NativeNode currentRoot, TreeData defaultTreeStructure, LookupDataContainer lookups) {
+		return processRoot(currentRoot, null, defaultTreeStructure, lookups);
+	}
+	
+	public static TreeDataRow processRoot(NativeNode currentRoot, TreeDataRow parent, TreeData defaultTreeStructure, LookupDataContainer lookups) {
 		String value;
 		boolean override = false;
-		TreeDataRow currentRow = new TreeDataRow();
+		TreeDataRow currentRow = new TreeDataRow(parent);
 
 		// Optional parameters
 		currentRow.setCodeable(XMLUtils.getXMLAttribute(currentRoot, "codeable"));
@@ -706,7 +710,7 @@ public class FieldParser {
 			// Now for the (optional) children (recursion!). Recursion halts on
 			// leaf nodes (no child)
 			else if (currentRootData.item(k).getNodeName().equalsIgnoreCase("child")) {
-				currentRow.addChild(processRoot(currentRootData.item(k), defaultTreeStructure, lookups));
+				currentRow.addChild(processRoot(currentRootData.item(k), currentRow, defaultTreeStructure, lookups));
 			}
 		}
 

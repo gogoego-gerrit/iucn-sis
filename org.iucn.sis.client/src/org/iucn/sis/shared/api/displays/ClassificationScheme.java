@@ -178,7 +178,7 @@ public class ClassificationScheme extends Display {
 		}
 		else {
 			for (ClassificationSchemeModelData model : thinData) {
-				container.add(new HTML(model.getSelectedRow().getDescription()));
+				container.add(new HTML(model.getSelectedRow().getFullLineage()));
 			}
 		}
 	}

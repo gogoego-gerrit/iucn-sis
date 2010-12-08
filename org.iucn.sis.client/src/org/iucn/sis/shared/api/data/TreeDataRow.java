@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.data;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class TreeDataRow extends DisplayData {
 
@@ -13,12 +14,16 @@ public class TreeDataRow extends DisplayData {
 
 	private String rowNumber;
 	private String depth;
+	private TreeDataRow parent;
+	
+	private String fullLineage = null;
 
-	public TreeDataRow() {
+	public TreeDataRow(TreeDataRow parent) {
 		super(DisplayData.TREE);
 		this.depth = "0";
 		this.codeable = "true";
 		this.expanded = "false";
+		this.parent = parent;
 		this.children = new ArrayList<TreeDataRow>();
 	}
 
@@ -41,9 +46,34 @@ public class TreeDataRow extends DisplayData {
 	public String getExpanded() {
 		return expanded;
 	}
+	
+	public String getFullLineage() {
+		if (fullLineage != null)
+			return fullLineage;
+		
+		StringBuilder out = new StringBuilder();
+		out.append(rowNumber);
+		out.append(". ");
+		
+		Stack<String> stack = new Stack<String>();
+		TreeDataRow currentParent = parent;
+		while (currentParent != null) {
+			stack.push(currentParent.getDescription());
+			currentParent = currentParent.parent;
+		}
+		
+		while (!stack.isEmpty()) {
+			out.append(stack.pop());
+			out.append(" -> ");
+		}
+		
+		out.append(description);
+		
+		return fullLineage = out.toString();
+	}
 
 	public String getLabel() {
-		return rowNumber + " " + description;
+		return rowNumber + ". " + description;
 	}
 
 	public String getRowNumber() {
