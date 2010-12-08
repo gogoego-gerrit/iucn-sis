@@ -96,10 +96,6 @@ public class ThreatsClassificationSchemeViewer extends
 	}
 	
 	@Override
-	protected Structure generateDefaultStructure() {
-		return generateDefaultStructure(null);
-	}
-	
 	protected Structure generateDefaultStructure(TreeDataRow row) {
 		ThreatsTreeData treeData = (ThreatsTreeData) this.treeData;
 		

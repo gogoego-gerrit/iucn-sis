@@ -11,6 +11,7 @@ import org.iucn.sis.shared.api.data.TreeDataRow;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelIconProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -44,34 +45,11 @@ public class TreePanelBuilder {
 		final TreePanel<CodingOption> tree = new TreePanel<CodingOption>(createTreeStore(treeData));
 		tree.setCheckable(true);
 		tree.setCheckedSelection(checked);
+		tree.setDisplayProperty("text");
 		tree.addListener(Events.BeforeCheckChange, new Listener<TreePanelEvent<CodingOption>>() {
 			public void handleEvent(TreePanelEvent<CodingOption> be) {
 				if (be.getItem() != null)
 					be.setCancelled(!be.getItem().isCodeable());					
-			}
-		});
-		tree.setIconProvider(new ModelIconProvider<CodingOption>() {
-			public AbstractImagePrototype getIcon(CodingOption model) {
-				if (model.isCodeable()) {
-					//TODO: show the icon-accept image
-					/*return new AbstractImagePrototype() {
-						public void applyTo(Image image) {
-							// TODO Auto-generated method stub
-							
-						}
-						public Image createImage() {
-							// TODO Auto-generated method stub
-							return null;
-						}
-						public String getHTML() {
-							// TODO Auto-generated method stub
-							return null;
-						}
-					};*/
-					return null;
-				}
-				else
-					return null;
 			}
 		});
 		
@@ -234,21 +212,27 @@ public class TreePanelBuilder {
 	
 	private static TreeStore<CodingOption> createTreeStore(TreeData treeData) {
 		TreeStore<CodingOption> store = new TreeStore<CodingOption>();
-		for (TreeDataRow row : treeData.getTreeRoots())
-			flattenTree(store, new CodingOption(row));
+		for (TreeDataRow row : treeData.getTreeRoots()) {
+			CodingOption option = new CodingOption(row);
+			flattenTree(store, option);
+			store.add(option, true);
+		}
 		
 		return store;
 	}
 	
 	private static void flattenTree(TreeStore<CodingOption> store, CodingOption parent) {
 		if (parent.isValid()) {
-			store.add(parent, false);
-			for (TreeDataRow child : parent.getRow().getChildren())
-				flattenTree(store, new CodingOption(child));
+			for (TreeDataRow current : parent.getRow().getChildren()) {
+				CodingOption child = new CodingOption(current);
+				parent.add(child);
+				
+				flattenTree(store, child);
+			}
 		}
 	}
 	
-	private static class CodingOption extends BaseModelData {
+	private static class CodingOption extends BaseTreeModel {
 		
 		private static final long serialVersionUID = 1L;
 		
@@ -278,7 +262,7 @@ public class TreePanelBuilder {
 			String curDesc = row.getDescription();
 			String curLevelID = row.getRowNumber();
 			
-			String displayableDesc = (curLevelID.equals("0") ? "" : curLevelID) + " " + curDesc;
+			String displayableDesc = (curLevelID.equals("0") ? "" : curLevelID) + ". " + curDesc;
 
 			if (!row.getChildren().isEmpty())
 				displayableDesc += " (" + row.getChildren().size() + ")";

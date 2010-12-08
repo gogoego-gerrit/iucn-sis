@@ -166,7 +166,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		displayPanel.removeAll();
 		
 		grid = 
-			new Grid<ClassificationSchemeModelData>(getStoreInstance(), new ColumnModel(buildColumnConfig(generateDefaultStructure())));
+			new Grid<ClassificationSchemeModelData>(getStoreInstance(), new ColumnModel(buildColumnConfig(generateDefaultStructure(null))));
 		
 		final ToolBar gridBar = getLabelPanel(grid, isViewOnly);
 		
@@ -490,7 +490,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		addClassification.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				final ClassificationSchemeModelData model = 
-					newInstance(generateDefaultStructure());
+					newInstance(generateDefaultStructure(null));
 				
 				updateInnerContainer(model, true, isViewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
 					public void isDrawn(LayoutContainer container) {
@@ -506,16 +506,29 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		modClassification.addSelectionListener(new SelectionListener<ButtonEvent>(){
 			public void componentSelected(ButtonEvent ce) {
 				final Window window = WindowUtils.getWindow(true, false, "Add " + description);
+				window.setLayout(new FillLayout());
+				window.setModal(true);
 				window.setScrollMode(Scroll.AUTO);
 				if (description != null && !description.equals(""))
 					window.setHeading(description);
 				
 				window.add(TreePanelBuilder.build(new ComplexListener<Set<TreeDataRow>>() {
 					public void handleEvent(Set<TreeDataRow> eventData) {
-						/*
-						 * FIXME: add to store...
-						 */
+						window.hide();
 						
+						final List<ClassificationSchemeModelData> models = 
+							new ArrayList<ClassificationSchemeModelData>();
+						for (TreeDataRow row : eventData) {
+							ClassificationSchemeModelData model = 
+								newInstance(generateDefaultStructure(row));
+							model.setSelectedRow(row);
+							
+							models.add(model);
+						}
+						
+						server.add(models);
+						
+						hasChanged = true;
 					}
 				}, new SimpleListener() {
 					public void handleEvent() {
@@ -524,13 +537,12 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				}, treeData));
 				window.setSize(500, 500);
 				window.show();
-				window.center();
 			}
 		});
 
 		final ToolBar bar = new ToolBar();
 		bar.add(addClassification);
-		//bar.add(modClassification);
+		bar.add(modClassification);
 		
 		return bar;
 	}
@@ -567,7 +579,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		setData(saved);
 	}
 	
-	protected Structure generateDefaultStructure() {
+	protected Structure generateDefaultStructure(TreeDataRow row) {
 		return DisplayDataProcessor.processDisplayStructure(treeData.getDefaultStructure());
 	}
 	
