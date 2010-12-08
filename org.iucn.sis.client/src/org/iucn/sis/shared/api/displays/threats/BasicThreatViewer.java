@@ -103,7 +103,7 @@ public class BasicThreatViewer extends Structure<Field> {
 			DataListItem item = new DataListItem();
 			item.setItemId(row.getDisplayId());
 			item.setId(row.getDisplayId());
-			item.setText(row.getLabel());
+			item.setText(row.getFullLineage());
 			
 			stresses.add(item);
 		}
