@@ -19,7 +19,7 @@ public class DocumentLoader {
 		final VFSPathToken token = new VFSPathToken("views.xml");
 		if (SIS.get().getVFS().exists(FIELDS_DIR.child(token))) {
 			try {
-				return SIS.get().getVFS().getDocument(FIELDS_DIR.child(token));
+				return SIS.get().getVFS().getMutableDocument(FIELDS_DIR.child(token));
 			} catch (IOException e) {
 				Debug.println("View reported existence, but could not be loaded:\n{0}", e);
 			}
@@ -34,7 +34,7 @@ public class DocumentLoader {
 		final VFSPathToken token = new VFSPathToken(fieldName + ".xml");
 		if (SIS.get().getVFS().exists(FIELDS_DIR.child(token))) {
 			try {
-				return SIS.get().getVFS().getDocument(FIELDS_DIR.child(token));
+				return SIS.get().getVFS().getMutableDocument(FIELDS_DIR.child(token));
 			} catch (IOException e) {
 				Debug.println("Field {0} reported existence, but could not be loaded:\n{1}", fieldName, e);
 			}
