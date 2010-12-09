@@ -7,6 +7,8 @@ import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.KeyboardListener;
@@ -60,17 +62,10 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 	public void createWidget() {
 		this.descriptionLabel = new HTML(this.description);
 		this.textbox = new TextBox();
-		textbox.addKeyboardListener(new KeyboardListenerAdapter() {
-			@Override
-			public void onKeyPress(Widget sender, char keyCode, int modifiers) {
-				if (!Character.isDigit(keyCode)) {// || Character.isWhitespace(
-					// keyCode)) {
-					((TextBox) sender).cancelKey();
-				}
-				/*
-				 * if (!Character.isDigit(keyCode)) {
-				 * ((TextBox)sender).cancelKey(); }
-				 */
+		textbox.addKeyPressHandler(new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				if (!Character.isDigit(event.getCharCode()))
+					textbox.cancelKey();
 			}
 		});
 	}
@@ -80,15 +75,16 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add(description);
 		return ret;
 	}
 
 	@Override
 	public String getData() {
-		return textbox.getText();
+		String value = textbox.getText();
+		return "".equals(value) ? null : value;
 	}
 
 	/**
