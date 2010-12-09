@@ -30,6 +30,8 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.extjs.client.WindowUtils.SimpleMessageBoxListener;
 import com.solertium.util.gwt.ui.StyledHTML;
 
 /**
@@ -118,8 +120,20 @@ public class ClassificationScheme extends Display {
 				window.setButtonAlign(HorizontalAlignment.CENTER);
 				window.addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
 					public void componentSelected(ButtonEvent ce) {
-						buildReadOnlyContainer(container, viewer.save(false));
-						window.hide();
+						SimpleMessageBoxListener listener = new SimpleMessageBoxListener() {
+							public void onYes() {
+								buildReadOnlyContainer(container, viewer.save(false));
+								window.hide();
+							}
+						};
+						
+						if (!viewer.isEditing())
+							listener.onYes();
+						else
+							WindowUtils.confirmAlert("Confirm", "It appears you are " +
+								"still editing data. If you close this window now, " +
+								"you will lose any unsaved changes. Are you sure you " +
+								"want to close this window?", listener);
 					}
 				}));
 				window.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {

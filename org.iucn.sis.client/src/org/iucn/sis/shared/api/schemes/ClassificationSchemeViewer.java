@@ -21,6 +21,13 @@ public interface ClassificationSchemeViewer {
 	public boolean hasChanged();
 	
 	/**
+	 * Return true if there is content in the 
+	 * editing pane, false otherwise.
+	 * @return
+	 */
+	public boolean isEditing();
+	
+	/**
 	 * Undo any changes and revert back to the last 
 	 * saved state.
 	 */

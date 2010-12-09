@@ -95,6 +95,13 @@ public class ThreatsClassificationSchemeViewer extends
 			return super.createRowEditor(model, isViewOnly);
 	}
 	
+	protected boolean containsRow(TreeDataRow row) {
+		if ("Named taxa".equals(row.getDescription()))
+			return false;
+		
+		return super.containsRow(row);
+	}
+	
 	@Override
 	protected Structure generateDefaultStructure(TreeDataRow row) {
 		ThreatsTreeData treeData = (ThreatsTreeData) this.treeData;

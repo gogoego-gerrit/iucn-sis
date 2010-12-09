@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.client.api.container.SISClientBase;
-import org.iucn.sis.client.panels.notes.NotesViewer;
 import org.iucn.sis.client.panels.notes.NotesWindow;
 import org.iucn.sis.client.panels.references.PagingPanel;
 import org.iucn.sis.shared.api.citations.Referenceable;
@@ -135,7 +134,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			 * itself with a height only large enough for the headers even though it has the proper 
 			 * number of entries.
 			 * 
-			 * TODO: Low priority as it may be impossible -figure out why the grid does not resize
+			 * : Low priority as it may be impossible -figure out why the grid does not resize
 			 *  its height properly. That is the only misbehaving Widget - the hp and display panel
 			 *  retain proper sizing, though the grid is attached to the hp in a RowLayout, so there
 			 *  may be something to that combination that contributes.
@@ -232,6 +231,16 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 
 		displayPanel.add(container);
 		
+		final ClassificationSchemeModelData model = 
+			newInstance(generateDefaultStructure(null));
+		
+		updateInnerContainer(model, true, isViewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
+			public void isDrawn(LayoutContainer container) {
+				innerContainer.removeAll();
+				innerContainer.add(container);
+			}
+		});
+		
 		//This is a sync operation, so layout should be fine
 		refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 		
@@ -245,26 +254,35 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 	protected void updateInnerContainer(final ClassificationSchemeModelData model, 
 			final boolean addToPagingLoader, final boolean isViewOnly, final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
 		final ComboBox<CodingOption> box = createClassificationOptions(model.getSelectedRow());
+		if (!addToPagingLoader)
+			box.setEnabled(false);
 		
 		final ClassificationSchemeRowEditor editor = createRowEditor(model, isViewOnly);
 		editor.setModel(model);
 		editor.setSaveListener(new ComplexListener<ClassificationSchemeModelData>() {
 			public void handleEvent(ClassificationSchemeModelData eventData) {
-				//TODO: prevent duplicate entries, prevent select non-codeable options
-				
-				eventData.setSelectedRow(box.getValue().getRow());
-				eventData.updateDisplayableData();
-				
-				if (addToPagingLoader) {
-					server.add(eventData);
+				if (box.getValue() == null) {
+					WindowUtils.errorAlert("Please select a coding option from the drop-down.");
+					return;
 				}
-				else
-					server.update(eventData);
-								
-				hasChanged = true;
-				
-				if (editor.isHideAfterOperation())
-					innerContainer.removeAll();
+				//TODO: prevent duplicate entries, prevent select non-codeable options
+				TreeDataRow row = box.getValue().getRow();
+				if (addToPagingLoader && containsRow(row))
+					WindowUtils.errorAlert("A row with this coding option has already been selected.");
+				else {
+					eventData.setSelectedRow(row);
+					eventData.updateDisplayableData();
+					
+					if (addToPagingLoader)
+						server.add(eventData);
+					else
+						server.update(eventData);
+									
+					hasChanged = true;
+					
+					if (editor.isHideAfterOperation())
+						innerContainer.removeAll();
+				}
 			}
 		});
 		editor.setCancelListener(new SimpleListener() {
@@ -277,7 +295,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			public void isDrawn() {
 				final ToolBar top = new ToolBar();
 				top.add(new LabelToolItem(description+":"));
-				top.add(createClassificationOptions(model.getSelectedRow()));
+				top.add(box);
 				
 				final LayoutContainer container = new LayoutContainer(new BorderLayout());
 				container.add(top, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
@@ -286,6 +304,18 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				callback.isDrawn(container);
 			}
 		});
+	}
+	
+	protected boolean containsRow(TreeDataRow row) {
+		for (ClassificationSchemeModelData model : server.getModels())
+			if (row.getDisplayId().equals(model.getSelectedRow().getDisplayId()))
+				return true;
+		return false;
+	}
+	
+	@Override
+	public boolean isEditing() {
+		return innerContainer.getItemCount() > 0;
 	}
 	
 	protected ComboBox<CodingOption> createClassificationOptions(TreeDataRow selected) {
@@ -323,7 +353,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		box.setStore(store);
 		box.setForceSelection(true);
 		box.setTriggerAction(TriggerAction.ALL);
-		box.setWidth(500);
+		box.setWidth(575);
 		
 		if (selectedOption != null)
 			box.setValue(selectedOption);
