@@ -54,7 +54,7 @@ public class AssessmentFilterHelper {
 	}
 	
 	public List<Assessment> getAssessments(Integer taxaID) {
-		return getAssessments(taxaID, Assessment.DEFAULT_SCHEMA);
+		return getAssessments(taxaID, SIS.get().getDefaultSchema());
 	}
 	
 	public List<Assessment> getAssessments(Integer taxaID, String schema) {
@@ -81,7 +81,7 @@ public class AssessmentFilterHelper {
 	}
 	
 	public boolean allowAssessment(Assessment assessment) {
-		return allowAssessment(assessment, Assessment.DEFAULT_SCHEMA, filter.listRegionIDs());
+		return allowAssessment(assessment, SIS.get().getDefaultSchema(), filter.listRegionIDs());
 	}
 
 	private boolean allowAssessment(Assessment assessment, String schema, List<Integer> filterRegions) {
@@ -110,7 +110,7 @@ public class AssessmentFilterHelper {
 		}
 		
 		if (schema != null)
-			result = schema.equals(assessment.getSchema(Assessment.DEFAULT_SCHEMA));
+			result = schema.equals(assessment.getSchema(SIS.get().getDefaultSchema()));
 		
 		Debug.println("Assessment {0} is allowed: {1}", assessment.getId(), result);
 		
@@ -125,7 +125,7 @@ public class AssessmentFilterHelper {
 		QConstraintGroup schemaConstraintGroup = new QConstraintGroup();
 		if (schema == null) {
 			schemaConstraintGroup.addConstraint(new QComparisonConstraint(new CanonicalColumnName("assessment", "schema"), QConstraint.CT_EQUALS, null));
-			schemaConstraintGroup.addConstraint(QConstraint.CG_OR, new QComparisonConstraint(new CanonicalColumnName("assessment", "schema"), QConstraint.CT_EQUALS, Assessment.DEFAULT_SCHEMA));
+			schemaConstraintGroup.addConstraint(QConstraint.CG_OR, new QComparisonConstraint(new CanonicalColumnName("assessment", "schema"), QConstraint.CT_EQUALS, SIS.get().getDefaultSchema()));
 		}
 		else
 			schemaConstraintGroup.addConstraint(QConstraint.CG_OR, new QComparisonConstraint(new CanonicalColumnName("assessment", "schema"), QConstraint.CT_EQUALS, schema));	

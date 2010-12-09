@@ -158,6 +158,7 @@ public class AssessmentClientSaveUtils {
 	public static void saveIfNecessary(final SimpleListener listener) {
 		if (AssessmentCache.impl.getCurrentAssessment() != null
 				&& ViewCache.impl.getCurrentView() != null 
+				&& ViewCache.impl.getCurrentView().getCurPage() != null
 				&& shouldSaveCurrentAssessment(
 						ViewCache.impl.getCurrentView().getCurPage().getMyFields())) {
 			WindowUtils.confirmAlert("By the way...", "Navigating away from this page will"

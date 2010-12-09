@@ -449,7 +449,11 @@ public class AssessmentIO {
 		if (assessment.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
 			List<Assessment> compareTo = SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(
 					assessment.getTaxon().getId());
+			String defaultSchema = SIS.get().getDefaultSchema();
 			for (Assessment cur : compareTo) {
+				if (!cur.getSchema(defaultSchema).equals(assessment.getSchema(defaultSchema)))
+					continue;
+				
 				if ((cur.isGlobal() && assessment.isGlobal())
 						|| cur.getRegionIDs().containsAll(assessment.getRegionIDs())) {
 					if (cur.getId() != assessment.getId())

@@ -285,7 +285,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 			model.set("status", "Published");
 			model.set("edit", "");
 			model.set("trash", "");
-			model.set("schema", data.getSchema(Assessment.DEFAULT_SCHEMA));
+			model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
 			model.set("id", data.getId());
 
 			store.add(model);
@@ -304,7 +304,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 					model.set("status", "Draft");
 				model.set("edit", "");
 				model.set("trash", "");
-				model.set("schema", data.getSchema(Assessment.DEFAULT_SCHEMA));
+				model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
 				model.set("id", data.getId());
 			} else {
 				model.set("date", "Sorry, you");
@@ -313,7 +313,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 				model.set("status", "to view this");
 				model.set("edit", "draft assessment.");
 				model.set("trash", "");
-				model.set("schema", data.getSchema(Assessment.DEFAULT_SCHEMA));
+				model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
 				model.set("id", data.getId());
 			}
 

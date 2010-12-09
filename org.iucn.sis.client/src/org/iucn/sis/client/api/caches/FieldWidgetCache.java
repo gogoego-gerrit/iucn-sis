@@ -25,16 +25,16 @@ import com.solertium.util.portable.XMLWritingUtils;
 public class FieldWidgetCache {
 	public static final FieldWidgetCache impl = new FieldWidgetCache();
 
-	private final Map<String, Display> widgetMap;
+	private final Map<String, Map<String, Display>> schemaToWidgetMap;
 	private final FieldParser fieldParser;
 
 	private FieldWidgetCache() {
 		fieldParser = new FieldParser();
-		widgetMap = new HashMap<String, Display>();
+		schemaToWidgetMap = new HashMap<String, Map<String,Display>>();
 	}
 
 	// TODO: THIS IS BEING CALLED TOO MANY TIMES!! Fix it.
-	public void addAssessmentToDisplay(Display display) {
+	private void addAssessmentToDisplay(Display display) {
 		if (AssessmentCache.impl.getCurrentAssessment() != null && display != null) {
 			Field field = AssessmentCache.impl.getCurrentAssessment().getField(display.getCanonicalName());
 			if (field == null)
@@ -44,7 +44,7 @@ public class FieldWidgetCache {
 		}
 	}
 
-	private void doListFetch(Collection<String> names, final GenericCallback<String> wayBack) {
+	private void doListFetch(final String schema, Collection<String> names, final GenericCallback<String> wayBack) {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("<fields>");
 		for (String name : names)
@@ -52,13 +52,16 @@ public class FieldWidgetCache {
 		builder.append("</fields>");
 		
 		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
-		final String uri = UriBase.getInstance().getSISBase() + "/application/schema/" + 
-			AssessmentCache.impl.getCurrentAssessment().getSchema(Assessment.DEFAULT_SCHEMA) + "/field";
+		final String uri = UriBase.getInstance().getSISBase() + "/application/schema/" + schema + "/field";
 		doc.post(uri, builder.toString(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				wayBack.onFailure(caught);
 			}
 			public void onSuccess(String arg0) {
+				Map<String, Display> widgetMap = schemaToWidgetMap.get(schema);
+				if (widgetMap == null)
+					widgetMap = new HashMap<String, Display>();
+				
 				final NativeNodeList displays = doc.getDocumentElement().getChildNodes();
 				for (int i = 0; i < displays.getLength(); i++) {
 					final NativeNode current = displays.item(i);
@@ -71,6 +74,8 @@ public class FieldWidgetCache {
 								"name. Description is: {0}", dis.getDescription());
 					}
 				}
+				
+				schemaToWidgetMap.put(schema, widgetMap);
 
 				wayBack.onSuccess("OK");
 			}
@@ -78,7 +83,7 @@ public class FieldWidgetCache {
 	}
 
 	public void doLogout() {
-		widgetMap.clear();
+		schemaToWidgetMap.clear();
 	}
 
 	/**
@@ -92,7 +97,14 @@ public class FieldWidgetCache {
 	 * @return Display object - MAY BE NULL
 	 */
 	public Display get(String canonicalName) {
-		Display cur = widgetMap.get(canonicalName);
+		if (AssessmentCache.impl.getCurrentAssessment() == null)
+			return null;
+		
+		String schema = AssessmentCache.impl.getCurrentAssessment().getSchema(SchemaCache.impl.getDefaultSchema());
+		if (!schemaToWidgetMap.containsKey(schema))
+			return null;
+		
+		Display cur = schemaToWidgetMap.get(schema).get(canonicalName);
 		addAssessmentToDisplay(cur);
 
 		return cur;
@@ -108,22 +120,40 @@ public class FieldWidgetCache {
 	 * @param wayBack
 	 */
 	public void prefetchList(final Collection<String> names, final GenericCallback<String> wayBack) {
+		if (AssessmentCache.impl.getCurrentAssessment() == null) {
+			wayBack.onSuccess("OK");
+			return;
+		}
+		
 		final List<String> uncachedNames = new ArrayList<String>();
 		
-		for (String fieldName : names) 
-			if (!widgetMap.containsKey(fieldName)) 
-				uncachedNames.add(fieldName);
+		final String schema = AssessmentCache.impl.getCurrentAssessment().
+			getSchema(SchemaCache.impl.getDefaultSchema());
+		
+		final Map<String, Display> widgetMap = schemaToWidgetMap.get(schema);
+		if (widgetMap == null)
+			uncachedNames.addAll(names);
+		else
+			for (String fieldName : names) 
+				if (!widgetMap.containsKey(fieldName)) 
+					uncachedNames.add(fieldName);
 		
 		if (uncachedNames.isEmpty())
 			wayBack.onSuccess("OK");
 		else
-			doListFetch(uncachedNames, wayBack);
+			doListFetch(schema, uncachedNames, wayBack);
 	}
 
 	public void resetWidgetContents() {
-		if (AssessmentCache.impl.getCurrentAssessment() != null)
-			for (Iterator<Display> iter = widgetMap.values().iterator(); iter.hasNext();)
-				addAssessmentToDisplay(iter.next());
+		if (AssessmentCache.impl.getCurrentAssessment() != null) {
+			String schema = AssessmentCache.impl.getCurrentAssessment().
+				getSchema(SchemaCache.impl.getDefaultSchema());
+			
+			final Map<String, Display> widgetMap = schemaToWidgetMap.get(schema);
+			if (widgetMap != null)
+				for (Iterator<Display> iter = widgetMap.values().iterator(); iter.hasNext();)
+					addAssessmentToDisplay(iter.next());
+		}
 	}
 
 }

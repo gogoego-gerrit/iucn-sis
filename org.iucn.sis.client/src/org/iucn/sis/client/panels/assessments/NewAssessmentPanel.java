@@ -247,7 +247,7 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 			int selection = -1, index = 0;
 			for (AssessmentSchema current : list) {
 				schema.addItem(current.getName(), current.getId());
-				if (Assessment.DEFAULT_SCHEMA.equals(current.getId()))
+				if (SchemaCache.impl.getDefaultSchema().equals(current.getId()))
 					selection = index;
 				
 				index++;

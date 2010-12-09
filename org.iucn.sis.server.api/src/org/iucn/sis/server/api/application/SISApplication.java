@@ -15,6 +15,7 @@ import org.gogoego.api.applications.GoGoEgoApplication;
 import org.gogoego.api.applications.HasSettingsUI;
 import org.gogoego.api.utils.MagicDisablingFilter;
 import org.hibernate.HibernateException;
+import org.hibernate.StaleStateException;
 import org.hibernate.Transaction;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;

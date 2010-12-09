@@ -20,10 +20,12 @@ public class SchemaCache {
 
 	public static final SchemaCache impl = new SchemaCache();
 	
-	private Map<String, AssessmentSchema> cache; 
+	private Map<String, AssessmentSchema> cache;
+	private String defaultSchema;
 	
 	private SchemaCache() {
 		cache = null;
+		defaultSchema = "org.iucn.sis.server.schemas.redlist";
 	}
 	
 	private void init(final SimpleListener callback) {
@@ -41,6 +43,8 @@ public class SchemaCache {
 				for (RowData row : parser.getRows()) {
 					AssessmentSchema schema = new AssessmentSchema(row.getField("id"), row.getField("name"), row.getField("description"));
 					cache.put(schema.id, schema);
+					if ("true".equals(row.getField("default")))
+						defaultSchema = schema.id;
 				}
 				
 				callback.handleEvent();
@@ -88,6 +92,10 @@ public class SchemaCache {
 					Debug.println("Failed to load schemas.");
 			}
 		});
+	}
+	
+	public String getDefaultSchema() {
+		return defaultSchema;
 	}
 	
 	public static class AssessmentSchema {

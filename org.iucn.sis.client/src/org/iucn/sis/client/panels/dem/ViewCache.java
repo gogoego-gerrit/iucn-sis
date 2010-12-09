@@ -82,11 +82,19 @@ public class ViewCache {
 		schemaToViews.clear();
 		lastPageViewed.clear();
 	}
+	
+	private void resetSchema(String schema) {
+		currentViewMap = schemaToViews.get(schema);
+		if (currentView != null)
+			currentView.resetCurPage();
+		currentSchema = schema;	
+	}
 
 	public void fetchViews(final String schema, final GenericCallback<String> wayback) {
 		if (schemaToViews.containsKey(schema)) {
-			currentViewMap = schemaToViews.get(schema);
-			currentSchema = schema;
+			if (!schema.equals(currentSchema))
+				resetSchema(schema);
+			
 			wayback.onSuccess(null);
 		}
 		else {
@@ -122,8 +130,7 @@ public class ViewCache {
 					}
 					schemaToViews.put(schema, views);
 					
-					currentViewMap = views;
-					currentSchema = schema;
+					resetSchema(schema);
 					wayback.onSuccess(null);
 				}
 			});

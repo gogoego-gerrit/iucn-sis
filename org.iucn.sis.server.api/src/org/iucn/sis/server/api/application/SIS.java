@@ -190,6 +190,10 @@ public class SIS {
 		
 		return settings;
 	}
+	
+	public String getDefaultSchema() {
+		return getSettings(null).getProperty("org.iucn.sis.schema", "org.iucn.sis.server.schemas.redlist");
+	}
 
 	public AuthnGuard getGuard(Context context) {
 		

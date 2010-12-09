@@ -45,8 +45,6 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
 import com.solertium.util.portable.XMLWritingUtils;
 
 public class Assessment implements Serializable, AuthorizableObject, Referenceable {
-	
-	public static final String DEFAULT_SCHEMA = "org.iucn.sis.server.schemas.redlist";
 
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	public static final String ROOT_TAG = "assessment";
@@ -416,8 +414,10 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		assessment.setField(new HashSet<Field>());
 		for (Field field : getField()) {
 			Field copy = filter.copy(assessment, field);
-			if (copy != null)
+			if (copy != null) {
+				copy.setAssessment(assessment);
 				assessment.getField().add(copy);
+			}
 		}
 		
 		assessment.setReference(new HashSet<Reference>());
@@ -544,6 +544,12 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		}
 	}
 	
+	public Set<String> getFieldKeys() {
+		if (keyToField == null)
+			generateFields();
+		return keyToField.keySet();
+	}
+	
 	public Field getField(String fieldName) {
 		if (keyToField == null || keyToField.size() != getField().size()) {
 			generateFields();
@@ -616,6 +622,17 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		return schema;
 	}
 	
+	/**
+	 * On the client, use 
+	 *  - SchemaCache.impl.getDefaultSchema()
+	 * On the server, use
+	 *  - SIS.get().getDefaultSchema()
+	 *  
+	 * if you wish to default to the default schema 
+	 * for this SIS instance.
+	 * @param defaultValue
+	 * @return
+	 */
 	public String getSchema(String defaultValue) {
 		return schema == null || "".equals(schema) ? defaultValue : schema; 
 	}

@@ -82,6 +82,10 @@ public class SISView {
 		else
 			return true;
 	}
+	
+	public void resetCurPage() {
+		curPage = null;
+	}
 
 	public void setDisplayableTitle(String displayableTitle) {
 		this.displayableTitle = displayableTitle;

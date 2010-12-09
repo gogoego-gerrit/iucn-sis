@@ -1,6 +1,7 @@
 package org.iucn.sis.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.gogoego.api.classloader.SimpleClasspathResource;
@@ -58,6 +59,13 @@ public class ServerApplication extends SISApplication{
 		
 		if (GoGoEgo.getInitProperties().containsKey("UPDATE_URL"))
 			GoGoEgo.getInitProperties().put("UPDATE_URL", "http://sis.iucnsis.org/getUpdates");
+	}
+	
+	@Override
+	protected Collection<String> getSettingsKeys() {
+		ArrayList<String> settings = new ArrayList<String>();
+		settings.add("org.iucn.sis.schema");
+		return settings;
 	}
 	
 	/**

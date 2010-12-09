@@ -335,7 +335,7 @@ public class AssessmentCache {
 	}
 	
 	public Set<Assessment> getDraftAssessmentsForTaxon(Integer taxonID) {
-		return getDraftAssessmentsForTaxon(taxonID, Assessment.DEFAULT_SCHEMA);
+		return getDraftAssessmentsForTaxon(taxonID, SchemaCache.impl.getDefaultSchema());
 	}
 	
 	public Set<Assessment> getDraftAssessmentsForTaxon(Integer taxonID, String schema) {
@@ -343,7 +343,7 @@ public class AssessmentCache {
 	}
 	
 	public Set<Assessment> getPublishedAssessmentsForTaxon(Integer taxonID) {
-		return getPublishedAssessmentsForTaxon(taxonID, Assessment.DEFAULT_SCHEMA);
+		return getPublishedAssessmentsForTaxon(taxonID, SchemaCache.impl.getDefaultSchema());
 	}
 	
 	public Set<Assessment> getPublishedAssessmentsForTaxon(Integer taxonID, String schema) {
@@ -354,7 +354,7 @@ public class AssessmentCache {
 		if ( taxonToAssessmentCache.containsKey(taxonID)) {
 			Set<Assessment> assessments = new HashSet<Assessment>();
 			for (Assessment cur : taxonToAssessmentCache.get(taxonID)) {
-				String curSchema = cur.getSchema(Assessment.DEFAULT_SCHEMA);
+				String curSchema = cur.getSchema(SchemaCache.impl.getDefaultSchema());
 				if ((schema == null || schema.equals(curSchema)) && 
 						cur.getAssessmentType().getId() == assessmentType)
 					assessments.add(cur);

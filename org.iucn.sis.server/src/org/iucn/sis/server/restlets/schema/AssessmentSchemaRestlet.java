@@ -241,6 +241,8 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		}
 		
+		final String defaultSchema = SIS.get().getDefaultSchema();
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append("<root>");
 		
@@ -257,6 +259,8 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 			builder.append(writeField("id", entry.getKey()));
 			builder.append(writeField("name", schema.getName()));
 			builder.append(writeField("description", schema.getDescription()));
+			if (defaultSchema.equals(entry.getKey()))
+				builder.append(writeField("default", "true"));
 			builder.append("</row>");
 		}
 		

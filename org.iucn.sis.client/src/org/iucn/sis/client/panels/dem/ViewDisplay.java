@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -50,7 +51,7 @@ public class ViewDisplay extends LayoutContainer implements DrawsLazily {
 			return;
 		}
 		
-		String schema = assessment.getSchema(Assessment.DEFAULT_SCHEMA);
+		String schema = assessment.getSchema(SchemaCache.impl.getDefaultSchema());
 		if (schema.equals(ViewCache.impl.getCurrentSchema())) {
 			callback.isDrawn();
 			return;
