@@ -53,13 +53,13 @@ public class FieldV2Parser {
 					field.getFields().add(cur);
 				}
 			}
-			else if (Notes.ROOT_TAG.equals(current.getNodeName())) {
+			else if (Notes.ROOT_TAG.equals(current.getNodeName()) && !hasTypeAttribute(current)) {
 				Notes cur = Notes.fromXML((NativeElement)current);
 				cur.setField(field);
 				
 				field.getNotes().add(cur);
 			}
-			else if (Reference.ROOT_TAG.equals(current.getNodeName())) {
+			else if (Reference.ROOT_TAG.equals(current.getNodeName()) && !hasTypeAttribute(current)) {
 				Reference cur = Reference.fromXML((NativeElement)current);
 				if (cur.getField() == null)
 					cur.setField(new HashSet<Field>());
@@ -82,4 +82,14 @@ public class FieldV2Parser {
 		return field;
 	}
 	
+	private static boolean hasTypeAttribute(NativeNode node) {
+		return getAttribute(node, "type") != null;
+	}
+	
+	private static String getAttribute(NativeNode node, String attribute) {
+		if (!(node instanceof NativeElement))
+			return null;
+		
+		return ((NativeElement)node).getAttribute(attribute);
+	}
 }
