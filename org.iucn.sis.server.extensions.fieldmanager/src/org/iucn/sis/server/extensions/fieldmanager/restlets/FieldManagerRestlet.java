@@ -320,17 +320,10 @@ public class FieldManagerRestlet extends BaseServiceRestlet {
 	}
 	
 	private AssessmentSchema getSchema(String schemaID) throws ResourceException {
-		return getSchema(schemaID, false);
-	}
-	
-	private AssessmentSchema getSchema(String schemaID, boolean force) throws ResourceException {
 		AssessmentSchema schema = SIS.get().getAssessmentSchemaBroker().getAssessmentSchema(schemaID);
-		if (schema == null) {
-			if (force)
-				schema = SIS.get().getAssessmentSchemaBroker().getAssessmentSchema(Assessment.DEFAULT_SCHEMA);
-			else
-				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "The schema " + schemaID + " could not be found.");
-		}
+		if (schema == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "The schema " + schemaID + " could not be found.");
+		
 		return schema;
 		
 	}
