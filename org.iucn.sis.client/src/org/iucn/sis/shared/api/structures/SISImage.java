@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
@@ -49,13 +50,23 @@ public class SISImage extends SISPrimitiveStructure<String> {
 		image = new Image();
 		image.setUrl(this.description);
 
-		if (data != null)
-			image.addStyleName((String) data);
+		String style = getDataValue();
+		if (style != null)
+			image.addStyleName(style);
 	}
 
 	@Override
 	public String getData() {
 		return image.getUrl();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private String getDataValue() {
+		try {
+			return (String)((Map<String, String>)data).get("value");
+		} catch (ClassCastException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -86,7 +97,4 @@ public class SISImage extends SISPrimitiveStructure<String> {
 		// Nothing to do here
 	}
 
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
 }

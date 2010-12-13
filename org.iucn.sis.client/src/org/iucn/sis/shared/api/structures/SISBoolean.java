@@ -23,7 +23,7 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 
 	private boolean defaultValue = false;
 
-	public SISBoolean(String struct, String descript, String structID, Object data) {
+	public SISBoolean(String struct, String descript, String structID) {
 		super(struct, descript, structID);
 		// displayPanel = new ContentPanel();
 		buildContentPanel(Orientation.HORIZONTAL);

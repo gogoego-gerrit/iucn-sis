@@ -1,18 +1,20 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.KeyboardListener;
-import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -20,8 +22,8 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 
 	private TextBox textbox;
 
-	public SISNumber(String struct, String descript, String structID) {
-		super(struct, descript, structID);
+	public SISNumber(String struct, String descript, String structID, Object data) {
+		super(struct, descript, structID, data);
 		// displayPanel = new ContentPanel();
 		buildContentPanel(Orientation.HORIZONTAL);
 	}
@@ -60,14 +62,52 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 
 	@Override
 	public void createWidget() {
+		final String restrictions = getRestrictions();
 		this.descriptionLabel = new HTML(this.description);
 		this.textbox = new TextBox();
 		textbox.addKeyPressHandler(new KeyPressHandler() {
 			public void onKeyPress(KeyPressEvent event) {
-				if (!Character.isDigit(event.getCharCode()))
-					textbox.cancelKey();
+				if (restrictions == null) {
+					if (!Character.isDigit(event.getCharCode()))
+						textbox.cancelKey();
+				}
+				else if ("year".equals(restrictions)) {
+					if (textbox.getText().length() == 4 || !Character.isDigit(event.getCharCode()))
+						textbox.cancelKey();
+				}
+				else if ("0-1".equals(restrictions)) {
+					if (!Character.isDigit(event.getCharCode()) || '.' != event.getCharCode())
+						textbox.cancelKey();
+				}
 			}
 		});
+		if ("0-1".equals(restrictions)) {
+			textbox.addBlurHandler(new BlurHandler() {
+				public void onBlur(BlurEvent event) {
+					if (textbox.getText() == null || textbox.getText().equals(""))
+						return;
+					
+					Double value = null;
+					try {
+						value = Double.parseDouble(textbox.getText());
+					} catch (NumberFormatException e) {
+						value = null;
+					}
+					
+					if (value == null)
+						textbox.setText("");
+					
+					double raw = value.doubleValue();
+					if (raw < 0 || raw > 1)
+						textbox.setText("");
+				}
+			});
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private String getRestrictions() {
+		return ((Map<String, String>)data).get("restriction");
 	}
 
 	/**

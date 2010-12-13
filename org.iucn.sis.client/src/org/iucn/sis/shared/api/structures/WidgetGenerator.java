@@ -16,7 +16,7 @@ public class WidgetGenerator {
 
 	public static Structure StructureGenerator(String theStructure, String description, String structID, Object data) {
 		if (theStructure.equalsIgnoreCase(XMLUtils.BOOLEAN_STRUCTURE)) {
-			return new SISBoolean(theStructure, description, structID, data);
+			return new SISBoolean(theStructure, description, structID);
 		}
 
 		else if (theStructure.equalsIgnoreCase(XMLUtils.BOOLEAN_UNKNOWN_STRUCTURE)) {
@@ -52,7 +52,7 @@ public class WidgetGenerator {
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.LABEL_STRUCTURE)) {
 			return new SISLabel(theStructure, description, structID);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.OPTIONS_LIST)) {
-			return new SISOptionsList(theStructure, description, structID, data);
+			return new SISOptionsList(theStructure, description, structID);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.LIVELIHOODS)) {
 			return new SISLivelihoods(theStructure, description, structID, data);
 		}
@@ -79,7 +79,7 @@ public class WidgetGenerator {
 		else if (theStructure.equalsIgnoreCase(XMLUtils.TEXT_STRUCTURE)) {
 			return new SISText(theStructure, description, structID);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.NUMBER_STRUCTURE)) {
-			return new SISNumber(theStructure, description, structID);
+			return new SISNumber(theStructure, description, structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.DATE_STRUCTURE)) { // wILL
 			// NEED
 			// FIXING
@@ -93,7 +93,7 @@ public class WidgetGenerator {
 
 		// COMPLEX STUFF
 		else if (theStructure.equalsIgnoreCase(COMPLEX)) {
-			return new SISBoolean(theStructure, description, structID, null);
+			return new SISBoolean(theStructure, description, structID);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.MAP_STRUCTURE)) {
 			return new SISMap(theStructure, description, structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.IMAGE_STRUCTURE)) {

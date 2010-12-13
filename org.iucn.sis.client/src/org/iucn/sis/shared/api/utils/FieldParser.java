@@ -1,6 +1,8 @@
 package org.iucn.sis.shared.api.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
@@ -204,7 +206,12 @@ public class FieldParser {
 					|| structureType.equalsIgnoreCase(XMLUtils.EMPTY_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.BOOLEAN_RANGE_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.REGIONAL_EXPERT_QUESTIONS_STRUCTURE)) {
-				currentDisplayData.setData(XMLUtils.getXMLValue(current, current.getText()));
+				Map<String, String> data = new HashMap<String, String>();
+				data.put("restriction", XMLUtils.getXMLAttribute(current, "restriction", null));
+				data.put("style", XMLUtils.getXMLAttribute(current, "style", null));
+				data.put("value", XMLUtils.getXMLValue(current, current.getText()));
+				
+				currentDisplayData.setData(data);
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.ONE_TO_MANY)) {
@@ -634,7 +641,10 @@ public class FieldParser {
 		} else {
 			currentField.setStructure(XMLUtils.STRUCTURE_COLLECTION);
 			currentField.setData(structureSet);
-			(structureSet.get(0)).setDescription(currentField.getDescription());
+			
+			String myDescription = structureSet.get(0).getDescription();
+			if (myDescription == null || "".equals(myDescription))
+				(structureSet.get(0)).setDescription(currentField.getDescription());
 
 			String layout = root.getAttribute("layout");
 			if (layout != null)

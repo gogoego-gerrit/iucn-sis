@@ -25,8 +25,8 @@ public class SISOptionsList extends Structure<Field> {
 	
 	private SISCompleteListTextArea theList;
 
-	public SISOptionsList(String struct, String descript, String structID, Object data) {
-		super(struct, descript, structID, data);
+	public SISOptionsList(String struct, String descript, String structID) {
+		super(struct, descript, structID);
 		buildContentPanel(Orientation.VERTICAL);
 	}
 	
