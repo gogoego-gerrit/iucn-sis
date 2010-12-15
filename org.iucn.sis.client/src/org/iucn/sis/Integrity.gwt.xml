@@ -22,6 +22,7 @@
 	<inherits name='com.solertium.util.gwt.Util' />
 	
 	<inherits name='com.solertium.util.Events' />
+	<inherits name='org.iucn.sis.Shared' />
 	
 	<source path='client'/>
 	<source path='shared'/>

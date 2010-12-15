@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.VirusCache;
-import org.iucn.sis.client.panels.references.PagingPanel;
+import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.shared.api.models.Virus;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;

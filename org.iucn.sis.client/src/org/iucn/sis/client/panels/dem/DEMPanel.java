@@ -3,10 +3,12 @@ package org.iucn.sis.client.panels.dem;
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.ViewCache;
+import org.iucn.sis.client.api.ui.views.ViewDisplay;
+import org.iucn.sis.client.api.ui.views.ViewDisplay.PageChangeRequest;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.dem.DEMToolbar.EditStatus;
-import org.iucn.sis.client.panels.dem.ViewDisplay.PageChangeRequest;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -71,6 +73,7 @@ public class DEMPanel extends LayoutContainer {
 
 		viewWrapper = new ViewDisplay();
 		viewWrapper.setLayout(viewChooser);
+		viewWrapper.setLayoutOnChange(true);
 		viewWrapper.setPageChangelistener(new ComplexListener<PageChangeRequest>() {
 			public void handleEvent(PageChangeRequest eventData) {
 				changePage(eventData);

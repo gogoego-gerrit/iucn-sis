@@ -1,8 +1,8 @@
 package org.iucn.sis.shared.api.integrity;
 
-import org.iucn.sis.client.api.panels.integrity.ValidationResultsWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.integrity.ValidationResultsWindow;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;

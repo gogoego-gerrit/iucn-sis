@@ -1,7 +1,7 @@
 package org.iucn.sis.shared.api.integrity;
 
-import org.iucn.sis.client.api.panels.integrity.IntegrityApplicationPanel;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.integrity.IntegrityApplicationPanel;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.google.gwt.user.client.Window;

@@ -4,6 +4,8 @@ import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.ViewCache;
+import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
@@ -125,16 +127,7 @@ public class DEMToolbar extends ToolBar {
 							+ " or the browser.");
 				} else {
 					final NewAssessmentPanel panel = new NewAssessmentPanel();
-					panel.draw(new DrawsLazily.DoneDrawingCallback() {
-						public void isDrawn() {
-							Window shell = WindowUtils.getWindow(false, false, "New "
-									+ TaxonomyCache.impl.getCurrentTaxon().getFullName() + " Assessment");
-							shell.setLayout(new FillLayout());
-							shell.setSize(400, 400);
-							shell.add(panel);
-							shell.show();
-						}
-					});
+					panel.show();
 				}
 			}
 

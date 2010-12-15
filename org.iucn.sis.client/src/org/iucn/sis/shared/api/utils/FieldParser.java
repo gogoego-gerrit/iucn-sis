@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.iucn.sis.client.api.caches.FieldWidgetCache.CreatesDisplay;
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.data.FieldData;
@@ -15,7 +16,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.displays.FieldDisplay;
-import org.iucn.sis.shared.api.displays.Threats;
+import org.iucn.sis.shared.api.displays.threats.Threats;
 import org.iucn.sis.shared.api.structures.BooleanRule;
 import org.iucn.sis.shared.api.structures.ContentRule;
 import org.iucn.sis.shared.api.structures.Rule;
@@ -33,7 +34,7 @@ import com.solertium.lwxml.shared.NativeNodeList;
  * @author adam.schwartz
  * 
  */
-public class FieldParser {
+public class FieldParser implements CreatesDisplay {
 	private static final String BASIC_INFORMATION_TAG_NAME = "basicInformation";
 	private static final String ASSESSMENT_FIELD_TAG_NAME = "field";
 	private static final String STRUCTURES_DELIMETER_TAG_NAME = "structures";
@@ -258,7 +259,8 @@ public class FieldParser {
 			}
 			else if (structureType.equalsIgnoreCase(XMLUtils.MULTIPLE_SELECT_STRUCTURE)
 					|| structureType.equalsIgnoreCase(XMLUtils.SINGLE_SELECT_STRUCTURE)
-					|| structureType.equalsIgnoreCase(XMLUtils.QUALIFIER_STRUCTURE)) {
+					|| structureType.equalsIgnoreCase(XMLUtils.QUALIFIER_STRUCTURE) 
+					|| structureType.equalsIgnoreCase(XMLUtils.BAND_STRUCTURE)) {
 				
 				LookupData options = lookups.find(id);
 				if (options == null) {

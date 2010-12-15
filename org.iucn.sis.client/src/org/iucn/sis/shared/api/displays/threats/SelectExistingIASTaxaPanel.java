@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.panels.references.PagingPanel;
+import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.shared.api.displays.threats.ThreatTaggedSpeciesLocator.Selectable;
 import org.iucn.sis.shared.api.models.Taxon;
 

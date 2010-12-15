@@ -48,6 +48,7 @@ public class XMLUtils {
 	public static final String BUTTON_STRUCTURE = "button";
 	public static final String AUTO_COMPLETE_STRUCTURE = "autoComplete";
 	public static final String RELATED_STRUCTURE = "relatedStructure";
+	public static final String BAND_STRUCTURE = "band";
 
 	// COMPLICATED STRUCTURES
 	public static final String IMAGE_STRUCTURE = "image";

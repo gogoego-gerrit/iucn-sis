@@ -8,33 +8,43 @@
 	<property name="gwt" value="com.google.gwt_2.1.2" />
 	<property name="ext" value="com.extjs.gwt_2.2.1" />
 	
-	<path id="client.classpath">
+	<property name="birdlife.git" value="../../../birdlife-sis" />
+	
+	<path id="sis.classpath">
 		<pathelement path="../org.iucn.sis.client/src"/>
+		<pathelement path="../org.iucn.sis.client.shared/src"/>
+		<pathelement path="${birdlife.git}/org.iucn.sis.client.extensions.birdlife/src"/>
 		<pathelement path="../org.iucn.sis.clientshared.bridge/src"/>
+	</path>
+	
+	<path id="gwt.classpath">
+		<pathelement path="../${gwt}/gwt-user.jar"/>
+		<pathelement path="../${gwt}/gwt-dev.jar"/>
+		<pathelement path="../${ext}/gxt.jar"/>
+		<pathelement path="../${ext}/src"/>
+		<pathelement path="../ext.ux.pwd/src"/>
+		<pathelement path="../ext.ux.pwd/PasswordField.jar"/>
+	</path>
+	
+	<path id="our-libs.classpath">
 		<pathelement path="../com.solertium.lwxml/src"/>
 		<pathelement path="../com.solertium.lwxml.gwt/src"/>
 		<pathelement path="../com.solertium.util.extjs/src"/>
 		<pathelement path="../com.solertium.util.extjs.docViewer/src"/>
 		<pathelement path="../com.solertium.util.extjs.login/src"/>
 		<pathelement path="../com.solertium.util.gwt/src"/>
-		<pathelement path="../ext.ux.pwd/src"/>
-		<pathelement path="../com.solertium.util.gwt.wizard/src"/>
-		<pathelement path="../com.solertium.util.extjs.login/src"/>
 		<pathelement path="../com.solertium.util.gwt.wizard/src"/>
 		<pathelement path="../com.solertium.util.portable/src"/>
 		<pathelement path="../com.solertium.util.querybuilder/src"/>
 		<pathelement path="../com.solertium.util.querybuilder.gwt.ext/src"/>
-		<pathelement path="../${gwt}/gwt-user.jar"/>
-		<pathelement path="../${gwt}/gwt-dev.jar"/>
-		<pathelement path="../${ext}/gxt.jar"/>
-		<pathelement path="../${ext}/src"/>
-		<pathelement path="../ext.ux.pwd/PasswordField.jar"/>
     </path>
 	
     <target name="client-build" description="compiles the gwt client">
         	<delete dir="../${compiled}/src/${compiled-dir}/public" />
             <java classname="com.google.gwt.dev.Compiler" fork="true">
-                    <classpath refid="client.classpath" />
+                    <classpath refid="sis.classpath" />
+            		<classpath refid="gwt.classpath" />
+            		<classpath refid="our-libs.classpath" />
                     <jvmarg value="-Xmx512m"/>
                     <jvmarg value="-Xms256m"/>
                     <jvmarg value="-XX:PermSize=64M"/>

@@ -1,11 +1,15 @@
 package org.iucn.sis.client.container;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.extensions.birdlife.structures.BirdlifeWidgetGenerator;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.dem.ViewCache;
 import org.iucn.sis.shared.api.citations.Referenceable;
+import org.iucn.sis.shared.api.structures.WidgetGenerator;
+import org.iucn.sis.shared.api.utils.FieldParser;
 
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -23,6 +27,14 @@ public class SimpleSISClient extends SISClientBase {
 		clientContainer = new ClientUIContainer();
 
 		RootPanel.get().add(clientContainer);
+	}
+	
+	@Override
+	protected void initializeCaches() {
+		FieldWidgetCache.impl.setFieldParser(new FieldParser());
+		FieldWidgetCache.impl.registerWidgetGenerator(new WidgetGenerator());
+		FieldWidgetCache.impl.registerWidgetGenerator(new BirdlifeWidgetGenerator());
+		super.initializeCaches();
 	}
 	
 	@Override

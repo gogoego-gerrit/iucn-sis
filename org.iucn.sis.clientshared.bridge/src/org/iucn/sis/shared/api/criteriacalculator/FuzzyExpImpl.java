@@ -10,6 +10,7 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.RangePrimitiveField;
 
 /**
@@ -200,6 +201,7 @@ public class FuzzyExpImpl {
 	private Range createRangeFromAssessment(Assessment assessment, String factor) {
 		Field factorField = assessment.getField(factor);
 		Range result = null;
+		
 		if (factorField != null) {
 			for (PrimitiveField<?> curPrim : factorField.getPrimitiveField()) {
 				if (curPrim instanceof RangePrimitiveField) {
@@ -215,6 +217,12 @@ public class FuzzyExpImpl {
 				}
 			}
 		}
+		
+		PrimitiveField<?> direction = factorField.getPrimitiveField("direction");
+		if (direction instanceof ForeignKeyPrimitiveField)
+			if (((ForeignKeyPrimitiveField)direction).getValue().intValue() == 1)
+				return null;
+		
 		return result;
 	}
 

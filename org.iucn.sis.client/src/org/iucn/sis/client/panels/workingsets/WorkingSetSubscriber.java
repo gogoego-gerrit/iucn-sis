@@ -8,8 +8,8 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.workingset.WSModel;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.panels.PanelManager;
-import org.iucn.sis.client.panels.references.PagingPanel;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 

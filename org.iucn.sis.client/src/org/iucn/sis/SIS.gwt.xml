@@ -19,9 +19,11 @@
 	<inherits name='ext.ux.pwd.PasswordField'/>
 
 	<!-- Inherit independent SIS modules -->
+	<inherits name='org.iucn.sis.Shared' />
 	<inherits name='org.iucn.sis.References' />
 	<inherits name='org.iucn.sis.Users' />
 	<inherits name='org.iucn.sis.Integrity' />
+	<inherits name='org.iucn.sis.BirdLife' />
 
 	<!-- Specify the app entry point class. -->
 	<entry-point class="org.iucn.sis.client.container.SimpleSISClient"/>

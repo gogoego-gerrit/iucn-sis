@@ -8,9 +8,9 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.ui.models.assessment.ChangesModelData;
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.references.PagingPanel;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 

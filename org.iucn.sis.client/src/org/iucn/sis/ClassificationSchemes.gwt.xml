@@ -17,6 +17,7 @@
 	<inherits name='com.extjs.gxt.themes.Themes' />
 	<inherits name='ext.ux.wizard.WizardWindow'/>
 	<inherits name='ext.ux.pwd.PasswordField'/>
+	<inherits name='org.iucn.sis.Shared' />
 	
 	<!-- QueryBuilder -->
 	<inherits name='com.solertium.util.querybuilder.QueryBuilderCore' />

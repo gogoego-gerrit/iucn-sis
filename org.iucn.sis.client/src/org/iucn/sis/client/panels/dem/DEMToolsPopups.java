@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.ui.notes.NoteAPI;
+import org.iucn.sis.client.api.ui.notes.NotesWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.notes.NoteAPI;
-import org.iucn.sis.client.panels.notes.NotesWindow;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Notes;
 

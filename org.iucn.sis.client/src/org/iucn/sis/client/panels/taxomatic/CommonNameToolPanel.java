@@ -5,9 +5,9 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.ui.notes.NoteAPI;
+import org.iucn.sis.client.api.ui.notes.NotesWindow;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.notes.NoteAPI;
-import org.iucn.sis.client.panels.notes.NotesWindow;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
