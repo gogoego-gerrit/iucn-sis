@@ -78,6 +78,9 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 		SIS.get().getAssessmentSchemaBroker().addLocalReference("org.iucn.sis.server.schemas.usetrade",
 			new Activator().getService()
 		);
+		SIS.get().getAssessmentSchemaBroker().addLocalReference("org.iucn.sis.server.schemas.birdlife", 
+			new org.iucn.sis.server.schemas.birdlife.Activator().getService()	
+		);
 		
 		return map;
 	}
