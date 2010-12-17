@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.schemes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.iucn.sis.shared.api.structures.Structure;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -83,32 +85,13 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 	}
 	
 	public LayoutContainer draw(final boolean isViewOnly) {
-		//inViewOnlyMode = viewOnly;
-
 		if (displayPanel == null) {
 			displayPanel = new LayoutContainer(new FillLayout());
 			displayPanel.setSize(900, 800);
-			//displayPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-			//displayPanel.setSpacing(3);
 			displayPanel.addStyleName("thinFrameBorder");
-			//displayPanel.setBorderWidth(1);
 			
 			innerContainer = new LayoutContainer(new FillLayout());
 			innerContainer.setLayoutOnChange(true);
-			//innerContainer.setWidth(900);
-			
-			/*pagingLoader = new GenericPagingLoader<ClassificationSchemeModelData>();
-			
-			store = new ListStore<ClassificationSchemeModelData>(pagingLoader.getPagingLoader());
-			store.setStoreSorter(new StoreSorter<ClassificationSchemeModelData>(
-				new ClassificationSchemeModelDataComparator()	
-			));
-			
-			pagingLoader.getPagingLoader().addLoadListener(new LoadListener() {
-				public void loaderLoad(LoadEvent le) {
-					innerContainer.removeAll();
-				}
-			});*/
 			
 			server.addStoreListener(new StoreListener<ClassificationSchemeModelData>() {
 				public void storeAdd(StoreEvent<ClassificationSchemeModelData> se) {
@@ -123,42 +106,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 					refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 				}
 			});
-
-			/**
-			 * This listener is a hack that fixes some horrible behavioral issues with the grid's
-			 * sizing. Essentially, if a page on the assessment data browser was left open to a 
-			 * classification scheme and an assessment was set as current from a different tab, 
-			 * e.g. from the recent assessment panel, *without* first triggering a switch to the 
-			 * assessment data browser tab (as happens with the monkey navigator), the grid will 
-			 * render itself properly at first, but if you page/refresh the grid's data it redraws 
-			 * itself with a height only large enough for the headers even though it has the proper 
-			 * number of entries.
-			 * 
-			 * : Low priority as it may be impossible -figure out why the grid does not resize
-			 *  its height properly. That is the only misbehaving Widget - the hp and display panel
-			 *  retain proper sizing, though the grid is attached to the hp in a RowLayout, so there
-			 *  may be something to that combination that contributes.
-			 */
-			/*pagingLoader.getPagingLoader().addLoadListener(new LoadListener() {
-				protected int gridH = 0;
-
-				@Override
-				public void loaderBeforeLoad(LoadEvent le) {
-					if( grid.isRendered() )
-						gridH = grid.getHeight();
-				}
-
-				@Override
-				public void loaderLoad(LoadEvent le) {
-					if( grid.isRendered() ) {
-						if( grid.getHeight() <= 30 && grid.getStore().getCount() > 0 ) {
-							grid.setHeight(gridH);
-							grid.getView().refresh(true);
-							hp.layout();
-						}
-					}
-				}
-			});*/
 		}
 
 		innerContainer.removeAll();
@@ -169,10 +116,9 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		
 		final ToolBar gridBar = getLabelPanel(grid, isViewOnly);
 		
-		grid.setBorders(true);
+		grid.setBorders(false);
 		grid.setWidth(900);
 		grid.setHeight(300);
-		//grid.getView().setFiresEvents(false);
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 		grid.addListener(Events.RowClick, new Listener<GridEvent<ClassificationSchemeModelData>>() {
 			public void handleEvent(GridEvent<ClassificationSchemeModelData> be) {
@@ -192,9 +138,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				}
 			}
 		});
-		
-		/*final PagingToolBar pagingBar = new PagingToolBar(15);
-		pagingBar.bind(pagingLoader.getPagingLoader());*/
 
 		final LayoutContainer toolbarContainer = new LayoutContainer();
 		toolbarContainer.add(createToolbar(isViewOnly));
@@ -208,26 +151,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		final LayoutContainer container = new LayoutContainer(new BorderLayout());
 		container.add(gridContainer, new BorderLayoutData(LayoutRegion.CENTER));
 		container.add(innerContainer, new BorderLayoutData(LayoutRegion.SOUTH));
-
-		/*hp.add(addBar, new RowData(1, 30));
-		hp.add(gridBar, new RowData(1, 30));
-		hp.add(grid, new RowData(1, -1));
-		hp.add(pagingBar, new RowData(1, 40));
-		hp.add(innerContainer, new RowData(1, -1));*/
-
-		/*pagingLoader.getFullList().clear();
-		if (initValues != null) {
-			for (ClassificationSchemeModelData model : initValues) {
-				pagingLoader.getFullList().add(model);
-			}
-		}
-
-		pagingLoader.getPagingLoader().setLimit(15);
-		pagingLoader.getPagingLoader().setOffset(0);
-		pagingLoader.getPagingLoader().load(0, 15);
-
-		if (grid.isRendered())
-			pagingBar.first();*/
 
 		displayPanel.add(container);
 		
@@ -265,7 +188,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 					WindowUtils.errorAlert("Please select a coding option from the drop-down.");
 					return;
 				}
-				//TODO: prevent duplicate entries, prevent select non-codeable options
+				
 				TreeDataRow row = box.getValue().getRow();
 				if (addToPagingLoader && containsRow(row))
 					WindowUtils.errorAlert("A row with this coding option has already been selected.");
@@ -488,16 +411,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 						}
 					});
 					window.show();
-					//NotesViewer.open(model.getField(), null);
 				}
-				/*String temp = canonicalName + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey();
-				openEditViewNotesPopup(temp, new AsyncCallback<String>() {
-					public void onSuccess(String result) {
-						notesImage.changeStyle("images/icon-book.png");
-					}
-					public void onFailure(Throwable caught) {
-					}
-				});*/
 			}
 		});
 		
@@ -535,6 +449,10 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		modClassification.setIconStyle("icon-browse-add");
 		modClassification.addSelectionListener(new SelectionListener<ButtonEvent>(){
 			public void componentSelected(ButtonEvent ce) {
+				final Collection<TreeDataRow> selected = new ArrayList<TreeDataRow>();
+				for (ClassificationSchemeModelData model : server.getModels())
+					selected.add(model.getSelectedRow());
+				
 				final Window window = WindowUtils.getWindow(true, false, "Add " + description);
 				window.setLayout(new FillLayout());
 				window.setModal(true);
@@ -549,11 +467,13 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 						final List<ClassificationSchemeModelData> models = 
 							new ArrayList<ClassificationSchemeModelData>();
 						for (TreeDataRow row : eventData) {
-							ClassificationSchemeModelData model = 
-								newInstance(generateDefaultStructure(row));
-							model.setSelectedRow(row);
+							if (!containsRow(row)) {
+								ClassificationSchemeModelData model = 
+									newInstance(generateDefaultStructure(row));
+								model.setSelectedRow(row);
 							
-							models.add(model);
+								models.add(model);
+							}
 						}
 						
 						server.add(models);
@@ -564,7 +484,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 					public void handleEvent() {
 						window.hide();
 					}
-				}, treeData));
+				}, treeData, selected));
 				window.setSize(500, 500);
 				window.show();
 			}
@@ -615,26 +535,17 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 	
 	protected ArrayList<ColumnConfig> buildColumnConfig(Structure<?> str){
 		ArrayList<ColumnConfig> cc = new ArrayList<ColumnConfig>();
+		cc.add(new ColumnConfig("text", description, 450));
 
-		ColumnConfig column = new ColumnConfig();  
-		column.setId("text");
-		column.setHeader(description);
-		column.setWidth(450);
-		cc.add(column);
-
-		for (String d : str.extractDescriptions()) {
-			column = new ColumnConfig();
-			column.setId(d);
-			column.setHeader(d);
-			column.setWidth(80);
-			cc.add(column);
-		}
+		for (String d : str.extractDescriptions())
+			cc.add(new ColumnConfig(d, d, 80));
 		
 		return cc;
 	}
 	
 	@Override
 	protected void getStore(GenericCallback<ListStore<ClassificationSchemeModelData>> callback) {
+		server.sort("text", SortDir.ASC);
 		callback.onSuccess(server);
 	}
 	
@@ -647,16 +558,18 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		
 		private final TreeDataRowComparator comparator = 
 			new TreeDataRowComparator();
+		private final PortableAlphanumericComparator stringComparator = 
+			new PortableAlphanumericComparator();
 		
 		@Override
 		public int compare(Object o1, Object o2) {
 			if (o1 instanceof ClassificationSchemeModelData && o2 instanceof ClassificationSchemeModelData)
-				return compare((ClassificationSchemeModelData)o1, (ClassificationSchemeModelData)o2);
+				return compareModels((ClassificationSchemeModelData)o1, (ClassificationSchemeModelData)o2);
 			else
-				return 0;
+				return stringComparator.compare(o1, o2);
 		}
 		
-		public int compare(ClassificationSchemeModelData o1, ClassificationSchemeModelData o2) {
+		private int compareModels(ClassificationSchemeModelData o1, ClassificationSchemeModelData o2) {
 			if (o1.getSelectedRow() == null)
 				return 1;
 			else if (o2.getSelectedRow() == null)
@@ -673,7 +586,8 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			new PortableAlphanumericComparator();
 		
 		public int compare(TreeDataRow o1, TreeDataRow o2) {
-			return comparator.compare(o1.getLabel(), o2.getLabel());
+			//return comparator.compare(o1.getLabel(), o2.getLabel());
+			return comparator.compare(o1.getFullLineage(), o2.getFullLineage());
 		}
 		
 	}

@@ -2,17 +2,17 @@ package org.iucn.sis.shared.api.schemes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
-import com.extjs.gxt.ui.client.data.ModelIconProvider;
+import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -22,29 +22,27 @@ import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 
 public class TreePanelBuilder {
 	
-	private static final String DATA_KEY = "org.iucn.sis.shared.api.schemes.builder.key";
-
 	public static LayoutContainer build(final ComplexListener<Set<TreeDataRow>> saveListener, final SimpleListener cancelListener, final TreeData treeData) {
 		return build(saveListener, cancelListener, treeData, new ArrayList<TreeDataRow>());
 	}
 	
 	public static LayoutContainer build(final ComplexListener<Set<TreeDataRow>> saveListener, final SimpleListener cancelListener, final TreeData treeData, Collection<TreeDataRow> selected) {
-		final List<CodingOption> checked = new ArrayList<CodingOption>();
-		for (TreeDataRow row : selected)
-			checked.add(new CodingOption(row));
+		final Map<String, CodingOption> checked = new HashMap<String, CodingOption>();
+		for (TreeDataRow row : selected) 
+			checked.put(row.getDisplayId(), new CodingOption(row));
 		
-		final TreePanel<CodingOption> tree = new TreePanel<CodingOption>(createTreeStore(treeData));
+		final TreePanel<CodingOption> tree = new TreePanel<CodingOption>(createTreeStore(treeData, checked));
+		tree.setAutoLoad(true);
 		tree.setCheckable(true);
-		tree.setCheckedSelection(checked);
+		
 		tree.setDisplayProperty("text");
 		tree.addListener(Events.BeforeCheckChange, new Listener<TreePanelEvent<CodingOption>>() {
 			public void handleEvent(TreePanelEvent<CodingOption> be) {
@@ -53,64 +51,13 @@ public class TreePanelBuilder {
 			}
 		});
 		
-		//final Tree tree = new Tree();
-		//tree.setCheckable(true);
-
-		/*for (TreeDataRow curRow : treeData.getTreeRoots()) {
-			String curCode = curRow.getDisplayId();
-			String curDesc = curRow.getDescription();
-			String curLevelID = curRow.getRowNumber();
-
-			try {
-				if (curLevelID.indexOf(".") < 0) {
-					if (Integer.parseInt(curLevelID) >= 100)
-						continue;
-				} else if (Integer.parseInt(curLevelID.split("\\.")[0]) >= 100)
-					continue;
-			} catch (NumberFormatException ignored) {
-				continue;
-			}
-			
-			String displayableDesc = (curLevelID.equals("0") ? "" : curLevelID) + " " + curDesc;
-
-			if (!curRow.getChildren().isEmpty())
-				displayableDesc += " (" + curRow.getChildren().size() + ")";
-
-			final TreeItem curItem;
-			if (!"true".equals(curRow.getCodeable())) {
-				curItem = new TreeItem(displayableDesc) {
-					public void setChecked(boolean checked) {
-					}
-				};
-				// curItem.setStyleName("tree-folder");
-				// curItem.setIconStyle("icon-folder");
-			} else {
-				curItem = new TreeItem(displayableDesc);
-				curItem.setIconStyle("icon-accept");
-			}
-
-			curItem.setId(curCode);
-			curItem.setChecked(selected.contains(curRow));
-
-			tree.getRootItem().add(curItem);
-			
-			addMyChildren(curItem, curRow, selected);
-
-			if (curItem.getData(DATA_KEY) != null)
-				curItem.setText(curItem.getText() + " (Items ticked: " + curItem.getData(DATA_KEY).toString() + ")");
-		}*/
-		
 		Button saveSelections = new Button("Save Selections");
 		saveSelections.setIconStyle("icon-save");
 		saveSelections.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				/*treePath = tree.getRootItem().getPath();
-				window.close();
-				updateSelected();*/
 				final HashSet<TreeDataRow> set = new HashSet<TreeDataRow>();
 				for (CodingOption item : tree.getCheckedSelection())
 					set.add(item.getRow());
-					//if (item.isChecked())
 				
 				saveListener.handleEvent(set);
 			}
@@ -120,9 +67,6 @@ public class TreePanelBuilder {
 		cancel.setIconStyle("icon-cancel");
 		cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				/*tree.expandPath(treePath);
-				window.close();*/
-				
 				cancelListener.handleEvent();
 			}
 		});
@@ -132,14 +76,12 @@ public class TreePanelBuilder {
 				tree.expandAll();
 			}
 		});
-//		expandAll.setIconStyle("");
 		
 		Button collapseAll = new Button("Collapse All", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				tree.collapseAll();
 			}
 		});
-//		collapseAll.setIconStyle("");
 
 		final ButtonBar buttonBar = new ButtonBar();
 		buttonBar.setAlignment(HorizontalAlignment.RIGHT);
@@ -150,84 +92,58 @@ public class TreePanelBuilder {
 		buttonBar.add(expandAll);
 		buttonBar.add(collapseAll);
 
-		final LayoutContainer container = new LayoutContainer();
+		final LayoutContainer container = new LayoutContainer() {
+			protected void afterRender() {
+				super.afterRender();
+				Timer t = new Timer() {
+					public void run() {
+						tree.setCheckedSelection(new ArrayList<CodingOption>(checked.values()));
+					}
+				};
+				t.schedule(1000);
+			}
+		};
 		container.add(buttonBar);
 		container.add(new HTML("&nbsp<u>Only selections <i>with a check icon</i> " + "will be saved.</u>"));
 		container.add(tree);
 		
 		return container;
 	}
-	
-	private static void addMyChildren(TreeItem item, TreeDataRow data, Collection<TreeDataRow> selected) {
-		for (TreeDataRow curRow : data.getChildren()) {
-			String curCode = curRow.getDisplayId();
-			String curDesc = curRow.getDescription();
-			String curLevelID = curRow.getRowNumber();
 
-			try {
-				if (curLevelID.indexOf(".") < 0) {
-					if (Integer.parseInt(curLevelID) >= 100)
-						continue;
-				} else if (Integer.parseInt(curLevelID.split("\\.")[0]) >= 100)
-					continue;
-			} catch (NumberFormatException ignored) {
-				continue;
-			}
-
-			String displayableDesc = curLevelID + " " + curDesc;			
-			if (!curRow.getChildren().isEmpty())
-				displayableDesc += " (" + curRow.getChildren().size() + ")";
-
-			final TreeItem curItem;
-			if (!"true".equals(curRow.getCodeable())) {
-				curItem = new TreeItem(displayableDesc) {
-					public void setChecked(boolean checked) {
-					}
-				};
-				// curItem.setStyleName("tree-folder");
-			} else {
-				curItem = new TreeItem(displayableDesc);
-				curItem.setIconStyle("icon-accept");
-			}
-
-			curItem.setId(curCode);
-
-			if (selected.contains(curRow)) {
-				curItem.setChecked(true);
-				if (item.getData(DATA_KEY) == null)
-					item.setData(DATA_KEY, new Integer(1));
-				else
-					item.setData(DATA_KEY, new Integer(((Integer) item.getData(DATA_KEY)).intValue() + 1));
-			} else
-				curItem.setChecked(false);
-
-			item.add(curItem);
-			
-			addMyChildren(curItem, curRow, selected);
-
-			if (curItem.getData(DATA_KEY) != null)
-				curItem.setText(curItem.getText() + " (Items ticked: " + curItem.getData(DATA_KEY).toString() + ")");
-		}
-	}
-	
-	private static TreeStore<CodingOption> createTreeStore(TreeData treeData) {
+	private static TreeStore<CodingOption> createTreeStore(TreeData treeData, Map<String, CodingOption> selection) {
 		TreeStore<CodingOption> store = new TreeStore<CodingOption>();
+		store.setKeyProvider(new ModelKeyProvider<CodingOption>() {
+			public String getKey(CodingOption model) {
+				return model.getValue();
+			}
+		});
 		for (TreeDataRow row : treeData.getTreeRoots()) {
-			CodingOption option = new CodingOption(row);
-			flattenTree(store, option);
+			CodingOption option;
+			if (selection.containsKey(row.getDisplayId()))
+				option = selection.get(row.getDisplayId());
+			else
+				option = new CodingOption(row);
+			
+			flattenTree(store, selection, option);
 			store.add(option, true);
 		}
 		
 		return store;
 	}
 	
-	private static void flattenTree(TreeStore<CodingOption> store, CodingOption parent) {
+	private static void flattenTree(TreeStore<CodingOption> store, Map<String, CodingOption> selection, CodingOption parent) {
 		if (parent.isValid()) {
 			for (TreeDataRow current : parent.getRow().getChildren()) {
-				CodingOption child = new CodingOption(current);
+				CodingOption child;
+				if (selection.containsKey(current.getDisplayId())) {
+					child = selection.get(current.getDisplayId());
+					parent.incrementNumChildrenSelected();
+				}
+				else
+					child = new CodingOption(current);
 				parent.add(child);
 				
-				flattenTree(store, child);
+				flattenTree(store, selection, child);
 			}
 		}
 	}
@@ -237,13 +153,23 @@ public class TreePanelBuilder {
 		private static final long serialVersionUID = 1L;
 		
 		private final TreeDataRow row;
+		private final String rowID;
+		
+		private int numChildrenSelected;
 		
 		public CodingOption(TreeDataRow row) {
 			super();
 			this.row = row;
+			this.rowID = row.getDisplayId();
+			this.numChildrenSelected = 0;
 			
 			set("text", getDescription());
 			set("value", row.getDisplayId());
+		}
+		
+		public void incrementNumChildrenSelected() {
+			numChildrenSelected++;
+			set("text", getDescription());
 		}
 		
 		public String getValue() {
@@ -262,12 +188,22 @@ public class TreePanelBuilder {
 			String curDesc = row.getDescription();
 			String curLevelID = row.getRowNumber();
 			
-			String displayableDesc = (curLevelID.equals("0") ? "" : curLevelID) + ". " + curDesc;
+			StringBuilder displayableDesc = new StringBuilder();
+			displayableDesc.append(curLevelID.equals("0") ? "" : curLevelID);
+			displayableDesc.append(". ");
+			displayableDesc.append(curDesc);
 
-			if (!row.getChildren().isEmpty())
-				displayableDesc += " (" + row.getChildren().size() + ")";
+			if (!row.getChildren().isEmpty()) {
+				displayableDesc.append(" (" + row.getChildren().size());
+				if (numChildrenSelected > 0) {
+					displayableDesc.append(", ");
+					displayableDesc.append(numChildrenSelected);
+					displayableDesc.append(" selected");
+				}
+				displayableDesc.append(')');
+			}
 			
-			return displayableDesc;
+			return displayableDesc.toString();
 		}
 		
 		private boolean isValid() {
@@ -290,7 +226,7 @@ public class TreePanelBuilder {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((row == null) ? 0 : row.hashCode());
+			result = prime * result + ((rowID == null) ? 0 : rowID.hashCode());
 			return result;
 		}
 
@@ -303,10 +239,10 @@ public class TreePanelBuilder {
 			if (getClass() != obj.getClass())
 				return false;
 			CodingOption other = (CodingOption) obj;
-			if (row == null) {
-				if (other.row != null)
+			if (rowID == null) {
+				if (other.rowID != null)
 					return false;
-			} else if (!row.equals(other.row))
+			} else if (!rowID.equals(other.rowID))
 				return false;
 			return true;
 		}

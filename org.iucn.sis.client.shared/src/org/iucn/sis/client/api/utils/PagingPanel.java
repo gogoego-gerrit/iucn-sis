@@ -24,7 +24,7 @@ public abstract class PagingPanel<T extends ModelData> extends LayoutContainer {
 		
 		loader = 
 			new BasePagingLoader<BasePagingLoadResult<T>>(proxy);
-		loader.setRemoteSort(true);
+		loader.setRemoteSort(false);
 		
 		pageCount = 25;
 	}

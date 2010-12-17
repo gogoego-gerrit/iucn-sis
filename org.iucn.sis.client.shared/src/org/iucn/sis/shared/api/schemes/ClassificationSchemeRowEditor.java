@@ -6,10 +6,12 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.gwt.ui.DrawsLazily;
@@ -74,8 +76,8 @@ public class ClassificationSchemeRowEditor extends LayoutContainer implements Dr
 		return widgetContainer;
 	}
 	
-	protected ToolBar createWidgetContainerToolbar(final ClassificationSchemeModelData model) {
-		final ToolBar buttonPanel = new ToolBar();
+	protected Widget createWidgetContainerToolbar(final ClassificationSchemeModelData model) {
+		final ButtonBar buttonPanel = new ButtonBar();
 		buttonPanel.add(new Button("Save Selection", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				//									if(!((Boolean)box.getSelection().get(0).get("enabled")).booleanValue() || (!init.equals(box.getSelection().get(0).get("key")) && selected.containsKey(box.getSelection().get(0).get("key")))){
