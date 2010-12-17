@@ -1,17 +1,16 @@
 package org.iucn.sis.shared.api.schemes;
 
-import java.util.List;
-
+import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
-import org.iucn.sis.client.api.models.ClientUser;
-import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.structures.WidgetGenerator;
 import org.iucn.sis.shared.api.utils.FieldParser;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Info;
@@ -21,12 +20,12 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class ClassificationSchemeTestEntryPoint extends SISClientBase {
@@ -35,11 +34,13 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 	public void loadModule() {
 		instance = this;
 		
-		String field = Window.Location.getParameter("field");
-		if (field == null) 
-			buildPostLogin();
-		else
+		FieldWidgetCache.impl.registerWidgetGenerator(new WidgetGenerator());
+		
+		String server = Window.Location.getParameter("server");
+		if ("remote".equals(server))
 			SimpleSupport.doLogin("admin", "s3cr3t");
+		else
+			buildPostLogin();
 	}
 	
 	@Override
@@ -50,16 +51,21 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 	
 	@Override
 	protected void initializeCaches() {
-		// TODO Auto-generated method stub
+		
 	}
 	
 	@Override
 	public void buildPostLogin() {
 		String field = Window.Location.getParameter("field");
-		if (field == null) 
-			open("/org.iucn.sis.ClassificationSchemes/field/Threats.xml", "Threats");
+		if (field == null)
+			field = "Threats";
+		String server = Window.Location.getParameter("server");
+		if (server == null || "local".equals(server))
+			server = "/org.iucn.sis.ClassificationSchemes";
 		else
-			open(UriBase.getInstance().getSISBase() + "/field/" + field, field);
+			server = UriBase.getInstance().getSISBase();
+		
+		open(server + "/field/" + field + ".xml", field);
 	}
 	
 	public void open(String uri, final String fieldName) {
@@ -81,6 +87,11 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 				}
 				display.setData(field);
 				
+				final LayoutContainer displayArea = new LayoutContainer(new FlowLayout());
+				displayArea.setScrollMode(Scroll.AUTO);
+				displayArea.setLayoutOnChange(true);
+				displayArea.add(display.showDisplay());
+				
 				final ToolBar toolbar = new ToolBar();
 				toolbar.add(new Button("Has Changed", new SelectionListener<ButtonEvent>() {
 					public void componentSelected(ButtonEvent ce) {
@@ -99,9 +110,24 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 						}
 					}
 				}));
+				toolbar.add(new Button("View Only", new SelectionListener<ButtonEvent>() {
+					public void componentSelected(ButtonEvent ce) {
+						Button source = ce.getButton();
+						if ("View Only".equals(source.getText())) {
+							displayArea.removeAll();
+							displayArea.add(display.showViewOnly());
+							source.setText("Edit Mode");
+						}
+						else {
+							displayArea.removeAll();
+							displayArea.add(display.showDisplay());
+							source.setText("View Only");
+						}
+					}
+				}));
 				
 				final LayoutContainer container = new LayoutContainer(new BorderLayout());
-				container.add(display.showDisplay(), new BorderLayoutData(LayoutRegion.CENTER));
+				container.add(displayArea, new BorderLayoutData(LayoutRegion.CENTER));
 				container.add(toolbar, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
 				
 				Viewport vp = new Viewport();
