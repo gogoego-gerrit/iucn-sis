@@ -100,10 +100,10 @@ public class SISBooleanList extends SISPrimitiveStructure<Integer> implements Do
 
 	@Override
 	public String getData() {
-		if (listbox.getSelectedIndex() == 0)
-			return "";
+		if (listbox.getSelectedIndex() <= 0)
+			return null;
 		else
-			return "" + listbox.getSelectedIndex();
+			return Integer.toString(listbox.getSelectedIndex());
 	}
 	
 	@Override

@@ -4,32 +4,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.structures.SISMap;
 import org.iucn.sis.shared.api.structures.SISMapData;
-import org.iucn.sis.shared.api.structures.SISSelect;
 import org.iucn.sis.shared.api.structures.SISStructureCollection;
 import org.iucn.sis.shared.api.structures.Structure;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
-import com.solertium.lwxml.gwt.debug.SysDebugger;
-
 public class DisplayDataProcessor {
 
 	private static void printDiagnostic(DisplayData data, Throwable e) {
-		// e.printStackTrace();
-
-		String err = "Fatal error. Please report to SIS IT administrators.";
-		err += "Adding Display ID " + data.getDisplayId() + " failed!";
-		err += ("Canonical Name: " + data.getCanonicalName());
-		err += ("Description: " + data.getDescription());
-		err += ("Structure type: " + data.getStructure());
-		err += ("Data: " + ((data.getData() == null) ? "null" : data.getData()));
-		err += ("Error Message: " + e.getMessage());
-		Debug.println(err);
-		// Window.alert( err );
+		String err = "Fatal error. Please report to SIS IT administrators. \n";
+		err += "Adding Display ID {0} failed!\n";
+		err += ("* Canonical Name: {1}\n");
+		err += ("* Description: {2}\n");
+		err += ("* Structure type: {3}\n");
+		err += ("* Data: {4}\n");
+		err += ("* Error Message: {5}\n{6}");
 		
-		e.printStackTrace();
+		//TODO: alert this to javascript error?
+		
+		Debug.println(err, data.getDisplayId(), data.getCanonicalName(), data.getDescription(), data.getStructure(), data.getData(), e.getMessage(), e);
 	}
 
 	/**

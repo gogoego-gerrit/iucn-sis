@@ -49,6 +49,8 @@ public class SISOneToMany extends Structure<Field> {
 
 		selected = new ArrayList<StructureHolder>();
 		defaultStructureData = defaultStructure;
+		
+		Debug.println("Default structure is {0} with data {1}", defaultStructure.getClass().getName(), defaultStructure.getData());
 	}
 	
 	@Override
@@ -92,6 +94,7 @@ public class SISOneToMany extends Structure<Field> {
 			field = new Field();
 			field.setName(getId());
 			field.setParent(parent);
+			parent.getFields().add(field);
 		}
 		
 		final List<StructureHolder> unsaved = new ArrayList<StructureHolder>();

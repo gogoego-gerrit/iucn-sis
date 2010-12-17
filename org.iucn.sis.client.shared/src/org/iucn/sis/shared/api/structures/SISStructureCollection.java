@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
@@ -54,13 +55,14 @@ public class SISStructureCollection extends Structure<Field> {
 		}
 		
 		for (DisplayStructure cur : structures) {
+			Debug.println("Saving structure of type {0} with id {1}", cur.getStructureType(), cur.getId());
 			if (cur.isPrimitive())
 				cur.save(field, field.getPrimitiveField(cur.getId()));
 			else {
 				if (cur.hasId())
 					cur.save(field, field.getField(cur.getId()));
 				else
-					cur.save(field, null);
+					cur.save(null, field);
 			}
 		}
 	}
@@ -71,8 +73,12 @@ public class SISStructureCollection extends Structure<Field> {
 			boolean hasChanged;
 			if (cur.isPrimitive())
 				hasChanged = cur.hasChanged(field == null ? null : field.getPrimitiveField(cur.getId()));
-			else
-				hasChanged = cur.hasChanged(field == null ? null : field.getField(cur.getId()));
+			else {
+				if (cur.hasId())
+					hasChanged = cur.hasChanged(field == null ? null : field.getField(cur.getId()));
+				else
+					hasChanged = cur.hasChanged(field);
+			}
 			
 			if (hasChanged)
 				return true;

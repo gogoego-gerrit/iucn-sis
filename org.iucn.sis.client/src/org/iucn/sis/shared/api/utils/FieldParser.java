@@ -217,7 +217,17 @@ public class FieldParser implements CreatesDisplay {
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.ONE_TO_MANY)) {
 				ArrayList<DisplayData> parsedStructs = parseStructures(current.getChildNodes(), lookups);
-				currentDisplayData.setData(parsedStructs.get(0));
+				
+				if (parsedStructs.isEmpty())
+					currentDisplayData.setData(null);
+				else if (parsedStructs.size() == 1)
+					currentDisplayData.setData(parsedStructs.get(0));
+				else {
+					FieldData data = new FieldData();
+					data.setStructure(XMLUtils.STRUCTURE_COLLECTION);
+					data.setData(parsedStructs);
+					currentDisplayData.setData(data);
+				}
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.CLASSIFICATION_SCHEME_STRUCTURE)) {
@@ -306,40 +316,6 @@ public class FieldParser implements CreatesDisplay {
 				}
 
 				currentDisplayData.setData(data);
-			}
-
-			else if (structureType.equalsIgnoreCase(XMLUtils.THREAT_STRUCTURE)) {
-				NativeNodeList details = current.getChildNodes();
-				ArrayList<String> threatData = new ArrayList<String>();
-
-				for (int m = 0; m < details.getLength(); m++) {
-
-					if (details.item(m).getNodeName().equalsIgnoreCase("id")) {
-						threatData.add(XMLUtils.getXMLValue(details.item(m), ""));
-					} else if (details.item(m).getNodeName().equalsIgnoreCase("desc")) {
-						currentDisplayData.setDescription(XMLUtils.getXMLValue(details.item(m), ""));
-						threatData.add(XMLUtils.getXMLValue(details.item(m), ""));
-					} else if (details.item(m).getNodeName().equalsIgnoreCase("codeable")) {
-						threatData.add(XMLUtils.getXMLValue(details.item(m), ""));
-					}
-
-					try {
-						if (details.item(m).getNodeName().equalsIgnoreCase("timing")) {
-							threatData.add(XMLUtils.getXMLValue(details.item(m), ""));
-						} else if (details.item(m).getNodeName().equalsIgnoreCase("scope")) {
-							threatData.add(XMLUtils.getXMLValue(details.item(m), ""));
-						} else if (details.item(m).getNodeName().equalsIgnoreCase("severity")) {
-							threatData.add(XMLUtils.getXMLValue(details.item(m), ""));
-						} else if (details.item(m).getNodeName().equalsIgnoreCase("impact")) {
-							threatData.add(XMLUtils.getXMLValue(details.item(m), ""));
-						}
-					} catch (Exception e) {
-						threatData = null;
-						break;
-					}
-				}
-
-				currentDisplayData.setData(threatData);
 			}
 
 			else if (structureType.equalsIgnoreCase(XMLUtils.RELATED_STRUCTURE)) {
@@ -629,8 +605,6 @@ public class FieldParser implements CreatesDisplay {
 		processBasicDisplayData(currentField, root);
 		// processReferences(currentField, fieldTags, i);
 		currentField.setDisplayId(XMLUtils.getXMLAttribute(root, "id"));
-		
-		Debug.println("For %s, found lookups for %s", currentField.getCanonicalName(), currentField.getLookups());
 
 		// Build the structure
 		ArrayList<DisplayData> structureSet = parseStructures(structuresTag.getChildNodes(), currentField.getLookups());
@@ -652,6 +626,10 @@ public class FieldParser implements CreatesDisplay {
 			if (layout != null)
 				currentField.setStyle(layout);
 		}
+		
+		Debug.println("For %s, found lookups for %s with structure %s", 
+				currentField.getCanonicalName(), currentField.getLookups(), 
+				currentField.getStructure());
 
 		return currentField;
 	}
