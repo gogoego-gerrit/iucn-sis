@@ -1,0 +1,192 @@
+<field id="0">
+	<canonicalName>WildHarvestRecord</canonicalName>
+	<description>Wild Harvest Record</description>
+	<classOfService>None</classOfService>
+	<structures>
+		<structure>
+			<oneToMany>
+				<structure>
+						
+							<relatedStructure>
+								<dominantStructures>
+									<structure id="isTotalSpeciesRange" description="Total Species Range?">
+										<boolean />
+									</structure> 
+								</dominantStructures>
+								<dependentStructures>
+									<structure id="percentGlobalRange" description="% of global range/population (as decimal)">
+										<number restriction="0-1"/>
+									</structure>
+								</dependentStructures>
+								<rules>
+									<booleanRule>
+										<activateOnRule>true</activateOnRule>
+										<actions>
+											<onTrue>HIDE</onTrue>
+											<onFalse>SHOW</onFalse>
+										</actions>
+									</booleanRule>
+								</rules>
+							</relatedStructure>
+						</structure>
+						<structure id="source" description="Source of harvest from wild">
+							<singleSelect>
+								<option>Wild</option>
+								<option>Augmented/enriched population (e.g. salmon/eels restocking to wild)</option>
+								<option>Unknown</option>
+							</singleSelect>
+						</structure>
+						<structure>
+							<relatedStructure>
+								<dominantStructures>
+									<structure id="formRemoved" description="Primary form harvested from wild">
+										<singleSelect>
+											<option>Whole animal plant (including eggs, fruit, seeds)</option>
+											<option>Parts non-lethal removal</option> 
+											<option>Parts lethal removal</option>
+											<option>Other  (free text)</option>
+										</singleSelect>
+									</structure>
+								</dominantStructures>
+								<dependentStructures>
+									<structure id="formRemovedOther" description="Other (please specify)">
+										<text/>
+									</structure>
+								</dependentStructures>
+								<rules>
+									<selectRule>
+										<activateOnIndex>4</activateOnIndex>
+										<actions>
+											<onTrue>SHOW</onTrue>
+											<onFalse>HIDE</onFalse>
+										</actions>
+									</selectRule>
+								</rules>
+							</relatedStructure>
+						</structure>
+						<structure id="lifeStageRemoval" description="Life Stage Removal">
+							<singleSelect>
+								<option>All</option>
+								<option>All (adults and juveniles) except eggs, fruits and seeds</option>
+								<option>Adults only</option>
+								<option>Adults (breeding age only)</option>
+								<option>Adults (post breeding age only)</option>
+								<option>Juveniles only</option>
+								<option>Eggs, fruits, seeds only</option>
+								<option>Unknown</option>
+							</singleSelect>
+						</structure>
+						<structure id="genderRemoval" description="Gender Removal">
+							<singleSelect>
+								<option>Both sexes (incl. Hermaphrodites)</option>
+								<option>Males only</option>
+								<option>Females only</option>
+								<option>Unknown</option>
+								<option>Not Applicable</option>
+							</singleSelect>
+						</structure>
+						<structure id="relativeHarvest" description="Relative harvest (% of life stage and form taken per year within the geographic scope of this harvest)">
+							<singleSelect>
+								<option>Very low (approx 0-9%)</option>
+								<option>Low to medium (approx 10-49%)</option>
+								<option>Medium to high (approx 50-89%)</option>
+								<option>Very high (approx 90-100%)</option>
+								<option>Unknown</option>
+							</singleSelect>
+						</structure>
+						<structure id="documentation" description="Amount and/or trends (free text stating units, method of calculating amounts and trends, single or multiple harvest and time periods for harvest data) + references.">
+							<richText/>	
+						</structure>
+						<structure id="thisConservationBenefits" description="Conservation Benefits for this species">
+							<booleanUnknown/>
+						</structure>
+						<structure id="thisConservationBenefitsText" description="Details for conservation benefits for this species">
+							<text/>
+						</structure>
+						<structure id="otherConservationBenefits" description="Conservation Benefits for other species">
+							<booleanUnknown/>
+						</structure>
+						<structure id="otherConservationBenefitsText" description="Details for conservation benefits for other species">
+							<text/>
+						</structure>
+						<structure id="habitatConservationBenefits" description="Conservation Benefits for the habitat">
+							<booleanUnknown/>
+						</structure>
+						<structure id="habitatConservationBenefitsText" description="Details for conservation benefits for the habitat">
+							<text/>
+						</structure>
+						<structure id="EndUseRecord">
+							<oneToMany>
+								<structure>
+									<relatedStructure>
+										<dominantStructures>
+											<structure id="endUse" description="End Use">
+												<multipleSelect>
+													<option>Food – human</option> 
+													<option>Food – animal</option>
+													<option>Medicine – human and veterinary</option>
+													<option>Poisons</option>
+													<option>Manufacturing chemicals</option>  
+													<option>Other chemicals </option>
+													<option>Fuels</option>
+													<option>Fibre</option>
+													<option>Construction or structural materials</option>
+													<option>Wearing apparel, accessories</option>
+													<option>Other household goods</option>
+													<option>Handicrafts, jewellery, etc.</option>
+													<option>Pets/display animals, horticulture</option>
+													<option>Research</option>
+													<option>Sport hunting /specimen collecting</option>  
+													<option>Establishing ex-situ production *</option>
+													<option>Other (free text)</option>
+													<option>Unknown</option>
+													<option>Unset</option>
+												</multipleSelect>
+											</structure>
+										</dominantStructures>
+										<dependentStructures>
+											<structure id="endUseOther" description="Other (please specify)">
+												<text/>
+											</structure>
+										</dependentStructures>
+										<rules>
+											<selectRule>
+												<activateOnIndex>18</activateOnIndex>
+												<actions>
+													<onTrue>SHOW</onTrue>
+													<onFalse>HIDE</onFalse>
+												</actions>
+											</selectRule>
+										</rules>
+									</relatedStructure>
+								</structure>
+								<structure id="biologicalPart" description="Biological part and/or product">
+									<text/>
+								</structure>
+								<structure id="scale" description="End use scale">
+									<multipleSelect>
+										<option>Local Subsistence – direct use by harvesters</option>
+										<option>Local markets/ barter/exchange/ sale</option>
+										<option>National</option>
+										<option>International</option>
+									</multipleSelect>
+								</structure>
+								<structure id="driver" description="Driver">
+									<singleSelect>
+										<option>Primary</option>
+										<option>Primary (persecution where species is used)</option>
+										<option>Secondary</option>
+										<option>Bycatch (where species is used)</option>
+										<option>Minor</option>
+										<option>Unknown</option>
+									</singleSelect>
+								</structure>
+								<structure id="driverDetails" description="Driver details">
+									<text/>
+								</structure>
+							</oneToMany>
+						</structure>
+			</oneToMany>
+		</structure>
+	</structures>
+</field>

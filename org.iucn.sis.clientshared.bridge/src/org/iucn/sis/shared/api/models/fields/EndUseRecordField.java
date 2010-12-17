@@ -18,6 +18,14 @@ public class EndUseRecordField extends ProxyField {
 		return getForeignKeyPrimitiveField("endUse");
 	}
 	
+	public void setEndUseOther(String value) {
+		setStringPrimitiveField("endUseOther", value);
+	}
+	
+	public String getEndUseOther() {
+		return getStringPrimitiveField("endUseOther");
+	}
+	
 	public void setBiologicalProduct(String value) {
 		setTextPrimitiveField("biologicalPart", value);
 	}
@@ -40,6 +48,14 @@ public class EndUseRecordField extends ProxyField {
 	
 	public Integer getDriverOfHarvest() {
 		return getForeignKeyPrimitiveField("driver");
+	}
+	
+	public void setDriverDetails(String value) {
+		setStringPrimitiveField("driverDetails", value);
+	}
+	
+	public String getDriverDetails() {
+		return getStringPrimitiveField("driverDetails");
 	}
 	
 	public void setSignificantRisk(Integer value) {

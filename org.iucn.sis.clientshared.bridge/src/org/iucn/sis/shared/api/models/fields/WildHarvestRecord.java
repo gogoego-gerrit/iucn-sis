@@ -63,6 +63,14 @@ public class WildHarvestRecord extends ProxyField {
 		return getForeignKeyPrimitiveField("formRemoved");
 	}
 	
+	public void setFormRemovedOther(String value) {
+		setStringPrimitiveField("formRemovedOther", value);
+	}
+	
+	public String getFormRemovedOther() {
+		return getStringPrimitiveField("formRemovedOther");
+	}
+	
 	public void setLifeStageRemoval(Integer value) {
 		setForeignKeyPrimitiveField("lifeStageRemoval", value);	
 	}
