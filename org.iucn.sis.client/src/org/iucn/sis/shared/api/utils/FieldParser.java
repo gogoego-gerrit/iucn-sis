@@ -156,15 +156,13 @@ public class FieldParser implements CreatesDisplay {
 		
 		DisplayData currentDisplayData;
 
-		NativeElement current = null;
-		NativeElement structureTag = null;
-
 		for (int structs = 0; structs < structureTags.getLength(); structs++) {
-			structureTag = structureTags.elementAt(structs);
+			NativeElement structureTag = structureTags.elementAt(structs);
 
 			if (structureTag == null || !structureTag.getNodeName().equalsIgnoreCase("structure"))
 				continue;
 
+			NativeElement current;
 			if (structureTag.getFirstChild().getNodeType() == XMLUtils.TEXT_NODE_TYPE)
 				current = structureTag.getChildNodes().elementAt(1);
 			else
@@ -299,7 +297,7 @@ public class FieldParser implements CreatesDisplay {
 						}
 					}
 				}
-				Debug.println("For structure {0}, setting options to {1}", currentDisplayData.getUniqueId(), options);
+				
 				currentDisplayData.setData(options);
 			}
 
@@ -513,29 +511,40 @@ public class FieldParser implements CreatesDisplay {
 					NativeNode currentRoot = treeRoots.item(m);
 					if (currentRoot.getNodeName().equalsIgnoreCase("defaultStructure")) {
 						for (int k = 0; k < currentRoot.getChildNodes().getLength(); k++) {
-							if (currentRoot.getChildNodes().item(k).getNodeName().equalsIgnoreCase("treeStructures")) {
-								defaultTreeStructure = new TreeData();
-								ArrayList<DisplayData> defaultTreeStructureSet = parseStructures(currentRoot.getChildNodes()
-										.elementAt(k).getChildNodes(), lookups);
-								if (structureSet.size() == 1) {
+							NativeNode treeStructureNode = currentRoot.getChildNodes().item(k);
+							if (treeStructureNode.getNodeName().equalsIgnoreCase("treeStructures")) {
+								ArrayList<DisplayData> defaultTreeStructureSet = 
+									parseStructures(treeStructureNode.getChildNodes(), lookups);
+								if (defaultTreeStructureSet.size() == 1) {
 									defaultTreeStructure.setStructure(((FieldData) defaultTreeStructureSet.get(0))
 											.getStructure());
 									defaultTreeStructure
 											.setData(((FieldData) defaultTreeStructureSet.get(0)).getData());
+									
 								} else {
 									defaultTreeStructure.setStructure(XMLUtils.STRUCTURE_COLLECTION);
 									defaultTreeStructure.setData(defaultTreeStructureSet);
 								}
+								
 								treeData.setDefaultStructure(defaultTreeStructure);
 							}
 						}
 					} else if (currentRoot.getNodeName().equalsIgnoreCase("root")) {
 						treeData.addTreeRoot(processRoot(currentRoot, defaultTreeStructure, lookups));
+					} else if (currentRoot.getNodeName().equalsIgnoreCase("coding")) {
+						NativeNodeList roots = currentRoot.getChildNodes();
+						for (int r = 0; r < roots.getLength(); r++) {
+							NativeNode curChild = roots.item(r);
+							if ("root".equals(curChild.getNodeName()))
+								treeData.addTreeRoot(processRoot(curChild, defaultTreeStructure, lookups));	
+						}
 					}
 				}
 
 				if (current.getAttribute("description") != null)
 					treeData.setDescription(current.getAttribute("description"));
+				else
+					treeData.setDescription(currentDisplayData.getDescription());
 				currentDisplayData.setData(treeData);
 			}
 

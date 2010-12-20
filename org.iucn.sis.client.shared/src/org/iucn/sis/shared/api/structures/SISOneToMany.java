@@ -49,8 +49,6 @@ public class SISOneToMany extends Structure<Field> {
 
 		selected = new ArrayList<StructureHolder>();
 		defaultStructureData = defaultStructure;
-		
-		Debug.println("Default structure is {0} with data {1}", defaultStructure.getClass().getName(), defaultStructure.getData());
 	}
 	
 	@Override

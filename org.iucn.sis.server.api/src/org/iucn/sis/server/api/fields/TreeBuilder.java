@@ -9,7 +9,6 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
-import org.iucn.sis.shared.api.debug.Debug;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -64,7 +63,7 @@ private final ExecutionContext ec;
 		}
 		
 		final List<TreeNode> roots = new ArrayList<TreeBuilder.TreeNode>();
-		final Map<Integer, TreeNode> nodes = new HashMap<Integer, TreeBuilder.TreeNode>();
+		final Map<String, TreeNode> nodes = new HashMap<String, TreeBuilder.TreeNode>();
 
 		for (Row row : rs.getSet()) {
 			final TreeNode node = new TreeNode(row);
@@ -143,8 +142,8 @@ private final ExecutionContext ec;
 			this.children = new ArrayList<TreeBuilder.TreeNode>();
 		}
 		
-		public Integer getCode() {
-			return row.get("code").getInteger();
+		public String getCode() {
+			return row.get("code").toString();
 		}
 		
 		public Integer getParent() {
@@ -172,6 +171,9 @@ private final ExecutionContext ec;
 	
 	public static class TreeNodeComparator implements Comparator<TreeNode> {
 		
+		private final AlphanumericComparator comparator = 
+			new AlphanumericComparator();
+		
 		public int compare(TreeNode arg0, TreeNode arg1) {
 			String[] splitA = arg0.getRow().get("ref").toString().split("\\.");
 			String[] splitB = arg1.getRow().get("ref").toString().split("\\.");
@@ -185,9 +187,9 @@ private final ExecutionContext ec;
 			
 			//Guaranteed to be the same length...
 			for (int i = 0; i < splitA.length; i++) {
-				Integer slotA = Integer.valueOf(splitA[i]), slotB = Integer.valueOf(splitB[i]);
+				String slotA = splitA[i], slotB = splitB[i];
 				
-				int value = slotA.compareTo(slotB);
+				int value = comparator.compare(slotA, slotB);
 				if (value != 0)
 					return value;
 			}

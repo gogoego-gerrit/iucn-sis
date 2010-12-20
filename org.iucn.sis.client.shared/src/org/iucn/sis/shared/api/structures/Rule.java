@@ -13,33 +13,29 @@ public abstract class Rule {
 	public static final String HIDE = "hide";
 
 	protected String rule;
-	protected ArrayList affectedObjectIndices;
+	protected ArrayList<Integer> affectedObjectIndices;
 
 	protected String onTrue = "show";
 	protected String onFalse = "hide";
 
 	public Rule(String rule) {
-		this(rule, new ArrayList());
+		this(rule, new ArrayList<Integer>());
 	}
 
-	public Rule(String rule, ArrayList affectedObjectIndices) {
+	public Rule(String rule, ArrayList<Integer> affectedObjectIndices) {
 		this.rule = rule;
 		this.affectedObjectIndices = affectedObjectIndices;
 	}
 
-	public void addAffectedObjectIndex(int index) {
-		addAffectedObjectIndex("" + index);
-	}
-
 	public void addAffectedObjectIndex(String index) {
-		this.affectedObjectIndices.add(Integer.valueOf(index.trim()));
+		addAffectedObjectIndex(Integer.valueOf(index.trim()));
 	}
 
-	public int getAffectedObjectIndex(int index) {
-		return ((Integer) affectedObjectIndices.get(index)).intValue();
+	public void addAffectedObjectIndex(int index) {
+		this.affectedObjectIndices.add(index);
 	}
 
-	public ArrayList getAffectedObjectIndices() {
+	public ArrayList<Integer> getAffectedObjectIndices() {
 		return affectedObjectIndices;
 	}
 

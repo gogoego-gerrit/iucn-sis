@@ -220,12 +220,12 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 						}
 					}
 				}
-				final ElementCollection coding = new ElementCollection(
-					document.getDocumentElement().getElementsByTagName("coding")
-				);
-				for (Element el : coding) {
-					treeBuilder.buildTree(el.getAttribute("name"), document, el);
-				}
+			}
+			final ElementCollection coding = new ElementCollection(
+				document.getDocumentElement().getElementsByTagName("coding")
+			);
+			for (Element el : coding) {
+				treeBuilder.buildTree(el.getAttribute("name"), document, el);
 			}
 			
 			return BaseDocumentUtils.impl.serializeDocumentToString(document, true, false);

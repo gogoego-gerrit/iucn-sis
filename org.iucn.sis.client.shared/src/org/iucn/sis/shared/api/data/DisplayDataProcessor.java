@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.structures.SISEmptyStructure;
 import org.iucn.sis.shared.api.structures.SISMapData;
 import org.iucn.sis.shared.api.structures.SISStructureCollection;
 import org.iucn.sis.shared.api.structures.Structure;
@@ -77,37 +78,6 @@ public class DisplayDataProcessor {
 			}
 		}
 
-		else if (fieldStructure.equalsIgnoreCase(XMLUtils.THREAT_STRUCTURE)) {
-			try {
-				HashMap dataValues = new HashMap();
-				ArrayList data = (ArrayList) currentDisplayData.getData();
-
-				structure = WidgetGenerator.StructureGenerator(fieldStructure, currentDisplayData.getDescription(),
-						uniqueID, null);
-
-				// Non-codeable
-				if (data == null || data.size() < 3) {
-					structure.hideWidgets();
-					// dataValues.put("NC", "NC");
-				}
-
-				// Codeable
-				else {
-					try {
-						dataValues.put(XMLUtils.THREAT_TIMING, data.get(0));
-						dataValues.put(XMLUtils.THREAT_SCOPE, data.get(1));
-						dataValues.put(XMLUtils.THREAT_SEVERITY, data.get(2));
-						dataValues.put(XMLUtils.THREAT_IMPACT, data.get(3));
-					} catch (Exception e) {
-						printDiagnostic(currentDisplayData, e);
-						dataValues = null;
-					}
-					// structure.setValues(dataValues);
-				}
-			} catch (Exception e) {
-				printDiagnostic(currentDisplayData, e);
-			}
-		}
 		else if (fieldStructure.equalsIgnoreCase(XMLUtils.ONE_TO_MANY)) {
 			try {
 				structure = WidgetGenerator.StructureGenerator(fieldStructure, currentDisplayData.getDescription(),
@@ -238,6 +208,12 @@ public class DisplayDataProcessor {
 			} catch (Exception e) {
 				printDiagnostic(currentDisplayData, e);
 			}
+		}
+		
+		if (structure == null) {
+			Debug.println("Structure of type {0} could not be created.", fieldStructure);
+			printDiagnostic(currentDisplayData, new NullPointerException("Auto-generated exception"));
+			return new SISEmptyStructure(null, null, null, null);
 		}
 
 		try {

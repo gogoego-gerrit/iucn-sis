@@ -190,10 +190,10 @@ public class WidgetGenerator implements CreatesWidget {
 		// OTHER
 		else if (theStructure.equalsIgnoreCase(XMLUtils.BUTTON_STRUCTURE)) {
 			return new SISButton(theStructure, description, structID);
-		} /*else if (theStructure.equalsIgnoreCase(XMLUtils.TREE_STRUCTURE)) {
-			return new SISClassificationSchemeStructure(theStructure, description, structID, data);
-			// return new SISTreeStructure(theStructure, description, structID, data);
-		} */else {
+		} else if (theStructure.equalsIgnoreCase(XMLUtils.TREE_STRUCTURE)) {
+			//return new SISClassificationSchemeStructure(theStructure, description, structID, data);
+			return new SISTreeStructure(theStructure, description, structID, data);
+		} else {
 			return null;
 		}
 	}

@@ -1,0 +1,83 @@
+<field id="0">
+	<canonicalName>FAOOccurrence</canonicalName>
+	<description>FAO Marine Areas</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure id="FAOOccurrence" description="FAO Marine Areas">
+			<treeStructure>
+				<defaultStructure>
+					<treeStructures layout="horizontal">
+						<structure>
+							<relatedStructure layout="vertical">
+								<dominantStructures>
+									<structure id="presence" description="Presence">
+										<singleSelect>
+											<option>Extant</option>
+											<option>Possibly Extinct</option>
+											<option>Extinct</option>
+											<option>Presence Uncertain</option>
+											<selected>0</selected>
+										</singleSelect>
+									</structure>
+								</dominantStructures>
+								<dependentStructures>
+									<structure id="formerlyBred" description="Formerly Bred">
+										<booleanUnknown/>
+									</structure> 
+								</dependentStructures>
+								<rules>
+									<selectRule>
+										<activateOnIndex>1,2,4</activateOnIndex>
+										<actions>
+											<onTrue>SHOW</onTrue>
+											<onFalse>HIDE</onFalse>
+										</actions>
+									</selectRule>
+								</rules>
+							</relatedStructure>
+						</structure>
+						<structure>
+							<relatedStructure layout="horizontal">
+								<dominantStructures>
+									<structure id="origin" description="Origin">
+										<singleSelect>
+											<option>Native</option>
+											<option>Reintroduced</option>
+											<option>Introduced</option>
+											<option>Prehistorically Introduced</option>
+											<option>Vagrant</option>
+											<option>Origin Uncertain</option>
+											<selected>0</selected>
+										</singleSelect>
+									</structure>
+								</dominantStructures>
+								<dependentStructures>
+									<structure id="seasonality" description="Seasonality">
+										<multipleSelect>
+											<option>Resident</option>
+											<option>Breeding Season</option>
+											<option>Non-Breeding Season</option>
+											<option>Passage</option>
+											<option>Seasonal Occurrence Uncertain</option>
+											<selected></selected>
+										</multipleSelect>
+									</structure>
+								</dependentStructures>
+								<rules>
+									<selectRule>
+										<activateOnIndex>5</activateOnIndex>
+										<actions>
+											<onTrue>HIDE</onTrue>
+											<onFalse>SHOW</onFalse>
+										</actions>
+									</selectRule>
+								</rules>
+							</relatedStructure>
+						</structure>
+					</treeStructures>
+				</defaultStructure>
+				<coding name="FAOOccurrence"><root code="1" codeable="true" depth="0" id="18"><label>Arctic Sea</label></root><root code="5" codeable="true" depth="0" id="21"><label>Atlantic - northwest</label></root><root code="4" codeable="true" depth="0" id="27"><label>Atlantic - northeast</label></root><root code="8" codeable="true" depth="0" id="31"><label>Atlantic - western central</label></root><root code="3" codeable="true" depth="0" id="34"><label>Atlantic - eastern central</label></root><root code="12" codeable="true" depth="0" id="37"><label>Mediterranean and Black Sea</label></root><root code="7" codeable="true" depth="0" id="41"><label>Atlantic - southwest</label></root><root code="6" codeable="true" depth="0" id="47"><label>Atlantic - southeast</label></root><root code="2" codeable="true" depth="0" id="48"><label>Atlantic - Antarctic</label></root><root code="11" codeable="true" depth="0" id="51"><label>Indian Ocean - western</label></root><root code="10" codeable="true" depth="0" id="57"><label>Indian Ocean - eastern</label></root><root code="9" codeable="true" depth="0" id="58"><label>Indian Ocean - Antarctic</label></root><root code="16" codeable="true" depth="0" id="61"><label>Pacific - northwest</label></root><root code="15" codeable="true" depth="0" id="67"><label>Pacific - northeast</label></root><root code="19" codeable="true" depth="0" id="71"><label>Pacific - western central</label></root><root code="14" codeable="true" depth="0" id="77"><label>Pacific - eastern central</label></root><root code="18" codeable="true" depth="0" id="81"><label>Pacific - southwest</label></root><root code="17" codeable="true" depth="0" id="87"><label>Pacific - southeast</label></root><root code="13" codeable="true" depth="0" id="88"><label>Pacific - Antarctic</label></root></coding>
+			</treeStructure>
+		</structure>
+	</structures>
+</field>

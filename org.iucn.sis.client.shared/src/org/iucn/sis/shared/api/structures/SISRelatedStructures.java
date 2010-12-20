@@ -34,7 +34,7 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 
 	private DominantStructure dominantStructure;
 	private ArrayList<DisplayStructure> dependantStructures;
-	private ArrayList activityRules;
+	private ArrayList<Rule> activityRules;
 	// private ArrayList myWidgets;
 	// private Panel dependantPanel;
 
@@ -44,7 +44,7 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 	private CellPanel dependentsPanel;
 
 	public SISRelatedStructures(String structure, String description, String structID, DominantStructure dominantStructure,
-			ArrayList dependantStructures, ArrayList activityRules) {
+			ArrayList dependantStructures, ArrayList<Rule> activityRules) {
 		super(structure, description, structID);
 
 		this.dominantStructure = dominantStructure;
@@ -272,16 +272,16 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 		return false;
 	}
 
-	public ArrayList isDominantActive() {
-		ArrayList activeRules = new ArrayList();
-		for (int i = 0; i < activityRules.size(); i++) {
-			if (dominantStructure.isActive((Rule) activityRules.get(i))) {
+	public ArrayList<Rule> isDominantActive() {
+		ArrayList<Rule> activeRules = new ArrayList<Rule>();
+		for (Rule rule : activityRules) {
+			if (dominantStructure.isActive(rule)) {
 				// return (Rule)activityRules.get(i);
-				activeRules.add(activityRules.get(i));
+				activeRules.add(rule);
 			} else {
 				for (int j = 0; j < dependantStructures.size(); j++) {
-					if (((Rule) activityRules.get(i)).isIndexAffected(j)) {
-						processRule(true, ((Rule) activityRules.get(i)).getOnFalse(), (Structure) dependantStructures
+					if (rule.isIndexAffected(j)) {
+						processRule(true, rule.getOnFalse(), (Structure) dependantStructures
 								.get(j));
 					}
 				}
@@ -369,11 +369,11 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 	}
 
 	private void updateDependantPanel() {
-		ArrayList activeRules = isDominantActive();
-		for (int j = 0; j < activeRules.size(); j++) {
-			Rule rule = (Rule) activeRules.get(j);
+		ArrayList<Rule> activeRules = isDominantActive();
+		for (Rule rule : activeRules) {
 			for (int i = 0; i < dependantStructures.size(); i++) {
-				processRule(true, (rule.isIndexAffected(i) ? rule.getOnTrue() : rule.getOnFalse()),
+				boolean isAffected = rule.isIndexAffected(i);
+				processRule(isAffected, (isAffected ? rule.getOnTrue() : rule.getOnFalse()),
 						(Structure) dependantStructures.get(i));
 			}
 		}
