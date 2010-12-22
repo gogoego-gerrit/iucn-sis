@@ -15,6 +15,7 @@ import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.WorkingSet;
 import org.restlet.Context;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.MediaType;
@@ -31,6 +32,7 @@ import org.w3c.dom.Element;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
 
 public class TaxonRestlet extends BaseServiceRestlet {
@@ -65,7 +67,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 	@Override
 	public Representation handleGet(Request request, Response response) throws ResourceException {
 		Triple<String, String, String> parameters = getParameters(request);
-		
+
 		final String action = parameters.getFirst();
 		final Representation representation;
 		if (action.equalsIgnoreCase("hierarchy"))
@@ -83,6 +85,8 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		}
 		else if (action.equalsIgnoreCase("footprintIDs"))
 			representation = getFullFootprintOfIDs(response, parseIdentifier(parameters.getSecond()));
+		else if (action.equalsIgnoreCase("workingSets"))
+			representation = fetchWorkingSetsForTaxon(response, parseIdentifier(parameters.getSecond()));
 		else
 			throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 		
@@ -381,6 +385,42 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		
 		response.setStatus(Status.SUCCESS_OK);
 		response.setEntity(representation);
+	}
+	
+	private Representation fetchWorkingSetsForTaxon(Response response, Integer taxonID) throws ResourceException {
+		Representation representation;
+		try {
+			
+			WorkingSet[] sets = SIS.get().getWorkingSetIO().getWorkingSetsForTaxon(taxonID);
+			StringBuilder xml = new StringBuilder("<xml>\r\n");
+
+			for (WorkingSet set : sets) {
+				xml.append(set.toXMLMinimal());
+			}
+
+			xml.append("</xml>");
+				
+			representation = new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
+			representation.setCharacterSet(CharacterSet.UTF_8);
+		
+			//Automatically assumes success when an entity is returned
+			return representation;
+		} catch (PersistentException e) {
+			Debug.println(e);
+			/*
+			 * If you want to return the error to the client, 
+			 * use this pattern.  Then, unwrap the entity via 
+			 * ClientDocumentUtils.parseStatus
+			 */
+			response.setEntity(new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createErrorDocument(e.getMessage())));
+			
+			/*
+			 * Throws an exception that's handled up the chain, and 
+			 * uses the given status as the error status, so the client 
+			 * knows something went wrong.
+			 */
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
+		}
 	}
 
 }

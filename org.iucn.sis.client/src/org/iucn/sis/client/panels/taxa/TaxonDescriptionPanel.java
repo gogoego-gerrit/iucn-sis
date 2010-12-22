@@ -13,7 +13,7 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.image.ManagedImage;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.ui.notes.NoteAPI;
@@ -35,10 +35,10 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
-import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
+import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.CommonNameComparator;
@@ -57,7 +57,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.StoreSorter;
@@ -155,71 +154,148 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 			callback.isDrawn();
 		}
 		else {
-			getGeneralInformationPanel(taxon, new DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel>() {
-				public void isDrawn(final ContentPanel generalInformation) {
-					getChildrenPanel(taxon, new DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel>() {
-						public void isDrawn(final ContentPanel children) {
-							Image prevTaxon = new Image("tango/actions/go-previous.png");
-							prevTaxon.addClickHandler(new ClickHandler() {
-								public void onClick(ClickEvent event) {
-									TaxonomyCache.impl.fetchTaxon(taxon.getParentId(), true, new GenericCallback<Taxon>() {
-										public void onFailure(Throwable caught) {
-											//updatePanel(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
-										}
-										public void onSuccess(Taxon arg0) {
-											/*taxon = arg0;
-											updatePanel(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
-											ClientUIContainer.headerContainer.update();*/
-											//update(taxon.getParentId());
+			loadWorkingSetInformationPanel(new DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel>() {
+				public void isDrawn(final ContentPanel workingSetsForTaxonPanel) {
+					getGeneralInformationPanel(taxon, new DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel>() {
+						public void isDrawn(final ContentPanel generalInformation) {
+							getChildrenPanel(taxon, new DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel>() {
+								public void isDrawn(final ContentPanel children) {
+									Image prevTaxon = new Image("tango/actions/go-previous.png");
+									prevTaxon.addClickHandler(new ClickHandler() {
+										public void onClick(ClickEvent event) {
+											TaxonomyCache.impl.fetchTaxon(taxon.getParentId(), true, new GenericCallback<Taxon>() {
+												public void onFailure(Throwable caught) {
+													//updatePanel(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+												}
+												public void onSuccess(Taxon arg0) {
+													/*taxon = arg0;
+													updatePanel(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+													ClientUIContainer.headerContainer.update();*/
+													//update(taxon.getParentId());
+												}
+											});
 										}
 									});
+							
+									HorizontalPanel hPanel = new HorizontalPanel();
+									hPanel.setStyleName("SIS_taxonSummaryHeader_panel");
+									if (taxon.getParentId() != 0) {
+										hPanel.add(prevTaxon);
+										hPanel.setCellWidth(prevTaxon, "30px");
+										hPanel.setCellVerticalAlignment(prevTaxon, HasVerticalAlignment.ALIGN_MIDDLE);
+									}
+									hPanel.add(new StyledHTML(" <i>" + (taxon.getLevel() >= TaxonLevel.SPECIES ? taxon.getFullName() : taxon.getName()) + "</i>", "SIS_taxonSummaryHeader"));
+									hPanel.add(headerAssess = new StyledHTML("", "SIS_taxonSummaryHeader"));
+							
+							
+									VerticalPanel westPanel = new VerticalPanel();
+									westPanel.add(generalInformation);
+									if (workingSetsForTaxonPanel != null)
+										westPanel.add(workingSetsForTaxonPanel);
+									else
+										AssessmentCache.impl.resetCurrentAssessment();
+									
+									HorizontalPanel hp = new HorizontalPanel();
+									hp.add(getTaxonomicNotePanel(taxon));
+									hp.add(children);
+							
+									VerticalPanel vp = new VerticalPanel();
+									if (taxon.getLevel() >= TaxonLevel.SPECIES)
+										vp.add(getAssessmentsPanel(taxon));
+									vp.add(hp);
+									
+									final DockPanel wrapper = new DockPanel();
+									wrapper.add(hPanel, DockPanel.NORTH);
+									wrapper.add(westPanel, DockPanel.WEST);
+									wrapper.add(vp, DockPanel.CENTER);
+									wrapper.setSize("100%", "100%");
+									
+									removeAll();
+									add(wrapper);
+									
+									callback.isDrawn();
 								}
 							});
-					
-							HorizontalPanel hPanel = new HorizontalPanel();
-							hPanel.setStyleName("SIS_taxonSummaryHeader_panel");
-							if (taxon.getParentId() != 0) {
-								hPanel.add(prevTaxon);
-								hPanel.setCellWidth(prevTaxon, "30px");
-								hPanel.setCellVerticalAlignment(prevTaxon, HasVerticalAlignment.ALIGN_MIDDLE);
-							}
-							hPanel.add(new StyledHTML(" <i>" + (taxon.getLevel() >= TaxonLevel.SPECIES ? taxon.getFullName() : taxon.getName()) + "</i>", "SIS_taxonSummaryHeader"));
-							hPanel.add(headerAssess = new StyledHTML("", "SIS_taxonSummaryHeader"));
-					
-					
-							VerticalPanel westPanel = new VerticalPanel();
-							westPanel.add(generalInformation);
-							if (taxon.getLevel() >= TaxonLevel.SPECIES) {
-								westPanel.add(getAssessmentInformationPanel(taxon));
-							} else {
-								AssessmentCache.impl.resetCurrentAssessment();
-							}
-					
-							HorizontalPanel hp = new HorizontalPanel();
-							hp.add(getTaxonomicNotePanel(taxon));
-							hp.add(children);
-					
-							VerticalPanel vp = new VerticalPanel();
-							if (taxon.getLevel() >= TaxonLevel.SPECIES)
-								vp.add(getAssessmentsPanel(taxon));
-							vp.add(hp);
-							
-							final DockPanel wrapper = new DockPanel();
-							wrapper.add(hPanel, DockPanel.NORTH);
-							wrapper.add(westPanel, DockPanel.WEST);
-							wrapper.add(vp, DockPanel.CENTER);
-							wrapper.setSize("100%", "100%");
-							
-							removeAll();
-							add(wrapper);
-							
-							callback.isDrawn();
 						}
 					});
 				}
 			});
+			
 		}
 	}
+	
+	/**
+	 * Loads the working set information panel.  If this 
+	 * panel is not applicable for the current taxon, it 
+	 * returns null.
+	 * @return
+	 */
+	private void loadWorkingSetInformationPanel(final DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel> callback) {
+		if (taxon.getLevel() < TaxonLevel.SPECIES) {
+			callback.isDrawn(null);
+			return;
+		}
+		
+		TaxonomyCache.impl.fetchWorkingSetsForTaxon(taxon, new GenericCallback<List<WorkingSet>>() {
+			public void onSuccess(List<WorkingSet> workingSets) {
+				final ContentPanel workingSetInformation = new ContentPanel(new FillLayout());
+				workingSetInformation.setStyleName("x-panel");
+				workingSetInformation.setWidth(350);
+				workingSetInformation.setHeight(200);
+				workingSetInformation.setHeading("Related Working Sets");
+				workingSetInformation.setLayoutOnChange(true);
+				workingSetInformation.setScrollMode(Scroll.AUTO);
+				
+				if (workingSets.size() > 0) {
+
+					final ListStore<BaseModelData> store = new ListStore<BaseModelData>();
+					
+					for (final WorkingSet data : workingSets) {
+						BaseModelData model = new BaseModelData();
+						model.set("wsname", data.getName());
+						model.set("creator", data.getCreatorUsername());
+						model.set("id", data.getId());
+						store.add(model);
+					}
+
+					List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
+
+					columns.add(new ColumnConfig("wsname", "Working Set Name", 200));
+					columns.add(new ColumnConfig("creator", "Owner", 150));
+					
+					final Grid<BaseModelData> tbl = new Grid<BaseModelData>(store, new ColumnModel(columns));
+					
+					tbl.setBorders(false);
+					tbl.removeAllListeners();
+					tbl.addListener(Events.RowClick, new Listener<GridEvent<BaseModelData>>() {
+						public void handleEvent(GridEvent<BaseModelData> be) {
+							
+							if (be.getModel() == null)
+								return;
+
+							BaseModelData model = be.getModel();
+							final Integer id = model.get("id");
+
+							WorkingSetCache.impl.setCurrentWorkingSet(id, true); 
+							ClientUIContainer.bodyContainer.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
+
+						}
+					});
+					
+					ClientUIContainer.headerContainer.update();
+					tbl.getStore().sort("wsname", SortDir.ASC);
+					workingSetInformation.add(tbl);
+				}else
+					workingSetInformation.add(new HTML("There are no working sets for this taxon."));
+				
+				callback.isDrawn(workingSetInformation);
+			}
+			public void onFailure(Throwable caught) {
+				callback.isDrawn(null);
+			}
+		});
+	}
+
 
 	private ContentPanel getAssessmentInformationPanel(final Taxon node) {
 		final ContentPanel assessmentInformation = new ContentPanel();

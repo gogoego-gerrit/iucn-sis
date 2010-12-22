@@ -159,5 +159,27 @@ public class WorkingSetIO {
 
 	}
 
-
+	@SuppressWarnings("unchecked")
+	public WorkingSet[] getWorkingSetsForTaxon(Integer taxonID) throws PersistentException {
+		/*
+		 * Let's leave this since we're not allowed to do example queries for 
+		 * things that are not specified as properties.  Also, future req's 
+		 * will make us change this code anyway.
+		 * 
+		 * Changed to select * instead of select ID...
+		 */
+		String queryString = "select * from working_set where working_set.id in " + 
+			"(select working_setid from working_set_taxon where taxonid = '"+taxonID+"');";
+		
+		/*
+		 * ...because calling addEntity() transforms the results to the 
+		 * proper object type, no second query necessary. 
+		 */
+		List<WorkingSet> results =
+			SIS.get().getManager().getSession().createSQLQuery(queryString)
+			.addEntity(WorkingSet.class)
+			.list();
+		
+		return results.toArray(new WorkingSet[results.size()]);		
+	}
 }

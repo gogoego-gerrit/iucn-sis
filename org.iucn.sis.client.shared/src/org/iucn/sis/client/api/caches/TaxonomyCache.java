@@ -15,6 +15,7 @@ import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.google.gwt.http.client.URL;
 import com.google.gwt.user.client.Window;
@@ -832,6 +833,36 @@ public class TaxonomyCache {
 			}
 		});
 		
+	}
+	
+	/**
+	 * Fetch Working sets for related to the taxon
+	 * 
+	 * @param taxon
+	 * @param callback
+	 */
+	public void fetchWorkingSetsForTaxon(final Taxon taxon,final GenericCallback<List<WorkingSet>> wayBack) {
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.get(UriBase.getInstance().getSISBase() + "/browse/workingSets/" + taxon.getId(), new GenericCallback<String>() {
+
+			public void onFailure(Throwable caught) {
+				wayBack.onFailure(caught);
+			}
+
+			public void onSuccess(String arg0) {
+				List<WorkingSet> workingSets;
+				workingSets = new ArrayList<WorkingSet>();
+				
+				NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(WorkingSet.ROOT_TAG);
+				for (int i = 0; i < list.getLength(); i++) {
+					NativeElement element = (NativeElement) list.item(i);
+					WorkingSet ws = WorkingSet.fromXMLMinimal(element);
+					workingSets.add(ws);	
+				}
+				wayBack.onSuccess(workingSets);
+			}
+
+		});
 	}
 
 }
