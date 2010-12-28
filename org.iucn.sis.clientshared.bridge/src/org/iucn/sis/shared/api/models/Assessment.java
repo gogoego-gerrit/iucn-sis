@@ -248,6 +248,8 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	public String getProperty(String key) {
 		if ("region".equalsIgnoreCase(key))
 			return isGlobal() ? "global" : serializeRegionIDs(getRegionIDs());
+		else if ("schema".equalsIgnoreCase(key))
+			return getSchema("");
 		else
 			return "";
 	}

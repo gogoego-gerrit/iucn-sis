@@ -4,6 +4,8 @@ package org.iucn.sis.shared.api.models;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;

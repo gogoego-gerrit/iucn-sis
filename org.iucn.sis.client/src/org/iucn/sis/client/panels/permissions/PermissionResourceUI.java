@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.client.api.caches.RegionCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -32,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -106,11 +109,13 @@ public class PermissionResourceUI extends LayoutContainer {
 		add(permSetUI);
 	}
 
-	private ComboBox<ResourceModelData> getComboBox() {
+	private ComboBox<ResourceModelData> getComboBox(String emptyText) {
 		ComboBox<ResourceModelData> box = new ComboBox<ResourceModelData>();
+		box.setEmptyText(emptyText);
 		box.setDisplayField("name");
 		box.setEditable(false);
 		box.setForceSelection(true);
+		box.setTriggerAction(TriggerAction.ALL);
 
 		ListStore<ResourceModelData> store = new ListStore<ResourceModelData>();
 		store.setStoreSorter(new StoreSorter<ResourceModelData>());
@@ -122,7 +127,7 @@ public class PermissionResourceUI extends LayoutContainer {
 	private HorizontalPanel buildLists() {
 		final HorizontalPanel panel = new HorizontalPanel();
 
-		first = getComboBox();
+		first = getComboBox("Select Type");
 		first.getStore().add(new ResourceModelData("Feature", "feature"));
 		first.getStore().add(new ResourceModelData("Resource", "resource"));
 		first.getStore().sort("name", SortDir.ASC);
@@ -142,34 +147,37 @@ public class PermissionResourceUI extends LayoutContainer {
 		});
 		panel.add(first);
 
-		final ComboBox<ResourceModelData> feature = getComboBox();
-		feature.getStore().add(new ResourceModelData("", ""));
-		for( String featureName : AuthorizableFeature.featureNames )
+		final ComboBox<ResourceModelData> feature = getComboBox("Select Feature");
+		for (String featureName : AuthorizableFeature.featureNames)
 			feature.getStore().add(new ResourceModelData(featureName, featureName));
 		feature.getStore().sort("name", SortDir.ASC);
 		listboxLookup.put("feature", feature);
 
-		final ComboBox<ResourceModelData> resources = getComboBox();
-		resources.getStore().add(new ResourceModelData("", ""));
+		final ComboBox<ResourceModelData> resources = getComboBox("Select Resource");
 		resources.getStore().add(new ResourceModelData("Assessment", "assessment"));
 		resources.getStore().add(new ResourceModelData("Taxon", "taxon"));
 		resources.getStore().add(new ResourceModelData("Reference", "reference"));
 		resources.getStore().add(new ResourceModelData("Working Set", "workingSet"));
 		resources.addSelectionChangedListener(new SelectionChangedListener<ResourceModelData>() {
 			public void selectionChanged(SelectionChangedEvent<ResourceModelData> se) {
+				if (se.getSelectedItem() == null)
+					return;
+				
 				String value = se.getSelectedItem().get("value");
-				if( !value.equals("") ) {
+				if (value != null & !"".equals(value)) {
 					panel.removeAll();
 					panel.add(first);
 					panel.add(resources);
-					if( listboxLookup.containsKey(value))
+					if (listboxLookup.containsKey(value))
 						panel.add(listboxLookup.get(value));
 					else
 						Debug.println("Permission Resource Couldn't find listbox for value {0}", value);
 
-					if( resources.getStore().indexOf(se.getSelectedItem()) == 1 ) {
+					if (value.startsWith("assessment")) {
 						panel.add(listboxLookup.get("region"));
+						panel.add(listboxLookup.get("schema"));
 					}
+
 
 					panel.layout();
 				}
@@ -178,14 +186,13 @@ public class PermissionResourceUI extends LayoutContainer {
 		resources.getStore().sort("name", SortDir.ASC);
 		listboxLookup.put("resource", resources);
 
-		final ComboBox<ResourceModelData> assessment = getComboBox();
-		assessment.getStore().add(new ResourceModelData("", ""));
+		final ComboBox<ResourceModelData> assessment = getComboBox("Select Scope");
 		assessment.getStore().add(new ResourceModelData("Draft", AssessmentType.DRAFT_ASSESSMENT_TYPE));
 		assessment.getStore().add(new ResourceModelData("Published", AssessmentType.PUBLISHED_ASSESSMENT_TYPE));
 		assessment.getStore().sort("name", SortDir.ASC);
 		listboxLookup.put("assessment", assessment);
 
-		final ComboBox<ResourceModelData> region = getComboBox();
+		final ComboBox<ResourceModelData> region = getComboBox("Select Region");
 		region.getStore().add(new ResourceModelData("Regional/Global", ""));
 		region.getStore().add(new ResourceModelData("Global", "global"));
 		region.getStore().add(new ResourceModelData("Any Region", "(\\d+,?)+"));
@@ -194,6 +201,13 @@ public class PermissionResourceUI extends LayoutContainer {
 		region.getStore().sort("name", SortDir.ASC);
 		region.setData("isAttribute", "region");
 		listboxLookup.put("region", region);
+		
+		final ComboBox<ResourceModelData> schema = getComboBox("Select Schema");
+		schema.getStore().add(new ResourceModelData("All Assessments", ".*"));
+		for (AssessmentSchema current : SchemaCache.impl.listFromCache())
+			schema.getStore().add(new ResourceModelData(current.getName(), current.getId()));
+		schema.setData("isAttribute", "schema");
+		listboxLookup.put("schema", schema);
 
 		//		final ComboBox<ResourceModelData> taxon = getComboBox();
 		//		assessment.addItem("", "");
@@ -201,8 +215,7 @@ public class PermissionResourceUI extends LayoutContainer {
 		//		assessment.addItem("Synonyms", "synonym");
 		//		listboxLookup.put("taxon", taxon);
 
-		final ComboBox<ResourceModelData> workingSet = getComboBox();
-		workingSet.getStore().add(new ResourceModelData("", ""));
+		final ComboBox<ResourceModelData> workingSet = getComboBox("Select Working Set");
 		for( WorkingSet ws : WorkingSetCache.impl.getSubscribable() )
 			workingSet.getStore().add(new ResourceModelData(ws.getWorkingSetName(), ws.getId()+""));
 		workingSet.getStore().sort("name", SortDir.ASC);
@@ -260,9 +273,9 @@ public class PermissionResourceUI extends LayoutContainer {
 		w.setLayout(new FlowLayout());
 
 		final HorizontalPanel listPanel = buildLists();
-		listPanel.setSize(680, 80);
+		listPanel.setSize(730, 80);
 
-		w.getButtonBar().add(new Button("Done", new SelectionListener<ButtonEvent>() {
+		w.addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				StringBuilder uri = new StringBuilder();
 				Set<PermissionResourceAttribute> attrs = new HashSet<PermissionResourceAttribute>();
@@ -290,15 +303,15 @@ public class PermissionResourceUI extends LayoutContainer {
 			}
 		}));
 
-		w.getButtonBar().add(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+		w.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				w.close();
+				w.hide();
 			}
 		}));
 //		w.setAlignment(HorizontalAlignment.LEFT);
-w.add(listPanel);
+		w.add(listPanel);
 		w.show();
-		w.setSize(700, 100);
+		w.setSize(750, 100);
 		w.center();
 	}
 }

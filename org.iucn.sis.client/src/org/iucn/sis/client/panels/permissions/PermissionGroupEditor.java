@@ -164,13 +164,15 @@ public class PermissionGroupEditor extends LayoutContainer {
 		
 		newGroup = new Button();
 		newGroup.setIconStyle("icon-new-bookmark");
+		newGroup.setToolTip("Create New Permission Group");
 		newGroup.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				if( groupSelector.validate() ) {
 					group = new PermissionGroup("(New Group)");
 					PermissionGroupData data = new PermissionGroupData(group);
 					groupStore.add(data);
-					groupSelector.setSelection(wrapInArray(data));
+					groupSelector.setValue(data);
+					//groupSelector.setSelection(wrapInArray(data));
 					updateContent();
 				} else
 					WindowUtils.errorAlert("Please finish creation/editing of selected group.");

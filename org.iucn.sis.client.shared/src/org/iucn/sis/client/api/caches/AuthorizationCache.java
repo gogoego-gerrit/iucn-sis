@@ -244,7 +244,7 @@ public class AuthorizationCache {
 				return true;
 
 			for( PermissionGroup curGroup : permissionMaps.get(user) ) {
-				ret = ret || PermissionUtils.checkMe(curGroup, auth, operation);
+				ret |= PermissionUtils.checkMe(curGroup, auth, operation);
 				if( ret ) //SHORT CIRCUIT!
 					break;
 			}

@@ -94,6 +94,11 @@ public class PermissionResourceAttribute implements Serializable {
 	public Permission getPermission() {
 		return permission;
 	}
+	
+	@Override
+	public String toString() {
+		return getName() + ": " + getRegex();
+	}
 
 	
 }
