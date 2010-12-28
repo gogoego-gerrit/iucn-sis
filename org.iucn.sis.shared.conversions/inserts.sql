@@ -1919,7 +1919,7 @@ INSERT INTO ThreatsLookup (code, parentID, level, codeable, ref, description) VA
 INSERT INTO ThreatsLookup (code, parentID, level, codeable, ref, description) VALUES('135', '57', 2, true, '7.2.11', 'Dams (size unknown)');
 INSERT INTO ThreatsLookup (code, parentID, level, codeable, ref, description) VALUES('66', '53', 1, true, '7.3', 'Other ecosystem modifications');
 INSERT INTO ThreatsLookup (code, parentID, level, codeable, ref, description) VALUES('67', '(root)', 0, false, '8', 'Invasive and other problematic species, genes & diseases');
-INSERT INTO ThreatsLookup (code, parentID, level, codeable, ref, description) VALUES('68', '67', 1, false, '8.1', 'Invasive non-native/alien species/diseases');
+INSERT INTO ThreatsLookup (code, parentID, level, codeable, ref, description) VALUES('68', '67', 1, false, '8.1', 'Invasive non-native/alien taxa/diseases');
 INSERT INTO ThreatsLookup (code, parentID, level, codeable, ref, description) VALUES('69', '68', 2, true, '8.1.1', 'Unspecified taxa');
 INSERT INTO ThreatsLookup (code, parentID, level, codeable, ref, description) VALUES('193', '68', 2, true, '8.1.2', 'Named taxa');
 INSERT INTO ThreatsLookup (code, parentID, level, codeable, ref, description) VALUES('70', '67', 1, true, '8.2', 'Problematic native taxa/diseases');
