@@ -158,7 +158,7 @@ public class UIRestlet extends BaseServiceRestlet {
 		case BOOLEAN_RANGE_PRIMITIVE:
 			return "<booleanRange/>";
 		case BOOLEAN_UNKNOWN_PRIMITIVE:
-			return "<booleanUnknown>";
+			return "<booleanUnknown/>";
 		case DATE_PRIMITIVE:
 			return "<date/>";
 		case FLOAT_PRIMITIVE:
