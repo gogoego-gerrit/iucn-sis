@@ -1,31 +1,30 @@
-INSERT INTO UTEndUse (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('0', 'Food - human')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('1', 'Food - animal')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('2', 'Medicine – human & veterinary')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('3', 'Poisons')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('4', 'Manufacturing chemicals')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('5', 'Other chemicals')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('6', 'Fuels')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('7', 'Fibre')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('8', 'Construction or structural materials')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('9', 'Wearing apparel, accessories')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('10', 'Other household goods')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('11', 'Handicrafts, jewellery, etc.')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('12', 'Pets/display animals, horticulture')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('13', 'Research')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('14', 'Sport hunting/specimen collecting')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('15', 'Establishing ex-situ production *')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('16', 'Other (free text)')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('17', 'Unknown')
-INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('18', 'Unset')
-INSERT INTO UTCaptiveHarvest (name, data_type, number_allowed) VALUES ('value', 'fk_primitive_field', '?')
-INSERT INTO UTCaptiveHarvest_valueLookup (name, label) VALUES ('0', 'Yes')
-INSERT INTO UTCaptiveHarvest_valueLookup (name, label) VALUES ('1', 'No')
-INSERT INTO UTCaptiveHarvest_valueLookup (name, label) VALUES ('2', 'Unknown')
-INSERT INTO UTHarvestTrendComments (name, data_type, number_allowed) VALUES ('narrative', 'text_primitive_field', '?')
-INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('subsistence', 'boolean_unknown_primitive_field', '?')
-INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('localcommercial', 'boolean_unknown_primitive_field', '?')
-INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('subsistenceRationale', 'text_primitive_field', '?')
-INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('localcommercialDetail', 'text_primitive_field', '?')
-INSERT INTO UTCommercialValue (name, data_type, number_allowed) VALUES ('national', 'boolean_unknown_primitive_field', '?')
-INSERT INTO UTCommercialValue (name, data_type, number_allowed) VALUES ('international', 'boolean_unknown_primitive_field', '?')
+INSERT INTO UTEndUse (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('0', 'Food - human');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('1', 'Food - animal');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('2', 'Medicine – human & veterinary');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('3', 'Poisons');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('4', 'Manufacturing chemicals');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('5', 'Other chemicals');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('6', 'Fuels');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('7', 'Fibre');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('8', 'Construction or structural materials');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('9', 'Wearing apparel, accessories');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('10', 'Other household goods');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('11', 'Handicrafts, jewellery, etc.');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('12', 'Pets/display animals, horticulture');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('13', 'Research');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('14', 'Sport hunting/specimen collecting');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('15', 'Establishing ex-situ production *');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('16', 'Other (free text)');
+INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('17', 'Unknown');
+INSERT INTO UTCaptiveHarvest (name, data_type, number_allowed) VALUES ('value', 'fk_primitive_field', '?');
+INSERT INTO UTCaptiveHarvest_valueLookup (name, label) VALUES ('0', 'Yes');
+INSERT INTO UTCaptiveHarvest_valueLookup (name, label) VALUES ('1', 'No');
+INSERT INTO UTCaptiveHarvest_valueLookup (name, label) VALUES ('2', 'Unknown');
+INSERT INTO UTHarvestTrendComments (name, data_type, number_allowed) VALUES ('narrative', 'text_primitive_field', '?');
+INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('subsistence', 'boolean_unknown_primitive_field', '?');
+INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('localcommercial', 'boolean_unknown_primitive_field', '?');
+INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('subsistenceRationale', 'text_primitive_field', '?');
+INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('localcommercialDetail', 'text_primitive_field', '?');
+INSERT INTO UTCommercialValue (name, data_type, number_allowed) VALUES ('national', 'boolean_unknown_primitive_field', '?');
+INSERT INTO UTCommercialValue (name, data_type, number_allowed) VALUES ('international', 'boolean_unknown_primitive_field', '?');
