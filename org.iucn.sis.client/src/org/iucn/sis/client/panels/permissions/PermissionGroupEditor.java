@@ -40,6 +40,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Validator;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -127,6 +128,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 		});
 		
 		groupSelector = new ComboBox<PermissionGroupData>();
+		groupSelector.setTriggerAction(TriggerAction.ALL);
 		groupSelector.setForceSelection(true);
 		groupSelector.setStore(groupStore);
 		groupSelector.addListener(Events.BeforeSelect, new Listener<BaseEvent>() {

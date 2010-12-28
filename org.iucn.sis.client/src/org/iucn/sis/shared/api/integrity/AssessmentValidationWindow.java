@@ -13,6 +13,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -79,6 +80,7 @@ public class AssessmentValidationWindow extends Window implements DrawsLazily {
 						}
 
 						final ComboBox<BaseModelData> box = new ComboBox<BaseModelData>();
+						box.setTriggerAction(TriggerAction.ALL);
 						box.setStore(store);
 						box.setFieldLabel("Select Validator");
 						box.setEditable(false);

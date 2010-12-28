@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -98,6 +99,7 @@ public class WorkingSetHierarchy extends LayoutContainer {
 		binder.init();
 		
 		box = new ComboBox<BaseModelData>();
+		box.setTriggerAction(TriggerAction.ALL);
 		box.setEmptyText("Choose Status");
 		box.setForceSelection(true);
 		

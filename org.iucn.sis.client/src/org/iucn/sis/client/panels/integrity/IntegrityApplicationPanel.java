@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -429,6 +430,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 			store.add(published);
 			
 			status = new ComboBox<BaseModelData>();
+			status.setTriggerAction(TriggerAction.ALL);
 			status.setStore(store);
 			status.setFieldLabel("Assessment Status");
 			status.setAllowBlank(false);

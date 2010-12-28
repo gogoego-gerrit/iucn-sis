@@ -8,6 +8,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -71,6 +72,7 @@ public class IntegrityRulesetPropertiesEditor extends Window {
 		store.add(failIfNotMet);
 		
 		failureCondition = new ComboBox<BaseModelData>();
+		failureCondition.setTriggerAction(TriggerAction.ALL);
 		failureCondition.setAllowBlank(false);
 		failureCondition.setFieldLabel("Failure Condition");
 		failureCondition.setForceSelection(true);
