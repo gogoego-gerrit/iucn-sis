@@ -12,7 +12,6 @@ import javax.naming.NamingException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.solertium.db.ConversionException;
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
@@ -67,7 +66,7 @@ private final ExecutionContext ec;
 
 		for (Row row : rs.getSet()) {
 			final TreeNode node = new TreeNode(row);
-			final Integer parent;
+			final String parent;
 			if ((parent = node.getParent()) == null)
 				roots.add(node);
 			/*
@@ -146,12 +145,13 @@ private final ExecutionContext ec;
 			return row.get("code").toString();
 		}
 		
-		public Integer getParent() {
-			try {
-				return row.get("parentID").getInteger();
-			} catch (ConversionException e) {
+		public String getParent() {
+			if (row.get("parentID") == null)
 				return null;
-			}
+			
+			String value = row.get("parentID").toString();
+			
+			return value.contains("root") ? null : value;
 		}
 		
 		public Row getRow() {
