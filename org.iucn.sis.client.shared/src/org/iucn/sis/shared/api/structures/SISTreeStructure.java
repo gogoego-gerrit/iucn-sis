@@ -71,6 +71,7 @@ public class SISTreeStructure extends Structure<Field> {
 		displayPanel.add(new Button(buttonText, new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				final Window window = new Window();
+				window.setClosable(false);
 				window.setModal(true);
 				window.setSize(800, 600);
 				window.setHeading(description);
