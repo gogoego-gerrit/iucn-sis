@@ -1,0 +1,30 @@
+<field>
+<canonicalName>UTEndUse</canonicalName>
+<description><![CDATA[End Use]]></description>
+<classOfService>None</classOfService>
+<structures>
+<structure description="End Use (select all applicable)" id="value">
+<multipleSelect>
+<option><![CDATA[Food - human]]></option>
+<option><![CDATA[Food - animal]]></option>
+<option><![CDATA[Medicine – human & veterinary]]></option>
+<option><![CDATA[Poisons]]></option>
+<option><![CDATA[Manufacturing chemicals]]></option>
+<option><![CDATA[Other chemicals]]></option>
+<option><![CDATA[Fuels]]></option>
+<option><![CDATA[Fibre]]></option>
+<option><![CDATA[Construction or structural materials]]></option>
+<option><![CDATA[Wearing apparel, accessories]]></option>
+<option><![CDATA[Other household goods]]></option>
+<option><![CDATA[Handicrafts, jewellery, etc.]]></option>
+<option><![CDATA[Pets/display animals, horticulture]]></option>
+<option><![CDATA[Research]]></option>
+<option><![CDATA[Sport hunting/specimen collecting]]></option>
+<option><![CDATA[Establishing ex-situ production *]]></option>
+<option><![CDATA[Other (free text)]]></option>
+<option><![CDATA[Unknown]]></option>
+<option><![CDATA[Unset]]></option>
+</multipleSelect>
+</structure>
+</structures>
+</field>

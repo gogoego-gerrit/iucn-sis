@@ -1,0 +1,14 @@
+<field>
+<canonicalName>UTCaptiveHarvest</canonicalName>
+<description><![CDATA[Harvest from captive/cultivated sources]]></description>
+<classOfService>None</classOfService>
+<structures>
+<structure description="Is there harvest from captive/cultivated sources of this species?" id="value">
+<singleSelect>
+<option><![CDATA[Yes]]></option>
+<option><![CDATA[No]]></option>
+<option><![CDATA[Unknown]]></option>
+</singleSelect>
+</structure>
+</structures>
+</field>

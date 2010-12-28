@@ -1,15 +1,15 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <views>
 	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="FullView" title="Use and Trade" xsi:noNamespaceSchemaLocation="views.xsd">
 		<pages>
 			<page id="GlobalSummary" title="Global Summary">
 				<pageOrganizations>
 					<organization shortTitle="Global Summary" title="Global Summary">
+<field id="UTLocalLivelihood"/>
+<field id="UTCommercialValue"/>
 						<field id="UTEndUse"/>
 <field id="UTCaptiveHarvest"/>
 <field id="UTHarvestTrendComments"/>
 					</organization>
-
 				</pageOrganizations>
 			</page>
 			<page id="DetailRecords" title="Detailed Wild Harvest Records">
@@ -19,7 +19,6 @@
 					</organization>
 				</pageOrganizations>
 			</page>
-
 		</pages>
 	</view>
 </views>

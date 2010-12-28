@@ -1,0 +1,53 @@
+<field>
+<canonicalName>UTLocalLivelihood</canonicalName>
+<description><![CDATA[Local Livelihood]]></description>
+<classOfService>None</classOfService>
+<structures>
+<structure>
+<relatedStructure>
+<dominantStructures>
+<structure description="Subsistence:" id="subsistence">
+<booleanUnknown/>
+</structure>
+</dominantStructures>
+<dependentStructures>
+<structure description="Rationale:" id="subsistenceRationale">
+<text/>
+</structure>
+</dependentStructures>
+<rules>
+<selectRule>
+<activateOnIndex>0</activateOnIndex>
+<actions>
+<onTrue>HIDE</onTrue>
+<onFalse>SHOW</onFalse>
+</actions>
+</selectRule>
+</rules>
+</relatedStructure>
+</structure>
+<structure>
+<relatedStructure>
+<dominantStructures>
+<structure description="Local Commerical:" id="localcommercial">
+<booleanUnknown/>
+</structure>
+</dominantStructures>
+<dependentStructures>
+<structure description="Further detail including information on economic value if available:" id="localcommercialDetail">
+<text/>
+</structure>
+</dependentStructures>
+<rules>
+<selectRule>
+<activateOnIndex>0</activateOnIndex>
+<actions>
+<onTrue>HIDE</onTrue>
+<onFalse>SHOW</onFalse>
+</actions>
+</selectRule>
+</rules>
+</relatedStructure>
+</structure>
+</structures>
+</field>

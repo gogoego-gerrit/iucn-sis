@@ -1,0 +1,13 @@
+<field>
+<canonicalName>UTCommercialValue</canonicalName>
+<description><![CDATA[Commercial Value]]></description>
+<classOfService>None</classOfService>
+<structures>
+<structure description="National:" id="national">
+<booleanUnknown/>
+</structure>
+<structure description="International:" id="international">
+<booleanUnknown/>
+</structure>
+</structures>
+</field>
