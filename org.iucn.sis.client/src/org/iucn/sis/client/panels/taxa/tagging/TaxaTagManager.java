@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -87,6 +88,7 @@ public class TaxaTagManager extends LayoutContainer implements DrawsLazily {
 		store.add(new TagType("Feral", "feral"));
 		
 		final ComboBox<TagType> type = new ComboBox<TagType>();
+		type.setTriggerAction(TriggerAction.ALL);
 		type.setStore(store);
 		type.setForceSelection(true);
 		type.setValue(defaultTag);
@@ -148,6 +150,8 @@ public class TaxaTagManager extends LayoutContainer implements DrawsLazily {
 					
 					list.add(item);
 				}
+				
+				browser.setCurrentTag(currentTag);
 				
 				callback.isDrawn();
 			}
