@@ -11,7 +11,7 @@ public class TreeBuilderTesting {
 	
 	public static void main(String[] args) {
 		Properties properties = new Properties();
-		properties.setProperty("dbsession.sis_lookups.uri","jdbc:h2:file:/var/sis/newest_vfs/HEAD/databases/sis_lookups");
+		properties.setProperty("dbsession.sis_lookups.uri","jdbc:h2:file:/var/sis/databases/sis_lookups");
 		properties.setProperty("dbsession.sis_lookups.driver","org.h2.Driver");
 		properties.setProperty("dbsession.sis_lookups.user","sa");
 		properties.setProperty("dbsession.sis_lookups.password","");
