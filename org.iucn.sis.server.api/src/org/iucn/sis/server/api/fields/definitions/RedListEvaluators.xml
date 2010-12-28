@@ -1,6 +1,6 @@
 <field id="126">
 	<canonicalName>RedListEvaluators</canonicalName>
-	<description>Evaluator(s)</description>
+	<description>Reviewer(s)</description>
 	<classOfService>Outcome</classOfService>
 	<structures>
 		<structure>
