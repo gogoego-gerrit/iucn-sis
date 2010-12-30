@@ -286,7 +286,7 @@
 						<structure id="habitatConservationBenefitsText" description="Details for conservation benefits for the habitat">
 							<text/>
 						</structure>
-						<structure id="EndUseRecord" description="End Use Record">
+						<structure id="UTEndUseRecord" description="End Use Record">
 							<oneToMany>
 								<structure>
 									<relatedStructure>
