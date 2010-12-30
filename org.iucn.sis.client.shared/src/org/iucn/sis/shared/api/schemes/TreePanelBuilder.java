@@ -18,6 +18,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TreePanelEvent;
+import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -27,6 +28,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class TreePanelBuilder {
 	
@@ -112,6 +114,7 @@ public class TreePanelBuilder {
 
 	private static TreeStore<CodingOption> createTreeStore(TreeData treeData, Map<String, CodingOption> selection) {
 		TreeStore<CodingOption> store = new TreeStore<CodingOption>();
+		store.setStoreSorter(new StoreSorter<CodingOption>(new PortableAlphanumericComparator()));
 		store.setKeyProvider(new ModelKeyProvider<CodingOption>() {
 			public String getKey(CodingOption model) {
 				return model.getValue();
@@ -124,8 +127,10 @@ public class TreePanelBuilder {
 			else
 				option = new CodingOption(row);
 			
-			flattenTree(store, selection, option);
-			store.add(option, true);
+			if (option.isValid()) {
+				flattenTree(store, selection, option);
+				store.add(option, true);
+			}
 		}
 		
 		return store;
