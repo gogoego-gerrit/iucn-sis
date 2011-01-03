@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
-import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.citations.Referenceable;
@@ -124,6 +123,8 @@ public class ClassificationSchemeModelData implements ModelData, Referenceable {
 	
 	public Widget getDetailsWidget(boolean isViewOnly) {
 		SimplePanel container = new SimplePanel();
+		/*structure.clearData();
+		structure.setData(field);*/
 		if (!isViewOnly) {
 			Widget structWidget = structure.generate();
 			structWidget.addStyleName("leftMargin15");
@@ -147,6 +148,7 @@ public class ClassificationSchemeModelData implements ModelData, Referenceable {
 					structure.save(parent, field);
 			}
 			field.setReference(references);
+			updateDisplayableData();
 		}
 	}
 	

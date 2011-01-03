@@ -112,6 +112,7 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 				}));
 				toolbar.add(new Button("View Only", new SelectionListener<ButtonEvent>() {
 					public void componentSelected(ButtonEvent ce) {
+						display.setData(field);
 						Button source = ce.getButton();
 						if ("View Only".equals(source.getText())) {
 							displayArea.removeAll();

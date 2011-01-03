@@ -81,20 +81,8 @@ public class SISTreeStructure extends Structure<Field> {
 				window.setButtonAlign(HorizontalAlignment.CENTER);
 				window.addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
 					public void componentSelected(ButtonEvent ce) {
-						SimpleMessageBoxListener listener = new SimpleMessageBoxListener() {
-							public void onYes() {
-								buildReadOnlyContainer(viewer.save(false));
-								window.hide();
-							}
-						};
-						
-						if (!viewer.isEditing())
-							listener.onYes();
-						else
-							WindowUtils.confirmAlert("Confirm", "It appears you are " +
-								"still editing data. If you close this window now, " +
-								"you will lose any unsaved changes. Are you sure you " +
-								"want to close this window?", listener);
+						buildReadOnlyContainer(viewer.save(false));
+						window.hide();
 					}
 				}));
 				window.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {

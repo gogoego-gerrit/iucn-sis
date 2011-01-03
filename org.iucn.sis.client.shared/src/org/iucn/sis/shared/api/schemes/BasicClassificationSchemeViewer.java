@@ -17,6 +17,7 @@ import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.FieldNotes;
 import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow.EditMode;
 import org.iucn.sis.shared.api.structures.Structure;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -54,6 +55,7 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.gwt.ui.DrawsLazily.DoneDrawingCallback;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationSchemeModelData> implements ClassificationSchemeViewer {
@@ -64,7 +66,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 	protected TreeData treeData;
 	protected String description;
 	
-	protected LayoutContainer innerContainer;
+	//protected LayoutContainer innerContainer;
 	protected LayoutContainer displayPanel;
 	protected Grid<ClassificationSchemeModelData> grid;
 	
@@ -90,9 +92,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			displayPanel.setSize(900, 800);
 			displayPanel.addStyleName("thinFrameBorder");
 			
-			innerContainer = new LayoutContainer(new FillLayout());
-			innerContainer.setLayoutOnChange(true);
-			
 			server.addStoreListener(new StoreListener<ClassificationSchemeModelData>() {
 				public void storeAdd(StoreEvent<ClassificationSchemeModelData> se) {
 					refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
@@ -108,7 +107,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			});
 		}
 
-		innerContainer.removeAll();
 		displayPanel.removeAll();
 		
 		grid = 
@@ -126,12 +124,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				if (selected != null) {
 					gridBar.fireEvent(Events.Change);
 					
-					updateInnerContainer(selected, false, isViewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
-						public void isDrawn(LayoutContainer container) {
-							innerContainer.removeAll();
-							innerContainer.add(container);
-						}
-					});
+					editModel(selected, false, isViewOnly);
 				}
 				else{
 					gridBar.setVisible(false);
@@ -144,25 +137,12 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		toolbarContainer.add(gridBar);
 		
 		final LayoutContainer gridContainer = new LayoutContainer(new BorderLayout());
-		gridContainer.add(toolbarContainer, new BorderLayoutData(LayoutRegion.NORTH, 50, 50, 50));
+		if (!isViewOnly)
+			gridContainer.add(toolbarContainer, new BorderLayoutData(LayoutRegion.NORTH, 50, 50, 50));
 		gridContainer.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
 		gridContainer.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
 		
-		final LayoutContainer container = new LayoutContainer(new BorderLayout());
-		container.add(gridContainer, new BorderLayoutData(LayoutRegion.CENTER));
-		container.add(innerContainer, new BorderLayoutData(LayoutRegion.SOUTH));
-
-		displayPanel.add(container);
-		
-		final ClassificationSchemeModelData model = 
-			newInstance(generateDefaultStructure(null));
-		
-		updateInnerContainer(model, true, isViewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
-			public void isDrawn(LayoutContainer container) {
-				innerContainer.removeAll();
-				innerContainer.add(container);
-			}
-		});
+		displayPanel.add(gridContainer);
 		
 		//This is a sync operation, so layout should be fine
 		refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
@@ -170,118 +150,35 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		return displayPanel;
 	}
 	
-	protected ClassificationSchemeRowEditor createRowEditor(ClassificationSchemeModelData model, boolean isViewOnly) {
-		return new ClassificationSchemeRowEditor(isViewOnly);
-	}
-	
-	protected void updateInnerContainer(final ClassificationSchemeModelData model, 
-			final boolean addToPagingLoader, final boolean isViewOnly, final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
-		final ComboBox<CodingOption> box = createClassificationOptions(model.getSelectedRow());
-		if (!addToPagingLoader)
-			box.setEnabled(false);
-		
-		final ClassificationSchemeRowEditor editor = createRowEditor(model, isViewOnly);
-		editor.setModel(model);
-		editor.setSaveListener(new ComplexListener<ClassificationSchemeModelData>() {
+	protected void editModel(final ClassificationSchemeModelData model, 
+			final boolean addToPagingLoader, final boolean isViewOnly) {
+		final ClassificationSchemeRowEditorWindow window = 
+			createRowEditorWindow(model, addToPagingLoader, isViewOnly);
+		window.setSaveListener(new ComplexListener<ClassificationSchemeModelData>() {
 			public void handleEvent(ClassificationSchemeModelData eventData) {
-				if (box.getValue() == null) {
-					WindowUtils.errorAlert("Please select a coding option from the drop-down.");
-					return;
-				}
-				
-				TreeDataRow row = box.getValue().getRow();
-				if (addToPagingLoader && containsRow(row))
-					WindowUtils.errorAlert("A row with this coding option has already been selected.");
-				else {
-					eventData.setSelectedRow(row);
-					eventData.updateDisplayableData();
+				eventData.updateDisplayableData();
 					
-					if (addToPagingLoader)
-						server.add(eventData);
-					else
-						server.update(eventData);
+				if (addToPagingLoader)
+					server.add(eventData);
+				else
+					server.update(eventData);
 									
-					hasChanged = true;
-					
-					if (editor.isHideAfterOperation())
-						innerContainer.removeAll();
-				}
+				hasChanged = true;
 			}
 		});
-		editor.setCancelListener(new SimpleListener() {
-			public void handleEvent() {
-				if (editor.isHideAfterOperation())
-					innerContainer.removeAll();
-			}
-		});
-		editor.draw(new DrawsLazily.DoneDrawingCallback() {
-			public void isDrawn() {
-				final ToolBar top = new ToolBar();
-				top.add(new LabelToolItem(description+":"));
-				top.add(box);
-				
-				final LayoutContainer container = new LayoutContainer(new BorderLayout());
-				container.add(top, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
-				container.add(editor, new BorderLayoutData(LayoutRegion.CENTER));
-				
-				callback.isDrawn(container);
-			}
-		});
+		window.show();
 	}
 	
-	protected boolean containsRow(TreeDataRow row) {
+	public boolean containsRow(TreeDataRow row) {
 		for (ClassificationSchemeModelData model : server.getModels())
 			if (row.getDisplayId().equals(model.getSelectedRow().getDisplayId()))
 				return true;
 		return false;
 	}
 	
-	@Override
-	public boolean isEditing() {
-		return innerContainer.getItemCount() > 0;
-	}
-	
-	protected ComboBox<CodingOption> createClassificationOptions(TreeDataRow selected) {
-		/*
-		 * Flatten the tree into a list...
-		 */
-		final List<TreeDataRow> list = new ArrayList<TreeDataRow>(treeData.flattenTree().values());
-		Collections.sort(list, new BasicClassificationSchemeViewer.TreeDataRowComparator());
-		
-		final ListStore<CodingOption> store = new ListStore<CodingOption>();
-		
-		CodingOption selectedOption = null;
-		for (TreeDataRow row : list) {
-			/*
-			 * Weed out legacy data
-			 */
-			if (row.getRowNumber().indexOf('.') < 0) {
-				try {
-					if (Integer.parseInt(row.getRowNumber()) >= 100)
-						continue;
-				} catch (NumberFormatException e) {
-					continue;
-				}
-			}
-			
-			if ("true".equals(row.getCodeable())) {
-				final CodingOption option = new CodingOption(row);
-				store.add(option);
-				if (row.equals(selected))
-					selectedOption = option;
-			}
-		}
-		
-		final ComboBox<CodingOption> box = new ComboBox<CodingOption>();
-		box.setStore(store);
-		box.setForceSelection(true);
-		box.setTriggerAction(TriggerAction.ALL);
-		box.setWidth(575);
-		
-		if (selectedOption != null)
-			box.setValue(selectedOption);
-		
-		return box;
+	public ClassificationSchemeRowEditorWindow createRowEditorWindow(ClassificationSchemeModelData model, boolean addToPagingLoader, boolean isViewOnly) {
+		return new ClassificationSchemeRowEditorWindow(this, treeData, description, model, 
+				addToPagingLoader ? EditMode.NEW : EditMode.EXISTING, isViewOnly);
 	}
 	
 	public ToolBar getLabelPanel(final Grid<ClassificationSchemeModelData> grid, boolean isViewOnly){
@@ -309,8 +206,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 						public void onYes() {
 							if (model != null) {
 								server.remove(model);
-							
-								innerContainer.removeAll();
 							}
 						}
 					});
@@ -436,12 +331,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				final ClassificationSchemeModelData model = 
 					newInstance(generateDefaultStructure(null));
 				
-				updateInnerContainer(model, true, isViewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
-					public void isDrawn(LayoutContainer container) {
-						innerContainer.removeAll();
-						innerContainer.add(container);
-					}
-				});
+				editModel(model, true, isViewOnly);
 			}
 		});
 		
@@ -497,7 +387,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		return bar;
 	}
 	
-	protected ClassificationSchemeModelData newInstance(Structure structure) {
+	public ClassificationSchemeModelData newInstance(Structure structure) {
 		return new ClassificationSchemeModelData(structure);
 	}
 
@@ -524,12 +414,36 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		}
 	}
 	
+	public void removeModel(ClassificationSchemeModelData model) {
+		server.remove(model);
+		
+		hasChanged = true;
+	}
+	
+	@Override
+	public void addModel(ClassificationSchemeModelData model) {
+		server.add(model);
+		
+		hasChanged = true;
+	}
+	
+	@Override
+	public void updateModel(ClassificationSchemeModelData model) {
+		server.update(model);
+							
+		hasChanged = true;
+	}
+	
+	public List<ClassificationSchemeModelData> getModels() {
+		return server.getModels();
+	}
+	
 	@Override
 	public void revert() {
 		setData(saved);
 	}
 	
-	protected Structure generateDefaultStructure(TreeDataRow row) {
+	public Structure generateDefaultStructure(TreeDataRow row) {
 		return DisplayDataProcessor.processDisplayStructure(treeData.getDefaultStructure());
 	}
 	
@@ -592,32 +506,6 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		
 	}
 	
-	protected static class CodingOption extends BaseModelData {
-		
-		private static final long serialVersionUID = 1L;
-		
-		private final TreeDataRow row;
-		
-		public CodingOption(TreeDataRow row) {
-			super();
-			this.row = row;
-			
-			set("text", row.getFullLineage());
-			set("value", row.getDisplayId());
-		}
-		
-		public String getValue() {
-			return get("value");
-		}
-		
-		public TreeDataRow getRow() {
-			return row;
-		}
-		
-		public boolean isCodeable() {
-			return "true".equals(row.getCodeable());
-		} 
-		
-	}
+	
 
 }

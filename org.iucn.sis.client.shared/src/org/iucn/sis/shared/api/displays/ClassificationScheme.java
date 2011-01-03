@@ -14,7 +14,9 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
+import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
+import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow.EditMode;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -25,13 +27,15 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.util.events.ComplexListener;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.extjs.client.WindowUtils.SimpleMessageBoxListener;
 import com.solertium.util.gwt.ui.StyledHTML;
 
 /**
@@ -45,8 +49,6 @@ public class ClassificationScheme extends Display {
 	protected final Map<String, TreeDataRow> flatTree;
 	
 	protected final ClassificationSchemeViewer viewer;
-	
-	private String definition = "";
 
 	public ClassificationScheme(TreeData displayData) {
 		super(displayData);
@@ -56,8 +58,6 @@ public class ClassificationScheme extends Display {
 		viewer = createViewer(description, displayData);
 		
 		buildDefinition();
-		
-		DefinitionCache.impl.setDefinition(description.toLowerCase(), definition);
 	}
 	
 	protected ClassificationSchemeViewer createViewer(String description, TreeData displayData) {
@@ -65,17 +65,19 @@ public class ClassificationScheme extends Display {
 	}
 	
 	private void buildDefinition() {
+		final StringBuilder definition = new StringBuilder();
 		for (TreeDataRow curRow : treeData.getTreeRoots()) {
 			String curDesc = curRow.getDescription();
 			String curLevelID = curRow.getRowNumber();
 
-			definition += curLevelID + " - " + curDesc + " (" + curRow.getChildren().size() + ")" + "<br />";
+			definition.append(curLevelID + " - " + curDesc + " (" + curRow.getChildren().size() + ")" + "<br />");
 
-			buildChildrenDefinition(curRow);
+			buildChildrenDefinition(definition, curRow);
 		}
+		DefinitionCache.impl.setDefinition(description.toLowerCase(), definition.toString());
 	}
 
-	private void buildChildrenDefinition(TreeDataRow curParent) {
+	private void buildChildrenDefinition(StringBuilder definition, TreeDataRow curParent) {
 		for (TreeDataRow curRow : curParent.getChildren()) {
 			String curDesc = curRow.getDescription();
 			String curLevelID = curRow.getRowNumber();
@@ -92,13 +94,13 @@ public class ClassificationScheme extends Display {
 			try {
 				int depth = Integer.parseInt(curRow.getDepth());
 				for (int i = 0; i < depth; i++)
-					definition += "&nbsp;&nbsp;";
+					definition.append("&nbsp;&nbsp;");
 			} catch (Exception e) {
 			}
 
-			definition += curLevelID + " - " + curDesc + "<br />";
+			definition.append(curLevelID + " - " + curDesc + "<br />");
 
-			buildChildrenDefinition(curRow);
+			buildChildrenDefinition(definition, curRow);
 		}
 	}
 
@@ -109,7 +111,8 @@ public class ClassificationScheme extends Display {
 		buildReadOnlyContainer(container);
 		panel.add(container);
 		
-		panel.add(new Button("Make Changes", new SelectionListener<ButtonEvent>() {
+		final ButtonBar buttons = new ButtonBar();
+		buttons.add(new Button(viewOnly ? "View Details" : "Make Changes", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				final Window window = new Window();
 				window.setClosable(false);
@@ -122,20 +125,8 @@ public class ClassificationScheme extends Display {
 				window.setButtonAlign(HorizontalAlignment.CENTER);
 				window.addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
 					public void componentSelected(ButtonEvent ce) {
-						SimpleMessageBoxListener listener = new SimpleMessageBoxListener() {
-							public void onYes() {
-								buildReadOnlyContainer(container, viewer.save(false));
-								window.hide();
-							}
-						};
-						
-						if (!viewer.isEditing())
-							listener.onYes();
-						else
-							WindowUtils.confirmAlert("Confirm", "It appears you are " +
-								"still editing data. If you close this window now, " +
-								"you will lose any unsaved changes. Are you sure you " +
-								"want to close this window?", listener);
+						buildReadOnlyContainer(container, viewer.save(false));
+						window.hide();
 					}
 				}));
 				window.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
@@ -153,7 +144,31 @@ public class ClassificationScheme extends Display {
 				window.show();
 			}
 		}));
+		if (!viewOnly)
+			buttons.add(new Button("Quick Add", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					final ClassificationSchemeModelData model = 
+						viewer.newInstance(viewer.generateDefaultStructure(null));
+					final ClassificationSchemeRowEditorWindow window = 
+						viewer.createRowEditorWindow(model, true, viewOnly);
+					window.setSaveListener(new ComplexListener<ClassificationSchemeModelData>() {
+						public void handleEvent(ClassificationSchemeModelData eventData) {
+							eventData.updateDisplayableData();
+							viewer.addModel(eventData);
+								
+							buildReadOnlyContainer(container, viewer.save(false));
+						}
+					});
+					window.setCancelListener(new SimpleListener() {
+						public void handleEvent() {
+							buildReadOnlyContainer(container, viewer.save(false));
+						}
+					});
+					window.show();
+				}
+			}));
 		
+		panel.add(buttons);
 		
 		return panel;
 	}

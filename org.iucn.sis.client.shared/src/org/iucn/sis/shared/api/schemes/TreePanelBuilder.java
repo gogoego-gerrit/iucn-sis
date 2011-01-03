@@ -11,6 +11,7 @@ import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -132,7 +133,7 @@ public class TreePanelBuilder {
 				store.add(option, true);
 			}
 		}
-		
+		store.sort("text", SortDir.ASC);
 		return store;
 	}
 	
