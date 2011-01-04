@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -145,7 +146,10 @@ public class TaxaTagManager extends LayoutContainer implements DrawsLazily {
 				
 				for (Taxon taxon : result) {
 					DataListItem item = new DataListItem();
-					item.setText(taxon.getName());
+					if (taxon.getLevel() <= TaxonLevel.GENUS)
+						item.setText("Unspecified " + taxon.getFullName());
+					else
+						item.setText(taxon.getFullName());
 					item.setData("taxon", taxon);
 					
 					list.add(item);

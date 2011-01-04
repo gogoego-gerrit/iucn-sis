@@ -261,7 +261,7 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 		height = panel.getOffsetHeight() + 15;
 		editor.setCellHeight(panel, height + "px");
 		
-		if (node.getLevel() == TaxonLevel.SPECIES) {
+		//if (node.getLevel() == TaxonLevel.SPECIES) {
 			html = new HTML("Invasive?" );
 			html.setWidth(htmlWidth);
 			invasive = new CheckBox();
@@ -285,7 +285,7 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 			editor.add(panel);
 			height = panel.getOffsetHeight() + 15;
 			editor.setCellHeight(panel, height + "px");
-		}
+		//}
 	}
 
 	private void refresh() {

@@ -1,5 +1,6 @@
 package org.iucn.sis.client.panels.taxa.tagging;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -100,7 +101,28 @@ public class TaxaTaggingBrowser extends RefreshLayoutContainer {
 					WindowUtils.hideLoadingAlert();
 					WindowUtils.errorAlert("Please check one or more taxa.");
 				} else {
-					final StringBuilder ids = new StringBuilder("<ids>");
+					/*
+					 * Jim says let's tag the actual taxon selected, 
+					 * not the child taxa.
+					 */
+					List<Taxon> taxaToAdd = new ArrayList<Taxon>();
+					for (TaxonListElement element : checked)
+						taxaToAdd.add(element.getNode());
+					
+					TaxonomyCache.impl.tagTaxa(currentTag, taxaToAdd, new GenericCallback<Object>() {
+						public void onSuccess(Object result) {
+							WindowUtils.hideLoadingAlert();
+							WindowUtils.infoAlert("Taxa successfully tagged as " + currentTag);
+								
+							if (tagListener != null)
+								tagListener.handleEvent();
+						}
+						public void onFailure(Throwable caught) {
+							WindowUtils.hideLoadingAlert();
+							WindowUtils.errorAlert("Error tagging taxa.");
+						}
+					});
+					/*final StringBuilder ids = new StringBuilder("<ids>");
 					for (final TaxonListElement element : checked) {
 						ids.append("<id>");
 						ids.append(element.getNode().getId());
@@ -134,7 +156,7 @@ public class TaxaTaggingBrowser extends RefreshLayoutContainer {
 								WindowUtils.errorAlert("No taxa tagged.");
 							}
 						}
-					});
+					});*/
 				}
 			}
 		}));
