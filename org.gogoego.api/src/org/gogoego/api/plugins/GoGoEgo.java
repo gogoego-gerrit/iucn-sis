@@ -16,6 +16,7 @@
 package org.gogoego.api.plugins;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Properties;
 
 import org.gogoego.api.applications.GoGoEgoApplication;
@@ -91,6 +92,10 @@ public final class GoGoEgo implements GoGoEgoAPI {
 	
 	public ClassLoader getClassLoaderPlugin(String bundleName, String minimumVersion) {
 		return backbone.getClassLoaderBroker().getPlugin(bundleName, minimumVersion);
+	}
+	
+	public Map<String, Map<String, String>> getClassLoaderPluginMetadata(String bundleName) {
+		return backbone.getClassLoaderBroker().getMetadata(bundleName);
 	}
 	
 	public ImageManipulatorHelper getImageManipulatorHelper(Context context) {

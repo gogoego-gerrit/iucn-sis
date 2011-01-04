@@ -16,6 +16,7 @@
 package org.gogoego.api.plugins;
 
 import java.io.File;
+import java.util.Map;
 
 import org.gogoego.api.applications.GoGoEgoApplication;
 import org.gogoego.api.applications.ServerApplicationAPI;
@@ -77,6 +78,8 @@ public interface GoGoEgoAPI {
 	 * @return the class loader
 	 */
 	public ClassLoader getClassLoaderPlugin(String bundleName, String minimumVersion);
+	
+	public Map<String, Map<String, String>> getClassLoaderPluginMetadata(String bundleName);
 	
 	/**
 	 * Retrieve an image manipulator helper, which provides access to 

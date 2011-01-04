@@ -185,7 +185,7 @@ public class PluginBroker<T> {
 		}
 		
 		if (!compatible.isEmpty()) {
-			final Comparator<CharSequence> ac = new AlphanumericComparator();
+			final Comparator<CharSequence> ac = new VersionNumberComparator();
 			final ArrayList<String> versions = new ArrayList<String>();
 			versions.addAll(compatible.keySet());
 			Collections.sort(versions, ac);
@@ -220,7 +220,40 @@ public class PluginBroker<T> {
 		if (references == null)
 			return null;
 
+		final Map<String, ServiceReference> compatible = new HashMap<String, ServiceReference>();
 		for (ServiceReference reference : references) {
+			final Bundle bundle = reference.getBundle();
+			if (bundle.getState() == Bundle.ACTIVE) {
+				final Dictionary headers = bundle.getHeaders();
+				for (String key : headerKeys)
+					if (classNameOrBundleName.equals(reference.getProperty(classNameOrBundleName)) || 
+							classNameOrBundleName.equals((String) headers.get(key))) {
+						//compatible.put(classNameOrBundleName, reference);
+						compatible.put((String)headers.get("Bundle-Version"), reference);
+					}
+			}
+		}
+		
+		if (!compatible.isEmpty()) {
+			final Comparator<CharSequence> ac = new VersionNumberComparator();
+			final ArrayList<String> versions = new ArrayList<String>();
+			versions.addAll(compatible.keySet());
+			
+			Collections.sort(versions, Collections.reverseOrder(ac));
+			
+			T plugin = (T)tracker.getService(compatible.get(versions.get(0)));
+			if (plugin != null) {
+				cache.put(classNameOrBundleName, plugin);
+				serviceIDToSymbolicName.put(compatible.get(versions.get(0)).getProperty("service.id").toString(), 
+						classNameOrBundleName);
+			}
+		}
+		
+		/**
+		 * This custom implementation always returns the 
+		 * LATEST version of the given plugin
+		 */
+		/*for (ServiceReference reference : references) {
 			final Bundle bundle = reference.getBundle();
 			if (bundle.getState() == Bundle.ACTIVE) {
 				final Dictionary headers = bundle.getHeaders();
@@ -237,7 +270,7 @@ public class PluginBroker<T> {
 				if (found)
 					break;
 			}
-		}
+		}*/
 
 		return cache.get(classNameOrBundleName);
 	}
@@ -260,6 +293,33 @@ public class PluginBroker<T> {
 		}
 
 		return map;
+	}
+	
+	public Map<String, Map<String, String>> getMetadata(String classNameOrBundleName) {
+		final Map<String, Map<String, String>> metadata = new HashMap<String, Map<String,String>>();
+		
+		final ServiceReference[] references = tracker.getServiceReferences();
+		if (references != null) {
+			for (ServiceReference reference : references) {
+				Bundle bundle = reference.getBundle();
+				if (bundle != null && classNameOrBundleName.equals(bundle.getSymbolicName())) {
+					final Dictionary dictionary = bundle.getHeaders();
+					final Map<String, String> headers = new HashMap<String, String>() {
+						private static final long serialVersionUID = 1L;
+						public String put(String key, String value) {
+							if (value == null) value = "N/A";
+							return super.put(key, value);
+						}
+					};
+					headers.put("Bundle-Version", (String)dictionary.get("Bundle-Version"));
+					headers.put("Bundle-Vendor", (String)dictionary.get("Bundle-Vendor"));
+					
+					metadata.put(headers.get("Bundle-Version"), headers);
+				}
+			}
+		}
+		
+		return metadata;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -344,6 +404,34 @@ public class PluginBroker<T> {
 		public abstract void onSuccess(ServiceEvent event);
 
 		public abstract void onFailure();
+	}
+	
+	public static class VersionNumberComparator implements Comparator<CharSequence> {
+		
+		private final AlphanumericComparator comparator = new AlphanumericComparator();
+		
+		public int compare(CharSequence o1, CharSequence o2) {
+			String[] a = o1.toString().split("\\.");
+			String[] b = o2.toString().split("\\.");
+			
+			for (int i = 0; i < a.length; i++) {
+				String curA = a[i];
+				String curB;
+				try {
+					curB = b[i];
+				} catch (IndexOutOfBoundsException e) {
+					return 1;
+				}
+				
+				if (curA.equals(curB))
+					continue;
+				
+				return comparator.compare(curA, curB);
+			}
+			
+			return 0;
+		}
+		
 	}
 
 }
