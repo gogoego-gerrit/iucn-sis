@@ -154,7 +154,10 @@ public class ClassificationScheme extends Display {
 					window.setSaveListener(new ComplexListener<ClassificationSchemeModelData>() {
 						public void handleEvent(ClassificationSchemeModelData eventData) {
 							eventData.updateDisplayableData();
-							viewer.addModel(eventData);
+							if (viewer.getModels().contains(eventData))
+								viewer.updateModel(eventData);
+							else
+								viewer.addModel(eventData);
 								
 							buildReadOnlyContainer(container, viewer.save(false));
 						}

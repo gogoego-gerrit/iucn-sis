@@ -52,21 +52,7 @@ public class GroupedThreatRowEditorWindow extends ClassificationSchemeRowEditorW
 					models.add(current);
 			
 			ViralThreatRowEditor editor = new ViralThreatRowEditor(models, treeData, model.getSelectedRow(), isViewOnly);
-			editor.setAddListener(new ComplexListener<ClassificationSchemeModelData>() {
-				public void handleEvent(ClassificationSchemeModelData model) {
-					parent.addModel(model);
-				}
-			});
-			editor.setRemoveListener(new ComplexListener<ClassificationSchemeModelData>() {
-				public void handleEvent(ClassificationSchemeModelData model) {
-					parent.removeModel(model);
-				}
-			});
-			editor.addListener(Events.SelectionChange, new Listener<SelectionChangedEvent<ClassificationSchemeModelData>>() {
-				public void handleEvent(SelectionChangedEvent<ClassificationSchemeModelData> be) {
-					updateButtons(be);
-				}
-			});
+			appendListeners(editor);
 			
 			return editor;
 		}
@@ -78,26 +64,33 @@ public class GroupedThreatRowEditorWindow extends ClassificationSchemeRowEditorW
 					models.add(current);
 			
 			IASThreatRowEditor editor = new IASThreatRowEditor(models, treeData, model.getSelectedRow(), isViewOnly);
-			editor.setRemoveListener(new ComplexListener<ClassificationSchemeModelData>() {
-				public void handleEvent(ClassificationSchemeModelData model) {
-					parent.removeModel(model);
-				}
-			});
-			editor.setAddListener(new ComplexListener<ClassificationSchemeModelData>() {
-				public void handleEvent(ClassificationSchemeModelData model) {
-					parent.addModel(model);
-				}
-			});
-			editor.addListener(Events.SelectionChange, new Listener<SelectionChangedEvent<ClassificationSchemeModelData>>() {
-				public void handleEvent(SelectionChangedEvent<ClassificationSchemeModelData> be) {
-					updateButtons(be);
-				}
-			});
+			appendListeners(editor);
 			
 			return editor;
 		}
 		else
 			return super.createRowEditor(model, isViewOnly);
+	}
+	
+	private void appendListeners(GroupedThreatRowEditor editor) {
+		editor.setRemoveListener(new ComplexListener<ClassificationSchemeModelData>() {
+			public void handleEvent(ClassificationSchemeModelData model) {
+				parent.removeModel(model);
+			}
+		});
+		editor.setAddListener(new ComplexListener<ClassificationSchemeModelData>() {
+			public void handleEvent(ClassificationSchemeModelData model) {
+				if (parent.getModels().contains(model))
+					parent.updateModel(model);
+				else
+					parent.addModel(model);
+			}
+		});
+		editor.addListener(Events.SelectionChange, new Listener<SelectionChangedEvent<ClassificationSchemeModelData>>() {
+			public void handleEvent(SelectionChangedEvent<ClassificationSchemeModelData> be) {
+				updateButtons(be);
+			}
+		});	
 	}
 	
 	protected ComboBox<CodingOption> createClassificationOptions(TreeDataRow selected) {
@@ -131,8 +124,9 @@ public class GroupedThreatRowEditorWindow extends ClassificationSchemeRowEditorW
 		else {
 			addButton(new Button("Save Selection", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					saveSelection(event.getSelectedItem());
 					((GroupedThreatRowEditor)editor).save(event.getSelectedItem());
+					if (saveListener != null)
+						saveListener.handleEvent(event.getSelectedItem());
 				}
 			}));
 		}

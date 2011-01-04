@@ -158,7 +158,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			public void handleEvent(ClassificationSchemeModelData eventData) {
 				eventData.updateDisplayableData();
 					
-				if (addToPagingLoader)
+				if (addToPagingLoader && !server.contains(eventData))
 					server.add(eventData);
 				else
 					server.update(eventData);

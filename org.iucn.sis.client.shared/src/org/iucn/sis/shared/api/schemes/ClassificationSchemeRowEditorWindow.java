@@ -45,8 +45,8 @@ public class ClassificationSchemeRowEditorWindow extends Window implements Draws
 	protected String saveButtonText = "Save Selection";
 	protected ClassificationSchemeRowEditor editor;
 	
-	private ComplexListener<ClassificationSchemeModelData> saveListener;
-	private SimpleListener cancelListener;
+	protected ComplexListener<ClassificationSchemeModelData> saveListener;
+	protected SimpleListener cancelListener;
 	
 	public ClassificationSchemeRowEditorWindow(ClassificationSchemeViewer parent, TreeData treeData, 
 			String description, ClassificationSchemeModelData model, EditMode mode, boolean isViewOnly) {
