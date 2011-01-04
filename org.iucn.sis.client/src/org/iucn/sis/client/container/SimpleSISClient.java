@@ -11,11 +11,20 @@ import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
 import org.iucn.sis.shared.api.utils.FieldParser;
 
+import com.extjs.gxt.themes.client.Slate;
+import com.extjs.gxt.ui.client.util.Theme;
+import com.extjs.gxt.ui.client.util.ThemeManager;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
+
+import ext.ux.theme.black.client.Black;
+import ext.ux.theme.darkgray.client.DarkGray;
+import ext.ux.theme.olive.client.Olive;
+import ext.ux.theme.purple.client.Purple;
+import ext.ux.theme.slickness.client.Slickness;
 
 public class SimpleSISClient extends SISClientBase {
 	
@@ -23,6 +32,19 @@ public class SimpleSISClient extends SISClientBase {
 	
 	public void loadModule() {
 		instance = this;
+		
+		/*
+		 * This must happen before any Ext widget 
+		 * is initialized.
+		 */
+		if (!ThemeManager.getThemes().contains(Slate.SLATE)) {
+			ThemeManager.register(Slate.SLATE);
+			ThemeManager.register(new Theme(Black.BLACK.getId(), Black.BLACK.getName(), "css/" + Black.BLACK.getFile()));
+			ThemeManager.register(new Theme(DarkGray.DARKGRAY.getId(), DarkGray.DARKGRAY.getName(), "css/" + DarkGray.DARKGRAY.getFile()));
+			ThemeManager.register(new Theme(Olive.OLIVE.getId(), Olive.OLIVE.getName(), "css/" + Olive.OLIVE.getFile()));
+			ThemeManager.register(new Theme(Purple.PURPLE.getId(), Purple.PURPLE.getName(), "css/" + Purple.PURPLE.getFile()));
+			ThemeManager.register(new Theme(Slickness.SLICKNESS.getId(), Slickness.SLICKNESS.getName(), "css/" + Slickness.SLICKNESS.getFile()));
+		}
 
 		clientContainer = new ClientUIContainer();
 

@@ -17,6 +17,13 @@
 	
 	<inherits name='ext.ux.wizard.WizardWindow'/>
 	<inherits name='ext.ux.pwd.PasswordField'/>
+	
+	<!-- Inherit Themes -->
+	<inherits name='ext.ux.theme.black.Black'/>
+	<inherits name='ext.ux.theme.darkgray.DarkGray'/>
+	<inherits name='ext.ux.theme.olive.Olive'/>
+	<inherits name='ext.ux.theme.purple.Purple'/>
+	<inherits name='ext.ux.theme.slickness.Slickness'/>
 
 	<!-- Inherit independent SIS modules -->
 	<inherits name='org.iucn.sis.Shared' />

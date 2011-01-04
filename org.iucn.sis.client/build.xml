@@ -24,6 +24,11 @@
 		<pathelement path="../${ext}/src"/>
 		<pathelement path="../ext.ux.pwd/src"/>
 		<pathelement path="../ext.ux.pwd/PasswordField.jar"/>
+		<pathelement path="../ext.ux.theme/gxt-theme-black-1.0.jar"/>
+		<pathelement path="../ext.ux.theme/gxt-theme-darkgray-1.0.jar"/>
+		<pathelement path="../ext.ux.theme/gxt-theme-olive-1.0.jar"/>
+		<pathelement path="../ext.ux.theme/gxt-theme-purple-1.0.jar"/>
+		<pathelement path="../ext.ux.theme/gxt-theme-slickness-1.0.jar"/>
 	</path>
 	
 	<path id="our-libs.classpath">

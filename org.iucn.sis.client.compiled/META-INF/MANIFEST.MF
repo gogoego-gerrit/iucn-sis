@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SIS Compiled Client
 Bundle-SymbolicName: org.iucn.sis.client.compiled
-Bundle-Version: 2.0.0
+Bundle-Version: 2.0.0.qualifier
 Bundle-Activator: org.iucn.sis.client.compiled.Clapper
 Import-Package: org.gogoego.api.classloader,
  org.osgi.framework;version="1.3.0"

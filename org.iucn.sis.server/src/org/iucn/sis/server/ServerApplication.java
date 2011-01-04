@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.gogoego.api.classloader.SimpleClasspathResource;
 import org.gogoego.api.plugins.GoGoEgo;
-import org.gogoego.api.utils.MagicDisablingFilter;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SISApplication;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
@@ -36,16 +34,11 @@ import org.iucn.sis.server.utils.SISVFSResource;
 import org.iucn.sis.server.utils.logging.WorkingsetLogBuilder;
 import org.restlet.Context;
 import org.restlet.Restlet;
-import org.restlet.data.Encoding;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.restlet.engine.application.EncodeRepresentation;
 import org.restlet.representation.InputRepresentation;
-import org.restlet.representation.Representation;
-import org.restlet.representation.Variant;
-import org.restlet.resource.ResourceException;
 
 import com.solertium.update.ServeUpdatesResource;
 import com.solertium.update.UpdateResource;
@@ -107,7 +100,8 @@ public class ServerApplication extends SISApplication{
 	
 	protected void initDualRoutes() {
 		addResource(SIS.get().getGuard(app.getContext()), "/authn", true);
-		addResource(GWTClientResource.class, "/SIS", true);
+		addResource(LatestGWTClientResource.class, "/SIS", true);
+		addResource(NamedGWTClientResource.class, "/builds/SIS/{version}", true);
 		
 		final List<String> taxaPaths = new ArrayList<String>();
 		taxaPaths.add("/tagging/taxa/{tag}");
@@ -162,30 +156,30 @@ public class ServerApplication extends SISApplication{
 		}, "/getUpdates", true);
 	}
 	
-	public static class GWTClientResource extends SimpleClasspathResource {
-		
-		public GWTClientResource(Context context, Request request, Response response) {
+	public static class LatestGWTClientResource extends VersionedGWTClientResource {
+
+		public LatestGWTClientResource(Context context, Request request,
+				Response response) {
 			super(context, request, response);
-			addGZIPHeader();
+			// TODO Auto-generated constructor stub
 		}
 		
-		public String getBaseUri() {
-			return "org/iucn/sis/client/compiled/public/SIS";
+		public String getVersion() {
+			return null;
 		}
 		
-		public ClassLoader getClassLoader() {
-			return GoGoEgo.get().getClassLoaderPlugin("org.iucn.sis.client.compiled");
+	}
+	
+	public static class NamedGWTClientResource extends VersionedGWTClientResource {
+		
+		public NamedGWTClientResource(Context context, Request request,
+				Response response) {
+			super(context, request, response);
+			// TODO Auto-generated constructor stub
 		}
 		
-		@Override
-		public Representation represent(Variant variant) throws ResourceException {
-			getRequest().getAttributes().put(MagicDisablingFilter.MAGIC_DISABLING_KEY, true);
-			Representation rep = super.represent(variant);
-			if( rep.getMediaType().equals(MediaType.TEXT_HTML) || rep.getMediaType().equals(MediaType.TEXT_CSS)
-					|| rep.getMediaType().equals(MediaType.TEXT_JAVASCRIPT))
-				return new EncodeRepresentation(Encoding.GZIP, rep);
-			else
-				return rep;
+		public String getVersion() {
+			return (String)getRequest().getAttributes().get("version");
 		}
 		
 	}

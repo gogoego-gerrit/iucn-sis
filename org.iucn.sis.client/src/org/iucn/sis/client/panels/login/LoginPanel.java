@@ -5,14 +5,13 @@ import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.users.AddUserWindow;
 import org.iucn.sis.client.panels.utils.GoogleAccountsAuthButton;
+import org.iucn.sis.shared.api.debug.Debug;
 
-import com.extjs.gxt.themes.client.Slate;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.util.ThemeManager;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -31,6 +30,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.PasswordTextBox;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -106,11 +106,20 @@ public class LoginPanel extends LayoutContainer {
 		descriptionPanel.setSpacing(0);
 		descriptionPanel.setWidth("210px");
 		descriptionPanel.add(headerImage);
+		
+		String buildNumber = "2.0.0";
+		try {
+			buildNumber = RootPanel.get("version").getElement().getInnerText();
+		} catch (Throwable e) {
+			Debug.println("Error loading build number.");
+		}
 
 		// Add content to description panel
 		descriptionPanel
 				.add(new HTML("<div style='margin: 5px; margin-top: 20px;'>"
 						+ "This is the Species Information Service (SIS) Toolkit, rev. 1.5-c4.</div>"
+						+ "<div style='margin: 5px; margin-top: 20px;'>"
+						+ buildNumber + "</div>"
 						+ "<div style='margin: 5px; margin-top: 20px;'>"
 						+ "<a href=\"/raw/downloads/sisOffline.zip\">Click here</a> to download "
 						+ "a standalone version of the software.</div>"
@@ -120,16 +129,8 @@ public class LoginPanel extends LayoutContainer {
 						+ "<li><a target=\"_blank\" href=\"http://www.firefox.com\">Firefox 3</a></li>"
 						+ "<li><a target=\"_blank\" href=\"http://www.apple.com/safari/\">Apple Safari</a></li>"
 						+ "</ul></div><div style='margin: 5px; margin-top: 20px; margin-bottom: 0px;'>"
-						+ "Select theme:</div>"));
-
-		if (!ThemeManager.getThemes().contains(Slate.SLATE)) {
-			ThemeManager.register(Slate.SLATE);
-//			ThemeManager.register(Black.BLACK);
-//			ThemeManager.register(DarkGray.DARKGRAY);
-//			ThemeManager.register(Olive.OLIVE);
-//			ThemeManager.register(Purple.PURPLE);
-//			ThemeManager.register(Slickness.SLICKNESS);
-		}
+						+ "Select theme:</div>"
+						));
 
 		ThemeSelector ts = new ThemeSelector();
 		ts.addStyleName("SIS_loginTheme");
