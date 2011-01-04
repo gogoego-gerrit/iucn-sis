@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.shared.api.data.TreeData;
+import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.fields.IASTaxaThreatsSubfield;
@@ -27,8 +28,8 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class IASThreatRowEditor extends GroupedThreatRowEditor {
 	
-	public IASThreatRowEditor(final Collection<ClassificationSchemeModelData> models, final TreeData treeData, boolean isViewOnly) {
-		super(models, treeData, isViewOnly);
+	public IASThreatRowEditor(final Collection<ClassificationSchemeModelData> models, final TreeData treeData, final TreeDataRow groupBy, boolean isViewOnly) {
+		super(models, treeData, groupBy, isViewOnly);
 	}
 	
 	@Override
@@ -96,6 +97,7 @@ public class IASThreatRowEditor extends GroupedThreatRowEditor {
 							
 							ClassificationSchemeModelData model = 
 								new ThreatClassificationSchemeModelData(generateNamedTaxaStructure(), field);
+							model.setSelectedRow(groupBy);
 							
 							DataListItem item = new DataListItem();
 							item.setText(entry.getValue().getFullName());
@@ -103,6 +105,9 @@ public class IASThreatRowEditor extends GroupedThreatRowEditor {
 							item.setData("value", model);
 							
 							list.add(item);
+							
+							if (addListener != null)
+								addListener.handleEvent(model);
 						}
 						
 					}

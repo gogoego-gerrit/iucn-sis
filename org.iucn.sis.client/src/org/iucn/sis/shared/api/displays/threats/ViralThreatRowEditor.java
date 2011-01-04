@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.caches.VirusCache;
 import org.iucn.sis.shared.api.data.TreeData;
+import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Virus;
 import org.iucn.sis.shared.api.models.fields.ViralThreatsSubfield;
@@ -28,8 +29,8 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class ViralThreatRowEditor extends GroupedThreatRowEditor {
 	
-	public ViralThreatRowEditor(final Collection<ClassificationSchemeModelData> models, final TreeData treeData, boolean isViewOnly) {
-		super(models, treeData, isViewOnly);
+	public ViralThreatRowEditor(final Collection<ClassificationSchemeModelData> models, final TreeData treeData, final TreeDataRow groupBy, boolean isViewOnly) {
+		super(models, treeData, groupBy, isViewOnly);
 	}
 	
 	@Override
@@ -98,6 +99,7 @@ public class ViralThreatRowEditor extends GroupedThreatRowEditor {
 							
 							ClassificationSchemeModelData model = 
 								new ThreatClassificationSchemeModelData(generateDefaultStructure(), field);
+							model.setSelectedRow(groupBy);
 							
 							DataListItem item = new DataListItem();
 							item.setText(entry.getValue().getName());
@@ -105,6 +107,9 @@ public class ViralThreatRowEditor extends GroupedThreatRowEditor {
 							item.setData("value", model);
 							
 							list.add(item);
+							
+							if (addListener != null)
+								addListener.handleEvent(model);
 						}
 						
 					}

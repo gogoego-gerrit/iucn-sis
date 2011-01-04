@@ -3,10 +3,9 @@ package org.iucn.sis.shared.api.displays.threats;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.shared.api.data.TreeData;
-import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.models.fields.IASTaxaThreatsSubfield;
+import org.iucn.sis.shared.api.data.TreeDataRow;
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditor;
 
@@ -14,6 +13,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.DataListEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
-import com.solertium.util.gwt.ui.DrawsLazily.DoneDrawingCallback;
 
 public abstract class GroupedThreatRowEditor extends ClassificationSchemeRowEditor {
 	
@@ -32,17 +31,18 @@ public abstract class GroupedThreatRowEditor extends ClassificationSchemeRowEdit
 	protected final DataList list;
 	
 	protected final TreeData treeData;
+	protected final TreeDataRow groupBy;
 	
-	private ComplexListener<ClassificationSchemeModelData> removeListener;
+	protected ComplexListener<ClassificationSchemeModelData> removeListener;
+	protected ComplexListener<ClassificationSchemeModelData> addListener;
 
-	public GroupedThreatRowEditor(final Collection<ClassificationSchemeModelData> models, final TreeData treeData, boolean isViewOnly) {
+	public GroupedThreatRowEditor(final Collection<ClassificationSchemeModelData> models, final TreeData treeData, final TreeDataRow groupBy, boolean isViewOnly) {
 		super(isViewOnly);
 		this.models = models;
 		this.displayContainer = new LayoutContainer(new FillLayout());
 		this.list = new DataList();
 		this.treeData = treeData;
-		
-		setHideAfterOperation(false);
+		this.groupBy = groupBy;
 		
 		displayContainer.setLayoutOnChange(true);
 		
@@ -55,12 +55,18 @@ public abstract class GroupedThreatRowEditor extends ClassificationSchemeRowEdit
 				ClassificationSchemeModelData model = item.getData("value");
 				
 				displayEditor(model);
+				
+				fireSelectionChangedEvent(new SelectionChangedEvent<ClassificationSchemeModelData>(null, model));
 			}
 		});
 	}
 	
 	public void setRemoveListener(ComplexListener<ClassificationSchemeModelData> removeListener) {
 		this.removeListener = removeListener;
+	}
+	
+	public void setAddListener(ComplexListener<ClassificationSchemeModelData> addListener) {
+		this.addListener = addListener;
 	}
 	
 	protected abstract void init(SimpleListener listener);
@@ -120,14 +126,36 @@ public abstract class GroupedThreatRowEditor extends ClassificationSchemeRowEdit
 			ClassificationSchemeModelData model = item.getData("value");
 			removeListener.handleEvent(model);
 		}
+		
+		fireSelectionChangedEvent();
 	}
 	
-	@Override
-	protected void cancel(ClassificationSchemeModelData model) {
+	public void save(ClassificationSchemeModelData model) {
 		displayContainer.removeAll();
 		
 		list.setSelectedItems(new ArrayList<DataListItem>());
 		
-		super.cancel(model);
+		fireSelectionChangedEvent();
+	}
+	
+	
+	public void cancel(ClassificationSchemeModelData model) {
+		displayContainer.removeAll();
+		
+		list.setSelectedItems(new ArrayList<DataListItem>());
+		
+		fireSelectionChangedEvent();
+	}
+	
+	protected void fireSelectionChangedEvent() {
+		SelectionChangedEvent<ClassificationSchemeModelData> fauxEvent = 
+			new SelectionChangedEvent<ClassificationSchemeModelData>(null, (ClassificationSchemeModelData)null);
+		fauxEvent.getSelection().clear();
+		
+		fireSelectionChangedEvent(fauxEvent);
+	}
+	
+	protected void fireSelectionChangedEvent(SelectionChangedEvent<ClassificationSchemeModelData> event) {
+		fireEvent(Events.SelectionChange, event);
 	}
 }
