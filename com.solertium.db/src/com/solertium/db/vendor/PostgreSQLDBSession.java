@@ -76,19 +76,31 @@ public class PostgreSQLDBSession extends DBSession {
 
 	@Override
 	public String formatIdentifier(final String identifier) {
+		StringBuilder newIdent = new StringBuilder();
+		String schema = getSchema();
 		
-		String newIdent = null;
-		switch(getIdentifierCase()){
-			case CASE_LOWER:
-				newIdent =  "\"" + identifier.toLowerCase() + "\"";
-			case CASE_UPPER:
-				newIdent =  "\"" + identifier.toUpperCase() + "\"";
-			case CASE_UNCHECKED:
-				newIdent =  identifier.toLowerCase();
-			default:
-				newIdent =  "\"" + identifier + "\"";
+		String[] toFormat;
+		if (schema == null || "public".equals(schema))
+			toFormat = new String[] { identifier };
+		else
+			toFormat = new String[] { schema, identifier };
+		
+		for (int i = 0; i < toFormat.length; i++) {
+			String value = toFormat[i];
+			switch(getIdentifierCase()){
+				case CASE_LOWER:
+					newIdent.append("\"" + value.toLowerCase() + "\"");
+				case CASE_UPPER:
+					newIdent.append("\"" + value.toUpperCase() + "\"");
+				case CASE_UNCHECKED:
+					newIdent.append(value.toLowerCase());
+				default:
+					newIdent.append("\"" + value + "\"");
+			}
+			if (i+1 < toFormat.length)
+				newIdent.append('.');
 		}
-		return newIdent;
+		return newIdent.toString();
 	}
 
 	@Override

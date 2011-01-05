@@ -182,6 +182,16 @@ public abstract class DBSession {
 	public void setIdentifierCase(int identifierCase) {
 		this.identifierCase = identifierCase;
 	}
+	
+	private String schema;
+	
+	public String getSchema() {
+		return schema;
+	}
+	
+	public void setSchema(String schema) {
+		this.schema = schema;
+	}
 
 	private ConcurrentHashMap<String, Row> structure = null;
 	private ConcurrentHashMap<String, String> descriptions = null;
