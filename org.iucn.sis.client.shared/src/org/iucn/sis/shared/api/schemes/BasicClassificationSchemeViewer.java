@@ -118,7 +118,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		grid.setWidth(900);
 		grid.setHeight(300);
 		grid.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-		grid.addListener(Events.RowClick, new Listener<GridEvent<ClassificationSchemeModelData>>() {
+		grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<ClassificationSchemeModelData>>() {
 			public void handleEvent(GridEvent<ClassificationSchemeModelData> be) {
 				ClassificationSchemeModelData selected = be.getModel();
 				if (selected != null) {
