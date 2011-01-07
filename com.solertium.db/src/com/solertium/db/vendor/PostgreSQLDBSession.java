@@ -40,6 +40,7 @@ import com.solertium.db.CDouble;
 import com.solertium.db.CInteger;
 import com.solertium.db.CLong;
 import com.solertium.db.CString;
+import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.Column;
 import com.solertium.db.ConversionException;
 import com.solertium.db.DBException;
@@ -74,8 +75,33 @@ public class PostgreSQLDBSession extends DBSession {
 		createIndices(table, prototype, ec);
 	}
 
-	@Override
+	private String formatIdentifierColumn(final String identifier) {
+		String newIdent;
+		switch(getIdentifierCase()){
+			case CASE_LOWER:
+				newIdent = ("\"" + identifier.toLowerCase() + "\"");
+			case CASE_UPPER:
+				newIdent = ("\"" + identifier.toUpperCase() + "\"");
+			case CASE_UNCHECKED:
+				newIdent = (identifier.toLowerCase());
+			default:
+				newIdent = ("\"" + identifier + "\"");
+		}
+		return newIdent;
+	}
+	
 	public String formatIdentifier(final String identifier) {
+		return formatIdentifier(identifier, false);
+	}
+	
+	public String formatIdentifier(final String identifier, boolean isColumn) {
+		if (isColumn)
+			return formatIdentifierColumn(identifier);
+		else
+			return doFormatIdentifier(identifier);
+	}
+	
+	private String doFormatIdentifier(final String identifier) {
 		StringBuilder newIdent = new StringBuilder();
 		String schema = getSchema();
 		
@@ -113,6 +139,22 @@ public class PostgreSQLDBSession extends DBSession {
 		s = Replacer.replace(s, "'", "''");
 		s = Replacer.replace(s, "\\", "\\\\");
 		return "'" + s + "'";
+	}
+	
+	public String formatCanonicalColumnName(final CanonicalColumnName name) {
+		final StringBuffer ret = new StringBuffer(128);
+		final String t = name.getTable();
+		if (t != null) {
+			ret.append(formatIdentifier(t));
+			ret.append(".");
+		}
+		final String f = name.getField();
+		if ("*".equals(f))
+			ret.append("*");
+		else {
+			ret.append(formatIdentifier(f, true));
+		}
+		return ret.toString();
 	}
 
 	@Override
