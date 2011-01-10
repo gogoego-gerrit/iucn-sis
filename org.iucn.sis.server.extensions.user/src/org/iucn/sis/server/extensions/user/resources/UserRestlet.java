@@ -1,12 +1,8 @@
 package org.iucn.sis.server.extensions.user.resources;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.persistance.UserDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.PermissionGroup;
@@ -16,24 +12,12 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import com.solertium.db.CanonicalColumnName;
-import com.solertium.db.DBException;
-import com.solertium.db.Row;
-import com.solertium.db.RowProcessor;
-import com.solertium.db.query.ExperimentalSelectQuery;
-import com.solertium.db.query.QComparisonConstraint;
-import com.solertium.db.query.QConstraint;
-import com.solertium.db.query.QRelationConstraint;
 
 public class UserRestlet extends BaseServiceRestlet {
 	
@@ -71,13 +55,19 @@ public class UserRestlet extends BaseServiceRestlet {
 				user.setFirstName(value);
 			else if ("lastname".equalsIgnoreCase(name))
 				user.setLastName(value);
+			else if ("username".equalsIgnoreCase(name)) {
+				/*
+				 * This is a valid property, but you can't 
+				 * actually change it...
+				 */
+			}
 			else if ("nickname".equalsIgnoreCase(name))
 				user.setNickname(value);
 			else if ("initials".equalsIgnoreCase(name))
 				user.setInitials(value);
 			else if ("affiliation".equalsIgnoreCase(name))
 				user.setAffiliation(value);
-			else if ("sisUser".equalsIgnoreCase(name))
+			else if ("sisUser".equalsIgnoreCase(name) || "sis".equalsIgnoreCase(name))
 				user.setSisUser(Boolean.valueOf(value));
 			else if ("rapidListUser".equalsIgnoreCase(name))
 				user.setRapidlistUser(Boolean.valueOf(value));
