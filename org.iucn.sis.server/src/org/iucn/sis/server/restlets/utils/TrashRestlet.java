@@ -1,6 +1,8 @@
 package org.iucn.sis.server.restlets.utils;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -10,6 +12,7 @@ import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.io.AssessmentIOMessage;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
@@ -85,17 +88,23 @@ public class TrashRestlet extends ServiceRestlet {
 	 * @param ec
 	 */
 	private void handleGet(Request request, Response response) {
-
+		Date defaultDate = Calendar.getInstance().getTime();
 		StringBuilder xml = new StringBuilder("<trash>");
 		try {
 			for (Assessment assessment : SIS.get().getAssessmentIO().getTrashedAssessments()) {
 				xml.append("<data id=\"" + assessment.getId() + "\" ");
 				xml.append("type=\"assessment\" ");
 				xml.append("status=\"" + assessment.getAssessmentType().getDisplayName() + "\" ");
-				xml.append("user=\"" + assessment.getLastEdit().getUser().getUsername() + "\" ");
-				xml
-						.append("date=\"" + FormattedDate.impl.getDate(assessment.getLastEdit().getCreatedDate())
-								+ "\" ");
+				if (!assessment.getEdit().isEmpty()) {
+					Edit last = assessment.getLastEdit();
+					xml.append("user=\"" + last.getUser().getUsername() + "\" ");
+					xml.append("date=\"" + FormattedDate.impl.getDate(last.getCreatedDate())
+							+ "\" ");
+				}
+				else {
+					xml.append("user=\"Unknown\" ");
+					xml.append("date=\"" + FormattedDate.impl.getDate(defaultDate) + "\" ");
+				}
 				xml.append("node=\"" + assessment.getSpeciesName() + "\" ");
 				xml.append("display=\"\" ");
 				xml.append("/>");
@@ -105,8 +114,15 @@ public class TrashRestlet extends ServiceRestlet {
 				xml.append("<data id=\"" + taxon.getId() + "\" ");
 				xml.append("type=\"taxon\" ");
 				xml.append("status=\"\" ");
-				xml.append("user=\"" + taxon.getLastEdit().getUser().getUsername() + "\" ");
-				xml.append("date=\"" + FormattedDate.impl.getDate(taxon.getLastEdit().getCreatedDate()) + "\" ");
+				if (!taxon.getEdits().isEmpty()) {
+					Edit last = taxon.getLastEdit();
+					xml.append("user=\"" + last.getUser().getUsername() + "\" ");
+					xml.append("date=\"" + FormattedDate.impl.getDate(last.getCreatedDate()) + "\" ");
+				}
+				else {
+					xml.append("user=\"Unknown\" ");
+					xml.append("date=\"" + FormattedDate.impl.getDate(defaultDate) + "\" ");	
+				}
 				xml.append("node=\"" + taxon.getFullName() + "\" ");
 				xml.append("display=\"\" ");
 				xml.append("/>");
