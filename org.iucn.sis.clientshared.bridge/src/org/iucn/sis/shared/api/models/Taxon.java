@@ -27,6 +27,7 @@ import org.iucn.sis.shared.api.utils.XMLUtils;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.portable.XMLWritingUtils;
 
 public class Taxon implements AuthorizableObject, Serializable {
 
@@ -314,6 +315,8 @@ public class Taxon implements AuthorizableObject, Serializable {
 	}
 
 	private int id;
+	
+	private Integer internalID;
 
 	private TaxonLevel taxonLevel;
 
@@ -359,6 +362,14 @@ public class Taxon implements AuthorizableObject, Serializable {
 
 	public int getORMID() {
 		return getId();
+	}
+	
+	public Integer getInternalID() {
+		return internalID;
+	}
+	
+	public void setInternalID(Integer internalID) {
+		this.internalID = internalID;
 	}
 
 	public void setName(String value) {
@@ -537,6 +548,9 @@ public class Taxon implements AuthorizableObject, Serializable {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + " id=\"" + getId() + "\" name=\"" + getName() + "\" hybrid=\""
 				+ getHybrid() + "\" level=\"" + getLevel() + "\" fullname=\"" + getFullName() + "\">");
+		
+		if (getInternalID() != null)
+			xml.append(XMLWritingUtils.writeTag("internalID", getInternalID().toString()));
 	
 		if (getTaxonStatus() != null)
 			xml.append(getTaxonStatus().toXML());
@@ -681,6 +695,10 @@ public class Taxon implements AuthorizableObject, Serializable {
 		if (footprint.getLength() > 0) {
 			taxon.setFootprint(footprint.elementAt(0).getTextContent().split(","));
 		}
+		
+		NativeNodeList internalID = nodeElement.getElementsByTagName("internalID");
+		if (internalID.getLength() > 0)
+			taxon.setInternalID(Integer.valueOf(internalID.elementAt(0).getTextContent()));
 
 		NativeNodeList taxAuths = nodeElement.getElementsByTagName("taxonomicAuthority");
 		if (taxAuths.getLength() > 0)

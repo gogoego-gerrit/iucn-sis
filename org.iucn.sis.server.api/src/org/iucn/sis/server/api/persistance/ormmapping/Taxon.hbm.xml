@@ -12,6 +12,7 @@ License Type: Evaluation
 		</id>
 		<many-to-one name="taxonLevel" cascade="lock" column="taxon_levelid" class="org.iucn.sis.shared.api.models.TaxonLevel" not-null="true" lazy="no-proxy">
 		</many-to-one>
+		<property name="internalID" column="internalid" type="integer" length="255" not-null="false" lazy="false"/>
 		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false"/>
 		<property name="friendlyName" column="friendly_name" type="string" length="255" not-null="true" lazy="false"/>
 		<property name="hybrid" column="hybrid" type="boolean" length="1" not-null="true" lazy="false"/>
