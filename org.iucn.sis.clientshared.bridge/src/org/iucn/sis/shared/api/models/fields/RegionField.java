@@ -48,7 +48,7 @@ public class RegionField {
 		if (field != null)
 			((ForeignKeyListPrimitiveField)field).setValue(regionIDs);
 		else {
-			field = new ForeignKeyListPrimitiveField("regions", proxy);
+			field = new ForeignKeyListPrimitiveField("regions", proxy, "region");
 			((ForeignKeyListPrimitiveField)field).setValue(regionIDs);
 			
 			proxy.addPrimitiveField(field);
