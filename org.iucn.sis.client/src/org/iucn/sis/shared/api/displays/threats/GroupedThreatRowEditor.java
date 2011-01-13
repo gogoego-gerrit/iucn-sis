@@ -2,10 +2,10 @@ package org.iucn.sis.shared.api.displays.threats;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
-import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditor;
 
@@ -59,6 +59,17 @@ public abstract class GroupedThreatRowEditor extends ClassificationSchemeRowEdit
 				fireSelectionChangedEvent(new SelectionChangedEvent<ClassificationSchemeModelData>(null, model));
 			}
 		});
+	}
+	
+	public List<ClassificationSchemeModelData> getModelsFromList() {
+		List<ClassificationSchemeModelData> models = new ArrayList<ClassificationSchemeModelData>();
+		for (DataListItem item : list.getItems()) {
+			ClassificationSchemeModelData model = item.getData("value");
+			if (model != null)
+				models.add(model);
+		}
+		return models;
+			
 	}
 	
 	public void setRemoveListener(ComplexListener<ClassificationSchemeModelData> removeListener) {
@@ -126,23 +137,6 @@ public abstract class GroupedThreatRowEditor extends ClassificationSchemeRowEdit
 			ClassificationSchemeModelData model = item.getData("value");
 			removeListener.handleEvent(model);
 		}
-		
-		fireSelectionChangedEvent();
-	}
-	
-	public void save(ClassificationSchemeModelData model) {
-		displayContainer.removeAll();
-		
-		list.setSelectedItems(new ArrayList<DataListItem>());
-		
-		fireSelectionChangedEvent();
-	}
-	
-	
-	public void cancel(ClassificationSchemeModelData model) {
-		displayContainer.removeAll();
-		
-		list.setSelectedItems(new ArrayList<DataListItem>());
 		
 		fireSelectionChangedEvent();
 	}

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
@@ -21,14 +23,20 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TreePanelEvent;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
+import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.CheckCascade;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.HTML;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class TreePanelBuilder {
@@ -38,19 +46,27 @@ public class TreePanelBuilder {
 	}
 	
 	public static LayoutContainer build(final ComplexListener<Set<TreeDataRow>> saveListener, final SimpleListener cancelListener, final TreeData treeData, Collection<TreeDataRow> selected) {
+		return build(saveListener, cancelListener, treeData, selected, new ArrayList<String>());
+	}
+	
+	public static LayoutContainer build(final ComplexListener<Set<TreeDataRow>> saveListener, final SimpleListener cancelListener, final TreeData treeData, Collection<TreeDataRow> selected, final Collection<String> disabledRows) {
 		final Map<String, CodingOption> checked = new HashMap<String, CodingOption>();
 		for (TreeDataRow row : selected) 
 			checked.put(row.getDisplayId(), new CodingOption(row));
 		
-		final TreePanel<CodingOption> tree = new TreePanel<CodingOption>(createTreeStore(treeData, checked));
+		final TreePanel<CodingOption> tree = new TreePanel<CodingOption>(createTreeStore(treeData, checked, disabledRows));
+		tree.setCheckStyle(CheckCascade.NONE);
 		tree.setAutoLoad(true);
 		tree.setCheckable(true);
 		
 		tree.setDisplayProperty("text");
 		tree.addListener(Events.BeforeCheckChange, new Listener<TreePanelEvent<CodingOption>>() {
 			public void handleEvent(TreePanelEvent<CodingOption> be) {
-				if (be.getItem() != null)
-					be.setCancelled(!be.getItem().isCodeable());					
+				if (tree.isRendered() && tree.isAttached() && be.getItem() != null) {
+					be.setCancelled(be.getItem().isDisabled() || !be.getItem().isCodeable());
+					if (be.getItem().isDisabled())
+						WindowUtils.infoAlert("Please select this option from Quick Add.");
+				}
 			}
 		});
 		
@@ -87,33 +103,44 @@ public class TreePanelBuilder {
 		});
 
 		final ButtonBar buttonBar = new ButtonBar();
-		buttonBar.setAlignment(HorizontalAlignment.RIGHT);
+		buttonBar.setAlignment(HorizontalAlignment.CENTER);
 		buttonBar.add(saveSelections);
 		buttonBar.add(cancel);
-		
-		buttonBar.setAlignment(HorizontalAlignment.LEFT);
-		buttonBar.add(expandAll);
-		buttonBar.add(collapseAll);
 
-		final LayoutContainer container = new LayoutContainer() {
+		final LayoutContainer container = new LayoutContainer(new BorderLayout()) {
 			protected void afterRender() {
 				super.afterRender();
 				Timer t = new Timer() {
 					public void run() {
-						tree.setCheckedSelection(new ArrayList<CodingOption>(checked.values()));
+						final List<CodingOption> toRemove = new ArrayList<CodingOption>();
+						final List<CodingOption> checkList = new ArrayList<CodingOption>(checked.values());
+						for (CodingOption option : checkList)
+							if (disabledRows.contains(option.getRow().getRowNumber()))
+								toRemove.add(option);
+						for (CodingOption option : toRemove)
+							checkList.remove(option);
+						
+						tree.setCheckedSelection(checkList);
 					}
 				};
 				t.schedule(1000);
 			}
 		};
-		container.add(buttonBar);
-		container.add(new HTML("&nbsp<u>Only selections <i>with a check icon</i> " + "will be saved.</u>"));
-		container.add(tree);
+		
+		final ToolBar toolBar = new ToolBar();
+		toolBar.add(new Html("&nbsp<u><b>Only selections <i>with a check icon</i> " + "will be saved.</b></u>"));
+		toolBar.add(new FillToolItem());
+		toolBar.add(expandAll);
+		toolBar.add(collapseAll);
+		
+		container.add(toolBar, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
+		container.add(tree, new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(buttonBar, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
 		
 		return container;
 	}
 
-	private static TreeStore<CodingOption> createTreeStore(TreeData treeData, Map<String, CodingOption> selection) {
+	private static TreeStore<CodingOption> createTreeStore(TreeData treeData, Map<String, CodingOption> selection, Collection<String> disabled) {
 		TreeStore<CodingOption> store = new TreeStore<CodingOption>();
 		store.setStoreSorter(new StoreSorter<CodingOption>(new PortableAlphanumericComparator()));
 		store.setKeyProvider(new ModelKeyProvider<CodingOption>() {
@@ -127,9 +154,9 @@ public class TreePanelBuilder {
 				option = selection.get(row.getDisplayId());
 			else
 				option = new CodingOption(row);
-			
+			option.setDisabled(disabled.contains(row.getRowNumber()));
 			if (option.isValid()) {
-				flattenTree(store, selection, option);
+				flattenTree(store, selection, option, disabled);
 				store.add(option, true);
 			}
 		}
@@ -137,7 +164,7 @@ public class TreePanelBuilder {
 		return store;
 	}
 	
-	private static void flattenTree(TreeStore<CodingOption> store, Map<String, CodingOption> selection, CodingOption parent) {
+	private static void flattenTree(TreeStore<CodingOption> store, Map<String, CodingOption> selection, CodingOption parent, Collection<String> disabled) {
 		if (parent.isValid()) {
 			for (TreeDataRow current : parent.getRow().getChildren()) {
 				CodingOption child;
@@ -147,9 +174,10 @@ public class TreePanelBuilder {
 				}
 				else
 					child = new CodingOption(current);
+				child.setDisabled(disabled.contains(current.getRowNumber()));
 				parent.add(child);
 				
-				flattenTree(store, selection, child);
+				flattenTree(store, selection, child, disabled);
 			}
 		}
 	}
@@ -162,6 +190,7 @@ public class TreePanelBuilder {
 		private final String rowID;
 		
 		private int numChildrenSelected;
+		private boolean disabled;
 		
 		public CodingOption(TreeDataRow row) {
 			super();
@@ -226,6 +255,14 @@ public class TreePanelBuilder {
 			}
 			
 			return true;
+		}
+		
+		public void setDisabled(boolean disabled) {
+			this.disabled = disabled;
+		}
+		
+		public boolean isDisabled() {
+			return disabled;
 		}
 
 		@Override

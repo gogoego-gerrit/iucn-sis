@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.schemes;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -24,7 +23,6 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
@@ -39,15 +37,12 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -55,7 +50,6 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
-import com.solertium.util.gwt.ui.DrawsLazily.DoneDrawingCallback;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationSchemeModelData> implements ClassificationSchemeViewer {
@@ -354,28 +348,14 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 					public void handleEvent(Set<TreeDataRow> eventData) {
 						window.hide();
 						
-						final List<ClassificationSchemeModelData> models = 
-							new ArrayList<ClassificationSchemeModelData>();
-						for (TreeDataRow row : eventData) {
-							if (!containsRow(row)) {
-								ClassificationSchemeModelData model = 
-									newInstance(generateDefaultStructure(row));
-								model.setSelectedRow(row);
-							
-								models.add(model);
-							}
-						}
-						
-						server.add(models);
-						
-						hasChanged = true;
+						bulkAdd(eventData);
 					}
 				}, new SimpleListener() {
 					public void handleEvent() {
 						window.hide();
 					}
-				}, treeData, selected));
-				window.setSize(500, 500);
+				}, treeData, selected, getDisabledTreeDataRows()));
+				window.setSize(600, 600);
 				window.show();
 			}
 		});
@@ -385,6 +365,27 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		bar.add(modClassification);
 		
 		return bar;
+	}
+	
+	protected Collection<String> getDisabledTreeDataRows() {
+		return new ArrayList<String>();
+	}
+	
+	protected void bulkAdd(Set<TreeDataRow> rows) {
+		final List<ClassificationSchemeModelData> models = 
+			new ArrayList<ClassificationSchemeModelData>();
+		for (TreeDataRow row : rows) {
+			if (!containsRow(row)) {
+				ClassificationSchemeModelData model = 
+					newInstance(generateDefaultStructure(row));
+				model.setSelectedRow(row);
+			
+				models.add(model);
+			}
+		}
+		
+		if (hasChanged = !models.isEmpty())
+			server.add(models);
 	}
 	
 	public ClassificationSchemeModelData newInstance(Structure structure) {

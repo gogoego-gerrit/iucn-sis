@@ -1,7 +1,9 @@
 package org.iucn.sis.shared.api.displays.threats;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.shared.api.data.TreeData;
@@ -37,10 +39,38 @@ public class ThreatsClassificationSchemeViewer extends
 	}
 	
 	public boolean containsRow(TreeDataRow row) {
-		if ("Named taxa".equals(row.getDescription()))
-			return false;
+		return containsRow(row, true);
+	}
+	
+	private boolean containsRow(TreeDataRow row, boolean allowDuplicates) {
+		return super.containsRow(row) || (allowDuplicates && "Named taxa".equals(row.getDescription()));
+	}
+	
+	protected Collection<String> getDisabledTreeDataRows() {
+		final ArrayList<String> list = new ArrayList<String>();
+		list.add("8.1.2");
+		list.add("8.2.2");
+		list.add("8.4.2");
+		list.add("8.5.2");
+		return list;
+	}
+	
+	@Override
+	protected void bulkAdd(Set<TreeDataRow> rows) {
+		final List<ClassificationSchemeModelData> models = 
+			new ArrayList<ClassificationSchemeModelData>();
+		for (TreeDataRow row : rows) {
+			if (!containsRow(row, false)) {
+				ClassificationSchemeModelData model = 
+					newInstance(generateDefaultStructure(row));
+				model.setSelectedRow(row);
+			
+				models.add(model);
+			}
+		}
 		
-		return super.containsRow(row);
+		if (hasChanged = !models.isEmpty())
+			server.add(models);
 	}
 	
 	@Override

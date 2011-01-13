@@ -90,7 +90,7 @@ public class GroupedThreatRowEditorWindow extends ClassificationSchemeRowEditorW
 			public void handleEvent(SelectionChangedEvent<ClassificationSchemeModelData> be) {
 				updateButtons(be);
 			}
-		});	
+		});
 	}
 	
 	protected ComboBox<CodingOption> createClassificationOptions(TreeDataRow selected) {
@@ -114,7 +114,15 @@ public class GroupedThreatRowEditorWindow extends ClassificationSchemeRowEditorW
 	
 	protected void updateButtons(final SelectionChangedEvent<ClassificationSchemeModelData> event) {
 		getButtonBar().removeAll();
-		if (event.getSelection().isEmpty()) {
+		addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				if (saveListener != null)
+					for (ClassificationSchemeModelData model : ((GroupedThreatRowEditor)editor).getModelsFromList())
+						saveListener.handleEvent(model);
+				hide();
+			}
+		}));
+		/*if (event.getSelection().isEmpty()) {
 			addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
 					cancel(null);
@@ -129,7 +137,7 @@ public class GroupedThreatRowEditorWindow extends ClassificationSchemeRowEditorW
 						saveListener.handleEvent(event.getSelectedItem());
 				}
 			}));
-		}
+		}*/
 	}
 	
 	@Override
