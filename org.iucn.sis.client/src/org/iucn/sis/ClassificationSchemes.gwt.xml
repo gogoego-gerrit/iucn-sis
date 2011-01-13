@@ -19,6 +19,13 @@
 	<inherits name='ext.ux.pwd.PasswordField'/>
 	<inherits name='org.iucn.sis.Shared' />
 	
+	<!-- Inherit Themes -->
+	<inherits name='ext.ux.theme.black.Black'/>
+	<inherits name='ext.ux.theme.darkgray.DarkGray'/>
+	<inherits name='ext.ux.theme.olive.Olive'/>
+	<inherits name='ext.ux.theme.purple.Purple'/>
+	<inherits name='ext.ux.theme.slickness.Slickness'/>
+	
 	<!-- QueryBuilder -->
 	<inherits name='com.solertium.util.querybuilder.QueryBuilderCore' />
 	<inherits name='com.solertium.util.querybuilder.gwt.QueryBuilderExtSource' />
