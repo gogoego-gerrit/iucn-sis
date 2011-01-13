@@ -320,10 +320,8 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	}
 
 	public boolean isEndemic() {
-		PrimitiveField pf = getField(CanonicalNames.RegionInformation).getKeyToPrimitiveFields().get("endemic");
-		if (pf != null)
-			return (Boolean) pf.getValue();
-		return false;
+		RegionField proxy = new RegionField(getField(CanonicalNames.RegionInformation));
+		return proxy.isEndemic();
 	}
 
 	public boolean isRegional() {

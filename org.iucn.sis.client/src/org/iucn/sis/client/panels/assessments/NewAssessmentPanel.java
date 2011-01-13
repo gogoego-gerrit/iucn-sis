@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -16,7 +16,6 @@ import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.region.AddRegionPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
@@ -32,6 +31,7 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
@@ -42,11 +42,9 @@ import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
@@ -186,13 +184,14 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 		createAssessment.addSelectionListener(listener);
 
 	}
-
-	private void buildTemplate() {
-		template = new ListBox(false);
-		templateLable = new Label("From: ");
-
+	
+	private void updateTemplates(String schema) {
+		template.clear();
 		template.insertItem("blank", 0);
 		for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId())) {
+			if (!schema.equals(data.getSchema(SchemaCache.impl.getDefaultSchema())))
+				continue;
+			
 			String displayable = "Published -- ";
 
 			displayable += data.getDateAssessed();
@@ -206,6 +205,9 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 			template.addItem(displayable, data.getId()+"");
 		}
 		for (Assessment data : AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId())) {
+			if (!schema.equals(data.getSchema(SchemaCache.impl.getDefaultSchema())))
+				continue;
+			
 			String displayable = "Draft -- ";
 
 			displayable += data.getDateAssessed();
@@ -219,8 +221,14 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 			template.addItem(displayable, data.getId()+"");
 		}
 
-		// TODO: ADD USER ONES
+		// TODO: ADD USER ONES		
+	}
 
+	private void buildTemplate() {
+		template = new ListBox(false);
+		templateLable = new Label("From: ");
+
+		updateTemplates(SchemaCache.impl.getDefaultSchema());
 	}
 
 	private void buildType() {
@@ -253,6 +261,11 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 				index++;
 			}
 			schema.setSelectedIndex(selection);
+			schema.addChangeHandler(new ChangeHandler() {
+				public void onChange(ChangeEvent event) {
+					updateTemplates(schema.getValue(schema.getSelectedIndex()));
+				}
+			});
 		
 			schemaLabel = new Label("Assessment Schema: ");
 		}
