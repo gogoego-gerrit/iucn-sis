@@ -561,36 +561,41 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 	}
 
 	private void save() {
+		
 		bar.disable();
 		storePreviousData();
-
+		
 		if (currentSynonym != null) {
+			
+			if(validateEntry()){
 
-			TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
-
-				@Override
-				public void onSuccess(String result) {
-					allSynonyms.clear();
-					allSynonyms.addAll(node.getSynonyms());
-					bar.enable();
-					WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
-					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-					refreshListBox();
-					refreshSynonym(null);
-
-				}
-
-				@Override
-				public void onFailure(Throwable caught) {
-					bar.enable();
-					WindowUtils.errorAlert("Error",
-							"An error occurred when trying to save the synonym data related to " + node.getFullName()
-									+ ".");
-
-				}
-			});
+				TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
+	
+					@Override
+					public void onSuccess(String result) {
+						allSynonyms.clear();
+						allSynonyms.addAll(node.getSynonyms());
+						bar.enable();
+						WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
+						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+						refreshListBox();
+						refreshSynonym(null);
+	
+					}
+	
+					@Override
+					public void onFailure(Throwable caught) {
+						bar.enable();
+						WindowUtils.errorAlert("Error",
+								"An error occurred when trying to save the synonym data related to " + node.getFullName()
+										+ ".");
+	
+					}
+				});
+			}
 		} else {
 			WindowUtils.infoAlert("Please select synonym to save.");
+			bar.enable();
 		}
 
 	}
@@ -599,31 +604,81 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 		bar.disable();
 		storePreviousData();
 		if (currentSynonym != null) {
-			TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
-
-				@Override
-				public void onSuccess(String result) {
-
-					bar.enable();
-					WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
-					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-					close();
-
-				}
-
-				@Override
-				public void onFailure(Throwable caught) {
-					bar.enable();
-					WindowUtils.errorAlert("Error",
-							"An error occurred when trying to save the synonym data related to " + node.getFullName()
-									+ ".");
-
-				}
-			});
+			
+			if(validateEntry()){
+				TaxonomyCache.impl.addOrEditSynonymn(node, currentSynonym, new GenericCallback<String>() {
+	
+					@Override
+					public void onSuccess(String result) {
+	
+						bar.enable();
+						WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
+						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+						close();
+	
+					}
+	
+					@Override
+					public void onFailure(Throwable caught) {
+						bar.enable();
+						WindowUtils.errorAlert("Error",
+								"An error occurred when trying to save the synonym data related to " + node.getFullName()
+										+ ".");
+	
+					}
+				});
+			}
 		} else {
+			WindowUtils.infoAlert("Please select synonym to save.");
 			close();
 		}
 
+	}
+	
+	private boolean validateEntry(){
+		
+		int curLevel = Integer.parseInt(level.getValue(level.getSelectedIndex()));
+		boolean flag = true;
+
+		if (curLevel < TaxonLevel.GENUS && currentSynonym.getName().equals("")){
+			WindowUtils.infoAlert("Please enter the Synonym name!");
+			flag = false; 
+		}else if (curLevel == TaxonLevel.GENUS && currentSynonym.getGenusName().equals("")) {
+			WindowUtils.infoAlert("Please enter the Genus name!");
+			flag = false; 
+		} else if (curLevel == TaxonLevel.SPECIES) {
+			if(currentSynonym.getGenusName().equals("")){
+				WindowUtils.infoAlert("Please enter the Genus name!");
+				flag = false; 
+			}else if(currentSynonym.getSpeciesName().equals("")){
+				WindowUtils.infoAlert("Please enter the Species name!"); flag = false; 
+			}
+		} else if (curLevel == TaxonLevel.INFRARANK) {
+			if(currentSynonym.getGenusName().equals("")){
+				WindowUtils.infoAlert("Please enter the Genus name!");
+				flag = false; 
+			}else if(currentSynonym.getSpeciesName().equals("")){
+				WindowUtils.infoAlert("Please enter the Species name!");
+				flag = false; 
+			}else if(currentSynonym.getInfraName().equals("")){
+				WindowUtils.infoAlert("Please enter the Infrarank name!");
+				flag = false; 
+			}
+			
+		} else if (curLevel == TaxonLevel.SUBPOPULATION) {
+			if(currentSynonym.getGenusName().equals("")){
+				WindowUtils.infoAlert("Please enter the Genus name!"); 
+				flag = false; 
+			}else if(currentSynonym.getSpeciesName().equals("")){
+				WindowUtils.infoAlert("Please enter the Species name!");
+				flag = false; 
+			}else if(currentSynonym.getStockName().equals("")){
+				WindowUtils.infoAlert("Please enter the Subpopulation name!");
+				flag = false; 
+			}				
+		}
+		bar.enable();
+		return flag;
 	}
 
 	private void storePreviousData() {
