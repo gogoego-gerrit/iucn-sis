@@ -590,7 +590,7 @@ public class TaxonomyCache {
 		final StringBuilder builder = new StringBuilder();
 		builder.append("<root>");
 		for (Taxon taxon : taxa) {
-			if (taxon.getId() != 0 && !isTagged(tag, taxon)) {
+			if (taxon.getId() != 0 && isTagged(tag, taxon) != isMarked) {
 				found = true;
 				builder.append("<taxon id=\"" + taxon.getId() + "\" />");
 			}

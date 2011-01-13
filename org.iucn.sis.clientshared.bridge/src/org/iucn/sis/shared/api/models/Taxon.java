@@ -546,8 +546,14 @@ public class Taxon implements AuthorizableObject, Serializable {
 	public String toXML() {
 		// TRY TO GET THE PARENT NAME FROM THE SOURCE, IF APPLICABLE
 		StringBuilder xml = new StringBuilder();
-		xml.append("<" + ROOT_TAG + " id=\"" + getId() + "\" name=\"" + getName() + "\" hybrid=\""
-				+ getHybrid() + "\" level=\"" + getLevel() + "\" fullname=\"" + getFullName() + "\">");
+		xml.append("<" + ROOT_TAG + " id=\"" + getId() + 
+			"\" name=\"" + getName() + 
+			"\" hybrid=\"" + getHybrid() +
+			"\" invasive=\"" + getInvasive() +
+			"\" feral=\"" + getFeral() +
+			"\" level=\"" + getLevel() + 
+			"\" fullname=\"" + getFullName() + 
+			"\">");
 		
 		if (getInternalID() != null)
 			xml.append(XMLWritingUtils.writeTag("internalID", getInternalID().toString()));
@@ -667,9 +673,13 @@ public class Taxon implements AuthorizableObject, Serializable {
 		int level = Integer.parseInt(nodeElement.getAttribute("level"));
 		boolean hybrid = (nodeElement.getAttribute("hybrid") != null && nodeElement.getAttribute("hybrid").equals(
 				"true"));
+		boolean feral = "true".equals(nodeElement.getAttribute("feral"));
+		boolean invasive = "true".equals(nodeElement.getAttribute("invasive"));
 		
 		Taxon taxon = Taxon.createNode(id, name, level, hybrid);
 		taxon.setFriendlyName(fullName);
+		taxon.setFeral(feral);
+		taxon.setInvasive(invasive);
 		
 		NativeNodeList status = nodeElement.getElementsByTagName(TaxonStatus.ROOT_TAG);
 		if (status.getLength() > 0)

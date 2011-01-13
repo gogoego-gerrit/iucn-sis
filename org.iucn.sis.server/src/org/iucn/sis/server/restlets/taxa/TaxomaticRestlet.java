@@ -500,6 +500,8 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		currentTaxon.setHybrid(updatedTaxon.getHybrid());
 		currentTaxon.setTaxonomicAuthority(updatedTaxon.getTaxonomicAuthority());
 		currentTaxon.setStatus(updatedTaxon.getStatusCode());
+		currentTaxon.setFeral(updatedTaxon.getFeral());
+		currentTaxon.setInvasive(updatedTaxon.getInvasive());
 		
 		if (updatedTaxon.getInfratype() == null) 
 			currentTaxon.setInfratype(null);

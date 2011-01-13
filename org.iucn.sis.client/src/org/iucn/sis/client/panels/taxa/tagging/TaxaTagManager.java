@@ -107,7 +107,7 @@ public class TaxaTagManager extends LayoutContainer implements DrawsLazily {
 		bar.add(new SeparatorToolItem());
 		bar.add(new Button("Untag Selection", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				final List<DataListItem> selected = list.getSelectedItems();
+				final List<DataListItem> selected = list.getChecked();
 				if (!selected.isEmpty()) {
 					WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove the " 
 							+ currentTag + " tag from the " + selected.size() + 
