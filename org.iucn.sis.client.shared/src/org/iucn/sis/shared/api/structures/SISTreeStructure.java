@@ -66,7 +66,7 @@ public class SISTreeStructure extends Structure<Field> {
 	protected Widget generateContent(final boolean viewOnly) {
 		displayPanel.add(readOnlyContainer);
 		
-		String buttonText = viewOnly ? "View Details" : "Make Changes";
+		String buttonText = viewOnly ? "View Details" : "View/Edit";
 		
 		displayPanel.add(new Button(buttonText, new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {

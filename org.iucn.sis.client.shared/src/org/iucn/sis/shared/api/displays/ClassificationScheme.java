@@ -112,7 +112,7 @@ public class ClassificationScheme extends Display {
 		panel.add(container);
 		
 		final ButtonBar buttons = new ButtonBar();
-		buttons.add(new Button(viewOnly ? "View Details" : "Make Changes", new SelectionListener<ButtonEvent>() {
+		buttons.add(new Button(viewOnly ? "View Details" : "View/Edit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				final Window window = new Window();
 				window.setClosable(false);
