@@ -1,29 +1,38 @@
 package org.iucn.sis.shared.api.displays.threats;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.iucn.sis.shared.api.data.LookupData;
-import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
 import org.iucn.sis.shared.api.data.TreeDataRow;
+import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.fields.StressField;
 import org.iucn.sis.shared.api.models.fields.ThreatsSubfield;
 import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
+import org.iucn.sis.shared.api.schemes.CodingOptionTreePanel;
 import org.iucn.sis.shared.api.structures.ClassificationInfo;
 import org.iucn.sis.shared.api.structures.Structure;
 
-import com.extjs.gxt.ui.client.widget.DataList;
-import com.extjs.gxt.ui.client.widget.DataListItem;
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.util.extjs.client.WindowUtils;
 
 public class BasicThreatViewer extends Structure<Field> {
 	
@@ -39,7 +48,8 @@ public class BasicThreatViewer extends Structure<Field> {
 	private ListBox timing, scope, severity;
 	private HTML impactScore;
 	
-	private DataList stresses;
+	private CodingOptionTreePanel stresses;
+	//private DataList stresses;
 	
 	public BasicThreatViewer(ThreatsTreeData data) {
 		super(null, data.getDescription(), null, data);
@@ -91,7 +101,8 @@ public class BasicThreatViewer extends Structure<Field> {
 		scope.addChangeHandler(impactHandler);
 		severity.addChangeHandler(impactHandler);
 		
-		stresses = new DataList();
+		stresses = new CodingOptionTreePanel(treeData.getTreeData("Stresses"), new ArrayList<TreeDataRow>(), new ArrayList<String>());
+		/*stresses = new DataList();
 		stresses.setCheckable(true);
 		
 		ArrayList<TreeDataRow> rows = new ArrayList<TreeDataRow>(
@@ -106,7 +117,7 @@ public class BasicThreatViewer extends Structure<Field> {
 			item.setText(row.getFullLineage());
 			
 			stresses.add(item);
-		}
+		}*/
 	}
 	
 	protected void initializeListBox(ListBox box, LookupData data) {
@@ -130,8 +141,8 @@ public class BasicThreatViewer extends Structure<Field> {
 	public boolean hasChanged(Field rawField) {
 		ThreatsSubfield field = new ThreatsSubfield(rawField);
 		final List<Integer> selStresses = new ArrayList<Integer>();
-		for (DataListItem item : stresses.getChecked())
-			selStresses.add(Integer.valueOf(item.getItemId()));
+		for (TreeDataRow item : stresses.getSelection())
+			selStresses.add(Integer.valueOf(item.getDisplayId()));
 		
 		final List<Integer> oldValueStresses = new ArrayList<Integer>();
 		for (StressField stress : field.getStresses())
@@ -216,8 +227,8 @@ public class BasicThreatViewer extends Structure<Field> {
 		field.setScore(getScore());
 		
 		List<Integer> list = new ArrayList<Integer>();
-		for (DataListItem item : stresses.getChecked())
-			list.add(Integer.valueOf(item.getItemId()));
+		for (TreeDataRow item : stresses.getSelection())
+			list.add(Integer.valueOf(item.getDisplayId()));
 		
 		field.setStresses(list);
 	}
@@ -230,12 +241,16 @@ public class BasicThreatViewer extends Structure<Field> {
 		setListValue(scope, field.getScope());
 		setListValue(severity, field.getSeverity());
 		
+		ThreatsTreeData treeData = (ThreatsTreeData)data;
+		Map<String, TreeDataRow> flatTree = 
+			treeData.getTreeData("Stresses").flattenTree();
+		ArrayList<TreeDataRow> selected = new ArrayList<TreeDataRow>();
 		for (StressField stress : field.getStresses()) {
-			DataListItem item = 
-				stresses.getItemByItemId(stress.getStress().toString());
-			if (item != null)
-				item.setChecked(true);
+			String key = stress.getStress().toString();
+			if (flatTree.containsKey(key))
+				selected.add(flatTree.get(key));
 		}
+		stresses = new CodingOptionTreePanel(treeData.getTreeData("Stresses"), selected, new ArrayList<String>());
 		
 		impactScore.setText(getScore());
 	}
@@ -247,15 +262,16 @@ public class BasicThreatViewer extends Structure<Field> {
 		severity.setSelectedIndex(-1);
 		impactScore.setText("");
 		
-		for (DataListItem item : stresses.getItems())
-			item.setChecked(false);
+		ThreatsTreeData treeData = (ThreatsTreeData)data;
+		
+		stresses = new CodingOptionTreePanel(treeData.getTreeData("Stresses"), new ArrayList<TreeDataRow>(), new ArrayList<String>());
 	}
 	
 	@Override
 	protected Widget createLabel() {
 		displayPanel = new VerticalPanel();
 		
-		displayPanel.add(createBasicEditor());
+		displayPanel.add(createBasicEditor(false));
 		
 		return displayPanel;
 	}
@@ -264,30 +280,79 @@ public class BasicThreatViewer extends Structure<Field> {
 	protected Widget createViewOnlyLabel() {
 		displayPanel = new VerticalPanel();
 		
-		displayPanel.add(createBasicEditor());
+		displayPanel.add(createBasicEditor(true));
 		
 		return displayPanel;
 	}
 	
-	protected HorizontalPanel createBasicEditor() {
-		final VerticalPanel left = new VerticalPanel();
-		final Grid grid = new Grid(4, 2);
+	private String getViewOnlyText(ListBox box) {
+		return box.getSelectedIndex() <= 0 ? "None Selected" : 
+			box.getItemText(box.getSelectedIndex());
+	}
+	
+	protected Widget createBasicEditor(boolean viewOnly) {
+		final Grid grid = new Grid(5, 2);
+		
 		grid.setHTML(0, 0, "Timing: ");
-		grid.setWidget(0, 1, timing);
+		if (viewOnly)
+			grid.setHTML(0, 1, getViewOnlyText(timing));
+		else
+			grid.setWidget(0, 1, timing);
+		
 		grid.setHTML(1, 0, "Scope: ");
-		grid.setWidget(1, 1, scope);
+		if (viewOnly)
+			grid.setHTML(1, 1, getViewOnlyText(scope));
+		else
+			grid.setWidget(1, 1, scope);
+		
 		grid.setHTML(2, 0, "Severity: ");
-		grid.setWidget(2, 1, severity);
+		if (viewOnly)
+			grid.setHTML(2, 1, getViewOnlyText(severity));
+		else
+			grid.setWidget(2, 1, severity);
+		
 		grid.setHTML(3, 0, "Impact Score: ");
 		grid.setWidget(3, 1, impactScore);
 		
-		left.add(grid);
+		final VerticalPanel stressSelctionContainer = new VerticalPanel();
+		final VerticalPanel stressSelectionListing = new VerticalPanel();
+		listSelectedStresses(stresses.getSelection(), stressSelectionListing);
+		stressSelctionContainer.add(stressSelectionListing);
+		if (!viewOnly)
+			stressSelctionContainer.add(new Button("View/Edit Stresses", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					final Window window = WindowUtils.getWindow(true, true, "Add Stresses");
+					window.setClosable(false);
+					window.setButtonAlign(HorizontalAlignment.CENTER);
+					window.setLayout(new FillLayout());
+					window.setSize(600, 600);
+					window.setScrollMode(Scroll.AUTO);
+					window.add(stresses);
+					window.addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
+						public void componentSelected(ButtonEvent ce) {
+							window.hide();
+							
+							listSelectedStresses(stresses.getSelection(), stressSelectionListing);
+						}
+					}));
+					window.show();
+				}
+			}));
+		grid.setHTML(4, 0, "Stresses: ");
+		grid.setWidget(4, 1, stressSelctionContainer);
 		
-		final HorizontalPanel basic = new HorizontalPanel();
-		basic.add(left);
-		basic.add(stresses);
+		for (int i = 0; i < grid.getRowCount(); i++)
+			grid.getCellFormatter().setVerticalAlignment(i, 0, HasVerticalAlignment.ALIGN_TOP);
 		
-		return basic;
+		return grid;
+	}
+	
+	private void listSelectedStresses(Collection<TreeDataRow> selection, VerticalPanel container) {
+		container.clear();
+		final List<TreeDataRow> list = new ArrayList<TreeDataRow>(selection);
+		Collections.sort(list, new BasicClassificationSchemeViewer.TreeDataRowComparator());
+		for (TreeDataRow row : list)
+			container.add(new HTML(row.getFullLineage()));
 	}
 	
 	@Override
@@ -297,7 +362,7 @@ public class BasicThreatViewer extends Structure<Field> {
 		list.add(new ClassificationInfo("Scope", getListText(scope)));
 		list.add(new ClassificationInfo("Severity", getListText(severity)));
 		list.add(new ClassificationInfo("Impact Score", getScore()));
-		list.add(new ClassificationInfo("No. of Stresses", stresses.getChecked().size()+""));
+		list.add(new ClassificationInfo("No. of Stresses", stresses.getSelection().size()+""));
 		
 		return list;
 	}
@@ -323,6 +388,7 @@ public class BasicThreatViewer extends Structure<Field> {
 		return ++offset;*/
 	}
 	
+	@SuppressWarnings("unused")
 	private String getPrettyData(String id, LookupData data) {
 		if ("-1".equals(id))
 			return "(Not specified)";

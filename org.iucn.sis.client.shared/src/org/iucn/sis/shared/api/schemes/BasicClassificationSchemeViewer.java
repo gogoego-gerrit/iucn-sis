@@ -19,6 +19,7 @@ import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow.EditMode;
 import org.iucn.sis.shared.api.structures.Structure;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -337,25 +338,27 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				for (ClassificationSchemeModelData model : server.getModels())
 					selected.add(model.getSelectedRow());
 				
-				final Window window = WindowUtils.getWindow(true, false, "Add " + description);
-				window.setLayout(new FillLayout());
-				window.setModal(true);
-				window.setScrollMode(Scroll.AUTO);
-				if (description != null && !description.equals(""))
-					window.setHeading(description);
+				final CodingOptionTreePanel panel = 
+					new CodingOptionTreePanel(treeData, selected, getDisabledTreeDataRows());
 				
-				window.add(TreePanelBuilder.build(new ComplexListener<Set<TreeDataRow>>() {
-					public void handleEvent(Set<TreeDataRow> eventData) {
+				final Window window = WindowUtils.getWindow(true, true, "Add " + description);
+				window.setButtonAlign(HorizontalAlignment.CENTER);
+				window.setLayout(new FillLayout());
+				window.setSize(600, 600);
+				window.setScrollMode(Scroll.AUTO);
+				window.add(panel);
+				window.addButton(new Button("Save Selections", new SelectionListener<ButtonEvent>() {
+					public void componentSelected(ButtonEvent ce) {
 						window.hide();
 						
-						bulkAdd(eventData);
+						bulkAdd(panel.getSelection());
 					}
-				}, new SimpleListener() {
-					public void handleEvent() {
+				}));
+				window.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+					public void componentSelected(ButtonEvent ce) {
 						window.hide();
 					}
-				}, treeData, selected, getDisabledTreeDataRows()));
-				window.setSize(600, 600);
+				}));
 				window.show();
 			}
 		});

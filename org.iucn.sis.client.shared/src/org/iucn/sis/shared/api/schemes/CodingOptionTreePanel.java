@@ -11,7 +11,6 @@ import java.util.Set;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseTreeModel;
@@ -26,35 +25,43 @@ import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.CheckCascade;
 import com.google.gwt.user.client.Timer;
-import com.solertium.util.events.ComplexListener;
-import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class TreePanelBuilder {
+public class CodingOptionTreePanel extends LayoutContainer {
 	
-	public static LayoutContainer build(final ComplexListener<Set<TreeDataRow>> saveListener, final SimpleListener cancelListener, final TreeData treeData) {
-		return build(saveListener, cancelListener, treeData, new ArrayList<TreeDataRow>());
+	private TreePanel<CodingOption> tree;
+	
+	public CodingOptionTreePanel(TreeData treeData, Collection<TreeDataRow> selected, Collection<String> disabledRows) {
+		super(new FillLayout());
+		draw(treeData, selected, disabledRows);
 	}
 	
-	public static LayoutContainer build(final ComplexListener<Set<TreeDataRow>> saveListener, final SimpleListener cancelListener, final TreeData treeData, Collection<TreeDataRow> selected) {
-		return build(saveListener, cancelListener, treeData, selected, new ArrayList<String>());
+	public Set<TreeDataRow> getSelection() {
+		final HashSet<TreeDataRow> set = new HashSet<TreeDataRow>();
+		for (CodingOption item : tree.getCheckedSelection())
+			set.add(item.getRow());
+		return set;
 	}
 	
-	public static LayoutContainer build(final ComplexListener<Set<TreeDataRow>> saveListener, final SimpleListener cancelListener, final TreeData treeData, Collection<TreeDataRow> selected, final Collection<String> disabledRows) {
+	public TreePanel<CodingOption> getTree() {
+		return tree;
+	}
+	
+	public void draw(final TreeData treeData, Collection<TreeDataRow> selected, final Collection<String> disabledRows) {
 		final Map<String, CodingOption> checked = new HashMap<String, CodingOption>();
 		for (TreeDataRow row : selected) 
 			checked.put(row.getDisplayId(), new CodingOption(row));
 		
-		final TreePanel<CodingOption> tree = new TreePanel<CodingOption>(createTreeStore(treeData, checked, disabledRows));
+		tree = new TreePanel<CodingOption>(createTreeStore(treeData, checked, disabledRows));
 		tree.setCheckStyle(CheckCascade.NONE);
 		tree.setAutoLoad(true);
 		tree.setCheckable(true);
@@ -70,26 +77,6 @@ public class TreePanelBuilder {
 			}
 		});
 		
-		Button saveSelections = new Button("Save Selections");
-		saveSelections.setIconStyle("icon-save");
-		saveSelections.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				final HashSet<TreeDataRow> set = new HashSet<TreeDataRow>();
-				for (CodingOption item : tree.getCheckedSelection())
-					set.add(item.getRow());
-				
-				saveListener.handleEvent(set);
-			}
-		});
-
-		Button cancel = new Button("Cancel");
-		cancel.setIconStyle("icon-cancel");
-		cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				cancelListener.handleEvent();
-			}
-		});
-		
 		Button expandAll = new Button("Expand All", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				tree.expandAll();
@@ -101,11 +88,6 @@ public class TreePanelBuilder {
 				tree.collapseAll();
 			}
 		});
-
-		final ButtonBar buttonBar = new ButtonBar();
-		buttonBar.setAlignment(HorizontalAlignment.CENTER);
-		buttonBar.add(saveSelections);
-		buttonBar.add(cancel);
 
 		final LayoutContainer container = new LayoutContainer(new BorderLayout()) {
 			protected void afterRender() {
@@ -135,9 +117,8 @@ public class TreePanelBuilder {
 		
 		container.add(toolBar, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
 		container.add(tree, new BorderLayoutData(LayoutRegion.CENTER));
-		container.add(buttonBar, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
 		
-		return container;
+		add(container);
 	}
 
 	private static TreeStore<CodingOption> createTreeStore(TreeData treeData, Map<String, CodingOption> selection, Collection<String> disabled) {
@@ -291,4 +272,5 @@ public class TreePanelBuilder {
 		}
 		
 	}
+
 }

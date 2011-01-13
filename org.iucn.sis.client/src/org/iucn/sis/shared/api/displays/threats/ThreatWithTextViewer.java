@@ -23,6 +23,7 @@ public class ThreatWithTextViewer extends BasicThreatViewer {
 		super.createWidget();
 		
 		textArea = new TextArea();
+		textArea.setSize(350, 125);
 	}
 	
 	@Override
