@@ -64,12 +64,8 @@ public class SelectExistingIASTaxaPanel extends PagingPanel<TaxonFootprintModel>
 		callback.isDrawn();
 	}
 	
-	public void refresh() {
-		refresh(new DrawsLazily.DoneDrawingCallback() {
-			public void isDrawn() {
-				layout();
-			}
-		});
+	public void refresh(DrawsLazily.DoneDrawingCallback callback) {
+		super.refresh(callback);
 	}
 	
 	protected void getStore(final GenericCallback<ListStore<TaxonFootprintModel>> callback) {

@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.panels.utils.CheckableSearchPanel;
-import org.iucn.sis.client.panels.utils.SearchPanel;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Taxon;
 
@@ -17,6 +16,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class ThreatTaggedSpeciesLocator extends TabPanel {
@@ -66,9 +66,15 @@ public class ThreatTaggedSpeciesLocator extends TabPanel {
 		item.setLayout(new FitLayout());
 		item.addListener(Events.Select, new Listener<TabPanelEvent>() {
 			public void handleEvent(TabPanelEvent be) {
+				WindowUtils.showLoadingAlert("Loading...");
 				panel.draw(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
-						panel.refresh();
+						panel.refresh(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								WindowUtils.hideLoadingAlert();
+								item.layout();
+							}
+						});
 					}
 				});
 			}

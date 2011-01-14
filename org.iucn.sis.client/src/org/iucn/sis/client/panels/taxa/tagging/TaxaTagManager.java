@@ -51,7 +51,7 @@ public class TaxaTagManager extends LayoutContainer implements DrawsLazily {
 	@Override
 	public void draw(DoneDrawingCallback callback) {
 		if (isDrawn) {
-			callback.isDrawn();
+			refresh(callback);
 			return;
 		}
 		
