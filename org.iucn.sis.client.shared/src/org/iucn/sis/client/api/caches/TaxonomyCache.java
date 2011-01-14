@@ -556,7 +556,7 @@ public class TaxonomyCache {
 					if (!containsNode(taxon))
 						putTaxon(taxon);
 					
-					results.add(taxon);
+					results.add(getTaxon(taxon.getId()));
 				}
 				callback.onSuccess(results);
 			}
