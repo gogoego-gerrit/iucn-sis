@@ -11,6 +11,7 @@ import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.dom.client.KeyUpHandler;
@@ -67,6 +68,14 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 		this.textbox = new TextBox();
 		textbox.addKeyPressHandler(new KeyPressHandler() {
 			public void onKeyPress(KeyPressEvent event) {
+				if (event.getCharCode() == KeyCodes.KEY_BACKSPACE || 
+						event.getCharCode() == KeyCodes.KEY_LEFT || 
+						event.getCharCode() == KeyCodes.KEY_RIGHT || 
+						event.getCharCode() == KeyCodes.KEY_DELETE || 
+						event.getCharCode() == KeyCodes.KEY_END || 
+						event.getCharCode() == KeyCodes.KEY_HOME)
+					return;
+				
 				if (restrictions == null) {
 					if (!Character.isDigit(event.getCharCode()))
 						textbox.cancelKey();
