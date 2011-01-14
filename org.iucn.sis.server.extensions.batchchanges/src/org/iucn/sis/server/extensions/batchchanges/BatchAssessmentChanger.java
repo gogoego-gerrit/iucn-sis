@@ -1,16 +1,10 @@
 package org.iucn.sis.server.extensions.batchchanges;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.utils.XMLUtils;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.User;
-
-import com.solertium.util.SysDebugger;
 
 public class BatchAssessmentChanger {
 	
