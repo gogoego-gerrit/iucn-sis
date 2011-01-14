@@ -124,8 +124,4 @@ public class SISUpload extends Structure<Field> {
 		this.fileUpload.setVisible(isEnabled);
 	}
 
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
-
 }

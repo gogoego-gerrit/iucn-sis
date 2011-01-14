@@ -18,7 +18,6 @@ import org.iucn.sis.shared.api.models.PermissionGroup;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.utils.RowData;

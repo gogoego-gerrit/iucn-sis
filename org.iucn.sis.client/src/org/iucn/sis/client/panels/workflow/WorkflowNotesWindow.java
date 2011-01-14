@@ -185,7 +185,7 @@ public class WorkflowNotesWindow extends Window {
 		}));
 		addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				close();
+				hide();
 			}
 		}));
 				

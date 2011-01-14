@@ -1,18 +1,19 @@
 package org.iucn.sis.client.api.utils.autocomplete;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
-public class AutoCompleteTextBox extends TextBox implements KeyboardListener, ChangeListener, ClickHandler {
+public class AutoCompleteTextBox extends TextBox implements KeyPressHandler, ChangeHandler, ClickHandler {
 
 	private static final int MAX_MATCHES_TO_DISPLAY = 50;
 
@@ -29,29 +30,24 @@ public class AutoCompleteTextBox extends TextBox implements KeyboardListener, Ch
 	public AutoCompleteTextBox() {
 		super();
 
-		this.addKeyboardListener(this);
+		addKeyPressHandler(this);
 		// this.setStyleName("AutoCompleteTextBox");
 
 		choices = new ListBox();
-		choices.addChangeListener(this);
+		choices.addChangeHandler(this);
 		choices.addClickHandler(this);
 		// choices.setStyleName("list");
 
 		choicesPopup = new PopupPanel(true);
 		choicesPopup.add(choices);
 		choicesPopup.addStyleName("SIS_AutoCompleteChoices");
-		choices.addKeyboardListener(new KeyboardListener() {
-			public void onKeyDown(Widget sender, char keyCode, int modifiers) {
-			}
-
-			public void onKeyPress(Widget sender, char keyCode, int modifiers) {
-				if (keyCode == KEY_ESCAPE) {
+		choices.addKeyPressHandler(new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				char keyCode = event.getCharCode();
+				if (keyCode == KeyCodes.KEY_ESCAPE) {
 					choices.clear();
 					choicesPopup.hide();
 				}
-			}
-
-			public void onKeyUp(Widget sender, char keyCode, int modifiers) {
 			}
 		});
 
@@ -80,7 +76,7 @@ public class AutoCompleteTextBox extends TextBox implements KeyboardListener, Ch
 	/**
 	 * A mouseclick in the list of items
 	 */
-	public void onChange(Widget arg0) {
+	public void onChange(ChangeEvent event) {
 		complete();
 	}
 
@@ -88,25 +84,16 @@ public class AutoCompleteTextBox extends TextBox implements KeyboardListener, Ch
 		complete();
 	}
 
-	/**
-	 * Not used at all
-	 */
-	public void onKeyDown(Widget arg0, char arg1, int arg2) {
-	}
-
-	public void onKeyPress(Widget arg0, char arg1, int arg2) {
-	}
-
-	/**
-	 * A key was released, start autocompletion
-	 */
-	public void onKeyUp(Widget arg0, char arg1, int arg2) {
-		if (arg1 == KEY_ESCAPE) {
+	@Override
+	public void onKeyPress(KeyPressEvent event) {
+		char arg1 = event.getCharCode();
+		
+		if (arg1 == KeyCodes.KEY_ESCAPE) {
 			visible = false;
 			choicesPopup.hide();
 		}
 
-		if (arg1 == KEY_DOWN) {
+		if (arg1 == KeyCodes.KEY_DOWN) {
 			int selectedIndex = choices.getSelectedIndex();
 
 			if (choices.getItemCount() != 0)
@@ -122,7 +109,7 @@ public class AutoCompleteTextBox extends TextBox implements KeyboardListener, Ch
 			}
 		}
 
-		if (arg1 == KEY_UP) {
+		if (arg1 == KeyCodes.KEY_UP) {
 			int selectedIndex = choices.getSelectedIndex();
 
 			if (choices.getItemCount() != 0)
@@ -138,14 +125,14 @@ public class AutoCompleteTextBox extends TextBox implements KeyboardListener, Ch
 			}
 		}
 
-		if (arg1 == KEY_ENTER) {
+		if (arg1 == KeyCodes.KEY_ENTER) {
 			if (visible) {
 				complete();
 			}
 			return;
 		}
 
-		if (arg1 == KEY_ESCAPE) {
+		if (arg1 == KeyCodes.KEY_ESCAPE) {
 			choices.clear();
 			choicesPopup.hide();
 			visible = false;

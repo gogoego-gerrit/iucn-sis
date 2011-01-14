@@ -5,10 +5,10 @@ import java.util.ArrayList;
 public class BooleanRule extends Rule {
 
 	public BooleanRule(String rule) {
-		this(rule, new ArrayList());
+		this(rule, new ArrayList<Integer>());
 	}
 
-	public BooleanRule(String rule, ArrayList affectedObjectIndices) {
+	public BooleanRule(String rule, ArrayList<Integer> affectedObjectIndices) {
 		super(rule, affectedObjectIndices);
 	}
 

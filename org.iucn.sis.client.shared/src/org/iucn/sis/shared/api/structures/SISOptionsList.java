@@ -30,7 +30,7 @@ public class SISOptionsList extends Structure<Field> {
 		buildContentPanel(Orientation.VERTICAL);
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public boolean hasChanged(Field field) {
 		/*
 		// FOR BACKWARDS COMPATIBILITY
@@ -182,7 +182,7 @@ public class SISOptionsList extends Structure<Field> {
 		return ++offset;
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public void setData(Field field) {
 		Map<String, PrimitiveField> data;
 		if (field == null)

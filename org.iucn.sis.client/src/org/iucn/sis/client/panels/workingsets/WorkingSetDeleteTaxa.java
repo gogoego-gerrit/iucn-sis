@@ -28,6 +28,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 
 	PanelManager manager = null;

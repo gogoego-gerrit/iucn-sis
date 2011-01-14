@@ -79,7 +79,7 @@ public class SISLivelihoods extends Structure<Field> {
 		}
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public boolean hasChanged(Field field) {
 		Field fauxParent = new Field(), fauxChild = new Field(CanonicalNames.Livelihoods, null);
 		

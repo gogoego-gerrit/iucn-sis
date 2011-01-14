@@ -1,20 +1,22 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.FocusListener;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.KeyboardListener;
-import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -37,10 +39,10 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 	}
 	
 	@Override
-	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
-			KeyboardListener keyboardListener) {
-		range.addKeyboardListener(keyboardListener);
-		options.addChangeListener(changeListener);
+	public void addListenerToActiveStructure(ChangeHandler changeListener, ClickHandler clickListener,
+			KeyUpHandler keyboardListener) {
+		range.addKeyUpHandler(keyboardListener);
+		options.addChangeHandler(changeListener);
 		DOM.setEventListener(range.getElement(), range);
 		DOM.setEventListener(options.getElement(), options);
 	}
@@ -60,7 +62,7 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 			//			
 			// alert.setMinimumWidth(400);
 			// range.setText("");
-			SISRangeError errorMessage = new SISRangeError();
+			new SISRangeError();
 			// alert.show();
 
 		}
@@ -145,23 +147,20 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 	public void createWidget() {
 		this.descriptionLabel = new HTML(this.description);
 
-		KeyboardListenerAdapter listener = new KeyboardListenerAdapter() {
-			@Override
-			public void onKeyPress(Widget sender, char keyCode, int modifiers) {
+		KeyPressHandler listener = new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				char keyCode = event.getCharCode();
 				if (Character.isLetter(keyCode)) {// || Character.isWhitespace(
 					// keyCode)) {
-					((TextBox) sender).cancelKey();
+					((TextBox) event.getSource()).cancelKey();
 				}
 			}
 		};
 
 		range = new TextBox();
-		range.addKeyboardListener(listener);
-		range.addFocusListener(new FocusListener() {
-			public void onFocus(Widget sender) {
-			}
-
-			public void onLostFocus(Widget sender) {
+		range.addKeyPressHandler(listener);
+		range.addBlurHandler(new BlurHandler() {
+			public void onBlur(BlurEvent event) {
 				checkValidText(range.getText());
 			}
 		});
@@ -172,8 +171,8 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 		options.addItem("Yes");
 		options.addItem("No");
 		options.addItem("Custom");
-		options.addChangeListener(new ChangeListener() {
-			public void onChange(Widget sender) {
+		options.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				int selected = options.getSelectedIndex();
 
 				if (selected == 0) {
@@ -268,10 +267,6 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		range.setEnabled(isEnabled);
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
 	}
 
 }

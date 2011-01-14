@@ -26,6 +26,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class IASThreatRowEditor extends GroupedThreatRowEditor {
 	
 	public IASThreatRowEditor(final Collection<ClassificationSchemeModelData> models, final TreeData treeData, final TreeDataRow groupBy, boolean isViewOnly) {
@@ -137,6 +138,7 @@ public class IASThreatRowEditor extends GroupedThreatRowEditor {
 		return bar;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Structure generateNamedTaxaStructure() {
 		ThreatsTreeData treeData = (ThreatsTreeData) this.treeData;
 		

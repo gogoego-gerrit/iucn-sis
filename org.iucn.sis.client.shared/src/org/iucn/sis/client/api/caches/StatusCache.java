@@ -194,7 +194,7 @@ public class StatusCache {
 		assessmentStatus.get(assessment.getId());
 	}
 
-	public void sayAssessmentCheckedOut(final NativeDocument ndoc, final GenericCallback callback) {
+	public void sayAssessmentCheckedOut(final NativeDocument ndoc, final GenericCallback<Integer> callback) {
 		String owner = ndoc.getDocumentElement().getAttribute("owner");
 		WindowUtils.errorAlert("Assessment Checked Out", "Oops! This assessment "
 				+ "has been checked out, meaning it is currently being worked on by "
@@ -207,7 +207,7 @@ public class StatusCache {
 		callback.onFailure(new Exception("Checked out."));
 	}
 
-	public void sayAssessmentLocked(final NativeDocument ndoc, final GenericCallback callback) {
+	public void sayAssessmentLocked(final NativeDocument ndoc, final GenericCallback<Integer> callback) {
 		String owner = ndoc.getDocumentElement().getAttribute("owner");
 
 		if (owner.equalsIgnoreCase(SISClientBase.currentUser.getUsername())) {

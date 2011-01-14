@@ -24,6 +24,7 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 
+@SuppressWarnings("deprecation")
 public abstract class GroupedThreatRowEditor extends ClassificationSchemeRowEditor {
 	
 	protected final Collection<ClassificationSchemeModelData> models;

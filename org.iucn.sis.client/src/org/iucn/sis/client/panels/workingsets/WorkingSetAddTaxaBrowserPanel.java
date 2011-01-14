@@ -1,7 +1,5 @@
 package org.iucn.sis.client.panels.workingsets;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -24,6 +22,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 
 	static class MyTaxonomyBrowser extends TaxonomyBrowserPanel {

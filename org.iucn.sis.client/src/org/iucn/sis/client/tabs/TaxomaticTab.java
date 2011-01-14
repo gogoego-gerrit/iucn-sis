@@ -8,14 +8,12 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 
 public class TaxomaticTab extends TabItem {
-	private PanelManager panelManager = null;
 
 	/**
 	 * Defaults to having Style.NONE
 	 */
 	public TaxomaticTab(PanelManager manager) {
 		super();
-		panelManager = manager;
 
 		build();
 	}

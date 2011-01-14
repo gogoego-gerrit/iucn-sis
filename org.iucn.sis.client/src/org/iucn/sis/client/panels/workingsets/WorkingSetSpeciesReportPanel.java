@@ -172,7 +172,7 @@ public class WorkingSetSpeciesReportPanel extends LayoutContainer {
 
 				public void onSuccess(String result) {
 //					fireEvent(Events.Close, be);
-					WindowManager.get().getActive().close();
+					WindowManager.get().getActive().hide();
 					Dialog dialog = new Dialog();
 					dialog.setButtons(Dialog.OKCANCEL);
 					dialog.setSize("400px", "300px");
@@ -184,7 +184,7 @@ public class WorkingSetSpeciesReportPanel extends LayoutContainer {
 							+ "If you have problems downloading the file, make sure you have popups "
 							+ "enabled for this website.");
 					((Button)dialog.getButtonBar().getItemByItemId(Dialog.OK)).setText("Download File");
-					((Button)dialog.getButtonBar().getItemByItemId(Dialog.OK)).addListener(Events.Select, new Listener() {
+					((Button)dialog.getButtonBar().getItemByItemId(Dialog.OK)).addListener(Events.Select, new Listener<BaseEvent>() {
 
 						public void handleEvent(BaseEvent be) {
 							Window.open(ndoc.getText(), "_blank", "");

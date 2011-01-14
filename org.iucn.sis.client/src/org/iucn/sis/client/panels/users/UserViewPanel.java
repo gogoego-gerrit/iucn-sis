@@ -22,10 +22,10 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
-import com.extjs.gxt.ui.client.event.KeyEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -51,7 +51,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.ui.KeyboardListener;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -382,8 +382,8 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 			}
 		});
 		KeyListener enter = new KeyListener() {
-			public void componentKeyPress(KeyEvent event) {
-				if (event.getKeyCode() == KeyboardListener.KEY_ENTER)
+			public void componentKeyPress(ComponentEvent event) {
+				if (event.getKeyCode() == KeyCodes.KEY_ENTER)
 					applyFilters.fireEvent(Events.Select);
 			}
 		};
@@ -600,10 +600,9 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		userGrid = new EditorGrid<UserModelData>(store, getColumnModel());
 		userGrid.setSelectionModel(sm);
 		userGrid.setBorders(false);
-		userGrid.addListener(Events.AfterEdit, new Listener<GridEvent>() {
-			public void handleEvent(final GridEvent be) {
+		userGrid.addListener(Events.AfterEdit, new Listener<GridEvent<UserModelData>>() {
+			public void handleEvent(final GridEvent<UserModelData> be) {
 				final ModelData model = be.getGrid().getStore().getAt(be.getRowIndex());
-				final String colID = be.getGrid().getColumnModel().getColumnId(be.getColIndex());
 				if (be.getValue() == null) {
 					store.rejectChanges();
 					return;

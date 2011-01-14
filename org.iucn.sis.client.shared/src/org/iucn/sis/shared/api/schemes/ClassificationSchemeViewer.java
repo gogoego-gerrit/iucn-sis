@@ -7,6 +7,7 @@ import org.iucn.sis.shared.api.structures.Structure;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 
+@SuppressWarnings("unchecked")
 public interface ClassificationSchemeViewer {
 	
 	/**

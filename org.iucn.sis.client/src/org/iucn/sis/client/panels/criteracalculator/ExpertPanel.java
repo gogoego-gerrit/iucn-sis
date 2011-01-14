@@ -52,7 +52,6 @@ public class ExpertPanel extends LayoutContainer {
 		criteriaConstant = "Criteria String: ";
 
 		BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 100);
-		BorderLayoutData southData = new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 100);
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER, 25, 25, 100);
 		BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 10, 10, 10);
 		BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST, 10, 10, 10);

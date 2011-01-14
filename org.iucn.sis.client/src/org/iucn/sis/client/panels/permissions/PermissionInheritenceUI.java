@@ -22,6 +22,7 @@ import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 
+@SuppressWarnings("unused")
 public class PermissionInheritenceUI extends LayoutContainer {
 
 	private ListView<BaseModelData> unused;

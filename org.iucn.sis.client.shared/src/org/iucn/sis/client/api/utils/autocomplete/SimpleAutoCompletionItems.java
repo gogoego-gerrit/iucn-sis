@@ -15,12 +15,12 @@ public class SimpleAutoCompletionItems implements CompletionItems {
 			completions[i] = (String) items[i];
 	}
 
-	public SimpleAutoCompletionItems(Set items) {
+	public SimpleAutoCompletionItems(Set<String> items) {
 		completions = new String[items.size()];
 
 		int i = 0;
-		for (Iterator iterator = items.iterator(); iterator.hasNext(); i++)
-			completions[i] = (String) iterator.next();
+		for (Iterator<String> iterator = items.iterator(); iterator.hasNext(); i++)
+			completions[i] = iterator.next();
 	}
 
 	public SimpleAutoCompletionItems(String[] items) {
@@ -47,7 +47,7 @@ public class SimpleAutoCompletionItems implements CompletionItems {
 		if (match.equalsIgnoreCase("*"))
 			return completions;
 
-		ArrayList matches = new ArrayList();
+		ArrayList<String> matches = new ArrayList<String>();
 
 		for (int i = 0; i < completions.length; i++) {
 			if (completions[i].toLowerCase().startsWith(match.toLowerCase())) {

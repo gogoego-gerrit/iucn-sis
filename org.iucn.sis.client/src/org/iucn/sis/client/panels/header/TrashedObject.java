@@ -9,6 +9,8 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 
 public class TrashedObject extends BaseModelData {
+	
+	private static final long serialVersionUID = 1L;
 
 	public TrashedObject(NativeElement doc) {
 		set("id", doc.getAttribute("id"));

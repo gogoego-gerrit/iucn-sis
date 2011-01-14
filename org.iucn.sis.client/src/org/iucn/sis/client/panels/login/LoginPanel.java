@@ -4,7 +4,6 @@ import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.users.AddUserWindow;
-import org.iucn.sis.client.panels.utils.GoogleAccountsAuthButton;
 import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -19,33 +18,32 @@ import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.custom.ThemeSelector;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.extjs.login.client.ChangePasswordPanel;
-import com.solertium.util.extjs.login.client.NewAccountPanel;
 
 public class LoginPanel extends LayoutContainer {
 
 	private final boolean lockdownCreateNewAccount = SimpleSISClient.iAmOnline;
-	private NewAccountPanel newAccountPanel;
 
 	private ChangePasswordPanel changePasswordPanel;
 	private TextBox userName;
@@ -59,8 +57,6 @@ public class LoginPanel extends LayoutContainer {
 	private Image headerImage;
 
 	private FlexTable loginTable;
-
-	private GoogleAccountsAuthButton b;
 
 	public LoginPanel() {
 		setLayout(new FillLayout(Orientation.HORIZONTAL));
@@ -139,10 +135,9 @@ public class LoginPanel extends LayoutContainer {
 		if (!SimpleSISClient.iAmOnline) {
 			descriptionPanel.add(new HTML("<div style='margin:5px; margin-top: 20px; margin-bottom:0px;'>" +
 					"Done with offline data?</div>"));
-			final Button button = new Button("Clear data");
-			button.addClickListener(new ClickListener() {
-			
-				public void onClick(Widget sender) {
+			descriptionPanel.add(new Button("Clear data", new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					final Button button = (Button)event.getSource();
 					button.setEnabled(false);
 					WindowUtils.confirmAlert("Confirm Deletion of Data", "This will clear all data from the offline version including all assessments and working sets.  This may take a while if you had a lot of data.  Are you sure you want to remove data?", 
 							new WindowUtils.MessageBoxListener() {
@@ -174,8 +169,7 @@ public class LoginPanel extends LayoutContainer {
 					
 			
 				}
-			});
-			descriptionPanel.add(button);
+			}));
 		}
 		
 
@@ -191,10 +185,10 @@ public class LoginPanel extends LayoutContainer {
 			if (defaultUser != null)
 				userName.setText(defaultUser);
 		}
-		userName.addKeyboardListener(new KeyboardListenerAdapter() {
-			@Override
-			public void onKeyPress(Widget sender, char keyCode, int modifiers) {
-				if (keyCode == KEY_ENTER)
+		userName.addKeyPressHandler(new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				char keyCode = event.getCharCode();
+				if (keyCode == KeyCodes.KEY_ENTER)
 					login.click();
 			}
 		});
@@ -207,10 +201,10 @@ public class LoginPanel extends LayoutContainer {
 			if (defaultPassword != null)
 				password.setText(defaultPassword);
 		}
-		password.addKeyboardListener(new KeyboardListenerAdapter() {
-			@Override
-			public void onKeyPress(Widget sender, char keyCode, int modifiers) {
-				if (keyCode == KEY_ENTER)
+		password.addKeyPressHandler(new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				char keyCode = event.getCharCode();
+				if (keyCode == KeyCodes.KEY_ENTER)
 					login.click();
 			}
 		});
@@ -221,17 +215,17 @@ public class LoginPanel extends LayoutContainer {
 		loginTable.setWidget(1, 0, new HTML("<span style=\"color: #00428C\"><b>Password</b></span>"));
 		loginTable.setWidget(1, 1, password);
 
-		login = new Button("Login", new ClickListener() {
-			public void onClick(Widget sender) {
-				((Button) sender).setText("Please wait...");
-				((Button) sender).setEnabled(false);
+		login = new Button("Login", new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				Button sender = (Button)event.getSource();
+				sender.setText("Please wait...");
+				sender.setEnabled(false);
 				SimpleSupport.doLogin(userName.getText().toLowerCase(), password.getText());
 			}
 		});
 
-		newAccount = new Button("Create New Account", new ClickListener() {
-			public void onClick(Widget sender) {
-
+		newAccount = new Button("Create New Account", new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				if (lockdownCreateNewAccount) {
 
 					MessageBox box = MessageBox.prompt("Restricted", "This is a temporarily "
@@ -260,8 +254,8 @@ public class LoginPanel extends LayoutContainer {
 
 		HTML changePassword = new HTML("Change your password");
 		changePassword.addStyleName("SIS_HyperlinkLookAlike");
-		changePassword.addClickListener(new ClickListener() {
-			public void onClick(Widget sender) {
+		changePassword.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				changePasswordPanel = new ChangePasswordPanel() {
 					@Override
 					public void changePassword(String username, String oldPass, String newPass,
@@ -297,8 +291,8 @@ public class LoginPanel extends LayoutContainer {
 
 		HTML resetPassword = new HTML("Reset your password");
 		resetPassword.addStyleName("SIS_HyperlinkLookAlike");
-		resetPassword.addClickListener(new ClickListener() {
-			public void onClick(Widget sender) {
+		resetPassword.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				if( userName.getText().equals("") )
 					WindowUtils.errorAlert("Please enter your username into the box.");
 				else {
@@ -325,7 +319,7 @@ public class LoginPanel extends LayoutContainer {
 		});
 		loginFields.add(resetPassword);
 		
-		b = new GoogleAccountsAuthButton("SIS", GWT.getHostPageBaseURL() + "index.html", new GenericCallback<String>() {
+		/*GoogleAccountsAuthButton b = new GoogleAccountsAuthButton("SIS", GWT.getHostPageBaseURL() + "index.html", new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 			}
 
@@ -336,7 +330,7 @@ public class LoginPanel extends LayoutContainer {
 
 		// loginFields.add(new HTML(" or ")); // disable Google Accounts for
 		// offline stick
-		// loginFields.add(b);
+		// loginFields.add(b);*/
 
 		// Adding a quick wrapper to center the login fields panel
 		SimplePanel wrap = new SimplePanel();
@@ -359,8 +353,8 @@ public class LoginPanel extends LayoutContainer {
 				public void onSuccess(String result) {
 					String message = updateDoc.getText();
 					updateSummary.setHTML("<span style=\"color: #gray;\"><b>" + message + "</b></span>");
-					Button doUpdate = new Button("Process Updates", new ClickListener() {
-						public void onClick(Widget sender) {
+					Button doUpdate = new Button("Process Updates", new ClickHandler() {
+						public void onClick(ClickEvent event) {
 							WindowUtils.showLoadingAlert("Processing updates ... please wait.");
 							final NativeDocument processUpdatesDoc = NativeDocumentFactory.newNativeDocument();
 							processUpdatesDoc.getAsText(UriBase.getInstance().getSISBase() + "/update", new GenericCallback<String>() {

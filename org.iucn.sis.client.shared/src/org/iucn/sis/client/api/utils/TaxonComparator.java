@@ -2,12 +2,12 @@ package org.iucn.sis.client.api.utils;
 
 import java.util.Date;
 
-import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
-
 import com.extjs.gxt.ui.client.util.DefaultComparator;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class TaxonComparator extends DefaultComparator<Object> {
+	
+	private static final long serialVersionUID = 1L;
 
 	private static TaxonComparator instance = null;
 

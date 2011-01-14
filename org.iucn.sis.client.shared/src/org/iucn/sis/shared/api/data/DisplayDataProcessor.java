@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.data;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.structures.SISEmptyStructure;
@@ -11,6 +10,7 @@ import org.iucn.sis.shared.api.structures.Structure;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
+@SuppressWarnings("unchecked")
 public class DisplayDataProcessor {
 
 	private static void printDiagnostic(DisplayData data, Throwable e) {

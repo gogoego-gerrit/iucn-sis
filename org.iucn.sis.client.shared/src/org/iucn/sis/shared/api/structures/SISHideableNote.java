@@ -118,7 +118,4 @@ public class SISHideableNote extends SISPrimitiveStructure<String> {
 		this.textarea.setEnabled(isEnabled);
 	}
 
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
 }

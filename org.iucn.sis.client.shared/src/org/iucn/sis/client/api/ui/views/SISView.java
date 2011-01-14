@@ -1,7 +1,6 @@
 package org.iucn.sis.client.api.ui.views;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.iucn.sis.shared.api.debug.Debug;
 
@@ -26,11 +25,6 @@ public class SISView {
 	private String displayableTitle;
 	private ArrayList<SISPageHolder> pages;
 
-	private boolean showHeader = true;
-	private boolean showFooter = true;
-
-	private HashMap displaySetToUse;
-
 	private SISPageHolder curPage = null;
 
 	public SISView() {
@@ -53,10 +47,6 @@ public class SISView {
 
 	public String getDisplayableTitle() {
 		return displayableTitle;
-	}
-
-	public HashMap getDisplaySetToUse() {
-		return displaySetToUse;
 	}
 
 	public String getId() {
@@ -89,10 +79,6 @@ public class SISView {
 
 	public void setDisplayableTitle(String displayableTitle) {
 		this.displayableTitle = displayableTitle;
-	}
-
-	public void setDisplaySetToUse(HashMap set) {
-		this.displaySetToUse = set;
 	}
 
 	public void setId(String id) {

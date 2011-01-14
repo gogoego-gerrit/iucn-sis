@@ -29,6 +29,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.QuickButton;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class TaxomaticAssessmentMover extends TaxomaticWindow {
 
 	protected final Taxon  nodeToMoveAssessmentsOutOf;

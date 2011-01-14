@@ -9,17 +9,18 @@ import org.iucn.sis.shared.api.structures.DominantStructure;
 import org.iucn.sis.shared.api.structures.Rule;
 import org.iucn.sis.shared.api.structures.SISStructureCollection;
 
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 @Deprecated
 /**
@@ -27,6 +28,7 @@ import com.solertium.lwxml.gwt.debug.SysDebugger;
  * of related displays in the UI is a good one, so it has been left for reference and perhaps
  * an eventual port.
  */
+@SuppressWarnings("unchecked")
 public class RelatedDisplays extends Display {
 
 	// Display storage
@@ -144,7 +146,7 @@ public class RelatedDisplays extends Display {
 		ArrayList retWidgets = new ArrayList();
 		retWidgets.addAll(dominantDisplay.getMyWidgets());
 		for (int i = 0; i < dependantDisplays.size(); i++)
-			retWidgets.addAll(((Display) dependantDisplays.get(i)).getMyWidgets());
+			retWidgets.addAll((dependantDisplays.get(i)).getMyWidgets());
 		return retWidgets;
 	}
 
@@ -229,14 +231,13 @@ public class RelatedDisplays extends Display {
 				runRuleCheck();
 			}
 		};
-		ChangeListener clistener = new ChangeListener() {
-			public void onChange(Widget sender) {
+		ChangeHandler clistener = new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				runRuleCheck();
 			}
 		};
-		KeyboardListenerAdapter kListener = new KeyboardListenerAdapter() {
-			@Override
-			public void onKeyUp(Widget sender, char keyCode, int modifiers) {
+		KeyUpHandler kListener = new KeyUpHandler() {
+			public void onKeyUp(KeyUpEvent event) {
 				runRuleCheck();
 			}
 		};

@@ -26,7 +26,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
@@ -46,9 +45,9 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.CardLayoutContainer;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -109,23 +108,14 @@ public class PermissionGroupEditor extends LayoutContainer {
 	
 	private CardLayoutContainer accessoryPanel;
 	private VerticalPanel leftPanel;
-	private PortableAlphanumericComparator comparator;
 	
 	public PermissionGroupEditor() {
 		this(null);
 	}
 	
 	public PermissionGroupEditor(PermissionGroup baseGroup) {
-		comparator = new PortableAlphanumericComparator();
-		
 		groupStore = new ListStore<PermissionGroupData>();
-		groupStore.setStoreSorter(new StoreSorter<PermissionGroupData>() {
-			@Override
-			public int compare(Store<PermissionGroupData> store, PermissionGroupData m1, PermissionGroupData m2,
-					String property) {
-				return comparator.compare(m1.getGroup().getName(), m2.getGroup().getName());
-			}
-		});
+		groupStore.setStoreSorter(new StoreSorter<PermissionGroupData>(new PortableAlphanumericComparator()));
 		
 		groupSelector = new ComboBox<PermissionGroupData>();
 		groupSelector.setTriggerAction(TriggerAction.ALL);
@@ -311,8 +301,8 @@ public class PermissionGroupEditor extends LayoutContainer {
 		scopeChoices.addItem("Taxon");
 		scopeChoices.addItem("All Working Sets");
 		scopeChoices.addItem("Working Set");
-		scopeChoices.addChangeListener(new ChangeListener() {
-			public void onChange(Widget sender) {
+		scopeChoices.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				scopeChoicesChanged();
 			}
 		});
@@ -404,7 +394,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 	 */
 	private String saveDataToGroup(PermissionGroup group) {
 		String scopeURI = "";
-		ArrayList<PermissionGroup> inherits = new ArrayList<PermissionGroup>();
+		
 		Permission defaultPermission = defaultPermissionSet.getPermission();
 		
 		Object scopeData = scope.getData("scope");
@@ -552,7 +542,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 			public void onFailure(Throwable caught) {} //Not implemented
 		}, new GenericCallback<String>() { 
 				public void onSuccess(final String uri) {
-					WindowManager.get().getActive().close();
+					WindowManager.get().getActive().hide();
 					updateContent();
 				}
 				public void onFailure(Throwable caught) {} //Not implemented);

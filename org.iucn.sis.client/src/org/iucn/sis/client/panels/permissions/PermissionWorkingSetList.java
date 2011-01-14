@@ -31,6 +31,7 @@ import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.extjs.client.GenericPagingLoader;
 import com.solertium.util.extjs.client.PagingLoaderFilter;
 
+@SuppressWarnings("deprecation")
 public class PermissionWorkingSetList extends ContentPanel {
 
 	private DataList list;

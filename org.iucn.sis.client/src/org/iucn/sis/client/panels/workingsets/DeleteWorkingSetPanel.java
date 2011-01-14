@@ -35,6 +35,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.utils.RowParser;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class DeleteWorkingSetPanel extends LayoutContainer {
 
 	private PanelManager manager = null;
@@ -115,7 +116,7 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 			}
 		});
 		
-		list.addListener(Events.SelectionChange, new Listener() {
+		list.addListener(Events.SelectionChange, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				if (list.getSelectedItem() != null) {
 					delete.setEnabled(true);
@@ -129,10 +130,8 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 		
 		buttons = new ButtonBar();
 		buttons.setAlignment(HorizontalAlignment.LEFT);
-		Button cancel = new Button("Cancel");
-		// cancel.setButtonId(Dialog.CANCEL_ID);
-		cancel.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		Button cancel = new Button("Cancel", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				cancel();
 			}
 		});

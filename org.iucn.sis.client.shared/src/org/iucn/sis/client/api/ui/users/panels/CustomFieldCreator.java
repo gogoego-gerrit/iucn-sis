@@ -43,6 +43,7 @@ import com.solertium.util.gwt.api.XMLWritingUtils;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
+@SuppressWarnings("deprecation")
 public abstract class CustomFieldCreator extends Window {
 
 	/**
@@ -78,7 +79,7 @@ public abstract class CustomFieldCreator extends Window {
 					if (data.equals(""))
 						WindowUtils.errorAlert("Error", "Please enter text or cancel.");
 					else {
-						close();
+						hide();
 						onSave(data);
 					}
 				}

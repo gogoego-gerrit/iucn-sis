@@ -39,6 +39,7 @@ public class Threats extends ClassificationScheme {
 		return new ThreatsClassificationSchemeViewer(description, displayData);
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected ClassificationSchemeModelData createModelData(DisplayStructure structure, Field field) {
 		return new ThreatClassificationSchemeModelData(structure, field);
 	}

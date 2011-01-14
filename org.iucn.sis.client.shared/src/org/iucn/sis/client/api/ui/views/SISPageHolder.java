@@ -35,7 +35,6 @@ import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -55,24 +54,8 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.gwt.ui.StyledHTML;
 import com.solertium.util.portable.XMLWritingUtils;
 
+@SuppressWarnings("deprecation")
 public class SISPageHolder extends TabPanel {
-
-	private class GeneratePageTimer extends Timer {
-		private boolean view;
-
-		GeneratePageTimer(boolean viewOnly) {
-			view = viewOnly;
-		}
-
-		@Override
-		public void run() {
-			generatePage(view);
-			WindowUtils.hideLoadingAlert();
-
-			layout();
-			setSelection(getItem(selectedTab));
-		}
-	}
 
 	public static final String VERTICAL = "vertical";
 	public static final String HORIZONTAL = "horizontal";
@@ -189,10 +172,6 @@ public class SISPageHolder extends TabPanel {
 		}
 	}
 
-	private void generatePage() {
-		generatePage(false);
-	}
-
 	private void generatePage(boolean viewOnly) {
 		int currentRow = 0;
 		int currentColumn = 0;
@@ -213,7 +192,7 @@ public class SISPageHolder extends TabPanel {
 			for (int i = 0; i < organizations.getLength(); i++) {
 
 				final TabItem curTab = new TabItem();
-				curTab.addListener(Events.Select, new Listener() {
+				curTab.addListener(Events.Select, new Listener<BaseEvent>() {
 					public void handleEvent(BaseEvent be) {
 						selectedTab = indexOf(curTab);
 					}

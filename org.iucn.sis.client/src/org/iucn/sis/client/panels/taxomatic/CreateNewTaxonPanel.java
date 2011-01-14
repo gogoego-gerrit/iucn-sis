@@ -40,6 +40,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class CreateNewTaxonPanel extends TaxomaticWindow {
 	
 	private static final String DATA_KEY = "dataKeyString";
@@ -95,7 +96,7 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 
 		final DataList list = new DataList();
 		list.setCheckable(true);
-		for (Iterator iter = WorkingSetCache.impl.getWorkingSets().values().iterator(); iter.hasNext();) {
+		for (Iterator<WorkingSet> iter = WorkingSetCache.impl.getWorkingSets().values().iterator(); iter.hasNext();) {
 			WorkingSet curWS = (WorkingSet) iter.next();
 			DataListItem curItem = new DataListItem(curWS.getWorkingSetName());
 			curItem.setData(DATA_KEY, curWS);

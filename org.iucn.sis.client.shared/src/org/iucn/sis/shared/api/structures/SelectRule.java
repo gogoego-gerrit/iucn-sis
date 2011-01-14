@@ -7,10 +7,10 @@ public class SelectRule extends Rule {
 	int[] indices = null;
 
 	public SelectRule(String rule) {
-		this(rule, new ArrayList());
+		this(rule, new ArrayList<Integer>());
 	}
 
-	public SelectRule(String rule, ArrayList affectedObjectIndices) {
+	public SelectRule(String rule, ArrayList<Integer> affectedObjectIndices) {
 		super(rule, affectedObjectIndices);
 
 		if (rule.indexOf(",") >= 0) {

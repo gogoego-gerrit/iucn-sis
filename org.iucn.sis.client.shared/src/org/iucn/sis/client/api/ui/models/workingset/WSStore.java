@@ -18,7 +18,7 @@ public class WSStore extends ListStore<WSModel> {
 		if (store == null) {
 
 			store = new WSStore();
-			store.setStoreSorter(new StoreSorter(new PortableAlphanumericComparator()));
+			store.setStoreSorter(new StoreSorter<WSModel>(new PortableAlphanumericComparator()));
 			store.update();
 
 		}

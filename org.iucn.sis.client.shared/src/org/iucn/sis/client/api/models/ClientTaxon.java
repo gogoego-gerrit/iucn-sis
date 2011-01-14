@@ -10,6 +10,9 @@ import org.iucn.sis.shared.api.models.Taxon;
 import com.solertium.lwxml.shared.GenericCallback;
 
 public class ClientTaxon extends Taxon implements Referenceable {
+	
+	private static final long serialVersionUID = 1L;
+	
 	@Override
 	public void addReferences(ArrayList<Reference> references,
 			GenericCallback<Object> callback) {

@@ -105,7 +105,6 @@ public class HeaderSummaryPanel extends LayoutContainer {
 					FormattedDate.impl.getDate(new Date(data.getDateModified())) + "<br />" : "N/A<br />")));
 
 			String cat = AssessmentFormatter.getProperCategoryAbbreviation(data);
-			String crit = AssessmentFormatter.getProperCriteriaString(data);
 
 			assessmentSummary.add(new HTML("Category: " + cat + "<br />"));
 		} else {

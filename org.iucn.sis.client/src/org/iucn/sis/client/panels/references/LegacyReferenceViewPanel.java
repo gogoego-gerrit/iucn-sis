@@ -75,6 +75,7 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
  * @author carl.scott
  * 
  */
+@SuppressWarnings({"unused", "deprecation"})
 public class LegacyReferenceViewPanel extends TabPanel {
 
 	private final int SHOW_COUNT = 25;

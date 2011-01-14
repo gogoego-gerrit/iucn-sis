@@ -1,8 +1,6 @@
 package org.iucn.sis.client.panels.header;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.FindResultCache;
@@ -27,7 +25,8 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
-import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -38,7 +37,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -71,10 +69,6 @@ public class FindReplacePanel extends LayoutContainer {
 	private Button skipButton;
 	private Button skipAllInFileButton;
 
-	private final int NAMECOLUMNINDEX = 0;
-	private final int TYPECOLUMNINDEX = 1;
-	private final int TEXTCOLUMNINDEX = 2;
-
 	private LayoutContainer centerPanel;
 	private VerticalPanel westPanel;
 	private LayoutContainer southPanel;
@@ -88,7 +82,6 @@ public class FindReplacePanel extends LayoutContainer {
 	private VerticalPanel searchResults;
 
 	private ArrayList<FindReplaceData> results;
-	private Map<Integer, WorkingSet> workingSets;
 
 	private String stringToFind;
 //	private int searchType;
@@ -103,8 +96,7 @@ public class FindReplacePanel extends LayoutContainer {
 
 	public FindReplacePanel() {
 		super();
-		results = new ArrayList();
-		workingSets = new HashMap();
+		results = new ArrayList<FindReplaceData>();
 		isReplacePanelEmpty = true;
 		setLayout(new BorderLayout());
 		build = false;
@@ -390,9 +382,8 @@ public class FindReplacePanel extends LayoutContainer {
 		selectorBox.setWidth("100%");
 		setSelectorBox();
 		selectorHP.setCellHorizontalAlignment(selectorLabel, HasHorizontalAlignment.ALIGN_LEFT);
-		selectorBox.addChangeListener(new ChangeListener() {
-		
-			public void onChange(Widget sender) {
+		selectorBox.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				setAssessmentFilter();
 			}
 		});
@@ -438,7 +429,7 @@ public class FindReplacePanel extends LayoutContainer {
 		Grid optionsGrid = new Grid(2, 2);
 		caseInsensitive = new CheckBox(" Case insensitive");
 		entireWord = new CheckBox(" Entire word only");
-		entireWord.setChecked(true);
+		entireWord.setValue(true);
 		regex = new CheckBox(" Regular expression");
 		optionsGrid.setCellSpacing(6);
 		optionsGrid.setWidget(0, 0, caseInsensitive);
@@ -539,15 +530,15 @@ public class FindReplacePanel extends LayoutContainer {
 
 	private void determineOptions() {
 		StringBuffer buffer = new StringBuffer();
-		if (caseInsensitive.isChecked())
+		if (caseInsensitive.getValue())
 			buffer.append("1,");
 		else
 			buffer.append("0,");
-		if (entireWord.isChecked())
+		if (entireWord.getValue())
 			buffer.append("1,");
 		else
 			buffer.append("0,");
-		if (regex.isChecked())
+		if (regex.getValue())
 			buffer.append("1");
 		else
 			buffer.append("0");
@@ -555,7 +546,7 @@ public class FindReplacePanel extends LayoutContainer {
 		criteria = whereToSearchWithFileBox.getValue(whereToSearchWithFileBox.getSelectedIndex());
 	}
 
-	private void determineSearchType() {
+	/*private void determineSearchType() {
 //		String fileBoxValue = fileBox.getValue(fileBox.getSelectedIndex());
 		
 		
@@ -621,8 +612,7 @@ public class FindReplacePanel extends LayoutContainer {
 //			}
 //
 //		}
-
-	}
+	}*/
 
 	private void disableSearch() {
 		searchButton.setText("Cancel Find");
@@ -635,7 +625,8 @@ public class FindReplacePanel extends LayoutContainer {
 		whereToSearchWithFileBox.setEnabled(enabled);
 		// searchButton.setEnabled(enabled);
 	}
-
+	
+	@SuppressWarnings("unused")
 	private void enableReplacementButtons(boolean enable) {
 		if (enable) {
 			replaceAllButton.enable();
@@ -678,8 +669,6 @@ public class FindReplacePanel extends LayoutContainer {
 		}
 		setSelectorBox();
 		selectorBox.setSelectedIndex(0);
-		workingSets = WorkingSetCache.impl.getWorkingSets();
-		
 	}
 
 	private void removeRow(int index) {

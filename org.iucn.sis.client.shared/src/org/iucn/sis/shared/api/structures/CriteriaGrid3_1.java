@@ -5,6 +5,7 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.SourcesTableEvents;
 import com.google.gwt.user.client.ui.TableListener;
 
+@SuppressWarnings("deprecation")
 public abstract class CriteriaGrid3_1 extends CriteriaGrid {
 
 	protected String[] categoriesForValidation = { "CR", "EN", "VU" };

@@ -2,12 +2,12 @@ package org.iucn.sis.client.panels.utils;
 
 import org.iucn.sis.client.api.utils.UriBase;
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -35,8 +35,6 @@ public class GoogleAccountsAuthButton extends VerticalPanel {
 	private String ticket;
 
 	private String initialUser;
-
-	private boolean appURLContainsArguments;
 
 	/**
 	 * DEPRECATED - DO NOT USE THIS CONSTRUCTOR
@@ -66,7 +64,6 @@ public class GoogleAccountsAuthButton extends VerticalPanel {
 
 		this.appName = applicationName;
 		this.appURL = appURL;
-		this.appURLContainsArguments = false;
 		this.loginSuccessCallback = loginSuccessCallback;
 		this.ticket = parseVariableFromURL("t");
 		this.initialUser = parseVariableFromURL("usr");
@@ -112,8 +109,8 @@ public class GoogleAccountsAuthButton extends VerticalPanel {
 
 	private void generateUnloggedInButton() {
 		loginButton = new Button("Login using a Google Account");
-		loginButton.addClickListener(new ClickListener() {
-			public void onClick(Widget sender) {
+		loginButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				doGoogleLogin();
 				loginButton.setEnabled(false);
 			}
@@ -124,8 +121,8 @@ public class GoogleAccountsAuthButton extends VerticalPanel {
 
 	private void generateValidateButton(String username) {
 		validateButton = new Button("Login to " + appName + ", " + username);
-		validateButton.addClickListener(new ClickListener() {
-			public void onClick(Widget sender) {
+		validateButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				doGoogleValidate();
 				validateButton.setEnabled(false);
 			}

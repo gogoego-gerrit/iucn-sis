@@ -34,6 +34,7 @@ import com.solertium.lwxml.shared.NativeNodeList;
  * @author adam.schwartz
  * 
  */
+@SuppressWarnings("unused")
 public class FieldParser implements CreatesDisplay {
 	private static final String BASIC_INFORMATION_TAG_NAME = "basicInformation";
 	private static final String ASSESSMENT_FIELD_TAG_NAME = "field";
@@ -643,7 +644,6 @@ public class FieldParser implements CreatesDisplay {
 		return currentField;
 	}
 
-	@SuppressWarnings("unused")
 	private void processReferences(DisplayData displayData, NativeNode displayTag) {
 		for (int i = 0; i < displayTag.getChildNodes().getLength(); i++) {
 			NativeNode current = displayTag.getChildNodes().item(i);

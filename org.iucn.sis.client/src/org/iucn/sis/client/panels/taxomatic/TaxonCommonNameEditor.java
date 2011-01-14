@@ -23,9 +23,10 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.ui.FocusListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -34,7 +35,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -55,7 +55,6 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 	private TextBox name;
 	private ListBox language;
 	private int numberAdded;
-	private boolean loaded;
 
 	public TaxonCommonNameEditor(PanelManager manager) {
 		super();
@@ -68,14 +67,8 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 		numberAdded = 0;
 
 		name = new TextBox();
-		name.addFocusListener(new FocusListener() {
-
-			public void onFocus(Widget arg0) {
-				// TODO Auto-generated method stub
-
-			}
-
-			public void onLostFocus(Widget arg0) {
+		name.addBlurHandler(new BlurHandler() {
+			public void onBlur(BlurEvent event) {
 				String oldName = name.getName();
 				boolean found = false;
 				for (int i = 0; i < commonNameList.getItemCount() && !found; i++) {

@@ -8,6 +8,7 @@ public class DisplayableDataHelper {
 				+ booleanData.substring(1) : booleanData;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String toDisplayableSingleSelect(String index, Object[] options) {
 		if( options[0] instanceof ArrayList ) {
 			ArrayList<String> listItemsToAdd = (ArrayList<String>)options[0];

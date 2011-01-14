@@ -32,6 +32,7 @@ import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
+@SuppressWarnings("deprecation")
 public class TaxaTagManager extends LayoutContainer implements DrawsLazily {
 	
 	private final DataList list;

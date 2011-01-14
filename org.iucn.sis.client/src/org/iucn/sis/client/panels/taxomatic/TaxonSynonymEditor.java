@@ -12,20 +12,17 @@ import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.FocusListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
@@ -34,7 +31,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -99,20 +95,17 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 		infrarankName = new TextBox();
 		stockName = new TextBox();
 
-		FocusListener focusListener = new FocusListener() {
-			public void onFocus(Widget sender) {
-			}
-
-			public void onLostFocus(Widget sender) {
+		BlurHandler blurHandler = new BlurHandler() {
+			public void onBlur(BlurEvent event) {
 				if (currentSynonym != null)
 					name.setText(currentSynonym.getFriendlyName());
 			}
 		};
-		upperLevelName.addFocusListener(focusListener);
-		genusName.addFocusListener(focusListener);
-		specieName.addFocusListener(focusListener);
-		infrarankName.addFocusListener(focusListener);
-		stockName.addFocusListener(focusListener);
+		upperLevelName.addBlurHandler(blurHandler);
+		genusName.addBlurHandler(blurHandler);
+		specieName.addBlurHandler(blurHandler);
+		infrarankName.addBlurHandler(blurHandler);
+		stockName.addBlurHandler(blurHandler);
 
 		upperLevelPanel.setSpacing(5);
 		upperLevelPanel.add(new HTML("Name: "));
@@ -309,7 +302,7 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				close();
+				hide();
 			}
 
 		});
@@ -533,8 +526,8 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 			hp.add(level);
 			synonymInfo.add(hp);
 
-			level.addChangeListener(new ChangeListener() {
-				public void onChange(Widget sender) {
+			level.addChangeHandler(new ChangeHandler() {
+				public void onChange(ChangeEvent event) {
 					doShowHide();
 				}
 			});
@@ -614,7 +607,7 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 						bar.enable();
 						WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
 						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-						close();
+						hide();
 	
 					}
 	
@@ -630,7 +623,7 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 			}
 		} else {
 			WindowUtils.infoAlert("Please select synonym to save.");
-			close();
+			hide();
 		}
 
 	}

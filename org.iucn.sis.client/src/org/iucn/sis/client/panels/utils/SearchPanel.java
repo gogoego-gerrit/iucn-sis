@@ -59,6 +59,7 @@ import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
+@SuppressWarnings({"deprecation", "unchecked"})
 public class SearchPanel extends LayoutContainer {
 	
 	public enum SearchEvents {
@@ -135,7 +136,6 @@ public class SearchPanel extends LayoutContainer {
 		addListener(SearchEvents.Select, listener);
 	}
 	
-	@SuppressWarnings("unchecked")
 	protected void addListener(SearchEvents eventType, Listener listener) {
 		List<Listener<SearchEvent>> list = events.get(eventType);
 		if (list == null)

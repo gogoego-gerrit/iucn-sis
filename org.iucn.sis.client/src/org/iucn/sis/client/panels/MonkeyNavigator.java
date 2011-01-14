@@ -61,6 +61,7 @@ import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
+@SuppressWarnings("deprecation")
 public class MonkeyNavigator extends Window implements DrawsLazily {
 	
 	private static final int LIST_SIZE = 175;

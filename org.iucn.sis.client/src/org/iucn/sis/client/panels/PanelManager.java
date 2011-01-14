@@ -75,7 +75,7 @@ public class PanelManager {
 	public void addPanel(LayoutContainer container, LayoutContainer panel, LayoutData layoutData, boolean resizable,
 			boolean draggable) {
 		if (resizable) {
-			Resizable r = new Resizable(panel);
+			new Resizable(panel);
 		}
 
 		if (draggable) {
@@ -100,7 +100,7 @@ public class PanelManager {
 	}
 
 	public void addPanelAsResizable(LayoutContainer container, LayoutContainer panel) {
-		Resizable r = new Resizable(panel);
+		new Resizable(panel);
 
 		container.add(panel);
 	}

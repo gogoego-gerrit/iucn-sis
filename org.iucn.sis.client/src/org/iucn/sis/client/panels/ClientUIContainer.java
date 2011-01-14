@@ -8,8 +8,6 @@ import com.extjs.gxt.ui.client.widget.Viewport;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.WindowCloseListener;
 
 /**
  * This is the class on which everything else will lay. It will take up all of
@@ -27,14 +25,7 @@ public class ClientUIContainer extends Viewport {
 	public static FooterContainer footerContainer = null;
 	public static ClientUIContainer container = null;
 
-	private WindowCloseListener listener = new WindowCloseListener() {
-		public void onWindowClosed() {
-		}
-
-		public String onWindowClosing() {
-			return "This action will close SIS Toolkit - all unsaved changes will be lost.";
-		}
-	};
+	private boolean loggedIn;
 
 	public ClientUIContainer() {
 		container = this;
@@ -44,8 +35,8 @@ public class ClientUIContainer extends Viewport {
 	}
 
 	public void buildLogin(String message) {
-		Window.removeWindowCloseListener(listener);
-
+		loggedIn = false;
+		
 		removeAll();
 
 		setLayout(new FitLayout());
@@ -61,7 +52,7 @@ public class ClientUIContainer extends Viewport {
 	}
 
 	public void buildPostLogin(String first, String last, String affiliation) {
-		Window.addWindowCloseListener(listener);
+		loggedIn = true;
 
 		remove(loginPanel);
 
@@ -93,5 +84,9 @@ public class ClientUIContainer extends Viewport {
 		add(footerContainer, footerData);
 
 		layout();
+	}
+	
+	public boolean isLoggedIn() {
+		return loggedIn;
 	}
 }

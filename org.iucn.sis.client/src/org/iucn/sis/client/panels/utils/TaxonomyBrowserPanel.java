@@ -373,7 +373,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 							}
 						}
 
-						ArrayUtils.quicksort((ArrayList) loader.getFullList(), new Comparator<TaxonListElement>() {
+						ArrayUtils.quicksort(loader.getFullList(), new Comparator<TaxonListElement>() {
 							public int compare(TaxonListElement o1, TaxonListElement o2) {
 								return ((String) o1.get("name")).compareTo((String) o2.get("name"));
 							}

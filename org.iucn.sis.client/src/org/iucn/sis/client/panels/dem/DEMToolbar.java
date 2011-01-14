@@ -520,12 +520,14 @@ public class DEMToolbar extends ToolBar {
 		}
 	}
 	
+	@SuppressWarnings("unused")
 	private void runIntegrityValidator() {
 		final Assessment data = AssessmentCache.impl.getCurrentAssessment();
 		//Popup new window:
 		ClientAssessmentValidator.validate(data.getId(), data.getType());
 	}
 
+	@SuppressWarnings("unused")
 	private void fetchReport() {
 		final CheckBox useLimited = new CheckBox();
 		useLimited.setValue(Boolean.valueOf(true));
@@ -558,7 +560,7 @@ public class DEMToolbar extends ToolBar {
 					target += "user/" + SimpleSISClient.currentUser.getUsername() + "/";
 				}
 
-				w.close();
+				w.hide();
 				
 				com.google.gwt.user.client.Window.open(target + AssessmentCache.impl.getCurrentAssessment().getId()
 						+ "?empty=" + showEmpty.getValue() + "&limited=" + useLimited.getValue(),
@@ -567,7 +569,7 @@ public class DEMToolbar extends ToolBar {
 		}));
 		form.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				w.close();
+				w.hide();
 			}
 		}));
 		

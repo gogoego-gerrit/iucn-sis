@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.iucn.sis.shared.api.data.LookupData;
 import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 
@@ -19,15 +18,16 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+@SuppressWarnings("deprecation")
 public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> implements DominantStructure<PrimitiveField<List<Integer>>> {
 
 	public static final String LISTBOX = "listbox";
@@ -47,11 +47,11 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 	}
 	
 	@Override
-	public void addListenerToActiveStructure(final ChangeListener changeListener, ClickHandler clickListener,
-			KeyboardListener keyboardListener) {
+	public void addListenerToActiveStructure(final ChangeHandler changeListener, ClickHandler clickListener,
+			KeyUpHandler keyboardListener) {
 		list.addListener(Events.CheckChange, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
-				changeListener.onChange(list);
+				changeListener.onChange(null);
 			}
 		});
 

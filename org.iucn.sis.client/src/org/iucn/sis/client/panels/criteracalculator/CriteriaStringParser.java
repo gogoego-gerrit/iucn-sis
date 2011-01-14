@@ -14,11 +14,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class CriteriaStringParser extends VerticalPanel {
 
-	private static final int NONE = 0;
-	private static final int CRITICALLYENDANGERED = 1;
-
-	private PanelManager manager;
-
 	private HTML result;
 	private Button createStringButton;
 	private Grid gridA;
@@ -31,11 +26,10 @@ public class CriteriaStringParser extends VerticalPanel {
 	 * Maps string of single criteria to grid row, column Criteria String ->
 	 * row,column
 	 */
-	private HashMap classificationToGrid;
+	private HashMap<String, String> classificationToGrid;
 
 	public CriteriaStringParser(PanelManager manager) {
-		this.manager = manager;
-		classificationToGrid = new HashMap();
+		classificationToGrid = new HashMap<String, String>();
 		result = new HTML("Criteria String: ");
 		build();
 	}
@@ -183,7 +177,7 @@ public class CriteriaStringParser extends VerticalPanel {
 		for (int i = 0; i < gridA.getRowCount(); i++) {
 			String tempA = "";
 			for (int j = 0; j < gridA.getColumnCount(); j++) {
-				if (((CheckBox) gridA.getWidget(i, j)).isChecked()) {
+				if (((CheckBox) gridA.getWidget(i, j)).getValue()) {
 					String temp = ((CheckBox) gridA.getWidget(i, j)).getText().trim();
 					if (tempA.equals("")) {
 						tempA = temp.substring(1, 2);
@@ -209,7 +203,7 @@ public class CriteriaStringParser extends VerticalPanel {
 			String innerIndex = "";
 			String letter = "";
 			for (int j = 0; j < gridB.getColumnCount(); j++) {
-				if ((((CheckBox) gridB.getWidget(i, j)) != null) && (((CheckBox) gridB.getWidget(i, j)).isChecked())) {
+				if ((((CheckBox) gridB.getWidget(i, j)) != null) && (((CheckBox) gridB.getWidget(i, j)).getValue())) {
 					String temp = ((CheckBox) gridB.getWidget(i, j)).getText().trim();
 					// DO INDEX 1
 					if (i < 3 && temp1.equals("")) {
@@ -260,8 +254,8 @@ public class CriteriaStringParser extends VerticalPanel {
 	private String getCchecked() {
 		StringBuffer getChecked = new StringBuffer();
 
-		boolean ai = ((CheckBox) gridC.getWidget(1, 0)).isChecked();
-		boolean aii = ((CheckBox) gridC.getWidget(1, 1)).isChecked();
+		boolean ai = ((CheckBox) gridC.getWidget(1, 0)).getValue();
+		boolean aii = ((CheckBox) gridC.getWidget(1, 1)).getValue();
 
 		String tempa = "";
 		if (ai && aii) {
@@ -272,7 +266,7 @@ public class CriteriaStringParser extends VerticalPanel {
 			tempa = "2a(ii)";
 		}
 
-		boolean b = ((CheckBox) gridC.getWidget(2, 0)).isChecked();
+		boolean b = ((CheckBox) gridC.getWidget(2, 0)).getValue();
 		String tempb = "";
 		if (b) {
 			if (aii || ai) {
@@ -282,7 +276,7 @@ public class CriteriaStringParser extends VerticalPanel {
 			}
 		}
 
-		if (((CheckBox) gridC.getWidget(0, 0)).isChecked()) {
+		if (((CheckBox) gridC.getWidget(0, 0)).getValue()) {
 			getChecked.append("1");
 			if (aii | ai | b) {
 				getChecked.append("+");
@@ -294,14 +288,14 @@ public class CriteriaStringParser extends VerticalPanel {
 
 	private String getDchecked() {
 		String temp = "";
-		if (((CheckBox) gridD.getWidget(0, 0)).isChecked()) {
+		if (((CheckBox) gridD.getWidget(0, 0)).getValue()) {
 			temp = "D";
 		} else {
-			if ((((CheckBox) gridD.getWidget(1, 0)).isChecked()) && (((CheckBox) gridD.getWidget(2, 0)).isChecked())) {
+			if ((((CheckBox) gridD.getWidget(1, 0)).getValue()) && (((CheckBox) gridD.getWidget(2, 0)).getValue())) {
 				temp = "D1+2";
-			} else if (((CheckBox) gridD.getWidget(1, 0)).isChecked())
+			} else if (((CheckBox) gridD.getWidget(1, 0)).getValue())
 				temp = "D1";
-			else if (((CheckBox) gridD.getWidget(2, 0)).isChecked())
+			else if (((CheckBox) gridD.getWidget(2, 0)).getValue())
 				temp = "D2";
 		}
 		return temp;
@@ -309,7 +303,7 @@ public class CriteriaStringParser extends VerticalPanel {
 
 	private String getEchecked() {
 		String temp = "";
-		if (((CheckBox) gridE.getWidget(0, 0)).isChecked()) {
+		if (((CheckBox) gridE.getWidget(0, 0)).getValue()) {
 			temp = "E";
 		}
 		return temp;

@@ -22,7 +22,6 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 
 public abstract class BaseTablePanel extends LayoutContainer implements DrawsLazily {
 
-	private boolean isDrawn;
 	protected Grid<BaseModelData> grid;
 	
 	public BaseTablePanel() {
@@ -30,8 +29,6 @@ public abstract class BaseTablePanel extends LayoutContainer implements DrawsLaz
 		setLayout(new FillLayout());
 		setLayoutOnChange(true);
 		setScrollMode(Scroll.AUTO);
-		
-		isDrawn = false;
 	}
 	
 	public void draw(DoneDrawingCallback callback) {

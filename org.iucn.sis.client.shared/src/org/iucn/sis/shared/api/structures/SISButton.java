@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
 
 public class SISButton extends SISPrimitiveStructure<String> implements DominantStructure<PrimitiveField<String>> {
@@ -30,8 +30,8 @@ public class SISButton extends SISPrimitiveStructure<String> implements Dominant
 	}
 	
 	@Override
-	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
-			KeyboardListener keyboardListener) {
+	public void addListenerToActiveStructure(ChangeHandler changeListener, ClickHandler clickListener,
+			KeyUpHandler keyboardListener) {
 		button.addClickHandler(clickListener);
 		DOM.setEventListener(button.getElement(), button);
 	}
@@ -97,7 +97,4 @@ public class SISButton extends SISPrimitiveStructure<String> implements Dominant
 		this.button.setEnabled(isEnabled);
 	}
 
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
 }

@@ -1,21 +1,18 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
-import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class SISBoolean extends SISPrimitiveStructure<Boolean> implements DominantStructure<PrimitiveField<Boolean>> {
 
@@ -33,15 +30,15 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 	}
 
 	@Override
-	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
-			KeyboardListener keyboardListener) {
+	public void addListenerToActiveStructure(ChangeHandler changeListener, ClickHandler clickListener,
+			KeyUpHandler keyboardListener) {
 		checkbox.addClickHandler(clickListener);
 		DOM.setEventListener(checkbox.getElement(), checkbox);
 	}
 
 	@Override
 	public void clearData() {
-		checkbox.setChecked(false);
+		checkbox.setValue(false);
 	}
 
 	@Override
@@ -56,7 +53,7 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 	public Widget createViewOnlyLabel() {
 		clearDisplayPanel();
 		displayPanel.add(descriptionLabel);
-		displayPanel.add(new HTML((checkbox.isChecked() ? "Yes" : "No")));
+		displayPanel.add(new HTML((checkbox.getValue() ? "Yes" : "No")));
 		return displayPanel;
 	}
 
@@ -92,7 +89,7 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 	public boolean hasChanged(PrimitiveField<Boolean> field) {
 		boolean oldValue = field == null ? defaultValue : field.getValue();
 		
-		boolean newValue = checkbox.isChecked();
+		boolean newValue = checkbox.getValue();
 		
 		return oldValue != newValue;
 	}
@@ -101,9 +98,9 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 	public boolean isActive(Rule activityRule) {
 		if (activityRule != null && activityRule instanceof BooleanRule) {
 			if (((BooleanRule) activityRule).isTrue()) {
-				return checkbox.isChecked();
+				return checkbox.getValue();
 			} else {
-				return !checkbox.isChecked();
+				return !checkbox.getValue();
 			}
 		}
 		else

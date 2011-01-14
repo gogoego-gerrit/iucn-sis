@@ -36,7 +36,7 @@ public class ManagedImageData {
 
 	protected int id;
 	protected String encoding;
-	protected HashMap fields;
+	protected final HashMap<String, String> fields;
 	
 	public static final String IMG_JPEG = "image/jpeg";
 
@@ -49,7 +49,7 @@ public class ManagedImageData {
 	public static final String IMG_BMP = "image/bmp";
 
 	public ManagedImageData() {
-		fields = new HashMap();
+		fields = new HashMap<String, String>();
 	}
 
 	public String getEncoding() {
@@ -75,7 +75,7 @@ public class ManagedImageData {
 
 	public String toXML() {
 		String xml = "<image id=\"" + id + "\" encoding=\"" + encoding + "\"";
-		Iterator iter = fields.keySet().iterator();
+		Iterator<String> iter = fields.keySet().iterator();
 		while (iter.hasNext()) {
 			String field = (String) iter.next();
 			String value = (String) fields.get(field);

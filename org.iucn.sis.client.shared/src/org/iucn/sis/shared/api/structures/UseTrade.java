@@ -74,7 +74,7 @@ public class UseTrade extends Structure<Field> {
 		proxy.setJustification(justification.getText());
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public boolean hasChanged(Field field) {
 		Field fauxParent = new Field(), fauxChild = new Field(CanonicalNames.UseTradeDetails, null);
 		

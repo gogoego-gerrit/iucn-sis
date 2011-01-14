@@ -5,10 +5,10 @@ import java.util.ArrayList;
 public class ContentRule extends Rule {
 
 	public ContentRule(String rule) {
-		this(rule, new ArrayList());
+		this(rule, new ArrayList<Integer>());
 	}
 
-	public ContentRule(String rule, ArrayList affectedObjectIndices) {
+	public ContentRule(String rule, ArrayList<Integer> affectedObjectIndices) {
 		super(rule, affectedObjectIndices);
 	}
 

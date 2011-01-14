@@ -42,6 +42,7 @@ public class AssessmentClientSaveUtils {
 	 * @param assessmentToSave
 	 * @param callback
 	 */
+	@SuppressWarnings("unchecked")
 	public static void saveAssessment(final List<Display> fieldWidgets, final Assessment assessmentToSave, final GenericCallback<Object> callback)
 		throws InsufficientRightsException {
 

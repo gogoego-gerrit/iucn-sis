@@ -42,6 +42,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class PermissionResourceUI extends LayoutContainer {
 
 	private class ResourceModelData extends BaseModelData {
+		private static final long serialVersionUID = 1L;
 		public ResourceModelData(String name, String value) {
 			set("name", name);
 			set("value", value);
@@ -268,6 +269,7 @@ public class PermissionResourceUI extends LayoutContainer {
 		permSetUI.sinkToPermission();			
 	}
 	
+	@SuppressWarnings("unchecked")
 	public void showEditingWindow() {
 		final Window w = WindowUtils.getWindow(true, true, "Editing Resource");
 		w.setLayout(new FlowLayout());

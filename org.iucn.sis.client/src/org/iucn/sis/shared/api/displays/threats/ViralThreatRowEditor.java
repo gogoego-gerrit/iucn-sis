@@ -27,6 +27,7 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class ViralThreatRowEditor extends GroupedThreatRowEditor {
 	
 	public ViralThreatRowEditor(final Collection<ClassificationSchemeModelData> models, final TreeData treeData, final TreeDataRow groupBy, boolean isViewOnly) {
@@ -144,6 +145,7 @@ public class ViralThreatRowEditor extends GroupedThreatRowEditor {
 		return bar;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Structure generateDefaultStructure() {
 		ThreatsTreeData treeData = (ThreatsTreeData) this.treeData;
 		

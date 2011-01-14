@@ -63,6 +63,7 @@ import com.solertium.util.extjs.client.WindowUtils;
  * 
  * @author adam.schwartz
  */
+@SuppressWarnings("deprecation")
 public class BatchChangePanel extends LayoutContainer {
 	/**
 	 * Represents a field in a MyGWT Model
@@ -102,7 +103,7 @@ public class BatchChangePanel extends LayoutContainer {
 
 	//	private ListBox types;
 	private AssessmentFilterPanel filterPanel;
-	private CheckBox regional;
+	
 	private DataList fieldsToUse;
 	private ListStore<FieldListElement> fieldStore;
 	private DataListBinder<FieldListElement> binder;
@@ -138,7 +139,7 @@ public class BatchChangePanel extends LayoutContainer {
 		fieldsFilterBox.bind(fieldStore);
 
 		fieldFilter = new StoreFilter<FieldListElement>() {
-			public boolean select(Store store, FieldListElement parent, FieldListElement item, String property) {
+			public boolean select(Store<FieldListElement> store, FieldListElement parent, FieldListElement item, String property) {
 				if ((!filterShowEmptyFields.isChecked()) && !(item).hasData())
 					return false;
 
@@ -152,7 +153,7 @@ public class BatchChangePanel extends LayoutContainer {
 		};
 		fieldStore.addFilter(fieldFilter);
 
-		filterShowEmptyFields = new ViewerFilterCheckBox();
+		filterShowEmptyFields = new ViewerFilterCheckBox<FieldListElement>();
 		filterShowEmptyFields.bind(fieldStore);
 
 		filterPanel = new AssessmentFilterPanel(new AssessmentFilter(), false, false, true, false);
@@ -185,7 +186,6 @@ public class BatchChangePanel extends LayoutContainer {
 
 		overwrite = new CheckBox();
 		append = new CheckBox();
-		regional = new CheckBox();
 
 		disclaimer = new LayoutContainer();
 		disclaimer.add(new HTML("<b>Instructions:</b> The current assessment is used as the "
@@ -274,7 +274,7 @@ public class BatchChangePanel extends LayoutContainer {
 		fieldStore.applyFilters("");
 		workingSets.clear();
 		workingSets.addItem("", "");
-		for (Iterator iter = WorkingSetCache.impl.getWorkingSets().values().iterator(); iter.hasNext();) {
+		for (Iterator<WorkingSet> iter = WorkingSetCache.impl.getWorkingSets().values().iterator(); iter.hasNext();) {
 			WorkingSet curWS = (WorkingSet) iter.next();
 			workingSets.addItem(curWS.getWorkingSetName(), curWS.getId()+"");
 		}

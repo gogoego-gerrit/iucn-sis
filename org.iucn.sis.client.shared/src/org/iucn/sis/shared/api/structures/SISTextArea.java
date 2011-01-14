@@ -83,7 +83,7 @@ public class SISTextArea extends SISPrimitiveStructure<String> implements UsesCl
 		return textarea;
 	}
 
-	public void pasteFromClipboard(ArrayList items) {
+	public void pasteFromClipboard(ArrayList<Object> items) {
 		String text = textarea.getText();
 		for (int i = 0; i < items.size(); i++)
 			text += (String) items.get(i) + "<br/>";
@@ -102,7 +102,4 @@ public class SISTextArea extends SISPrimitiveStructure<String> implements UsesCl
 		this.textarea.setEnabled(isEnabled);
 	}
 
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
 }

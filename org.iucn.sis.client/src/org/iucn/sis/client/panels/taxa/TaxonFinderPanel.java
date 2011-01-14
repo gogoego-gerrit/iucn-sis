@@ -42,7 +42,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class TaxonFinderPanel extends ContentPanel {
 
 	class TaxonListElement extends BaseModel {
-
+		private static final long serialVersionUID = 1L;
 		public TaxonListElement(final String name, final String id) {
 			Image goTo = new Image("tango/actions/go-jump.png");
 			goTo.setTitle(name);
@@ -92,9 +92,8 @@ public class TaxonFinderPanel extends ContentPanel {
 			grid.setLoadMask(true);
 			grid.setBorders(true);
 			grid.setAutoExpandColumn("name");
-			grid.addListener(Events.CellClick, new Listener<GridEvent>() {
-
-				public void handleEvent(GridEvent be) {
+			grid.addListener(Events.CellClick, new Listener<GridEvent<TaxonListElement>>() {
+				public void handleEvent(GridEvent<TaxonListElement> be) {
 					
 					if (be.getColIndex() == 2) {
 						Integer id = be.getGrid().getStore().getAt(be.getRowIndex()).get("id");

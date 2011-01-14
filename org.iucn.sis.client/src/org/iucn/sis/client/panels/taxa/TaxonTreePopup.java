@@ -25,6 +25,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class TaxonTreePopup extends Window {
 
 	public static void fetchChildren(final Taxon node, final GenericCallback<List<TaxonListElement>> wayback) {

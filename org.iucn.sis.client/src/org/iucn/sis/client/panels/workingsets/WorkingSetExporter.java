@@ -35,10 +35,10 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class WorkingSetExporter extends RefreshLayoutContainer {
 
 	private PanelManager manager = null;
@@ -188,12 +188,10 @@ public class WorkingSetExporter extends RefreshLayoutContainer {
 				+ " has been exported.  If you have problems downloading the file, make sure you have popups "
 				+ "enabled for this website.");
 		((Button)dialog.getButtonBar().getItemByItemId(Dialog.OK)).setText("Download File");
-		((Button)dialog.getButtonBar().getItemByItemId(Dialog.OK)).addListener(Events.Select, new Listener() {
-
+		((Button)dialog.getButtonBar().getItemByItemId(Dialog.OK)).addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				Window.open(pathOfZipped, "_blank", "");
 			}
-
 		});
 		dialog.setHideOnButtonClick(true);
 		dialog.show();

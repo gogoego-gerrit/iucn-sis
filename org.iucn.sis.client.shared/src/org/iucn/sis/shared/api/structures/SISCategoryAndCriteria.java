@@ -33,6 +33,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+@SuppressWarnings({"deprecation", "unchecked"})
 public class SISCategoryAndCriteria extends Structure<Field> {
 
 	// Piece 0: Is manual

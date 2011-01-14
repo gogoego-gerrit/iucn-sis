@@ -240,8 +240,8 @@ public class CustomFieldViewPanel extends LayoutContainer implements HasRefresha
 				grid.setSelectionModel(sm);
 				grid.setBorders(false);
 				grid.setSize(700, 400);
-				grid.addListener(Events.RowDoubleClick, new Listener<GridEvent>() {
-					public void handleEvent(GridEvent be) {
+				grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<CustomFieldModelData>>() {
+					public void handleEvent(GridEvent<CustomFieldModelData> be) {
 						CustomFieldCreator window = new CustomFieldCreator() {
 							@Override
 							public void onChange() {

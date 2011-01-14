@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.displays;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +48,6 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 /**
@@ -62,6 +60,7 @@ import com.solertium.util.extjs.client.WindowUtils;
  * 
  * @author carl.scott
  */
+@SuppressWarnings("unchecked")
 public abstract class Display implements Referenceable {
 
 	public static final String VERTICAL = "vertical";

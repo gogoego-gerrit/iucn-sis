@@ -6,10 +6,10 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Widget;
 
 public class SISReference extends SISPrimitiveStructure<String> implements DominantStructure<PrimitiveField<String>> {
@@ -28,8 +28,8 @@ public class SISReference extends SISPrimitiveStructure<String> implements Domin
 	}
 	
 	@Override
-	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
-			KeyboardListener keyboardListener) {
+	public void addListenerToActiveStructure(ChangeHandler changeListener, ClickHandler clickListener,
+			KeyUpHandler keyboardListener) {
 	}
 
 	@Override
@@ -109,7 +109,4 @@ public class SISReference extends SISPrimitiveStructure<String> implements Domin
 	public void setEnabled(boolean isEnabled) {
 	}
 
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
 }

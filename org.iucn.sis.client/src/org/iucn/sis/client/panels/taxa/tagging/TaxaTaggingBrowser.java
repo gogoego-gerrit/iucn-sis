@@ -24,6 +24,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class TaxaTaggingBrowser extends RefreshLayoutContainer {
 
+	@SuppressWarnings("deprecation")
 	static class MyTaxonomyBrowser extends TaxonomyBrowserPanel {
 		// private ListStore<TaxonListElement> store = null;
 

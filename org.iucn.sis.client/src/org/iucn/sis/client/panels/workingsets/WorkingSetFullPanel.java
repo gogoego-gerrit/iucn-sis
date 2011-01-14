@@ -40,6 +40,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class WorkingSetFullPanel extends ContentPanel {
 
 	static final String EDIT = "edit";
@@ -55,6 +56,7 @@ public class WorkingSetFullPanel extends ContentPanel {
 	VerticalPanel basicInfo = null;
 	private Grid grid = null;
 	private boolean built;
+	//I feel like this is a NPE waiting to happen...
 	private AsyncTree treeInfo = null;
 	private TreeTable tree = null;
 	private List<TreeItem> treeItems = null;
@@ -228,6 +230,7 @@ public class WorkingSetFullPanel extends ContentPanel {
 		assessmentTable.insert(taxonToolbar, 0);
 	}
 
+	@SuppressWarnings("unused")
 	private void changeViewMode() {
 		tree.collapseAll();
 		List<TreeItem> items = tree.getRootItem().getItems();
@@ -484,8 +487,8 @@ public class WorkingSetFullPanel extends ContentPanel {
 		item.setIconStyle("icon-save");
 		item.setText("Save");
 		item.setTitle("Save");
-		item.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				saveWorkingSet(false);
 			}
 
@@ -496,11 +499,10 @@ public class WorkingSetFullPanel extends ContentPanel {
 		item.setIconStyle("icon-save-and-exit");
 		item.setText("Save and Exit");
 		item.setTitle("Save and Exit");
-		item.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				saveWorkingSet(true);
 			}
-
 		});
 		toolbar.add(item);
 
@@ -508,8 +510,8 @@ public class WorkingSetFullPanel extends ContentPanel {
 		item.setIconStyle("icon-cancel");
 		item.setText("Cancel");
 		item.setTitle("Cancel");
-		item.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				refresh();
 				WSStore.getStore().update();
 				// panelManager.workingSetHierarchy.update();

@@ -9,12 +9,12 @@ import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
-import com.google.gwt.user.client.ui.ChangeListener;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -34,9 +34,9 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 	}
 
 	@Override
-	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
-			KeyboardListener keyboardListener) {
-		textbox.addKeyboardListener(keyboardListener);
+	public void addListenerToActiveStructure(ChangeHandler changeListener, ClickHandler clickListener,
+			KeyUpHandler keyboardListener) {
+		textbox.addKeyUpHandler(keyboardListener);
 	}
 
 	@Override
@@ -160,7 +160,4 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 		textbox.setEnabled(isEnabled);
 	}
 
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
 }

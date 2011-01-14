@@ -10,7 +10,6 @@ import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 
 public class BodyContainer extends TabPanel {
-	private static final int tabWidth = 85;
 
 	public TabManager tabManager = null;
 

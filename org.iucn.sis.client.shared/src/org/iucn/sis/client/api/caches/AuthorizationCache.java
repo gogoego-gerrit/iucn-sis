@@ -2,7 +2,6 @@ package org.iucn.sis.client.api.caches;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -189,7 +188,7 @@ public class AuthorizationCache {
 						@Override
 						public void onSuccess(String result) {
 							NativeNodeList list = userDoc.getDocumentElement().getElementsByTagName(PermissionGroup.ROOT_TAG);
-							Set<PermissionGroup> perms = new HashSet<PermissionGroup>();
+							
 							SISClientBase.currentUser.getPermissionGroups().clear();
 							
 							for (int i = 0; i < list.getLength(); i++) {

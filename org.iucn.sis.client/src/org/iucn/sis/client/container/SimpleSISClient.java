@@ -14,8 +14,9 @@ import org.iucn.sis.shared.api.utils.FieldParser;
 import com.extjs.gxt.themes.client.Slate;
 import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.util.ThemeManager;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -47,6 +48,14 @@ public class SimpleSISClient extends SISClientBase {
 		}
 
 		clientContainer = new ClientUIContainer();
+		
+		
+		Window.addWindowClosingHandler(new Window.ClosingHandler() {
+			public void onWindowClosing(ClosingEvent event) {
+				if (clientContainer.isLoggedIn())
+					event.setMessage("This action will close SIS Toolkit - all unsaved changes will be lost.");
+			}
+		});
 
 		RootPanel.get().add(clientContainer);
 	}
@@ -109,7 +118,7 @@ public class SimpleSISClient extends SISClientBase {
 		/*ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setOnAddSelected(onAddCallback);
 		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setOnRemoveSelected(onRemoveCallback);*/
 
-		Window s = WindowUtils.getWindow(false, true, title);
+		com.extjs.gxt.ui.client.widget.Window s = WindowUtils.getWindow(false, true, title);
 		s.setLayout(new FillLayout());
 		s.setIconStyle("icon-book");
 		s.add(ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel);

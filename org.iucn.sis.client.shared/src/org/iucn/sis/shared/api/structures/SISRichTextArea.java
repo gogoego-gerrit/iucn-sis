@@ -124,8 +124,7 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 		return ++offset;
 	}
 
-	
-	public void pasteFromClipboard(ArrayList items) {
+	public void pasteFromClipboard(ArrayList<Object> items) {
 		String text = area.getHTML();
 		for (int i = 0; i < items.size(); i++)
 			text += (String) items.get(i) + "<br/>";
@@ -146,7 +145,4 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 		// textarea.setVisible(isEnabled);
 	}
 
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
 }

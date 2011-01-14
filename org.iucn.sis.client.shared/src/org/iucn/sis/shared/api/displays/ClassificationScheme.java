@@ -16,7 +16,6 @@ import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
-import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow.EditMode;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -35,7 +34,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
-import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.StyledHTML;
 
 /**
@@ -43,6 +41,7 @@ import com.solertium.util.gwt.ui.StyledHTML;
  * 
  * @author adam.schwartz
  */
+@SuppressWarnings("unchecked")
 public class ClassificationScheme extends Display {
 
 	protected final TreeData treeData;

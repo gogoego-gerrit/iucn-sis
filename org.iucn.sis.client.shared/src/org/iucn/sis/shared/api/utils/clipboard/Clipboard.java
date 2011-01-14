@@ -39,6 +39,7 @@ import com.solertium.util.gwt.ui.StyledHTML;
  * @author carl.scott
  * 
  */
+@SuppressWarnings("deprecation")
 public class Clipboard {
 
 	/**
@@ -121,7 +122,7 @@ public class Clipboard {
 		 * 
 		 */
 		public void removeFromClipboard() {
-			ArrayList list = (ArrayList) clipboard.get(source);
+			ArrayList<ClipboardItem> list = clipboard.get(source);
 			list.remove(this);
 			if (list.isEmpty())
 				clipboard.remove(source);
@@ -137,7 +138,7 @@ public class Clipboard {
 			LayoutContainer parent = (LayoutContainer) getParent();
 			parent.remove(this);
 
-			if (((ArrayList) clipboard.get(source)).isEmpty() && headerInstance != null)
+			if ((clipboard.get(source)).isEmpty() && headerInstance != null)
 				headerInstance.remove(headerInstance);
 
 			if (clipboard.isEmpty()) {
@@ -161,7 +162,7 @@ public class Clipboard {
 	 * 
 	 */
 	public static abstract class ClipboardPasteCallback {
-		public abstract void onPaste(ArrayList items);
+		public abstract void onPaste(ArrayList<Object> items);
 	}
 
 	private static final String PASTE_TEXT_KEY = "PASTE_TEXT";
@@ -183,7 +184,7 @@ public class Clipboard {
 		return instance;
 	}
 
-	private HashMap clipboard;
+	private HashMap<String, ArrayList<ClipboardItem>> clipboard;
 
 	private AccordionLayout expand;
 
@@ -192,7 +193,7 @@ public class Clipboard {
 	 * 
 	 */
 	private Clipboard() {
-		clipboard = new HashMap();
+		clipboard = new HashMap<String, ArrayList<ClipboardItem>>();
 	}
 
 	/**
@@ -206,12 +207,12 @@ public class Clipboard {
 	 *            the unique group or label.
 	 */
 	public void add(String text, String source) {
-		ArrayList list;
+		ArrayList<ClipboardItem> list;
 		if (!clipboard.containsKey(source)) {
-			list = new ArrayList();
+			list = new ArrayList<ClipboardItem>();
 			clipboard.put(source, list);
 		}
-		((ArrayList) clipboard.get(source)).add(new ClipboardItem(text, source));
+		clipboard.get(source).add(new ClipboardItem(text, source));
 	}
 
 	/**
@@ -219,7 +220,7 @@ public class Clipboard {
 	 * 
 	 * @return <String, ArrayList<ClipboardItem>> clipboard
 	 */
-	public HashMap getClipboard() {
+	public HashMap<String, ArrayList<ClipboardItem>> getClipboard() {
 		return clipboard;
 	}
 
@@ -236,6 +237,8 @@ public class Clipboard {
 	 * Determines what needs to be pasted from the clipboard and callsback the
 	 * list of items.
 	 * 
+	 * TODO: use TreePanel
+	 * 
 	 * @param callback
 	 *            the callback to notify that pasting is complete
 	 */
@@ -245,14 +248,14 @@ public class Clipboard {
 		final Tree tree = new Tree();
 		tree.setCheckable(true);
 
-		Iterator iterator = Clipboard.getInstance().getClipboard().keySet().iterator();
+		Iterator<String> iterator = Clipboard.getInstance().getClipboard().keySet().iterator();
 		while (iterator.hasNext()) {
-			String source = (String) iterator.next();
+			String source = iterator.next();
 
 			TreeItem curItem = new TreeItem(source);
 			tree.getRootItem().add(curItem);
 
-			ArrayList textList = (ArrayList) clipboard.get(source);
+			ArrayList<ClipboardItem> textList = clipboard.get(source);
 			for (int i = 0; i < textList.size(); i++) {
 				ClipboardItem cItem = (ClipboardItem) textList.get(i);
 
@@ -270,7 +273,7 @@ public class Clipboard {
 		container.setLayout(new BorderLayout());
 
 		final CheckBox checkbox = new CheckBox("Keep contents on clipboard after paste.");
-		checkbox.setChecked(true);
+		checkbox.setValue(true);
 
 		FlowLayout topLayout = new FlowLayout();
 		// topLayout.setSpacing(4);
@@ -301,7 +304,7 @@ public class Clipboard {
 						Object text = cur.getData(PASTE_TEXT_KEY);
 						if (text != null) {
 							list.add(text);
-							if (!checkbox.isChecked())
+							if (!checkbox.getValue())
 								((ClipboardItem) cur.getData(CLIPBOARD_ITEM_KEY)).removeFromClipboard();
 						}
 					}
@@ -340,10 +343,10 @@ public class Clipboard {
 		expand = new AccordionLayout();
 		itemPanel.setLayout(expand);
 
-		Iterator iterator = clipboard.keySet().iterator();
+		Iterator<String> iterator = clipboard.keySet().iterator();
 		while (iterator.hasNext()) {
 			String source = (String) iterator.next();
-			ArrayList textList = (ArrayList) clipboard.get(source);
+			ArrayList<ClipboardItem> textList = clipboard.get(source);
 
 			ContentPanel expandItem = new ContentPanel();
 			expandItem.setHeading(source);
@@ -386,9 +389,9 @@ public class Clipboard {
 	 */
 	public int size() {
 		int size = 0;
-		Iterator iterator = clipboard.values().iterator();
+		Iterator<ArrayList<ClipboardItem>> iterator = clipboard.values().iterator();
 		while (iterator.hasNext()) {
-			size += ((ArrayList) iterator.next()).size();
+			size += iterator.next().size();
 		}
 		return size;
 	}

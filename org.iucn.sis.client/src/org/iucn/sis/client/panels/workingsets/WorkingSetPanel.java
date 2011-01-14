@@ -15,13 +15,13 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.events.SimpleListener;
@@ -73,7 +73,7 @@ public class WorkingSetPanel extends RefreshPortlet {
 		final Window s = WindowUtils.getWindow(false, true, ws.getWorkingSetName());
 		final Grid table = new Grid(5, 2);
 		table.setCellSpacing(4);
-		String speciesString = ws.getSpeciesIDsAsString();
+		
 
 		// IF THERE ARE SPECIES TO GET
 		if (ws.getSpeciesIDs().size() > 0) {
@@ -145,16 +145,17 @@ public class WorkingSetPanel extends RefreshPortlet {
 
 					infoIcon = new Image("images/icon-information.png");
 					infoIcon.addStyleName("pointerCursor");
-					infoIcon.addClickListener(new ClickListener() {
-						public void onClick(Widget sender) {
+					infoIcon.addClickHandler(new ClickHandler() {
+						public void onClick(ClickEvent event) {
 							createPopup(data);
 						}
 					});
 
 					htmlName = new HTML(name);
 					htmlName.setTitle(name);
-					htmlName.addClickListener(new ClickListener() {
-						public void onClick(Widget sender) {
+					htmlName.addClickHandler(new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							HTML sender = (HTML)event.getSource();
 							WorkingSetCache.impl.setCurrentWorkingSet(nameToID.get(sender.getTitle()));
 						}
 					});
@@ -164,8 +165,9 @@ public class WorkingSetPanel extends RefreshPortlet {
 					goIcon = new Image("tango/actions/go-jump.png");
 					goIcon.setTitle(name);
 					goIcon.addStyleName("pointerCursor");
-					goIcon.addClickListener(new ClickListener() {
-						public void onClick(Widget sender) {
+					goIcon.addClickHandler(new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							Image sender = (Image)event.getSource();
 							WorkingSetCache.impl.setCurrentWorkingSet(nameToID.get(sender.getTitle()), true, new SimpleListener() {
 								public void handleEvent() {
 									ClientUIContainer.bodyContainer

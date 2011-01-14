@@ -8,7 +8,6 @@ import org.iucn.sis.shared.api.models.Field;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class SISLabel extends Structure<Field> {
 

@@ -4,6 +4,7 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 
+@SuppressWarnings("unchecked")
 public class ThreatClassificationSchemeModelData extends
 		ClassificationSchemeModelData {
 
@@ -15,7 +16,6 @@ public class ThreatClassificationSchemeModelData extends
 		super(structure, field);
 	}
 	
-	@Override
 	public void save(Field parent, Field field) {
 		structure.save(parent, field);
 		

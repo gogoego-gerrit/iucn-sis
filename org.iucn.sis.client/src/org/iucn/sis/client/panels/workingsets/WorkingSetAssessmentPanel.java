@@ -11,9 +11,8 @@ import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -21,13 +20,11 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class WorkingSetAssessmentPanel extends LayoutContainer {
 
-	private PanelManager manager = null;
 	private Integer lastID = null;
 	private ToolBar toolbar = null;
 	private HTML title = null;
@@ -36,15 +33,12 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 	private HTML status = null;
 	private HTML evaluators = null;
 	private boolean show = false;
-	private boolean first;
 
 	public WorkingSetAssessmentPanel(PanelManager manager) {
 		super();
-		this.manager = manager;
 		build();
 
 		hide();
-		first = true;
 	}
 
 	private void build() {
@@ -91,8 +85,8 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 		item.setIconStyle("icon-go-jump");
 		item.setText("View");
 		item.setToolTip("View in Assessment Browser");
-		item.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				Assessment assessment = AssessmentCache.impl.getDraftAssessment(lastID, false);
 				if ( assessment != null) {
 					if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, assessment ) ) {

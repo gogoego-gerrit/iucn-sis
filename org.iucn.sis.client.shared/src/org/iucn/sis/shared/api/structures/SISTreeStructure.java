@@ -8,7 +8,6 @@ import java.util.Map;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
@@ -29,8 +28,6 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.extjs.client.WindowUtils.SimpleMessageBoxListener;
 import com.solertium.util.gwt.ui.StyledHTML;
 
 public class SISTreeStructure extends Structure<Field> {
@@ -104,6 +101,7 @@ public class SISTreeStructure extends Structure<Field> {
 		return displayPanel;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void buildReadOnlyContainer(Field field) {
 		final List<ClassificationSchemeModelData> thinData = new ArrayList<ClassificationSchemeModelData>();
 		if (field != null && field.getFields() != null) {
@@ -175,7 +173,7 @@ public class SISTreeStructure extends Structure<Field> {
 		return viewer.hasChanged();
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public void save(Field parent, Field field) {
 		if (field == null) {
 			field = new Field(getId(), null);
@@ -213,7 +211,7 @@ public class SISTreeStructure extends Structure<Field> {
 		}
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public void setData(Field field) {
 		buildReadOnlyContainer(field);
 		
@@ -243,10 +241,12 @@ public class SISTreeStructure extends Structure<Field> {
 			viewer.setData(new ArrayList<ClassificationSchemeModelData>());
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected DisplayStructure generateDefaultDisplayStructure(TreeDataRow row) {
 		return DisplayDataProcessor.processDisplayStructure(((TreeData)data).getDefaultStructure());
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected ClassificationSchemeModelData createModelData(DisplayStructure structure, Field field) {
 		return new ClassificationSchemeModelData(structure, field);
 	}

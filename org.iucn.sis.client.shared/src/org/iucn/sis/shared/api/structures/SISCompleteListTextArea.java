@@ -34,11 +34,6 @@ public class SISCompleteListTextArea extends VerticalPanel {
 
 	protected String highlightStyle = null;
 
-	/**
-	 * either enabled or disabled
-	 */
-	private boolean style = ENABLED;
-
 	public SISCompleteListTextArea() {
 
 		textArea = new TextArea();
@@ -87,12 +82,10 @@ public class SISCompleteListTextArea extends VerticalPanel {
 
 	public void disable() {
 		textArea.setEnabled(false);
-		style = DISABLED;
 	}
 
 	public void enable() {
 		textArea.setEnabled(true);
-		style = ENABLED;
 	}
 
 	protected String generateTextFromUsers() {

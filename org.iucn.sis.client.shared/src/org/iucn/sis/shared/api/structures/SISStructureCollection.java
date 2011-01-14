@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+@SuppressWarnings("unchecked")
 public class SISStructureCollection extends Structure<Field> {
 
 	public static final int TREE = 0;
@@ -151,7 +152,6 @@ public class SISStructureCollection extends Structure<Field> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public void createWidget() {
 		structures = (ArrayList) data;
 		descriptionLabel = new HTML(description);
@@ -237,10 +237,5 @@ public class SISStructureCollection extends Structure<Field> {
 		for (DisplayStructure<?, ?> structure : structures)
 			structure.setEnabled(isEnabled);
 	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
-	}
-
 	
 }

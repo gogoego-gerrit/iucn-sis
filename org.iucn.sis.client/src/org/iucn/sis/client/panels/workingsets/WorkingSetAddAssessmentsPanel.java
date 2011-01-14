@@ -31,12 +31,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
-
-	private interface YesNoCallback {
-		void onYes();
-		void onNo();
-	}
 	
 	private PanelManager manager;
 	private HTML instructions;

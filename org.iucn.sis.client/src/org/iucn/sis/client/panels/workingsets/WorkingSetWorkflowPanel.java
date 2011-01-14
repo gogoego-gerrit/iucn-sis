@@ -325,13 +325,13 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 			addButton(new Button("Send to Selected Users", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
 					onSave();
-					close();
+					hide();
 				}
 			}));
 			//addButton(createOrButton());
 			addButton(new Button("Send to RL Unit", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					close();
+					hide();
 					final GetUsersEvent event = new GetUsersEvent(this);
 					event.addUser(0, "RLU", "Red List Unit", "redlistunit@iucnsis.org");
 					//TODO: who is RLU?!?!?! add 'em 
@@ -342,12 +342,13 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 			addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 				@Override
 				public void componentSelected(ButtonEvent ce) {
-					close();
+					hide();
 				}
 			}));
 			
 		}
 		
+		@SuppressWarnings("unused")
 		private Button createOrButton() {
 			Button button = new Button(" OR ") {
 				protected void afterRender() {
@@ -418,7 +419,7 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 			addButton(new Button("Continue", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
 					if (form.isValid()) {
-						close();
+						hide();
 						onSave(comment.getValue());
 					}
 					else
@@ -427,7 +428,7 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 			}));
 			addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					close();
+					hide();
 				}
 			}));
 		}

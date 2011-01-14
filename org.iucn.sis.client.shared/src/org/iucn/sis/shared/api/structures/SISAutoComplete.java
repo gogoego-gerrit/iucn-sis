@@ -48,6 +48,7 @@ public class SISAutoComplete extends SISPrimitiveStructure<String> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public void createWidget() {
 		descriptionLabel = new HTML(getDescription());
 		textbox = new AutoCompleteTextBox();
@@ -96,14 +97,6 @@ public class SISAutoComplete extends SISPrimitiveStructure<String> {
 		xmlRetString += "\t<text>" + textbox.getText() + "</text>\n";
 		xmlRetString += "</structure>\n";
 		return xmlRetString;
-	}
-
-	protected String toThinXML() {
-		return StructureSerializer.toXML(this);
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
 	}
 
 	@Override

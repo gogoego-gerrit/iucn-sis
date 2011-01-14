@@ -69,6 +69,7 @@ public class ProfileUtils {
 		return ret.toString();
 	}
 
+	@SuppressWarnings("unused")
 	private static String safeGetText(NativeElement root, String key) {
 		NativeElement cur = root.getElementByTagName(key);
 

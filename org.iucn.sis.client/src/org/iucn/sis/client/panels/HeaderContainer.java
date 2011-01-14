@@ -28,9 +28,11 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -43,11 +45,11 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.ui.ClickListener;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -152,8 +154,8 @@ public class HeaderContainer extends LayoutContainer {
 		HorizontalPanel namePanel = new HorizontalPanel();
 		HTML logout = new HTML("[ logout ]");
 		logout.addStyleName("SIS_HyperlinkLookAlike");
-		logout.addClickListener(new ClickListener() {
-			public void onClick(Widget sender) {
+		logout.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				WindowUtils.confirmAlert("Logout", "Are you sure you want to log out?", new Listener<MessageBoxEvent>() {
 					public void handleEvent(MessageBoxEvent be) {
 						if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
@@ -169,8 +171,8 @@ public class HeaderContainer extends LayoutContainer {
 		namePanel.setSpacing(2);
 
 		Image userIcon = new Image("images/icon-user-green.png");
-		userIcon.addClickListener(new ClickListener() {
-			public void onClick(Widget sender) {
+		userIcon.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				final NativeDocument profileDoc = SimpleSISClient.getHttpBasicNativeDocument();
 				profileDoc.get(UriBase.getInstance().getSISBase() +"/profile/" + SimpleSISClient.currentUser.getUsername(), new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {
@@ -225,7 +227,7 @@ public class HeaderContainer extends LayoutContainer {
 		item = new Button();
 		item.setIconStyle("icon-search");
 		item.setToolTip("Search for a Taxonomic Concept");
-		item.addListener(Events.Select, new Listener() {
+		item.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				Window s = WindowUtils.getWindow(true, false, "Taxonomy Search");
 				s.setSize(800, 600);
@@ -242,7 +244,7 @@ public class HeaderContainer extends LayoutContainer {
 		item = new Button();
 		item.setIconStyle("icon-prefs");
 		item.setToolTip("Administrative Tools");
-		item.addListener(Events.Select, new Listener() {
+		item.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				final TabPanel tf = new TabPanel();
 				tf.setTabScroll(true);
@@ -421,9 +423,8 @@ public class HeaderContainer extends LayoutContainer {
 		item = new Button();
 		item.setIconStyle("icon-trash");
 		item.setToolTip("Trash Bin");
-		item.addListener(Events.Select, new Listener() {
-
-			public void handleEvent(BaseEvent be) {
+		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				Window nS = WindowUtils.getWindow(true, true, "Trash Bin");
 				nS.setSize(800, 550);
 				TrashBinPanel tbp = new TrashBinPanel();
@@ -432,16 +433,14 @@ public class HeaderContainer extends LayoutContainer {
 				nS.show();
 				// trashBinPanel.refresh();
 			}
-
 		});
 		options.add(item);
 
 		item = new Button();
 		item.setIconStyle("icon-page-copy");
 		item.setToolTip("Batch Change");
-		item.addListener(Events.Select, new Listener() {
-
-			public void handleEvent(BaseEvent be) {
+		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.BATCH_CHANGE_FEATURE)) {
 					WindowUtils.errorAlert("This is a currently restricted to " + "administrative users only.");
 				} else if (AssessmentCache.impl.getCurrentAssessment() == null) {

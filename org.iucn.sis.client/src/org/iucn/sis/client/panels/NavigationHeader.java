@@ -34,8 +34,6 @@ import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class NavigationHeader extends LayoutContainer {
-	private static final int NAVIGATOR_SIZE = 225;
-	private static final int LIST_SIZE = 175;
 
 	private ToolBar bar = null;
 

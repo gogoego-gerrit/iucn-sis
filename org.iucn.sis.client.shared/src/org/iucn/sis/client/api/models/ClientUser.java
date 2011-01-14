@@ -8,6 +8,7 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.utils.RowData;
 
 public class ClientUser extends User {
+	private static final long serialVersionUID = 1L;
 	
 	public String auth;
 	public String password;

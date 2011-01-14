@@ -5,6 +5,8 @@ import org.iucn.sis.shared.api.models.AssessmentType;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 public class AssessmentOverviewModelData extends BaseModelData {
+	
+	private static final long serialVersionUID = 1L;
 
 	public AssessmentOverviewModelData() {
 

@@ -39,6 +39,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * for all rich text formatting, dynamically displayed only for the available
  * functionality.
  */
+@SuppressWarnings({"deprecation", "unused"})
 public class RichTextToolbar extends Composite {
 
 	/**

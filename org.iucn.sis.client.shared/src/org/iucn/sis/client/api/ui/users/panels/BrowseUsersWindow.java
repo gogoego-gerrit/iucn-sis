@@ -218,6 +218,7 @@ public class BrowseUsersWindow extends Window {
 	 * Draws the UI, only need be called once.
 	 * 
 	 */
+	@SuppressWarnings("unchecked")
 	protected void draw() {
 		if (!drawn) {
 			drawn = true;
@@ -361,13 +362,13 @@ public class BrowseUsersWindow extends Window {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				onSave();
-				close();
+				hide();
 			}
 		}));
 		addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				close();
+				hide();
 			}
 		}));
 	}
@@ -476,7 +477,7 @@ public class BrowseUsersWindow extends Window {
 		GenericCallback<List<SearchResults>> callback = new GenericCallback<List<SearchResults>>() {
 
 			public void onFailure(Throwable caught) {
-				BrowseUsersWindow.this.close();
+				BrowseUsersWindow.this.hide();
 				WindowUtils.errorAlert("Error",
 						"Could not load results, please try again later");
 

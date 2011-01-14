@@ -8,17 +8,18 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.PanelManager;
 
 import com.extjs.gxt.ui.client.widget.Html;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FileUpload;
-import com.google.gwt.user.client.ui.FormHandler;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.FormSubmitCompleteEvent;
-import com.google.gwt.user.client.ui.FormSubmitEvent;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -31,7 +32,6 @@ public class WorkingsetImportWidget extends HorizontalPanel {
 	protected Button completed;
 	protected DockPanel uploadPanel;
 	private PanelManager manager;
-	protected ClickListener extraAction;
 
 	public WorkingsetImportWidget(PanelManager manager) {
 		this.manager = manager;
@@ -54,14 +54,14 @@ public class WorkingsetImportWidget extends HorizontalPanel {
 		uploader.setName("HEy");
 		uploadPanel.add(uploader, DockPanel.CENTER);
 
-		uploadForm.addFormHandler(new FormHandler() {
-
-			public void onSubmit(FormSubmitEvent event) {
+		uploadForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+			public void onSubmit(SubmitEvent event) {
 				submitUpload.setEnabled(false);
 				submitUpload.setText("Uploading file...");
 			}
-
-			public void onSubmitComplete(final FormSubmitCompleteEvent event) {
+		});
+		uploadForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+			public void onSubmitComplete(final SubmitCompleteEvent event) {
 				WorkingSetCache.impl.update(new GenericCallback<String>() {
 
 					public void onFailure(Throwable caught) {
@@ -111,15 +111,13 @@ AssessmentCache.impl.clear();
 
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		{
-			submitUpload = new Button("Import Working Set");
-			submitUpload.addClickListener(new ClickListener() {
-				public void onClick(Widget sender) {
+			submitUpload = new Button("Import Working Set", new ClickHandler() {
+				public void onClick(ClickEvent event) {
 					submit();
 				}
 			});
-			cancelUpload = new Button("Cancel");
-			cancelUpload.addClickListener(new ClickListener() {
-				public void onClick(Widget sender) {
+			cancelUpload = new Button("Cancel", new ClickHandler() {
+				public void onClick(ClickEvent event) {
 					manager.workingSetBrowser.setManagerTab();
 				}
 			});

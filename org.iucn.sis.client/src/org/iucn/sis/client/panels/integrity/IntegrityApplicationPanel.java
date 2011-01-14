@@ -62,6 +62,7 @@ import com.solertium.util.querybuilder.struct.DBStructure;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
+@SuppressWarnings("deprecation")
 public class IntegrityApplicationPanel extends LayoutContainer implements DrawsLazily {
 
 	private static final Collection<SelectedField> defaultTables = loadDefaults();

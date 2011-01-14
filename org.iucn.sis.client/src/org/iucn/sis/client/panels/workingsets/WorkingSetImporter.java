@@ -7,7 +7,6 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.HTML;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 
 public class WorkingSetImporter extends RefreshLayoutContainer {
 

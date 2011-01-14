@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels.workingsets;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +19,6 @@ import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binder.DataListBinder;
 import com.extjs.gxt.ui.client.data.BaseModel;
-import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.ModelStringProvider;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -34,7 +32,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.store.StoreSorter;
-import com.extjs.gxt.ui.client.util.DefaultComparator;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.Info;
@@ -46,15 +43,17 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.extjs.client.GenericPagingLoader;
 import com.solertium.util.extjs.client.ViewerFilterTextBox;
 
+@SuppressWarnings("deprecation")
 public class WorkingSetTaxaList extends RefreshLayoutContainer {
 
 	public static class TaxaData extends BaseModel {
+		private static final long serialVersionUID = 1L;
+		
 		public final static String FAMILY = "family";
 		public final static String GENUS = "genus";
 		public final static String FULLNAME = "fullname";
@@ -109,7 +108,6 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 
 	private final String DATA_KEY = "dataKey";
 
-	private PanelManager manager = null;
 	private DataList taxaList = null;
 	private ToolBar toolbar = null;
 	private WorkingSet recentWorkingSet = null;
@@ -130,7 +128,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 	private PagingToolBar pagingBar = null;
 	private WorkingSetTaxonPagingLoader pagingLoader = null;
 
-	private CheckChangedListener checkListener = null;
+	private CheckChangedListener<TaxaData> checkListener = null;
 	private boolean checked = false;
 	private boolean jumpToInToolbar = false;
 
@@ -140,8 +138,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		this(manager, checked, null);
 	}
 
-	public WorkingSetTaxaList(PanelManager manager, boolean checked, CheckChangedListener checkListener) {
-		this.manager = manager;
+	public WorkingSetTaxaList(PanelManager manager, boolean checked, CheckChangedListener<TaxaData> checkListener) {
 		this.checkListener = checkListener;
 
 		taxaList = new DataList();
@@ -209,8 +206,8 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		store = new ListStore<TaxaData>(pagingLoader.getPagingLoader());
 		storeBinder = new DataListBinder<TaxaData>(taxaList, store);
 		storeBinder.setDisplayProperty("display");
-		storeBinder.setIconProvider(new ModelStringProvider() {
-			public String getStringValue(ModelData arg0, String arg1) {
+		storeBinder.setIconProvider(new ModelStringProvider<TaxaData>() {
+			public String getStringValue(TaxaData arg0, String arg1) {
 				return "icon-monkey-face";
 			}
 		});
@@ -220,11 +217,11 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 
 		storeBinder.init();
 
-		sorter = new StoreSorter(new DefaultComparator());
+		sorter = new StoreSorter<TaxaData>();
 		store.setStoreSorter(sorter);
 
 		filter = new StoreFilter<TaxaData>() {
-			public boolean select(Store store, TaxaData parent, TaxaData item, String property) {
+			public boolean select(Store<TaxaData> store, TaxaData parent, TaxaData item, String property) {
 				String txt = filterTextBox.getText();
 				if (txt != null && !txt.equals("")) {
 					String name = item.get("name");
@@ -424,7 +421,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 								new TaxaData(curEntry.getKey(), TaxaData.FAMILY, curEntry.getValue(), childIDS
 										.get(curEntry.getKey())));
 
-					ArrayUtils.quicksort((ArrayList) pagingLoader.getFullList(), new Comparator<TaxaData>() {
+					ArrayUtils.quicksort(pagingLoader.getFullList(), new Comparator<TaxaData>() {
 						public int compare(TaxaData o1, TaxaData o2) {
 							return ((String) o1.get("display")).compareTo((String) o2.get("display"));
 						}
@@ -488,7 +485,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 										.get(curEntry.getKey())));
 					}
 
-					ArrayUtils.quicksort((ArrayList) pagingLoader.getFullList(), new Comparator<TaxaData>() {
+					ArrayUtils.quicksort(pagingLoader.getFullList(), new Comparator<TaxaData>() {
 						public int compare(TaxaData o1, TaxaData o2) {
 							return ((String) o1.get("display")).compareTo((String) o2.get("display"));
 						}
@@ -549,7 +546,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 									new TaxaData(curEntry.getKey(), TaxaData.ORDER, curEntry.getValue(), childIDS
 											.get(curEntry.getKey())));
 
-						ArrayUtils.quicksort((ArrayList) pagingLoader.getFullList(), new Comparator<TaxaData>() {
+						ArrayUtils.quicksort(pagingLoader.getFullList(), new Comparator<TaxaData>() {
 							public int compare(TaxaData o1, TaxaData o2) {
 								return ((String) o1.get("display")).compareTo((String) o2.get("display"));
 							}
@@ -592,7 +589,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 
 				public void onSuccess(String arg0) {
 					clearList();
-					HashMap<String, String> childIDS = new HashMap<String, String>();
+					
 					for (Integer taxaID : recentWorkingSet.getSpeciesIDs()) {
 						Taxon node = TaxonomyCache.impl.getTaxon(taxaID);
 						String taxaName = node.getFullName();
@@ -766,7 +763,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		item.setVisible(false);
 		item.disable();
 
-		item.addListener(Events.Select, new Listener() {
+		item.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				if (storeBinder.getSelection() != null && storeBinder.getSelection().size() > 0) {
 					TaxaData data = storeBinder.getSelection().get(0);

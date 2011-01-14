@@ -34,7 +34,6 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class WorkingSetReportPanel extends RefreshLayoutContainer {
 
-	private PanelManager manager = null;
 	private FlexTable grid = null;
 	private HTML instructions = null;
 	private Button taxaReport = null;
@@ -43,7 +42,6 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 
 	public WorkingSetReportPanel(PanelManager manager) {
 		super();
-		this.manager = manager;
 		build();
 		addStyleName("gwt-background");
 		setScrollMode(Scroll.AUTO);
@@ -111,7 +109,7 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 
 	private void createGeneralReport() {
 		final com.extjs.gxt.ui.client.widget.Window window = WindowUtils.getWindow(true, false, "Report Generator");
-		window.addListener(Events.Close, new Listener() {
+		window.addListener(Events.Close, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				window.hide();
 			}
@@ -282,7 +280,7 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 					.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
 						public void componentSelected(ButtonEvent ce) {
-							dialog.close();
+							dialog.hide();
 							enableButtons();
 						}
 					});
@@ -300,7 +298,7 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 										WindowUtils.errorAlert(errorMessage);
 									} else {
 										createTaxaListYesCats(filterPanel.getFilter());
-										dialog.close();
+										dialog.hide();
 										enableButtons();
 									}
 								} else {
@@ -308,7 +306,7 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 								}
 							} else {
 								createTaxaListNoCats();
-								dialog.close();
+								dialog.hide();
 								enableButtons();
 							}
 						}

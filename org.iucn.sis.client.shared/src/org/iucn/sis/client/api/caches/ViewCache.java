@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -13,14 +12,9 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.views.SISPageHolder;
 import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.shared.api.displays.SaveAndShow;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -28,42 +22,6 @@ import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class ViewCache {
-
-	/**
-	 * Creates a savable, displayable object to allow a user to choose which
-	 * view they want to see from the available views. Used to create a new
-	 * assessment
-	 * 
-	 * @author carl.scott
-	 */
-	private class ViewChooser implements SaveAndShow {
-
-		private ListBox options;
-
-		public ViewChooser() {
-			options = new ListBox();
-			Iterator<String> iterator = getAvailableKeys().iterator();
-			while (iterator.hasNext()) {
-				String key = iterator.next();
-				options.addItem(getView(key).getDisplayableTitle(), getView(key).getId());
-			}
-			options.setSelectedIndex(0);
-		}
-
-		public HashMap<String, String> saveDataToHashMap() {
-			HashMap<String, String> saveData = new HashMap<String, String>();
-			saveData.put("view", options.getValue(options.getSelectedIndex()));
-			return saveData;
-		}
-
-		@SuppressWarnings("unchecked")
-		public Widget show(HashMap displaySetToUse) {
-			HorizontalPanel display = new HorizontalPanel();
-			display.add(new HTML("Choose a view"));
-			display.add(options);
-			return display;
-		}
-	}
 
 	public static final ViewCache impl = new ViewCache();
 
@@ -171,10 +129,6 @@ public class ViewCache {
 
 	public SISView getView(String viewID) {
 		return currentViewMap.get(viewID);
-	}
-
-	public ViewChooser getViewChooser() {
-		return new ViewChooser();
 	}
 
 	public boolean isEmpty() {

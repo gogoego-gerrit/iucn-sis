@@ -10,7 +10,7 @@ import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class TaxonomyUtils {
-	private static class ComparableTaxon implements Comparable {
+	private static class ComparableTaxon implements Comparable<ComparableTaxon> {
 		private String id;
 		private String fullName;
 
@@ -20,8 +20,8 @@ public class TaxonomyUtils {
 			this.fullName = fullName;
 		}
 
-		public int compareTo(Object arg0) {
-			return comparator.compare(fullName, arg0);
+		public int compareTo(ComparableTaxon arg0) {
+			return comparator.compare(fullName, arg0.fullName);
 		}
 
 		@Override
@@ -70,9 +70,9 @@ public class TaxonomyUtils {
 	 * @throws Exception
 	 *             if a taxa does not exist in the cache
 	 */
-	public static ArrayList sortTaxaIDsProperlyAsArrayList(Object[] taxaIDs) throws Exception {
+	public static ArrayList<String> sortTaxaIDsProperlyAsArrayList(Object[] taxaIDs) throws Exception {
 		ComparableTaxon[] comparables = new ComparableTaxon[taxaIDs.length];
-		ArrayList newIDs = new ArrayList();
+		ArrayList<String> newIDs = new ArrayList<String>();
 
 		for (int i = 0; i < taxaIDs.length; i++) {
 			Taxon curNode = TaxonomyCache.impl.getTaxon(taxaIDs[i].toString());

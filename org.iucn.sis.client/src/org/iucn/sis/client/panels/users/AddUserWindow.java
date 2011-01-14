@@ -150,7 +150,7 @@ public class AddUserWindow extends Window {
 						affiliation.getValue() == null ? "" : affiliation.getValue(),
 						initials.getValue() == null ? "" : initials.getValue()), new GenericCallback<String>() {
 					public void onSuccess(String result) {
-						close();
+						hide();
 						AddUserWindow.this.onSuccess(username.getValue().toLowerCase());
 
 					}
@@ -171,7 +171,7 @@ public class AddUserWindow extends Window {
 		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				close();
+				hide();
 			}
 		}));
 	}

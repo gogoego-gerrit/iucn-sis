@@ -156,7 +156,7 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		TaxonomyCache.impl.removeReferencesToCommonName(taxon, cn, references, listener);
 	}
 	
-	private static class CommonNameNoteAPI implements NoteAPI {
+	public static class CommonNameNoteAPI implements NoteAPI {
 		
 		private final CommonName commonName;
 		private final Taxon taxon;

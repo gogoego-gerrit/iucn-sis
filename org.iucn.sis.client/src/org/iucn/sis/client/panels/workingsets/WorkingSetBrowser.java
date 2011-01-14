@@ -14,7 +14,6 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.google.gwt.user.client.Window;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -107,7 +106,7 @@ public class WorkingSetBrowser extends TabPanel {
 			exportTab.add(exportPanel);
 
 			accessExportTab = new TabItem();
-			accessExportTab.addListener(Events.Show, new Listener() {
+			accessExportTab.addListener(Events.Show, new Listener<BaseEvent>() {
 				public void handleEvent(BaseEvent be) {
 					final String atarget = "/export/access/" + WorkingSetCache.impl.getCurrentWorkingSet().getId();
 					accessExportTab.setUrl(atarget);

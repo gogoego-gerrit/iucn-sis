@@ -1,18 +1,18 @@
 package org.iucn.sis.client.panels.utils;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FileUpload;
-import com.google.gwt.user.client.ui.FormHandler;
 import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.FormSubmitCompleteEvent;
-import com.google.gwt.user.client.ui.FormSubmitEvent;
 import com.google.gwt.user.client.ui.Hidden;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
+import com.google.gwt.user.client.ui.FormPanel.SubmitEvent;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class FileUploadWidget extends LayoutContainer {
@@ -24,7 +24,7 @@ public class FileUploadWidget extends LayoutContainer {
 	protected Button completed;
 	protected DockPanel uploadPanel;
 
-	protected ClickListener extraAction;
+	protected ClickHandler extraAction;
 
 	public FileUploadWidget(String postUrl) {
 
@@ -56,31 +56,29 @@ public class FileUploadWidget extends LayoutContainer {
 
 		uploadPanel.add(uploader, DockPanel.CENTER);
 
-		uploadForm.addFormHandler(new FormHandler() {
-
-			public void onSubmit(FormSubmitEvent event) {
-			//	submitUpload.setEnabled(false);
+		uploadForm.addSubmitHandler(new FormPanel.SubmitHandler() {
+			public void onSubmit(SubmitEvent event) {
 				submitUpload.setText("Uploading file...");
 			}
-
-			public void onSubmitComplete(FormSubmitCompleteEvent event) {
+		});
+		uploadForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+			public void onSubmitComplete(SubmitCompleteEvent event) {
 				onSuccess(event);
-
 			}
 		});
 
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		{
 			submitUpload = new Button("Upload File");
-			submitUpload.addClickListener(new ClickListener() {
-				public void onClick(Widget sender) {
+			submitUpload.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
 					submitUpload.setEnabled(false);
 					submit();
 				}
 			});
 			cancelUpload = new Button("Cancel");
-			cancelUpload.addClickListener(new ClickListener() {
-				public void onClick(Widget sender) {
+			cancelUpload.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
 					onClose();
 				}
 			});
@@ -105,7 +103,7 @@ public class FileUploadWidget extends LayoutContainer {
 		hide();
 	}
 
-	protected void onSuccess(FormSubmitCompleteEvent event) {
+	protected void onSuccess(SubmitCompleteEvent event) {
 
 		WindowUtils.infoAlert("Upload Successful", "Upload Complete.");
 

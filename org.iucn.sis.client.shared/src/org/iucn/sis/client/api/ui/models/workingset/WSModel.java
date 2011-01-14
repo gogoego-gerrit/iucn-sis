@@ -5,6 +5,8 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 
 public class WSModel extends BaseModelData {
+	
+	private static final long serialVersionUID = 1L;
 
 	protected final WorkingSet ws;
 

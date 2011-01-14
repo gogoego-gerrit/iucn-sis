@@ -23,6 +23,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("unchecked")
 public class ClassificationSchemeModelData implements ModelData, Referenceable {
 	
 	private static final long serialVersionUID = 1L;

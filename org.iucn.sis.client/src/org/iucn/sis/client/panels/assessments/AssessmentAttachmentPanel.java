@@ -19,21 +19,20 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.FileUpload;
-import com.google.gwt.user.client.ui.FormHandler;
 import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.FormSubmitCompleteEvent;
-import com.google.gwt.user.client.ui.FormSubmitEvent;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.FormPanel.SubmitCompleteEvent;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -128,9 +127,8 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 		isPublished.addItem("no", "false");
 		int index = att.isPublished ? 0 : 1;
 		isPublished.setSelectedIndex(index);
-		isPublished.addChangeListener(new ChangeListener() {
-
-			public void onChange(Widget sender) {
+		isPublished.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				att.isPublished = Boolean.parseBoolean(isPublished
 						.getValue(isPublished.getSelectedIndex()));
 				NativeDocument ndoc = SimpleSISClient
@@ -156,28 +154,24 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 			}
 		});
 
-		Button deleteButton = new Button("Delete", new ClickListener() {
-
-			public void onClick(Widget sender) {
-				if (Window
-						.confirm("Are you sure you want to delete this file?  This can not be undone.")) {
-					NativeDocument ndoc = SimpleSISClient
-							.getHttpBasicNativeDocument();
-					ndoc.delete(UriBase.getInstance().getAttachmentBase() +url + "/file/" + att.id,
-							new GenericCallback<String>() {
-
-								public void onFailure(Throwable caught) {
-									Window
-											.alert("Failed to delete file attachment");
-								}
-
-								public void onSuccess(String result) {
-									Info.display("", "File attachment deleted");
-									attachments.remove(att);
-									refreshTable();
-								}
-							});
-				}
+		Button deleteButton = new Button("Delete", new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				WindowUtils.confirmAlert("Confirm", "Are you sure you want to delete this file? this can not be undone.", new WindowUtils.SimpleMessageBoxListener() {
+					public void onYes() {
+						NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
+						ndoc.delete(UriBase.getInstance().getAttachmentBase() +url + "/file/" + att.id,
+								new GenericCallback<String>() {
+							public void onFailure(Throwable caught) {
+								Window.alert("Failed to delete file attachment");
+							}
+							public void onSuccess(String result) {
+								Info.display("", "File attachment deleted");
+								attachments.remove(att);
+								refreshTable();
+							}
+						});	
+					}
+				});
 			}
 		});
 
@@ -205,26 +199,21 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 		publish.setText("yes");
 		noPublish = new RadioButton("publish", "false");
 		noPublish.setText("no");
-		noPublish.setChecked(true);
+		noPublish.setValue(true);
 		HorizontalPanel radioPanel = new HorizontalPanel();
 		radioPanel.add(new HTML("Publish file? "));
 		radioPanel.setSpacing(5);
 		radioPanel.add(noPublish);
 		radioPanel.add(publish);
 
-		Button submitButton = new Button("Submit", new ClickListener() {
-
-			public void onClick(Widget sender) {
+		Button submitButton = new Button("Submit", new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				submitForm();
 			}
 		});
 
-		form.addFormHandler(new FormHandler() {
-			public void onSubmit(FormSubmitEvent event) {
-			}
-
-			public void onSubmitComplete(FormSubmitCompleteEvent event) {
-
+		form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+			public void onSubmitComplete(SubmitCompleteEvent event) {
 				if (event.getResults() != null) {
 
 					tempAssessmentAttach.id = event.getResults().replaceAll(
@@ -232,11 +221,10 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 					attachments.add(tempAssessmentAttach);
 					tempAssessmentAttach = null;
 					refreshTable();
-					Window.alert("Success uploading file");
+					WindowUtils.infoAlert("Success uploading file");
 				} else {
-					Window.alert("Error uploading file");
+					WindowUtils.errorAlert("Error uploading file");
 				}
-
 			}
 		});
 
@@ -314,7 +302,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 
 			tempAssessmentAttach = new AssessmentAttachment();
 			tempAssessmentAttach.filename = uploadField.getFilename();
-			tempAssessmentAttach.isPublished = publish.isChecked();
+			tempAssessmentAttach.isPublished = publish.getValue();
 			tempAssessmentAttach.assessmentID = assessmentID;
 			form.submit();
 		}

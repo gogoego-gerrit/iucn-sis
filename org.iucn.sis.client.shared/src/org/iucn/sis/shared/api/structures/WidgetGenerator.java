@@ -7,6 +7,7 @@ import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
+@SuppressWarnings("unchecked")
 public class WidgetGenerator implements CreatesWidget {
 
 	public static final String COMPLEX = "complex";

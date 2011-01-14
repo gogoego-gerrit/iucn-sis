@@ -31,7 +31,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.util.extjs.client.CardLayoutContainer;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -41,6 +40,7 @@ import com.solertium.util.extjs.client.WindowUtils;
  * @author liz.schwartz
  * 
  */
+@SuppressWarnings("deprecation")
 public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 
 	private final PanelManager manager;
@@ -104,7 +104,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 		taxaListHolder.setBorders(true);
 		taxaList = new WorkingSetTaxaList(manager, false);
 		taxaList.setFilterVisible(true);
-		taxaList.addListener(Events.Change, new Listener() {
+		taxaList.addListener(Events.Change, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				refreshInfoPanel(taxaList.getFilter());
 			}
@@ -113,9 +113,9 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 		checkedTaxaList = new WorkingSetTaxaList(manager, true);
 		checkedTaxaList.setFilterVisible(true);
 
-		CheckChangedListener checkListener = new CheckChangedListener() {
+		CheckChangedListener<TaxaData> checkListener = new CheckChangedListener<TaxaData>() {
 			@Override
-			public void checkChanged(CheckChangedEvent event) {
+			public void checkChanged(CheckChangedEvent<TaxaData> event) {
 				deletePanel.refreshTaxa(getChecked());
 			}
 

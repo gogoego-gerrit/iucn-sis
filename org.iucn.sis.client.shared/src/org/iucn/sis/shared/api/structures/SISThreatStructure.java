@@ -10,13 +10,14 @@ import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.KeyboardListener;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -72,18 +73,13 @@ public class SISThreatStructure extends Structure<Field> implements DominantStru
 		field.addPrimitiveField(new ForeignKeyPrimitiveField(SEVERITY_TIMING_KEY, field, 
 				Integer.valueOf(severity.getSelectedIndex()), null));
 		
-		
-		int myTiming = Integer.parseInt(timing.getValue(timing.getSelectedIndex()));
-		int myScope = Integer.parseInt(scope.getValue(scope.getSelectedIndex()));
-		int mySeverity = Integer.parseInt(severity.getValue(severity.getSelectedIndex()));
-		
 		field.addPrimitiveField(new StringPrimitiveField(SCORE_TIMING_KEY, field, 
 				impactScore.getText()));
 	}
 	
 	@Override
-	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
-			KeyboardListener keyboardListener) {
+	public void addListenerToActiveStructure(ChangeHandler changeListener, ClickHandler clickListener,
+			KeyUpHandler keyboardListener) {
 	}
 
 	@Override
@@ -139,9 +135,8 @@ public class SISThreatStructure extends Structure<Field> implements DominantStru
 
 	@Override
 	public void createWidget() {
-
-		ChangeListener impactChange = new ChangeListener() {
-			public void onChange(Widget sender) {
+		ChangeHandler impactChange = new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				updateImpactScore();
 			}
 		};
@@ -154,7 +149,7 @@ public class SISThreatStructure extends Structure<Field> implements DominantStru
 		timing.addItem("Unknown", "-10");
 		timing.addItem("Past, Likely to Return", "20");
 		timing.setSelectedIndex(0);
-		timing.addChangeListener(impactChange);
+		timing.addChangeHandler(impactChange);
 		
 		
 		DOM.setEventListener(timing.getElement(), timing);
@@ -166,7 +161,7 @@ public class SISThreatStructure extends Structure<Field> implements DominantStru
 		scope.addItem("Minority (<50%)", "1");
 		scope.addItem("Unknown", "-10");
 		scope.setSelectedIndex(0);
-		scope.addChangeListener(impactChange);
+		scope.addChangeHandler(impactChange);
 		DOM.setEventListener(scope.getElement(), scope);
 
 		severity = new ListBox();
@@ -179,7 +174,7 @@ public class SISThreatStructure extends Structure<Field> implements DominantStru
 		severity.addItem("No decline", "0");
 		severity.addItem("Unknown", "-10");
 		severity.setSelectedIndex(0);
-		severity.addChangeListener(impactChange);
+		severity.addChangeHandler(impactChange);
 		DOM.setEventListener(severity.getElement(), severity);
 
 		impactScore = new Label();
@@ -209,8 +204,8 @@ public class SISThreatStructure extends Structure<Field> implements DominantStru
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add("Timing");
 		ret.add("Scope");
 		ret.add("Severity");
@@ -292,7 +287,7 @@ public class SISThreatStructure extends Structure<Field> implements DominantStru
 		return (activeToggle = !activeToggle);
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public void setData(Field field) {
 		Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
 		//super.setData(field);
@@ -311,10 +306,6 @@ public class SISThreatStructure extends Structure<Field> implements DominantStru
 		timing.setEnabled(isEnabled);
 		scope.setEnabled(isEnabled);
 		severity.setEnabled(isEnabled);
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
 	}
 
 	private void updateImpactScore() {

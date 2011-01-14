@@ -11,24 +11,18 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.DataListEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -45,6 +39,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.extjs.client.WindowUtils.MessageBoxListener;
 import com.solertium.util.extjs.client.WindowUtils.SimpleMessageBoxListener;
 
+@SuppressWarnings("deprecation")
 public class TrashBinPanel extends LayoutContainer {
 
 	private LayoutContainer centerPanel;
@@ -152,7 +147,7 @@ public class TrashBinPanel extends LayoutContainer {
 			public void handleEvent(BaseEvent be) {
 				
 				final TrashedObject trashed = ((TrashedObject) trashTable.getSelectionModel().getSelectedItem());
-				String id = trashed.getID();
+				//String id = trashed.getID();
 				String type = trashed.getType();
 				// **************************
 				// check is assessments exist to restore with taxa
@@ -283,7 +278,7 @@ public class TrashBinPanel extends LayoutContainer {
 		taxon.setItemId("taxon:");
 		folders.add(taxon);
 
-		folders.addListener(Events.SelectionChange, new Listener() {
+		folders.addListener(Events.SelectionChange, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				refreshStore();
 			}

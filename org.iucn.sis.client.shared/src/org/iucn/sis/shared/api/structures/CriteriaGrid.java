@@ -21,10 +21,10 @@ public abstract class CriteriaGrid extends CanParseCriteriaString {
 
 	protected VerticalPanel gridPanel;
 
-	protected HashMap classificationToGrid;
+	protected HashMap<String, String> classificationToGrid;
 
 	public CriteriaGrid() {
-		classificationToGrid = new HashMap();
+		classificationToGrid = new HashMap<String, String>();
 		buildGrid();
 
 		gridPanel = new VerticalPanel();
@@ -75,15 +75,15 @@ public abstract class CriteriaGrid extends CanParseCriteriaString {
 			int col = Integer.valueOf(keys[1]).intValue();
 
 			if (grid.equalsIgnoreCase("A")) {
-				((CheckBox) gridA.getWidget(row, col)).setChecked(true);
+				((CheckBox) gridA.getWidget(row, col)).setValue(true);
 			} else if (grid.equalsIgnoreCase("B")) {
-				((CheckBox) gridB.getWidget(row, col)).setChecked(true);
+				((CheckBox) gridB.getWidget(row, col)).setValue(true);
 			} else if (grid.equalsIgnoreCase("C")) {
-				((CheckBox) gridC.getWidget(row, col)).setChecked(true);
+				((CheckBox) gridC.getWidget(row, col)).setValue(true);
 			} else if (grid.equalsIgnoreCase("D")) {
-				((CheckBox) gridD.getWidget(row, col)).setChecked(true);
+				((CheckBox) gridD.getWidget(row, col)).setValue(true);
 			} else if (grid.equalsIgnoreCase("E")) {
-				((CheckBox) gridE.getWidget(row, col)).setChecked(true);
+				((CheckBox) gridE.getWidget(row, col)).setValue(true);
 			}
 
 		} catch (Exception e) {
@@ -98,35 +98,35 @@ public abstract class CriteriaGrid extends CanParseCriteriaString {
 		for (int i = 0; i < gridA.getColumnCount(); i++) {
 			for (int j = 0; j < gridA.getRowCount(); j++) {
 				if (gridA.getWidget(j, i) != null)
-					((CheckBox) gridA.getWidget(j, i)).setChecked(false);
+					((CheckBox) gridA.getWidget(j, i)).setValue(false);
 			}
 		}
 
 		for (int i = 0; i < gridB.getColumnCount(); i++) {
 			for (int j = 0; j < gridB.getRowCount(); j++) {
 				if (gridB.getWidget(j, i) != null)
-					((CheckBox) gridB.getWidget(j, i)).setChecked(false);
+					((CheckBox) gridB.getWidget(j, i)).setValue(false);
 			}
 		}
 
 		for (int i = 0; i < gridC.getColumnCount(); i++) {
 			for (int j = 0; j < gridC.getRowCount(); j++) {
 				if (gridC.getWidget(j, i) != null)
-					((CheckBox) gridC.getWidget(j, i)).setChecked(false);
+					((CheckBox) gridC.getWidget(j, i)).setValue(false);
 			}
 		}
 
 		for (int i = 0; i < gridD.getColumnCount(); i++) {
 			for (int j = 0; j < gridD.getRowCount(); j++) {
 				if (gridD.getWidget(j, i) != null)
-					((CheckBox) gridD.getWidget(j, i)).setChecked(false);
+					((CheckBox) gridD.getWidget(j, i)).setValue(false);
 			}
 		}
 
 		for (int i = 0; i < gridE.getColumnCount(); i++) {
 			for (int j = 0; j < gridE.getRowCount(); j++) {
 				if (gridE.getWidget(j, i) != null)
-					((CheckBox) gridE.getWidget(j, i)).setChecked(false);
+					((CheckBox) gridE.getWidget(j, i)).setValue(false);
 			}
 		}
 	}

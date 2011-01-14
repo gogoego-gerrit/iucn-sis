@@ -1,10 +1,7 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
@@ -77,8 +74,8 @@ public class SISClassificationSchemeStructure extends Structure<Field> {
 	 * if it contains multiples structures, all of those, in order.
 	 */
 	@Override
-	public ArrayList extractDescriptions() {
-		ArrayList ret = new ArrayList();
+	public ArrayList<String> extractDescriptions() {
+		ArrayList<String> ret = new ArrayList<String>();
 		ret.add("No. of " + scheme.getDescription());
 		return ret;
 	}

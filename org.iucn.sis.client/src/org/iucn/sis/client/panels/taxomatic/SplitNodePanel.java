@@ -39,6 +39,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class SplitNodePanel extends TaxomaticWindow {
 
 	private DataList children;

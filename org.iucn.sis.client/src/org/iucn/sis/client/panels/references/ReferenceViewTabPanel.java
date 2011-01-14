@@ -123,8 +123,6 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 		this.addCallback = addCallback == null ? defaultCallback : addCallback;
 		this.removeCallback = removeCallback == null ? defaultCallback : removeCallback;
 		
-		boolean hasReferenceable = curReferenceable == null;
-		
 		if (curReferenceable == null) {
 			getItem(0).setEnabled(false);
 			setSelection(getItem(1));

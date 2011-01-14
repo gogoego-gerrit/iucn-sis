@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels.permissions;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;

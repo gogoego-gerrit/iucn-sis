@@ -24,9 +24,10 @@ import com.extjs.gxt.ui.client.widget.treetable.TreeTableColumnModel;
 import com.google.gwt.user.client.ui.Image;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class AsyncTree {
 	static class AssessmentViewer extends BaseModelData {
-
+		private static final long serialVersionUID = 1L;
 		public AssessmentViewer() {
 
 		}
@@ -78,7 +79,7 @@ public class AsyncTree {
 	}
 
 	class Folder extends BaseModelData {
-
+		private static final long serialVersionUID = 1L;
 		public Folder() {
 		}
 
@@ -113,6 +114,7 @@ public class AsyncTree {
 	}
 
 	class Message extends BaseModelData {
+		private static final long serialVersionUID = 1L;
 		public Message(String name) {
 			set("name", name);
 		}
@@ -131,12 +133,12 @@ public class AsyncTree {
 
 	private final PanelManager manager;
 
-	private HashMap taxonNameToTaxonID = null;
+	private HashMap<String, Integer> taxonNameToTaxonID = null;
 
 	public AsyncTree(final PanelManager manager) {
 		this.manager = manager;
 		// root = new Folder("root", null);
-		taxonNameToTaxonID = new HashMap();
+		taxonNameToTaxonID = new HashMap<String, Integer>();
 
 		ArrayList<TreeTableColumn> columns = new ArrayList<TreeTableColumn>();
 		columns.add(new TreeTableColumn("Taxon Name", 0.35f));
@@ -208,7 +210,7 @@ public class AsyncTree {
 			// }
 
 			@Override
-			protected void onDataChanged(StoreEvent se) {
+			protected void onDataChanged(StoreEvent<ModelData> se) {
 				// super.onDataChanged(se);
 			}
 
@@ -217,7 +219,7 @@ public class AsyncTree {
 
 		};
 
-		tree.addListener(Events.CellDoubleClick, new Listener() {
+		tree.addListener(Events.CellDoubleClick, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				tree.getSelectionModel().select((TreeItem) be.getSource(), false);
 				((TreeItem) be.getSource()).fireEvent(Events.Expand);
@@ -252,7 +254,7 @@ public class AsyncTree {
 		return binder;
 	}
 
-	public HashMap getTaxonNameToTaxonID() {
+	public HashMap<String, Integer> getTaxonNameToTaxonID() {
 		return taxonNameToTaxonID;
 	}
 

@@ -118,7 +118,7 @@ public class ThreatTaggedSpeciesLocator extends TabPanel {
 			// Don't do it for this one...
 		}
 		
-		@Override
+		@SuppressWarnings("deprecation")
 		public Collection<Taxon> getSelection() {
 			final List<Taxon> list = new ArrayList<Taxon>();
 			for (TaxonListElement el : getBinder().getCheckedSelection())

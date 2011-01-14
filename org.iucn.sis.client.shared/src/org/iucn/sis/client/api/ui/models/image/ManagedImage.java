@@ -1,7 +1,5 @@
 package org.iucn.sis.client.api.ui.models.image;
 
-import java.util.HashMap;
-
 import com.google.gwt.user.client.ui.Image;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNamedNodeMap;
@@ -11,9 +9,9 @@ public class ManagedImage extends ManagedImageData{
 	private Image image;
 	
 	public ManagedImage(Image image, String encoding) {
+		super();
 		this.image = image;
 		this.encoding = encoding;
-		fields = new HashMap();
 	}
 
 	public ManagedImage() {

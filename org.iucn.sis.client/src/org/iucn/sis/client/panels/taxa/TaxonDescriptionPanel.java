@@ -103,6 +103,7 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.gwt.ui.StyledHTML;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
+@SuppressWarnings({"unused", "deprecation"})
 public class TaxonDescriptionPanel extends LayoutContainer {
 
 	private final PanelManager panelManager;

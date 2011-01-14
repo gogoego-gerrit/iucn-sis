@@ -24,6 +24,6 @@ public interface UsesClipboard {
 	 * @param items
 	 *            the items to paste.
 	 */
-	public void pasteFromClipboard(ArrayList items);
+	public void pasteFromClipboard(ArrayList<Object> items);
 
 }

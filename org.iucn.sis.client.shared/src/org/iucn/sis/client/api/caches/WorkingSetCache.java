@@ -38,6 +38,7 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
 public class WorkingSetCache {
 
 	public static class WorkingSetComparator extends PortableAlphanumericComparator {
+		private static final long serialVersionUID = 1L;
 		public WorkingSetComparator() {
 			super();
 		}
@@ -248,7 +249,6 @@ public class WorkingSetCache {
 
 	public void exportWorkingSet(final Integer workingSetID, final boolean lock, final GenericCallback<String> wayBack) {
 		if (workingSets.containsKey(workingSetID)) {
-			WorkingSet ws = workingSets.get(workingSetID);
 			String mode = "public";
 
 			if (workingSets.containsKey(workingSetID)) {
@@ -273,7 +273,7 @@ public class WorkingSetCache {
 									w.getButtonBar().add(new Button("Close", new SelectionListener<ButtonEvent>() {
 										public void componentSelected(ButtonEvent ce) {
 											wayBack.onSuccess(path);
-											w.close();
+											w.hide();
 										};
 									}));
 									w.add(new Html(body.substring(firstLineBreak)));

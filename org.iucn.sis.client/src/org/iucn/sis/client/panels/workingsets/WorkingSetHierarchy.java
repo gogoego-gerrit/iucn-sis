@@ -8,7 +8,6 @@ import java.util.Map;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.workingset.WSModel;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
@@ -42,6 +41,7 @@ import com.solertium.util.extjs.client.WindowUtils;
  * @author liz.schwartz
  * 
  */
+@SuppressWarnings("deprecation")
 public class WorkingSetHierarchy extends LayoutContainer {
 
 	private final DataList tree;

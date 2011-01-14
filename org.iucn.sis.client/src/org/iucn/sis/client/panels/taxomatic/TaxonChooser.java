@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.HTML;
  * @author carl.scott
  * 
  */
+@SuppressWarnings("deprecation")
 public abstract class TaxonChooser extends TaxomaticWindow {
 
 	public static final int HEADER_HEIGHT = 65;

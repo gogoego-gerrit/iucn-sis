@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.widget.table.TableColumnModel;
 import com.extjs.gxt.ui.client.widget.table.TableItem;
 import com.google.gwt.user.client.ui.CheckBox;
 
+@SuppressWarnings("deprecation")
 public class CheckableSearchPanel extends SearchPanel {
 	
 	public CheckableSearchPanel() {

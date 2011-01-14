@@ -31,8 +31,9 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FocusListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -40,7 +41,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -307,15 +307,10 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 			}
 
 		});
-		area.addFocusListener(new FocusListener() {
-
-			public void onFocus(Widget sender) {
-			}
-
-			public void onLostFocus(Widget sender) {
+		area.addBlurHandler(new BlurHandler() {
+			public void onBlur(BlurEvent event) {
 				citation = area.getText();
 			}
-
 		});
 		edit.setSize("65px", "17px");
 		bar.add(generate);

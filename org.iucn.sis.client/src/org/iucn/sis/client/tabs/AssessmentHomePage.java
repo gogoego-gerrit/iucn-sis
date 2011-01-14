@@ -8,14 +8,12 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 
 public class AssessmentHomePage extends TabItem {
-	private PanelManager panelManager = null;
 
 	/**
 	 * Defaults to having Style.NONE
 	 */
 	public AssessmentHomePage(PanelManager manager) {
 		super();
-		panelManager = manager;
 
 		build();
 	}

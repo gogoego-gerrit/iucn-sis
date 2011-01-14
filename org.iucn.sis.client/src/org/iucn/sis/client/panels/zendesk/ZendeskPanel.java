@@ -12,7 +12,10 @@ import com.solertium.lwxml.shared.NativeDocument;
 
 public class ZendeskPanel extends Window {
 	
+	@SuppressWarnings("unused")
 	private final TextBox subject;
+	
+	@SuppressWarnings("unused")
 	private final TextArea ticket;
 	
 	public ZendeskPanel() {

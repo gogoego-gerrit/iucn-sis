@@ -10,13 +10,13 @@
 package org.iucn.sis.shared.api.displays;
 
 import org.iucn.sis.shared.api.data.FieldData;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+@SuppressWarnings("unchecked")
 public class FieldDisplay extends Display {
 	
 	private HorizontalPanel displayPanel;

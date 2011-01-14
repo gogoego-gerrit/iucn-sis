@@ -26,7 +26,7 @@ public class ThreatsClassificationSchemeViewer extends
 		super(description, treeData);
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public ThreatClassificationSchemeModelData newInstance(Structure structure) {
 		return new ThreatClassificationSchemeModelData(structure);
 	}
@@ -73,7 +73,7 @@ public class ThreatsClassificationSchemeViewer extends
 			server.add(models);
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public Structure generateDefaultStructure(TreeDataRow row) {
 		ThreatsTreeData treeData = (ThreatsTreeData) this.treeData;
 		

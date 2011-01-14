@@ -8,17 +8,14 @@ import org.iucn.sis.shared.api.models.primitivefields.RangePrimitiveField;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.FocusListener;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.KeyboardListener;
-import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -38,9 +35,9 @@ public class SISRange extends SISPrimitiveStructure<String> implements DominantS
 	}
 
 	@Override
-	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
-			KeyboardListener keyboardListener) {
-		range.addKeyboardListener(keyboardListener);
+	public void addListenerToActiveStructure(ChangeHandler changeListener, ClickHandler clickListener,
+			KeyUpHandler keyboardListener) {
+		range.addKeyUpHandler(keyboardListener);
 		DOM.setEventListener(range.getElement(), range);
 	}
 
@@ -132,7 +129,6 @@ public class SISRange extends SISPrimitiveStructure<String> implements DominantS
 	@Override
 	public void createWidget() {
 		this.descriptionLabel = new HTML(this.description);
-		VerticalPanel retRangePanel = new VerticalPanel();
 
 		range = new TextBox();
 		range.addKeyPressHandler(new KeyPressHandler() {

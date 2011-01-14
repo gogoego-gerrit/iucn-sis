@@ -6,6 +6,8 @@ import org.iucn.sis.shared.api.models.Taxon;
 import com.extjs.gxt.ui.client.data.BaseModel;
 
 public class TaxonListElement extends BaseModel {
+	private static final long serialVersionUID = 1L;
+	
 	Taxon node;
 	String footprint;
 

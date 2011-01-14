@@ -15,7 +15,6 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.structures.CreatesWidget;
-import org.iucn.sis.shared.api.structures.WidgetGenerator;
 
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;

@@ -30,6 +30,7 @@ import com.solertium.util.extjs.client.WindowUtils;
  * 
  * @author adam.schwartz
  */
+@SuppressWarnings("unchecked")
 public class SISOneToMany extends Structure<Field> {
 
 	/**
@@ -188,7 +189,7 @@ public class SISOneToMany extends Structure<Field> {
 		addNew.setIconStyle("icon-add");
 		addNew.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				Structure<Object> newOne = DisplayDataProcessor.processDisplayStructure(defaultStructureData);
+				Structure newOne = DisplayDataProcessor.processDisplayStructure(defaultStructureData);
 				selected.add(new StructureHolder(newOne));
 
 				createLabel();
@@ -202,7 +203,7 @@ public class SISOneToMany extends Structure<Field> {
 	 */
 	@Override
 	public ArrayList<String> extractDescriptions() {
-		Structure<Object> structureData = 
+		Structure structureData = 
 			DisplayDataProcessor.processDisplayStructure(defaultStructureData);
 		
 		ArrayList<String> ret = new ArrayList<String>();
@@ -241,7 +242,7 @@ public class SISOneToMany extends Structure<Field> {
 
 		offset++;
 
-		Structure<Object> def = 
+		Structure def = 
 			DisplayDataProcessor.processDisplayStructure(defaultStructureData);
 
 		for (int i = 0; i < num; i++)

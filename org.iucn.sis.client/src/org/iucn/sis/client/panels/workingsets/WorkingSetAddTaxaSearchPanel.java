@@ -42,6 +42,7 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 /**
  * Panel that allows users to add taxon to their working set
  */
+@SuppressWarnings("deprecation")
 public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 
 	class MySearchPanel extends SearchPanel {
@@ -174,11 +175,8 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 
 									}
 
-									if (NUMBER_OF_RESULTS > 0) {
-										setButtonsEnabled(true);
-									} else {
-										setButtonsEnabled(false);
-									}
+									setButtonsEnabled(true);
+									
 									callback.isDrawn();
 								}
 							});
@@ -186,8 +184,6 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 
 							int numChecked = 0;
 							for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++) {
-								Assessment aData = AssessmentCache.impl.getPublishedAssessment(Integer.valueOf(x[i - start][3]),
-										false);
 								x[i - start][3] = "N/A";
 
 								Object[] y = new Object[6];

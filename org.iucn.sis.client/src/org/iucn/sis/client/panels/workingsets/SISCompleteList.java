@@ -26,9 +26,9 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.util.extjs.client.ViewerFilterTextBox;
 
+@SuppressWarnings("deprecation")
 public class SISCompleteList extends VerticalPanel {
 
 	class MasterListUI extends Dialog {
@@ -62,7 +62,7 @@ public class SISCompleteList extends VerticalPanel {
 			// viewer.setContentProvider( new ModelContentProvider());
 			// viewer.setLabelProvider(new ModelLabelProvider());
 			StoreFilter<ModelData> filter = new StoreFilter<ModelData>() {
-				public boolean select(Store store, ModelData parent, ModelData item, String property) {
+				public boolean select(Store<ModelData> store, ModelData parent, ModelData item, String property) {
 					String text = masterTextbox.getText();
 					if (text != null && !text.equals("")) {
 						return ((String) item.get("name")).toLowerCase().startsWith(text.toLowerCase());
@@ -132,14 +132,14 @@ public class SISCompleteList extends VerticalPanel {
 	protected Button addButton = null;
 	protected Button removeButton = null;
 	private Image image = null;
-	private ArrayList selected = null;
+	private ArrayList<HTML> selected = null;
 
 	private MasterListUI myMasterListUI = null;
 	/**
 	 * Text of everything that was typed
 	 */
-	private ArrayList masterList = null;
-	private ArrayList listText = null;
+	private ArrayList<String> masterList = null;
+	private ArrayList<String> listText = null;
 	private String highlightStyle = null;
 	// private boolean resizable;
 
@@ -156,9 +156,9 @@ public class SISCompleteList extends VerticalPanel {
 		addButton = new Button();
 		removeButton = new Button();
 		myMasterListUI = new MasterListUI();
-		selected = new ArrayList();
-		masterList = new ArrayList();
-		listText = new ArrayList();
+		selected = new ArrayList<HTML>();
+		masterList = new ArrayList<String>();
+		listText = new ArrayList<String>();
 		highlightStyle = "redFont";
 		// resizable = false;
 		
@@ -186,9 +186,9 @@ public class SISCompleteList extends VerticalPanel {
 		addButton = new Button();
 		removeButton = new Button();
 		myMasterListUI = new MasterListUI();
-		selected = new ArrayList();
-		masterList = new ArrayList();
-		listText = new ArrayList();
+		selected = new ArrayList<HTML>();
+		masterList = new ArrayList<String>();
+		listText = new ArrayList<String>();
 		highlightStyle = "white-background";
 		// resizable = true;
 		
@@ -226,7 +226,7 @@ public class SISCompleteList extends VerticalPanel {
 	 * 
 	 * @param csvItems
 	 */
-	public void addItemsInGlobalList(ArrayList items) {
+	public void addItemsInGlobalList(ArrayList<String> items) {
 		for (int i = 0; i < items.size(); i++) {
 			if (!masterList.contains(items.get(i)))
 				masterList.add(items.get(i));
@@ -365,7 +365,7 @@ public class SISCompleteList extends VerticalPanel {
 			return csv.toString();
 	}
 
-	public ArrayList getItemsInList() {
+	public ArrayList<String> getItemsInList() {
 		return listText;
 	}
 

@@ -231,6 +231,7 @@ public abstract class DisplayData implements Serializable {
 	
 	public static class LookupDataContainer extends HashMap<String, LookupData> {
 		
+		private static final long serialVersionUID = 1L;
 		private String fieldName;
 		
 		public LookupDataContainer() {

@@ -8,16 +8,12 @@ import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.RpcProxy;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.solertium.util.extjs.client.PagingLoaderFilter;
 
 public abstract class GenericLazyPagingLoader<T extends ModelData> {
 
 	protected RpcProxy<List<T>> proxy;
 	protected BasePagingLoader<PagingLoadResult<T>> pagingLoader;
 	protected int total;
-
-	private PagingLoaderFilter<T> filter;
-	private List<T> filtered;
 	
 	public GenericLazyPagingLoader() {
 

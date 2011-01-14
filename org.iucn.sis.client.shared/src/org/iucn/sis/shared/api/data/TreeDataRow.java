@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 public class TreeDataRow extends DisplayData {
-
+	private static final long serialVersionUID = 1L;
 	// Tree data
 	private ArrayList<TreeDataRow> children;
 

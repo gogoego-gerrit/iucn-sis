@@ -19,6 +19,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+@SuppressWarnings({"deprecation", "unchecked", "unused"})
 public class SISMap extends Structure<Field> {
 
 	public static final String MAP = "map";
@@ -343,10 +344,6 @@ public class SISMap extends Structure<Field> {
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		this.displayPanel.setVisible(isEnabled);
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
 	}
 
 }

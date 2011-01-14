@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels.workingsets;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -9,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.PanelManager;
@@ -32,10 +30,10 @@ import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.google.gwt.user.client.ui.HTML;
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+@SuppressWarnings("deprecation")
 public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 
 	public static final boolean MOVE = false;
@@ -55,7 +53,7 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 
 	private Collection<Taxon> addWithHigherIDs(List<TaxaData> checkedTaxa, WorkingSet workingSetToGetTaxaFrom) {
 		HashSet<Taxon> taxa = new HashSet<Taxon>();
-		Iterator iter = checkedTaxa.iterator();
+		Iterator<TaxaData> iter = checkedTaxa.iterator();
 		Map<Integer, Taxon> map = workingSetToGetTaxaFrom.getTaxaMap();
 		while (iter.hasNext()) {
 			TaxaData data = (TaxaData) iter.next();
@@ -71,7 +69,7 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 
 	private Collection<Taxon> addWithSpeciesIDS(List<TaxaData> checkedTaxa, WorkingSet workingSetToGetTaxaFrom) {
 		HashSet<Taxon> taxa = new HashSet<Taxon>();
-		Iterator iter = checkedTaxa.iterator();
+		Iterator<TaxaData> iter = checkedTaxa.iterator();
 		Map<Integer, Taxon> map = workingSetToGetTaxaFrom.getTaxaMap();
 		while (iter.hasNext()) {
 			TaxaData data = (TaxaData) iter.next();

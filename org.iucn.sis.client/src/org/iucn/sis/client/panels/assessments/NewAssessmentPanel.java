@@ -31,7 +31,6 @@ import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
@@ -343,8 +342,8 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 		// CHECK TEMPLATE
 		if (template.getSelectedIndex() != 0) {
 			final Integer assessmentID = Integer.valueOf(template.getValue(template.getSelectedIndex()));
-			final String assessmentType = template.getItemText(template.getSelectedIndex()).substring(0,
-				template.getItemText(template.getSelectedIndex()).indexOf('-')).trim().toLowerCase() + "_status";
+			/*final String assessmentType = template.getItemText(template.getSelectedIndex()).substring(0,
+				template.getItemText(template.getSelectedIndex()).indexOf('-')).trim().toLowerCase() + "_status";*/
 
 			final boolean endemicArg = isEndemic;
 			final List<Integer> localityArg = locality;

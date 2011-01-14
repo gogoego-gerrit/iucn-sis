@@ -7,7 +7,6 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.AssessmentType;
 
-import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -25,14 +24,14 @@ public class MarkedCache {
 	/*
 	 * goes from id -> style
 	 */
-	private HashMap markedWorkingSets = null;
-	private HashMap markedTaxa = null;
-	private HashMap markedAssessments = null;
+	private final HashMap<String, String> markedWorkingSets;
+	private final HashMap<String, String> markedTaxa;
+	private final HashMap<String, String> markedAssessments;
 
 	private MarkedCache() {
-		markedWorkingSets = new HashMap();
-		markedTaxa = new HashMap();
-		markedAssessments = new HashMap();
+		markedWorkingSets = new HashMap<String, String>();
+		markedTaxa = new HashMap<String, String>();
+		markedAssessments = new HashMap<String, String>();
 	}
 
 	public String getAssessmentStyle(String id) {
@@ -154,7 +153,7 @@ public class MarkedCache {
 	private String toXML() {
 
 		String workingsets = "";
-		Iterator iter = markedWorkingSets.keySet().iterator();
+		Iterator<String> iter = markedWorkingSets.keySet().iterator();
 		while (iter.hasNext()) {
 			String id = (String) iter.next();
 			workingsets += "<workingSet>" + id + "," + markedWorkingSets.get(id) + "</workingSet>\r\n";

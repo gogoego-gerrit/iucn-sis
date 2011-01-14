@@ -17,7 +17,7 @@ public class UserCache {
 	protected UserCache() {
 		idToUsers = new HashMap<Integer, ClientUser>();
 		users = new ArrayList<ClientUser>() {
-
+			private static final long serialVersionUID = 1L;
 			@Override
 			public boolean add(ClientUser e) {
 				remove(e);

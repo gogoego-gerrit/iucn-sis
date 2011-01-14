@@ -22,10 +22,10 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -70,9 +70,8 @@ public class DefinitionEditorPanel extends ContentPanel {
 
 		fields.put(defText, definitionText);
 		final Image image = new Image("images/icon-delete.png");
-		image.addClickListener(new ClickListener() {
-
-			public void onClick(Widget sender) {
+		image.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
 				WindowUtils.confirmAlert("Delete?", "Are you sure you want to delete this definition?", new Listener<MessageBoxEvent>() {
 					public void handleEvent(MessageBoxEvent be) {
 						if( be.getButtonClicked().getText().equalsIgnoreCase("yes") ) {

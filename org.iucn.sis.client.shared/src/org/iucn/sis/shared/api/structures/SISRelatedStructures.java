@@ -3,27 +3,26 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
-import com.extjs.gxt.ui.client.data.BaseModel;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyUpEvent;
+import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.ui.CellPanel;
-import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.KeyboardListener;
-import com.google.gwt.user.client.ui.KeyboardListenerAdapter;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
+@SuppressWarnings("unchecked")
 public class SISRelatedStructures extends Structure<Field> implements DominantStructure<Field> {
 
 	public static final int DEFAULT_LAYOUT = 0;
@@ -126,8 +125,8 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 	}
 	
 	@Override
-	public void addListenerToActiveStructure(ChangeListener changeListener, ClickHandler clickListener,
-			KeyboardListener keyboardListener) {
+	public void addListenerToActiveStructure(ChangeHandler changeListener, ClickHandler clickListener,
+			KeyUpHandler keyboardListener) {
 		dominantStructure.addListenerToActiveStructure(changeListener, clickListener, keyboardListener);
 	}
 
@@ -248,17 +247,16 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 
 	private void init(String description) {
 		descriptionLabel = new HTML(description);
-		addListenerToActiveStructure(new ChangeListener() {
-			public void onChange(Widget sender) {
+		addListenerToActiveStructure(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
 				updateDependantPanel();
 			}
 		}, new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				updateDependantPanel();
 			}
-		}, new KeyboardListenerAdapter() {
-			@Override
-			public void onKeyUp(Widget sender, char keyCode, int modifiers) {
+		}, new KeyUpHandler() {
+			public void onKeyUp(KeyUpEvent event) {
 				updateDependantPanel();
 			}
 		});
@@ -362,10 +360,6 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 		for (int i = 0; i < dependantStructures.size(); i++) {
 			((Structure) dependantStructures.get(i)).setEnabled(isEnabled);
 		}
-	}
-
-	public String toXML() {
-		return StructureSerializer.toXML(this);
 	}
 
 	private void updateDependantPanel() {

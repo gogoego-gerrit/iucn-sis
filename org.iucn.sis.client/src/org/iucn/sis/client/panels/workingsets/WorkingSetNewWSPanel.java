@@ -4,7 +4,6 @@ import java.util.Date;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -18,9 +17,8 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -181,8 +179,8 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		saveAndAddTaxa.setText("Save and Add Taxa");
 		saveAndAddTaxa.setIconStyle("icon-go-jump");
 		saveAndAddTaxa.setTitle("Save and Add Taxa");
-		saveAndAddTaxa.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		saveAndAddTaxa.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				save(SAVEANDCONTINUE);
 			}
 		});
@@ -191,8 +189,8 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		save.setText("Save");
 		save.setIconStyle("icon-save");
 		save.setTitle("Save and Continue Editing");
-		save.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		save.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				save(SAVE);
 			}
 		});
@@ -201,8 +199,8 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		saveAndExit.setIconStyle("icon-save-and-exit");
 		saveAndExit.setText("Save and Exit");
 		saveAndExit.setTitle("Save and Exit without adding taxa");
-		saveAndExit.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		saveAndExit.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				save(SAVEANDEXIT);
 			}
 		});
@@ -211,8 +209,8 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		cancel.setIconStyle("icon-cancel");
 		cancel.setText("Cancel");
 		cancel.setTitle("Cancel");
-		cancel.addListener(Events.Select, new Listener() {
-			public void handleEvent(BaseEvent be) {
+		cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				cancel();
 			}
 		});

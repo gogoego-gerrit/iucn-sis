@@ -67,6 +67,7 @@ public class FindResultCache {
 		currentFindResultData = null;
 	}
 
+	@SuppressWarnings("unused")
 	private String createXML(ArrayList<FindReplaceData> findResultDataObjects) {
 		String xml = "<xml>\r\n";
 		for (int i = 0; i < findResultDataObjects.size(); i++) {
@@ -205,7 +206,7 @@ public class FindResultCache {
 			return null;
 	}
 
-	public ArrayList getFindResults() {
+	public ArrayList<FindReplaceData> getFindResults() {
 		return findResults;
 	}
 
