@@ -1,79 +1,97 @@
 package org.iucn.sis.shared.api.displays.threats;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.VirusCache;
+import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.panels.viruses.VirusModelData;
 import org.iucn.sis.shared.api.models.Virus;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.CheckBoxListView;
+import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
-import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class VirusChooser extends LayoutContainer implements DrawsLazily {
+public class VirusChooser extends PagingPanel<VirusModelData> implements DrawsLazily {
 	
-	private final CheckBoxListView<VirusModelData> list;
+	private Grid<VirusModelData> grid;
 
 	public VirusChooser() {
-		super(new FillLayout());
-		list = new CheckBoxListView<VirusModelData>();
+		super();
+		setLayout(new FillLayout());
+	}
+	
+	public void draw(final DrawsLazily.DoneDrawingCallback callback) {
+		final CheckBoxSelectionModel<VirusModelData> sm = 
+			new CheckBoxSelectionModel<VirusModelData>();
+		
+		grid = 
+			new Grid<VirusModelData>(getStoreInstance(), getColumnModel(sm.getColumn()));
+		grid.addPlugin(sm);
+		grid.setSelectionModel(sm);
+		grid.setAutoExpandColumn("comments");
+		
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+		
+		add(container);
+		
+		refresh(callback);
 	}
 	
 	@Override
-	public void draw(final DoneDrawingCallback callback) {
+	protected void getStore(final GenericCallback<ListStore<VirusModelData>> callback) {
 		VirusCache.impl.list(new ComplexListener<List<Virus>>() {
 			public void handleEvent(List<Virus> eventData) {
-				if (eventData.isEmpty()) {
-					WindowUtils.infoAlert("No viruses found in the system to choose from.");
-				}
-				else {
-					Collections.sort(eventData, new VirusComparator());
-					
-					final ListStore<VirusModelData> store = new ListStore<VirusModelData>();
-					for (Virus virus : eventData)
-						store.add(new VirusModelData(virus));
-					
-					list.setStore(store);
-					
-					add(list);
-					
-					callback.isDrawn();
-				}
+				final ListStore<VirusModelData> store = 
+					new ListStore<VirusModelData>();
+				store.setStoreSorter(new StoreSorter<VirusModelData>(new PortableAlphanumericComparator()));
+				
+				for (Virus virus : eventData)
+					store.add(new VirusModelData(virus));
+				
+				store.sort("text", SortDir.ASC);
+				
+				callback.onSuccess(store);
 			}
 		});
 	}
 	
+	private ColumnModel getColumnModel(ColumnConfig checkColumn) {
+		final List<ColumnConfig> list = new ArrayList<ColumnConfig>();
+		list.add(checkColumn);
+		
+		list.add(new ColumnConfig("text", "Virus Name", 250));
+		list.add(new ColumnConfig("comments", "Comments", 350));
+		
+		return new ColumnModel(list);
+	}
+	
+	@Override
+	protected void refreshView() {
+		grid.getView().refresh(false);
+	}
+	
 	public List<Virus> getSelection() {
 		final List<Virus> checked = new ArrayList<Virus>();
-		for (VirusModelData model : list.getChecked())
+		for (VirusModelData model : grid.getSelectionModel().getSelectedItems())
 			checked.add(model.getVirus());
 		
 		return checked;
-	}
-	
-	private static class VirusComparator implements Comparator<Virus> {
-		
-		private static final long serialVersionUID = 1L;
-		
-		private final PortableAlphanumericComparator comparator;
-		
-		public VirusComparator() {
-			this.comparator = new PortableAlphanumericComparator();
-		}
-		
-		@Override
-		public int compare(Virus o1, Virus o2) {
-			return comparator.compare(o1.getName(), o2.getName());
-		}
-		
 	}
 	
 }
