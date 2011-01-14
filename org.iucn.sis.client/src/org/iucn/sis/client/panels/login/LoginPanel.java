@@ -69,6 +69,11 @@ public class LoginPanel extends LayoutContainer {
 			}
 		});
 	}
+	
+	@Override
+	protected void afterRender() {
+		userName.setFocus(true);
+	}
 
 	private void openNewAccountPanel() {
 		AddUserWindow win = new AddUserWindow(true, null);
