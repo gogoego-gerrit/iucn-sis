@@ -8,27 +8,29 @@ import org.iucn.sis.shared.api.models.User;
 
 public class BatchAssessmentChanger {
 	
-	public static boolean changeAssessment(Assessment assessment, Assessment newData, boolean overwrite, boolean append, User username, List<String> fieldNames) {
+	public static boolean changeAssessment(Assessment assessment, Assessment template, 
+			boolean overwrite, boolean append, User username, List<String> fieldNames) {
 		
 		boolean changed = false;
 		for (String fieldName : fieldNames) {
-			Field newFieldData = newData.getField(fieldName);
+			Field templateField = template.getField(fieldName);
+			
 			Field currentFieldData = assessment.getField(fieldName);
 			if  (currentFieldData == null) {
+				currentFieldData = new Field(templateField.getName(), assessment);
 				assessment.getField().add(currentFieldData);
 			}
-			changed |= newFieldData.copyInto(currentFieldData, append, overwrite);
+			changed |= templateField.copyInto(currentFieldData, append, overwrite);
 		}
 		
-		
-		for (Field field : newData.getField()) {
+		/*for (Field field : newData.getField()) {
 			Field oldField = assessment.getField(field.getName());
 			if (oldField == null) {
-				oldField = new Field();
+				oldField = new Field(field.getName(), assessment);
 			}
 			
 			changed |= field.copyInto(oldField, append, overwrite);
-		}
+		}*/
 
 		return changed;
 	}

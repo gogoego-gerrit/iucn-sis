@@ -59,7 +59,9 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 		boolean append = Boolean.parseBoolean(appendTag.getText());
 		boolean overwrite = Boolean.parseBoolean(overwriteTag.getText());
 		
-		Assessment assessment = SIS.get().getAssessmentIO().getAssessment(Integer.valueOf(assessmentTag.getTextContent()));
+		Assessment template = SIS.get().getAssessmentIO().
+			getAssessment(Integer.valueOf(assessmentTag.getTextContent()));
+		
 		AssessmentFilter filter = AssessmentFilter.fromXML(filterTag);
 		AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
 			
@@ -73,7 +75,7 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 		for (String taxonID : taxaTag.getTextContent().split(",")) {
 			for (Assessment asmToChange : helper.getAssessments(Integer.valueOf(taxonID))) {
 				if (BatchAssessmentChanger.changeAssessment(
-						asmToChange, assessment, overwrite, append,
+						asmToChange, template, overwrite, append,
 						user, fieldNames)) {
 					returnXML.append("<change id=\""
 							+ asmToChange.getId() + "\">"
