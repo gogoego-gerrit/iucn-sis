@@ -76,7 +76,7 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 			for (Assessment asmToChange : helper.getAssessments(Integer.valueOf(taxonID))) {
 				if (BatchAssessmentChanger.changeAssessment(
 						asmToChange, template, overwrite, append,
-						user, fieldNames)) {
+						fieldNames)) {
 					returnXML.append("<change id=\""
 							+ asmToChange.getId() + "\">"
 							+ asmToChange.getDisplayText()
