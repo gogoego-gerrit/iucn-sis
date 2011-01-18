@@ -106,7 +106,7 @@ public class SISSelect extends SISPrimitiveStructure<Integer> implements Dominan
 		} catch (Exception e) {
 		}
 
-		listbox = new ListBox(isSingle());
+		listbox = new ListBox(!isSingle());
 		LookupData myData = ((LookupData)data);
 		List<LookupDataValue> listItemsToAdd = myData.getValues();
 				
