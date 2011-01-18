@@ -47,4 +47,13 @@ public class StringPrimitiveField extends PrimitiveField<String> implements
 	public void setRawValue(String value) {
 		setValue(value);
 	}
+	
+	@Override
+	public void appendValue(String newValue) {
+		if (value == null)
+			value = newValue;
+		else
+			value += "\r\n\r\n" + newValue;
+	}
+	
 }
