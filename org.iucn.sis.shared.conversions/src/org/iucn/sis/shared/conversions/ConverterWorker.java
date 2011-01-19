@@ -51,6 +51,8 @@ public class ConverterWorker implements Runnable {
 		boolean success;
 		if ("libraries".equals(step))
 			success = convertLibrary(proceed, writer);
+		else if ("definitions".equals(step))
+			success = convertDefinitions(proceed, writer);
 		else if ("permissions".equals(step))
 			success = convertPermissions(proceed, writer);
 		else if ("users".equals(step))
@@ -102,6 +104,14 @@ public class ConverterWorker implements Runnable {
 	
 	private boolean convertLibrary(boolean proceed, Writer writer) {
 		LibraryGenerator converter = new LibraryGenerator();
+		initConverter(converter, writer);
+		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
+		
+		return converter.start() && (!proceed || convertDefinitions(proceed, writer));
+	}
+	
+	private boolean convertDefinitions(boolean proceed, Writer writer) {
+		DefinitionConverter converter = new DefinitionConverter();
 		initConverter(converter, writer);
 		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
 		

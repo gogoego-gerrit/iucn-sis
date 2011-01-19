@@ -1,86 +1,110 @@
 package org.iucn.sis.server.extensions.definitions;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
-import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.shared.api.models.Definition;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 
-import com.solertium.vfs.ConflictException;
-import com.solertium.vfs.NotFoundException;
-import com.solertium.vfs.VFSPath;
+import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.BaseDocumentUtils;
 
-public class DefinitionsRestlet extends ServiceRestlet {
+public class DefinitionsRestlet extends BaseServiceRestlet {
 	
-	private static final VFSPath DEFINITIONS_LOCATION = 
-		new VFSPath("/browse/docs/definitions.xml");
+	private Document definitions = null;
 	
-	private Document definitions;
-	private long lastModded = -1;
-
-	public DefinitionsRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public DefinitionsRestlet(Context context) {
+		super(context);
 	}
 
 	@Override
 	public void definePaths() {
 		paths.add("/definitions");
 	}
-
-	private void getDefinitions() throws NotFoundException {
-		if (vfs.getLastModified(DEFINITIONS_LOCATION) == lastModded)
-			return;
-
-		try {
-			definitions = vfs.getDocument(DEFINITIONS_LOCATION);
-			lastModded = vfs.getLastModified(DEFINITIONS_LOCATION);
-		} catch (IOException e) {
-			throw new NotFoundException();
-		}	
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		if (definitions == null) {
+			final StringBuilder out = new StringBuilder();
+			out.append("<definitions>");
+			
+			List<Definition> list;
+			try {
+				list = SIS.get().getManager().listObjects(Definition.class);
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
+			
+			for (Definition definition : list)
+				out.append(definition.toXML());
+			
+			out.append("</definitions>");
+			
+			definitions = BaseDocumentUtils.impl.createDocumentFromString(out.toString());
+		}
+		
+		return new DomRepresentation(MediaType.TEXT_XML, definitions);
 	}
 	
-	protected void postDefinitions(Request request) throws IOException {
-		Document doc = new DomRepresentation(request.getEntity()).getDocument();
-		
-		if (DocumentUtils.writeVFSFile(DEFINITIONS_LOCATION.toString(), vfs, doc))
-		{
-			definitions = doc;
-			lastModded = vfs.getLastModified(DEFINITIONS_LOCATION);
-		}
-		else
-			throw new ConflictException("Unable to save file");		
-		
-	}
-
 	@Override
-	public void performService(Request request, Response response) {
-		if (request.getMethod().equals(Method.GET)) {
-			try {
-				getDefinitions();
-
-				response.setEntity(new DomRepresentation(MediaType.TEXT_XML, definitions));
-				response.setStatus(Status.SUCCESS_OK);
-			} catch (Exception e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL);
-			}
-
-		} 
-		else if (request.getMethod().equals(Method.POST)) {
-			try {
-				postDefinitions(request);
-				response.setStatus(Status.SUCCESS_OK);
-			} catch (IOException e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL);
-			}			
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		definitions = null;
+		
+		NativeDocument doc = getEntityAsNativeDocument(entity);
+		
+		Map<String, Definition> map = new HashMap<String, Definition>();
+		try {
+			List<Definition> list = SIS.get().getManager().listObjects(Definition.class);
+			for (Definition definition : list)
+				map.put(definition.getName().toLowerCase(), definition);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
-		else
-			response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+		
+		final NativeNodeList nodes = doc.getDocumentElement().getElementsByTagName("definition");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			NativeElement el = nodes.elementAt(i);
+			Definition definition = Definition.fromXML(el);
+			String name = definition.getName().toLowerCase();
+			try {
+				if (map.containsKey(name)) {
+					Definition saved = map.get(name);
+					saved.setValue(definition.getValue());
+					
+					SIS.get().getManager().updateObject(saved);
+					
+					map.remove(name);
+				}
+				else {
+					definition.setId(0);
+					SIS.get().getManager().saveObject(definition);
+				}
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
+		}
+		
+		for (Definition definition : map.values()) {
+			try {
+				SIS.get().getManager().deleteObject(definition);
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
+		}
 	}
+
 }

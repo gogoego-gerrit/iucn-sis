@@ -15,6 +15,7 @@
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Assessment.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/AssessmentType.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/CommonName.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Definition.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Edit.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Field.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Infratype.hbm.xml" />

@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.hibernate.HibernateException;
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.RelationshipDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.AssessmentType;

@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.data;
 
 import org.iucn.sis.client.api.caches.DefinitionCache;
+import org.iucn.sis.shared.api.models.Definition;
 
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -16,10 +17,10 @@ public class DefinitionPanel extends DockPanel {
 	public void updateContent(String word) {
 		clear();
 
-		String definition = DefinitionCache.impl.getDefinition(word);
+		Definition definition = DefinitionCache.impl.getDefinition(word);
 
 		HTML wordHTML = new HTML("<b>" + word + "</b>");
-		HTML definitionHTML = new HTML(definition);
+		HTML definitionHTML = new HTML(definition.getValue());
 
 		add(wordHTML, DockPanel.NORTH);
 		add(definitionHTML, DockPanel.CENTER);

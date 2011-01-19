@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.DefinitionCache;
+import org.iucn.sis.shared.api.models.Definition;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
@@ -47,7 +48,7 @@ public class DefinitionEditorPanel extends ContentPanel {
 		setLayout(new TableLayout(3));
 	}
 
-	private TextField<String> addDefinition(String definable, String definition) {
+	private TextField<String> addDefinition(Definition definition) {
 		TableData deleteColumn = new TableData();
 		deleteColumn.setWidth("20px");
 		deleteColumn.setVerticalAlign(VerticalAlignment.TOP);
@@ -61,14 +62,13 @@ public class DefinitionEditorPanel extends ContentPanel {
 		definitionsColumn.setVerticalAlign(VerticalAlignment.TOP);
 
 		final TextField<String> defText = new TextField<String>();
-		defText.setValue(definable);
 		defText.setWidth(defColumnWidth);
 
-		final TextArea definitionText = new TextArea();
-		definitionText.setValue(definition);
+		final TextArea definitionText = new TextArea();		
 		definitionText.setWidth(definitionsColumnWidth);
 
 		fields.put(defText, definitionText);
+		
 		final Image image = new Image("images/icon-delete.png");
 		image.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -84,6 +84,11 @@ public class DefinitionEditorPanel extends ContentPanel {
 				});
 			}
 		});
+		
+		if (definition != null) {
+			defText.setValue(definition.getName());
+			definitionText.setValue(definition.getValue());
+		}
 
 		add(image, deleteColumn);
 		add(defText, defColumn);
@@ -93,11 +98,9 @@ public class DefinitionEditorPanel extends ContentPanel {
 	}
 
 	public void draw() {
-
 		if (!drawn) {
-			for (String definable : DefinitionCache.impl.getDefinables())
-				addDefinition(definable, DefinitionCache.impl.getDefinition(definable));
-
+			for (Definition definition : DefinitionCache.impl.getDefinitions())
+				addDefinition(definition);
 
 			Button save = new Button();
 			save.setText("Save");
@@ -115,7 +118,7 @@ public class DefinitionEditorPanel extends ContentPanel {
 			add.setTitle("Add new definition");
 			add.addListener(Events.Select, new Listener<BaseEvent>() {
 				public void handleEvent(BaseEvent be) {
-					TextField<String> f = addDefinition("", "");
+					TextField<String> f = addDefinition(null);
 					layout();
 					
 					scrollIntoView(f);
@@ -132,7 +135,6 @@ public class DefinitionEditorPanel extends ContentPanel {
 	}
 
 	protected boolean isSaveable() {
-
 		List<String> strings = new ArrayList<String>();
 		for (Entry<TextField<String>, TextArea> entry : fields.entrySet()) {
 			if (entry.getKey() != null) {
@@ -153,30 +155,31 @@ public class DefinitionEditorPanel extends ContentPanel {
 
 		}
 		return true;
-
 	}
 
 	protected void save() {
 		if (isSaveable()) {
-
-			Map<String, String> definitionsMap = new HashMap<String, String>();
+			Map<String, Definition> definitionsMap = new HashMap<String, Definition>();
 			for (Entry<TextField<String>, TextArea> entry : fields.entrySet()) {
-				definitionsMap.put(entry.getKey().getValue().toLowerCase(), entry.getValue()
-						.getValue());
+				String name = entry.getKey().getValue().toLowerCase();
+				String value = entry.getValue().getValue();
+				
+				Definition definition = DefinitionCache.impl.getDefinition(name);
+				if (definition == null)
+					definition = new Definition(name, value);
+				definition.setValue(value);
+				
+				definitionsMap.put(definition.getName(), definition);
 			}
 			DefinitionCache.impl.saveDefinitions(definitionsMap,
 					new GenericCallback<String>() {
-
-						public void onFailure(Throwable caught) {
-							WindowUtils
-									.errorAlert("Failure saving definitions.");
-						}
-
-						public void onSuccess(String result) {
-							Info.display("", "Saved definitions");
-
-						}
-					});
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Failure saving definitions.");
+				}
+				public void onSuccess(String result) {
+					Info.display("", "Saved definitions");
+				}
+			});
 		}
 	}
 
