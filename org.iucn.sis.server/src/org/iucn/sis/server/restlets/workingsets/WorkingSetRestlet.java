@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
@@ -15,7 +14,6 @@ import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
-import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -46,8 +44,8 @@ import com.solertium.lwxml.shared.NativeDocument;
  */
 public class WorkingSetRestlet extends BaseServiceRestlet {
 
-	public WorkingSetRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public WorkingSetRestlet(Context context) {
+		super(context);
 	}
 	
 	@Override
@@ -268,7 +266,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	}
 
 	private void writeReport(String report, String username) {
-		DocumentUtils.writeVFSFile(getURLToSaveFootprint(username), vfs, report);
+		DocumentUtils.writeVFSFile(getURLToSaveFootprint(username), SIS.get().getVFS(), report);
 	}
 	
 	private void getTaxaFootprintWithAdditionalInfo(Representation entity, Response response, String username, Integer id) throws ResourceException {

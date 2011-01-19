@@ -1,23 +1,26 @@
 package org.iucn.sis.server.extensions.messaging;
 
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
-import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 
-public class InboxRestlet extends ServiceRestlet {
-	public InboxRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+public class InboxRestlet extends BaseServiceRestlet {
+	public InboxRestlet(Context context) {
+		super(context);
 	}
 
 	@Override
 	public void definePaths() {
 		paths.add("/inbox/{userName}");
 	}
-
-	private void getMessages(Response response, String userName) {
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
 		// TODO: GET ACTUAL MESSAGES
 
 		StringBuffer xml = new StringBuffer("<messages>\r\n");
@@ -41,19 +44,7 @@ public class InboxRestlet extends ServiceRestlet {
 
 		xml.append("</messages>");
 
-		response.setEntity(xml.toString(), MediaType.TEXT_XML);
-	}
-
-	@Override
-	public void performService(Request request, Response response) {
-
-		if (request.getResourceRef().getPath().startsWith("/inbox/")) {
-			getMessages(response, (String) request.getAttributes().get("userName"));
-			response.setStatus(Status.SUCCESS_OK);
-		} else {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		}
-
+		return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
 	}
 
 }

@@ -17,8 +17,8 @@ import org.restlet.resource.ResourceException;
 
 public class LanguageRestlet extends BaseServiceRestlet {
 	
-	public LanguageRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public LanguageRestlet(Context context) {
+		super(context);
 	}
 	
 	@Override

@@ -11,7 +11,6 @@ import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
@@ -25,19 +24,14 @@ import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.vfs.VFS;
 
 public class PermissionGroupsRestlet extends BaseServiceRestlet {
 
 	private final int DELETE_ELEMENT = 0;
 	private final int ADD_ELEMENT = 1;
 	
-	public PermissionGroupsRestlet(VFS vfs, Context context) {
-		super(vfs, context);
-	}
-
-	public PermissionGroupsRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public PermissionGroupsRestlet(Context context) {
+		super(context);
 	}
 
 	@Override

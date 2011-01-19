@@ -19,6 +19,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.FilenameStriper;
@@ -43,15 +44,18 @@ import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.CSVTokenizer;
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.NotFoundException;
+import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 
 public class ImageRestlet extends BaseServiceRestlet {
 
 	private AtomicBoolean running;
+	private final VFS vfs;
 	
-	public ImageRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public ImageRestlet(Context context) {
+		super(context);
 		running = new AtomicBoolean(false);
+		vfs = SIS.get().getVFS();
 	}
 	
 	@Override

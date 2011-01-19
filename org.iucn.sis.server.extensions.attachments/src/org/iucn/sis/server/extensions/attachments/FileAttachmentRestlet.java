@@ -7,42 +7,52 @@ import java.util.List;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.assessments.AssessmentAttachment;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
+import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.VFSPathToken;
 import com.solertium.vfs.restlet.VFSResource;
 
-public class FileAttachmentRestlet extends ServiceRestlet {
+public class FileAttachmentRestlet extends BaseServiceRestlet {
 
-	protected final VFSPath rootDir;
-	protected final VFSPathToken registryFile = new VFSPathToken(
-			"_attachments.xml");
+	private final VFSPath rootDir;
+	private final VFSPathToken registryFile = new VFSPathToken("_attachments.xml");
+	private final VFS vfs;
+	
 
-	public FileAttachmentRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public FileAttachmentRestlet(Context context) {
+		super(context);
+		
 		rootDir = new VFSPath("/attachments");
-
+		vfs = SIS.get().getVFS();
+	}
+	
+	public void definePaths() {
+		paths.add("/attachment/{assessmentID}");
+		paths.add("/attachment/file/{attachmentID}");
 	}
 
-	protected boolean addToRegistry(VFSPath registryPath,
+	private boolean addToRegistry(VFSPath registryPath,
 			AssessmentAttachment attachment) {
 		String doc = DocumentUtils.getVFSFileAsString(registryPath.toString(), vfs);
 		if (doc == null)
@@ -53,14 +63,7 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 		return DocumentUtils.writeVFSFile(registryPath.toString(), vfs, doc);
 	}
 
-	@Override
-	public void definePaths() {
-		paths.add("/attachment/{assessmentID}");
-		paths.add("/attachment/file/{attachmentID}");
-
-	}
-
-	protected boolean deleteFile(VFSPath path) {
+	private boolean deleteFile(VFSPath path) {
 		if (vfs.exists(path)) {
 			try {
 				vfs.delete(path);
@@ -76,17 +79,17 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 		return false;
 	}
 
-	protected String getAssessmentIDFromAttachmentID(String attachmentID) {
+	private String getAssessmentIDFromAttachmentID(String attachmentID) {
 		int splitIndex = attachmentID.lastIndexOf("_");
 		return attachmentID.substring(0, splitIndex);
 	}
 
-	protected VFSPath getAssessmentPath(String assessmentID) {
+	private VFSPath getAssessmentPath(String assessmentID) {
 		return new VFSPath(rootDir.toString() + "/"
 				+ FilenameStriper.getIDAsStripedPath(assessmentID));
 	}
 
-	protected String getAttachmentID(String assessmentID,
+	private String getAttachmentID(String assessmentID,
 			String attachmentFileName) {
 		if (attachmentFileName.contains("/")) {
 			attachmentFileName = attachmentFileName.substring(
@@ -96,20 +99,23 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 		return assessmentID + "_" + attachmentFileName;
 	}
 
-	protected VFSPath getAttachmentPath(String attachmentID) {
+	private VFSPath getAttachmentPath(String attachmentID) {
 		VFSPathToken token = new VFSPathToken(
 				getFilenameFromAttachmentID(attachmentID));
 		return getAssessmentPath(getAssessmentIDFromAttachmentID(attachmentID))
 				.child(token);
 	}
 
-	protected String getFilenameFromAttachmentID(String attachmentID) {
+	private String getFilenameFromAttachmentID(String attachmentID) {
 		int splitIndex = attachmentID.lastIndexOf("_");
 		return attachmentID.substring(splitIndex + 1);
 	}
-
-	protected void handleDelete(Request request, Response response,
-			String attachmentID) {
+	
+	@Override
+	public void handleDelete(Request request, Response response) throws ResourceException {
+		String attachmentID = getAttachmentID(request);
+		if (attachmentID == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 
 		if (removeFromRegistry(getAssessmentPath(
 				getAssessmentIDFromAttachmentID(attachmentID)).child(
@@ -119,61 +125,52 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity("Attachment deleted", MediaType.TEXT_PLAIN);
 		} else {
-			response.setStatus(Status.SERVER_ERROR_INTERNAL,
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL,
 					"Unable to delete attachment");
 		}
 	}
-
-	private void handleGet(Request request, Response response,
-			String assessmentID, String attachmentID) {
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		final String assessmentID = getAssessmentID(request);
+		final String attachmentID = getAttachmentID(request);
 
 		// FIND ATTACHMENT
 		if (assessmentID == null && attachmentID != null) {
 			VFSPath attachmentFile = getAttachmentPath(attachmentID);
 			if (vfs.exists(attachmentFile)) {
+				Representation rep;
 				try {
-					Representation rep = VFSResource.getRepresentationForFile(
-							vfs, attachmentFile);
-					response.setEntity(rep);
-					response.setStatus(Status.SUCCESS_OK);
+					rep = VFSResource.getRepresentationForFile(vfs, attachmentFile);
 				} catch (NotFoundException e) {
-					response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,
-							"Attachment not found");
+					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Attachment not found", e);
 				}
-				return;
+				return rep;
 			} else {
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,
-						"Attachment not found");
+				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Attachment not found");
 			}
 		}
-
 		else if (assessmentID != null && attachmentID == null) {
 			VFSPath path = getAssessmentPath(assessmentID);
 			if (vfs.exists(path)) {
 				Document registryDoc = DocumentUtils.getVFSFileAsDocument(path
 						.child(registryFile).toString(), vfs);
-				if (registryDoc == null) {
-					response.setStatus(Status.SERVER_ERROR_INTERNAL,
+				if (registryDoc == null)
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL,
 							"Unable to find registry for attachment "
 									+ assessmentID);
-					return;
-				}
 
-				response.setEntity(new DomRepresentation(MediaType.TEXT_XML,
-						registryDoc));
+				return (new DomRepresentation(MediaType.TEXT_XML, registryDoc));
 			} else {
-				response.setEntity("<attachments></attachments>",
+				return new StringRepresentation("<attachments></attachments>",
 						MediaType.TEXT_XML);
 			}
-			response.setStatus(Status.SUCCESS_OK);
-			return;
 		}
-
-		response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-
+		else
+			return super.handleGet(request, response);
 	}
 
-	protected void handleModifyAttachment(Request request, Response response,
+	private void handleModifyAttachment(Request request, Response response,
 			String attachmentID) {
 		String assessmentID = getAssessmentIDFromAttachmentID(attachmentID);
 		String isPublic = request.getEntityAsForm().getFirstValue("isPublic");
@@ -187,6 +184,18 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 					"Failed to modify attachment");
 		}
 
+	}
+	
+	@Override
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		String assessmentID = getAssessmentID(request);
+		String attachmentID = getAttachmentID(request);
+		if (assessmentID != null)
+			handlePost(request, response, assessmentID);
+		else if (attachmentID != null)
+			handleModifyAttachment(request, response, attachmentID);
+		else
+			super.handlePost(entity, request, response);
 	}
 
 	private void handlePost(Request request, Response response,
@@ -256,7 +265,7 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 
 	}
 
-	protected boolean isValidFilename(String attachmentFileName) {
+	private boolean isValidFilename(String attachmentFileName) {
 		if (attachmentFileName.contains("/")) {
 			attachmentFileName = attachmentFileName.substring(
 					attachmentFileName.lastIndexOf("/") + 1, attachmentFileName
@@ -264,29 +273,16 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 		}
 		return !attachmentFileName.contains("_");
 	}
-
-	@Override
-	public void performService(Request request, Response response) {
-		String assessmentID = (String) request.getAttributes().get(
-				"assessmentID");
-		String attachmentID = (String) request.getAttributes().get(
-				"attachmentID");
-		if (request.getMethod().equals(Method.GET))
-			handleGet(request, response, assessmentID, attachmentID);
-		else if (request.getMethod().equals(Method.POST)
-				&& assessmentID != null)
-			handlePost(request, response, assessmentID);
-		else if (request.getMethod().equals(Method.POST)
-				&& attachmentID != null)
-			handleModifyAttachment(request, response, attachmentID);
-		else if (request.getMethod().equals(Method.DELETE))
-			handleDelete(request, response, attachmentID);
-		else
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-
+	
+	private String getAssessmentID(Request request) {
+		return (String) request.getAttributes().get("assessmentID");
+	}
+	
+	private String getAttachmentID(Request request) {
+		return (String) request.getAttributes().get("attachmentID");
 	}
 
-	protected boolean removeFromRegistry(VFSPath registryPath,
+	private boolean removeFromRegistry(VFSPath registryPath,
 			String attachmentID) {
 		Document doc = DocumentUtils.getVFSFileAsDocument(registryPath
 				.toString(), vfs);
@@ -310,7 +306,7 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 		return DocumentUtils.writeVFSFile(registryPath.toString(), vfs, doc);
 	}
 
-	protected boolean updatedRegistry(VFSPath registryPath,
+	private boolean updatedRegistry(VFSPath registryPath,
 			String attachmentID, String isPublic) {
 		Document doc = DocumentUtils.getVFSFileAsDocument(registryPath
 				.toString(), vfs);
@@ -338,7 +334,7 @@ public class FileAttachmentRestlet extends ServiceRestlet {
 				doc);
 	}
 
-	protected boolean writeFile(VFSPath path, FileItem file) {
+	private boolean writeFile(VFSPath path, FileItem file) {
 		if (!vfs.exists(path)) {
 			OutputStream outputStream = null;
 			try {

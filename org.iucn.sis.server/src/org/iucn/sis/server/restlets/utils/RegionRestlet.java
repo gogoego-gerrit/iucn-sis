@@ -1,29 +1,24 @@
 package org.iucn.sis.server.restlets.utils;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
-import org.iucn.sis.server.api.utils.DocumentUtils;
-import org.iucn.sis.server.api.utils.XMLUtils;
-import org.iucn.sis.shared.api.models.PermissionGroup;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Region;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.restlet.ext.xml.DomRepresentation;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 
+import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.util.ElementCollection;
 
 /**
  * Serves Region information. POST can handle multiple Region update/creation
@@ -35,52 +30,13 @@ import com.solertium.util.ElementCollection;
  * @author adam.schwartz
  * 
  */
-public class RegionRestlet extends ServiceRestlet {
-
-	public static long addNewRegion(String regionName, String description) {
-		Element newNode = DocumentUtils.createElementWithText(regionsDocument, "region", "");
-		long id = nextID.getAndIncrement();
-		newNode.setAttribute("id", id + "");
-		newNode.setIdAttribute("id", true);
-		newNode.appendChild(DocumentUtils.createElementWithText(regionsDocument, "name", XMLUtils.clean(regionName)));
-		newNode.appendChild(DocumentUtils.createElementWithText(regionsDocument, "description", XMLUtils
-				.clean(description)));
-
-		regionsDocument.getDocumentElement().appendChild(newNode);
-		nameToID.put(regionName, id + "");
-
-		return id;
-	}
-
-	private final String baseUrl = "/regions/";
-
-	private static final AtomicLong nextID = new AtomicLong(0);
+public class RegionRestlet extends BaseServiceRestlet {
 
 	public static HashMap<String, String> nameToID;
 
-	private static Document regionsDocument;
-
-	public RegionRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public RegionRestlet(Context context) {
+		super(context);
 		nameToID = new HashMap<String, String>();
-
-		if (vfs.exists(baseUrl + "regions.xml")) {
-			regionsDocument = DocumentUtils.getVFSFileAsDocument(baseUrl + "regions.xml", vfs);
-
-			long largestID = 0;
-			ElementCollection els = new ElementCollection(regionsDocument.getElementsByTagName("region"));
-			for (Element el : els) {
-				long myID = Long.parseLong(el.getAttribute("id"));
-				largestID = Math.max(myID, largestID);
-				el.setIdAttribute("id", true);
-
-				String name = XMLUtils.clean(el.getElementsByTagName("name").item(0).getTextContent());
-				nameToID.put(name, myID + "");
-			}
-			nextID.set(largestID + 1);
-		} else {
-			regionsDocument = DocumentUtils.createDocumentFromString("<regions></regions>");
-		}
 	}
 
 	@Override
@@ -89,122 +45,60 @@ public class RegionRestlet extends ServiceRestlet {
 		paths.add("/regions/{regionID}");
 	}
 
-	private void handleGet(Request request, Response response) {
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		StringBuilder ret = new StringBuilder("<regions>");
+		List<Region> regions;
 		try {
-			StringBuilder ret = new StringBuilder("<regions>");
-			for( Region reg : SIS.get().getRegionIO().getRegions() ) {
-				ret.append(reg.toXML());
-			}
-			ret.append("</regions>");
-			response.setEntity(ret.toString(), MediaType.TEXT_XML);
-			response.setStatus(Status.SUCCESS_OK);
+			regions = SIS.get().getRegionIO().getRegions();
 		} catch (PersistentException e) {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-		}
-	}
-
-	private void handlePost(Request request, Response response) {
-		try{
-		String text = request.getEntityAsText();
-		NativeDocument ndoc = SIS.get().newNativeDocument(request.getChallengeResponse());
-		ndoc.parse(text);
-		NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(Region.ROOT_TAG);
-		for (int i = 0; i < list.getLength(); i++) {
-			Region regionUpdated = Region.fromXML(list.elementAt(i));
-			if (!SIS.get().getRegionIO().saveRegion(regionUpdated)) {
-				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-				return;
-			}
-		}
-		handleGet(request, response);
-		} catch (Exception e)  {
-			e.printStackTrace();
-			response.setStatus(Status.SERVER_ERROR_INTERNAL);
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
+		for (Region reg : regions)
+			ret.append(reg.toXML());
+		ret.append("</regions>");
 		
-//		try {
-//			Document editedRegions = new DomRepresentation(request.getEntity()).getDocument();
-//
-//			ElementCollection newRegions = new ElementCollection(editedRegions.getElementsByTagName(Region.ROOT_TAG));
-//			
-//			for (Element el : newRegions) {
-//				
-//				
-//				final String id = el.getAttribute("id");
-//				final String name = XMLUtils.cleanFromXML(el.getElementsByTagName("name").item(0).getTextContent());
-//				final String description = XMLUtils.cleanFromXML(el.getElementsByTagName("description").item(0)
-//						.getTextContent());
-//
-//				final Element existingById = regionsDocument.getElementById(id);
-//
-//				if (existingById == null) {
-//					if (!nameToID.containsKey(name))
-//						addNewRegion(name, description);
-//				} else {
-//					updateRegion(id, name, description);
-//				}
-//			}
-//
-//			writebackDocument();
-//			handleGet(request, response);
-//
-//		} catch (IOException e) {
-//			response.setEntity("Error fetching edited regions out of the request object.", MediaType.TEXT_PLAIN);
-//			response.setStatus(Status.SERVER_ERROR_INTERNAL);
-//		}
-	}
-
-	private void handlePut(Request request, Response response) {
-
-		try {
-			Document putRegion = new DomRepresentation(request.getEntity()).getDocument();
-			Element el = (Element) putRegion.getDocumentElement().getElementsByTagName("region").item(0);
-
-			String id = el.getAttribute("id");
-			final String name = XMLUtils.cleanFromXML(el.getElementsByTagName("name").item(0).getTextContent());
-			final String desc = XMLUtils.cleanFromXML(el.getElementsByTagName("description").item(0).getTextContent());
-
-			if (id.matches("\\d+") && regionsDocument.getElementById(id) != null) {
-				updateRegion(id, name, desc);
-				writebackDocument();
-			} else if (nameToID.containsKey(name))
-				id = nameToID.get(name);
-			else {
-				id = addNewRegion(name, desc) + "";
-				writebackDocument();
-			}
-
-			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity(id, MediaType.TEXT_PLAIN);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			response.setEntity("Region payload unreadable.", MediaType.TEXT_PLAIN);
-		}
-
+		return new StringRepresentation(ret.toString(), MediaType.TEXT_XML);	
 	}
 
 	@Override
-	public void performService(Request request, Response response) {
-		if (request.getMethod().equals(Method.GET))
-			handleGet(request, response);
-		if (request.getMethod().equals(Method.POST))
-			handlePost(request, response);
-		if (request.getMethod().equals(Method.PUT))
-			handlePut(request, response);
-
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		NativeDocument ndoc = new JavaNativeDocument();
+		try {
+			ndoc.parse(entity.getText());
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+		}
+		
+		NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(Region.ROOT_TAG);
+		for (int i = 0; i < list.getLength(); i++) {
+			Region regionUpdated = Region.fromXML(list.elementAt(i));
+			try {
+				SIS.get().getRegionIO().saveRegion(regionUpdated);
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			}
+		}
+		response.setEntity(handleGet(request, response));
 	}
+	
+	/*
+	 * FIXME: I don't think this does what it is supposed to do...
+	 * Should write to the database, not the file system...
+	 */
+	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+		NativeDocument ndoc = new JavaNativeDocument();
+		try {
+			ndoc.parse(entity.getText());
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+		}
 
-	private void updateRegion(String id, String regionName, String description) {
-		Element el = regionsDocument.getElementById(id);
-		el.getElementsByTagName("name").item(0).setTextContent(XMLUtils.clean(regionName));
-		el.getElementsByTagName("description").item(0).setTextContent(XMLUtils.clean(description));
+		try {
+			SIS.get().getRegionIO().saveRegion(Region.fromXML(ndoc.getDocumentElement().getElementByTagName("region")));
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 	}
-
-	private void writebackDocument() {
-		DocumentUtils.writeVFSFile(baseUrl + "regions.xml", vfs, regionsDocument);
-	}
+	
 }

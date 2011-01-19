@@ -1,9 +1,11 @@
 package org.iucn.sis.server.extensions.scripts;
 
 import org.iucn.sis.server.api.application.SimpleSISApplication;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ResourceException;
 
 public class ServerApplication extends SimpleSISApplication {
 	
@@ -16,22 +18,18 @@ public class ServerApplication extends SimpleSISApplication {
 
 	@Override
 	public void init() {
-		
 		//ADD WHATEVER SCRIPT THAT YOU WANT RUN HERE
-		addResource( new ServiceRestlet(app.getContext()) {
-			
-			@Override
-			public void performService(Request request, Response response) {
+		addServiceToRouter(new BaseServiceRestlet(app.getContext()) {
+			public Representation handleGet(Request request, Response response) throws ResourceException {
 				// TODO Call your script here!
 				
+				return super.handleGet(request, response);
 			}
-			
 			@Override
 			public void definePaths() {
-				
-				
+				paths.add("/start");
 			}
-		}, "/start", false);
+		});
 		
 	}
 

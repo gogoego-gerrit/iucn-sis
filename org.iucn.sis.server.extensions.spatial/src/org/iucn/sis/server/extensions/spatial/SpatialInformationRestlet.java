@@ -1,27 +1,38 @@
 package org.iucn.sis.server.extensions.spatial;
 
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ResourceException;
 
+import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 
-public class SpatialInformationRestlet extends ServiceRestlet {
+public class SpatialInformationRestlet extends BaseServiceRestlet {
+	
+	private final VFS vfs;
 
-	public SpatialInformationRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public SpatialInformationRestlet(Context context) {
+		super(context);
+		vfs = SIS.get().getVFS();
 	}
 
 	@Override
 	public void definePaths() {
 		paths.add("/spatial/{format}/{taxonID}");
 	}
-
-	private void fetchSpatialData(String taxonID, String format, Response response) {
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
+		String taxonID = (String) request.getAttributes().get("taxonID");
+		String format = (String) request.getAttributes().get("format");
+	
 		final VFSPath uri = new VFSPath("/browse/spatial/" + taxonID + "." + format);
 		if (vfs.exists(uri)) {
 			MediaType mt = null;
@@ -33,25 +44,12 @@ public class SpatialInformationRestlet extends ServiceRestlet {
 				mt = MediaType.ALL;
 
 			try {
-				InputRepresentation ir = new InputRepresentation(
-						vfs.getInputStream(uri), mt);
-				response.setEntity(ir);
-				response.setStatus(Status.SUCCESS_OK);
+				return new InputRepresentation(vfs.getInputStream(uri), mt);
 			} catch (Exception e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL);
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 		} else
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 	}
 
-	@Override
-	public void performService(Request request, Response response) {
-		String id = (String) request.getAttributes().get("taxonID");
-		String format = (String) request.getAttributes().get("format");
-
-		if (id != null && !id.equalsIgnoreCase("")) {
-			fetchSpatialData(id, format, response);
-		} else
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-	}
 }

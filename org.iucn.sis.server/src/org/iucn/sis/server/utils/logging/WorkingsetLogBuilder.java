@@ -1,26 +1,35 @@
 package org.iucn.sis.server.utils.logging;
 
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
+import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.vfs.NotFoundException;
+import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.VFSPathToken;
 
-public class WorkingsetLogBuilder extends ServiceRestlet {
+public class WorkingsetLogBuilder extends BaseServiceRestlet {
 
 	private static EventLogger logger = EventLogger.impl;
 	private static DBWorkingSetBuffer buffer;
 
-	public WorkingsetLogBuilder(String vfsroot, Context context) {
-		super(vfsroot, context);
+	private final VFS vfs;
+	
+	public WorkingsetLogBuilder(Context context) {
+		super(context);
+		this.vfs = SIS.get().getVFS();
 	}
 
 	private void crawlWorkingsets() {
@@ -59,24 +68,29 @@ public class WorkingsetLogBuilder extends ServiceRestlet {
 	@Override
 	public void definePaths() {
 		paths.add("/workingSet/log/rebuild");
-
 	}
-
+	
 	@Override
-	public void performService(Request request, Response response) {
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		handleGet(request, response);
+	}
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
 		try {
-
 			ExecutionContext ec = new SystemExecutionContext("default");
 			ec.setExecutionLevel(ExecutionContext.ADMIN);
 			ec.dropTable("WORKINGSETLOG");
 
 			buffer = new DBWorkingSetBuffer();
 			logger.addBuffer(buffer);
-		} catch (Exception ignore) {
-			ignore.printStackTrace();
+		} catch (Exception e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 
 		crawlWorkingsets();
+		
+		return new StringRepresentation("Done");
 	}
 
 }

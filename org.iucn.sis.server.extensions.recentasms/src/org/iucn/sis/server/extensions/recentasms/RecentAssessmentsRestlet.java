@@ -24,12 +24,17 @@ import org.w3c.dom.Node;
 
 import com.solertium.util.ElementCollection;
 import com.solertium.util.NodeCollection;
+import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 
 public class RecentAssessmentsRestlet extends BaseServiceRestlet {
+	
+	private final VFS vfs;
+	//TODO: put this in the DB
 
-	public RecentAssessmentsRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public RecentAssessmentsRestlet(Context context) {
+		super(context);
+		vfs = SIS.get().getVFS();
 	}
 
 	@Override

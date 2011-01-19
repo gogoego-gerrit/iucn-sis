@@ -32,18 +32,13 @@ import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.ElementCollection;
 import com.solertium.util.Mutex;
 import com.solertium.util.NodeCollection;
-import com.solertium.vfs.VFS;
 
 public class TaxomaticRestlet extends BaseServiceRestlet {
 
 	private Mutex lock = new Mutex();
 
-	public TaxomaticRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
-	}
-
-	public TaxomaticRestlet(VFS vfs, Context context) {
-		super(vfs, context);
+	public TaxomaticRestlet(Context context) {
+		super(context);
 	}
 
 	public void definePaths() {

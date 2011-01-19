@@ -1,7 +1,12 @@
 package org.iucn.sis.server.api.restlets;
 
+import java.util.ArrayList;
+
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
+import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Request;
@@ -12,8 +17,9 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 
+import com.solertium.lwxml.java.JavaNativeDocument;
+import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.BaseDocumentUtils;
-import com.solertium.vfs.VFS;
 
 /**
  * BaseServiceRestlet.java
@@ -31,22 +37,23 @@ import com.solertium.vfs.VFS;
  * @author carl.scott
  *
  */
-public abstract class BaseServiceRestlet extends ServiceRestlet {
+public abstract class BaseServiceRestlet extends Restlet {
+	
+	protected final ArrayList<String> paths = new ArrayList<String>();
 
 	public BaseServiceRestlet(Context context) {
 		super(context);
+		definePaths();
 	}
-
-	public BaseServiceRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	
+	public abstract void definePaths();
+	
+	public ArrayList<String> getPaths() {
+		return paths;
 	}
-
-	public BaseServiceRestlet(VFS vfs, Context context) {
-		super(vfs, context);
-	}
-
+	
 	@Override
-	public final void performService(Request request, Response response) {
+	public final void handle(final Request request, final Response response) {
 		if (Method.GET.equals(request.getMethod())) {
 			final Representation representation;
 			try {
@@ -156,12 +163,34 @@ public abstract class BaseServiceRestlet extends ServiceRestlet {
 		}
 	}
 	
+	protected NativeDocument getEntityAsNativeDocument(Representation entity) throws ResourceException {
+		try {
+			NativeDocument document = new JavaNativeDocument();
+			document.parse(entity.getText());
+			return document;
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+		}
+	}
+	
 	protected Representation createSuccessMessage(String message) {
 		return new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createConfirmDocument(message));
 	}
 	
 	protected Representation createFailureMessage(String message) {
 		return new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createErrorDocument(message));
+	}
+	
+	protected User getUser(Request request) {
+		String username = request.getChallengeResponse().getIdentifier();
+		if (username != null)
+			return SIS.get().getUserIO().getUserFromUsername(username);
+		else
+			return null;
+	}
+
+	protected String getIdentifier(Request request) {
+		return request.getChallengeResponse().getIdentifier();
 	}
 	
 }

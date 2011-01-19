@@ -29,6 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.solertium.util.BaseDocumentUtils;
+import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.VFSPathToken;
 
@@ -115,6 +116,7 @@ public class RedlistRestlet extends BaseServiceRestlet {
 	 * 
 	 */
 	private void buildXML(Document document, ChallengeResponse challenge, String destinationURL, VFSPath path, boolean put) throws IOException, ResourceException {
+		VFS vfs = SIS.get().getVFS();
 		VFSPathToken[] listing = vfs.list(path);
 		for(int i=0;i<listing.length; i++){
 			VFSPath cur = path.child(listing[i]);

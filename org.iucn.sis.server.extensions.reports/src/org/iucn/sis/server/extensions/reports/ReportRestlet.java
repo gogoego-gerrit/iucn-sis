@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.WorkingSetIO;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.restlets.ServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.ServerPaths;
@@ -55,12 +56,12 @@ import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.utils.VFSUtils;
 import com.solertium.vfs.utils.VFSUtils.VFSPathParseException;
 
-public class ReportRestlet extends ServiceRestlet {
+public class ReportRestlet extends BaseServiceRestlet {
 
 	protected final static String ZIPPED_CSS_LOCATION = "styles.css";
 
-	public ReportRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public ReportRestlet(Context context) {
+		super(context);
 	}
 
 	/**

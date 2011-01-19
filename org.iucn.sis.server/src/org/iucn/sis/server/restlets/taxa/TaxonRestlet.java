@@ -37,8 +37,8 @@ import com.solertium.util.ElementCollection;
 
 public class TaxonRestlet extends BaseServiceRestlet {
 
-	public TaxonRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public TaxonRestlet(Context context) {
+		super(context);
 	}
 	
 	@Override

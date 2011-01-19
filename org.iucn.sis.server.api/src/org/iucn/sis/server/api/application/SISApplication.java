@@ -15,7 +15,6 @@ import org.gogoego.api.applications.GoGoEgoApplication;
 import org.gogoego.api.applications.HasSettingsUI;
 import org.gogoego.api.utils.MagicDisablingFilter;
 import org.hibernate.HibernateException;
-import org.hibernate.StaleStateException;
 import org.hibernate.Transaction;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -41,6 +40,7 @@ import com.solertium.util.restlet.RestletUtils;
 import com.solertium.util.restlet.authentication.AuthnGuard;
 import com.solertium.vfs.VFS;
 
+@SuppressWarnings("deprecation")
 public abstract class SISApplication extends GoGoEgoApplication implements HasSettingsUI {
 
 	public static final String NO_TRANSACTION_HANDLE = "NO_TRAN";
@@ -118,7 +118,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 	private Restlet getInteralRouter() {
 		Router router = new FastRouter(app.getContext());
 		
-		BaseServiceRestlet restlet = new SettingsRestlet(null, app.getContext(), getSettingsKeys());
+		BaseServiceRestlet restlet = new SettingsRestlet(app.getContext(), getSettingsKeys());
 		
 		for (String path : restlet.getPaths())
 			router.attach(path, restlet);
@@ -143,6 +143,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 			@Override
 			protected int beforeHandle(Request request, Response response) {
 				SISPersistentManager.instance().getSession().beginTransaction();
+				
 				if (!SIS.get().isHostedMode() && SIS.amIOnline() && SIS.forceHTTPS() && request.getProtocol().equals(Protocol.HTTP)) {
 					Reference newRef = new Reference(request.getResourceRef());
 					newRef.setHostPort(Integer.valueOf(443));

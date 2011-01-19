@@ -3,15 +3,16 @@ package org.iucn.sis.server.extensions.offline;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
-import org.iucn.sis.server.api.utils.OnlineUtil;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.ServerPaths;
-import org.iucn.sis.server.api.utils.TaxonomyDocUtils;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.ResourceException;
 
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
@@ -26,10 +27,10 @@ import com.solertium.vfs.utils.VFSUtils.VFSPathParseException;
  * @author liz.schwartz
  * 
  */
-public class OfflineRestlet extends ServiceRestlet {
+public class OfflineRestlet extends BaseServiceRestlet {
 
-	public OfflineRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public OfflineRestlet(Context context) {
+		super(context);
 	}
 
 	@Override
@@ -38,16 +39,20 @@ public class OfflineRestlet extends ServiceRestlet {
 	}
 
 	@Override
-	public void performService(Request request, Response response) {
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		response.setEntity(handleGet(request, response));
+	}
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
 		String action = (String) request.getAttributes().get("action");
-		if ("clear".equalsIgnoreCase(action)) {
-			performDataDeletion(request, response);
-		} else {
-			response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-		}
+		if ("clear".equalsIgnoreCase(action))
+			return performDataDeletion(request, response);
+		else
+			return super.handleGet(request, response);
 	}
 
-	protected void performDataDeletion(Request request, Response response) {
+	private Representation performDataDeletion(Request request, Response response) {
 		try{
 
 		String[] pathsToDelete = new String[] {
@@ -137,7 +142,7 @@ public class OfflineRestlet extends ServiceRestlet {
 		response.setStatus(Status.SUCCESS_OK);
 		response.setEntity("All local data was deleted.", MediaType.TEXT_PLAIN);
 
-		return;
+		return new StringRepresentation("All local data was deleted.", MediaType.TEXT_PLAIN);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -1,6 +1,5 @@
 package org.iucn.sis.server.extensions.comments;
 
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SimpleSISApplication;
 
 public class ServerApplication extends SimpleSISApplication {
@@ -13,7 +12,7 @@ public class ServerApplication extends SimpleSISApplication {
 	 * Comments available online & offline
 	 */
 	public void init() {
-		addServiceToRouter(new CommentRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new CommentRestlet(app.getContext()));
 	}
 
 }

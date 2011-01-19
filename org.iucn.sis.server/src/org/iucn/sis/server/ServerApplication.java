@@ -8,10 +8,9 @@ import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SISApplication;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.restlets.assessments.AsmChangesResource;
 import org.iucn.sis.server.restlets.assessments.AssessmentRestlet;
-import org.iucn.sis.server.restlets.baserestlets.AuthzRestlet;
 import org.iucn.sis.server.restlets.schema.AssessmentSchemaRestlet;
 import org.iucn.sis.server.restlets.taxa.CommonNameRestlet;
 import org.iucn.sis.server.restlets.taxa.SynonymRestlet;
@@ -72,29 +71,28 @@ public class ServerApplication extends SISApplication{
 	}
 	
 	protected void initServiceRoutes() {
-		addServiceToRouter(new StatusRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new TaxonRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new StatusRestlet(app.getContext()));
+		addServiceToRouter(new TaxonRestlet(app.getContext()));
 		addServiceToRouter(new SynonymRestlet(app.getContext()));
 		addServiceToRouter(new CommonNameRestlet(app.getContext()));
-		addServiceToRouter(new FieldRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new FieldRestlet(app.getContext()));
 		addServiceToRouter(new AssessmentSchemaRestlet(app.getContext()));
-		addServiceToRouter(new WorkingSetRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new AssessmentRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new TaxomaticRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new WorkingSetExportImportRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new WorkingsetLogBuilder(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new TrashRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new RegionRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new TaxonByStatusRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new PermissionGroupsRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new LockManagementRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new AuthzRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new ProfileRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new SearchRestlet(SIS.get().getVfsroot(), app.getContext()));
-		addServiceToRouter(new LanguageRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new WorkingSetRestlet(app.getContext()));
+		addServiceToRouter(new AssessmentRestlet(app.getContext()));
+		addServiceToRouter(new TaxomaticRestlet(app.getContext()));
+		addServiceToRouter(new WorkingSetExportImportRestlet(app.getContext()));
+		addServiceToRouter(new WorkingsetLogBuilder(app.getContext()));
+		addServiceToRouter(new TrashRestlet(app.getContext()));
+		addServiceToRouter(new RegionRestlet(app.getContext()));
+		addServiceToRouter(new TaxonByStatusRestlet(app.getContext()));
+		addServiceToRouter(new PermissionGroupsRestlet(app.getContext()));
+		addServiceToRouter(new LockManagementRestlet(app.getContext()));
+		addServiceToRouter(new ProfileRestlet(app.getContext()));
+		addServiceToRouter(new SearchRestlet(app.getContext()));
+		addServiceToRouter(new LanguageRestlet(app.getContext()));
 	}
 	
-	private void addServiceToRouter(ServiceRestlet curService) {
+	private void addServiceToRouter(BaseServiceRestlet curService) {
 		addResource(curService, curService.getPaths(), false);
 	}
 	
@@ -178,6 +176,7 @@ public class ServerApplication extends SISApplication{
 			// TODO Auto-generated constructor stub
 		}
 		
+		@SuppressWarnings("deprecation")
 		public String getVersion() {
 			return (String)getRequest().getAttributes().get("version");
 		}

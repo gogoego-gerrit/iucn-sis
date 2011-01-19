@@ -124,7 +124,7 @@ public class SIS {
 			throw new RuntimeException(e);
 		}
 
-		SISPersistentManager manager = (SISPersistentManager) SISPersistentManager.instance();
+		SISPersistentManager.instance();
 	}
 
 	public static SIS get() {

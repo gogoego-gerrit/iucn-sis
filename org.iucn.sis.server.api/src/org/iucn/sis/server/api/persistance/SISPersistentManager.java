@@ -137,6 +137,11 @@ public class SISPersistentManager {
 		//session.buildLockRequest(LockOptions.NONE).lock(obj);
 	}
 	
+	public void updateObject(Object obj) throws PersistentException {
+		Session session = getSession();
+		session.update(obj);
+	}
+	
 	public <X> X mergeObject(X obj) throws PersistentException {
 		Session session = getSession();
 		try {

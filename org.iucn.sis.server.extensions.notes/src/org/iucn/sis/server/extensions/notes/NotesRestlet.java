@@ -5,7 +5,6 @@ import java.util.Date;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.FieldDAO;
 import org.iucn.sis.server.api.persistance.NotesDAO;
-import org.iucn.sis.server.api.persistance.SynonymDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -28,8 +27,8 @@ import com.solertium.lwxml.shared.NativeDocument;
 
 public class NotesRestlet extends BaseServiceRestlet {
 
-	public NotesRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public NotesRestlet(Context context) {
+		super(context);
 	}
 
 	@Override

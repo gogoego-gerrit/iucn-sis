@@ -43,8 +43,8 @@ import com.solertium.lwxml.shared.NativeDocument;
 
 public class ProfileRestlet extends BaseServiceRestlet {
 
-	public ProfileRestlet(final String vfsroot, final Context context) {
-		super(vfsroot, context);
+	public ProfileRestlet(final Context context) {
+		super(context);
 	}
 
 	@Override

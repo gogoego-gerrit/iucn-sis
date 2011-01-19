@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import javax.naming.NamingException;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonStatus;
@@ -19,11 +19,12 @@ import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -43,13 +44,25 @@ import com.solertium.db.query.SelectQuery;
  * @author liz.schwartz
  * 
  */
-public class TaxonByStatusRestlet extends ServiceRestlet {
+public class TaxonByStatusRestlet extends BaseServiceRestlet {
 
-	// protected LinkedHashMap<String, String> nameToID;
-
-	public TaxonByStatusRestlet(String path, Context context) {
-		super(path, context);
-		// nameToID = new LinkedHashMap<String, String>();
+	public TaxonByStatusRestlet(Context context) {
+		super(context);
+	}
+	
+	@Override
+	public void definePaths() {
+		paths.add("/taxaFinder");
+		paths.add("/taxaFinder/workingSet");
+	}
+	
+	@Override
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		if (request.getResourceRef().getPath().endsWith("/workingSet")) {
+			createWorkingSet(request, response);
+		} else {
+			getResult(request, response);
+		}
 	}
 
 	/**
@@ -94,12 +107,6 @@ public class TaxonByStatusRestlet extends ServiceRestlet {
 			response.setEntity("There was a server error when trying to create the working set", MediaType.TEXT_PLAIN);
 
 		}
-	}
-
-	@Override
-	public void definePaths() {
-		paths.add("/taxaFinder");
-		paths.add("/taxaFinder/workingSet");
 	}
 
 	/**
@@ -246,19 +253,6 @@ public class TaxonByStatusRestlet extends ServiceRestlet {
 		return taxaIDsToName;
 	}
 
-	@Override
-	public void performService(Request request, Response response) {
-		if (request.getMethod().equals(Method.POST)) {
-			if (request.getResourceRef().getPath().endsWith("/workingSet")) {
-				createWorkingSet(request, response);
-			} else {
-				getResult(request, response);
-			}
-		} else {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		}
-
-	}
 
 	protected void replaceResults(LinkedHashMap<String, String> idToName) {
 		// TODO:

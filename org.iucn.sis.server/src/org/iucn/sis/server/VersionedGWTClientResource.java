@@ -24,8 +24,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 
-import com.solertium.util.AlphanumericComparator;
-
+@SuppressWarnings("deprecation")
 public abstract class VersionedGWTClientResource extends SimpleClasspathResource {
 	
 	public VersionedGWTClientResource(Context context, Request request, Response response) {

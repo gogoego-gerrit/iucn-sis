@@ -1,6 +1,5 @@
 package org.iucn.sis.server.extensions.offline;
 
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SimpleSISApplication;
 
 public class ServerApplication extends SimpleSISApplication {
@@ -14,7 +13,7 @@ public class ServerApplication extends SimpleSISApplication {
 	
 	@Override
 	public void init() {
-		addServiceToRouter(new OfflineRestlet(SIS.get().getVfsroot(), app.getContext()));
+		addServiceToRouter(new OfflineRestlet(app.getContext()));
 	}
 	
 }

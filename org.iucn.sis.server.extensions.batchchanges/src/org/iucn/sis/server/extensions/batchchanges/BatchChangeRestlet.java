@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
@@ -87,8 +88,11 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 		}
 		returnXML.append("</changes>");
 			
-		if (!SIS.get().getAssessmentIO().saveAssessmentsWithNoFail(assessments, user))
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Unable to save the changes in the assessment");
+		try {
+			SIS.get().getAssessmentIO().saveAssessments(assessments, user);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Unable to save the changes in the assessment", e);
+		}
 			
 		response.setEntity(returnXML.toString(), MediaType.TEXT_XML);
 		response.getEntity().setCharacterSet(CharacterSet.UTF_8);

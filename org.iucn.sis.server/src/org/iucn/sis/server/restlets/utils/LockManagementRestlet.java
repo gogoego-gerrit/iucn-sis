@@ -9,17 +9,17 @@ import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.locking.LockException;
 import org.iucn.sis.server.api.locking.LockRepository;
 import org.iucn.sis.server.api.locking.PersistentLockRepository;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
-import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ResourceException;
 
 import com.solertium.db.CDateTime;
 import com.solertium.db.CInteger;
@@ -28,12 +28,12 @@ import com.solertium.db.Row;
 import com.solertium.db.utils.QueryUtils;
 import com.solertium.util.BaseDocumentUtils;
 
-public class LockManagementRestlet extends ServiceRestlet {
+public class LockManagementRestlet extends BaseServiceRestlet {
 	
 	private final LockRepository repository;
 	
-	public LockManagementRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public LockManagementRestlet(Context context) {
+		super(context);
 		
 		//repository = new HibernateLockRepository();
 		repository = new PersistentLockRepository();
@@ -43,28 +43,25 @@ public class LockManagementRestlet extends ServiceRestlet {
 		paths.add("/management/locks/{protocol}");
 		paths.add("/management/locks/{protocol}/{identifier}");
 	}
-
-	public void performService(Request request, Response response) {
+	
+	private String getTable(Request request) throws ResourceException {
 		final String table = (String)request.getAttributes().get("protocol");
-		if (!isValid(table)) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid protocol");
-			return;
-		}
+		if (!isValid(table))
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid protocol");
 		
+		return table;
+	}
+	
+	@Override
+	public Representation handleGet(Request request, Response response) throws ResourceException {
 		try {
-			if (Method.GET.equals(request.getMethod()))
-				doGet(response, table);
-			else if (Method.DELETE.equals(request.getMethod()))
-				doDelete(request, response, table);
-			else
-				response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
-		} catch (Throwable e) {
-			Debug.println(e);
-			response.setStatus(Status.SERVER_ERROR_INTERNAL, e, e.getMessage());
+			return doGet(response, getTable(request));
+		} catch (LockException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		}
 	}
 
-	private void doGet(Response response, final String table) throws LockException {
+	private Representation doGet(Response response, final String table) throws LockException {
 		final List<Row> rows = new ArrayList<Row>();
 		
 		if ("persistentlock".equals(table)) {
@@ -112,17 +109,24 @@ public class LockManagementRestlet extends ServiceRestlet {
 			}
 		}
 
-		response.setEntity(new DomRepresentation(
+		return new DomRepresentation(
 			MediaType.TEXT_XML, QueryUtils.writeDocumentFromRowSet(rows)
-		));
+		);
+	}
+	
+	@Override
+	public void handleDelete(Request request, Response response) throws ResourceException {
+		try {
+			doDelete(request, response, getTable(request));
+		} catch (LockException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
+		}
 	}
 
-	private void doDelete(Request request, Response response, final String table) throws LockException {
+	private void doDelete(Request request, Response response, final String table) throws LockException, ResourceException {
 		final String identifier = (String)request.getAttributes().get("identifier");
-		if (identifier == null) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply an identifier");
-			return;
-		}
+		if (identifier == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply an identifier");
 		
 		if ("persistentlock".equals(table)) {
 			final Integer id;

@@ -24,15 +24,8 @@ public class RegionIO {
 		return Arrays.asList(RegionDAO.listRegionByCriteria(new RegionCriteria()));
 	}
 	
-	public boolean saveRegion(Region region) {
-		try {
-			SIS.get().getManager().saveObject(region);
-		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
-		return true;
+	public void saveRegion(Region region) throws PersistentException {
+		SIS.get().getManager().saveObject(region);
 	}
 	
 }

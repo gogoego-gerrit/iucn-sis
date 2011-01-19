@@ -7,14 +7,12 @@ import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.HibernateException;
-import org.hibernate.NonUniqueObjectException;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.server.api.persistance.AssessmentCriteria;
 import org.iucn.sis.server.api.persistance.AssessmentDAO;
 import org.iucn.sis.server.api.persistance.AssessmentTypeCriteria;
 import org.iucn.sis.server.api.persistance.EditDAO;
-import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -30,7 +28,6 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.data.Status;
 
-import com.solertium.db.DBException;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.vfs.BoundsException;
@@ -403,6 +400,24 @@ public class AssessmentIO {
 			}
 		}
 		return ret;
+	}
+	
+	public void saveAssessments(Collection<Assessment> assessments, User user) throws PersistentException {
+		Status lockStatus = Status.SUCCESS_OK;
+		if (SIS.amIOnline())
+			lockStatus = SIS.get().getLocker().persistentLockAssessments(assessments, LockType.SAVE_LOCK, user);
+
+		if (lockStatus.isSuccess()) {
+			for (Assessment assessmentToSave : assessments) {
+				Edit edit = new Edit();
+				edit.setUser(user);
+				edit.getAssessment().add((assessmentToSave));
+				assessmentToSave.getEdit().add(edit);
+				assessmentToSave.toXML();
+				AssessmentDAO.save(assessmentToSave);
+				EditDAO.save(edit);
+			}
+		}
 	}
 
 	/**

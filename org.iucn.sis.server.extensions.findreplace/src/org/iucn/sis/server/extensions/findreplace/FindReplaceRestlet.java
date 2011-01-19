@@ -1,6 +1,5 @@
 package org.iucn.sis.server.extensions.findreplace;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,18 +11,20 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.restlets.ServiceRestlet;
+import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.findreplace.FindReplaceData;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
-import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ResourceException;
 
+import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
@@ -31,7 +32,7 @@ import com.solertium.lwxml.shared.NativeNodeList;
 /**
  * 
  */
-public class FindReplaceRestlet extends ServiceRestlet {
+public class FindReplaceRestlet extends BaseServiceRestlet {
 
 	class MonitorThread extends Thread {
 
@@ -234,8 +235,8 @@ public class FindReplaceRestlet extends ServiceRestlet {
 
 	private FindReplace replacer;
 
-	public FindReplaceRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public FindReplaceRestlet(Context context) {
+		super(context);
 		searchid = new AtomicLong(0);
 		currentSearches = new ConcurrentHashMap<String, MonitorThread>();
 		replacer = new FindReplace();
@@ -248,11 +249,7 @@ public class FindReplaceRestlet extends ServiceRestlet {
 		paths.add("/find/kill/{searchid}");
 	}
 
-	private String getField(NativeDocument doc) throws Exception {
-		return doc.getDocumentElement().getElementsByTagName("field").item(0).getTextContent();
-	}
-
-	private List<Integer> getAssessmentsToSearch(NativeDocument doc) throws Exception {
+	private List<Integer> getAssessmentsToSearch(NativeDocument doc) {
 		NativeElement element = doc.getDocumentElement();
 		String workingSetId = element.getElementsByTagName("workingSetID").item(0).getTextContent();
 		AssessmentFilter filter = AssessmentFilter.fromXML(element.getElementByTagName(
@@ -266,25 +263,42 @@ public class FindReplaceRestlet extends ServiceRestlet {
 		return assessments;
 
 	}
+	
+	private String getField(NativeDocument doc) throws ResourceException {
+		try {
+			return doc.getDocumentElement().getElementsByTagName("field").item(0).getTextContent();
+		} catch (Exception poorlyHandled) {
+			throw new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED, poorlyHandled);
+		}
+	}
 
 	/**
 	 * CaseSensitive, RestrictToWholeWord, REGEX
 	 **/
-	private String getOptions(NativeDocument doc) throws Exception {
-		return doc.getDocumentElement().getElementsByTagName("options").item(0).getTextContent();
+	private String getOptions(NativeDocument doc) throws ResourceException {
+		try {
+			return doc.getDocumentElement().getElementsByTagName("options").item(0).getTextContent();
+		} catch (Exception poorlyHandled) {
+			throw new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED, poorlyHandled);
+		}
 	}
 
-	private String getText(NativeDocument doc) throws IOException, NullPointerException {
-		return doc.getDocumentElement().getElementsByTagName("text").item(0).getTextContent();
+	private String getText(NativeDocument doc) throws ResourceException {
+		try {
+			return doc.getDocumentElement().getElementsByTagName("text").item(0).getTextContent();
+		} catch (Exception poorlyHandled) {
+			throw new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED, poorlyHandled);
+		}
 	}
-
-	private void killdash9(String searchID, Response response) {
+	
+	@Override
+	public void handleDelete(Request request, Response response) throws ResourceException {
+		String searchID = (String) request.getAttributes().get("searchid");
 		if (currentSearches.containsKey(searchID)) {
 			currentSearches.remove(searchID).killdash9();
 			response.setStatus(Status.SUCCESS_OK);
-		} else {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		}
+		} else
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 	}
 
 	private ArrayList<FindReplaceData> parseDocument(NativeDocument doc) throws NullPointerException {
@@ -295,49 +309,35 @@ public class FindReplaceRestlet extends ServiceRestlet {
 		}
 		return list;
 	}
-
+	
 	@Override
-	public void performService(Request request, Response response) {
-		if (request.getMethod().equals(Method.POST)) {
+	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+		String searchid = (String) request.getAttributes().get("searchid");
+		if (searchid.trim().equalsIgnoreCase("null")) {
+			NativeDocument doc = new JavaNativeDocument();
 			try {
-
-				String searchid = (String) request.getAttributes().get("searchid");
-
-				if (searchid.trim().equalsIgnoreCase("null")) {
-
-					NativeDocument doc = SIS.get().newNativeDocument(null);
-					doc.parse(request.getEntityAsText());
-					
-					List<Integer> assessmentIDs = getAssessmentsToSearch(doc);
-					String text = getText(doc);
-					String options = getOptions(doc);
-					String field = getField(doc);
-
-					if (options != null) {
-						startNewSearch(text, assessmentIDs, options, field, request, response);
-					} else {
-						response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-					}
-				} else {
-					postContinueSearching(searchid, response);
-				}
+				doc.parse(entity.getText());
 			} catch (Exception e) {
-				e.printStackTrace();
-				response.setStatus(Status.CLIENT_ERROR_EXPECTATION_FAILED);
+				throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 			}
-		} else if (request.getMethod().equals(Method.PUT)) {
-			replace(request, response);
-		} else if (request.getMethod().equals(Method.DELETE)) {
+					
+			List<Integer> assessmentIDs;
 			try {
-				String id = (String) request.getAttributes().get("searchid");
-				killdash9(id, response);
-			} catch (Exception e) {
+				assessmentIDs = getAssessmentsToSearch(doc);
+			} catch (Exception poorlyHandled) {
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, poorlyHandled);
+			}
+			String text = getText(doc);
+			String options = getOptions(doc);
+			String field = getField(doc);
+
+			if (options != null) {
+				startNewSearch(text, assessmentIDs, options, field, request, response);
+			} else {
 				response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			}
-		} else {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		}
-
+		} else
+			postContinueSearching(searchid, response);
 	}
 
 	private void postContinueSearching(String searchID, Response response) {
@@ -347,42 +347,38 @@ public class FindReplaceRestlet extends ServiceRestlet {
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 		}
 	}
-
-	private void replace(Request request, Response response) {
+	
+	@Override
+	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+		NativeDocument ndoc = new JavaNativeDocument();
 		try {
-			String text = request.getEntityAsText();
-			
-			NativeDocument ndoc = SIS.get().newNativeDocument(null);
-			ndoc.parse(text);
-
-			StringBuffer xml = new StringBuffer("<errors>\r\n");
-			String options = getOptions(ndoc);
-			String field = getField(ndoc);
-			ArrayList<FindReplaceData> list = parseDocument(ndoc);
-
-			
-			
-			boolean overallSuccess = true;
-			for (int i = 0; i < list.size(); i++) {
-				boolean success = replacer.replace(SIS.get().getUser(request), list.get(i), options, field);
-				if (!success) {
-					xml.append("<error>" + list.get(i).getAssessmentName() + "</error>\r\n");
-					overallSuccess = false;
-				}
-			}
-			xml.append("</errors>");
-
-			if (overallSuccess) {
-				response.setStatus(Status.SUCCESS_OK);
-			} else {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL);
-				response.setEntity(xml.toString(), MediaType.TEXT_XML);
-			}
+			ndoc.parse(entity.getText());
 		} catch (Exception e) {
-			e.printStackTrace();
-			response.setStatus(Status.CLIENT_ERROR_EXPECTATION_FAILED);
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
+		
+		StringBuilder xml = new StringBuilder("<errors>\r\n");
+			
+		String options = getOptions(ndoc);
+		String field = getField(ndoc);
+		ArrayList<FindReplaceData> list = parseDocument(ndoc);
+	
+		boolean overallSuccess = true;
+		for (int i = 0; i < list.size(); i++) {
+			boolean success = replacer.replace(SIS.get().getUser(request), list.get(i), options, field);
+			if (!success) {
+				xml.append("<error>" + list.get(i).getAssessmentName() + "</error>\r\n");
+				overallSuccess = false;
+			}
+		}
+		xml.append("</errors>");
 
+		if (overallSuccess) {
+			response.setStatus(Status.SUCCESS_OK);
+		} else {
+			response.setStatus(Status.SERVER_ERROR_INTERNAL);
+			response.setEntity(xml.toString(), MediaType.TEXT_XML);
+		}
 	}
 
 	private void startNewSearch(String text, List<Integer> assessments, String options, String field,

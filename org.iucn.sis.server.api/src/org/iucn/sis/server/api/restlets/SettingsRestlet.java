@@ -19,14 +19,12 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 
-import com.solertium.vfs.VFS;
-
 public class SettingsRestlet extends BaseServiceRestlet {
 
 	private final Collection<String> settings;
 	
-	public SettingsRestlet(VFS vfs, Context context, Collection<String> settings) {
-		super(vfs, context);
+	public SettingsRestlet(Context context, Collection<String> settings) {
+		super(context);
 		
 		//FIXME: this can be split into multiple files per app?
 		this.settings = settings;

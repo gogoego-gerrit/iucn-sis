@@ -36,8 +36,8 @@ public class FieldRestlet extends BaseServiceRestlet {
 	private final FieldSchemaGenerator generator;
 	private final TreeBuilder treeBuilder;
 
-	public FieldRestlet(String vfsroot, Context context) {
-		super(vfsroot, context);
+	public FieldRestlet(Context context) {
+		super(context);
 		
 		FieldSchemaGenerator generator;
 		TreeBuilder builder;
