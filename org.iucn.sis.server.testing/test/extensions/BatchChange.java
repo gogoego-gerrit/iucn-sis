@@ -19,31 +19,16 @@ public class BatchChange {
 		List<String> names = new ArrayList<String>();
 		names.add("field");
 		
-		Assessment template = new Assessment(); 
-		{
-			PrimitiveField<String> prim = new StringPrimitiveField();
-			prim.setName("value");
-			prim.setRawValue("cooked value");
-			
-			Field field = new Field();
-			field.setId(1);
-			field.setName("field");
-			field.getPrimitiveField().add(prim);
-			template.getField().add(field);
-			
-			Assert.assertTrue(!template.getField().isEmpty());
-			Assert.assertTrue("cooked value".equals(template.getField("field").getPrimitiveField("value").getValue()));
-		}
+		Assessment template = getTemplateAssessment("field");
 		
+		//it's empty :)
 		Assessment target = new Assessment();
-		{
-			//it's empty :)
-		}
 		
-		BatchAssessmentChanger.changeAssessment(target, template, true, false, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, true, false, names);
 		
-		System.out.println("After overwrite: " + target.getField("field").getPrimitiveField("value").getValue());
+		printResults(target);
 		
+		Assert.assertTrue(hasChanges);
 		Assert.assertTrue(!target.getField().isEmpty());
 		Assert.assertTrue("cooked value".equals(target.getField("field").getPrimitiveField("value").getValue()));
 	}
@@ -53,21 +38,7 @@ public class BatchChange {
 		List<String> names = new ArrayList<String>();
 		names.add("field");
 		
-		Assessment template = new Assessment(); 
-		{
-			PrimitiveField<String> prim = new StringPrimitiveField();
-			prim.setName("value");
-			prim.setRawValue("cooked value");
-			
-			Field field = new Field();
-			field.setId(1);
-			field.setName("field");
-			field.getPrimitiveField().add(prim);
-			template.getField().add(field);
-			
-			Assert.assertTrue(!template.getField().isEmpty());
-			Assert.assertTrue("cooked value".equals(template.getField("field").getPrimitiveField("value").getValue()));
-		}
+		Assessment template = getTemplateAssessment("field");
 		
 		Assessment target = new Assessment(); 
 		{
@@ -86,12 +57,31 @@ public class BatchChange {
 			Assert.assertTrue("raw value".equals(target.getField("field").getPrimitiveField("value").getValue()));
 		}
 		
-		BatchAssessmentChanger.changeAssessment(target, template, true, false, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, true, false, names);
 		
-		System.out.println("After overwrite: " + target.getField("field").getPrimitiveField("value").getValue());
+		printResults(target);
 		
+		Assert.assertTrue(hasChanges);
 		Assert.assertTrue(!target.getField().isEmpty());
 		Assert.assertTrue("cooked value".equals(target.getField("field").getPrimitiveField("value").getValue()));
+	}
+	
+	@Test
+	public void appendOnEmptyAssessment() {
+		List<String> names = new ArrayList<String>();
+		names.add("Documentation");
+		
+		Assessment template = getTemplateAssessment("Documentation");
+		
+		Assessment target = new Assessment();
+		
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, false, true, names);
+		
+		printResults(target);
+		
+		Assert.assertTrue(hasChanges);
+		Assert.assertTrue(!target.getField().isEmpty());
+		Assert.assertTrue("cooked value".equals(target.getField("Documentation").getPrimitiveField("value").getValue()));
 	}
 	
 	@Test
@@ -99,21 +89,7 @@ public class BatchChange {
 		List<String> names = new ArrayList<String>();
 		names.add("Documentation");
 		
-		Assessment template = new Assessment(); 
-		{
-			PrimitiveField<String> prim = new StringPrimitiveField();
-			prim.setName("value");
-			prim.setRawValue("cooked value");
-			
-			Field field = new Field();
-			field.setId(1);
-			field.setName("Documentation");
-			field.getPrimitiveField().add(prim);
-			template.getField().add(field);
-			
-			Assert.assertTrue(!template.getField().isEmpty());
-			Assert.assertTrue("cooked value".equals(template.getField("Documentation").getPrimitiveField("value").getValue()));
-		}
+		Assessment template = getTemplateAssessment("Documentation");
 		
 		Assessment target = new Assessment(); 
 		{
@@ -132,12 +108,69 @@ public class BatchChange {
 			Assert.assertTrue("raw value".equals(target.getField("Documentation").getPrimitiveField("value").getValue()));
 		}
 		
-		BatchAssessmentChanger.changeAssessment(target, template, false, true, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, false, true, names);
 		
-		System.out.println("After overwrite: " + target.getField("Documentation").getPrimitiveField("value").getValue());
+		printResults(target);
 		
+		Assert.assertTrue(hasChanges);
 		Assert.assertTrue(!target.getField().isEmpty());
 		Assert.assertTrue("raw value\r\n\r\ncooked value".equals(target.getField("Documentation").getPrimitiveField("value").getValue()));
+	}
+	
+	@Test
+	public void doNotOverwriteExistingAssessment() {
+		List<String> names = new ArrayList<String>();
+		names.add("field");
+		
+		Assessment template = getTemplateAssessment("field");
+		
+		Assessment target = new Assessment(); 
+		{
+			PrimitiveField<String> prim = new StringPrimitiveField();
+			prim.setName("value");
+			prim.setRawValue("raw value");
+			
+			Field field = new Field();
+			field.setId(2);
+			field.setName("field");
+			field.getPrimitiveField().add(prim);
+			
+			target.getField().add(field);
+			
+			Assert.assertTrue(!target.getField().isEmpty());
+			Assert.assertTrue("raw value".equals(target.getField("field").getPrimitiveField("value").getValue()));
+		}
+		
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, false, false, names);
+		
+		printResults(target);
+		
+		Assert.assertTrue(!hasChanges);
+		Assert.assertTrue(!target.getField().isEmpty());
+		Assert.assertTrue("raw value".equals(target.getField("field").getPrimitiveField("value").getValue()));
+	}
+	
+	private void printResults(Assessment target) {
+		System.out.println("After overwrite: " + target.getField("field").getPrimitiveField("value").getValue());
+	}
+	
+	private Assessment getTemplateAssessment(String fieldName) {
+		Assessment template = new Assessment(); 
+		
+		PrimitiveField<String> prim = new StringPrimitiveField();
+		prim.setName("value");
+		prim.setRawValue("cooked value");
+		
+		Field field = new Field();
+		field.setId(1);
+		field.setName(fieldName);
+		field.getPrimitiveField().add(prim);
+		template.getField().add(field);
+		
+		Assert.assertTrue(!template.getField().isEmpty());
+		Assert.assertTrue("cooked value".equals(template.getField(fieldName).getPrimitiveField("value").getValue()));
+		
+		return template;
 	}
 
 }
