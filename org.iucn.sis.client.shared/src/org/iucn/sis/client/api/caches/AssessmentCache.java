@@ -17,6 +17,7 @@ import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
@@ -41,7 +42,7 @@ public class AssessmentCache {
 	 * filename minus .xml
 	 * 
 	 */
-	public class AssessmentInfo {
+	/*public class AssessmentInfo {
 		public String type, name, region;
 		public Integer id;
 		
@@ -79,7 +80,7 @@ public class AssessmentCache {
 			this.name = name;
 			this.region = region;
 		}
-	}
+	}*/
 
 	public static final AssessmentCache impl = new AssessmentCache();
 	private static final int NUMRECENTASSESSMENTS = 10;
@@ -92,7 +93,7 @@ public class AssessmentCache {
 	 * view assessments. (Stores AssessmentInfo objects) null if hasn't been
 	 * initialized
 	 */
-	private ArrayList<AssessmentInfo> recentAssessments;
+	//private ArrayList<AssessmentInfo> recentAssessments;
 
 	private int numSinceSaveRecent;
 
@@ -364,12 +365,19 @@ public class AssessmentCache {
 			return new HashSet<Assessment>();
 	}
 	
-	public ArrayList<AssessmentInfo> getRecentAssessments() {
-		return recentAssessments;
+	public List<RecentlyAcccessedCache.RecentAssessment> getRecentAssessments() {
+		//return recentAssessments;
+		return RecentlyAcccessedCache.impl.list(RecentlyAccessed.ASSESSMENT);
 	}
 
-	public void loadRecentAssessments(final GenericCallback<String> wayBacks) {
-		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+	/**
+	 * 
+	 * @deprecated use RecentlyAccessedCache directly.
+	 */
+	public void loadRecentAssessments(final GenericCallback<Object> wayBacks) {
+		RecentlyAcccessedCache.impl.load(RecentlyAccessed.ASSESSMENT, wayBacks);
+		
+		/*final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.get(UriBase.getInstance().getRecentAssessmentsBase() + "/recentAssessments/" + SISClientBase.currentUser.getUsername(), new GenericCallback<String>() {
 
 			public void onFailure(Throwable caught) {
@@ -390,7 +398,7 @@ public class AssessmentCache {
 				
 				wayBacks.onSuccess(arg0);
 			}
-		});
+		});*/
 	}
 
 	public void resetCurrentAssessment() {
@@ -450,7 +458,7 @@ public class AssessmentCache {
 	 * saves a list of recent assessments to the server, silently succeeds and
 	 * fails.
 	 */
-	private void saveRecentAssessments() {
+	/*private void saveRecentAssessments() {
 		StringBuffer xml = new StringBuffer("<recent>\r\n");
 		for (int i = 0; i < recentAssessments.size(); i++) {
 			AssessmentInfo temp = (AssessmentInfo) recentAssessments.get(i);
@@ -466,10 +474,13 @@ public class AssessmentCache {
 			public void onSuccess(String arg0) {
 			}
 		});
-	}
+	}*/
 	
 	private void updateRecentAssessments() {
-		if (recentAssessments != null) {
+		RecentlyAcccessedCache.impl.add(RecentlyAccessed.ASSESSMENT, 
+			new RecentlyAcccessedCache.RecentAssessment(getCurrentAssessment())
+		);
+		/*if (recentAssessments != null) {
 			Assessment currentAssessment = getCurrentAssessment();
 			String status = currentAssessment.getType();
 
@@ -504,7 +515,7 @@ public class AssessmentCache {
 				numSinceSaveRecent = 0;
 				saveRecentAssessments();
 			}
-		}
+		}*/
 	}
 	
 	private static class AssessmentCopyFilter implements Assessment.DeepCopyFilter {

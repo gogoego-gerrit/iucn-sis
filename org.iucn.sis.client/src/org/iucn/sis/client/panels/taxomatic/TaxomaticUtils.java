@@ -120,15 +120,16 @@ public class TaxomaticUtils {
 
 	}
 
+	@SuppressWarnings("deprecation")
 	protected void afterTaxomaticOperation(final Integer currentTaxaID, final GenericCallback<String> callback) {
 		TaxonomyCache.impl.clear();
 		AssessmentCache.impl.resetCurrentAssessment();
 		AssessmentCache.impl.clear();		
-		AssessmentCache.impl.loadRecentAssessments(new GenericCallback<String>() {
+		AssessmentCache.impl.loadRecentAssessments(new GenericCallback<Object>() {
 			public void onFailure(Throwable caught) {
 			}
 
-			public void onSuccess(String arg) {
+			public void onSuccess(Object arg) {
 				// Silently be happy.
 
 				TaxonomyCache.impl.fetchTaxon(currentTaxaID, true, new GenericCallback<Taxon >() {

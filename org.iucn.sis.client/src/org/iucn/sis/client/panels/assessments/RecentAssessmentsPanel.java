@@ -3,7 +3,7 @@ package org.iucn.sis.client.panels.assessments;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
-import org.iucn.sis.client.api.caches.AssessmentCache.AssessmentInfo;
+import org.iucn.sis.client.api.caches.RecentlyAcccessedCache;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
@@ -21,7 +21,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class RecentAssessmentsPanel extends RefreshPortlet {
 
 	// private LayoutContainer content;
-	private List<AssessmentInfo> recentAssessments;
+	private List<RecentlyAcccessedCache.RecentAssessment> recentAssessments;
 	private boolean loaded;
 
 //	private ArrayList assessments = null;
@@ -53,7 +53,7 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 
 			row++;
 			
-			for (AssessmentInfo curInfo : recentAssessments) {
+			for (RecentlyAcccessedCache.RecentAssessment curInfo : recentAssessments) {
 				grid.setText(row, 0, curInfo.name);
 				
 				final String text;
@@ -76,7 +76,7 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 				public void onClick(ClickEvent event) {
 					Cell cell = grid.getCellForEvent(event);
 					if (cell != null && cell.getRowIndex() != 0) {
-						AssessmentInfo clicked = recentAssessments.get(cell.getRowIndex() - 1);
+						RecentlyAcccessedCache.RecentAssessment clicked = recentAssessments.get(cell.getRowIndex() - 1);
 						setAsCurrentAssessment(clicked.id, clicked.type);
 					}
 				}
@@ -110,16 +110,17 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 		});
 	}
 
+	@SuppressWarnings("deprecation")
 	public void update() {
 		loaded = true;
 
-		AssessmentCache.impl.loadRecentAssessments(new GenericCallback<String>() {
+		AssessmentCache.impl.loadRecentAssessments(new GenericCallback<Object>() {
 			public void onFailure(Throwable caught) {
 				removeAll();
 				add(new HTML("Unable to load recent assessments, please check your internet connection."));
 			}
 
-			public void onSuccess(String arg0) {
+			public void onSuccess(Object arg0) {
 				loaded = true;
 				
 				fetchAndDrawPanel();
