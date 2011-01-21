@@ -2,12 +2,14 @@ package org.iucn.sis.client.container;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
+import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.extensions.birdlife.structures.BirdlifeWidgetGenerator;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.citations.Referenceable;
+import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
 import org.iucn.sis.shared.api.utils.FieldParser;
 
@@ -65,6 +67,7 @@ public class SimpleSISClient extends SISClientBase {
 		FieldWidgetCache.impl.setFieldParser(new FieldParser());
 		FieldWidgetCache.impl.registerWidgetGenerator(new WidgetGenerator());
 		FieldWidgetCache.impl.registerWidgetGenerator(new BirdlifeWidgetGenerator());
+		RecentlyAccessedCache.impl.load(RecentlyAccessed.USER);
 		super.initializeCaches();
 	}
 	

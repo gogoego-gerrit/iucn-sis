@@ -119,6 +119,7 @@ public class ProfileSearchResource extends Resource {
 				}
 				appendField(document, row, "firstName", user.getFirstName());
 				appendField(document, row, "lastName", user.getLastName());
+				appendField(document, row, "nickname", user.getNickname());
 				appendField(document, row, "initials", user.getInitials());
 				appendField(document, row, "email", user.getEmail());
 				appendField(document, row, "userid", user.getId()+"");

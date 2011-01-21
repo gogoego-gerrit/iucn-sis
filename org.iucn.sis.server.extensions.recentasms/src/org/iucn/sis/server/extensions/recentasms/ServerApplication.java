@@ -13,6 +13,7 @@ public class ServerApplication extends SimpleSISApplication {
 	 */
 	public void init() {
 		addServiceToRouter(new RecentAssessmentsRestlet(app.getContext()));
+		addServiceToRouter(new RecentlyAccessedRestlet(app.getContext()));
 	}
 	
 

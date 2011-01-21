@@ -7,10 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.UserCache;
+import org.iucn.sis.client.api.caches.RecentlyAccessedCache.RecentUser;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.shared.api.models.RecentlyAccessed;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -234,24 +237,23 @@ public class BrowseUsersWindow extends Window {
 			final FlexTable form = new FlexTable();
 			final ButtonBar bar = new ButtonBar();
 			bar.setAlignment(HorizontalAlignment.RIGHT);
-			bar.add(new Button("Search",
-					new SelectionListener<ButtonEvent>() {
-						@Override
-						public void componentSelected(ButtonEvent ce) {
-							final Map<String, String> params = new HashMap<String, String>();
-							for (int i = 0; i < form.getRowCount(); i++) {
-								if (form.getCellCount(i) > 1) {
-									TextBox box = (TextBox) form.getWidget(i, 1);
-									if (!box.getText().equals(""))
-										params.put(box.getName(), box.getText());
-								}
-							}
-							if (params.isEmpty())
-								WindowUtils.errorAlert("You must specify at least one criteria");
-							else
-								search(params);
+			bar.add(new Button("Search", new SelectionListener<ButtonEvent>() {
+				@Override
+				public void componentSelected(ButtonEvent ce) {
+					final Map<String, String> params = new HashMap<String, String>();
+					for (int i = 0; i < form.getRowCount(); i++) {
+						if (form.getCellCount(i) > 1) {
+							TextBox box = (TextBox) form.getWidget(i, 1);
+							if (!box.getText().equals(""))
+								params.put(box.getName(), box.getText());
 						}
-					}));
+					}
+					if (params.isEmpty())
+						WindowUtils.errorAlert("You must specify at least one criteria");
+					else
+						search(params);
+				}
+			}));
 			form.setHTML(0, 0, "First Name: ");
 			form.setWidget(0, 1, first);
 			form.setHTML(1, 0, "Last Name: ");
@@ -262,33 +264,39 @@ public class BrowseUsersWindow extends Window {
 			form.setWidget(3, 1, affiliation);
 			form.setWidget(4, 0, bar);
 			form.getFlexCellFormatter().setColSpan(4, 0, 2);
-
-			final LayoutContainer container = new LayoutContainer();
-			final TableLayout clayout = new TableLayout(3);
-			clayout.setWidth("100%");
-			clayout.setHeight("100%");
+			
 			final TableData headers = new TableData();
 			headers.setHorizontalAlign(HorizontalAlignment.CENTER);
 			headers.setHeight("25px");
+			
 			final TableData panels = new TableData();
 			panels.setMargin(5);
 			panels.setHeight(listHeight + "px");
-
+			
 			final TableData statusData = new TableData();
 			statusData.setMargin(5);
 			statusData.setColspan(1);
-
+			
 			final TableData filler = new TableData();
 			filler.setColspan(2);
 
-			container.setLayout(clayout);
+			final LayoutContainer container = new LayoutContainer(); {
+				final TableLayout clayout = new TableLayout(3);
+				clayout.setWidth("100%");
+				clayout.setHeight("100%");
+				container.setLayout(clayout);
+			}
+			
 			container.add(recentUsersHeading, headers);
 			container.add(selectedUsersHeading, headers);
 			container.add(possibleUsersHeading, headers);
+			
 			container.add(recent, panels);
 			container.add(selected, panels);
 			container.add(results, panels);
+			
 			container.add(new HTML(""), filler);
+			
 			container.add(status, statusData);
 
 			new ListViewDragSource(results);
@@ -375,13 +383,18 @@ public class BrowseUsersWindow extends Window {
 
 	protected void onSave() {
 		final ArrayList<ClientUser> selectedUsers = new ArrayList<ClientUser>();
+		final List<RecentUser> recent = new ArrayList<RecentUser>();
 		final Iterator<SearchResults> iterator = selected
 				.getStore().getModels().iterator();
 		while (iterator.hasNext()) {
-			selectedUsers.add(iterator.next().getUser());
+			ClientUser user = iterator.next().getUser();
+			
+			selectedUsers.add(user);
+			recent.add(new RecentUser(user));
 		}
 		
 		UserCache.impl.addUsers(selectedUsers);
+		RecentlyAccessedCache.impl.add(RecentlyAccessed.USER, recent);
 		onSelect(selectedUsers);
 	}
 
@@ -411,14 +424,15 @@ public class BrowseUsersWindow extends Window {
 
 		this.selected.setStore(store);
 
-		store = new ListStore<SearchResults>();
-		store.setStoreSorter(new SearchResultsComparator());
+		ListStore<SearchResults> recentUserStore = new ListStore<SearchResults>();
+		recentUserStore.setStoreSorter(new SearchResultsComparator());
 
-		for (ClientUser user : UserCache.impl.getUsers()) {
-			store.add(new SearchResults(user));
-		}
-		this.recent.setStore(store);
-
+		List<RecentUser> users = RecentlyAccessedCache.impl.list(RecentlyAccessed.USER); 
+		
+		for (RecentUser user : users)
+			recentUserStore.add(new SearchResults(user.getUser()));
+		
+		this.recent.setStore(recentUserStore);
 	}
 
 	/**

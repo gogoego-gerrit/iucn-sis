@@ -18,7 +18,6 @@ import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
-import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
@@ -30,72 +29,13 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.lwxml.shared.utils.RowData;
-import com.solertium.lwxml.shared.utils.RowParser;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class AssessmentCache {
 
-	/**
-	 * 
-	 * status is either published_status, draft_status, or user_status id is the
-	 * filename minus .xml
-	 * 
-	 */
-	/*public class AssessmentInfo {
-		public String type, name, region;
-		public Integer id;
-		
-		public AssessmentInfo(Assessment assessment) {
-			this.id = assessment.getId();
-			this.type = assessment.getType();
-			this.name = assessment.getSpeciesName();
-			
-			String region;
-			if (assessment.isRegional()) {
-				List<Integer> regions = assessment.getRegionIDs();
-				if (regions.isEmpty())
-					region = "(Unspecified Region)";
-				else {
-					Region r = RegionCache.impl.getRegionByID(regions.get(0));
-					if (r == null)
-						region = "(Invalid Region ID)";
-					else if (regions.size() == 1)
-						region = r.getName();
-					else
-						region = r.getName() + " + " + (regions.size() - 1) + " more...";
-				}
-				if (assessment.isEndemic())
-					region += " -- Endemic";
-			}
-			else
-				region = "Global";
-			
-			this.region = region;
-		}
-
-		public AssessmentInfo(Integer id, String type, String name, String region) {
-			this.id = id;
-			this.type = type;
-			this.name = name;
-			this.region = region;
-		}
-	}*/
-
 	public static final AssessmentCache impl = new AssessmentCache();
-	private static final int NUMRECENTASSESSMENTS = 10;
-	private static final int HOWOFTENTOSAVERECENTASSESSMENTS = 1;
 
 	private Assessment currentAssessment;
-
-	/**
-	 * ArrayList that stores NUMRECENTASSESSMENTS number of the most recently
-	 * view assessments. (Stores AssessmentInfo objects) null if hasn't been
-	 * initialized
-	 */
-	//private ArrayList<AssessmentInfo> recentAssessments;
-
-	private int numSinceSaveRecent;
 
 	private Map<Integer, Assessment> cache;
 	private Map<Integer, List<Assessment>> taxonToAssessmentCache;
@@ -105,8 +45,6 @@ public class AssessmentCache {
 		cache = new HashMap<Integer, Assessment>();
 		taxaFetched = new HashMap<Integer, Boolean>();
 		taxonToAssessmentCache = new HashMap<Integer, List<Assessment>>();
-		
-		numSinceSaveRecent = 0;
 	}
 
 	public void addAssessment(Assessment assessment) {
@@ -365,9 +303,8 @@ public class AssessmentCache {
 			return new HashSet<Assessment>();
 	}
 	
-	public List<RecentlyAcccessedCache.RecentAssessment> getRecentAssessments() {
-		//return recentAssessments;
-		return RecentlyAcccessedCache.impl.list(RecentlyAccessed.ASSESSMENT);
+	public List<RecentlyAccessedCache.RecentAssessment> getRecentAssessments() {
+		return RecentlyAccessedCache.impl.list(RecentlyAccessed.ASSESSMENT);
 	}
 
 	/**
@@ -375,30 +312,7 @@ public class AssessmentCache {
 	 * @deprecated use RecentlyAccessedCache directly.
 	 */
 	public void loadRecentAssessments(final GenericCallback<Object> wayBacks) {
-		RecentlyAcccessedCache.impl.load(RecentlyAccessed.ASSESSMENT, wayBacks);
-		
-		/*final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.get(UriBase.getInstance().getRecentAssessmentsBase() + "/recentAssessments/" + SISClientBase.currentUser.getUsername(), new GenericCallback<String>() {
-
-			public void onFailure(Throwable caught) {
-				recentAssessments = new ArrayList<AssessmentInfo>();
-				wayBacks.onFailure(caught);
-			}
-
-			public void onSuccess(String arg0) {
-				recentAssessments = new ArrayList<AssessmentInfo>();
-				
-				final RowParser parser = new RowParser(ndoc);
-				for (RowData row : parser.getRows()) {
-					recentAssessments.add(new AssessmentInfo(
-						Integer.valueOf(row.getField("id")), row.getField("status"), 
-						row.getField("species"), row.getField("region")
-					));
-				}
-				
-				wayBacks.onSuccess(arg0);
-			}
-		});*/
+		RecentlyAccessedCache.impl.load(RecentlyAccessed.ASSESSMENT, wayBacks);
 	}
 
 	public void resetCurrentAssessment() {
@@ -454,68 +368,10 @@ public class AssessmentCache {
 		SISClientBase.getInstance().onAssessmentChanged();
 	}
 
-	/**
-	 * saves a list of recent assessments to the server, silently succeeds and
-	 * fails.
-	 */
-	/*private void saveRecentAssessments() {
-		StringBuffer xml = new StringBuffer("<recent>\r\n");
-		for (int i = 0; i < recentAssessments.size(); i++) {
-			AssessmentInfo temp = (AssessmentInfo) recentAssessments.get(i);
-			xml.append("<assessment status=\"" + temp.type + "\">" + temp.id + "</assessment>\r\n");
-		}
-		xml.append("</recent>");
-		NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.post(UriBase.getInstance().getRecentAssessmentsBase() + "/recentAssessments/" + SISClientBase.currentUser.getUsername(), xml.toString(),
-				new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-			}
-
-			public void onSuccess(String arg0) {
-			}
-		});
-	}*/
-	
 	private void updateRecentAssessments() {
-		RecentlyAcccessedCache.impl.add(RecentlyAccessed.ASSESSMENT, 
-			new RecentlyAcccessedCache.RecentAssessment(getCurrentAssessment())
+		RecentlyAccessedCache.impl.add(RecentlyAccessed.ASSESSMENT, 
+			new RecentlyAccessedCache.RecentAssessment(getCurrentAssessment())
 		);
-		/*if (recentAssessments != null) {
-			Assessment currentAssessment = getCurrentAssessment();
-			String status = currentAssessment.getType();
-
-			int index = -1;
-
-			for (int i = 0; i < recentAssessments.size() && index < 0; i++) {
-				AssessmentInfo current = recentAssessments.get(i);
-				if (status.equals(current.type)) {
-					if (current.id.equals(currentAssessment.getId()))
-						index = i;
-				}
-			}
-
-			// NOT ALREADY IN LIST
-			if (index < 0) {
-				Integer id = currentAssessment.getId();
-
-				if (id != null) {
-					recentAssessments.add(0, new AssessmentInfo(currentAssessment));
-					if (recentAssessments.size() > NUMRECENTASSESSMENTS) {
-						recentAssessments.remove(NUMRECENTASSESSMENTS);
-					}
-				}
-				numSinceSaveRecent++;
-			} else {
-				recentAssessments.add(0, recentAssessments.remove(index));
-				numSinceSaveRecent++;
-			}
-
-			// IF NEED TO SAVE TO SERVER
-			if (numSinceSaveRecent == HOWOFTENTOSAVERECENTASSESSMENTS) {
-				numSinceSaveRecent = 0;
-				saveRecentAssessments();
-			}
-		}*/
 	}
 	
 	private static class AssessmentCopyFilter implements Assessment.DeepCopyFilter {

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -18,15 +19,15 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.utils.RowData;
 import com.solertium.lwxml.shared.utils.RowParser;
 
-public class RecentlyAcccessedCache {
+public class RecentlyAccessedCache {
 	
-	public static final RecentlyAcccessedCache impl = new RecentlyAcccessedCache();
+	public static final RecentlyAccessedCache impl = new RecentlyAccessedCache();
 	
 	private static final int CACHE_SIZE = 15;
 	
 	private final Map<String, List<? extends RecentInfo>> cache;
 	
-	private RecentlyAcccessedCache() {
+	private RecentlyAccessedCache() {
 		cache = new HashMap<String, List<? extends RecentInfo>>();
 	
 	}
@@ -78,54 +79,78 @@ public class RecentlyAcccessedCache {
 		});
 	}
 	
-	@SuppressWarnings("unchecked")
 	public <X extends RecentInfo> void add(final String type, final X recent) {
-		final RecentlyAccessed accessed = new RecentlyAccessed();
-		accessed.setDate(new Date());
-		accessed.setId(0);
-		accessed.setObjectid(recent.getObjectID());
-		accessed.setType(type);
-		accessed.setUser(SISClientBase.currentUser);
+		List<X> list = new ArrayList<X>();
+		list.add(recent);
+		
+		add(type, list);
+	}
+	
+	public <X extends RecentInfo> void add(final String type, final List<X> recent) {
+		final StringBuilder xml = new StringBuilder();
+		xml.append("<root>");
+		for (X current : recent) {
+			final RecentlyAccessed accessed = new RecentlyAccessed();
+			accessed.setDate(new Date());
+			accessed.setId(0);
+			accessed.setObjectid(current.getObjectID());
+			accessed.setType(type);
+			accessed.setUser(SISClientBase.currentUser);
+			
+			current.setAccessType(type);
+			
+			addLocally(type, current);
+			
+			xml.append(accessed.toXML());
+		}
+		xml.append("</root>");
 		
 		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-		document.post(UriBase.getInstance().getRecentAssessmentsBase() + "/recent/" + type, accessed.toXML(), new GenericCallback<String>() {
+		document.post(UriBase.getInstance().getRecentAssessmentsBase() + "/recent/" + type, xml.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				RowParser parser = new RowParser();
 				parser.parseInsertRows(document);
-				
-				String id = parser.getFirstRow().getField("id_0");
-				
-				List<X> existing = (List<X>)cache.get(type);
-				if (existing == null)
-					existing = new ArrayList<X>();
-				
-				boolean found = false;
-				X infoToAdd = recent;
-				for (X current : existing) {
-					if (current.getObjectID().equals(recent.getObjectID())) {
-						infoToAdd = current;
-						found = true;
-						break;
+
+				for (int i = 0; i < recent.size(); i++) {
+					X current = recent.get(i);
+					try {
+						current.setAccessID(Integer.valueOf(parser.getFirstRow().getField("id_" + i)));
+					} catch (Exception e) {
+						Debug.println("Failed to set access ID: {0}, {1}", i, e);
 					}
 				}
-				
-				if (id != null)
-					infoToAdd.setAccessID(Integer.valueOf(id));
-				
-				if (found)
-					existing.remove(infoToAdd);
-				
-				existing.add(0, infoToAdd);
-				
-				//This is already managed on the server, no need to re-save.
-				if (existing.size() > CACHE_SIZE)
-					existing.remove(CACHE_SIZE);
 			}
 			public void onFailure(Throwable caught) {
 				Debug.println("Failed to save a new current reference...");
 			}
 		});
-	} 
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <X extends RecentInfo> void addLocally(String type, X recent) {
+		List<X> existing = (List<X>)cache.get(type);
+		if (existing == null)
+			existing = new ArrayList<X>();
+		
+		boolean found = false;
+		X infoToAdd = recent;
+		for (X current : existing) {
+			if (current.getObjectID().equals(recent.getObjectID())) {
+				infoToAdd = current;
+				found = true;
+				break;
+			}
+		}
+		
+		if (found)
+			existing.remove(infoToAdd);
+		
+		existing.add(0, infoToAdd);
+		
+		//This is already managed on the server, no need to re-save.
+		if (existing.size() > CACHE_SIZE)
+			existing.remove(CACHE_SIZE);
+	}
 	
 	private RecentInfo parse(String type, RowData row) {
 		RecentInfo info;
@@ -133,6 +158,9 @@ public class RecentlyAcccessedCache {
 			info = new RecentAssessment(Integer.valueOf(row.getField("id")), 
 					row.getField("status"), row.getField("species"), 
 					row.getField("region"));  
+		}
+		else if (RecentlyAccessed.USER.equals(type)) {
+			info = new RecentUser(row);
 		}
 		else
 			return null;
@@ -165,6 +193,43 @@ public class RecentlyAcccessedCache {
 		}
 		
 		public abstract Integer getObjectID();
+	}
+	
+	public static class RecentUser extends RecentInfo {
+		
+		private final ClientUser user;
+		
+		public RecentUser(ClientUser user) {
+			this.user = user;
+		}
+		
+		public RecentUser(RowData row) {
+			ClientUser user = new ClientUser();
+			user.setFirstName(row.getField("firstName"));
+			user.setLastName(row.getField("lastName"));
+			user.setNickname(row.getField("nickname"));
+			user.setInitials(row.getField("initials"));
+			user.setEmail(row.getField("email"));
+			user.setId(Integer.valueOf(row.getField("userid")));
+			user.setUsername(row.getField("username"));
+			user.setAffiliation(row.getField("affiliation"));
+			user.setProperty("quickgroup", row.getField("quickGroup"));
+			
+			for (Map.Entry<String, String> entry : row.entrySet())
+				user.setProperty(entry.getKey().toLowerCase(), entry.getValue());
+			
+			this.user = user;
+		}
+		
+		public ClientUser getUser() {
+			return user;
+		}
+		
+		@Override
+		public Integer getObjectID() {
+			return user.getId();
+		}
+		
 	}
 	
 	public static class RecentAssessment extends RecentInfo {

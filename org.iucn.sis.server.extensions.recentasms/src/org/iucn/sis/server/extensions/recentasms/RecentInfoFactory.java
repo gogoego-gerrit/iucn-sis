@@ -5,13 +5,16 @@ import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
+import org.iucn.sis.shared.api.models.User;
 
 public class RecentInfoFactory {
 	
 	public static Class<?> getClassForName(String type) {
 		Class<?> clazz = null;
-		if ("assessment".equals(type))
+		if (RecentlyAccessed.ASSESSMENT.equals(type))
 			clazz = Assessment.class;
+		else if (RecentlyAccessed.USER.equals(type))
+			clazz = User.class;
 		
 		return clazz;
 	}
@@ -36,8 +39,10 @@ public class RecentInfoFactory {
 	
 	public static <X> RecentInfo<X> load(String type, Object object) {
 		RecentInfo parser;
-		if ("assessment".equals(type))
+		if (RecentlyAccessed.ASSESSMENT.equals(type))
 			parser = new RecentAssessmentInfo();
+		else if (RecentlyAccessed.USER.equals(type))
+			parser = new RecentUserInfo();
 		else
 			return null;
 		

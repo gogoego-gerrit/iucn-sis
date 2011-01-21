@@ -59,7 +59,7 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 		try {
 			list = SIS.get().getManager().getSession().createCriteria(RecentlyAccessed.class)
 			.add(Restrictions.eq("user", user)).add(Restrictions.eq("type", type))
-			.addOrder(Order.asc("date")).list();
+			.addOrder(Order.desc("date")).list();
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
@@ -70,47 +70,10 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 			try {
 				RecentInfo info = RecentInfoFactory.load(accessed);
 				info.addField("accessid", accessed.getId() + "");
+				info.addField("accessdate", accessed.getDate().getTime() + "");
 				out.append(info.toXML());
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-			}
-		}
-		out.append("</root>");
-		
-		return new StringRepresentation(out.toString(), MediaType.TEXT_XML);
-	}
-	
-	private Representation handleViaShortcut(Request request, Response response) throws ResourceException {
-		User user = getUser(request);
-		String type = getType(request);
-		
-		List<?> list;
-		try {
-			list = SIS.get().getManager().getSession().createSQLQuery(
-				"SELECT {" + type + ".*}, {recentlyassessed.*} FROM \"" + type + "\" " +  
-				"JOIN \"recentlyaccessed\" ON " + type + ".id = \"recentlyaccessed\".objectid " +
-				"WHERE \"recentlyaccessed\".userid = " + user.getId() + " " +  
-				"ORDER BY \"recentlyaccessed\".date")
-				.addEntity(RecentInfoFactory.getClassForName(type))
-				.list();
-		} catch (PersistentException e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
-		
-		final StringBuilder out = new StringBuilder();
-		out.append("<root>");
-		
-		RecentlyAccessed current = null;
-		RecentInfo info = null;
-		for (Object object : list) {
-			if (object instanceof RecentlyAccessed)
-				current = (RecentlyAccessed)object;
-			else
-				info = (RecentInfo)object;
-			
-			if (current != null && info != null) {
-				info.addField("accessid", current.getId()+"");
-				out.append(info.toXML());
 			}
 		}
 		out.append("</root>");
