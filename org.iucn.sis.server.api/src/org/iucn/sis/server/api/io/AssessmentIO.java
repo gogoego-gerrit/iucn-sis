@@ -32,6 +32,7 @@ import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.vfs.BoundsException;
 import com.solertium.vfs.NotFoundException;
+import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.provider.VersionedFileVFS;
 
 /**
@@ -103,12 +104,9 @@ public class AssessmentIO {
 			String xml = assessment.toXML();
 			String serverPaths = ServerPaths.getAssessmentURL(assessment);
 			DocumentUtils.writeVFSFile(serverPaths, vfs, xml);
-			try {
-				if (edit != null)
-					vfs.setLastModified(serverPaths, edit.getCreatedDate());
-			} catch (NotFoundException e1) {
-				e.printStackTrace();
-			}
+			
+			if (edit != null)
+				vfs.setLastModified(new VFSPath(serverPaths), edit.getCreatedDate());
 
 			return xml;
 		} catch (BoundsException e) {
@@ -429,7 +427,7 @@ public class AssessmentIO {
 	public boolean saveAssessmentsWithNoFail(Collection<Assessment> assessments, User user) {
 		Status lockStatus = Status.SUCCESS_OK;
 		boolean success = false;
-		if (SIS.get().amIOnline()) {
+		if (SIS.amIOnline()) {
 			lockStatus = SIS.get().getLocker().persistentLockAssessments(assessments, LockType.SAVE_LOCK, user);
 		}
 
@@ -464,23 +462,23 @@ public class AssessmentIO {
 		if (assessment.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
 			List<Assessment> compareTo = SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(
 					assessment.getTaxon().getId());
+			List<Integer> regionIDs = assessment.getRegionIDs();
 			String defaultSchema = SIS.get().getDefaultSchema();
 			for (Assessment cur : compareTo) {
 				if (!cur.getSchema(defaultSchema).equals(assessment.getSchema(defaultSchema)))
 					continue;
 				
 				if ((cur.isGlobal() && assessment.isGlobal())
-						|| cur.getRegionIDs().containsAll(assessment.getRegionIDs())) {
+						|| cur.getRegionIDs().containsAll(regionIDs)) {
 					if (cur.getId() != assessment.getId())
 						return false;
-
 				}
 			}
 
 			try {
 				SIS.get().getManager().getSession().clear();
 			} catch (PersistentException e) {
-				e.printStackTrace();
+				Debug.println(e);
 			}
 		}
 		return true;
@@ -503,11 +501,8 @@ public class AssessmentIO {
 		String xml = assessment.toXML();
 		String serverPaths = ServerPaths.getAssessmentURL(assessment);
 		DocumentUtils.writeVFSFile(serverPaths, vfs, xml);
-		try {
-			vfs.setLastModified(serverPaths, edit.getCreatedDate());
-		} catch (NotFoundException e) {
-			e.printStackTrace();
-		}
+		
+		vfs.setLastModified(new VFSPath(serverPaths), edit.getCreatedDate());
 	}
 
 	protected Assessment getFromVFS(Integer id) {
@@ -527,7 +522,7 @@ public class AssessmentIO {
 	}
 
 	protected String getXMLFromVFS(Integer id) throws NotFoundException, BoundsException, IOException {
-		return vfs.getString(ServerPaths.getAssessmentUrl(id));
+		return vfs.getString(new VFSPath(ServerPaths.getAssessmentUrl(id)));
 	}
 
 }

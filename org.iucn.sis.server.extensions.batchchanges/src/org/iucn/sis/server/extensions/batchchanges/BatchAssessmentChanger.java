@@ -57,8 +57,6 @@ public class BatchAssessmentChanger {
 				return false;
 		}
 		
-		System.out.println("Working...");
-		
 		if (overwrite) {
 			target.setFields(new HashSet<Field>());
 			target.setPrimitiveField(new HashSet<PrimitiveField>());
@@ -73,7 +71,7 @@ public class BatchAssessmentChanger {
 					keyToPF.get(pf.getName()).appendValue(pf.getValue());
 				}
 			} else {
-				PrimitiveField newPrim = pf.deepCopy();
+				PrimitiveField newPrim = pf.deepCopy(false);
 				newPrim.setField(target);
 				target.getPrimitiveField().add(newPrim);
 			}

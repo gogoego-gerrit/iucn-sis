@@ -31,7 +31,14 @@ public abstract class PrimitiveField<T> implements java.io.Serializable {
 	
 	public abstract void setRawValue(String value);
 	
-	public abstract PrimitiveField<T> deepCopy();
+	protected abstract PrimitiveField<T> deepCopy();
+	
+	public final PrimitiveField<T> deepCopy(boolean useID) {
+		PrimitiveField<T> copy = deepCopy();
+		if (!useID)
+			copy.setId(0);
+		return copy;
+	}
 	
 	public final void copyInto(PrimitiveField<T> field) {
 		field.setId(getId());

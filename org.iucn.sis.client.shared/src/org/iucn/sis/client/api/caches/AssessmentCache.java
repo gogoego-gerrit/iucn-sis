@@ -20,6 +20,7 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -130,7 +131,14 @@ public class AssessmentCache {
 		newAssessment.setTaxon(taxon);
 		newAssessment.setType(type);
 		newAssessment.setSchema(schema);
-		newAssessment.setRegions(RegionCache.impl.getRegionsByID(regions), endemic);
+		
+		Field regionField = new Field(CanonicalNames.RegionInformation, newAssessment);
+		
+		RegionField proxy = new RegionField(regionField);
+		proxy.setRegions(regions);
+		proxy.setEndemic(endemic);
+		
+		newAssessment.setField(regionField);
 		
 		if (taxaFetched.containsKey(Integer.valueOf(taxon.getId())))
 			taxaFetched.remove(Integer.valueOf(taxon.getId()));

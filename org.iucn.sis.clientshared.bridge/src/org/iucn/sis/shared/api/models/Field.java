@@ -142,8 +142,7 @@ public class Field implements Serializable {
 	}
 	
 	public Field deepCopy(boolean copyReferenceToAssessment, boolean copyFieldReferences) {
-		Field field = new Field();
-		field.setName(getName());
+		Field field = new Field(getName(), null);
 		
 		if (copyReferenceToAssessment && this.getAssessment() != null) {
 			field.assessment = assessment.deepCopy();
@@ -165,7 +164,7 @@ public class Field implements Serializable {
 		if (this.getPrimitiveField() != null) {
 			field.setPrimitiveField(new HashSet<PrimitiveField>());
 			for (PrimitiveField pf : getPrimitiveField())
-				field.getPrimitiveField().add(pf.deepCopy());
+				field.getPrimitiveField().add(pf.deepCopy(false));
 		}
 		
 		if (this.getFields() != null) {
@@ -339,7 +338,8 @@ public class Field implements Serializable {
 
 	public void setId(int value) {
 		this.id = value;
-		this.generationCode = value + "";
+		if (value > 0)
+			this.generationCode = value + "";
 	}
 
 	public void setName(String value) {
