@@ -216,12 +216,12 @@ public class FuzzyExpImpl {
 					break;
 				}
 			}
+			
+			PrimitiveField<?> direction = factorField.getPrimitiveField("direction");
+			if (direction != null && direction instanceof ForeignKeyPrimitiveField)
+				if (((ForeignKeyPrimitiveField)direction).getValue().intValue() == 1)
+					return null;
 		}
-		
-		PrimitiveField<?> direction = factorField.getPrimitiveField("direction");
-		if (direction instanceof ForeignKeyPrimitiveField)
-			if (((ForeignKeyPrimitiveField)direction).getValue().intValue() == 1)
-				return null;
 		
 		return result;
 	}
