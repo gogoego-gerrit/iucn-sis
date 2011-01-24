@@ -20,8 +20,8 @@ import com.google.gwt.user.client.ui.Widget;
 public class SISOptionsList extends Structure<Field> {
 	public static final int CURRENT_WORKING_SET_USERS = 0;
 
-	public static final String TEXT_ACCOUNT_KEY = "textValue";
-	public static final String FK_LIST_KEY = "users";
+	public static final String TEXT_ACCOUNT_KEY = "text";
+	public static final String FK_LIST_KEY = "value";
 	
 	private SISCompleteListTextArea theList;
 

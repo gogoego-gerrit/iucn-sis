@@ -1,0 +1,10 @@
+<field id="126">
+	<canonicalName>RedListFacilitators</canonicalName>
+	<description>Facilitators/Compilers</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure>
+			<optionsList></optionsList>
+		</structure>
+	</structures>
+</field>
