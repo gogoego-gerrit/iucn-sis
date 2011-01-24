@@ -275,10 +275,6 @@ public class SIS {
 		return vfs;
 	}
 
-	public String getVfsroot() {
-		return vfsroot;
-	}
-
 	public NativeDocument newNativeDocument(ChallengeResponse challengeResponse) {
 		NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 		String base64Encoded = "";
