@@ -229,7 +229,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 	
 	protected void initializeCaches() {
 		DefinitionCache.impl.getDefinables();
-		RegionCache.impl.fetchRegions(SISClientBase.getHttpBasicNativeDocument());
+		RegionCache.impl.fetchRegions();
 		SchemaCache.impl.loadAsync();
 	}
 	

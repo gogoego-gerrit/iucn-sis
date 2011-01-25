@@ -1,6 +1,5 @@
 package org.iucn.sis.server.restlets.utils;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.iucn.sis.server.api.application.SIS;
@@ -16,7 +15,6 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 
-import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
 
@@ -32,11 +30,8 @@ import com.solertium.lwxml.shared.NativeNodeList;
  */
 public class RegionRestlet extends BaseServiceRestlet {
 
-	public static HashMap<String, String> nameToID;
-
 	public RegionRestlet(Context context) {
 		super(context);
-		nameToID = new HashMap<String, String>();
 	}
 
 	@Override
@@ -63,12 +58,7 @@ public class RegionRestlet extends BaseServiceRestlet {
 
 	@Override
 	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
-		NativeDocument ndoc = new JavaNativeDocument();
-		try {
-			ndoc.parse(entity.getText());
-		} catch (Exception e) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-		}
+		NativeDocument ndoc = getEntityAsNativeDocument(entity);
 		
 		NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(Region.ROOT_TAG);
 		for (int i = 0; i < list.getLength(); i++) {
@@ -76,29 +66,10 @@ public class RegionRestlet extends BaseServiceRestlet {
 			try {
 				SIS.get().getRegionIO().saveRegion(regionUpdated);
 			} catch (PersistentException e) {
-				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 			}
 		}
 		response.setEntity(handleGet(request, response));
-	}
-	
-	/*
-	 * FIXME: I don't think this does what it is supposed to do...
-	 * Should write to the database, not the file system...
-	 */
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
-		NativeDocument ndoc = new JavaNativeDocument();
-		try {
-			ndoc.parse(entity.getText());
-		} catch (Exception e) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-		}
-
-		try {
-			SIS.get().getRegionIO().saveRegion(Region.fromXML(ndoc.getDocumentElement().getElementByTagName("region")));
-		} catch (PersistentException e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
 	}
 	
 }

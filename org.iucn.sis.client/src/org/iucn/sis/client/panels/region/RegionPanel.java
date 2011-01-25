@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.models.Region;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -311,19 +310,22 @@ public class RegionPanel extends ContentPanel {
 						list.add(model.getRegion());
 					}
 				}
-				RegionCache.impl.saveRegions(SimpleSISClient.getHttpBasicNativeDocument(), list,
+				RegionCache.impl.saveRegions(list,
 						new GenericCallback<String>() {
-							public void onFailure(Throwable caught) {
-
-							}
-
-							public void onSuccess(String result) {
-								store.commitChanges();
-								store.removeAll();
-								for (Region curRegion : RegionCache.impl.getRegions())
-									store.add(new RegionModel(curRegion));
-							}
-						});
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Could not save changes to regions, please try again later.");
+						store.rejectChanges();
+						store.removeAll();
+						for (Region curRegion : RegionCache.impl.getRegions())
+							store.add(new RegionModel(curRegion));
+					}
+					public void onSuccess(String result) {
+						store.commitChanges();
+						store.removeAll();
+						for (Region curRegion : RegionCache.impl.getRegions())
+							store.add(new RegionModel(curRegion));
+					}
+				});
 			} else {
 				WindowUtils.errorAlert("Nothing to commit!");
 			}
@@ -333,7 +335,7 @@ public class RegionPanel extends ContentPanel {
 
 	public void resetStoreData() {
 		store.removeAll();
-		RegionCache.impl.fetchRegions(SimpleSISClient.getHttpBasicNativeDocument(), new GenericCallback<String>() {
+		RegionCache.impl.fetchRegions(new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Failure fetching Regions from the server. Check your "
 						+ "Internet connection and try again.");

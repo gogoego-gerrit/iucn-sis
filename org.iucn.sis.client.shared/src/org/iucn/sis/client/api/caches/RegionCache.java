@@ -5,7 +5,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Region;
 
@@ -25,7 +27,6 @@ public class RegionCache {
 		idToRegion = new HashMap<Integer, Region>();
 		nameToRegion = new HashMap<String, Region>();
 		
-		
 		add(Region.getGlobalRegion());
 	}
 
@@ -34,20 +35,21 @@ public class RegionCache {
 		nameToRegion.put(region.getName(), region);
 	}
 
-	public void fetchRegions(NativeDocument doc) {
-		fetchRegions(doc, new GenericCallback<String>() {
+	public void fetchRegions() {
+		fetchRegions(new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
+				Debug.println("Regions not loaded, may not be connected to internet...");
 			}
-
 			public void onSuccess(String result) {
 			}
 		});
 	}
 
-	public void fetchRegions(final NativeDocument doc, final GenericCallback<String> wayback) {
+	public void fetchRegions(final GenericCallback<String> wayback) {
 		idToRegion.clear();
 		nameToRegion.clear();
 
+		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
 		doc.get(UriBase.getInstance().getSISBase() +"/regions", new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				wayback.onFailure(caught);
@@ -150,28 +152,21 @@ public class RegionCache {
 		return idToRegion.values();
 	}
 
-	public void remove(Region region) {
-		idToRegion.remove(region.getId());
-		nameToRegion.remove(region.getName());
-	}
-
-	public void saveRegions(final NativeDocument doc, final List<Region> toBeSaved,
-			final GenericCallback<String> wayback) {
-		StringBuffer buf = new StringBuffer("<regions>");
-		for (Region curRegion : toBeSaved) {
-			buf.append(curRegion.toXML());
-			buf.append("\r\n");
-		}
-		buf.append("</regions>");
+	public void saveRegions(List<Region> toBeSaved, final GenericCallback<String> wayback) {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<regions>");
+		for (Region region : toBeSaved)
+			xml.append(region.toXML());
+		xml.append("</regions>");
 		
 		idToRegion.clear();
 		nameToRegion.clear();
 
-		doc.post(UriBase.getInstance().getSISBase() +"/regions", buf.toString(), new GenericCallback<String>() {
+		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
+		doc.post(UriBase.getInstance().getSISBase() +"/regions", xml.toString(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				wayback.onFailure(caught);
 			}
-
 			public void onSuccess(String result) {
 				NativeNodeList nodeList = doc.getDocumentElement().getElementsByTagName("region");
 				for (int i = 0; i < nodeList.getLength(); i++) {
@@ -183,9 +178,4 @@ public class RegionCache {
 		});
 	}
 
-	public void update(Region oldRegionInfo, Region newRegionInfo) {
-		idToRegion.remove(oldRegionInfo.getId());
-		nameToRegion.remove(oldRegionInfo.getName());
-		add(newRegionInfo);
-	}
 }
