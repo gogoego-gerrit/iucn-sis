@@ -401,13 +401,14 @@ public class WorkingSetCache {
 	public void setCurrentWorkingSet(final WorkingSet ws, boolean saveIfNecessary, final SimpleListener afterChange) {
 		WorkingSet currentWorkingSet = StateManager.impl.getWorkingSet();
 		
-		boolean changeNeeded = ((currentWorkingSet == null && ws != null) || 
+		boolean changeNeeded = true;/*((currentWorkingSet == null && ws != null) || 
 				(currentWorkingSet != null && ws == null) || 
-				(currentWorkingSet != null && ws != null && !currentWorkingSet.equals(ws)));
-		
+				(currentWorkingSet != null && ws != null && !currentWorkingSet.equals(ws)));*/
+		//Debug.println("Set current ws; Changed needed? {0}: cur {1} & new {2}", changeNeeded, currentWorkingSet, ws);
 		if (changeNeeded) {
 			final SimpleListener callback = new SimpleListener() {
 				public void handleEvent() {
+					Debug.println("Setting {0} as current", ws);
 					StateManager.impl.setWorkingSet(ws);
 					
 					SISClientBase.getInstance().onWorkingSetChanged();

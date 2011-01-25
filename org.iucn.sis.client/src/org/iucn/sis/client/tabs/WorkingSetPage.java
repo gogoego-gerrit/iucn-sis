@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.gwt.ui.StyledHTML;
@@ -39,6 +40,8 @@ public class WorkingSetPage extends FeaturedItemContainer<WorkingSet> {
 	@Override
 	protected void drawBody(DoneDrawingCallback callback) {
 		setBodyContainer(homePage);
+		
+		callback.isDrawn();
 	}
 	
 	@Override
@@ -46,15 +49,19 @@ public class WorkingSetPage extends FeaturedItemContainer<WorkingSet> {
 		final WorkingSet item = getSelectedItem();
 		
 		final LayoutContainer container = new LayoutContainer();
-		container.add(new StyledHTML(item.getName(), "page_workingSet_featured_header"));
-		
+		container.add(new StyledHTML("<center>" + item.getName() + "</center>", "page_workingSet_featured_header;SIS_taxonSummaryHeader"));
+		container.add(createSpacer(40));
 		final Grid stats = new Grid(3, 2);
-		stats.setWidget(0, 0, new StyledHTML("Created:", "page_workingSet_featured_prompt"));
+		stats.setCellSpacing(3);
+		stats.setWidget(0, 0, new StyledHTML("Created:", "page_workingSet_featured_prompt;bold"));
 		stats.setWidget(0, 1, new StyledHTML(FormattedDate.impl.getDate(item.getCreatedDate()), "page_workingSet_featured_content"));
-		stats.setWidget(1, 0, new StyledHTML("Mode:", "page_workingSet_featured_prompt"));
+		stats.setWidget(1, 0, new StyledHTML("Mode:", "page_workingSet_featured_prompt;bold"));
 		stats.setWidget(1, 1, new StyledHTML("Public", "page_workingSet_featured_content"));
-		stats.setWidget(2, 0, new StyledHTML("Scope:", "page_workingSet_featured_prompt"));
+		stats.setWidget(2, 0, new StyledHTML("Scope:", "page_workingSet_featured_prompt;bold"));
 		stats.setWidget(2, 1, new StyledHTML(AssessmentFilterPanel.getString(item.getFilter()), "page_workingSet_featured_content"));
+		
+		for (int i = 0; i < stats.getRowCount(); i++)
+			stats.getCellFormatter().setVerticalAlignment(i, 0, HasVerticalAlignment.ALIGN_TOP);
 		
 		container.add(stats);
 		

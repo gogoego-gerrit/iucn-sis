@@ -202,8 +202,8 @@ public class WorkingSetSummaryPanel extends RefreshLayoutContainer {
 			// SET TAXA
 			/*FIXME if (manager.workingSetOptionsPanel.anyChanges)
 				taxaList.forcedRefresh();
-			else
-				taxaList.refresh();*/
+			else*/
+				taxaList.forcedRefresh();
 			
 			refreshAssessmentPanel();
 

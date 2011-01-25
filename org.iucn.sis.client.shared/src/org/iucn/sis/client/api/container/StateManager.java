@@ -59,7 +59,12 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	}
 	
 	public void setAssessment(Assessment assessment) {
+		setAssessment(taxon, assessment);
+	}
+	
+	public void setAssessment(Taxon taxon, Assessment assessment) {
 		if (!fireEvent(StateChangeEventType.BeforeAssessmentChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment))) {
+			this.taxon = taxon;
 			this.assessment = assessment;
 			fireEvent(StateChangeEventType.AssessmentChanged.getValue());
 		}
@@ -114,16 +119,16 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	public boolean fireEvent(int eventType, StateChangeEvent event) {
 		Integer key = new Integer(eventType);
 		List<ComplexListener<StateChangeEvent>> group = listeners.get(key);
-		if (group == null)
-			return false;
 		
-		boolean retValue = true;
-		for (ComplexListener<StateChangeEvent> listener : group) {
-			listener.handleEvent(event);
-			retValue &= event.isCanceled();
+		boolean retValue = false;
+		if (group != null) {
+			for (ComplexListener<StateChangeEvent> listener : group) {
+				listener.handleEvent(event);
+				retValue |= event.isCanceled();
+			}
 		}
 		
-		Debug.println("{0} listeners fired for event {1}, canceled = {2}", group.size(), eventType, retValue);
+		Debug.println("{0} listeners fired for event {1}, canceled = {2}", group == null ? 0 : group.size(), eventType, retValue);
 		return retValue;
 	}
 

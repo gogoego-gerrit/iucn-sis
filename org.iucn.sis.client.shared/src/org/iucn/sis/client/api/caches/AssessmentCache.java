@@ -341,25 +341,27 @@ public class AssessmentCache {
 	
 	public void setCurrentAssessment(final Assessment assessment, boolean saveIfNecessary) {
 		if (assessment != null) {
-			TaxonomyCache.impl.fetchTaxon(assessment.getSpeciesID(), true, saveIfNecessary, new GenericCallback<Taxon>() {
+			//Used to set the current taxon, no longer needed...
+			TaxonomyCache.impl.fetchTaxon(assessment.getSpeciesID(), false, saveIfNecessary, new GenericCallback<Taxon>() {
 				public void onSuccess(Taxon result) {
-					doSetCurrentAssessment(assessment);
+					doSetCurrentAssessment(result, assessment);
 				}
 				public void onFailure(Throwable caught) {
-					doSetCurrentAssessment(assessment);
+					WindowUtils.errorAlert("Unable to fetch taxon information, please try again later.");
+					//doSetCurrentAssessment(assessment);
 				}
 			});
 		} else
-			doSetCurrentAssessment(assessment);
+			doSetCurrentAssessment(null, null);
 	}
 	
-	private void doSetCurrentAssessment(final Assessment assessment) {
+	private void doSetCurrentAssessment(final Taxon parent, final Assessment assessment) {
 		if( assessment != null && assessment.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE) && 
 				!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.READ, assessment) ) {
 			WindowUtils.errorAlert("Insufficient Rights", "Sorry, you don't have rights to select this Draft assessment.");
 			StateManager.impl.setAssessment(null);
 		} else {
-			StateManager.impl.setAssessment(assessment);
+			StateManager.impl.setAssessment(parent, assessment);
 
 			if (assessment != null) {
 				try {

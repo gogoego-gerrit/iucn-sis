@@ -377,9 +377,10 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 				}
 
 				public void onSuccess(String arg0) {
+					enableSaveButtons(true);
 					WSStore.getStore().update();
-					ClientUIContainer.bodyContainer.tabManager.panelManager.workingSetHierarchy
-							.setCurrentlySelected(id);
+					/*ClientUIContainer.bodyContainer.tabManager.panelManager.workingSetHierarchy
+							.setCurrentlySelected(id);*/
 					if (saveMode == SAVE) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
 					} else if (saveMode == SAVEANDEXIT) {
@@ -389,7 +390,7 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 						parent.setEditTaxaTab();
 						//FIXME: manager.workingSetOptionsPanel.forceRefreshTaxaList(WorkingSetOptionsPanel.ADDBROWSE);
 					}
-					enableSaveButtons(true);
+					
 				}
 			});
 

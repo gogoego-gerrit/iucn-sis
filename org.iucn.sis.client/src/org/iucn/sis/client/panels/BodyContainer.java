@@ -21,6 +21,7 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class BodyContainer extends LayoutContainer {
@@ -47,12 +48,11 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openWorkingSet() {
-		removeAll();
 		workingSetPage.setItems(new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values()));
 		workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet());
-		
 		workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
 			public void isDrawn() {
+				removeAll();
 				add(workingSetPage);
 				
 				current = workingSetPage;
@@ -61,8 +61,6 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openTaxon() {
-		removeAll();
-		
 		final GenericCallback<List<Taxon>> callback = new GenericCallback<List<Taxon>>() {
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
@@ -73,6 +71,7 @@ public class BodyContainer extends LayoutContainer {
 				taxonHomePage.setSelectedItem(StateManager.impl.getTaxon());
 				taxonHomePage.draw(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
+						removeAll();
 						add(taxonHomePage);
 						
 						current = taxonHomePage;
@@ -91,7 +90,6 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openAssessment() {
-		removeAll();
 		AssessmentFetchRequest request = new AssessmentFetchRequest(null, StateManager.impl.getTaxon().getId());
 		AssessmentCache.impl.fetchAssessments(request, new GenericCallback<String>() {
 			public void onSuccess(String result) {
@@ -104,6 +102,7 @@ public class BodyContainer extends LayoutContainer {
 				
 				assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
+						removeAll();
 						add(assessmentPage);
 						
 						current = assessmentPage;
@@ -111,8 +110,7 @@ public class BodyContainer extends LayoutContainer {
 				});
 			}			
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
-				
+				WindowUtils.errorAlert("Could not load assessment.");
 			}
 		});
 	}

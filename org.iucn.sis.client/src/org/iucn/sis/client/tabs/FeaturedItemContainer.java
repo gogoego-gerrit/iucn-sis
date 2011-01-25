@@ -2,6 +2,7 @@ package org.iucn.sis.client.tabs;
 
 import java.util.List;
 
+import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -11,8 +12,9 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.HTML;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public abstract class FeaturedItemContainer<T> extends PageContainer implements DrawsLazily {
@@ -30,7 +32,8 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 		selected = null;
 		
 		featuredItemContainer = new LayoutContainer(new FitLayout());
-		optionsContainer = new LayoutContainer(new FlowLayout());
+		optionsContainer = new LayoutContainer(new FillLayout());
+		optionsContainer.setLayoutOnChange(true);
 		bodyContainer = new LayoutContainer(new FillLayout());
 		bodyContainer.setLayoutOnChange(true);
 		
@@ -57,11 +60,6 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 	
 	public void setSelectedItem(T item) {
 		this.selected = item;
-		draw(new DoneDrawingCallback() {
-			public void isDrawn() {
-				layout();
-			}
-		});
 	}
 	
 	public T getSelectedItem() {
@@ -96,12 +94,15 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 		//TODO: make these icons
 		final Button prev = new Button("Previous"), next = new Button("Next");
 		
+		prev.setIconStyle("icon-previous");
 		prev.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				int index = items.indexOf(selected);
 				updateSelection(items.get(index - 1));
 			}
 		});
+		next.setIconStyle("icon-next");
+		next.setIconAlign(IconAlign.RIGHT);
 		next.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				int index = items.indexOf(selected);
@@ -110,6 +111,7 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 		});
 		
 		bar.add(prev);
+		bar.add(new FillToolItem());
 		bar.add(next);
 		
 		setButtonState(prev, next, items.indexOf(selected));
@@ -132,6 +134,13 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 			prev.setEnabled(false);
 			next.setEnabled(false);
 		}
+	}
+	
+	protected HTML createSpacer(int size) {
+		HTML spacer = new HTML("&nbsp;");
+		spacer.setHeight(size + "px");
+		
+		return spacer;
 	}
 	
 	protected abstract void drawBody(DrawsLazily.DoneDrawingCallback callback);

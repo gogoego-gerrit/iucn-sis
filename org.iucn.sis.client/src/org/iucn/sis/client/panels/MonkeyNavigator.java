@@ -386,8 +386,10 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		
 		final IconButton goToSet = createIconButton("icon-go-jump", "Open Working Set", new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
+				Debug.println("In jump; selected item is {0}", workingSetList.getSelectedItem());
 				if (workingSetList.getSelectedItem() != null) {
 					WorkingSet selected = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
+					Debug.println("Selected item is {0}", selected);
 					if (selected != null) {
 						WorkingSetCache.impl.setCurrentWorkingSet(selected.getId(), true, new SimpleListener() {
 							public void handleEvent() {
@@ -410,6 +412,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		toolBar.add(createIconButton("icon-folder-add", "Add New Working Set", new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
 				// TODO Create new working set
+				WindowUtils.infoAlert("Coming soon...");
 			}
 		}));
 		toolBar.add(goToSet);

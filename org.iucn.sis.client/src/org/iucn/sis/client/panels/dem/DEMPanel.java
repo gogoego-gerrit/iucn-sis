@@ -18,6 +18,7 @@ import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Region;
@@ -69,6 +70,15 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 
 	public DEMPanel() {
 		viewChooser = new AccordionLayout();
+		
+		viewWrapper = new ViewDisplay();
+		viewWrapper.setLayout(viewChooser);
+		viewWrapper.setLayoutOnChange(true);
+		viewWrapper.setPageChangelistener(new ComplexListener<PageChangeRequest>() {
+			public void handleEvent(PageChangeRequest eventData) {
+				changePage(eventData);
+			}
+		});
 
 		scroller = new LayoutContainer();
 		scroller.setLayout(new FitLayout());
@@ -81,9 +91,6 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 	
 	@Override
 	protected void drawBody(DoneDrawingCallback callback) {
-		if (bodyContainer.getItemCount() > 0)
-			return;
-		
 		BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
 		toolBarData.setSize(25);
 		
@@ -93,25 +100,27 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 		container.add(toolBar, toolBarData);
 		container.add(scroller, scrollerData);
 		
+		bodyContainer.removeAll();
 		bodyContainer.add(container);
+		
+		/*
+		 * TODO: check to see if a page should be 
+		 * pre-loaded 
+		 */
+		
+		callback.isDrawn();
 	}
 	
 	@Override
 	protected void drawOptions(final DrawsLazily.DoneDrawingCallback callback) {
-		if (optionsContainer.getItemCount() == 0) {
-			viewWrapper = new ViewDisplay();
-			viewWrapper.setLayout(viewChooser);
-			viewWrapper.setLayoutOnChange(true);
-			viewWrapper.setPageChangelistener(new ComplexListener<PageChangeRequest>() {
-				public void handleEvent(PageChangeRequest eventData) {
-					changePage(eventData);
-				}
-			});
-			
-			optionsContainer.add(viewWrapper);
-		}
-		
-		callback.isDrawn();
+		viewWrapper.draw(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				optionsContainer.removeAll();	
+				optionsContainer.add(viewWrapper);
+				
+				callback.isDrawn();	
+			}
+		});
 	}
 	
 	@Override
@@ -119,8 +128,15 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 		final Assessment item = getSelectedItem();
 		final Taxon taxon = StateManager.impl.getTaxon();
 		
+		String abbreviation = "";
+		try {
+			abbreviation = " (" + item.getCategoryAbbreviation() + ")";
+		} catch (Exception e) {
+			Debug.println(e);
+		}
+		
 		final LayoutContainer container = new LayoutContainer();
-		container.add(new StyledHTML(item.getSpeciesName() + " (" + item.getCategoryAbbreviation() + ")", "page_assessment_featured_header"));
+		container.add(new StyledHTML(item.getSpeciesName() + abbreviation, "page_assessment_featured_header"));
 		
 		CommonName cn = null;
 		for (CommonName current : taxon.getCommonNames()) {
@@ -140,11 +156,12 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 				regions.add(region);
 		}
 		
-		container.add(new StyledHTML(item.getAssessmentType() + " for " + 
+		container.add(new StyledHTML(item.getAssessmentType().getDisplayName() + " for " + 
 			RegionCache.impl.getRegionNamesAsReadable(regions), "page_assessment_featured_content"));
 		
-		container.add(new StyledHTML("Last Modified: " + FormattedDate.impl.
-			getDate(item.getLastEdit().getCreatedDate()), "page_assessment_featured_content"));
+		if (item.getLastEdit() != null)
+			container.add(new StyledHTML("Last Modified: " + FormattedDate.impl.
+				getDate(item.getLastEdit().getCreatedDate()), "page_assessment_featured_content"));
 		
 		return container;
 	}

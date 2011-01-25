@@ -28,42 +28,6 @@ import com.solertium.util.extjs.client.WindowUtils;
 @SuppressWarnings("deprecation")
 public class TaxonTreePopup extends Window {
 
-	public static void fetchChildren(final Taxon node, final GenericCallback<List<TaxonListElement>> wayback) {
-		TaxonomyCache.impl.fetchPath(String.valueOf(node.getId()), new GenericCallback<NativeDocument>() {
-			public void onFailure(Throwable caught) {
-				wayback.onFailure(new Throwable());
-			}
-
-			public void onSuccess(NativeDocument result) {
-				final NativeNodeList options = (result).getDocumentElement().getElementsByTagName("option");
-				final ArrayList<TaxonListElement> childModel = new ArrayList<TaxonListElement>();
-				List<Integer> ids = new ArrayList<Integer>();
-				for (int i = 0; i < options.getLength(); i++) {
-					ids.add(Integer.valueOf(options.elementAt(i).getText()));
-				}
-				if (ids.size() > 0) {
-					TaxonomyCache.impl.fetchList(ids, new GenericCallback<String>() {
-						public void onFailure(Throwable caught) {
-							wayback.onFailure(caught);
-						}
-
-						public void onSuccess(String result) {
-							for (int i = 0; i < options.getLength(); i++) {
-								childModel.add(new TaxonListElement(TaxonomyCache.impl.getTaxon(options.elementAt(i)
-										.getText()), ""));
-							}
-
-							wayback.onSuccess(childModel);
-						}
-					});
-				} else {
-					wayback.onFailure(new Throwable());
-				}
-
-			}
-		});
-	}
-
 	public TaxonTreePopup(Taxon node) {
 		super();
 		setClosable(true);

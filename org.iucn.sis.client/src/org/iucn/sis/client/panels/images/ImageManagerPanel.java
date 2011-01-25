@@ -37,6 +37,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class ImageManagerPanel extends LayoutContainer {
 
@@ -252,7 +253,7 @@ public class ImageManagerPanel extends LayoutContainer {
 
 					protected void onSuccess(SubmitCompleteEvent event) {
 						super.onSuccess(event);
-						update();
+						update(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 					}
 
 					protected boolean validate() {
@@ -412,7 +413,7 @@ public class ImageManagerPanel extends LayoutContainer {
 		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				setView(GALLERY_VIEW);
-				update();
+				update(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 			}
 		});
 		viewbar.add(item);
@@ -423,7 +424,7 @@ public class ImageManagerPanel extends LayoutContainer {
 		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				setView(DETAIL_VIEW);
-				update();
+				update(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 			}
 		});
 		viewbar.add(item);
@@ -456,7 +457,7 @@ public class ImageManagerPanel extends LayoutContainer {
 		}
 	}
 
-	public void update() {
+	public void update(final DrawsLazily.DoneDrawingCallback callback) {
 		selected = -1;
 		selectedList.clear();
 		imageList.clear();
@@ -470,7 +471,7 @@ public class ImageManagerPanel extends LayoutContainer {
 		final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
 		ndoc.get(UriBase.getInstance().getImageBase() + "/images/" + taxon.getId(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
+				WindowUtils.errorAlert("Could not load images for this taxon.");
 			}
 
 			public void onSuccess(String result) {
@@ -491,6 +492,8 @@ public class ImageManagerPanel extends LayoutContainer {
 				}
 
 				layout();
+				
+				callback.isDrawn();
 			}
 		});
 	}
@@ -510,7 +513,7 @@ public class ImageManagerPanel extends LayoutContainer {
 			public void onSuccess(String result) {
 				TaxonomyCache.impl.setCurrentTaxon(taxon);
 				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(Integer.valueOf(groupingId));
-				update();
+				update(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 			}
 		});
 	}
