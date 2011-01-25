@@ -113,7 +113,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 		taxonList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				DataListItem item = taxonList.getSelectedItem();
-				String itemID = ""+ taxonListBinder.getSelection().get(0).getNode().getId();
+				Integer itemID = taxonListBinder.getSelection().get(0).getNode().getId();
 				
 				markTaxa(item, itemID, ce.getItem().getItemId());
 			}
@@ -131,7 +131,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 			public String getStringValue(TaxonListElement model, String property) {
 				String style = "";
 				if (model.getNode() != null) {
-					style = MarkedCache.impl.getTaxaStyle(model.getNode().getId() + "");
+					style = MarkedCache.impl.getTaxaStyle(model.getNode().getId());
 					if (style.contains("green"))
 						style = "green-menu";
 					else if (style.contains("red"))
@@ -320,9 +320,9 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 	private Menu createMarkingContextMenu(SelectionListener<MenuEvent> listener) {
 		Menu menu = new Menu();
 		menu.add(createMenuItem("green-menu", MarkedCache.GREEN, "Mark Green", listener));
-		menu.add(createMenuItem("blue-menu", "Mark Blue", MarkedCache.BLUE, listener));
-		menu.add(createMenuItem("red-menu", "Mark Red", MarkedCache.RED, listener));
-		menu.add(createMenuItem("regular-menu", "Unmark", MarkedCache.NONE, listener));
+		menu.add(createMenuItem("blue-menu", MarkedCache.BLUE, "Mark Blue", listener));
+		menu.add(createMenuItem("red-menu", MarkedCache.RED, "Mark Red", listener));
+		menu.add(createMenuItem("regular-menu", MarkedCache.NONE, "Unmark",  listener));
 		
 		return menu;
 	}
@@ -338,7 +338,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 	}
 	
 	private void markWorkingSet(DataListItem item, String color) {
-		final String workingSetID = item.getItemId();
+		final Integer workingSetID = Integer.valueOf(item.getItemId());
 		if (!MarkedCache.impl.getWorkingSetStyle(workingSetID).equalsIgnoreCase(color))
 			item.removeStyleName(MarkedCache.impl.getWorkingSetStyle(workingSetID));
 		
@@ -347,7 +347,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 		item.addStyleName(color);
 	}
 	
-	private void markTaxa(DataListItem item, String itemID, String color) {
+	private void markTaxa(DataListItem item, Integer itemID, String color) {
 		if (!MarkedCache.impl.getTaxaStyle(itemID).equalsIgnoreCase(color))
 			item.removeStyleName(MarkedCache.impl.getTaxaStyle(itemID));
 		
@@ -357,7 +357,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 	}
 	
 	private void markAssessment(DataListItem item, String color) {
-		final String assessmentID = item.getItemId();
+		final Integer assessmentID = Integer.valueOf(item.getItemId());
 		if (!MarkedCache.impl.getAssessmentStyle(assessmentID).equalsIgnoreCase(color))
 			item.removeStyleName(MarkedCache.impl.getAssessmentStyle(assessmentID));
 		
@@ -373,7 +373,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 			DataListItem curItem = new DataListItem(cur.getWorkingSetName());
 			curItem.setData("workingSet", cur);
 			curItem.setItemId(cur.getId()+"");
-			curItem.addStyleName(MarkedCache.impl.getWorkingSetStyle(cur.getId()+""));
+			curItem.addStyleName(MarkedCache.impl.getWorkingSetStyle(cur.getId()));
 			workingSetList.add(curItem);
 
 			if (cur.equals(curNavWorkingSet))
@@ -472,7 +472,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 					DataListItem curItem = new DataListItem(curTaxon.getFriendlyName());
 					curItem.setData("taxon", curTaxon);
 					curItem.setItemId(curTaxon.getId() + "");
-					curItem.addStyleName(MarkedCache.impl.getTaxaStyle(curTaxon.getId() + ""));
+					curItem.addStyleName(MarkedCache.impl.getTaxaStyle(curTaxon.getId()));
 					
 					taxonList.add(curItem);
 
@@ -673,8 +673,8 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 						}
 						
 						curItem.setData("assessment", current);
-						curItem.setItemId(current.getId() + "!" + current.getType());
-						curItem.addStyleName(MarkedCache.impl.getAssessmentStyle(curItem.getId()));
+						curItem.setItemId(current.getId() + "");
+						curItem.addStyleName(MarkedCache.impl.getAssessmentStyle(current.getId()));
 						
 						assessmentList.add(curItem);
 
@@ -708,8 +708,8 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 
 								curItem = new DataListItem(displayable);
 								curItem.setData("assessment", current);
-								curItem.setItemId(current.getId() + "!" + current.getType());
-								curItem.addStyleName(MarkedCache.impl.getAssessmentStyle(curItem.getId()));
+								curItem.setItemId(current.getId() + "");
+								curItem.addStyleName(MarkedCache.impl.getAssessmentStyle(current.getId()));
 								assessmentList.add(curItem);
 
 								if (current.equals(curNavAssessment))

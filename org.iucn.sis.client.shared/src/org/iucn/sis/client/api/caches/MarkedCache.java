@@ -1,18 +1,21 @@
 package org.iucn.sis.client.api.caches;
 
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Map;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.shared.api.models.AssessmentType;
+import org.iucn.sis.shared.api.models.Marked;
 
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 
 public class MarkedCache {
+	
+	public static final String WORKING_SET = "working_set";
+	public static final String ASSESSMENT = "assessment";
+	public static final String TAXON = "taxon";
 
 	public static final String GREEN = "green-style";
 	public static final String RED = "red-style";
@@ -21,197 +24,127 @@ public class MarkedCache {
 
 	public static final MarkedCache impl = new MarkedCache();
 
-	/*
-	 * goes from id -> style
-	 */
-	private final HashMap<String, String> markedWorkingSets;
-	private final HashMap<String, String> markedTaxa;
-	private final HashMap<String, String> markedAssessments;
+	private final Map<String, Map<Integer, Marked>> cache;
 
 	private MarkedCache() {
-		markedWorkingSets = new HashMap<String, String>();
-		markedTaxa = new HashMap<String, String>();
-		markedAssessments = new HashMap<String, String>();
+		cache = new HashMap<String, Map<Integer,Marked>>();
 	}
 
-	public String getAssessmentStyle(String id) {
+	public String getAssessmentStyle(Integer id) {
+		return getStyle(cache.get(ASSESSMENT), id);
+	}
+
+	public String getTaxaStyle(Integer id) {
+		return getStyle(cache.get(TAXON), id);
+	}
+
+	public String getWorkingSetStyle(Integer id) {
+		return getStyle(cache.get(WORKING_SET), id);
+	}
+	
+	private String getStyle(Map<Integer, Marked> map, Integer id) {
 		String style = NONE;
-		if (markedAssessments.containsKey(id)) {
-			style = (String) markedAssessments.get(id);
+		if (map != null && map.containsKey(id)) {
+			Marked marked = map.get(id);
+			if (marked != null)
+				style = marked.getMark();
 		}
 		return style;
 	}
 
-	public String getTaxaStyle(String id) {
-		String style = NONE;
-		if (markedTaxa.containsKey(id)) {
-			style = (String) markedTaxa.get(id);
-		}
-		return style;
+	public void markAssement(Integer id, String style) {
+		mark(ASSESSMENT, id, style);
 	}
 
-	public String getWorkingSetStyle(String id) {
-		String style = NONE;
-		if (markedWorkingSets.containsKey(id)) {
-			style = (String) markedWorkingSets.get(id);
-		}
-		return style;
+	public void markTaxa(Integer id, String style) {
+		mark(TAXON, id, style);
 	}
 
-	public void markAssement(String id, String style) {
+	public void markWorkingSet(Integer id, String style) {
+		mark(WORKING_SET, id, style);
+	}
+	
+	private void mark(String type, Integer id, String style) {
+		Map<Integer, Marked> map = cache.get(type);
+		if (map == null) {
+			map = new HashMap<Integer, Marked>();
+			cache.put(type, map);
+		}
+		
 		if (style.equalsIgnoreCase(GREEN) || style.equalsIgnoreCase(RED) || style.equalsIgnoreCase(BLUE)) {
-			markedAssessments.put(id, style);
+			Marked marked = map.get(id);
+			if (marked == null) {
+				marked = new Marked();
+				marked.setObjectid(id);
+				marked.setType(type);
+				marked.setUser(SISClientBase.currentUser);	
+			}
+			marked.setMark(style);
+			
+			map.put(id, marked);
 			save();
-		} else {
-			unmarkAssessment(id);
 		}
-	}
-
-	public void markTaxa(String id, String style) {
-		if (style.equalsIgnoreCase(GREEN) || style.equalsIgnoreCase(RED) || style.equalsIgnoreCase(BLUE)) {
-			markedTaxa.put(id, style);
-			save();
-		} else {
-			unmarkTaxon(id);
-		}
-	}
-
-	public void markWorkingSet(String id, String style) {
-		if (style.equalsIgnoreCase(GREEN) || style.equalsIgnoreCase(RED) || style.equalsIgnoreCase(BLUE)) {
-			markedWorkingSets.put(id, style);
-			save();
-		} else {
-			unmarkWorkingSet(id);
-		}
-
+		else
+			unmark(type, id);
 	}
 
 	public void onLogout() {
-		markedAssessments.clear();
-		markedTaxa.clear();
-		markedWorkingSets.clear();
+		cache.clear();
 	}
 
 	private void parseXML(NativeDocument doc) throws NullPointerException {
-		NativeElement docElement = doc.getDocumentElement();
-		NativeElement taxa = docElement.getElementByTagName("taxa");
-		NativeElement workingset = docElement.getElementByTagName("workingSets");
-		NativeElement assessments = docElement.getElementByTagName("assessments");
-		NativeElement draft = assessments.getElementByTagName("draft");
-		NativeElement user = assessments.getElementByTagName("user");
-		NativeElement published = assessments.getElementByTagName("published");
-
-		// GET WORKINGSETS
-		NativeNodeList list = workingset.getElementsByTagName("workingSet");
-		for (int i = 0; i < list.getLength(); i++) {
-			String[] info = list.item(i).getTextContent().split(",");
-			markedWorkingSets.put(info[0], info[1]);
-		}
-
-		// GET Taxa
-		list = taxa.getElementsByTagName("taxon");
-		for (int i = 0; i < list.getLength(); i++) {
-			String[] info = list.item(i).getTextContent().split(",");
-			markedTaxa.put(info[0], info[1]);
-		}
-
-		// GET Assessments
-		list = draft.getElementsByTagName("assessment");
-		for (int i = 0; i < list.getLength(); i++) {
-			String[] info = list.item(i).getTextContent().split(",");
-			markedAssessments.put(info[0] + "!" + AssessmentType.DRAFT_ASSESSMENT_TYPE, info[1]);
-		}
-
-		list = published.getElementsByTagName("assessment");
-		for (int i = 0; i < list.getLength(); i++) {
-			String[] info = list.item(i).getTextContent().split(",");
-			markedAssessments.put(info[0] + "!" + AssessmentType.PUBLISHED_ASSESSMENT_TYPE, info[1]);
-		}
-
-		list = user.getElementsByTagName("assessment");
-		for (int i = 0; i < list.getLength(); i++) {
-			String[] info = list.item(i).getTextContent().split(",");
-			markedAssessments.put(info[0] + "!" + AssessmentType.USER_ASSESSMENT_TYPE, info[1]);
-
+		NativeNodeList nodes = doc.getDocumentElement().getElementsByTagName("marked");
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Marked marked = Marked.fromXML(nodes.elementAt(i));
+			Map<Integer, Marked> map = cache.get(marked.getType());
+			if (map == null)
+				map = new HashMap<Integer, Marked>();
+			
+			map.put(marked.getObjectid(), marked);
+			
+			cache.put(marked.getType(), map);
 		}
 	}
 
 	private void save() {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.put(UriBase.getInstance().getTagBase() +"/mark/" + SISClientBase.currentUser.getUsername(), toXML(), new GenericCallback<String>() {
-
 			public void onFailure(Throwable caught) {
 				update();
 			}
-
 			public void onSuccess(String arg0) {
 			}
-
 		});
 	}
 
 	private String toXML() {
-
-		String workingsets = "";
-		Iterator<String> iter = markedWorkingSets.keySet().iterator();
-		while (iter.hasNext()) {
-			String id = (String) iter.next();
-			workingsets += "<workingSet>" + id + "," + markedWorkingSets.get(id) + "</workingSet>\r\n";
-		}
-
-		String taxa = "";
-		iter = markedTaxa.keySet().iterator();
-		while (iter.hasNext()) {
-			String id = (String) iter.next();
-			taxa += "<taxon>" + id + "," + markedTaxa.get(id) + "</taxon>\r\n";
-		}
-
-		String published = "";
-		String drafts = "";
-		String user = "";
-		iter = markedAssessments.keySet().iterator();
-		while (iter.hasNext()) {
-			String allid = (String) iter.next();
-			String id = allid.substring(0, allid.indexOf("!"));
-			if (allid.endsWith(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
-				drafts += "<assessment>" + id + "," + markedAssessments.get(allid) + "</assessment>\r\n";
-			} else if (allid.endsWith(AssessmentType.PUBLISHED_ASSESSMENT_TYPE)) {
-				published += "<assessment>" + id + "," + markedAssessments.get(allid) + "</assessment>\r\n";
-			} else if (allid.endsWith(AssessmentType.USER_ASSESSMENT_TYPE)) {
-				user += "<assessment>" + id + "," + markedAssessments.get(allid) + "</assessment>\r\n";
-			}
-		}
-
-		String xml = "<marked>\r\n";
-		xml += "<workingSets>" + workingsets + "</workingSets>\r\n";
-		xml += "<taxa>" + taxa + "</taxa>\r\n";
-		xml += "<assessments>\r\n";
-		xml += "<published>" + published + "</published>\r\n";
-		xml += "<draft>" + drafts + "</draft>\r\n";
-		xml += "<user>" + user + "</user>\r\n";
-		xml += "</assessments>\r\n";
-		xml += "</marked>";
-		return xml;
+		StringBuilder out = new StringBuilder();
+		out.append("<root>");
+		
+		for (Map<Integer, Marked> map : cache.values())
+			for (Marked marked : map.values())
+				out.append(marked.toXML());
+		
+		out.append("</root>");
+		return out.toString();
 	}
 
-	public void unmarkAssessment(String id) {
-		if (markedAssessments.containsKey(id)) {
-			markedAssessments.remove(id);
-			save();
-		}
-
+	public void unmarkAssessment(Integer id) {
+		unmark(ASSESSMENT, id);
 	}
 
-	public void unmarkTaxon(String id) {
-		if (markedTaxa.containsKey(id)) {
-			markedTaxa.remove(id);
-			save();
-		}
+	public void unmarkTaxon(Integer id) {
+		unmark(TAXON, id);
 	}
 
-	public void unmarkWorkingSet(String id) {
-		if (markedWorkingSets.containsKey(id)) {
-			markedWorkingSets.remove(id);
+	public void unmarkWorkingSet(Integer id) {
+		unmark(WORKING_SET, id);
+	}
+	
+	private void unmark(String type, Integer id) {
+		Map<Integer, Marked> map = cache.get(type);
+		if (map != null && map.containsKey(id)) {
+			map.remove(id);
 			save();
 		}
 	}
@@ -222,21 +155,12 @@ public class MarkedCache {
 	public void update() {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.get(UriBase.getInstance().getTagBase() + "/mark/" + SISClientBase.currentUser.getUsername(), new GenericCallback<String>() {
-
 			public void onFailure(Throwable caught) {
-				markedAssessments.clear();
-				markedTaxa.clear();
-				markedWorkingSets.clear();
+				cache.clear();
 			}
-
 			public void onSuccess(String arg0) {
-				try {
-					parseXML(ndoc);
-				} catch (Exception e) {
-					// update();
-				}
+				parseXML(ndoc);
 			}
-
 		});
 	}
 

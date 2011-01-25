@@ -22,6 +22,7 @@
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/IsoLanguage.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Notes.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Lock.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Marked.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Permission.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PermissionGroup.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PermissionResourceAttribute.hbm.xml" />

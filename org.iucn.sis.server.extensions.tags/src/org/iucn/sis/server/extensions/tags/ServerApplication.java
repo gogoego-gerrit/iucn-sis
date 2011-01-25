@@ -8,7 +8,7 @@ public class ServerApplication extends SimpleSISApplication {
 	 * Tagging available online & offline
 	 */
 	public void init() {
-		addServiceToRouter(new MarkedRestlet(app.getContext()));
+		addServiceToRouter(new MarkedObjectRestlet(app.getContext()));
 	}
 
 }
