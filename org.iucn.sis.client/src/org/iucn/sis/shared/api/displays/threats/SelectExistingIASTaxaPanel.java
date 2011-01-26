@@ -8,6 +8,7 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.shared.api.displays.threats.ThreatTaggedSpeciesLocator.Selectable;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -24,10 +25,10 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class SelectExistingIASTaxaPanel extends PagingPanel<TaxonFootprintModel> implements DrawsLazily, Selectable {
 
-	public static final String[] footprint = new String[] {
+	public static final String[] footprint = TaxonLevel.displayableLevel; /*new String[] {
 		"Kingdom", "Phylum", "Class", "Order", 
 		"Family", "Genus", "Species"
-	};
+	};*/
 	
 	private boolean isDrawn;
 	
