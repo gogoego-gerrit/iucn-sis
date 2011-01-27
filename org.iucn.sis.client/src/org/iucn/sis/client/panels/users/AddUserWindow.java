@@ -38,6 +38,7 @@ public class AddUserWindow extends Window {
 	private final TextField<String> lastname;
 	private final TextField<String> initials;
 	private final TextField<String> affiliation;
+	private final TextField<String> nickname;
 
 	private final Button submit;
 	private final GenericCallback<String> callback;
@@ -84,13 +85,16 @@ public class AddUserWindow extends Window {
 		}
 
 		add(firstname = new TextField<String>());
-		firstname.setFieldLabel("First Name");
+		firstname.setFieldLabel("First Name*");
 		add(lastname = new TextField<String>());
-		lastname.setFieldLabel("Last Name");
+		lastname.setFieldLabel("Last Name*");
 
 		add(initials = new TextField<String>());
 		initials.setFieldLabel("Initials (optional)");
 		initials.setAllowBlank(true);
+		
+		add(nickname = new TextField<String>());
+		nickname.setFieldLabel("Nickname");
 
 		add(affiliation = new TextField<String>());
 		affiliation.setFieldLabel("Affiliation");
@@ -98,24 +102,32 @@ public class AddUserWindow extends Window {
 		submit = new Button("Submit", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent be) {
+				
 				if (!username.isValid())
-					WindowUtils.errorAlert("Error", "Please enter a valid e-mail account as the user name.");
-				else if (createAccount) {
-					if (!username.isValid())
-						WindowUtils.errorAlert("Error", "Please enter a valid password.");
-					else if (!confirmPassword.isValid())
-						WindowUtils
-								.errorAlert("Error",
-										"The contents of the \"confirm password\" field must match the contents of the \"password\" field exactly.");
-					else {
+					WindowUtils.errorAlert("Error", "Please enter a valid e-mail account as the user name.");				
+				else if(createAccount) {
+					if(password.getValue() == null)
+						WindowUtils.errorAlert("Error", "Please enter the password.");
+					else if(!confirmPassword.isValid())
+						WindowUtils.errorAlert("Error",
+										"The contents of the \"confirm password\" field must match the contents of the \"password\" field exactly.");					
+					else if(firstname.getValue() == null)
+						WindowUtils.errorAlert("Error", "Please enter the first name.");		
+					else if(lastname.getValue() == null)
+						WindowUtils.errorAlert("Error", "Please enter the last name.");	
+					else{
 						submit.setEnabled(false);
 						putNewAccountAndProfile(username.getValue().toLowerCase(), password.getValue());
 					}
-				} else {
+				}else if(firstname.getValue() == null)
+					WindowUtils.errorAlert("Error", "Please enter the first name.");		
+				else if(lastname.getValue() == null)
+					WindowUtils.errorAlert("Error", "Please enter the last name.");	
+				else {
 					submit.setEnabled(false);
 					putNewAccountAndProfile(username.getValue().toLowerCase(), "");
 				}
-
+				
 			}
 
 			private void putNewAccountAndProfile(String u, String p) {
@@ -148,7 +160,8 @@ public class AddUserWindow extends Window {
 				createDoc.post(UriBase.getInstance().getUserBase() + "/users/" + username.getValue().toLowerCase(), getXML(username.getValue()
 						.toLowerCase(), firstname.getValue(), lastname.getValue(),
 						affiliation.getValue() == null ? "" : affiliation.getValue(),
-						initials.getValue() == null ? "" : initials.getValue()), new GenericCallback<String>() {
+						initials.getValue() == null ? "" : initials.getValue(),
+						nickname.getValue() == null ? "" : nickname.getValue()), new GenericCallback<String>() {
 					public void onSuccess(String result) {
 						hide();
 						AddUserWindow.this.onSuccess(username.getValue().toLowerCase());
@@ -178,12 +191,13 @@ public class AddUserWindow extends Window {
 	
 	
 
-	public String getXML(String username, String firstname, String lastname, String affiliation, String initials) {
+	public String getXML(String username, String firstname, String lastname, String affiliation, String initials, String nickname) {
 		StringBuilder ret = new StringBuilder("<root>");
 		ret.append("<field name=\"username\"><![CDATA[" + username + "]]></field>");
 		ret.append("<field name=\"firstname\"><![CDATA[" + firstname + "]]></field>");
 		ret.append("<field name=\"lastname\"><![CDATA[" + lastname + "]]></field>");
 		ret.append("<field name=\"initials\"><![CDATA[" + initials + "]]></field>");
+		ret.append("<field name=\"nickname\"><![CDATA[" + nickname + "]]></field>");
 		ret.append("<field name=\"affiliation\"><![CDATA[" + affiliation + "]]></field>");
 		ret.append("<field name=\"sis\">true</field>");
 		ret.append("</root>");
