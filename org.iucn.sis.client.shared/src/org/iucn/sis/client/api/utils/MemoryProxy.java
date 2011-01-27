@@ -48,11 +48,11 @@ public class MemoryProxy<T extends ModelData> implements DataProxy<BasePagingLoa
 	}
 	
 	public void filter(String property, String match) {
-		store.addFilter(filter);
 		if (filter == null) {
 			filter = new SimpleEqualityFilter();
 			((SimpleEqualityFilter)filter).setMatchingValue(match);
 		}
+		store.addFilter(filter);
 		store.filter(property);
 	}
 	

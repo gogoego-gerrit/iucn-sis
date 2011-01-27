@@ -10,9 +10,15 @@ import org.iucn.sis.shared.api.models.Virus;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -20,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.gwt.ui.DrawsLazily;
@@ -27,11 +34,15 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class VirusChooser extends PagingPanel<VirusModelData> implements DrawsLazily {
 	
+	private final ContentFilter filter;
+	
 	private Grid<VirusModelData> grid;
 
 	public VirusChooser() {
 		super();
 		setLayout(new FillLayout());
+		
+		getProxy().setFilter(filter = new ContentFilter());
 	}
 	
 	public void draw(final DrawsLazily.DoneDrawingCallback callback) {
@@ -44,7 +55,29 @@ public class VirusChooser extends PagingPanel<VirusModelData> implements DrawsLa
 		grid.setSelectionModel(sm);
 		grid.setAutoExpandColumn("comments");
 		
+		final TextField<String> filterField = new TextField<String>();
+		filterField.setEmptyText("Filter...");
+		
+		final ToolBar toolBar = new ToolBar();
+		toolBar.add(filterField);
+		toolBar.add(new Button("Apply", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				String value = filterField.getValue();
+				if (value != null && !"".equals(value)) {
+					filter.setContentValue(value);
+					getProxy().filter("text", value);
+				}
+			}
+		}));
+		toolBar.add(new Button("Clear", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				filter.setContentValue(null);
+				getProxy().filter("text", null);
+			}
+		}));
+		
 		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(toolBar, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
 		container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
 		container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
 		
@@ -92,6 +125,26 @@ public class VirusChooser extends PagingPanel<VirusModelData> implements DrawsLa
 			checked.add(model.getVirus());
 		
 		return checked;
+	}
+	
+	public static class ContentFilter implements StoreFilter<VirusModelData> {
+		
+		private String contentValue;
+		
+		public void setContentValue(String contentValue) {
+			this.contentValue = contentValue;
+		}
+		
+		@Override
+		public boolean select(Store<VirusModelData> store, VirusModelData parent, VirusModelData item, String property) {
+			if (contentValue == null)
+				return true;
+			
+			String value = item.get(property);
+			
+			return value.contains(contentValue);
+		}
+		
 	}
 	
 }
