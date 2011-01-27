@@ -7,8 +7,6 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.tabs.WorkingSetPage;
@@ -36,6 +34,8 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.ComplexListener;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
@@ -72,12 +72,58 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 	 */
 	protected Integer id = null;
 	
-	private final WorkingSetPage parent;
-
-	public WorkingSetNewWSPanel(WorkingSetPage parent) {
+	//private final WorkingSetPage parent;
+	
+	protected SimpleListener cancelListener;
+	protected ComplexListener<WorkingSet> closeListener;
+	protected ComplexListener<WorkingSet> saveNewListener;
+	protected ComplexListener<WorkingSet> afterSaveListener;
+	
+	public WorkingSetNewWSPanel() {
 		super();
-		this.parent = parent;
+		
 		build();
+	}
+
+	public WorkingSetNewWSPanel(final WorkingSetPage parent) {
+		super();
+		cancelListener = new SimpleListener() {
+			public void handleEvent() {
+				parent.setManagerTab();	
+			}
+		};
+		closeListener = new ComplexListener<WorkingSet>() {
+			public void handleEvent(WorkingSet eventData) {
+				parent.setManagerTab();
+			}
+		};
+		saveNewListener = new ComplexListener<WorkingSet>() {
+			public void handleEvent(WorkingSet eventData) {
+				parent.setEditWorkingSetTab();
+			}
+		};
+		afterSaveListener = new ComplexListener<WorkingSet>() {
+			public void handleEvent(WorkingSet eventData) {
+				parent.setEditTaxaTab();
+			}
+		};
+		build();
+	}
+	
+	public void setCancelListener(SimpleListener cancelListener) {
+		this.cancelListener = cancelListener;
+	}
+	
+	public void setCloseListener(ComplexListener<WorkingSet> closeListener) {
+		this.closeListener = closeListener;
+	}
+	
+	public void setSaveNewListener(ComplexListener<WorkingSet> saveNewListener) {
+		this.saveNewListener = saveNewListener;
+	}
+	
+	public void setAfterSaveListener(ComplexListener<WorkingSet> afterSaveListener) {
+		this.afterSaveListener = afterSaveListener;
 	}
 	
 	protected AssessmentFilter getFilter() {
@@ -213,16 +259,12 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		cancel.setTitle("Cancel");
 		cancel.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				cancel();
+				fireCancelListener();
 			}
 		});
 
 		addItemsToToolBar();
 		add(toolbar, data);
-	}
-
-	private void cancel() {
-		parent.setManagerTab();
 	}
 
 	protected void clearCells() {
@@ -350,16 +392,16 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 				public void onSuccess(String arg0) {
 					id = currentWorkingSet.getId();
 					WSStore.getStore().update();
-					ClientUIContainer.bodyContainer.tabManager.panelManager.workingSetHierarchy
-							.setCurrentlySelected(id);
+					/*ClientUIContainer.bodyContainer.tabManager.panelManager.workingSetHierarchy
+							.setCurrentlySelected(id);*/
 					if (saveMode == SAVE) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
-						parent.setEditWorkingSetTab();
+						fireSaveNewListener(currentWorkingSet);
 					} else if (saveMode == SAVEANDEXIT) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
-						parent.setManagerTab();
+						fireCloseListener(currentWorkingSet);
 					} else {
-						parent.setEditTaxaTab();
+						fireAfterSaveListener(currentWorkingSet);
 						//manager.workingSetOptionsPanel.forceRefreshTaxaList(WorkingSetOptionsPanel.ADDBROWSE);
 					}
 
@@ -385,9 +427,9 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
 					} else if (saveMode == SAVEANDEXIT) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
-						parent.setManagerTab();
+						fireCloseListener(currentWorkingSet);
 					} else {
-						parent.setEditTaxaTab();
+						fireAfterSaveListener(currentWorkingSet);
 						//FIXME: manager.workingSetOptionsPanel.forceRefreshTaxaList(WorkingSetOptionsPanel.ADDBROWSE);
 					}
 					
@@ -398,6 +440,22 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 			WindowUtils.errorAlert("You do not have permissions to edit this working set.");
 			enableSaveButtons(true);
 		}
+	}
+	
+	private void fireSaveNewListener(WorkingSet ws) {
+		saveNewListener.handleEvent(ws);
+	}
+	
+	private void fireCloseListener(WorkingSet ws) {
+		closeListener.handleEvent(ws);
+	}
+	
+	private void fireAfterSaveListener(WorkingSet ws) {
+		afterSaveListener.handleEvent(ws);
+	}
+	
+	private void fireCancelListener() {
+		cancelListener.handleEvent();
 	}
 
 }

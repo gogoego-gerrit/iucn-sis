@@ -35,7 +35,7 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 
 	public RecentAssessmentsPanel() {
 		super("x-panel");
-		setHeading("Recent Assessments Panel");
+		setHeading("Recent Assessments");
 		setLayout(new FitLayout());
 		setLayoutOnChange(true);
 		

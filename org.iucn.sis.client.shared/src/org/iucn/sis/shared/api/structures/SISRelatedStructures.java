@@ -373,6 +373,12 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 		}
 	}
 	
-
+	public boolean hideDescriptionLabel(boolean forever) {
+		if (!(dominantStructure instanceof SISDominantStructureCollection)) {
+			Structure dom = (Structure)dominantStructure;
+			return dom.hideDescriptionLabel(forever);
+		} else
+			return false;
+	}
 
 }

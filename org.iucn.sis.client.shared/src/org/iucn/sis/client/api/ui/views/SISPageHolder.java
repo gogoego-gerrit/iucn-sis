@@ -291,11 +291,12 @@ public class SISPageHolder extends TabPanel {
 						myContent.addStyleName("SIS_dataBrowserCustomText_" + fieldArrangement);
 
 						VerticalPanel wrapper = new VerticalPanel();
+						wrapper.setSpacing(4);
 						wrapper.addStyleName("outsetFrameBorder");
 						wrapper.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 						wrapper.setHorizontalAlignment(align);
 						wrapper.add(myContent);
-						wrapper.setWidth("96%");
+						wrapper.setWidth("100%");
 						
 						content.add(wrapper);
 					}
@@ -319,10 +320,11 @@ public class SISPageHolder extends TabPanel {
 						grid.setWidget(0, 1, textWrapper);
 						
 						VerticalPanel wrapper = new VerticalPanel();
+						wrapper.setSpacing(4);
 						wrapper.addStyleName("outsetFrameBorder");
 						wrapper.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 						wrapper.add(grid);
-						wrapper.setWidth("96%");
+						wrapper.setWidth("100%");
 						
 						content.add(wrapper);
 					}
@@ -410,17 +412,17 @@ public class SISPageHolder extends TabPanel {
 		String layout = XMLUtils.getXMLAttribute(compositeNode, "layout", HORIZONTAL);
 
 		FlexTable myContent = new FlexTable();
-		myContent.setWidth("96%");
-		myContent.setCellSpacing(2);
+		myContent.setWidth("100%");
+		myContent.setCellSpacing(0);
 		myContent.setCellPadding(2);
 
 		int row = 0;
 		int column = 0;
 		int numCols = compositeFields.getLength();
 
-		double width = 96;
+		double width = 100;
 		try {
-			width = 96 / numCols;
+			width = 100 / numCols;
 		} catch (Exception e) {
 		}
 
@@ -432,7 +434,7 @@ public class SISPageHolder extends TabPanel {
 				// Make the inner panel contain the field, make it big as it
 				// gets
 				final SimplePanel myContent2 = new SimplePanel();
-				myContent2.setWidth("96%");
+				myContent2.setWidth("100%");
 
 				if (viewOnly)
 					myContent2.setWidget(FieldWidgetCache.impl.get(curField).showViewOnly());
@@ -458,7 +460,7 @@ public class SISPageHolder extends TabPanel {
 						column++;
 					} else { // Onto the next row...
 						// But lets fix this one first.
-						double tableWidth = 96 / (column + 1); // Can never
+						double tableWidth = 100 / (column + 1); // Can never
 						// divide by 0
 						for (int i = 0; i <= column; i++)
 							myContent.getCellFormatter().setWidth(row, i, tableWidth + "%");
@@ -501,7 +503,8 @@ public class SISPageHolder extends TabPanel {
 			else
 				myContent.add(FieldWidgetCache.impl.get(curField).showDisplay());
 
-			myContent.setWidth("96%");
+			//myContent.setWidth("96%");
+			myContent.setWidth("100%");
 			content.add(myContent);
 
 		} catch (Exception e) {

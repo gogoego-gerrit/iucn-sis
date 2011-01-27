@@ -35,6 +35,7 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 		selected = null;
 		
 		featuredItemContainer = new LayoutContainer(new FitLayout());
+		featuredItemContainer.setLayoutOnChange(true);
 		optionsContainer = new LayoutContainer(new FillLayout());
 		optionsContainer.setLayoutOnChange(true);
 		bodyContainer = new LayoutContainer(new FillLayout());
@@ -46,6 +47,7 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 			left.add(optionsContainer, new BorderLayoutData(LayoutRegion.CENTER));
 		}
 		left.addStyleName("gwt-background");
+		left.addStyleName("featured_left");
 		
 		final BorderLayoutData leftData = new BorderLayoutData(LayoutRegion.WEST);
 		leftData.setSplit(true);
@@ -131,7 +133,7 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 		container.add(bar, new BorderLayoutData(LayoutRegion.SOUTH, 30, 30, 30));
 		
 		featuredItemContainer.removeAll();
-		featuredItemContainer.add(container);
+		featuredItemContainer.add(container); 
 	}
 	
 	private void setButtonState(Button prev, Button next, int index) {

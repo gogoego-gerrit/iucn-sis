@@ -87,9 +87,9 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 		scroller.setLayout(new FitLayout());
 		scroller.setScrollMode(Scroll.NONE);
 
-		
-
 		toolBar = buildToolBar();
+		
+		bodyContainer.addStyleName("page_assessment_body");
 	}
 	
 	@Override

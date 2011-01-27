@@ -238,4 +238,11 @@ public class SISStructureCollection extends Structure<Field> {
 			structure.setEnabled(isEnabled);
 	}
 	
+	public boolean hideDescriptionLabel(boolean forever) {
+		if (!structures.isEmpty())
+			return ((Structure)getStructureAt(0)).hideDescriptionLabel(forever);
+		else
+			return false;
+	}
+	
 }

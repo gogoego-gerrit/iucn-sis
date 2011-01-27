@@ -202,6 +202,10 @@ body,td,div,input,p,select,input,button {
 /**
  * Page Stylings
 */
+.featured_left {
+	
+}
+
 .page_workingSet_featured_header {
 	color: #a72625;
 	font-size: 18px !important;
@@ -244,8 +248,16 @@ body,td,div,input,p,select,input,button {
 	width: 100%;
 }
 
+.page_assessment_body {
+	border-left: 1px solid #CEDCE9 !important;	
+}
+
 .icon-header-options {
 	background: url(../images/emblem-system-32.png) no-repeat !important;	
+}
+
+.icon-gear {
+	background: url(../tango/emblems/emblem-system.png) no-repeat !important;	
 }
 
 .icon-start-here {

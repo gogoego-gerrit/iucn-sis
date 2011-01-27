@@ -167,7 +167,7 @@ public class DEMToolbar extends ToolBar {
 								Info.display("Save Complete", "Successfully saved assessment {0}.",
 										AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
 								resetAutosaveTimer();
-								ClientUIContainer.headerContainer.update();
+								//TODO: ClientUIContainer.headerContainer.update();
 								if (saveListener != null)
 									saveListener.handleEvent();
 							}

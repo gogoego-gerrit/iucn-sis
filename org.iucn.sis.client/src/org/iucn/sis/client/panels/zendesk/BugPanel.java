@@ -141,6 +141,7 @@ public class BugPanel extends RefreshPortlet {
 								super.hide();
 							}
 						};
+						w.setHeading("Zendesk");
 						w.setUrl("http://iucnsis.zendesk.com/tickets/"+bugTable.getText(cell.getRowIndex(), 0)+"/"+result);
 						w.setSize(800, 600);
 						w.show();

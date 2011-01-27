@@ -121,10 +121,7 @@ public class SISOptionsList extends Structure<Field> {
 	@Override
 	protected Widget createLabel() {
 		displayPanel.clear();
-		HTML display = new HTML(description);
-		display.setWidth("90%");
-		display.setWordWrap(true);
-		displayPanel.add(display);
+		displayPanel.add(descriptionLabel);
 		// displayPanel.add( hideList );
 		displayPanel.add(theList);
 		return displayPanel;

@@ -28,7 +28,9 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -296,10 +298,26 @@ public class ClassificationScheme extends Display {
 		setupIconPanel();
 
 		VerticalPanel vert = new VerticalPanel();
+		vert.setWidth("100%");
 		vert.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
-		vert.setSpacing(5);
 
-		vert.add(iconPanel);
+		/*
+		 * TODO: do we want to display the classificaiton scheme name 
+		 * here?  I think so, but most views right now have the name 
+		 * of the class.scheme at the top of the page, so this would 
+		 * become repetitive quickly...
+		 */
+		
+		final Grid grid = new Grid(1, 2);
+		grid.addStyleName("page_assessment_body_fieldGrid");
+		grid.setWidth("100%");
+		grid.setWidget(0, 0, new StyledHTML("", "page_assessment_body_fieldName"));
+		grid.setWidget(0, 1, getMenuIcon());
+		grid.getCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_MIDDLE);
+		grid.getCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT, HasVerticalAlignment.ALIGN_MIDDLE);
+		
+		//vert.add(iconPanel);
+		vert.add(grid);
 		vert.add(generateContent(viewOnly));
 		
 		VerticalPanel outer = new VerticalPanel();

@@ -182,8 +182,9 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 						Transaction tsx = SISPersistentManager.instance().getSession().getTransaction();
 						if (response.getStatus().isSuccess())
 							tsx.commit();
-						else
+						else {
 							tsx.rollback();
+						}
 					} catch (HibernateException e) {
 						Debug.println("Hibernate Error: {0}\n{1}", e.getMessage(), e);
 						if (e.getCause() instanceof BatchUpdateException) {
@@ -192,6 +193,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 							Debug.println("Caused by SQL Exception: {0}\n{1}", sql.getMessage(), sql);
 						}
 						response.setStatus(Status.SERVER_ERROR_INTERNAL);
+						SISPersistentManager.instance().getSession().getTransaction().rollback();
 					}
 				}
 

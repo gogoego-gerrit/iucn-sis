@@ -45,8 +45,6 @@ public class BodyContainer extends LayoutContainer {
 		workingSetPage = new WorkingSetPage();
 		taxonHomePage = new TaxonHomePageTab();
 		assessmentPage = new DEMPanel();
-		
-		openHomePage(false);
 	}
 	
 	public void openWorkingSet(final boolean updateNavigation) {

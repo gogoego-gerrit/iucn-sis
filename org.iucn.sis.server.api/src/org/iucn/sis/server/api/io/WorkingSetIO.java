@@ -51,15 +51,35 @@ public class WorkingSetIO {
 		return WorkingSetDAO.listWorkingSetByCriteria(criteria);
 	}
 
+	/**
+	 * 
+	 * @deprecated use getSubscribedWorkingSets(Integer userID) instead
+	 */
 	public WorkingSet[] getSubscribedWorkingSets(String userName) throws PersistentException {
 		WorkingSetCriteria criteria = new WorkingSetCriteria();
 		criteria.createSubscribedUsersCriteria().username.eq(userName);
 		return WorkingSetDAO.listWorkingSetByCriteria(criteria);
 	}
 
+	/**
+	 * FIXME: This needs to be based off the user ID, not the username.
+	 * @deprecated
+	 */
 	public WorkingSet[] getUnsubscribedWorkingSets(String userName) throws PersistentException {
-		String queryString = "SELECT id FROM working_set WHERE id not in (Select working_setid FROM (SELECT id from \"user\" where username='" 
-			+ userName + "') t JOIN working_set_subscribe_user on userid = t.id);";
+		/*String queryString = "SELECT id FROM working_set WHERE id not in (Select working_setid FROM (SELECT id from \"user\" where username='" 
+			+ userName + "') t JOIN working_set_subscribe_user on userid = t.id);";*/
+		
+		String queryString = "SELECT * FROM working_set " +
+			"JOIN working_set_subscribe_user ON working_set.id = working_set_subscribe_user.working_setid " +
+			"JOIN \"user\" ON working_set_subscribe_user.userid = \"user\".id " +
+			"WHERE \"user\".username != '"+userName+"'";
+		
+		List<WorkingSet> list = 
+			SIS.get().getManager().getSession().createSQLQuery(queryString).addEntity(WorkingSet.class).list();
+		
+		return list.toArray(new WorkingSet[list.size()]);
+		
+		/*
 		
 		List<Integer> results  = (List<Integer>) SIS.get().getManager().getSession().createSQLQuery(queryString).list();
 		if (!results.isEmpty()) {
@@ -68,7 +88,7 @@ public class WorkingSetIO {
 			return WorkingSetDAO.listWorkingSetByCriteria(criteria);
 		} else {
 			return new WorkingSet[]{};
-		}
+		}*/
 		
 		
 	}
@@ -82,6 +102,10 @@ public class WorkingSetIO {
 		}
 	}
 
+	/**
+	 * FIXME: This needs to be based off the user ID, not the username.
+	 * @deprecated
+	 */
 	public boolean unsubscribeFromWorkingset(String username, Integer id) {
 		WorkingSet ws = readWorkingSet(id);
 		User user = SIS.get().getUserIO().getUserFromUsername(username);
@@ -104,6 +128,10 @@ public class WorkingSetIO {
 		return false;
 	}
 
+	/**
+	 * FIXME: This needs to be based off the user ID, not the username.
+	 * @deprecated
+	 */
 	public boolean subscribeToWorkingset(Integer workingsetID, String username) {
 		WorkingSet ws = readWorkingSet(workingsetID);
 		if (ws == null)

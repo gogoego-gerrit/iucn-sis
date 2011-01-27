@@ -12,6 +12,7 @@ package org.iucn.sis.shared.api.displays;
 import org.iucn.sis.shared.api.data.FieldData;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
+import org.iucn.sis.shared.api.structures.Structure;
 
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -77,11 +78,16 @@ public class FieldDisplay extends Display {
 		displayPanel.setSize("100%", "100%");
 		// displayPanel.addStyleName("standout");
 		
+		boolean canRemoveDescription = myStructures.size() == 1 && 
+			getDescription("").equals(myStructures.get(0).getDescription());
+		
 		for (DisplayStructure structure : myStructures) {
 			if (viewOnly)
 				displayPanel.add((structure).generateViewOnly());
 			else
 				displayPanel.add((structure).generate());
+			if (canRemoveDescription)
+				((Structure)structure).hideDescriptionLabel(false);
 		}
 		return displayPanel;
 	}

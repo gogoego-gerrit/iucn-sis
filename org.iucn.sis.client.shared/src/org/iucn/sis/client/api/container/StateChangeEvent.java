@@ -11,6 +11,8 @@ public class StateChangeEvent {
 	private final Assessment assessment;
 	private final Object source;
 	
+	private final String token;
+	
 	private boolean canceled;
 	
 	public StateChangeEvent(WorkingSet workingSet, Taxon taxon, Assessment assessment, Object source) {
@@ -20,6 +22,21 @@ public class StateChangeEvent {
 		this.source = source;
 		
 		this.canceled = false;
+		
+		StringBuilder builder = new StringBuilder();
+		if (workingSet != null) {
+			builder.append('W');
+			builder.append(workingSet.getId());
+		}
+		if (taxon != null) {
+			builder.append('T');
+			builder.append(taxon.getId());
+			if (assessment != null) {
+				builder.append('A');
+				builder.append(assessment.getId());
+			}
+		}
+		this.token = builder.toString();
 	}
 	
 	public Object getSource() {
@@ -36,6 +53,10 @@ public class StateChangeEvent {
 	
 	public WorkingSet getWorkingSet() {
 		return workingSet;
+	}
+	
+	public String getToken() {
+		return token;
 	}
 	
 	public void setCanceled(boolean canceled) {

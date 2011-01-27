@@ -23,6 +23,8 @@ public interface DisplayStructure<T, V> {
 	
 	public String getData();
 	
+	public String getDescription();
+	
 	/**
 	 * Pass in the raw data from an Assessment object, and this will return
 	 * it in happy, displayable String form

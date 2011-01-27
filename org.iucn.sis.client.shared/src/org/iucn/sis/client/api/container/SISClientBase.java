@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.gwt.debug.DebuggingApplication;
@@ -88,6 +89,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 			StatusCache.impl.clearCache();
 			AuthorizationCache.impl.clear();
 			StateManager.impl.doLogout();
+			History.newItem("", false);
 		}
 
 		private static void getProfile(final String password, final String username, final String authn) {

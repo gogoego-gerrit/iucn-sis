@@ -73,35 +73,6 @@ public class SimpleSISClient extends SISClientBase {
 		FieldWidgetCache.impl.registerWidgetGenerator(new BirdlifeWidgetGenerator());
 		RecentlyAccessedCache.impl.load(RecentlyAccessed.USER);
 		
-		/*StateManager.impl.addStateChangeListener(StateChangeEventType.WorkingSetChanged, new ComplexListener<StateChangeEvent>() {
-			public void handleEvent(StateChangeEvent event) {
-				ClientUIContainer.bodyContainer.openWorkingSet();
-			}
-		});
-		StateManager.impl.addStateChangeListener(StateChangeEventType.TaxonChanged, new ComplexListener<StateChangeEvent>() {
-			public void handleEvent(StateChangeEvent eventData) {
-				ClientUIContainer.bodyContainer.openTaxon();
-			}
-		});
-		StateManager.impl.addStateChangeListener(StateChangeEventType.AssessmentChanged, new ComplexListener<StateChangeEvent>() {
-			public void handleEvent(StateChangeEvent eventData) {
-				ClientUIContainer.bodyContainer.openAssessment();
-			}
-		});*/
-		StateManager.impl.addStateChangeListener(StateChangeEventType.StateChanged, new ComplexListener<StateChangeEvent>() {
-			public void handleEvent(StateChangeEvent eventData) {
-				boolean updateNavigation = !ClientUIContainer.headerContainer.centerPanel.equals(eventData.getSource());
-				if (eventData.getAssessment() != null)
-					ClientUIContainer.bodyContainer.openAssessment(updateNavigation);
-				else if (eventData.getTaxon() != null)
-					ClientUIContainer.bodyContainer.openTaxon(updateNavigation);
-				else if (eventData.getWorkingSet() != null)
-					ClientUIContainer.bodyContainer.openWorkingSet(updateNavigation);
-				else
-					ClientUIContainer.bodyContainer.openHomePage(true);
-			}
-		});
-		
 		super.initializeCaches(listener);
 	}
 	

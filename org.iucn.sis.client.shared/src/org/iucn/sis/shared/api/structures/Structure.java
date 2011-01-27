@@ -167,9 +167,10 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 		}
 		if (hiddenWidgets)
 			return displayPanel;
+		
+		descriptionLabel = new HTML(description);
 
 		SimplePanel panel = new SimplePanel();
-		descriptionLabel = new HTML(description);
 		panel.setWidget(createLabel());
 		if (style != null)
 			panel.addStyleName(style);
@@ -190,6 +191,8 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 		}
 		if (hiddenWidgets)
 			return displayPanel;
+		
+		descriptionLabel = new HTML(description);
 
 		SimplePanel panel = new SimplePanel();
 		panel.setWidget(createViewOnlyLabel());

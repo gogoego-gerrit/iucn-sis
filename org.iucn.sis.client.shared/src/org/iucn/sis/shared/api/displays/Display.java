@@ -7,21 +7,32 @@ import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.client.api.caches.NotesCache;
 import org.iucn.sis.client.api.caches.ReferenceCache;
+import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.notes.NoteAPI;
 import org.iucn.sis.client.api.ui.notes.NotesWindow;
+import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
+import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
+import org.iucn.sis.shared.api.acl.feature.AuthorizablePublishedAssessment;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DefinitionPanel;
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.models.Relationship;
+import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 import org.iucn.sis.shared.api.structures.SISRelatedStructures;
 import org.iucn.sis.shared.api.structures.SISStructureCollection;
@@ -31,24 +42,32 @@ import org.iucn.sis.shared.api.utils.clipboard.UsesClipboard;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.StyledHTML;
+import com.solertium.util.portable.XMLWritingUtils;
 
 /**
  * Display.java
@@ -62,6 +81,10 @@ import com.solertium.util.extjs.client.WindowUtils;
  */
 @SuppressWarnings("unchecked")
 public abstract class Display implements Referenceable {
+	
+	private enum BatchChangeMode {
+		APPEND, OVERWRITE, OVERWRITE_IF_BLANK
+	}
 
 	public static final String VERTICAL = "vertical";
 	public static final String HORIZONTAL = "horizontal";
@@ -313,6 +336,10 @@ public abstract class Display implements Referenceable {
 
 	public String getDescription() {
 		return description;
+	}
+	
+	public String getDescription(String defaultValue) {
+		return description == null ? defaultValue : description;
 	}
 
 	public int getDominantStructureIndex() {
@@ -676,11 +703,23 @@ public abstract class Display implements Referenceable {
 		try {
 			setupIconPanel();
 			
+			boolean canRemoveDescription = myStructures.size() == 1 && 
+				getDescription("").equals(myStructures.get(0).getDescription());
+			String description = canRemoveDescription ? getDescription() : "";
+			
+			final Grid grid = new Grid(1, 2);
+			grid.addStyleName("page_assessment_body_fieldGrid");
+			grid.setWidth("100%");
+			grid.setWidget(0, 0, new StyledHTML(description, "page_assessment_body_fieldName"));
+			grid.setWidget(0, 1, getMenuIcon());
+			grid.getCellFormatter().setAlignment(0, 0, HasHorizontalAlignment.ALIGN_LEFT, HasVerticalAlignment.ALIGN_MIDDLE);
+			grid.getCellFormatter().setAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT, HasVerticalAlignment.ALIGN_MIDDLE);
+			
 			DockPanel myPanel = new DockPanel();
 			myPanel.setSize("100%", "100%");
 			myPanel.clear();
 
-			myPanel.add(iconPanel, DockPanel.NORTH);
+			myPanel.add(grid, DockPanel.NORTH);
 			myPanel.add(generateContent(viewOnly), DockPanel.CENTER);
 			return myPanel;
 		} catch (Exception e) {
@@ -690,6 +729,236 @@ public abstract class Display implements Referenceable {
 		}
 
 		//return dockPanel;
+	}
+	
+	protected Widget getMenuIcon() {
+		IconButton icon = new IconButton("icon-gear");
+		icon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				buildOptionsMenu();
+				
+				optionsMenu.show(ce.getIconButton());
+			}
+		});
+		
+		return icon;
+	}
+	
+	protected void buildOptionsMenu() {
+		optionsMenu = new Menu();
+		
+		/* This code adds the Clipboard icon to the display mini-menuCS */
+		final ArrayList clipList = getStructuresThatUseClipboard(myStructures);
+		if (!clipList.isEmpty()) {
+			MenuItem clipboard = new MenuItem("Clipboard");
+			clipboard.setIconStyle("icon-paste");
+			clipboard.setToolTip(new ToolTipConfig("Clipboard",
+					"You can use the clipboard to copy and paste text <br/>"
+							+ "from one field to another in SIS, where supported. <br/>"
+							+ "The clipboard can hold multiple pieces of text at a time."));
+			
+			clipboard.setSubMenu(getClipboardMenu(clipList));
+
+			optionsMenu.add(clipboard);
+		}
+		
+		String notesIconStyle;
+		List<Notes> notes = NotesCache.impl.getNotesForCurrentAssessment(field);
+		if (notes == null || notes.isEmpty())
+			notesIconStyle = ("images/icon-note-grey.png");
+		else
+			notesIconStyle = ("images/icon-note.png");
+		
+		MenuItem notesMenu = new MenuItem("Notes");
+		notesMenu.setIconStyle(notesIconStyle);
+		notesMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				openEditViewNotesPopup();
+			}
+		});
+		optionsMenu.add(notesMenu);
+		
+		String referencesIconStyle;
+		if (field != null && !field.getReference().isEmpty())
+			referencesIconStyle = "images/icon-book.png";
+		else
+			referencesIconStyle = "images/icon-book-grey.png";
+		
+		MenuItem referenceMenu = new MenuItem("References");
+		referenceMenu.setIconStyle(referencesIconStyle);
+		referenceMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				final GenericCallback<Object> callback = new GenericCallback<Object>() {
+					public void onSuccess(Object result) {
+						GenericCallback<Object> listener = new GenericCallback<Object>() {
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Error!", "Error committing changes to the "
+										+ "server. Ensure you are connected to the server, then try " + "the process again.");
+							}
+		
+							public void onSuccess(Object result) {
+								rebuildIconPanel();
+							}
+						};
+						SISClientBase.getInstance().onShowReferenceEditor("Add a references to " + canonicalName, 
+								Display.this, listener, listener);
+					}
+					public void onFailure(Throwable caught) {
+					}
+				};
+				
+				if (!isSaved())
+					assignIDToField(callback);
+				else
+					callback.onSuccess(null);
+			}
+		});
+
+		optionsMenu.add(referenceMenu);
+		
+		MenuItem definitions = new MenuItem("Definitions");
+		definitions.setIconStyle("icon-help");
+		definitions.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				Window s = WindowUtils.getWindow(true, false, "Definitions for " + canonicalName);
+				s.setScrollMode(Scroll.AUTO);
+				s.add(buildDefintionPanel());
+				s.setSize(400, 400);
+
+				s.show();
+				s.center();
+			}
+		});
+		
+		optionsMenu.add(definitions);
+		
+		final WorkingSet ws = WorkingSetCache.impl.getCurrentWorkingSet();
+		if (isSaved() && ws != null) {
+			MenuItem batchChange = new MenuItem("Batch Change " + ws.getName() + " Working Set");
+			batchChange.setIconStyle("icon-page-copy");
+			
+			Menu subMenu = new Menu(); {
+				/*
+				 * TODO: also for class.schemes.
+				 */
+				if (getField().isNarrativeField()) {
+					MenuItem append = new MenuItem("Append");
+					append.setToolTip("Appends the contents of this field to any existing contents of the target field.");
+					append.addSelectionListener(new SelectionListener<MenuEvent>() {
+						public void componentSelected(MenuEvent ce) {
+							doSimpleBatchChange(ws, field, BatchChangeMode.APPEND);
+						}
+					});
+					subMenu.add(append);
+				}
+					
+				MenuItem overwrite = new MenuItem("Overwrite");
+				overwrite.setToolTip("Overwrites the content of the target field with the content of this field, even if there is already data in the target field.");
+				overwrite.addSelectionListener(new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						WindowUtils.errorAlert("Sorry, this mode is not currently supported with this build of SIS.  It will be supported in a future release.");
+						//doSimpleBatchChange(ws, field, BatchChangeMode.OVERWRITE);
+					}
+				});
+				subMenu.add(overwrite);
+				
+				MenuItem overwriteIfBlank = new MenuItem("Overwrite Only If Blank");
+				overwriteIfBlank.setToolTip("Overwrites the content of the target field with the content of this field, " +
+					"but only if there target field has no data.");
+				overwriteIfBlank.addSelectionListener(new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						doSimpleBatchChange(ws, field, BatchChangeMode.OVERWRITE_IF_BLANK);
+					}
+				});
+				subMenu.add(overwriteIfBlank);
+			}
+			
+			batchChange.setSubMenu(subMenu);
+			
+			optionsMenu.add(batchChange);
+		}
+	}
+	
+	/**
+	 * FIXME: why can't I just send my field and my working set down to the 
+	 * server and handle all this mess there?!?
+	 */
+	private void doSimpleBatchChange(final WorkingSet ws, final Field field, final BatchChangeMode mode) {
+		final AssessmentFilter filter = ws.getFilter();
+		if (filter.getRegionType().equalsIgnoreCase(Relationship.ALL) || filter.getRegionType().equalsIgnoreCase(Relationship.OR)) {
+			WindowUtils.errorAlert("Unable to perform operations on working sets that don't have an exact region match.");
+			return;
+		}
+		
+		TaxonomyCache.impl.fetchList(ws.getSpeciesIDs(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				String taxaIDs = null;
+				if (filter.isAllPublished() || filter.isRecentPublished()) {
+					taxaIDs = "";
+					for (Taxon curTaxa : ws.getSpecies()) {
+						for (Integer region : filter.listRegionIDs()) {
+							if(!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, new AuthorizablePublishedAssessment(curTaxa, region+"")) ) {
+								WindowUtils.errorAlert("Unauthorized!", "You are unauthorized to modify " +
+										"published assessments for at least the taxon " + curTaxa.getFullName() +
+								". This operation has been cancelled.");
+								return;
+							}
+						}
+						taxaIDs += curTaxa.getId() + ",";
+					}
+					taxaIDs = taxaIDs.substring(0, taxaIDs.length()-1);
+				}
+				if (filter.isDraft()) 
+				{
+					taxaIDs = "";
+					for (Taxon curTaxa : ws.getSpecies()) {
+						for (Integer region : filter.listRegionIDs())
+							if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, new AuthorizableDraftAssessment(curTaxa, region+"")))
+							{	
+								WindowUtils.hideLoadingAlert();
+								WindowUtils.errorAlert("Unauthorized!", "You are unauthorized to modify " +
+										"draft assessments for at least the taxon " + curTaxa.getFullName() +
+								". This operation has been cancelled.");
+								return;
+							}
+						taxaIDs += curTaxa.getId() + ",";
+					}
+					taxaIDs = taxaIDs.substring(0, taxaIDs.length()-1);
+				}
+				if (taxaIDs == null) {
+					WindowUtils.errorAlert("Error!", "There were no assessments "
+							+ "to be modified in your selected working set "
+							+ "of the selected type. Please try again.");
+					return;
+				}
+				StringBuffer fieldXML = new StringBuffer("<fields>");
+				fieldXML.append("<field>" + field.getName() + "</field>");
+				fieldXML.append("</fields>");
+				
+				StringBuffer xml = new StringBuffer("<batchChange>\n");
+				xml.append("<assessment>" + AssessmentCache.impl.getCurrentAssessment() + "</assessment>");
+				xml.append(filter.toXML());
+				xml.append(fieldXML.toString());
+				xml.append("<taxa>" + taxaIDs + "</taxa>");
+				xml.append(XMLWritingUtils.writeTag("append", Boolean.toString(BatchChangeMode.APPEND.equals(mode))));
+				xml.append(XMLWritingUtils.writeTag("overwrite", Boolean.toString(BatchChangeMode.OVERWRITE_IF_BLANK.equals(mode))));
+				//TODO: need a force-overwrite mode.
+				xml.append("</batchChange>\n");
+				
+				final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+				document.post(UriBase.getInstance().getBatchChangeBase() + "/batchChange", xml.toString(), new GenericCallback<String>() {
+					public void onSuccess(String result) {
+						WindowUtils.infoAlert("Success", "Batch change process was completed successfully.");
+					}
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Error in processing batch change. Please try again later.");
+					}
+				});
+			}
+			public void onFailure(Throwable caught) {
+				WindowUtils.errorAlert("Error fetching taxa in selected working set.");
+			}
+		});
 	}
 
 	public void showStructures() {
