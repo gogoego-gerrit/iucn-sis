@@ -6,11 +6,14 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.VirusCache;
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.panels.viruses.VirusModelData;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Virus;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
@@ -26,7 +29,9 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.gwt.ui.DrawsLazily;
@@ -55,8 +60,22 @@ public class VirusChooser extends PagingPanel<VirusModelData> implements DrawsLa
 		grid.setSelectionModel(sm);
 		grid.setAutoExpandColumn("comments");
 		
+		final PagingToolBar pagingToolBar = getPagingToolbar();
+		
 		final TextField<String> filterField = new TextField<String>();
 		filterField.setEmptyText("Filter...");
+		filterField.addKeyListener(new KeyListener() {
+			public void componentKeyPress(ComponentEvent event) {
+				if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
+					String value = filterField.getValue();
+					if (value != null && !"".equals(value)) {
+						filter.setContentValue(value);
+						getProxy().filter("text", value);
+						pagingToolBar.refresh();
+					}
+				}	
+			}
+		});
 		
 		final ToolBar toolBar = new ToolBar();
 		toolBar.add(filterField);
@@ -66,6 +85,7 @@ public class VirusChooser extends PagingPanel<VirusModelData> implements DrawsLa
 				if (value != null && !"".equals(value)) {
 					filter.setContentValue(value);
 					getProxy().filter("text", value);
+					pagingToolBar.refresh();
 				}
 			}
 		}));
@@ -73,6 +93,8 @@ public class VirusChooser extends PagingPanel<VirusModelData> implements DrawsLa
 			public void componentSelected(ButtonEvent ce) {
 				filter.setContentValue(null);
 				getProxy().filter("text", null);
+				filterField.reset();
+				pagingToolBar.refresh();
 			}
 		}));
 		
@@ -142,7 +164,10 @@ public class VirusChooser extends PagingPanel<VirusModelData> implements DrawsLa
 			
 			String value = item.get(property);
 			
-			return value.contains(contentValue);
+			boolean result = value.contains(contentValue);
+			Debug.println("Does {0} contain {1}? {2}", value, contentValue, result);
+			
+			return result;
 		}
 		
 	}
