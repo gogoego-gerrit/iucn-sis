@@ -18,6 +18,7 @@ import org.iucn.sis.client.panels.redlist.RedlistPanel;
 import org.iucn.sis.client.panels.region.RegionPanel;
 import org.iucn.sis.client.panels.taxa.TaxonFinderPanel;
 import org.iucn.sis.client.panels.taxa.tagging.TaxaTagManager;
+import org.iucn.sis.client.panels.users.UploadUsersPanel;
 import org.iucn.sis.client.panels.users.UserModelTabPanel;
 import org.iucn.sis.client.panels.viruses.VirusManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -529,6 +530,14 @@ public class HeaderContainer extends LayoutContainer {
 				ti.setLayout(new FitLayout());
 				ti.add(userModelPanel);
 				userPanel.add(ti);
+				
+				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.USER_MANAGEMENT_FEATURE)) {
+					TabItem item = new TabItem("Bulk Upload from Spreadsheet");
+					item.setLayout(new FillLayout());
+					item.add(new UploadUsersPanel());
+					
+					userPanel.add(item);
+				}
 				
 				s.add(userPanel);
 				

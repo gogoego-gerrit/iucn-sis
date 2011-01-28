@@ -1,7 +1,9 @@
 package org.iucn.sis.server.api.application;
 
 import java.util.Date;
+import java.util.HashMap;
 
+import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
@@ -12,9 +14,12 @@ import com.solertium.util.MD5Hash;
 import com.solertium.util.restlet.authentication.DBAuthenticator;
 
 public class SISDBAuthenticator extends DBAuthenticator {
+	
+	private final HashMap<String, String> loginCache;
 
 	public SISDBAuthenticator(ExecutionContext ec) {
 		super(ec, "user", "username", "password");
+		loginCache = new HashMap<String, String>();
 	}
 	
 	@Override
@@ -47,14 +52,43 @@ public class SISDBAuthenticator extends DBAuthenticator {
 	}
 	
 	@Override
+	public String translatePassword(String login, String password) {
+		return super.translatePassword(login, password);
+	}
+	
+	@Override
 	public boolean validateAccount(String login, String password) {
-		//PASSWORD COULD BE EMPTY IF NOT YET ASSIGNED.  DON"T WANT THEM TO BE ABLE TO LOG IN
-		if (password != null && !password.trim().equals("")) {
-			return super.validateAccount(login, password);
+		if (password == null || "".equals(password.trim())) {
+			//Password could be empty if not yet assigned; don't want them to be able to log in.
+			return false;
 		}
-		return false;
-		
-		
+		else {
+			final String translatedPW = translatePassword(login, password);
+			final String translatedUN = getSHA1Hash(login);
+			
+			if (translatedPW.equalsIgnoreCase(loginCache.get(translatedUN)))
+				return true;
+			
+			User user;
+			try {
+				user = (User)SIS.get().getManager().getSession().createCriteria(User.class)
+				.add(Restrictions.eq("username", login))
+				.add(Restrictions.eq("password", translatedPW))
+				.add(Restrictions.eq("sisUser", Boolean.TRUE))
+				.add(Restrictions.eq("state", User.ACTIVE))
+				.uniqueResult();
+			} catch (PersistentException e) {
+				Debug.println("Failed to validate user account: {0}", e);
+				return false;
+			}
+			
+			boolean success = user != null;
+			
+			if (success)
+				loginCache.put(translatedUN, translatedPW);
+			
+			return success;
+		}
 	}
 	
 	@Override

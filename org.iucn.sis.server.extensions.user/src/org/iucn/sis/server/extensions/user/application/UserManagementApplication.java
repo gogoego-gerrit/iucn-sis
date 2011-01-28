@@ -7,6 +7,7 @@ import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.iucn.sis.server.extensions.user.resources.BatchUpdateRestlet;
+import org.iucn.sis.server.extensions.user.resources.CSVImportRestlet;
 import org.iucn.sis.server.extensions.user.resources.CustomFieldManager;
 import org.iucn.sis.server.extensions.user.resources.DumpResource;
 import org.iucn.sis.server.extensions.user.resources.ProfileSearchResource;
@@ -40,6 +41,7 @@ public final class UserManagementApplication extends SimpleSISApplication {
 		addResource(ProfileSearchResource.class, "/browse/profile", false);
 		
 		addServiceToRouter(new UserRestlet(app.getContext()));
+		addServiceToRouter(new CSVImportRestlet(app.getContext()));
 	}
 
 
