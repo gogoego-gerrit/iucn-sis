@@ -125,7 +125,7 @@ public class CSVImportRestlet extends BaseServiceRestlet {
 	private String wrapInHTML(String value) {
 		final StringBuilder html = new StringBuilder();
 		html.append("<html>");
-		html.append("<head><title/></head>");
+		html.append("<head><title>Upload</title></head>");
 		html.append("<body bgcolor=\"white\">");
 		html.append(value);
 		html.append("</body>");
