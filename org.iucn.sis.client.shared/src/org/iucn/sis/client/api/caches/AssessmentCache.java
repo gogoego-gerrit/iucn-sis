@@ -37,15 +37,6 @@ public class AssessmentCache {
 
 	public static final AssessmentCache impl = new AssessmentCache();
 
-	/**
-	 * ArrayList that stores NUMRECENTASSESSMENTS number of the most recently
-	 * view assessments. (Stores AssessmentInfo objects) null if hasn't been
-	 * initialized
-	 */
-	private ArrayList<AssessmentInfo> recentAssessments;
-
-	private int numSinceSaveRecent;
-
 	private Map<Integer, Assessment> cache;
 	private Map<Integer, List<Assessment>> taxonToAssessmentCache;
 	private Map<Integer, Boolean> taxaFetched;
