@@ -6,7 +6,6 @@ import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -281,7 +280,8 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 				Info.display(new InfoConfig("Taxon Created", "New taxon {0} was created successfully!", new Params(
 						newNode.getFullName())));
 				TaxonomyCache.impl.evictPaths();
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(arg0.getId());
+				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(arg0.getId());
+				TaxonomyCache.impl.setCurrentTaxon(arg0);
 				BaseEvent be = new BaseEvent(newNode);
 				be.setCancelled(false);
 				fireEvent(Events.StateChange, be);

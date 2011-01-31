@@ -8,7 +8,6 @@ import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.assessments.AssessmentAttachmentPanel;
 import org.iucn.sis.client.panels.assessments.AssessmentChangesPanel;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
@@ -316,8 +315,8 @@ public class DEMToolbar extends ToolBar {
 				Popup imagePopup = new Popup();
 
 				if (!imagePopup.isRendered()) {
-					ImageManagerPanel imageManager = new ImageManagerPanel(String.valueOf(TaxonomyCache.impl
-							.getCurrentTaxon().getId()));
+					ImageManagerPanel imageManager = 
+						new ImageManagerPanel(TaxonomyCache.impl.getCurrentTaxon());
 					imagePopup.add(imageManager);
 				}
 

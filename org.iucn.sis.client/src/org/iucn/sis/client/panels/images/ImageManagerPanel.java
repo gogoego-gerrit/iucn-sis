@@ -2,11 +2,12 @@ package org.iucn.sis.client.panels.images;
 
 import java.util.ArrayList;
 
+import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.ui.models.image.ManagedImage;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.utils.FileUploadWidget;
+import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -39,7 +40,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class ImageManagerPanel extends LayoutContainer {
 
-	private String groupingId;
+	private Taxon taxon;
 
 	protected ToolBar toolbar;
 	protected ToolBar viewbar;
@@ -59,7 +60,10 @@ public class ImageManagerPanel extends LayoutContainer {
 	public static final int GALLERY_VIEW = 0;
 	public static final int DETAIL_VIEW = 1;
 
-	public ImageManagerPanel(String id) {
+	public ImageManagerPanel(Taxon taxon) {
+		super();
+		this.taxon = taxon;
+		
 		toolbar = new ToolBar();
 		viewbar = new ToolBar();
 		selectedList = new ArrayList<HorizontalPanel>();
@@ -85,7 +89,7 @@ public class ImageManagerPanel extends LayoutContainer {
 		setBorders(true);
 		setLayout(new RowLayout(Orientation.VERTICAL));
 
-		init(id);
+		init();
 	}
 
 	private void addImage(final ManagedImage image) {
@@ -219,8 +223,7 @@ public class ImageManagerPanel extends LayoutContainer {
 		return viewType;
 	}
 
-	private void init(String id) {
-		groupingId = id;
+	private void init() {
 		selected = -1;
 
 		viewType = DETAIL_VIEW;
@@ -231,7 +234,8 @@ public class ImageManagerPanel extends LayoutContainer {
 			public void componentSelected(ButtonEvent ce) {
 				// Popup addPopup = new Popup( true );
 				final Window addPopup = WindowUtils.getWindow(false, true, "Attach Image");
-				addPopup.add(new FileUploadWidget(UriBase.getInstance().getImageBase() + "/images/" + groupingId) {
+				addPopup.add(new FileUploadWidget(UriBase.getInstance().getImageBase() + 
+						"/images/" + taxon.getId()) {
 
 					public void init() {
 						setLayout(new FillLayout());
@@ -436,8 +440,8 @@ public class ImageManagerPanel extends LayoutContainer {
 		((HorizontalPanel) selectedList.get(selection)).setBorderWidth(4);
 	}
 
-	public void setTaxonId(String id) {
-		groupingId = id;
+	public void setTaxon(Taxon taxon) {
+		this.taxon = taxon;
 	}
 
 	public void setView(int view) {
@@ -464,7 +468,7 @@ public class ImageManagerPanel extends LayoutContainer {
 			imagesContainer.setLayout(new TableLayout(10));
 
 		final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
-		ndoc.get(UriBase.getInstance().getImageBase() + "/images/" + groupingId, new GenericCallback<String>() {
+		ndoc.get(UriBase.getInstance().getImageBase() + "/images/" + taxon.getId(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
 			}
@@ -492,19 +496,20 @@ public class ImageManagerPanel extends LayoutContainer {
 	}
 
 	protected void writeImagesToFS() {
-		String xml = "<images id=\"" + groupingId + "\">";
+		String xml = "<images id=\"" + taxon.getId() + "\">";
 		for (int i = 0; i < imageList.size(); i++) {
 			xml += imageList.get(i).toXML();
 		}
 		xml += "</images>";
 
 		NativeDocument newDoc = SimpleSISClient.getHttpBasicNativeDocument();
-		newDoc.put(UriBase.getInstance().getImageBase() + "/images/" + groupingId, xml, new GenericCallback<String>() {
+		newDoc.put(UriBase.getInstance().getImageBase() + "/images/" + taxon.getId(), xml, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Could not save image details, please try again later.");
 			}
 			public void onSuccess(String result) {
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(Integer.valueOf(groupingId));
+				TaxonomyCache.impl.setCurrentTaxon(taxon);
+				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(Integer.valueOf(groupingId));
 				update();
 			}
 		});

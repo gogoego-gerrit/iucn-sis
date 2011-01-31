@@ -73,15 +73,21 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 	}
 	
 	@Override
-	public void draw(DoneDrawingCallback callback) {
-		drawOptions();
-		drawFeatureArea();
-		drawBody(callback);
-		
-		callback.isDrawn();
+	public void draw(final DoneDrawingCallback callback) {
+		drawOptions(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				drawBody(new DrawsLazily.DoneDrawingCallback() {
+					public void isDrawn() {
+						drawFeatureArea();
+						
+						callback.isDrawn();
+					}
+				});
+			}
+		});
 	}
 	
-	protected abstract void drawOptions();
+	protected abstract void drawOptions(DoneDrawingCallback callback);
 	
 	protected void drawFeatureArea() {
 		final LayoutContainer top = updateFeature();

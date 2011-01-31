@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -88,9 +87,10 @@ public class LateralMove extends TaxonChooser {
 									+ parentNode.getFullName());
 					move.setEnabled(true);
 					cancel.setEnabled(true);
-					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(parentNode
-							.getId());
+					/*ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(parentNode
+							.getId());*/
 					TaxonomyCache.impl.evictPaths();
+					TaxonomyCache.impl.setCurrentTaxon(parentNode);
 					onClose();
 				}
 			});

@@ -57,7 +57,7 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 						TaxonomyCache.impl.editCommonName(taxon, cn, new GenericCallback<String>() {
 							public void onSuccess(String result) {
 								WindowUtils.infoAlert("Successful delete of common name " + cn.getName());
-								ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
+								//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
 							}
 
 							@Override
@@ -82,7 +82,7 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 				WindowManager.get().hideAll();
 				Window temp = new EditCommonNamePanel(cn, taxon, new ComplexListener<CommonName>() {
 					public void handleEvent(CommonName eventData) {
-						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
+						//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
 					}
 				});
 				temp.show();
@@ -199,7 +199,8 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		@Override
 		public void onClose() {
 			if (hasChanged)
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
+				TaxonomyCache.impl.setCurrentTaxon(taxon);
+				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
 		}
 		
 		@Override

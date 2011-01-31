@@ -20,6 +20,7 @@ import org.iucn.sis.client.panels.taxa.TaxonFinderPanel;
 import org.iucn.sis.client.panels.taxa.tagging.TaxaTagManager;
 import org.iucn.sis.client.panels.users.UploadUsersPanel;
 import org.iucn.sis.client.panels.users.UserModelTabPanel;
+import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.client.panels.viruses.VirusManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
@@ -30,10 +31,9 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -47,10 +47,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -193,22 +191,26 @@ public class HeaderContainer extends LayoutContainer {
 		item.setIconStyle("icon-tree");
 		item.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
-				Window s = WindowUtils.getWindow(true, false, "Taxonomy Browser");
-				LayoutContainer content = s;
-				content.setLayout(new FitLayout());
+				final TaxonomyBrowserPanel browser = new TaxonomyBrowserPanel();
+				
+				Window window = WindowUtils.getWindow(true, false, "Taxonomy Browser");
+				window.setLayout(new FillLayout());
+				window.setSize(400, 420);
+				window.addListener(Events.Show, new Listener<ComponentEvent>() {
+					public void handleEvent(ComponentEvent ce) {
+						browser.update();
+					}
+				});
 				//FIXME: content.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomyBrowserPanel);
-				// s.setLocation( Window.getClientWidth()/2,
-				// Window.getClientHeight()/2 );
-				s.setSize(400, 420);
-
-				s.show();
-				s.center();
+				window.add(browser);
+				window.show();
+				window.center();
+				
 
 				// if(!ClientUIContainer.bodyContainer.getTabManager().
 				// getPanelManager().taxonomyBrowserPanel.isRendered())
 				//FIXME: ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomyBrowserPanel.update();
 
-				content.layout();
 				// ((Button)be.getSource()).setSelected( false );
 			}
 		});

@@ -263,9 +263,8 @@ public class CommonNameDisplay implements Referenceable {
 
 		if (added > 0) {
 			TaxonomyCache.impl.saveTaxonAndMakeCurrent(node, new GenericCallback<String>() {
-			
 				public void onSuccess(String result) {
-					ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+					//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
 					callback.onSuccess(result);
 				}
 			
@@ -310,9 +309,8 @@ public class CommonNameDisplay implements Referenceable {
 		// if (removed > 0)
 		// {
 		TaxonomyCache.impl.saveTaxonAndMakeCurrent(node, new GenericCallback<String>() {
-			
 			public void onSuccess(String result) {
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
 				callback.onSuccess(result);
 			}
 		

@@ -8,7 +8,6 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.utils.TaxonComparator;
 import org.iucn.sis.client.api.utils.TaxonPagingLoader;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
@@ -134,7 +133,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 						WindowUtils.errorAlert("Failed to fetch taxon, please try again later.");
 					}
 					public void onSuccess(Taxon result) {
-						updateNodeSummary();
+						//updateNodeSummary();
 					}
 				});
 			}
@@ -435,12 +434,6 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 
 			addViewButtonToFootprint();
 		}
-	}
-
-	protected void updateNodeSummary() {
-		if (footprints.length != 0)
-			ClientUIContainer.bodyContainer.tabManager.panelManager.
-				taxonomicSummaryPanel.update(Integer.valueOf(footprints[footprints.length - 1]));
 	}
 
 	public void updateWithoutFetch() {

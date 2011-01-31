@@ -26,8 +26,8 @@ import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 
 public class PanelManager {
 	public RecentAssessmentsPanel recentAssessmentsPanel = null;
-	public TaxonHomePage taxonomicSummaryPanel = null;
-	public TaxonomyBrowserPanel taxonomyBrowserPanel = null;
+	//public TaxonHomePage taxonomicSummaryPanel = null;
+	//public TaxonomyBrowserPanel taxonomyBrowserPanel = null;
 	// public AssessmentSummaryPanel assessmentSummaryPanel = null;
 	public WorkingSetPanel workingSetPanel = null;
 	public ExpertPanel expertPanel = null;
@@ -46,7 +46,7 @@ public class PanelManager {
 
 	public PanelManager() {
 		//taxonomicSummaryPanel = new TaxonHomePage();
-		taxonomyBrowserPanel = new TaxonomyBrowserPanel();
+		//taxonomyBrowserPanel = new TaxonomyBrowserPanel();
 		// assessmentSummaryPanel = new AssessmentSummaryPanel( this );
 		
 		DEM = new DEMPanel();

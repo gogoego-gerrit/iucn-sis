@@ -97,20 +97,21 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 	}
 	
 	@Override
-	protected void drawOptions() {
-		if (optionsContainer.getItemCount() > 0)
-			return;
+	protected void drawOptions(final DrawsLazily.DoneDrawingCallback callback) {
+		if (optionsContainer.getItemCount() == 0) {
+			viewWrapper = new ViewDisplay();
+			viewWrapper.setLayout(viewChooser);
+			viewWrapper.setLayoutOnChange(true);
+			viewWrapper.setPageChangelistener(new ComplexListener<PageChangeRequest>() {
+				public void handleEvent(PageChangeRequest eventData) {
+					changePage(eventData);
+				}
+			});
+			
+			optionsContainer.add(viewWrapper);
+		}
 		
-		viewWrapper = new ViewDisplay();
-		viewWrapper.setLayout(viewChooser);
-		viewWrapper.setLayoutOnChange(true);
-		viewWrapper.setPageChangelistener(new ComplexListener<PageChangeRequest>() {
-			public void handleEvent(PageChangeRequest eventData) {
-				changePage(eventData);
-			}
-		});
-		
-		optionsContainer.add(viewWrapper);
+		callback.isDrawn();
 	}
 	
 	@Override

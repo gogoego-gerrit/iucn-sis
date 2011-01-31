@@ -76,78 +76,78 @@ public class WorkingSetPage extends FeaturedItemContainer<WorkingSet> {
 	}
 	
 	@Override
-	protected void drawOptions() {
-		if (optionsContainer.getItemCount() > 0)
-			return;
-		
-		final VerticalPanel buttonArea = new VerticalPanel();
-		buttonArea.setSpacing(10);
-		buttonArea.setWidth(150);
-		
-		buttonArea.add(createButton("Edit Basic Information", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				setBodyContainer(editor);
-			}
-		}));
-		buttonArea.add(createButton("Taxa Manager", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				setBodyContainer(taxa);
-			}
-		}));
-		buttonArea.add(createButton("Create Draft Assessment", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				setBodyContainer(assessments);
-			}
-		}));
-		buttonArea.add(createButton("Permisison Manager", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.GRANT, 
-						WorkingSetCache.impl.getCurrentWorkingSet())) {
-					final WorkingSetPermissionPanel panel = new WorkingSetPermissionPanel();
-					panel.draw(new DrawsLazily.DoneDrawingCallback() {
-						public void isDrawn() {
-							setBodyContainer(panel);	
+	protected void drawOptions(DrawsLazily.DoneDrawingCallback callback) {
+		if (optionsContainer.getItemCount() == 0) {
+			final VerticalPanel buttonArea = new VerticalPanel();
+			buttonArea.setSpacing(10);
+			buttonArea.setWidth(150);
+			
+			buttonArea.add(createButton("Edit Basic Information", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					setBodyContainer(editor);
+				}
+			}));
+			buttonArea.add(createButton("Taxa Manager", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					setBodyContainer(taxa);
+				}
+			}));
+			buttonArea.add(createButton("Create Draft Assessment", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					setBodyContainer(assessments);
+				}
+			}));
+			buttonArea.add(createButton("Permisison Manager", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.GRANT, 
+							WorkingSetCache.impl.getCurrentWorkingSet())) {
+						final WorkingSetPermissionPanel panel = new WorkingSetPermissionPanel();
+						panel.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								setBodyContainer(panel);	
+							}
+						});
+					} else
+						WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission to manage " +
+								"the permissions for this Working Set.");
+				}
+			}));
+			buttonArea.add(createButton("Report Generator", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					setBodyContainer(new WorkingSetReportPanel());
+				}
+			}));
+			buttonArea.add(createButton("Export to Offline", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					setBodyContainer(new WorkingSetExporter(WorkingSetPage.this));
+				}
+			}));
+			buttonArea.add(createButton("Export to Access", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					final ContentPanel panel = new ContentPanel();
+					panel.setHeading("Export to Access");
+					panel.getHeader().addTool(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+						public void componentSelected(ButtonEvent ce) {
+							setManagerTab();
 						}
-					});
-				} else
-					WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission to manage " +
-							"the permissions for this Working Set.");
-			}
-		}));
-		buttonArea.add(createButton("Report Generator", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				setBodyContainer(new WorkingSetReportPanel());
-			}
-		}));
-		buttonArea.add(createButton("Export to Offline", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				setBodyContainer(new WorkingSetExporter(WorkingSetPage.this));
-			}
-		}));
-		buttonArea.add(createButton("Export to Access", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				final ContentPanel panel = new ContentPanel();
-				panel.setHeading("Export to Access");
-				panel.getHeader().addTool(new Button("Cancel", new SelectionListener<ButtonEvent>() {
-					public void componentSelected(ButtonEvent ce) {
-						setManagerTab();
-					}
-				}));
-				panel.setUrl("/export/access/" + WorkingSetCache.impl.getCurrentWorkingSet().getId());
-				
-				setBodyContainer(panel);
-			}
-		}));
-		buttonArea.add(createButton("Delete/Unsubscribe", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				DeleteWorkingSetPanel panel = new DeleteWorkingSetPanel(WorkingSetPage.this);
-				setBodyContainer(panel);
-			}
-		}));
-		
-		optionsContainer.removeAll();
-		optionsContainer.setLayout(new CenterLayout());
-		optionsContainer.add(buttonArea);
+					}));
+					panel.setUrl("/export/access/" + WorkingSetCache.impl.getCurrentWorkingSet().getId());
+					
+					setBodyContainer(panel);
+				}
+			}));
+			buttonArea.add(createButton("Delete/Unsubscribe", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					DeleteWorkingSetPanel panel = new DeleteWorkingSetPanel(WorkingSetPage.this);
+					setBodyContainer(panel);
+				}
+			}));
+			
+			optionsContainer.removeAll();
+			optionsContainer.setLayout(new CenterLayout());
+			optionsContainer.add(buttonArea);
+		}
+		callback.isDrawn();
 	}
 	
 	private Button createButton(String text, SelectionListener<ButtonEvent> listener) {

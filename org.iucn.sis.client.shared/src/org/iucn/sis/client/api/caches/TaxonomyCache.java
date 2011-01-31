@@ -495,18 +495,14 @@ public class TaxonomyCache {
 	 */
 	public void saveTaxonAndMakeCurrent(final Taxon node, final GenericCallback<String> callback) {
 		saveTaxon(node, new GenericCallback<String>() {
-
 			public void onSuccess(String result) {
 				TaxonomyCache.impl.setCurrentTaxon(node);
 				callback.onSuccess(result);
-
 			}
-
 			public void onFailure(Throwable caught) {
 				callback.onFailure(caught);
 			}
 		});
-
 	}
 
 	public void setCurrentTaxon(Taxon newCurrent) {

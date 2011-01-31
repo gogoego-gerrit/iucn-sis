@@ -14,7 +14,6 @@ import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.api.ui.models.image.ManagedImage;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.ui.notes.NoteAPI;
 import org.iucn.sis.client.api.ui.notes.NotesWindow;
@@ -23,7 +22,6 @@ import org.iucn.sis.client.api.utils.TaxonPagingLoader;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
 import org.iucn.sis.client.panels.taxa.TaxonHomePage.ReferenceableTaxon;
 import org.iucn.sis.client.panels.taxomatic.CommonNameToolPanel;
@@ -108,7 +106,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 
 	private Taxon taxon;
 	private HTML headerAssess;
-	private int panelHeight;
+	//private int panelHeight;
 	private Image taxonImage;//, googleMap;
 	private Window imagePopup = null;
 	private ImageManagerPanel imageManager;
@@ -156,8 +154,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 				public void isDrawn(final ContentPanel workingSetsForTaxonPanel) {
 					getGeneralInformationPanel(taxon, new DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel>() {
 						public void isDrawn(final ContentPanel generalInformation) {
-							getChildrenPanel(taxon, new DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel>() {
-								public void isDrawn(final ContentPanel children) {
+							
 									Image prevTaxon = new Image("tango/actions/go-previous.png");
 									prevTaxon.addClickHandler(new ClickHandler() {
 										public void onClick(ClickEvent event) {
@@ -195,7 +192,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 									
 									HorizontalPanel hp = new HorizontalPanel();
 									hp.add(getTaxonomicNotePanel(taxon));
-									hp.add(children);
+									//hp.add(children);
 							
 									VerticalPanel vp = new VerticalPanel();
 									if (taxon.getLevel() >= TaxonLevel.SPECIES)
@@ -212,8 +209,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 									add(wrapper);
 									
 									callback.isDrawn();
-								}
-							});
+								
 						}
 					});
 				}
@@ -514,73 +510,11 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 		final ContentPanel assessments = new ContentPanel(new FillLayout());
 		assessments.setHeading("Assessment List");
 		assessments.setStyleName("x-panel");
-		assessments.setWidth(com.google.gwt.user.client.Window.getClientWidth() - 500);
-		assessments.setHeight(panelHeight);
+		//assessments.setWidth(com.google.gwt.user.client.Window.getClientWidth() - 500);
+		//assessments.setHeight(panelHeight);
 		assessments.add(tbl);
 		
 		return assessments;
-	}
-
-	private void getChildrenPanel(final Taxon taxon, final DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel> callback) {
-		final ContentPanel children = new ContentPanel();
-		children.setLayout(new RowLayout(Orientation.VERTICAL));
-		children.setWidth((com.google.gwt.user.client.Window.getClientWidth() - 500) / 2);
-		children.setHeight(200);
-		
-		if (Taxon.getDisplayableLevelCount() > taxon.getLevel() + 1) {
-			children.setHeading(Taxon.getDisplayableLevel(taxon.getLevel() + 1));
-			// children.setLayoutOnChange(true);
-			
-			final TaxonPagingLoader loader = new TaxonPagingLoader();
-			final PagingToolBar bar = new PagingToolBar(30);
-			bar.bind(loader.getPagingLoader());
-			
-			final DataList list = new DataList();
-			list.setSize((com.google.gwt.user.client.Window.getClientWidth() - 500) / 2, 148);
-			list.setScrollMode(Scroll.AUTOY);
-			
-			final ListStore<TaxonListElement> store = new ListStore<TaxonListElement>(loader.getPagingLoader());
-			store.setStoreSorter(new StoreSorter<TaxonListElement>(new PortableAlphanumericComparator()));
-
-			final DataListBinder<TaxonListElement> binder = new DataListBinder<TaxonListElement>(list, store);
-			binder.setDisplayProperty("name");
-			binder.init();
-			binder.addSelectionChangedListener(new SelectionChangedListener<TaxonListElement>() {
-				public void selectionChanged(SelectionChangedEvent<TaxonListElement> se) {
-					if (se.getSelectedItem() != null) {
-						update(se.getSelectedItem().getNode().getId());
-					}
-				}
-			});
-
-			TaxonTreePopup.fetchChildren(taxon, new GenericCallback<List<TaxonListElement>>() {
-				public void onFailure(Throwable caught) {
-					children.add(new HTML("No " + Taxon.getDisplayableLevel(taxon.getLevel() + 1) + "."));
-					
-					callback.isDrawn(children);
-				}
-				public void onSuccess(List<TaxonListElement> result) {
-					loader.getFullList().addAll(result);
-					ArrayUtils.quicksort(loader.getFullList(), new Comparator<TaxonListElement>() {
-						public int compare(TaxonListElement o1, TaxonListElement o2) {
-							return ((String) o1.get("name")).compareTo((String) o2.get("name"));
-						}
-					});
-					children.add(list);
-					children.add(bar);
-
-					loader.getPagingLoader().load(0, loader.getPagingLoader().getLimit());
-
-					children.layout();
-					
-					callback.isDrawn(children);
-				}
-			});
-		} else {
-			children.setHeading("Not available.");
-			
-			callback.isDrawn(children);
-		}
 	}
 
 	private void getDistributionMapPanel(final Taxon node, final DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel> callback) {
@@ -794,168 +728,120 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 	}
 
 	private void getGeneralInformationPanel(final Taxon node, final DrawsLazily.DoneDrawingCallbackWithParam<ContentPanel> callback) {
-		final ContentPanel generalInformation = new ContentPanel(new BorderLayout());
+		// ADD GENERAL INFO
+		LayoutContainer data = new LayoutContainer();
+		data.setWidth(240);
+		if (!node.isDeprecated())
+			data.add(new HTML("Name: <i>" + node.getName() + "</i>"));
+		else
+			data.add(new HTML("Name: <s>" + node.getName() + "</s>"));
+		data.add(new HTML("&nbsp;&nbsp;Taxon ID: "
+				+ "<a target='_blank' href='http://www.iucnredlist.org/apps/redlist/details/" + node.getId()
+				+ "'>" + node.getId() + "</a>"));
+
+		if (node.getLevel() >= TaxonLevel.SPECIES) {
+			data.add(new HTML("Full Name:  <i>" + node.getFullName() + "</i>"));
+		}
+		data.add(new HTML("Level: " + node.getDisplayableLevel()));
+		if (node.getParentName() != null) {
+			HTML parentHTML = new HTML("Parent:  <i>" + node.getParentName() + "</i>"
+					+ "<img src=\"images/icon-tree.png\"></img>");
+			parentHTML.addStyleName("clickable");
+			parentHTML.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					new TaxonTreePopup(node).show();
+				}
+			});
+			data.add(parentHTML);
+		}
+		if (node.getTaxonomicAuthority() != null && !node.getTaxonomicAuthority().equalsIgnoreCase("")) {
+			data.add(new HTML("Taxonomic Authority: " + node.getTaxonomicAuthority()));
+		}
+
+		data.add(new HTML("Status: " + node.getStatusCode()));
+		data.add(new HTML("Hybrid: " + node.getHybrid()));
+		
+		HorizontalPanel refPanel = new HorizontalPanel(); {
+			int size = node.getReference().size();
+			final HTML display = new HTML("References (" + size + "): ");
+			
+			final Image image = new Image(size > 0 ? "images/icon-book.png" : "images/icon-book-grey.png");
+			image.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					SimpleSISClient.getInstance().onShowReferenceEditor(
+						"Manage References for " + taxon.getFullName(), 
+						new ReferenceableTaxon(taxon, new SimpleListener() {
+							public void handleEvent() {
+								//Short way...
+								int size = node.getReference().size();
+								display.setHTML("References (" + size + "): ");
+								image.setUrl(size > 0 ? "images/icon-book.png" : "images/icon-book-grey.png");
+								
+								//Long way
+								//update(taxon.getId());
+							}
+						}), 
+						null, null
+					);
+				}
+			});
+			
+			refPanel.add(display);
+			refPanel.add(image);
+		}
+		data.add(refPanel);
+
+		// ADD SYNONYMS
+		if (!node.getSynonyms().isEmpty()) {
+			addSynonyms(node, data);
+		}
+
+		// ADD COMMON NAMES
+		Image addName = new Image("images/add.png");
+		addName.setSize("14px", "14px");
+		addName.setTitle("Add New Common Name");
+		addName.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				Window addNameBox = new EditCommonNamePanel(null, taxon, 
+						new ComplexListener<CommonName>() {
+					public void handleEvent(CommonName eventData) {
+						update(node.getId());
+					}
+				});
+				addNameBox.show();
+			}
+		});
+//
+		HTML commonNamesHeader = new HTML("<b>Common Name --- Language</b>");
+		
+		LayoutContainer commonNamePanel = new LayoutContainer();
+		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
+			commonNamePanel.add(addName);
+		commonNamePanel.add(commonNamesHeader);
+		data.add(new HTML("<hr><br />"));
+		data.add(commonNamePanel);
+
+		if (!node.getCommonNames().isEmpty()) {
+			int loop = 5;
+			if (node.getCommonNames().size() < 5)
+				loop = node.getCommonNames().size();
+			
+			addCommonNames(node, data, loop);
+		} else
+			data.add(new HTML("No Common Names."));
+		
+		final ContentPanel generalInformation = new ContentPanel();
 		generalInformation.setLayoutOnChange(true);
 		generalInformation.setHeading("General Information");
 		generalInformation.setStyleName("x-panel");
 		generalInformation.setWidth(350);
 		// generalLayout.setSpacing(5);
+		//generalInformation.setHeight(panelHeight);
+		generalInformation.add(data, new BorderLayoutData(LayoutRegion.CENTER));
 		
-		panelHeight = 180;
+		//panelHeight = 180;
 		
-		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-		doc.get(UriBase.getInstance().getImageBase() + "/images/" + node.getId(), new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				Debug.println("failed to fetch xml");
-				callback.isDrawn(generalInformation);
-			}
-			public void onSuccess(String result) {
-				taxonImage = null;
-				
-				NativeNodeList list = doc.getDocumentElement().getElementsByTagName("image");
-				for (int i = 0; i < list.getLength(); i++) {
-					boolean primary = ((NativeElement) list.item(i)).getAttribute("primary").equals("true");
-					if (primary) {
-						String ext = "";
-						if (((NativeElement) list.item(i)).getAttribute("encoding").equals("image/jpeg"))
-							ext = "jpg";
-						if (((NativeElement) list.item(i)).getAttribute("encoding").equals("image/gif"))
-							ext = "gif";
-						if (((NativeElement) list.item(i)).getAttribute("encoding").equals("image/png"))
-							ext = "png";
-
-						setImage(new Image(UriBase.getInstance().getSISBase() + "/raw/images/bin/"
-										+ ((NativeElement) list.item(i)).getAttribute("id") + "." + ext));
-					}
-				}
-				if (taxonImage == null) {
-					taxonImage = new Image("images/unavailable.png");
-					setImage(taxonImage);
-				}
-
-				VerticalPanel vp = new VerticalPanel();
-				vp.setSize("100px", "100px");
-
-				taxonImage.setWidth("100px");
-				taxonImage.setHeight("100px");
-				taxonImage.setStyleName("SIS_taxonSummaryHeader_image");
-				taxonImage.setTitle("Click for Image Viewer");
-				vp.add(taxonImage);
-				
-				// ADD GENERAL INFO
-				LayoutContainer data = new LayoutContainer();
-				data.setWidth(240);
-				if (!node.isDeprecated())
-					data.add(new HTML("Name: <i>" + node.getName() + "</i>"));
-				else
-					data.add(new HTML("Name: <s>" + node.getName() + "</s>"));
-				data.add(new HTML("&nbsp;&nbsp;Taxon ID: "
-						+ "<a target='_blank' href='http://www.iucnredlist.org/apps/redlist/details/" + node.getId()
-						+ "'>" + node.getId() + "</a>"));
-
-				if (node.getLevel() >= TaxonLevel.SPECIES) {
-					panelHeight += 10;
-					data.add(new HTML("Full Name:  <i>" + node.getFullName() + "</i>"));
-				}
-				data.add(new HTML("Level: " + node.getDisplayableLevel()));
-				if (node.getParentName() != null) {
-					panelHeight += 10;
-					HTML parentHTML = new HTML("Parent:  <i>" + node.getParentName() + "</i>"
-							+ "<img src=\"images/icon-tree.png\"></img>");
-					parentHTML.addStyleName("clickable");
-					parentHTML.addClickHandler(new ClickHandler() {
-						public void onClick(ClickEvent event) {
-							new TaxonTreePopup(node).show();
-						}
-					});
-					data.add(parentHTML);
-				}
-				if (node.getTaxonomicAuthority() != null && !node.getTaxonomicAuthority().equalsIgnoreCase("")) {
-					panelHeight += 20;
-					data.add(new HTML("Taxonomic Authority: " + node.getTaxonomicAuthority()));
-				}
-
-				data.add(new HTML("Status: " + node.getStatusCode()));
-				data.add(new HTML("Hybrid: " + node.getHybrid()));
-				
-				HorizontalPanel refPanel = new HorizontalPanel(); {
-					int size = node.getReference().size();
-					final HTML display = new HTML("References (" + size + "): ");
-					
-					final Image image = new Image(size > 0 ? "images/icon-book.png" : "images/icon-book-grey.png");
-					image.addClickHandler(new ClickHandler() {
-						public void onClick(ClickEvent event) {
-							SimpleSISClient.getInstance().onShowReferenceEditor(
-								"Manage References for " + taxon.getFullName(), 
-								new ReferenceableTaxon(taxon, new SimpleListener() {
-									public void handleEvent() {
-										//Short way...
-										int size = node.getReference().size();
-										display.setHTML("References (" + size + "): ");
-										image.setUrl(size > 0 ? "images/icon-book.png" : "images/icon-book-grey.png");
-										
-										//Long way
-										//update(taxon.getId());
-									}
-								}), 
-								null, null
-							);
-						}
-					});
-					
-					refPanel.add(display);
-					refPanel.add(image);
-				}
-				data.add(refPanel);
-
-				// ADD SYNONYMS
-				if (!node.getSynonyms().isEmpty()) {
-					panelHeight += 150;
-					addSynonyms(node, data);
-				}
-
-				// ADD COMMON NAMES
-				Image addName = new Image("images/add.png");
-				addName.setSize("14px", "14px");
-				addName.setTitle("Add New Common Name");
-				addName.addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						Window addNameBox = new EditCommonNamePanel(null, taxon, 
-								new ComplexListener<CommonName>() {
-							public void handleEvent(CommonName eventData) {
-								update(node.getId());
-							}
-						});
-						addNameBox.show();
-					}
-				});
-		//
-				HTML commonNamesHeader = new HTML("<b>Common Name --- Language</b>");
-				
-				LayoutContainer commonNamePanel = new LayoutContainer();
-				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
-					commonNamePanel.add(addName);
-				commonNamePanel.add(commonNamesHeader);
-				data.add(new HTML("<hr><br />"));
-				data.add(commonNamePanel);
-
-				if (!node.getCommonNames().isEmpty()) {
-					int loop = 5;
-					if (node.getCommonNames().size() < 5)
-						loop = node.getCommonNames().size();
-					panelHeight += loop * 15 + 20;
-					
-					addCommonNames(node, data, loop);
-				} else
-					data.add(new HTML("No Common Names."));
-
-				generalInformation.setHeight(panelHeight);
-				generalInformation.add(data, new BorderLayoutData(LayoutRegion.CENTER));
-				generalInformation.add(vp, new BorderLayoutData(LayoutRegion.WEST, 100));
-				
-				callback.isDrawn(generalInformation);
-			}
-		});
+		callback.isDrawn(generalInformation);
 	}
 
 	private ContentPanel getTaxonomicNotePanel(final Taxon node) {
@@ -1015,27 +901,6 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 
 	public void resize(int width, int height) {
 		onResize(width, height);
-	}
-
-	public void setImage(Image image) {
-		taxonImage = image;
-		taxonImage.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				if (imagePopup == null) {
-					imageManager = new ImageManagerPanel(String.valueOf(taxon.getId()));
-
-					imagePopup = WindowUtils.getWindow(false, false, "Photo Station");
-					imagePopup.add(imageManager);
-				}
-
-				imageManager.setTaxonId(String.valueOf(taxon.getId()));
-				imageManager.update();
-				imagePopup.setScrollMode(Scroll.AUTO);
-				imagePopup.show();
-				imagePopup.setSize(600, 330);
-				imagePopup.setPagePosition(event.getNativeEvent().getClientX(), event.getNativeEvent().getClientY());
-			}
-		});
 	}
 	
 	private static class SynonymNoteAPI implements NoteAPI {
@@ -1098,7 +963,8 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 		@Override
 		public void onClose() {
 			if (hasChanged)
-				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
+				TaxonomyCache.impl.setCurrentTaxon(taxon);
+				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
 		}
 		
 	}

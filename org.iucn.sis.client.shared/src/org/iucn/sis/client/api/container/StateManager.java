@@ -66,6 +66,9 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	}
 	
 	public void setTaxon(Taxon taxon) {
+		if (this.taxon != null && this.taxon.equals(taxon))
+			return;
+		
 		if (!fireEvent(StateChangeEventType.BeforeTaxonChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment))) {
 			this.taxon = taxon;
 			this.assessment = null;

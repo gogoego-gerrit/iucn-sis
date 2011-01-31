@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -319,8 +318,8 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 							currentSynonym = null;
 							bar.enable();
 							WindowUtils.infoAlert("Saved", "Synonym has been deleted.");
-							ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node
-									.getId());
+							//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+							TaxonomyCache.impl.setCurrentTaxon(node);
 							allSynonyms.clear();
 							allSynonyms.addAll(node.getSynonyms());
 							refreshListBox();
@@ -570,7 +569,8 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 						allSynonyms.addAll(node.getSynonyms());
 						bar.enable();
 						WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
-						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+						//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+						TaxonomyCache.impl.setCurrentTaxon(node);
 						refreshListBox();
 						refreshSynonym(null);
 	
@@ -603,10 +603,10 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 	
 					@Override
 					public void onSuccess(String result) {
-	
 						bar.enable();
 						WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
-						ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+						//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+						TaxonomyCache.impl.setCurrentTaxon(node);
 						hide();
 	
 					}

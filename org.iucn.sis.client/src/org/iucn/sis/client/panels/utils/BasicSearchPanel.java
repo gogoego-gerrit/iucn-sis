@@ -15,7 +15,10 @@ public class BasicSearchPanel extends SearchPanel {
 		addBeforeSearchListener(new Listener<SearchEvent<String>>() {
 			public void handleEvent(SearchEvent<String> be) {
 				if (be.getValue().matches("^[0-9]+$")) {
-					manager.taxonomicSummaryPanel.update(Integer.valueOf(be.getValue()));
+					Taxon taxon = TaxonomyCache.impl.getTaxon(be.getValue());
+					if (taxon != null)
+						TaxonomyCache.impl.setCurrentTaxon(taxon);
+					//manager.taxonomicSummaryPanel.update(Integer.valueOf(be.getValue()));
 					WindowManager.get().hideAll();
 				}
 			}
@@ -25,8 +28,9 @@ public class BasicSearchPanel extends SearchPanel {
 				TaxonomyCache.impl.fetchTaxon(be.getValue(), true, new GenericCallback<Taxon >() {
 					public void onFailure(Throwable caught) {
 					}
-					public void onSuccess(Taxon  result) {
-						manager.taxonomicSummaryPanel.update(be.getValue());
+					public void onSuccess(Taxon result) {
+						TaxonomyCache.impl.setCurrentTaxon(result);
+						//manager.taxonomicSummaryPanel.update(be.getValue());
 						WindowManager.get().hideAll();
 					}
 				});
