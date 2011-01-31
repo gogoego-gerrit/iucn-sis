@@ -1,17 +1,7 @@
 package org.iucn.sis.client.panels;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
-import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
-import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -19,9 +9,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.util.Params;
-import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -29,9 +16,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
-import com.solertium.util.extjs.client.WindowUtils;
 
 public class NavigationHeader extends LayoutContainer {
 
@@ -273,7 +258,7 @@ public class NavigationHeader extends LayoutContainer {
 			currentTaxa.setText(curNavTaxon == null ? "Quick Taxon Navigation" : curNavTaxon.getFullName());
 		}*/
 
-		summaryPanel.update();
-		ClientUIContainer.bodyContainer.tabManager.update();
+		/*summaryPanel.update();
+		ClientUIContainer.bodyContainer.tabManager.update();*/
 	}
 }
