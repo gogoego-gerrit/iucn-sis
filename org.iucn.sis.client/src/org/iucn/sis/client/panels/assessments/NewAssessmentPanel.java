@@ -356,7 +356,7 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 				}
 
 				public void onSuccess(String result) {
-					Assessment data = AssessmentCache.impl.getAssessment(assessmentID, false);
+					Assessment data = AssessmentCache.impl.getAssessment(assessmentID);
 					doCreate(endemicArg, selSchema, data, localityArg);
 				}
 			});

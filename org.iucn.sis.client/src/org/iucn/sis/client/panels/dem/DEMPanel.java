@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.dem;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
@@ -23,6 +24,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.utils.CommonNameComparator;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -36,6 +38,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
@@ -136,18 +139,16 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 		}
 		
 		final LayoutContainer container = new LayoutContainer();
-		container.add(new StyledHTML(item.getSpeciesName() + abbreviation, "page_assessment_featured_header"));
+		container.add(new StyledHTML("<center>" + item.getSpeciesName() + abbreviation + "</center>", "page_assessment_featured_header"));
 		
 		CommonName cn = null;
-		for (CommonName current : taxon.getCommonNames()) {
-			if (current.isPrimary()) {
-				cn = current;
-				break;
-			}
-		}
+		final List<CommonName> cns = new ArrayList<CommonName>(taxon.getCommonNames());
+		Collections.sort(cns, new CommonNameComparator());
+		if (!cns.isEmpty())
+			cn = cns.get(0);
 		
 		if (cn != null)
-			container.add(new StyledHTML(cn.getName(), "page_assessment_featured_content"));
+			container.add(new StyledHTML("(" + cn.getName() + ")", "page_assessment_featured_content_common_name"));
 		
 		List<Region> regions = new ArrayList<Region>();
 		for (Integer id : item.getRegionIDs()) {
@@ -156,19 +157,37 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 				regions.add(region);
 		}
 		
-		container.add(new StyledHTML(item.getAssessmentType().getDisplayName() + " for " + 
-			RegionCache.impl.getRegionNamesAsReadable(regions), "page_assessment_featured_content"));
+		container.add(createSpacer(20));
 		
-		if (item.getLastEdit() != null)
-			container.add(new StyledHTML("Last Modified: " + FormattedDate.impl.
-				getDate(item.getLastEdit().getCreatedDate()), "page_assessment_featured_content"));
+		FlexTable stats = new FlexTable();
+		stats.setCellSpacing(4);
+				
+		int row = 0;
+		
+		stats.setWidget(row, 0, new StyledHTML("Status: ", "page_assessment_featured_prompt"));
+		stats.setWidget(row, 1, new StyledHTML(item.getAssessmentType().getDisplayName(true), "page_assessment_featured_content"));
+		
+		//U/T assessments aren't regional...
+		if (!regions.isEmpty()) {
+			stats.setWidget(++row, 0, new StyledHTML("Region(s): ", "page_assessment_featured_prompt"));
+			stats.setWidget(row, 1, new StyledHTML(RegionCache.impl.getRegionNamesAsReadable(regions), "page_assessment_featured_content"));
+		}
+		
+		if (item.getLastEdit() != null) {
+			stats.setWidget(++row, 0, new StyledHTML("Last Modified: ", "page_assessment_featured_prompt"));
+			stats.setWidget(row, 1, new StyledHTML(FormattedDate.impl.getDate(item.getLastEdit().getCreatedDate()) + 
+					" by " + item.getLastEdit().getUser().getDisplayableName(), "page_assessment_featured_content"));
+		}
+		
+		container.add(stats);
 		
 		return container;
 	}
 	
 	@Override
 	protected void updateSelection(Assessment selection) {
-		AssessmentCache.impl.setCurrentAssessment(selection);
+		//AssessmentCache.impl.setCurrentAssessment(selection);
+		StateManager.impl.setState(selection);
 	}
 
 	private DEMToolbar buildToolBar() {
@@ -177,6 +196,11 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 			public void handleEvent(EditStatus eventData) {
 				viewOnly = EditStatus.EDIT_DATA.equals(eventData);
 				redraw();
+			}
+		});
+		toolbar.setSaveListener(new SimpleListener() {
+			public void handleEvent() {
+				drawFeatureArea();
 			}
 		});
 		toolbar.build();

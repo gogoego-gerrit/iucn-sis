@@ -378,7 +378,7 @@ public class WorkingSetCache {
 	 * property data integrity measures have already been 
 	 * taken.
 	 */
-	public void resetCurrentWorkingSet() {
+	/*public void resetCurrentWorkingSet() {
 		setCurrentWorkingSet((WorkingSet) null, false);
 	}
 
@@ -401,9 +401,9 @@ public class WorkingSetCache {
 	public void setCurrentWorkingSet(final WorkingSet ws, boolean saveIfNecessary, final SimpleListener afterChange) {
 		WorkingSet currentWorkingSet = StateManager.impl.getWorkingSet();
 		
-		boolean changeNeeded = true;/*((currentWorkingSet == null && ws != null) || 
+		boolean changeNeeded = ((currentWorkingSet == null && ws != null) || 
 				(currentWorkingSet != null && ws == null) || 
-				(currentWorkingSet != null && ws != null && !currentWorkingSet.equals(ws)));*/
+				(currentWorkingSet != null && ws != null && !currentWorkingSet.equals(ws)));
 		//Debug.println("Set current ws; Changed needed? {0}: cur {1} & new {2}", changeNeeded, currentWorkingSet, ws);
 		if (changeNeeded) {
 			final SimpleListener callback = new SimpleListener() {
@@ -421,7 +421,7 @@ public class WorkingSetCache {
 			else
 				callback.handleEvent();
 		}
-	}
+	}*/
 
 	/**
 	 * given the workingSetID, adds the id to your list of working sets that you
@@ -440,11 +440,8 @@ public class WorkingSetCache {
 			}
 
 			public void onSuccess(String arg0) {
-				workingSets.clear();
-				resetCurrentWorkingSet();
 				update(wayBack);
 			}
-
 		});
 	}
 
@@ -463,22 +460,23 @@ public class WorkingSetCache {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.get(UriBase.getInstance().getSISBase() + "/workingSet/list/" + SISClientBase.currentUser.getUsername(),
 				new GenericCallback<String>() {
-
-					public void onFailure(Throwable caught) {
-						backInTheDay.onFailure(caught);
-					}
-
-					public void onSuccess(String arg0) {
-						try {
-							WorkingSetParser parser = new WorkingSetParser();
-							parser.parseWorkingSetXML(ndoc);
-							addToWorkingSetCache(parser.getWorkingSets());
-							backInTheDay.onSuccess(arg0);
-						} catch (Exception e) {
-							Debug.println("Working Set Parse Failure\n{0}", e);
-						}
-					}
-				});
+			public void onFailure(Throwable caught) {
+				backInTheDay.onFailure(caught);
+			}
+			public void onSuccess(String arg0) {
+				workingSets.clear();
+				try {
+					WorkingSetParser parser = new WorkingSetParser();
+					parser.parseWorkingSetXML(ndoc);
+					
+					addToWorkingSetCache(parser.getWorkingSets());
+					
+					backInTheDay.onSuccess(arg0);
+				} catch (Exception e) {
+					Debug.println("Working Set Parse Failure\n{0}", e);
+				}
+			}
+		});
 	}
 
 }

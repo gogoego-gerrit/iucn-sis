@@ -254,7 +254,7 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 						Integer id = ws.getSpeciesIDs().get(i);
 						DataListItem item = new DataListItem(TaxonomyCache.impl.getTaxon(id).getFullName());
 						item.setData("id", id);
-						if (AssessmentCache.impl.getDraftAssessment(id, false) == null) {
+						if (AssessmentCache.impl.getDraftAssessment(id) == null) {
 							list.add(item);
 						}
 

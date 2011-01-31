@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
@@ -306,7 +307,8 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 											}
 										});
 									} catch (InsufficientRightsException e) {
-										AssessmentCache.impl.resetCurrentAssessment();
+										//AssessmentCache.impl.resetCurrentAssessment();
+										StateManager.impl.setState(null);
 										doReplace(reference, returnedRef, null, null);
 									}
 									

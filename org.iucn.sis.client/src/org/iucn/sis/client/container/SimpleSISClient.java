@@ -1,10 +1,7 @@
 package org.iucn.sis.client.container;
 
-import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
-import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateChangeEvent;
@@ -12,9 +9,9 @@ import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.StateManager.StateChangeEventType;
 import org.iucn.sis.client.extensions.birdlife.structures.BirdlifeWidgetGenerator;
 import org.iucn.sis.client.panels.ClientUIContainer;
+import org.iucn.sis.client.panels.MonkeyNavigator;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
-import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
 import org.iucn.sis.shared.api.utils.FieldParser;
 
@@ -76,19 +73,32 @@ public class SimpleSISClient extends SISClientBase {
 		FieldWidgetCache.impl.registerWidgetGenerator(new BirdlifeWidgetGenerator());
 		RecentlyAccessedCache.impl.load(RecentlyAccessed.USER);
 		
-		StateManager.impl.addStateChangeListener(StateChangeEventType.WorkingSetChanged, new ComplexListener<StateChangeEvent>() {
+		/*StateManager.impl.addStateChangeListener(StateChangeEventType.WorkingSetChanged, new ComplexListener<StateChangeEvent>() {
 			public void handleEvent(StateChangeEvent event) {
-				clientContainer.bodyContainer.openWorkingSet();
+				ClientUIContainer.bodyContainer.openWorkingSet();
 			}
 		});
 		StateManager.impl.addStateChangeListener(StateChangeEventType.TaxonChanged, new ComplexListener<StateChangeEvent>() {
 			public void handleEvent(StateChangeEvent eventData) {
-				clientContainer.bodyContainer.openTaxon();
+				ClientUIContainer.bodyContainer.openTaxon();
 			}
 		});
 		StateManager.impl.addStateChangeListener(StateChangeEventType.AssessmentChanged, new ComplexListener<StateChangeEvent>() {
 			public void handleEvent(StateChangeEvent eventData) {
-				clientContainer.bodyContainer.openAssessment();
+				ClientUIContainer.bodyContainer.openAssessment();
+			}
+		});*/
+		StateManager.impl.addStateChangeListener(StateChangeEventType.StateChanged, new ComplexListener<StateChangeEvent>() {
+			public void handleEvent(StateChangeEvent eventData) {
+				boolean updateNavigation = !ClientUIContainer.headerContainer.centerPanel.equals(eventData.getSource());
+				if (eventData.getAssessment() != null)
+					ClientUIContainer.bodyContainer.openAssessment(updateNavigation);
+				else if (eventData.getTaxon() != null)
+					ClientUIContainer.bodyContainer.openTaxon(updateNavigation);
+				else if (eventData.getWorkingSet() != null)
+					ClientUIContainer.bodyContainer.openWorkingSet(updateNavigation);
+				else
+					ClientUIContainer.bodyContainer.openHomePage(true);
 			}
 		});
 		

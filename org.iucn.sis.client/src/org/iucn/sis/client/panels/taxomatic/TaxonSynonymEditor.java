@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -319,7 +320,8 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 							bar.enable();
 							WindowUtils.infoAlert("Saved", "Synonym has been deleted.");
 							//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-							TaxonomyCache.impl.setCurrentTaxon(node);
+							//TaxonomyCache.impl.setCurrentTaxon(node);
+							ClientUIContainer.bodyContainer.refreshTaxonPage();
 							allSynonyms.clear();
 							allSynonyms.addAll(node.getSynonyms());
 							refreshListBox();
@@ -570,7 +572,8 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 						bar.enable();
 						WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
 						//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-						TaxonomyCache.impl.setCurrentTaxon(node);
+						//TaxonomyCache.impl.setCurrentTaxon(node);
+						ClientUIContainer.bodyContainer.refreshTaxonPage();
 						refreshListBox();
 						refreshSynonym(null);
 	
@@ -606,7 +609,8 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 						bar.enable();
 						WindowUtils.infoAlert("Saved", "Synonym " + currentSynonym.getFriendlyName() + " was saved.");
 						//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-						TaxonomyCache.impl.setCurrentTaxon(node);
+						//TaxonomyCache.impl.setCurrentTaxon(node);
+						ClientUIContainer.bodyContainer.refreshTaxonPage();
 						hide();
 	
 					}

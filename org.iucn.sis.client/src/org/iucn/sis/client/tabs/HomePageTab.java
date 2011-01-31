@@ -1,8 +1,10 @@
 package org.iucn.sis.client.tabs;
 
 import org.iucn.sis.client.panels.assessments.RecentAssessmentsPanel;
-import org.iucn.sis.client.panels.workingsets.WorkingSetPanel;
 import org.iucn.sis.client.panels.zendesk.BugPanel;
+import org.iucn.sis.client.tabs.home.BrowseTaxonomyPortlet;
+import org.iucn.sis.client.tabs.home.SearchPortlet;
+import org.iucn.sis.client.tabs.home.WorkingSetPortlet;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
@@ -32,8 +34,8 @@ public class HomePageTab extends LayoutContainer {
 		portal.setColumnWidth(1, .33);
 		portal.setColumnWidth(2, .33);
 
-		WorkingSetPanel workingSetPanel = new WorkingSetPanel();
-		workingSetPanel.configureThisAsPortlet();
+		/*WorkingSetPanel workingSetPanel = new WorkingSetPanel();
+		workingSetPanel.configureThisAsPortlet();*/
 		
 		RecentAssessmentsPanel recentAssessmentsPanel = new RecentAssessmentsPanel();
 		recentAssessmentsPanel.configureThisAsPortlet();
@@ -44,7 +46,8 @@ public class HomePageTab extends LayoutContainer {
 		BugPanel resolvedBugPanel = new BugPanel("926680", "Resolved Tickets");
 		resolvedBugPanel.configureThisAsPortlet();
 
-		portal.add(workingSetPanel, 0);
+		portal.add(new SearchPortlet(), 0);
+		portal.add(new BrowseTaxonomyPortlet(), 0);
 		portal.add(recentAssessmentsPanel, 1);
 		portal.add(bugPanel, 2);
 		portal.add(resolvedBugPanel, 2);

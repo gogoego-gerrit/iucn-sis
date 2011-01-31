@@ -180,7 +180,15 @@ body,td,div,input,p,select,input,button {
 	padding: 3px;	
 }*/
 .gwt-background {
-	background-color: #FFFFFF;
+	background-color: #FFFFFF !important;
+}
+
+.sis_bodyContainer {
+	/*border-top: 20px solid black !important;*/
+}
+
+.featured_item_container .x-border-panel {
+	background-color: #FFF !important;	
 }
 
 .lower-spacing {
@@ -189,6 +197,55 @@ body,td,div,input,p,select,input,button {
 
 .white-background {
 	background-color: #FFFFFF !important;
+}
+
+/**
+ * Page Stylings
+*/
+.page_workingSet_featured_header {
+	color: #a72625;
+	font-size: 18px !important;
+	margin-top: 5px !important;
+	font-weight: bold;
+	width: 100%;
+}
+
+.page_workingSet_featured_prompt {
+	font-weight: bold !important;
+	font-size: 12px !important;
+}
+
+.page_workingSet_featured_content {
+	font-size: 12px !important;	
+}
+
+.page_assessment_featured_header {
+	color: #a72625;
+	font-size: 18px !important;
+	margin-top: 5px !important;
+	font-weight: bold;
+	width: 100%;
+}
+
+.page_assessment_featured_prompt {
+	font-weight: bold !important;
+	font-size: 12px !important;
+}
+
+.page_assessment_featured_content {
+	font-size: 12px !important;
+}
+
+.page_assessment_featured_content_common_name {
+	font-size: 14px !important;
+	font-weight: bold;
+	font-style: italic !important;
+	text-align: center !important;
+	width: 100%;
+}
+
+.icon-header-options {
+	background: url(../images/emblem-system-32.png) no-repeat !important;	
 }
 
 .icon-start-here {
@@ -1079,7 +1136,7 @@ SIS_Header_Summary_Title {
 
 .SIS_taxonSummaryHeader {
 	color: #a72625;
-	font-size: 18px;
+	font-size: 18px !important;
 	font-weight: bold;
 	width: 100%;
 }

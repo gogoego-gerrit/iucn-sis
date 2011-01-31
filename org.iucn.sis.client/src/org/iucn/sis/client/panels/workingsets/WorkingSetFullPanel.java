@@ -7,6 +7,7 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -712,7 +713,8 @@ public class WorkingSetFullPanel extends ContentPanel {
 					public void onSuccess(String arg0) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
 						if (saveAndExit) {
-							WorkingSetCache.impl.setCurrentWorkingSet(currentWorkingSet, false);
+							//WorkingSetCache.impl.setCurrentWorkingSet(currentWorkingSet, false);
+							//ClientUIContainer.bodyContainer.
 							refresh();
 						}
 						// panelManager.workingSetHierarchy.update();

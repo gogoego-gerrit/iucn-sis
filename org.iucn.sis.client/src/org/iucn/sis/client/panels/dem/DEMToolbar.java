@@ -51,6 +51,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -65,6 +66,7 @@ public class DEMToolbar extends ToolBar {
 	
 	private Button editViewButton;
 	private ComplexListener<EditStatus> refreshListener;
+	private SimpleListener saveListener;
 	
 	public DEMToolbar() {
 		this.autoSave = new AutosaveTimer();
@@ -72,6 +74,10 @@ public class DEMToolbar extends ToolBar {
 	
 	public void setRefreshListener(ComplexListener<EditStatus> refreshListener) {
 		this.refreshListener = refreshListener;
+	}
+	
+	public void setSaveListener(SimpleListener saveListener) {
+		this.saveListener = saveListener;
 	}
 	
 	public void build() {
@@ -162,6 +168,8 @@ public class DEMToolbar extends ToolBar {
 										AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
 								resetAutosaveTimer();
 								ClientUIContainer.headerContainer.update();
+								if (saveListener != null)
+									saveListener.handleEvent();
 							}
 						});
 					} else {
@@ -604,6 +612,8 @@ public class DEMToolbar extends ToolBar {
 							Info.display("Auto-save Complete", "Successfully auto-saved assessment {0}.",
 									AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
 							startAutosaveTimer();
+							if (saveListener != null)
+								saveListener.handleEvent();
 						}
 					});
 				} else {

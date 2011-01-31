@@ -9,6 +9,7 @@ import java.util.Map;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
@@ -101,11 +102,13 @@ public class TaxomaticUtils {
 				try {
 					newTaxon.setId(Integer.parseInt(doc.getText()));
 					TaxonomyCache.impl.putTaxon(newTaxon);
-					TaxonomyCache.impl.setCurrentTaxon(newTaxon);
 					TaxonomyCache.impl.invalidatePath(newTaxon.getParentId());
+					
+					StateManager.impl.setTaxon(newTaxon);
 				} catch (Exception e) {
-					TaxonomyCache.impl.invalidatePath(newTaxon.getParentId());
-					TaxonomyCache.impl.setCurrentTaxon(TaxonomyCache.impl.getTaxon(newTaxon.getParentId()));
+					//TaxonomyCache.impl.invalidatePath(newTaxon.getParentId());
+					//TaxonomyCache.impl.setCurrentTaxon(TaxonomyCache.impl.getTaxon(newTaxon.getParentId()));
+					StateManager.impl.setTaxon(TaxonomyCache.impl.getTaxon(newTaxon.getParentId()));
 				}
 
 				wayback.onSuccess(newTaxon);
@@ -123,7 +126,7 @@ public class TaxomaticUtils {
 	@SuppressWarnings("deprecation")
 	protected void afterTaxomaticOperation(final Integer currentTaxaID, final GenericCallback<String> callback) {
 		TaxonomyCache.impl.clear();
-		AssessmentCache.impl.resetCurrentAssessment();
+		//AssessmentCache.impl.resetCurrentAssessment();
 		AssessmentCache.impl.clear();		
 		AssessmentCache.impl.loadRecentAssessments(new GenericCallback<Object>() {
 			public void onFailure(Throwable caught) {
@@ -139,6 +142,7 @@ public class TaxomaticUtils {
 
 					public void onSuccess(Taxon  result) {
 						/*ClientUIContainer.bodyContainer.refreshBody();*/
+						StateManager.impl.setTaxon(result);
 						callback.onSuccess(result.getId() + "");
 					}
 				});

@@ -2,13 +2,14 @@ package org.iucn.sis.client.panels.workingsets;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -87,10 +88,18 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 		item.setToolTip("View in Assessment Browser");
 		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				Assessment assessment = AssessmentCache.impl.getDraftAssessment(lastID, false);
-				if ( assessment != null) {
+				final Assessment assessment = AssessmentCache.impl.getDraftAssessment(lastID);
+				if (assessment != null) {
 					if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, assessment ) ) {
-						AssessmentCache.impl.setCurrentAssessment(assessment);
+						//AssessmentCache.impl.setCurrentAssessment(assessment);
+						TaxonomyCache.impl.fetchTaxon(assessment.getSpeciesID(), new GenericCallback<Taxon>() {
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Could not load taxon, please try again later.");
+							}
+							public void onSuccess(Taxon result) {
+								StateManager.impl.setState(result, assessment);
+							}
+						});
 						/*ClientUIContainer.bodyContainer.setSelection(
 							ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/
 					} else {
@@ -134,7 +143,7 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 	private void refreshAssessmentInfo(Integer lastID) {
 
 		// TODO: CHANGE TO DISPLAY ALL OF THEM!
-		Assessment assessment = AssessmentCache.impl.getDraftAssessment(lastID, false);
+		Assessment assessment = AssessmentCache.impl.getDraftAssessment(lastID);
 		if (assessment == null) {
 			title.setText("No Draft Assessment Exists");
 			dateCreated.setText("");

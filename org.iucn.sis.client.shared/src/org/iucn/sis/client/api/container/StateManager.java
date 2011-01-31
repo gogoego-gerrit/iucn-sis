@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -16,8 +19,7 @@ import com.solertium.util.events.CoreObservable;
 public class StateManager implements CoreObservable<ComplexListener<StateChangeEvent>> {
 	
 	public enum StateChangeEventType {
-		WorkingSetChanged(0), TaxonChanged(1), AssessmentChanged(2), 
-		BeforeWorkingSetChanged(3), BeforeTaxonChanged(4), BeforeAssessmentChanged(5);
+		BeforeStateChanged(0), StateChanged(1);
 		
 		private final int value;
 		
@@ -34,9 +36,9 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	
 	private final Map<Integer, List<ComplexListener<StateChangeEvent>>> listeners;
 	
-	private WorkingSet workingSet;
-	private Taxon taxon;
-	private Assessment assessment;
+	private Integer workingSet;
+	private Integer taxon;
+	private Integer assessment;
 	
 	private StateManager() {
 		listeners = new HashMap<Integer, List<ComplexListener<StateChangeEvent>>>();
@@ -47,22 +49,69 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	}
 	
 	public Assessment getAssessment() {
-		return assessment;
+		return assessment == null ? null : AssessmentCache.impl.getAssessment(assessment);
 	}
 	
 	public Taxon getTaxon() {
-		return taxon;
+		return taxon == null ? null : TaxonomyCache.impl.getTaxon(taxon);
 	}
 	
 	public WorkingSet getWorkingSet() {
-		return workingSet;
+		return workingSet == null ? null : WorkingSetCache.impl.getWorkingSet(workingSet);
+	}
+
+	public void reset() {
+		setState(null, null, null);
 	}
 	
-	public void setAssessment(Assessment assessment) {
+	public void setTaxon(Taxon taxon) {
+		setState(getWorkingSet(), taxon, null);
+	}
+	
+	public void setWorkingSet(WorkingSet workingSet) {
+		setState(workingSet, null, null);
+	}
+	
+	public void setState(Assessment assessment) {
+		setState(getWorkingSet(), getTaxon(), assessment);
+	}
+	
+	public void setState(Taxon taxon, Assessment assessment) {
+		setState(getWorkingSet(), taxon, assessment);
+	}
+	
+	public void setState(WorkingSet workingSet, Taxon taxon, Assessment assessment) {
+		setState(workingSet, taxon, assessment, this);
+	}
+	
+	public void setState(WorkingSet workingSet, Taxon taxon, Assessment assessment, Object source) {
+		if (hasChanges(getWorkingSet(), workingSet) || 
+				hasChanges(getTaxon(), taxon) || 
+				hasChanges(getAssessment(), assessment)) {
+	
+			if (!fireEvent(StateChangeEventType.BeforeStateChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment, this))) {
+				this.workingSet = workingSet == null ? null : workingSet.getId();
+				this.taxon = taxon == null ? null : taxon.getId();
+				this.assessment = assessment == null ? null : assessment.getId();
+				
+				if (taxon != null)
+					TaxonomyCache.impl.updateRecentTaxa();
+				if (assessment != null)
+					AssessmentCache.impl.updateRecentAssessments();
+				
+				fireEvent(StateChangeEventType.StateChanged.getValue(), source);
+			}
+		}
+	}
+	
+	/*public void setAssessment(Assessment assessment) {
 		setAssessment(taxon, assessment);
 	}
 	
 	public void setAssessment(Taxon taxon, Assessment assessment) {
+		if (!hasChanges(this.assessment, assessment))
+			return;
+		
 		if (!fireEvent(StateChangeEventType.BeforeAssessmentChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment))) {
 			this.taxon = taxon;
 			this.assessment = assessment;
@@ -71,7 +120,7 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	}
 	
 	public void setTaxon(Taxon taxon) {
-		if (this.taxon != null && this.taxon.equals(taxon))
+		if (!hasChanges(this.taxon, taxon))
 			return;
 		
 		if (!fireEvent(StateChangeEventType.BeforeTaxonChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment))) {
@@ -82,12 +131,22 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	}
 	
 	public void setWorkingSet(WorkingSet workingSet) {
+		if (!hasChanges(this.workingSet, workingSet))
+			return;
+		
 		if (!fireEvent(StateChangeEventType.BeforeWorkingSetChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment))) {
 			this.workingSet = workingSet;
 			this.taxon = null;
 			this.assessment = null;
 			fireEvent(StateChangeEventType.WorkingSetChanged.getValue());
 		}
+	}*/
+	
+	private boolean hasChanges(Object currentValue, Object newValue) {
+		if (currentValue == null)
+			return newValue != null;
+		else
+			return !currentValue.equals(newValue);
 	}
 	
 	public void doLogout() {
@@ -107,7 +166,11 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	}
 
 	public boolean fireEvent(int eventType) {
-		return fireEvent(eventType, new StateChangeEvent(getWorkingSet(), getTaxon(), getAssessment()));
+		return fireEvent(eventType, this);
+	}
+	
+	public boolean fireEvent(int eventType, Object source) {
+		return fireEvent(eventType, new StateChangeEvent(getWorkingSet(), getTaxon(), getAssessment(), source));
 	}
 	
 	/**
@@ -117,6 +180,7 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	 * @return true if the event got canceled, false otherwise
 	 */
 	public boolean fireEvent(int eventType, StateChangeEvent event) {
+		Debug.println("Firing event {0}", eventType);
 		Integer key = new Integer(eventType);
 		List<ComplexListener<StateChangeEvent>> group = listeners.get(key);
 		

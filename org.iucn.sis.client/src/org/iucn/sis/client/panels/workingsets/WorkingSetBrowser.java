@@ -135,7 +135,7 @@ public class WorkingSetBrowser extends TabPanel {
 
 			subscribeTab = new TabItem();
 			subscribeTab.getHeader().setVisible(false);
-			subscribePanel = new WorkingSetSubscriber(manager);
+			subscribePanel = new WorkingSetSubscriber();
 			subscribeTab.setLayout(new FillLayout());
 			subscribeTab.add(subscribePanel);
 

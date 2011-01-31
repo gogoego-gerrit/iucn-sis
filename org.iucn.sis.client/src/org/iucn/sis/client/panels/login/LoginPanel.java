@@ -99,7 +99,7 @@ public class LoginPanel extends LayoutContainer {
 		loginContentArea = new HorizontalPanel();
 		loginContentArea.addStyleName("SIS_loginContentArea");
 		loginContentArea.setWidth("622px");
-		loginContentArea.setHeight("563px");
+		loginContentArea.setHeight("100%");
 
 		/* Left side of the content area */
 		descriptionPanel = new VerticalPanel();

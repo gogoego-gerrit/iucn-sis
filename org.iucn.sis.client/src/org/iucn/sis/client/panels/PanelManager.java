@@ -14,9 +14,9 @@ import org.iucn.sis.client.panels.workingsets.WorkingSetBrowser;
 import org.iucn.sis.client.panels.workingsets.WorkingSetFullPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetHierarchy;
 import org.iucn.sis.client.panels.workingsets.WorkingSetOptionsPanel;
-import org.iucn.sis.client.panels.workingsets.WorkingSetPanel;
 import org.iucn.sis.client.panels.zendesk.BugPanel;
 import org.iucn.sis.client.tabs.HomePageTab;
+import org.iucn.sis.client.tabs.home.WorkingSetPortlet;
 
 import com.extjs.gxt.ui.client.fx.Draggable;
 import com.extjs.gxt.ui.client.fx.Resizable;
@@ -29,7 +29,7 @@ public class PanelManager {
 	//public TaxonHomePage taxonomicSummaryPanel = null;
 	//public TaxonomyBrowserPanel taxonomyBrowserPanel = null;
 	// public AssessmentSummaryPanel assessmentSummaryPanel = null;
-	public WorkingSetPanel workingSetPanel = null;
+	public WorkingSetPortlet workingSetPanel = null;
 	public ExpertPanel expertPanel = null;
 	public ImagePopupPanel imageViewerPanel = null;
 	public DEMPanel DEM = null;
@@ -52,7 +52,7 @@ public class PanelManager {
 		DEM = new DEMPanel();
 		expertPanel = new ExpertPanel();
 		imageViewerPanel = new ImagePopupPanel(this);
-		taxonomySearchPanel = new BasicSearchPanel(this);
+		taxonomySearchPanel = new BasicSearchPanel();
 		
 		workingSetFullPanel = new WorkingSetFullPanel(this);
 		workingSetHierarchy = new WorkingSetHierarchy(this);

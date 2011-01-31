@@ -187,8 +187,8 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 									westPanel.add(generalInformation);
 									if (workingSetsForTaxonPanel != null)
 										westPanel.add(workingSetsForTaxonPanel);
-									else
-										AssessmentCache.impl.resetCurrentAssessment();
+									/*else
+										AssessmentCache.impl.resetCurrentAssessment();*/
 									
 									HorizontalPanel hp = new HorizontalPanel();
 									hp.add(getTaxonomicNotePanel(taxon));
@@ -270,7 +270,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 							BaseModelData model = be.getModel();
 							final Integer id = model.get("id");
 
-							WorkingSetCache.impl.setCurrentWorkingSet(id, true); 
+							/*WorkingSetCache.impl.setCurrentWorkingSet(id, true);*/ 
 							//ClientUIContainer.bodyContainer.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
 
 						}
@@ -445,13 +445,13 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 				if (column == 5) {
 					if (type == AssessmentType.PUBLISHED_ASSESSMENT_TYPE
 							&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
-									AuthorizableObject.DELETE, AssessmentCache.impl.getPublishedAssessment(id,
-											false))) {
+									AuthorizableObject.DELETE, AssessmentCache.impl.getPublishedAssessment(id
+											))) {
 						WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission "
 								+ "to perform this operation.");
 					} else if (type == AssessmentType.DRAFT_ASSESSMENT_TYPE
 							&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
-									AuthorizableObject.DELETE, AssessmentCache.impl.getDraftAssessment(id, false))) {
+									AuthorizableObject.DELETE, AssessmentCache.impl.getDraftAssessment(id))) {
 						WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission "
 								+ "to perform this operation.");
 					} else {
@@ -459,10 +459,10 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 								"Are you sure you want to delete this assessment?",
 								new WindowUtils.SimpleMessageBoxListener() {
 							public void onYes() {
-								if (AssessmentCache.impl.getCurrentAssessment() != null
+								/*if (AssessmentCache.impl.getCurrentAssessment() != null
 										&& AssessmentCache.impl.getCurrentAssessment().getId() == id
 										.intValue())
-									AssessmentCache.impl.resetCurrentAssessment();
+									AssessmentCache.impl.resetCurrentAssessment();*/
 								NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 								doc.delete(UriBase.getInstance().getSISBase() + "/assessments/" + type
 										+ "/" + id, new GenericCallback<String>() {
@@ -487,11 +487,11 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 						});
 					}
 				} else if (column == 4) {
-					Assessment fetched = AssessmentCache.impl.getAssessment(id, false);
+					Assessment fetched = AssessmentCache.impl.getAssessment(id);
 					// CHANGE
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ,
 							fetched)) {
-						AssessmentCache.impl.setCurrentAssessment(fetched);
+						//AssessmentCache.impl.setCurrentAssessment(fetched);
 						ClientUIContainer.headerContainer.update();
 						/*ClientUIContainer.bodyContainer
 								.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/
@@ -962,8 +962,8 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 		
 		@Override
 		public void onClose() {
-			if (hasChanged)
-				TaxonomyCache.impl.setCurrentTaxon(taxon);
+			/*if (hasChanged)
+				TaxonomyCache.impl.setCurrentTaxon(taxon);*/
 				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
 		}
 		

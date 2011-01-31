@@ -85,11 +85,11 @@ public class WorkingSetHierarchy extends LayoutContainer {
 				WSModel wsModel = se.getSelectedItem();
 				if (wsModel != null) {
 					if (WorkingSetCache.impl.getCurrentWorkingSet() == null || !Integer.valueOf(WorkingSetCache.impl.getCurrentWorkingSet().getId()).equals(wsModel.getID())) {
-						WorkingSetCache.impl.setCurrentWorkingSet(wsModel.getID(), true, new SimpleListener() {
+						/*WorkingSetCache.impl.setCurrentWorkingSet(wsModel.getID(), true, new SimpleListener() {
 							public void handleEvent() {
 								panelManager.workingSetBrowser.refresh();
 							}
-						});
+						});*/
 					}
 				}
 
@@ -201,7 +201,7 @@ public class WorkingSetHierarchy extends LayoutContainer {
 				if (model.getID().equals(workingSetID)) {
 					binder.setSelection(model);
 					tree.setSelectedItem((DataListItem) binder.findItem(model));
-					WorkingSetCache.impl.setCurrentWorkingSet(model.getID(), false);
+					//WorkingSetCache.impl.setCurrentWorkingSet(model.getID(), false);
 					break;
 				}
 			}

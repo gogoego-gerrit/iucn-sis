@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
@@ -784,18 +785,17 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 					}
 
 					else {
-						TaxonomyCache.impl.fetchTaxonWithKingdom(data.getID(), data.getName(), true,
+						TaxonomyCache.impl.fetchTaxonWithKingdom(data.getID(), data.getName(),
 								new GenericCallback<Taxon>() {
-									public void onFailure(Throwable caught) {
-										Info.display(new InfoConfig("Error", "Error loading taxonomy browser."));
-									}
-
-									public void onSuccess(Taxon arg0) {
-										/*ClientUIContainer.bodyContainer
+							public void onFailure(Throwable caught) {
+								Info.display(new InfoConfig("Error", "Error loading taxonomy browser."));
+							}
+							public void onSuccess(Taxon arg0) {
+								StateManager.impl.setTaxon(arg0);
+								/*ClientUIContainer.bodyContainer
 												.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);*/
-									}
-
-								});
+							}
+						});
 					}
 				}
 			}

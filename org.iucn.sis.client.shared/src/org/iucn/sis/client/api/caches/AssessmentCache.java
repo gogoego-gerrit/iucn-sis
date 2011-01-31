@@ -157,7 +157,8 @@ public class AssessmentCache {
 				final String newID = ndoc.getText();
 				fetchAssessments(new AssessmentFetchRequest(Integer.valueOf(newID)), new GenericCallback<String>() {
 					public void onSuccess(String result) {
-						AssessmentCache.impl.getAssessment(Integer.valueOf(newID), true);
+						//AssessmentCache.impl.getAssessment(Integer.valueOf(newID), true);
+						StateManager.impl.setState(impl.getAssessment(Integer.valueOf(newID)));
 					};
 					public void onFailure(Throwable caught) {
 						wayback.onFailure(caught);
@@ -208,7 +209,7 @@ public class AssessmentCache {
 		}
 		
 		for( Integer uid : request.getAssessmentUIDs() ) {
-			if( AssessmentCache.impl.getAssessment(uid, false) != null )
+			if( AssessmentCache.impl.getAssessment(uid) != null )
 				uidsToRemove.add(uid);
 		}
 		
@@ -251,41 +252,29 @@ public class AssessmentCache {
 	public Assessment getCurrentAssessment() {
 		return StateManager.impl.getAssessment();
 	}
-
-	public Assessment getAssessment(int id, boolean setAsCurrent) {
-		return getAssessment(Integer.valueOf(id), setAsCurrent);
-	}
 	
-	public Assessment getAssessment(Integer id, boolean setAsCurrent) {
+	public Assessment getAssessment(Integer id) {
 		Assessment ret = cache.get(id);
 		
-		if (setAsCurrent)
-			setCurrentAssessment(ret);
+		/*if (setAsCurrent)
+			setCurrentAssessment(ret);*/
 		return ret;
 	}
 	
-	public Assessment getUserAssessment(int id, boolean setAsCurrent) {
-		return getUserAssessment(Integer.valueOf(id), setAsCurrent);
+	public Assessment getUserAssessment(int id) {
+		return getUserAssessment(Integer.valueOf(id));
 	}
 		
-	public Assessment getUserAssessment(Integer id, boolean setAsCurrent) {
-		return getAssessment(id, setAsCurrent);
+	public Assessment getUserAssessment(Integer id) {
+		return getAssessment(id);
 	}
 
-	public Assessment getDraftAssessment(int id, boolean setAsCurrent) {
-		return getDraftAssessment(Integer.valueOf(id), setAsCurrent);
+	public Assessment getDraftAssessment(Integer id) {
+		return getAssessment(id);
 	}
 	
-	public Assessment getDraftAssessment(Integer id, boolean setAsCurrent) {
-		return getAssessment(id, setAsCurrent);
-	}
-	
-	public Assessment getPublishedAssessment(int id, boolean setAsCurrent) {
-		return getPublishedAssessment(Integer.valueOf(id), setAsCurrent);
-	}
-	
-	public Assessment getPublishedAssessment(Integer id, boolean setAsCurrent) {
-		return getAssessment(id, setAsCurrent);
+	public Assessment getPublishedAssessment(Integer id) {
+		return getAssessment(id);
 	}
 	
 	public Set<Assessment> getDraftAssessmentsForTaxon(Integer taxonID) {
@@ -330,7 +319,7 @@ public class AssessmentCache {
 		RecentlyAccessedCache.impl.load(RecentlyAccessed.ASSESSMENT, wayBacks);
 	}
 
-	public void resetCurrentAssessment() {
+	/*public void resetCurrentAssessment() {
 		setCurrentAssessment(null);
 	}
 
@@ -353,15 +342,15 @@ public class AssessmentCache {
 			});
 		} else
 			doSetCurrentAssessment(null, null);
-	}
+	}*/
 	
 	private void doSetCurrentAssessment(final Taxon parent, final Assessment assessment) {
 		if( assessment != null && assessment.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE) && 
 				!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.READ, assessment) ) {
 			WindowUtils.errorAlert("Insufficient Rights", "Sorry, you don't have rights to select this Draft assessment.");
-			StateManager.impl.setAssessment(null);
+			//StateManager.impl.setState(null, null, null);
 		} else {
-			StateManager.impl.setAssessment(parent, assessment);
+			//StateManager.impl.setAssessment(parent, assessment);
 
 			if (assessment != null) {
 				try {
@@ -369,7 +358,7 @@ public class AssessmentCache {
 				} catch (Throwable e) {
 					GWT.log("Failed to update recent assessments", e);
 				}
-				StatusCache.impl.checkStatus(assessment, true, new GenericCallback<Integer>() {
+				/*StatusCache.impl.checkStatus(assessment, true, new GenericCallback<Integer>() {
 					public void onFailure(Throwable caught) {
 						// Nothing to do, really.
 					}
@@ -377,7 +366,7 @@ public class AssessmentCache {
 					public void onSuccess(Integer result) {
 						// Nothing to do, really.
 					}
-				});
+				});*/
 			}
 		}
 
@@ -385,7 +374,7 @@ public class AssessmentCache {
 		SISClientBase.getInstance().onAssessmentChanged();
 	}
 
-	private void updateRecentAssessments() {
+	public void updateRecentAssessments() {
 		RecentlyAccessedCache.impl.add(RecentlyAccessed.ASSESSMENT, 
 			new RecentlyAccessedCache.RecentAssessment(getCurrentAssessment())
 		);

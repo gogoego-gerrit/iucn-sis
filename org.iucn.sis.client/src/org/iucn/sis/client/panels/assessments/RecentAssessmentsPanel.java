@@ -4,11 +4,14 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
-import org.iucn.sis.client.panels.PanelManager;
+import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
+import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -128,8 +131,19 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 			}
 
 			public void onSuccess(String arg0) {
-				AssessmentCache.impl.getAssessment(id, true);
-				WindowUtils.hideLoadingAlert();
+				final Assessment assessment = AssessmentCache.impl.getAssessment(id);
+				TaxonomyCache.impl.fetchTaxon(assessment.getSpeciesID(), new GenericCallback<Taxon>() {
+					@Override
+					public void onFailure(Throwable caught) {
+						WindowUtils.hideLoadingAlert();
+						WindowUtils.errorAlert("Could not load assessment, please try again later.");
+					}
+					public void onSuccess(Taxon result) {
+						WindowUtils.hideLoadingAlert();
+						StateManager.impl.setState(result, assessment);
+					}
+				});
+				
 			}
 		});
 	}

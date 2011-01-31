@@ -43,7 +43,7 @@ public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 	private Grid<WSModel> grid;
 	private Button actionButton = null;
 	
-	public WorkingSetSubscriber(PanelManager manager) {
+	public WorkingSetSubscriber() {
 		super();
 		setLayout(new BorderLayout());
 		addStyleName("gwt-background");

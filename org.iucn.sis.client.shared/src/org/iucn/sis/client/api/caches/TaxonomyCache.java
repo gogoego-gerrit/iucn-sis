@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -36,7 +39,7 @@ public class TaxonomyCache {
 	/**
 	 * ArrayList<Taxon>
 	 */
-	private ArrayList<Taxon> recentlyAccessed;
+	private Set<Taxon> recentlyAccessed;
 
 	/**
 	 * HashMap<String, Taxon>();
@@ -57,7 +60,7 @@ public class TaxonomyCache {
 	private TaxonomyCache() {
 		cache = new HashMap<Integer, Taxon>();
 		pathCache = new HashMap<String, NativeDocument>();
-		recentlyAccessed = new ArrayList<Taxon>();
+		recentlyAccessed = new LinkedHashSet<Taxon>();
 		requested = new HashMap<Integer, List<GenericCallback<Taxon>>>();
 	}
 
@@ -203,7 +206,7 @@ public class TaxonomyCache {
 
 		if (ids.size() == 1) {
 			if (!contains(ids.get(0)))
-				fetchTaxon(ids.get(0), false, new GenericCallback<Taxon>() {
+				fetchTaxon(ids.get(0), new GenericCallback<Taxon>() {
 					public void onFailure(Throwable caught) {
 						wayBack.onFailure(caught);
 					}
@@ -237,14 +240,14 @@ public class TaxonomyCache {
 		}
 	}
 
-	public void fetchTaxon(final Integer id, final boolean asCurrent, GenericCallback<Taxon> wayback) {
-		fetchTaxon(id, asCurrent, true, wayback);
+	public void fetchTaxon(final Integer id, GenericCallback<Taxon> wayback) {
+		fetchTaxon(id, true, wayback);
 	}
 	
-	public void fetchTaxon(final Integer id, final boolean asCurrent, final boolean saveIfNecessary, final GenericCallback<Taxon> wayback) {
+	public void fetchTaxon(final Integer id, final boolean saveIfNecessary, final GenericCallback<Taxon> wayback) {
 		if (getTaxon(id) != null) {
-			if (asCurrent)
-				setCurrentTaxon(getTaxon(id), saveIfNecessary);
+			/*if (asCurrent)
+				setCurrentTaxon(getTaxon(id), saveIfNecessary);*/
 
 			wayback.onSuccess(getTaxon(id));
 		} else {
@@ -273,9 +276,9 @@ public class TaxonomyCache {
 							putTaxon(defaultNode);
 						}
 
-						if (asCurrent) {
+						/*if (asCurrent) {
 							setCurrentTaxon(defaultNode, saveIfNecessary);
-						}
+						}*/
 
 						invokeCallbacks(id, defaultNode);
 					}
@@ -294,7 +297,7 @@ public class TaxonomyCache {
 	 * @param asCurrent
 	 * @param wayback
 	 */
-	public void fetchTaxonWithKingdom(String kingdom, String otherInfo, final boolean asCurrent,
+	public void fetchTaxonWithKingdom(String kingdom, String otherInfo,
 			final GenericCallback<Taxon> wayback) {
 		if (!kingdom.trim().equals("") && !otherInfo.trim().equals("")) {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
@@ -307,11 +310,11 @@ public class TaxonomyCache {
 					Taxon defaultNode = Taxon.fromXML(ndoc.getDocumentElement().getElementByTagName(Taxon.ROOT_TAG));
 					if (!contains(defaultNode.getId())) {
 						putTaxon(defaultNode);
-						if (asCurrent)
-							setCurrentTaxon(defaultNode);
-					} else if (asCurrent) {
+						/*if (asCurrent)
+							setCurrentTaxon(defaultNode);*/
+					} /*else if (asCurrent) {
 						setCurrentTaxon(getTaxon(defaultNode.getId()));
-					}
+					}*/
 					wayback.onSuccess(getTaxon(defaultNode.getId()));
 				}
 			});
@@ -437,8 +440,14 @@ public class TaxonomyCache {
 		return cache.get(id);
 	}
 
-	public ArrayList<Taxon> getRecentlyAccessed() {
+	public Set<Taxon> getRecentlyAccessed() {
 		return recentlyAccessed;
+	}
+	
+	public void updateRecentTaxa() {
+		//TODO: should this be persisted?
+		
+		recentlyAccessed.add(getCurrentTaxon());
 	}
 
 	public Object invalidatePath(Integer pathID) {
@@ -492,9 +501,9 @@ public class TaxonomyCache {
 		cache.put(Integer.valueOf(node.getId()), node);
 	}
 
-	public void resetCurrentTaxon() {
+	/*public void resetCurrentTaxon() {
 		setCurrentTaxon(null, false);
-	}
+	}*/
 	
 	public void saveReferences(Taxon taxon, final GenericCallback<String> callback) {
 		final StringBuilder out = new StringBuilder();
@@ -530,19 +539,20 @@ public class TaxonomyCache {
 	 * @param node
 	 * @param callback
 	 */
-	public void saveTaxonAndMakeCurrent(final Taxon node, final GenericCallback<String> callback) {
+	/*public void saveTaxonAndMakeCurrent(final Taxon node, final GenericCallback<String> callback) {
 		saveTaxon(node, new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				TaxonomyCache.impl.setCurrentTaxon(node);
+				//TODO: refresh the view.
 				callback.onSuccess(result);
 			}
 			public void onFailure(Throwable caught) {
 				callback.onFailure(caught);
 			}
 		});
-	}
+	}*/
 
-	public void setCurrentTaxon(Taxon newCurrent) {
+	/*public void setCurrentTaxon(Taxon newCurrent) {
 		setCurrentTaxon(newCurrent, true);
 	}
 	
@@ -571,7 +581,7 @@ public class TaxonomyCache {
 			AssessmentClientSaveUtils.saveIfNecessary(callback);
 		else
 			callback.handleEvent();
-	}
+	}*/
 	
 	public void getTaggedTaxa(final String tag, final GenericCallback<List<Taxon>> callback) {
 		final String url = UriBase.getInstance().getSISBase() + "/tagging/taxa/" + tag;

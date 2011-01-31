@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.iucn.sis.client.api.caches.LanguageCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.taxomatic.EditCommonNamePanel.IsoLanguageComparator;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.IsoLanguage;
@@ -213,7 +214,8 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 						bar.enable();
 						WindowUtils.infoAlert("Deleted", "Common name " + currentCommonName.getName() + " has been deleted");
 						//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-						TaxonomyCache.impl.setCurrentTaxon(node);
+						ClientUIContainer.bodyContainer.refreshTaxonPage();
+						//TaxonomyCache.impl.setCurrentTaxon(node);
 						currentCommonName = null;
 						refreshListBox();
 						refreshCommonName(null);
@@ -401,7 +403,8 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 					bar.enable();
 					WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
 					//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-					TaxonomyCache.impl.setCurrentTaxon(node);
+					//TaxonomyCache.impl.setCurrentTaxon(node);
+					ClientUIContainer.bodyContainer.refreshTaxonPage();
 					refreshListBox();
 					refreshCommonName(null);
 				}
@@ -423,7 +426,8 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 					bar.enable();
 					WindowUtils.infoAlert("Saved", "Common name " + currentCommonName.getName() + " was saved.");
 					//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-					TaxonomyCache.impl.setCurrentTaxon(node);
+					//TaxonomyCache.impl.setCurrentTaxon(node);
+					ClientUIContainer.bodyContainer.refreshTaxonPage();
 					hide();
 				}
 

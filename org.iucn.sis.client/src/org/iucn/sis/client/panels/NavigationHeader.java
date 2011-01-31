@@ -96,7 +96,7 @@ public class NavigationHeader extends LayoutContainer {
 			public void handleEvent(BaseEvent be) {
 				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
 					public void handleEvent() {
-						doMoveNext();
+						//doMoveNext();
 					}
 				});
 			}
@@ -116,7 +116,7 @@ public class NavigationHeader extends LayoutContainer {
 			public void handleEvent(BaseEvent be) {
 				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
 					public void handleEvent() {
-						doMovePrev();
+						//doMovePrev();
 					}
 				});
 			}
@@ -142,7 +142,7 @@ public class NavigationHeader extends LayoutContainer {
 		layout();
 	}
 
-	private void doMoveNext() {
+	/*private void doMoveNext() {
 		final WorkingSet curSelectedWorkingSet = WorkingSetCache.impl.getCurrentWorkingSet();
 		
 		if (curSelectedWorkingSet == null)
@@ -213,7 +213,7 @@ public class NavigationHeader extends LayoutContainer {
 
 			fetchTaxon(newCurrent);
 		}
-	}
+	}*/
 
 	/*private void setListSelected() {
 		taxonListBinder.removeAllListeners();

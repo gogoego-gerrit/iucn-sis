@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.workingset.WSModel;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -134,7 +135,8 @@ public class DeleteWorkingSetPanel extends RefreshLayoutContainer {
 				// manager.workingSetHierarchy.update();
 				WSStore.getStore().update();
 				if (WorkingSetCache.impl.getCurrentWorkingSet() != null && ws.getId() == WorkingSetCache.impl.getCurrentWorkingSet().getId()) {
-					WorkingSetCache.impl.resetCurrentWorkingSet();
+					//WorkingSetCache.impl.resetCurrentWorkingSet();
+					StateManager.impl.reset();
 					//manager.workingSetFullPanel.buildInfo();
 				}
 				// ((Button)buttons.getItemByItemId(Dialog.CANCEL)).setText("Done");

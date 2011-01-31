@@ -6,6 +6,7 @@ import com.extjs.gxt.ui.client.Style.IconAlign;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -28,6 +29,8 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 	
 	public FeaturedItemContainer() {
 		super(new FillLayout());
+		addStyleName("gwt-background");
+		addStyleName("featured_item_container");
 		
 		selected = null;
 		
@@ -36,20 +39,27 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 		optionsContainer.setLayoutOnChange(true);
 		bodyContainer = new LayoutContainer(new FillLayout());
 		bodyContainer.setLayoutOnChange(true);
+		bodyContainer.addStyleName("gwt-background");
 		
 		final LayoutContainer left = new LayoutContainer(new BorderLayout()); {
 			left.add(featuredItemContainer, new BorderLayoutData(LayoutRegion.NORTH, 200, 200, 200));
 			left.add(optionsContainer, new BorderLayoutData(LayoutRegion.CENTER));
 		}
+		left.addStyleName("gwt-background");
 		
 		final BorderLayoutData leftData = new BorderLayoutData(LayoutRegion.WEST);
 		leftData.setSplit(true);
 		leftData.setMaxSize(300);
 		leftData.setMinSize(200);
+		leftData.setMargins(new Margins(0, 5, 0, 5));
+		
+		final BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+		centerData.setMargins(new Margins(0, 0, 0, 5));
 		
 		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.addStyleName("gwt-background");
 		container.add(left, leftData);
-		container.add(bodyContainer, new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(bodyContainer, centerData);
 		
 		add(container);
 	}

@@ -4,6 +4,7 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -20,6 +21,8 @@ import org.iucn.sis.client.panels.taxa.TaxonFinderPanel;
 import org.iucn.sis.client.panels.taxa.tagging.TaxaTagManager;
 import org.iucn.sis.client.panels.users.UploadUsersPanel;
 import org.iucn.sis.client.panels.users.UserModelTabPanel;
+import org.iucn.sis.client.panels.utils.BasicSearchPanel;
+import org.iucn.sis.client.panels.utils.SearchPanel;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.client.panels.viruses.VirusManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -34,12 +37,19 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
-import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -49,40 +59,47 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class HeaderContainer extends LayoutContainer {
+public class HeaderContainer extends ContentPanel {
 	public static final int defaultHeight = 100;
 
-	private MonkeyNavigator centerPanel;
+	public MonkeyNavigator centerPanel;
 	private LayoutContainer leftPanel;
 	private LayoutContainer rightPanel;
 
-
-	private FindReplacePanel findReplacePanel;
-	private BatchChangePanel batchChangePanel;
-	private TaxonFinderPanel taxonFinderPanel;
-	private DefinitionEditorPanel definitionPanel;
-	private IntegrityApplicationPanel integrityPanel;
-	private LockManagementPanel lockManagementPanel;
-	private RedlistPanel redlistPanel;
-	private VirusManager virusManagerPanel;
-	private TaxaTagManager taxaTagManagerPanel;
+	private final SearchPanel taxonomySearchPanel;
+	private final FindReplacePanel findReplacePanel;
+	private final BatchChangePanel batchChangePanel;
+	private final TaxonFinderPanel taxonFinderPanel;
+	private final DefinitionEditorPanel definitionPanel;
+	private final IntegrityApplicationPanel integrityPanel;
+	private final LockManagementPanel lockManagementPanel;
+	private final RedlistPanel redlistPanel;
+	private final VirusManager virusManagerPanel;
+	private final TaxaTagManager taxaTagManagerPanel;
 	
 	private PermissionGroupEditor permEditor;
 	private UserModelTabPanel userModelPanel;
 
 	public HeaderContainer(String first, String last, String affiliation) {
-		setLayout(new BorderLayout());
+		super();
+		setLayout(new FillLayout());
 		setHeight(defaultHeight);
 		//setBorders(true);
 
+		taxonomySearchPanel = new BasicSearchPanel();
+		
 		findReplacePanel = new FindReplacePanel();
 		batchChangePanel = new BatchChangePanel();
 		taxonFinderPanel = new TaxonFinderPanel();
@@ -100,12 +117,15 @@ public class HeaderContainer extends LayoutContainer {
 		
 		centerPanel = new MonkeyNavigator();
 		centerPanel.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
-
-		add(leftPanel, leftData);
-		add(centerPanel, centerData);
+		
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(leftPanel, leftData);
+		container.add(centerPanel, centerData);
+		
+		add(container);
 	}
 
-	public void assessmentChanged() {
+	/*public void assessmentChanged() {
 		Assessment curAssessment = AssessmentCache.impl.getCurrentAssessment();
 		Taxon curNode = TaxonomyCache.impl.getCurrentTaxon();
 
@@ -127,21 +147,51 @@ public class HeaderContainer extends LayoutContainer {
 				}
 			});
 		}
-	}
+	}*/
 
 	private LayoutContainer buildLeftPanel(String first, String last, String affiliation) {
-		LayoutContainer panel = new LayoutContainer(new FlowLayout());
-		panel.setBorders(false);
-		
-		Image leftImage = new Image();
-		if (SimpleSISClient.currentUser.getAffiliation().equalsIgnoreCase("birdlife"))
-			leftImage.setUrl("images/logo-birdlifeStacked.gif");
-		else
-			leftImage.setUrl("images/sislogo_cropped.png");
-
-		panel.add(leftImage);
+		String logoUrl = SimpleSISClient.currentUser.getAffiliation().equalsIgnoreCase("birdlife") 
+			? "images/logo-birdlifeStacked.gif" : "images/sislogo_cropped.png";
+		HTML logo = new HTML("<div style=\"text-align:center;margin:0px auto;cursor: pointer\">" + 
+			"<img src=\"" + logoUrl + "\" alt=\"Species Information Service\" /></div>");
+		logo.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				StateManager.impl.reset();
+			}
+		});
 
 		HorizontalPanel namePanel = new HorizontalPanel();
+		namePanel.setSpacing(2);
+
+		Image userIcon = new Image("images/icon-user-green.png");
+		userIcon.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				final NativeDocument profileDoc = SimpleSISClient.getHttpBasicNativeDocument();
+				profileDoc.get(UriBase.getInstance().getSISBase() +"/profile/" + SimpleSISClient.currentUser.getUsername(), new GenericCallback<String>() {
+					public void onFailure(Throwable caught) {
+					}
+					public void onSuccess(String result) {
+//						 LoginPanel.newAccountPanel.enterProfileInfoWizard(false);
+					}
+				});
+			}
+		});
+
+		namePanel.add(userIcon);
+		namePanel.add(new HTML(first + " " + last));
+
+		HorizontalPanel affiliationPanel = new HorizontalPanel();
+		affiliationPanel.setSpacing(2);
+		affiliationPanel.add(new Image("images/icon-world.png"));
+		affiliationPanel.add(new HTML(affiliation));
+		
+		final VerticalPanel userInfoWrapper = new VerticalPanel();
+		userInfoWrapper.setWidth("100%");
+		userInfoWrapper.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		userInfoWrapper.setSpacing(3);
+		userInfoWrapper.add(namePanel);
+		userInfoWrapper.add(affiliationPanel);
+		
 		HTML logout = new HTML("[ logout ]");
 		logout.addStyleName("SIS_HyperlinkLookAlike");
 		logout.addClickHandler(new ClickHandler() {
@@ -155,42 +205,44 @@ public class HeaderContainer extends LayoutContainer {
 			}
 		});
 
-		namePanel.setSpacing(2);
-
-		Image userIcon = new Image("images/icon-user-green.png");
-		userIcon.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				final NativeDocument profileDoc = SimpleSISClient.getHttpBasicNativeDocument();
-				profileDoc.get(UriBase.getInstance().getSISBase() +"/profile/" + SimpleSISClient.currentUser.getUsername(), new GenericCallback<String>() {
-					public void onFailure(Throwable caught) {
-					}
-
-					public void onSuccess(String result) {
-						
-//						 LoginPanel.newAccountPanel.enterProfileInfoWizard(false);
-					}
-				});
-			}
-		});
-
-		namePanel.add(userIcon);
-		namePanel.add(new HTML(first + " " + last));
-		namePanel.add(logout);
-
-		HorizontalPanel affiliationPanel = new HorizontalPanel();
-		affiliationPanel.setSpacing(2);
-		affiliationPanel.add(new Image("images/icon-world.png"));
-		affiliationPanel.add(new HTML(affiliation));
-
-		Button optionsButton = new Button("Options");
+		Grid bottom = new Grid(1, 2);
+		bottom.setWidth("100%");
+		bottom.setWidget(0, 0, getMenu());
+		bottom.setWidget(0, 1, logout);
+		for (int i = 0; i < bottom.getCellCount(0); i++)
+			bottom.getCellFormatter().setAlignment(0, i, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
 		
-		Menu options = new Menu();
+		LayoutContainer panel = new LayoutContainer(new FlowLayout());
+		panel.setBorders(false);
+		panel.add(logo);
+		panel.add(createSpacer(10));
+		panel.add(userInfoWrapper);
+		panel.add(createSpacer(10));
+		panel.add(bottom);
 
+		return panel;
+	}
+	
+	private HTML createSpacer(int size) {
+		HTML spacer = new HTML("&nbsp;");
+		spacer.setHeight(size + "px");
+		
+		return spacer;
+	}
+	
+	private MenuItem createMenuItem(String icon, String text, SelectionListener<MenuEvent> listener) {
 		MenuItem item = new MenuItem();
-		item.setToolTip("Peruse the Taxonomic Hierarchy");
-		item.setIconStyle("icon-tree");
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
+		item.setText(text);
+		item.setIconStyle(icon);
+		item.addSelectionListener(listener);
+		
+		return item;
+	}
+	
+	private Component getMenu() {
+		final Menu options = new Menu();
+		options.add(createMenuItem("icon-tree", "Peruse the Taxonomic Hierarchy", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				final TaxonomyBrowserPanel browser = new TaxonomyBrowserPanel();
 				
 				Window window = WindowUtils.getWindow(true, false, "Taxonomy Browser");
@@ -213,31 +265,22 @@ public class HeaderContainer extends LayoutContainer {
 
 				// ((Button)be.getSource()).setSelected( false );
 			}
-		});
-		options.add(item);
+		}));
 
-		item = new MenuItem();
-		item.setIconStyle("icon-search");
-		item.setToolTip("Search for a Taxonomic Concept");
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
-				Window s = WindowUtils.getWindow(true, false, "Taxonomy Search");
-				s.setSize(800, 600);
-				LayoutContainer content = s;
-				content.setLayout(new FillLayout());
-				//FIXME: content.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomySearchPanel);
-				s.show();
+		options.add(createMenuItem("icon-search", "Search for a Taxonomic Concept", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				Window window = WindowUtils.getWindow(true, false, "Taxonomy Search");
+				window.setSize(800, 600);
+				window.setLayout(new FillLayout());
+				window.add(taxonomySearchPanel);
+				window.show();
 
 				// ((Button)be.getSource()).setSelected( false );
 			}
-		});
-		options.add(item);
-
-		item = new MenuItem();
-		item.setIconStyle("icon-prefs");
-		item.setToolTip("Administrative Tools");
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
+		}));
+		
+		options.add(createMenuItem("icon-prefs", "Administrative Tools", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				final TabPanel tf = new TabPanel();
 				tf.setTabScroll(true);
 				Window alert = WindowUtils.getWindow(true, false, "Administrative Tools");
@@ -256,8 +299,10 @@ public class HeaderContainer extends LayoutContainer {
 						tabItem.setIconStyle("icon-refresh");
 						tabItem.getHeader().addListener(Events.OnClick, new Listener<BaseEvent>() {
 							public void handleEvent(BaseEvent be) {
-								AssessmentCache.impl.resetCurrentAssessment();
-								TaxonomyCache.impl.resetCurrentTaxon();
+								/*AssessmentCache.impl.resetCurrentAssessment();
+								TaxonomyCache.impl.resetCurrentTaxon();*/
+								
+								StateManager.impl.reset();
 
 								TaxonomyCache.impl.clear();
 								AssessmentCache.impl.clear();
@@ -388,14 +433,10 @@ public class HeaderContainer extends LayoutContainer {
 					WindowUtils.errorAlert("Sorry, but you do not have permission to access to these tools.");
 				return;
 			}
-		});
-		options.add(item);
+		}));
 
-		item = new MenuItem();
-		item.setIconStyle("icon-find");
-		item.setToolTip("Find/Replace");
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
+		options.add(createMenuItem("icon-find", "Find/Replace", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.FIND_REPLACE_FEATURE)) {
 					Window nS = WindowUtils.getWindow(true, true, "Find and Replace");
 					nS.setSize(875, 600);
@@ -409,15 +450,10 @@ public class HeaderContainer extends LayoutContainer {
 					WindowUtils.errorAlert("This is a currently restricted to " + "administrative users only.");
 			}
 
-		});
-		options.add(item);
+		}));
 
-		item = new MenuItem();
-		item.setIconStyle("icon-trash");
-		item.setToolTip("Trash Bin");
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-
-			public void handleEvent(BaseEvent be) {
+		options.add(createMenuItem("icon-trash", "Trash Bin", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				Window nS = WindowUtils.getWindow(true, true, "Trash Bin");
 				nS.setSize(800, 550);
 				TrashBinPanel tbp = new TrashBinPanel();
@@ -426,15 +462,10 @@ public class HeaderContainer extends LayoutContainer {
 				nS.show();
 				// trashBinPanel.refresh();
 			}
-		});
-		options.add(item);
+		}));
 
-		item = new MenuItem();
-		item.setIconStyle("icon-page-copy");
-		item.setToolTip("Batch Change");
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-
-			public void handleEvent(BaseEvent be) {
+		options.add(createMenuItem("icon-page-copy", "Batch Change", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.BATCH_CHANGE_FEATURE)) {
 					WindowUtils.errorAlert("This is a currently restricted to " + "administrative users only.");
 				} else if (AssessmentCache.impl.getCurrentAssessment() == null) {
@@ -448,18 +479,11 @@ public class HeaderContainer extends LayoutContainer {
 					batchChangePanel.refresh();
 					nS.show();
 				}
-				// trashBinPanel.refresh();
 			}
-
-		});
-		options.add(item);
-
-		item = new MenuItem();
-		item.setIconStyle("icon-world-edit");
-		item.setToolTip("Edit Region List");
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-
-			public void handleEvent(BaseEvent be) {
+		}));
+		
+		options.add(createMenuItem("icon-world-edit", "Edit Region List", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.TAXON_FINDER_FEATURE)) {
 					WindowUtils.errorAlert("This is a currently restricted to administrative users only.");
 				} else {
@@ -468,19 +492,12 @@ public class HeaderContainer extends LayoutContainer {
 					nS.setLayout(new FitLayout());
 					nS.add(new RegionPanel());
 					nS.show();
-					// trashBinPanel.refresh();
 				}
 			}
+		}));
 
-		});
-		options.add(item);
-
-		item = new MenuItem();
-		item.setIconStyle("icon-book-edit");
-		item.setToolTip("Manage References");
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-
-			public void handleEvent(BaseEvent be) {
+		options.add(createMenuItem("icon-book-edit", "Manage References", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				final Window s = WindowUtils.getWindow(true, true, "Manage References");
 				s.setIconStyle("icon-book");
 				s.setLayout(new FitLayout());
@@ -490,16 +507,10 @@ public class HeaderContainer extends LayoutContainer {
 				s.show();
 				s.center();
 			}
-
-		});
-		options.add(item);
+		}));
 		
-		item = new MenuItem();
-		item.setIconStyle("icon-user-group");
-		item.setToolTip("Manage Users");
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-
-			public void handleEvent(BaseEvent be) {
+		options.add(createMenuItem("icon-user-group", "Manage Users", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				final Window s = WindowUtils.getWindow(true, true, "Manage Users");
 				s.setIconStyle("icon-user-group");
 				s.setLayout(new FitLayout());
@@ -539,20 +550,20 @@ public class HeaderContainer extends LayoutContainer {
 				s.show();
 				s.center();
 			}
-
-		});
-		options.add(item);
+		}));
 		
-		optionsButton.setMenu(options);
-
-		panel.add(optionsButton);
-		panel.add(namePanel);
-		panel.add(affiliationPanel);
-
-		return panel;
+		IconButton optionsIcon = new IconButton("icon-header-options");
+		optionsIcon.setSize(32, 32);
+		optionsIcon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				options.show(ce.getIconButton());
+			}
+		});
+		
+		return optionsIcon;
 	}
 
-	public void taxonChanged() {
+	/*public void taxonChanged() {
 		Assessment curAssessment = AssessmentCache.impl.getCurrentAssessment();
 		Taxon curNode = TaxonomyCache.impl.getCurrentTaxon();
 		WorkingSet curSet = WorkingSetCache.impl.getCurrentWorkingSet();
@@ -572,16 +583,17 @@ public class HeaderContainer extends LayoutContainer {
 			/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 					ClientUIContainer.bodyContainer.tabManager.taxonHomePage)) {
 				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(curNode.getId());
-			}*/
+			}*//*
 		} else
 			update();
-	}
+	}*/
 
 	public void update() {
 		//centerPanel.update();
+		centerPanel.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 	}
 
-	public void workingSetChanged() {
+	/*public void workingSetChanged() {
 		Taxon curNode = TaxonomyCache.impl.getCurrentTaxon();
 		WorkingSet curSet = WorkingSetCache.impl.getCurrentWorkingSet();
 
@@ -594,6 +606,6 @@ public class HeaderContainer extends LayoutContainer {
 		/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 				ClientUIContainer.bodyContainer.tabManager.workingSetPage)) {
 			ClientUIContainer.bodyContainer.tabManager.workingSetPage.workingSetChanged();
-		}*/
-	}
+		}*//*
+	}*/
 }

@@ -199,7 +199,8 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		@Override
 		public void onClose() {
 			if (hasChanged)
-				TaxonomyCache.impl.setCurrentTaxon(taxon);
+				//TaxonomyCache.impl.setCurrentTaxon(taxon);
+				ClientUIContainer.bodyContainer.refreshTaxonPage();
 				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
 		}
 		

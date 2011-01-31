@@ -61,6 +61,7 @@ public class ClientUIContainer extends Viewport {
 
 		BorderLayoutData headerData = new BorderLayoutData(LayoutRegion.NORTH);
 		headerData.setFloatable(true);
+		headerData.setCollapsible(true);
 		headerData.setSplit(true);
 		headerData.setMinSize(200);
 		headerData.setMaxSize(400);

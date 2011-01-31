@@ -9,15 +9,21 @@ public class StateChangeEvent {
 	private final WorkingSet workingSet;
 	private final Taxon taxon;
 	private final Assessment assessment;
+	private final Object source;
 	
 	private boolean canceled;
 	
-	public StateChangeEvent(WorkingSet workingSet, Taxon taxon, Assessment assessment) {
+	public StateChangeEvent(WorkingSet workingSet, Taxon taxon, Assessment assessment, Object source) {
 		this.workingSet = workingSet;
 		this.taxon = taxon;
 		this.assessment = assessment;
+		this.source = source;
 		
 		this.canceled = false;
+	}
+	
+	public Object getSource() {
+		return source;
 	}
 	
 	public Assessment getAssessment() {

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.ui.notes.NoteAPI;
 import org.iucn.sis.client.api.ui.notes.NotesWindow;
@@ -224,7 +225,8 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 					binder.addSelectionChangedListener(new SelectionChangedListener<TaxonListElement>() {
 						public void selectionChanged(SelectionChangedEvent<TaxonListElement> se) {
 							if (se.getSelectedItem() != null) {
-								TaxonomyCache.impl.setCurrentTaxon(se.getSelectedItem().getNode());
+								//TaxonomyCache.impl.setCurrentTaxon(se.getSelectedItem().getNode());
+								StateManager.impl.setState(null, se.getSelectedItem().getNode(), null);
 								//update(se.getSelectedItem().getNode().getId());
 							}
 						}
@@ -290,6 +292,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 		taxonImageWrapper.add(taxonImage);
 		
 		LayoutContainer vp = new LayoutContainer(new FlowLayout());
+		vp.add(createSpacer(10));
 		vp.add(taxonImageWrapper);
 		
 		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
@@ -322,7 +325,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 				}		
 			}
 		});
-		vp.add(createSpacer(40));
+		vp.add(createSpacer(20));
 		if (node.getLevel() >= TaxonLevel.SPECIES)
 			vp.add(new StyledHTML("<center><i>" + node.getFullName() + "</i></center>", "SIS_taxonSummaryHeader"));
 		else
@@ -333,7 +336,8 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 	
 	@Override
 	protected void updateSelection(Taxon selection) {
-		TaxonomyCache.impl.setCurrentTaxon(selection);
+		//TaxonomyCache.impl.setCurrentTaxon(selection);
+		StateManager.impl.setState(selection, null);
 	}
 	
 	private ToolBar buildToolBar() {
@@ -352,6 +356,8 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 						updatePanel(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 						ClientUIContainer.headerContainer.update();*/
 						//update(taxon.getParentId());
+						//StateManager.impl.setTaxon(arg0);
+						StateManager.impl.setState(null, arg0, null);
 					}
 				});
 			}
@@ -760,7 +766,8 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 			new ReferenceableTaxon(getSelectedItem(), new SimpleListener() {
 				public void handleEvent() {
 					//update(taxon.getId());
-					TaxonomyCache.impl.setCurrentTaxon(getSelectedItem());
+					//TaxonomyCache.impl.setCurrentTaxon(getSelectedItem());
+					ClientUIContainer.bodyContainer.refreshTaxonPage();
 				}
 			}), 
 			null, null
@@ -850,7 +857,8 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 		@Override
 		public void onClose() {
 			if (hasChanged)
-				TaxonomyCache.impl.setCurrentTaxon(taxon);
+				ClientUIContainer.bodyContainer.refreshTaxonPage();
+				//TaxonomyCache.impl.setCurrentTaxon(taxon);
 				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
 		}
 		

@@ -84,16 +84,18 @@ public class CommonNameDisplay implements Referenceable {
 					node.getCommonNames().add(commonName);
 				}
 
-				TaxonomyCache.impl.saveTaxonAndMakeCurrent(node, new GenericCallback<String>() {
+				TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {
-						ClientUIContainer.headerContainer.update();
+						//ClientUIContainer.headerContainer.update();
 						callback.onFailure(null);
+						ClientUIContainer.bodyContainer.refreshBody();
 						destroy();
 					};
 
 					public void onSuccess(String result) {
-						ClientUIContainer.headerContainer.update();
+						//ClientUIContainer.headerContainer.update();
 						callback.onSuccess(null);
+						ClientUIContainer.bodyContainer.refreshBody();
 						destroy();
 					};
 				});
@@ -262,9 +264,10 @@ public class CommonNameDisplay implements Referenceable {
 		}
 
 		if (added > 0) {
-			TaxonomyCache.impl.saveTaxonAndMakeCurrent(node, new GenericCallback<String>() {
+			TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
 				public void onSuccess(String result) {
 					//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+					ClientUIContainer.bodyContainer.refreshTaxonPage();
 					callback.onSuccess(result);
 				}
 			
@@ -280,11 +283,12 @@ public class CommonNameDisplay implements Referenceable {
 	}
 
 	public void onReferenceChanged(final GenericCallback<Object> callback) {
-		TaxonomyCache.impl.saveTaxonAndMakeCurrent(node, new GenericCallback<String>() {
+		TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
 		
 			@Override
 			public void onSuccess(String result) {
 				callback.onSuccess(result);		
+				ClientUIContainer.bodyContainer.refreshTaxonPage();
 			}
 		
 			@Override
@@ -308,9 +312,10 @@ public class CommonNameDisplay implements Referenceable {
 		// TODO: Find out why the removed count isn't moving correctly...?
 		// if (removed > 0)
 		// {
-		TaxonomyCache.impl.saveTaxonAndMakeCurrent(node, new GenericCallback<String>() {
+		TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
+				ClientUIContainer.bodyContainer.refreshTaxonPage();
 				callback.onSuccess(result);
 			}
 		
@@ -334,13 +339,14 @@ public class CommonNameDisplay implements Referenceable {
 					public void onYes() {
 						// node.getCommonNames().remove( name );
 						name.setChangeReason(CommonName.DELETED);
-						TaxonomyCache.impl.saveTaxonAndMakeCurrent(node, new GenericCallback<String>() {
+						TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
 							public void onFailure(Throwable caught) {
 								callback.onFailure(caught);
 							};
 	
 							public void onSuccess(String result) {
 								callback.onSuccess(null);
+								ClientUIContainer.bodyContainer.refreshTaxonPage();
 							};
 						});
 					}

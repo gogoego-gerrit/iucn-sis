@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -72,12 +73,13 @@ public class TaxonTreePopup extends Window {
 				
 				if (selected != null) {
 					TaxonomyCache.impl.fetchTaxonWithKingdom(footprint[0], selected.getText().substring(
-							selected.getText().indexOf(" ") + 1), true, new GenericCallback<Taxon>() {
+							selected.getText().indexOf(" ") + 1), new GenericCallback<Taxon>() {
 						public void onFailure(Throwable caught) {
 						}
 
 						public void onSuccess(Taxon result) {
 							//SISClientBase.getInstance().onTaxonChanged();
+							StateManager.impl.setState(null, result, null);
 						}
 					});
 
@@ -92,16 +94,13 @@ public class TaxonTreePopup extends Window {
 				WindowUtils.errorAlert("selected is " + selected);
 				if (selected != null) {
 					TaxonomyCache.impl.fetchTaxonWithKingdom(footprint[0], selected.getText().substring(
-							selected.getText().indexOf(" ") + 1), true, new GenericCallback<Taxon>() {
+							selected.getText().indexOf(" ") + 1), new GenericCallback<Taxon>() {
 						public void onFailure(Throwable caught) {
-							WindowUtils.errorAlert("on an error");
-							// TODO Auto-generated method stub
-
 						}
 
 						public void onSuccess(Taxon result) {
-							WindowUtils.errorAlert("on success");
-							SISClientBase.getInstance().onTaxonChanged();
+							//SISClientBase.getInstance().onTaxonChanged();
+							StateManager.impl.setState(null, result, null);
 						}
 					});
 

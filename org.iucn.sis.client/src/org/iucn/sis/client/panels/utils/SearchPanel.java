@@ -148,6 +148,12 @@ public class SearchPanel extends LayoutContainer {
 	public void resetSearchBox() {
 		searchBox.setText("");
 	}
+	
+	public void setSearchText(String text, boolean openAdvanced) {
+		searchBox.setText(text);
+		if (openAdvanced)
+			advancedOptions.expand();
+	}
 
 	protected void build() {
 		final RowData fillBoth = new RowData(1, 1);
@@ -242,8 +248,6 @@ public class SearchPanel extends LayoutContainer {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				if (!searchBox.getText().trim().equalsIgnoreCase("")) {
-					searchButton.setEnabled(false);
-					start = 0;
 					search(searchBox.getText());
 				}
 			}
@@ -437,11 +441,14 @@ public class SearchPanel extends LayoutContainer {
 		return execute(SearchEvents.BeforeSearch, new SearchEvent<String>(this, value));
 	}
 
-	private void search(String searchQuery) {
+	public void search(String searchQuery) {
 		if (onBeforeSearch(searchQuery)) {
 			searchButton.setEnabled(true);
 			return;
 		}
+		
+		start = 0;
+		searchButton.setEnabled(false);
 
 		final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
 		ndoc.post(UriBase.getInstance().getSISBase() +"/search", searchToXML(searchQuery), new GenericCallback<String>() {

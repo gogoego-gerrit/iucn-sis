@@ -485,17 +485,11 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	
 	protected Edit lastEdit;
 	public Edit getLastEdit() {
-		if (lastEdit == null) {
-			if (getEdit().size() > 1) {
-				List<Edit> edits = new ArrayList<Edit>();
-				for (Edit edit : getEdit()) {
-					edits.add(edit);
-				}
-				Collections.sort(edits);
-				lastEdit = edits.get(0);
-			} else if (getEdit().size() == 1) {
-				lastEdit = getEdit().iterator().next();
-			}			
+		if (lastEdit == null && getEdit() != null && !getEdit().isEmpty()) {
+			List<Edit> edits = new ArrayList<Edit>(getEdit());
+			Collections.sort(edits, Collections.reverseOrder());
+			
+			lastEdit = edits.get(0);
 		}
 		return lastEdit;
 		
@@ -667,6 +661,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 
 	public void setEdit(java.util.Set<Edit> value) {
 		this.edit = value;
+		lastEdit = null;
 	}
 
 	public java.util.Set<Edit> getEdit() {

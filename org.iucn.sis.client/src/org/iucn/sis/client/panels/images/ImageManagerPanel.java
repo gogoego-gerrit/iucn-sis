@@ -6,6 +6,7 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.ui.models.image.ManagedImage;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.utils.FileUploadWidget;
 import org.iucn.sis.shared.api.models.Taxon;
 
@@ -511,7 +512,8 @@ public class ImageManagerPanel extends LayoutContainer {
 				WindowUtils.errorAlert("Could not save image details, please try again later.");
 			}
 			public void onSuccess(String result) {
-				TaxonomyCache.impl.setCurrentTaxon(taxon);
+				//TaxonomyCache.impl.setCurrentTaxon(taxon);
+				ClientUIContainer.bodyContainer.refreshBody();
 				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(Integer.valueOf(groupingId));
 				update(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 			}

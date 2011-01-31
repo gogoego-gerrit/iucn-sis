@@ -9,6 +9,7 @@ import java.util.Set;
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.GenericLazyPagingLoader;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -751,7 +752,8 @@ public class LegacyReferenceViewPanel extends TabPanel {
 												}
 											});
 										} catch (InsufficientRightsException e) {
-											AssessmentCache.impl.resetCurrentAssessment();
+											//AssessmentCache.impl.resetCurrentAssessment();
+											StateManager.impl.setState(null);
 											doReplace(reference, fromStore, returnedRef, null, null);
 										}
 										

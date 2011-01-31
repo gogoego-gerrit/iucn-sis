@@ -142,7 +142,14 @@ public class AssessmentType implements Serializable {
 	}
 	
 	public String getDisplayName() {
-		return getName().replace("_status", "");
+		return getDisplayName(false);
+	}
+	
+	public String getDisplayName(boolean capitalize) {
+		String name = getName().replace("_status", "");
+		if (capitalize)
+			name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
+		return name;
 	}
 	
 }

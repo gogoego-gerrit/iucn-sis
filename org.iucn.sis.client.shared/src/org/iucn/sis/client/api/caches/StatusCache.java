@@ -162,7 +162,7 @@ public class StatusCache {
 		if (ndoc != null) {
 			Assessment updatedAssessment = Assessment.fromXML(ndoc.getDocumentElement().getElementByTagName("assessment"));
 			AssessmentCache.impl.addAssessment(updatedAssessment);
-			AssessmentCache.impl.setCurrentAssessment(updatedAssessment);
+			//AssessmentCache.impl.setCurrentAssessment(updatedAssessment);
 
 			Info.display("Updated", "Changes to this assessment were found on the server, "
 					+ "and were used to update your copy.");

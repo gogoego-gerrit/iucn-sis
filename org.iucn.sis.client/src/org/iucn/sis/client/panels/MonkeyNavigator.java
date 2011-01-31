@@ -13,10 +13,12 @@ import org.iucn.sis.client.api.caches.MarkedCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.TaxonPagingLoader;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.workingsets.WorkingSetSubscriber;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -31,6 +33,7 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.binder.DataListBinder;
 import com.extjs.gxt.ui.client.data.ModelStringProvider;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.DataListEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -41,10 +44,10 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -54,7 +57,7 @@ import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
-import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
@@ -68,7 +71,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 	//private static final int NAVIGATOR_SIZE = 225 + 25;
 	
 	private final DataList workingSetList, taxonList, assessmentList;
-	private final ContentPanel workingSetContainer, taxonContainer, assessmentContainer;
+	private final MonkeyNavigatorPanel workingSetContainer, taxonContainer, assessmentContainer;
 	
 	private final ListStore<TaxonListElement> taxonListStore;
 	private final TaxonPagingLoader taxonPagingLoader;
@@ -83,6 +86,8 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 	private Taxon curNavTaxon;
 	private Assessment curNavAssessment;
 	
+	private boolean isDrawn;
+	
 	public MonkeyNavigator() {
 		super();
 		setBorders(false);
@@ -92,10 +97,14 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		setStyleName("navigator");
 		//setSize(com.google.gwt.user.client.Window.getClientWidth() - 20, NAVIGATOR_SIZE);
 		setLayout(new FillLayout());
+		setLayoutOnChange(true);
 		
-		workingSetContainer = new ContentPanel(new FillLayout());
+		isDrawn = false;
+		
+		workingSetContainer = new MonkeyNavigatorPanel(new FillLayout());
 		workingSetContainer.setHeading("Working Sets");
 		workingSetList = new DataList();
+		workingSetList.setBorders(false);
 		workingSetList.setSelectionMode(SelectionMode.SINGLE);
 		//workingSetList.setHeight(LIST_SIZE);
 		workingSetList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
@@ -107,12 +116,13 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 				markWorkingSet(item, ce.getItem().getItemId());
 			}
 		}));
+		setupWorkingSetsToolbar();
 		
-		taxonContainer = new ContentPanel(new FillLayout());
+		taxonContainer = new MonkeyNavigatorPanel(new FillLayout());
 		taxonContainer.setHeading("Taxon List");
 		taxonList = new DataList();
 		taxonList.setSelectionMode(SelectionMode.SINGLE);
-		//taxonList.setHeight(LIST_SIZE);
+		taxonList.setBorders(false);
 		taxonList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				DataListItem item = taxonList.getSelectedItem();
@@ -149,12 +159,13 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 				return style;
 			}
 		});
+		setupTaxonToolbar();
 		
-		assessmentContainer = new ContentPanel(new FillLayout());
+		assessmentContainer = new MonkeyNavigatorPanel(new FillLayout());
 		assessmentContainer.setHeading("Assessments");
 		assessmentList = new DataList();
 		assessmentList.setSelectionMode(SelectionMode.SINGLE);
-		//assessmentList.setHeight(LIST_SIZE);
+		assessmentList.setBorders(false);
 		assessmentList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				DataListItem item = assessmentList.getSelectedItem();
@@ -164,6 +175,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 				markAssessment(item, ce.getItem().getItemId());
 			}
 		}));
+		setupAssessmentsToolbar();
 	}
 	
 	/*@Override
@@ -197,39 +209,46 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 	}*/
 	
 	public void draw(final DrawsLazily.DoneDrawingCallback callback) {
+		selectedWorkingSet = null;
+		selectedTaxon = null;
+		selectedAssessment = null;
+		
 		curNavWorkingSet = WorkingSetCache.impl.getCurrentWorkingSet();
 		curNavTaxon = TaxonomyCache.impl.getCurrentTaxon();
 		curNavAssessment = AssessmentCache.impl.getCurrentAssessment();
 		
-		drawTaxa(new DoneDrawingCallbackWithParam<LayoutContainer>() {
+		drawTaxa(curNavWorkingSet, new DoneDrawingCallbackWithParam<LayoutContainer>() {
 			public void isDrawn(final LayoutContainer taxa) {
-				drawAssessments(new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
+				drawAssessments(curNavTaxon, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
 					public void isDrawn(LayoutContainer assessments) {
+						workingSetContainer.removeAll();
+						taxonContainer.removeAll();
+						assessmentContainer.removeAll();
+						
 						workingSetContainer.add(drawWorkingSets());
 						taxonContainer.add(taxa);
 						assessmentContainer.add(assessments);
 						
-						workingSetContainer.setLayoutOnChange(true);
-						taxonContainer.setLayoutOnChange(true);
-						assessmentContainer.setLayoutOnChange(true);
-						
-						setSelectionAndAddListeners();
+						setSelectionAndAddListeners(!isDrawn);
 						
 						final LayoutContainer container = new LayoutContainer(new BorderLayout());
 						container.add(workingSetContainer, new BorderLayoutData(LayoutRegion.WEST, .30f, 5, 4000));
 						container.add(taxonContainer, new BorderLayoutData(LayoutRegion.CENTER, .37f, 5, 4000));
 						container.add(assessmentContainer, new BorderLayoutData(LayoutRegion.EAST, .33f, 5, 4000));
 						
+						removeAll();
 						add(container);
 						
-						callback.isDrawn();	
+						isDrawn = true;
+						
+						callback.isDrawn();
 					}
 				});
 			}
 		});
 	}
 	
-	public void setSelectionAndAddListeners() {
+	public void setSelectionAndAddListeners(boolean addListeners) {
 		if (selectedWorkingSet != null)
 			workingSetList.setSelectedItem(selectedWorkingSet);
 		else
@@ -257,14 +276,15 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		if (selectedAssessment != null)
 			assessmentList.setSelectedItem(selectedAssessment);
 		
+		if (!addListeners)
+			return;
+		
 		workingSetList.addListener(Events.SelectionChange, new Listener<DataListEvent>() {
 			public void handleEvent(DataListEvent be) {
 				if (be.getSelected().isEmpty())
 					return;
 				
 				DataListItem item = be.getSelected().get(0);
-				if (item.getData("workingSet") == null)
-					return;
 				
 				curNavWorkingSet = (WorkingSet) item.getData("workingSet");
 				curNavTaxon = null;
@@ -273,7 +293,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 				taxonContainer.removeAll();
 				assessmentContainer.removeAll();
 				
-				drawTaxa(new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
+				drawTaxa(curNavWorkingSet, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
 					public void isDrawn(LayoutContainer parameter) {
 						taxonContainer.add(parameter);
 					}
@@ -290,12 +310,12 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 				if (item.getData("taxon") == null)
 					return;
 				
-				curNavTaxon = (Taxon) be.getItem().getData("taxon");
+				curNavTaxon = (Taxon) item.getData("taxon");
 				curNavAssessment = null;
 				
 				assessmentContainer.removeAll();
 				
-				drawAssessments(new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
+				drawAssessments(curNavTaxon, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
 					public void isDrawn(LayoutContainer parameter) {
 						assessmentContainer.add(parameter);
 					}
@@ -311,7 +331,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 					
 					assessmentContainer.removeAll();
 					
-					drawAssessments(new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
+					drawAssessments(curNavTaxon, new DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer>() {
 						public void isDrawn(LayoutContainer parameter) {
 							assessmentContainer.add(parameter);
 						}
@@ -370,7 +390,127 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		item.addStyleName(color);
 	}
 	
+	private void setupWorkingSetsToolbar() {
+		final IconButton goToSet = createIconButton("icon-go-jump", "Open Working Set", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				if (workingSetList.getSelectedItem() != null) {
+					WorkingSet selected = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
+					if (selected != null) {
+						navigate(selected, null, null);
+						/*WorkingSetCache.impl.setCurrentWorkingSet(selected.getId(), true, new SimpleListener() {
+							public void handleEvent() {
+								
+								//hide();								
+							}
+						});*/
+					}
+				}
+			}
+		});
+		
+		workingSetContainer.addTool(createIconButton("icon-add", "Add New Working Set", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				// TODO Create new working set
+				WindowUtils.infoAlert("Coming soon...");
+			}
+		}));
+		workingSetContainer.addTool(new SeparatorToolItem());
+		workingSetContainer.addTool(goToSet);
+		workingSetContainer.addTool(createIconButton("icon-information", "Working Set Details", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				if (workingSetList.getSelectedItem() == null)
+					WindowUtils.errorAlert("Please select a working set.");
+				
+				final WorkingSet ws = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
+				if (ws == null)
+					return;
+					
+				final Window s = WindowUtils.getWindow(false, true, ws.getWorkingSetName());
+				s.setLayout(new FillLayout());
+				s.setTitle(ws.getWorkingSetName());
+				s.setSize(600, 400);
+				
+				final Grid table = new Grid(5, 2);
+				table.setCellSpacing(4);
+
+				// IF THERE ARE SPECIES TO GET
+				if (ws.getSpeciesIDs().size() > 0) {
+					WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, new GenericCallback<List<Taxon>>() {
+						public void onFailure(Throwable caught) {
+							table.setHTML(0, 0, "<b>Manager: </b>");
+							table.setHTML(0, 1, ws.getCreator().getUsername());
+							table.setHTML(1, 0, "<b>Date: </b>");
+							table.setHTML(1, 1, FormattedDate.impl.getDate(ws.getCreatedDate()));
+							table.setHTML(2, 0, "<b>Number of Species: </b>");
+							table.setHTML(2, 1, "" + ws.getSpeciesIDs().size());
+							table.setHTML(3, 0, "<b>Description: </b>");
+							table.setHTML(3, 1, ws.getDescription());
+							s.layout();
+						};
+
+						public void onSuccess(List<Taxon> arg0) {
+							table.setHTML(0, 0, "<b>Manager: </b>");
+							table.setHTML(0, 1, ws.getCreator().getUsername());
+							table.setHTML(1, 0, "<b>Date: </b>");
+							table.setHTML(1, 1, FormattedDate.impl.getDate(ws.getCreatedDate()));
+							table.setHTML(2, 0, "<b>Number of Species: </b>");
+							table.setHTML(2, 1, "" + ws.getSpeciesIDs().size());
+
+							String species = "";
+							for (Taxon taxon : arg0) {
+								species += taxon.getFullName() + ", ";
+							}
+							if (species.length() > 0) {
+								table.setHTML(3, 0, "<b>Species: </b>");
+								table.setHTML(3, 1, species.substring(0, species.length() - 2));
+								table.setHTML(4, 0, "<b>Description: </b>");
+								table.setHTML(4, 1, ws.getDescription());
+							} else {
+								table.setHTML(3, 0, "<b>Description: </b>");
+								table.setHTML(3, 1, ws.getDescription());
+							}
+							s.add(table);
+							s.show();
+						};
+					});
+				}
+				// ELSE LOAD NO SPECIES
+				else {
+					table.setHTML(0, 0, "There are no species in the " + ws.getWorkingSetName() + " working set.");
+					s.add(table);
+					
+					s.show();
+				}
+				
+			}
+		}));
+		workingSetContainer.addTool(createIconButton("icon-image", "Download Working Set", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				// TODO Auto-generated method stub
+				
+			}
+		}));
+		workingSetContainer.addTool(createIconButton("icon-favorite", "Subscribe to Working Set", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				final WorkingSetSubscriber panel = new WorkingSetSubscriber();
+				
+				Window window = new Window();
+				window.setLayout(new FillLayout());
+				window.setSize(700, 500);
+				window.setHeading("Subscribe to Working Set");
+				window.addListener(Events.Show, new Listener<BaseEvent>() {
+					public void handleEvent(BaseEvent be) {
+						panel.refresh();
+					}
+				});
+				window.add(panel);
+				window.show();
+			}
+		}));
+	}
+	
 	public LayoutContainer drawWorkingSets() {
+		workingSetList.removeAll();
 		workingSetList.add(new DataListItem("&lt;None&gt;"));
 		
 		for (WorkingSet cur : WorkingSetCache.impl.getWorkingSets().values()) {
@@ -384,56 +524,10 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 				selectedWorkingSet = curItem;
 		}
 		
-		final IconButton goToSet = createIconButton("icon-go-jump", "Open Working Set", new SelectionListener<IconButtonEvent>() {
-			public void componentSelected(IconButtonEvent ce) {
-				Debug.println("In jump; selected item is {0}", workingSetList.getSelectedItem());
-				if (workingSetList.getSelectedItem() != null) {
-					WorkingSet selected = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
-					Debug.println("Selected item is {0}", selected);
-					if (selected != null) {
-						WorkingSetCache.impl.setCurrentWorkingSet(selected.getId(), true, new SimpleListener() {
-							public void handleEvent() {
-								/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
-										ClientUIContainer.bodyContainer.tabManager.workingSetPage))
-									ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
-								else
-									ClientUIContainer.bodyContainer
-									.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);*/
-
-								//hide();								
-							}
-						});
-					}
-				}
-			}
-		});
-		
-		ToolBar toolBar = new ToolBar();
-		toolBar.add(createIconButton("icon-folder-add", "Add New Working Set", new SelectionListener<IconButtonEvent>() {
-			public void componentSelected(IconButtonEvent ce) {
-				// TODO Create new working set
-				WindowUtils.infoAlert("Coming soon...");
-			}
-		}));
-		toolBar.add(goToSet);
-		toolBar.add(createIconButton("icon-image", "Download Working Set", new SelectionListener<IconButtonEvent>() {
-			public void componentSelected(IconButtonEvent ce) {
-				// TODO Auto-generated method stub
-				
-			}
-		}));
-		toolBar.add(createIconButton("icon-image", "Subscribe to Working Set", new SelectionListener<IconButtonEvent>() {
-			public void componentSelected(IconButtonEvent ce) {
-				// TODO Auto-generated method stub
-				
-			}
-		}));
-		
-		LayoutContainer sets = new LayoutContainer();
+		LayoutContainer sets = new LayoutContainer(new FillLayout());
 		sets.setScrollMode(Scroll.NONE);
+		sets.setBorders(false);
 		sets.add(workingSetList);
-		
-		workingSetContainer.getHeader().addTool(toolBar);
 		
 		return sets;
 	}
@@ -446,23 +540,27 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		return button;
 	}
 	
-	public void drawTaxa(final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
+	private void setupTaxonToolbar() {
 		final Button goToTaxon = new Button();
 		goToTaxon.setIconStyle("icon-go-jump");
 		goToTaxon.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
 					public void handleEvent() {
-						if (curNavWorkingSet != null)
-							WorkingSetCache.impl.setCurrentWorkingSet(curNavWorkingSet.getId(), false);
-						
-						Taxon selected = (Taxon) taxonList.getSelectedItem().getData("taxon");
+						Taxon selected = null;
+						if (taxonList.getSelectedItem() != null)
+							selected = (Taxon) taxonList.getSelectedItem().getData("taxon");
 
 						if (selected == null && taxonListBinder != null && taxonListBinder.getSelection().size() > 0)
 							selected = taxonListBinder.getSelection().get(0).getNode();
 
 						if (selected != null) {
-							TaxonomyCache.impl.setCurrentTaxon(selected, false);
+							WorkingSet curWorkingSet = null;
+							if (curNavWorkingSet != null)
+								curWorkingSet = WorkingSetCache.impl.getWorkingSet(curNavWorkingSet.getId());
+							
+							navigate(curWorkingSet, selected, null);
+							//TaxonomyCache.impl.setCurrentTaxon(selected, false);
 
 							/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 									ClientUIContainer.bodyContainer.tabManager.taxonHomePage))
@@ -478,6 +576,10 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 			}
 		});
 		
+		taxonContainer.addTool(goToTaxon);
+	}
+	
+	public void drawTaxa(WorkingSet curNavWorkingSet, final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
 		/**
 		 * By default, show recently assessed taxa.  Why, I don't know, 
 		 * since it's on the homepage...
@@ -502,19 +604,9 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 						taxonToSelect = taxonList.getItem(taxonList.getItemCount() - 1);*/
 				}
 				
-				ToolBar toolBar = new ToolBar();
-				toolBar.add(new SeparatorToolItem());
-				toolBar.add(goToTaxon);
-				toolBar.add(new Button("Open Taxon", new SelectionListener<ButtonEvent>() {
-					public void componentSelected(ButtonEvent ce) {
-						goToTaxon.fireEvent(Events.Select);
-					};
-				}));
-				
-				final LayoutContainer taxa = new LayoutContainer();
+				final LayoutContainer taxa = new LayoutContainer(new FillLayout());
 				taxa.setScrollMode(Scroll.NONE);
 				taxa.add(taxonList);
-				taxa.add(toolBar);
 				
 				callback.isDrawn(taxa);
 			}
@@ -527,15 +619,6 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 			
 			taxonPagingToolBar = new PagingToolBar(40);
 			taxonPagingToolBar.bind(taxonPagingLoader.getPagingLoader());
-			
-			Button jump = new Button();
-			jump.addSelectionListener(new SelectionListener<ButtonEvent>() {
-				public void componentSelected(ButtonEvent ce) {
-					goToTaxon.fireEvent(Events.Select);
-				}
-			});
-			jump.setIconStyle("icon-go-jump");
-			taxonPagingToolBar.add(jump);
 			
 			final List<Integer> speciesIDs = 
 				curNavWorkingSet.getSpeciesIDs();
@@ -592,6 +675,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 								WindowUtils.hideLoadingAlert();
 								
 								final LayoutContainer taxa = new LayoutContainer(new BorderLayout());
+								taxa.setBorders(false);
 								taxa.setScrollMode(Scroll.NONE);
 								taxa.add(taxonList, new BorderLayoutData(LayoutRegion.CENTER));
 								taxa.add(taxonPagingToolBar, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
@@ -623,14 +707,62 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		return taxa;
 	}
 	
-	private void drawAssessments(final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
-		final LayoutContainer assessments = new LayoutContainer();
-		assessments.setScrollMode(Scroll.NONE);
-		assessmentList.removeAll();
+	private void setupAssessmentsToolbar() {
+		final Button jump = new Button();
+		jump.setIconStyle("icon-go-jump");
+		jump.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+					public void handleEvent() {
+						WorkingSet selectedSet = null;
+						if (workingSetList.getSelectedItem() != null) {
+							selectedSet = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
+							/*if (selectedSet != null)
+								WorkingSetCache.impl.setCurrentWorkingSet(selectedSet.getId(), false);*/
+						}
+						
+						/*
+						 * Don't need to do this, since this will happen when the assessment 
+						 * changes.
+						 */
+						Taxon selectedTaxon = null;
+						if (taxonList.getSelectedItem() != null)
+							selectedTaxon = (Taxon) taxonList.getSelectedItem().getData("taxon");
+
+						if (selectedTaxon == null && taxonListBinder != null && taxonListBinder.getSelection().size() > 0)
+							selectedTaxon = taxonListBinder.getSelection().get(0).getNode();
+						
+						Assessment selected = (Assessment) assessmentList.getSelectedItem().getData("assessment");
+						if (selected != null) {
+							//AssessmentCache.impl.setCurrentAssessment(selected, false);
+							navigate(selectedSet, selectedTaxon, selected);
+
+							/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
+									ClientUIContainer.bodyContainer.tabManager.assessmentEditor))
+								ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
+							else
+								ClientUIContainer.bodyContainer
+								.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/
+
+							//hide();
+						}
+					}
+				});
+			}
+		});
+
+		assessmentContainer.addTool(jump);	
+	}
+	
+	private void drawAssessments(final Taxon curNavTaxon, final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
 		if (curNavTaxon == null) {
 			HTML header = new HTML("Please select a taxon.");
 			header.addStyleName("bold");
 			header.addStyleName("color-dark-blue");
+			
+			final LayoutContainer assessments = new LayoutContainer();
+			assessments.setBorders(false);
+			assessments.setScrollMode(Scroll.NONE);
 			assessments.add(header);
 
 			callback.isDrawn(assessments);
@@ -638,6 +770,11 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 			AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, curNavTaxon.getId()), 
 					new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
+					final LayoutContainer assessments = new LayoutContainer();
+					assessments.setBorders(false);
+					assessments.setScrollMode(Scroll.NONE);
+					assessments.add(new HTML("Failed to load assessments"));
+					
 					callback.isDrawn(assessments);
 				}
 
@@ -645,6 +782,8 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 					List<Assessment> draftAssessments =
 						new ArrayList<Assessment>(AssessmentCache.impl.getDraftAssessmentsForTaxon(curNavTaxon.getId()));
 
+					assessmentList.removeAll();
+					
 					if (draftAssessments.size() > 0) {
 						DataListItem curItem = new DataListItem("Draft Assessment(s)");
 						curItem.setEnabled(false);
@@ -732,73 +871,29 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 					if (selected != null)
 						assessmentList.setSelectedItem(selected);
 
+					final LayoutContainer assessments = new LayoutContainer();
+					assessments.setLayout(new FillLayout());
+					assessments.setBorders(false);
+					assessments.setScrollMode(Scroll.NONE);
+					
 					if (assessmentList.getItemCount() == 0) {
 						HTML header = new HTML("No assessments available.");
 						header.addStyleName("bold");
 						header.addStyleName("color-dark-blue");
 						
 						assessments.add(header);
-
-						callback.isDrawn(assessments);
 					} else {
-						final Button jump = new Button();
-						jump.setIconStyle("icon-go-jump");
-						jump.addSelectionListener(new SelectionListener<ButtonEvent>() {
-							public void componentSelected(ButtonEvent ce) {
-								AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
-									public void handleEvent() {
-										if (workingSetList.getSelectedItem() != null) {
-											WorkingSet selectedSet = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
-											if (selectedSet != null)
-												WorkingSetCache.impl.setCurrentWorkingSet(selectedSet.getId(), false);
-										}
-										
-										/*
-										 * Don't need to do this, since this will happen when the assessment 
-										 * changes.
-										 */
-										/*
-										if (taxonList.getSelectedItem() != null) {
-											Taxon selectedTaxon = (Taxon) taxonList.getSelectedItem().getData("taxon");
-											if (selectedTaxon != null)
-												TaxonomyCache.impl.setCurrentTaxon(selectedTaxon, false);
-										}
-										*/
-										Assessment selected = (Assessment) assessmentList.getSelectedItem().getData("assessment");
-										if (selected != null) {
-											AssessmentCache.impl.setCurrentAssessment(selected, false);
-
-											/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
-													ClientUIContainer.bodyContainer.tabManager.assessmentEditor))
-												ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
-											else
-												ClientUIContainer.bodyContainer
-												.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/
-
-											//hide();
-										}
-									}
-								});
-							}
-						});
-
-						ToolBar toolBar = new ToolBar();
-						toolBar.add(new SeparatorToolItem());
-						toolBar.add(jump);
-						toolBar.add(new Button("Open Assessment", new SelectionListener<ButtonEvent>() {
-							public void componentSelected(ButtonEvent ce) {
-								jump.fireEvent(Events.Select);
-							};
-						}));
-						
 						assessments.add(assessmentList);
-						assessments.add(toolBar);
-
-						callback.isDrawn(assessments);
 					}
+					
+					callback.isDrawn(assessments);
 				}
 			});
 		}
+	}
+	
+	private void navigate(WorkingSet ws, Taxon taxon, Assessment assessment) {
+		StateManager.impl.setState(ws, taxon, assessment);
 	}
 	
 	public static class TaxonDataListBinder extends DataListBinder<TaxonListElement> {

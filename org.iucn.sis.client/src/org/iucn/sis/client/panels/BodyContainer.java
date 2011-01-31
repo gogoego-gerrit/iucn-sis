@@ -38,16 +38,18 @@ public class BodyContainer extends LayoutContainer {
 	public BodyContainer() {
 		super(new FillLayout());
 		setLayoutOnChange(true);
+		addStyleName("gwt-background");
+		addStyleName("sis_bodyContainer");
 
 		homePage = new HomePageTab();
 		workingSetPage = new WorkingSetPage();
 		taxonHomePage = new TaxonHomePageTab();
 		assessmentPage = new DEMPanel();
 		
-		openHomePage();
+		openHomePage(false);
 	}
 	
-	public void openWorkingSet() {
+	public void openWorkingSet(final boolean updateNavigation) {
 		workingSetPage.setItems(new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values()));
 		workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet());
 		workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
@@ -56,11 +58,14 @@ public class BodyContainer extends LayoutContainer {
 				add(workingSetPage);
 				
 				current = workingSetPage;
+				
+				if (updateNavigation)
+					updateNavigation();
 			}
 		});
 	}
 	
-	public void openTaxon() {
+	public void openTaxon(final boolean updateNavigation) {
 		final GenericCallback<List<Taxon>> callback = new GenericCallback<List<Taxon>>() {
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
@@ -75,6 +80,9 @@ public class BodyContainer extends LayoutContainer {
 						add(taxonHomePage);
 						
 						current = taxonHomePage;
+						
+						if (updateNavigation)
+							updateNavigation();
 					}
 				});	
 			}
@@ -82,14 +90,14 @@ public class BodyContainer extends LayoutContainer {
 		
 		WorkingSet ws = StateManager.impl.getWorkingSet();
 		if (ws == null)
-			callback.onSuccess(TaxonomyCache.impl.getRecentlyAccessed());
+			callback.onSuccess(new ArrayList<Taxon>(TaxonomyCache.impl.getRecentlyAccessed()));
 		else {
 			WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, callback);
 		}
 		
 	}
 	
-	public void openAssessment() {
+	public void openAssessment(final boolean updateNavigation) {
 		AssessmentFetchRequest request = new AssessmentFetchRequest(null, StateManager.impl.getTaxon().getId());
 		AssessmentCache.impl.fetchAssessments(request, new GenericCallback<String>() {
 			public void onSuccess(String result) {
@@ -106,6 +114,9 @@ public class BodyContainer extends LayoutContainer {
 						add(assessmentPage);
 						
 						current = assessmentPage;
+						
+						if (updateNavigation)
+							updateNavigation();
 					}
 				});
 			}			
@@ -115,10 +126,22 @@ public class BodyContainer extends LayoutContainer {
 		});
 	}
 	
-	public void openHomePage() {
+	public void openHomePage(boolean updateNavigation) {
 		removeAll();
 		
 		add(homePage);
+		
+		if (updateNavigation)
+			updateNavigation();
+	}
+	
+	private void updateNavigation() {
+		ClientUIContainer.headerContainer.update();
+	}
+	
+	public void refreshTaxonPage() {
+		if (taxonHomePage == current)
+			refreshBody();
 	}
 	
 	public void refreshBody() {

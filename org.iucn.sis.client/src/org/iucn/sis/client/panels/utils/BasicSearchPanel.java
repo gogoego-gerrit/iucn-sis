@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.utils;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.models.Taxon;
 
@@ -10,14 +11,16 @@ import com.solertium.lwxml.shared.GenericCallback;
 
 public class BasicSearchPanel extends SearchPanel {
 	
-	public BasicSearchPanel(final PanelManager manager) {
+	public BasicSearchPanel() {
 		super();
 		addBeforeSearchListener(new Listener<SearchEvent<String>>() {
 			public void handleEvent(SearchEvent<String> be) {
 				if (be.getValue().matches("^[0-9]+$")) {
 					Taxon taxon = TaxonomyCache.impl.getTaxon(be.getValue());
-					if (taxon != null)
-						TaxonomyCache.impl.setCurrentTaxon(taxon);
+					if (taxon != null) {
+						StateManager.impl.setTaxon(taxon);
+						//TaxonomyCache.impl.setCurrentTaxon(taxon);
+					}
 					//manager.taxonomicSummaryPanel.update(Integer.valueOf(be.getValue()));
 					WindowManager.get().hideAll();
 				}
@@ -29,7 +32,8 @@ public class BasicSearchPanel extends SearchPanel {
 					public void onFailure(Throwable caught) {
 					}
 					public void onSuccess(Taxon result) {
-						TaxonomyCache.impl.setCurrentTaxon(result);
+						//TaxonomyCache.impl.setCurrentTaxon(result);
+						StateManager.impl.setTaxon(result);
 						//manager.taxonomicSummaryPanel.update(be.getValue());
 						WindowManager.get().hideAll();
 					}

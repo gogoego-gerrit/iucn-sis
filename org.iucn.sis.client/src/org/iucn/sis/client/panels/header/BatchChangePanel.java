@@ -9,6 +9,7 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
@@ -376,7 +377,8 @@ public class BatchChangePanel extends LayoutContainer {
 								}
 							}
 							AssessmentCache.impl.clear();
-							AssessmentCache.impl.resetCurrentAssessment();
+							//AssessmentCache.impl.resetCurrentAssessment();
+							StateManager.impl.setState(null);
 
 							WindowUtils.hideLoadingAlert();
 							LayoutContainer innerContainer = new LayoutContainer();
