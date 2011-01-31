@@ -8,9 +8,11 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.data.WorkingSetParser;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -58,8 +60,6 @@ public class WorkingSetCache {
 	 */
 	private Map<Integer, WorkingSet> workingSets;
 
-	private WorkingSet currentWorkingSet;
-
 	/**
 	 * an arraylist of working set data that is possible to subscribe to.
 	 */
@@ -67,7 +67,6 @@ public class WorkingSetCache {
 
 	private WorkingSetCache() {
 		workingSets = new HashMap<Integer, WorkingSet>();
-		currentWorkingSet = null;
 		subscribableWorkingSets = new ArrayList<WorkingSet>();
 	}
 
@@ -189,7 +188,6 @@ public class WorkingSetCache {
 
 	public void doLogout() {
 		workingSets.clear();
-		currentWorkingSet = null;
 	}
 
 	public void editWorkingSet(final WorkingSet ws, final GenericCallback<String> wayback) {
@@ -293,7 +291,7 @@ public class WorkingSetCache {
 					+ "the working set is not in your working sets"));
 	}
 
-	public void fetchTaxaForWorkingSet(final WorkingSet ws, final GenericCallback<String> wayback) {
+	public void fetchTaxaForWorkingSet(final WorkingSet ws, final GenericCallback<List<Taxon>> wayback) {
 		TaxonomyCache.impl.fetchList(ws.getSpeciesIDs(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				wayback.onFailure(caught);
@@ -301,15 +299,18 @@ public class WorkingSetCache {
 
 			public void onSuccess(String arg0) {
 				List<Integer> toRemove = new ArrayList<Integer>();
+				List<Taxon> result = new ArrayList<Taxon>();
 				for (Integer cur : ws.getSpeciesIDs()) {
 					if (!TaxonomyCache.impl.contains(cur))
 						toRemove.add(cur);
+					else
+						result.add(TaxonomyCache.impl.getTaxon(cur));
 				}
 
 				if (toRemove.size() > 0)
 					ws.getSpeciesIDs().removeAll(toRemove);
 
-				wayback.onSuccess(arg0);
+				wayback.onSuccess(result);
 			}
 		});
 	}
@@ -346,10 +347,6 @@ public class WorkingSetCache {
 		});
 	}
 
-	public WorkingSet getCurrentWorkingSet() {
-		return currentWorkingSet;
-	}
-
 	public int getNumberOfWorkingSets() {
 		return workingSets.size();
 	}
@@ -370,6 +367,10 @@ public class WorkingSetCache {
 
 	public Map<Integer, WorkingSet> getWorkingSets() {
 		return workingSets;
+	}
+	
+	public WorkingSet getCurrentWorkingSet() {
+		return StateManager.impl.getWorkingSet();
 	}
 
 	/**
@@ -398,6 +399,8 @@ public class WorkingSetCache {
 	}
 
 	public void setCurrentWorkingSet(final WorkingSet ws, boolean saveIfNecessary, final SimpleListener afterChange) {
+		WorkingSet currentWorkingSet = StateManager.impl.getWorkingSet();
+		
 		boolean changeNeeded = ((currentWorkingSet == null && ws != null) || 
 				(currentWorkingSet != null && ws == null) || 
 				(currentWorkingSet != null && ws != null && !currentWorkingSet.equals(ws)));
@@ -405,7 +408,7 @@ public class WorkingSetCache {
 		if (changeNeeded) {
 			final SimpleListener callback = new SimpleListener() {
 				public void handleEvent() {
-					currentWorkingSet = ws;
+					StateManager.impl.setWorkingSet(ws);
 					
 					SISClientBase.getInstance().onWorkingSetChanged();
 					if (afterChange != null)
@@ -471,7 +474,7 @@ public class WorkingSetCache {
 							addToWorkingSetCache(parser.getWorkingSets());
 							backInTheDay.onSuccess(arg0);
 						} catch (Exception e) {
-							e.printStackTrace();
+							Debug.println("Working Set Parse Failure\n{0}", e);
 						}
 					}
 				});

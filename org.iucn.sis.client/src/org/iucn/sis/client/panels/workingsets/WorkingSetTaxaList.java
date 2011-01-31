@@ -134,11 +134,11 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 
 	private boolean filteredBySpecies = false;
 
-	public WorkingSetTaxaList(PanelManager manager, boolean checked) {
-		this(manager, checked, null);
+	public WorkingSetTaxaList(boolean checked) {
+		this(checked, null);
 	}
 
-	public WorkingSetTaxaList(PanelManager manager, boolean checked, CheckChangedListener<TaxaData> checkListener) {
+	public WorkingSetTaxaList(boolean checked, CheckChangedListener checkListener) {
 		this.checkListener = checkListener;
 
 		taxaList = new DataList();
@@ -393,26 +393,25 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		taxaList.removeAll();
 		taxaList.add(new DataListItem("Loading ..."));
 		if (recentWorkingSet.getSpeciesIDs().size() > 0) {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<String>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<List<Taxon>>() {
 				public void onFailure(Throwable caught) {
 					clearList();
 					taxaList.add(new DataListItem("Error fetching taxa."));
 				}
 
-				public void onSuccess(String arg0) {
+				public void onSuccess(List<Taxon> arg0) {
 					clearList();
 					HashMap<String, String> childIDS = new HashMap<String, String>();
-					for (Integer taxaID : recentWorkingSet.getSpeciesIDs()) {
-						Taxon node = TaxonomyCache.impl.getTaxon(taxaID);
+					for (Taxon node : arg0) {
 						String family = node.getFootprint()[TaxonLevel.FAMILY];
 						String kingdom = node.getFootprint()[TaxonLevel.KINGDOM];
 						families.put(family, kingdom);
 						if (childIDS.containsKey(family)) {
 							String ids = childIDS.get(family);
-							ids += "," + taxaID;
+							ids += "," + node.getId();
 							childIDS.put(family, ids);
 						} else {
-							childIDS.put(family, String.valueOf(taxaID));
+							childIDS.put(family, String.valueOf(node.getId()));
 						}
 					}
 
@@ -454,14 +453,14 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		taxaList.add(new DataListItem("Loading ..."));
 
 		if (recentWorkingSet.getSpeciesIDs().size() > 0) {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<String>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<List<Taxon>>() {
 				public void onFailure(Throwable caught) {
 					clearList();
 					taxaList.add(new DataListItem("Error fetching taxa."));
 					;
 				}
 
-				public void onSuccess(String arg0) {
+				public void onSuccess(List<Taxon> arg0) {
 
 					clearList();
 					HashMap<String, String> childIDS = new HashMap<String, String>();
@@ -517,13 +516,13 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		taxaList.add(new DataListItem("Loading ..."));
 
 		if (recentWorkingSet.getSpeciesIDs().size() > 0) {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<String>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<List<Taxon>>() {
 				public void onFailure(Throwable caught) {
 					clearList();
 					taxaList.add(new DataListItem("Error fetching taxa."));
 				}
 
-				public void onSuccess(String arg0) {
+				public void onSuccess(List<Taxon> arg0) {
 					try {
 						clearList();
 						HashMap<String, String> childIDS = new HashMap<String, String>();
@@ -581,13 +580,13 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		taxaList.removeAll();
 		taxaList.add(new DataListItem("Loading ..."));
 		if (recentWorkingSet.getSpeciesIDs().size() > 0) {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<String>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<List<Taxon>>() {
 				public void onFailure(Throwable caught) {
 					clearList();
 					taxaList.add(new DataListItem("Error fetching taxa."));
 				}
 
-				public void onSuccess(String arg0) {
+				public void onSuccess(List<Taxon> arg0) {
 					clearList();
 					
 					for (Integer taxaID : recentWorkingSet.getSpeciesIDs()) {
@@ -762,25 +761,25 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		item.setId("jump");
 		item.setVisible(false);
 		item.disable();
-
-		item.addListener(Events.Select, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
+		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				if (storeBinder.getSelection() != null && storeBinder.getSelection().size() > 0) {
 					TaxaData data = storeBinder.getSelection().get(0);
 
 					if (data.getType().equalsIgnoreCase(TaxaData.FULLNAME)) {
 						TaxonomyCache.impl.fetchTaxon(Integer.valueOf(data.getID()), true,
 								new GenericCallback<Taxon>() {
-									public void onFailure(Throwable caught) {
-										Info.display(new InfoConfig("Error", "Error loading taxonomy browser."));
-									}
+							public void onFailure(Throwable caught) {
+								Info.display(new InfoConfig("Error", "Error loading taxonomy browser."));
+							}
 
-									public void onSuccess(Taxon arg0) {
-										ClientUIContainer.bodyContainer
-												.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);
-									}
+							public void onSuccess(Taxon arg0) {
+								/*
+								ClientUIContainer.bodyContainer
+										.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);*/
+							}
 
-								});
+						});
 
 					}
 
@@ -792,8 +791,8 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 									}
 
 									public void onSuccess(Taxon arg0) {
-										ClientUIContainer.bodyContainer
-												.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);
+										/*ClientUIContainer.bodyContainer
+												.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);*/
 									}
 
 								});

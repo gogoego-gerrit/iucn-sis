@@ -30,14 +30,11 @@ import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class TaxonHomePage extends LayoutContainer {
-
-	private final PanelManager panelManager;
 	
 	private Taxon taxon;
 	
-	public TaxonHomePage(PanelManager manager) {
+	public TaxonHomePage() {
 		super();
-		this.panelManager = manager;
 		
 		setLayoutOnChange(true);
 		setScrollMode(Scroll.AUTO);
@@ -83,7 +80,7 @@ public class TaxonHomePage extends LayoutContainer {
 	private void redraw(final Taxon taxon) {
 		this.taxon = taxon;
 		
-		final TaxonDescriptionPanel inner = new TaxonDescriptionPanel(panelManager, taxon);
+		final TaxonDescriptionPanel inner = new TaxonDescriptionPanel(taxon);
 		inner.setUpdateListener(new ComplexListener<Integer>() {
 			public void handleEvent(Integer eventData) {
 				update(eventData);

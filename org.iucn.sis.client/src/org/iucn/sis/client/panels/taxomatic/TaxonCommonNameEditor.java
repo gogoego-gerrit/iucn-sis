@@ -56,7 +56,7 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 	private ListBox language;
 	private int numberAdded;
 
-	public TaxonCommonNameEditor(PanelManager manager) {
+	public TaxonCommonNameEditor() {
 		super();
 		setHeading("Common Names Validator");
 		setIconStyle("icon-note-edit");

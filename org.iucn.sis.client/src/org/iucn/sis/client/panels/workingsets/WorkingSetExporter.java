@@ -10,6 +10,7 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
+import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -41,20 +42,17 @@ import com.solertium.util.extjs.client.WindowUtils;
 @SuppressWarnings("deprecation")
 public class WorkingSetExporter extends RefreshLayoutContainer {
 
-	private PanelManager manager = null;
+	private final WorkingSetPage parent;
+	
 	private Map<Integer, WorkingSet> workingSets = null;
 	private HTML instructions = null;
 	private DataList list = null;
 	private Button exportButton = null;
 
-	public WorkingSetExporter(PanelManager manager) {
+	public WorkingSetExporter(WorkingSetPage parent) {
 		super();
-		this.manager = manager;
-		build();
-	}
-
-	private void build() {
-
+		this.parent = parent;
+		
 		addStyleName("gwt-background");
 
 		setLayout(new BorderLayout());
@@ -101,7 +99,7 @@ public class WorkingSetExporter extends RefreshLayoutContainer {
 	}
 
 	private void cancel() {
-		manager.workingSetBrowser.setManagerTab();
+		parent.setManagerTab();
 	}
 
 	private void checkChange(DataListItem item) {

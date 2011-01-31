@@ -47,7 +47,7 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 
 	class MySearchPanel extends SearchPanel {
 
-		public MySearchPanel(PanelManager manager) {
+		public MySearchPanel() {
 			super();
 		}
 
@@ -271,20 +271,18 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 	private HorizontalPanel buttons;
 	private HTML instruct;
 	private WorkingSet workingSet;
-	private PanelManager manager;
 	private MySearchPanel searchPanel;
 	private BorderLayoutData north;
 
 	private BorderLayoutData center;
 
-	public WorkingSetAddTaxaSearchPanel(PanelManager manager) {
+	public WorkingSetAddTaxaSearchPanel() {
 		super();
-		this.manager = manager;
 		north = new BorderLayoutData(LayoutRegion.NORTH, 70);
 		center = new BorderLayoutData(LayoutRegion.CENTER);
 		setLayout(new BorderLayout());
 		addInstructions();
-		searchPanel = new MySearchPanel(manager);
+		searchPanel = new MySearchPanel();
 		add(searchPanel, center);
 
 	}
@@ -333,7 +331,7 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 							WindowUtils.infoAlert("Taxon successfully added " + "to working set "
 									+ workingSet.getName());
 							add.setEnabled(true);
-							manager.workingSetOptionsPanel.listChanged();
+							//FIXME manager.workingSetOptionsPanel.listChanged();
 					
 						}
 					

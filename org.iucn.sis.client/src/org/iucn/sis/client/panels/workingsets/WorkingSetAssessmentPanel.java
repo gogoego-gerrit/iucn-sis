@@ -34,7 +34,7 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 	private HTML evaluators = null;
 	private boolean show = false;
 
-	public WorkingSetAssessmentPanel(PanelManager manager) {
+	public WorkingSetAssessmentPanel() {
 		super();
 		build();
 
@@ -91,8 +91,8 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 				if ( assessment != null) {
 					if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, assessment ) ) {
 						AssessmentCache.impl.setCurrentAssessment(assessment);
-						ClientUIContainer.bodyContainer.setSelection(
-							ClientUIContainer.bodyContainer.tabManager.assessmentEditor);
+						/*ClientUIContainer.bodyContainer.setSelection(
+							ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/
 					} else {
 						WindowUtils.errorAlert("Insufficient Rights", "Sorry, you do not have permission to read this assessment.");
 					}

@@ -105,9 +105,9 @@ public class TaxonFinderPanel extends ContentPanel {
 							}
 
 							public void onSuccess(Taxon result) {
-								ClientUIContainer.bodyContainer
+								/*ClientUIContainer.bodyContainer
 										.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);
-
+*/
 							}
 						});
 					}

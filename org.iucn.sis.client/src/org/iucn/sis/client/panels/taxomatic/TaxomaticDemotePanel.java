@@ -1,7 +1,7 @@
 package org.iucn.sis.client.panels.taxomatic;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.panels.PanelManager;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
@@ -18,14 +18,12 @@ public class TaxomaticDemotePanel extends TaxonChooser {
 
 	private ButtonBar bar;
 	private Taxon  currentNode;
-	private PanelManager manager;
 	private String parentid;
 
-	public TaxomaticDemotePanel(PanelManager manager) {
+	public TaxomaticDemotePanel() {
 		super();
 		setHeading("Demote Taxon");
 		setIconStyle("icon-demote");
-		this.manager = manager;
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
 		load();
 		parentid = null;
@@ -81,7 +79,8 @@ public class TaxomaticDemotePanel extends TaxonChooser {
 
 					hide();
 					WindowUtils.infoAlert("Success", currentNode.getName() + " has successfully been demoted.");
-					manager.taxonomicSummaryPanel.update(currentNode.getId());
+					//manager.taxonomicSummaryPanel.update(currentNode.getId());
+					ClientUIContainer.bodyContainer.refreshBody();
 				}
 			});
 		}

@@ -44,7 +44,7 @@ public class BugPanel extends RefreshPortlet {
 		}
 	}
 	
-	public BugPanel(String rule, PanelManager panelManager, String header) {
+	public BugPanel(String rule, String header) {
 		this.rule=rule;
 		
 		setLayout(new FitLayout());

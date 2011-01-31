@@ -1,5 +1,6 @@
 package org.iucn.sis.client.panels.workingsets;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -9,6 +10,8 @@ import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.PanelManager;
+import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
+import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
@@ -21,6 +24,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.DataList;
+import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
@@ -36,34 +40,23 @@ import com.solertium.lwxml.shared.utils.RowParser;
 import com.solertium.util.extjs.client.WindowUtils;
 
 @SuppressWarnings("deprecation")
-public class DeleteWorkingSetPanel extends LayoutContainer {
+public class DeleteWorkingSetPanel extends RefreshLayoutContainer {
 
-	private PanelManager manager = null;
-	// HorizontalPanel buttons = null;
-	private ButtonBar buttons = null;
+	private WorkingSetPage parent = null;
+
 	// private DataListItem selectedItem = null;
 	private DataList list;
-	private DataListBinder<WSModel> binder;
 
 	// private ListStore<WSModel> store;
 
-	public DeleteWorkingSetPanel(PanelManager manager) {
+	public DeleteWorkingSetPanel(WorkingSetPage parent) {
 		super();
-		this.manager = manager;
+		this.parent = parent;
 		list = new DataList();
-		binder = new DataListBinder<WSModel>(list, WSStore.getStore());
-		binder.setDisplayProperty("name");
-		build();
-	}
+		list.addStyleName("gwt-background");
+		list.setScrollMode(Scroll.AUTOY);
+		
 
-	private void build() {
-		// BorderLayout layout = new BorderLayout();
-		// BorderLayoutData north = new BorderLayoutData(LayoutRegion.NORTH,
-		// 55f);
-		// BorderLayoutData center = new BorderLayoutData(LayoutRegion.CENTER);
-		// BorderLayoutData south = new BorderLayoutData(LayoutRegion.SOUTH,
-		// 30f);
-		// layout.setSpacing(4);
 		RowLayout layout = new RowLayout();
 		setLayout(layout);
 		addStyleName("gwt-background");
@@ -75,29 +68,28 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 						+ " the assessments associated with the deleted working set.");
 		add(html, new RowData(1d, -1));
 
-		list.addStyleName("gwt-background");
 		add(list, new RowData(1d, 1d));
-		list.setScrollMode(Scroll.AUTOY);
-
-		final Button delete = new Button("Delete", new SelectionListener<ButtonEvent>() {
+		
+		
+		ButtonBar buttons = new ButtonBar();
+		buttons.setAlignment(HorizontalAlignment.LEFT);
+		buttons.add(new Button("Delete", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				if (list.getSelectedItem() != null) {
 					WindowUtils.confirmAlert("Delete working set?", "Are you sure you want to delete the working set "
 							+ list.getSelectedItem().getText() + "?", new WindowUtils.SimpleMessageBoxListener() {
 						@Override
 						public void onYes() {
-							List<WSModel> data = binder.getSelection();
-							if (data.size() > 0)
-								remove(data.get(0), true);
+							WorkingSet workingSet = list.getSelectedItem().getData("value");
+							remove(workingSet, true);
 						}
 					});
 				} else {
 					WindowUtils.errorAlert("Error", "Please first select a working set to delete.");
 				}
 			}
-		});
-
-		final Button unsubscribe = new Button("Unsubscribe", new SelectionListener<ButtonEvent>() {
+		}));
+		buttons.add(new Button("Unsubscribe", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				if (list.getSelectedItem() != null) {
 					WindowUtils.confirmAlert("Unsubscribe?", "Are you sure you want to unsubscribe " +
@@ -105,69 +97,47 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 							"You will be able to subscribe again if your permissions are unchanged.",
 								new WindowUtils.SimpleMessageBoxListener() {
 						public void onYes() {
-							List<WSModel> data = binder.getSelection();
-							if (data.size() > 0)
-								remove(data.get(0), false);
+							WorkingSet workingSet = list.getSelectedItem().getData("value");
+							remove(workingSet, false);
 						}
 					});
 				} else {
 					WindowUtils.errorAlert("Error", "Please first select a working set to delete.");
 				}
 			}
-		});
-		
-		list.addListener(Events.SelectionChange, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
-				if (list.getSelectedItem() != null) {
-					delete.setEnabled(true);
-					unsubscribe.setEnabled(true);
-				} else {
-					delete.setEnabled(false);
-					unsubscribe.setEnabled(false);
-				}
-			}
-		});
-		
-		buttons = new ButtonBar();
-		buttons.setAlignment(HorizontalAlignment.LEFT);
-		Button cancel = new Button("Cancel", new SelectionListener<ButtonEvent>() {
+		}));
+		buttons.add(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				cancel();
 			}
-		});
-
-		buttons.add(delete);
-		buttons.add(unsubscribe);
-		buttons.add(cancel);
+		}));
 		add(buttons, new RowData(1d, -1));
 
 	}
 
 	private void cancel() {
-		manager.workingSetBrowser.setManagerTab();
+		parent.setManagerTab();
 	}
 
-	private void remove(WSModel modelToRemove, final boolean delete) {
-		final WorkingSet ws = modelToRemove.getWorkingSet();
+	private void remove(final WorkingSet ws, final boolean delete) {
 		final GenericCallback<String> wayback = new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				Info.display(new InfoConfig("ERROR", "Failed to delete/unsubscribe to working set " + ws.getWorkingSetName()));
-				((Button)buttons.getItemByItemId(Dialog.CANCEL)).setText("Done");
+				//((Button)buttons.getItemByItemId(Dialog.CANCEL)).setText("Done");
 			}
 
 			public void onSuccess(String arg0) {
-				if( delete )
-					Info.display(new InfoConfig("DELETED", "Deleted working set " + ws.getWorkingSetName()));
-				else
-					Info.display(new InfoConfig("Unsubscribed", "Unsubscribed to working set " + ws.getWorkingSetName()));
+				String message = delete ? "Deleted working set " + ws.getWorkingSetName() : 
+					"Unsubscribed from working set " + ws.getWorkingSetName();
 				
+				WindowUtils.infoAlert("Success", message);
 				// manager.workingSetHierarchy.update();
 				WSStore.getStore().update();
 				if (WorkingSetCache.impl.getCurrentWorkingSet() != null && ws.getId() == WorkingSetCache.impl.getCurrentWorkingSet().getId()) {
 					WorkingSetCache.impl.resetCurrentWorkingSet();
-					manager.workingSetFullPanel.buildInfo();
+					//manager.workingSetFullPanel.buildInfo();
 				}
-				((Button)buttons.getItemByItemId(Dialog.CANCEL)).setText("Done");
+				// ((Button)buttons.getItemByItemId(Dialog.CANCEL)).setText("Done");
 				// update();
 			}
 		};
@@ -189,9 +159,6 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 			WorkingSetCache.impl.unsubscribeToWorkingSet(ws, wayback);
 	}
 
-//	private void doDelete(final WorkingSet ws) {
-//		WorkingSetCache.impl.deleteWorkingSet(ws, 
-//	}
 
 	private void ensurePermissionsCleared(final Integer wsID, final GenericCallback<String> callback) {
 		final String permGroupName = "ws" + wsID;
@@ -213,60 +180,25 @@ public class DeleteWorkingSetPanel extends LayoutContainer {
 		});
 	}
 	
-	// private void remove(final String id, final String currentID) {
-	// WorkingSet ws = (WorkingSet) workingSets.get(id);
-	// final String name = ws.getWorkingSetName();
-	// WorkingSetCache.impl.deleteWorkingSet(ws, new GenericCallback<String>() {
-	// public void onFailure(Throwable caught) {
-	// Info.display(new InfoConfig("ERROR", "Failed to delete working set " +
-	// name));
-	// buttons.getButtonById(Dialog.CANCEL).setText("Done");
-	// }
-	//
-	// public void onSuccess(String arg0) {
-	// Info.display(new InfoConfig("DELETED", "Deleted working set " + name));
-	// // manager.workingSetHierarchy.update();
-	// WSStore.getStore().update();
-	// if (currentID.equals(id)) {
-	// WorkingSetCache.impl.setCurrentWorkingSet("");
-	// manager.workingSetFullPanel.buildInfo();
-	// }
-	// buttons.getButtonById(Dialog.CANCEL).setText("Done");
-	// update();
-	// }
-	// });
-	// }
-
 	@Override
 	public void show() {
 		// if (selectedItem != null)
 		// list.getSelectionModel().select(selectedItem);
+		super.show();
 	}
 
-	// public void update() {
-	// this.setVisible(true);
-	// list.removeAll();
-	// workingSets = WorkingSetCache.impl.getWorkingSets();
-	// final StringBuffer currentID = new StringBuffer();
-	// if (WorkingSetCache.impl.getCurrentWorkingSet() != null)
-	// currentID.append(WorkingSetCache.impl.getCurrentWorkingSet().getId());
-	//
-	// Iterator iter = workingSets.keySet().iterator();
-	// while (iter.hasNext()) {
-	// final String id = (String) iter.next();
-	// String name = ((WorkingSet) workingSets.get(id)).getWorkingSetName();
-	// DataListItem item = new DataListItem(name);
-	// item.setIconStyle("tree-folder");
-	// item.setId(id);
-	// list.add(item);
-	// if (id.equals(currentID)) {
-	// selectedItem = item;
-	// }
-	//
-	// }
-	//		
-	// WSStore.getStore().update();
-	//		
-	// }
-
+	@Override
+	public void refresh() {
+		list.removeAll();
+		for (WorkingSet workingSet : WorkingSetCache.impl.getWorkingSets().values()) {
+			String name = workingSet.getWorkingSetName();
+			DataListItem item = new DataListItem(name);
+			item.setIconStyle("tree-folder");
+			item.setId(workingSet.getId() + "");
+			item.setData("value", workingSet);
+			
+			list.add(item);
+		}
+	}
+	
 }

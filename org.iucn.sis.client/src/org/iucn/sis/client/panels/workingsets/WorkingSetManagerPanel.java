@@ -2,6 +2,7 @@ package org.iucn.sis.client.panels.workingsets;
 
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.panels.PanelManager;
+import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 
@@ -25,11 +26,12 @@ import com.solertium.util.extjs.client.WindowUtils;
  */
 public class WorkingSetManagerPanel extends LayoutContainer {
 
-	private PanelManager manager = null;
-
-	public WorkingSetManagerPanel(PanelManager manager) {
+	/*private final WorkingSetPage parent;
+	
+	public WorkingSetManagerPanel(WorkingSetPage parent) {
 		super();
-		this.manager = manager;
+		this.parent = parent;
+		
 		build();
 		addStyleName("gwt-background");
 		setScrollMode(Scroll.AUTO);
@@ -37,7 +39,7 @@ public class WorkingSetManagerPanel extends LayoutContainer {
 	}
 
 	private void addAssessments() {
-		manager.workingSetBrowser.setAssessmentTab();
+		parent.setAssessmentTab();
 	}
 
 	private void build() {
@@ -259,6 +261,6 @@ public class WorkingSetManagerPanel extends LayoutContainer {
 	
 	private void workflowManager() {
 		manager.workingSetBrowser.setWorkflowTab();
-	}
+	}*/
 
 }

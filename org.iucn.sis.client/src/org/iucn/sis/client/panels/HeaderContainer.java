@@ -45,9 +45,12 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.ClickListener;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -59,13 +62,10 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 public class HeaderContainer extends LayoutContainer {
 	public static final int defaultHeight = 100;
 
-	private NavigationHeader centerPanel;
+	private MonkeyNavigator centerPanel;
 	private LayoutContainer leftPanel;
 	private LayoutContainer rightPanel;
 
-	private BorderLayoutData leftData;
-	private BorderLayoutData rightData;
-	private BorderLayoutData centerData;
 
 	private FindReplacePanel findReplacePanel;
 	private BatchChangePanel batchChangePanel;
@@ -83,7 +83,7 @@ public class HeaderContainer extends LayoutContainer {
 	public HeaderContainer(String first, String last, String affiliation) {
 		setLayout(new BorderLayout());
 		setHeight(defaultHeight);
-		setBorders(true);
+		//setBorders(true);
 
 		findReplacePanel = new FindReplacePanel();
 		batchChangePanel = new BatchChangePanel();
@@ -94,18 +94,17 @@ public class HeaderContainer extends LayoutContainer {
 		redlistPanel = new RedlistPanel();
 		virusManagerPanel = new VirusManager();
 		taxaTagManagerPanel = new TaxaTagManager();
-		
-		leftData = new BorderLayoutData(LayoutRegion.WEST, 155f);
-		rightData = new BorderLayoutData(LayoutRegion.EAST, 205f);
-		centerData = new BorderLayoutData(LayoutRegion.CENTER);
 
-		leftPanel = buildLeftPanel();
-		rightPanel = buildRightPanel(first, last, affiliation);
-		centerPanel = new NavigationHeader();
+		leftPanel = buildLeftPanel(first, last, affiliation);
+		
+		BorderLayoutData leftData = new BorderLayoutData(LayoutRegion.WEST, 205f);
+		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+		
+		centerPanel = new MonkeyNavigator();
+		centerPanel.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 
 		add(leftPanel, leftData);
 		add(centerPanel, centerData);
-		add(rightPanel, rightData);
 	}
 
 	public void assessmentChanged() {
@@ -132,9 +131,10 @@ public class HeaderContainer extends LayoutContainer {
 		}
 	}
 
-	private LayoutContainer buildLeftPanel() {
+	private LayoutContainer buildLeftPanel(String first, String last, String affiliation) {
 		LayoutContainer panel = new LayoutContainer(new FlowLayout());
 		panel.setBorders(false);
+		
 		Image leftImage = new Image();
 		if (SimpleSISClient.currentUser.getAffiliation().equalsIgnoreCase("birdlife"))
 			leftImage.setUrl("images/logo-birdlifeStacked.gif");
@@ -143,30 +143,18 @@ public class HeaderContainer extends LayoutContainer {
 
 		panel.add(leftImage);
 
-		return panel;
-	}
-
-	private LayoutContainer buildRightPanel(String first, String last, String affiliation) {
-		LayoutContainer panel = new LayoutContainer();
-		FlowLayout layout = new FlowLayout(0);
-		panel.setLayout(layout);
-		panel.setBorders(false);
-
 		HorizontalPanel namePanel = new HorizontalPanel();
 		HTML logout = new HTML("[ logout ]");
 		logout.addStyleName("SIS_HyperlinkLookAlike");
 		logout.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				WindowUtils.confirmAlert("Logout", "Are you sure you want to log out?", new Listener<MessageBoxEvent>() {
-					public void handleEvent(MessageBoxEvent be) {
-						if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-							WindowManager.get().hideAll();
-							SimpleSupport.doLogout();
-						}
+				WindowUtils.confirmAlert("Logout", "Are you sure you want to log out?", new WindowUtils.SimpleMessageBoxListener() {
+					public void onYes() {
+						WindowManager.get().hideAll();
+						SimpleSupport.doLogout();
 					}
 				});
 			}
-
 		});
 
 		namePanel.setSpacing(2);
@@ -196,10 +184,11 @@ public class HeaderContainer extends LayoutContainer {
 		affiliationPanel.add(new Image("images/icon-world.png"));
 		affiliationPanel.add(new HTML(affiliation));
 
-		ToolBar options = new ToolBar();
-		options.setBorders(false);
+		Button optionsButton = new Button("Options");
+		
+		Menu options = new Menu();
 
-		Button item = new Button();
+		MenuItem item = new MenuItem();
 		item.setToolTip("Peruse the Taxonomic Hierarchy");
 		item.setIconStyle("icon-tree");
 		item.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -207,7 +196,7 @@ public class HeaderContainer extends LayoutContainer {
 				Window s = WindowUtils.getWindow(true, false, "Taxonomy Browser");
 				LayoutContainer content = s;
 				content.setLayout(new FitLayout());
-				content.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomyBrowserPanel);
+				//FIXME: content.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomyBrowserPanel);
 				// s.setLocation( Window.getClientWidth()/2,
 				// Window.getClientHeight()/2 );
 				s.setSize(400, 420);
@@ -217,7 +206,7 @@ public class HeaderContainer extends LayoutContainer {
 
 				// if(!ClientUIContainer.bodyContainer.getTabManager().
 				// getPanelManager().taxonomyBrowserPanel.isRendered())
-				ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomyBrowserPanel.update();
+				//FIXME: ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomyBrowserPanel.update();
 
 				content.layout();
 				// ((Button)be.getSource()).setSelected( false );
@@ -225,7 +214,7 @@ public class HeaderContainer extends LayoutContainer {
 		});
 		options.add(item);
 
-		item = new Button();
+		item = new MenuItem();
 		item.setIconStyle("icon-search");
 		item.setToolTip("Search for a Taxonomic Concept");
 		item.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -234,7 +223,7 @@ public class HeaderContainer extends LayoutContainer {
 				s.setSize(800, 600);
 				LayoutContainer content = s;
 				content.setLayout(new FillLayout());
-				content.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomySearchPanel);
+				//FIXME: content.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomySearchPanel);
 				s.show();
 
 				// ((Button)be.getSource()).setSelected( false );
@@ -242,7 +231,7 @@ public class HeaderContainer extends LayoutContainer {
 		});
 		options.add(item);
 
-		item = new Button();
+		item = new MenuItem();
 		item.setIconStyle("icon-prefs");
 		item.setToolTip("Administrative Tools");
 		item.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -400,7 +389,7 @@ public class HeaderContainer extends LayoutContainer {
 		});
 		options.add(item);
 
-		item = new Button();
+		item = new MenuItem();
 		item.setIconStyle("icon-find");
 		item.setToolTip("Find/Replace");
 		item.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -421,11 +410,12 @@ public class HeaderContainer extends LayoutContainer {
 		});
 		options.add(item);
 
-		item = new Button();
+		item = new MenuItem();
 		item.setIconStyle("icon-trash");
 		item.setToolTip("Trash Bin");
-		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
+		item.addListener(Events.Select, new Listener<BaseEvent>() {
+
+			public void handleEvent(BaseEvent be) {
 				Window nS = WindowUtils.getWindow(true, true, "Trash Bin");
 				nS.setSize(800, 550);
 				TrashBinPanel tbp = new TrashBinPanel();
@@ -437,11 +427,12 @@ public class HeaderContainer extends LayoutContainer {
 		});
 		options.add(item);
 
-		item = new Button();
+		item = new MenuItem();
 		item.setIconStyle("icon-page-copy");
 		item.setToolTip("Batch Change");
-		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
+		item.addListener(Events.Select, new Listener<BaseEvent>() {
+
+			public void handleEvent(BaseEvent be) {
 				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.BATCH_CHANGE_FEATURE)) {
 					WindowUtils.errorAlert("This is a currently restricted to " + "administrative users only.");
 				} else if (AssessmentCache.impl.getCurrentAssessment() == null) {
@@ -461,7 +452,7 @@ public class HeaderContainer extends LayoutContainer {
 		});
 		options.add(item);
 
-		item = new Button();
+		item = new MenuItem();
 		item.setIconStyle("icon-world-edit");
 		item.setToolTip("Edit Region List");
 		item.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -482,7 +473,7 @@ public class HeaderContainer extends LayoutContainer {
 		});
 		options.add(item);
 
-		item = new Button();
+		item = new MenuItem();
 		item.setIconStyle("icon-book-edit");
 		item.setToolTip("Manage References");
 		item.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -501,7 +492,7 @@ public class HeaderContainer extends LayoutContainer {
 		});
 		options.add(item);
 		
-		item = new Button();
+		item = new MenuItem();
 		item.setIconStyle("icon-user-group");
 		item.setToolTip("Manage Users");
 		item.addListener(Events.Select, new Listener<BaseEvent>() {
@@ -549,8 +540,10 @@ public class HeaderContainer extends LayoutContainer {
 
 		});
 		options.add(item);
+		
+		optionsButton.setMenu(options);
 
-		panel.add(options);
+		panel.add(optionsButton);
 		panel.add(namePanel);
 		panel.add(affiliationPanel);
 
@@ -574,16 +567,16 @@ public class HeaderContainer extends LayoutContainer {
 			else
 				update();
 
-			if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
+			/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 					ClientUIContainer.bodyContainer.tabManager.taxonHomePage)) {
 				ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(curNode.getId());
-			}
+			}*/
 		} else
 			update();
 	}
 
 	public void update() {
-		centerPanel.update();
+		//centerPanel.update();
 	}
 
 	public void workingSetChanged() {
@@ -596,9 +589,9 @@ public class HeaderContainer extends LayoutContainer {
 			update();
 
 		// MAKE SURE THAT IF ON WORKING SET PAGE, THE WORKING SET TAB IS UPDATED
-		if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
+		/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 				ClientUIContainer.bodyContainer.tabManager.workingSetPage)) {
 			ClientUIContainer.bodyContainer.tabManager.workingSetPage.workingSetChanged();
-		}
+		}*/
 	}
 }

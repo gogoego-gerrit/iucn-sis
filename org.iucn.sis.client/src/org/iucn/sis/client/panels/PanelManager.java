@@ -45,23 +45,20 @@ public class PanelManager {
 	public ReferenceViewTabPanel refViewPanel = null;
 
 	public PanelManager() {
-		recentAssessmentsPanel = new RecentAssessmentsPanel(this);
-		taxonomicSummaryPanel = new TaxonHomePage(this);
+		//taxonomicSummaryPanel = new TaxonHomePage();
 		taxonomyBrowserPanel = new TaxonomyBrowserPanel();
 		// assessmentSummaryPanel = new AssessmentSummaryPanel( this );
-		workingSetPanel = new WorkingSetPanel(this);
-		DEM = new DEMPanel(this);
-		expertPanel = new ExpertPanel(this);
+		
+		DEM = new DEMPanel();
+		expertPanel = new ExpertPanel();
 		imageViewerPanel = new ImagePopupPanel(this);
 		taxonomySearchPanel = new BasicSearchPanel(this);
 		
 		workingSetFullPanel = new WorkingSetFullPanel(this);
 		workingSetHierarchy = new WorkingSetHierarchy(this);
-		addTaxonPanel = new WorkingSetAddTaxaSearchPanel(this);
-		workingSetOptionsPanel = new WorkingSetOptionsPanel(this);
+		addTaxonPanel = new WorkingSetAddTaxaSearchPanel();
+		workingSetOptionsPanel = new WorkingSetOptionsPanel();
 		workingSetBrowser = new WorkingSetBrowser(this);
-		bugPanel = new BugPanel("925407", this, "Zendesk Tickets");
-		resolvedBugPanel = new BugPanel("926680", this, "Resolved Tickets");
 		
 		
 		try {

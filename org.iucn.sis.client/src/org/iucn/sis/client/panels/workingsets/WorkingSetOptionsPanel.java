@@ -43,11 +43,11 @@ import com.solertium.util.extjs.client.WindowUtils;
 @SuppressWarnings("deprecation")
 public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 
-	private final PanelManager manager;
 	public static final int MOVE = 2;
 	public static final int DELETE = 1;
 	public static final int ADDSEARCH = 4;
 	public static final int ADDBROWSE = 5;
+	
 	private Button title;
 	private WorkingSet ws;
 	private Button addSearch;
@@ -66,6 +66,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 	private CardLayoutContainer infoPanel = null;
 
 	private WorkingSetAddTaxaBrowserPanel browserPanel = null;
+	private WorkingSetAddTaxaSearchPanel addTaxonPanel = null;
 	private WorkingSetDeleteTaxa deletePanel = null;
 	private WorkingSetMoveTaxaPanel movePanel = null;
 	private LayoutContainer blankPanel = null;
@@ -78,8 +79,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 	boolean refreshNeededMove = true;
 	boolean anyChanges = false;
 
-	public WorkingSetOptionsPanel(final PanelManager manager) {
-		this.manager = manager;
+	public WorkingSetOptionsPanel() {
 		mode = -1;
 		build();
 	}
@@ -102,7 +102,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 
 		taxaListHolder = new CardLayoutContainer();
 		taxaListHolder.setBorders(true);
-		taxaList = new WorkingSetTaxaList(manager, false);
+		taxaList = new WorkingSetTaxaList(false);
 		taxaList.setFilterVisible(true);
 		taxaList.addListener(Events.Change, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
@@ -110,7 +110,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 			}
 		});
 
-		checkedTaxaList = new WorkingSetTaxaList(manager, true);
+		checkedTaxaList = new WorkingSetTaxaList(true);
 		checkedTaxaList.setFilterVisible(true);
 
 		CheckChangedListener<TaxaData> checkListener = new CheckChangedListener<TaxaData>() {
@@ -121,7 +121,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 
 		};
 
-		deleteTaxaList = new WorkingSetTaxaList(manager, true, checkListener);
+		deleteTaxaList = new WorkingSetTaxaList(true, checkListener);
 		deleteTaxaList.setFilterVisible(true);
 		deleteTaxaList.addListener(Events.Change, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
@@ -135,9 +135,10 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 		imagePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		content.add(imagePanel, center);
 
-		browserPanel = new WorkingSetAddTaxaBrowserPanel(manager);
-		deletePanel = new WorkingSetDeleteTaxa(manager);
-		movePanel = new WorkingSetMoveTaxaPanel(manager);
+		browserPanel = new WorkingSetAddTaxaBrowserPanel();
+		addTaxonPanel = new WorkingSetAddTaxaSearchPanel();
+		deletePanel = new WorkingSetDeleteTaxa();
+		movePanel = new WorkingSetMoveTaxaPanel();
 		blankPanel = new LayoutContainer();
 		blankPanel.addStyleName("gwt-background");
 
@@ -377,7 +378,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 				refreshImagePanel();
 
 				if (mode == ADDSEARCH) {
-					refreshAndAddPanel(manager.addTaxonPanel);
+					//FIXME refreshAndAddPanel(manager.addTaxonPanel);
 					if (refreshNeededAdd)
 						forceRefreshTaxaList();
 					else

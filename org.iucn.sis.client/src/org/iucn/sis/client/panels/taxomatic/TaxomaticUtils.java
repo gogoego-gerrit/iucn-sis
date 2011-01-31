@@ -138,7 +138,7 @@ public class TaxomaticUtils {
 					}
 
 					public void onSuccess(Taxon  result) {
-						ClientUIContainer.bodyContainer.refreshBody();
+						/*ClientUIContainer.bodyContainer.refreshBody();*/
 						callback.onSuccess(result.getId() + "");
 					}
 				});

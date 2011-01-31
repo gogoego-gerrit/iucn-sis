@@ -285,7 +285,7 @@ public class WorkingSetFullPanel extends ContentPanel {
 
 	// WORKING SET FUNCTIONS
 	public void deleteWorkingSet() {
-		DeleteWorkingSetPanel delete = new DeleteWorkingSetPanel(panelManager);
+		DeleteWorkingSetPanel delete = new DeleteWorkingSetPanel(null);
 		delete.show();
 	}
 
@@ -363,8 +363,8 @@ public class WorkingSetFullPanel extends ContentPanel {
 				}
 
 				public void onSuccess(Taxon  arg0) {
-					ClientUIContainer.bodyContainer
-							.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);
+					/*ClientUIContainer.bodyContainer
+							.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);*/
 				}
 
 			});

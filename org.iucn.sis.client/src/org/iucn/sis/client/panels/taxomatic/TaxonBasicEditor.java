@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.taxomatic;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.models.Infratype;
@@ -25,7 +26,6 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class TaxonBasicEditor extends TaxomaticWindow {
 	private final VerticalPanel editor;
-	private final PanelManager manager;
 	
 	private ButtonBar bar;
 	private Button close;
@@ -40,13 +40,12 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 	private ListBox level;
 	private CheckBox invasive, feral;
 
-	public TaxonBasicEditor(PanelManager manager) {
+	public TaxonBasicEditor() {
 		super();
 		setHeading("Basic Taxon Information Editor");
 		setIconStyle("icon-note-edit");
 		setSize(500, 300);
 		
-		this.manager = manager;
 		node = TaxonomyCache.impl.getCurrentTaxon();
 		editor = new VerticalPanel();
 		if (node != null)
@@ -287,7 +286,8 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 	}
 
 	private void refresh() {
-		manager.taxonomicSummaryPanel.update(node.getId());
+		//manager.taxonomicSummaryPanel.update(node.getId());
+		ClientUIContainer.bodyContainer.refreshBody();
 	}
 
 	private void save(final boolean closeAfterSave) {

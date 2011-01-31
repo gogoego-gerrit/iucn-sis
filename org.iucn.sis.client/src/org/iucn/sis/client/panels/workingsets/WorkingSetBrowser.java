@@ -64,14 +64,14 @@ public class WorkingSetBrowser extends TabPanel {
 		if (!built) {
 			summaryTab = new TabItem();
 			summaryTab.setText("Summary");
-			summaryPanel = new WorkingSetSummaryPanel(manager);
+			summaryPanel = new WorkingSetSummaryPanel();
 			summaryTab.setLayout(new FillLayout());
 			summaryTab.add(summaryPanel);
 
 			reportTab = new TabItem();
 			reportTab.getHeader().setVisible(false);
 			reportTab.setText("Working Set Report");
-			reportPanel = new WorkingSetReportPanel(manager);
+			reportPanel = new WorkingSetReportPanel();
 			reportTab.setLayout(new FillLayout());
 			reportTab.add(reportPanel);
 			
@@ -83,13 +83,13 @@ public class WorkingSetBrowser extends TabPanel {
 
 			managerTab = new TabItem();
 			managerTab.setText("Working Set Manager");
-			managerPanel = new WorkingSetManagerPanel(manager);
+			managerPanel = new WorkingSetManagerPanel();
 			managerTab.add(managerPanel);
 
 			editWorkingSetTab = new TabItem();
 			editWorkingSetTab.setText("Edit Basic Information");
 			editWorkingSetTab.getHeader().setVisible(false);
-			editWorkingSetBasicInfo = new WorkingSetEditBasicPanel(manager);
+			editWorkingSetBasicInfo = new WorkingSetEditBasicPanel(null);
 			editWorkingSetTab.setLayout(new FillLayout());
 			editWorkingSetTab.add(editWorkingSetBasicInfo);
 
@@ -101,7 +101,7 @@ public class WorkingSetBrowser extends TabPanel {
 
 			exportTab = new TabItem();
 			exportTab.getHeader().setVisible(false);
-			exportPanel = new WorkingSetExporter(manager);
+			exportPanel = new WorkingSetExporter(null);
 			exportTab.setLayout(new FillLayout());
 			exportTab.add(exportPanel);
 
@@ -123,13 +123,13 @@ public class WorkingSetBrowser extends TabPanel {
 
 			newWorkingSetTab = new TabItem();
 			newWorkingSetTab.getHeader().setVisible(false);
-			addWorkingSetPanel = new WorkingSetNewWSPanel(manager);
+			addWorkingSetPanel = new WorkingSetNewWSPanel(null);
 			newWorkingSetTab.setLayout(new FillLayout());
 			newWorkingSetTab.add(addWorkingSetPanel);
 
 			deleteWorkingSetTab = new TabItem();
 			deleteWorkingSetTab.getHeader().setVisible(false);
-			deletePanel = new DeleteWorkingSetPanel(manager);
+			deletePanel = new DeleteWorkingSetPanel(null);
 			deleteWorkingSetTab.setLayout(new FillLayout());
 			deleteWorkingSetTab.add(deletePanel);
 
@@ -141,7 +141,7 @@ public class WorkingSetBrowser extends TabPanel {
 
 			addAssessmentsTab = new TabItem();
 			addAssessmentsTab.getHeader().setVisible(false);
-			addAssessmentsPanel = new WorkingSetAddAssessmentsPanel(manager);
+			addAssessmentsPanel = new WorkingSetAddAssessmentsPanel(null);
 			addAssessmentsTab.setLayout(new FillLayout());
 			addAssessmentsTab.add(addAssessmentsPanel);
 			

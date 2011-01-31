@@ -61,15 +61,13 @@ public class DEMToolbar extends ToolBar {
 		READ_ONLY, EDIT_DATA
 	}
 	
-	private final PanelManager panelManager;
 	private final AutosaveTimer autoSave;
 	private final int autoSaveInterval = 2 * 60 * 1000;
 	
 	private Button editViewButton;
 	private ComplexListener<EditStatus> refreshListener;
 	
-	public DEMToolbar(PanelManager panelManager) {
-		this.panelManager = panelManager;
+	public DEMToolbar() {
 		this.autoSave = new AutosaveTimer();
 	}
 	
@@ -232,8 +230,8 @@ public class DEMToolbar extends ToolBar {
 					WindowUtils.infoAlert("Alert", "Please select an assessment first.");
 					return;
 				}
-				if (panelManager.expertPanel != null)
-					panelManager.expertPanel.update();
+				ExpertPanel expertPanel = new ExpertPanel();
+				expertPanel.update();
 
 				Window s = WindowUtils.getWindow(true, false, ExpertPanel.titleText);
 				s.setLayout(new BorderLayout());
@@ -241,7 +239,7 @@ public class DEMToolbar extends ToolBar {
 				s.add(new Html("&nbsp"), new BorderLayoutData(LayoutRegion.NORTH, 5));
 				s.add(new Html("&nbsp"), new BorderLayoutData(LayoutRegion.SOUTH, 5));
 				s.setSize(520, 360);
-				s.add(panelManager.expertPanel, new BorderLayoutData(LayoutRegion.CENTER));
+				s.add(expertPanel, new BorderLayoutData(LayoutRegion.CENTER));
 				s.show();
 				s.center();
 			}
@@ -276,7 +274,7 @@ public class DEMToolbar extends ToolBar {
 					return;
 				}
 				
-				TaxonCommonNameEditor editor = new TaxonCommonNameEditor(panelManager);
+				TaxonCommonNameEditor editor = new TaxonCommonNameEditor();
 				editor.show();
 			}
 		});
@@ -589,9 +587,7 @@ public class DEMToolbar extends ToolBar {
 			}
 
 			try {
-				if (!ClientUIContainer.bodyContainer.getSelectedItem().equals(
-						ClientUIContainer.bodyContainer.tabManager.assessmentEditor))
-					// Whoops ... misfire
+				if (!ClientUIContainer.bodyContainer.isAssessmentEditor())
 					return;
 
 				final SISView currentView = ViewCache.impl.getCurrentView();

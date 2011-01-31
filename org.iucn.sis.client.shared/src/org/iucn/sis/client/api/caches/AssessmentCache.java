@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
@@ -36,7 +37,14 @@ public class AssessmentCache {
 
 	public static final AssessmentCache impl = new AssessmentCache();
 
-	private Assessment currentAssessment;
+	/**
+	 * ArrayList that stores NUMRECENTASSESSMENTS number of the most recently
+	 * view assessments. (Stores AssessmentInfo objects) null if hasn't been
+	 * initialized
+	 */
+	private ArrayList<AssessmentInfo> recentAssessments;
+
+	private int numSinceSaveRecent;
 
 	private Map<Integer, Assessment> cache;
 	private Map<Integer, List<Assessment>> taxonToAssessmentCache;
@@ -165,7 +173,6 @@ public class AssessmentCache {
 	}
 	
 	public void doLogout() {
-		currentAssessment = null;
 		clear();
 	}
 
@@ -242,7 +249,7 @@ public class AssessmentCache {
 	}
 
 	public Assessment getCurrentAssessment() {
-		return currentAssessment;
+		return StateManager.impl.getAssessment();
 	}
 
 	public Assessment getAssessment(int id, boolean setAsCurrent) {
@@ -346,21 +353,21 @@ public class AssessmentCache {
 			doSetCurrentAssessment(assessment);
 	}
 	
-	private void doSetCurrentAssessment(Assessment assessment) {
+	private void doSetCurrentAssessment(final Assessment assessment) {
 		if( assessment != null && assessment.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE) && 
 				!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.READ, assessment) ) {
 			WindowUtils.errorAlert("Insufficient Rights", "Sorry, you don't have rights to select this Draft assessment.");
-			currentAssessment = null;
+			StateManager.impl.setAssessment(null);
 		} else {
-			currentAssessment = assessment;
+			StateManager.impl.setAssessment(assessment);
 
-			if (currentAssessment != null) {
+			if (assessment != null) {
 				try {
 					updateRecentAssessments();
 				} catch (Throwable e) {
 					GWT.log("Failed to update recent assessments", e);
 				}
-				StatusCache.impl.checkStatus(currentAssessment, true, new GenericCallback<Integer>() {
+				StatusCache.impl.checkStatus(assessment, true, new GenericCallback<Integer>() {
 					public void onFailure(Throwable caught) {
 						// Nothing to do, really.
 					}

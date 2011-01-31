@@ -26,6 +26,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class ClassificationSchemeTestEntryPoint extends SISClientBase {
@@ -50,7 +51,7 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 	}
 	
 	@Override
-	protected void initializeCaches() {
+	protected void initializeCaches(SimpleListener listener) {
 		
 	}
 	

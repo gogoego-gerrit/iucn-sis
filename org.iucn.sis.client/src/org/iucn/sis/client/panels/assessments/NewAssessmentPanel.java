@@ -377,8 +377,8 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 
 			public void onSuccess(String newID) {
 				WindowManager.get().hideAll();
-				ClientUIContainer.bodyContainer.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);
-				WindowUtils.infoAlert("An assessment for " + node.getFullName() + " has been created.");
+				//ClientUIContainer.bodyContainer.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);
+				//WindowUtils.infoAlert("An assessment for " + node.getFullName() + " has been created.");
 			}
 
 		});

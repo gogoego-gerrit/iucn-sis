@@ -282,8 +282,7 @@ public class SplitNodePanel extends TaxomaticWindow {
 								+ currentNode.getFullName() + "?", new WindowUtils.SimpleMessageBoxListener() {
 							@Override
 							public void onYes() {
-								TaxonBasicEditor editor = new TaxonBasicEditor(
-										ClientUIContainer.bodyContainer.tabManager.panelManager);
+								TaxonBasicEditor editor = new TaxonBasicEditor();
 								editor.show();
 								editor.center();
 

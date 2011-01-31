@@ -34,17 +34,19 @@ import com.extjs.gxt.ui.client.data.ModelStringProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.DataListEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -53,8 +55,6 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
@@ -62,13 +62,13 @@ import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 @SuppressWarnings("deprecation")
-public class MonkeyNavigator extends Window implements DrawsLazily {
+public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 	
-	private static final int LIST_SIZE = 175;
-	private static final int NAVIGATOR_SIZE = 225 + 25;
+	//private static final int LIST_SIZE = 175;
+	//private static final int NAVIGATOR_SIZE = 225 + 25;
 	
 	private final DataList workingSetList, taxonList, assessmentList;
-	private final LayoutContainer workingSetContainer, taxonContainer, assessmentContainer;
+	private final ContentPanel workingSetContainer, taxonContainer, assessmentContainer;
 	
 	private final ListStore<TaxonListElement> taxonListStore;
 	private final TaxonPagingLoader taxonPagingLoader;
@@ -85,17 +85,19 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 	
 	public MonkeyNavigator() {
 		super();
-		setClosable(true);
+		setBorders(false);
+		/*setClosable(true);
 		setHeading("Monkey Navigator 2.0");
-		setIconStyle("icon-monkey-face");
+		setIconStyle("icon-monkey-face");*/
 		setStyleName("navigator");
-		setSize(com.google.gwt.user.client.Window.getClientWidth() - 20, NAVIGATOR_SIZE);
+		//setSize(com.google.gwt.user.client.Window.getClientWidth() - 20, NAVIGATOR_SIZE);
 		setLayout(new FillLayout());
 		
-		workingSetContainer = new LayoutContainer(new FillLayout());
+		workingSetContainer = new ContentPanel(new FillLayout());
+		workingSetContainer.setHeading("Working Sets");
 		workingSetList = new DataList();
 		workingSetList.setSelectionMode(SelectionMode.SINGLE);
-		workingSetList.setHeight(LIST_SIZE);
+		//workingSetList.setHeight(LIST_SIZE);
 		workingSetList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				DataListItem item = workingSetList.getSelectedItem();
@@ -106,10 +108,11 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 			}
 		}));
 		
-		taxonContainer = new LayoutContainer(new FillLayout());
+		taxonContainer = new ContentPanel(new FillLayout());
+		taxonContainer.setHeading("Taxon List");
 		taxonList = new DataList();
 		taxonList.setSelectionMode(SelectionMode.SINGLE);
-		taxonList.setHeight(LIST_SIZE);
+		//taxonList.setHeight(LIST_SIZE);
 		taxonList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				DataListItem item = taxonList.getSelectedItem();
@@ -147,10 +150,11 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 			}
 		});
 		
-		assessmentContainer = new LayoutContainer(new FillLayout());
+		assessmentContainer = new ContentPanel(new FillLayout());
+		assessmentContainer.setHeading("Assessments");
 		assessmentList = new DataList();
 		assessmentList.setSelectionMode(SelectionMode.SINGLE);
-		assessmentList.setHeight(LIST_SIZE);
+		//assessmentList.setHeight(LIST_SIZE);
 		assessmentList.setContextMenu(createMarkingContextMenu(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				DataListItem item = assessmentList.getSelectedItem();
@@ -162,7 +166,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 		}));
 	}
 	
-	@Override
+	/*@Override
 	protected void afterRender() {
 		super.afterRender();
 		DeferredCommand.addPause();
@@ -177,9 +181,9 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 				}
 			}
 		});
-	}
+	}*/
 	
-	public void show() {
+	/*public void show() {
 		draw(new DoneDrawingCallback() {
 			public void isDrawn() {
 				showAt(10, 0);
@@ -190,7 +194,7 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 	private void showAt(int left, int top) {
 		setPosition(left, top);
 		super.show();
-	}
+	}*/
 	
 	public void draw(final DrawsLazily.DoneDrawingCallback callback) {
 		curNavWorkingSet = WorkingSetCache.impl.getCurrentWorkingSet();
@@ -380,23 +384,21 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 				selectedWorkingSet = curItem;
 		}
 		
-		final Button goToSet = new Button();
-		goToSet.setIconStyle("icon-go-jump");
-		goToSet.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
+		final IconButton goToSet = createIconButton("icon-go-jump", "Open Working Set", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
 				if (workingSetList.getSelectedItem() != null) {
 					WorkingSet selected = (WorkingSet) workingSetList.getSelectedItem().getData("workingSet");
 					if (selected != null) {
 						WorkingSetCache.impl.setCurrentWorkingSet(selected.getId(), true, new SimpleListener() {
 							public void handleEvent() {
-								if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
+								/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 										ClientUIContainer.bodyContainer.tabManager.workingSetPage))
 									ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
 								else
 									ClientUIContainer.bodyContainer
-									.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
+									.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);*/
 
-								hide();								
+								//hide();								
 							}
 						});
 					}
@@ -405,25 +407,40 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 		});
 		
 		ToolBar toolBar = new ToolBar();
-		toolBar.add(new SeparatorToolItem());
-		toolBar.add(goToSet);
-		toolBar.add(new Button("Open Working Set", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				goToSet.fireEvent(Events.Select);
-			};
+		toolBar.add(createIconButton("icon-folder-add", "Add New Working Set", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				// TODO Create new working set
+			}
 		}));
-		
-		HTML setsHeader = new HTML("Working Set List");
-		setsHeader.addStyleName("bold");
-		setsHeader.addStyleName("color-dark-blue");
+		toolBar.add(goToSet);
+		toolBar.add(createIconButton("icon-image", "Download Working Set", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				// TODO Auto-generated method stub
+				
+			}
+		}));
+		toolBar.add(createIconButton("icon-image", "Subscribe to Working Set", new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				// TODO Auto-generated method stub
+				
+			}
+		}));
 		
 		LayoutContainer sets = new LayoutContainer();
 		sets.setScrollMode(Scroll.NONE);
-		sets.add(setsHeader);
 		sets.add(workingSetList);
-		sets.add(toolBar);
+		
+		workingSetContainer.getHeader().addTool(toolBar);
 		
 		return sets;
+	}
+	
+	private IconButton createIconButton(String icon, String title, SelectionListener<IconButtonEvent> listener) {
+		IconButton button = new IconButton(icon);
+		button.addSelectionListener(listener);
+		button.setTitle(title);
+		
+		return button;
 	}
 	
 	public void drawTaxa(final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
@@ -444,14 +461,14 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 						if (selected != null) {
 							TaxonomyCache.impl.setCurrentTaxon(selected, false);
 
-							if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
+							/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 									ClientUIContainer.bodyContainer.tabManager.taxonHomePage))
 								ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
 							else
 								ClientUIContainer.bodyContainer
-								.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);
+								.setSelection(ClientUIContainer.bodyContainer.tabManager.taxonHomePage);*/
 
-							hide();
+							//hide();
 						}
 					}
 				});
@@ -491,13 +508,8 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 					};
 				}));
 				
-				HTML taxaHeader = new HTML("Taxon List");
-				taxaHeader.addStyleName("bold");
-				taxaHeader.addStyleName("color-dark-blue");
-				
 				final LayoutContainer taxa = new LayoutContainer();
 				taxa.setScrollMode(Scroll.NONE);
-				taxa.add(taxaHeader);
 				taxa.add(taxonList);
 				taxa.add(toolBar);
 				
@@ -533,14 +545,14 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 				/*DeferredCommand.addPause();
 				DeferredCommand.addCommand(new Command() {
 					public void execute() {*/
-						WorkingSetCache.impl.fetchTaxaForWorkingSet(curNavWorkingSet, new GenericCallback<String>() {
+						WorkingSetCache.impl.fetchTaxaForWorkingSet(curNavWorkingSet, new GenericCallback<List<Taxon>>() {
 							public void onFailure(Throwable caught) {
 								WindowUtils.hideLoadingAlert();
 								
 								callback.isDrawn(getNoTaxaScreen());
 							}
 
-							public void onSuccess(String arg0) {								
+							public void onSuccess(List<Taxon> result) {								
 								taxonPagingLoader.getFullList().clear();
 								taxonPagingLoader.getPagingLoader().setOffset(0);
 								
@@ -575,16 +587,12 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 								taxonPagingLoader.getPagingLoader().load();
 								
 								WindowUtils.hideLoadingAlert();
-
-								HTML taxaHeader = new HTML("Taxon List");
-								taxaHeader.addStyleName("bold");
-								taxaHeader.addStyleName("color-dark-blue");
 								
-								final LayoutContainer taxa = new LayoutContainer();
+								final LayoutContainer taxa = new LayoutContainer(new BorderLayout());
 								taxa.setScrollMode(Scroll.NONE);
-								taxa.add(taxaHeader);
-								taxa.add(taxonList);
-								taxa.add(taxonPagingToolBar);
+								taxa.add(taxonList, new BorderLayoutData(LayoutRegion.CENTER));
+								taxa.add(taxonPagingToolBar, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+								//taxa.add(taxonPagingToolBar);
 								
 								callback.isDrawn(taxa);
 							}
@@ -730,10 +738,6 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 
 						callback.isDrawn(assessments);
 					} else {
-						HTML header = new HTML("Assessment List");
-						header.addStyleName("bold");
-						header.addStyleName("color-dark-blue");
-						
 						final Button jump = new Button();
 						jump.setIconStyle("icon-go-jump");
 						jump.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -761,14 +765,14 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 										if (selected != null) {
 											AssessmentCache.impl.setCurrentAssessment(selected, false);
 
-											if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
+											/*if (ClientUIContainer.bodyContainer.getSelectedItem().equals(
 													ClientUIContainer.bodyContainer.tabManager.assessmentEditor))
 												ClientUIContainer.bodyContainer.fireEvent(Events.SelectionChange);
 											else
 												ClientUIContainer.bodyContainer
-												.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);
+												.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/
 
-											hide();
+											//hide();
 										}
 									}
 								});
@@ -784,7 +788,6 @@ public class MonkeyNavigator extends Window implements DrawsLazily {
 							};
 						}));
 						
-						assessments.add(header);
 						assessments.add(assessmentList);
 						assessments.add(toolBar);
 

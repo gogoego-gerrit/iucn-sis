@@ -4,7 +4,7 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.PanelManager;
+import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -15,8 +15,8 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class WorkingSetEditBasicPanel extends WorkingSetNewWSPanel {
 
-	public WorkingSetEditBasicPanel(PanelManager manager) {
-		super(manager);
+	public WorkingSetEditBasicPanel(WorkingSetPage parent) {
+		super(parent);
 	}
 
 	@Override

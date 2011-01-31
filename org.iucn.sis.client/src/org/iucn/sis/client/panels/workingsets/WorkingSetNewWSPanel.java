@@ -11,6 +11,7 @@ import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
+import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -48,7 +49,6 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 
 	protected static final int PEOPLECELL = 4;
 
-	private PanelManager manager = null;
 	protected FlexTable grid = null;
 	protected HTML managerHTML = null;
 	protected HTML dateCreatedHTML = null;
@@ -71,10 +71,12 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 	 * create a new working set.
 	 */
 	protected Integer id = null;
+	
+	private final WorkingSetPage parent;
 
-	public WorkingSetNewWSPanel(PanelManager manager) {
+	public WorkingSetNewWSPanel(WorkingSetPage parent) {
 		super();
-		this.manager = manager;
+		this.parent = parent;
 		build();
 	}
 	
@@ -220,7 +222,7 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 	}
 
 	private void cancel() {
-		manager.workingSetBrowser.setManagerTab();
+		parent.setManagerTab();
 	}
 
 	protected void clearCells() {
@@ -352,13 +354,13 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 							.setCurrentlySelected(id);
 					if (saveMode == SAVE) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
-						manager.workingSetBrowser.setEditWorkingSetTab();
+						parent.setEditWorkingSetTab();
 					} else if (saveMode == SAVEANDEXIT) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
-						manager.workingSetBrowser.setManagerTab();
+						parent.setManagerTab();
 					} else {
-						manager.workingSetBrowser.setEditTaxaTab();
-						manager.workingSetOptionsPanel.forceRefreshTaxaList(WorkingSetOptionsPanel.ADDBROWSE);
+						parent.setEditTaxaTab();
+						//manager.workingSetOptionsPanel.forceRefreshTaxaList(WorkingSetOptionsPanel.ADDBROWSE);
 					}
 
 					enableSaveButtons(true);
@@ -382,10 +384,10 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
 					} else if (saveMode == SAVEANDEXIT) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
-						manager.workingSetBrowser.setManagerTab();
+						parent.setManagerTab();
 					} else {
-						manager.workingSetBrowser.setEditTaxaTab();
-						manager.workingSetOptionsPanel.forceRefreshTaxaList(WorkingSetOptionsPanel.ADDBROWSE);
+						parent.setEditTaxaTab();
+						//FIXME: manager.workingSetOptionsPanel.forceRefreshTaxaList(WorkingSetOptionsPanel.ADDBROWSE);
 					}
 					enableSaveButtons(true);
 				}

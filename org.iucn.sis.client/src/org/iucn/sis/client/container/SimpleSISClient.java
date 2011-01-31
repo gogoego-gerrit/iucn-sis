@@ -1,15 +1,20 @@
 package org.iucn.sis.client.container;
 
+import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.container.StateChangeEvent;
+import org.iucn.sis.client.api.container.StateManager;
+import org.iucn.sis.client.api.container.StateManager.StateChangeEventType;
 import org.iucn.sis.client.extensions.birdlife.structures.BirdlifeWidgetGenerator;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
+import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
 import org.iucn.sis.shared.api.utils.FieldParser;
 
@@ -21,6 +26,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.ComplexListener;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 import ext.ux.theme.black.client.Black;
@@ -63,12 +70,29 @@ public class SimpleSISClient extends SISClientBase {
 	}
 	
 	@Override
-	protected void initializeCaches() {
+	protected void initializeCaches(SimpleListener listener) {
 		FieldWidgetCache.impl.setFieldParser(new FieldParser());
 		FieldWidgetCache.impl.registerWidgetGenerator(new WidgetGenerator());
 		FieldWidgetCache.impl.registerWidgetGenerator(new BirdlifeWidgetGenerator());
 		RecentlyAccessedCache.impl.load(RecentlyAccessed.USER);
-		super.initializeCaches();
+		
+		StateManager.impl.addStateChangeListener(StateChangeEventType.WorkingSetChanged, new ComplexListener<StateChangeEvent>() {
+			public void handleEvent(StateChangeEvent event) {
+				clientContainer.bodyContainer.openWorkingSet();
+			}
+		});
+		StateManager.impl.addStateChangeListener(StateChangeEventType.TaxonChanged, new ComplexListener<StateChangeEvent>() {
+			public void handleEvent(StateChangeEvent eventData) {
+				clientContainer.bodyContainer.openTaxon();
+			}
+		});
+		StateManager.impl.addStateChangeListener(StateChangeEventType.AssessmentChanged, new ComplexListener<StateChangeEvent>() {
+			public void handleEvent(StateChangeEvent eventData) {
+				clientContainer.bodyContainer.openAssessment();
+			}
+		});
+		
+		super.initializeCaches(listener);
 	}
 	
 	@Override
@@ -89,27 +113,27 @@ public class SimpleSISClient extends SISClientBase {
 	
 	@Override
 	public void onAssessmentChanged() {
-		if( AssessmentCache.impl.getCurrentAssessment() != null ) {
+		/*if( AssessmentCache.impl.getCurrentAssessment() != null ) {
 			//ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.updateWorkflowStatus();
 			ClientUIContainer.headerContainer.assessmentChanged();
 		} else
 			ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.clearDEM();
 		
-		ClientUIContainer.bodyContainer.tabManager.panelManager.recentAssessmentsPanel.refresh();
+		ClientUIContainer.bodyContainer.tabManager.panelManager.recentAssessmentsPanel.refresh();*/
 	}
 	
 	@Override
 	public void onTaxonChanged() {
 		// TODO Auto-generated method stub
-		ClientUIContainer.bodyContainer.tabManager.taxonHomePage.setAppropriateRights(TaxonomyCache.impl.getCurrentTaxon());
-		ClientUIContainer.headerContainer.taxonChanged();
+		/*ClientUIContainer.bodyContainer.tabManager.taxonHomePage.setAppropriateRights(TaxonomyCache.impl.getCurrentTaxon());
+		ClientUIContainer.headerContainer.taxonChanged();*/
 	}
 	
 	@Override
 	public void onWorkingSetChanged() {
 		// TODO Auto-generated method stub
 		//ClientUIContainer.bodyContainer.tabManager.panelManager.DEM.updateWorkflowStatus();
-		ClientUIContainer.headerContainer.workingSetChanged();
+		//ClientUIContainer.headerContainer.workingSetChanged();
 	}
 	
 	@Override

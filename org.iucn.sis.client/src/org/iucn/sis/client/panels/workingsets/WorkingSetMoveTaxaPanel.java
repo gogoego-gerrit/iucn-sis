@@ -39,15 +39,13 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 	public static final boolean MOVE = false;
 	public static final boolean COPY = true;
 
-	private PanelManager manager = null;
 	private HTML title = null;
 	private Button move = null;
 	private Button copy = null;
 	private DataList list = null;
 
-	public WorkingSetMoveTaxaPanel(PanelManager manager) {
+	public WorkingSetMoveTaxaPanel() {
 		super();
-		this.manager = manager;
 		build();
 	}
 
@@ -142,7 +140,7 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 
 	private void cancel() {
 		this.setVisible(false);
-		manager.workingSetOptionsPanel.clearImagePanel();
+		//manager.workingSetOptionsPanel.clearImagePanel();
 	}
 
 	private void performTaxaOperation(final boolean mode) {
@@ -158,7 +156,7 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 				WindowUtils.errorAlert("Please select only 1 working set.");
 				move.setEnabled(true);
 			} else {
-				List<TaxaData> checkedTaxa = manager.workingSetOptionsPanel.getChecked();
+				List<TaxaData> checkedTaxa = null;//FIXME:  = manager.workingSetOptionsPanel.getChecked();
 				if (checkedTaxa != null && !checkedTaxa.isEmpty()) {
 
 					final WorkingSet workingSetToMoveTaxaInto = WorkingSetCache.impl.getWorkingSets().get(Integer.valueOf(checkedList[0].getId()));
@@ -207,7 +205,7 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 													+ workingSet.getWorkingSetName() + " and added to working set "
 													+ workingSetToMoveTaxaInto.getWorkingSetName());
 											move.setEnabled(true);
-											manager.workingSetOptionsPanel.listChanged();
+											//manager.workingSetOptionsPanel.listChanged();
 											removeChecks();
 										};
 									});

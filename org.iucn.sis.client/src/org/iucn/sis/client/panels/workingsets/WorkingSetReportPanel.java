@@ -40,7 +40,7 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 	private Button generalReport = null;
 	private Button integrityReport = null;
 
-	public WorkingSetReportPanel(PanelManager manager) {
+	public WorkingSetReportPanel() {
 		super();
 		build();
 		addStyleName("gwt-background");

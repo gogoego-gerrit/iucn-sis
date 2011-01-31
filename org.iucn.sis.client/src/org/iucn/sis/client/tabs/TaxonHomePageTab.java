@@ -4,12 +4,13 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
+import org.iucn.sis.client.panels.taxa.TaxonHomePage;
 import org.iucn.sis.client.panels.taxa.TaxonTreePopup;
 import org.iucn.sis.client.panels.taxomatic.CreateNewTaxonPanel;
 import org.iucn.sis.client.panels.taxomatic.LateralMove;
@@ -32,7 +33,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -44,50 +45,64 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class TaxonHomePageTab extends TabItem {
-	private PanelManager panelManager = null;
+public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
+	
 	private ToolBar toolBar = null;
 	private Button assessmentTools;
 	private Button taxonToolsItem;
 	private Button taxomaticToolItem;
 
 	private final boolean ENABLE_TAXOMATIC_FEATURES = true;
-
+	
+	private final TaxonHomePage taxonomicSummaryPanel;
+ 
 	/**
 	 * Defaults to having Style.NONE
 	 */
-	public TaxonHomePageTab(PanelManager manager) {
+	public TaxonHomePageTab() {
 		super();
-		panelManager = manager;
-
-		build();
-	}
-
-	public void build() {
-		setText("Taxon Home Page");
-
-		BorderLayout layout = new BorderLayout();
-		// layout.setSpacing( 0 );
-		// layout.setMargin( 0 );
-		setLayout(layout);
 
 		toolBar = buildToolBar();
-		BorderLayoutData toolbarData = new BorderLayoutData(LayoutRegion.NORTH);
-		toolbarData.setSize(25);
-
-		BorderLayoutData summaryData = new BorderLayoutData(LayoutRegion.CENTER, .5f, 100, 500);
-		summaryData.setSize(300);
-		BorderLayoutData browserData = new BorderLayoutData(LayoutRegion.EAST, .5f, 100, 500);
-		browserData.setSize(250);
-
-		add(panelManager.taxonomicSummaryPanel, summaryData);
-		// add( panelManager.taxonomyBrowserPanel, browserData );
-		add(toolBar, toolbarData);
-
-		panelManager.taxonomicSummaryPanel.update(null);
-		// panelManager.taxonomyBrowserPanel.update();
-
-		layout();
+		taxonomicSummaryPanel = new TaxonHomePage();
+	}
+	
+	@Override
+	protected void drawBody(DoneDrawingCallback callback) {
+		if (bodyContainer.getItemCount() == 0) {
+			
+			BorderLayoutData toolbarData = new BorderLayoutData(LayoutRegion.NORTH);
+			toolbarData.setSize(25);
+	
+			BorderLayoutData summaryData = new BorderLayoutData(LayoutRegion.CENTER, .5f, 100, 500);
+			summaryData.setSize(300);
+			BorderLayoutData browserData = new BorderLayoutData(LayoutRegion.EAST, .5f, 100, 500);
+			browserData.setSize(250);
+	
+			final LayoutContainer container = new LayoutContainer(new BorderLayout());
+			container.add(taxonomicSummaryPanel, summaryData);
+			container.add(toolBar, toolbarData);
+	
+			bodyContainer.add(container);
+		}
+		
+		taxonomicSummaryPanel.update(getSelectedItem().getId());
+	}
+	
+	@Override
+	protected void drawOptions() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	protected LayoutContainer updateFeature() {
+		// TODO Auto-generated method stub
+		return new LayoutContainer();
+	}
+	
+	@Override
+	protected void updateSelection(Taxon selection) {
+		TaxonomyCache.impl.setCurrentTaxon(selection);
 	}
 
 	private ToolBar buildToolBar() {
@@ -162,7 +177,7 @@ public class TaxonHomePageTab extends TabItem {
 		mItem.setIconStyle("icon-note");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				panelManager.taxonomicSummaryPanel.buildNotePopup();
+				taxonomicSummaryPanel.buildNotePopup();
 			}
 		});
 		mainMenu.add(mItem);
@@ -172,7 +187,7 @@ public class TaxonHomePageTab extends TabItem {
 		mItem.setIconStyle("icon-book");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				panelManager.taxonomicSummaryPanel.buildReferencePopup();
+				taxonomicSummaryPanel.buildReferencePopup();
 
 			}
 		});
@@ -194,7 +209,7 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setIconStyle("icon-note-edit");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					popupChooser(new TaxonBasicEditor(panelManager));
+					popupChooser(new TaxonBasicEditor());
 				}
 			});
 			mainMenu.add(mItem);
@@ -214,7 +229,7 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setIconStyle("icon-note-edit");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					popupChooser(new TaxonCommonNameEditor(panelManager));
+					popupChooser(new TaxonCommonNameEditor());
 				}
 			});
 			mainMenu.add(mItem);
@@ -247,7 +262,7 @@ public class TaxonHomePageTab extends TabItem {
 			mItem.setIconStyle("icon-lateral-move");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					popupChooser(new LateralMove(panelManager));
+					popupChooser(new LateralMove());
 				}
 			});
 			mainMenu.add(mItem);
@@ -293,7 +308,7 @@ public class TaxonHomePageTab extends TabItem {
 					if (node == null || node.getLevel() != TaxonLevel.SPECIES)
 						WindowUtils.infoAlert("Not allowed", "You can only demote a species.");
 					else
-						popupChooser(new TaxomaticDemotePanel(panelManager));
+						popupChooser(new TaxomaticDemotePanel());
 				}
 			});
 			mainMenu.add(mItem);
@@ -392,17 +407,17 @@ public class TaxonHomePageTab extends TabItem {
 														new GenericCallback<Taxon>() {
 													public void onFailure(Throwable caught) {
 														ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(null);
-														panelManager.recentAssessmentsPanel.update();
+														//FIXME: panelManager.recentAssessmentsPanel.update();
 													};
 													public void onSuccess(Taxon result) {
 														ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
 															.update(TaxonomyCache.impl.getCurrentTaxon().getId());
-														panelManager.recentAssessmentsPanel.update();
+														//FIXME: panelManager.recentAssessmentsPanel.update();
 													};
 												});
 											}
 											public void onFailure(Throwable caught) {
-												close();
+												//close();
 											}
 										});
 									}
@@ -457,7 +472,7 @@ public class TaxonHomePageTab extends TabItem {
 											);
 										}
 										public void onSuccess(String result) {
-											Taxon currentNode = TaxonomyCache.impl.getCurrentTaxon();
+											final Taxon currentNode = TaxonomyCache.impl.getCurrentTaxon();
 											TaxonomyCache.impl.clear();
 											TaxonomyCache.impl.fetchTaxon(currentNode.getId(), true,
 													new GenericCallback<Taxon>() {
@@ -467,6 +482,7 @@ public class TaxonHomePageTab extends TabItem {
 													"but was unable to refresh the current taxon.");
 												}
 												public void onSuccess(Taxon result) {
+													//panelManager.taxonomicSummaryPanel.update(currentNode.getId());
 													ClientUIContainer.bodyContainer.refreshBody();
 													WindowUtils.infoAlert("Success",
 													"Successfully undid the last taxomatic operation.");

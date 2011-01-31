@@ -28,7 +28,7 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 	static class MyTaxonomyBrowser extends TaxonomyBrowserPanel {
 		// private ListStore<TaxonListElement> store = null;
 
-		public MyTaxonomyBrowser(PanelManager manager) {
+		public MyTaxonomyBrowser() {
 			super();
 			setAsCheckable(true);
 		}
@@ -56,15 +56,13 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 	private ButtonBar buttons = null;
 	private WorkingSet workingSet = null;
 	private MyTaxonomyBrowser browser = null;
-	private PanelManager manager;
 
 	private HTML instructions = null;
 
-	public WorkingSetAddTaxaBrowserPanel(PanelManager manager) {
+	public WorkingSetAddTaxaBrowserPanel() {
 		super();
 
-		this.manager = manager;
-		browser = new MyTaxonomyBrowser(manager);
+		browser = new MyTaxonomyBrowser();
 		instructions = new HTML();
 
 		build();
@@ -125,9 +123,9 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 											WindowUtils.infoAlert("Taxon successfully added " + "to working set "
 													+ workingSet.getWorkingSetName());
 											
-											manager.workingSetOptionsPanel
+											/*FIXME manager.workingSetOptionsPanel
 													.refreshTaxaList(manager.workingSetOptionsPanel.checkPermissions());
-											manager.workingSetOptionsPanel.listChanged();
+											manager.workingSetOptionsPanel.listChanged();*/
 									
 										}
 										public void onFailure(Throwable caught) {

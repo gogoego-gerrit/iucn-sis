@@ -28,13 +28,16 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 	private List<RecentlyAccessedCache.RecentAssessment> recentAssessments;
 	private boolean loaded;
 
-	public RecentAssessmentsPanel(PanelManager manager) {
+//	private ArrayList assessments = null;
+
+	public RecentAssessmentsPanel() {
 		super("x-panel");
 		setHeading("Recent Assessments Panel");
 		setLayout(new FitLayout());
 		setLayoutOnChange(true);
 		
 		loaded = false;
+		refresh();
 	}
 
 	private void fetchAndDrawPanel() {

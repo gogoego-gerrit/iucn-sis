@@ -1,17 +1,27 @@
 package org.iucn.sis.client.panels.dem;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.ViewCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.views.ViewDisplay;
 import org.iucn.sis.client.api.ui.views.ViewDisplay.PageChangeRequest;
+import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.dem.DEMToolbar.EditStatus;
+import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.CommonName;
+import org.iucn.sis.shared.api.models.Region;
+import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -31,6 +41,7 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.gwt.ui.StyledHTML;
 
 /**
  * Shows an assessment in the following steps:
@@ -46,31 +57,50 @@ import com.solertium.util.gwt.ui.DrawsLazily;
  * @author adam.schwartz
  * 
  */
-public class DEMPanel extends LayoutContainer {
+public class DEMPanel extends FeaturedItemContainer<Assessment> {
 
 	private boolean viewOnly = false;
 	private LayoutContainer scroller;
-	private BorderLayoutData scrollerData;
 
 	private AccordionLayout viewChooser;
 	private ViewDisplay viewWrapper;
 
-	private BorderLayoutData viewWrapperData;
 	private DEMToolbar toolBar;
 
-	private BorderLayoutData toolBarData;
-
-	private PanelManager panelManager = null;
-
-
-	public DEMPanel(PanelManager manager) {
-		BorderLayout layout = new BorderLayout();
-		setLayout(layout);
-
-		panelManager = manager;
-
+	public DEMPanel() {
 		viewChooser = new AccordionLayout();
 
+		scroller = new LayoutContainer();
+		scroller.setLayout(new FitLayout());
+		scroller.setScrollMode(Scroll.NONE);
+
+		
+
+		toolBar = buildToolBar();
+	}
+	
+	@Override
+	protected void drawBody(DoneDrawingCallback callback) {
+		if (bodyContainer.getItemCount() > 0)
+			return;
+		
+		BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
+		toolBarData.setSize(25);
+		
+		BorderLayoutData scrollerData = new BorderLayoutData(LayoutRegion.CENTER, .82f, 300, 3000);
+		
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(toolBar, toolBarData);
+		container.add(scroller, scrollerData);
+		
+		bodyContainer.add(container);
+	}
+	
+	@Override
+	protected void drawOptions() {
+		if (optionsContainer.getItemCount() > 0)
+			return;
+		
 		viewWrapper = new ViewDisplay();
 		viewWrapper.setLayout(viewChooser);
 		viewWrapper.setLayoutOnChange(true);
@@ -79,25 +109,52 @@ public class DEMPanel extends LayoutContainer {
 				changePage(eventData);
 			}
 		});
-		viewWrapperData = new BorderLayoutData(LayoutRegion.WEST, .18f, 20, 300);
-
-		scroller = new LayoutContainer();
-		scroller.setLayout(new FitLayout());
-		scroller.setScrollMode(Scroll.NONE);
-
-		scrollerData = new BorderLayoutData(LayoutRegion.CENTER, .82f, 300, 3000);
-
-		toolBar = buildToolBar();
-		toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
-		toolBarData.setSize(25);
-
-		add(toolBar, toolBarData);
-		add(scroller, scrollerData);
-		add(viewWrapper, viewWrapperData);
+		
+		optionsContainer.add(viewWrapper);
+	}
+	
+	@Override
+	protected LayoutContainer updateFeature() {
+		final Assessment item = getSelectedItem();
+		final Taxon taxon = StateManager.impl.getTaxon();
+		
+		final LayoutContainer container = new LayoutContainer();
+		container.add(new StyledHTML(item.getSpeciesName() + " (" + item.getCategoryAbbreviation() + ")", "page_assessment_featured_header"));
+		
+		CommonName cn = null;
+		for (CommonName current : taxon.getCommonNames()) {
+			if (current.isPrimary()) {
+				cn = current;
+				break;
+			}
+		}
+		
+		if (cn != null)
+			container.add(new StyledHTML(cn.getName(), "page_assessment_featured_content"));
+		
+		List<Region> regions = new ArrayList<Region>();
+		for (Integer id : item.getRegionIDs()) {
+			Region region = RegionCache.impl.getRegionByID(id);
+			if (region != null)
+				regions.add(region);
+		}
+		
+		container.add(new StyledHTML(item.getAssessmentType() + " for " + 
+			RegionCache.impl.getRegionNamesAsReadable(regions), "page_assessment_featured_content"));
+		
+		container.add(new StyledHTML("Last Modified: " + FormattedDate.impl.
+			getDate(item.getLastEdit().getCreatedDate()), "page_assessment_featured_content"));
+		
+		return container;
+	}
+	
+	@Override
+	protected void updateSelection(Assessment selection) {
+		AssessmentCache.impl.setCurrentAssessment(selection);
 	}
 
 	private DEMToolbar buildToolBar() {
-		DEMToolbar toolbar = new DEMToolbar(panelManager);
+		DEMToolbar toolbar = new DEMToolbar();
 		toolbar.setRefreshListener(new ComplexListener<EditStatus>() {
 			public void handleEvent(EditStatus eventData) {
 				viewOnly = EditStatus.EDIT_DATA.equals(eventData);

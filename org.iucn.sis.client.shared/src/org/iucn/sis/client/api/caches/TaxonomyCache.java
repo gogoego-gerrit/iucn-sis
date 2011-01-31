@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
@@ -30,8 +31,6 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class TaxonomyCache {
 
 	public static final TaxonomyCache impl = new TaxonomyCache();
-
-	private Taxon currentNode = null;
 
 	/**
 	 * ArrayList<Taxon>
@@ -111,8 +110,6 @@ public class TaxonomyCache {
 		cache.clear();
 		pathCache.clear();
 		recentlyAccessed.clear();
-
-		currentNode = null;
 	}
 
 	/**
@@ -388,7 +385,7 @@ public class TaxonomyCache {
 	}
 
 	public Taxon getCurrentTaxon() {
-		return currentNode;
+		return StateManager.impl.getTaxon();
 	}
 
 	public Taxon getTaxon(String id) {
@@ -523,10 +520,10 @@ public class TaxonomyCache {
 	public void setCurrentTaxon(final Taxon newCurrent, boolean saveIfNecessary, final SimpleListener afterChange) {
 		SimpleListener callback = new SimpleListener() {
 			public void handleEvent() {
-				currentNode = newCurrent;
-				if (currentNode != null) {
-					recentlyAccessed.remove(currentNode);
-					recentlyAccessed.add(0, currentNode);
+				StateManager.impl.setTaxon(newCurrent);
+				if (newCurrent != null) {
+					recentlyAccessed.remove(newCurrent);
+					recentlyAccessed.add(0, newCurrent);
 					SISClientBase.getInstance().onTaxonChanged();
 					if (afterChange != null)
 						afterChange.handleEvent();

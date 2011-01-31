@@ -106,8 +106,6 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
 @SuppressWarnings({"unused", "deprecation"})
 public class TaxonDescriptionPanel extends LayoutContainer {
 
-	private final PanelManager panelManager;
-	
 	private Taxon taxon;
 	private HTML headerAssess;
 	private int panelHeight;
@@ -116,13 +114,12 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 	private ImageManagerPanel imageManager;
 	private ComplexListener<Integer> updateListener;
 
-	public TaxonDescriptionPanel(PanelManager manager, Taxon taxon) {
+	public TaxonDescriptionPanel(Taxon taxon) {
 		super();
 		setLayoutOnChange(true);
 		addStyleName("padded");
 		
 		this.taxon = taxon;
-		this.panelManager = manager;
 	}
 	
 	public void setUpdateListener(ComplexListener<Integer> updateListener) {
@@ -278,7 +275,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 							final Integer id = model.get("id");
 
 							WorkingSetCache.impl.setCurrentWorkingSet(id, true); 
-							ClientUIContainer.bodyContainer.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
+							//ClientUIContainer.bodyContainer.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
 
 						}
 					});
@@ -485,7 +482,7 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 											public void onSuccess(Taxon result) {
 												AssessmentCache.impl.clear();
 												update(node.getId());
-												panelManager.recentAssessmentsPanel.update();
+												//FIXME: panelManager.recentAssessmentsPanel.update();
 											};
 										});
 									}
@@ -500,8 +497,8 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 							fetched)) {
 						AssessmentCache.impl.setCurrentAssessment(fetched);
 						ClientUIContainer.headerContainer.update();
-						ClientUIContainer.bodyContainer
-								.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);
+						/*ClientUIContainer.bodyContainer
+								.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/
 					} else {
 						WindowUtils.errorAlert("Sorry, you do not have permission to view this assessment.");
 					}
@@ -617,11 +614,11 @@ public class TaxonDescriptionPanel extends LayoutContainer {
 					public void onClick(ClickEvent event) {
 						Window s = WindowUtils.getWindow(false, false, "Map Distribution Viewer");
 						LayoutContainer content = s;
-						content.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().imageViewerPanel);
+						/*FIXME content.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().imageViewerPanel);
 						if (!ClientUIContainer.bodyContainer.getTabManager().getPanelManager().imageViewerPanel
 								.isRendered())
 							ClientUIContainer.bodyContainer.getTabManager().getPanelManager().imageViewerPanel
-							.update(new ManagedImage(map, ManagedImage.IMG_JPEG));
+							.update(new ManagedImage(map, ManagedImage.IMG_JPEG));*/
 						s.setHeight(600);
 						s.setWidth(800);
 						s.show();

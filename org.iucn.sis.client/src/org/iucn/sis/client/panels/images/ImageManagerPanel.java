@@ -318,9 +318,9 @@ public class ImageManagerPanel extends LayoutContainer {
 				}
 				Window s = WindowUtils.getWindow(true, true, "Taxon Image Viewer");
 //				s.setLayout(new FitLayout());
-				s.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().imageViewerPanel);
+				/*s.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().imageViewerPanel);
 				ClientUIContainer.bodyContainer.getTabManager().getPanelManager().imageViewerPanel
-						.update(((ManagedImage) imageList.get(selected)));
+						.update(((ManagedImage) imageList.get(selected)));*/
 				s.setScrollMode(Scroll.AUTO);
 				s.setHeight(420);
 				s.setWidth(420);

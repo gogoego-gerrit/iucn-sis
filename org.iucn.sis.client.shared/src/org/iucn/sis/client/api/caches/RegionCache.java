@@ -3,6 +3,7 @@ package org.iucn.sis.client.api.caches;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -133,19 +134,20 @@ public class RegionCache {
 	 * @return readable string of filter's region names
 	 */
 	public String getRegionNamesAsReadable(AssessmentFilter filter) {
-		List<Region> regions = new ArrayList<Region>(filter.getRegions());
+		return getRegionNamesAsReadable(filter.getRegions());
+	}
+	
+	public String getRegionNamesAsReadable(Collection<Region> regions) {
 		StringBuilder csv = new StringBuilder();
-		for (int i = 0; i < regions.size() - 1; i++) {
-			Region region = regions.get(i);
-			csv.append(region.getName() + ", ");
+		for (Iterator<Region> iter = regions.iterator(); iter.hasNext(); ) {
+			if (!iter.hasNext() && regions.size() > 1)
+				csv.append("and ");
+			csv.append(iter.next().getName());
+			if (iter.hasNext() && regions.size() > 2)
+				csv.append(", ");
 		}
-			
-		if (csv.length() > 0)
-			return csv.toString() + " and " + regions.get(regions.size()-1).getName();
-		else if (regions.size() > 0)
-			return regions.get(0).getName();
-		else
-			return "";
+		
+		return csv.toString();
 	}
 	
 	public Collection<Region> getRegions() {

@@ -36,6 +36,7 @@ import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.api.FixedSizedQueue;
 
@@ -86,6 +87,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 			MarkedCache.impl.onLogout();
 			StatusCache.impl.clearCache();
 			AuthorizationCache.impl.clear();
+			StateManager.impl.doLogout();
 		}
 
 		private static void getProfile(final String password, final String username, final String authn) {
@@ -118,16 +120,22 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 										currentUser.setProperty("quickGroup", "offline");
 									AuthorizationCache.impl.addUser(currentUser);
 	
-									instance.initializeCaches();
-									instance.buildPostLogin();
+									instance.initializeCaches(new SimpleListener() {
+										public void handleEvent() {
+											instance.buildPostLogin();		
+										}
+									});
 								} catch (Exception e) {
 									e.printStackTrace();
 								}
 							}
 							public void onFailure(Throwable caught) {
 								WindowUtils.errorAlert("Error Initializing Oracle", caught.getMessage());
-								instance.initializeCaches();
-								instance.buildPostLogin();
+								instance.initializeCaches(new SimpleListener() {
+									public void handleEvent() {
+										instance.buildPostLogin();	
+									}
+								});
 							}
 						});						
 					} else
@@ -227,10 +235,19 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		loadModule();
 	}
 	
-	protected void initializeCaches() {
+	protected void initializeCaches(final SimpleListener listener) {
 		DefinitionCache.impl.getDefinables();
 		RegionCache.impl.fetchRegions();
+		MarkedCache.impl.update();
 		SchemaCache.impl.loadAsync();
+		WorkingSetCache.impl.update(new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				listener.handleEvent();
+			}
+			public void onFailure(Throwable caught) {
+				listener.handleEvent();
+			}
+		});
 	}
 	
 	public abstract void loadModule();

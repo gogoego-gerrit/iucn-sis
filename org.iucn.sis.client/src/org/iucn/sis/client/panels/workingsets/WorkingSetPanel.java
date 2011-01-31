@@ -7,9 +7,8 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
+import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -41,12 +40,14 @@ public class WorkingSetPanel extends RefreshPortlet {
 	private LayoutContainer content = null;
 	private HashMap<String, Integer> nameToID = null;
 
-	public WorkingSetPanel(PanelManager manager) {
+	public WorkingSetPanel() {
 		super("x-panel");
 		setHeading("My Working Sets");
 		isBuilt = false;
 		workingSets = new ArrayList<WorkingSet>();
 		nameToID = new HashMap<String, Integer>();
+		
+		refresh();
 	}
 
 	protected void build() {
@@ -77,7 +78,7 @@ public class WorkingSetPanel extends RefreshPortlet {
 
 		// IF THERE ARE SPECIES TO GET
 		if (ws.getSpeciesIDs().size() > 0) {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, new GenericCallback<String>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, new GenericCallback<List<Taxon>>() {
 				public void onFailure(Throwable caught) {
 					table.setHTML(0, 0, "<b>Manager: </b>");
 					table.setHTML(0, 1, ws.getCreator().getUsername());
@@ -90,7 +91,7 @@ public class WorkingSetPanel extends RefreshPortlet {
 					s.layout();
 				};
 
-				public void onSuccess(String arg0) {
+				public void onSuccess(List<Taxon> arg0) {
 					table.setHTML(0, 0, "<b>Manager: </b>");
 					table.setHTML(0, 1, ws.getCreator().getUsername());
 					table.setHTML(1, 0, "<b>Date: </b>");
@@ -99,8 +100,8 @@ public class WorkingSetPanel extends RefreshPortlet {
 					table.setHTML(2, 1, "" + ws.getSpeciesIDs().size());
 
 					String species = "";
-					for (int i = 0; i < ws.getSpeciesIDs().size(); i++) {
-						species += TaxonomyCache.impl.getTaxon(ws.getSpeciesIDs().get(i)).getFullName() + ", ";
+					for (Taxon taxon : arg0) {
+						species += taxon.getFullName() + ", ";
 					}
 					if (species.length() > 0) {
 						table.setHTML(3, 0, "<b>Species: </b>");
@@ -170,8 +171,8 @@ public class WorkingSetPanel extends RefreshPortlet {
 							Image sender = (Image)event.getSource();
 							WorkingSetCache.impl.setCurrentWorkingSet(nameToID.get(sender.getTitle()), true, new SimpleListener() {
 								public void handleEvent() {
-									ClientUIContainer.bodyContainer
-										.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);
+									/*ClientUIContainer.bodyContainer
+										.setSelection(ClientUIContainer.bodyContainer.tabManager.workingSetPage);*/
 								}
 							});
 						}

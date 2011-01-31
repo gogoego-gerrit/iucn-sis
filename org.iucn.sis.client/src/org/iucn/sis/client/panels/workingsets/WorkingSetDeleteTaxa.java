@@ -31,13 +31,11 @@ import com.solertium.util.extjs.client.WindowUtils;
 @SuppressWarnings("deprecation")
 public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 
-	PanelManager manager = null;
 	HTML instructions = null;
 	DataList list = null;
 
-	public WorkingSetDeleteTaxa(PanelManager manager) {
+	public WorkingSetDeleteTaxa() {
 		super();
-		this.manager = manager;
 		build();
 		layout();
 	}
@@ -98,7 +96,7 @@ public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 					WindowUtils.hideLoadingAlert();
 					Info.display("Taxa Removed", "Taxa was successfully removed from working set "
 							+ ws.getWorkingSetName() + ".", "");
-					manager.workingSetOptionsPanel.listChanged();
+					//manager.workingSetOptionsPanel.listChanged();
 					list.removeAll();
 				}
 				public void onFailure(Throwable caught) {

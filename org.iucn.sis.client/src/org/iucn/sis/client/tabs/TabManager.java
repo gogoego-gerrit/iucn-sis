@@ -17,8 +17,8 @@ public class TabManager {
 		panelManager = new PanelManager();
 
 		assessmentEditor = new AssessmentEditorTab(panelManager);
-		homePage = new HomePageTab(panelManager);
-		taxonHomePage = new TaxonHomePageTab(panelManager);
+		homePage = new HomePageTab();
+		taxonHomePage = new TaxonHomePageTab();
 		taxomaticPage = new TaxomaticTab(panelManager);
 		workingSetPage = new WorkingSetTab(panelManager);
 		update();

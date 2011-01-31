@@ -9,6 +9,7 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
+import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Relationship;
@@ -33,8 +34,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 @SuppressWarnings("deprecation")
 public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
-	
-	private PanelManager manager;
+
 	private HTML instructions;
 	private DataList list;
 	private Button add;
@@ -44,9 +44,11 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 	private RadioButton addToEntireWorkingSet;
 	private RadioButton published;
 	private RadioButton empty;
+	
+	private final WorkingSetPage parent;
 
-	public WorkingSetAddAssessmentsPanel(PanelManager manager) {
-		this.manager = manager;
+	public WorkingSetAddAssessmentsPanel(WorkingSetPage parent) {
+		this.parent = parent;
 
 		build();
 	}
@@ -138,7 +140,7 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 	}
 
 	private void cancel() {
-		manager.workingSetBrowser.setManagerTab();
+		parent.setManagerTab();
 	}
 
 

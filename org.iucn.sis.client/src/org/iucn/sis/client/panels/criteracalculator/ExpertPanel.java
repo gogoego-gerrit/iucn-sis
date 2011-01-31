@@ -45,7 +45,7 @@ public class ExpertPanel extends LayoutContainer {
 	public final int xVU = 300;
 	public final int xLR = 400;
 
-	public ExpertPanel(PanelManager manager) {
+	public ExpertPanel() {
 		super();
 		setLayout(new BorderLayout());
 		setSize(520, 300);

@@ -26,7 +26,6 @@ import com.google.gwt.user.client.ui.HTML;
 
 public class WorkingSetSummaryPanel extends RefreshLayoutContainer {
 
-	private PanelManager manager = null;
 	private FlexTable grid = null;
 	private LayoutContainer gridContainer = null;
 
@@ -40,9 +39,8 @@ public class WorkingSetSummaryPanel extends RefreshLayoutContainer {
 	private WorkingSetTaxaList taxaList = null;
 	private WorkingSetAssessmentPanel assessmentPanel = null;
 
-	public WorkingSetSummaryPanel(PanelManager manager) {
+	public WorkingSetSummaryPanel() {
 		super();
-		this.manager = manager;
 		build();
 		addStyleName("gwt-background");
 		setScrollMode(Scroll.AUTO);
@@ -121,11 +119,11 @@ public class WorkingSetSummaryPanel extends RefreshLayoutContainer {
 		final LayoutContainer bottomContent = new LayoutContainer();
 		bottomContent.setLayout(new RowLayout(Orientation.HORIZONTAL));
 
-		taxaList = new WorkingSetTaxaList(manager, false);
+		taxaList = new WorkingSetTaxaList(false);
 		taxaList.setFilterVisible(false);
 		taxaList.setBorders(true);
 		taxaList.setJumpToToolbar();
-		assessmentPanel = new WorkingSetAssessmentPanel(manager);
+		assessmentPanel = new WorkingSetAssessmentPanel();
 		Listener<BaseEvent> listener = new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				if (taxaList.isFilteredBySpecies()) {
@@ -202,10 +200,10 @@ public class WorkingSetSummaryPanel extends RefreshLayoutContainer {
 			notes.setHTML(ws.getNotes());
 
 			// SET TAXA
-			if (manager.workingSetOptionsPanel.anyChanges)
+			/*FIXME if (manager.workingSetOptionsPanel.anyChanges)
 				taxaList.forcedRefresh();
 			else
-				taxaList.refresh();
+				taxaList.refresh();*/
 			
 			refreshAssessmentPanel();
 

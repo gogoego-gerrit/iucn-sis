@@ -1,68 +1,139 @@
 package org.iucn.sis.client.panels;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.StateManager;
+import org.iucn.sis.client.panels.dem.DEMPanel;
+import org.iucn.sis.client.tabs.FeaturedItemContainer;
+import org.iucn.sis.client.tabs.HomePageTab;
 import org.iucn.sis.client.tabs.TabManager;
-import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.client.tabs.TaxonHomePageTab;
+import org.iucn.sis.client.tabs.WorkingSetPage;
+import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.WorkingSet;
 
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
-import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class BodyContainer extends TabPanel {
+public class BodyContainer extends LayoutContainer {
 
 	public TabManager tabManager = null;
+	
+	private LayoutContainer homePage;
+	private FeaturedItemContainer<WorkingSet> workingSetPage;
+	private FeaturedItemContainer<Taxon> taxonHomePage;
+	private FeaturedItemContainer<Assessment> assessmentPage;
+	
+	private LayoutContainer current;
 
 	public BodyContainer() {
-		tabManager = new TabManager();
+		super(new FillLayout());
+		setLayoutOnChange(true);
 
-		setTabWidth(85);
-
-		addListener(Events.Select, new Listener<TabPanelEvent>() {
-			public void handleEvent(TabPanelEvent be) {
-				try {
-					refreshBody();
-				} catch (Exception notBuiltYet) {
-				}
+		homePage = new HomePageTab();
+		workingSetPage = new WorkingSetPage();
+		taxonHomePage = new TaxonHomePageTab();
+		assessmentPage = new DEMPanel();
+		
+		openHomePage();
+	}
+	
+	public void openWorkingSet() {
+		removeAll();
+		workingSetPage.setItems(new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values()));
+		workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet());
+		
+		workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				add(workingSetPage);
+				
+				current = workingSetPage;
 			}
 		});
-
-		setResizeTabs(false);
-
-		build();
 	}
-
-	public void build() {
-		add(tabManager.homePage);
-		add(tabManager.workingSetPage);
-		add(tabManager.taxonHomePage);
-		add(tabManager.assessmentEditor);
-	}
-
-	public TabManager getTabManager() {
-		return tabManager;
-	}
-
-	public void refreshBody() {
-		if (getSelectedItem().equals(tabManager.assessmentEditor))
-			tabManager.panelManager.DEM.redraw();
-
-		if (getSelectedItem().equals(tabManager.taxonHomePage)) {
-			tabManager.panelManager.DEM.stopAutosaveTimer();
-			if (TaxonomyCache.impl.getCurrentTaxon() != null)
-				tabManager.panelManager.taxonomicSummaryPanel.update(TaxonomyCache.impl.getCurrentTaxon().getId());
-		} else if (getSelectedItem().equals(tabManager.workingSetPage)) {
-			tabManager.panelManager.DEM.stopAutosaveTimer();
-			tabManager.workingSetPage.redraw();
-		} else {
-			try {
-			tabManager.panelManager.DEM.layout();
-			tabManager.panelManager.DEM.stopAutosaveTimer();
-			tabManager.panelManager.workingSetPanel.refresh();
-			tabManager.panelManager.recentAssessmentsPanel.refresh();
-			} catch (Exception e) {
-				Debug.println(e);
+	
+	public void openTaxon() {
+		removeAll();
+		
+		final GenericCallback<List<Taxon>> callback = new GenericCallback<List<Taxon>>() {
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
 			}
+			public void onSuccess(List<Taxon> result) {
+				taxonHomePage.setItems(result);
+				taxonHomePage.setSelectedItem(StateManager.impl.getTaxon());
+				taxonHomePage.draw(new DrawsLazily.DoneDrawingCallback() {
+					public void isDrawn() {
+						add(taxonHomePage);
+						
+						current = taxonHomePage;
+					}
+				});	
+			}
+		};
+		
+		WorkingSet ws = StateManager.impl.getWorkingSet();
+		if (ws == null)
+			callback.onSuccess(TaxonomyCache.impl.getRecentlyAccessed());
+		else {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, callback);
 		}
+		
 	}
+	
+	public void openAssessment() {
+		removeAll();
+		AssessmentFetchRequest request = new AssessmentFetchRequest(null, StateManager.impl.getTaxon().getId());
+		AssessmentCache.impl.fetchAssessments(request, new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				List<Assessment> assessments = new ArrayList<Assessment>();
+				assessments.addAll(AssessmentCache.impl.getDraftAssessmentsForTaxon(StateManager.impl.getTaxon().getId()));
+				assessments.addAll(AssessmentCache.impl.getPublishedAssessmentsForTaxon(StateManager.impl.getTaxon().getId()));
+				
+				assessmentPage.setItems(assessments);
+				assessmentPage.setSelectedItem(StateManager.impl.getAssessment());
+				
+				assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
+					public void isDrawn() {
+						add(assessmentPage);
+						
+						current = assessmentPage;
+					}
+				});
+			}			
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+	
+	public void openHomePage() {
+		removeAll();
+		
+		add(homePage);
+	}
+	
+	public void refreshBody() {
+		if (workingSetPage == current)
+			workingSetPage.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+		else if (taxonHomePage == current)
+			taxonHomePage.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+		else if (assessmentPage == current)
+			assessmentPage.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+	}
+	
+	public boolean isAssessmentEditor() {
+		return assessmentPage == current;
+	}
+
 }

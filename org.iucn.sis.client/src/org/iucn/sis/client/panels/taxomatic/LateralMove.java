@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -32,7 +31,7 @@ public class LateralMove extends TaxonChooser {
 	private Taxon  parentNode;
 	private List<String> childrenNodes;
 
-	public LateralMove(PanelManager manager) {
+	public LateralMove() {
 		super();
 		setHeading("Perform Lateral Move");
 		setIconStyle("icon-lateral-move");
