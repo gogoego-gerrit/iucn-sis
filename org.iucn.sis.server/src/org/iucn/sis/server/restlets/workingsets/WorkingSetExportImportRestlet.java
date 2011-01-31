@@ -535,7 +535,6 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		
 			workingSet.setId(0);
 			workingSet.setCreatedDate(new Date());
-			workingSet.setCreator(username);
 			workingSet.setCreator(SIS.get().getUserIO().getUserFromUsername(username));
 			workingSet.getUsers().add(workingSet.getCreator());
 			return SIS.get().getWorkingSetIO().saveWorkingSet(workingSet, workingSet.getCreator());

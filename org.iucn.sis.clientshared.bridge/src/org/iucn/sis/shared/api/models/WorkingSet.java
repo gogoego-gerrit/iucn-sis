@@ -23,13 +23,13 @@ import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.utils.XMLUtils;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.portable.XMLWritingUtils;
 
 public class WorkingSet implements Serializable, AuthorizableObject {
 
@@ -122,14 +122,6 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 		return getCreator().getUsername();
 	}
 
-	public void setCreator(String creatorName) {
-		if (creator == null || !creator.getUsername().equals(creatorName)) {
-			User user = new User();
-			user.setUsername(creatorName);
-			setCreator(user);
-		}
-	}
-
 	public String getWorkflowStatus() {
 		if (getWorkflow() == null)
 			return "draft";
@@ -137,9 +129,11 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	}
 
 	public String toXMLMinimal() {
-		return "<" + ROOT_TAG + " creator=\"" + getCreatorUsername() + "\" id=\"" + getId() + "\" date=\""
-				+ getCreatedDate().getTime() + "\" name=\"" + org.iucn.sis.shared.api.utils.XMLUtils.clean(getName())
-				+ "\"/>";
+		return "<" + ROOT_TAG + " id=\"" + getId() + "\" date=\"" +
+				getCreatedDate().getTime() + "\" />" +
+				XMLWritingUtils.writeCDATATag("name", name) +
+				creator.toBasicXML("creator") + 
+				"</" + ROOT_TAG + ">";
 	}
 
 	public static WorkingSet fromXMLMinimal(NativeElement element) {
@@ -147,10 +141,17 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	}
 	
 	public static WorkingSet fromXMLMinimal(WorkingSet set, NativeElement element) {
-		set.setCreator(element.getAttribute("creator"));
+		NativeNodeList children = element.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			NativeNode node = children.item(i);
+			if ("creator".equals(node.getNodeName()))
+				set.setCreator(User.fromXML((NativeElement)node));
+			else if ("name".equals(node.getNodeName()))
+				set.setName(node.getTextContent());
+		}
+		
 		set.setId(Integer.valueOf(element.getAttribute("id")));
 		set.setCreatedDate(new Date(Long.valueOf(element.getAttribute("date"))));
-		set.setName(XMLUtils.cleanFromXML(element.getAttribute("name")));
 		
 		return set;
 	}
@@ -212,10 +213,10 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 
 	public String toXML() {
 		StringBuilder xml = new StringBuilder();
-		xml.append("<" + ROOT_TAG + " creator=\"" + getCreatorUsername() + "\" id=\"" + getId() + "\" date=\""
-				+ getCreatedDate().getTime() + "\" name=\"" + XMLUtils.clean(getName())
-				+ "\">");
-
+		xml.append("<" + ROOT_TAG + " id=\"" + getId() + "\" date=\""
+				+ getCreatedDate().getTime() + "\">");
+		xml.append(XMLWritingUtils.writeCDATATag("name", getName()));
+		xml.append(creator.toBasicXML("creator"));
 		if (workflow == null)
 			workflow = WorkflowStatus.DRAFT.toString();
 		xml.append("<workflow>" + workflow + "</workflow>");

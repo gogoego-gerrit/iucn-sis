@@ -77,13 +77,17 @@ public class User implements Serializable {
 	}
 	
 	public String toBasicXML() {
-		StringBuilder xml = new StringBuilder("<" + ROOT_TAG + ">");
+		return toBasicXML(ROOT_TAG);
+	}
+	
+	public String toBasicXML(String rootTag) {
+		StringBuilder xml = new StringBuilder("<" + rootTag + ">");
 		xml.append(XMLWritingUtils.writeTag("id", getId() + ""));
 		xml.append(XMLWritingUtils.writeCDATATag("username", getUsername()));
 		xml.append(XMLWritingUtils.writeCDATATag("email", getEmail()));
 		xml.append(XMLWritingUtils.writeCDATATag("firstName", getFirstName(), true));
 		xml.append(XMLWritingUtils.writeCDATATag("lastName", getLastName(), true));
-		xml.append("</" + ROOT_TAG + ">");
+		xml.append("</" + rootTag + ">");
 		return xml.toString();
 	}
 	

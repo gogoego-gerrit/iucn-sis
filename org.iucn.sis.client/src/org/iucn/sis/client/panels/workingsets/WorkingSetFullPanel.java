@@ -703,7 +703,8 @@ public class WorkingSetFullPanel extends ContentPanel {
 			// IF WE ARE ADDING A NEW WORKING SET
 			else {
 				currentWorkingSet.setCreatedDate(new Date());
-				currentWorkingSet.setCreator(((HTML) grid.getWidget(0, 1)).getText());
+				currentWorkingSet.setCreator(SimpleSISClient.currentUser);
+				//currentWorkingSet.setCreator(((HTML) grid.getWidget(0, 1)).getText());
 
 				WorkingSetCache.impl.createWorkingSet(currentWorkingSet, new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {

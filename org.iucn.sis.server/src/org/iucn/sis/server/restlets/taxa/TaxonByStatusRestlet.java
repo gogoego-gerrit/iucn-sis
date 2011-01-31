@@ -73,8 +73,7 @@ public class TaxonByStatusRestlet extends BaseServiceRestlet {
 	 * @param response
 	 */
 	protected void createWorkingSet(Request request, Response response) {
-		final String username = SIS.get().getUsername(request);
-		final User user = SIS.get().getUserIO().getUserFromUsername(username);
+		final User user = getUser(request);
 		// final StringBuilder workingSetXML = new StringBuilder("<xml>\r\n");
 		final LinkedHashMap<String, String> idsToName = getTaxaIDsToNameResults(TaxonStatus.STATUS_NEW);
 		final Date today = new Date();
@@ -86,7 +85,7 @@ public class TaxonByStatusRestlet extends BaseServiceRestlet {
 		workingSet.setName("New taxa");
 		workingSet.setDescription("Taxa with new status as of " + output);
 		workingSet.setCreatedDate(new Date());
-		workingSet.setCreator(username);
+		workingSet.setCreator(user);
 		workingSet.setTaxon(new HashSet<Taxon>());
 		workingSet.setUsers(new HashSet<User>());
 		workingSet.getUsers().add(user);

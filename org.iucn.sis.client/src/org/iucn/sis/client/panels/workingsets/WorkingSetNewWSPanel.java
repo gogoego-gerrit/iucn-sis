@@ -352,7 +352,7 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		if (id == null) {
 			final WorkingSet currentWorkingSet = new WorkingSet();
 			currentWorkingSet.setCreatedDate(new Date());
-			currentWorkingSet.setCreator(manager);
+			currentWorkingSet.setCreator(SimpleSISClient.currentUser);
 			currentWorkingSet.setDescription(descriptionText);
 			currentWorkingSet.setNotes(notesText);
 			currentWorkingSet.setName(name);
