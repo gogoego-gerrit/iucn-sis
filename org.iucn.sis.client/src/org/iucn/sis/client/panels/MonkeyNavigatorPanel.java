@@ -1,16 +1,28 @@
 package org.iucn.sis.client.panels;
 
+import org.iucn.sis.client.api.caches.MarkedCache;
+import org.iucn.sis.client.api.container.StateManager;
+import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.WorkingSet;
+
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Layout;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.layout.LayoutData;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.Widget;
@@ -99,6 +111,38 @@ public class MonkeyNavigatorPanel extends LayoutContainer {
 	@Override
 	public boolean removeAll() {
 		return content.removeAll();
+	}
+	
+	protected IconButton createIconButton(String icon, String title, SelectionListener<IconButtonEvent> listener) {
+		IconButton button = new IconButton(icon);
+		button.addSelectionListener(listener);
+		button.setTitle(title);
+		
+		return button;
+	}
+	
+	protected Menu createMarkingContextMenu(SelectionListener<MenuEvent> listener) {
+		Menu menu = new Menu();
+		menu.add(createMenuItem("green-menu", MarkedCache.GREEN, "Mark Green", listener));
+		menu.add(createMenuItem("blue-menu", MarkedCache.BLUE, "Mark Blue", listener));
+		menu.add(createMenuItem("red-menu", MarkedCache.RED, "Mark Red", listener));
+		menu.add(createMenuItem("regular-menu", MarkedCache.NONE, "Unmark",  listener));
+		
+		return menu;
+	}
+	
+	protected MenuItem createMenuItem(String style, String itemID, String text, SelectionListener<MenuEvent> listener) {
+		MenuItem item = new MenuItem();
+		item.addStyleName(style);
+		item.setItemId(itemID);
+		item.setText(text);
+		item.addSelectionListener(listener);
+		
+		return item;
+	}
+	
+	protected void navigate(WorkingSet ws, Taxon taxon, Assessment assessment) {
+		StateManager.impl.setState(ws, taxon, assessment);
 	}
 
 }
