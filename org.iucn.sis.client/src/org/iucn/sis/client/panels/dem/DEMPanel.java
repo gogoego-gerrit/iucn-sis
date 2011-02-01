@@ -19,6 +19,7 @@ import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
@@ -63,7 +64,7 @@ import com.solertium.util.gwt.ui.StyledHTML;
  * @author adam.schwartz
  * 
  */
-public class DEMPanel extends FeaturedItemContainer<Assessment> {
+public class DEMPanel extends FeaturedItemContainer<Integer> {
 
 	private boolean viewOnly = false;
 	private LayoutContainer scroller;
@@ -130,7 +131,7 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 	
 	@Override
 	protected LayoutContainer updateFeature() {
-		final Assessment item = getSelectedItem();
+		final Assessment item = AssessmentCache.impl.getAssessment(getSelectedItem());
 		final Taxon taxon = StateManager.impl.getTaxon();
 		
 		String abbreviation = "";
@@ -189,7 +190,7 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 		
 		if (item.getLastEdit() != null) {
 			stats.setWidget(++row, 0, new StyledHTML("Last Modified: ", "page_assessment_featured_prompt"));
-			stats.setWidget(row, 1, new StyledHTML(FormattedDate.impl.getDate(item.getLastEdit().getCreatedDate()) + 
+			stats.setWidget(row, 1, new StyledHTML(FormattedDate.FULL.getDate(item.getLastEdit().getCreatedDate()) + 
 					" by " + item.getLastEdit().getUser().getDisplayableName(), "page_assessment_featured_content"));
 		}
 		
@@ -199,9 +200,19 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 	}
 	
 	@Override
-	protected void updateSelection(Assessment selection) {
-		//AssessmentCache.impl.setCurrentAssessment(selection);
-		StateManager.impl.setState(selection);
+	protected void updateSelection(final Integer selection) {
+		AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+			public void handleEvent() {
+				AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(selection, null), new GenericCallback<String>() {
+					public void onSuccess(String result) {
+						StateManager.impl.setState(AssessmentCache.impl.getAssessment(selection));
+					}
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Error loading next assessment");
+					}
+				});
+			}
+		});
 	}
 
 	private DEMToolbar buildToolBar() {

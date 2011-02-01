@@ -142,7 +142,7 @@ public class MonkeyNavigatorPanel extends LayoutContainer {
 	}
 	
 	protected void navigate(WorkingSet ws, Taxon taxon, Assessment assessment) {
-		StateManager.impl.setState(ws, taxon, assessment);
+		StateManager.impl.setState(ws, taxon, assessment, ClientUIContainer.headerContainer.centerPanel);
 	}
 
 }

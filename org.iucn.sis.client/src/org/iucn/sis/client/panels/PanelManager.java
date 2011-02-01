@@ -42,8 +42,6 @@ public class PanelManager {
 	public BugPanel bugPanel = null;
 	public BugPanel resolvedBugPanel = null;
 
-	public ReferenceViewTabPanel refViewPanel = null;
-
 	public PanelManager() {
 		//taxonomicSummaryPanel = new TaxonHomePage();
 		//taxonomyBrowserPanel = new TaxonomyBrowserPanel();
@@ -59,14 +57,6 @@ public class PanelManager {
 		addTaxonPanel = new WorkingSetAddTaxaSearchPanel();
 		workingSetOptionsPanel = new WorkingSetOptionsPanel();
 		workingSetBrowser = new WorkingSetBrowser(this);
-		
-		
-		try {
-			refViewPanel = new ReferenceViewTabPanel();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 	}
 
 	public void addPanel(LayoutContainer container, LayoutContainer panel, LayoutData layoutData, boolean resizable,

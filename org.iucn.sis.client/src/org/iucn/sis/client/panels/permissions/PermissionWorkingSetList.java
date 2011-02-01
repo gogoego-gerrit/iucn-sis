@@ -2,6 +2,7 @@ package org.iucn.sis.client.panels.permissions;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
@@ -110,9 +111,8 @@ public class PermissionWorkingSetList extends ContentPanel {
 			}
 		}));
 		
-		WorkingSetCache.impl.getAllSubscribableWorkingSets(new GenericCallback<String>() {
-			public void onSuccess(String result) {
-				ArrayList<WorkingSet> subs = WorkingSetCache.impl.getSubscribable();
+		WorkingSetCache.impl.getAllSubscribableWorkingSets(new GenericCallback<List<WorkingSet>>() {
+			public void onSuccess(List<WorkingSet> subs) {
 				for( WorkingSet cur : subs ) {
 					if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
 							AuthorizableObject.GRANT, cur))

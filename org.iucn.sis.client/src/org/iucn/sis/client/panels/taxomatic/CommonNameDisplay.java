@@ -373,18 +373,7 @@ public class CommonNameDisplay implements Referenceable {
 		referenceImage.setTitle("Add/Remove References");
 		referenceImage.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				final Window s = WindowUtils.getWindow(true, true, "Add a references to Common Name" + name.getName());
-				s.setIconStyle("icon-book");
-				s.setLayout(new FillLayout());
-
-				ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel
-						.setReferences(CommonNameDisplay.this);
-
-				s.add(ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel);
-
-				s.setSize(850, 550);
-				s.show();
-				s.center();
+				ClientUIContainer.bodyContainer.openReferenceManager(CommonNameDisplay.this, "Add a references to Common Name" + name.getName());
 			}
 		});
 

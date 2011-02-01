@@ -3,16 +3,19 @@ package org.iucn.sis.client.api.caches;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.data.WorkingSetParser;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -55,19 +58,13 @@ public class WorkingSetCache {
 	}
 
 	public static final WorkingSetCache impl = new WorkingSetCache();
-	/**
-	 * A hashmap of working sets <Integer id, WorkingSet>
-	 */
+	
 	private Map<Integer, WorkingSet> workingSets;
-
-	/**
-	 * an arraylist of working set data that is possible to subscribe to.
-	 */
-	private ArrayList<WorkingSet> subscribableWorkingSets;
+	private Map<Integer, Map<Integer, List<Integer>>> assessmentRelations;
 
 	private WorkingSetCache() {
 		workingSets = new HashMap<Integer, WorkingSet>();
-		subscribableWorkingSets = new ArrayList<WorkingSet>();
+		assessmentRelations = new HashMap<Integer, Map<Integer,List<Integer>>>();
 	}
 
 	/**
@@ -314,45 +311,148 @@ public class WorkingSetCache {
 			}
 		});
 	}
+	
+	/**
+	 * Get all assessments for a working set for the given taxon 
+	 * (or all assessments if taxon is null), THEN pre-fetch and 
+	 * cache all resulting assessments, and return the cached 
+	 * assessment objects.
+	 * 
+	 * @param ws
+	 * @param taxon
+	 * @param callback
+	 */
+	public void getAssessmentsForWorkingSet(final WorkingSet ws, final Taxon taxon, final GenericCallback<List<Assessment>> callback) {
+		final SimpleListener handler = new SimpleListener() {
+			public void handleEvent() {
+				Map<Integer, List<Integer>> assessmentsForTaxa = assessmentRelations.get(ws.getId());
+				
+				final AssessmentFetchRequest request = new AssessmentFetchRequest();
+				if (taxon == null) 
+					for (List<Integer> id : assessmentsForTaxa.values())
+						request.addAssessments(id);
+				else if (assessmentsForTaxa.get(taxon.getId()) != null)
+					request.addAssessments(assessmentsForTaxa.get(taxon.getId()));
+				
+				final Collection<Integer> assessments = new ArrayList<Integer>(request.getAssessmentUIDs());
+				
+				if (assessments.isEmpty())
+					callback.onSuccess(new ArrayList<Assessment>());
+				else
+					AssessmentCache.impl.fetchAssessments(request, new GenericCallback<String>() {
+						public void onSuccess(String result) {
+							List<Assessment> list = new ArrayList<Assessment>();
+							for (Integer id : assessments)
+								list.add(AssessmentCache.impl.getAssessment(id));
+							
+							callback.onSuccess(list);
+						}
+						public void onFailure(Throwable caught) {
+							callback.onFailure(caught);
+						}
+					});
+			}
+		};
+		
+		fetchAssessmentsForWorkingSet(ws, taxon, handler);
+	}
+	
+	/**
+	 * List the IDs of the assessments in this working set for the given 
+	 * taxon (or null for all assessments).  Does not actually fetch or 
+	 * cache these items, leaving that exercise to the caller.
+	 * @param ws
+	 * @param taxon
+	 * @param callback
+	 */
+	public void listAssessmentsForWorkingSet(final WorkingSet ws, final Taxon taxon, final GenericCallback<List<Integer>> callback) {
+		final SimpleListener handler = new SimpleListener() {
+			public void handleEvent() {
+				Map<Integer, List<Integer>> assessmentsForTaxa = assessmentRelations.get(ws.getId());
+				
+				Set<Integer> set = new HashSet<Integer>();
+				if (taxon == null) 
+					for (List<Integer> id : assessmentsForTaxa.values())
+						set.addAll(id);
+				else if (assessmentsForTaxa.get(taxon.getId()) != null)
+					set.addAll(assessmentsForTaxa.get(taxon.getId()));
+				
+				callback.onSuccess(new ArrayList<Integer>(set));
+			}
+		};
+		
+		fetchAssessmentsForWorkingSet(ws, taxon, handler);
+	}
+	
+	private void fetchAssessmentsForWorkingSet(final WorkingSet ws, final Taxon taxon, final SimpleListener handler) {
+		if (assessmentRelations.get(ws.getId()) != null) {
+			handler.handleEvent();
+		}
+		else {
+			final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+			document.get(UriBase.getInstance().getSISBase() + "/workingSet/assessments/" + 
+					SISClientBase.currentUser.getUsername() + "/" + 
+					ws.getId(), new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					Map<Integer, List<Integer>> mapping = new HashMap<Integer, List<Integer>>();
+					
+					final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName("assessment");
+					for (int i = 0; i < nodes.getLength(); i++) {
+						NativeElement node = nodes.elementAt(i);
+						Integer assessmentID = Integer.valueOf(node.getAttribute("id"));
+						Integer taxonID = Integer.valueOf(node.getAttribute("taxon"));
+						
+						List<Integer> l = mapping.get(taxonID);
+						if (l == null) {
+							l = new ArrayList<Integer>();
+							mapping.put(taxonID, l);
+						}
+						
+						l.add(assessmentID);
+					}
+					
+					assessmentRelations.put(ws.getId(), mapping);
+					
+					handler.handleEvent();
+				}
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Error loading assessments.");
+				}
+			});
+		}
+	}
 
 	/**
 	 * gets all public working sets that the user can subscribe to
 	 * 
 	 * @param wayBack
 	 */
-	public void getAllSubscribableWorkingSets(final GenericCallback<String> wayBack) {
+	public void getAllSubscribableWorkingSets(final GenericCallback<List<WorkingSet>> wayBack) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.get(UriBase.getInstance().getSISBase() + "/workingSet/subscribe/"
 				+ SISClientBase.currentUser.getUsername(), new GenericCallback<String>() {
-
 			public void onFailure(Throwable caught) {
-				subscribableWorkingSets.clear();
 				wayBack.onFailure(caught);
 			}
-
 			public void onSuccess(String arg0) {
-				subscribableWorkingSets.clear();
+				List<WorkingSet> subscribableWorkingSets = new ArrayList<WorkingSet>();
 				NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(WorkingSet.ROOT_TAG);
 				for (int i = 0; i < list.getLength(); i++) {
-					NativeElement element = (NativeElement) list.item(i);
+					NativeElement element = list.elementAt(i);
 					WorkingSet ws = WorkingSet.fromXMLMinimal(element);
 
+					//TODO: server should not even return working sets that you can't read...
 					if (AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.READ, ws)) {
 						subscribableWorkingSets.add(ws);
 					}
 				}
-				wayBack.onSuccess(arg0);
+				wayBack.onSuccess(subscribableWorkingSets);
 			}
-
 		});
 	}
 
 	public int getNumberOfWorkingSets() {
 		return workingSets.size();
-	}
-
-	public ArrayList<WorkingSet> getSubscribable() {
-		return subscribableWorkingSets;
 	}
 
 	/**
@@ -443,17 +543,6 @@ public class WorkingSetCache {
 				update(wayBack);
 			}
 		});
-	}
-
-	/**
-	 * given the workingSetIDs in csv form, removes the ids to your list of
-	 * working sets that you are subscribed to
-	 * 
-	 * @param workingSetID
-	 * @param wayBack
-	 */
-	public void unsubscribeToWorkingSets(final String workingSetID, final GenericCallback<String> wayBack) {
-
 	}
 
 	public void update(final GenericCallback<String> backInTheDay) {

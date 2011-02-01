@@ -101,8 +101,8 @@ public class HeaderSummaryPanel extends LayoutContainer {
 				text += " -- Global";
 			assessmentSummary.add(new HTML(text + "<br />"));
 			assessmentSummary.add(new HTML("Assessed Date: " + (data.getDateAssessed() == null ? "(not set)" : FormattedDate.impl.getDate(data.getDateAssessed())) + "<br />"));
-			assessmentSummary.add(new HTML("Last Modified: " + (data.getDateModified() != 0 ?
-					FormattedDate.impl.getDate(new Date(data.getDateModified())) + "<br />" : "N/A<br />")));
+			assessmentSummary.add(new HTML("Last Modified: " + (data.getLastEdit() != null ?
+					FormattedDate.impl.getDate(data.getLastEdit().getCreatedDate()) + "<br />" : "N/A<br />")));
 
 			String cat = AssessmentFormatter.getProperCategoryAbbreviation(data);
 

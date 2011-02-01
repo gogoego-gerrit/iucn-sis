@@ -23,15 +23,6 @@ public class WorkingSetParser {
 		return allSpeciesIDs;
 	}
 
-	public String getAllSpeciesIDsAsCSV() {
-		StringBuilder temp = new StringBuilder();
-		for (String cur : allSpeciesIDs) {
-			temp.append(cur);
-			temp.append(",");
-		}
-		return temp.substring(0, temp.length() - 1);
-	}
-
 	public ArrayList<WorkingSet> getWorkingSets() {
 		return workingSets;
 	}
@@ -52,8 +43,7 @@ public class WorkingSetParser {
 		for (int i = 0; i < workingSetList.getLength(); i++) {
 			NativeElement workingSet = workingSetList.elementAt(i);
 			WorkingSet cur = WorkingSet.fromXML(workingSet);
-			Debug.println("Parsed working set " + cur.getWorkingSetName());
-			if( cur != null )
+			if (cur != null)
 				workingSets.add(cur);
 		}
 	}

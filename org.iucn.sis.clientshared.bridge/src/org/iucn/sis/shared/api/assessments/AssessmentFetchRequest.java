@@ -76,7 +76,7 @@ public class AssessmentFetchRequest {
 	}
 	
 	public void addAssessments(List<Integer> assessmentUIDs) {
-		assessmentUIDs.addAll(assessmentUIDs);
+		assessmentIDs.addAll(assessmentUIDs);
 	}
 	
 	public Set<Integer> getAssessmentUIDs() {

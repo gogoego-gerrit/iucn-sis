@@ -125,7 +125,7 @@ public class PermissionResourceUI extends LayoutContainer {
 		return box;
 	}
 
-	private HorizontalPanel buildLists() {
+	private HorizontalPanel buildLists(List<WorkingSet> subscribable) {
 		final HorizontalPanel panel = new HorizontalPanel();
 
 		first = getComboBox("Select Type");
@@ -217,7 +217,7 @@ public class PermissionResourceUI extends LayoutContainer {
 		//		listboxLookup.put("taxon", taxon);
 
 		final ComboBox<ResourceModelData> workingSet = getComboBox("Select Working Set");
-		for( WorkingSet ws : WorkingSetCache.impl.getSubscribable() )
+		for( WorkingSet ws : subscribable )
 			workingSet.getStore().add(new ResourceModelData(ws.getWorkingSetName(), ws.getId()+""));
 		workingSet.getStore().sort("name", SortDir.ASC);
 		listboxLookup.put("workingSet", workingSet);
@@ -271,49 +271,54 @@ public class PermissionResourceUI extends LayoutContainer {
 	
 	@SuppressWarnings("unchecked")
 	public void showEditingWindow() {
-		final Window w = WindowUtils.getWindow(true, true, "Editing Resource");
-		w.setLayout(new FlowLayout());
+		WorkingSetCache.impl.getAllSubscribableWorkingSets(new GenericCallback<List<WorkingSet>>() {
+			public void onFailure(Throwable caught) {
+				onSuccess(new ArrayList<WorkingSet>());
+			}
+			@Override
+			public void onSuccess(List<WorkingSet> result) {
+				final HorizontalPanel listPanel = buildLists(result);
+				listPanel.setSize(730, 80);
 
-		final HorizontalPanel listPanel = buildLists();
-		listPanel.setSize(730, 80);
+				final Window w = WindowUtils.getWindow(true, true, "Editing Resource");
+				w.setLayout(new FlowLayout());
+				w.setSize(750, 100);
+				w.add(listPanel);
+				w.addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
+					public void componentSelected(ButtonEvent ce) {
+						StringBuilder uri = new StringBuilder();
+						Set<PermissionResourceAttribute> attrs = new HashSet<PermissionResourceAttribute>();
 
-		w.addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				StringBuilder uri = new StringBuilder();
-				Set<PermissionResourceAttribute> attrs = new HashSet<PermissionResourceAttribute>();
-
-				for( Component cur : listPanel.getItems() ) {
-					ComboBox<ResourceModelData> box = (ComboBox<ResourceModelData>)cur;
-					if( box.getSelection().size() > 0 ) {
-						if( box.getData("isAttribute") == null ) {
-							uri.append( box.getSelection().get(0).get("value") );
-							uri.append( "/" );
-						} else {
-							ResourceModelData data = box.getSelection().get(0);
-							attrs.add(new PermissionResourceAttribute((String)box.getData("isAttribute"), 
-									(String)data.get("value")));
+						for( Component cur : listPanel.getItems() ) {
+							ComboBox<ResourceModelData> box = (ComboBox<ResourceModelData>)cur;
+							if( box.getSelection().size() > 0 ) {
+								if( box.getData("isAttribute") == null ) {
+									uri.append( box.getSelection().get(0).get("value") );
+									uri.append( "/" );
+								} else {
+									ResourceModelData data = box.getSelection().get(0);
+									attrs.add(new PermissionResourceAttribute((String)box.getData("isAttribute"), 
+											(String)data.get("value")));
+								}
+							}
 						}
+
+						owner.removePermission(resource.getUrl());
+						resource.setUrl(uri.length() > 0 ? uri.substring(0, uri.length()-1) : "");
+						resource.setAttributes(attrs);
+						owner.addPermission(resource);
+						
+						saveHandler.onSuccess(resource.getUrl());
 					}
-				}
+				}));
 
-				owner.removePermission(resource.getUrl());
-				resource.setUrl(uri.length() > 0 ? uri.substring(0, uri.length()-1) : "");
-				resource.setAttributes(attrs);
-				owner.addPermission(resource);
-				
-				saveHandler.onSuccess(resource.getUrl());
+				w.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+					public void componentSelected(ButtonEvent ce) {
+						w.hide();
+					}
+				}));
+				w.show();	
 			}
-		}));
-
-		w.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				w.hide();
-			}
-		}));
-//		w.setAlignment(HorizontalAlignment.LEFT);
-		w.add(listPanel);
-		w.show();
-		w.setSize(750, 100);
-		w.center();
+		});
 	}
 }

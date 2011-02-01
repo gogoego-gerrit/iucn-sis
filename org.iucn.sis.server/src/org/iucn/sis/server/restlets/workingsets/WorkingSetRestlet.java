@@ -83,6 +83,8 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 				entity = getTaxaFootprintForWorkingSet(request, response, username, id);
 			else if (action.equalsIgnoreCase("taxaIDs"))
 				entity = getTaxaListForWorkingSet(username, id);
+			else if (action.equalsIgnoreCase("assessments"))
+				entity = getAssessmentsForWorkingSet(request, response, username, id);
 			else if (identifier.matches("\\d+"))
 				entity = getWorkingSet(username, id);
 			else
@@ -249,6 +251,25 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		
 		response.setStatus(Status.SUCCESS_CREATED);
 		return new StringRepresentation("/raw" + getURLToSaveFootprint(username), MediaType.TEXT_ALL);
+	}
+	
+	private Representation getAssessmentsForWorkingSet(Request request, Response response, String username, Integer workingSetID) throws ResourceException {
+		final WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(workingSetID);
+		if (ws == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+		
+		final StringBuilder xml = new StringBuilder();
+		xml.append("<root>");
+		for (Taxon taxon : ws.getTaxon()) {
+			AssessmentFilter filter = ws.getFilter();
+			AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
+			
+			for (Assessment assessment : helper.getAssessments(taxon.getId()))
+				xml.append("<assessment id=\"" + assessment.getId() + "\" taxon=\"" + taxon.getId() + "\" />");
+		}
+		xml.append("</root>");
+		
+		return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
 	}
 	
 	/**

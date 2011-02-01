@@ -4,12 +4,8 @@ import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.SISClientBase;
-import org.iucn.sis.client.api.container.StateChangeEvent;
-import org.iucn.sis.client.api.container.StateManager;
-import org.iucn.sis.client.api.container.StateManager.StateChangeEventType;
 import org.iucn.sis.client.extensions.birdlife.structures.BirdlifeWidgetGenerator;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.MonkeyNavigator;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
@@ -18,14 +14,11 @@ import org.iucn.sis.shared.api.utils.FieldParser;
 import com.extjs.gxt.themes.client.Slate;
 import com.extjs.gxt.ui.client.util.Theme;
 import com.extjs.gxt.ui.client.util.ThemeManager;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
-import com.solertium.util.extjs.client.WindowUtils;
 
 import ext.ux.theme.black.client.Black;
 import ext.ux.theme.darkgray.client.DarkGray;
@@ -117,21 +110,13 @@ public class SimpleSISClient extends SISClientBase {
 		//ClientUIContainer.headerContainer.workingSetChanged();
 	}
 	
-	@Override
+	/**
+	 * @deprecated use ClientUIContainer.bodyContainer.openReferenceManager instead.
+	 */
 	public void onShowReferenceEditor(String title,
 			Referenceable referenceable, GenericCallback<Object> onAddCallback,
 			GenericCallback<Object> onRemoveCallback) {
 
-		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setReferences(referenceable, onAddCallback, onRemoveCallback);
-		/*ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setOnAddSelected(onAddCallback);
-		ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setOnRemoveSelected(onRemoveCallback);*/
-
-		com.extjs.gxt.ui.client.widget.Window s = WindowUtils.getWindow(false, true, title);
-		s.setLayout(new FillLayout());
-		s.setIconStyle("icon-book");
-		s.add(ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel);
-		s.setSize(850, 550);
-		s.show();
-		s.center();
+		ClientUIContainer.bodyContainer.openReferenceManager(referenceable, title, onAddCallback, onRemoveCallback);
 	}
 }

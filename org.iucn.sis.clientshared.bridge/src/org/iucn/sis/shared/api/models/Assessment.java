@@ -495,15 +495,6 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 		
 	}
 	
-	public long getDateModified() {
-		long dateModified = 0;
-		Edit edit = getLastEdit();
-		if (edit != null) {
-			dateModified = edit.getCreatedDate().getTime();
-		}
-		return dateModified;
-	}
-	
 	public String getCategoryFuzzyResult() {
 		Field field = getField(CanonicalNames.RedListFuzzyResult);
 		if (field == null)

@@ -245,11 +245,7 @@ public class AssessmentCache {
 	}
 	
 	public Assessment getAssessment(Integer id) {
-		Assessment ret = cache.get(id);
-		
-		/*if (setAsCurrent)
-			setCurrentAssessment(ret);*/
-		return ret;
+		return cache.get(id);
 	}
 	
 	public Assessment getUserAssessment(int id) {

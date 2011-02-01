@@ -3,7 +3,6 @@ package org.iucn.sis.client.panels;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -27,15 +26,9 @@ import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.client.panels.viruses.VirusManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
-import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
@@ -498,14 +491,7 @@ public class HeaderContainer extends ContentPanel {
 
 		options.add(createMenuItem("icon-book-edit", "Manage References", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				final Window s = WindowUtils.getWindow(true, true, "Manage References");
-				s.setIconStyle("icon-book");
-				s.setLayout(new FitLayout());
-				ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setReferences(null);
-				s.add(ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel);
-				s.setSize(850, 550);
-				s.show();
-				s.center();
+				ClientUIContainer.bodyContainer.openReferenceManager();
 			}
 		}));
 		

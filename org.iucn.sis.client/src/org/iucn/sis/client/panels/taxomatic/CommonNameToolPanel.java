@@ -16,7 +16,6 @@ import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -99,16 +98,8 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		referenceImage.setTitle("Add/Remove References");
 		referenceImage.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				final Window s = WindowUtils.getWindow(true, true, "Add a references to Common Name" + cn.getName());
-				s.setIconStyle("icon-book");
-				s.setLayout(new FillLayout());
-				
-				ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setReferences(CommonNameToolPanel.this);
-				s.add(ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel);
-
-				s.setSize(850, 550);
-				s.show();
-				s.center();
+				ClientUIContainer.bodyContainer.openReferenceManager(
+					CommonNameToolPanel.this, "Add a references to Common Name" + cn.getName());
 			}
 		});
 		return referenceImage;

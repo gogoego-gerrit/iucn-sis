@@ -8,6 +8,7 @@ import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.StateManager.StateChangeEventType;
 import org.iucn.sis.client.panels.login.LoginPanel;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
@@ -20,7 +21,6 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.Window;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -156,7 +156,11 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 					if (assessmentID != null) {
 						AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(assessmentID, taxonID), new GenericCallback<String>() {
 							public void onSuccess(String whoCares) {
-								StateManager.impl.setState(ws, result, AssessmentCache.impl.getAssessment(assessmentID));
+								try {
+									StateManager.impl.setState(ws, result, AssessmentCache.impl.getAssessment(assessmentID));
+								} catch (Throwable e) {
+									Debug.println(e);
+								}
 							}
 							public void onFailure(Throwable caught) {
 								failAndBail("Could not load assessment " + assessmentID);

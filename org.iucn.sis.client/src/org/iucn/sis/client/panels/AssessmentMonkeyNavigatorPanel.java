@@ -10,12 +10,14 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
 import org.iucn.sis.client.api.caches.RegionCache;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
@@ -39,6 +41,7 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Assessment> {
@@ -141,7 +144,7 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 		
 		if (curNavTaxon == null)
 			callback.onSuccess(store);
-		else {
+		else if (curNavWorkingSet == null) {
 			AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, curNavTaxon.getId()), new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					callback.onSuccess(store);
@@ -160,7 +163,10 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 						if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
 								current)) {
 							if (displayable == null || displayable.equals(""))
-								displayable = FormattedDate.impl.getDate(new Date(current.getDateModified()));
+								if (current.getLastEdit() == null)
+									displayable = "New";
+								else
+									displayable = FormattedDate.impl.getDate(current.getLastEdit().getCreatedDate());
 
 							if (current.isRegional())
 								displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
@@ -208,6 +214,72 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 					}
 					store.sort("name", SortDir.DESC);
 					callback.onSuccess(store);
+				}
+			});
+		}
+		else {
+			WorkingSetCache.impl.getAssessmentsForWorkingSet(curNavWorkingSet, curNavTaxon, new GenericCallback<List<Assessment>>() {
+				public void onSuccess(List<Assessment> result) {
+					for (Assessment current : result) {
+						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
+						if (AssessmentType.DRAFT_ASSESSMENT_STATUS_ID == (current.getAssessmentType().getId())) {
+							String displayable;
+							if (current.getDateAssessed() != null )
+								displayable = FormattedDate.impl.getDate();
+							else
+								displayable = "";
+							
+							if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
+									current)) {
+								if (displayable == null || displayable.equals(""))
+									if (current.getLastEdit() == null)
+										displayable = "New";
+									else
+										displayable = FormattedDate.impl.getDate(current.getLastEdit().getCreatedDate());
+
+								if (current.isRegional())
+									displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
+								else
+									displayable += " --- " + "Global";
+								
+								model.set("name", displayable);
+								model.set("locked", Boolean.FALSE);
+								model.set("status", "draft");
+							} else {
+								if (current.isRegional())
+									model.set("name", "Regional Draft Assessment");
+								else
+									model.set("name", "Global Draft Assessment");
+								model.set("locked", Boolean.TRUE);
+								model.set("status", "draft");
+							}
+						}
+						else {
+							String displayable;
+							if (current.getDateAssessed() != null)
+								displayable = FormattedDate.impl.getDate(current.getDateAssessed());
+							else
+								displayable = "";
+
+							if (current.isRegional())
+								displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
+							else
+								displayable += " --- " + "Global";
+
+							displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(current);
+
+							model.set("name", displayable);
+							model.set("type", "published");
+
+							store.add(model);
+						}
+						
+						store.add(model);
+						callback.onSuccess(store);
+					}
+				}
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Could not load assessments for the taxon in this working set.");
 				}
 			});
 		}

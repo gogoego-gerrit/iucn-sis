@@ -9,7 +9,6 @@ import org.iucn.sis.client.api.ui.models.workingset.WSModel;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.PagingPanel;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
@@ -161,12 +160,11 @@ public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 	@Override
 	protected void getStore(final GenericCallback<ListStore<WSModel>> callback) {
 		//actionButton.disable();
-		WorkingSetCache.impl.getAllSubscribableWorkingSets(new GenericCallback<String>() {
+		WorkingSetCache.impl.getAllSubscribableWorkingSets(new GenericCallback<List<WorkingSet>>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Could not load working sets, please try again later.");
 			}
-			public void onSuccess(String arg0) {
-				ArrayList<WorkingSet> workingsets = WorkingSetCache.impl.getSubscribable();
+			public void onSuccess(List<WorkingSet> workingsets) {
 				final ListStore<WSModel> store = new ListStore<WSModel>();
 				store.addFilter(new StoreFilter<WSModel>() {
 					public boolean select(Store<WSModel> store, WSModel parent, WSModel item, String property) {

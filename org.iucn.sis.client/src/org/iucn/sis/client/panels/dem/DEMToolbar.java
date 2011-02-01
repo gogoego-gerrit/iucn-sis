@@ -166,6 +166,7 @@ public class DEMToolbar extends ToolBar {
 								WindowUtils.hideLoadingAlert();
 								Info.display("Save Complete", "Successfully saved assessment {0}.",
 										AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
+								Debug.println("Explicit save happened at {0}", AssessmentCache.impl.getCurrentAssessment().getLastEdit().getCreatedDate());
 								resetAutosaveTimer();
 								//TODO: ClientUIContainer.headerContainer.update();
 								if (saveListener != null)
@@ -359,31 +360,21 @@ public class DEMToolbar extends ToolBar {
 		mItem.setIconStyle("icon-book");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				final Window s = WindowUtils.getWindow(false, false, "Manage References -- Add to Global References");
-				s.setIconStyle("icon-book");
-				s.setLayout(new FitLayout());
-
 				GenericCallback<Object> callback = new GenericCallback<Object>() {
 					public void onFailure(Throwable caught) {
 						startAutosaveTimer();
-						WindowUtils.errorAlert("Error!", "Error committing changes to the "
+						WindowUtils.errorAlert("Error committing changes to the "
 								+ "server. Ensure you are connected to the server, then try " + "the process again.");
 					}
 
 					public void onSuccess(Object result) {
 						startAutosaveTimer();
-						WindowUtils.infoAlert("Success!", "Successfully committed reference changes.");
+						WindowUtils.infoAlert("Successfully committed reference changes.");
 					}
 				};
-				ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel.setReferences(AssessmentCache.impl
-						.getCurrentAssessment(), callback, callback);
-
-				s.add(ClientUIContainer.bodyContainer.tabManager.panelManager.refViewPanel);
-
+				
+				ClientUIContainer.bodyContainer.openReferenceManager(AssessmentCache.impl.getCurrentAssessment(), "Manage References -- Add to Global References", callback, callback);
 				stopAutosaveTimer();
-				s.setSize(850, 550);
-				s.show();
-				s.center();
 			}
 		});
 		mainMenu.add(mItem);
