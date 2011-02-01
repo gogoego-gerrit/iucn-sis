@@ -36,16 +36,13 @@ import com.solertium.lwxml.gwt.debug.DebuggingApplication;
 import com.solertium.lwxml.gwt.debug.SysDebugger;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.api.FixedSizedQueue;
 
 public abstract class SISClientBase implements EntryPoint, DebuggingApplication {
 	public static class SimpleSupport {
-		public static void doLogin(String user, final String password) {
-			final String username = user;
-
+		public static void doLogin(final String username, final String password) {
 			if (username != null && password != null && !username.equals("") && !password.equals("")) {
 				StringBuffer xml = new StringBuffer("<auth>");
 				xml.append("<u>");
@@ -65,6 +62,8 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 							instance.buildLogin(ret);
 						else
 							instance.buildLogin("Invalid login credentials.");
+						
+						WindowUtils.hideLoadingAlert();
 					}
 
 					public void onSuccess(String result) {
@@ -104,16 +103,17 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 				}
 
 				public void onSuccess(String result) {
-					NativeNodeList sis = doc.getDocumentElement().getElementsByTagName("sis");
-					if( sis.getLength() == 0 || sis.item(0).getTextContent().equalsIgnoreCase("true") ) {
-//						currentUser = ProfileUtils.buildUserFromProfile(doc, username);
-						currentUser = ClientUser.fromXML(doc.getDocumentElement());
+					ClientUser user = ClientUser.fromXML(doc.getDocumentElement());
+					if (user.isSISUser()) {
+						WindowUtils.showLoadingAlert("Login sucessful, loading...");
+						
+						currentUser = user;
 						currentUser.auth = authn;
 						currentUser.password = password;
-							
-						if (username.equalsIgnoreCase("admin"))
+						
+						if ("admin".equalsIgnoreCase(username))
 							currentUser.setProperty(UserPreferences.AUTO_SAVE, UserPreferences.DO_ACTION);
-
+					
 						AuthorizationCache.impl.setCredentials(authn);
 						AuthorizationCache.impl.init(new GenericCallback<String>() {
 							public void onSuccess(String result) {
@@ -140,8 +140,11 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 								});
 							}
 						});						
-					} else
+					} else {
+						WindowUtils.hideLoadingAlert();
+						
 						instance.buildLogin("Login " + username + " not active.");
+					}
 				}
 			});
 		}

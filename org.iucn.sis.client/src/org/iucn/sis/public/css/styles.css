@@ -1458,9 +1458,16 @@ SIS_Header_Summary_Title {
 	padding: 5px;
 }
 
+.SIS_loginMessage {
+	padding-bottom: 4px;
+	padding-top: 4px;
+	color: #C01B24;
+	font-weight: bold;
+}
+
 .SIS_loginFields {
 	text-align: center;
-	margin-top: 40px;
+	/*margin-top: 40px;*/
 	background-color: #CEDCE9;
 	border: 3px solid #ffffff;
 	padding: 20px;

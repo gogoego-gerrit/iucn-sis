@@ -1,7 +1,5 @@
 package org.iucn.sis.client.panels;
 
-import java.util.Date;
-
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;

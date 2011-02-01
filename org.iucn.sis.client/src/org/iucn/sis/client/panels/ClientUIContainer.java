@@ -39,7 +39,7 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 	public static BodyContainer bodyContainer = null;
 	public static HeaderContainer headerContainer = null;
 
-	private boolean loggedIn;
+	private Boolean loggedIn;
 
 	public ClientUIContainer() {
 		super();
@@ -47,16 +47,24 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 		setLayoutOnChange(true);
 		
 		loginPanel = new LoginPanel();
+		
 		buildLogin(null);
 	}
 
 	public void buildLogin(String message) {
-		loggedIn = false;
+		if (loggedIn == null || loggedIn.booleanValue()) {
+			removeAll();
+			add(loginPanel);
+		}
 		
-		removeAll();
-
-		add(loginPanel);
-		loginPanel.update(message);
+		if (message == null || message.contains("Log out"))
+			loginPanel.clearCredentials();
+		else
+			loginPanel.clearPassword(true);
+		
+		loginPanel.setMessage(message);
+		
+		loggedIn = false;
 
 		bodyContainer = null;
 		headerContainer = null;
