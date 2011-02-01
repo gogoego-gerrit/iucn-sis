@@ -469,7 +469,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		nickname.setHeader("Nickname");
 		{
 			final TextField<String> text = new TextField<String>();
-			text.setAllowBlank(false);
+			text.setAllowBlank(true);
 			text.setAutoValidate(true);
 			text.setMaxLength(255);
 			nickname.setEditor(new CellEditor(text));
