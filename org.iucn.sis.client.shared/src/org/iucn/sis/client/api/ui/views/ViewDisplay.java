@@ -10,6 +10,7 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.models.Assessment;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -75,6 +76,7 @@ public class ViewDisplay extends LayoutContainer implements DrawsLazily {
 				for (final SISView curView : ViewCache.impl.getAvailableViews()) {
 					if (viewsToShow == null || viewsToShow.contains(curView.getId())) {
 						final ContentPanel curItem = new ContentPanel();
+						curItem.setScrollMode(Scroll.AUTOY);
 						curItem.setHeading(curView.getDisplayableTitle());
 
 						for (final SISPageHolder curPage : curView.getPages()) {
