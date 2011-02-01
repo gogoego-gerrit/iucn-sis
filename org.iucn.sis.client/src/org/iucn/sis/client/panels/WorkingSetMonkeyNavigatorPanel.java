@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -36,6 +37,8 @@ import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
 import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
@@ -213,62 +216,73 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 			}
 		});
 		
-		addTool(createIconButton("icon-add", "Add New Working Set", new SelectionListener<IconButtonEvent>() {
+		addTool(createIconButton("icon-add", "Add Working Set", new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
-				// TODO Create new working set
-				
-				final Window window = new Window();
-				window.setSize(700, 700);
-				window.setHeading("Add New Working Set");
-				window.setLayout(new FillLayout());
-				
-				WorkingSetNewWSPanel panel = new WorkingSetNewWSPanel();
-				panel.setAfterSaveListener(new ComplexListener<WorkingSet>() {
-					public void handleEvent(WorkingSet eventData) {
-						//TODO: make this go to the edit taxa page...
-						window.hide();
-						StateManager.impl.setWorkingSet(eventData);
-					}
-				});
-				panel.setCloseListener(new ComplexListener<WorkingSet>() {
-					public void handleEvent(WorkingSet eventData) {
-						window.hide();
-						StateManager.impl.setWorkingSet(eventData);
-					}
-				});
-				panel.setCancelListener(new SimpleListener() {
-					public void handleEvent() {
-						window.hide();	
-					}
-				});
-				panel.setSaveNewListener(new ComplexListener<WorkingSet>() {
-					public void handleEvent(WorkingSet eventData) {
-						//TODO: make this go to the edit data page...?
-						window.hide();
-						StateManager.impl.setWorkingSet(eventData);
-					}
-				});
-				panel.refresh();
-				
-				window.add(panel);
-				window.show();
-			}
-		}));
-		addTool(createIconButton("icon-favorite", "Subscribe to Working Set", new SelectionListener<IconButtonEvent>() {
-			public void componentSelected(IconButtonEvent ce) {
-				final WorkingSetSubscriber panel = new WorkingSetSubscriber();
-				
-				Window window = new Window();
-				window.setLayout(new FillLayout());
-				window.setSize(700, 700);
-				window.setHeading("Subscribe to Working Set");
-				window.addListener(Events.Show, new Listener<BaseEvent>() {
-					public void handleEvent(BaseEvent be) {
+				final MenuItem newWS = new MenuItem("Create New Working Set");
+				newWS.addSelectionListener(new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final Window window = new Window();
+						window.setSize(700, 700);
+						window.setHeading("Add New Working Set");
+						window.setLayout(new FillLayout());
+						
+						WorkingSetNewWSPanel panel = new WorkingSetNewWSPanel();
+						panel.setAfterSaveListener(new ComplexListener<WorkingSet>() {
+							public void handleEvent(WorkingSet eventData) {
+								//TODO: make this go to the edit taxa page...
+								window.hide();
+								StateManager.impl.setWorkingSet(eventData);
+							}
+						});
+						panel.setCloseListener(new ComplexListener<WorkingSet>() {
+							public void handleEvent(WorkingSet eventData) {
+								window.hide();
+								StateManager.impl.setWorkingSet(eventData);
+							}
+						});
+						panel.setCancelListener(new SimpleListener() {
+							public void handleEvent() {
+								window.hide();	
+							}
+						});
+						panel.setSaveNewListener(new ComplexListener<WorkingSet>() {
+							public void handleEvent(WorkingSet eventData) {
+								//TODO: make this go to the edit data page...?
+								window.hide();
+								StateManager.impl.setWorkingSet(eventData);
+							}
+						});
 						panel.refresh();
+						
+						window.add(panel);
+						window.show();
 					}
 				});
-				window.add(panel);
-				window.show();
+				
+				final MenuItem subscribe = new MenuItem("Subscribe to Existing Working Set");
+				subscribe.addSelectionListener(new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final WorkingSetSubscriber panel = new WorkingSetSubscriber();
+						
+						Window window = new Window();
+						window.setLayout(new FillLayout());
+						window.setSize(700, 700);
+						window.setHeading("Subscribe to Working Set");
+						window.addListener(Events.Show, new Listener<BaseEvent>() {
+							public void handleEvent(BaseEvent be) {
+								panel.refresh();
+							}
+						});
+						window.add(panel);
+						window.show();
+					}
+				});
+				
+				final Menu menu = new Menu();
+				menu.add(newWS);
+				menu.add(subscribe);
+				
+				menu.show(ce.getIconButton());
 			}
 		}));
 		addTool(new SeparatorToolItem());
