@@ -91,6 +91,7 @@ public class AssessmentClientSaveUtils {
 										}	
 									}
 								}
+								assessmentToSave.setEdit(ret.getEdit());
 							} catch (Throwable e) {
 								Debug.println(e);
 							}
