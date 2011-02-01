@@ -36,6 +36,8 @@ import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -138,8 +140,20 @@ public class DEMPanel extends FeaturedItemContainer<Assessment> {
 			Debug.println(e);
 		}
 		
+		final StyledHTML speciesName = 
+			new StyledHTML("<center>" + item.getSpeciesName() + abbreviation + "</center>", "page_assessment_featured_header");
+		speciesName.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+					public void handleEvent() {
+						StateManager.impl.setState(null);
+					}
+				});
+			}
+		});
+		
 		final LayoutContainer container = new LayoutContainer();
-		container.add(new StyledHTML("<center>" + item.getSpeciesName() + abbreviation + "</center>", "page_assessment_featured_header"));
+		container.add(speciesName);
 		
 		CommonName cn = null;
 		final List<CommonName> cns = new ArrayList<CommonName>(taxon.getCommonNames());
