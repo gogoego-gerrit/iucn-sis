@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.utils.TaxonComparator;
 import org.iucn.sis.client.api.utils.TaxonPagingLoader;
@@ -134,6 +135,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 					}
 					public void onSuccess(Taxon result) {
 						//updateNodeSummary();
+						StateManager.impl.setTaxon(result);
 					}
 				});
 			}
