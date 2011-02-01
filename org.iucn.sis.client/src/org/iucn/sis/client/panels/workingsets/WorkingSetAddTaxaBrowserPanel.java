@@ -5,7 +5,6 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Taxon;

@@ -5,7 +5,6 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.PanelManager;
 
 import com.extjs.gxt.ui.client.widget.Html;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -31,10 +30,8 @@ public class WorkingsetImportWidget extends HorizontalPanel {
 	protected Button cancelUpload;
 	protected Button completed;
 	protected DockPanel uploadPanel;
-	private PanelManager manager;
 
-	public WorkingsetImportWidget(PanelManager manager) {
-		this.manager = manager;
+	public WorkingsetImportWidget() {
 		add(createPanel());
 	}
 
@@ -63,7 +60,6 @@ public class WorkingsetImportWidget extends HorizontalPanel {
 		uploadForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
 			public void onSubmitComplete(final SubmitCompleteEvent event) {
 				WorkingSetCache.impl.update(new GenericCallback<String>() {
-
 					public void onFailure(Throwable caught) {
 						WindowUtils.infoAlert("Failed refresh", "This working set may have imported properly, but SIS "
 								+ "failed to update its contents. Please log out and log "
@@ -75,7 +71,6 @@ public class WorkingsetImportWidget extends HorizontalPanel {
 						cancelUpload.setEnabled(true);
 						AssessmentCache.impl.clear();
 						TaxonomyCache.impl.clear();
-						manager.workingSetBrowser.refresh();
 					}
 
 					public void onSuccess(String arg0) {
@@ -91,9 +86,8 @@ public class WorkingsetImportWidget extends HorizontalPanel {
 							w.show();
 							w.center();
 							w.setClosable(true);
-AssessmentCache.impl.clear();
+							AssessmentCache.impl.clear();
 							TaxonomyCache.impl.clear();
-							manager.workingSetBrowser.refresh();
 						} else {
 							com.extjs.gxt.ui.client.widget.Window w = WindowUtils.getWindow(true, false, "Import Failed!");
 							w.add( new Html("Import failed. Please report the following error:" + event.getResults()) );
@@ -118,7 +112,8 @@ AssessmentCache.impl.clear();
 			});
 			cancelUpload = new Button("Cancel", new ClickHandler() {
 				public void onClick(ClickEvent event) {
-					manager.workingSetBrowser.setManagerTab();
+					//TODO: cancel, changing this to a window will fix the problem.
+					//manager.workingSetBrowser.setManagerTab();
 				}
 			});
 

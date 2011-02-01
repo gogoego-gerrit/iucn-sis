@@ -1,6 +1,5 @@
 package org.iucn.sis.client.panels.workingsets;
 
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -10,17 +9,10 @@ import com.google.gwt.user.client.ui.HTML;
 
 public class WorkingSetImporter extends RefreshLayoutContainer {
 
-	private PanelManager manager = null;
 	private HTML instructions = null;
 
-	public WorkingSetImporter(PanelManager manager) {
+	public WorkingSetImporter() {
 		super();
-		this.manager = manager;
-		build();
-	}
-
-	private void build() {
-
 		setLayout(new TableLayout(1));
 		setScrollMode(Scroll.AUTO);
 		addStyleName("gwt-background");
@@ -39,7 +31,7 @@ public class WorkingSetImporter extends RefreshLayoutContainer {
 		removeAll();
 
 		add(instructions, new TableData());
-		WorkingsetImportWidget uploadWidget = new WorkingsetImportWidget(manager);
+		WorkingsetImportWidget uploadWidget = new WorkingsetImportWidget();
 		add(uploadWidget, new TableData());
 
 		layout();

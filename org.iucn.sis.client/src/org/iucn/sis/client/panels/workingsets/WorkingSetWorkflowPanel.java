@@ -8,7 +8,6 @@ import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workflow.WorkflowNotesWindow;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -46,14 +45,12 @@ import com.solertium.util.gwt.ui.StyledHTML;
 
 public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements DrawsLazily {
 	
-	private final PanelManager manager;
 	private final TableData data1, data2;
 	
 	private WorkflowStatus currentStatus;
 	
-	public WorkingSetWorkflowPanel(PanelManager manager) {
+	public WorkingSetWorkflowPanel() {
 		super();
-		this.manager = manager;
 		addStyleName("gwt-background");
 		setScrollMode(Scroll.AUTO);
 		setSize("100%", "100%");
@@ -286,14 +283,7 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 			}
 			public void onSuccess(String result) {
 				WindowUtils.infoAlert("Status updated to " + status + " successfully.");
-				manager.workingSetHierarchy.refresh(new GenericCallback<Object>() {
-					public void onSuccess(Object result) {
-						refresh();	
-					}
-					public void onFailure(Throwable caught) {
-						refresh();
-					}
-				});
+				refresh();
 			}
 		});
 	}

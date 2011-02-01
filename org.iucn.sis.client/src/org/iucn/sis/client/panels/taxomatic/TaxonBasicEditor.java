@@ -2,7 +2,6 @@ package org.iucn.sis.client.panels.taxomatic;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Taxon;

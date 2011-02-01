@@ -2,8 +2,6 @@ package org.iucn.sis.client.panels.criteracalculator;
 
 import java.util.HashMap;
 
-import org.iucn.sis.client.panels.PanelManager;
-
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -28,7 +26,7 @@ public class CriteriaStringParser extends VerticalPanel {
 	 */
 	private HashMap<String, String> classificationToGrid;
 
-	public CriteriaStringParser(PanelManager manager) {
+	public CriteriaStringParser() {
 		classificationToGrid = new HashMap<String, String>();
 		result = new HTML("Criteria String: ");
 		build();

@@ -5,7 +5,6 @@ import java.util.Set;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workingsets.WorkingSetTaxaList.TaxaData;

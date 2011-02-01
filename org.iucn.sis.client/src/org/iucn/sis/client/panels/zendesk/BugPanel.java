@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
 import org.iucn.sis.shared.api.debug.Debug;
 

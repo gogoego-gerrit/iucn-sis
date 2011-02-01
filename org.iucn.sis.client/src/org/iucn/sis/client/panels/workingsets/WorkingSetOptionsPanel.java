@@ -5,7 +5,6 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workingsets.WorkingSetTaxaList.TaxaData;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;

@@ -12,7 +12,6 @@ import org.iucn.sis.client.panels.dem.DEMPanel;
 import org.iucn.sis.client.panels.references.ReferenceViewTabPanel;
 import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.client.tabs.HomePageTab;
-import org.iucn.sis.client.tabs.TabManager;
 import org.iucn.sis.client.tabs.TaxonHomePageTab;
 import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
@@ -31,8 +30,6 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class BodyContainer extends LayoutContainer {
 
-	public TabManager tabManager = null;
-	
 	private LayoutContainer homePage;
 	private FeaturedItemContainer<WorkingSet> workingSetPage;
 	private FeaturedItemContainer<Taxon> taxonHomePage;

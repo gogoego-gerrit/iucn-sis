@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels.images;
 
 import org.iucn.sis.client.api.ui.models.image.ManagedImage;
-import org.iucn.sis.client.panels.PanelManager;
 
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.google.gwt.user.client.ui.HTML;
@@ -9,7 +8,7 @@ import com.google.gwt.user.client.ui.Image;
 
 public class ImagePopupPanel extends VerticalPanel {
 
-	public ImagePopupPanel(PanelManager manager) {
+	public ImagePopupPanel() {
 		super();
 		setStyleName("x-panel");
 		setLayoutOnChange(true);

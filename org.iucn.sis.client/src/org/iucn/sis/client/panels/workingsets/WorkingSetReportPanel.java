@@ -4,7 +4,6 @@ import java.util.Date;
 
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;

@@ -9,7 +9,6 @@ import java.util.Set;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.utils.SearchPanel;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;

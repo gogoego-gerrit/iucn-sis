@@ -1,22 +1,6 @@
 package org.iucn.sis.client.panels.workingsets;
 
-import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.panels.PanelManager;
-import org.iucn.sis.client.tabs.WorkingSetPage;
-import org.iucn.sis.shared.api.models.WorkingSet;
-import org.iucn.sis.shared.api.workflow.WorkflowStatus;
-
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.Style.VerticalAlignment;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.TableData;
-import com.extjs.gxt.ui.client.widget.layout.TableLayout;
-import com.google.gwt.user.client.ui.HTML;
-import com.solertium.util.extjs.client.WindowUtils;
 
 /**
  * Class that allows the user to select from all working set operations.

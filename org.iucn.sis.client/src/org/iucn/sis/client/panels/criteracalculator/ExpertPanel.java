@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels.criteracalculator;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
-import org.iucn.sis.client.panels.PanelManager;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
 import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
 import org.iucn.sis.shared.api.models.Assessment;
