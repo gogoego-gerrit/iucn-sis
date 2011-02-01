@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -24,11 +25,14 @@ import org.iucn.sis.client.panels.utils.BasicSearchPanel;
 import org.iucn.sis.client.panels.utils.SearchPanel;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.client.panels.viruses.VirusManager;
+import org.iucn.sis.client.panels.zendesk.ZendeskPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
@@ -42,7 +46,9 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -69,7 +75,6 @@ public class HeaderContainer extends ContentPanel {
 
 	public MonkeyNavigator centerPanel;
 	private LayoutContainer leftPanel;
-	private LayoutContainer rightPanel;
 
 	private final SearchPanel taxonomySearchPanel;
 	private final FindReplacePanel findReplacePanel;
@@ -537,6 +542,43 @@ public class HeaderContainer extends ContentPanel {
 				s.center();
 			}
 		}));
+		
+		options.add(createMenuItem("icon-zendesk", "Report Bug", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				 new ZendeskPanel();
+			}
+		}));
+		
+		if ("true".equals(com.google.gwt.user.client.Window.Location.getParameter("debug"))) {
+			options.add(createMenuItem("", "View Debugging Output", new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					final Window window = new Window();
+					window.setHeading("Debugging Output");
+					window.setModal(false);
+					window.setClosable(true);
+					window.setAutoHide(true);
+					window.setLayout(new FitLayout());
+					window.setButtonAlign(HorizontalAlignment.CENTER);
+					window.setSize(450, 300);
+					window.addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
+						public void componentSelected(ButtonEvent ce) {
+							window.hide();
+						}
+					}));
+					final StringBuilder builder = new StringBuilder();
+					final String[] out = SISClientBase.instance.getLog().getAll();
+					for (String x : out)
+						builder.append(x + "\r\n-----------------------------\r\n");
+					
+					final TextArea area = new TextArea();
+					area.setReadOnly(true);
+					area.setValue(builder.toString());
+					
+					window.add(area);
+					window.show();
+				}
+			}));
+		}
 		
 		IconButton optionsIcon = new IconButton("icon-header-options");
 		optionsIcon.setSize(32, 32);

@@ -38,14 +38,11 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 
 	public static BodyContainer bodyContainer = null;
 	public static HeaderContainer headerContainer = null;
-	public static FooterContainer footerContainer = null;
-	public static ClientUIContainer container = null;
 
 	private boolean loggedIn;
 
 	public ClientUIContainer() {
-		container = this;
-
+		super();
 		setLayout(new FitLayout());
 		setLayoutOnChange(true);
 		
@@ -63,7 +60,6 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 
 		bodyContainer = null;
 		headerContainer = null;
-		footerContainer = null;
 	}
 
 	public void buildPostLogin(String first, String last, String affiliation) {
