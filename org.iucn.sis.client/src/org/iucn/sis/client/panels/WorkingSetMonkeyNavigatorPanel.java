@@ -6,11 +6,13 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.MarkedCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.container.StateChangeEvent;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.panels.MonkeyNavigator.NavigationChangeEvent;
 import org.iucn.sis.client.panels.workingsets.WorkingSetNewWSPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetSubscriber;
+import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -229,9 +231,13 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 						WorkingSetNewWSPanel panel = new WorkingSetNewWSPanel();
 						panel.setAfterSaveListener(new ComplexListener<WorkingSet>() {
 							public void handleEvent(WorkingSet eventData) {
-								//TODO: make this go to the edit taxa page...
 								window.hide();
-								StateManager.impl.setWorkingSet(eventData);
+								
+								StateChangeEvent event = new StateChangeEvent(eventData, null, null, null);
+								event.setCanceled(false);
+								event.setUrl(WorkingSetPage.URL_TAXA);
+								
+								StateManager.impl.setState(event);
 							}
 						});
 						panel.setCloseListener(new ComplexListener<WorkingSet>() {
@@ -247,9 +253,13 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 						});
 						panel.setSaveNewListener(new ComplexListener<WorkingSet>() {
 							public void handleEvent(WorkingSet eventData) {
-								//TODO: make this go to the edit data page...?
 								window.hide();
-								StateManager.impl.setWorkingSet(eventData);
+								
+								StateChangeEvent event = new StateChangeEvent(eventData, null, null, null);
+								event.setCanceled(false);
+								event.setUrl(WorkingSetPage.URL_EDIT);
+								
+								StateManager.impl.setState(event);
 							}
 						});
 						panel.refresh();

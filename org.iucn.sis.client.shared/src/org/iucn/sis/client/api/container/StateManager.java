@@ -64,83 +64,96 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 		setState(null, null, null);
 	}
 	
+	/**
+	 * Sets the current taxon to the given 
+	 * taxon and resets the current assessment, 
+	 * if any.
+	 * @param taxon
+	 */
 	public void setTaxon(Taxon taxon) {
 		setState(getWorkingSet(), taxon, null);
 	}
 	
+	/**
+	 * Sets the current working set to the given 
+	 * working set, and resets the current taxon 
+	 * and assessment, if any
+	 * @param workingSet
+	 */
 	public void setWorkingSet(WorkingSet workingSet) {
 		setState(workingSet, null, null);
 	}
 	
-	public void setState(Assessment assessment) {
+	/**
+	 * Sets the current assessment.
+	 * @param assessment
+	 */
+	public void setAssessment(Assessment assessment) {
 		setState(getWorkingSet(), getTaxon(), assessment);
 	}
 	
+	/**
+	 * Sets the state of the current taxon and assessment, 
+	 * while respecting the value of the current working 
+	 * set.
+	 * @param taxon
+	 * @param assessment
+	 */
 	public void setState(Taxon taxon, Assessment assessment) {
 		setState(getWorkingSet(), taxon, assessment);
 	}
 	
+	/**
+	 * Sets the entire state of the system to the given values.
+	 * The navigation will be re-drawn.
+	 * @param workingSet
+	 * @param taxon
+	 * @param assessment
+	 */
 	public void setState(WorkingSet workingSet, Taxon taxon, Assessment assessment) {
 		setState(workingSet, taxon, assessment, this);
 	}
 	
+	/**
+	 * Sets the entire state of the system to the given values, 
+	 * and relates the state change event's source to the given 
+	 * source.  Note that if anything other than the the 
+	 * navigation panel is the source of the event, the navigation 
+	 * will be re-drawn after the state change.  
+	 * @param workingSet
+	 * @param taxon
+	 * @param assessment
+	 * @param source
+	 */
 	public void setState(WorkingSet workingSet, Taxon taxon, Assessment assessment, Object source) {
-		if (hasChanges(getWorkingSet(), workingSet) || 
-				hasChanges(getTaxon(), taxon) || 
-				hasChanges(getAssessment(), assessment)) {
+		setState(new StateChangeEvent(workingSet, taxon, assessment, source));
+	}
 	
-			if (!fireEvent(StateChangeEventType.BeforeStateChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment, this))) {
-				this.workingSet = workingSet == null ? null : workingSet.getId();
-				this.taxon = taxon == null ? null : taxon.getId();
-				this.assessment = assessment == null ? null : assessment.getId();
+	/**
+	 * Fires the given state change event.  All values will 
+	 * be overwritten.  With great power comes great 
+	 * responsibility.
+	 * @param event
+	 */
+	public void setState(StateChangeEvent event) {
+		if (hasChanges(getWorkingSet(), event.getWorkingSet()) || 
+				hasChanges(getTaxon(), event.getTaxon()) || 
+				hasChanges(getAssessment(), event.getAssessment())) {
+	
+			if (!fireEvent(StateChangeEventType.BeforeStateChanged.getValue(), event)) {
+				this.workingSet = event.getWorkingSet() == null ? null : event.getWorkingSet().getId();
+				this.taxon = event.getTaxon() == null ? null : event.getTaxon().getId();
+				this.assessment = event.getAssessment() == null ? null : event.getAssessment().getId();
 				
 				if (taxon != null)
 					TaxonomyCache.impl.updateRecentTaxa();
 				if (assessment != null)
 					AssessmentCache.impl.updateRecentAssessments();
 				
-				fireEvent(StateChangeEventType.StateChanged.getValue(), source);
+				fireEvent(StateChangeEventType.StateChanged.getValue(), event.getSource(), event.getUrl());
 			}
 		}
 	}
-	
-	/*public void setAssessment(Assessment assessment) {
-		setAssessment(taxon, assessment);
-	}
-	
-	public void setAssessment(Taxon taxon, Assessment assessment) {
-		if (!hasChanges(this.assessment, assessment))
-			return;
-		
-		if (!fireEvent(StateChangeEventType.BeforeAssessmentChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment))) {
-			this.taxon = taxon;
-			this.assessment = assessment;
-			fireEvent(StateChangeEventType.AssessmentChanged.getValue());
-		}
-	}
-	
-	public void setTaxon(Taxon taxon) {
-		if (!hasChanges(this.taxon, taxon))
-			return;
-		
-		if (!fireEvent(StateChangeEventType.BeforeTaxonChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment))) {
-			this.taxon = taxon;
-			this.assessment = null;
-			fireEvent(StateChangeEventType.TaxonChanged.getValue());
-		}
-	}
-	
-	public void setWorkingSet(WorkingSet workingSet) {
-		if (!hasChanges(this.workingSet, workingSet))
-			return;
-		
-		if (!fireEvent(StateChangeEventType.BeforeWorkingSetChanged.getValue(), new StateChangeEvent(workingSet, taxon, assessment))) {
-			this.workingSet = workingSet;
-			this.taxon = null;
-			this.assessment = null;
-			fireEvent(StateChangeEventType.WorkingSetChanged.getValue());
-		}
-	}*/
 	
 	private boolean hasChanges(Object currentValue, Object newValue) {
 		if (currentValue == null)
@@ -166,11 +179,11 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	}
 
 	public boolean fireEvent(int eventType) {
-		return fireEvent(eventType, this);
+		return fireEvent(eventType, this, null);
 	}
 	
-	public boolean fireEvent(int eventType, Object source) {
-		return fireEvent(eventType, new StateChangeEvent(getWorkingSet(), getTaxon(), getAssessment(), source));
+	public boolean fireEvent(int eventType, Object source, String url) {
+		return fireEvent(eventType, new StateChangeEvent(getWorkingSet(), getTaxon(), getAssessment(), source, url));
 	}
 	
 	/**

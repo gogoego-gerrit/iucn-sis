@@ -53,7 +53,7 @@ public class BodyContainer extends LayoutContainer {
 		refViewPanel = new ReferenceViewTabPanel();
 	}
 	
-	public void openWorkingSet(final boolean updateNavigation) {
+	public void openWorkingSet(final String url, final boolean updateNavigation) {
 		workingSetPage.setItems(new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values()));
 		workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet());
 		workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
@@ -69,7 +69,7 @@ public class BodyContainer extends LayoutContainer {
 		});
 	}
 	
-	public void openTaxon(final boolean updateNavigation) {
+	public void openTaxon(final String url, final boolean updateNavigation) {
 		final GenericCallback<List<Taxon>> callback = new GenericCallback<List<Taxon>>() {
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
@@ -101,7 +101,7 @@ public class BodyContainer extends LayoutContainer {
 		
 	}
 	
-	public void openAssessment(final boolean updateNavigation) {
+	public void openAssessment(final String url, final boolean updateNavigation) {
 		FieldWidgetCache.impl.resetWidgetContents();
 		
 		if (StateManager.impl.getWorkingSet() == null) {

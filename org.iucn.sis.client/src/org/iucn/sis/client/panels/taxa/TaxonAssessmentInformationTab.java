@@ -208,7 +208,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ,
 							fetched)) {
 						//AssessmentCache.impl.setCurrentAssessment(fetched);
-						StateManager.impl.setState(fetched);
+						StateManager.impl.setAssessment(fetched);
 						//ClientUIContainer.headerContainer.update();
 						/*ClientUIContainer.bodyContainer
 								.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/

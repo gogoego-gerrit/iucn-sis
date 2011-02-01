@@ -149,7 +149,7 @@ public class AssessmentCache {
 				fetchAssessments(new AssessmentFetchRequest(Integer.valueOf(newID)), new GenericCallback<String>() {
 					public void onSuccess(String result) {
 						//AssessmentCache.impl.getAssessment(Integer.valueOf(newID), true);
-						StateManager.impl.setState(impl.getAssessment(Integer.valueOf(newID)));
+						StateManager.impl.setAssessment(impl.getAssessment(Integer.valueOf(newID)));
 					};
 					public void onFailure(Throwable caught) {
 						wayback.onFailure(caught);

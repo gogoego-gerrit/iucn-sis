@@ -33,6 +33,12 @@ import com.solertium.util.gwt.ui.StyledHTML;
 
 public class WorkingSetPage extends FeaturedItemContainer<WorkingSet> {
 	
+	public static String URL_HOME = "home";
+	public static String URL_EDIT = "edit";
+	public static String URL_TAXA = "taxa";
+	public static String URL_ASSESSMENTS = "assessments";
+		
+	
 	private final WorkingSetSummaryPanel homePage = new WorkingSetSummaryPanel();
 	private final WorkingSetEditBasicPanel editor = new WorkingSetEditBasicPanel(this);
 	private final WorkingSetAddAssessmentsPanel assessments = new WorkingSetAddAssessmentsPanel(this);
@@ -40,7 +46,16 @@ public class WorkingSetPage extends FeaturedItemContainer<WorkingSet> {
 	
 	@Override
 	protected void drawBody(DoneDrawingCallback callback) {
-		setBodyContainer(homePage);
+		String url = getUrl();
+		
+		if (URL_EDIT.equals(url))
+			setBodyContainer(editor);
+		else if (URL_TAXA.equals(url))
+			setBodyContainer(taxa);
+		else if (URL_ASSESSMENTS.equals(url))
+			setBodyContainer(assessments);
+		else
+			setBodyContainer(homePage);
 		
 		callback.isDrawn();
 	}

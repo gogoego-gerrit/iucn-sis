@@ -13,13 +13,19 @@ public class StateChangeEvent {
 	
 	private final String token;
 	
+	private String url;
 	private boolean canceled;
 	
 	public StateChangeEvent(WorkingSet workingSet, Taxon taxon, Assessment assessment, Object source) {
+		this(workingSet, taxon, assessment, source, null);
+	}
+	
+	public StateChangeEvent(WorkingSet workingSet, Taxon taxon, Assessment assessment, Object source, String url) {
 		this.workingSet = workingSet;
 		this.taxon = taxon;
 		this.assessment = assessment;
 		this.source = source;
+		this.url = url;
 		
 		this.canceled = false;
 		
@@ -65,5 +71,13 @@ public class StateChangeEvent {
 
 	public boolean isCanceled() {
 		return canceled;
+	}
+	
+	public void setUrl(String url) {
+		this.url = url;
+	}
+	
+	public String getUrl() {
+		return url;
 	}
 }

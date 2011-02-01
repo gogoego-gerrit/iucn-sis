@@ -142,7 +142,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		}
 		
 		final StyledHTML speciesName = 
-			new StyledHTML("<center>" + item.getSpeciesName() + abbreviation + "</center>", "page_assessment_featured_header");
+			new StyledHTML("<center>" + item.getSpeciesName() + abbreviation + "</center>", "page_assessment_featured_header;clickable");
 		speciesName.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
@@ -205,7 +205,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 			public void handleEvent() {
 				AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(selection, null), new GenericCallback<String>() {
 					public void onSuccess(String result) {
-						StateManager.impl.setState(AssessmentCache.impl.getAssessment(selection));
+						StateManager.impl.setAssessment(AssessmentCache.impl.getAssessment(selection));
 					}
 					public void onFailure(Throwable caught) {
 						WindowUtils.errorAlert("Error loading next assessment");

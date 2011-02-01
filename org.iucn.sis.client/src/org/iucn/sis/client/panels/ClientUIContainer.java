@@ -193,11 +193,11 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 	
 	public void onHistoryChanged(StateChangeEvent eventData, boolean updateNavigation) {
 		if (eventData.getAssessment() != null)
-			ClientUIContainer.bodyContainer.openAssessment(updateNavigation);
+			ClientUIContainer.bodyContainer.openAssessment(eventData.getUrl(), updateNavigation);
 		else if (eventData.getTaxon() != null)
-			ClientUIContainer.bodyContainer.openTaxon(updateNavigation);
+			ClientUIContainer.bodyContainer.openTaxon(eventData.getUrl(), updateNavigation);
 		else if (eventData.getWorkingSet() != null)
-			ClientUIContainer.bodyContainer.openWorkingSet(updateNavigation);
+			ClientUIContainer.bodyContainer.openWorkingSet(eventData.getUrl(), updateNavigation);
 		else
 			ClientUIContainer.bodyContainer.openHomePage(true);
 	}

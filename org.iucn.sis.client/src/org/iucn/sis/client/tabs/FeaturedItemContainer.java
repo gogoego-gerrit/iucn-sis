@@ -27,6 +27,8 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 	private List<T> items;
 	private T selected;
 	
+	private String url;
+	
 	public FeaturedItemContainer() {
 		super(new FillLayout());
 		addStyleName("gwt-background");
@@ -81,6 +83,14 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 	public List<T> getAllItems() {
 		return items;
 	}
+	
+	public String getUrl() {
+		return url;
+	}
+	
+	public void setUrl(String url) {
+		this.url = url;
+	} 
 	
 	@Override
 	public void draw(final DoneDrawingCallback callback) {
