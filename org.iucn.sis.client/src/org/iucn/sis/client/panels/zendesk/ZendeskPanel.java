@@ -9,6 +9,7 @@ import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.TextBox;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.extjs.client.WindowUtils;
 
 public class ZendeskPanel extends Window {
 	
@@ -19,16 +20,20 @@ public class ZendeskPanel extends Window {
 	private final TextArea ticket;
 	
 	public ZendeskPanel() {
+		super();
+		setSize(800, 600);
+		setHeading("Zendesk");
+		
 		subject = new TextBox();
 		ticket = new TextArea();
-		setSize(800, 600);
+		
 		build();
 	}
 	
 	private void build(){
 		getCredentials(new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
+				WindowUtils.errorAlert("Credentials failed, can not login to ZenDesk");
 			}
 			public void onSuccess(String result) {
 				Debug.println("https://iucnsis.zendesk.com/access/remote/"+result);
@@ -76,7 +81,7 @@ public class ZendeskPanel extends Window {
 		String xml = "<root><user name=\""+name+"\" email=\""+email+"\" organization=\""+organization+"\"/></root>";
 		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 		
-		doc.postAsText(UriBase.getInstance().getZendeskBase() + "/zendesk/authn", xml, new GenericCallback<String>() {
+		doc.postAsText(UriBase.getInstance().getZendeskBase() + "/zendesk/login", xml, new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				callback.onSuccess(doc.getText());
 				
@@ -104,8 +109,7 @@ public class ZendeskPanel extends Window {
 				
 			}
 			public void onFailure(Throwable caught) {
-				caught.printStackTrace();
-				
+				Debug.println(caught);
 			}
 		});
 	}

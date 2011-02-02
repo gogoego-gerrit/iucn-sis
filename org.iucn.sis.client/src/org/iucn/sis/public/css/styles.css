@@ -252,6 +252,11 @@ body,td,div,input,p,select,input,button {
 	border-left: 1px solid #CEDCE9 !important;	
 }
 
+.icon-zendesk {
+	background: url(../tango/status/weather-severe-alert.png) no-repeat !important;	
+	
+}
+
 .icon-header-options {
 	background: url(../images/emblem-system-32.png) no-repeat !important;	
 }
