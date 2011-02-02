@@ -89,6 +89,8 @@ public abstract class GridPagingMonkeyNavigatorPanel<T> extends PagingMonkeyNavi
 	
 	protected abstract void onSelectionChanged(NavigationModelData<T> model);
 	
+	protected abstract void setSelection(T navigationModel);
+	
 	protected abstract void setupToolbar();
 	
 

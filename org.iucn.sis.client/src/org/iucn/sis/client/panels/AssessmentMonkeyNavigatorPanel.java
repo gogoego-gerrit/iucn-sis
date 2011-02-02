@@ -59,12 +59,20 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 		setHeading("Assessments");
 	}
 	
-	public void refresh(WorkingSet curNavWorkingSet, Taxon curNavTaxon, Assessment curNavAssessment) {
+	public void refresh(WorkingSet curNavWorkingSet, Taxon curNavTaxon, final Assessment curNavAssessment) {
 		this.curNavWorkingSet = curNavWorkingSet;
 		this.curNavTaxon = curNavTaxon;
 		this.curNavAssessment = curNavAssessment;
 		
-		refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+		refresh(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				DeferredCommand.addCommand(new Command() {
+					public void execute() {
+						setSelection(curNavAssessment);
+					}
+				});
+			}
+		});
 	}
 	
 	@Override
@@ -84,9 +92,7 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 	}
 	
 	@Override
-	protected void onLoad() {
-		super.onLoad();
-		
+	protected void setSelection(Assessment curNavAssessment) {
 		final NavigationModelData<Assessment> selection;
 		if (curNavAssessment != null)
 			selection = getProxy().getStore().findModel("" + curNavAssessment.getId());
@@ -105,6 +111,13 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 				}
 			});
 		}
+	}
+	
+	@Override
+	protected void onLoad() {
+		super.onLoad();
+		
+		setSelection(curNavAssessment);
 	}
 	
 	@Override

@@ -105,6 +105,7 @@ public abstract class PagingMonkeyNavigatorPanel<T extends ModelData> extends Mo
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected static class NavigationModelData<T> extends BaseModelData {
 		
 		private static final long serialVersionUID = 1L;

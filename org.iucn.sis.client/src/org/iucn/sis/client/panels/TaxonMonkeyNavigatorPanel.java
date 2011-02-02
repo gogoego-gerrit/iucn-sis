@@ -52,7 +52,15 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 		this.curNavWorkingSet = curNavWorkingSet;
 		this.curNavTaxon = curNavTaxon;
 		
-		refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+		refresh(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				DeferredCommand.addCommand(new Command() {
+					public void execute() {
+						setSelection(curNavTaxon);
+					}
+				});
+			}
+		});
 	}
 	
 	protected void getStore(GenericCallback<ListStore<NavigationModelData<Taxon>>> callback) {
@@ -192,12 +200,12 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 	}
 	
 	@Override
-	protected void onLoad() {
-		super.onLoad();
-		
-		NavigationModelData<Taxon> selection = null;
+	protected void setSelection(Taxon curNavTaxon) {
+		final NavigationModelData<Taxon> selection;
 		if (curNavTaxon != null)
 			selection = getProxy().getStore().findModel("" + curNavTaxon.getId());
+		else
+			selection = null;
 		
 		Debug.println("Selected taxon from nav is {0}, found {1}", curNavTaxon, selection);
 		if (selection != null) {
@@ -207,10 +215,17 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 			DeferredCommand.addPause();
 			DeferredCommand.addCommand(new Command() {
 				public void execute() {
-					//grid.getView().focusRow(grid.getStore().indexOf(selection));
+					grid.getView().focusRow(grid.getStore().indexOf(selection));
 				}
 			});
 		}
+	}
+	
+	@Override
+	protected void onLoad() {
+		super.onLoad();
+		
+		setSelection(curNavTaxon);
 	}
 	
 	@Override

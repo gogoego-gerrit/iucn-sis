@@ -137,32 +137,44 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 	public void refresh(final WorkingSet curNavWorkingSet) {
 		this.curNavWorkingSet = curNavWorkingSet;
 		
-		refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+		refresh(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				DeferredCommand.addCommand(new Command() {
+					public void execute() {
+						setSelection(curNavWorkingSet);
+					}
+				});
+			}
+		});
 	}
 	
 	@Override
-	protected void onLoad() {
-		super.onLoad();
-		
-		NavigationModelData<WorkingSet> selection;
+	protected void setSelection(WorkingSet navigationModel) {
+		final NavigationModelData<WorkingSet> selection;
 		if (curNavWorkingSet == null)
-			selection = getProxy().getStore().getAt(0);
+			selection = getProxy().getStore().findModel("-1");
 		else
 			selection = getProxy().getStore().findModel("" + curNavWorkingSet.getId());
 		
 		Debug.println("Selected working set from nav is {0}, found {1}", curNavWorkingSet, selection);
 		if (selection != null) {
-			
 			((NavigationGridSelectionModel<WorkingSet>)grid.getSelectionModel()).
 				highlight(selection);
 			
 			DeferredCommand.addPause();
 			DeferredCommand.addCommand(new Command() {
 				public void execute() {
-					//grid.getView().focusRow(grid.getStore().indexOf(selection));
+					grid.getView().focusRow(grid.getStore().indexOf(selection));
 				}
 			});
 		}
+	}
+	
+	@Override
+	protected void onLoad() {
+		super.onLoad();
+		
+		setSelection(curNavWorkingSet);
 	}
 	
 	@Override
