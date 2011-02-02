@@ -21,7 +21,10 @@ import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
@@ -122,7 +125,22 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 	protected ColumnModel getColumnModel() {
 		final List<ColumnConfig> list = new ArrayList<ColumnConfig>();
 		
-		list.add(new ColumnConfig("name", "Name", 100));
+		ColumnConfig display = new ColumnConfig("name", "Name", 100);
+		display.setRenderer(new GridCellRenderer<NavigationModelData<Taxon>>() {
+			@Override
+			public Object render(NavigationModelData<Taxon> model, String property, ColumnData config,
+					int rowIndex, int colIndex, ListStore<NavigationModelData<Taxon>> store,
+					Grid<NavigationModelData<Taxon>> grid) {
+				Taxon taxon = model.getModel();
+				String style;
+				if (taxon == null)
+					style = MarkedCache.NONE;
+				else
+					style = MarkedCache.impl.getTaxaStyle(taxon.getId());
+				return "<span class=\"" + style + "\">" + model.get(property) + "</span>";
+			}
+		});
+		list.add(display);
 		
 		ColumnConfig family = new ColumnConfig("family", "Family", 100);
 		family.setHidden(true);

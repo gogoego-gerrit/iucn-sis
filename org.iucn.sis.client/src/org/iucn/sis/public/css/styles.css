@@ -144,16 +144,20 @@ body,td,div,input,p,select,input,button {
 	display: inline;
 }
 
-.green-style .my-list-item-text{con-workflow
+.green-style, .green-style .my-list-item-text{con-workflow
 	color: green !important;
 }
 
-.blue-style .my-list-item-text{
+.blue-style, .blue-style .my-list-item-text{
 	color: blue !important;
 }
 
-.red-style .my-list-item-text{
+.red-style, .red-style .my-list-item-text{
 	color: red !important;
+}
+
+.regular-style {
+	color: black !important;	
 }
 
 .green-menu {
@@ -170,10 +174,6 @@ body,td,div,input,p,select,input,button {
 
 .regular-menu {
 	color: black !important;
-}
-
-.regular-style {
-	color: black !important;	
 }
 
 /*.padded {

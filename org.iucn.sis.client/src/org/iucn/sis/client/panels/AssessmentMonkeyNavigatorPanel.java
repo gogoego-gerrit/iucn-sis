@@ -32,7 +32,10 @@ import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
@@ -122,7 +125,24 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 		 * display the lock icon.
 		 */
 		
-		list.add(new ColumnConfig("name", "Name", 100));
+		ColumnConfig display = new ColumnConfig("name", "Name", 100);
+		display.setRenderer(new GridCellRenderer<NavigationModelData<Assessment>>() {
+			@Override
+			public Object render(NavigationModelData<Assessment> model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<NavigationModelData<Assessment>> store, Grid<NavigationModelData<Assessment>> grid) {
+				Assessment assessment = model.getModel();
+				String style;
+				if (assessment == null)
+					style = MarkedCache.NONE;
+				else
+					style = MarkedCache.impl.getAssessmentStyle(assessment.getId());
+				//TODO: add lock icon if locked.
+				return "<span class=\"" + style + "\">" + model.get(property) + "</span>";
+			}
+		});
+		
+		list.add(display);
 		list.add(new ColumnConfig("status", "Status", 10));
 		
 		return new ColumnModel(list);

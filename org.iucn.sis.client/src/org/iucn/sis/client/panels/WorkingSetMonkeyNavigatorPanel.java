@@ -17,7 +17,6 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -109,18 +108,17 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 		final List<ColumnConfig> list = new ArrayList<ColumnConfig>();
 
 		ColumnConfig display = new ColumnConfig("name", "Name", 100);
-		display.setRenderer(new GridCellRenderer<BaseModelData>() {
+		display.setRenderer(new GridCellRenderer<NavigationModelData<WorkingSet>>() {
 			@Override
-			public Object render(BaseModelData model, String property,
+			public Object render(NavigationModelData<WorkingSet> model, String property,
 					ColumnData config, int rowIndex, int colIndex,
-					ListStore<BaseModelData> store, Grid<BaseModelData> grid) {
-				WorkingSet ws = model.get("workingSet");
+					ListStore<NavigationModelData<WorkingSet>> store, Grid<NavigationModelData<WorkingSet>> grid) {
+				WorkingSet ws = model.getModel();
 				String style;
 				if (ws == null)
 					style = MarkedCache.NONE;
 				else
 					style = MarkedCache.impl.getWorkingSetStyle(ws.getId());
-				
 				return "<span class=\"" + style + "\">" + model.get(property) + "</span>";
 			}
 		});
