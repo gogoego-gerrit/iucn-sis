@@ -16,7 +16,7 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.CoreObservable;
 
-public class StateManager implements CoreObservable<ComplexListener<StateChangeEvent>> {
+public final class StateManager implements CoreObservable<ComplexListener<StateChangeEvent>> {
 	
 	public enum StateChangeEventType {
 		BeforeStateChanged(0), StateChanged(1);
@@ -61,7 +61,7 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	}
 
 	public void reset() {
-		setState(null, null, null);
+		setState(new StateChangeEvent(null, null, null, this), true);
 	}
 	
 	/**
@@ -136,7 +136,12 @@ public class StateManager implements CoreObservable<ComplexListener<StateChangeE
 	 * @param event
 	 */
 	public void setState(StateChangeEvent event) {
-		if (hasChanges(getWorkingSet(), event.getWorkingSet()) || 
+		setState(event, false);
+	}
+	
+	private void setState(StateChangeEvent event, boolean forceChange) {
+		if (forceChange || 
+				hasChanges(getWorkingSet(), event.getWorkingSet()) || 
 				hasChanges(getTaxon(), event.getTaxon()) || 
 				hasChanges(getAssessment(), event.getAssessment())) {
 	

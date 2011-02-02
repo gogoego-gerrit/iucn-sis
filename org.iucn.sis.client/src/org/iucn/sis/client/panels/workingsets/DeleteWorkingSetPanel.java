@@ -123,11 +123,11 @@ public class DeleteWorkingSetPanel extends RefreshLayoutContainer {
 				WindowUtils.infoAlert("Success", message);
 				// manager.workingSetHierarchy.update();
 				WSStore.getStore().update();
-				if (WorkingSetCache.impl.getCurrentWorkingSet() != null && ws.getId() == WorkingSetCache.impl.getCurrentWorkingSet().getId()) {
+				//if (WorkingSetCache.impl.getCurrentWorkingSet() != null && ws.getId() == WorkingSetCache.impl.getCurrentWorkingSet().getId()) {
 					//WorkingSetCache.impl.resetCurrentWorkingSet();
 					StateManager.impl.reset();
 					//manager.workingSetFullPanel.buildInfo();
-				}
+				//}
 				// ((Button)buttons.getItemByItemId(Dialog.CANCEL)).setText("Done");
 				// update();
 			}

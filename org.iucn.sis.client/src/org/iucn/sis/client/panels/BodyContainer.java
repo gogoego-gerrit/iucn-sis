@@ -54,6 +54,7 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openWorkingSet(final String url, final boolean updateNavigation) {
+		workingSetPage.setUrl(url);
 		workingSetPage.setItems(new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values()));
 		workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet());
 		workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
@@ -76,6 +77,7 @@ public class BodyContainer extends LayoutContainer {
 				
 			}
 			public void onSuccess(List<Taxon> result) {
+				taxonHomePage.setUrl(url);
 				taxonHomePage.setItems(result);
 				taxonHomePage.setSelectedItem(StateManager.impl.getTaxon());
 				taxonHomePage.draw(new DrawsLazily.DoneDrawingCallback() {
@@ -114,6 +116,7 @@ public class BodyContainer extends LayoutContainer {
 					for (Assessment assessment : AssessmentCache.impl.getPublishedAssessmentsForTaxon(StateManager.impl.getTaxon().getId()))
 						assessments.add(assessment.getId());
 					
+					assessmentPage.setUrl(url);
 					assessmentPage.setItems(assessments);
 					assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
 					
@@ -139,6 +142,7 @@ public class BodyContainer extends LayoutContainer {
 					StateManager.impl.getWorkingSet(), null, 
 					new GenericCallback<List<Integer>>() {
 				public void onSuccess(List<Integer> result) {
+					assessmentPage.setUrl(url);
 					assessmentPage.setItems(result);
 					assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
 					
