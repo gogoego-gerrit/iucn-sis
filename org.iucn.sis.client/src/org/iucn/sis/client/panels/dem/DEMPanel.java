@@ -8,6 +8,7 @@ import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
+import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.views.ViewDisplay;
@@ -205,7 +206,15 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 			public void handleEvent() {
 				AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(selection, null), new GenericCallback<String>() {
 					public void onSuccess(String result) {
-						StateManager.impl.setAssessment(AssessmentCache.impl.getAssessment(selection));
+						final Assessment assessment = AssessmentCache.impl.getAssessment(selection);
+						TaxonomyCache.impl.fetchTaxon(assessment.getTaxon().getId(), new GenericCallback<Taxon>() {
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Failed to load the taxon for this assessment.");
+							}
+							public void onSuccess(Taxon result) {
+								StateManager.impl.setState(result, assessment);
+							}
+						});
 					}
 					public void onFailure(Throwable caught) {
 						WindowUtils.errorAlert("Error loading next assessment");
