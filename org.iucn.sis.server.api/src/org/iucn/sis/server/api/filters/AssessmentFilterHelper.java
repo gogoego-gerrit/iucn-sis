@@ -110,7 +110,7 @@ public class AssessmentFilterHelper {
 		}
 		
 		if (schema != null)
-			result = schema.equals(assessment.getSchema(SIS.get().getDefaultSchema()));
+			result &= schema.equals(assessment.getSchema(SIS.get().getDefaultSchema()));
 		
 		Debug.println("Assessment {0} is allowed: {1}", assessment.getId(), result);
 		
