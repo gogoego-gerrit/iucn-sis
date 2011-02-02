@@ -144,7 +144,7 @@ body,td,div,input,p,select,input,button {
 	display: inline;
 }
 
-.green-style, .green-style .my-list-item-text{con-workflow
+.green-style, .green-style .my-list-item-text{
 	color: green !important;
 }
 
