@@ -147,7 +147,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 			public void onClick(ClickEvent event) {
 				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
 					public void handleEvent() {
-						StateManager.impl.setState(null);
+						StateManager.impl.setAssessment(null);
 					}
 				});
 			}

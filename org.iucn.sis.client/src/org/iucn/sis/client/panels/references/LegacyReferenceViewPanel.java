@@ -753,7 +753,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 											});
 										} catch (InsufficientRightsException e) {
 											//AssessmentCache.impl.resetCurrentAssessment();
-											StateManager.impl.setState(null);
+											StateManager.impl.setAssessment(null);
 											doReplace(reference, fromStore, returnedRef, null, null);
 										}
 										

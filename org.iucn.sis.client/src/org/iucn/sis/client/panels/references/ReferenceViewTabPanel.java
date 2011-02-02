@@ -308,7 +308,7 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 										});
 									} catch (InsufficientRightsException e) {
 										//AssessmentCache.impl.resetCurrentAssessment();
-										StateManager.impl.setState(null);
+										StateManager.impl.setAssessment(null);
 										doReplace(reference, returnedRef, null, null);
 									}
 									

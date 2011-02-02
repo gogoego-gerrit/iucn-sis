@@ -378,7 +378,7 @@ public class BatchChangePanel extends LayoutContainer {
 							}
 							AssessmentCache.impl.clear();
 							//AssessmentCache.impl.resetCurrentAssessment();
-							StateManager.impl.setState(null);
+							StateManager.impl.setAssessment(null);
 
 							WindowUtils.hideLoadingAlert();
 							LayoutContainer innerContainer = new LayoutContainer();
