@@ -50,6 +50,7 @@ public class ClassificationScheme extends Display {
 	protected final Map<String, TreeDataRow> flatTree;
 	
 	protected final ClassificationSchemeViewer viewer;
+	protected final VerticalPanel readOnlyContainer;
 
 	public ClassificationScheme(TreeData displayData) {
 		super(displayData);
@@ -57,6 +58,7 @@ public class ClassificationScheme extends Display {
 		flatTree = treeData.flattenTree();
 		
 		viewer = createViewer(description, displayData);
+		readOnlyContainer = new VerticalPanel();
 		
 		buildDefinition();
 	}
@@ -108,9 +110,9 @@ public class ClassificationScheme extends Display {
 	protected Widget generateContent(final boolean viewOnly) {
 		final VerticalPanel panel = new VerticalPanel();
 		
-		final VerticalPanel container = new VerticalPanel();
-		buildReadOnlyContainer(container);
-		panel.add(container);
+		buildReadOnlyContainer(readOnlyContainer);
+		
+		panel.add(readOnlyContainer);
 		
 		final ButtonBar buttons = new ButtonBar();
 		buttons.add(new Button(viewOnly ? "View Details" : "View/Edit", new SelectionListener<ButtonEvent>() {
@@ -126,7 +128,7 @@ public class ClassificationScheme extends Display {
 				window.setButtonAlign(HorizontalAlignment.CENTER);
 				window.addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
 					public void componentSelected(ButtonEvent ce) {
-						buildReadOnlyContainer(container, viewer.save(false));
+						buildReadOnlyContainer(readOnlyContainer, viewer.save(false));
 						window.hide();
 					}
 				}));
@@ -160,12 +162,12 @@ public class ClassificationScheme extends Display {
 							else
 								viewer.addModel(eventData);
 								
-							buildReadOnlyContainer(container, viewer.save(false));
+							buildReadOnlyContainer(readOnlyContainer, viewer.save(false));
 						}
 					});
 					window.setCancelListener(new SimpleListener() {
 						public void handleEvent() {
-							buildReadOnlyContainer(container, viewer.save(false));
+							buildReadOnlyContainer(readOnlyContainer, viewer.save(false));
 						}
 					});
 					window.show();
@@ -283,6 +285,8 @@ public class ClassificationScheme extends Display {
 		}
 		else
 			viewer.setData(new ArrayList<ClassificationSchemeModelData>());
+		
+		buildReadOnlyContainer(readOnlyContainer, viewer.save(false));
 	}
 	
 	protected DisplayStructure generateDefaultDisplayStructure(TreeDataRow row) {
