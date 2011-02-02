@@ -73,9 +73,6 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 	public void addListeners() {	
 		workingSetContainer.addListener(Events.SelectionChange, new Listener<NavigationChangeEvent<WorkingSet>>() {
 			public void handleEvent(NavigationChangeEvent<WorkingSet> be) {
-				if (be.getModel() == null)
-					return;
-				
 				curNavWorkingSet = be.getModel();
 				curNavTaxon = null;
 				curNavAssessment = null;
