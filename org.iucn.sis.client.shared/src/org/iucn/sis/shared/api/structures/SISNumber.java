@@ -159,8 +159,12 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 	}
 	
 	@Override
-	public void setData(PrimitiveField<Float> field) {
-		Float datum = field != null ? field.getValue() : null;
+	public void setData(PrimitiveField field) {
+		/*
+		 * FIXME: should be typed but fails when data has a number 
+		 * field that's not a float.
+		 */
+		String datum = field != null ? field.getRawValue() : null;
 		textbox.setText(datum == null ? "" : String.valueOf(datum));
 	}
 
