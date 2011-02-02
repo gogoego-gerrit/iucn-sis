@@ -159,12 +159,12 @@ public class VirusChooser extends PagingPanel<VirusModelData> implements DrawsLa
 		
 		@Override
 		public boolean select(Store<VirusModelData> store, VirusModelData parent, VirusModelData item, String property) {
-			if (contentValue == null)
+			if (contentValue == null || "".equals(contentValue))
 				return true;
 			
 			String value = item.get(property);
 			
-			boolean result = value.contains(contentValue);
+			boolean result = value.toLowerCase().contains(contentValue.toLowerCase());
 			Debug.println("Does {0} contain {1}? {2}", value, contentValue, result);
 			
 			return result;
