@@ -130,7 +130,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 
 	public String toXMLMinimal() {
 		return "<" + ROOT_TAG + " id=\"" + getId() + "\" date=\"" +
-				getCreatedDate().getTime() + "\" />" +
+				getCreatedDate().getTime() + "\">" +
 				XMLWritingUtils.writeCDATATag("name", name) +
 				creator.toBasicXML("creator") + 
 				"</" + ROOT_TAG + ">";
