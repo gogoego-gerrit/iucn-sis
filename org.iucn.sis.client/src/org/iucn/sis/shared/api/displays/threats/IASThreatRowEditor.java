@@ -23,6 +23,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -82,35 +83,38 @@ public class IASThreatRowEditor extends GroupedThreatRowEditor {
 					public void componentSelected(ButtonEvent ce) {
 						window.hide();
 						
-						final Map<Integer, Taxon> map = new HashMap<Integer, Taxon>();
-						for (Taxon taxon : locator.getSelection())
-							map.put(taxon.getId(), taxon);
-						
-						for (DataListItem item : list.getItems()) {
-							Integer value = item.getData("taxon");
-							map.remove(value);
-						}
-						
-						for (Map.Entry<Integer, Taxon> entry : map.entrySet()) {
-							Field field = new Field("ThreatsSubfield", null);
-							IASTaxaThreatsSubfield proxy = new IASTaxaThreatsSubfield(field);
-							proxy.setIASTaxa(entry.getKey());
-							
-							ClassificationSchemeModelData model = 
-								new ThreatClassificationSchemeModelData(generateNamedTaxaStructure(), field);
-							model.setSelectedRow(groupBy);
-							
-							DataListItem item = new DataListItem();
-							item.setText(entry.getValue().getFullName());
-							item.setData("taxon", entry.getKey());
-							item.setData("value", model);
-							
-							list.add(item);
-							
-							if (addListener != null)
-								addListener.handleEvent(model);
-						}
-						
+						locator.getSelection(new ComplexListener<Collection<Taxon>>() {
+							public void handleEvent(Collection<Taxon> eventData) {
+								final Map<Integer, Taxon> map = new HashMap<Integer, Taxon>();
+								for (Taxon taxon : eventData)
+									map.put(taxon.getId(), taxon);
+								
+								for (DataListItem item : list.getItems()) {
+									Integer value = item.getData("taxon");
+									map.remove(value);
+								}
+								
+								for (Map.Entry<Integer, Taxon> entry : map.entrySet()) {
+									Field field = new Field("ThreatsSubfield", null);
+									IASTaxaThreatsSubfield proxy = new IASTaxaThreatsSubfield(field);
+									proxy.setIASTaxa(entry.getKey());
+									
+									ClassificationSchemeModelData model = 
+										new ThreatClassificationSchemeModelData(generateNamedTaxaStructure(), field);
+									model.setSelectedRow(groupBy);
+									
+									DataListItem item = new DataListItem();
+									item.setText(entry.getValue().getFullName());
+									item.setData("taxon", entry.getKey());
+									item.setData("value", model);
+									
+									list.add(item);
+									
+									if (addListener != null)
+										addListener.handleEvent(model);
+								}
+							}
+						});	
 					}
 				}));
 				window.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {

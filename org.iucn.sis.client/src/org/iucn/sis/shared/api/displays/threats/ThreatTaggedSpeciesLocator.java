@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
+import org.iucn.sis.client.panels.search.CheckableSearchResultsPage;
 import org.iucn.sis.client.panels.utils.CheckableSearchPanel;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -16,6 +17,7 @@ import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -84,17 +86,19 @@ public class ThreatTaggedSpeciesLocator extends TabPanel {
 		return item;
 	}
 	
-	public Collection<Taxon> getSelection() {
+	public void getSelection(ComplexListener<Collection<Taxon>> listener) {
 		TabItem item = getSelectedItem();
 		if (item == null)
-			return new ArrayList<Taxon>();
+			listener.handleEvent(new ArrayList<Taxon>());
 		else
-			return ((Selectable)item.getItem(0)).getSelection();
+			((Selectable)item.getItem(0)).getSelection(listener);
 	}
+	
+	
 	
 	public static interface Selectable {
 		
-		public Collection<Taxon> getSelection(); 
+		public void getSelection(ComplexListener<Collection<Taxon>> listener); 
 		
 	}
 	
@@ -102,6 +106,11 @@ public class ThreatTaggedSpeciesLocator extends TabPanel {
 		
 		public SelectableTaxonomySearchPanel() {
 			super();
+		}
+		
+		@Override
+		public void getSelection(ComplexListener<Collection<Taxon>> listener) {
+			((CheckableSearchResultsPage)resultsPage).loadSelection(listener);
 		}
 		
 	}
@@ -118,12 +127,13 @@ public class ThreatTaggedSpeciesLocator extends TabPanel {
 			// Don't do it for this one...
 		}
 		
-		@SuppressWarnings("deprecation")
-		public Collection<Taxon> getSelection() {
+		@Override
+		public void getSelection(ComplexListener<Collection<Taxon>> listener) {
 			final List<Taxon> list = new ArrayList<Taxon>();
 			for (TaxonListElement el : getBinder().getCheckedSelection())
 				list.add(el.getNode());
-			return list;
+
+			listener.handleEvent(list);
 		}
 		
 	}

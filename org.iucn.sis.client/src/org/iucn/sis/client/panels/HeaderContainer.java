@@ -1,5 +1,7 @@
 package org.iucn.sis.client.panels;
 
+import java.util.List;
+
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -17,12 +19,12 @@ import org.iucn.sis.client.panels.locking.LockManagementPanel;
 import org.iucn.sis.client.panels.permissions.PermissionGroupEditor;
 import org.iucn.sis.client.panels.redlist.RedlistPanel;
 import org.iucn.sis.client.panels.region.RegionPanel;
+import org.iucn.sis.client.panels.search.SearchCache;
+import org.iucn.sis.client.panels.search.SearchQuery;
 import org.iucn.sis.client.panels.taxa.TaxonFinderPanel;
 import org.iucn.sis.client.panels.taxa.tagging.TaxaTagManager;
 import org.iucn.sis.client.panels.users.UploadUsersPanel;
 import org.iucn.sis.client.panels.users.UserModelTabPanel;
-import org.iucn.sis.client.panels.utils.BasicSearchPanel;
-import org.iucn.sis.client.panels.utils.SearchPanel;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.client.panels.viruses.VirusManager;
 import org.iucn.sis.client.panels.zendesk.ZendeskPanel;
@@ -39,7 +41,6 @@ import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
@@ -56,6 +57,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Grid;
@@ -76,7 +78,6 @@ public class HeaderContainer extends ContentPanel {
 	public MonkeyNavigator centerPanel;
 	private LayoutContainer leftPanel;
 
-	private final SearchPanel taxonomySearchPanel;
 	private final FindReplacePanel findReplacePanel;
 	private final BatchChangePanel batchChangePanel;
 	private final TaxonFinderPanel taxonFinderPanel;
@@ -94,9 +95,6 @@ public class HeaderContainer extends ContentPanel {
 		super();
 		setLayout(new FillLayout());
 		setHeight(defaultHeight);
-		//setBorders(true);
-
-		taxonomySearchPanel = new BasicSearchPanel();
 		
 		findReplacePanel = new FindReplacePanel();
 		batchChangePanel = new BatchChangePanel();
@@ -202,10 +200,18 @@ public class HeaderContainer extends ContentPanel {
 				});
 			}
 		});
+		
+		IconButton optionsIcon = new IconButton("icon-header-options");
+		optionsIcon.setSize(32, 32);
+		optionsIcon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				getMenu().show(ce.getIconButton());
+			}
+		});
 
 		Grid bottom = new Grid(1, 2);
 		bottom.setWidth("100%");
-		bottom.setWidget(0, 0, getMenu());
+		bottom.setWidget(0, 0, optionsIcon);
 		bottom.setWidget(0, 1, logout);
 		for (int i = 0; i < bottom.getCellCount(0); i++)
 			bottom.getCellFormatter().setAlignment(0, i, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
@@ -237,7 +243,7 @@ public class HeaderContainer extends ContentPanel {
 		return item;
 	}
 	
-	private Component getMenu() {
+	private Menu getMenu() {
 		final Menu options = new Menu();
 		options.add(createMenuItem("icon-tree", "Peruse the Taxonomic Hierarchy", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
@@ -264,18 +270,39 @@ public class HeaderContainer extends ContentPanel {
 				// ((Button)be.getSource()).setSelected( false );
 			}
 		}));
-
-		options.add(createMenuItem("icon-search", "Search for a Taxonomic Concept", new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				Window window = WindowUtils.getWindow(true, false, "Taxonomy Search");
-				window.setSize(800, 600);
-				window.setLayout(new FillLayout());
-				window.add(taxonomySearchPanel);
-				window.show();
-
-				// ((Button)be.getSource()).setSelected( false );
+		
+		List<SearchQuery> recent = SearchCache.impl.getRecentSearches();
+		if (recent.isEmpty()) {
+			options.add(createMenuItem("icon-search", "Search for a Taxonomic Concept", new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					ClientUIContainer.bodyContainer.openSearch();
+	
+					// ((Button)be.getSource()).setSelected( false );
+				}
+			}));
+		}
+		else {
+			Menu menu = new Menu();
+			menu.add(createMenuItem("icon-search", "New Search", new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					ClientUIContainer.bodyContainer.openSearch();
+				}
+			}));
+			menu.add(new SeparatorMenuItem());
+			for (final SearchQuery query : recent) {
+				menu.add(createMenuItem("icon-search", query.getQuery(), new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						ClientUIContainer.bodyContainer.openSearch(query);
+					}
+				}));
 			}
-		}));
+			
+			MenuItem item = new MenuItem("Search for a Taxonomic Concept");
+			item.setIconStyle("icon-search");
+			item.setSubMenu(menu);
+			
+			options.add(item);
+		}
 		
 		options.add(createMenuItem("icon-prefs", "Administrative Tools", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
@@ -580,15 +607,7 @@ public class HeaderContainer extends ContentPanel {
 			}));
 		}
 		
-		IconButton optionsIcon = new IconButton("icon-header-options");
-		optionsIcon.setSize(32, 32);
-		optionsIcon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
-			public void componentSelected(IconButtonEvent ce) {
-				options.show(ce.getIconButton());
-			}
-		});
-		
-		return optionsIcon;
+		return options;
 	}
 
 	/*public void taxonChanged() {

@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
@@ -32,8 +33,13 @@ import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+/**
+ * Events:
+ * 
+ * Change - fired when taxa are moved.
+ */
 @SuppressWarnings("deprecation")
-public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
+public abstract class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 
 	public static final boolean MOVE = false;
 	public static final boolean COPY = true;
@@ -47,6 +53,8 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 		super();
 		build();
 	}
+	
+	protected abstract List<TaxaData> getCheckedTaxa();
 
 	private Collection<Taxon> addWithHigherIDs(List<TaxaData> checkedTaxa, WorkingSet workingSetToGetTaxaFrom) {
 		HashSet<Taxon> taxa = new HashSet<Taxon>();
@@ -155,7 +163,7 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 				WindowUtils.errorAlert("Please select only 1 working set.");
 				move.setEnabled(true);
 			} else {
-				List<TaxaData> checkedTaxa = null;//FIXME:  = manager.workingSetOptionsPanel.getChecked();
+				List<TaxaData> checkedTaxa = getCheckedTaxa();
 				if (checkedTaxa != null && !checkedTaxa.isEmpty()) {
 
 					final WorkingSet workingSetToMoveTaxaInto = WorkingSetCache.impl.getWorkingSets().get(Integer.valueOf(checkedList[0].getId()));
@@ -204,6 +212,7 @@ public class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 													+ workingSet.getWorkingSetName() + " and added to working set "
 													+ workingSetToMoveTaxaInto.getWorkingSetName());
 											move.setEnabled(true);
+											fireEvent(Events.Change);
 											//manager.workingSetOptionsPanel.listChanged();
 											removeChecks();
 										};

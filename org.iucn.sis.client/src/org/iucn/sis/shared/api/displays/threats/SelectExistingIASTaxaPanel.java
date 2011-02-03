@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class SelectExistingIASTaxaPanel extends PagingPanel<TaxonFootprintModel> implements DrawsLazily, Selectable {
@@ -101,11 +102,12 @@ public class SelectExistingIASTaxaPanel extends PagingPanel<TaxonFootprintModel>
 	}
 	
 	@Override
-	public Collection<Taxon> getSelection() {
+	public void getSelection(ComplexListener<Collection<Taxon>> listener) {
 		final List<Taxon> list = new ArrayList<Taxon>();
 		for (TaxonFootprintModel model : grid.getSelectionModel().getSelectedItems())
 			list.add(model.getTaxon());
-		return list;
+		
+		listener.handleEvent(list);
 	}
 
 }

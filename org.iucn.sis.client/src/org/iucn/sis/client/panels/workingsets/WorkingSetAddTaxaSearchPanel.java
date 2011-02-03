@@ -1,47 +1,37 @@
 package org.iucn.sis.client.panels.workingsets;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
-import org.iucn.sis.client.api.caches.AssessmentCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.panels.search.SearchQuery;
+import org.iucn.sis.client.panels.search.SearchResultPage;
+import org.iucn.sis.client.panels.search.WorkingSetSearchResultsPage;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.utils.SearchPanel;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
-import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.table.TableColumn;
-import com.extjs.gxt.ui.client.widget.table.TableColumnModel;
-import com.extjs.gxt.ui.client.widget.table.TableItem;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.gwt.ui.DrawsLazily;
 
 /**
  * Panel that allows users to add taxon to their working set
+ * 
+ * Events:
+ * 
+ * Change - fired when taxa are added.
  */
-@SuppressWarnings("deprecation")
 public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 
 	class MySearchPanel extends SearchPanel {
@@ -50,219 +40,19 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 			super();
 		}
 
-		@Override
-		protected void buildTable() {
-			TableColumn[] columns = new TableColumn[6];
-
-			columns[0] = new TableColumn("", .01f);
-			columns[0].setMinWidth(25);
-			columns[0].setMaxWidth(25);
-			columns[0].setAlignment(HorizontalAlignment.CENTER);
-
-			columns[1] = new TableColumn("Scientific Name", .35f);
-			columns[1].setMinWidth(75);
-			columns[1].setMaxWidth(300);
-
-			columns[2] = new TableColumn("Common Name", .35f);
-			columns[2].setMinWidth(75);
-			columns[2].setMaxWidth(300);
-			columns[2].setAlignment(HorizontalAlignment.LEFT);
-
-			columns[3] = new TableColumn("Level", .15f);
-			columns[3].setMinWidth(30);
-			columns[3].setMaxWidth(100);
-
-			columns[4] = new TableColumn("Category", .14f);
-			columns[4].setMinWidth(30);
-			columns[4].setMaxWidth(100);
-			columns[4].setAlignment(HorizontalAlignment.LEFT);
-
-			columns[5] = new TableColumn("id", 0);
-			columns[5].setHidden(true);
-
-			table.setColumnModel(new TableColumnModel(columns));
-
-			table.setWidth("100%");
-
-			TableColumnModel cm = new TableColumnModel(columns);
-			table.setColumnModel(cm);
-			table.setSelectionMode(SelectionMode.SINGLE);
-
-			expandableResults.setLayout(new BorderLayout());
-			expandableResults.add(table, new BorderLayoutData(LayoutRegion.CENTER));
-			expandableResults.add(buildToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 30));
-
-		}
-
-		public void deselectAll() {
-			for (int i = 0; i < table.getItemCount(); i++) {
-				TableItem item = table.getItem(i);
-				if (((CheckBox) item.getValue(0)).isEnabled()) {
-					((CheckBox) item.getValue(0)).setChecked(false);
-				}
-			}
-		}
-
-		@Override
-		public void fillTable(final DrawsLazily.DoneDrawingCallback callback) {
-			table.removeAll();
-			List<Integer> fetchList = new ArrayList<Integer>();
-			for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++)
-				fetchList.add( Integer.valueOf(((NativeElement) currentResults.item(i)).getAttribute("id")) );
-
-			if (fetchList.size() > 0)
-				TaxonomyCache.impl.fetchList(fetchList, new GenericCallback<String>() {
-					public void onFailure(Throwable arg0) {
-						WindowUtils.errorAlert("Failure while fetching search results.");
-						callback.isDrawn();
-					}
-
-					public void onSuccess(String arg0) {
-						List<Integer> taxaIDs = new ArrayList<Integer>();
-						final String[][] x = new String[20][5];
-						for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++) {
-							Taxon  currentNode = TaxonomyCache.impl.getTaxon(((NativeElement) currentResults.item(i))
-									.getAttribute("id"));
-							
-							x[i - start][0] = currentNode.getFullName();
-							if (currentNode.getCommonNames().size() > 0)
-								x[i - start][1] = (new ArrayList<CommonName>(currentNode.getCommonNames()).get(0)).getName().toLowerCase();
-							else
-								x[i - start][1] = "";
-							x[i - start][2] = Taxon .getDisplayableLevel(currentNode.getLevel());
-							x[i - start][4] = String.valueOf(currentNode.getId());
-							x[i - start][3] = currentNode.getId()+"";
-							taxaIDs.add(currentNode.getId());
-						}
-						if (taxaIDs.size() > 0) {
-							AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, taxaIDs), new GenericCallback<String>() {
-								public void onFailure(Throwable caught) {
-									Debug.println("Error while searching in addTaxonPanel: {0}", caught.getMessage());
-									WindowUtils.errorAlert("Error while fetching search results - "
-											+ "please try again.");
-									setButtonsEnabled(false);
-									callback.isDrawn();
-								}
-
-								public void onSuccess(String result) {
-									for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++) {
-										Set<Assessment> aData = AssessmentCache.impl.getPublishedAssessmentsForTaxon(
-												Integer.valueOf(x[i - start][3]));
-										if (aData == null || aData.isEmpty())
-											x[i - start][3] = "N/A";
-										else
-											x[i - start][3] = aData.iterator().next().getCategoryAbbreviation();
-
-										Object[] y = new Object[6];
-
-										y[1] = x[i - start][0];
-										y[2] = x[i - start][1];
-										y[3] = x[i - start][2];
-										y[4] = x[i - start][3];
-										y[5] = x[i - start][4];
-
-										y[0] = new CheckBox();
-										if (workingSet.getSpeciesIDs().contains(y[5])) {
-
-											((CheckBox) y[0]).setChecked(true);
-											((CheckBox) y[0]).setEnabled(false);
-
-										}
-
-										TableItem item = new TableItem(y);
-										table.add(item);
-
-									}
-
-									setButtonsEnabled(true);
-									
-									callback.isDrawn();
-								}
-							});
-						} else {
-
-							int numChecked = 0;
-							for (int i = start; i < start + NUMBER_OF_RESULTS && i < currentResults.getLength(); i++) {
-								x[i - start][3] = "N/A";
-
-								Object[] y = new Object[6];
-
-								y[1] = x[i - start][0];
-								y[2] = x[i - start][1];
-								y[3] = x[i - start][2];
-								y[4] = x[i - start][3];
-								y[5] = x[i - start][4];
-
-								y[0] = new CheckBox();
-								if (workingSet.getSpeciesIDs().contains(y[5])) {
-
-									((CheckBox) y[0]).setChecked(true);
-									((CheckBox) y[0]).setEnabled(false);
-									numChecked++;
-								}
-
-								TableItem item = new TableItem(y);
-								table.add(item);
-
-							}
-
-							if (currentResults.getLength() > 0 && currentResults.getLength() != numChecked) {
-								setButtonsEnabled(true);
-							} else {
-								setButtonsEnabled(false);
-							}
-							callback.isDrawn();
-						}
-					}
-				});
-			else {
-				setButtonsEnabled(false);
-				callback.isDrawn();
-			}
-		}
-
-		public int getNumberToDisplay() {
-			return NUMBER_OF_RESULTS;
-		}
-
-		public String getSelected() {
-			StringBuffer taxonToAdd = new StringBuffer();
-			List<TableItem> items = table.getItems();
-			for (TableItem item : items) {
-				if (((CheckBox) item.getValue(0)).isChecked()) {
-					String id = (String) item.getValue(5);
-					taxonToAdd.append(id + ",");
-				}
-			}
-			if (taxonToAdd.length() > 0) {
-				return taxonToAdd.substring(0, taxonToAdd.length() - 1);
-			} else
-				return "";
-		}
-
-		public void selectAll() {
-			for (int i = 0; i < table.getItemCount(); i++) {
-				TableItem item = table.getItem(i);
-				((CheckBox) item.getValue(0)).setChecked(true);
-			}
-		}
-
 		public void updateTable() {
-			if (workingSet != null) {
-				for (int i = 0; i < table.getItemCount(); i++) {
-					TableItem item = table.getItem(i);
-					if (workingSet.getSpeciesIDs().contains(item.getValue(5))) {
-						((CheckBox) item.getValue(0)).setChecked(true);
-						((CheckBox) item.getValue(0)).setEnabled(false);
-					} else {
-						((CheckBox) item.getValue(0)).setChecked(false);
-						((CheckBox) item.getValue(0)).setEnabled(true);
-					}
-				}
-			} else {
-				table.removeAll();
-				resetSearchBox();
-			}
+			if (resultsPage != null)
+				resultsPage.removeFromParent();
+			resetSearchBox();
+		}
+		
+		@Override
+		protected SearchResultPage createSearchResultsPage(SearchQuery query) {
+			return new WorkingSetSearchResultsPage(workingSet, query);
+		}
+		
+		public void getSelection(ComplexListener<Collection<Taxon>> callback) {
+			((WorkingSetSearchResultsPage)resultsPage).loadSelection(callback);
 		}
 
 	}
@@ -295,74 +85,51 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 		buttons = new HorizontalPanel();
 		buttons.setSpacing(2);
 
-		Button selectAll = new Button(" Select All", new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				searchPanel.selectAll();
-			}
-		});
-
-		Button deselectAll = new Button(" Deselect All", new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				searchPanel.deselectAll();
-			}
-		});
-
 		final Button add = new Button("Add");
 		add.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			
 			public void componentSelected(final ButtonEvent ce) {
 				add.setEnabled(false);
-				String taxonToAdd = searchPanel.getSelected();
-
-				// NEED TO ADD THINGS TO WORKINGSET
-				if (taxonToAdd.length() > 0) {
-					String [] ids = taxonToAdd.split(",");
-					Collection<Taxon> taxaToAdd = new HashSet<Taxon>();
-					for( String curID : ids )
-						taxaToAdd.add(TaxonomyCache.impl.getTaxon(curID));
-					
-					WorkingSetCache.impl.editTaxaInWorkingSet(workingSet, taxaToAdd, null, new GenericCallback<String>() {
-					
-						@Override
-						public void onSuccess(String result) {
-							WindowUtils.infoAlert("Taxon successfully added " + "to working set "
-									+ workingSet.getName());
-							add.setEnabled(true);
-							//FIXME manager.workingSetOptionsPanel.listChanged();
-					
+				
+				searchPanel.getSelection(new ComplexListener<Collection<Taxon>>() {
+					public void handleEvent(Collection<Taxon> taxaToAdd) {
+						// NEED TO ADD THINGS TO WORKINGSET
+						if (!taxaToAdd.isEmpty()) {
+							WorkingSetCache.impl.editTaxaInWorkingSet(workingSet, taxaToAdd, null, new GenericCallback<String>() {
+								@Override
+								public void onSuccess(String result) {
+									WindowUtils.infoAlert("Taxon successfully added " + "to working set "
+											+ workingSet.getName());
+									add.setEnabled(true);
+									fireEvent(Events.Change);
+								}
+							
+								@Override
+								public void onFailure(Throwable caught) {
+									WindowUtils.errorAlert("Error adding taxon to " + "working set " + workingSet.getName());
+									add.setEnabled(true);
+							
+								}
+							});
+							
 						}
-					
-						@Override
-						public void onFailure(Throwable caught) {
-							WindowUtils.errorAlert("Error adding taxon to " + "working set " + workingSet.getName());
-							add.setEnabled(true);
-					
-						}
-					});
-					
-				}
 
-				// NOTHING TO ADD
-				else {
-					add.setEnabled(true);
-					WindowUtils.errorAlert("No taxon to add to working set " + workingSet.getWorkingSetName());
-				}
+						// NOTHING TO ADD
+						else {
+							add.setEnabled(true);
+							WindowUtils.errorAlert("No taxon to add to working set " + workingSet.getWorkingSetName());
+						}
+					}
+				});
 
 			}
 		});
 
 		buttons.add(add);
-		buttons.add(selectAll);
-		buttons.add(deselectAll);
 
 		instructions.add(instruct);
 		instructions.add(buttons);
 		add(instructions, north);
-
-		setButtonsEnabled(false);
-
 	}
 
 	@Override
@@ -375,16 +142,8 @@ public class WorkingSetAddTaxaSearchPanel extends RefreshLayoutContainer {
 		} else {
 			instruct.setHTML("<b>Instructions:</b> Please select a working set to add taxa to.");
 		}
-		setButtonsEnabled(true);
 		layout();
 
-	}
-
-	public void setButtonsEnabled(boolean enabled) {
-		for (int i = 0; i < buttons.getWidgetCount(); i++) {
-			Button button = (Button) buttons.getWidget(i);
-			button.setEnabled(enabled);
-		}
 	}
 
 }

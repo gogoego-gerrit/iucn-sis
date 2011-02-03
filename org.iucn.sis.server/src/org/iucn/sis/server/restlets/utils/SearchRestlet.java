@@ -12,9 +12,13 @@ import org.iucn.sis.server.api.persistance.CommonNameCriteria;
 import org.iucn.sis.server.api.persistance.SynonymCriteria;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.CommonNameComparator;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -90,23 +94,39 @@ public class SearchRestlet extends BaseServiceRestlet {
 			Collections.sort(cname, comparator);
 			
 			results.append("<result id=\"" + taxon.getId() + "\">");
-			results.append("<taxon>");
 			results.append(XMLWritingUtils.writeCDATATag("name", taxon.getFullName()));
 			results.append(XMLWritingUtils.writeCDATATag("commonName", cname.isEmpty() ? "N/A" : cname.get(0).getName()));
 			results.append(XMLWritingUtils.writeCDATATag("level", Taxon.getDisplayableLevel(taxon.getLevel())));
-			//TODO: get category
-			results.append(XMLWritingUtils.writeCDATATag("category", "N/A"));
+			results.append(XMLWritingUtils.writeCDATATag("category", getCategory(taxon)));
 			results.append(XMLWritingUtils.writeCDATATag("family", 
 					taxon.getFootprint().length >= 5 ? taxon.getFootprint()[4] : "N/A"));
 			results.append(XMLWritingUtils.writeCDATATag("genus", 
 					taxon.getFootprint().length >= 6 ? taxon.getFootprint()[5] : "N/A"));
-			results.append("</taxon>");
 			results.append("</result>");
 		}
 		results.append("</results>\r\n");
 		
 		response.setEntity(results.toString(), MediaType.TEXT_XML);
 		response.setStatus(Status.SUCCESS_OK);
+	}
+	
+	private String getCategory(Taxon taxon) {
+		List<Assessment> list = 
+			SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(taxon);
+		
+		if (list.isEmpty())
+			return "N/A";
+		else {
+			Collections.sort(list, new PublishedAssessmentsComparator());
+		
+			Assessment assessment = list.get(0);
+			
+			RedListCriteriaField proxy = new RedListCriteriaField(assessment.getField(CanonicalNames.RedListCriteria));
+			
+			String category = proxy.isManual() ? proxy.getManualCategory() : proxy.getGeneratedCategory();
+			
+			return "".equals(category) ? "N/A" : category;
+		}
 	}
 	
 	protected Collection<Taxon> search(TaxonCriteria criteria) {

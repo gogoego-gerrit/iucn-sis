@@ -10,6 +10,8 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.dem.DEMPanel;
 import org.iucn.sis.client.panels.references.ReferenceViewTabPanel;
+import org.iucn.sis.client.panels.search.SearchQuery;
+import org.iucn.sis.client.panels.utils.BasicSearchPanel;
 import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.client.tabs.HomePageTab;
 import org.iucn.sis.client.tabs.TaxonHomePageTab;
@@ -20,10 +22,15 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
@@ -38,6 +45,7 @@ public class BodyContainer extends LayoutContainer {
 	private LayoutContainer current;
 	
 	private ReferenceViewTabPanel refViewPanel;
+	private BasicSearchPanel searchPanel;
 
 	public BodyContainer() {
 		super(new FillLayout());
@@ -51,6 +59,7 @@ public class BodyContainer extends LayoutContainer {
 		assessmentPage = new DEMPanel();
 		
 		refViewPanel = new ReferenceViewTabPanel();
+		searchPanel = new BasicSearchPanel();
 	}
 	
 	public void openWorkingSet(final String url, final boolean updateNavigation) {
@@ -218,5 +227,39 @@ public class BodyContainer extends LayoutContainer {
 		s.setSize(850, 550);
 		s.show();
 	}
+	
+	public void openSearch() {
+		openSearch(null, false, false);
+	}
+	
+	public void openSearch(SearchQuery query) {
+		openSearch(query, false, true);
+	}
 
+	public void openSearch(final SearchQuery query, final boolean advanced, final boolean search) {
+		searchPanel.setSearchText("", false);
+		
+		Window window = WindowUtils.getWindow(true, true, "Search Taxonomy");
+		window.addListener(Events.Show, new Listener<BaseEvent>() {
+			public void handleEvent(BaseEvent be) {
+				DeferredCommand.addCommand(new Command() {
+					public void execute() {
+						if (advanced)
+							searchPanel.setSearchText(query == null ? "" : query.getQuery(), true);
+						else if (query != null) {
+							searchPanel.setSearchText(query.getQuery(), false);
+							if (search)
+								searchPanel.search(query);
+						}
+						else
+							searchPanel.setSearchText("", false);
+					}
+				});
+			}
+		});
+		window.setSize(800, 600);
+		window.setLayout(new FillLayout());
+		window.add(searchPanel);
+		window.show();
+	}
 }

@@ -12,6 +12,7 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
@@ -21,6 +22,14 @@ import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+/**
+ * 
+ * Events:
+ * 
+ * Change - fired when taxa are added.
+ * Refresh - fired when taxa are added and refresh is needed (apparently)
+ *
+ */
 @SuppressWarnings("deprecation")
 public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 
@@ -122,10 +131,12 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 											WindowUtils.infoAlert("Taxon successfully added " + "to working set "
 													+ workingSet.getWorkingSetName());
 											
-											/*FIXME manager.workingSetOptionsPanel
+											/*manager.workingSetOptionsPanel
 													.refreshTaxaList(manager.workingSetOptionsPanel.checkPermissions());
 											manager.workingSetOptionsPanel.listChanged();*/
 									
+											fireEvent(Events.Refresh);
+											fireEvent(Events.Change);
 										}
 										public void onFailure(Throwable caught) {
 											WindowUtils.hideLoadingAlert();

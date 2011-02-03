@@ -14,6 +14,7 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
@@ -27,6 +28,12 @@ import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
+/**
+ * Events:
+ * 
+ * Change - fired when taxa are removed.
+ *
+ */
 @SuppressWarnings("deprecation")
 public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 
@@ -96,6 +103,7 @@ public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 					Info.display("Taxa Removed", "Taxa was successfully removed from working set "
 							+ ws.getWorkingSetName() + ".", "");
 					//manager.workingSetOptionsPanel.listChanged();
+					fireEvent(Events.Change);
 					list.removeAll();
 				}
 				public void onFailure(Throwable caught) {

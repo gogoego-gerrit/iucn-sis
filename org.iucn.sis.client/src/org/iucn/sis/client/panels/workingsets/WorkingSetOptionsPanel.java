@@ -133,11 +133,34 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 		imagePanel = new VerticalPanel();
 		imagePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		content.add(imagePanel, center);
+		
+		Listener<BaseEvent> changeListener = new Listener<BaseEvent>() {
+			public void handleEvent(BaseEvent be) {
+				listChanged();
+			}
+		};
 
 		browserPanel = new WorkingSetAddTaxaBrowserPanel();
+		browserPanel.addListener(Events.Change, changeListener);
+		browserPanel.addListener(Events.Refresh, new Listener<BaseEvent>() {
+			public void handleEvent(BaseEvent be) {
+				refreshTaxaList(checkPermissions());
+			}
+		});
+		
 		addTaxonPanel = new WorkingSetAddTaxaSearchPanel();
+		addTaxonPanel.addListener(Events.Change, changeListener);
+		
 		deletePanel = new WorkingSetDeleteTaxa();
-		movePanel = new WorkingSetMoveTaxaPanel();
+		deletePanel.addListener(Events.Change, changeListener);
+		
+		movePanel = new WorkingSetMoveTaxaPanel() {
+			protected List<TaxaData> getCheckedTaxa() {
+				return getChecked();
+			}
+		};
+		movePanel.addListener(Events.Change, changeListener);
+		
 		blankPanel = new LayoutContainer();
 		blankPanel.addStyleName("gwt-background");
 
@@ -377,7 +400,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 				refreshImagePanel();
 
 				if (mode == ADDSEARCH) {
-					//FIXME refreshAndAddPanel(manager.addTaxonPanel);
+					refreshAndAddPanel(addTaxonPanel);
 					if (refreshNeededAdd)
 						forceRefreshTaxaList();
 					else
