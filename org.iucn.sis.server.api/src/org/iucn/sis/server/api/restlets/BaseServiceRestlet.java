@@ -59,11 +59,10 @@ public abstract class BaseServiceRestlet extends Restlet {
 			try {
 				representation = handleGet(request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus(), e.getMessage());
+				handleResourceException(e, response);
 				return;
 			} catch (Throwable e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
-				Debug.println(e);
+				handleUncaughtException(e, response);
 				return;
 			}
 			
@@ -76,11 +75,10 @@ public abstract class BaseServiceRestlet extends Restlet {
 			try {
 				handlePost(request.getEntity(), request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus(), e.getMessage());
+				handleResourceException(e, response);
 				return;
 			} catch (Throwable e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
-				Debug.println(e);
+				handleUncaughtException(e, response);
 				return;
 			}
 			
@@ -90,11 +88,10 @@ public abstract class BaseServiceRestlet extends Restlet {
 			try {
 				handlePut(request.getEntity(), request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus(), e.getMessage());
+				handleResourceException(e, response);
 				return;
 			} catch (Throwable e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
-				Debug.println(e);
+				handleUncaughtException(e, response);
 				return;
 			}
 			
@@ -104,11 +101,10 @@ public abstract class BaseServiceRestlet extends Restlet {
 			try {
 				handleDelete(request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus(), e.getMessage());
+				handleResourceException(e, response);
 				return;
 			} catch (Throwable e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
-				Debug.println(e);
+				handleUncaughtException(e, response);
 				return;
 			}
 			
@@ -118,16 +114,26 @@ public abstract class BaseServiceRestlet extends Restlet {
 			try {
 				handleMethod(request.getMethod(), request, response);
 			} catch (ResourceException e) {
-				response.setStatus(e.getStatus(), e.getMessage());
+				handleResourceException(e, response);
 				return;
 			} catch (Throwable e) {
-				response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
-				Debug.println(e);
+				handleUncaughtException(e, response);
 				return;
 			}
 			
 			updateStatus(response);
 		}
+	}
+	
+	protected void handleResourceException(ResourceException e, Response response) {
+		response.setStatus(e.getStatus(), e.getMessage());
+		if (e.getStatus().isServerError()) //Probably a bad thing...
+			Debug.println(e);
+	}
+	
+	protected void handleUncaughtException(Throwable e, Response response) {
+		response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
+		Debug.println(e);
 	}
 	
 	private void updateStatus(Response response) {
