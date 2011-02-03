@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Region;
 
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
@@ -73,9 +74,15 @@ public class AddRegionPanel extends LayoutContainer{
 	 * @param selectedID
 	 */
 	private void addRegionDropdown(Region region) {
-		RegionModel model = idToModel.get(region.getId());
-		if (model == null)
-			return;
+		RegionModel model = null;
+		if (region != null) {
+			if (!idToModel.containsKey(region.getId())) {
+				Debug.println("Somehow, the specified region {0} doesn't exist ... impossible?", region.getId());
+				return;
+			}
+			else
+				model = idToModel.get(region.getId());
+		}
 		
 		ComboBox<RegionModel> box = buildNewComboBox();
 		box.setAutoValidate(true);
