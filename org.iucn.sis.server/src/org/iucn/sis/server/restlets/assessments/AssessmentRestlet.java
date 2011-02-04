@@ -1,12 +1,19 @@
 package org.iucn.sis.server.restlets.assessments;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
+import org.iucn.sis.server.api.persistance.FieldDAO;
+import org.iucn.sis.server.api.persistance.PrimitiveFieldDAO;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
@@ -14,6 +21,8 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
+import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
@@ -141,25 +150,110 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 	private void postAssessment(Representation entity, Request request, Response response, User username) throws ResourceException {
 		NativeDocument doc = getEntityAsNativeDocument(entity);
 		try {
-			Assessment assessment = Assessment.fromXML(doc);
-
+			Assessment source = Assessment.fromXML(doc);
+			
 			// ONLY ALLOW POSTING OF ASSESSMENTS THAT ALREADY EXIST;
-			if (assessment.getId() != 0) {
-				AssessmentIOWriteResult result = saveAssessment(assessment, username);
+			if (source.getId() != 0) {
+				Assessment target = SIS.get().getAssessmentIO().getAssessment(source.getId());
+				target.toXML();
+				
+				sink(source, target);
+				
+				AssessmentIOWriteResult result = 
+					SIS.get().getAssessmentIO().writeAssessment(target, getUser(request), true);
+				
+				if (!result.status.isSuccess())
+					throw new ResourceException(result.status, "AssessmentIOWrite threw exception when saving.");
+				
+				response.setStatus(result.status);
+				response.setEntity(target.toXML(), MediaType.TEXT_XML);
+				/*AssessmentIOWriteResult result = saveAssessment(assessment, username);
 				if (result.status.isSuccess()) {
 					response.setEntity(assessment.toXML(), MediaType.TEXT_XML);
 					response.setStatus(result.status);
 				} else {
 					throw new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED);
-				}
+				}*/
 			} else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 			}
 
-		} catch (RegionConflictException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, e);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
+	
+	private void sink(Assessment source, Assessment target) throws PersistentException {
+		Map<Integer, Field> existingFields = mapFields(target.getField());
+		
+		for (Field sourceField : source.getField()) {
+			if (sourceField.getId() == 0) {
+				sourceField.setAssessment(target);
+				//FieldDAO.save(sourceField);
+				target.getField().add(sourceField);
+			}
+			else {
+				Field targetField = existingFields.remove(sourceField.getId());
+				sink(sourceField, targetField);
+			}
+		}
+		
+		for (Field field : existingFields.values())
+			FieldDAO.deleteAndDissociate(field);
+	}
+	
+	private void sink(Field source, Field target) throws PersistentException {
+		{
+			Map<Integer, PrimitiveField> existingFields = mapFields(target.getPrimitiveField());
+		
+			for (PrimitiveField sourceField : source.getPrimitiveField()) {
+				if (sourceField.getId() == 0) {
+					sourceField.setField(target);
+					//PrimitiveFieldDAO.save(sourceField);
+					target.getPrimitiveField().add(sourceField);
+				}
+				else {
+					PrimitiveField targetField = existingFields.remove(sourceField.getId());
+					targetField.setRawValue(sourceField.getRawValue());
+				}
+			}
+			
+			for (PrimitiveField field : existingFields.values())
+				PrimitiveFieldDAO.deleteAndDissociate(field);
+		}
+		{
+			Map<Integer, Field> existingFields = mapFields(target.getFields());
+			
+			for (Field sourceField : source.getFields()) {
+				if (sourceField.getId() == 0) {
+					sourceField.setParent(target);
+					//FieldDAO.save(sourceField);
+					target.getFields().add(sourceField);
+				}
+				else {
+					Field targetField = existingFields.remove(sourceField.getId());
+					sink(sourceField, targetField);
+				}
+			}
+			
+			for (Field field : existingFields.values())
+				FieldDAO.deleteAndDissociate(field);
+		}
+		
+		//FieldDAO.save(target);
+	}
+	
+	private <X> Map<Integer, X> mapFields(Collection<X> fields) {
+		Map<Integer, X> map = new HashMap<Integer, X>();
+		for (X field : fields) {
+			if (field instanceof Field) 
+				map.put(((Field)field).getId(), field);
+			else if (field instanceof PrimitiveField)
+				map.put(((PrimitiveField)field).getId(), field);
+		}
+		return map;
+	}
+	
 
 	private void batchCreate(Representation entity, Request request, Response response, User user) throws ResourceException {
 		NativeDocument doc = getEntityAsNativeDocument(entity);
