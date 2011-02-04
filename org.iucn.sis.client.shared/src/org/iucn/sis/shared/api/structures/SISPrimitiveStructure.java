@@ -69,8 +69,19 @@ public abstract class SISPrimitiveStructure<T> extends Structure<PrimitiveField<
 			}
 			field.setRawValue(data);
 		}
-		else
-			Debug.println("Skipping %s, no data to save", getId());
+		else {
+			if (field != null) {
+				field.setRawValue("");
+				if (parent != null) {
+					Debug.println("Remvoing & clearing existing value %s for %s", field.getRawValue(), getId());
+					parent.getPrimitiveField().remove(field);
+				}
+				else
+					Debug.println("Only clearing existing value %s for %s", field.getRawValue(), getId());
+			}
+			else
+				Debug.println("Skipping %s, no data to save", getId());
+		}
 	}
 	
 	@Override
