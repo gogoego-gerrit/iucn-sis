@@ -2,7 +2,10 @@ package org.iucn.sis.server.extensions.user.resources;
 
 import java.util.List;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.PermissionIO;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.PermissionGroup;
@@ -35,12 +38,15 @@ public class UserRestlet extends BaseServiceRestlet {
 		return (String) request.getAttributes().get("username");
 	}
 	
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String username = getUsername(request);
 		if (username == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please provide a username");
 		
-		User user = SIS.get().getUserIO().getUserFromUsername(username);
+		UserIO userIO = new UserIO(session);
+		PermissionIO permissionIO = new PermissionIO(session);
+		
+		User user = userIO.getUserFromUsername(username);
 		if (user == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "User not found.");
 		
@@ -75,7 +81,7 @@ public class UserRestlet extends BaseServiceRestlet {
 				user.getPermissionGroups().clear();
 				for (String permName : value.split(",")) {
 					try {
-						PermissionGroup group = SIS.get().getPermissionIO().getPermissionGroup(permName);
+						PermissionGroup group = permissionIO.getPermissionGroup(permName);
 						if (group != null)
 							user.getPermissionGroups().add(group);
 						else {
@@ -93,7 +99,7 @@ public class UserRestlet extends BaseServiceRestlet {
 			}
 
 			try {
-				if (SIS.get().getUserIO().saveUser(user))
+				if (userIO.saveUser(user))
 					response.setStatus(Status.SUCCESS_OK);
 				else
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
@@ -104,10 +110,10 @@ public class UserRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		List<User> list;
 		try {
-			list = SIS.get().getManager().listObjects(User.class);
+			list = SIS.get().getManager().listObjects(User.class, session);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}

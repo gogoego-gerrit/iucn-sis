@@ -15,61 +15,70 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
 public class PrimitiveFieldDAO {
-	public static PrimitiveField loadPrimitiveFieldByORMID(int id) throws PersistentException {
+	/*public static PrimitiveField loadPrimitiveFieldByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadPrimitiveFieldByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static PrimitiveField getPrimitiveFieldByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getPrimitiveFieldByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static PrimitiveField loadPrimitiveFieldByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadPrimitiveFieldByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static PrimitiveField getPrimitiveFieldByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getPrimitiveFieldByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static PrimitiveField loadPrimitiveFieldByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (PrimitiveField) session.load(PrimitiveField.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -79,7 +88,7 @@ public class PrimitiveFieldDAO {
 			return (PrimitiveField) session.get(PrimitiveField.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -89,7 +98,7 @@ public class PrimitiveFieldDAO {
 			return (PrimitiveField) session.load(PrimitiveField.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -99,32 +108,36 @@ public class PrimitiveFieldDAO {
 			return (PrimitiveField) session.get(PrimitiveField.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static PrimitiveField[] listPrimitiveFieldByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static PrimitiveField[] listPrimitiveFieldByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listPrimitiveFieldByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static PrimitiveField[] listPrimitiveFieldByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listPrimitiveFieldByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static PrimitiveField[] listPrimitiveFieldByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From PrimitiveField as PrimitiveField");
@@ -138,7 +151,7 @@ public class PrimitiveFieldDAO {
 			return (PrimitiveField[]) list.toArray(new PrimitiveField[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -156,32 +169,36 @@ public class PrimitiveFieldDAO {
 			return (PrimitiveField[]) list.toArray(new PrimitiveField[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static PrimitiveField loadPrimitiveFieldByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static PrimitiveField loadPrimitiveFieldByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadPrimitiveFieldByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static PrimitiveField loadPrimitiveFieldByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadPrimitiveFieldByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static PrimitiveField loadPrimitiveFieldByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		PrimitiveField[] primitiveFields = listPrimitiveFieldByQuery(session, condition, orderBy);
@@ -199,27 +216,31 @@ public class PrimitiveFieldDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iteratePrimitiveFieldByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iteratePrimitiveFieldByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iteratePrimitiveFieldByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static java.util.Iterator iteratePrimitiveFieldByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iteratePrimitiveFieldByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iteratePrimitiveFieldByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From PrimitiveField as PrimitiveField");
@@ -232,7 +253,7 @@ public class PrimitiveFieldDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -249,44 +270,48 @@ public class PrimitiveFieldDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	
-	public static boolean save(PrimitiveField primitiveField) throws PersistentException {
+	/*public static boolean save(PrimitiveField primitiveField) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(primitiveField);
+			SISPersistentManager.instance().saveObject(session, primitiveField);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(PrimitiveField primitiveField) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(primitiveField);
+			SISPersistentManager.instance().deleteObject(session, primitiveField);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
-	public static boolean deleteAndDissociate(PrimitiveField primitiveField)throws PersistentException {
+	public static boolean deleteAndDissociate(PrimitiveField primitiveField, Session session)throws PersistentException {
 		try {
 			if(primitiveField.getField() != null) {
 				primitiveField.getField().getPrimitiveField().remove(primitiveField);
 			}
-			
-			return delete(primitiveField);
+			try {
+				session.delete(primitiveField);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -294,13 +319,13 @@ public class PrimitiveFieldDAO {
 	
 	
 	
-	public static boolean refresh(PrimitiveField primitiveField) throws PersistentException {
+	/*public static boolean refresh(PrimitiveField primitiveField) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(primitiveField);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -311,10 +336,10 @@ public class PrimitiveFieldDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static PrimitiveField loadPrimitiveFieldByCriteria(PrimitiveFieldCriteria primitiveFieldCriteria) {
 		PrimitiveField[] primitiveFields = listPrimitiveFieldByCriteria(primitiveFieldCriteria);

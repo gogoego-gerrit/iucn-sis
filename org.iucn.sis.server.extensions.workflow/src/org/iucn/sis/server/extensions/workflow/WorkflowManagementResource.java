@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.extensions.integrity.IntegrityValidator;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 import org.iucn.sis.shared.api.workflow.WorkflowUserInfo;
@@ -28,23 +29,22 @@ import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
-import com.solertium.db.restlet.DBResource;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.NodeCollection;
 
+@SuppressWarnings("deprecation")
 public class WorkflowManagementResource extends WFDBResource {
 	
-	private final WorkflowManager manager;
 	private final String workingSet;
 
 	public WorkflowManagementResource(Context context, Request request, Response response) {
 		super(context, request, response);
 		setModifiable(true);
-		manager = new WorkflowManager();
 		workingSet = (String)request.getAttributes().get("working-set");
 	}
 	
-	public Representation represent(Variant variant) throws ResourceException {
+	@Override
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		final SelectQuery query = new SelectQuery();
 		query.select(WorkflowConstants.WORKFLOW_TABLE, "*");
 		query.constrain(new CanonicalColumnName(WorkflowConstants.WORKFLOW_TABLE, "workingsetid"), 
@@ -69,7 +69,9 @@ public class WorkflowManagementResource extends WFDBResource {
 	 *  </notify>
 	 * </root>
 	 */
-	public void acceptRepresentation(Representation entity) throws ResourceException {
+	@Override
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
+		final WorkflowManager manager = new WorkflowManager(session);
 		final Document document;
 		try {
 			document = new DomRepresentation(entity).getDocument();
@@ -115,10 +117,11 @@ public class WorkflowManagementResource extends WFDBResource {
 			 * 1. Run integrity check
 			 */
 //			final VFS vfs = ServerApplication.getStaticVFS();
-			final WorkingSet  data = SIS.get().getWorkingSetIO().readWorkingSet(Integer.valueOf(workingSet));
+			WorkingSetIO workingSetIO = new WorkingSetIO(session);
+			final WorkingSet  data = workingSetIO.readWorkingSet(Integer.valueOf(workingSet));
 			
 			final Collection<Assessment> assessments = 
-				WorkflowManager.getAllAssessments(data);
+				WorkflowManager.getAllAssessments(session, data);
 			
 			if (assessments.isEmpty()) {
 				die(new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED, "There are no assessments available in this working set."));

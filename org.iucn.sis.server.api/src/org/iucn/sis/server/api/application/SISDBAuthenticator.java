@@ -3,7 +3,10 @@ package org.iucn.sis.server.api.application;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.iucn.sis.server.api.io.UserIO;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
@@ -26,7 +29,12 @@ public class SISDBAuthenticator extends DBAuthenticator {
 	public String putNewAccount(String login, String password) throws AccountExistsException {
 		if (doesAccountExist(login))
 			throw new AccountExistsException();
-		User user = SIS.get().getUserIO().getUserFromUsername(login);
+		
+		Session session = SISPersistentManager.instance().openSession();
+		
+		UserIO io = new UserIO(session);
+		
+		User user = io.getUserFromUsername(login);
 		if (user == null) {
 			user = new User();
 			user.setUsername(login);
@@ -36,19 +44,26 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		} else if (user.state == User.DELETED) {
 			user.state = User.ACTIVE;
 		} else {
+			session.close();
 			throw new AccountExistsException("User already exists");
 		}
 		user.setPassword(translatePassword(login, password));
 		user.setSisUser(true);
 		user.setRapidlistUser(false);
 		
-		try{
-			SIS.get().getUserIO().saveUser(user);
+		try {
+			io.saveUser(user);
 		} catch (PersistentException e) {
 			throw new AccountExistsException(e.getLocalizedMessage());
+		} finally {
+			session.close();
 		}
-		return Integer.toString(user.getId());
 		
+		String result = Integer.toString(user.getId()); 
+		
+		session.close();
+		
+		return result;
 	}
 	
 	@Override
@@ -69,23 +84,21 @@ public class SISDBAuthenticator extends DBAuthenticator {
 			if (translatedPW.equalsIgnoreCase(loginCache.get(translatedUN)))
 				return true;
 			
-			User user;
-			try {
-				user = (User)SIS.get().getManager().getSession().createCriteria(User.class)
+			Session session = SISPersistentManager.instance().openSession();
+			
+			User user = (User)session.createCriteria(User.class)
 				.add(Restrictions.eq("username", login))
 				.add(Restrictions.eq("password", translatedPW))
 				.add(Restrictions.eq("sisUser", Boolean.TRUE))
 				.add(Restrictions.eq("state", User.ACTIVE))
 				.uniqueResult();
-			} catch (PersistentException e) {
-				Debug.println("Failed to validate user account: {0}", e);
-				return false;
-			}
 			
 			boolean success = user != null;
 			
 			if (success)
 				loginCache.put(translatedUN, translatedPW);
+			
+			session.close();
 			
 			return success;
 		}
@@ -93,14 +106,21 @@ public class SISDBAuthenticator extends DBAuthenticator {
 	
 	@Override
 	public boolean deleteUser(String username) throws AccountNotFoundException {
-		User user = SIS.get().getUserIO().getUserFromUsername(username);
-		if (user == null)
+		Session session = SISPersistentManager.instance().openSession();
+		UserIO io = new UserIO(session);
+		User user = io.getUserFromUsername(username);
+		if (user == null) {
+			session.close();
 			throw new AccountNotFoundException("User " + username + " was not found.");
+		}
 		user.state = User.DELETED;
+		
 		try {
-			return SIS.get().getUserIO().saveUser(user);
+			return io.saveUser(user);
 		} catch (PersistentException e) {
 			return false;
+		} finally {
+			session.close();
 		}
 	}
 	

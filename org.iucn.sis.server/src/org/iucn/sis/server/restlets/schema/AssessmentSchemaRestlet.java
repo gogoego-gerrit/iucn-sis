@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
 import org.iucn.sis.server.api.fields.TreeBuilder;
@@ -67,7 +68,7 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String schemaName = getName(request);
 		if (schemaName == null)
 			return listSchemas();
@@ -85,7 +86,7 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation rep, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation rep, Request request, Response response, Session session) throws ResourceException {
 		String schemaName = getName(request);
 		if (schemaName == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please provide an assessment schema.");

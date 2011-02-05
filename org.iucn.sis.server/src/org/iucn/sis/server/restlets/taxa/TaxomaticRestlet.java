@@ -5,7 +5,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.InfratypeIO;
+import org.iucn.sis.server.api.io.TaxomaticIO;
+import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -18,7 +22,6 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -45,12 +48,13 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		paths.add("/taxomatic/{operation}");
 	}
 
-	private void trashTaxon(Integer id, Request request, final Response response) throws TaxomaticException, ResourceException {
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
+	private void trashTaxon(Integer id, Request request, final Response response, Session session) throws TaxomaticException, ResourceException {
+		TaxonIO taxonIO = new TaxonIO(session);
+		Taxon taxon = taxonIO.getTaxon(id);
 		if (taxon == null)
 			throw new TaxomaticException("Taxon not found.");
 		
-		SIS.get().getTaxonIO().trashTaxon(taxon, SIS.get().getUser(request));
+		taxonIO.trashTaxon(taxon, getUser(request, session));
 	}
 
 	/**
@@ -66,23 +70,26 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param documentElement
 	 * @param request
+	 * @param taxomaticIO TODO
+	 * @param taxonIO TODO
+	 * @param user TODO
 	 * @param response
 	 */
-	private void demoteNode(Element documentElement, Request request) throws TaxomaticException {
+	private void demoteNode(Element documentElement, Request request, TaxomaticIO taxomaticIO, TaxonIO taxonIO, User user) throws TaxomaticException {
 		Element demoted = (Element) documentElement.getElementsByTagName("demoted").item(0);
 		String id = demoted.getAttribute("id");
 		String newParentID = demoted.getTextContent();
 		
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(id));
-		Taxon parent = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(newParentID));
+		Taxon taxon = taxonIO.getTaxon(Integer.valueOf(id));
+		Taxon parent = taxonIO.getTaxon(Integer.valueOf(newParentID));
 
-		SIS.get().getTaxomaticIO().demoteSpecies(taxon, parent, SIS.get().getUser(request));
+		taxomaticIO.demoteSpecies(taxon, parent, user);
 	}
 
-	private Taxon doAddNewTaxon(NativeElement newTaxon, User user) throws TaxomaticException {
+	private Taxon doAddNewTaxon(NativeElement newTaxon, TaxomaticIO taxomaticIO, User user) throws TaxomaticException {
 		Taxon taxon = Taxon.fromXML(newTaxon);
 		
-		SIS.get().getTaxomaticIO().saveNewTaxon(taxon, user);
+		taxomaticIO.saveNewTaxon(taxon, user);
 		
 		return taxon;
 	}
@@ -93,13 +100,15 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param request
 	 * @param response
+	 * @param taxomaticIO TODO
+	 * @param user TODO
 	 */
-	public Representation getLastTaxomaticOperation(Request request, Response response) throws TaxomaticException, ResourceException {
-		String username = SIS.get().getUsername(request);
-		String lastUser = SIS.get().getTaxomaticIO().getLastOperationUsername();
+	public Representation getLastTaxomaticOperation(Request request, Response response, TaxomaticIO taxomaticIO, User user) throws TaxomaticException, ResourceException {
+		throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+		/*String lastUser = taxomaticIO.getLastOperationUsername();
 
 		if (username.equalsIgnoreCase(lastUser) || username.equalsIgnoreCase("admin")) {
-			Collection<Integer> taxaIDs = SIS.get().getTaxomaticIO().getTaxaIDsChanged();
+			Collection<Integer> taxaIDs = taxomaticIO.getTaxaIDsChanged();
 			StringBuilder files = new StringBuilder();
 			for (Integer file : taxaIDs) {
 				files.append(file + ", ");
@@ -109,12 +118,12 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 			} else
 				files.append("none (no taxa was affected)");
 			
-			String lastOperation = SIS.get().getTaxomaticIO().getLastOperationType();
+			String lastOperation = taxomaticIO.getLastOperationType();
 			return new StringRepresentation("A " + lastOperation
 					+ " was the last taxomatic operation that was performed, which affected taxa " + files.toString()
 					+ ".", MediaType.TEXT_PLAIN);
 		} else
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);*/
 	}
 
 	/**
@@ -127,9 +136,12 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param documentElement
 	 * @param request
+	 * @param taxomaticIO TODO
+	 * @param taxonIO TODO
+	 * @param user TODO
 	 * @param response
 	 */
-	private void mergeTaxa(Element documentElement, Request request) throws TaxomaticException {
+	private void mergeTaxa(Element documentElement, Request request, TaxomaticIO taxomaticIO, TaxonIO taxonIO, User user) throws TaxomaticException {
 		String mergedIDs = "";
 		String mainID = "";
 		
@@ -140,11 +152,11 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 			throw new TaxomaticException("Invalid information supplid in request.  Need merged and main taxa.");
 		}
 		
-		List<Taxon> mergedTaxa = SIS.get().getTaxonIO().getTaxa(mergedIDs);
+		List<Taxon> mergedTaxa = taxonIO.getTaxa(mergedIDs);
 		
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(mainID));
+		Taxon taxon = taxonIO.getTaxon(Integer.valueOf(mainID));
 		
-		SIS.get().getTaxomaticIO().mergeTaxa(mergedTaxa, taxon, SIS.get().getUser(request));
+		taxomaticIO.mergeTaxa(mergedTaxa, taxon, user);
 	}
 
 	/**
@@ -156,9 +168,12 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param documentElement
 	 * @param request
+	 * @param taxomaticIO TODO
+	 * @param taxonIO TODO
+	 * @param user TODO
 	 * @param response
 	 */
-	private void mergeUpInfraranks(Element documentElement, Request request) throws TaxomaticException {
+	private void mergeUpInfraranks(Element documentElement, Request request, TaxomaticIO taxomaticIO, TaxonIO taxonIO, User user) throws TaxomaticException {
 
 		String mergedIDs = "";
 		String mainID = "";
@@ -169,11 +184,11 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 			throw new TaxomaticException("Please supply valid infrarank and species");
 		}
 
-		List<Taxon> taxa = SIS.get().getTaxonIO().getTaxa(mergedIDs);
+		List<Taxon> taxa = taxonIO.getTaxa(mergedIDs);
 		
-		Taxon main = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(mainID));
+		Taxon main = taxonIO.getTaxon(Integer.valueOf(mainID));
 		
-		SIS.get().getTaxomaticIO().mergeUpInfraranks(taxa, main, SIS.get().getUser(request));
+		taxomaticIO.mergeUpInfraranks(taxa, main, user);
 	}
 
 	/**
@@ -182,9 +197,12 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param documentElement
 	 * @param request
+	 * @param taxonIO TODO
+	 * @param user TODO
+	 * @param session TODO
 	 * @param response
 	 */
-	private void moveAssessments(final Element documentElement, Request request) throws TaxomaticException, ResourceException {
+	private void moveAssessments(final Element documentElement, Request request, TaxonIO taxonIO, User user, Session session) throws TaxomaticException, ResourceException {
 		final NodeList oldNode = documentElement.getElementsByTagName("oldNode");
 		final NodeList nodeToMoveAssessmentsInto = documentElement.getElementsByTagName("nodeToMoveInto");
 		final NodeList assessmentNodeList = documentElement.getElementsByTagName("assessmentID");
@@ -198,15 +216,17 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		} else {
 			String newNodeID = nodeToMoveAssessmentsInto.item(0).getTextContent();
 			
+			AssessmentIO io = new AssessmentIO(session);
+			
 			ArrayList<Assessment> assessments = new ArrayList<Assessment>();
 			for (Node id : new NodeCollection(assessmentNodeList)) {
-				assessments.add(SIS.get().getAssessmentIO().getAttachedAssessment(
+				assessments.add(io.getAttachedAssessment(
 						Integer.valueOf(id.getTextContent())));
 			}
 			
-			if (!SIS.get().getAssessmentIO().moveAssessments(
-					SIS.get().getTaxonIO().getTaxon(Integer.valueOf(newNodeID)), assessments,
-					SIS.get().getUser(request))) {
+			if (!io.moveAssessments(
+					taxonIO.getTaxon(Integer.valueOf(newNodeID)), assessments,
+					user)) {
 				throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
 			}
 		}
@@ -220,36 +240,42 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param documentElement
 	 * @param request
+	 * @param taxonIO TODO
+	 * @param taxomaticIO TODO
+	 * @param user TODO
 	 * @param response
 	 */
-	private void moveNodes(Element documentElement, Request request) throws TaxomaticException {
+	private void moveNodes(Element documentElement, Request request, TaxonIO taxonIO, TaxomaticIO taxomaticIO, User user) throws TaxomaticException {
 		Element parentElement = (Element) documentElement.getElementsByTagName("parent").item(0);
 		String parentID = parentElement.getAttribute("id");
 		
-		final Taxon parentNode = SIS.get().getTaxonIO().getTaxonNonLazy(Integer.valueOf(parentID));
+		final Taxon parentNode = taxonIO.getTaxonNonLazy(Integer.valueOf(parentID));
 		
 		final Collection<Taxon> childrenTaxa = new ArrayList<Taxon>();
 		NodeList newChildren = documentElement.getElementsByTagName("child");
 		for (int i = 0; i < newChildren.getLength(); i++) {
 			String id = ((Element) newChildren.item(i)).getAttribute("id");
-			childrenTaxa.add(SIS.get().getTaxonIO().getTaxonNonLazy(Integer.valueOf(id)));
+			childrenTaxa.add(taxonIO.getTaxonNonLazy(Integer.valueOf(id)));
 		}
 
-		SIS.get().getTaxomaticIO().moveTaxa(parentNode, childrenTaxa, SIS.get().getUser(request));
+		taxomaticIO.moveTaxa(parentNode, childrenTaxa, user);
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String operation = (String) request.getAttributes().get("operation");
 		
 		boolean acquired = lock.attempt();
 		if (!acquired)
 			throw new ResourceException(Status.CLIENT_ERROR_LOCKED);
 		
+		TaxomaticIO taxomaticIO = new TaxomaticIO(session);
+		User user = getUser(request, session);
+		
 		Representation representation = null;
 		try {
 			if (operation.equalsIgnoreCase("undo"))
-				representation = getLastTaxomaticOperation(request, response);
+				representation = getLastTaxomaticOperation(request, response, taxomaticIO, user);
 			else
 				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 		} catch (TaxomaticException e){
@@ -265,32 +291,36 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String operation = (String) request.getAttributes().get("operation");
 		
 		boolean acquired = lock.attempt();
 		if (!acquired)
 			throw new ResourceException(Status.CLIENT_ERROR_LOCKED);
 		
+		final TaxomaticIO taxomaticIO = new TaxomaticIO(session);
+		final TaxonIO taxonIO = new TaxonIO(session);
+		final User user = getUser(request, session);
+		
 		try {
 			if (operation.equalsIgnoreCase("update"))
-				updateTaxon(entity, request);
+				updateTaxon(entity, request, taxonIO, taxomaticIO, session);
 			else if (operation.equalsIgnoreCase("undo"))
-				undoLastTaxomaticOperation(request);
+				undoLastTaxomaticOperation(request, taxomaticIO, session);
 			else if (operation.equalsIgnoreCase("merge")) {
-				mergeTaxa(getEntityAsDocument(entity).getDocumentElement(), request);
+				mergeTaxa(getEntityAsDocument(entity).getDocumentElement(), request, taxomaticIO, taxonIO, user);
 			} else if (operation.equalsIgnoreCase("moveAssessments")) {
-				moveAssessments(getEntityAsDocument(entity).getDocumentElement(), request);
+				moveAssessments(getEntityAsDocument(entity).getDocumentElement(), request, taxonIO, user, session);
 			} else if (operation.equalsIgnoreCase("mergeupinfrarank")) {
-				mergeUpInfraranks(getEntityAsDocument(entity).getDocumentElement(), request);
+				mergeUpInfraranks(getEntityAsDocument(entity).getDocumentElement(), request, taxomaticIO, taxonIO, user);
 			} else if (operation.equalsIgnoreCase("split")) {
-				splitNodes(getEntityAsDocument(entity).getDocumentElement(), request);
+				splitNodes(getEntityAsDocument(entity).getDocumentElement(), request, taxomaticIO, taxonIO, user);
 			} else if (operation.equalsIgnoreCase("move")) {
-				moveNodes(getEntityAsDocument(entity).getDocumentElement(), request);
+				moveNodes(getEntityAsDocument(entity).getDocumentElement(), request, taxonIO, taxomaticIO, user);
 			} else if (operation.equalsIgnoreCase("promote")) {
-				promoteInfrarank(getEntityAsDocument(entity).getDocumentElement(), request);
+				promoteInfrarank(getEntityAsDocument(entity).getDocumentElement(), request, taxonIO, taxomaticIO, user);
 			} else if (operation.equalsIgnoreCase("demote")) {
-				demoteNode(getEntityAsDocument(entity).getDocumentElement(), request);
+				demoteNode(getEntityAsDocument(entity).getDocumentElement(), request, taxomaticIO, taxonIO, user);
 			} else
 				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 		} catch (TaxomaticException e){
@@ -304,18 +334,21 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String operation = (String) request.getAttributes().get("operation");
 		
 		boolean acquired = lock.attempt();
 		if (!acquired)
 			throw new ResourceException(Status.CLIENT_ERROR_LOCKED);
 		
+		TaxomaticIO taxomaticIO = new TaxomaticIO(session);
+		User user = getUser(request, session);
+		
 		try {
 			if (operation.equalsIgnoreCase("new"))
-				putNewTaxon(entity, request, response);
+				putNewTaxon(entity, request, response, taxomaticIO, user);
 			else if (operation.equalsIgnoreCase("batch")) {
-				putBatch(entity, request, response);
+				putBatch(entity, request, response, taxomaticIO, session);
 			}
 			else
 				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
@@ -330,7 +363,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		String operation = (String) request.getAttributes().get("operation");
 		
 		boolean acquired = lock.attempt();
@@ -338,7 +371,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_LOCKED);
 		
 		try {
-			trashTaxon(Integer.valueOf(operation), request, response);
+			trashTaxon(Integer.valueOf(operation), request, response, session);
 		} catch (NumberFormatException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		} catch (TaxomaticException e){
@@ -364,15 +397,18 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param documentElement
 	 * @param request
+	 * @param taxonIO TODO
+	 * @param taxomaticIO TODO
+	 * @param user TODO
 	 * @param response
 	 */
-	private void promoteInfrarank(Element documentElement, Request request) throws TaxomaticException {
+	private void promoteInfrarank(Element documentElement, Request request, TaxonIO taxonIO, TaxomaticIO taxomaticIO, User user) throws TaxomaticException {
 		Element promoted = (Element) documentElement.getElementsByTagName("promoted").item(0);
 		String id = promoted.getAttribute("id");
 		
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(id));
+		Taxon taxon = taxonIO.getTaxon(Integer.valueOf(id));
 		
-		SIS.get().getTaxomaticIO().promoteInfrarank(taxon, SIS.get().getUser(request));
+		taxomaticIO.promoteInfrarank(taxon, user);
 	}
 
 	/**
@@ -380,10 +416,12 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param request
 	 * @param response
+	 * @param taxomaticIO TODO
+	 * @param session TODO
 	 * @return
 	 * @throws Exception
 	 */
-	private void putBatch(Representation entity, Request request, Response response) throws TaxomaticException, ResourceException {
+	private void putBatch(Representation entity, Request request, Response response, TaxomaticIO taxomaticIO, Session session) throws TaxomaticException, ResourceException {
 		NativeDocument ndoc = new JavaNativeDocument();
 		try {
 			ndoc.parse(entity.getText());
@@ -394,10 +432,10 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		NativeElementCollection collection = new NativeElementCollection(taxa);
 		
 		StringBuilder ids = new StringBuilder();
-		User user = SIS.get().getUser(request);
+		User user = getUser(request, session);
 		
 		for (NativeElement element : collection) {
-			Taxon taxon = doAddNewTaxon(element, user);
+			Taxon taxon = doAddNewTaxon(element, taxomaticIO, user);
 			ids.append(taxon.getId() + ",");
 		}
 
@@ -407,7 +445,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 			response.setEntity(ids.toString(), MediaType.TEXT_PLAIN);
 	}
 
-	private void putNewTaxon(Representation entity, Request request, Response response) throws TaxomaticException, ResourceException {
+	private void putNewTaxon(Representation entity, Request request, Response response, TaxomaticIO taxomaticIO, User user) throws TaxomaticException, ResourceException {
 		NativeDocument ndoc = new JavaNativeDocument();
 		try {
 			ndoc.parse(entity.getText());
@@ -415,9 +453,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
 		
-		User user = SIS.get().getUser(request);
-		
-		Taxon taxon = doAddNewTaxon(ndoc.getDocumentElement(), user);
+		Taxon taxon = doAddNewTaxon(ndoc.getDocumentElement(), taxomaticIO, user);
 		
 		response.setEntity(taxon.getId() + "", MediaType.TEXT_PLAIN);
 		response.setStatus(Status.SUCCESS_OK);		
@@ -435,13 +471,16 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param documentElement
 	 * @param request
+	 * @param taxomaticIO TODO
+	 * @param taxonIO TODO
+	 * @param user TODO
 	 * @param response
 	 */
-	private void splitNodes(Element documentElement, Request request) throws TaxomaticException, ResourceException {
+	private void splitNodes(Element documentElement, Request request, TaxomaticIO taxomaticIO, TaxonIO taxonIO, User user) throws TaxomaticException, ResourceException {
 		Element originalNode = (Element) documentElement.getElementsByTagName("current").item(0);
 		String oldId = originalNode.getTextContent();
 		
-		Taxon oldNode = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(oldId));
+		Taxon oldNode = taxonIO.getTaxon(Integer.valueOf(oldId));
 		
 		HashMap<Taxon, ArrayList<Taxon>> parentToChildren = new HashMap<Taxon, ArrayList<Taxon>>();
 		int childrenSize = 0;
@@ -449,12 +488,12 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		ElementCollection parents = new ElementCollection(documentElement.getElementsByTagName("parent"));
 		for (Element parent : parents) {
 			String parentID = parent.getAttribute("id");
-			Taxon parentTaxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(parentID));
+			Taxon parentTaxon = taxonIO.getTaxon(Integer.valueOf(parentID));
 			ElementCollection children = new ElementCollection(parent.getElementsByTagName("child"));
 			ArrayList<Taxon> childrenTaxa = new ArrayList<Taxon>();
 			for (Element child : children) {
 				String childID = child.getTextContent();
-				childrenTaxa.add(SIS.get().getTaxonIO().getTaxon(Integer.valueOf(childID)));
+				childrenTaxa.add(taxonIO.getTaxon(Integer.valueOf(childID)));
 			}
 			parentToChildren.put(parentTaxon, childrenTaxa);
 			childrenSize += childrenTaxa.size();
@@ -464,22 +503,24 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		if (oldNode.getChildren().size() != childrenSize)
 			throw new TaxomaticException("Request failed: You must split all the children.");
 
-		SIS.get().getTaxomaticIO().splitNodes(oldNode, SIS.get().getUser(request), parentToChildren);
+		taxomaticIO.splitNodes(oldNode, user, parentToChildren);
 	}
 
 	/**
 	 * 
-	 * @param docElement
 	 * @param request
+	 * @param taxomaticIO TODO
+	 * @param session TODO
+	 * @param docElement
 	 * @param response
 	 */
-	public void undoLastTaxomaticOperation(Request request) throws TaxomaticException, ResourceException {
-		String username = SIS.get().getUsername(request);
+	public void undoLastTaxomaticOperation(Request request, TaxomaticIO taxomaticIO, Session session) throws TaxomaticException, ResourceException {
+		User user = getUser(request, session);
 		
-		SIS.get().getTaxomaticIO().performTaxomaticUndo(username);
+		taxomaticIO.performTaxomaticUndo(user);
 	}
 	
-	public void updateTaxon(Representation entity, Request request) throws TaxomaticException, ResourceException {
+	public void updateTaxon(Representation entity, Request request, TaxonIO taxonIO, TaxomaticIO taxomaticIO, Session session) throws TaxomaticException, ResourceException {
 		final NativeDocument ndoc = new JavaNativeDocument();
 		try {
 			ndoc.parse(entity.getText());
@@ -488,7 +529,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		}
 		
 		Taxon updatedTaxon = Taxon.fromXML(ndoc);
-		Taxon currentTaxon = SIS.get().getTaxonIO().getTaxon(updatedTaxon.getId());
+		Taxon currentTaxon = taxonIO.getTaxon(updatedTaxon.getId());
 		
 		currentTaxon.setName(updatedTaxon.getName());
 		currentTaxon.setTaxonLevel(updatedTaxon.getTaxonLevel());
@@ -498,13 +539,15 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		currentTaxon.setFeral(updatedTaxon.getFeral());
 		currentTaxon.setInvasive(updatedTaxon.getInvasive());
 		
+		InfratypeIO io = new InfratypeIO(session);
+		
 		if (updatedTaxon.getInfratype() == null) 
 			currentTaxon.setInfratype(null);
 		else {
-			currentTaxon.setInfratype(SIS.get().getInfratypeIO().getInfratype(updatedTaxon.getInfratype().getName()));
+			currentTaxon.setInfratype(io.getInfratype(updatedTaxon.getInfratype().getName()));
 		}
 		
-		SIS.get().getTaxomaticIO().writeTaxon(currentTaxon, SIS.get().getUser(request));
+		taxomaticIO.writeTaxon(currentTaxon, getUser(request, session));
 	}
 
 }

@@ -15,8 +15,9 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Field;
@@ -25,56 +26,64 @@ import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 
 public class ReferenceDAO {
-	public static Reference loadReferenceByORMID(int id) throws PersistentException {
+	/*public static Reference loadReferenceByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadReferenceByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Reference getReferenceByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getReferenceByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Reference loadReferenceByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadReferenceByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Reference getReferenceByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getReferenceByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Reference loadReferenceByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (Reference) session.load(Reference.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -84,7 +93,7 @@ public class ReferenceDAO {
 			return (Reference) session.get(Reference.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -94,7 +103,7 @@ public class ReferenceDAO {
 			return (Reference) session.load(Reference.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -104,32 +113,36 @@ public class ReferenceDAO {
 			return (Reference) session.get(Reference.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static Reference[] listReferenceByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static Reference[] listReferenceByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listReferenceByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Reference[] listReferenceByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listReferenceByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Reference[] listReferenceByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Reference as Reference");
@@ -143,7 +156,7 @@ public class ReferenceDAO {
 			return (Reference[]) list.toArray(new Reference[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -161,32 +174,36 @@ public class ReferenceDAO {
 			return (Reference[]) list.toArray(new Reference[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static Reference loadReferenceByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static Reference loadReferenceByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadReferenceByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Reference loadReferenceByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadReferenceByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Reference loadReferenceByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		Reference[] references = listReferenceByQuery(session, condition, orderBy);
@@ -204,27 +221,31 @@ public class ReferenceDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iterateReferenceByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iterateReferenceByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateReferenceByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static java.util.Iterator iterateReferenceByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateReferenceByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iterateReferenceByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Reference as Reference");
@@ -237,7 +258,7 @@ public class ReferenceDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -254,7 +275,7 @@ public class ReferenceDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -263,24 +284,24 @@ public class ReferenceDAO {
 		return new Reference();
 	}
 	
-	public static boolean save(Reference reference) throws PersistentException {
+	/*public static boolean save(Reference reference) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(reference);
+			SISPersistentManager.instance().saveObject(session, reference);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(Reference reference) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(reference);
+			SISPersistentManager.instance().deleteObject(session, reference);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -310,10 +331,10 @@ public class ReferenceDAO {
 			return delete(reference);
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static boolean deleteAndDissociate(Reference reference, Session session)throws PersistentException {
 		try {
@@ -345,18 +366,18 @@ public class ReferenceDAO {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static boolean refresh(Reference reference) throws PersistentException {
+	/*public static boolean refresh(Reference reference) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(reference);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -367,10 +388,10 @@ public class ReferenceDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static Reference loadReferenceByCriteria(ReferenceCriteria referenceCriteria) {
 		Reference[] references = listReferenceByCriteria(referenceCriteria);

@@ -14,7 +14,7 @@ package org.iucn.sis.server.api.persistance;
  */
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.iucn.sis.server.api.persistance.hibernate.AbstractORMCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.IntegerExpression;
@@ -34,10 +34,6 @@ public class AssessmentTypeCriteria extends AbstractORMCriteria {
 	
 	public AssessmentTypeCriteria(Session session) {
 		this(session.createCriteria(AssessmentType.class));
-	}
-	
-	public AssessmentTypeCriteria() throws PersistentException {
-		this(SISPersistentManager.instance().getSession());
 	}
 	
 	public WorkingSetCriteria createWorkingSetCriteria() {

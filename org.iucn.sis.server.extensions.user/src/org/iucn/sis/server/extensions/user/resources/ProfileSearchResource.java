@@ -8,6 +8,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
@@ -38,7 +39,7 @@ import com.solertium.util.BaseDocumentUtils;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
-public class ProfileSearchResource extends Resource {
+public class ProfileSearchResource extends TransactionResource {
 
 	private final String[] searchable;
 
@@ -50,10 +51,9 @@ public class ProfileSearchResource extends Resource {
 
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
-
+	
 	@Override
-	public Representation represent(Variant variant) throws ResourceException {
-		Session session = SISPersistentManager.instance().getSession();
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		Criteria criteria = session.createCriteria(User.class);
 		
 		final Form form = getRequest().getResourceRef().getQueryAsForm();

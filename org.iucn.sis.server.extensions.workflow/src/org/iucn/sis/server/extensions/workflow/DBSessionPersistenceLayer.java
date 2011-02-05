@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -26,9 +27,11 @@ import com.solertium.db.query.UpdateQuery;
 public class DBSessionPersistenceLayer implements PersistenceLayer {
 	
 	private final ExecutionContext ec;
+	private final Session session;
 	
-	public DBSessionPersistenceLayer() {
+	public DBSessionPersistenceLayer(Session session) {
 		ec = SIS.get().getExecutionContext();
+		this.session = session;
 	}
 	
 	public Number insertStatus(Integer workingSetID, WorkflowStatus status) throws WorkflowManagerException {
@@ -121,7 +124,7 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 	}
 	
 	public void ensureConsistent(WorkingSet workingSet) throws WorkflowManagerException {
-		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSet);
+		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(session, workingSet);
 		Debug.println("Ensuring consistency on " + assessments.size() + " assessments...");
 		
 		final String table = "RedListConsistencyCheck";
@@ -159,7 +162,7 @@ public class DBSessionPersistenceLayer implements PersistenceLayer {
 	}
 	
 	public void ensureEvaluated(WorkingSet workingSet) throws WorkflowManagerException {
-		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSet);
+		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(session, workingSet);
 		Debug.println("Ensuring evaluation on " + assessments.size() + " assessments...");
 		
 		final String table = "RedListEvaluated";

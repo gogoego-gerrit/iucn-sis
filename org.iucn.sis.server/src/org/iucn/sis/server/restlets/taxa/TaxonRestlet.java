@@ -5,7 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.TaxonIO;
+import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -65,28 +68,30 @@ public class TaxonRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		Triple<String, String, String> parameters = getParameters(request);
 
+		TaxonIO taxonIO = new TaxonIO(session);
+		
 		final String action = parameters.getFirst();
 		final Representation representation;
 		if (action.equalsIgnoreCase("hierarchy"))
-			representation = getFootprintOfIDsAndChildren(parseIdentifier(parameters.getSecond()));
+			representation = getFootprintOfIDsAndChildren(parseIdentifier(parameters.getSecond()), taxonIO);
 		else if (action.equalsIgnoreCase("children"))
-			representation = serveChildrenByID(parseIdentifier(parameters.getSecond()));
+			representation = serveChildrenByID(parseIdentifier(parameters.getSecond()), taxonIO);
 		else if (action.equalsIgnoreCase("nodes"))
-			representation = serveInfo(parameters.getSecond());
+			representation = serveInfo(parameters.getSecond(), taxonIO);
 		else if (action.equalsIgnoreCase("taxonName"))
-			representation = serveByName(parameters.getSecond(), parameters.getThird());
+			representation = serveByName(parameters.getSecond(), parameters.getThird(), taxonIO);
 		else if (action.equalsIgnoreCase("taxonomy"))
-			representation = serveBrowsing(parameters.getSecond());
+			representation = serveBrowsing(parameters.getSecond(), taxonIO);
 		else if (action.equalsIgnoreCase("footprint")) {
-			representation = getFullFootprint(parameters.getSecond());
+			representation = getFullFootprint(parameters.getSecond(), taxonIO);
 		}
 		else if (action.equalsIgnoreCase("footprintIDs"))
-			representation = getFullFootprintOfIDs(response, parseIdentifier(parameters.getSecond()));
+			representation = getFullFootprintOfIDs(response, parseIdentifier(parameters.getSecond()), taxonIO);
 		else if (action.equalsIgnoreCase("workingSets"))
-			representation = fetchWorkingSetsForTaxon(response, parseIdentifier(parameters.getSecond()));
+			representation = fetchWorkingSetsForTaxon(response, parseIdentifier(parameters.getSecond()), session);
 		else
 			throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 		
@@ -94,9 +99,9 @@ public class TaxonRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		Triple<String, String, String> parameters = getParameters(request);
-		
+		TaxonIO taxonIO = new TaxonIO(session);
 		final String action = parameters.getFirst();
 		if (action.equalsIgnoreCase("nodes")) {
 			if ("list".equals(parameters.getSecond())) {
@@ -108,7 +113,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 				for (Element curEl : list)
 					ids.add(parseIdentifier(curEl.getTextContent()));
 					
-				for (Taxon taxon : SIS.get().getTaxonIO().getTaxa(ids.toArray(new Integer[ids.size()]), false))
+				for (Taxon taxon : taxonIO.getTaxa(ids.toArray(new Integer[ids.size()]), false))
 					retXML.append(taxon.toXML());
 				
 				retXML.append("</nodes>");
@@ -118,11 +123,11 @@ public class TaxonRestlet extends BaseServiceRestlet {
 				response.setStatus(Status.SUCCESS_OK);
 			}
 			else if ("references".equals(parameters.getThird())) {
-				updateReferences(entity, parseIdentifier(parameters.getSecond()), request, response);
+				updateReferences(entity, parseIdentifier(parameters.getSecond()), request, response, taxonIO, session);
 			}
 		}
 		else if (action.equalsIgnoreCase("lowestTaxa"))
-			serveLowestTaxa(response, entity);
+			serveLowestTaxa(response, entity, taxonIO);
 		else if (action.equalsIgnoreCase("footprint")) {
 			String values = parameters.getSecond();
 			if (values != null)
@@ -134,22 +139,24 @@ public class TaxonRestlet extends BaseServiceRestlet {
 					throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 				}
 			}
-			response.setEntity(getFullFootprint(values));
+			response.setEntity(getFullFootprint(values, taxonIO));
 		}
 	}
 	
 	@Override
 	public void handlePut(Representation entity, Request request,
-			Response response) throws ResourceException {
+			Response response, Session session) throws ResourceException {
 		Triple<String, String, String> parameters = getParameters(request);
+		
+		TaxonIO taxonIO = new TaxonIO(session);
 		
 		final String action = parameters.getFirst();
 		if (action.equalsIgnoreCase("nodes"))
-			updateTaxon(request, response, parseIdentifier(parameters.getSecond()));
+			updateTaxon(request, response, parseIdentifier(parameters.getSecond()), taxonIO, session);
 	}
 	
-	private void updateReferences(Representation entity, Integer taxonID, Request request, Response response) throws ResourceException {
-		Taxon taxon = SIS.get().getTaxonIO().getTaxonNonLazy(taxonID);
+	private void updateReferences(Representation entity, Integer taxonID, Request request, Response response, TaxonIO taxonIO, Session session) throws ResourceException {
+		Taxon taxon = taxonIO.getTaxonNonLazy(taxonID);
 		if (taxon == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
@@ -159,7 +166,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		for (Element el : new ElementCollection(document.getDocumentElement().getElementsByTagName("reference"))) {
 			try {
 				Reference reference = 
-					SIS.get().getManager().getObject(Reference.class, Integer.valueOf(el.getAttribute("id")));
+					SIS.get().getManager().getObject(session, Reference.class, Integer.valueOf(el.getAttribute("id")));
 				if (reference.getTaxon() == null)
 					reference.setTaxon(new HashSet<Taxon>());
 				reference.getTaxon().add(taxon);
@@ -170,25 +177,25 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		}
 		
 		try {
-			SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request));
+			taxonIO.writeTaxon(taxon, getUser(request, session));
 		} catch (TaxomaticException e) {
 			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
 
-	private Representation getFootprintOfIDsAndChildren(Integer id) {
-		Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
+	private Representation getFootprintOfIDsAndChildren(Integer id, TaxonIO taxonIO) {
+		Taxon taxon = taxonIO.getTaxon(id);
 		
 		return new StringRepresentation(taxon.getXMLofFootprintAndChildren(), MediaType.TEXT_XML);
 	}
 
-	private Representation getFullFootprint(String ids) throws ResourceException {
+	private Representation getFullFootprint(String ids, TaxonIO taxonIO) throws ResourceException {
 		String[] taxaIDs = ids.split(",");
 
 		StringBuilder xml = new StringBuilder("<taxa>");
 
 		for (int i = 0; i < taxaIDs.length; i++) {
-			Taxon taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(taxaIDs[i]));
+			Taxon taxon = taxonIO.getTaxon(parseIdentifier(taxaIDs[i]));
 			if (taxon != null) {
 				String name = taxon.getLevel() == TaxonLevel.KINGDOM ? taxon.getName() : taxon.getFootprintAsString(0,
 						",")
@@ -209,8 +216,8 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		return new DomRepresentation(MediaType.TEXT_XML, doc);
 	}
 
-	private Representation getFullFootprintOfIDs(Response response, Integer id) throws ResourceException {
-		final Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
+	private Representation getFullFootprintOfIDs(Response response, Integer id, TaxonIO taxonIO) throws ResourceException {
+		final Taxon taxon = taxonIO.getTaxon(id);
 		if (taxon == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		
@@ -218,10 +225,10 @@ public class TaxonRestlet extends BaseServiceRestlet {
 				MediaType.TEXT_XML);
 	}	
 
-	private void updateTaxon(Request request, Response response, Integer nodeID) throws ResourceException {
+	private void updateTaxon(Request request, Response response, Integer nodeID, TaxonIO taxonIO, Session session) throws ResourceException {
 		if (nodeID != null) {
 			ArrayList<Taxon> nodesToSave = new ArrayList<Taxon>();
-			User user = SIS.get().getUser(request);
+			User user = getUser(request, session);
 			
 			NativeDocument newDoc = new JavaNativeDocument();
 			try {
@@ -232,7 +239,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 				
 			Taxon newNode = Taxon.fromXML(newDoc);
 			try {
-				newNode = SIS.get().getManager().mergeObject(newNode);
+				newNode = SIS.get().getManager().mergeObject(session, newNode);
 			} catch (PersistentException e) {
 				Debug.println(e);
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -240,7 +247,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 			
 			nodesToSave.add(newNode);
 			try {
-				SIS.get().getTaxonIO().writeTaxa(nodesToSave, user, true);
+				taxonIO.writeTaxa(nodesToSave, user, true);
 			} catch (TaxomaticException e) {
 				throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e);
 			}
@@ -258,22 +265,22 @@ public class TaxonRestlet extends BaseServiceRestlet {
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 	}
 
-	private Representation serveBrowsing(String hierarchy) throws ResourceException {
+	private Representation serveBrowsing(String hierarchy, TaxonIO taxonIO) throws ResourceException {
 		Taxon taxon = null;
 
 		if (hierarchy != null) {
 			if (hierarchy.indexOf("-") < 0) {
-				taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(hierarchy));
+				taxon = taxonIO.getTaxon(parseIdentifier(hierarchy));
 			} else {
 				String[] split = hierarchy.split("-");
-				taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(split[split.length - 1]));
+				taxon = taxonIO.getTaxon(parseIdentifier(split[split.length - 1]));
 			}
 		}
 
-		return new StringRepresentation(getHierarchyFootprintXML(taxon), MediaType.TEXT_XML);
+		return new StringRepresentation(getHierarchyFootprintXML(taxon, taxonIO), MediaType.TEXT_XML);
 	}
 
-	private String getHierarchyFootprintXML(Taxon root) {
+	private String getHierarchyFootprintXML(Taxon root, TaxonIO taxonIO) {
 		String xml = "<hierarchy>\r\n";
 		xml += "<footprint>" + (root == null ? "" : root.getIDFootprintAsString(0, "-")) + "</footprint>\r\n";
 
@@ -284,12 +291,12 @@ public class TaxonRestlet extends BaseServiceRestlet {
 					xml += "<option>" + child.getId() + "</option>\r\n";
 			}
 		else {
-			xml += "<option>" + SIS.get().getTaxonIO().readTaxonByName("ANIMALIA", "ANIMALIA").getId()
+			xml += "<option>" + taxonIO.readTaxonByName("ANIMALIA", "ANIMALIA").getId()
 					+ "</option>\r\n";
-			xml += "<option>" + SIS.get().getTaxonIO().readTaxonByName("PLANTAE", "PLANTAE").getId() + "</option>\r\n";
-			xml += "<option>" + SIS.get().getTaxonIO().readTaxonByName("PROTISTA", "PROTISTA").getId()
+			xml += "<option>" + taxonIO.readTaxonByName("PLANTAE", "PLANTAE").getId() + "</option>\r\n";
+			xml += "<option>" + taxonIO.readTaxonByName("PROTISTA", "PROTISTA").getId()
 					+ "</option>\r\n";
-			xml += "<option>" + SIS.get().getTaxonIO().readTaxonByName("FUNGI", "FUNGI").getId() + "</option>\r\n";
+			xml += "<option>" + taxonIO.readTaxonByName("FUNGI", "FUNGI").getId() + "</option>\r\n";
 		}
 		xml += "</options>\r\n";
 
@@ -298,16 +305,16 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		return xml;
 	}
 
-	private Representation serveByName(String kingdomName, String fullName) throws ResourceException {
-		Taxon taxon = SIS.get().getTaxonIO().readTaxonByName(kingdomName, fullName);
+	private Representation serveByName(String kingdomName, String fullName, TaxonIO taxonIO) throws ResourceException {
+		Taxon taxon = taxonIO.readTaxonByName(kingdomName, fullName);
 		if (taxon == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Node name " + fullName + " is not found.");
 		
-		return serveInfo(taxon.getId() + "");
+		return serveInfo(taxon.getId() + "", taxonIO);
 	}
 
-	private Representation serveChildrenByID(Integer nodeID) throws ResourceException {
-		final Taxon taxon = SIS.get().getTaxonIO().getTaxon(nodeID);
+	private Representation serveChildrenByID(Integer nodeID, TaxonIO taxonIO) throws ResourceException {
+		final Taxon taxon = taxonIO.getTaxon(nodeID);
 		if (taxon == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		
@@ -315,10 +322,10 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		if ("".equals(ids))
 			return new StringRepresentation("<empty></empty>", MediaType.TEXT_XML); 
 		else
-			return serveInfo(ids);
+			return serveInfo(ids, taxonIO);
 	}
 
-	private Representation serveInfo(String nodeID) throws ResourceException {
+	private Representation serveInfo(String nodeID, TaxonIO taxonIO) throws ResourceException {
 		if (nodeID == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		
@@ -328,7 +335,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 			StringBuilder retXML = new StringBuilder("<nodes>\r\n");
 
 			for (int i = 0; i < list.length; i++) {
-				Taxon taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(list[i]));
+				Taxon taxon = taxonIO.getTaxon(parseIdentifier(list[i]));
 				if (taxon != null)
 					retXML.append(taxon.toXML());
 			}
@@ -337,7 +344,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 			representation = new StringRepresentation(retXML.toString(), MediaType.TEXT_XML);
 
 		} else {
-			Taxon taxon = SIS.get().getTaxonIO().getTaxon(parseIdentifier(nodeID));
+			Taxon taxon = taxonIO.getTaxon(parseIdentifier(nodeID));
 			if (taxon == null)
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 									
@@ -352,13 +359,13 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		return representation;
 	}
 
-	private void serveLowestTaxa(Response response, Representation entity) throws ResourceException {
+	private void serveLowestTaxa(Response response, Representation entity, TaxonIO taxonIO) throws ResourceException {
 		Document idsDoc = getEntityAsDocument(entity);
 		ElementCollection idsList = new ElementCollection(idsDoc.getElementsByTagName("id"));
 		ArrayList<Taxon> idsLeftToCheck = new ArrayList<Taxon>();
 
 		for (Element curCode : idsList) {
-			idsLeftToCheck.add(SIS.get().getTaxonIO().getTaxon(parseIdentifier(curCode.getTextContent())));
+			idsLeftToCheck.add(taxonIO.getTaxon(parseIdentifier(curCode.getTextContent())));
 		}
 
 		StringBuffer idsToFetch = new StringBuffer();
@@ -379,7 +386,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		
 		final Representation representation;
 		if (idsToFetch.length() > 0)
-			representation = serveInfo(idsToFetch.substring(0, idsToFetch.length() - 1));
+			representation = serveInfo(idsToFetch.substring(0, idsToFetch.length() - 1), taxonIO);
 		else
 			representation = new StringRepresentation("<empty></empty>", MediaType.TEXT_XML);
 		
@@ -387,11 +394,11 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		response.setEntity(representation);
 	}
 	
-	private Representation fetchWorkingSetsForTaxon(Response response, Integer taxonID) throws ResourceException {
+	private Representation fetchWorkingSetsForTaxon(Response response, Integer taxonID, Session session) throws ResourceException {
 		Representation representation;
 		try {
-			
-			WorkingSet[] sets = SIS.get().getWorkingSetIO().getWorkingSetsForTaxon(taxonID);
+			WorkingSetIO workingSetIO = new WorkingSetIO(session);
+			WorkingSet[] sets = workingSetIO.getWorkingSetsForTaxon(taxonID);
 			StringBuilder xml = new StringBuilder("<xml>\r\n");
 
 			for (WorkingSet set : sets) {

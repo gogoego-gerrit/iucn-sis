@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
 import org.iucn.sis.server.api.fields.TreeBuilder;
 import org.iucn.sis.server.api.fields.definitions.FieldDefinitionLoader;
@@ -150,7 +151,7 @@ public class FieldRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String fieldList = (String) request.getAttributes().get("fieldList");
 		
 		List<String> fields;
@@ -165,7 +166,7 @@ public class FieldRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation rep, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation rep, Request request, Response response, Session session) throws ResourceException {
 		final Document entity = getEntityAsDocument(rep);
 		
 		final List<String> fields = new ArrayList<String>();

@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.recentasms;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -19,17 +20,17 @@ public class RecentInfoFactory {
 		return clazz;
 	}
 	
-	public static <X> RecentInfo<X> load(RecentlyAccessed accessed) throws PersistentException {
+	public static <X> RecentInfo<X> load(RecentlyAccessed accessed, Session session) throws PersistentException {
 		Class<?> clazz = getClassForName(accessed.getType());
 		if (clazz == null)
 			return null;
 		
 		try {
 			return load(accessed.getType(), 
-				SIS.get().getManager().loadObject(clazz, accessed.getObjectid()));
+				SIS.get().getManager().loadObject(session, clazz, accessed.getObjectid()), session);
 		} catch (PersistentException e) {
 			//Object may have been deleted at some point
-			SIS.get().getManager().deleteObject(accessed);
+			SIS.get().getManager().deleteObject(session, accessed);
 			return null;
 		} catch (Exception e) {
 			Debug.println(e);
@@ -37,12 +38,12 @@ public class RecentInfoFactory {
 		}
 	}
 	
-	public static <X> RecentInfo<X> load(String type, Object object) {
+	public static <X> RecentInfo<X> load(String type, Object object, Session session) {
 		RecentInfo parser;
 		if (RecentlyAccessed.ASSESSMENT.equals(type))
-			parser = new RecentAssessmentInfo();
+			parser = new RecentAssessmentInfo(session);
 		else if (RecentlyAccessed.USER.equals(type))
-			parser = new RecentUserInfo();
+			parser = new RecentUserInfo(session);
 		else
 			return null;
 		

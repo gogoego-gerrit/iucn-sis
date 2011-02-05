@@ -14,11 +14,10 @@ package org.iucn.sis.server.api.persistance;
  */
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.iucn.sis.server.api.persistance.hibernate.AbstractORMCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.IntegerExpression;
-import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.persistance.hibernate.StringExpression;
 import org.iucn.sis.shared.api.models.PermissionResourceAttribute;
 
@@ -36,10 +35,6 @@ public class PermissionResourceAttributeCriteria extends AbstractORMCriteria {
 	
 	public PermissionResourceAttributeCriteria(Session session) {
 		this(session.createCriteria(PermissionResourceAttribute.class));
-	}
-	
-	public PermissionResourceAttributeCriteria() throws PersistentException {
-		this(SISPersistentManager.instance().getSession());
 	}
 	
 	public PermissionResourceCriteria createPermission_resourceCriteria() {

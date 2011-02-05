@@ -15,8 +15,9 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
@@ -25,56 +26,64 @@ import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 
 public class NotesDAO {
-	public static Notes loadNotesByORMID(int id) throws PersistentException {
+	/*public static Notes loadNotesByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadNotesByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Notes getNotesByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getNotesByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Notes loadNotesByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadNotesByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Notes getNotesByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getNotesByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Notes loadNotesByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (Notes) session.load(Notes.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -84,7 +93,7 @@ public class NotesDAO {
 			return (Notes) session.get(Notes.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -94,7 +103,7 @@ public class NotesDAO {
 			return (Notes) session.load(Notes.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -104,32 +113,36 @@ public class NotesDAO {
 			return (Notes) session.get(Notes.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static Notes[] listNotesByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static Notes[] listNotesByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listNotesByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Notes[] listNotesByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listNotesByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Notes[] listNotesByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Notes as Notes");
@@ -143,7 +156,7 @@ public class NotesDAO {
 			return (Notes[]) list.toArray(new Notes[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -161,32 +174,36 @@ public class NotesDAO {
 			return (Notes[]) list.toArray(new Notes[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static Notes loadNotesByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static Notes loadNotesByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadNotesByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Notes loadNotesByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadNotesByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Notes loadNotesByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		Notes[] noteses = listNotesByQuery(session, condition, orderBy);
@@ -204,27 +221,31 @@ public class NotesDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iterateNotesByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iterateNotesByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateNotesByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static java.util.Iterator iterateNotesByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateNotesByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iterateNotesByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Notes as Notes");
@@ -237,7 +258,7 @@ public class NotesDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -254,7 +275,7 @@ public class NotesDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -263,30 +284,30 @@ public class NotesDAO {
 		return new Notes();
 	}
 	
-	public static boolean save(Notes notes) throws PersistentException {
+	/*public static boolean save(Notes notes) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(notes);
+			SISPersistentManager.instance().saveObject(session, notes);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(Notes notes) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(notes);
+			SISPersistentManager.instance().deleteObject(session, notes);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	
-	public static boolean deleteAndDissociate(Notes notes) throws PersistentException {
+	public static boolean deleteAndDissociate(Notes notes, Session session) throws PersistentException {
 		try {
 			Synonym[] lSynonyms = (Synonym[])notes.getSynonyms().toArray(new Synonym[notes.getSynonyms().size()]);
 			for(int i = 0; i < lSynonyms.length; i++) {
@@ -305,10 +326,15 @@ public class NotesDAO {
 			for(int i = 0; i < lFields.length; i++) {
 				lFields[i].getNotes().remove(notes);
 			}
-			return delete(notes);
+			try {
+				session.delete(notes);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -345,20 +371,20 @@ public class NotesDAO {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	**/
 	
-	public static boolean refresh(Notes notes) throws PersistentException {
+	/*public static boolean refresh(Notes notes) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(notes);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -369,10 +395,10 @@ public class NotesDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static Notes loadNotesByCriteria(NotesCriteria notesCriteria) {
 		Notes[] noteses = listNotesByCriteria(notesCriteria);

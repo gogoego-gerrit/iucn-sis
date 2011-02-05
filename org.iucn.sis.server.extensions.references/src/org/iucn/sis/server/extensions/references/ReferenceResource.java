@@ -4,9 +4,11 @@ import javax.naming.NamingException;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.hibernate.Session;
 import org.hibernate.criterion.Example;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.server.api.utils.SelectCountDBProcessor;
 import org.iucn.sis.shared.api.models.Reference;
 import org.restlet.Context;
@@ -33,7 +35,7 @@ import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.util.BaseDocumentUtils;
 
-public class ReferenceResource extends Resource {
+public class ReferenceResource extends TransactionResource {
 
 	public ReferenceResource(final Context context, final Request request, final Response response) {
 		super(context, request, response);
@@ -44,9 +46,9 @@ public class ReferenceResource extends Resource {
 	public boolean allowDelete() {
 		return true;
 	}
-
+	
 	@Override
-	public void removeRepresentations() throws ResourceException {
+	public void removeRepresentations(Session session) throws ResourceException {
 		final Integer id;
 		try {
 			id = Integer.valueOf((String)getRequest().getAttributes().get("refid"));
@@ -58,24 +60,25 @@ public class ReferenceResource extends Resource {
 		
 		final Reference reference;
 		try {
-			reference = SISPersistentManager.instance().getObject(Reference.class, id);
+			reference = SISPersistentManager.instance().getObject(session, Reference.class, id);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
 		if (!reference.getField().isEmpty() || !reference.getSynonym().isEmpty() || 
-				!reference.getTaxon().isEmpty() || !reference.getCommon_name().isEmpty())
+				!reference.getTaxon().isEmpty() || !reference.getCommon_name().isEmpty()) {
 			throw new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED);
+		}
 		
 		try {
-			SISPersistentManager.instance().deleteObject(reference);
+			SISPersistentManager.instance().deleteObject(session, reference);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
 
 	@Override
-	public Representation represent(final Variant variant) throws ResourceException {
+	public Representation represent(final Variant variant, Session session) throws ResourceException {
 		final Integer id;
 		try {
 			id = Integer.valueOf((String)getRequest().getAttributes().get("refid"));
@@ -87,7 +90,7 @@ public class ReferenceResource extends Resource {
 		
 		final Reference reference;
 		try {
-			reference = SISPersistentManager.instance().getObject(Reference.class, id);
+			reference = SISPersistentManager.instance().getObject(session, Reference.class, id);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}

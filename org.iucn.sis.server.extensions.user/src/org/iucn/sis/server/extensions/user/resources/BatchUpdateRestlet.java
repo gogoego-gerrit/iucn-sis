@@ -1,6 +1,8 @@
 package org.iucn.sis.server.extensions.user.resources;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.PermissionIO;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -30,13 +32,16 @@ public class BatchUpdateRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final Document document;
 		try {
 			document = new DomRepresentation(entity).getDocument();
 		} catch (Exception e) {
 			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
+		
+		final UserIO userIO = new UserIO(session);
+		final PermissionIO permissionIO = new PermissionIO(session);
 		
 		final ElementCollection nodes = new ElementCollection(
 			document.getDocumentElement().getElementsByTagName("user")	
@@ -45,7 +50,7 @@ public class BatchUpdateRestlet extends BaseServiceRestlet {
 			final Integer id = Integer.valueOf(el.getAttribute("id"));
 			final User user;
 			try {
-				user = SISPersistentManager.instance().loadObject(User.class, id);
+				user = SISPersistentManager.instance().loadObject(session, User.class, id);
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
@@ -64,7 +69,7 @@ public class BatchUpdateRestlet extends BaseServiceRestlet {
 							
 							PermissionGroup group;
 							try {
-								group = SIS.get().getPermissionIO().getPermissionGroup(current);
+								group = permissionIO.getPermissionGroup(current);
 							} catch (PersistentException e) {
 								continue;
 							}
@@ -78,7 +83,7 @@ public class BatchUpdateRestlet extends BaseServiceRestlet {
 				}
 			}
 			try {
-				SIS.get().getUserIO().saveUser(user);
+				userIO.saveUser(user);
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}

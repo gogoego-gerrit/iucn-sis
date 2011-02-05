@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -112,7 +113,7 @@ public class FileAttachmentRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		String attachmentID = getAttachmentID(request);
 		if (attachmentID == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
@@ -131,7 +132,7 @@ public class FileAttachmentRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final String assessmentID = getAssessmentID(request);
 		final String attachmentID = getAttachmentID(request);
 
@@ -167,7 +168,7 @@ public class FileAttachmentRestlet extends BaseServiceRestlet {
 			}
 		}
 		else
-			return super.handleGet(request, response);
+			return super.handleGet(request, response, session);
 	}
 
 	private void handleModifyAttachment(Request request, Response response,
@@ -187,7 +188,7 @@ public class FileAttachmentRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String assessmentID = getAssessmentID(request);
 		String attachmentID = getAttachmentID(request);
 		if (assessmentID != null)
@@ -195,7 +196,7 @@ public class FileAttachmentRestlet extends BaseServiceRestlet {
 		else if (attachmentID != null)
 			handleModifyAttachment(request, response, attachmentID);
 		else
-			super.handlePost(entity, request, response);
+			super.handlePost(entity, request, response, session);
 	}
 
 	private void handlePost(Request request, Response response,

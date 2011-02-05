@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.spatial;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.restlet.Context;
@@ -29,7 +30,7 @@ public class SpatialInformationRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String taxonID = (String) request.getAttributes().get("taxonID");
 		String format = (String) request.getAttributes().get("format");
 	

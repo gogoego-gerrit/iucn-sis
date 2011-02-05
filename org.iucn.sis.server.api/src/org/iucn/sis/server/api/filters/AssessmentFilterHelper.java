@@ -7,10 +7,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -31,10 +33,12 @@ import com.solertium.db.query.SelectQuery;
 
 public class AssessmentFilterHelper {
 
-	protected final AssessmentFilter filter;
+	private final AssessmentFilter filter;
+	private final Session session;
 
-	public AssessmentFilterHelper(AssessmentFilter filter) {
+	public AssessmentFilterHelper(Session session, AssessmentFilter filter) {
 		this.filter = filter;
+		this.session = session;
 		
 		/*Debug.println("Created an assessment filter with properties: \n" +
 			"Draft: {0}; SI Published: {1}; Recent Published: {2}; " +
@@ -62,15 +66,17 @@ public class AssessmentFilterHelper {
 
 		final List<Integer> filterRegions = filter.listRegionIDs();
 		
+		final AssessmentIO io = new AssessmentIO(session);
+		
 		if (filter.isDraft()) {
-			List<Assessment> draftAssessments = SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(taxaID);
+			List<Assessment> draftAssessments = io.readDraftAssessmentsForTaxon(taxaID);
 			for (Assessment draft : draftAssessments)
 				if (allowAssessment(draft, schema, filterRegions))
 					ret.add(draft);
 		}
 
 		if (filter.isRecentPublished() || filter.isAllPublished()) {
-			List<Assessment> publishedAssessments  = SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(taxaID);
+			List<Assessment> publishedAssessments  = io.readPublishedAssessmentsForTaxon(taxaID);
 			Collections.sort(publishedAssessments, new PublishedAssessmentsComparator());
 			for (Assessment published : publishedAssessments)
 				if (published != null && allowAssessment(published, schema, filterRegions)) 

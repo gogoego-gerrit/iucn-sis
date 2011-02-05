@@ -1,7 +1,10 @@
 package org.iucn.sis.server.extensions.scripts.synonyms;
 
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.TaxonIO;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.SynonymCriteria;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -19,7 +22,11 @@ public class SynonymFriendlyNameFixer {
 		int startID = 0;
 		try {
 			while (cont) {
-				TaxonCriteria taxonCriteria = SIS.get().getTaxonIO().getCriteria();
+				Session session = SISPersistentManager.instance().openSession();
+				session.beginTransaction();
+				
+				TaxonIO taxonIO = new TaxonIO(session);
+				TaxonCriteria taxonCriteria = taxonIO.getCriteria();
 				SynonymCriteria criteria = taxonCriteria.createSynonymsCriteria();
 				criteria.id.gt(0);
 				taxonCriteria.id.gt(startID);
@@ -27,7 +34,7 @@ public class SynonymFriendlyNameFixer {
 				taxonCriteria.setMaxResults(20);
 				taxonCriteria.setFirstResult(0);
 
-				Taxon[] results = SIS.get().getTaxonIO().search(taxonCriteria);
+				Taxon[] results = taxonIO.search(taxonCriteria);
 				if (results.length == 0)
 					cont = false;
 				else {
@@ -51,8 +58,8 @@ public class SynonymFriendlyNameFixer {
 						}
 					}
 					Debug.println("Scripted up to taxon " + startID);
-					SIS.get().getManager().getSession().getTransaction().commit();
-					SIS.get().getManager().getSession().beginTransaction();
+					session.getTransaction().commit();
+					session.beginTransaction();
 				}
 			}
 		} catch (Exception e) {

@@ -8,8 +8,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.WorkingSetIO;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.findreplace.FindReplaceData;
@@ -184,8 +187,10 @@ public class FindReplaceRestlet extends BaseServiceRestlet {
 
 			try {
 				this.timeStarted = new Date();
+				Session session = SISPersistentManager.instance().openSession();
+				AssessmentIO io = new AssessmentIO(session);
 				while ((assessments.size() > 0) && !kill.get()) {
-					Assessment assessment = SIS.get().getAssessmentIO().getAssessment(assessments.remove(0));
+					Assessment assessment = io.getAssessment(assessments.remove(0));
 					FindReplaceData data;
 					try {
 						data = searcher.find(assessment, textToLookFor, options, field);
@@ -211,6 +216,7 @@ public class FindReplaceRestlet extends BaseServiceRestlet {
 
 					determineIfRanTooLong();
 				}
+				session.close();
 				done = true;
 				if (monitorThread.isSleeping.get()) {
 					monitorThread.interrupt();
@@ -249,14 +255,15 @@ public class FindReplaceRestlet extends BaseServiceRestlet {
 		paths.add("/find/kill/{searchid}");
 	}
 
-	private List<Integer> getAssessmentsToSearch(NativeDocument doc) {
+	private List<Integer> getAssessmentsToSearch(NativeDocument doc, Session session) {
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
 		NativeElement element = doc.getDocumentElement();
 		String workingSetId = element.getElementsByTagName("workingSetID").item(0).getTextContent();
 		AssessmentFilter filter = AssessmentFilter.fromXML(element.getElementByTagName(
 				AssessmentFilter.ROOT_TAG));
-		AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
+		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
 		List<Integer> assessments = new ArrayList<Integer>();
-		for (Taxon taxon : SIS.get().getWorkingSetIO().readWorkingSet(Integer.valueOf(workingSetId)).getTaxon()) {
+		for (Taxon taxon : workingSetIO.readWorkingSet(Integer.valueOf(workingSetId)).getTaxon()) {
 			assessments.addAll(helper.getAssessmentIds(taxon.getId()));
 		}
 		
@@ -292,7 +299,7 @@ public class FindReplaceRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		String searchID = (String) request.getAttributes().get("searchid");
 		if (currentSearches.containsKey(searchID)) {
 			currentSearches.remove(searchID).killdash9();
@@ -311,7 +318,7 @@ public class FindReplaceRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String searchid = (String) request.getAttributes().get("searchid");
 		if (searchid.trim().equalsIgnoreCase("null")) {
 			NativeDocument doc = new JavaNativeDocument();
@@ -323,7 +330,7 @@ public class FindReplaceRestlet extends BaseServiceRestlet {
 					
 			List<Integer> assessmentIDs;
 			try {
-				assessmentIDs = getAssessmentsToSearch(doc);
+				assessmentIDs = getAssessmentsToSearch(doc, session);
 			} catch (Exception poorlyHandled) {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, poorlyHandled);
 			}
@@ -349,7 +356,7 @@ public class FindReplaceRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		NativeDocument ndoc = new JavaNativeDocument();
 		try {
 			ndoc.parse(entity.getText());
@@ -365,7 +372,7 @@ public class FindReplaceRestlet extends BaseServiceRestlet {
 	
 		boolean overallSuccess = true;
 		for (int i = 0; i < list.size(); i++) {
-			boolean success = replacer.replace(SIS.get().getUser(request), list.get(i), options, field);
+			boolean success = replacer.replace(getUser(request, session), list.get(i), options, field, session);
 			if (!success) {
 				xml.append("<error>" + list.get(i).getAssessmentName() + "</error>\r\n");
 				overallSuccess = false;

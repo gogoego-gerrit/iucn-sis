@@ -15,63 +15,72 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonStatus;
 
 public class TaxonStatusDAO {
-	public static TaxonStatus loadTaxonStatusByORMID(int id) throws PersistentException {
+	/*public static TaxonStatus loadTaxonStatusByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonStatusByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonStatus getTaxonStatusByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getTaxonStatusByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonStatus loadTaxonStatusByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonStatusByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonStatus getTaxonStatusByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getTaxonStatusByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static TaxonStatus loadTaxonStatusByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (TaxonStatus) session.load(TaxonStatus.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -81,7 +90,7 @@ public class TaxonStatusDAO {
 			return (TaxonStatus) session.get(TaxonStatus.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -91,7 +100,7 @@ public class TaxonStatusDAO {
 			return (TaxonStatus) session.load(TaxonStatus.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -101,32 +110,36 @@ public class TaxonStatusDAO {
 			return (TaxonStatus) session.get(TaxonStatus.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static TaxonStatus[] listTaxonStatusByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static TaxonStatus[] listTaxonStatusByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listTaxonStatusByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonStatus[] listTaxonStatusByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listTaxonStatusByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static TaxonStatus[] listTaxonStatusByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From TaxonStatus as TaxonStatus");
@@ -140,7 +153,7 @@ public class TaxonStatusDAO {
 			return (TaxonStatus[]) list.toArray(new TaxonStatus[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -158,32 +171,36 @@ public class TaxonStatusDAO {
 			return (TaxonStatus[]) list.toArray(new TaxonStatus[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static TaxonStatus loadTaxonStatusByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static TaxonStatus loadTaxonStatusByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonStatusByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonStatus loadTaxonStatusByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonStatusByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static TaxonStatus loadTaxonStatusByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		TaxonStatus[] taxonStatuses = listTaxonStatusByQuery(session, condition, orderBy);
@@ -201,27 +218,31 @@ public class TaxonStatusDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iterateTaxonStatusByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iterateTaxonStatusByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateTaxonStatusByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
-	public static java.util.Iterator iterateTaxonStatusByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+	/*public static java.util.Iterator iterateTaxonStatusByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateTaxonStatusByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iterateTaxonStatusByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From TaxonStatus as TaxonStatus");
@@ -234,7 +255,7 @@ public class TaxonStatusDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -251,7 +272,7 @@ public class TaxonStatusDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -260,24 +281,24 @@ public class TaxonStatusDAO {
 		return new TaxonStatus();
 	}
 	
-	public static boolean save(TaxonStatus taxonStatus) throws PersistentException {
+	/*public static boolean save(TaxonStatus taxonStatus) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(taxonStatus);
+			SISPersistentManager.instance().saveObject(session, taxonStatus);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(TaxonStatus taxonStatus) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(taxonStatus);
+			SISPersistentManager.instance().deleteObject(session, taxonStatus);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -292,10 +313,10 @@ public class TaxonStatusDAO {
 			return delete(taxonStatus);
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static boolean deleteAndDissociate(TaxonStatus taxonStatus, Session session)throws PersistentException {
 		try {
@@ -312,18 +333,18 @@ public class TaxonStatusDAO {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static boolean refresh(TaxonStatus taxonStatus) throws PersistentException {
+	/*public static boolean refresh(TaxonStatus taxonStatus) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(taxonStatus);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -334,10 +355,10 @@ public class TaxonStatusDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static TaxonStatus loadTaxonStatusByCriteria(TaxonStatusCriteria taxonStatusCriteria) {
 		TaxonStatus[] taxonStatuses = listTaxonStatusByCriteria(taxonStatusCriteria);

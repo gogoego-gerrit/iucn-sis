@@ -5,7 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.locking.LockException;
 import org.iucn.sis.server.api.locking.LockRepository;
 import org.iucn.sis.server.api.locking.PersistentLockRepository;
@@ -53,26 +55,27 @@ public class LockManagementRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		try {
-			return doGet(response, getTable(request));
+			return doGet(response, getTable(request), session);
 		} catch (LockException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		}
 	}
 
-	private Representation doGet(Response response, final String table) throws LockException {
+	private Representation doGet(Response response, final String table, Session session) throws LockException {
 		final List<Row> rows = new ArrayList<Row>();
-		
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		AssessmentIO assessmentIO = new AssessmentIO(session);
 		if ("persistentlock".equals(table)) {
 			for (LockRepository.LockInfo lock : repository.listLocks()) {
 				final Row row = new Row(); 
-				WorkingSet ws = SIS.get().getWorkingSetIO().
+				WorkingSet ws = workingSetIO.
 					readWorkingSet(Integer.valueOf(lock.getGroup()));
 				
 				String groupName = ws == null ? lock.getGroup() : ws.getWorkingSetName();
 				
-				Assessment data = SIS.get().getAssessmentIO().
+				Assessment data = assessmentIO.
 					getAssessment(Integer.valueOf(lock.getLockID()));
 				if (data == null)
 					row.add(new CString("species", lock.getLockID().toString()));
@@ -90,7 +93,7 @@ public class LockManagementRestlet extends BaseServiceRestlet {
 		}
 		else {
 			for (Map.Entry<String, List<Integer>> entry : repository.listGroups().entrySet()) {
-				WorkingSet data = SIS.get().getWorkingSetIO().readWorkingSet(Integer.valueOf(entry.getKey()));
+				WorkingSet data = workingSetIO.readWorkingSet(Integer.valueOf(entry.getKey()));
 				
 				String groupName;
 				if (data == null)
@@ -115,7 +118,7 @@ public class LockManagementRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		try {
 			doDelete(request, response, getTable(request));
 		} catch (LockException e) {

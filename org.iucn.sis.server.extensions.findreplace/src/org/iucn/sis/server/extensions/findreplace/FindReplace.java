@@ -11,7 +11,10 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.PrimitiveFieldIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -314,12 +317,12 @@ public class FindReplace {
 		}
 	}
 
-	public boolean replace(User user, FindReplaceData data, String options, String field) {
+	public boolean replace(User user, FindReplaceData data, String options, String field, Session session) {
 
 		boolean success = false;
 		try {
 
-			success = replaceInFields(user, data, options, field);
+			success = replaceInFields(user, data, options, field, session);
 
 		} catch (FindReplaceException e) {
 			e.printStackTrace();
@@ -328,10 +331,12 @@ public class FindReplace {
 		return success;
 	}
 
-	public boolean replaceInFields(User user, FindReplaceData data, String options, String field)
+	public boolean replaceInFields(User user, FindReplaceData data, String options, String field, Session session)
 			throws FindReplaceException {
 		boolean success = false;
-		Assessment assessment = SIS.get().getAssessmentIO().getAssessment(data.getAssessmentID());
+		AssessmentIO assessmentIO = new AssessmentIO(session);
+		PrimitiveFieldIO primitiveFieldIO = new PrimitiveFieldIO(session);
+		Assessment assessment = assessmentIO.getAssessment(data.getAssessmentID());
 
 		if (assessment != null) {
 
@@ -361,7 +366,7 @@ public class FindReplace {
 				}
 			}
 			
-			success = SIS.get().getPrimitiveFieldIO().updateTextPrimitiveFieldValuesInDatabase(fieldsToSave, user,
+			success = primitiveFieldIO.updateTextPrimitiveFieldValuesInDatabase(fieldsToSave, user,
 					assessment);
 
 		}

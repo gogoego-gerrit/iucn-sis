@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.messaging;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -20,7 +21,7 @@ public class InboxRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		// TODO: GET ACTUAL MESSAGES
 
 		StringBuffer xml = new StringBuffer("<messages>\r\n");

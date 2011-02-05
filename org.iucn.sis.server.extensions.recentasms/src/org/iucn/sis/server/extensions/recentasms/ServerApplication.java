@@ -12,7 +12,6 @@ public class ServerApplication extends SimpleSISApplication {
 	 * Recent assessments both online & offline
 	 */
 	public void init() {
-		addServiceToRouter(new RecentAssessmentsRestlet(app.getContext()));
 		addServiceToRouter(new RecentlyAccessedRestlet(app.getContext()));
 	}
 	

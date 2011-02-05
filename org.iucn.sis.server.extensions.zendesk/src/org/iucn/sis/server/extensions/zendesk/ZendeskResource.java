@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.restlet.Client;
@@ -43,7 +44,7 @@ public class ZendeskResource extends BaseServiceRestlet {
 		
 	}
 	
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final String action = (String)request.getAttributes().get("action");
 		final String id = (String)request.getAttributes().get("id");
 		
@@ -69,7 +70,7 @@ public class ZendeskResource extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final String action = (String)request.getAttributes().get("action");
 		if ("login".equals(action)) {
 			validateLogin(entity, request, response);
@@ -101,7 +102,7 @@ public class ZendeskResource extends BaseServiceRestlet {
 		}
 	}
 
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		String id = (String)request.getAttributes().get("id");
 		if (id == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);

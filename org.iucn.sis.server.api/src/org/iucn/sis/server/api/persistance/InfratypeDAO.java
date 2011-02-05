@@ -15,32 +15,37 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Infratype;
 
 public class InfratypeDAO {
-	public static Infratype[] listInfratypeByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static Infratype[] listInfratypeByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listInfratypeByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Infratype[] listInfratypeByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listInfratypeByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Infratype[] listInfratypeByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Infratype as Infratype");
@@ -54,7 +59,7 @@ public class InfratypeDAO {
 			return (Infratype[]) list.toArray(new Infratype[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -72,32 +77,36 @@ public class InfratypeDAO {
 			return (Infratype[]) list.toArray(new Infratype[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static Infratype loadInfratypeByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static Infratype loadInfratypeByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadInfratypeByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Infratype loadInfratypeByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadInfratypeByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Infratype loadInfratypeByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		Infratype[] infratypes = listInfratypeByQuery(session, condition, orderBy);
@@ -115,27 +124,31 @@ public class InfratypeDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iterateInfratypeByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iterateInfratypeByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateInfratypeByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static java.util.Iterator iterateInfratypeByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateInfratypeByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iterateInfratypeByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Infratype as Infratype");
@@ -148,7 +161,7 @@ public class InfratypeDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -165,7 +178,7 @@ public class InfratypeDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -174,24 +187,24 @@ public class InfratypeDAO {
 		return new Infratype();
 	}
 	
-	public static boolean save(Infratype infratype) throws PersistentException {
+	/*public static boolean save(Infratype infratype) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(infratype);
+			SISPersistentManager.instance().saveObject(session, infratype);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(Infratype infratype) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(infratype);
+			SISPersistentManager.instance().deleteObject(session, infratype);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -205,7 +218,7 @@ public class InfratypeDAO {
 //			return delete(infratype);
 //		}
 //		catch(Exception e) {
-//			e.printStackTrace();
+//			Debug.println(e);
 //			throw new PersistentException(e);
 //		}
 		return false;
@@ -225,7 +238,7 @@ public class InfratypeDAO {
 //			}
 //		}
 //		catch(Exception e) {
-//			e.printStackTrace();
+//			Debug.println(e);
 //			throw new PersistentException(e);
 //		}
 		return false;
@@ -237,7 +250,7 @@ public class InfratypeDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -248,10 +261,10 @@ public class InfratypeDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static Infratype loadInfratypeByCriteria(InfratypeCriteria infratypeCriteria) {
 		Infratype[] infratypes = listInfratypeByCriteria(infratypeCriteria);

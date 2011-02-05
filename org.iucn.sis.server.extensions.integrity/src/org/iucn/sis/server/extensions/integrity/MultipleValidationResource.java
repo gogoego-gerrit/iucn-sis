@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -23,7 +24,7 @@ public class MultipleValidationResource extends ValidationResource {
 		super(context, request, response);
 	}
 	
-	protected Document handle(Collection<AssessmentInfo> assessmentInfo) throws ResourceException {
+	protected Document handle(Collection<AssessmentInfo> assessmentInfo, Session session) throws ResourceException {
 		//All rules are interrogated
 		final Map<String, Document> rulesetDocuments = getRulesetDocuments();
 		
@@ -32,7 +33,7 @@ public class MultipleValidationResource extends ValidationResource {
 		root.setAttribute("class", "sis_integrity_multiple");
 		
 		for (AssessmentInfo info : assessmentInfo) {
-			info.setName(getSpeciesName(info));
+			info.setName(getSpeciesName(info, session));
 			
 			if (!isAvailable(info))
 				continue;

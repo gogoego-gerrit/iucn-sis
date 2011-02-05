@@ -14,7 +14,7 @@ package org.iucn.sis.server.api.persistance;
  */
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.iucn.sis.server.api.persistance.hibernate.AbstractORMCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.IntegerExpression;
@@ -38,10 +38,6 @@ public class CommonNameCriteria extends AbstractORMCriteria {
 	
 	public CommonNameCriteria(Session session) {
 		this(session.createCriteria(CommonName.class));
-	}
-	
-	public CommonNameCriteria() throws PersistentException {
-		this(SISPersistentManager.instance().getSession());
 	}
 	
 	public IsoLanguageCriteria createIso_languageCriteria() {

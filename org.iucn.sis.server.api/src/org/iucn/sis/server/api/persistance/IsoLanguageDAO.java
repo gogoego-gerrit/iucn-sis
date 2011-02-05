@@ -15,61 +15,70 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.IsoLanguage;
 
 public class IsoLanguageDAO {
-	public static IsoLanguage loadIsoLanguageByORMID(int id) throws PersistentException {
+	/*public static IsoLanguage loadIsoLanguageByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadIsoLanguageByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static IsoLanguage getIsoLanguageByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getIsoLanguageByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static IsoLanguage loadIsoLanguageByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadIsoLanguageByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static IsoLanguage getIsoLanguageByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getIsoLanguageByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static IsoLanguage loadIsoLanguageByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (IsoLanguage) session.load(IsoLanguage.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -79,7 +88,7 @@ public class IsoLanguageDAO {
 			return (IsoLanguage) session.get(IsoLanguage.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -89,7 +98,7 @@ public class IsoLanguageDAO {
 			return (IsoLanguage) session.load(IsoLanguage.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -99,32 +108,36 @@ public class IsoLanguageDAO {
 			return (IsoLanguage) session.get(IsoLanguage.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static IsoLanguage[] listIsoLanguageByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static IsoLanguage[] listIsoLanguageByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listIsoLanguageByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static IsoLanguage[] listIsoLanguageByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listIsoLanguageByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static IsoLanguage[] listIsoLanguageByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From IsoLanguage as IsoLanguage");
@@ -138,7 +151,7 @@ public class IsoLanguageDAO {
 			return (IsoLanguage[]) list.toArray(new IsoLanguage[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -156,32 +169,36 @@ public class IsoLanguageDAO {
 			return (IsoLanguage[]) list.toArray(new IsoLanguage[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static IsoLanguage loadIsoLanguageByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static IsoLanguage loadIsoLanguageByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadIsoLanguageByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static IsoLanguage loadIsoLanguageByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadIsoLanguageByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static IsoLanguage loadIsoLanguageByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		IsoLanguage[] isoLanguages = listIsoLanguageByQuery(session, condition, orderBy);
@@ -199,27 +216,31 @@ public class IsoLanguageDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iterateIsoLanguageByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iterateIsoLanguageByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateIsoLanguageByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static java.util.Iterator iterateIsoLanguageByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateIsoLanguageByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iterateIsoLanguageByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From IsoLanguage as IsoLanguage");
@@ -232,7 +253,7 @@ public class IsoLanguageDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -249,7 +270,7 @@ public class IsoLanguageDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -258,27 +279,27 @@ public class IsoLanguageDAO {
 		return new IsoLanguage();
 	}
 	
-	public static boolean save(IsoLanguage isoLanguage) throws PersistentException {
+	/*public static boolean save(IsoLanguage isoLanguage) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(isoLanguage);
+			SISPersistentManager.instance().saveObject(session, isoLanguage);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(IsoLanguage isoLanguage) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(isoLanguage);
+			SISPersistentManager.instance().deleteObject(session, isoLanguage);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	/**
 	public static boolean deleteAndDissociate(IsoLanguage isoLanguage)throws PersistentException {
@@ -290,7 +311,7 @@ public class IsoLanguageDAO {
 			return delete(isoLanguage);
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -309,19 +330,19 @@ public class IsoLanguageDAO {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	**/
 	
-	public static boolean refresh(IsoLanguage isoLanguage) throws PersistentException {
+	/*public static boolean refresh(IsoLanguage isoLanguage) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(isoLanguage);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -332,10 +353,10 @@ public class IsoLanguageDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static IsoLanguage loadIsoLanguageByCriteria(IsoLanguageCriteria isoLanguageCriteria) {
 		IsoLanguage[] isoLanguages = listIsoLanguageByCriteria(isoLanguageCriteria);

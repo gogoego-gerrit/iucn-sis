@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.integrity;
 
+import org.hibernate.Session;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -11,7 +12,6 @@ import org.restlet.resource.ResourceException;
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
-import com.solertium.db.restlet.DBResource;
 
 /**
  * IntegrityTestResource.java
@@ -23,6 +23,7 @@ import com.solertium.db.restlet.DBResource;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
+@SuppressWarnings("deprecation")
 public class IntegrityTestResource extends IntegrityDBResource {
 
 	public IntegrityTestResource(Context context, Request request,
@@ -31,9 +32,9 @@ public class IntegrityTestResource extends IntegrityDBResource {
 
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
-
+	
 	@Override
-	public Representation represent(Variant variant) throws ResourceException {
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		final String table = getRequest().getResourceRef().getLastSegment();
 		final SelectQuery query = new SelectQuery();
 		query.select(table, "*");

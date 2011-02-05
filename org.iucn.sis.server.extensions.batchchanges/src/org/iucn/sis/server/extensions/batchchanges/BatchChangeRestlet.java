@@ -3,8 +3,9 @@ package org.iucn.sis.server.extensions.batchchanges;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -36,7 +37,7 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final String xml;
 		try {
 			xml = request.getEntity().getText();
@@ -45,7 +46,8 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 			
 		}
 
-		User user = SIS.get().getUser(request);
+		AssessmentIO assessmentIO = new AssessmentIO(session);
+		User user = getUser(request, session);
 		
 		NativeDocument dataDoc = new JavaNativeDocument();
 		dataDoc.parse(xml);
@@ -60,11 +62,11 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 		boolean append = Boolean.parseBoolean(appendTag.getText());
 		boolean overwrite = Boolean.parseBoolean(overwriteTag.getText());
 		
-		Assessment template = SIS.get().getAssessmentIO().
+		Assessment template = assessmentIO.
 			getAssessment(Integer.valueOf(assessmentTag.getTextContent()));
 		
 		AssessmentFilter filter = AssessmentFilter.fromXML(filterTag);
-		AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
+		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
 			
 		List<String> fieldNames = new ArrayList<String>();
 		for (int i = 0; i < fieldNodes.getLength(); i++)
@@ -89,7 +91,7 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 		returnXML.append("</changes>");
 			
 		try {
-			SIS.get().getAssessmentIO().saveAssessments(assessments, user);
+			assessmentIO.saveAssessments(assessments, user);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Unable to save the changes in the assessment", e);
 		}

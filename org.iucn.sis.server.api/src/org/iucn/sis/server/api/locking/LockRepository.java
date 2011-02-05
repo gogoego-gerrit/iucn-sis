@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.User;
@@ -130,12 +131,17 @@ public abstract class LockRepository {
 		}
 		
 		public String getUsername() {
-			if (username == null)
+			if (username == null) {
+				Session session = SISPersistentManager.instance().openSession();
 				try {
-					username = SISPersistentManager.instance().getObject(User.class, userID).getUsername();
+					username = SISPersistentManager.instance().getObject(session, User.class, userID).getUsername();
 				} catch (PersistentException e) {
 					TrivialExceptionHandler.ignore(this, e);
+				} finally {
+					session.close();
 				}
+			}
+				
 			return username;
 		}
 		

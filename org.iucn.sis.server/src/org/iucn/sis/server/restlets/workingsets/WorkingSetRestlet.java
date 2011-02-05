@@ -6,8 +6,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.io.TaxonIO;
+import org.iucn.sis.server.api.io.UserIO;
+import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -56,7 +60,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final String action = (String) request.getAttributes().get("action");
 		final String username = (String) request.getAttributes().get("username");
 		final String identifier = (String) request.getAttributes().get("id");
@@ -64,12 +68,14 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		if (username == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a username");
 		
+		final WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		
 		final Representation entity;
 		if (identifier == null) {
 			if (action.equalsIgnoreCase("subscribe"))
-				entity = getSubscribableWorkingSets(request, response, username);
+				entity = getSubscribableWorkingSets(request, response, username, workingSetIO);
 			else
-				entity = getWorkingSets(username);
+				entity = getWorkingSets(username, workingSetIO);
 		}
 		else {
 			final Integer id;
@@ -80,13 +86,13 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 			}
 			
 			if (action.equalsIgnoreCase("taxaList"))
-				entity = getTaxaFootprintForWorkingSet(request, response, username, id);
+				entity = getTaxaFootprintForWorkingSet(request, response, username, id, workingSetIO);
 			else if (action.equalsIgnoreCase("taxaIDs"))
-				entity = getTaxaListForWorkingSet(username, id);
+				entity = getTaxaListForWorkingSet(username, id, workingSetIO);
 			else if (action.equalsIgnoreCase("assessments"))
-				entity = getAssessmentsForWorkingSet(request, response, username, id);
+				entity = getAssessmentsForWorkingSet(request, response, username, id, workingSetIO, session);
 			else if (identifier.matches("\\d+"))
-				entity = getWorkingSet(username, id);
+				entity = getWorkingSet(username, id, workingSetIO);
 			else
 				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED, "No target for action " + action + " in working sets.");
 		}
@@ -95,10 +101,12 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final String action = (String) request.getAttributes().get("action");
 		final String username = (String) request.getAttributes().get("username");
 		final String identifier = (String) request.getAttributes().get("id");
+		
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
 		
 		if (username == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a username");
@@ -113,17 +121,19 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		}
 		
 		if (action.equalsIgnoreCase("taxaList"))
-			getTaxaFootprintWithAdditionalInfo(entity, response, username, id);
+			getTaxaFootprintWithAdditionalInfo(entity, response, username, id, workingSetIO, session);
 		else if (action.equalsIgnoreCase("editTaxa"))
-			editTaxaInWorkingSet(entity, request, response, username, id);
+			editTaxaInWorkingSet(entity, request, response, username, id, session);
 		else
-			editWorkingSet(entity, username, id);	
+			editWorkingSet(entity, username, id, session);	
 	}
 	
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final String action = (String) request.getAttributes().get("action");
 		final String username = (String) request.getAttributes().get("username");
 		final String identifier = (String) request.getAttributes().get("id");
+		
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
 		
 		if (username == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a username");
@@ -138,14 +148,14 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 			}
 			
-			subscribeToPublicWorkingSet(request, response, username, id);
+			subscribeToPublicWorkingSet(request, response, username, id, workingSetIO);
 		}
 		else
-			createWorkingSet(entity, response, username);	
+			createWorkingSet(entity, response, username, session);	
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		final String action = (String) request.getAttributes().get("action");
 		final String username = (String) request.getAttributes().get("username");
 		final String identifier = (String) request.getAttributes().get("id");
@@ -161,17 +171,17 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		} catch (NullPointerException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
-		
-		WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(id);
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		WorkingSet ws = workingSetIO.readWorkingSet(id);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
 		if (action.equalsIgnoreCase("unsubscribe")) {
-			if (!SIS.get().getWorkingSetIO().unsubscribeFromWorkingset(username, id))
+			if (!workingSetIO.unsubscribeFromWorkingset(username, id))
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Could not unsubscribe working set.");
 		}
 		else {
-			if (!SIS.get().getWorkingSetIO().deleteWorkingset(ws))
+			if (!workingSetIO.deleteWorkingset(ws))
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Could not delete working set.");
 		}
 	}
@@ -182,11 +192,12 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param request
 	 * @param response
+	 * @param workingSetIO TODO
 	 */
-	private Representation getSubscribableWorkingSets(Request request, Response response, String username) throws ResourceException {
+	private Representation getSubscribableWorkingSets(Request request, Response response, String username, WorkingSetIO workingSetIO) throws ResourceException {
 		WorkingSet[] sets;
 		try {
-			sets = SIS.get().getWorkingSetIO().getUnsubscribedWorkingSets(username);
+			sets = workingSetIO.getUnsubscribedWorkingSets(username);
 		} catch (PersistentException e) {
 			response.setEntity(e.getMessage(), MediaType.TEXT_PLAIN);
 			Debug.println("Failed to fetch subscribable working sets for {0}: \n{1}", username, e);
@@ -201,8 +212,8 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
 	}
 	
-	private Representation getWorkingSet(String username, Integer workingSetID) throws ResourceException {
-		final WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(workingSetID);
+	private Representation getWorkingSet(String username, Integer workingSetID, WorkingSetIO workingSetIO) throws ResourceException {
+		final WorkingSet ws = workingSetIO.readWorkingSet(workingSetID);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
@@ -211,14 +222,14 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 
 	/**
 	 * Gets all working sets the user is subscribed to.
-	 * 
+	 * @param workingSetIO TODO
 	 * @param request
 	 * @param response
 	 */
-	private Representation getWorkingSets(String username) throws ResourceException {
+	private Representation getWorkingSets(String username, WorkingSetIO workingSetIO) throws ResourceException {
 		final WorkingSet[] sets;
 		try {
-			sets = SIS.get().getWorkingSetIO().getSubscribedWorkingSets(username);
+			sets = workingSetIO.getSubscribedWorkingSets(username);
 		} catch (PersistentException e) {
 			Debug.println("Failed to load working sets for {0}:\n{1}", username, e);
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -237,9 +248,10 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param request
 	 * @param response
+	 * @param workingSetIO TODO
 	 */
-	private Representation getTaxaFootprintForWorkingSet(Request request, Response response, String username, Integer workingSetID) throws ResourceException {
-		final WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(workingSetID);
+	private Representation getTaxaFootprintForWorkingSet(Request request, Response response, String username, Integer workingSetID, WorkingSetIO workingSetIO) throws ResourceException {
+		final WorkingSet ws = workingSetIO.readWorkingSet(workingSetID);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Working set " + workingSetID + " not found for user " + username);
 		
@@ -253,8 +265,8 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		return new StringRepresentation("/raw" + getURLToSaveFootprint(username), MediaType.TEXT_ALL);
 	}
 	
-	private Representation getAssessmentsForWorkingSet(Request request, Response response, String username, Integer workingSetID) throws ResourceException {
-		final WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(workingSetID);
+	private Representation getAssessmentsForWorkingSet(Request request, Response response, String username, Integer workingSetID, WorkingSetIO workingSetIO, Session session) throws ResourceException {
+		final WorkingSet ws = workingSetIO.readWorkingSet(workingSetID);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
@@ -262,7 +274,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		xml.append("<root>");
 		for (Taxon taxon : ws.getTaxon()) {
 			AssessmentFilter filter = ws.getFilter();
-			AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
+			AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
 			
 			for (Assessment assessment : helper.getAssessments(taxon.getId()))
 				xml.append("<assessment id=\"" + assessment.getId() + "\" taxon=\"" + taxon.getId() + "\" />");
@@ -274,12 +286,12 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	
 	/**
 	 * Returns all taxa associated with a working set
-	 * 
+	 * @param workingSetIO TODO
 	 * @param request
 	 * @param response
 	 */
-	private Representation getTaxaListForWorkingSet(String username, Integer id) throws ResourceException {
-		final WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(id);
+	private Representation getTaxaListForWorkingSet(String username, Integer id, WorkingSetIO workingSetIO) throws ResourceException {
+		final WorkingSet ws = workingSetIO.readWorkingSet(id);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Working set " + id + " not found for user " + username);
 		
@@ -290,8 +302,8 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		DocumentUtils.writeVFSFile(getURLToSaveFootprint(username), SIS.get().getVFS(), report);
 	}
 	
-	private void getTaxaFootprintWithAdditionalInfo(Representation entity, Response response, String username, Integer id) throws ResourceException {
-		WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(id);
+	private void getTaxaFootprintWithAdditionalInfo(Representation entity, Response response, String username, Integer id, WorkingSetIO workingSetIO, Session session) throws ResourceException {
+		WorkingSet ws = workingSetIO.readWorkingSet(id);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
@@ -303,7 +315,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		}
 		
 		AssessmentFilter filter = AssessmentFilter.fromXML(entityDoc);
-		AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
+		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
 
 		StringBuilder csv = new StringBuilder();
 		for (Taxon taxon : ws.getTaxon()) {
@@ -326,12 +338,15 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		response.setStatus(Status.SUCCESS_CREATED);
 	}
 
-	protected void editTaxaInWorkingSet(Representation entity, Request request, Response response, String username, Integer id) throws ResourceException {
-		final WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(id);
+	protected void editTaxaInWorkingSet(Representation entity, Request request, Response response, String username, Integer id, Session session) throws ResourceException {
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		TaxonIO taxonIO = new TaxonIO(session);
+		
+		final WorkingSet ws = workingSetIO.readWorkingSet(id);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
-		final User user = SIS.get().getUser(request);
+		final User user = getUser(request, session);
 		if (user == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		
@@ -365,13 +380,13 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		}
 		
 		for (String taxonID : addedTaxonIDs) {
-			Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(taxonID));
+			Taxon taxon = taxonIO.getTaxon(Integer.valueOf(taxonID));
 			if (taxon != null) {
 				ws.getTaxon().add(taxon);
 			}
 		}
 
-		if (SIS.get().getWorkingSetIO().saveWorkingSet(ws, user)) {
+		if (workingSetIO.saveWorkingSet(ws, user)) {
 			response.setEntity("Successfully editted the taxa in your working set", MediaType.TEXT_PLAIN);
 			response.setStatus(Status.SUCCESS_OK);
 		} else {
@@ -379,7 +394,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		}
 	}
 
-	private void createWorkingSet(Representation entity, Response response, String username) throws ResourceException  {
+	private void createWorkingSet(Representation entity, Response response, String username, Session session) throws ResourceException  {
 		NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 		try {
 			ndoc.parse(entity.getText());
@@ -388,15 +403,18 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		}
 		
 		WorkingSet ws = WorkingSet.fromXML(ndoc.getDocumentElement());
+		
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		UserIO userIO = new UserIO(session);
 
 		// SETTING THE CREATOR AND ADDING THEM AS A SUBSCRIBED USER
-		User creator = SIS.get().getUserIO().getUserFromUsername(ws.getCreatorUsername());
+		User creator = userIO.getUserFromUsername(ws.getCreatorUsername());
 		ws.setCreator(creator);
 		ws.getUsers().add(creator);
 		
-		User user = SIS.get().getUserIO().getUserFromUsername(username);
+		User user = userIO.getUserFromUsername(username);
 		if (ws.getId() == 0 && user != null) {
-			SIS.get().getWorkingSetIO().saveWorkingSet(ws, user);
+			workingSetIO.saveWorkingSet(ws, user);
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity(Integer.toString(ws.getId()), MediaType.TEXT_PLAIN);
 		} else {
@@ -406,19 +424,21 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 
 	/**
 	 * Posts to a public working set and adds creates taxa
-	 * 
+	 * @param session TODO
 	 * @param request
 	 * @param response
 	 */
-	private void editWorkingSet(Representation entity, String username, Integer id) throws ResourceException {
+	private void editWorkingSet(Representation entity, String username, Integer id, Session session) throws ResourceException {
 		NativeDocument ndoc = new JavaNativeDocument();
 		try {
 			ndoc.parse(entity.getText());
 		} catch (IOException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		UserIO userIO = new UserIO(session);
 		
-		WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(id);
+		WorkingSet ws = workingSetIO.readWorkingSet(id);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
@@ -426,8 +446,8 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		WorkingSet.fromXML(ws, ndoc.getDocumentElement());
 		
 				
-		User user = SIS.get().getUserIO().getUserFromUsername(username);
-		if (user == null || !SIS.get().getWorkingSetIO().saveWorkingSet(ws, user))
+		User user = userIO.getUserFromUsername(username);
+		if (user == null || !workingSetIO.saveWorkingSet(ws, user))
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 	}
 	
@@ -435,10 +455,10 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		return "/users/" + username + "/reports/footprint.csv";
 	}
 
-	private void subscribeToPublicWorkingSet(Request request, Response response, String username, Integer id) {
-		if (SIS.get().getWorkingSetIO().subscribeToWorkingset(id, username)) {
+	private void subscribeToPublicWorkingSet(Request request, Response response, String username, Integer id, WorkingSetIO workingSetIO) {
+		if (workingSetIO.subscribeToWorkingset(id, username)) {
 			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity(SIS.get().getWorkingSetIO().readWorkingSet(id).toXML(), MediaType.TEXT_XML);
+			response.setEntity(workingSetIO.readWorkingSet(id).toXML(), MediaType.TEXT_XML);
 		} else {
 			response.setStatus(Status.SERVER_ERROR_INTERNAL);
 		}

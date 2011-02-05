@@ -17,6 +17,7 @@ import java.util.List;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
@@ -26,23 +27,27 @@ public class AssessmentDAO {
 	
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	
-	
-	public static Assessment getAssessment(int id) throws PersistentException {
-		Assessment assessment = AssessmentDAO.getAssessmentByORMID(id);
+	public static Assessment getAssessment(Session session, int id) throws PersistentException {
+		Assessment assessment = AssessmentDAO.getAssessmentByORMID(session, id);
 		if (assessment != null && assessment.getState() == Assessment.ACTIVE)
 			return assessment;
 		return null;
 	}
 	
-	public static Assessment[] getTrashedAssessments() throws PersistentException {
-		AssessmentCriteria criteria = new AssessmentCriteria();
-		criteria.state.eq(Assessment.DELETED);
-		return listAssessmentByCriteria(criteria);
+	public static Assessment[] getTrashedAssessments(Session session) throws PersistentException {
+		try {
+			AssessmentCriteria criteria = new AssessmentCriteria(session);
+			criteria.state.eq(Assessment.DELETED);
+			return listAssessmentByCriteria(criteria);
+		} catch (Exception e) {
+			Debug.println(e);
+			throw new PersistentException(e);
+		}
 	}
 	
 	
-	public static Assessment getTrashedAssessment(int id) throws PersistentException {
-		Assessment assessment = AssessmentDAO.getAssessmentByORMID(id);
+	public static Assessment getTrashedAssessment(Session session, int id) throws PersistentException {
+		Assessment assessment = AssessmentDAO.getAssessmentByORMID(session, id);
 		if (assessment != null && assessment.getState() == Assessment.DELETED)
 			return assessment;
 		return null;
@@ -63,56 +68,13 @@ public class AssessmentDAO {
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	
 	
-	protected static Assessment loadAssessmentByORMID(int id) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return loadAssessmentByORMID(session, id);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static Assessment getAssessmentByORMID(int id) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return getAssessmentByORMID(session, id);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static Assessment loadAssessmentByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return loadAssessmentByORMID(session, id, lockMode);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static Assessment getAssessmentByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return getAssessmentByORMID(session, id, lockMode);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
 	
 	public static Assessment loadAssessmentByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (Assessment) session.load(Assessment.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
 	}
@@ -122,7 +84,7 @@ public class AssessmentDAO {
 			return (Assessment) session.get(Assessment.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
 	}
@@ -132,7 +94,6 @@ public class AssessmentDAO {
 			return (Assessment) session.load(Assessment.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
 			throw new PersistentException(e);
 		}
 	}
@@ -142,32 +103,10 @@ public class AssessmentDAO {
 			return (Assessment) session.get(Assessment.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
 			throw new PersistentException(e);
 		}
 	}
 	
-	protected static Assessment[] listAssessmentByQuery(String condition, String orderBy) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return listAssessmentByQuery(session, condition, orderBy);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static Assessment[] listAssessmentByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return listAssessmentByQuery(session, condition, orderBy, lockMode);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
 	
 	protected static Assessment[] listAssessmentByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Assessment as Assessment");
@@ -181,7 +120,7 @@ public class AssessmentDAO {
 			return (Assessment[]) list.toArray(new Assessment[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
 	}
@@ -199,29 +138,7 @@ public class AssessmentDAO {
 			return (Assessment[]) list.toArray(new Assessment[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static Assessment loadAssessmentByQuery(String condition, String orderBy) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return loadAssessmentByQuery(session, condition, orderBy);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static Assessment loadAssessmentByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return loadAssessmentByQuery(session, condition, orderBy, lockMode);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
 	}
@@ -242,28 +159,6 @@ public class AssessmentDAO {
 			return null;
 	}
 	
-	protected static java.util.Iterator iterateAssessmentByQuery(String condition, String orderBy) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return iterateAssessmentByQuery(session, condition, orderBy);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static java.util.Iterator iterateAssessmentByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return iterateAssessmentByQuery(session, condition, orderBy, lockMode);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
 	protected static java.util.Iterator iterateAssessmentByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Assessment as Assessment");
 		if (condition != null)
@@ -275,7 +170,7 @@ public class AssessmentDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
 	}
@@ -292,7 +187,7 @@ public class AssessmentDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
 	}
@@ -301,24 +196,24 @@ public class AssessmentDAO {
 		return new Assessment();
 	}
 	
-	public static boolean save(Assessment assessment) throws PersistentException {
+	/*public static boolean save(Assessment assessment) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(assessment);
+			SISPersistentManager.instance().saveObject(session, assessment);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(Assessment assessment) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(assessment);
+			SISPersistentManager.instance().deleteObject(session, assessment);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
 	}
@@ -348,10 +243,10 @@ public class AssessmentDAO {
 			return delete(assessment);
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static boolean deleteAndDissociate(Assessment assessment, Session session)throws PersistentException {
 		try {
@@ -383,29 +278,7 @@ public class AssessmentDAO {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static boolean refresh(Assessment assessment) throws PersistentException {
-		try {
-			SISPersistentManager.instance().getSession().refresh(assessment);
-			return true;
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static boolean evict(Assessment assessment) throws PersistentException {
-		try {
-			SISPersistentManager.instance().getSession().evict(assessment);
-			return true;
-		}
-		catch (Exception e) {
-			e.printStackTrace();
+			;
 			throw new PersistentException(e);
 		}
 	}

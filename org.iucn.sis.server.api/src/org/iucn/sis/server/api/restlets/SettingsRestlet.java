@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Properties;
 
 import org.gogoego.api.plugins.GoGoEgo;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.restlet.Context;
 import org.restlet.data.Form;
@@ -36,7 +37,7 @@ public class SettingsRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response)
+	public Representation handleGet(Request request, Response response, Session session)
 			throws ResourceException {
 		
 		final Properties properties = SIS.get().getSettings(getContext());
@@ -60,7 +61,7 @@ public class SettingsRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public void handlePost(Representation entity, Request request,
-			Response response) throws ResourceException {
+			Response response, Session session) throws ResourceException {
 		
 		final Form form;
 		try {

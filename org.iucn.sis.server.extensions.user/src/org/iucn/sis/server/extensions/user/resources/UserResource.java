@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.extensions.user.application.UserManagementApplication;
 import org.iucn.sis.shared.api.models.User;
@@ -19,7 +22,6 @@ import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
-import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,7 +60,7 @@ import com.solertium.vfs.utils.VFSUtils;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
-public class UserResource extends Resource {
+public class UserResource extends TransactionResource {
 
 	private static final String MODE_LIGHT = "light";
 	private static final String MODE_FULL = "full";
@@ -95,8 +97,7 @@ public class UserResource extends Resource {
 	 * <root> <field name="..."></field> <customfield name="..."></customfield>
 	 * </root>
 	 */
-	@Override
-	public void acceptRepresentation(Representation entity) throws ResourceException {
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		if (uri == null || VFSPath.ROOT.equals(uri))
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 
@@ -257,9 +258,8 @@ public class UserResource extends Resource {
 
 		return rl.getRow() != null ? rl.getRow().get("id").getInteger() : null;
 	}
-
-	@Override
-	public void removeRepresentations() throws ResourceException {
+	
+	public void removeRepresentations(Session session) throws ResourceException {
 		if (uri == null || VFSPath.ROOT.equals(uri))
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 
@@ -303,10 +303,10 @@ public class UserResource extends Resource {
 		getResponse().setStatus(Status.SUCCESS_OK);
 	}
 
-	protected Representation getAllUserProfileInfo() {
+	protected Representation getAllUserProfileInfo(UserIO userIO) {
 		User[] users;
 		try {
-			users = SIS.get().getUserIO().getAllUsers();
+			users = userIO.getAllUsers();
 		} catch (PersistentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -336,7 +336,7 @@ public class UserResource extends Resource {
 	}
 	
 	@Override
-	public Representation represent(Variant variant) throws ResourceException {
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		if (uri == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		
@@ -346,8 +346,7 @@ public class UserResource extends Resource {
 		
 		//GET ALL USER PROFILE INFO
 		if (format == null && uri.equals(VFSPath.ROOT)) {
-			
-			Representation rep =  getAllUserProfileInfo();
+			Representation rep = getAllUserProfileInfo(new UserIO(session));
 			if (rep == null)
 				getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
 			return rep;
@@ -482,11 +481,6 @@ public class UserResource extends Resource {
 					return new DomRepresentation(variant.getMediaType(), QueryUtils.writeDocumentFromRowSet(rs.getSet()));
 			}
 		}
-
-		
-		
-		
-		
 	}
 
 	/*
@@ -495,7 +489,7 @@ public class UserResource extends Resource {
 	 * <root> <username> .. </username> </root>
 	 */
 	@Override
-	public void storeRepresentation(Representation entity) throws ResourceException {
+	public void storeRepresentation(Representation entity, Session session) throws ResourceException {
 		if (uri == null || !VFSPath.ROOT.equals(uri))
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 

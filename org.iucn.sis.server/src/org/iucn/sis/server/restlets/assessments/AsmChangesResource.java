@@ -2,7 +2,6 @@ package org.iucn.sis.server.restlets.assessments;
 
 import javax.naming.NamingException;
 
-import org.iucn.sis.server.ServerApplication;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.utils.Constants;
 import org.restlet.Context;

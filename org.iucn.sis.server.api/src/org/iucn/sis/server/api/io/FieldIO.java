@@ -4,10 +4,12 @@ import java.util.List;
 
 import javax.naming.NamingException;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
 import org.iucn.sis.server.api.fields.definitions.FieldDefinitionLoader;
 import org.iucn.sis.server.api.persistance.FieldDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.w3c.dom.Document;
 
@@ -15,7 +17,9 @@ public class FieldIO {
 	
 	private final FieldSchemaGenerator generator;
 	
-	public FieldIO() {
+	private final Session session;
+	
+	public FieldIO(Session session) {
 		FieldSchemaGenerator generator = null;
 		try {
 			generator = new FieldSchemaGenerator();
@@ -24,19 +28,20 @@ public class FieldIO {
 		}
 		
 		this.generator = generator;
+		this.session = session;
 	}
 
 	public Field get(Integer fieldID) {
 		try {
-			return FieldDAO.getFieldByORMID(fieldID);
+			return FieldDAO.getFieldByORMID(session, fieldID);
 		} catch (PersistentException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Debug.println(e);
 			return null;
 		}
 	}
 	
-	public List<String> getAllFields() {
+	public static List<String> getAllFields() {
 		return FieldDefinitionLoader.getAllFields();
 	}
 	

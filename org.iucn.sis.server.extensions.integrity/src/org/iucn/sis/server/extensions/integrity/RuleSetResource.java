@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.integrity;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -34,6 +35,7 @@ import com.solertium.vfs.VFSPathToken;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
+@SuppressWarnings("deprecation")
 public class RuleSetResource extends BaseIntegrityResource {
 
 	private final String rule;
@@ -47,7 +49,8 @@ public class RuleSetResource extends BaseIntegrityResource {
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
 
-	public Representation represent(Variant variant) throws ResourceException {
+	@Override
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		if (rule == null) {
 			VFSPathToken[] tokens;
 			try {
@@ -80,8 +83,7 @@ public class RuleSetResource extends BaseIntegrityResource {
 	}
 	
 	@Override
-	public void acceptRepresentation(Representation entity)
-			throws ResourceException {
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		writeRule(entity, true);
 		if (getResponse().getStatus().isSuccess()) {
 			final DeleteQuery query = new DeleteQuery();
@@ -105,8 +107,7 @@ public class RuleSetResource extends BaseIntegrityResource {
 	}
 
 	@Override
-	public void storeRepresentation(Representation entity)
-			throws ResourceException {
+	public void storeRepresentation(Representation entity, Session session) throws ResourceException {
 		writeRule(entity, false);
 	}
 	
@@ -133,7 +134,7 @@ public class RuleSetResource extends BaseIntegrityResource {
 	}
 
 	@Override
-	public void removeRepresentations() throws ResourceException {
+	public void removeRepresentations(Session session) throws ResourceException {
 		if (rule == null)
 			throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 

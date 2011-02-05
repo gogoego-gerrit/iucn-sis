@@ -15,8 +15,14 @@ import java.util.zip.ZipInputStream;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.TaxomaticIO;
+import org.iucn.sis.server.api.io.TaxonIO;
+import org.iucn.sis.server.api.io.UserIO;
+import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.locking.LockException;
 import org.iucn.sis.server.api.locking.LockType;
@@ -57,6 +63,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
+import com.solertium.vfs.VFSPathToken;
 
 public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 	
@@ -75,42 +82,47 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String username = (String) request.getAttributes().get("username");
 		String workingSetID = (String) request.getAttributes().get("workingsetID");
 		
 		boolean lockParam = Boolean.valueOf(request.getResourceRef().getQueryAsForm().getFirstValue("lock"))
 					.booleanValue();
+		
+		UserIO userIO = new UserIO(session);
 
 		try {
-			return export(SIS.get().getUserIO().getUserFromUsername(username), Integer.valueOf(workingSetID), lockParam,
-					response, request);
+			return export(userIO.getUserFromUsername(username), Integer.valueOf(workingSetID), lockParam,
+					response, request, session);
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String username = (String) request.getAttributes().get("username");
 		if (vfs.exists(new VFSPath(getUserPath(username))))
-			postZipFile(username, response, request);
+			postZipFile(username, response, request, session);
 		else
-			super.handlePost(entity, request, response);
+			super.handlePost(entity, request, response, session);
 	}
 
 	private Representation export(final User user, final Integer workingsetID, boolean lockParam, final Response response,
-			final Request request) throws IOException, ResourceException {
+			final Request request, Session session) throws IOException, ResourceException {
 
 		final StringBuilder lockLog = new StringBuilder();
 		final HashMap<Integer, String> locked = new HashMap<Integer, String>();
+		
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		AssessmentIO assessmentIO = new AssessmentIO(session);
 
-		WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(workingsetID);
+		WorkingSet ws = workingSetIO.readWorkingSet(workingsetID);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Working set " + workingsetID + " does not exist.");
 		
 		AssessmentFilter filter = ws.getFilter();
-		AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
+		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
 
 		
 		// MAKE TEMPORARY FILE REPRESENTING SINGLE WORKINGSET
@@ -124,10 +136,10 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 
 		for (Taxon curNode : ws.getTaxon()) {
 
-			for (Assessment assessment : SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(curNode))
+			for (Assessment assessment : assessmentIO.readPublishedAssessmentsForTaxon(curNode))
 				filenames.add(ServerPaths.getAssessmentUrl(assessment.getId() + ""));
 
-			List<Assessment> drafts = SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(curNode.getId());
+			List<Assessment> drafts = assessmentIO.readDraftAssessmentsForTaxon(curNode.getId());
 
 			for (Assessment data : drafts) {
 				if (helper.allowAssessment(data)) {
@@ -346,7 +358,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		}
 	}
 
-	private HashMap<Integer, Integer> importTaxa(ArrayList<String> taxaFiles, User user) {
+	private HashMap<Integer, Integer> importTaxa(ArrayList<String> taxaFiles, User user, Session session) {
 		HashMap<Integer, Integer> importedIdsToSISIds = new HashMap<Integer, Integer>();
 
 		// BREAK INTO KINGDOM, PHYLUM, CLASS ,ORDER , FAMILY ,GENUS ,
@@ -395,43 +407,43 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		}
 
 		while (kingdomList.size() > 0) {
-			importNodes(kingdomList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(kingdomList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		while (phylumList.size() > 0) {
-			importNodes(phylumList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(phylumList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		while (classList.size() > 0) {
-			importNodes(classList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(classList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		while (orderList.size() > 0) {
-			importNodes(orderList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(orderList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		while (familyList.size() > 0) {
-			importNodes(familyList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(familyList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		while (genusList.size() > 0) {
-			importNodes(genusList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(genusList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		while (speciesList.size() > 0) {
-			importNodes(speciesList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(speciesList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		while (infrarankList.size() > 0) {
-			importNodes(infrarankList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(infrarankList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		while (subpopulationList.size() > 0) {
-			importNodes(subpopulationList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(subpopulationList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		while (infrarankSubpopulationList.size() > 0) {
-			importNodes(infrarankSubpopulationList.remove(0), idToImportedTaxon, importedIdsToSISIds, user);
+			importNodes(infrarankSubpopulationList.remove(0), idToImportedTaxon, importedIdsToSISIds, user, session);
 
 		}
 		return importedIdsToSISIds;
@@ -476,22 +488,25 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 	 * @return
 	 */
 	private void importNodes(Taxon importedTaxon, final Map<Integer, Taxon> idsToImportedTaxon,
-			final HashMap<Integer, Integer> oldToNewIDs, User user) {
+			final HashMap<Integer, Integer> oldToNewIDs, User user, Session session) {
 		if (importedTaxon.getLevel() != TaxonLevel.KINGDOM) {
 			importedTaxon.setParent(idsToImportedTaxon.get(importedTaxon.getParent().getId()));
 		}
 
+		TaxonIO taxonIO = new TaxonIO(session);
+		TaxomaticIO taxomaticIO = new TaxomaticIO(session);
+		
 		Integer importedID = importedTaxon.getId();
 
 		// DETERMINE IF IMPORTING NEW TAXON OR IF ALREADY EXIST IN SIS
 		String kingdomName = importedTaxon.getFootprint()[0];
-		Taxon sisTaxon = SIS.get().getTaxonIO().readTaxonByName(kingdomName, importedTaxon.getFriendlyName());
+		Taxon sisTaxon = taxonIO.readTaxonByName(kingdomName, importedTaxon.getFriendlyName());
 
 		if (sisTaxon == null) {
 			// THE TAXON IS NEW!
 			importedTaxon.setId(0);
 			try {
-				SIS.get().getTaxomaticIO().saveNewTaxon(importedTaxon, user);
+				taxomaticIO.saveNewTaxon(importedTaxon, user);
 			} catch (TaxomaticException e) {
 				Debug.println(e);
 				return;
@@ -500,7 +515,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 			importSynonyms(importedTaxon, sisTaxon);
 			importCommonNames(importedTaxon, sisTaxon);
 			try {
-				SIS.get().getTaxonIO().writeTaxon(sisTaxon, user);
+				taxonIO.writeTaxon(sisTaxon, user);
 			} catch (TaxomaticException e) {
 				Debug.println(e);
 				return;
@@ -512,15 +527,15 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 
 	}
 
-	private boolean importPublishedAssessment(Assessment published, Request request) {
-
+	private boolean importPublishedAssessment(Assessment published, Request request, Session session) {
 		if (SIS.amIOnline()) {
 			return false;
 		} else {
+			AssessmentIO assessmentIO = new AssessmentIO(session);
 			try {
 
-				AssessmentIOWriteResult result = SIS.get().getAssessmentIO().saveNewAssessment(published,
-						SIS.get().getUser(request));
+				AssessmentIOWriteResult result = assessmentIO.saveNewAssessment(published,
+						getUser(request, session));
 				return result.status.isSuccess();
 			} catch (Exception e1) {
 				e1.printStackTrace();
@@ -530,20 +545,18 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 	}
 
 	
-	private boolean importWorkingSet(WorkingSet workingSet, String username) {
-
+	private boolean importWorkingSet(WorkingSet workingSet, String username, Session session) {
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		UserIO userIO = new UserIO(session);
 		
-			workingSet.setId(0);
-			workingSet.setCreatedDate(new Date());
-			workingSet.setCreator(SIS.get().getUserIO().getUserFromUsername(username));
-			workingSet.getUsers().add(workingSet.getCreator());
-			return SIS.get().getWorkingSetIO().saveWorkingSet(workingSet, workingSet.getCreator());
-			
-		
-
+		workingSet.setId(0);
+		workingSet.setCreatedDate(new Date());
+		workingSet.setCreator(userIO.getUserFromUsername(username));
+		workingSet.getUsers().add(workingSet.getCreator());
+		return workingSetIO.saveWorkingSet(workingSet, workingSet.getCreator());
 	}
 
-	private void postZipFile(String username, Response response, Request request) throws ResourceException {
+	private void postZipFile(String username, Response response, Request request, Session session) throws ResourceException {
 		RestletFileUpload fileUploaded = new RestletFileUpload(new DiskFileItemFactory());
 		List<FileItem> list;
 		try {
@@ -582,10 +595,11 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		} catch (IOException e) {
 			TrivialExceptionHandler.ignore(this, e);
 		} finally {
-			unZipAndImport(getImportURL(username), username, response, request);
+			unZipAndImport(getImportURL(username), username, response, request, session);
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private Document replaceTaxaIDInWorkingSet(Document workingSetDoc, String oldID, String newID) {
 
 		Element taxa = (Element) workingSetDoc.getDocumentElement().getElementsByTagName("taxa").item(0);
@@ -607,14 +621,16 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 			return null;
 	}
 
-	private void unZipAndImport(String url, String username, Response response, Request request) {
-
+	private void unZipAndImport(String url, String username, Response response, Request request, Session session) {
+		UserIO userIO = new UserIO(session);
+		AssessmentIO assessmentIO = new AssessmentIO(session);
+		
 		ArrayList<String> taxaFiles = new ArrayList<String>();
 		ArrayList<String> draftFiles = new ArrayList<String>();
 		ArrayList<String> publishedFiles = new ArrayList<String>();
 		String workingSetFile = "";
-		Document workingSetDocument = null;
-		User user = SIS.get().getUserIO().getUserFromUsername(username);
+		//Document workingSetDocument = null;
+		User user = userIO.getUserFromUsername(username);
 		ArrayList<Assessment> successfulImports = new ArrayList<Assessment>();
 
 		try {
@@ -675,7 +691,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 			// IF THEY ARE DIFFERENT, ONLY ADD THE SINGLE ID IF THEY ARE THE
 			// SAME. SHOULD THROW EXCEPTION IF
 			// THERE WAS A PROBLEM AND IMPORTNODES RETURNED -1
-			HashMap<Integer, Integer> importedIdsToSISIds = importTaxa(taxaFiles, user);
+			HashMap<Integer, Integer> importedIdsToSISIds = importTaxa(taxaFiles, user, session);
 
 			// IMPORT DRAFT ASSESSMENTS
 			while (!draftFiles.isEmpty() && successfulImportThusFar) {
@@ -693,7 +709,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 					Integer newID = importedIdsToSISIds.get(assessmentSpeciesID);
 					assessment.getTaxon().setId(newID);
 
-					List<Assessment> compareTo = SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(
+					List<Assessment> compareTo = assessmentIO.readDraftAssessmentsForTaxon(
 							assessment.getSpeciesID());
 
 					boolean found = false;
@@ -711,10 +727,10 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 					if (!found)
 						assessment.setId(0);
 
-					if (isImportAllowed(assessment, username) && importDraftAssessment(assessment, username, request)) {
+					if (isImportAllowed(assessment, username, session) && importDraftAssessment(assessment, username, request)) {
 						if (!found && SIS.amIOnline())
 							SIS.get().getLocker().persistentEagerRelease(assessment.getId(),
-									SIS.get().getUserIO().getUserFromUsername(username));
+									userIO.getUserFromUsername(username));
 						successfulImports.add(assessment);
 					}
 
@@ -730,7 +746,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 					ndoc.parse(DocumentUtils.getVFSFileAsString(currentFile, vfs));
 					Assessment published = Assessment.fromXML(ndoc);
 					published.getTaxon().setId(importedIdsToSISIds.get(published.getTaxon().getId()));
-					successfulImportThusFar = importPublishedAssessment(published, request);
+					successfulImportThusFar = importPublishedAssessment(published, request, session);
 				}
 				
 			}
@@ -748,7 +764,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 					taxon.setId(importedIdsToSISIds.get(taxon.getId()));					
 				}
 				
-				successfulImportThusFar = importWorkingSet(workingSet, username);
+				successfulImportThusFar = importWorkingSet(workingSet, username, session);
 			}
 
 			if (!successfulImportThusFar) {
@@ -758,7 +774,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 			} else {
 				
 				// REMOVE ALL UNNECESSARY FILES IN /imports
-				String[] inImports = vfs.list(getImportPath(username));
+				VFSPathToken[] inImports = vfs.list(new VFSPath(getImportPath(username)));
 				for (int i = 0; i < inImports.length; i++) {
 					String path = getImportPath(username) + "/" + inImports[i];
 					if (!(path).equalsIgnoreCase(getImportURL(username)))
@@ -797,11 +813,13 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		}
 	}
 
-	private boolean isImportAllowed(Assessment assessment, String username) {
+	private boolean isImportAllowed(Assessment assessment, String username, Session session) {
 		if (!SIS.amIOnline())
 			return true;
-		else if (assessment.getId() == 0)
-			return SIS.get().getAssessmentIO().allowedToCreateNewAssessment(assessment);
+		else if (assessment.getId() == 0) {
+			AssessmentIO assessmentIO = new AssessmentIO(session);
+			return assessmentIO.allowedToCreateNewAssessment(assessment);
+		}
 		else {
 			LockInfo lock;
 			try {

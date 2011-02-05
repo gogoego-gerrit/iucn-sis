@@ -7,8 +7,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -51,6 +53,7 @@ import com.solertium.vfs.VFSPathToken;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
+@SuppressWarnings("deprecation")
 public class ValidationResource extends BaseIntegrityResource {
 	
 	private static final String DATE_NOW = "${date.now}";
@@ -67,7 +70,7 @@ public class ValidationResource extends BaseIntegrityResource {
 		getVariants().add(new Variant(MediaType.TEXT_HTML));
 	}
 	
-	public Representation represent(Variant variant) throws ResourceException {
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		final Form form = getRequest().getResourceRef().getQueryAsForm();
 		final Collection<AssessmentInfo> info = new ArrayList<AssessmentInfo>();
 		
@@ -84,11 +87,12 @@ public class ValidationResource extends BaseIntegrityResource {
 			}
 		}
 		else if (form.getNames().contains("set")) {
+			WorkingSetIO workingSetIO = new WorkingSetIO(session);
 			final String[] set = form.getValuesArray("set");
 			for (int i = 0; i < set.length; i++) {
-				final WorkingSet data = SIS.get().getWorkingSetIO().readWorkingSet(Integer.valueOf(set[i]));
+				final WorkingSet data = workingSetIO.readWorkingSet(Integer.valueOf(set[i]));
 				
-				AssessmentFilterHelper helper = new AssessmentFilterHelper(data.getFilter());
+				AssessmentFilterHelper helper = new AssessmentFilterHelper(session, data.getFilter());
 				for (Taxon taxon  : data.getTaxon()) {
 					for( Assessment curAss : helper.getAssessments(taxon.getId()) )
 						if( curAss.isDraft() ) 
@@ -101,7 +105,7 @@ public class ValidationResource extends BaseIntegrityResource {
 		String html;
 		try {
 			html = BaseDocumentUtils.impl.serializeDocumentToString(
-				handle(info), true, false
+				handle(info, session), true, false
 			);
 		} catch (Exception e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -125,10 +129,7 @@ public class ValidationResource extends BaseIntegrityResource {
 	 * <root> <assessment type="blah"> ... </assessment> <assessment type="blah"> ... </assessment> ...
 	 * </root>
 	 */
-	public void acceptRepresentation(Representation entity)
-			throws ResourceException {
-		
-
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		final Collection<AssessmentInfo> assessmentInfo = new HashSet<AssessmentInfo>(); {
 			final Document document;
 			try {
@@ -142,11 +143,11 @@ public class ValidationResource extends BaseIntegrityResource {
 					assessmentInfo.add(new AssessmentInfo(Integer.valueOf(node.getTextContent()),BaseDocumentUtils.impl.getAttribute(node, "type")));
 		}
 		
-		getResponse().setEntity(BaseDocumentUtils.impl.serializeDocumentToString(handle(assessmentInfo), true, true), 
+		getResponse().setEntity(BaseDocumentUtils.impl.serializeDocumentToString(handle(assessmentInfo, session), true, true), 
 				MediaType.TEXT_HTML);
 	}
 	
-	protected Document handle(Collection<AssessmentInfo> assessmentInfo) throws ResourceException {
+	protected Document handle(Collection<AssessmentInfo> assessmentInfo, Session session) throws ResourceException {
 		//Only one rule is interrogated
 		final Document ruleset = getRuleset();
 		
@@ -155,7 +156,7 @@ public class ValidationResource extends BaseIntegrityResource {
 		root.setAttribute("class", "sis_integrity_single");
 
 		for (AssessmentInfo info : assessmentInfo) {
-			info.setName(getSpeciesName(info));
+			info.setName(getSpeciesName(info, session));
 			
 			if (!isAvailable(info))
 				continue;
@@ -298,8 +299,9 @@ public class ValidationResource extends BaseIntegrityResource {
 		return ruleset;
 	}
 	
-	protected String getSpeciesName(AssessmentInfo info) {
-		Assessment assessment = SIS.get().getAssessmentIO().getAssessment(info.getID());
+	protected String getSpeciesName(AssessmentInfo info, Session session) {
+		AssessmentIO assessmentIO = new AssessmentIO(session);
+		Assessment assessment = assessmentIO.getAssessment(info.getID());
 		if (assessment == null) {
 			return info.getID()+"";
 		} else

@@ -15,29 +15,34 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 
 public class UserDAO {
 	
-	public static User getUser(int id) throws PersistentException {
-		User user = UserDAO.getUserByORMID(id);
+	public static User getUser(Session session, int id) throws PersistentException {
+		User user = UserDAO.getUserByORMID(session, id);
 		if (user != null && user.getState() == User.ACTIVE)
 			return user;
 		return null;
 	}
 	
-	public static User[] getTrashedUsers() throws PersistentException {
-		UserCriteria criteria = new UserCriteria();
-		criteria.state.eq(User.DELETED);
-		return listUserByCriteria(criteria);
+	public static User[] getTrashedUsers(Session session) throws PersistentException {
+		try {
+			UserCriteria criteria = new UserCriteria(session);
+			criteria.state.eq(User.DELETED);
+			return listUserByCriteria(criteria);
+		} catch (Exception e) {
+			Debug.println(e);
+			throw new PersistentException(e);
+		}
 	}
 	
 	
-	public static User getTrashedUser(int id) throws PersistentException {
-		User assessment = UserDAO.getUserByORMID(id);
+	public static User getTrashedUser(Session session, int id) throws PersistentException {
+		User assessment = UserDAO.getUserByORMID(session, id);
 		if (assessment != null && assessment.getState() == User.DELETED)
 			return assessment;
 		return null;
@@ -61,56 +66,62 @@ public class UserDAO {
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	
 	
-	protected static User loadUserByORMID(int id) throws PersistentException {
+	/*protected static User loadUserByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadUserByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	protected static User getUserByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getUserByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static User loadUserByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadUserByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static User getUserByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getUserByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static User loadUserByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (User) session.load(User.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -120,7 +131,7 @@ public class UserDAO {
 			return (User) session.get(User.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -130,7 +141,7 @@ public class UserDAO {
 			return (User) session.load(User.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -140,32 +151,36 @@ public class UserDAO {
 			return (User) session.get(User.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	protected static User[] listUserByQuery(String condition, String orderBy) throws PersistentException {
+	/*protected static User[] listUserByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listUserByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	protected static User[] listUserByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listUserByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	protected static User[] listUserByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From User as User");
@@ -179,7 +194,7 @@ public class UserDAO {
 			return (User[]) list.toArray(new User[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -197,32 +212,36 @@ public class UserDAO {
 			return (User[]) list.toArray(new User[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	protected static User loadUserByQuery(String condition, String orderBy) throws PersistentException {
+	/*protected static User loadUserByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadUserByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	protected static User loadUserByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadUserByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	protected static User loadUserByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		User[] users = listUserByQuery(session, condition, orderBy);
@@ -240,27 +259,31 @@ public class UserDAO {
 			return null;
 	}
 	
-	protected static java.util.Iterator iterateUserByQuery(String condition, String orderBy) throws PersistentException {
+	/*protected static java.util.Iterator iterateUserByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateUserByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	protected static java.util.Iterator iterateUserByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateUserByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	protected static java.util.Iterator iterateUserByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From User as User");
@@ -273,7 +296,7 @@ public class UserDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -290,7 +313,7 @@ public class UserDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -299,9 +322,9 @@ public class UserDAO {
 		return new User();
 	}
 	
-	public static boolean save(User user) throws PersistentException {
+	/*public static boolean save(User user) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(user);
+			SISPersistentManager.instance().saveObject(session, user);
 			return true;
 		}
 		catch (Exception e) {
@@ -312,14 +335,14 @@ public class UserDAO {
 	
 	public static boolean delete(User user) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(user);
+			SISPersistentManager.instance().deleteObject(session, user);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	/**
 	
 	public static boolean deleteAndDissociate(User user)throws PersistentException {
@@ -347,7 +370,7 @@ public class UserDAO {
 			return delete(user);
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -382,19 +405,19 @@ public class UserDAO {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	**/
 	
-	public static boolean refresh(User user) throws PersistentException {
+	/*public static boolean refresh(User user) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(user);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -405,10 +428,10 @@ public class UserDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	protected static User loadUserByCriteria(UserCriteria userCriteria) {
 		User[] users = listUserByCriteria(userCriteria);

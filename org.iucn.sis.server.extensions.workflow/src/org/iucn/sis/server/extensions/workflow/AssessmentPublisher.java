@@ -1,28 +1,11 @@
 package org.iucn.sis.server.extensions.workflow;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.naming.NamingException;
-
-import org.iucn.sis.server.api.persistance.SISPersistentManager;
-import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
-import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Reference;
-import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.fields.RedListPublicationField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
-
-import com.solertium.db.DBException;
-import com.solertium.db.ExecutionContext;
-import com.solertium.db.Row;
-import com.solertium.db.SystemExecutionContext;
-import com.solertium.db.query.ExperimentalSelectQuery;
 
 public class AssessmentPublisher {
 	

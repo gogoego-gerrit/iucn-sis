@@ -23,15 +23,8 @@
 
 package org.iucn.sis.server.restlets.baserestlets;
 
-import org.iucn.sis.server.api.application.SIS;
 import org.restlet.Context;
 import org.restlet.Restlet;
-import org.restlet.data.ChallengeResponse;
-import org.restlet.data.ChallengeScheme;
-import org.restlet.data.MediaType;
-import org.restlet.data.Method;
-import org.restlet.data.Request;
-import org.restlet.data.Response;
 
 /**
  * AuthorizingRestlet.java
@@ -50,7 +43,7 @@ public abstract class AuthorizingRestlet extends Restlet {
 		super(context);
 	}
 
-	protected synchronized boolean authorize(final Request request, final Response response) {
+	/*protected synchronized boolean authorize(final Request request, final Response response) {
 		final String path = request.getResourceRef().getPath();
 		final String method = request.getMethod().getName();
 		String user = "";
@@ -77,6 +70,6 @@ public abstract class AuthorizingRestlet extends Restlet {
 			return true;
 		else
 			return false;
-	}
+	}*/
 
 }

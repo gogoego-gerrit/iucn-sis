@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.persistance.FieldDAO;
 import org.iucn.sis.server.api.persistance.PrimitiveFieldDAO;
@@ -52,24 +53,24 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String action = request.getResourceRef().getQueryAsForm().getFirstValue("action");
 		if (action == null) {
-			postAssessment(entity, request, response, getUser(request));
+			postAssessment(entity, request, response, getUser(request, session), session);
 		} else if (action.equalsIgnoreCase("fetch")) {
-			getAssessments(entity, request, response, getIdentifier(request), (String)request.getAttributes().get("type"));
+			getAssessments(entity, request, response, getIdentifier(request), (String)request.getAttributes().get("type"), session);
 		} else if (action.equalsIgnoreCase("batch")) {
-			batchCreate(entity, request, response, SIS.get().getUser(request));
+			batchCreate(entity, request, response, getUser(request, session), session);
 		}
 	}
 
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		final Integer assessmentID = getAssessmentID(request);
-
-		Assessment assessment = SIS.get().getAssessmentIO().getNonCachedAssessment(assessmentID);
+		final AssessmentIO assessmentIO = new AssessmentIO(session);
+		Assessment assessment = assessmentIO.getNonCachedAssessment(assessmentID);
 		if (assessment != null) {
-			AssessmentIOWriteResult deleted = SIS.get().getAssessmentIO().trashAssessment(assessment, getUser(request));
+			AssessmentIOWriteResult deleted = assessmentIO.trashAssessment(assessment, getUser(request, session));
 			if (deleted.status.isSuccess()) {
 				response.setStatus(Status.SUCCESS_OK);
 			} else
@@ -88,9 +89,10 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		}
 	}
 
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		Integer id = getAssessmentID(request);
-		Assessment assessment = SIS.get().getAssessmentIO().getAssessment(id);
+		final AssessmentIO assessmentIO = new AssessmentIO(session);
+		Assessment assessment = assessmentIO.getAssessment(id);
 		if (assessment != null) {
 			response.setStatus(Status.SUCCESS_OK);
 			return new StringRepresentation(assessment.toXML(), MediaType.TEXT_XML);
@@ -108,38 +110,41 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 	 * &lt;taxon&gt;(taxonID)&lt;/taxon&gt;
 	 * 
 	 * If the type parameter is null for the latter format, all .
-	 * 
-	 * @param getEntity
 	 * @param type
+	 * @param session TODO
+	 * @param getEntity
+	 * 
 	 * @return
 	 */
 	
-	private void getAssessments(Representation entity, Request request, Response response, String user, String type) throws ResourceException {
+	private void getAssessments(Representation entity, Request request, Response response, String user, String type, Session session) throws ResourceException {
 		NativeDocument ndoc = getEntityAsNativeDocument(entity);
 		AssessmentFetchRequest afq = AssessmentFetchRequest.fromXML(ndoc.getDocumentElement());
 		StringBuilder ret = new StringBuilder("<assessments>");
 		Set<Assessment> fetched = new HashSet<Assessment>();
 		
+		final AssessmentIO assessmentIO = new AssessmentIO(session);
+		
 		for (Integer id : afq.getAssessmentUIDs()) {
-			Assessment assessment = SIS.get().getAssessmentIO().getAssessment(id);
+			Assessment assessment = assessmentIO.getAssessment(id);
 			if (assessment != null) {
-				fetched.addAll(SIS.get().getAssessmentIO().readAssessmentsForTaxon(
+				fetched.addAll(assessmentIO.readAssessmentsForTaxon(
 						assessment.getSpeciesID()));
 			}
 		}
 
 		for (Integer taxonID : afq.getTaxonIDs()) {
 			if (type == null) {
-				fetched.addAll(SIS.get().getAssessmentIO().readAssessmentsForTaxon(taxonID));
+				fetched.addAll(assessmentIO.readAssessmentsForTaxon(taxonID));
 			} else if (type.equalsIgnoreCase(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
-				fetched.addAll(SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(taxonID));
+				fetched.addAll(assessmentIO.readDraftAssessmentsForTaxon(taxonID));
 			} else if (type.equalsIgnoreCase(AssessmentType.PUBLISHED_ASSESSMENT_TYPE)) {
-				fetched.addAll(SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(taxonID));
+				fetched.addAll(assessmentIO.readPublishedAssessmentsForTaxon(taxonID));
 			}
 		}
 
 		for (Assessment asm : fetched) {
-			ret.append(SIS.get().getAssessmentIO().getAssessmentXML(asm.getId()));
+			ret.append(assessmentIO.getAssessmentXML(asm.getId()));
 		}
 		ret.append("</assessments>");
 
@@ -147,20 +152,21 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		response.setEntity(ret.toString(), MediaType.TEXT_XML);
 	}
 
-	private void postAssessment(Representation entity, Request request, Response response, User username) throws ResourceException {
+	private void postAssessment(Representation entity, Request request, Response response, User username, Session session) throws ResourceException {
 		NativeDocument doc = getEntityAsNativeDocument(entity);
+		final AssessmentIO assessmentIO = new AssessmentIO(session);
 		try {
 			Assessment source = Assessment.fromXML(doc);
 			
 			// ONLY ALLOW POSTING OF ASSESSMENTS THAT ALREADY EXIST;
 			if (source.getId() != 0) {
-				Assessment target = SIS.get().getAssessmentIO().getAssessment(source.getId());
+				Assessment target = assessmentIO.getAssessment(source.getId());
 				target.toXML();
 				
-				sink(source, target);
+				sink(source, target, session);
 				
 				AssessmentIOWriteResult result = 
-					SIS.get().getAssessmentIO().writeAssessment(target, getUser(request), true);
+					assessmentIO.writeAssessment(target, getUser(request, session), true);
 				
 				if (!result.status.isSuccess())
 					throw new ResourceException(result.status, "AssessmentIOWrite threw exception when saving.");
@@ -183,7 +189,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		}
 	}
 	
-	private void sink(Assessment source, Assessment target) throws PersistentException {
+	private void sink(Assessment source, Assessment target, Session session) throws PersistentException {
 		Map<Integer, Field> existingFields = mapFields(target.getField());
 		
 		for (Field sourceField : source.getField()) {
@@ -194,15 +200,18 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			}
 			else {
 				Field targetField = existingFields.remove(sourceField.getId());
-				sink(sourceField, targetField);
+				sink(sourceField, targetField, session);
+				if (!targetField.hasData())
+					FieldDAO.deleteAndDissociate(targetField, session);
 			}
 		}
 		
 		for (Field field : existingFields.values())
-			FieldDAO.deleteAndDissociate(field);
+			FieldDAO.deleteAndDissociate(field, session);
 	}
 	
-	private void sink(Field source, Field target) throws PersistentException {
+	@SuppressWarnings("unchecked")
+	private void sink(Field source, Field target, Session session) throws PersistentException {
 		{
 			Map<Integer, PrimitiveField> existingFields = mapFields(target.getPrimitiveField());
 		
@@ -219,7 +228,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			}
 			
 			for (PrimitiveField field : existingFields.values())
-				PrimitiveFieldDAO.deleteAndDissociate(field);
+				PrimitiveFieldDAO.deleteAndDissociate(field, session);
 		}
 		{
 			Map<Integer, Field> existingFields = mapFields(target.getFields());
@@ -232,17 +241,18 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				}
 				else {
 					Field targetField = existingFields.remove(sourceField.getId());
-					sink(sourceField, targetField);
+					sink(sourceField, targetField, session);
 				}
 			}
 			
 			for (Field field : existingFields.values())
-				FieldDAO.deleteAndDissociate(field);
+				FieldDAO.deleteAndDissociate(field, session);
 		}
 		
 		//FieldDAO.save(target);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private <X> Map<Integer, X> mapFields(Collection<X> fields) {
 		Map<Integer, X> map = new HashMap<Integer, X>();
 		for (X field : fields) {
@@ -255,7 +265,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 	}
 	
 
-	private void batchCreate(Representation entity, Request request, Response response, User user) throws ResourceException {
+	private void batchCreate(Representation entity, Request request, Response response, User user, Session session) throws ResourceException {
 		NativeDocument doc = getEntityAsNativeDocument(entity);
 		StringBuffer successfulIDs = new StringBuffer();
 		StringBuffer extantIDs = new StringBuffer();
@@ -268,18 +278,22 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		boolean useTemplate = Boolean.parseBoolean(doc.getDocumentElement().getElementsByTagName("useTemplate")
 				.elementAt(0).getTextContent());
 		Debug.println("Using template? {0}", useTemplate);
+		
+		TaxonIO taxonIO = new TaxonIO(session);
+		
+		AssessmentIO io = new AssessmentIO(session);
 
 		for (int i = 0; i < nodes.getLength(); i++) {
-			Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(nodes.elementAt(i).getTextContent()));
-			Assessment curAss = doCreateAssessmentForBatch(user, filter, useTemplate, taxon);
+			Taxon taxon = taxonIO.getTaxon(Integer.valueOf(nodes.elementAt(i).getTextContent()));
+			Assessment curAssessment = doCreateAssessmentForBatch(user, filter, useTemplate, taxon, session);
 			try {
-				AssessmentIOWriteResult result = saveAssessment(curAss, user);
+				AssessmentIOWriteResult result = io.saveNewAssessment(curAssessment, user);
 				if (result.status.isSuccess())
-					successfulIDs.append(curAss.getSpeciesName() + (i == nodes.getLength() - 1 ? "" : ", "));
+					successfulIDs.append(curAssessment.getSpeciesName() + (i == nodes.getLength() - 1 ? "" : ", "));
 				else
-					unsuccessfulIDs.append(curAss.getSpeciesName() + (i == nodes.getLength() - 1 ? "" : ", "));
+					unsuccessfulIDs.append(curAssessment.getSpeciesName() + (i == nodes.getLength() - 1 ? "" : ", "));
 			} catch (RegionConflictException e) {
-				extantIDs.append(curAss.getSpeciesName() + (i == nodes.getLength() - 1 ? "" : ", "));
+				extantIDs.append(curAssessment.getSpeciesName() + (i == nodes.getLength() - 1 ? "" : ", "));
 			}
 		}
 
@@ -298,13 +312,13 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		
 	}
 
-	private Assessment doCreateAssessmentForBatch(User user, AssessmentFilter filter, boolean useTemplate, Taxon taxon) {
+	private Assessment doCreateAssessmentForBatch(User user, AssessmentFilter filter, boolean useTemplate, Taxon taxon, Session session) {
 		AssessmentFilter draftFilter = filter.deepCopy();
 		draftFilter.setDraft(false);
 		draftFilter.setRecentPublished(true);
 		draftFilter.setAllPublished(false);
 
-		AssessmentFilterHelper helper = new AssessmentFilterHelper(draftFilter);
+		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, draftFilter);
 
 		Assessment curAss = null;
 
@@ -336,11 +350,12 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		NativeDocument doc = getEntityAsNativeDocument(entity);
 		try {
 			Assessment assessment = Assessment.fromXML(doc);
-			AssessmentIOWriteResult result = saveAssessment(assessment, getUser(request));
+			AssessmentIO io = new AssessmentIO(session);
+			AssessmentIOWriteResult result = io.saveNewAssessment(assessment, getUser(request, session));
 			if (result.status.isSuccess()) {
 				response.setEntity(assessment.getId()+"", MediaType.TEXT_PLAIN);
 				response.setStatus(Status.SUCCESS_OK);
@@ -353,19 +368,5 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 		}
 	}
-
-	/**
-	 * checks to make sure regionailty is unique for draft assessemnts saves via
-	 * ASSESSMENTIO if no conflicts
-	 * 
-	 * @param assessment
-	 * @param username
-	 * @return
-	 * @throws RegionConflictException
-	 */
-	private AssessmentIOWriteResult saveAssessment(Assessment assessment, User username) throws RegionConflictException {
-		return SIS.get().getAssessmentIO().saveNewAssessment(assessment, username);
-	}
-
 	
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.PermissionGroupCriteria;
 import org.iucn.sis.server.api.persistance.PermissionGroupDAO;
@@ -28,9 +29,15 @@ import com.solertium.db.query.QRelationConstraint;
  * 
  */
 public class PermissionIO {
+	
+	private final Session session;
+	
+	public PermissionIO(Session session) {
+		this.session = session;
+	}
 
 	public List<PermissionGroup> getPermissionGroups() throws PersistentException {
-		return SISPersistentManager.instance().listObjects(PermissionGroup.class);
+		return SISPersistentManager.instance().listObjects(PermissionGroup.class, session);
 	}
 
 	public String getPermissionGroupsXML() throws DBException {
@@ -105,7 +112,7 @@ public class PermissionIO {
 	}
 
 	public PermissionGroup getPermissionGroup(String name) throws PersistentException {
-		PermissionGroupCriteria criteria = new PermissionGroupCriteria();
+		PermissionGroupCriteria criteria = new PermissionGroupCriteria(session);
 		criteria.name.eq(name);
 		return PermissionGroupDAO.loadPermissionByCriteria(criteria);
 	}

@@ -1271,7 +1271,7 @@ public class DEMImport implements Runnable {
 					} else if (cur.getStatus().contains("changed")) {
 						cur.setStatus(cur.getStatus().replace("changed", ""));
 						Taxon newTaxon = TaxonConverter.convertTaxonNode(cur, new Date());
-						Taxon existingTaxon = SIS.get().getTaxonIO().getTaxon(newTaxon.getId());
+						Taxon existingTaxon = SIS.get().getTaxonIO().getTaxon(session, newTaxon.getId());
 						for( CommonName curCN : newTaxon.getCommonNames() )
 							curCN.setTaxon(existingTaxon);
 						for( Synonym syn : newTaxon.getSynonyms() )
@@ -1284,7 +1284,7 @@ public class DEMImport implements Runnable {
 						taxonNameToNew.put(cur.getFullName(), existingTaxon);
 						newTaxon = null;
 					} else {
-						Taxon t = SIS.get().getTaxonIO().getTaxon((int)cur.getId());
+						Taxon t = SIS.get().getTaxonIO().getTaxon(session, (int)cur.getId());
 						taxonNameToNew.put(cur.getFullName(), t);
 					}
 				}
@@ -1399,7 +1399,7 @@ public class DEMImport implements Runnable {
 		Taxon t = SIS.get().getTaxonIO().readTaxonByName(kingdomName, fullName);
 		if( t != null ) {
 //			System.out.println("Found the existing taxon " + fullName + "! Woot.");
-			Taxon parent = SIS.get().getTaxonIO().getTaxon(t.getParentId());
+			Taxon parent = SIS.get().getTaxonIO().getTaxon(session, t.getParentId());
 			t.setParent(parent);
 
 			TaxonNode taxonNode = TaxonNodeFactory.createNode((long)t.getId(), t.getName(), t.getLevel(),

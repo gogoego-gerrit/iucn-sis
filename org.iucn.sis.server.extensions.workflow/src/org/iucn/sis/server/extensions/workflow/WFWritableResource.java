@@ -2,6 +2,7 @@ package org.iucn.sis.server.extensions.workflow;
 
 import java.util.Calendar;
 
+import org.hibernate.Session;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -23,7 +24,6 @@ import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.db.query.UpdateQuery;
-import com.solertium.db.restlet.DBResource;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
 import com.solertium.util.NodeCollection;
@@ -51,7 +51,7 @@ public class WFWritableResource extends WFDBResource {
 	 * 	...
 	 * </root>
 	 */
-	public void acceptRepresentation(Representation entity) throws ResourceException {
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		final Document document = getDocument(entity);
 		final ElementCollection tables = new ElementCollection(
 			document.getDocumentElement().getElementsByTagName("table")

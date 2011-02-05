@@ -19,6 +19,7 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -65,7 +66,7 @@ public class ImageRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final String taxonId = (String) request.getAttributes().get("taxonId");
 		if (taxonId == null)
 			return buildUploadHTML();
@@ -89,7 +90,7 @@ public class ImageRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final String taxonId = (String) request.getAttributes().get("taxonId");
 		
 		final RestletFileUpload fileUploaded = new RestletFileUpload(new DiskFileItemFactory());
@@ -211,7 +212,7 @@ public class ImageRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final String taxonId = (String) request.getAttributes().get("taxonId");
 		
 		final Document document;

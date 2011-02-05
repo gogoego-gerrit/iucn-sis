@@ -9,7 +9,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.NamingException;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.SelectCountDBProcessor;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -182,7 +184,8 @@ public class ReferenceCrawler implements Runnable {
 	}
 
 	public void run() {
-
+		Session session = SISPersistentManager.instance().openSession();
+		AssessmentIO assessmentIO = new AssessmentIO(session);
 		if (crawling.get() == true)
 			return; // do not crawl if already crawling
 
@@ -194,20 +197,21 @@ public class ReferenceCrawler implements Runnable {
 			System.out.println("Could not flush bibliography table");
 		}
 		try {
-			traverse("/browse/assessments");
-			traverse("/drafts");
+			traverse("/browse/assessments", assessmentIO);
+			traverse("/drafts", assessmentIO);
 		} catch (NotFoundException nf) {
 			nf.printStackTrace();
 			System.out.println("Could not crawl for references");
 		}
+		session.close();
 		crawling.set(false);
 	}
 
-	private void traverse(String uri) throws NotFoundException {
+	private void traverse(String uri, AssessmentIO assessmentIO) throws NotFoundException {
 		System.out.println(uri);
 		if (vfs.isCollection(uri))
 			for (String child : vfs.list(uri))
-				traverse(uri + "/" + child);
+				traverse(uri + "/" + child, assessmentIO);
 		else if (uri.endsWith(".xml")) {
 			NativeDocument dom = NativeDocumentFactory.newNativeDocument();
 			dom.parse(DocumentUtils.getVFSFileAsString(uri, vfs));
@@ -218,7 +222,7 @@ public class ReferenceCrawler implements Runnable {
 				user.setId(-1);
 				user.setUsername("ReferenceUpdate");
 				
-				SIS.get().getAssessmentIO().writeAssessment(changed, user, true);
+				assessmentIO.writeAssessment(changed, user, true);
 				System.out.println("  document updated");
 			}
 		}

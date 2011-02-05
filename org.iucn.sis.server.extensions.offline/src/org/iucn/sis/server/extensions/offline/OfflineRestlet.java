@@ -3,6 +3,7 @@ package org.iucn.sis.server.extensions.offline;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.ServerPaths;
 import org.restlet.Context;
@@ -39,17 +40,17 @@ public class OfflineRestlet extends BaseServiceRestlet {
 	}
 
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
-		response.setEntity(handleGet(request, response));
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		response.setEntity(handleGet(request, response, session));
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String action = (String) request.getAttributes().get("action");
 		if ("clear".equalsIgnoreCase(action))
 			return performDataDeletion(request, response);
 		else
-			return super.handleGet(request, response);
+			return super.handleGet(request, response, session);
 	}
 
 	private Representation performDataDeletion(Request request, Response response) {

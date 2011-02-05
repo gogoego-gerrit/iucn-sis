@@ -2,7 +2,8 @@ package org.iucn.sis.server.restlets.utils;
 
 import java.util.List;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.RegionIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Region;
@@ -40,11 +41,12 @@ public class RegionRestlet extends BaseServiceRestlet {
 		paths.add("/regions/{regionID}");
 	}
 
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
+		RegionIO regionIO = new RegionIO(session);
 		StringBuilder ret = new StringBuilder("<regions>");
 		List<Region> regions;
 		try {
-			regions = SIS.get().getRegionIO().getRegions();
+			regions = regionIO.getRegions();
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
@@ -57,19 +59,19 @@ public class RegionRestlet extends BaseServiceRestlet {
 	}
 
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		NativeDocument ndoc = getEntityAsNativeDocument(entity);
-		
+		RegionIO regionIO = new RegionIO(session);
 		NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(Region.ROOT_TAG);
 		for (int i = 0; i < list.getLength(); i++) {
 			Region regionUpdated = Region.fromXML(list.elementAt(i));
 			try {
-				SIS.get().getRegionIO().saveRegion(regionUpdated);
+				regionIO.saveRegion(regionUpdated);
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 			}
 		}
-		response.setEntity(handleGet(request, response));
+		response.setEntity(handleGet(request, response, session));
 	}
 	
 }

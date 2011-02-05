@@ -182,7 +182,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		assessment.setSourceDate(assessData.getSourceDate());
 		assessment.setType(assessData.getType());
 		assessment.setDateFinalized(assessData.getDateFinalized());
-		assessment.setTaxon(SIS.get().getTaxonIO().getTaxon(Integer.valueOf(assessData.getSpeciesID())));
+		assessment.setTaxon(SIS.get().getTaxonIO().getTaxon(session, Integer.valueOf(assessData.getSpeciesID())));
 		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType())) {
 			String dateAssessed = assessData.getDateAssessed();
 			if (dateAssessed != null && !"".equals(dateAssessed)) {

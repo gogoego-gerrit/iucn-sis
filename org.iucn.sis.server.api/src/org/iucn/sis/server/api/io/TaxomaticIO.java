@@ -1,7 +1,5 @@
 package org.iucn.sis.server.api.io;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -13,14 +11,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.hibernate.Session;
 import org.hibernate.TransientObjectException;
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.locking.TaxonLockAquirer;
-import org.iucn.sis.server.api.persistance.SynonymDAO;
-import org.iucn.sis.server.api.persistance.TaxonDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.utils.DocumentUtils;
-import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.server.api.utils.TaxaComparators;
 import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -35,18 +29,6 @@ import org.iucn.sis.shared.api.models.TaxonStatus;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import com.solertium.lwxml.java.JavaNativeDocument;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.util.BaseDocumentUtils;
-import com.solertium.util.NodeCollection;
-import com.solertium.vfs.VFSPath;
-import com.solertium.vfs.provider.VersionedFileVFS;
-import com.solertium.vfs.utils.VFSUtils;
-import com.solertium.vfs.utils.VFSUtils.VFSPathParseException;
 
 public class TaxomaticIO {
 
@@ -57,15 +39,20 @@ public class TaxomaticIO {
 	public final static String PROMOTE = "PROMOTE";
 	public final static String DEMOTE = "DEMOTE";
 
-	protected String lastOperationUsername;
+	/*protected String lastOperationUsername;
 	protected String lastOperationType;
 	protected Date lastOperationDate;
-	protected Set<Integer> taxaIDsChanged;
-	protected VersionedFileVFS vfs;
+	protected Set<Integer> taxaIDsChanged;*/
+	
+	private final TaxonIO taxonIO;
+	private final AssessmentIO assessmentIO;
+	private final InfratypeIO infratypeIO;
 
-	public TaxomaticIO(VersionedFileVFS vfs) {
-		this.vfs = vfs;
-		load();
+	public TaxomaticIO(Session session) {
+		this.taxonIO = new TaxonIO(session);
+		this.assessmentIO = new AssessmentIO(session);
+		this.infratypeIO = new InfratypeIO(session);
+		//load();
 	}
 
 	public void demoteSpecies(Taxon taxon, Taxon newParent, User user) throws TaxomaticException {
@@ -91,7 +78,7 @@ public class TaxomaticIO {
 		taxon.getSynonyms().add(synonym);
 		updateRLHistoryText(taxon, user);
 		taxon.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.INFRARANK));
-		taxon.setInfratype(SIS.get().getInfratypeIO().getInfratype(Infratype.SUBSPECIES_NAME));
+		taxon.setInfratype(infratypeIO.getInfratype(Infratype.SUBSPECIES_NAME));
 		taxon.setParent(newParent);
 		newParent.getChildren().add(taxon);
 		taxon.getParent().getChildren().remove(taxon);
@@ -130,7 +117,7 @@ public class TaxomaticIO {
 		return fullName;
 	}
 
-	public Date getLastOperationDate() {
+	/*public Date getLastOperationDate() {
 		return lastOperationDate;
 	}
 
@@ -144,7 +131,7 @@ public class TaxomaticIO {
 	
 	public Set<Integer> getTaxaIDsChanged() {
 		return taxaIDsChanged;
-	}
+	}*/
 
 	boolean isTaxomaticOperationNecessary(Taxon taxonToSave, Taxon oldTaxon) {
 		
@@ -153,7 +140,7 @@ public class TaxomaticIO {
 				oldTaxon.getTaxonLevel().getLevel() == taxonToSave.getTaxonLevel().getLevel() );
 	}
 
-	private void load() {
+	/*private void load() {
 		try {
 			if (vfs.exists(VFSUtils.parseVFSPath(ServerPaths.getLastTaxomaticOperationPath()))) {
 				Document operationDoc = vfs.getDocument(VFSUtils.parseVFSPath(ServerPaths
@@ -184,7 +171,7 @@ public class TaxomaticIO {
 		} catch (IOException e) {
 			Debug.println(e);
 		}
-	}
+	}*/
 
 	public void mergeTaxa(List<Taxon> mergedTaxa, Taxon mainTaxa, User user) throws TaxomaticException {
 		List<Taxon> taxaToSave = new ArrayList<Taxon>();
@@ -339,9 +326,13 @@ public class TaxomaticIO {
 		return changed;
 	}
 
-	public void performTaxomaticUndo(String username) throws TaxomaticException {
+	public void performTaxomaticUndo(User user) throws TaxomaticException {
+		/*
+		 * TODO: this needs to be implemented at the database level. 
+		 */
+		throw new TaxomaticException("Undo operation not supported.", true);
 		// GATHER OPERTAION, FAST FAIL IF ERROR IN PARSING LAST OPERATION
-		if (getLastOperationType() == null)
+		/*if (getLastOperationType() == null)
 			throw new TaxomaticException("Could not find or load previous operation.");
 
 		// DO VALIDATION OF USER
@@ -389,7 +380,7 @@ public class TaxomaticIO {
 				List<Taxon> taxaToSave = new ArrayList<Taxon>();
 				List<Assessment> assessmentsToSave = new ArrayList<Assessment>();
 				
-				Taxon currentTaxon = SIS.get().getTaxonIO().getTaxonNonLazy(taxaID);
+				Taxon currentTaxon = taxonIO.getTaxonNonLazy(taxaID);
 				
 				//THERE ARE NO OTHER REVISIONS, THEREFORE IT WAS CREATED ON 
 				if (revision.size() == 0) {
@@ -419,7 +410,7 @@ public class TaxomaticIO {
 						}
 						
 						//NEED TO LOOK FOR CHANGED RLHISTORY
-						for (Assessment assessment : SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(currentTaxon)) {
+						for (Assessment assessment : assessmentIO.readPublishedAssessmentsForTaxon(currentTaxon)) {
 							Field field = assessment.getField(CanonicalNames.RedListCriteria);
 							if (field == null)
 								field = new Field(CanonicalNames.RedListCriteria, assessment);
@@ -439,7 +430,7 @@ public class TaxomaticIO {
 					writeTaxon(taxon, user);
 				
 				for (Assessment assessment : assessmentsToSave)
-					SIS.get().getAssessmentIO().writeAssessment(assessment, user, true);
+					assessmentIO.writeAssessment(assessment, user, true);
 				
 			}
 		} catch (IOException e) {
@@ -451,7 +442,7 @@ public class TaxomaticIO {
 		} finally {
 			lockAquirer.releaseLocks();
 			SIS.get().getLocker().releaseLock(ServerPaths.getLastTaxomaticOperationPath());
-		}
+		}*/
 
 	}
 
@@ -500,7 +491,10 @@ public class TaxomaticIO {
 	}
 
 	public synchronized void recordLastUpdated(Collection<Taxon> changedTaxon, User user, String operation) throws TaxomaticException {
-		lastOperationDate = new Date();
+		/*
+		 * TODO: this needs to be handled at the database level.
+		 */
+		/*lastOperationDate = new Date();
 		lastOperationType = operation;
 		lastOperationUsername = user.getUsername();
 
@@ -508,12 +502,12 @@ public class TaxomaticIO {
 		for (Taxon changed : changedTaxon)
 			taxaIDsChanged.add(changed.getId());
 
-		write();
+		write();*/
 	}
 
 	//FIXME NEED FUTHER CHECKS FOR UNIQUE NAME IN KINGDOM
 	public void saveNewTaxon(Taxon taxon, User user) throws TaxomaticException {
-		if (taxon.getId() == 0 || SIS.get().getTaxonIO().getTaxonFromVFS(taxon.getId()) == null)
+		if (taxon.getId() == 0 || taxonIO.getTaxon(taxon.getId()) == null)
 			writeTaxon(taxon, null, user, false);
 		else
 			throw new TaxomaticException("This taxon already exists and can not be created.");
@@ -608,7 +602,7 @@ public class TaxomaticIO {
 	 * 
 	 */
 	private void updateRLHistoryText(Taxon taxon, User user) {
-		for (Assessment current : SIS.get().getAssessmentIO().readPublishedAssessmentsForTaxon(taxon)) {
+		for (Assessment current : assessmentIO.readPublishedAssessmentsForTaxon(taxon)) {
 			Field field = current.getField(CanonicalNames.RedListCriteria);
 			if (field == null)
 				field = new Field(CanonicalNames.RedListCriteria, current);
@@ -619,11 +613,11 @@ public class TaxomaticIO {
 				proxy.setRLHistoryText("as " + generateRLHistoryText(taxon));
 			}
 			
-			SIS.get().getAssessmentIO().writeAssessment(current, user, false);
+			assessmentIO.writeAssessment(current, user, false);
 		}
 	}
 	
-	protected synchronized void write() throws TaxomaticException {
+	/*protected synchronized void write() throws TaxomaticException {
 		if (SIS.get().getLocker().aquireWithRetry(ServerPaths.getLastTaxomaticOperationPath(), 5)) {
 			try {
 				StringBuilder xml = new StringBuilder();
@@ -643,17 +637,17 @@ public class TaxomaticIO {
 		}
 		else
 			throw new TaxomaticException("Failed to acquire lock to perform write.", false);
-	}
+	}*/
 	
 	void writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user, boolean requireLocking) throws TaxomaticException {
 		if (oldTaxon == null || !isTaxomaticOperationNecessary(taxonToSave, oldTaxon)) {
-			SIS.get().getTaxonIO().writeTaxon(taxonToSave, oldTaxon, user);
+			taxonIO.writeTaxon(taxonToSave, oldTaxon, user);
 		} else {
 			// TRY TO AQUIRE LOCKS
 			List<Taxon> taxaToSave;
 			try {
 				taxonToSave.toXML();
-				taxaToSave = SIS.get().getTaxonIO().getChildrenOfTaxonRecurisvely(taxonToSave.getId());
+				taxaToSave = taxonIO.getChildrenOfTaxonRecurisvely(taxonToSave.getId());
 			} catch (PersistentException e) {
 				throw new TaxomaticException("Failed to find child to write taxon.", e);
 			} catch (TransientObjectException e) {
@@ -666,7 +660,7 @@ public class TaxomaticIO {
 	}
 	
 	public void writeTaxon(Taxon taxonToSave, User user) throws TaxomaticException {
-		Taxon oldTaxon = SIS.get().getTaxonIO().getTaxonFromVFS(taxonToSave.getId());
+		Taxon oldTaxon = taxonIO.getTaxon(taxonToSave.getId());
 		if (oldTaxon == null)
 			throw new TaxomaticException("This taxa could not be found.", false);
 		

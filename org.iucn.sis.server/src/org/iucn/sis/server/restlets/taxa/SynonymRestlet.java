@@ -1,6 +1,8 @@
 package org.iucn.sis.server.restlets.taxa;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.SynonymDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -31,10 +33,11 @@ public class SynonymRestlet extends BaseServiceRestlet {
 		paths.add("/taxon/{taxon_id}/synonym");
 	}
 	
-	private Taxon getTaxon(Request request) throws ResourceException {
+	private Taxon getTaxon(Request request, Session session) throws ResourceException {
+		final TaxonIO io = new TaxonIO(session);
 		final Taxon taxon;
 		try {
-			taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf((String)request.getAttributes().get("taxon_id")));
+			taxon = io.getTaxon(Integer.valueOf((String)request.getAttributes().get("taxon_id")));
 		} catch (Exception e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Node not found, or could not be loaded.", e);
 		}
@@ -52,8 +55,9 @@ public class SynonymRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
-		final Taxon taxon = getTaxon(request);
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		final Taxon taxon = getTaxon(request, session);
+		final TaxonIO io = new TaxonIO(session);
 		
 		final NativeDocument newDoc = new JavaNativeDocument();
 		try {
@@ -65,7 +69,7 @@ public class SynonymRestlet extends BaseServiceRestlet {
 		Synonym synonym = Synonym.fromXML(newDoc.getDocumentElement(), taxon);
 		
 		try {
-			SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request));
+			io.writeTaxon(taxon, getUser(request, session));
 		} catch (TaxomaticException e) { 
 			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		}
@@ -75,12 +79,12 @@ public class SynonymRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
-		final Taxon taxon = getTaxon(request);
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		final Taxon taxon = getTaxon(request, session);
 		
 		final Synonym synonym;
 		try {
-			synonym = SynonymDAO.getSynonymByORMID(getSynonymID(request));
+			synonym = SynonymDAO.getSynonymByORMID(session, getSynonymID(request));
 		} catch (Exception e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Synonym not found, or could not be loaded.", e);			
 		}
@@ -100,7 +104,7 @@ public class SynonymRestlet extends BaseServiceRestlet {
 		synonym.setTaxon(taxon);
 		
 		try {
-			SISPersistentManager.instance().saveObject(synonym);
+			SISPersistentManager.instance().saveObject(session, synonym);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
@@ -113,9 +117,9 @@ public class SynonymRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		Integer id = getSynonymID(request);
-		Taxon taxon = getTaxon(request);
+		Taxon taxon = getTaxon(request, session);
 		Synonym toDelete = null;
 		for (Synonym syn : taxon.getSynonyms()) {
 			if (syn.getId() == id) {
@@ -129,17 +133,18 @@ public class SynonymRestlet extends BaseServiceRestlet {
 		//FIXME: shouldn't this added synonym get removed from the database for this taxon?
 		taxon.getSynonyms().remove(toDelete);
 		
-		
 		taxon.toXML();
 		
+		final TaxonIO taxonIO = new TaxonIO(session);
+		
 		try {
-			SIS.get().getTaxonIO().writeTaxon(taxon, SIS.get().getUser(request));
+			taxonIO.writeTaxon(taxon, getUser(request, session));
 		} catch (TaxomaticException e) {
 			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		}
 		
 		try {
-			SynonymDAO.delete(toDelete);
+			SIS.get().getManager().deleteObject(session, toDelete);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		}

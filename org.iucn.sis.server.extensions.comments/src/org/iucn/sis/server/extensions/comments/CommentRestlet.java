@@ -2,6 +2,7 @@ package org.iucn.sis.server.extensions.comments;
 
 import java.io.Writer;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -31,7 +32,7 @@ public class CommentRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String assessmentID = (String)request.getAttributes().get("assessmentID");
 		String url = null;
 
@@ -51,12 +52,12 @@ public class CommentRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
-		handlePut(entity, request, response);
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		handlePut(entity, request, response, session);
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String assessmentID = (String)request.getAttributes().get("assessmentID");
 		String url = null;
 

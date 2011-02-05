@@ -3,7 +3,6 @@ package org.iucn.sis.server.api.locking;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +27,7 @@ public class HibernateLockRepository extends LockRepository {
 
 	@Override
 	public void clearGroup(String id) throws LockException {
-		Session session = manager.getSession();
+		Session session = manager.openSession();
 		Criteria criteria = session.createCriteria(Lock.class);
 		criteria = criteria.add(Restrictions.eq("group", id));
 		
@@ -38,23 +37,28 @@ public class HibernateLockRepository extends LockRepository {
 		} catch (HibernateException e) {
 			Debug.println(e);
 			throw new LockException(e);
+		} finally {
+			session.close();
 		}
-		if (results == null || results.isEmpty())
-			return;
-		
-		for (Lock lock : results) {
-			try {
-				manager.deleteObject(lock);
-			} catch (PersistentException e) {
-				Debug.println(e);
-				throw new LockException(e);
+		if (results != null && !results.isEmpty()) {
+			for (Lock lock : results) {
+				try {
+					manager.deleteObject(session, lock);
+				} catch (PersistentException e) {
+					Debug.println(e);
+					throw new LockException(e);
+				} finally {
+					session.close();
+				}
 			}
 		}
+		
+		session.close();
 	}
 
 	@Override
 	public LockInfo getLockedAssessment(Integer lockID) {
-		Session session = manager.getSession();
+		Session session = manager.openSession();
 		Criteria criteria = session.createCriteria(Lock.class);
 		criteria = criteria.add(Restrictions.eq("lockid", lockID));
 		
@@ -67,15 +71,27 @@ public class HibernateLockRepository extends LockRepository {
 			return null;
 		} catch (ClassCastException e) {
 			return null;
+		} finally {
+			session.close();
 		}
 		
-		return new LockInfo(lock.getLockID(), lock.getUser().getId(), 
+		LockInfo info = new LockInfo(lock.getLockID(), lock.getUser().getId(), 
 				LockType.fromString(lock.getType()), lock.getGroup(), lock.getDate(), this);
+		
+		session.close();
+		
+		return info;
 	}
 
 	@Override
 	public boolean isAssessmentPersistentLocked(Integer id) {
-		Session session = manager.getSession();
+		Session session = manager.openSession();
+		boolean result = isAssessmentPersistentLocked(session, id);
+		session.close();
+		return result;
+	}
+	
+	public boolean isAssessmentPersistentLocked(Session session, Integer id) {
 		Criteria criteria = session.createCriteria(Lock.class);
 		criteria = criteria.add(Restrictions.eq("lockid", id));
 		
@@ -86,11 +102,14 @@ public class HibernateLockRepository extends LockRepository {
 
 	@Override
 	public Map<String, List<Integer>> listGroups() {
+		Session session = manager.openSession();
 		List<Lock> list;
 		try {
-			list = manager.listObjects(Lock.class);
+			list = manager.listObjects(Lock.class, session);
 		} catch (PersistentException e) {
 			return new HashMap<String, List<Integer>>();
+		} finally {
+			session.close();
 		}
 		
 		final Map<String, List<Integer>> map = 
@@ -105,18 +124,22 @@ public class HibernateLockRepository extends LockRepository {
 			map.put(groupID, l);
 		}
 		
+		session.close();
+		
 		return map;
 	}
 
 	@Override
 	public List<LockInfo> listLocks() {
 		final List<LockInfo> list = new ArrayList<LockRepository.LockInfo>();
-		
+		final Session session = manager.openSession();
 		final List<Lock> locks;
 		try {
-			locks = manager.listObjects(Lock.class);
+			locks = manager.listObjects(Lock.class, session);
 		} catch (PersistentException e) {
 			return new ArrayList<LockRepository.LockInfo>();
+		} finally {
+			session.close();
 		}
 		
 		for (Lock lock : locks)
@@ -124,6 +147,8 @@ public class HibernateLockRepository extends LockRepository {
 					lock.getUser().getId(), 
 					LockType.fromString(lock.getType()), 
 					lock.getGroup(), lock.getDate(), this));
+		
+		session.close();
 		
 		return list;
 	}
@@ -145,19 +170,27 @@ public class HibernateLockRepository extends LockRepository {
 		lock.setType(lockType.toString());
 		lock.setGroup(groupID);
 		
+		Session session = manager.openSession();
+		
 		try {
-			manager.saveObject(lock);
+			manager.saveObject(session, lock);
 		} catch (PersistentException e) {
 			return null;
+		} finally {
+			session.close();
 		}
 		
-		return new LockInfo(lock.getLockID(), lock.getUser().getId(), 
+		LockInfo result = new LockInfo(lock.getLockID(), lock.getUser().getId(), 
 				LockType.fromString(lock.getType()), groupID, this);
+		
+		session.close();
+		
+		return result;
 	}
 
 	@Override
 	public void removeLockByID(Integer id) {
-		Session session = manager.getSession();
+		Session session = manager.openSession();
 		Criteria criteria = session.createCriteria(Lock.class);
 		criteria = criteria.add(Restrictions.eq("lockid", id));
 		
@@ -170,12 +203,16 @@ public class HibernateLockRepository extends LockRepository {
 			return;
 		} catch (ClassCastException e) {
 			return;
+		} finally {
+			session.close();
 		}
 		
 		try {
-			manager.deleteObject(lock);
+			manager.deleteObject(session, lock);
 		} catch (PersistentException e) {
 			Debug.println(e);
+		} finally {
+			session.close();
 		}
 	}
 }

@@ -6,8 +6,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -23,19 +25,21 @@ import com.solertium.util.TrivialExceptionHandler;
 public class WorkflowManager {
 	
 	private final PersistenceLayer persistence;
-//	private final VFS vfs;
+	private final WorkingSetIO workingSetIO;
+	private final Session session;
 	
-	public WorkflowManager() {
+	public WorkflowManager(Session session) {
 		//this.persistence = new DBSessionPersistenceLayer();
-		this.persistence = new HibernatePersistenceLayer();
-//		this.vfs = ServerApplication.getStaticVFS();
+		this.persistence = new HibernatePersistenceLayer(session);
+		this.session = session;
+		this.workingSetIO = new WorkingSetIO(session);
 	}
 	
 	private WorkflowComment notifyUsers(Number workflowID, Integer workingSet, WorkflowUserInfo user, WorkflowStatus status, WorkflowComment comment, Collection<WorkflowUserInfo> notify) {
 		if (notify.isEmpty())
 			return new WorkflowComment(user, "Notified: No users");
 		
-		final WorkingSet  data = SIS.get().getWorkingSetIO().readWorkingSet(workingSet);
+		final WorkingSet data = workingSetIO.readWorkingSet(workingSet);
 		
 		final Collection<WorkflowUserInfo> recipients = new HashSet<WorkflowUserInfo>();
 		for (WorkflowUserInfo current : notify) {
@@ -222,7 +226,7 @@ public class WorkflowManager {
 	}
 	
 	private void lockWorkingSet(Integer workingSetID) throws Exception {
-		final WorkingSet  data = SIS.get().getWorkingSetIO().readWorkingSet(workingSetID);
+		final WorkingSet data = workingSetIO.readWorkingSet(workingSetID);
 		
 		Debug.println("Looking to lock all unlocked working sets in " + 
 			workingSetID + "; there are " + data.getSpeciesIDs().size() + 
@@ -231,7 +235,7 @@ public class WorkflowManager {
 		
 		SIS.get().getLocker().persistentClearGroup(workingSetID.toString());
 		
-		for (Assessment assessed : getAllAssessments(data))
+		for (Assessment assessed : getAllAssessments(session, data))
 			if (!SIS.get().getLocker().isAssessmentPersistentLocked(assessed.getId())) {
 				SIS.get().getLocker().persistentLockAssessment(
 					assessed.getId(), LockType.UNDER_REVIEW, 
@@ -240,10 +244,10 @@ public class WorkflowManager {
 	}
 	
 	private void unlockWorkingSet(Integer workingSetID) throws Exception {
-		WorkingSet data = SIS.get().getWorkingSetIO().readWorkingSet(workingSetID);
+		WorkingSet data = workingSetIO.readWorkingSet(workingSetID);
 		SIS.get().getLocker().persistentClearGroup(workingSetID.toString());
 		
-		for (Assessment assessed : getAllAssessments(workingSetID))
+		for (Assessment assessed : getAllAssessments(session, workingSetID))
 			SIS.get().getLocker().persistentEagerRelease(assessed.getId(), data.getCreator());
 	}
 
@@ -252,13 +256,13 @@ public class WorkflowManager {
 	 */
 	private void copyToNotifiedUsers(Integer workingSet, Collection<WorkflowUserInfo> notify) {
 		for (WorkflowUserInfo info : notify) {
-			if (!SIS.get().getWorkingSetIO().subscribeToWorkingset(workingSet, info.getUsername()))
+			if (!workingSetIO.subscribeToWorkingset(workingSet, info.getUsername()))
 				Debug.println("Failed to copy working set {0} to notified users {1}, {2}", workingSet, info.getDisplayName(), info.getUsername());
 		}
 	}
 	
 	private void ensureConsistent(final Integer workingSetID) throws WorkflowManagerException {
-		ensureConsistent(SIS.get().getWorkingSetIO().readWorkingSet(workingSetID));
+		ensureConsistent(workingSetIO.readWorkingSet(workingSetID));
 	}
 	
 	private void ensureConsistent(final WorkingSet workingSet) throws WorkflowManagerException {
@@ -266,21 +270,22 @@ public class WorkflowManager {
 	}
 	
 	private void ensureEvaluated(final Integer workingSet) throws WorkflowManagerException {
-		ensureEvaluated(SIS.get().getWorkingSetIO().readWorkingSet(workingSet));
+		ensureEvaluated(workingSetIO.readWorkingSet(workingSet));
 	}
 	
 	private void ensureEvaluated(final WorkingSet workingSet) throws WorkflowManagerException {
 		persistence.ensureEvaluated(workingSet);
 	}
 	
-	public static Collection<Assessment> getAllAssessments(final Integer workingSetID) {
-		WorkingSet ws = SIS.get().getWorkingSetIO().readWorkingSet(workingSetID);
-		return getAllAssessments(ws);
+	public static Collection<Assessment> getAllAssessments(Session session, final Integer workingSetID) {
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		WorkingSet ws = workingSetIO.readWorkingSet(workingSetID);
+		return getAllAssessments(session, ws);
 	}
 	
-	public static Collection<Assessment> getAllAssessments(final WorkingSet ws) {
+	public static Collection<Assessment> getAllAssessments(Session session, final WorkingSet ws) {
 		AssessmentFilter filter = ws.getFilter();
-		AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
+		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
 		Collection<Assessment> assessments = new ArrayList<Assessment>();
 		for (Taxon taxon : ws.getTaxon()) {
 			assessments.addAll(helper.getAssessments(taxon.getId()));

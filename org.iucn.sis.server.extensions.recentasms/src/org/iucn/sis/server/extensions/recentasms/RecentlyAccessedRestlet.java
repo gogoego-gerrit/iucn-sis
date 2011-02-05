@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.application.SIS;
@@ -47,28 +48,20 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
-		return handleViaObjectLayer(request, response);
-	}
-	
-	private Representation handleViaObjectLayer(Request request, Response response) throws ResourceException {
-		User user = getUser(request);
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
+		User user = getUser(request, session);
 		String type = getType(request);
 		
-		List<RecentlyAccessed> list;
-		try {
-			list = SIS.get().getManager().getSession().createCriteria(RecentlyAccessed.class)
+		List<RecentlyAccessed> list = 
+			session.createCriteria(RecentlyAccessed.class)
 			.add(Restrictions.eq("user", user)).add(Restrictions.eq("type", type))
 			.addOrder(Order.desc("date")).list();
-		} catch (PersistentException e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
 		
 		final StringBuilder out = new StringBuilder();
 		out.append("<root>");
 		for (RecentlyAccessed accessed : list) {
 			try {
-				RecentInfo info = RecentInfoFactory.load(accessed);
+				RecentInfo info = RecentInfoFactory.load(accessed, session);
 				info.addField("accessid", accessed.getId() + "");
 				info.addField("accessdate", accessed.getDate().getTime() + "");
 				out.append(info.toXML());
@@ -82,18 +75,14 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		NativeDocument document = getEntityAsNativeDocument(entity);
 		
-		List<RecentlyAccessed> existing;
-		try {
-			existing = SIS.get().getManager().getSession().createCriteria(RecentlyAccessed.class)
-			.add(Restrictions.eq("user", getUser(request)))
+		List<RecentlyAccessed> existing =
+			session.createCriteria(RecentlyAccessed.class)
+			.add(Restrictions.eq("user", getUser(request, session)))
 			.add(Restrictions.eq("type", getType(request)))
 			.addOrder(Order.desc("date")).list();
-		} catch (PersistentException e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
 		
 		StringBuilder result = new StringBuilder();
 		int newEntries = 0;
@@ -116,7 +105,7 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 				newEntries++;
 			
 			try {
-				SIS.get().getManager().saveObject(accessed);
+				SIS.get().getManager().saveObject(session, accessed);
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
@@ -131,7 +120,7 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 			//Added anew, so let's update the count by removing the oldest one
 			for (int i = LIMIT - newEntries; i < existing.size(); i++) {
 				try {
-					SIS.get().getManager().deleteObject(existing.get(i));
+					SIS.get().getManager().deleteObject(session, existing.get(i));
 				} catch (PersistentException e) {
 					TrivialExceptionHandler.ignore(this, e);
 				}
@@ -143,32 +132,28 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		Integer accessID = getAccessID(request);
 		
 		if (accessID != null) {
 			try {
 				SIS.get().getManager().deleteObject(
-					SIS.get().getManager().loadObject(RecentlyAccessed.class, accessID)
+					session, SIS.get().getManager().loadObject(session, RecentlyAccessed.class, accessID)
 				);
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 		}
 		else {
-			List<RecentlyAccessed> list;
-			try {
-				list = SIS.get().getManager().getSession().createCriteria(RecentlyAccessed.class)
-				.add(Restrictions.eq("user", getUser(request)))
+			List<RecentlyAccessed> list =
+				session.createCriteria(RecentlyAccessed.class)
+				.add(Restrictions.eq("user", getUser(request, session)))
 				.add(Restrictions.eq("type", getType(request)))
 				.list();
-			} catch (PersistentException e) {
-				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-			}
 			
 			for (RecentlyAccessed accessed : list) {
 				try {
-					SIS.get().getManager().deleteObject(accessed);
+					SIS.get().getManager().deleteObject(session, accessed);
 				} catch (PersistentException e) {
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}

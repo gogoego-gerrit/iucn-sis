@@ -2,9 +2,12 @@ package org.iucn.sis.server.extensions.notes;
 
 import java.util.Date;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.persistance.FieldDAO;
-import org.iucn.sis.server.api.persistance.NotesDAO;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.FieldIO;
+import org.iucn.sis.server.api.io.NoteIO;
+import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -37,14 +40,18 @@ public class NotesRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		final String type = getType(request);
 		final Integer id = getID(request);
 		
+		final NoteIO noteIO = new NoteIO(session);
+		final FieldIO fieldIO = new FieldIO(session);
+		final TaxonIO taxonIO = new TaxonIO(session);
+		
 		if (type.equalsIgnoreCase("note")) {
-			Notes note = SIS.get().getNoteIO().get(id);
+			Notes note = noteIO.get(id);
 			if (note != null) {
-				if (SIS.get().getNoteIO().delete(note))
+				if (noteIO.delete(note))
 					response.setStatus(Status.SUCCESS_OK);
 				else
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
@@ -52,10 +59,10 @@ public class NotesRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No " + type + " found for " + id);
 			
 		} else if (type.equalsIgnoreCase("field")) {
-			Field field = SIS.get().getFieldIO().get(id);
+			Field field = fieldIO.get(id);
 			if (field != null) {
 				for (Notes note : field.getNotes()) {
-					if (!SIS.get().getNoteIO().delete(note)){
+					if (!noteIO.delete(note)){
 						response.setStatus(Status.SERVER_ERROR_INTERNAL);
 						return;
 					}
@@ -64,11 +71,11 @@ public class NotesRestlet extends BaseServiceRestlet {
 			} else
 				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No " + type + " found for " + id);
 		} else if (type.equalsIgnoreCase("taxon")) {
-			Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
+			Taxon taxon = taxonIO.getTaxon(id);
 			
 			if (taxon != null) {
 				for (Notes note : taxon.getNotes()) {
-					if (!SIS.get().getNoteIO().delete(note)){
+					if (!noteIO.delete(note)){
 						response.setStatus(Status.SERVER_ERROR_INTERNAL);
 						return;
 					}
@@ -82,18 +89,23 @@ public class NotesRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final String type = getType(request);
 		final Integer id = getID(request);
 		
+		final NoteIO noteIO = new NoteIO(session);
+		final FieldIO fieldIO = new FieldIO(session);
+		final TaxonIO taxonIO = new TaxonIO(session);
+		final AssessmentIO assessmentIO = new AssessmentIO(session);
+		
 		if (type.equalsIgnoreCase("note")) {
-			Notes note = SIS.get().getNoteIO().get(id);
+			Notes note = noteIO.get(id);
 			if (note != null) {
 				return new StringRepresentation(note.toXML(), MediaType.TEXT_XML);
 			} else
 				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No " + type + " found for " + id);
 		} else if (type.equalsIgnoreCase("field")) {
-			Field field = SIS.get().getFieldIO().get(id);
+			Field field = fieldIO.get(id);
 			if (field != null) {
 				StringBuilder xml = new StringBuilder("<xml>");
 				for (Notes note : field.getNotes())
@@ -103,7 +115,7 @@ public class NotesRestlet extends BaseServiceRestlet {
 			} else
 				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No " + type + " found for " + id);
 		} else if (type.equalsIgnoreCase("taxon")) {
-			Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
+			Taxon taxon = taxonIO.getTaxon(id);
 			if (taxon != null) {
 				StringBuilder xml = new StringBuilder("<xml>");
 				for (Notes note : taxon.getNotes())
@@ -113,7 +125,7 @@ public class NotesRestlet extends BaseServiceRestlet {
 			} else
 				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "No " + type + " found for " + id);
 		} else if (type.equalsIgnoreCase("assessment")) {
-			Assessment assessment = SIS.get().getAssessmentIO().getAssessment(id);
+			Assessment assessment = assessmentIO.getAssessment(id);
 			if (assessment != null) {
 				StringBuilder xml = new StringBuilder();
 				xml.append("<xml>");
@@ -123,7 +135,7 @@ public class NotesRestlet extends BaseServiceRestlet {
 				 */
 				if (assessment.getField() != null)
 					for (Field field : assessment.getField()) {
-						appendNotes(field, xml);
+						appendNotes(fieldIO, field, xml);
 					}
 				xml.append("</xml>");
 				return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
@@ -133,8 +145,8 @@ public class NotesRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid type specified: " + type);
 	}
 	
-	private void appendNotes(Field field, StringBuilder xml) {
-		Field full = SIS.get().getFieldIO().get(field.getId());
+	private void appendNotes(FieldIO fieldIO, Field field, StringBuilder xml) {
+		Field full = fieldIO.get(field.getId());
 		if (full.getNotes() != null && !full.getNotes().isEmpty()) {
 			xml.append("<field name=\"" + full.getName() + ":" + full.getId() + "\">");
 			for (Notes note : full.getNotes()) 
@@ -142,27 +154,27 @@ public class NotesRestlet extends BaseServiceRestlet {
 			xml.append("</field>");
 		}
 		for (Field subfield : field.getFields())
-			appendNotes(subfield, xml);
+			appendNotes(fieldIO, subfield, xml);
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		/**
 		 * FIXME: why are there multiple targets to do the same thing?
 		 * Shouldn't POST operations throw not found exceptions when 
 		 * trying to edit something that doesn't exist?
 		 */
-		handlePost(entity, request, response);
+		handlePost(entity, request, response, session);
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final String type = getType(request);
 		final Integer id = getID(request);
 		
 		if (request.getResourceRef().getQueryAsForm().getFirstValue("option") != null
 				&& request.getResourceRef().getQueryAsForm().getFirstValue("option").equals("remove"))
-			handleDelete(request, response);
+			handleDelete(request, response, session);
 		else {
 			NativeDocument document = new JavaNativeDocument();
 			document.parse(request.getEntityAsText());
@@ -173,25 +185,30 @@ public class NotesRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "No note provided.");
 			
 			Edit edit = new Edit();
-			edit.setUser(SIS.get().getUser(request));
+			edit.setUser(getUser(request, session));
 			edit.setCreatedDate(new Date());
 			edit.getNotes().add(note);
 			
 			note.getEdits().clear();
 			note.getEdits().add(edit);
 			
+			final NoteIO noteIO = new NoteIO(session);
+			final FieldIO fieldIO = new FieldIO(session);
+			final TaxonIO taxonIO = new TaxonIO(session);
+			final AssessmentIO assessmentIO = new AssessmentIO(session);
+			
 			if (type.equalsIgnoreCase("field")) {
-				Field field = SIS.get().getFieldIO().get(id);
+				Field field = fieldIO.get(id);
 				if (field != null) {
 					field.getNotes().add(note);
 					note.getFields().add(field);				
-					Assessment assessment = SIS.get().getAssessmentIO().getAssessment(field.getAssessment().getId());
+					Assessment assessment = assessmentIO.getAssessment(field.getAssessment().getId());
 					assessment.getField().remove(assessment.getField(field.getName()));
 					assessment.getField().add(field);
 					field.setAssessment(assessment);
-					if (SIS.get().getNoteIO().save(note)) {
+					if (noteIO.save(note)) {
 						try {
-							FieldDAO.save(field);
+							SIS.get().getManager().saveObject(session, field);
 						} catch (PersistentException e) {
 							throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Could not save field", e); 
 						}
@@ -206,13 +223,13 @@ public class NotesRestlet extends BaseServiceRestlet {
 				}
 				
 			} else if (type.equalsIgnoreCase("taxon")) {
-				Taxon taxon = SIS.get().getTaxonIO().getTaxon(id);
+				Taxon taxon = taxonIO.getTaxon(id);
 				if (taxon != null) {
 					taxon.getEdits().add(edit);
 					edit.getTaxon().add(taxon);
 					taxon.getNotes().add(note);
 					note.getTaxa().add(taxon);
-					if (SIS.get().getNoteIO().save(note)) {					
+					if (noteIO.save(note)) {					
 						response.setStatus(Status.SUCCESS_OK);
 						response.setEntity(note.toXML(), MediaType.TEXT_XML);
 					} else {
@@ -224,7 +241,7 @@ public class NotesRestlet extends BaseServiceRestlet {
 			} else if (type.equals("synonym")) {
 				org.iucn.sis.shared.api.models.Synonym synonym;
 				try {
-					synonym = SIS.get().getManager().getObject(org.iucn.sis.shared.api.models.Synonym.class, id);
+					synonym = SIS.get().getManager().getObject(session, org.iucn.sis.shared.api.models.Synonym.class, id);
 				} catch (PersistentException e) {
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}
@@ -235,7 +252,7 @@ public class NotesRestlet extends BaseServiceRestlet {
 					note.setSynonym(synonym);
 					synonym.getNotes().add(note);
 					
-					NotesDAO.save(note);
+					SIS.get().getManager().saveObject(session, note);
 				} catch (PersistentException e) {
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}
@@ -247,7 +264,7 @@ public class NotesRestlet extends BaseServiceRestlet {
 			} else if (type.equalsIgnoreCase("commonName")) {
 				CommonName commonName;
 				try {
-					commonName = SIS.get().getManager().getObject(CommonName.class, id);
+					commonName = SIS.get().getManager().getObject(session, CommonName.class, id);
 				} catch (PersistentException e) {
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}
@@ -258,7 +275,7 @@ public class NotesRestlet extends BaseServiceRestlet {
 					note.setCommonName(commonName);
 					commonName.getNotes().add(note);
 					
-					NotesDAO.save(note);
+					SIS.get().getManager().saveObject(session, note);
 				} catch (PersistentException e) {
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}

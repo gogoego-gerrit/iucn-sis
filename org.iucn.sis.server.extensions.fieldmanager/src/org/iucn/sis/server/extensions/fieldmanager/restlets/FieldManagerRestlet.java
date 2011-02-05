@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -52,7 +53,7 @@ public class FieldManagerRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String s = (String)request.getAttributes().get("schema");
 		String mode = (String)request.getAttributes().get("mode");
 		String fieldName = (String)request.getAttributes().get("fieldName");
@@ -126,7 +127,7 @@ public class FieldManagerRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		AssessmentSchema schema = getSchema((String)request.getAttributes().get("schema"));
 		String fieldName = (String)request.getAttributes().get("fieldName");
 		String mode = (String)request.getAttributes().get("mode");
@@ -172,7 +173,7 @@ public class FieldManagerRestlet extends BaseServiceRestlet {
 	 * </lookup>
 	 * </root>
 	 */
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String fieldName = (String)request.getAttributes().get("fieldName");		
 		String mode = (String)request.getAttributes().get("mode");
 		
@@ -193,7 +194,7 @@ public class FieldManagerRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		String schema = (String)request.getAttributes().get("schema");
 		String mode = (String)request.getAttributes().get("mode");
 		String fieldName = (String)request.getAttributes().get("fieldName");

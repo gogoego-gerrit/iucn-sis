@@ -1,15 +1,12 @@
 package org.iucn.sis.server.extensions.integrity;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 
-import com.solertium.db.restlet.DBResource;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
-import com.solertium.vfs.restlet.VFSProvidingApplication;
 
 /**
  * BaseIntegrityResource.java

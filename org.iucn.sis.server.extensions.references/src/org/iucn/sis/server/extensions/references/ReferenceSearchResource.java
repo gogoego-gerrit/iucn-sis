@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Reference;
 import org.restlet.Context;
@@ -30,7 +32,7 @@ import com.solertium.db.RowProcessor;
 import com.solertium.util.NodeCollection;
 import com.solertium.util.portable.XMLWritingUtils;
 
-public class ReferenceSearchResource extends Resource {
+public class ReferenceSearchResource extends TransactionResource {
 
 	public ReferenceSearchResource(final Context context, final Request request, final Response response) {
 		super(context, request, response);
@@ -40,17 +42,17 @@ public class ReferenceSearchResource extends Resource {
 	}
 	
 	@Override
-	public Representation represent(Variant variant) throws ResourceException {
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		final Form form = getRequest().getResourceRef().getQueryAsForm();
 		final Map<String, String> constraints = new HashMap<String, String>();
 		for (String key : form.getNames())
 			constraints.put(key, form.getFirstValue(key));
 		
-		return doQuery(constraints);
+		return doQuery(constraints, session);
 	}
 	
 	@Override
-	public void acceptRepresentation(Representation entity) throws ResourceException {
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		final Document document;
 		try {
 			document = new DomRepresentation(entity).getDocument();
@@ -63,11 +65,11 @@ public class ReferenceSearchResource extends Resource {
 		for (Node node : nodes)
 			constraints.put(node.getNodeName(), node.getTextContent());
 		
-		getResponse().setEntity(doQuery(constraints));
+		getResponse().setEntity(doQuery(constraints, session));
 		getResponse().setStatus(Status.SUCCESS_OK);
 	}
 	
-	private Representation doQuery(Map<String, String> constraints) throws ResourceException {
+	private Representation doQuery(Map<String, String> constraints, final Session session) throws ResourceException {
 		String where = null;
 		for (Map.Entry<String, String> entry : constraints.entrySet()) {
 			if (!"start".equals(entry.getKey()) && !"limit".equals(entry.getKey())) {
@@ -104,7 +106,7 @@ public class ReferenceSearchResource extends Resource {
 			return new StringRepresentation("<root/>", MediaType.TEXT_XML);
 		
 		Criteria crit = 
-			SISPersistentManager.instance().getSession().createCriteria(Reference.class);
+			session.createCriteria(Reference.class);
 		crit = crit.add(Restrictions.in("id", map.keySet()));
 		
 		final StringBuilder builder = new StringBuilder();

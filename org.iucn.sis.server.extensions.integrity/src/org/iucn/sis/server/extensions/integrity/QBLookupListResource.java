@@ -2,8 +2,7 @@ package org.iucn.sis.server.extensions.integrity;
 
 import java.util.List;
 
-import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.utils.StructureLoader;
+import org.hibernate.Session;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -19,9 +18,7 @@ import org.w3c.dom.NodeList;
 
 import com.solertium.db.DBException;
 import com.solertium.db.query.SelectQuery;
-import com.solertium.db.restlet.DBResource;
 import com.solertium.util.BaseDocumentUtils;
-import com.solertium.util.ElementCollection;
 
 /**
  * QBLookupListResource.java
@@ -32,6 +29,7 @@ import com.solertium.util.ElementCollection;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
+@SuppressWarnings("deprecation")
 public class QBLookupListResource extends IntegrityDBResource {
 
 	public QBLookupListResource(Context context, Request request,
@@ -46,7 +44,8 @@ public class QBLookupListResource extends IntegrityDBResource {
 	 * <root> <column canonicalName="table.column"> <lookup
 	 * table="..."keyColumn="..." valueColumn="..." /> </column> </root>
 	 */
-	public Representation represent(Variant variant) throws ResourceException {
+	@Override
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		final Document document = BaseDocumentUtils.impl.newDocument();
 		final Element root = document.createElement("root");
 		
@@ -82,8 +81,8 @@ public class QBLookupListResource extends IntegrityDBResource {
 		return new DomRepresentation(variant.getMediaType(), document);
 	}
 
-	public void acceptRepresentation(Representation entity)
-			throws ResourceException {
+	@Override
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		final Document document;
 		try {
 			document = new DomRepresentation(entity).getDocument();

@@ -2,11 +2,11 @@ package org.iucn.sis.server.api.restlets;
 
 import java.util.ArrayList;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
-import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
 import org.restlet.data.Request;
@@ -37,7 +37,7 @@ import com.solertium.util.BaseDocumentUtils;
  * @author carl.scott
  *
  */
-public abstract class BaseServiceRestlet extends Restlet {
+public abstract class BaseServiceRestlet extends TransactionRestlet {
 	
 	protected final ArrayList<String> paths = new ArrayList<String>();
 
@@ -53,11 +53,11 @@ public abstract class BaseServiceRestlet extends Restlet {
 	}
 	
 	@Override
-	public final void handle(final Request request, final Response response) {
+	public final void handle(final Request request, final Response response, Session session) {
 		if (Method.GET.equals(request.getMethod())) {
 			final Representation representation;
 			try {
-				representation = handleGet(request, response);
+				representation = handleGet(request, response, session);
 			} catch (ResourceException e) {
 				handleResourceException(e, response);
 				return;
@@ -73,7 +73,7 @@ public abstract class BaseServiceRestlet extends Restlet {
 		}
 		else if (Method.POST.equals(request.getMethod())) {
 			try {
-				handlePost(request.getEntity(), request, response);
+				handlePost(request.getEntity(), request, response, session);
 			} catch (ResourceException e) {
 				handleResourceException(e, response);
 				return;
@@ -86,7 +86,7 @@ public abstract class BaseServiceRestlet extends Restlet {
 		}
 		else if (Method.PUT.equals(request.getMethod())) {
 			try {
-				handlePut(request.getEntity(), request, response);
+				handlePut(request.getEntity(), request, response, session);
 			} catch (ResourceException e) {
 				handleResourceException(e, response);
 				return;
@@ -99,7 +99,7 @@ public abstract class BaseServiceRestlet extends Restlet {
 		}
 		else if (Method.DELETE.equals(request.getMethod())) {
 			try {
-				handleDelete(request, response);
+				handleDelete(request, response, session);
 			} catch (ResourceException e) {
 				handleResourceException(e, response);
 				return;
@@ -112,7 +112,7 @@ public abstract class BaseServiceRestlet extends Restlet {
 		}
 		else  {
 			try {
-				handleMethod(request.getMethod(), request, response);
+				handleMethod(request.getMethod(), request, response, session);
 			} catch (ResourceException e) {
 				handleResourceException(e, response);
 				return;
@@ -141,23 +141,23 @@ public abstract class BaseServiceRestlet extends Restlet {
 			response.setStatus(Status.SUCCESS_OK);
 	}
 	
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 	}
 	
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 	}
 	
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 	}
 	
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 	}
 
-	public void handleMethod(Method method, Request request, Response response) throws ResourceException {
+	public void handleMethod(Method method, Request request, Response response, Session session) throws ResourceException {
 		throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 	}
 	
@@ -187,10 +187,11 @@ public abstract class BaseServiceRestlet extends Restlet {
 		return new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createErrorDocument(message));
 	}
 	
-	protected User getUser(Request request) {
+	protected User getUser(Request request, Session session) {
+		UserIO io = new UserIO(session);
 		String username = request.getChallengeResponse().getIdentifier();
 		if (username != null)
-			return SIS.get().getUserIO().getUserFromUsername(username);
+			return io.getUserFromUsername(username);
 		else
 			return null;
 	}

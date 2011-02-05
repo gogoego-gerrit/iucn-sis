@@ -3,7 +3,8 @@ package org.iucn.sis.server.api.io;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.iucn.sis.server.api.persistance.FieldDAO;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.NotesDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -12,9 +13,18 @@ import org.iucn.sis.shared.api.models.Taxon;
 
 public class NoteIO {
 	
+	/**
+	 * FIXME: WTF?
+	 * I get that this is so the listener will remove 
+	 * the note from the taxon ... but why not just 
+	 * save the taxon here?
+	 */
 	protected Map<Integer, Taxon> updatedNoteToTaxon;
 	
-	public NoteIO() {
+	private final Session session;
+	
+	public NoteIO(Session session) {
+		this.session = session;
 		updatedNoteToTaxon = new HashMap<Integer, Taxon>();
 	}
 	
@@ -30,20 +40,19 @@ public class NoteIO {
 		
 	public Notes get(Integer noteID) {
 		try {
-			return NotesDAO.getNotesByORMID(noteID);
+			return NotesDAO.getNotesByORMID(session, noteID);
 		} catch (PersistentException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Debug.println(e);
 			return null;
 		}
 	}
 	
 	public boolean save(Notes note) {
 		try {
-			if (NotesDAO.save(note)) {
-				addNoteToTaxon(note);
-				return true;
-			}			
+			SIS.get().getManager().saveObject(session, note);
+			addNoteToTaxon(note);
+			return true;
 		} catch (PersistentException e) {
 			Debug.println(e);
 		}
@@ -55,7 +64,7 @@ public class NoteIO {
 		if (note.getField() != null) {
 			note.getField().getNotes().remove(note);
 			try {
-				FieldDAO.save(note.getField());
+				SIS.get().getManager().saveObject(session, note.getField());
 			} catch (PersistentException e) {
 				return false;
 			}
@@ -79,7 +88,7 @@ public class NoteIO {
 			try {
 				taxonToSave.toXML();
 				Integer id = note.getId();
-				if (NotesDAO.deleteAndDissociate(note)) {
+				if (NotesDAO.deleteAndDissociate(note, session)) {
 					updatedNoteToTaxon.put(id, note.getTaxon());
 					return true;
 				}
@@ -89,7 +98,7 @@ public class NoteIO {
 		}
 		else {
 			try {
-				if (NotesDAO.deleteAndDissociate(note))
+				if (NotesDAO.deleteAndDissociate(note, session))
 					return true;
 			} catch (PersistentException e) {
 				Debug.println(e);

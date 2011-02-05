@@ -16,8 +16,9 @@ import java.util.List;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Edit;
@@ -31,15 +32,15 @@ public class TaxonDAO {
 	
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	
-	public static Taxon getTaxon(int id) throws PersistentException {
-		Taxon taxon = TaxonDAO.getTaxonByORMID(id);
+	public static Taxon getTaxon(Session session, int id) throws PersistentException {
+		Taxon taxon = SISPersistentManager.instance().getObject(session, Taxon.class, id);
 		if (taxon != null && taxon.getState() == Taxon.ACTIVE)
 			return taxon;
 		return null;
 	}
 	
-	public static Taxon getTaxonNonLazily(int id) throws PersistentException {
-		Taxon taxon = getTaxon(id); 
+	/*public static Taxon getTaxonNonLazily(int id) throws PersistentException {
+		Taxon taxon = getTaxon(session, id); 
 		if (taxon != null) {
 			Hibernate.initialize(taxon.getReference());
 			Hibernate.initialize(taxon.getEdits());
@@ -49,17 +50,22 @@ public class TaxonDAO {
 			Hibernate.initialize(taxon.getSynonyms());
 		}
 		return taxon;
+	}*/
+	
+	public static Taxon[] getTrashedTaxa(Session session) throws PersistentException {
+		try {
+			TaxonCriteria criteria = new TaxonCriteria(session);
+			criteria.state.eq(Taxon.DELETED);
+			return listTaxonByCriteria(criteria);
+		} catch (Exception e) {
+			Debug.println(e);
+			throw new PersistentException(e);
+		}
 	}
 	
-	public static Taxon[] getTrashedTaxa() throws PersistentException {
-		TaxonCriteria criteria = new TaxonCriteria();
-		criteria.state.eq(Taxon.DELETED);
-		return listTaxonByCriteria(criteria);
-	}
 	
-	
-	public static Taxon getTrashedTaxon(int id) throws PersistentException {
-		Taxon taxon = TaxonDAO.getTaxonByORMID(id);
+	public static Taxon getTrashedTaxon(Session session, int id) throws PersistentException {
+		Taxon taxon = getTaxon(session, id);
 		if (taxon != null && taxon.getState() == Taxon.DELETED)
 			return taxon;
 		return null;
@@ -76,47 +82,55 @@ public class TaxonDAO {
 	}
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	
-	protected static Taxon loadTaxonByORMID(int id) throws PersistentException {
+	/*protected static Taxon loadTaxonByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonByORMID(session, id);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	protected static Taxon getTaxonByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getTaxonByORMID(session, id);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	protected static Taxon loadTaxonByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	protected static Taxon getTaxonByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getTaxonByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
@@ -138,7 +152,7 @@ public class TaxonDAO {
 			e.printStackTrace();
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static Taxon loadTaxonByORMID(Session session, int id, org.hibernate.LockMode lockMode) throws PersistentException {
 		try {
@@ -153,28 +167,6 @@ public class TaxonDAO {
 	public static Taxon getTaxonByORMID(Session session, int id, org.hibernate.LockMode lockMode) throws PersistentException {
 		try {
 			return (Taxon) session.get(Taxon.class, new Integer(id), lockMode);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	public static Taxon[] listTaxonByQuery(String condition, String orderBy) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return listTaxonByQuery(session, condition, orderBy);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	public static Taxon[] listTaxonByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return listTaxonByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -217,28 +209,6 @@ public class TaxonDAO {
 		}
 	}
 	
-	protected static Taxon loadTaxonByQuery(String condition, String orderBy) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return loadTaxonByQuery(session, condition, orderBy);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static Taxon loadTaxonByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return loadTaxonByQuery(session, condition, orderBy, lockMode);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
 	protected static Taxon loadTaxonByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		Taxon[] taxons = listTaxonByQuery(session, condition, orderBy);
 		if (taxons != null && taxons.length > 0)
@@ -253,28 +223,6 @@ public class TaxonDAO {
 			return taxons[0];
 		else
 			return null;
-	}
-	
-	protected static java.util.Iterator iterateTaxonByQuery(String condition, String orderBy) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return iterateTaxonByQuery(session, condition, orderBy);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
-	}
-	
-	protected static java.util.Iterator iterateTaxonByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
-		try {
-			Session session = SISPersistentManager.instance().getSession();
-			return iterateTaxonByQuery(session, condition, orderBy, lockMode);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			throw new PersistentException(e);
-		}
 	}
 	
 	protected static java.util.Iterator iterateTaxonByQuery(Session session, String condition, String orderBy) throws PersistentException {
@@ -314,9 +262,9 @@ public class TaxonDAO {
 		return new Taxon();
 	}
 	
-	public static void save(Taxon taxon) throws PersistentException {
+	/*public static void save(Taxon taxon) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(taxon);
+			SISPersistentManager.instance().saveObject(session, taxon);
 		} catch (Exception e) {
 			throw new PersistentException(e);
 		}
@@ -324,7 +272,7 @@ public class TaxonDAO {
 	
 	public static boolean delete(Taxon taxon) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(taxon);
+			SISPersistentManager.instance().deleteObject(session, taxon);
 			return true;
 		}
 		catch (Exception e) {
@@ -332,9 +280,9 @@ public class TaxonDAO {
 			throw new PersistentException(e);
 		}
 	}
+	*/
 	
-	
-	public static boolean deleteAndDissociate(Taxon taxon)throws PersistentException {
+	public static boolean deleteAndDissociate(Taxon taxon, Session session)throws PersistentException {
 		try {
 			if(taxon.getTaxonLevel() != null) {
 				taxon.getTaxonLevel().getTaxa().remove(taxon);
@@ -366,25 +314,30 @@ public class TaxonDAO {
 			}
 			Notes[] notes = (Notes[])taxon.getNotes().toArray(new Notes[taxon.getNotes().size()]);
 			for(int i = 0; i < notes.length; i++) {
-				NotesDAO.deleteAndDissociate(notes[i]);
+				NotesDAO.deleteAndDissociate(notes[i], session);
 			}
 			Assessment[] lAssessmentss = (Assessment[])taxon.getAssessments().toArray(new Assessment[taxon.getAssessments().size()]);
 			for(int i = 0; i < lAssessmentss.length; i++) {
-				AssessmentDAO.deleteAndDissociate(lAssessmentss[i]);
+				AssessmentDAO.deleteAndDissociate(lAssessmentss[i], session);
 			}
 			Synonym[] lSynonymss = (Synonym[])taxon.getSynonyms().toArray(new Synonym[taxon.getSynonyms().size()]);
 			for(int i = 0; i < lSynonymss.length; i++) {
-				SynonymDAO.deleteAndDissociate(lSynonymss[i]);
+				SynonymDAO.deleteAndDissociate(lSynonymss[i], session);
 			}
 			CommonName[] lCommonNamess = (CommonName[])taxon.getCommonNames().toArray(new CommonName[taxon.getCommonNames().size()]);
 			for(int i = 0; i < lCommonNamess.length; i++) {
-				CommonNameDAO.deleteAndDissociate(lCommonNamess[i]);
+				CommonNameDAO.deleteAndDissociate(lCommonNamess[i], session);
 			}
 			if(taxon.getInfratype() != null) {
 				taxon.getInfratype().getTaxa().remove(taxon);
 			}
 			
-			return delete(taxon);
+			try {
+				session.delete(taxon);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
 		}
 		catch(Exception e) {
 			e.printStackTrace();
@@ -457,7 +410,7 @@ public class TaxonDAO {
 	}
 	**/
 	
-	public static boolean refresh(Taxon taxon) throws PersistentException {
+	/*public static boolean refresh(Taxon taxon) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(taxon);
 			return true;
@@ -477,7 +430,7 @@ public class TaxonDAO {
 			e.printStackTrace();
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	protected static Taxon loadTaxonByCriteria(TaxonCriteria taxonCriteria) {
 		Taxon[] taxons = listTaxonByCriteria(taxonCriteria);

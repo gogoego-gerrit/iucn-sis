@@ -1,7 +1,5 @@
 package org.iucn.sis.server.api.application;
 
-import java.sql.BatchUpdateException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -14,9 +12,6 @@ import java.util.Map.Entry;
 import org.gogoego.api.applications.GoGoEgoApplication;
 import org.gogoego.api.applications.HasSettingsUI;
 import org.gogoego.api.utils.MagicDisablingFilter;
-import org.hibernate.HibernateException;
-import org.hibernate.Transaction;
-import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.restlets.SettingsRestlet;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -27,7 +22,6 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
-import org.restlet.data.Status;
 import org.restlet.engine.application.EncodeRepresentation;
 import org.restlet.resource.Resource;
 import org.restlet.resource.ServerResource;
@@ -43,7 +37,7 @@ import com.solertium.vfs.VFS;
 @SuppressWarnings("deprecation")
 public abstract class SISApplication extends GoGoEgoApplication implements HasSettingsUI {
 
-	public static final String NO_TRANSACTION_HANDLE = "NO_TRAN";
+	//public static final String NO_TRANSACTION_HANDLE = "NO_TRAN";
 	
 	protected Map<Object, List<String>> pathsToResources;
 	protected HashSet<String> pathsExcludedFromAuthenticator;
@@ -142,7 +136,8 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 		Filter mainFilter = new Filter(app.getContext(), root) {
 			@Override
 			protected int beforeHandle(Request request, Response response) {
-				SISPersistentManager.instance().getSession().beginTransaction();
+				/*SISPersistentManager.instance().getSessionFactory().openSession();
+				SISPersistentManager.instance().getSession().beginTransaction();*/
 				
 				if (!SIS.get().isHostedMode() && SIS.amIOnline() && SIS.forceHTTPS() && request.getProtocol().equals(Protocol.HTTP)) {
 					Reference newRef = new Reference(request.getResourceRef());
@@ -176,7 +171,7 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 					response.getEntity().setExpirationDate(cal.getTime());
 				}
 				
-				final String noHandle = RestletUtils.getHeader(response, NO_TRANSACTION_HANDLE);
+				/*final String noHandle = RestletUtils.getHeader(response, NO_TRANSACTION_HANDLE);
 				if (noHandle == null) {
 					try {
 						Transaction tsx = SISPersistentManager.instance().getSession().getTransaction();
@@ -194,8 +189,10 @@ public abstract class SISApplication extends GoGoEgoApplication implements HasSe
 						}
 						response.setStatus(Status.SERVER_ERROR_INTERNAL);
 						SISPersistentManager.instance().getSession().getTransaction().rollback();
+					} finally {
+						SISPersistentManager.instance().getSession().close();
 					}
-				}
+				}*/
 
 				try {
 					if (SIS.amIOnline()) {

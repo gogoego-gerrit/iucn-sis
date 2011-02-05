@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.workflow;
 
+import org.hibernate.Session;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -24,7 +25,8 @@ public class WFNotesResource extends WFDBResource {
 		this.protocol = (String)request.getAttributes().get("protocol");
 	}
 	
-	public Representation represent(Variant variant) throws ResourceException {
+	@Override
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		final SelectQuery query = new SelectQuery();
 		query.select(WorkflowConstants.WORKFLOW_NOTES_TABLE, "comment");
 		query.select(WorkflowConstants.WORKFLOW_NOTES_TABLE, "date");

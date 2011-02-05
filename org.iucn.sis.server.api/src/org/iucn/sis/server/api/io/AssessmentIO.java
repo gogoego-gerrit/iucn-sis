@@ -1,24 +1,21 @@
 package org.iucn.sis.server.api.io;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.server.api.persistance.AssessmentCriteria;
 import org.iucn.sis.server.api.persistance.AssessmentDAO;
 import org.iucn.sis.server.api.persistance.AssessmentTypeCriteria;
-import org.iucn.sis.server.api.persistance.EditDAO;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.OnlineUtil;
 import org.iucn.sis.server.api.utils.RegionConflictException;
-import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.io.AssessmentIOMessage;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -28,13 +25,6 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.data.Status;
 
-import com.solertium.lwxml.factory.NativeDocumentFactory;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.vfs.BoundsException;
-import com.solertium.vfs.NotFoundException;
-import com.solertium.vfs.VFSPath;
-import com.solertium.vfs.provider.VersionedFileVFS;
-
 /**
  * Performs file system IO operations for Assessments.
  * 
@@ -43,10 +33,10 @@ import com.solertium.vfs.provider.VersionedFileVFS;
  */
 public class AssessmentIO {
 
-	protected VersionedFileVFS vfs;
-
-	public AssessmentIO(VersionedFileVFS vfs) {
-		this.vfs = vfs;
+	private final Session session;
+	
+	public AssessmentIO(Session session) {
+		this.session = session; 
 	}
 
 	/**
@@ -87,8 +77,8 @@ public class AssessmentIO {
 		Assessment assessment = null;
 
 		// TODO: GET FROM CACHE FIRST
-		assessment = getFromVFS(id);
-		if (assessment == null)
+		// assessment = getFromVFS(id);
+		// if (assessment == null)
 			assessment = getNonCachedAssessment(id);
 
 		return assessment;
@@ -96,7 +86,12 @@ public class AssessmentIO {
 	}
 
 	public String getAssessmentXML(Integer id) {
-		try {
+		Assessment assessment = getAssessment(id);
+		if (assessment != null)
+			return assessment.toXML();
+		else
+			return null;
+		/*try {
 			return getXMLFromVFS(id);
 		} catch (NotFoundException e) {
 			Assessment assessment = getNonCachedAssessment(id);
@@ -110,11 +105,11 @@ public class AssessmentIO {
 
 			return xml;
 		} catch (BoundsException e) {
-			e.printStackTrace();
+			Debug.println(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Debug.println(e);
 		}
-		return null;
+		return null;*/
 	}
 
 	/**
@@ -127,7 +122,8 @@ public class AssessmentIO {
 	 * @throws HibernateException
 	 */
 	public Assessment getAttachedAssessment(Integer id) {
-		Assessment assessment = getFromVFS(id);
+		return getNonCachedAssessment(id);
+		/*Assessment assessment = getFromVFS(id);
 		try {
 			assessment = SIS.get().getManager().mergeObject(assessment);
 		} catch (PersistentException e) {
@@ -138,7 +134,7 @@ public class AssessmentIO {
 		if (assessment == null)
 			assessment = getNonCachedAssessment(id);
 		
-		return assessment;
+		return assessment;*/
 	}
 
 	/**
@@ -151,10 +147,10 @@ public class AssessmentIO {
 	 */
 	public Assessment getNonCachedAssessment(Integer id) {
 		try {
-			return AssessmentDAO.getAssessment(id);
+			return AssessmentDAO.getAssessment(session, id);
 		} catch (PersistentException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Debug.println(e);
 			return null;
 		}
 	}
@@ -171,32 +167,20 @@ public class AssessmentIO {
 	 */
 	public List<Assessment> readDraftAssessmentsForTaxon(Integer taxonID) {
 
-		AssessmentCriteria criteria;
-		try {
-			criteria = new AssessmentCriteria();
-		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-		AssessmentTypeCriteria assTypeCriteria = criteria.createAssessment_typeCriteria();
-		assTypeCriteria.id.eq(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID);
+		AssessmentCriteria criteria = new AssessmentCriteria(session);
+		
+		AssessmentTypeCriteria assessmentTypeCriteria = criteria.createAssessment_typeCriteria();
+		assessmentTypeCriteria.id.eq(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID);
 		TaxonCriteria taxonCriteria = criteria.createTaxonCriteria();
 		taxonCriteria.id.eq(taxonID);
 		return Arrays.asList(AssessmentDAO.getAssessmentsByCriteria(criteria));
 	}
 
 	public List<Assessment> readPublishedAssessmentsForTaxon(Integer taxonID) {
-		AssessmentCriteria criteria;
-		try {
-			criteria = new AssessmentCriteria();
-		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-		AssessmentTypeCriteria assTypeCriteria = criteria.createAssessment_typeCriteria();
-		assTypeCriteria.id.eq(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID);
+		AssessmentCriteria criteria = new AssessmentCriteria(session);
+		
+		AssessmentTypeCriteria assessmentTypeCriteria = criteria.createAssessment_typeCriteria();
+		assessmentTypeCriteria.id.eq(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID);
 		TaxonCriteria taxonCriteria = criteria.createTaxonCriteria();
 		taxonCriteria.id.eq(taxonID);
 		return Arrays.asList(AssessmentDAO.getAssessmentsByCriteria(criteria));
@@ -210,14 +194,8 @@ public class AssessmentIO {
 	 */
 	public List<Assessment> readAssessmentsForTaxon(Integer taxonID) {
 
-		AssessmentCriteria criteria;
-		try {
-			criteria = new AssessmentCriteria();
-		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		AssessmentCriteria criteria = new AssessmentCriteria(session);
+		
 		TaxonCriteria taxonCriteria = criteria.createTaxonCriteria();
 		taxonCriteria.id.eq(taxonID);
 		return new ArrayList<Assessment>(Arrays.asList(AssessmentDAO.getAssessmentsByCriteria(criteria)));
@@ -230,12 +208,12 @@ public class AssessmentIO {
 	public List<Assessment> getAssessments(List<Integer> ids, boolean hardFail) {
 		ArrayList<Assessment> list = new ArrayList<Assessment>();
 		for (Integer cur : ids) {
-			Assessment ass = getAssessment(cur);
-			if (ass == null) {
+			Assessment assessment = getAssessment(cur);
+			if (assessment == null) {
 				if (hardFail)
 					return null;
 			} else {
-				list.add(ass);
+				list.add(assessment);
 			}
 		}
 
@@ -255,21 +233,20 @@ public class AssessmentIO {
 	public List<Assessment> readRegionalDraftAssessmentsForTaxonList(List<Integer> taxonIDs, List<Integer> regionIDs) {
 		List<Assessment> list = new ArrayList<Assessment>();
 		for (Integer taxonID : taxonIDs) {
-			for (Assessment ass : readDraftAssessmentsForTaxon(taxonID)) {
+			for (Assessment assessment : readDraftAssessmentsForTaxon(taxonID)) {
 				for (Integer regionID : regionIDs)
-					if (ass.getRegionIDs().contains(regionID)) {
-						list.add(ass);
+					if (assessment.getRegionIDs().contains(regionID)) {
+						list.add(assessment);
 						break;
 					}
 			}
 		}
 
 		return list;
-
 	}
 
 	public Assessment[] getTrashedAssessments() throws PersistentException {
-		return AssessmentDAO.getTrashedAssessments();
+		return AssessmentDAO.getTrashedAssessments(session);
 	}
 
 	/**
@@ -281,10 +258,10 @@ public class AssessmentIO {
 	 * @throws PersistentException
 	 */
 	public AssessmentIOWriteResult restoreTrashedAssessments(Integer assessmentID, User user) throws PersistentException {
-		Assessment ass = AssessmentDAO.getTrashedAssessment(assessmentID);
-		if (ass != null) {
-			ass.setState(Assessment.ACTIVE);
-			return writeAssessment(ass, user, true);
+		Assessment assessment = AssessmentDAO.getTrashedAssessment(session, assessmentID);
+		if (assessment != null) {
+			assessment.setState(Assessment.ACTIVE);
+			return writeAssessment(assessment, user, true);
 		}
 		return null;
 
@@ -296,10 +273,10 @@ public class AssessmentIO {
 	}
 
 	public boolean permenantlyDeleteAssessment(Integer assessmentID, User user) {
-		Assessment ass = getDeletedAssessment(assessmentID);
-		if (ass != null) {
+		Assessment assessment = getDeletedAssessment(assessmentID);
+		if (assessment != null) {
 			try {
-				return AssessmentDAO.deleteAndDissociate(ass);
+				return AssessmentDAO.deleteAndDissociate(assessment, session);
 			} catch (PersistentException e) {
 				Debug.println(e);
 			}
@@ -311,7 +288,7 @@ public class AssessmentIO {
 		
 		try {
 			for (Assessment assessmentToSave : getTrashedAssessments())
-				if (!AssessmentDAO.deleteAndDissociate(assessmentToSave)) {
+				if (!AssessmentDAO.deleteAndDissociate(assessmentToSave, session)) {
 					throw new PersistentException("Unable to delete assessment " + assessmentToSave.getId());
 				}
 			return true;
@@ -324,17 +301,17 @@ public class AssessmentIO {
 
 	public Assessment getDeletedAssessment(Integer assessmentID) {
 		try {
-			return AssessmentDAO.getTrashedAssessment(assessmentID);
+			return AssessmentDAO.getTrashedAssessment(session, assessmentID);
 		} catch (PersistentException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Debug.println(e);
 			return null;
 		}
 	}
 
 	public AssessmentIOMessage restoreDeletedAssessmentsAssociatedWithTaxon(Integer taxonID, User user)
 			throws PersistentException {
-		AssessmentCriteria criteria = new AssessmentCriteria();
+		AssessmentCriteria criteria = new AssessmentCriteria(session);
 		TaxonCriteria taxCriteria = criteria.createTaxonCriteria();
 		taxCriteria.id.eq(taxonID);
 		Assessment[] assessments = AssessmentDAO.getTrashedAssessmentsByCriteria(criteria);
@@ -360,9 +337,9 @@ public class AssessmentIO {
 
 			
 				try {
-					AssessmentDAO.save(assessmentToSave);
+					SIS.get().getManager().saveObject(session, assessmentToSave);
 				} catch (PersistentException e) {
-					e.printStackTrace();
+					Debug.println(e);
 					return new AssessmentIOWriteResult(lockStatus, 0, 0);
 					
 				}
@@ -412,8 +389,8 @@ public class AssessmentIO {
 				edit.getAssessment().add((assessmentToSave));
 				assessmentToSave.getEdit().add(edit);
 				assessmentToSave.toXML();
-				AssessmentDAO.save(assessmentToSave);
-				EditDAO.save(edit);
+				SIS.get().getManager().saveObject(session, assessmentToSave);
+				SIS.get().getManager().saveObject(session, edit);
 			}
 		}
 	}
@@ -439,8 +416,8 @@ public class AssessmentIO {
 					edit.getAssessment().add((assessmentToSave));
 					assessmentToSave.getEdit().add(edit);
 					assessmentToSave.toXML();
-					AssessmentDAO.save(assessmentToSave);
-					EditDAO.save(edit);
+					SIS.get().getManager().saveObject(session, assessmentToSave);
+					SIS.get().getManager().saveObject(session, edit);
 				}
 				success = true;
 			} catch (PersistentException e) {	
@@ -460,7 +437,7 @@ public class AssessmentIO {
 
 	public boolean allowedToCreateNewAssessment(Assessment assessment) {
 		if (assessment.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
-			List<Assessment> compareTo = SIS.get().getAssessmentIO().readDraftAssessmentsForTaxon(
+			List<Assessment> compareTo = readDraftAssessmentsForTaxon(
 					assessment.getTaxon().getId());
 			List<Integer> regionIDs = assessment.getRegionIDs();
 			String defaultSchema = SIS.get().getDefaultSchema();
@@ -475,11 +452,11 @@ public class AssessmentIO {
 				}
 			}
 
-			try {
+			/*try {
 				SIS.get().getManager().getSession().clear();
 			} catch (PersistentException e) {
 				Debug.println(e);
-			}
+			}*/
 		}
 		return true;
 	}
@@ -497,15 +474,15 @@ public class AssessmentIO {
 	 * @param assessment
 	 */
 	public void afterSaveAssessment(Assessment assessment) {
-		Edit edit = assessment.getLastEdit();
+		/*Edit edit = assessment.getLastEdit();
 		String xml = assessment.toXML();
 		String serverPaths = ServerPaths.getAssessmentURL(assessment);
 		DocumentUtils.writeVFSFile(serverPaths, vfs, xml);
 		
-		vfs.setLastModified(new VFSPath(serverPaths), edit.getCreatedDate());
+		vfs.setLastModified(new VFSPath(serverPaths), edit.getCreatedDate());*/
 	}
 
-	protected Assessment getFromVFS(Integer id) {
+	/*protected Assessment getFromVFS(Integer id) {
 		try {
 			String assessmentXML = getXMLFromVFS(id);
 			NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
@@ -514,15 +491,15 @@ public class AssessmentIO {
 		} catch (NotFoundException e) {
 			Debug.println("--- Assessment " + id + " not found on File System. Serving DB copy.");
 		} catch (BoundsException e) {
-			e.printStackTrace();
+			Debug.println(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Debug.println(e);
 		}
 		return null;
 	}
 
 	protected String getXMLFromVFS(Integer id) throws NotFoundException, BoundsException, IOException {
 		return vfs.getString(new VFSPath(ServerPaths.getAssessmentUrl(id)));
-	}
+	}*/
 
 }

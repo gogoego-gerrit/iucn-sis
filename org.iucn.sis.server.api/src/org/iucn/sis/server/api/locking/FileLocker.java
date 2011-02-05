@@ -6,7 +6,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.locking.LockRepository.LockInfo;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -103,35 +104,36 @@ public class FileLocker {
 	 * Otherwise, returns null.
 	 * 
 	 * @param id
-	 * @param type
 	 * @param modDate
+	 * @param session TODO
+	 * @param type
 	 * @param username
 	 * @return either lock XML if locked,
 	 * * assessment XML if not locked and user version out of date, or null if not locked and user version is valid
 	 */
-	public String checkAssessmentAvailability(Integer id, String modDate, User user) throws LockException {
+	public String checkAssessmentAvailability(Integer id, String modDate, User user, Session session) throws LockException {
 		if (isAssessmentPersistentLocked(id)) {
 			LockRepository.LockInfo lock = assessmentLocks.getLockedAssessment(id);
 			return lock.toXML();
 		} else {
-						
-			Assessment ass = SIS.get().getAssessmentIO().getAssessment(id);
-			if (ass != null) {
-				Edit lastEdit = ass.getLastEdit();
+			AssessmentIO io = new AssessmentIO(session);
+			Assessment assessment = io.getAssessment(id);
+			if (assessment != null) {
+				Edit lastEdit = assessment.getLastEdit();
 				long lastModified = lastEdit == null ? 0 : lastEdit.getCreatedDate().getTime();
 				if (lastModified > Long.parseLong(modDate)) {
 					String ret = "<update owner=\""
 							+ lastEdit.getUser().getUsername() + "\">\n";
-					String assXML = ass.toXML();
-					assXML = assXML.replaceAll(
+					String xml = assessment.toXML();
+					xml = xml.replaceAll(
 							"<\\?xml\\s*(version=.*)?\\s*(encoding=.*)?\\?>",
 							"");
-					assXML = assXML
+					xml = xml
 							.replaceAll(
 									"(<dateModified>.*?</dateModified>)|(<dateModified\\s*/>)",
 									"<dateModified>" + lastModified
 											+ "</dateModified>");
-					ret += assXML;
+					ret += xml;
 					ret += "</update>";
 
 					return ret;

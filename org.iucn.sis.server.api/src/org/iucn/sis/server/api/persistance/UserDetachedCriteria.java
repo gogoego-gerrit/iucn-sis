@@ -14,7 +14,7 @@ package org.iucn.sis.server.api.persistance;
  */
 import java.util.List;
 
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.AbstractORMDetachedCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.IntegerExpression;

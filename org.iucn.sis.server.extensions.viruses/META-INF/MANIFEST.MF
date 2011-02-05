@@ -10,7 +10,8 @@ Require-Bundle: org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
  org.gogoego.api;bundle-version="1.1.2",
  com.solertium.lwxml;bundle-version="1.1.2",
  com.solertium.lwxml.java;bundle-version="1.1.2",
- com.solertium.util;bundle-version="1.1.2"
+ com.solertium.util;bundle-version="1.1.2",
+ org.hibernate;bundle-version="1.0.0"
 Import-Package: org.osgi.framework;version="1.4.0",
  org.restlet,
  org.restlet.data,

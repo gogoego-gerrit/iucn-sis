@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -17,7 +18,12 @@ public class PrimitiveFieldIO {
 
 	protected Map<Integer, Assessment> updatedPFIDToAssessment;
 
-	public PrimitiveFieldIO() {
+	private final Session session;
+	private final EditIO editIO;
+	
+	public PrimitiveFieldIO(Session session) {
+		this.session = session;
+		this.editIO = new EditIO(session);
 		updatedPFIDToAssessment = new HashMap<Integer, Assessment>();
 	}
 
@@ -60,17 +66,17 @@ public class PrimitiveFieldIO {
 			Assessment assessment) {
 		try {
 			//ONLY ADD ONE EDIT FOR ALL THESE CHANGES
-			Edit edit = SIS.get().getEditIO().createAndSaveEditForAssessment(user, assessment.getId(), null);
+			Edit edit = editIO.createAndSaveEditForAssessment(user, assessment.getId(), null);
 			assessment.getEdit().add(edit);
 			
 			for (Entry<Integer, String> entry : idToNewValues.entrySet()) {
 				TextPrimitiveField field;
 
-				field = (TextPrimitiveField) SIS.get().getManager().getSession().get(TextPrimitiveField.class,
+				field = SIS.get().getManager().getObject(session, TextPrimitiveField.class,
 						entry.getKey());
 				field.setValue(entry.getValue());
 				addUpdatedAssessment(entry.getKey(), assessment);
-				SISPersistentManager.instance().saveObject(field);
+				SISPersistentManager.instance().saveObject(session, field);
 			}
 		} catch (HibernateException e) {
 			// TODO Auto-generated catch block

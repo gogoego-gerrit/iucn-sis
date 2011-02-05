@@ -10,7 +10,9 @@ import java.util.Map.Entry;
 
 import javax.naming.NamingException;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.TaxonIO;
+import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -57,9 +59,9 @@ public class TaxonByStatusRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		if (request.getResourceRef().getPath().endsWith("/workingSet")) {
-			createWorkingSet(request, response);
+			createWorkingSet(request, response, session);
 		} else {
 			getResult(request, response);
 		}
@@ -72,8 +74,11 @@ public class TaxonByStatusRestlet extends BaseServiceRestlet {
 	 * @param request
 	 * @param response
 	 */
-	protected void createWorkingSet(Request request, Response response) {
-		final User user = getUser(request);
+	protected void createWorkingSet(Request request, Response response, Session session) {
+		WorkingSetIO workingSetIO = new WorkingSetIO(session);
+		TaxonIO taxonIO = new TaxonIO(session);
+		
+		final User user = getUser(request, session);
 		// final StringBuilder workingSetXML = new StringBuilder("<xml>\r\n");
 		final LinkedHashMap<String, String> idsToName = getTaxaIDsToNameResults(TaxonStatus.STATUS_NEW);
 		final Date today = new Date();
@@ -90,13 +95,13 @@ public class TaxonByStatusRestlet extends BaseServiceRestlet {
 		workingSet.setUsers(new HashSet<User>());
 		workingSet.getUsers().add(user);
 		for (Entry<String,String> entry : idsToName.entrySet()) {
-			workingSet.getTaxon().add(SIS.get().getTaxonIO().getTaxon(Integer.valueOf(entry.getKey())));
+			workingSet.getTaxon().add(taxonIO.getTaxon(Integer.valueOf(entry.getKey())));
 		}
 		workingSet.setFilter(filter);
 
 
 		// SUCCESSFULLY CREATED WORKINGSET
-		if (SIS.get().getWorkingSetIO().saveWorkingSet(workingSet, user)) {
+		if (workingSetIO.saveWorkingSet(workingSet, user)) {
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity("Working set was successfully created", MediaType.TEXT_PLAIN);
 		}

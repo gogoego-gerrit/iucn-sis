@@ -2,11 +2,20 @@ package org.iucn.sis.server.extensions.recentasms;
 
 import java.util.List;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.RegionIO;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Region;
 
 public class RecentAssessmentInfo extends RecentInfo<Assessment> {
+	
+	private final RegionIO regionIO;
+	
+	public RecentAssessmentInfo(Session session) {
+		super(session);
+		regionIO = new RegionIO(session);
+	}
 	
 	@Override
 	protected void parse(Assessment assessment) {
@@ -17,7 +26,7 @@ public class RecentAssessmentInfo extends RecentInfo<Assessment> {
 				if (regions.isEmpty())
 					region = "(Unspecified Region)";
 				else {
-					Region r = SIS.get().getRegionIO().getRegion(regions.get(0));
+					Region r = regionIO.getRegion(regions.get(0));
 					if (r == null)
 						region = "(Invalid Region ID)";
 					else if (regions.size() == 1)

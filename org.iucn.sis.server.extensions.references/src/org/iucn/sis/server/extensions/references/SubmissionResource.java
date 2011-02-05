@@ -1,8 +1,9 @@
 package org.iucn.sis.server.extensions.references;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.extensions.references.ReferenceLabels.LabelMappings;
+import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.models.Reference;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -12,24 +13,22 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
-import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.util.TrivialExceptionHandler;
 
-public class SubmissionResource extends Resource {
+public class SubmissionResource extends TransactionResource {
 
 	public SubmissionResource(final Context context, final Request request, final Response response) {
 		super(context, request, response);
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
-
+	
 	@Override
-	public void acceptRepresentation(Representation entity) throws ResourceException {
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		final NativeDocument doc = new JavaNativeDocument();
 		try {
 			doc.parse(entity.getText());
@@ -47,7 +46,7 @@ public class SubmissionResource extends Resource {
 				final Reference reference = Reference.fromXML(node, true);
 
 				try {
-					SISPersistentManager.instance().saveObject(reference);
+					SISPersistentManager.instance().saveObject(session, reference);
 				} catch (PersistentException e) {
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}

@@ -8,8 +8,10 @@ import java.util.List;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SISDBAuthenticator;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.extensions.user.utils.ImportFromCSV;
@@ -38,7 +40,7 @@ public class CSVImportRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final StringBuilder html = new StringBuilder();
 		html.append("<h3>Please select a spreadsheet or CSV file to upload:</h3>");
 		html.append("<br/>");
@@ -51,7 +53,7 @@ public class CSVImportRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		RestletFileUpload fileUpload = new RestletFileUpload(new DiskFileItemFactory());
 		
 		final List<FileItem> items;
@@ -61,6 +63,8 @@ public class CSVImportRestlet extends BaseServiceRestlet {
 			Debug.println(e);
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 		}
+		
+		final UserIO userIO = new UserIO(session);
 		
 		for (FileItem item : items) {
 			if (!item.isFormField()) {
@@ -73,10 +77,10 @@ public class CSVImportRestlet extends BaseServiceRestlet {
 				worker.setOutputStream(writer, "<br/>");
 				worker.setAddProfileListener(new ImportFromCSV.UserEvent() {
 					public boolean addUser(User user) {
-						User existing = SIS.get().getUserIO().getUserFromUsername(user.getUsername());
+						User existing = userIO.getUserFromUsername(user.getUsername());
 						if (existing == null || existing.state == User.DELETED) {
 							try {
-								return SIS.get().getUserIO().saveUser(user);
+								return userIO.saveUser(user);
 							} catch (PersistentException e) {
 								return false;
 							}
@@ -87,7 +91,7 @@ public class CSVImportRestlet extends BaseServiceRestlet {
 				});
 				worker.setAddUserListener(new ImportFromCSV.UserEvent() {
 					public boolean addUser(User user) {
-						User existing = SIS.get().getUserIO().getUserFromUsername(user.getUsername());
+						User existing = userIO.getUserFromUsername(user.getUsername());
 						if (existing == null || existing.state == User.DELETED) {
 							String password = user.getPassword();
 							if (password == null || "".equals(password))
@@ -96,7 +100,7 @@ public class CSVImportRestlet extends BaseServiceRestlet {
 							user.setPassword(authenticator.translatePassword(user.getUsername(), password));
 							
 							try {
-								return SIS.get().getUserIO().saveUser(user);
+								return userIO.saveUser(user);
 							} catch (PersistentException e) {
 								Debug.println("Failed to save new user: {0}", e);
 								return false;

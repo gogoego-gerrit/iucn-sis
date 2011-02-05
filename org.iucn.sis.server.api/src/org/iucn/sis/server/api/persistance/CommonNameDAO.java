@@ -15,63 +15,71 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 
 public class CommonNameDAO {
-	public static CommonName loadCommonNameByORMID(int id) throws PersistentException {
+	/*public static CommonName loadCommonNameByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadCommonNameByORMID(session, id);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static CommonName getCommonNameByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getCommonNameByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static CommonName loadCommonNameByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadCommonNameByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static CommonName getCommonNameByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getCommonNameByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static CommonName loadCommonNameByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (CommonName) session.load(CommonName.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -81,7 +89,7 @@ public class CommonNameDAO {
 			return (CommonName) session.get(CommonName.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -91,7 +99,7 @@ public class CommonNameDAO {
 			return (CommonName) session.load(CommonName.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -101,32 +109,36 @@ public class CommonNameDAO {
 			return (CommonName) session.get(CommonName.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static CommonName[] listCommonNameByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static CommonName[] listCommonNameByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listCommonNameByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static CommonName[] listCommonNameByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listCommonNameByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static CommonName[] listCommonNameByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From CommonName as CommonName");
@@ -140,7 +152,7 @@ public class CommonNameDAO {
 			return (CommonName[]) list.toArray(new CommonName[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -158,32 +170,36 @@ public class CommonNameDAO {
 			return (CommonName[]) list.toArray(new CommonName[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static CommonName loadCommonNameByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static CommonName loadCommonNameByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadCommonNameByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static CommonName loadCommonNameByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadCommonNameByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static CommonName loadCommonNameByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		CommonName[] commonNames = listCommonNameByQuery(session, condition, orderBy);
@@ -201,27 +217,31 @@ public class CommonNameDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iterateCommonNameByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iterateCommonNameByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateCommonNameByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
-	public static java.util.Iterator iterateCommonNameByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+	/*public static java.util.Iterator iterateCommonNameByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateCommonNameByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iterateCommonNameByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From CommonName as CommonName");
@@ -234,7 +254,7 @@ public class CommonNameDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -251,7 +271,7 @@ public class CommonNameDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -260,29 +280,29 @@ public class CommonNameDAO {
 		return new CommonName();
 	}
 	
-	public static boolean save(CommonName commonName) throws PersistentException {
+	/*public static boolean save(CommonName commonName) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(commonName);
+			SISPersistentManager.instance().saveObject(session, commonName);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(CommonName commonName) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(commonName);
+			SISPersistentManager.instance().deleteObject(session, commonName);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
-	public static boolean deleteAndDissociate(CommonName commonName)throws PersistentException {
+	public static boolean deleteAndDissociate(CommonName commonName, Session session)throws PersistentException {
 		try {
 			if(commonName.getIso() != null) {
 				commonName.getIso().getCommonName().remove(commonName);
@@ -300,22 +320,27 @@ public class CommonNameDAO {
 			for(int i = 0; i < lNotess.length; i++) {
 				lNotess[i].getCommonNames().remove(commonName);
 			}
-			return delete(commonName);
+			try {
+				session.delete(commonName);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	
-	public static boolean refresh(CommonName commonName) throws PersistentException {
+	/*public static boolean refresh(CommonName commonName) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(commonName);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -326,10 +351,10 @@ public class CommonNameDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static CommonName loadCommonNameByCriteria(CommonNameCriteria commonNameCriteria) {
 		CommonName[] commonNames = listCommonNameByCriteria(commonNameCriteria);

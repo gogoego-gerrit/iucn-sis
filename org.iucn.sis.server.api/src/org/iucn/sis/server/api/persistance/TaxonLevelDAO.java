@@ -15,63 +15,72 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
 public class TaxonLevelDAO {
-	public static TaxonLevel loadTaxonLevelByORMID(int id) throws PersistentException {
+	/*public static TaxonLevel loadTaxonLevelByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonLevelByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonLevel getTaxonLevelByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getTaxonLevelByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonLevel loadTaxonLevelByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonLevelByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonLevel getTaxonLevelByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getTaxonLevelByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static TaxonLevel loadTaxonLevelByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (TaxonLevel) session.load(TaxonLevel.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -81,7 +90,7 @@ public class TaxonLevelDAO {
 			return (TaxonLevel) session.get(TaxonLevel.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -91,7 +100,7 @@ public class TaxonLevelDAO {
 			return (TaxonLevel) session.load(TaxonLevel.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -101,32 +110,36 @@ public class TaxonLevelDAO {
 			return (TaxonLevel) session.get(TaxonLevel.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static TaxonLevel[] listTaxonLevelByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static TaxonLevel[] listTaxonLevelByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listTaxonLevelByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonLevel[] listTaxonLevelByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listTaxonLevelByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static TaxonLevel[] listTaxonLevelByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From TaxonLevel as TaxonLevel");
@@ -140,7 +153,7 @@ public class TaxonLevelDAO {
 			return (TaxonLevel[]) list.toArray(new TaxonLevel[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -158,32 +171,36 @@ public class TaxonLevelDAO {
 			return (TaxonLevel[]) list.toArray(new TaxonLevel[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static TaxonLevel loadTaxonLevelByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static TaxonLevel loadTaxonLevelByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonLevelByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static TaxonLevel loadTaxonLevelByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadTaxonLevelByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static TaxonLevel loadTaxonLevelByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		TaxonLevel[] taxonLevels = listTaxonLevelByQuery(session, condition, orderBy);
@@ -201,27 +218,31 @@ public class TaxonLevelDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iterateTaxonLevelByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iterateTaxonLevelByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateTaxonLevelByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static java.util.Iterator iterateTaxonLevelByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateTaxonLevelByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iterateTaxonLevelByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From TaxonLevel as TaxonLevel");
@@ -234,7 +255,7 @@ public class TaxonLevelDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -251,7 +272,7 @@ public class TaxonLevelDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -260,24 +281,24 @@ public class TaxonLevelDAO {
 		return new TaxonLevel();
 	}
 	
-	public static boolean save(TaxonLevel taxonLevel) throws PersistentException {
+	/*public static boolean save(TaxonLevel taxonLevel) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(taxonLevel);
+			SISPersistentManager.instance().saveObject(session, taxonLevel);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(TaxonLevel taxonLevel) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(taxonLevel);
+			SISPersistentManager.instance().deleteObject(session, taxonLevel);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -295,10 +316,10 @@ public class TaxonLevelDAO {
 			return delete(taxonLevel);
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static boolean deleteAndDissociate(TaxonLevel taxonLevel, Session session)throws PersistentException {
 		try {
@@ -318,18 +339,18 @@ public class TaxonLevelDAO {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static boolean refresh(TaxonLevel taxonLevel) throws PersistentException {
+	/*public static boolean refresh(TaxonLevel taxonLevel) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(taxonLevel);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -340,10 +361,10 @@ public class TaxonLevelDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static TaxonLevel loadTaxonLevelByCriteria(TaxonLevelCriteria taxonLevelCriteria) {
 		TaxonLevel[] taxonLevels = listTaxonLevelByCriteria(taxonLevelCriteria);

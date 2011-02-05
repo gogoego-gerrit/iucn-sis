@@ -25,7 +25,10 @@ package org.iucn.sis.server.restlets.users;
 
 import java.io.IOException;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.PermissionIO;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.User;
@@ -56,7 +59,7 @@ public class ProfileRestlet extends BaseServiceRestlet {
 	private String getUsername(Request request) throws ResourceException {
 		String username = (String) request.getAttributes().get("username");
 		if (username == null && request.getChallengeResponse() != null)
-			username = SIS.get().getUsername(request);
+			username = request.getChallengeResponse().getIdentifier();
 		
 		if (username == null)
 			throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
@@ -65,9 +68,13 @@ public class ProfileRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
+		/**
+		 * FIXME: use user IDs
+		 */
 		final String username = getUsername(request);
-		final User user = SIS.get().getUserIO().getUserFromUsername(username);
+		final UserIO userIO = new UserIO(session);
+		final User user = userIO.getUserFromUsername(username);
 		if (user == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
@@ -78,16 +85,17 @@ public class ProfileRestlet extends BaseServiceRestlet {
 	}
 
 	@Override
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
+		final UserIO userIO = new UserIO(session);
 		final String username = getUsername(request);
-		if (SIS.get().getUserIO().trashUser(username))
+		if (userIO.trashUser(username))
 			response.setStatus(Status.SUCCESS_OK);
 		else
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		// SHOULD NOT DO A PUT HERE... ONLY DONE THROUGH THE SISDBAUTHENTICATOR
 		// try {
 		// User user = new User();
@@ -107,7 +115,7 @@ public class ProfileRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 		try {
 			ndoc.parse(entity.getText());
@@ -116,13 +124,14 @@ public class ProfileRestlet extends BaseServiceRestlet {
 		}
 
 		User user = User.fromXML(ndoc.getDocumentElement());
-		
+		PermissionIO permissionIO = new PermissionIO(session);
+		UserIO userIO = new UserIO(session);
 		try {
 			if (user.getPermissionGroups().isEmpty())
-				user.getPermissionGroups().add(SIS.get().getPermissionIO().getPermissionGroup("guest"));
-			user = (User) SIS.get().getManager().getSession().merge(user);
+				user.getPermissionGroups().add(permissionIO.getPermissionGroup("guest"));
+			user = (User) SIS.get().getManager().mergeObject(session, user);
 			
-			if (SIS.get().getUserIO().saveUser(user)) {
+			if (userIO.saveUser(user)) {
 				response.setStatus(Status.SUCCESS_OK);
 				response.setEntity(user.toFullXML(), MediaType.TEXT_XML);
 			} else {

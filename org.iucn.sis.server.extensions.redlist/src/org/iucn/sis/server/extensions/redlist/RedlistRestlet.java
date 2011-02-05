@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -45,7 +46,7 @@ public class RedlistRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		Document document = BaseDocumentUtils.getInstance().createDocumentFromString("<images/>");
 
 		try {
@@ -58,7 +59,7 @@ public class RedlistRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException { 
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException { 
 		Document document = BaseDocumentUtils.getInstance().createDocumentFromString("<images/>");
 		
 		try {

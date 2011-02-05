@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -34,10 +35,10 @@ public class MarkedObjectRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final StringBuilder xml = new StringBuilder();
 		xml.append("<root>");
-		for (Marked marked : getExisting(request))
+		for (Marked marked : getExisting(request, session))
 			xml.append(marked.toXML());
 		xml.append("</root>");
 		
@@ -45,11 +46,11 @@ public class MarkedObjectRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final NativeDocument document = getEntityAsNativeDocument(entity);
 		
 		final Map<Integer, Marked> existing = new HashMap<Integer, Marked>();
-		for (Marked marked : getExisting(request))
+		for (Marked marked : getExisting(request, session))
 			existing.put(marked.getId(), marked);
 		
 		final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName("marked");
@@ -69,7 +70,7 @@ public class MarkedObjectRestlet extends BaseServiceRestlet {
 					loaded.setType(marked.getType());
 					
 					try {
-						SIS.get().getManager().updateObject(loaded);
+						SIS.get().getManager().updateObject(session, loaded);
 					} catch (PersistentException e) {
 						throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 					}
@@ -77,7 +78,7 @@ public class MarkedObjectRestlet extends BaseServiceRestlet {
 			}
 			else {
 				try {
-					SIS.get().getManager().saveObject(marked);
+					SIS.get().getManager().saveObject(session, marked);
 				} catch (PersistentException e) {
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}
@@ -86,23 +87,19 @@ public class MarkedObjectRestlet extends BaseServiceRestlet {
 		
 		try {
 			for (Marked marked : existing.values()) {
-				SIS.get().getManager().deleteObject(marked);
+				SIS.get().getManager().deleteObject(session, marked);
 			}
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
-		response.setEntity(handleGet(request, response));
+		response.setEntity(handleGet(request, response, session));
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<Marked> getExisting(Request request) throws ResourceException {
-		try {
-			return SIS.get().getManager().getSession().createCriteria(Marked.class).
-				add(Restrictions.eq("user", getUser(request))).list();
-		} catch (PersistentException e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}		
+	private List<Marked> getExisting(Request request, Session session) throws ResourceException {
+		return session.createCriteria(Marked.class).
+			add(Restrictions.eq("user", getUser(request, session))).list();
 	}
 
 }

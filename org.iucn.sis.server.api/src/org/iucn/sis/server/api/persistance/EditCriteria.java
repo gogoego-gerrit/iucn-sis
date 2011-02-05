@@ -14,12 +14,11 @@ package org.iucn.sis.server.api.persistance;
  */
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.iucn.sis.server.api.persistance.hibernate.AbstractORMCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.DateExpression;
 import org.iucn.sis.server.api.persistance.hibernate.IntegerExpression;
-import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Edit;
 
 public class EditCriteria extends AbstractORMCriteria {
@@ -35,10 +34,6 @@ public class EditCriteria extends AbstractORMCriteria {
 	
 	public EditCriteria(Session session) {
 		this(session.createCriteria(Edit.class));
-	}
-	
-	public EditCriteria() throws PersistentException {
-		this(SISPersistentManager.instance().getSession());
 	}
 	
 	public UserCriteria createUserCriteria() {

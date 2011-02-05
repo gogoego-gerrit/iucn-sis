@@ -1,22 +1,21 @@
 package org.iucn.sis.server.api.io;
 
+import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.UserCriteria;
 import org.iucn.sis.server.api.persistance.UserDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.api.models.User;
 
-import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
-import com.solertium.vfs.VFS;
 
 public class UserIO {
 	
-	private final VFS vfs;
+	private final Session session;
 	
-	public UserIO(VFS vfs) {
-		this.vfs = vfs;
+	public UserIO(Session session) {
+		this.session = session;
 	}
 
 	public boolean removeSISPermission(String username) {
@@ -33,14 +32,7 @@ public class UserIO {
 	}
 
 	public User getUserFromUsername(String username) {
-		UserCriteria criteria;
-		try {
-			criteria = new UserCriteria();
-		} catch (PersistentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
+		UserCriteria criteria = new UserCriteria(session);
 		criteria.username.eq(username);
 		return UserDAO.getUserByCriteria(criteria);
 	}
@@ -59,37 +51,26 @@ public class UserIO {
 	}
 
 	public boolean saveUser(User user) throws PersistentException {
-		if (UserDAO.save(user)) {
-			try {
-				afterSave(user);
-			} catch (NotFoundException e) {
-				//FIXME: If you don't care, why throw the exception?
-				TrivialExceptionHandler.ignore(this, e);
-			} catch (ConflictException e) {
-				//FIXME: If you don't care, why throw the exception?
-				TrivialExceptionHandler.ignore(this, e);
-			}	
-			return true;
-		}
-		else
-			return false;
+		SIS.get().getManager().saveObject(session, user);
+		return true;
 	}
 
 	public void afterSave(User user) throws NotFoundException, ConflictException {
-		if (!vfs.exists(ServerPaths.getUserPath(user.getUsername())))
-			vfs.makeCollection(ServerPaths.getUserPath(user.getUsername()));
+		/*if (!vfs.exists(ServerPaths.getUserPath(user.getUsername())))
+			vfs.makeCollection(ServerPaths.getUserPath(user.getUsername()));*/
 	}
 
 	public User[] getAllUsers() throws PersistentException {
-		return UserDAO.getUsersByCriteria(new UserCriteria());
+		return UserDAO.getUsersByCriteria(new UserCriteria(session));
 	}
 
 	public User[] getAllSISUsers() throws PersistentException {
-		UserCriteria criteria = new UserCriteria();
+		UserCriteria criteria = new UserCriteria(session);
 		criteria.sisUser.eq(true);
 		return UserDAO.getUsersByCriteria(criteria);
 	}
 
+	@SuppressWarnings("unused")
 	private String determineNewGroup(String curGroup) {
 		String newGroup = "";
 		if (curGroup == null)

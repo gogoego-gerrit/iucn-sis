@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.scripts;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.restlet.data.Request;
@@ -20,10 +21,10 @@ public class ServerApplication extends SimpleSISApplication {
 	public void init() {
 		//ADD WHATEVER SCRIPT THAT YOU WANT RUN HERE
 		addServiceToRouter(new BaseServiceRestlet(app.getContext()) {
-			public Representation handleGet(Request request, Response response) throws ResourceException {
+			public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 				// TODO Call your script here!
 				
-				return super.handleGet(request, response);
+				return super.handleGet(request, response, session);
 			}
 			@Override
 			public void definePaths() {

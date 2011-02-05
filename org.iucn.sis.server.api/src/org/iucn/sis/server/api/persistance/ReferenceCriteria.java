@@ -14,11 +14,10 @@ package org.iucn.sis.server.api.persistance;
  */
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.iucn.sis.server.api.persistance.hibernate.AbstractORMCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.IntegerExpression;
-import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.persistance.hibernate.StringExpression;
 import org.iucn.sis.shared.api.models.Reference;
 
@@ -86,10 +85,6 @@ public class ReferenceCriteria extends AbstractORMCriteria {
 	
 	public ReferenceCriteria(Session session) {
 		this(session.createCriteria(Reference.class));
-	}
-	
-	public ReferenceCriteria() throws PersistentException {
-		this(SISPersistentManager.instance().getSession());
 	}
 	
 	public SynonymCriteria createSynonymCriteria() {

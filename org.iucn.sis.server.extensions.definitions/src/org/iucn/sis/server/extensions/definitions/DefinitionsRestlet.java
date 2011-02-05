@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -37,14 +38,14 @@ public class DefinitionsRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		if (definitions == null) {
 			final StringBuilder out = new StringBuilder();
 			out.append("<definitions>");
 			
 			List<Definition> list;
 			try {
-				list = SIS.get().getManager().listObjects(Definition.class);
+				list = SIS.get().getManager().listObjects(Definition.class, session);
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
@@ -61,14 +62,14 @@ public class DefinitionsRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		definitions = null;
 		
 		NativeDocument doc = getEntityAsNativeDocument(entity);
 		
 		Map<String, Definition> map = new HashMap<String, Definition>();
 		try {
-			List<Definition> list = SIS.get().getManager().listObjects(Definition.class);
+			List<Definition> list = SIS.get().getManager().listObjects(Definition.class, session);
 			for (Definition definition : list)
 				map.put(definition.getName().toLowerCase(), definition);
 		} catch (PersistentException e) {
@@ -85,13 +86,13 @@ public class DefinitionsRestlet extends BaseServiceRestlet {
 					Definition saved = map.get(name);
 					saved.setValue(definition.getValue());
 					
-					SIS.get().getManager().updateObject(saved);
+					SIS.get().getManager().updateObject(session, saved);
 					
 					map.remove(name);
 				}
 				else {
 					definition.setId(0);
-					SIS.get().getManager().saveObject(definition);
+					SIS.get().getManager().saveObject(session, definition);
 				}
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -100,7 +101,7 @@ public class DefinitionsRestlet extends BaseServiceRestlet {
 		
 		for (Definition definition : map.values()) {
 			try {
-				SIS.get().getManager().deleteObject(definition);
+				SIS.get().getManager().deleteObject(session, definition);
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}

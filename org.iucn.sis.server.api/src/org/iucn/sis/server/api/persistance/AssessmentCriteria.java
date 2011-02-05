@@ -42,14 +42,8 @@ public class AssessmentCriteria extends AbstractORMCriteria {
 	public final StringExpression sourceDate;
 	public final StringExpression internalId;
 
-	
-
 	public AssessmentCriteria(Session session) {
 		this(session.createCriteria(Assessment.class));
-	}
-
-	public AssessmentCriteria() throws PersistentException {
-		this(SISPersistentManager.instance().getSession());
 	}
 
 	public AssessmentTypeCriteria createAssessment_typeCriteria() {

@@ -1,5 +1,6 @@
 package org.iucn.sis.server.utils.logging;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -71,12 +72,12 @@ public class WorkingsetLogBuilder extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
-		handleGet(request, response);
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		handleGet(request, response, session);
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		try {
 			ExecutionContext ec = new SystemExecutionContext("default");
 			ec.setExecutionLevel(ExecutionContext.ADMIN);

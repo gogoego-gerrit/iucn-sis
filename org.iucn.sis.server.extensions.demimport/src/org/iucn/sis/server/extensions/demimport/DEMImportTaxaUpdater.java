@@ -1207,7 +1207,7 @@ public class DEMImportTaxaUpdater implements Runnable {
 			if (newAss == null)
 				System.out.println("Error creating draft assessment for  " + assessment.getSpeciesName());
 			else {
-				Taxon t = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(assessment.getSpeciesID()));
+				Taxon t = SIS.get().getTaxonIO().getTaxon(session, Integer.valueOf(assessment.getSpeciesID()));
 				newAss.setTaxon(t);
 				t.getAssessments().add(newAss);
 				speciesIDs.add(t);
@@ -1248,7 +1248,7 @@ public class DEMImportTaxaUpdater implements Runnable {
 					} else if (cur.getStatus().contains("changed")) {
 						cur.setStatus(cur.getStatus().replace("changed", ""));
 						Taxon newTaxon = TaxonConverter.convertTaxonNode(cur, new Date());
-						Taxon existingTaxon = SIS.get().getTaxonIO().getTaxon(newTaxon.getId());
+						Taxon existingTaxon = SIS.get().getTaxonIO().getTaxon(session, newTaxon.getId());
 						existingTaxon.getCommonNames().addAll(newTaxon.getCommonNames());
 						existingTaxon.getSynonyms().addAll(newTaxon.getSynonyms());
 						

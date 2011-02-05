@@ -2,6 +2,7 @@ package org.iucn.sis.server.restlets.utils;
 
 import java.util.List;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -27,10 +28,10 @@ public class LanguageRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final List<IsoLanguage> list;
 		try {
-			list = SIS.get().getManager().listObjects(IsoLanguage.class);
+			list = SIS.get().getManager().listObjects(IsoLanguage.class, session);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}

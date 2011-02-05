@@ -57,25 +57,24 @@ import com.solertium.vfs.provider.VersionedFileVFS;
 public class SIS {
 
 	private static SIS impl;
-
-	protected final AssessmentIO assessmentIO;
+	protected final FileLocker locker;
+	/*protected final AssessmentIO assessmentIO;
 	protected final TaxonIO taxonIO;
 	protected final UserIO userIO;
 	protected final PermissionIO permissionIO;
 	protected final WorkingSetIO workingSetIO;
 	protected final InfratypeIO infratypeIO;
-	protected final FileLocker locker;
-	protected final TaxomaticIO taxomaticIO;
+	protected final TaxomaticIO taxomaticIO;*/
 	protected final VFS vfs;
 	protected final String vfsroot;
-	protected final IsoLanguageIO isoLanguageIO;
+	/*protected final IsoLanguageIO isoLanguageIO;
 	protected final RelationshipIO relationshipIO;
 	protected final RegionIO regionIO;
 	protected final ReferenceIO referenceIO;
 	protected final PrimitiveFieldIO primitiveFieldIO;
 	protected final FieldIO fieldIO;
 	protected final EditIO editIO;
-	protected final NoteIO noteIO;
+	protected final NoteIO noteIO;*/
 	protected final ExecutionContext ec, lookups;
 	protected final AssessmentSchemaBroker broker;
 	protected Properties settings;
@@ -87,13 +86,14 @@ public class SIS {
 		try {
 			vfsroot = GoGoEgo.getInitProperties().getProperty("sis_vfs");
 			vfs = VFSFactory.getVFS(new File(vfsroot));
-			taxomaticIO = new TaxomaticIO((VersionedFileVFS) vfs);
+			locker = new FileLocker();
+			
+			/*taxomaticIO = new TaxomaticIO((VersionedFileVFS) vfs);
 			assessmentIO = new AssessmentIO((VersionedFileVFS) vfs);
 			taxonIO = new TaxonIO((VersionedFileVFS) vfs);
 			userIO = new UserIO((VersionedFileVFS) vfs);
 			permissionIO = new PermissionIO();
 			workingSetIO = new WorkingSetIO((VersionedFileVFS) vfs);
-			locker = new FileLocker();
 			infratypeIO = new InfratypeIO();
 			isoLanguageIO = new IsoLanguageIO();
 			relationshipIO = new RelationshipIO();
@@ -102,7 +102,7 @@ public class SIS {
 			referenceIO = new ReferenceIO();
 			editIO = new EditIO();
 			noteIO = new NoteIO();
-			fieldIO = new FieldIO();
+			fieldIO = new FieldIO();*/
 			
 			ec = new SystemExecutionContext(DBSessionFactory.getDBSession(getDBSessionName()));
 			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
@@ -133,15 +133,15 @@ public class SIS {
 		return impl;
 	}
 
-	public AssessmentIO getAssessmentIO() {
+	/*public AssessmentIO getAssessmentIO() {
 		return assessmentIO;
-	}
+	}*/
 	
 	public AssessmentSchemaBroker getAssessmentSchemaBroker() {
 		return broker;
 	}
 
-	public PermissionIO getPermissionIO() {
+	/*public PermissionIO getPermissionIO() {
 		return permissionIO;
 	}
 
@@ -155,19 +155,19 @@ public class SIS {
 
 	public WorkingSetIO getWorkingSetIO() {
 		return workingSetIO;
-	}
+	}*/
 
 	public FileLocker getLocker() {
 		return locker;
 	}
 	
-	public PrimitiveFieldIO getPrimitiveFieldIO() {
+	/*public PrimitiveFieldIO getPrimitiveFieldIO() {
 		return primitiveFieldIO;
 	}
 	
 	public EditIO getEditIO() {
 		return editIO;
-	}
+	}*/
 	
 	public Properties getSettings(Context context) {
 		if (settings != null)
@@ -222,7 +222,7 @@ public class SIS {
 			protected void doRemoveUser(final Request request, final Response response, final String domain) {
 				String currentUser = null;
 				if (!bypassAuth(request)) {
-					currentUser = SIS.get().getUsername(request);
+					currentUser = request.getChallengeResponse().getIdentifier();
 				}
 
 				String userToDelete = null;
@@ -255,7 +255,7 @@ public class SIS {
 		};
 	}
 
-	public User getUser(Request request) {
+	/*public User getUser(Request request) {
 		String username = request.getChallengeResponse().getIdentifier();
 		if( username != null ) {
 			return getUserIO().getUserFromUsername(username);
@@ -265,7 +265,7 @@ public class SIS {
 
 	public String getUsername(Request request) {
 		return request.getChallengeResponse().getIdentifier();
-	}
+	}*/
 
 	public boolean isHostedMode() {
 		return GoGoEgo.getInitProperties().containsKey("HOSTED_MODE");
@@ -310,19 +310,19 @@ public class SIS {
 		return entity.getMediaType().equals(MediaType.TEXT_XML) && entity.getSize() > 2048;
 	}
 
-	public InfratypeIO getInfratypeIO() {
+	/*public InfratypeIO getInfratypeIO() {
 		return infratypeIO;
 	}
 
 	public TaxomaticIO getTaxomaticIO() {
 		return taxomaticIO;
-	}
+	}*/
 
 	public SISPersistentManager getManager() throws PersistentException {
 		return SISPersistentManager.instance();
 	}
 
-	public IsoLanguageIO getIsoLanguageIO() {
+	/*public IsoLanguageIO getIsoLanguageIO() {
 		return isoLanguageIO;
 	}
 
@@ -344,7 +344,7 @@ public class SIS {
 	
 	public FieldIO getFieldIO() {
 		return fieldIO;
-	}
+	}*/
 	
 	public String getDBSessionName() {
 		return "sis";

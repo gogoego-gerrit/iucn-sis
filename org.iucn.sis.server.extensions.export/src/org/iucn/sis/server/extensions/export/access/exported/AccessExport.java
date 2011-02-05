@@ -77,7 +77,7 @@ public class AccessExport implements Runnable {
 		 */
 		public TrivialAssessment(final int taxId) {
 			if (exportDraftAssessments) {
-				AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
+				AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
 
 				for (Assessment assessment : helper.getAssessments(taxId)) {
 					try {

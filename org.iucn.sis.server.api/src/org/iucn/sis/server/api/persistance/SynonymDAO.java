@@ -15,63 +15,72 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 
 public class SynonymDAO {
-	public static Synonym loadSynonymByORMID(int id) throws PersistentException {
+	/*public static Synonym loadSynonymByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadSynonymByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Synonym getSynonymByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getSynonymByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Synonym loadSynonymByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadSynonymByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Synonym getSynonymByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getSynonymByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Synonym loadSynonymByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (Synonym) session.load(Synonym.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -81,7 +90,7 @@ public class SynonymDAO {
 			return (Synonym) session.get(Synonym.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -91,7 +100,7 @@ public class SynonymDAO {
 			return (Synonym) session.load(Synonym.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -101,32 +110,36 @@ public class SynonymDAO {
 			return (Synonym) session.get(Synonym.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static Synonym[] listSynonymByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static Synonym[] listSynonymByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listSynonymByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Synonym[] listSynonymByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listSynonymByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Synonym[] listSynonymByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Synonym as Synonym");
@@ -140,7 +153,7 @@ public class SynonymDAO {
 			return (Synonym[]) list.toArray(new Synonym[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -158,32 +171,36 @@ public class SynonymDAO {
 			return (Synonym[]) list.toArray(new Synonym[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static Synonym loadSynonymByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static Synonym loadSynonymByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadSynonymByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static Synonym loadSynonymByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadSynonymByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static Synonym loadSynonymByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		Synonym[] synonyms = listSynonymByQuery(session, condition, orderBy);
@@ -201,27 +218,31 @@ public class SynonymDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iterateSynonymByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iterateSynonymByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateSynonymByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static java.util.Iterator iterateSynonymByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateSynonymByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iterateSynonymByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Synonym as Synonym");
@@ -234,7 +255,7 @@ public class SynonymDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -251,7 +272,7 @@ public class SynonymDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -260,29 +281,29 @@ public class SynonymDAO {
 		return new Synonym();
 	}
 	
-	public static boolean save(Synonym synonym) throws PersistentException {
+	/*public static boolean save(Synonym synonym) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(synonym);
+			SISPersistentManager.instance().saveObject(session, synonym);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(Synonym synonym) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(synonym);
+			SISPersistentManager.instance().deleteObject(session, synonym);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
-	public static boolean deleteAndDissociate(Synonym synonym)throws PersistentException {
+	public static boolean deleteAndDissociate(Synonym synonym, Session session)throws PersistentException {
 		try {
 			if(synonym.getTaxon_level() != null) {
 				synonym.getTaxon_level().getSynonyms().remove(synonym);
@@ -300,22 +321,27 @@ public class SynonymDAO {
 			for(int i = 0; i < lReferences.length; i++) {
 				lReferences[i].getSynonym().remove(synonym);
 			}
-			return delete(synonym);
+			try {
+				session.delete(synonym);
+				return true;
+			} catch (Exception e) {
+				return false;
+			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 		
-	public static boolean refresh(Synonym synonym) throws PersistentException {
+	/*public static boolean refresh(Synonym synonym) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(synonym);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -326,10 +352,10 @@ public class SynonymDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static Synonym loadSynonymByCriteria(SynonymCriteria synonymCriteria) {
 		Synonym[] synonyms = listSynonymByCriteria(synonymCriteria);

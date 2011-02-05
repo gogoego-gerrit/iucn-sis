@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.restlet.Context;
@@ -18,7 +20,6 @@ import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
-import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -26,7 +27,8 @@ import org.w3c.dom.Element;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
 
-public class TaxaTaggingResource extends Resource {
+@SuppressWarnings("deprecation")
+public class TaxaTaggingResource extends TransactionResource {
 
 	private final SISPersistentManager manager;
 	private final String tag, mode;
@@ -48,11 +50,12 @@ public class TaxaTaggingResource extends Resource {
 	}
 	
 	@Override
-	public Representation represent(Variant variant) throws ResourceException {
+	@SuppressWarnings("unchecked")
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		if (tag == null || mode == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		
-		Criteria criteria = manager.getSession().createCriteria(Taxon.class);
+		Criteria criteria = session.createCriteria(Taxon.class);
 		//Too many taxa to look up untagged, always search for tagged.
 		criteria.add(Restrictions.eq(tag, true));
 		
@@ -68,12 +71,12 @@ public class TaxaTaggingResource extends Resource {
 		for (Taxon taxon : list)
 			out.append(taxon.toXML());
 		out.append("</root>");
-				
+		
 		return new StringRepresentation(out.toString(), variant.getMediaType());
 	}
 	
 	@Override
-	public void acceptRepresentation(Representation entity) throws ResourceException {
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		final Document document;
 		try {
 			document = new DomRepresentation(entity).getDocument();
@@ -95,7 +98,7 @@ public class TaxaTaggingResource extends Resource {
 			
 			final Taxon taxon;
 			try {
-				taxon = manager.loadObject(Taxon.class, id);
+				taxon = manager.loadObject(session, Taxon.class, id);
 			} catch (PersistentException e) {
 				Debug.println("Failed to load taxa with id {0}", id);
 				continue;
@@ -108,7 +111,7 @@ public class TaxaTaggingResource extends Resource {
 				taxon.setInvasive(isFlagged);
 			
 			try {
-				manager.saveObject(taxon);
+				manager.saveObject(session, taxon);
 				taxon.toXML();
 			} catch (PersistentException e) {
 				getResponse().setEntity(new DomRepresentation(MediaType.TEXT_XML, 

@@ -1,8 +1,13 @@
 package org.iucn.sis.server.extensions.recentasms;
 
+import org.hibernate.Session;
 import org.iucn.sis.shared.api.models.User;
 
 public class RecentUserInfo extends RecentInfo<User> {
+	
+	public RecentUserInfo(Session session) {
+		super(session);
+	}
 	
 	@Override
 	protected void parse(User user) {

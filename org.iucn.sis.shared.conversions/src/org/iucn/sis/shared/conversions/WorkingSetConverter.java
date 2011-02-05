@@ -168,7 +168,7 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		//ADD TAXON
 		for (String taxonID : data.getSpeciesIDs()) {
 			try{
-			Taxon taxon = SIS.get().getTaxonIO().getTaxon(Integer.valueOf(taxonID));
+			Taxon taxon = SIS.get().getTaxonIO().getTaxon(session, Integer.valueOf(taxonID));
 			if( taxon != null ) {
 					taxon.setWorking_set(new HashSet<WorkingSet>());
 					taxon.getWorking_set().add(ws);

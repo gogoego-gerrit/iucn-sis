@@ -2,9 +2,17 @@ package org.iucn.sis.server.extensions.recentasms;
 
 import java.util.Map;
 
+import org.hibernate.Session;
+
 import com.solertium.lwxml.shared.utils.RowData;
 
 public abstract class RecentInfo<T> extends RowData {
+	
+	protected final Session session;
+	
+	public RecentInfo(Session session) {
+		this.session = session;
+	}
 	
 	protected abstract void parse(T data);
 	

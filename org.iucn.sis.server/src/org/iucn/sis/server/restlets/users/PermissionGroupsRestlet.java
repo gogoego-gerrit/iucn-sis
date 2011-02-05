@@ -3,7 +3,9 @@ package org.iucn.sis.server.restlets.users;
 import java.io.IOException;
 import java.util.List;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.PermissionIO;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -41,20 +43,21 @@ public class PermissionGroupsRestlet extends BaseServiceRestlet {
 		paths.add("/acl/group/{groupName}");
 	}
 
-	public void handleDelete(Request request, Response response) throws ResourceException {
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
 		String groupName = (String)request.getAttributes().get("groupName");
 		if (groupName == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		else if (groupName.contains(",")) {
+			PermissionIO permissionIO = new PermissionIO(session);
 			for (String curGroup : groupName.split(",") ) {
 				PermissionGroup group;
 				try {
-					group = SIS.get().getPermissionIO().getPermissionGroup(curGroup);
+					group = permissionIO.getPermissionGroup(curGroup);
 					
 					if (group == null)
 						throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 					
-					SISPersistentManager.instance().deleteObject(group);
+					SISPersistentManager.instance().deleteObject(session, group);
 				} catch (PersistentException e) {
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}
@@ -92,10 +95,13 @@ public class PermissionGroupsRestlet extends BaseServiceRestlet {
 		}
 	}
 	
-	public Representation handleGet(Request request, Response response) throws ResourceException {	
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
+		UserIO userIO = new UserIO(session);
+		PermissionIO permissionIO = new PermissionIO(session);
+		
 		String username = (String) request.getAttributes().get("username");
 		if (username != null) {
-			User user = SIS.get().getUserIO().getUserFromUsername(username);
+			User user = userIO.getUserFromUsername(username);
 			if (user == null)
 				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 			
@@ -107,7 +113,7 @@ public class PermissionGroupsRestlet extends BaseServiceRestlet {
 			return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
 		} else {
 			try {
-				return new StringRepresentation(SIS.get().getPermissionIO().getPermissionGroupsXML(), MediaType.TEXT_XML);
+				return new StringRepresentation(permissionIO.getPermissionGroupsXML(), MediaType.TEXT_XML);
 			} catch (DBException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
@@ -115,7 +121,7 @@ public class PermissionGroupsRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		final NativeDocument document = new JavaNativeDocument();
 		try {
 			document.parse(entity.getText());
@@ -131,7 +137,7 @@ public class PermissionGroupsRestlet extends BaseServiceRestlet {
 			if (PermissionGroup.ROOT_TAG.equals(node.getNodeName())) {
 				PermissionGroup group = PermissionGroup.fromXML(node);
 				try {
-					SISPersistentManager.instance().saveObject(group);
+					SISPersistentManager.instance().saveObject(session, group);
 				} catch (PersistentException e) {
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 				}
@@ -141,6 +147,7 @@ public class PermissionGroupsRestlet extends BaseServiceRestlet {
 		builder.append("</groups>");
 	}
 
+	@SuppressWarnings("unused")
 	private void handlePost(Request request, Response response) throws IOException {
 //		String payload = request.getEntity().getText();
 //		NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
@@ -177,6 +184,7 @@ public class PermissionGroupsRestlet extends BaseServiceRestlet {
 		response.setStatus(Status.SUCCESS_OK);
 	}
 
+	@SuppressWarnings("unused")
 	private synchronized void operateOnDocument(List<Element> els, int operationCode) {
 		if( operationCode == DELETE_ELEMENT ) {
 			for( Element el : els )

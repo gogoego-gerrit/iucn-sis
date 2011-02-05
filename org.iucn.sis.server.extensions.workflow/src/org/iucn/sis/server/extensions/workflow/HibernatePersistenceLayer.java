@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -20,9 +21,11 @@ import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 public class HibernatePersistenceLayer implements PersistenceLayer {
 	
 	private final SISPersistentManager manager;
+	private final Session session;
 	
-	public HibernatePersistenceLayer() {
+	public HibernatePersistenceLayer(Session session) {
 		manager = SISPersistentManager.instance();
+		this.session = session; 
 	}
 	
 	@Override
@@ -33,8 +36,8 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 		
 		try {
 			
-			model.setWorkingset(manager.getObject(WorkingSet.class, workingSetID));
-			manager.saveObject(model);
+			model.setWorkingset(manager.getObject(session, WorkingSet.class, workingSetID));
+			manager.saveObject(session, model);
 		} catch (PersistentException e) {
 			throw new WorkflowManagerException(e);
 		}
@@ -46,7 +49,7 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 	public void updateStatus(Number id, WorkflowStatus status) throws WorkflowManagerException {
 		final org.iucn.sis.shared.api.models.WorkflowStatus model; 
 		try {
-			model = manager.getObject(org.iucn.sis.shared.api.models.WorkflowStatus.class, id);
+			model = manager.getObject(session, org.iucn.sis.shared.api.models.WorkflowStatus.class, id);
 		} catch (PersistentException e) {
 			throw new WorkflowManagerException(e);
 		}
@@ -54,7 +57,7 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 		model.setStatus(status.toString());
 		
 		try {
-			manager.saveObject(model);
+			manager.saveObject(session, model);
 		} catch (PersistentException e) {
 			throw new WorkflowManagerException(e);
 		}
@@ -67,14 +70,14 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 		note.setScope(comment.getScope());
 		note.setDate(comment.getDate());
 		try {
-			note.setUser(manager.getObject(User.class, comment.getUser().getID()));
-			note.setWorkflowStatus(manager.getObject(org.iucn.sis.shared.api.models.WorkflowStatus.class, id));
+			note.setUser(manager.getObject(session, User.class, comment.getUser().getID()));
+			note.setWorkflowStatus(manager.getObject(session, org.iucn.sis.shared.api.models.WorkflowStatus.class, id));
 		} catch (PersistentException e) {
 			throw new WorkflowManagerException(e);
 		}
 		
 		try {
-			manager.saveObject(note);
+			manager.saveObject(session, note);
 		} catch (PersistentException e) {
 			throw new WorkflowManagerException(e);
 		}
@@ -82,7 +85,7 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 	
 	@Override
 	public void ensureConsistent(WorkingSet workingSet) throws WorkflowManagerException {
-		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSet);
+		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(session, workingSet);
 		Debug.println("Ensuring consistency on " + assessments.size() + " assessments...");
 		
 		final Collection<String> failedSpecies = new ArrayList<String>();
@@ -105,7 +108,7 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 	
 	@Override
 	public void ensureEvaluated(WorkingSet workingSet) throws WorkflowManagerException {
-		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(workingSet);
+		final Collection<Assessment> assessments = WorkflowManager.getAllAssessments(session, workingSet);
 		Debug.println("Ensuring evaluation on " + assessments.size() + " assessments...");
 		
 		final Collection<String> failedSpecies = new ArrayList<String>();
@@ -131,14 +134,14 @@ public class HibernatePersistenceLayer implements PersistenceLayer {
 		org.iucn.sis.shared.api.models.WorkflowStatus model = 
 			new org.iucn.sis.shared.api.models.WorkflowStatus();
 		try {
-			model.setWorkingset(manager.getObject(WorkingSet.class, workingSetID));
+			model.setWorkingset(manager.getObject(session, WorkingSet.class, workingSetID));
 		} catch (PersistentException e) {
 			throw new WorkflowManagerException(e);
 		}
 		
 		final List<? extends org.iucn.sis.shared.api.models.WorkflowStatus> list;
 		try {
-			list = manager.listObjects(model.getClass());
+			list = manager.listObjects(model.getClass(), session);
 		} catch (PersistentException e) {
 			throw new WorkflowManagerException(e);
 		}

@@ -13,9 +13,9 @@ import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.MappingException;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.classic.Session;
 import org.hibernate.dialect.PostgreSQLDialect;
 import org.hibernate.tuple.entity.EntityTuplizerFactory;
 import org.hibernate.tuple.entity.PojoEntityTuplizer;
@@ -68,11 +68,16 @@ public class SISPersistentManager {
 	public SessionFactory getSessionFactory() {
 		return sessionFactory;
 	}
+	
+	public Session openSession() {
+		setCurrentThread();
+		return sessionFactory.openSession();
+	}
 
-	public Session getSession() {
+	/*public Session getSession() {
 		setCurrentThread();
 		return sessionFactory.getCurrentSession();
-	}
+	}*/
 
 	private Configuration buildConfiguration() {
 		Configuration configuration = new SISPersistenceConfiguration();
@@ -120,30 +125,26 @@ public class SISPersistentManager {
 	}
 	
 
-	public void saveObject(Object obj) throws PersistentException {		
-		Session session = getSession();
+	public void saveObject(Session session, Object obj) throws PersistentException {		
 		session.saveOrUpdate(obj);
 	}
 
-	public void deleteObject(Object obj) throws PersistentException {
-		Session session = getSession();
+	public void deleteObject(Session session, Object obj) throws PersistentException {
 		session.delete(obj);
 	}
 
-	public void lockObject(Object obj) throws PersistentException {
-		Session session = getSession();
+	public void lockObject(Session session, Object obj) throws PersistentException {
 		session.lock(obj, LockMode.NONE);
 		//FIXME: should we be using the code below?
 		//session.buildLockRequest(LockOptions.NONE).lock(obj);
 	}
 	
-	public void updateObject(Object obj) throws PersistentException {
-		Session session = getSession();
+	public void updateObject(Session session, Object obj) throws PersistentException {
 		session.update(obj);
 	}
 	
-	public <X> X mergeObject(X obj) throws PersistentException {
-		Session session = getSession();
+	@SuppressWarnings("unchecked")
+	public <X> X mergeObject(Session session, X obj) throws PersistentException {
 		try {
 			return (X) session.merge(obj);
 		} catch (ClassCastException e) {
@@ -154,8 +155,7 @@ public class SISPersistentManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <X> X getObject(Class<X> clazz, Serializable id) throws PersistentException {
-		Session session = getSession();
+	public <X> X getObject(Session session, Class<X> clazz, Serializable id) throws PersistentException {
 		try {
 			return (X) session.get(clazz, id);
 		} catch (ClassCastException e) {
@@ -166,8 +166,7 @@ public class SISPersistentManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <X> X loadObject(Class<X> clazz, Serializable id) throws PersistentException {
-		Session session = getSession();
+	public <X> X loadObject(Session session, Class<X> clazz, Serializable id) throws PersistentException {
 		try {
 			return (X) session.load(clazz, id);
 		} catch (ClassCastException e) {
@@ -177,8 +176,7 @@ public class SISPersistentManager {
 		}
 	}
 	@SuppressWarnings("unchecked")
-	public <X> List<X> listObjects(Class<X> criteria) throws PersistentException {
-		Session session = getSession();
+	public <X> List<X> listObjects(Class<X> criteria, Session session) throws PersistentException {
 		try {
 			return session.createCriteria(criteria).list();
 		} catch (ClassCastException e) {

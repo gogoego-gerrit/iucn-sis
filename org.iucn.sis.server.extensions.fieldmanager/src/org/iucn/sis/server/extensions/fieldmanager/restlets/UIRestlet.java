@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.naming.NamingException;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -49,7 +50,7 @@ public class UIRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public Representation handleGet(Request request, Response response) throws ResourceException {
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String schema = (String)request.getAttributes().get("schema");
 		
 		final VFS vfs = SIS.get().getVFS();
@@ -124,7 +125,7 @@ public class UIRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePut(Representation entity, Request request, Response response) throws ResourceException {
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		String fieldName = (String)request.getAttributes().get("fieldName");
 		if (fieldName == null && "views".equals(request.getResourceRef().getLastSegment()))
 			fieldName = "views";

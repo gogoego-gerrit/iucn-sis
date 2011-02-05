@@ -2,8 +2,10 @@ package org.iucn.sis.server.extensions.viruses;
 
 import java.util.Collection;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.models.Virus;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -13,14 +15,13 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
-import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.BaseDocumentUtils;
 
-public class VirusResource extends Resource {
+public class VirusResource extends TransactionResource {
 	
 	private final String identifier;
 	private final SISPersistentManager manager;
@@ -35,9 +36,10 @@ public class VirusResource extends Resource {
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
 	
-	public Representation represent(Variant variant) throws ResourceException {
+	@Override
+	public Representation represent(Variant variant, Session session) throws ResourceException {
 		if (identifier == null)
-			return listAll();
+			return listAll(session);
 		else {
 			Integer id;
 			try {
@@ -48,7 +50,7 @@ public class VirusResource extends Resource {
 			
 			final Virus virus;
 			try {
-				virus = manager.getObject(Virus.class, id);
+				virus = manager.getObject(session, Virus.class, id);
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
@@ -60,10 +62,10 @@ public class VirusResource extends Resource {
 		}
 	}
 	
-	private Representation listAll() throws ResourceException {
+	private Representation listAll(Session session) throws ResourceException {
 		final Collection<Virus> list;
 		try {
-			list = manager.listObjects(Virus.class);
+			list = manager.listObjects(Virus.class, session);
 		} catch (PersistentException e) {
 			e.printStackTrace();
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -81,11 +83,11 @@ public class VirusResource extends Resource {
 	}
 	
 	@Override
-	public void acceptRepresentation(Representation entity) throws ResourceException {
+	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		if (identifier == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply an identifier");
 		
-		writeVirus(entity);
+		writeVirus(entity, session);
 		getResponse().setStatus(Status.SUCCESS_OK);
 	}
 	
@@ -99,12 +101,12 @@ public class VirusResource extends Resource {
 	}
 	
 	@Override
-	public void storeRepresentation(Representation entity) throws ResourceException {
-		writeVirus(entity);
+	public void storeRepresentation(Representation entity, Session session) throws ResourceException {
+		writeVirus(entity, session);
 		getResponse().setStatus(Status.SUCCESS_CREATED);
 	}
 	
-	private void writeVirus(Representation entity) throws ResourceException {
+	private void writeVirus(Representation entity, Session session) throws ResourceException {
 		final String text;
 		try {
 			text = entity.getText(); 
@@ -118,7 +120,7 @@ public class VirusResource extends Resource {
 		Virus virus = Virus.fromXML(document.getDocumentElement());
 		
 		try {
-			manager.saveObject(virus);
+			manager.saveObject(session, virus);
 		} catch (PersistentException e) {
 			BaseDocumentUtils.impl.createErrorDocument("Failed to save due to database error.");
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -128,7 +130,7 @@ public class VirusResource extends Resource {
 	}
 	
 	@Override
-	public void removeRepresentations() throws ResourceException {
+	public void removeRepresentations(Session session) throws ResourceException {
 		if (identifier == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply an identifier");
 		
@@ -141,7 +143,7 @@ public class VirusResource extends Resource {
 		
 		final Virus virus;
 		try {
-			virus = manager.getObject(Virus.class, id);
+			virus = manager.getObject(session, Virus.class, id);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, e);
 		}
@@ -152,7 +154,7 @@ public class VirusResource extends Resource {
 		//TODO: Is this virus being used by a threat??  If so, no deleting?
 		
 		try {
-			manager.deleteObject(virus);
+			manager.deleteObject(session, virus);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}

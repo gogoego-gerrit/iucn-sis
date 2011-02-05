@@ -421,7 +421,7 @@ public class ReportRestlet extends BaseServiceRestlet {
 		NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 		ndoc.parse(DocumentUtils.serializeNodeToString(requestDoc));
 		AssessmentFilter filter = AssessmentFilter.parseXML(ndoc);
-		AssessmentFilterHelper helper = new AssessmentFilterHelper(filter);
+		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
 
 		
 		NodeList files = docElement.getElementsByTagName("file");

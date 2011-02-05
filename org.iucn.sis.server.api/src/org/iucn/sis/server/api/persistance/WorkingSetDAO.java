@@ -15,8 +15,9 @@ package org.iucn.sis.server.api.persistance;
 import java.util.List;
 
 import org.hibernate.Query;
-import org.hibernate.classic.Session;
+import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -24,56 +25,64 @@ import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 public class WorkingSetDAO {
-	public static WorkingSet loadWorkingSetByORMID(int id) throws PersistentException {
+	/*public static WorkingSet loadWorkingSetByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadWorkingSetByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static WorkingSet getWorkingSetByORMID(int id) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getWorkingSetByORMID(session, id);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static WorkingSet loadWorkingSetByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadWorkingSetByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static WorkingSet getWorkingSetByORMID(int id, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return getWorkingSetByORMID(session, id, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static WorkingSet loadWorkingSetByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (WorkingSet) session.load(WorkingSet.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -83,7 +92,7 @@ public class WorkingSetDAO {
 			return (WorkingSet) session.get(WorkingSet.class, new Integer(id));
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -93,7 +102,7 @@ public class WorkingSetDAO {
 			return (WorkingSet) session.load(WorkingSet.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -103,32 +112,36 @@ public class WorkingSetDAO {
 			return (WorkingSet) session.get(WorkingSet.class, new Integer(id), lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static WorkingSet[] listWorkingSetByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static WorkingSet[] listWorkingSetByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listWorkingSetByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static WorkingSet[] listWorkingSetByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return listWorkingSetByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static WorkingSet[] listWorkingSetByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From WorkingSet as WorkingSet");
@@ -142,7 +155,7 @@ public class WorkingSetDAO {
 			return (WorkingSet[]) list.toArray(new WorkingSet[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -160,32 +173,36 @@ public class WorkingSetDAO {
 			return (WorkingSet[]) list.toArray(new WorkingSet[list.size()]);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static WorkingSet loadWorkingSetByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static WorkingSet loadWorkingSetByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadWorkingSetByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static WorkingSet loadWorkingSetByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return loadWorkingSetByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static WorkingSet loadWorkingSetByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		WorkingSet[] workingSets = listWorkingSetByQuery(session, condition, orderBy);
@@ -203,27 +220,31 @@ public class WorkingSetDAO {
 			return null;
 	}
 	
-	public static java.util.Iterator iterateWorkingSetByQuery(String condition, String orderBy) throws PersistentException {
+	/*public static java.util.Iterator iterateWorkingSetByQuery(String condition, String orderBy) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateWorkingSetByQuery(session, condition, orderBy);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
 	}
 	
 	public static java.util.Iterator iterateWorkingSetByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
+		Session session = SISPersistentManager.instance().openSession();
 		try {
-			Session session = SISPersistentManager.instance().getSession();
 			return iterateWorkingSetByQuery(session, condition, orderBy, lockMode);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
+		} finally {
+			session.close();
 		}
-	}
+	}*/
 	
 	public static java.util.Iterator iterateWorkingSetByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From WorkingSet as WorkingSet");
@@ -236,7 +257,7 @@ public class WorkingSetDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -253,7 +274,7 @@ public class WorkingSetDAO {
 			return query.iterate();
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -262,24 +283,24 @@ public class WorkingSetDAO {
 		return new WorkingSet();
 	}
 	
-	public static boolean save(WorkingSet workingSet) throws PersistentException {
+	/*public static boolean save(WorkingSet workingSet) throws PersistentException {
 		try {
-			SISPersistentManager.instance().saveObject(workingSet);
+			SISPersistentManager.instance().saveObject(session, workingSet);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
 	public static boolean delete(WorkingSet workingSet) throws PersistentException {
 		try {
-			SISPersistentManager.instance().deleteObject(workingSet);
+			SISPersistentManager.instance().deleteObject(session, workingSet);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -314,10 +335,10 @@ public class WorkingSetDAO {
 			return delete(workingSet);
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static boolean deleteAndDissociate(WorkingSet workingSet, Session session)throws PersistentException {
 		try {
@@ -355,18 +376,18 @@ public class WorkingSetDAO {
 			}
 		}
 		catch(Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
 	
-	public static boolean refresh(WorkingSet workingSet) throws PersistentException {
+	/*public static boolean refresh(WorkingSet workingSet) throws PersistentException {
 		try {
 			SISPersistentManager.instance().getSession().refresh(workingSet);
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
 	}
@@ -377,10 +398,10 @@ public class WorkingSetDAO {
 			return true;
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}
+	}*/
 	
 	public static WorkingSet loadWorkingSetByCriteria(WorkingSetCriteria workingSetCriteria) {
 		WorkingSet[] workingSets = listWorkingSetByCriteria(workingSetCriteria);
