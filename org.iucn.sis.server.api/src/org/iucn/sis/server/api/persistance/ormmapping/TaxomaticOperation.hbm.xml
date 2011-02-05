@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.TaxomaticOperation" table="taxomaticoperation" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<many-to-one name="user" cascade="lock" column="userid" class="org.iucn.sis.shared.api.models.User" not-null="false" lazy="no-proxy">
+		</many-to-one>
+		<property name="date" column="date" type="java.util.Date" not-null="true" lazy="false"/>
+		<property name="operation" column="operation" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="instructions" column="instructions" type="text" not-null="true" lazy="false"/>
+		<property name="details" column="details" type="text" not-null="true" lazy="false"/>
+		<set name="history" lazy="false" cascade="save-update,lock" inverse="true">
+			<key column="taxomaticoperationid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.TaxomaticHistory"/>
+		</set>
+	</class>
+</hibernate-mapping>

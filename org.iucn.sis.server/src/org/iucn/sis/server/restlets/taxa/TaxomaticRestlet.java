@@ -13,6 +13,7 @@ import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
@@ -22,6 +23,7 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -46,6 +48,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 
 	public void definePaths() {
 		paths.add("/taxomatic/{operation}");
+		paths.add("/taxomatic/{operation}/{taxonid}");
 	}
 
 	private void trashTaxon(Integer id, Request request, final Response response, Session session) throws TaxomaticException, ResourceException {
@@ -276,6 +279,12 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		try {
 			if (operation.equalsIgnoreCase("undo"))
 				representation = getLastTaxomaticOperation(request, response, taxomaticIO, user);
+			else if (operation.equalsIgnoreCase("history")) {
+				String taxonID = (String)request.getAttributes().get("taxonid");
+				if (taxonID == null)
+					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a taxon ID");
+				representation = getTaxomaticHistory(request, response, taxomaticIO, taxonID); 
+			}
 			else
 				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
 		} catch (TaxomaticException e){
@@ -383,6 +392,26 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 				lock.release();
 		}
 	}
+	
+	private Representation getTaxomaticHistory(Request request, Response response, TaxomaticIO taxomaticIO, String taxonID) throws TaxomaticException, ResourceException {
+		final Integer id;
+		try { 
+			id = Integer.valueOf(taxonID);
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid taxon ID " + taxonID + " supplied.");
+		}
+		
+		List<TaxomaticOperation> list = taxomaticIO.getTaxomaticHistory(id);
+		
+		StringBuilder xml = new StringBuilder();
+		xml.append("<root>");
+		for (TaxomaticOperation operation : list) {
+			xml.append(operation.toXML());
+		}
+		xml.append("</root>");
+		
+		return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
+	}
 
 	/**
 	 * For promotions an infrank is being moved into a species. The infrarank
@@ -482,7 +511,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		
 		Taxon oldNode = taxonIO.getTaxon(Integer.valueOf(oldId));
 		
-		HashMap<Taxon, ArrayList<Taxon>> parentToChildren = new HashMap<Taxon, ArrayList<Taxon>>();
+		HashMap<Taxon, List<Taxon>> parentToChildren = new HashMap<Taxon, List<Taxon>>();
 		int childrenSize = 0;
 		
 		ElementCollection parents = new ElementCollection(documentElement.getElementsByTagName("parent"));

@@ -9,10 +9,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.hibernate.Session;
 import org.hibernate.TransientObjectException;
+import org.hibernate.criterion.Restrictions;
+import org.iucn.sis.server.api.io.taxomatic.DemoteNodeOperation;
+import org.iucn.sis.server.api.io.taxomatic.LateralMoveOperation;
+import org.iucn.sis.server.api.io.taxomatic.MergeNodesOperation;
+import org.iucn.sis.server.api.io.taxomatic.MergeUpInfrarankOperation;
+import org.iucn.sis.server.api.io.taxomatic.PromoteNodeOperation;
+import org.iucn.sis.server.api.io.taxomatic.SplitNodesOperation;
 import org.iucn.sis.server.api.locking.TaxonLockAquirer;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.TaxaComparators;
@@ -23,9 +29,10 @@ import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Synonym;
+import org.iucn.sis.shared.api.models.TaxomaticHistory;
+import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
-import org.iucn.sis.shared.api.models.TaxonStatus;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
@@ -47,47 +54,18 @@ public class TaxomaticIO {
 	private final TaxonIO taxonIO;
 	private final AssessmentIO assessmentIO;
 	private final InfratypeIO infratypeIO;
+	private final Session session;
 
 	public TaxomaticIO(Session session) {
 		this.taxonIO = new TaxonIO(session);
 		this.assessmentIO = new AssessmentIO(session);
 		this.infratypeIO = new InfratypeIO(session);
-		//load();
+		this.session = session;
 	}
 
 	public void demoteSpecies(Taxon taxon, Taxon newParent, User user) throws TaxomaticException {
-		if (taxon.getLevel() != TaxonLevel.SPECIES || newParent.getLevel() != TaxonLevel.SPECIES)
-			throw new TaxomaticException("You can only demote a species to an infrarank");
-
-		Set<Taxon> taxa = new HashSet<Taxon>();
-		Collection<Taxon> children = taxon.getChildren();
-		for (Taxon child : children) {
-			if (child.getLevel() != TaxonLevel.SUBPOPULATION)
-				throw new TaxomaticException("You can only demote a species to an infrarank");
-
-			Synonym synonym = Taxon.synonymizeTaxon(child);
-			synonym.setStatus(Synonym.NEW);
-			child.getSynonyms().add(synonym);
-			updateRLHistoryText(child, user);
-			child.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.INFRARANK_SUBPOPULATION));
-			taxa.add(child);
-		}
-
-		Synonym synonym = Taxon.synonymizeTaxon(taxon);
-		synonym.setStatus(Synonym.NEW);
-		taxon.getSynonyms().add(synonym);
-		updateRLHistoryText(taxon, user);
-		taxon.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.INFRARANK));
-		taxon.setInfratype(infratypeIO.getInfratype(Infratype.SUBSPECIES_NAME));
-		taxon.setParent(newParent);
-		newParent.getChildren().add(taxon);
-		taxon.getParent().getChildren().remove(taxon);
-		taxa.add(taxon);
-		taxa.add(newParent);
-
-		updateAndSave(taxa, user, true);
-			
-		recordLastUpdated(taxa, user, TaxomaticIO.DEMOTE);
+		DemoteNodeOperation operation = new DemoteNodeOperation(session, user, taxon, newParent);
+		operation.run();
 	}
 
 	private String generateRLHistoryText(Taxon taxon) {
@@ -117,129 +95,50 @@ public class TaxomaticIO {
 		return fullName;
 	}
 
-	/*public Date getLastOperationDate() {
-		return lastOperationDate;
-	}
-
-	public String getLastOperationType() {
-		return lastOperationType;
-	}
-
-	public String getLastOperationUsername() {
-		return lastOperationUsername;
-	}
-	
-	public Set<Integer> getTaxaIDsChanged() {
-		return taxaIDsChanged;
-	}*/
-
 	boolean isTaxomaticOperationNecessary(Taxon taxonToSave, Taxon oldTaxon) {
 		
 		return !(taxonToSave != null && oldTaxon != null && oldTaxon.getName().equals(taxonToSave.getName()) && 
 				oldTaxon.getParentID() == taxonToSave.getParentID() && 
 				oldTaxon.getTaxonLevel().getLevel() == taxonToSave.getTaxonLevel().getLevel() );
 	}
-
-	/*private void load() {
-		try {
-			if (vfs.exists(VFSUtils.parseVFSPath(ServerPaths.getLastTaxomaticOperationPath()))) {
-				Document operationDoc = vfs.getDocument(VFSUtils.parseVFSPath(ServerPaths
-						.getLastTaxomaticOperationPath()));
-				
-				taxaIDsChanged = new HashSet<Integer>();
-				
-				final NodeCollection nodes = new NodeCollection(operationDoc.getDocumentElement().getChildNodes());
-				for (Node node : nodes) {
-					if ("username".equals(node.getNodeName()))
-						lastOperationUsername = node.getTextContent();
-					else if ("timestamp".equals(node.getNodeName()))
-						lastOperationDate = new Date(Long.parseLong(node.getTextContent()));
-					else if ("type".equals(node.getNodeName()))
-						lastOperationType = node.getTextContent();
-					else if ("taxon".equals(node.getNodeName()))
-						taxaIDsChanged.add(Integer.valueOf(node.getTextContent()));
-					else if ("taxa".equals(node.getNodeName()))
-						taxaIDsChanged.add(Integer.valueOf(BaseDocumentUtils.impl.getAttribute(node, "id")));
-				}
-			}
-		} catch (VFSPathParseException e) {
-			Debug.println(e);
-		} catch (NumberFormatException e) {
-			Debug.println(e);
-		} catch (DOMException e) {
-			Debug.println(e);
-		} catch (IOException e) {
-			Debug.println(e);
-		}
-	}*/
+	
+	public List<TaxomaticOperation> getTaxomaticHistory(Integer taxonID) throws TaxomaticException {
+		Taxon taxon = taxonIO.getTaxon(taxonID);
+		if (taxon == null)
+			throw new TaxomaticException("No taxon found for id " + taxonID);
+			
+		return getTaxomaticHistory(taxon);
+	}
+	
+	public List<TaxomaticOperation> getTaxomaticHistory(Taxon taxon) {
+		List<TaxomaticOperation> list = new ArrayList<TaxomaticOperation>();
+		
+		List<TaxomaticHistory> history = 
+			session.createCriteria(TaxomaticHistory.class).add(Restrictions.eq("taxon", taxon)).list();
+		
+		for (TaxomaticHistory current : history)
+			list.add(current.getOperation());
+		
+		Collections.sort(list);
+		
+		return list;
+		
+		/*String query = "SELECT * FROM taxomaticoperation " +
+		"JOIN taxomatichistory ON taxomaticoperation.id = taxomatichistory.taxomaticoperationid " +
+		"WHERE taxomatichistory.taxonid = " + taxon.getId() + " " + 
+		"ORDER BY taxomaticoperation.date";
+		
+		return session.createSQLQuery(query).addEntity(TaxomaticOperation.class).list();*/	
+	}
 
 	public void mergeTaxa(List<Taxon> mergedTaxa, Taxon mainTaxa, User user) throws TaxomaticException {
-		List<Taxon> taxaToSave = new ArrayList<Taxon>();
-		for (Taxon mergedTaxon : mergedTaxa) {
-			mergedTaxon.setStatus(TaxonStatus.STATUS_SYNONYM);
-
-			Synonym synonym = Taxon.synonymizeTaxon(mergedTaxon);
-			synonym.setStatus(Synonym.MERGE);
-			mainTaxa.getSynonyms().add(synonym);
-			synonym.setTaxon(mainTaxa);
-
-			synonym = Taxon.synonymizeTaxon(mainTaxa);
-			synonym.setStatus("MERGE");
-			mergedTaxon.getSynonyms().add(synonym);
-			synonym.setTaxon(mergedTaxon);
-
-			for (Taxon child : mergedTaxon.getChildren()) {
-				child.setParent(mainTaxa);
-				mainTaxa.getChildren().add(child);
-				taxaToSave.add(child);
-			}
-			taxaToSave.add(mergedTaxon);
-		}
-		taxaToSave.add(mainTaxa);
-		
-		updateAndSave(taxaToSave, user, true);
-		recordLastUpdated(taxaToSave, user, TaxomaticIO.MERGE);
+		MergeNodesOperation operation = new MergeNodesOperation(session, user, mainTaxa, mergedTaxa);
+		operation.run();
 	}
 
 	public void mergeUpInfraranks(List<Taxon> taxa, Taxon species, User user) throws TaxomaticException {
-		List<Taxon> taxaToSave = new ArrayList<Taxon>();
-		
-		for (Taxon mergedTaxon : taxa) {
-			mergedTaxon.setStatus(TaxonStatus.STATUS_SYNONYM);
-			
-			Synonym synonym = Taxon.synonymizeTaxon(mergedTaxon);
-			synonym.setStatus(Synonym.MERGE);
-			species.getSynonyms().add(synonym);
-			synonym.setTaxon(species);
-			
-			synonym = Taxon.synonymizeTaxon(species);
-			synonym.setStatus("MERGE");			
-			synonym.setTaxon(mergedTaxon);
-			mergedTaxon.getSynonyms().add(synonym);
-			
-			for (Taxon infrarankChild : mergedTaxon.getChildren()) {
-				// child.setTaxa(mainTaxa);
-				// mainTaxa.getParent().add(child);
-				String oldName = infrarankChild.generateFullName();
-				infrarankChild.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.SUBPOPULATION));
-				String newFullName = infrarankChild.generateFullName();
-				if (!oldName.equals(newFullName)) {
-					synonym = Taxon.synonymizeTaxon(infrarankChild);
-					if (infrarankChild.getTaxonomicAuthority() != null) {
-						synonym.setAuthority(infrarankChild.getTaxonomicAuthority(), infrarankChild.getLevel());
-					}
-					infrarankChild.getSynonyms().add(synonym);
-					infrarankChild.setFriendlyName(newFullName);
-				}
-				taxaToSave.add(infrarankChild);
-			}
-			taxaToSave.add(mergedTaxon);
-		}
-		taxaToSave.add(species);
-
-		updateAndSave(taxaToSave, user, true);
-		
-		recordLastUpdated(taxaToSave, user, TaxomaticIO.MERGE_UP_INFRARANK);
+		MergeUpInfrarankOperation operation = new MergeUpInfrarankOperation(session, user, species, taxa);
+		operation.run();
 	}
 
 	/**
@@ -252,20 +151,16 @@ public class TaxomaticIO {
 	 * @return
 	 */
 	public void moveTaxa(Taxon newParent, Collection<Taxon> children, User user) throws TaxomaticException {
-		Set<Taxon> changed = new HashSet<Taxon>();
-		for (Taxon child : children)
-			changed.addAll(moveTaxon(newParent, child, user, Synonym.NEW, true));
-		
-		updateAndSave(changed, user, true);
-		
-		recordLastUpdated(changed, user, TaxomaticIO.LATERAL_MOVE);
+		LateralMoveOperation operation = new LateralMoveOperation(session, user, newParent, children);
+		operation.run();
 	}
 
 	/**
 	 * 
 	 * Moves the child from its current parent to the newParent. If the name has
-	 * changed, then a synonym is added with the status provided * Returns a set
-	 * of taxa that needs to be saved.
+	 * changed, then a synonym is added with the status provided 
+	 * 
+	 * Returns a set of taxa that needs to be saved.
 	 * 
 	 * 
 	 * @param newParent
@@ -276,7 +171,7 @@ public class TaxomaticIO {
 	 *            -- if true, then updates teh assessment names
 	 * @return
 	 */
-	private Set<Taxon> moveTaxon(Taxon newParent, Taxon child, User user, String synStatus, boolean updateAssessments) {
+	public Set<Taxon> moveTaxon(Taxon newParent, Taxon child, User user, String synStatus, boolean updateAssessments) {
 		Set<Taxon> changed = new HashSet<Taxon>();
 		Taxon oldParent = child.getParent();
 
@@ -331,119 +226,6 @@ public class TaxomaticIO {
 		 * TODO: this needs to be implemented at the database level. 
 		 */
 		throw new TaxomaticException("Undo operation not supported.", true);
-		// GATHER OPERTAION, FAST FAIL IF ERROR IN PARSING LAST OPERATION
-		/*if (getLastOperationType() == null)
-			throw new TaxomaticException("Could not find or load previous operation.");
-
-		// DO VALIDATION OF USER
-		if (!username.equalsIgnoreCase(this.lastOperationUsername) && !username.equalsIgnoreCase("admin"))
-			throw new TaxomaticException("Could not find or load previous operation for this user.  Another user may have edited this taxa.");
-
-		// GATHER LOCKS
-		String[] ids = new String[taxaIDsChanged.size()];
-		int i = 0;
-		for (Integer taxon : taxaIDsChanged) {
-			ids[i] = taxon + "";
-			i++;
-		}
-		TaxonLockAquirer lockAquirer = new TaxonLockAquirer(ids);
-		lockAquirer.aquireLocks();
-		
-		boolean validated = false;
-
-		if (!lockAquirer.isSuccess()) {
-			throw new TaxomaticException("Could not acquire lock to perform operation", false);
-		} else {
-			validated = SIS.get().getLocker().aquireWithRetry(ServerPaths.getLastTaxomaticOperationPath(), 5);
-			if (!validated)
-				throw new TaxomaticException("Could not acquire lock to perform operation", false);
-		}
-		
-		User user = SIS.get().getUserIO().getUserFromUsername(username);
-
-		try {
-			// DO VALIDATION ON TAXA
-			for (Integer taxaID : taxaIDsChanged) {
-				if (vfs.getLastModified(new VFSPath(ServerPaths.getTaxonURL(taxaID + ""))) > lastOperationDate.getTime()) {
-					validated = false;
-					break;
-				}
-			}
-			
-			if (!validated)
-				throw new TaxomaticException("Could not validate previous operations, stopping.", false);
-
-			for (Integer taxaID : taxaIDsChanged) {
-				final VFSPath uri = new VFSPath(ServerPaths.getTaxonURL(taxaID +""));
-				
-				List<String> revision = vfs.getRevisionIDsBefore(uri, null, 1);
-				List<Taxon> taxaToSave = new ArrayList<Taxon>();
-				List<Assessment> assessmentsToSave = new ArrayList<Assessment>();
-				
-				Taxon currentTaxon = taxonIO.getTaxonNonLazy(taxaID);
-				
-				//THERE ARE NO OTHER REVISIONS, THEREFORE IT WAS CREATED ON 
-				if (revision.size() == 0) {
-					taxaToSave.add(currentTaxon);
-					TaxonDAO.deleteAndDissociate(currentTaxon);
-				} else {
-					InputStream in = vfs.getInputStream(uri, revision.get(0));
-					StringBuilder out = new StringBuilder();
-					byte[] b = new byte[4096];
-					for (int n; (n = in.read(b))!= -1;)
-						out.append(new String(b, 0, n));
-					
-					NativeDocument ndoc = new JavaNativeDocument();
-					ndoc.parse(out.toString());
-					
-					Taxon oldTaxon = Taxon.fromXML(ndoc);
-
-					//IF SYNONYMS ADDED THEN NAME CHANGED, AND PUBLISHED ASSESSMENTS MIGHT BE UPDATED
-					if (currentTaxon.getSynonyms().size() > oldTaxon.getSynonyms().size()) {
-						for (Synonym synonym : currentTaxon.getSynonyms()) {
-							if (!oldTaxon.getSynonyms().contains(synonym)) {
-								SynonymDAO.delete(synonym);
-								TaxonDAO.refresh(oldTaxon);
-								taxaToSave.add(oldTaxon);
-								break;
-							}
-						}
-						
-						//NEED TO LOOK FOR CHANGED RLHISTORY
-						for (Assessment assessment : assessmentIO.readPublishedAssessmentsForTaxon(currentTaxon)) {
-							Field field = assessment.getField(CanonicalNames.RedListCriteria);
-							if (field == null)
-								field = new Field(CanonicalNames.RedListCriteria, assessment);
-							
-							RedListCriteriaField proxy = new RedListCriteriaField(field);
-							String currentValue = "as " + proxy.getRLHistoryText();
-							if (currentValue.equalsIgnoreCase(generateRLHistoryText(currentTaxon))) {
-								proxy.setRLHistoryText("");
-								assessment.getField().add(field);
-								assessmentsToSave.add(assessment);
-							}
-						}	
-					}					
-				}
-				
-				for (Taxon taxon : taxaToSave)
-					writeTaxon(taxon, user);
-				
-				for (Assessment assessment : assessmentsToSave)
-					assessmentIO.writeAssessment(assessment, user, true);
-				
-			}
-		} catch (IOException e) {
-			Debug.println("Failed on undo: {0}");
-			throw new TaxomaticException(e);
-		} catch (PersistentException e) {
-			Debug.println("Failed on undo: {0}");
-			throw new TaxomaticException(e);
-		} finally {
-			lockAquirer.releaseLocks();
-			SIS.get().getLocker().releaseLock(ServerPaths.getLastTaxomaticOperationPath());
-		}*/
-
 	}
 
 	/**
@@ -456,53 +238,8 @@ public class TaxomaticIO {
 	 * @return
 	 */
 	public void promoteInfrarank(Taxon taxon, User user) throws TaxomaticException {
-		if (taxon.getTaxonLevel().getLevel() != (TaxonLevel.INFRARANK))
-			throw new TaxomaticException("You should only be promoting an infrarank.");
-		
-		Set<Taxon> changed = new HashSet<Taxon>();
-		changed.add(taxon);
-		changed.addAll(taxon.getChildren());
-
-		for (Taxon current : changed) {
-			Synonym synonym = Taxon.synonymizeTaxon(current);
-			synonym.setStatus(Synonym.NEW);
-			current.getSynonyms().add(synonym);
-			updateRLHistoryText(current, user);
-
-			if (current.getLevel() == TaxonLevel.INFRARANK)
-				current.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.SPECIES));
-			else if (current.getLevel() == TaxonLevel.INFRARANK_SUBPOPULATION)
-				current.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.SUBPOPULATION));
-			else
-				throw new TaxomaticException("You should only be promoting an infrarank.");
-		}
-
-		taxon.setInfratype(null);
-		Taxon oldParent = taxon.getParent();
-		Taxon newParent = oldParent.getParent();
-		taxon.setParent(newParent);
-		oldParent.getChildren().remove(taxon);
-		newParent.getChildren().add(taxon);
-		changed.add(oldParent);
-		changed.add(newParent);
-
-		updateAndSave(changed, user, true);
-		recordLastUpdated(changed, user, TaxomaticIO.PROMOTE);
-	}
-
-	public synchronized void recordLastUpdated(Collection<Taxon> changedTaxon, User user, String operation) throws TaxomaticException {
-		/*
-		 * TODO: this needs to be handled at the database level.
-		 */
-		/*lastOperationDate = new Date();
-		lastOperationType = operation;
-		lastOperationUsername = user.getUsername();
-
-		taxaIDsChanged = new HashSet<Integer>();
-		for (Taxon changed : changedTaxon)
-			taxaIDsChanged.add(changed.getId());
-
-		write();*/
+		PromoteNodeOperation operation = new PromoteNodeOperation(session, user, taxon);
+		operation.run();
 	}
 
 	//FIXME NEED FUTHER CHECKS FOR UNIQUE NAME IN KINGDOM
@@ -522,35 +259,12 @@ public class TaxomaticIO {
 	 * @param parentToChildren
 	 * @return
 	 */
-	public void splitNodes(Taxon oldTaxon, User user, HashMap<Taxon, ArrayList<Taxon>> parentToChildren) throws TaxomaticException {
-		Set<Taxon> taxaToSave = new HashSet<Taxon>();
-		taxaToSave.add(oldTaxon);
-		
-		if (oldTaxon.getLevel() >= TaxonLevel.SPECIES)
-			oldTaxon.setStatus(TaxonStatus.STATUS_SYNONYM);
-
-		for (Entry<Taxon, ArrayList<Taxon>> entry : parentToChildren.entrySet()) {
-			Taxon parent = entry.getKey();
-			ArrayList<Taxon> children = entry.getValue();
-
-			Synonym synonym = Taxon.synonymizeTaxon(oldTaxon);
-			synonym.setStatus(Synonym.SPLIT);
-			if (synonym.getSpeciesAuthor() != null)
-				synonym.setSpeciesAuthor(synonym.getSpeciesAuthor() + " <i>pro parte</i>");
-			parent.getSynonyms().add(synonym);
-			taxaToSave.add(parent);
-
-			// MOVE EACH CHILD AND ADD SYNONYMS
-			for (Taxon child : children) {
-				taxaToSave.addAll(moveTaxon(parent, child, user, Synonym.SPLIT, false));
-			}
-		}
-
-		updateAndSave(taxaToSave, user, true);
-		recordLastUpdated(taxaToSave, user, TaxomaticIO.SPLIT);
+	public void splitNodes(Taxon oldTaxon, User user, HashMap<Taxon, List<Taxon>> parentToChildren) throws TaxomaticException {
+		SplitNodesOperation operation = new SplitNodesOperation(session, user, oldTaxon, parentToChildren);
+		operation.run();
 	}
 	
-	private void updateAndSave(Collection<Taxon> taxaToSave, User user, boolean requireLocking) throws TaxomaticException {
+	public void updateAndSave(Collection<Taxon> taxaToSave, User user, boolean requireLocking) throws TaxomaticException {
 		TaxonLockAquirer acquirer = new TaxonLockAquirer(taxaToSave);
 		if (requireLocking)
 			acquirer.aquireLocks();
@@ -601,7 +315,7 @@ public class TaxomaticIO {
 	 * changed
 	 * 
 	 */
-	private void updateRLHistoryText(Taxon taxon, User user) {
+	public void updateRLHistoryText(Taxon taxon, User user) {
 		for (Assessment current : assessmentIO.readPublishedAssessmentsForTaxon(taxon)) {
 			Field field = current.getField(CanonicalNames.RedListCriteria);
 			if (field == null)
@@ -616,28 +330,6 @@ public class TaxomaticIO {
 			assessmentIO.writeAssessment(current, user, false);
 		}
 	}
-	
-	/*protected synchronized void write() throws TaxomaticException {
-		if (SIS.get().getLocker().aquireWithRetry(ServerPaths.getLastTaxomaticOperationPath(), 5)) {
-			try {
-				StringBuilder xml = new StringBuilder();
-				xml.append("<operation>");
-				xml.append("<username>" + lastOperationUsername + "</username>");
-				xml.append("<timestamp>" + lastOperationDate.getTime() + "</timestamp>");
-				xml.append("<type>" + lastOperationType + "</type>");
-				for (Integer taxaID : taxaIDsChanged)
-					xml.append("<taxon>" + taxaID + "</taxon>");
-				xml.append("</operation>");
-
-				if (!DocumentUtils.writeVFSFile(ServerPaths.getLastTaxomaticOperationPath(), vfs, xml.toString()))
-					throw new TaxomaticException("Failed to write operation history file.", false);
-			} finally {
-				SIS.get().getLocker().releaseLock(ServerPaths.getLastTaxomaticOperationPath());
-			}
-		}
-		else
-			throw new TaxomaticException("Failed to acquire lock to perform write.", false);
-	}*/
 	
 	void writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user, boolean requireLocking) throws TaxomaticException {
 		if (oldTaxon == null || !isTaxomaticOperationNecessary(taxonToSave, oldTaxon)) {
