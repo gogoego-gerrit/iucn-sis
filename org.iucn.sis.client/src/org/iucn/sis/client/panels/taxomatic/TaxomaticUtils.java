@@ -202,7 +202,7 @@ public class TaxomaticUtils {
 	public void performMerge(final ArrayList<Taxon> nodes, final Taxon  newNode, final GenericCallback<String> wayback) {
 		StringBuilder mergedNodes = new StringBuilder();
 		for (Iterator<Taxon> iter = nodes.iterator(); iter.hasNext();) {
-			mergedNodes.append(iter.next());
+			mergedNodes.append(iter.next().getId());
 			mergedNodes.append(iter.hasNext() ? "," : "");
 		}
 
