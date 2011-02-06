@@ -28,6 +28,7 @@ import org.iucn.sis.client.panels.taxomatic.MergeUpInfrarank;
 import org.iucn.sis.client.panels.taxomatic.SplitNodePanel;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticAssessmentMover;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticDemotePanel;
+import org.iucn.sis.client.panels.taxomatic.TaxomaticHistoryPanel;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticWindow;
 import org.iucn.sis.client.panels.taxomatic.TaxonBasicEditor;
@@ -733,6 +734,17 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 				}
 			});
 		}
+		mainMenu.add(mItem);
+		
+		mItem = new MenuItem();
+		mItem.setText("View Taxomatic History");
+		mItem.setIconStyle("icon-taxomatic-history");
+		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				TaxomaticHistoryPanel panel = new TaxomaticHistoryPanel(getSelectedItem());
+				panel.show();
+			}
+		});
 		mainMenu.add(mItem);
 
 		mItem = new MenuItem();

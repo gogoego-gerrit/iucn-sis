@@ -277,6 +277,9 @@ body,td,div,input,p,select,input,button {
 	background: url(../images/arrow_undo.png) no-repeat !important;
 }
 
+.icon-taxomatic-history {
+	background: url(../tango/actions/format-justify-fill.png) no-repeat !important;	
+}
 
 .icon-text-bold {
 	background: url(../tango/actions/format-text-bold.png) no-repeat !important;

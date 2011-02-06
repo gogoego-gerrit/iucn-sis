@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
@@ -19,6 +17,7 @@ import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
+import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
@@ -29,7 +28,6 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class TaxonomyCache {
@@ -902,6 +900,27 @@ public class TaxonomyCache {
 				wayBack.onSuccess(workingSets);
 			}
 
+		});
+	}
+	
+	public void fetchTaxomaticHistory(final Taxon taxon, final GenericCallback<List<TaxomaticOperation>> callback) {
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.get(UriBase.getInstance().getSISBase() + "/taxomatic/history/" + taxon.getId(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				final List<TaxomaticOperation> list = new ArrayList<TaxomaticOperation>();
+				
+				final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName("operation");
+				for (int i = 0; i < nodes.getLength(); i++) {
+					NativeElement node = nodes.elementAt(i);
+					
+					list.add(TaxomaticOperation.fromXML(node));
+				}
+				
+				callback.onSuccess(list);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
 		});
 	}
 
