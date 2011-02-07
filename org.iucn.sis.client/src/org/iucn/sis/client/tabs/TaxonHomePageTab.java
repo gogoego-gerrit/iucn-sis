@@ -2,6 +2,7 @@ package org.iucn.sis.client.tabs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -262,9 +263,9 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 	protected LayoutContainer updateFeature() {
 		final Taxon node = getSelectedItem();
 		
-		final Image taxonImage = new Image();
-		taxonImage.setWidth("100px");
-		taxonImage.setHeight("100px");
+		final Image taxonImage = new Image(UriBase.getInstance().getImageBase() + "/images/view/thumb/" + node.getId() + "/primary?size=100&unique=" + new Date().getTime());
+		/*taxonImage.setWidth("100px");
+		taxonImage.setHeight("100px");*/
 		taxonImage.setStyleName("SIS_taxonSummaryHeader_image");
 		taxonImage.setTitle("Click for Image Viewer");
 		taxonImage.addClickHandler(new ClickHandler() {
@@ -292,10 +293,11 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 		vp.add(createSpacer(10));
 		vp.add(taxonImageWrapper);
 		
-		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+		/*final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 		doc.get(UriBase.getInstance().getImageBase() + "/images/" + getSelectedItem().getId(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				Debug.println("failed to fetch xml");
+				Debug.println("Taxon image loader failed to fetch xml");
+				taxonImage.setUrl("images/unavailable.png");
 			}
 			public void onSuccess(String result) {
 				NativeNodeList list = doc.getDocumentElement().getElementsByTagName("image");
@@ -321,7 +323,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 					taxonImage.setUrl("images/unavailable.png");
 				}		
 			}
-		});
+		});*/
 		vp.add(createSpacer(20));
 		if (node.getLevel() >= TaxonLevel.SPECIES)
 			vp.add(new StyledHTML("<center><i>" + node.getFullName() + "</i></center>", "SIS_taxonSummaryHeader"));

@@ -12,6 +12,7 @@ public class ServerApplication extends SimpleSISApplication {
 	 * Images available online & offline
 	 */
 	public void init() {
+		addServiceToRouter(new ImageViewerRestlet(app.getContext()));
 		addServiceToRouter(new ImageRestlet(app.getContext()));
 	}
 
