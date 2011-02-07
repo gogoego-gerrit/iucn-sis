@@ -30,7 +30,14 @@ public class ImageViewerRestlet extends BaseServiceRestlet {
 	public ImageViewerRestlet(Context context) {
 		super(context);
 		vfs = SIS.get().getVFS();
-		imageUtils = new ImageUtils(context);
+		ImageUtils imageUtils = null;
+		try {
+			imageUtils = new ImageUtils(context);
+		} catch (UnsupportedOperationException e) {
+			imageUtils = null;
+		}
+		
+		this.imageUtils = imageUtils;
 	}
 
 	@Override
