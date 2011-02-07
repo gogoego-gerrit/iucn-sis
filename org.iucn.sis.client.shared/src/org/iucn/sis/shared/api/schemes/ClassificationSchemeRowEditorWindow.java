@@ -190,12 +190,12 @@ public class ClassificationSchemeRowEditorWindow extends Window implements Draws
 			/*
 			 * Weed out legacy data
 			 */
-			if (row.getRowNumber().indexOf('.') < 0) {
+			if ("100".equals(row.getRowNumber()) || row.getRowNumber().indexOf('.') > 0) {
 				try {
 					if (Integer.parseInt(row.getRowNumber()) >= 100)
 						continue;
 				} catch (NumberFormatException e) {
-					continue;
+					//Not a number, doesn't apply to deprecation format
 				}
 			}
 			
