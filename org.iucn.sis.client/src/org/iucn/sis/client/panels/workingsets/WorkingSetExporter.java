@@ -127,14 +127,14 @@ public class WorkingSetExporter extends RefreshLayoutContainer {
 						"import if you have obtained the locks.", new Listener<MessageBoxEvent>() {
 					public void handleEvent(MessageBoxEvent be) {
 						if( be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-							startExport(checked, ws);
+							startExport(ws);
 						} else {
-							fireExport(checked, false);
+							fireExport(ws, false);
 						}
 					}
 				});
 			} else {
-				startExport(checked, ws);
+				startExport(ws);
 			}
 		} else if (checked.length == 0) {
 			WindowUtils.errorAlert("Please select a working set to export.");
@@ -143,14 +143,14 @@ public class WorkingSetExporter extends RefreshLayoutContainer {
 		}
 	}
 
-	private void fireExport(final DataListItem[] checked, boolean lock) {
-		WorkingSetCache.impl.exportWorkingSet(Integer.valueOf(checked[0].getId()), lock, new GenericCallback<String>() {
+	private void fireExport(final WorkingSet workingSet, boolean lock) {
+		WorkingSetCache.impl.exportWorkingSet(workingSet.getId(), lock, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				exportButton.setEnabled(true);
 			}
 
 			public void onSuccess(String arg0) {
-				saveExportedZip((String) arg0, checked[0].getId());
+				saveExportedZip(arg0, workingSet);
 				exportButton.setEnabled(true);
 			}
 
@@ -175,15 +175,14 @@ public class WorkingSetExporter extends RefreshLayoutContainer {
 
 	}
 
-	private void saveExportedZip(final String pathOfZipped, String wsID) {
+	public static void saveExportedZip(final String pathOfZipped, WorkingSet ws) {
 		Dialog dialog = new Dialog();
 		dialog.setButtons(Dialog.OKCANCEL);
 		dialog.setSize("400px", "300px");
 		dialog.setHeading("Successful Export");
 		dialog.addStyleName("my-shell-plain");
-		dialog.addText("The working set " + ((WorkingSetCache.impl.getWorkingSets().get(wsID))).getWorkingSetName()
-				+ " has been exported.  If you have problems downloading the file, make sure you have popups "
-				+ "enabled for this website.");
+		dialog.addText("Export complete. If you have problems downloading the file, " +
+			"make sure you have popups enabled for this website.");
 		((Button)dialog.getButtonBar().getItemByItemId(Dialog.OK)).setText("Download File");
 		((Button)dialog.getButtonBar().getItemByItemId(Dialog.OK)).addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
@@ -194,7 +193,7 @@ public class WorkingSetExporter extends RefreshLayoutContainer {
 		dialog.show();
 	}
 
-	private void startExport(final DataListItem[] checked, final WorkingSet ws) {
+	private void startExport(final WorkingSet ws) {
 		Info.display("Export Started", "Your working sets are being exported. A popup "
 				+ "will notify you when the export has finished and when the files are "
 				+ "available for download.");
@@ -209,20 +208,20 @@ public class WorkingSetExporter extends RefreshLayoutContainer {
 		}
 
 		if( permissionProblem == null ) {
-			fireExport(checked, true);
+			fireExport(ws, true);
 		} else {
 			WindowUtils.confirmAlert("Insufficient Permissions", "You cannot lock " +
 					"the assessments for this working set as you do not have sufficient " +
 					"permissions to edit the draft assessments for at least " +
 					"the taxon " + permissionProblem + ". Would you like to export the " +
-					"working set without locking anyway?", new Listener<MessageBoxEvent>() {
-						public void handleEvent(MessageBoxEvent be) {
-							if( be.getButtonClicked().getText().equalsIgnoreCase("yes"))
-								fireExport(checked, false);
-							else
-								exportButton.setEnabled(true);
-						}
-					});
+					"working set without locking anyway?", new WindowUtils.MessageBoxListener() {
+				public void onYes() {
+					fireExport(ws, false);
+				}
+				public void onNo() {
+					exportButton.setEnabled(true);
+				}
+			});
 		}
 	}
 

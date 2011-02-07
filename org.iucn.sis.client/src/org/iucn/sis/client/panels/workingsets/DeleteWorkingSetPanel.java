@@ -151,22 +151,21 @@ public class DeleteWorkingSetPanel extends RefreshLayoutContainer {
 	}
 
 
-	private void ensurePermissionsCleared(final Integer wsID, final GenericCallback<String> callback) {
+	public static void ensurePermissionsCleared(final Integer wsID, final GenericCallback<String> callback) {
 		final String permGroupName = "ws" + wsID;
 		final String query = "?quickgroup=" + permGroupName + "";
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.get(UriBase.getInstance().getUserBase()
 				+ "/browse/profile" + query, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
 			}
-
 			public void onSuccess(String result) {
 				final RowParser parser = new RowParser(document);
-				
-				if( parser.getRows().size() > 0 )
-					callback.onFailure(null);
-				else
+				if (parser.getRows().isEmpty())
 					callback.onSuccess(null);
+				else
+					callback.onFailure(null);
 			}
 		});
 	}
