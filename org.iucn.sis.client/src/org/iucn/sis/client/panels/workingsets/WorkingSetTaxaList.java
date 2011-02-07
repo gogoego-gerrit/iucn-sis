@@ -568,6 +568,11 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		if (recentWorkingSet == null) {
 			return;
 		}
+		
+		if (jumpToInToolbar) {
+			toolbar.getItem(toolbar.getItemCount() - 1).setVisible(true);
+			toolbar.getItem(toolbar.getItemCount() - 1).enable();
+		}
 
 		/**
 		 * key -> value String -> String families -> taxonID, taxonID, taxonID

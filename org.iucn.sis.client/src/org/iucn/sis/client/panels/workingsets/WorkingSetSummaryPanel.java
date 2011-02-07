@@ -146,7 +146,7 @@ public class WorkingSetSummaryPanel extends RefreshLayoutContainer {
 		taxaList.addListener(Events.SelectionChange, listener);
 		// taxaList.addListener(Events.Change, listener);
 
-		taxaList.setFilter(TaxaData.ORDER);
+		taxaList.setFilter(TaxaData.FULLNAME);
 
 		bottomContent.add(taxaList, new RowData(.6f, 1d));
 		bottomContent.add(assessmentPanel, new RowData(.4f, 1d));
