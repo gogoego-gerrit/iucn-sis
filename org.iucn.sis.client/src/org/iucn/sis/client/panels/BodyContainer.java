@@ -38,7 +38,7 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 public class BodyContainer extends LayoutContainer {
 
 	private LayoutContainer homePage;
-	private FeaturedItemContainer<WorkingSet> workingSetPage;
+	private FeaturedItemContainer<Integer> workingSetPage;
 	private FeaturedItemContainer<Taxon> taxonHomePage;
 	private FeaturedItemContainer<Integer> assessmentPage;
 	
@@ -64,8 +64,8 @@ public class BodyContainer extends LayoutContainer {
 	
 	public void openWorkingSet(final String url, final boolean updateNavigation) {
 		workingSetPage.setUrl(url);
-		workingSetPage.setItems(new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values()));
-		workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet());
+		workingSetPage.setItems(new ArrayList<Integer>(WorkingSetCache.impl.getWorkingSets().keySet()));
+		workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet().getId());
 		workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
 			public void isDrawn() {
 				removeAll();

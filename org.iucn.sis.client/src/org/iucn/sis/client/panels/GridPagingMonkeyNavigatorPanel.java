@@ -77,8 +77,10 @@ public abstract class GridPagingMonkeyNavigatorPanel<T> extends PagingMonkeyNavi
 	}
 	
 	@Override
-	protected void refreshView() {
+	public void refreshView() {
 		grid.getView().refresh(false);
+		if (hasSelection())
+			setSelection(getSelected());
 	}
 	
 	protected abstract ColumnModel getColumnModel();

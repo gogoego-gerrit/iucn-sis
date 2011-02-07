@@ -115,11 +115,16 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 					ListStore<NavigationModelData<WorkingSet>> store, Grid<NavigationModelData<WorkingSet>> grid) {
 				WorkingSet ws = model.getModel();
 				String style;
-				if (ws == null)
+				String value;
+				if (ws == null) {
 					style = MarkedCache.NONE;
-				else
+					value = model.get(property);
+				}
+				else {
 					style = MarkedCache.impl.getWorkingSetStyle(ws.getId());
-				return "<span class=\"" + style + "\">" + model.get(property) + "</span>";
+					value = ws.getName();
+				}
+				return "<span class=\"" + style + "\">" + value + "</span>";
 			}
 		});
 		
@@ -149,7 +154,7 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 	}
 	
 	@Override
-	protected void setSelection(WorkingSet navigationModel) {
+	public void setSelection(WorkingSet navigationModel) {
 		final NavigationModelData<WorkingSet> selection;
 		if (curNavWorkingSet == null)
 			selection = getProxy().getStore().findModel("-1");

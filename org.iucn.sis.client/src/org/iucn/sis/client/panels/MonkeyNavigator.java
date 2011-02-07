@@ -70,7 +70,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		callback.isDrawn();
 	}
 	
-	public void addListeners() {	
+	private void addListeners() {	
 		workingSetContainer.addListener(Events.SelectionChange, new Listener<NavigationChangeEvent<WorkingSet>>() {
 			public void handleEvent(NavigationChangeEvent<WorkingSet> be) {
 				curNavWorkingSet = be.getModel();
@@ -93,6 +93,14 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 				assessmentContainer.refresh(curNavWorkingSet, curNavTaxon, curNavAssessment);
 			}
 		});	
+	}
+	
+	public void refreshWorkingSetView() {
+		workingSetContainer.refreshView();
+	}
+	
+	public void refreshAssessmentView() {
+		assessmentContainer.refreshView();
 	}
 	
 	public static class NavigationChangeEvent<T> extends BaseEvent {

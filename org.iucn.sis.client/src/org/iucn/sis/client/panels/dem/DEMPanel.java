@@ -15,13 +15,13 @@ import org.iucn.sis.client.api.ui.views.ViewDisplay;
 import org.iucn.sis.client.api.ui.views.ViewDisplay.PageChangeRequest;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.dem.DEMToolbar.EditStatus;
 import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Region;
@@ -139,7 +139,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		try {
 			abbreviation = " (" + item.getCategoryAbbreviation() + ")";
 		} catch (Exception e) {
-			Debug.println(e);
+			//Debug.println(e);
 		}
 		
 		final StyledHTML speciesName = 
@@ -235,6 +235,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		toolbar.setSaveListener(new SimpleListener() {
 			public void handleEvent() {
 				drawFeatureArea();
+				ClientUIContainer.headerContainer.centerPanel.refreshAssessmentView();
 			}
 		});
 		toolbar.build();

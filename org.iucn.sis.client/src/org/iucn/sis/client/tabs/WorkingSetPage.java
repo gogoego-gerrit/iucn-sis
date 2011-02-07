@@ -5,6 +5,7 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workingsets.DeleteWorkingSetPanel;
@@ -31,7 +32,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.gwt.ui.StyledHTML;
 
-public class WorkingSetPage extends FeaturedItemContainer<WorkingSet> {
+public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 	
 	public static String URL_HOME = "home";
 	public static String URL_EDIT = "edit";
@@ -60,9 +61,14 @@ public class WorkingSetPage extends FeaturedItemContainer<WorkingSet> {
 		callback.isDrawn();
 	}
 	
+	public void refreshFeature() {
+		drawFeatureArea();
+		ClientUIContainer.headerContainer.centerPanel.refreshWorkingSetView();
+	}
+	
 	@Override
-	protected LayoutContainer updateFeature() {
-		final WorkingSet item = getSelectedItem();
+	public LayoutContainer updateFeature() {
+		final WorkingSet item = WorkingSetCache.impl.getWorkingSet(getSelectedItem());
 		
 		final LayoutContainer container = new LayoutContainer();
 		container.add(new StyledHTML("<center>" + item.getName() + "</center>", "page_workingSet_featured_header"));
@@ -85,9 +91,9 @@ public class WorkingSetPage extends FeaturedItemContainer<WorkingSet> {
 	}
 	
 	@Override
-	protected void updateSelection(WorkingSet selection) {
+	protected void updateSelection(Integer selection) {
 		//WorkingSetCache.impl.setCurrentWorkingSet(selection, true);
-		StateManager.impl.setWorkingSet(selection);
+		StateManager.impl.setWorkingSet(WorkingSetCache.impl.getWorkingSet(selection));
 	}
 	
 	protected void setBodyContainer(LayoutContainer container) {

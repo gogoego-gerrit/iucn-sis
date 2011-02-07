@@ -78,6 +78,7 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 	protected ComplexListener<WorkingSet> closeListener;
 	protected ComplexListener<WorkingSet> saveNewListener;
 	protected ComplexListener<WorkingSet> afterSaveListener;
+	protected ComplexListener<WorkingSet> saveExistingListener;
 	
 	public WorkingSetNewWSPanel() {
 		super();
@@ -89,22 +90,31 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		super();
 		cancelListener = new SimpleListener() {
 			public void handleEvent() {
+				parent.refreshFeature();
 				parent.setManagerTab();	
 			}
 		};
 		closeListener = new ComplexListener<WorkingSet>() {
 			public void handleEvent(WorkingSet eventData) {
+				parent.refreshFeature();
 				parent.setManagerTab();
 			}
 		};
 		saveNewListener = new ComplexListener<WorkingSet>() {
 			public void handleEvent(WorkingSet eventData) {
+				parent.refreshFeature();
 				parent.setEditWorkingSetTab();
 			}
 		};
 		afterSaveListener = new ComplexListener<WorkingSet>() {
 			public void handleEvent(WorkingSet eventData) {
+				parent.refreshFeature();
 				parent.setEditTaxaTab();
+			}
+		};
+		saveExistingListener = new ComplexListener<WorkingSet>() {
+			public void handleEvent(WorkingSet eventData) {
+				parent.refreshFeature();
 			}
 		};
 		build();
@@ -324,7 +334,6 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 	private void save(final int saveMode) {
 		enableSaveButtons(false);
 
-		String manager = managerHTML.getText();
 		String descriptionText = description.getText();
 		String notesText = notes.getText();
 		final String name = XMLUtils.clean(workingSetName.getText());
@@ -395,10 +404,10 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 					/*ClientUIContainer.bodyContainer.tabManager.panelManager.workingSetHierarchy
 							.setCurrentlySelected(id);*/
 					if (saveMode == SAVE) {
-						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
+						Info.display(new InfoConfig("Successful Save", "Successfully saved new working set " + name));
 						fireSaveNewListener(currentWorkingSet);
 					} else if (saveMode == SAVEANDEXIT) {
-						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
+						Info.display(new InfoConfig("Successful Save", "Successfully saved new working set " + name));
 						fireCloseListener(currentWorkingSet);
 					} else {
 						fireAfterSaveListener(currentWorkingSet);
@@ -425,6 +434,7 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 							.setCurrentlySelected(id);*/
 					if (saveMode == SAVE) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
+						fireSaveExistingListener(currentWorkingSet);
 					} else if (saveMode == SAVEANDEXIT) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
 						fireCloseListener(currentWorkingSet);
@@ -432,7 +442,6 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 						fireAfterSaveListener(currentWorkingSet);
 						//FIXME: manager.workingSetOptionsPanel.forceRefreshTaxaList(WorkingSetOptionsPanel.ADDBROWSE);
 					}
-					
 				}
 			});
 
@@ -458,4 +467,8 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 		cancelListener.handleEvent();
 	}
 
+	private void fireSaveExistingListener(WorkingSet ws) {
+		saveExistingListener.handleEvent(ws);
+	}
+	
 }

@@ -146,17 +146,27 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 					ListStore<NavigationModelData<Assessment>> store, Grid<NavigationModelData<Assessment>> grid) {
 				Assessment assessment = model.getModel();
 				String style;
-				if (assessment == null)
+				String value;
+				if (assessment == null) {
 					style = MarkedCache.NONE;
-				else
+					value = model.get(property);
+				}
+				else {
 					style = MarkedCache.impl.getAssessmentStyle(assessment.getId());
+					value = AssessmentType.DRAFT_ASSESSMENT_STATUS_ID == (assessment.getAssessmentType().getId()) ? 
+							getDraftDisplayableString(assessment) : getPublishedDisplayableString(assessment);
+				}
 				//TODO: add lock icon if locked.
-				return "<span class=\"" + style + "\">" + model.get(property) + "</span>";
+				return "<span class=\"" + style + "\">" + value + "</span>";
 			}
 		});
 		
 		list.add(display);
-		list.add(new ColumnConfig("status", "Status", 10));
+		
+		ColumnConfig status = new ColumnConfig("status", "Status", 10);
+		status.setHidden(true);
+		
+		list.add(status);
 		
 		return new ColumnModel(list);
 	}
@@ -183,40 +193,12 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 					callback.onSuccess(store);
 				}
 				public void onSuccess(String result) {
-					// TODO Auto-generated method stub
 					for (Assessment current : AssessmentCache.impl.getDraftAssessmentsForTaxon(curNavTaxon.getId())) {
-						String displayable;
-						if (current.getDateAssessed() != null )
-							displayable = FormattedDate.impl.getDate();
-						else
-							displayable = "";
-						
 						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
-						
-						if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
-								current)) {
-							if (displayable == null || displayable.equals(""))
-								if (current.getLastEdit() == null)
-									displayable = "New";
-								else
-									displayable = FormattedDate.impl.getDate(current.getLastEdit().getCreatedDate());
-
-							if (current.isRegional())
-								displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
-							else
-								displayable += " --- " + "Global";
-							
-							model.set("name", displayable);
-							model.set("locked", Boolean.FALSE);
-							model.set("status", "draft");
-						} else {
-							if (current.isRegional())
-								model.set("name", "Regional Draft Assessment");
-							else
-								model.set("name", "Global Draft Assessment");
-							model.set("locked", Boolean.TRUE);
-							model.set("status", "draft");
-						}
+						model.set("name", getDraftDisplayableString(current));
+						model.set("status", "draft");
+						model.set("locked", !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
+									current));
 						
 						store.add(model);
 					}
@@ -226,21 +208,7 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 							continue;
 						
 						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
-						
-						String displayable;
-						if (current.getDateAssessed() != null)
-							displayable = FormattedDate.impl.getDate(current.getDateAssessed());
-						else
-							displayable = "";
-
-						if (current.isRegional())
-							displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
-						else
-							displayable += " --- " + "Global";
-
-						displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(current);
-
-						model.set("name", displayable);
+						model.set("name", getPublishedDisplayableString(current));
 						model.set("type", "published");
 
 						store.add(model);
@@ -256,55 +224,14 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 					for (Assessment current : result) {
 						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
 						if (AssessmentType.DRAFT_ASSESSMENT_STATUS_ID == (current.getAssessmentType().getId())) {
-							String displayable;
-							if (current.getDateAssessed() != null )
-								displayable = FormattedDate.impl.getDate();
-							else
-								displayable = "";
-							
-							if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
-									current)) {
-								if (displayable == null || displayable.equals(""))
-									if (current.getLastEdit() == null)
-										displayable = "New";
-									else
-										displayable = FormattedDate.impl.getDate(current.getLastEdit().getCreatedDate());
-
-								if (current.isRegional())
-									displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
-								else
-									displayable += " --- " + "Global";
-								
-								model.set("name", displayable);
-								model.set("locked", Boolean.FALSE);
-								model.set("status", "draft");
-							} else {
-								if (current.isRegional())
-									model.set("name", "Regional Draft Assessment");
-								else
-									model.set("name", "Global Draft Assessment");
-								model.set("locked", Boolean.TRUE);
-								model.set("status", "draft");
-							}
+							model.set("name", getDraftDisplayableString(current));
+							model.set("status", "draft");
+							model.set("locked", !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
+									current));
 						}
 						else {
-							String displayable;
-							if (current.getDateAssessed() != null)
-								displayable = FormattedDate.impl.getDate(current.getDateAssessed());
-							else
-								displayable = "";
-
-							if (current.isRegional())
-								displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
-							else
-								displayable += " --- " + "Global";
-
-							displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(current);
-
-							model.set("name", displayable);
+							model.set("name", getPublishedDisplayableString(current));
 							model.set("type", "published");
-
-							store.add(model);
 						}
 						
 						store.add(model);
@@ -316,6 +243,52 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 				}
 			});
 		}
+	}
+	
+	private String getDraftDisplayableString(Assessment current) {
+		String displayable;
+		if (current.getDateAssessed() != null )
+			displayable = FormattedDate.impl.getDate();
+		else
+			displayable = "";
+		
+		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
+				current)) {
+			if (displayable == null || displayable.equals(""))
+				if (current.getLastEdit() == null)
+					displayable = "New";
+				else
+					displayable = FormattedDate.impl.getDate(current.getLastEdit().getCreatedDate());
+
+			if (current.isRegional())
+				displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
+			else
+				displayable += " --- " + "Global";
+		} else {
+			if (current.isRegional())
+				displayable = "Regional Draft Assessment";
+			else
+				displayable = "Global Draft Assessment";
+		}
+		
+		return displayable;
+	}
+	
+	private String getPublishedDisplayableString(Assessment current) {
+		String displayable;
+		if (current.getDateAssessed() != null)
+			displayable = FormattedDate.impl.getDate(current.getDateAssessed());
+		else
+			displayable = "";
+
+		if (current.isRegional())
+			displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
+		else
+			displayable += " --- " + "Global";
+
+		displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(current);
+		
+		return displayable;
 	}
 	
 	@Override
