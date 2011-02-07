@@ -242,12 +242,17 @@ public class AssessmentFilterPanel extends HorizontalPanel {
 			regionText.append(" with ");
 			for (Iterator<Region> iter = filter.getRegions().iterator(); iter.hasNext(); ) {
 				Region region = iter.next();
-				if (!iter.hasNext() && !"".equals(regionText.toString()))
-					regionText.append(filter.getRegionType() + " " + region.getRegionName());
+				if (!iter.hasNext() && !"".equals(regionText.toString())) {
+					if (filter.getRegions().size() > 1)
+						regionText.append(filter.getRegionType() + " ");
+					regionText.append(region.getRegionName());
+				}
 				else {
 					regionText.append(region.getRegionName());
-					if (iter.hasNext())
+					if (iter.hasNext() && filter.getRegions().size() > 2)
 						regionText.append(", ");
+					else
+						regionText.append(" ");
 				}
 			}
 			regionText.append(" locality");
