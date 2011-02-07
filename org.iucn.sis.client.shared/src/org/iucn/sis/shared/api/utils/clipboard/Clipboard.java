@@ -13,6 +13,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
@@ -138,8 +139,8 @@ public class Clipboard {
 			LayoutContainer parent = (LayoutContainer) getParent();
 			parent.remove(this);
 
-			if ((clipboard.get(source)).isEmpty() && headerInstance != null)
-				headerInstance.remove(headerInstance);
+			if ((clipboard.get(source) == null || clipboard.get(source).isEmpty()) && headerInstance != null)
+				parent.removeFromParent();
 
 			if (clipboard.isEmpty()) {
 				removeAll();
@@ -185,8 +186,6 @@ public class Clipboard {
 	}
 
 	private HashMap<String, ArrayList<ClipboardItem>> clipboard;
-
-	private AccordionLayout expand;
 
 	/**
 	 * Creates a new clipboard object
@@ -338,10 +337,9 @@ public class Clipboard {
 	 */
 	public void show() {
 		final Window popup = WindowUtils.getWindow(false, false, "Clipboard");
+		popup.setLayout(new FillLayout());
 
-		LayoutContainer itemPanel = new LayoutContainer();
-		expand = new AccordionLayout();
-		itemPanel.setLayout(expand);
+		LayoutContainer itemPanel = new LayoutContainer(new AccordionLayout());
 
 		Iterator<String> iterator = clipboard.keySet().iterator();
 		while (iterator.hasNext()) {
@@ -351,8 +349,7 @@ public class Clipboard {
 			ContentPanel expandItem = new ContentPanel();
 			expandItem.setHeading(source);
 
-			for (int i = 0; i < textList.size(); i++) {
-				ClipboardItem item = (ClipboardItem) textList.get(i);
+			for (ClipboardItem item : textList) {
 				// if (i % 2 == 0)
 				// item.addStyleName("clipboardSpacer");
 				item.setHeader(itemPanel);
