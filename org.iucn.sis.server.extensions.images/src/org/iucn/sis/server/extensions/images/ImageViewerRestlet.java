@@ -2,7 +2,6 @@ package org.iucn.sis.server.extensions.images;
 
 import java.io.IOException;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -26,10 +25,12 @@ import com.solertium.vfs.VFSPath;
 public class ImageViewerRestlet extends BaseServiceRestlet {
 	
 	private final VFS vfs;
+	private final ImageUtils imageUtils;
 
 	public ImageViewerRestlet(Context context) {
 		super(context);
 		vfs = SIS.get().getVFS();
+		imageUtils = new ImageUtils(context);
 	}
 
 	@Override
@@ -41,7 +42,7 @@ public class ImageViewerRestlet extends BaseServiceRestlet {
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final String mode = (String) request.getAttributes().get("mode");
 		final Integer taxonID = getTaxonID(request);
-		final String uri = request.getResourceRef().getRemainingPart();
+		final String uri = request.getResourceRef().getLastSegment();
 		
 		
 		final VFSPath stripedPath = 
@@ -55,6 +56,7 @@ public class ImageViewerRestlet extends BaseServiceRestlet {
 		try {
 			document = vfs.getDocument(stripedPath);
 		} catch (IOException e) {
+			Debug.println(e);
 			return notAvailable();
 		}
 		
@@ -82,11 +84,16 @@ public class ImageViewerRestlet extends BaseServiceRestlet {
 				continue;
 			}
 			
-			String currentItemUri = "/" + node.getAttribute("id") + "." + extension;
+			String currentItemUri = node.getAttribute("id") + "." + extension;
 			boolean isPrimary = "true".equals(node.getAttribute("primary"));
 			
 			if (uri.equals(currentItemUri) || (uri.equals("primary") && isPrimary)) {
-				final String path = "/images/bin" + currentItemUri;
+				final String path = "/images/bin/" + currentItemUri;
+				if (!vfs.exists(new VFSPath(path))) {
+					Debug.println("Reportedly existing image at {0} does not exist.", path);
+					continue;
+				}
+				
 				if ("thumb".equals(mode)) {
 					String sizeStr = request.getResourceRef().getQueryAsForm().getFirstValue("size", "100");
 					int size;
@@ -97,10 +104,8 @@ public class ImageViewerRestlet extends BaseServiceRestlet {
 					}
 					
 					try {
-						return represent(GoGoEgo.get().getImageManipulatorHelper(getContext()).
-								getResizedURI(path, size), mt);
+						return represent(imageUtils.getResizedURI(path, size), mt);
 					} catch (Throwable e) {
-						Debug.println("Failed to resize image, returning default instead.");
 						return represent(path, mt);
 					}
 				}
@@ -119,6 +124,7 @@ public class ImageViewerRestlet extends BaseServiceRestlet {
 				vfs.getInputStream(new VFSPath(path)), mt
 			);
 		} catch (IOException e) {
+			Debug.println("Failed to represent {0}\r\n{1}", path, e);
 			return notAvailable();
 		}
 	}
