@@ -14,7 +14,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.NamingException;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.ReferenceIO;
+import org.iucn.sis.server.api.io.TaxonIO;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
@@ -63,6 +66,11 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	
 	private ConversionMode mode = ConversionMode.ALL;
 	
+	private UserIO userIO;
+	private TaxonIO taxonIO;
+	private ReferenceIO referenceIO;
+	private AssessmentIO assessmentIO;
+	
 	public AssessmentConverter() throws NamingException {
 		this("sis_lookups");
 	}
@@ -94,6 +102,11 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	
 	@Override
 	protected void run() throws Exception {
+		userIO = new UserIO(session);
+		taxonIO = new TaxonIO(session);
+		referenceIO = new ReferenceIO(session);
+		assessmentIO = new AssessmentIO(session);
+		
 		if (ConversionMode.DRAFT.equals(mode))
 			convertAllDrafts(data.getOldVFS(), data.getNewVFS());
 		else if (ConversionMode.PUBLISHED.equals(mode))
@@ -123,7 +136,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		//long assessmentsConverted = 0;
 		AssessmentParser parser = new AssessmentParser();
 
-		User user = SIS.get().getUserIO().getUserFromUsername("admin");
+		User user = userIO.getUserFromUsername("admin");
 		
 		final AtomicInteger converted = new AtomicInteger(0);
 		for (File file : allFiles) {
@@ -142,7 +155,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							} else {
 								userToSave = user;
 							}
-							if (!SIS.get().getAssessmentIO().writeAssessment(assessment, userToSave, false).status.isSuccess()) {
+							if (!assessmentIO.writeAssessment(assessment, userToSave, false).status.isSuccess()) {
 								throw new Exception("The assessment " + file.getPath() + " did not want to save");
 							}
 							
@@ -182,7 +195,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		assessment.setSourceDate(assessData.getSourceDate());
 		assessment.setType(assessData.getType());
 		assessment.setDateFinalized(assessData.getDateFinalized());
-		assessment.setTaxon(SIS.get().getTaxonIO().getTaxon(session, Integer.valueOf(assessData.getSpeciesID())));
+		assessment.setTaxon(taxonIO.getTaxon(Integer.valueOf(assessData.getSpeciesID())));
 		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType())) {
 			String dateAssessed = assessData.getDateAssessed();
 			if (dateAssessed != null && !"".equals(dateAssessed)) {
@@ -292,7 +305,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 
 			for (ReferenceUI curRef : assessData.getReferences(curField.getKey())) {
-				Reference ref = SIS.get().getReferenceIO().getReferenceByHashCode(curRef.getReferenceID());
+				Reference ref = referenceIO.getReferenceByHashCode(curRef.getReferenceID());
 				if (ref != null) {
 					field.getReference().add(ref);
 //					ref.getField().add(field);
@@ -305,7 +318,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		}
 
 		for (ReferenceUI curRef : assessData.getReferences("global")) {
-			Reference ref = SIS.get().getReferenceIO().getReferenceByHashCode(curRef.getReferenceID());
+			Reference ref = referenceIO.getReferenceByHashCode(curRef.getReferenceID());
 			if (ref != null) {
 				assessment.getReferences().add(ref);
 				ref.getAssessment().add(assessment);

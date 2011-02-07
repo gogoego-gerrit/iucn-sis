@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.helpers.AuthorizableObject;
 import org.iucn.sis.shared.helpers.PermissionGroup;
@@ -41,7 +40,7 @@ public class PermissionConverter extends GenericConverter<String> {
 		
 		//SAVE ALL PERMISSIONS
 		for (org.iucn.sis.shared.api.models.PermissionGroup group : nameToNewGroup.values())
-			SIS.get().getManager().getSession().save(group);
+			session.save(group);
 	
 		
 	}

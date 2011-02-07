@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.hibernate.HibernateException;
-import org.iucn.sis.server.api.persistance.RelationshipDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Infratype;
@@ -61,16 +60,15 @@ public class LibraryGenerator extends GenericConverter<String> {
 
 	public void generateAssessmentTypes() throws PersistentException {
 		AssessmentType type = AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID);
-		print("this is type " + type);
 		session.save(type);
 		session.save(
 				AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
 	}
 
-	public static void generateRelationships() throws PersistentException {
-		RelationshipDAO.save(Relationship.fromName(Relationship.ALL));
-		RelationshipDAO.save(Relationship.fromName(Relationship.OR));
-		RelationshipDAO.save(Relationship.fromName(Relationship.AND));
+	public void generateRelationships() throws PersistentException {
+		session.save(Relationship.fromName(Relationship.ALL));
+		session.save(Relationship.fromName(Relationship.OR));
+		session.save(Relationship.fromName(Relationship.AND));
 	}
 
 	public void generateTaxonLevel() throws PersistentException {

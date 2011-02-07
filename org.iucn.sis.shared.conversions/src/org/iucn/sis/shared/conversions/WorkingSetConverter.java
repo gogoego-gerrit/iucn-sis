@@ -8,9 +8,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.gogoego.api.utils.DocumentUtils;
-import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.RelationshipIO;
+import org.iucn.sis.server.api.io.TaxonIO;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.utils.FormattedDate;
 import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -31,8 +32,16 @@ import com.solertium.vfs.VFS;
 
 public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 	
+	private UserIO userIO;
+	private RelationshipIO relationshipIO;
+	private TaxonIO taxonIO;
+	
 	@Override
 	protected void run() throws Exception {
+		userIO = new UserIO(session);
+		relationshipIO = new RelationshipIO(session);
+		taxonIO = new TaxonIO(session);
+		
 		convertAllWorkingSets(data.getOldVFS());
 	}
 	
@@ -49,7 +58,7 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 					WorkingSetData data = new WorkingSetParser().parseSingleWorkingSet(ndoc.getDocumentElement());
 					WorkingSet set = convertWorkingSetData(data, oldWSIDToUserNames.get(data.getId()));
 					if (set != null) {
-						SIS.get().getManager().getSession().save(set);
+						session.save(set);
 						//converted++;
 					} else {
 						print("The set " + file.getPath() + " is null");
@@ -119,34 +128,34 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		//ADD ASSESSMENT TYPE
 		ws.setAssessmentTypes(new HashSet<AssessmentType>());
 		if (data.getFilter().isRecentPublished()) {
-			AssessmentType type = (AssessmentType)SIS.get().getManager().getSession().merge(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
+			AssessmentType type = (AssessmentType)session.merge(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
 			ws.getAssessmentTypes().add(type);
 			ws.setIsMostRecentPublished(new Boolean(true));
 		} else if (data.getFilter().isAllPublished()) {
-			AssessmentType type = (AssessmentType)SIS.get().getManager().getSession().merge(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
+			AssessmentType type = (AssessmentType)session.merge(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
 			ws.getAssessmentTypes().add(type);
 			ws.setIsMostRecentPublished(new Boolean(false));
 		} if (data.getFilter().isDraft()) {
-			AssessmentType type = (AssessmentType)SIS.get().getManager().getSession().merge(AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID));
+			AssessmentType type = (AssessmentType)session.merge(AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID));
 			ws.getAssessmentTypes().add(type);
 		}
 		
 		//ADD REGIONS & RELATIONSHIP
 		if (data.getFilter().isAllRegions()) {			
-			ws.setRelationship(SIS.get().getRelationshipIO().getRelationshipByName(Relationship.ALL));
+			ws.setRelationship(relationshipIO.getRelationshipByName(Relationship.ALL));
 			ws.getRegion().clear();			
 		} else {
 			for (String regionID : data.getFilter().getRegions()) {
-				ws.getRegion().add(RegionConverter.getNewRegion(Integer.valueOf(regionID)));
+				ws.getRegion().add(RegionConverter.getNewRegion(session, Integer.valueOf(regionID)));
 			}
-			Relationship rel = SIS.get().getRelationshipIO().getRelationshipByName(data.getFilter().getRegionType());
+			Relationship rel = relationshipIO.getRelationshipByName(data.getFilter().getRegionType());
 			ws.setRelationship(rel);
 		}
 		
 		
 
 		//ADD USERS
-		User creator = SIS.get().getUserIO().getUserFromUsername(data.getCreator());
+		User creator = userIO.getUserFromUsername(data.getCreator());
 		if( creator == null ) {
 			print("Couldn't find user " + data.getCreator());
 			return null;
@@ -155,7 +164,7 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		creator.getOwnedWorkingSets().add(ws);
 		if (subscribedUsernames != null)
 		for (String username : subscribedUsernames) {
-			User user = SIS.get().getUserIO().getUserFromUsername(username);
+			User user = userIO.getUserFromUsername(username);
 			if (user != null)
 				ws.getUsers().add(user);
 //			user.getSubscribedWorkingSets().add(ws);
@@ -168,7 +177,7 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		//ADD TAXON
 		for (String taxonID : data.getSpeciesIDs()) {
 			try{
-			Taxon taxon = SIS.get().getTaxonIO().getTaxon(session, Integer.valueOf(taxonID));
+			Taxon taxon = taxonIO.getTaxon(Integer.valueOf(taxonID));
 			if( taxon != null ) {
 					taxon.setWorking_set(new HashSet<WorkingSet>());
 					taxon.getWorking_set().add(ws);

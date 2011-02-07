@@ -9,7 +9,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.hibernate.HibernateException;
-import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.InfratypeIO;
+import org.iucn.sis.server.api.io.IsoLanguageIO;
+import org.iucn.sis.server.api.io.ReferenceIO;
+import org.iucn.sis.server.api.io.TaxonIO;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Edit;
@@ -30,11 +34,23 @@ import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 
 public class TaxonConverter extends GenericConverter<String> {
+	
+	private UserIO userIO;
+	private TaxonIO taxonIO;
+	private IsoLanguageIO isoLanguageIO;
+	private InfratypeIO infratypeIO;
+	private ReferenceIO referenceIO;
 
 	@Override
 	protected void run() throws Exception {
+		userIO = new UserIO(session);
+		taxonIO = new TaxonIO(session);
+		isoLanguageIO = new IsoLanguageIO(session);
+		infratypeIO = new InfratypeIO(session);
+		referenceIO = new ReferenceIO(session);
+		
 		List<File> allFiles = FileListing.main(data + "/HEAD/browse/nodes");
-		User user = SIS.get().getUserIO().getUserFromUsername("admin");
+		User user = userIO.getUserFromUsername("admin");
 		if (user == null)
 			throw new NullPointerException("No user admin exists");
 		
@@ -166,7 +182,7 @@ public class TaxonConverter extends GenericConverter<String> {
 		
 		//taxon.getFootprint();
 		taxon.toXML();
-		SIS.get().getTaxonIO().afterSaveTaxon(taxon);
+		taxonIO.afterSaveTaxon(taxon);
 	}
 
 	public Taxon convertTaxonNode(TaxonNode taxon, Date lastModified) throws PersistentException {
@@ -201,7 +217,7 @@ public class TaxonConverter extends GenericConverter<String> {
 			commonName.setValidated(commonNameData.isValidated());
 
 			// ADD ISO LANGUAGUE
-			commonName.setIso(SIS.get().getIsoLanguageIO().getIsoLanguageByCode(commonNameData.getIsoCode()));
+			commonName.setIso(isoLanguageIO.getIsoLanguageByCode(commonNameData.getIsoCode()));
 			newTaxon.getCommonNames().add(commonName);
 			commonName.setTaxon(newTaxon);
 					
@@ -241,10 +257,10 @@ public class TaxonConverter extends GenericConverter<String> {
 
 		// ADD INFRARANK
 		if (taxon.getInfrarankType() == TaxonNode.INFRARANK_TYPE_SUBSPECIES) {
-			Infratype infratype = SIS.get().getInfratypeIO().getInfratype(Infratype.SUBSPECIES_NAME);
+			Infratype infratype = infratypeIO.getInfratype(Infratype.SUBSPECIES_NAME);
 			newTaxon.setInfratype(infratype);
 		} else if (taxon.getInfrarankType() == TaxonNode.INFRARANK_TYPE_VARIETY) {
-			Infratype infratype = SIS.get().getInfratypeIO().getInfratype(Infratype.VARIETY_NAME);
+			Infratype infratype = infratypeIO.getInfratype(Infratype.VARIETY_NAME);
 			newTaxon.setInfratype(infratype);
 		}
 
@@ -252,7 +268,7 @@ public class TaxonConverter extends GenericConverter<String> {
 		// ADD REFERENCES
 		for (ReferenceUI refUI : taxon.getReferencesAsList()) {
 			String hash = refUI.getReferenceID();
-			Reference ref = SIS.get().getReferenceIO().getReferenceByHashCode(hash);
+			Reference ref = referenceIO.getReferenceByHashCode(hash);
 			if (ref != null) {
 				newTaxon.getReference().add(ref);
 			} else {
@@ -263,7 +279,7 @@ public class TaxonConverter extends GenericConverter<String> {
 		// ADD LAST EDIT
 		if (taxon.getLastUpdatedBy() != null) {
 			Edit edit = new Edit();
-			edit.setUser(SIS.get().getUserIO().getUserFromUsername(taxon.getLastUpdatedBy()));
+			edit.setUser(userIO.getUserFromUsername(taxon.getLastUpdatedBy()));
 			edit.setCreatedDate(lastModified);
 		}
 		return newTaxon;

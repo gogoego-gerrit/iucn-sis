@@ -2,7 +2,8 @@ package org.iucn.sis.shared.conversions;
 
 import java.io.File;
 
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.RegionIO;
 import org.iucn.sis.shared.helpers.Region;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
@@ -18,11 +19,11 @@ public class RegionConverter extends GenericConverter<String> {
 		ndoc.parse(FileListing.readFileAsString(file));
 		NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName("region");
 		org.iucn.sis.shared.api.models.Region newRegion = new org.iucn.sis.shared.api.models.Region(org.iucn.sis.shared.api.models.Region.GLOBAL_ID, "Global", "Global");
-		SIS.get().getManager().getSession().save(newRegion);
+		session.save(newRegion);
 		for (int i = 0; i < list.getLength(); i++) {
 			Region oldRegion = new Region(list.elementAt(i));
 			newRegion = new org.iucn.sis.shared.api.models.Region(getNewRegionID(Integer.valueOf(oldRegion.getId())), oldRegion.getRegionName(), oldRegion.getDescription());
-			SIS.get().getManager().getSession().save(newRegion);
+			session.save(newRegion);
 		}
 
 	}
@@ -31,8 +32,9 @@ public class RegionConverter extends GenericConverter<String> {
 		return oldID + 2;
 	}
 	
-	public static org.iucn.sis.shared.api.models.Region getNewRegion(Integer oldID) {
-		return SIS.get().getRegionIO().getRegion(getNewRegionID(oldID));
+	public static org.iucn.sis.shared.api.models.Region getNewRegion(Session session, Integer oldID) {
+		RegionIO io = new RegionIO(session);
+		return io.getRegion(getNewRegionID(oldID));
 	}
 
 }

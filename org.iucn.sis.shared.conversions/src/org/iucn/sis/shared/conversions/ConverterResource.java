@@ -7,7 +7,6 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 
-import org.iucn.sis.server.api.application.SISApplication;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -15,8 +14,6 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.representation.OutputRepresentation;
 import org.restlet.representation.Representation;
-
-import com.solertium.util.restlet.RestletUtils;
 
 public class ConverterResource extends Restlet {
 	
@@ -53,8 +50,6 @@ public class ConverterResource extends Restlet {
 		}
 		
 		new Thread(new ConverterWorker(writer, step, proceed)).start();
-			
-		RestletUtils.addHeaders(arg1, SISApplication.NO_TRANSACTION_HANDLE, "true");
 		
 		arg1.setEntity(representation);
 	}

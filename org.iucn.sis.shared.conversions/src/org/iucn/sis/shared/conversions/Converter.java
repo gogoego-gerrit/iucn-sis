@@ -12,8 +12,6 @@ import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.shared.api.debug.Debug;
 
-import com.solertium.util.TrivialExceptionHandler;
-
 public abstract class Converter {
 	
 	protected BufferedWriter writer;
@@ -35,7 +33,7 @@ public abstract class Converter {
 	}
 	
 	public boolean start() {
-		session = SISPersistentManager.instance().getSession();
+		session = SISPersistentManager.instance().openSession();
 		session.beginTransaction();
 		
 		Date start = Calendar.getInstance().getTime();
@@ -99,7 +97,6 @@ public abstract class Converter {
 	protected void commitAndStartTransaction() {
 		session.getTransaction().commit();
 		
-		session = SISPersistentManager.instance().getSession();
 		session.beginTransaction();
 	}
 	

@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.HibernateException;
-import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.PermissionIO;
+import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.User;
@@ -26,6 +27,9 @@ public class UserConvertor extends Converter {
 	
 	@Override
 	protected void run() throws Exception {
+		final UserIO userIO = new UserIO(session);
+		final PermissionIO permissionIO = new PermissionIO(session);
+		
 		final Map<String, String> userHashToHashes = new HashMap<String, String>();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(UserConvertor.class.getResourceAsStream("hamsterfish"))); 
 		
@@ -66,7 +70,7 @@ public class UserConvertor extends Converter {
 					String[] quickgroups = quickgroup.split(",");
 					for (String group : quickgroups){
 						try {
-							PermissionGroup permGroup = SIS.get().getPermissionIO().getPermissionGroup(group);
+							PermissionGroup permGroup = permissionIO.getPermissionGroup(group);
 							if (permGroup == null)
 								continue;
 							user.getPermissionGroups().add(permGroup);
@@ -76,7 +80,7 @@ public class UserConvertor extends Converter {
 					}
 					if (user.getUsername().equalsIgnoreCase("admin")) {
 						try {
-						user.getPermissionGroups().add(SIS.get().getPermissionIO().getPermissionGroup("sysAdmin"));
+						user.getPermissionGroups().add(permissionIO.getPermissionGroup("sysAdmin"));
 						} catch (PersistentException e) {							
 							throw new RuntimeException(e);
 						}
@@ -84,12 +88,9 @@ public class UserConvertor extends Converter {
 				}
 				
 				try {
-					SIS.get().getManager().getSession().save(user);
-					SIS.get().getUserIO().afterSave(user);
+					session.save(user);
+					userIO.afterSave(user);
 				} catch (HibernateException e) {
-					// TODO Auto-generated catch block
-					throw new RuntimeException(e);
-				} catch (PersistentException e) {
 					// TODO Auto-generated catch block
 					throw new RuntimeException(e);
 				} catch (NotFoundException e) {
