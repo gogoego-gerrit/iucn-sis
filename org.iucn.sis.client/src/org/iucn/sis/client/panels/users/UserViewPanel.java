@@ -17,6 +17,7 @@ import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.User;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -33,7 +34,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Popup;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -88,7 +89,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 	private TextField<String> affiliationFilter;
 	private SimpleComboBox<String> activeAccountFilter;
 	private FormPanel filterPanel;
-	private Popup filterPopup;
+	private Window filterPopup;
 
 	private final CheckboxMultiTriggerField permissionGroups;
 
@@ -346,16 +347,14 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 			bar.add(new SeparatorToolItem());
 			item = new Button("Show Filter(s)", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					filterPopup = new Popup();
+					filterPopup = new Window();
+					filterPopup.setHeading("Set Filters");
+					filterPopup.setLayout(new FillLayout());
 					filterPopup.setStyleName("navigator");
-					filterPopup.setShim(true);
-					// filterPopup.setShadow(true);
+					filterPopup.setButtonAlign(HorizontalAlignment.CENTER);
+					filterPopup.setSize(380, 260);
 					filterPopup.add(filterPanel);
-					filterPopup.setLayout(new FitLayout());
-					filterPopup.setSize(380, 230);
 					filterPopup.show();
-					filterPopup.setPagePosition(ce.getButton().getAbsoluteLeft() - 160 > 0 ? ce.getButton()
-							.getAbsoluteLeft() - 160 : 0, ce.getButton().getAbsoluteTop() + 30);
 				}
 			});
 			item.setIconStyle("icon-user-comment");
@@ -366,6 +365,8 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		c.add(pagingBar);
 
 		filterPanel = new FormPanel();
+		filterPanel.setBodyBorder(false);
+		filterPanel.setBorders(false);
 		filterPanel.setHeaderVisible(false);
 		filterPanel.add(usernameFilter);
 		filterPanel.add(firstFilter);
@@ -393,8 +394,8 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		nicknameFilter.addKeyListener(enter);
 		affiliationFilter.addKeyListener(enter);
 
-		filterPanel.getButtonBar().add(applyFilters);
-		filterPanel.getButtonBar().add(new Button("Clear Filters", new SelectionListener<ButtonEvent>() {
+		filterPanel.addButton(applyFilters);
+		filterPanel.addButton(new Button("Clear Filters", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				filterPopup.hide();
 				usernameFilter.setValue("");
@@ -408,7 +409,6 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 				loader.getPagingLoader().load();
 			}
 		}));
-		// filterPanel.setAlignment(HorizontalAlignment.LEFT);
 
 		add(bar, new BorderLayoutData(LayoutRegion.NORTH, 25));
 		add(c, new BorderLayoutData(LayoutRegion.SOUTH, 25));
