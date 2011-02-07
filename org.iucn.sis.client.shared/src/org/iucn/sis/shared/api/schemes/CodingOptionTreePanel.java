@@ -205,8 +205,7 @@ public class CodingOptionTreePanel extends LayoutContainer {
 			String curLevelID = row.getRowNumber();
 			
 			StringBuilder displayableDesc = new StringBuilder();
-			displayableDesc.append(curLevelID.equals("0") ? "" : curLevelID);
-			displayableDesc.append(". ");
+			displayableDesc.append(curLevelID.equals("0") ? "" : (curLevelID + ". "));
 			displayableDesc.append(curDesc);
 
 			if (!row.getChildren().isEmpty()) {
@@ -224,15 +223,14 @@ public class CodingOptionTreePanel extends LayoutContainer {
 		
 		private boolean isValid() {
 			String curLevelID = row.getRowNumber();
-
-			try {
-				if (curLevelID.indexOf(".") < 0) {
+			if ("100".equals(curLevelID) || curLevelID.indexOf('.') > 0) {
+				try {
 					if (Integer.parseInt(curLevelID) >= 100)
 						return false;
-				} else if (Integer.parseInt(curLevelID.split("\\.")[0]) >= 100)
-					return false;
-			} catch (NumberFormatException ignored) {
-				return false;
+				} catch (NumberFormatException e) {
+					//Not a number, doesn't apply to deprecation format
+					return true;
+				}
 			}
 			
 			return true;
