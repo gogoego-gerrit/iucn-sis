@@ -80,4 +80,29 @@ public class StateChangeEvent {
 	public String getUrl() {
 		return url;
 	}
+	
+	public String getDisplayName() {
+		StringBuilder out = new StringBuilder();
+		
+		boolean hasData = false;
+		if (hasData = getAssessment() != null) {
+			out.append(getAssessment().getAssessmentType().getDisplayName(true));
+			out.append(" Assessment for ");
+		}
+		
+		if (hasData = getTaxon() != null) {
+			out.append(getTaxon().getFriendlyName());
+			out.append(" Taxon");
+		}
+		
+		if (getWorkingSet() != null) {
+			if (hasData)
+				out.append(" in ");
+			out.append(getWorkingSet().getName());
+			if (!getWorkingSet().getName().toLowerCase().endsWith("working set"))
+				out.append(" Working Set");
+		}
+		
+		return out.toString();
+	}
 }

@@ -1,5 +1,6 @@
 package org.iucn.sis.client.container;
 
+import org.iucn.sis.client.api.caches.BookmarkCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.ViewCache;
@@ -65,6 +66,7 @@ public class SimpleSISClient extends SISClientBase {
 		FieldWidgetCache.impl.registerWidgetGenerator(new WidgetGenerator());
 		FieldWidgetCache.impl.registerWidgetGenerator(new BirdlifeWidgetGenerator());
 		RecentlyAccessedCache.impl.load(RecentlyAccessed.USER);
+		BookmarkCache.impl.load();
 		
 		super.initializeCaches(listener);
 	}

@@ -511,6 +511,10 @@ body,td,div,input,p,select,input,button {
 	background: url(../images/icon-wrench-green.png) no-repeat !important;
 }
 
+.icon-bookmark {
+	background: url(../tango/actions/bookmark-new.png) no-repeat !important;
+}
+
 .icon-new-bookmark {
 	background: url(../tango/actions/bookmark-new.png) no-repeat !important;
 }

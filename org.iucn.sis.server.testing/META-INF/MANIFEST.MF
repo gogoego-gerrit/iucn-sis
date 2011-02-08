@@ -41,4 +41,5 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  com.solertium.lwxml;bundle-version="1.1.2",
  com.solertium.lwxml.java;bundle-version="1.1.2",
  com.solertium.util;bundle-version="1.1.2",
- org.iucn.sis.server.extensions.integrity;bundle-version="2.0.0"
+ org.iucn.sis.server.extensions.integrity;bundle-version="2.0.0",
+ org.iucn.sis.server.extensions.bookmarks;bundle-version="2.0.0"

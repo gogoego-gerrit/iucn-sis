@@ -1,0 +1,24 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SIS Bookmarks
+Bundle-SymbolicName: org.iucn.sis.server.extensions.bookmarks
+Bundle-Version: 2.0.0
+Bundle-Activator: org.iucn.sis.server.extensions.bookmarks.ServerActivator
+Require-Bundle: org.iucn.sis.server.api;bundle-version="2.0.0",
+ com.solertium.lwxml;bundle-version="1.1.2",
+ com.solertium.lwxml.java;bundle-version="1.1.2",
+ org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
+ org.gogoego.api;bundle-version="1.1.2",
+ org.hibernate;bundle-version="1.0.0"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.osgi.framework;version="1.4.0",
+ org.restlet,
+ org.restlet.data,
+ org.restlet.ext.xml,
+ org.restlet.representation,
+ org.restlet.resource,
+ org.restlet.routing,
+ org.restlet.security,
+ org.restlet.service,
+ org.restlet.util
+Export-Package: org.iucn.sis.server.extensions.bookmarks

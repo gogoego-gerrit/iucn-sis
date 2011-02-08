@@ -4,12 +4,15 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.BookmarkCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.bookmarks.BookmarkManager;
+import org.iucn.sis.client.panels.bookmarks.NewBookmarkPanel;
 import org.iucn.sis.client.panels.definitions.DefinitionEditorPanel;
 import org.iucn.sis.client.panels.header.BatchChangePanel;
 import org.iucn.sis.client.panels.header.FindReplacePanel;
@@ -30,6 +33,7 @@ import org.iucn.sis.client.panels.viruses.VirusManager;
 import org.iucn.sis.client.panels.zendesk.ZendeskPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
+import org.iucn.sis.shared.api.models.Bookmark;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -60,6 +64,7 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -276,8 +281,6 @@ public class HeaderContainer extends ContentPanel {
 			options.add(createMenuItem("icon-search", "Search for a Taxonomic Concept", new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
 					ClientUIContainer.bodyContainer.openSearch();
-	
-					// ((Button)be.getSource()).setSelected( false );
 				}
 			}));
 		}
@@ -299,6 +302,50 @@ public class HeaderContainer extends ContentPanel {
 			
 			MenuItem item = new MenuItem("Search for a Taxonomic Concept");
 			item.setIconStyle("icon-search");
+			item.setSubMenu(menu);
+			
+			options.add(item);
+		}
+		
+		{
+			Menu menu = new Menu();
+			MenuItem addItem = new MenuItem("Bookmark this page...");
+			addItem.setEnabled(StateManager.impl.getWorkingSet() != null || StateManager.impl.getTaxon() != null);
+			addItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					NewBookmarkPanel panel = new NewBookmarkPanel();
+					panel.show();
+				}
+			});
+			menu.add(addItem);
+			
+			menu.add(new MenuItem("Manage Bookmarks", new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					BookmarkManager manager = new BookmarkManager();
+					manager.show();
+				}
+			}));
+			
+			menu.add(new SeparatorMenuItem());
+			
+			List<Bookmark> list = BookmarkCache.impl.list();
+			if (list.isEmpty()) {
+				MenuItem none = new MenuItem("(no bookmarks)");
+				none.setEnabled(false);
+				menu.add(none);
+			}
+			else {
+				for (final Bookmark bookmark : list) {
+					menu.add(new MenuItem(bookmark.getName(), new SelectionListener<MenuEvent>() {
+						public void componentSelected(MenuEvent ce) {
+							History.newItem(bookmark.getValue());
+						}
+					}));
+				}
+			}
+			
+			MenuItem item = new MenuItem("Bookmarks");
+			item.setIconStyle("icon-bookmark");
 			item.setSubMenu(menu);
 			
 			options.add(item);

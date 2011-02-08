@@ -61,6 +61,10 @@ public class UriBase {
 		return getBase() + "/org.iucn.sis.server.extensions.batchchanges";
 	}
 	
+	public String getBookmarksBase() {
+		return getBase() + "/org.iucn.sis.server.extensions.bookmarks";
+	}
+	
 	public String getCommentsBase() {
 		return getBase() + "/org.iucn.sis.server.extensions.comments";
 	}
