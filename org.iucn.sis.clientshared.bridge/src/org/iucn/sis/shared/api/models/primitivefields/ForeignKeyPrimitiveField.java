@@ -61,6 +61,7 @@ public class ForeignKeyPrimitiveField extends PrimitiveField<Integer> implements
 	public ForeignKeyPrimitiveField deepCopy() {
 		ForeignKeyPrimitiveField ret = new ForeignKeyPrimitiveField();
 		copyInto(ret);
+		ret.setTableID(getTableID());
 		return ret;
 	}
 

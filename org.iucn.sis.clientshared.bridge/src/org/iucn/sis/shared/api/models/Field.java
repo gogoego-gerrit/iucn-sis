@@ -19,18 +19,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
 import org.iucn.sis.shared.api.models.parsers.FieldV2Parser;
-import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.solertium.lwxml.shared.NativeElement;
-import com.solertium.lwxml.shared.NativeNode;
-import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class Field implements Serializable {
 
@@ -319,7 +314,18 @@ public class Field implements Serializable {
 	}
 
 	public boolean isNarrativeField() {
-		return getName().endsWith("Documentation") || getName().equals(CanonicalNames.TaxonomicNotes) || getName().equals(CanonicalNames.RedListRationale);
+		for (String name : CanonicalNames.narrativeFields)
+			if (name.equals(getName()))
+				return true;
+		
+		return getName().endsWith("Documentation");
+	}
+	
+	public boolean isClassificationScheme() {
+		for (String name : CanonicalNames.classificationSchemes)
+			if (name.equals(getName()))
+				return true;
+		return false;
 	}
 
 	public void setAssessment(Assessment value) {

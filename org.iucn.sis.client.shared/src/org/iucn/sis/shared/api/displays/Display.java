@@ -65,6 +65,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.StyledHTML;
 import com.solertium.util.portable.XMLWritingUtils;
@@ -838,29 +840,22 @@ public abstract class Display implements Referenceable {
 			batchChange.setIconStyle("icon-page-copy");
 			
 			Menu subMenu = new Menu(); {
-				/*
-				 * TODO: also for class.schemes.
-				 */
-				if (getField().isNarrativeField()) {
-					MenuItem append = new MenuItem("Append");
-					append.setToolTip("Appends the contents of this field to any existing contents of the target field.");
-					append.addSelectionListener(new SelectionListener<MenuEvent>() {
-						public void componentSelected(MenuEvent ce) {
-							doSimpleBatchChange(ws, field, BatchChangeMode.APPEND);
-						}
-					});
-					subMenu.add(append);
-				}
-					
+				MenuItem append = new MenuItem("Append");
+				append.setToolTip("Appends the contents of this field to any existing contents of the target field.");
+				append.addSelectionListener(new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						doSimpleBatchChange(ws, field, BatchChangeMode.APPEND);
+					}
+				});
+				
 				MenuItem overwrite = new MenuItem("Overwrite");
 				overwrite.setToolTip("Overwrites the content of the target field with the content of this field, even if there is already data in the target field.");
 				overwrite.addSelectionListener(new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
-						WindowUtils.errorAlert("Sorry, this mode is not currently supported with this build of SIS.  It will be supported in a future release.");
-						//doSimpleBatchChange(ws, field, BatchChangeMode.OVERWRITE);
+						doSimpleBatchChange(ws, field, BatchChangeMode.OVERWRITE);
 					}
 				});
-				subMenu.add(overwrite);
+				
 				
 				MenuItem overwriteIfBlank = new MenuItem("Overwrite Only If Blank");
 				overwriteIfBlank.setToolTip("Overwrites the content of the target field with the content of this field, " +
@@ -870,7 +865,15 @@ public abstract class Display implements Referenceable {
 						doSimpleBatchChange(ws, field, BatchChangeMode.OVERWRITE_IF_BLANK);
 					}
 				});
-				subMenu.add(overwriteIfBlank);
+				
+				boolean isClassScheme = getField().isClassificationScheme();
+				if (getField().isNarrativeField() || isClassScheme)
+					subMenu.add(append);
+				
+				if (!isClassScheme) {
+					subMenu.add(overwrite);
+					subMenu.add(overwriteIfBlank);
+				}
 			}
 			
 			batchChange.setSubMenu(subMenu);
@@ -936,18 +939,24 @@ public abstract class Display implements Referenceable {
 				fieldXML.append("</fields>");
 				
 				StringBuffer xml = new StringBuffer("<batchChange>\n");
-				xml.append("<assessment>" + AssessmentCache.impl.getCurrentAssessment() + "</assessment>");
+				xml.append("<assessment>" + AssessmentCache.impl.getCurrentAssessment().getId() + "</assessment>");
 				xml.append(filter.toXML());
 				xml.append(fieldXML.toString());
 				xml.append("<taxa>" + taxaIDs + "</taxa>");
 				xml.append(XMLWritingUtils.writeTag("append", Boolean.toString(BatchChangeMode.APPEND.equals(mode))));
 				xml.append(XMLWritingUtils.writeTag("overwrite", Boolean.toString(BatchChangeMode.OVERWRITE_IF_BLANK.equals(mode))));
-				//TODO: need a force-overwrite mode.
+				xml.append(XMLWritingUtils.writeTag("set", Boolean.toString(BatchChangeMode.OVERWRITE.equals(mode))));
 				xml.append("</batchChange>\n");
 				
 				final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
 				document.post(UriBase.getInstance().getBatchChangeBase() + "/batchChange", xml.toString(), new GenericCallback<String>() {
 					public void onSuccess(String result) {
+						final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName("change");
+						for (int i = 0; i < nodes.getLength(); i++) {
+							NativeElement el = nodes.elementAt(i);
+							AssessmentCache.impl.uncache(Integer.valueOf(el.getAttribute("id")));
+						}
+							
 						WindowUtils.infoAlert("Success", "Batch change process was completed successfully.");
 					}
 					public void onFailure(Throwable caught) {

@@ -1,6 +1,7 @@
 package org.iucn.sis.client.api.caches;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -98,7 +99,6 @@ public class AssessmentCache {
 					w.add(new Html(message));
 					w.setClosable(true);
 					w.show();
-					w.center();
 					w.setSize(400, 500);
 				}
 				public void onFailure(Throwable caught) {
@@ -304,6 +304,15 @@ public class AssessmentCache {
 	 */
 	public void loadRecentAssessments(final GenericCallback<Object> wayBacks) {
 		RecentlyAccessedCache.impl.load(RecentlyAccessed.ASSESSMENT, wayBacks);
+	}
+	
+	public void uncache(Integer id) {
+		cache.remove(id);
+	}
+	
+	public void uncache(Collection<Integer> ids) {
+		for (Integer id : ids)
+			uncache(id);
 	}
 
 	/*public void resetCurrentAssessment() {

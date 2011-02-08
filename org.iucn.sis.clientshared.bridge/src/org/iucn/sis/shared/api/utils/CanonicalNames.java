@@ -223,7 +223,15 @@ public interface CanonicalNames {
 		InPlaceEducation, InPlaceLandWaterProtection, InPlaceResearch, InPlaceSpeciesManagement, 
 		EcosystemServices, EcosystemServicesInsufficientInfo, EcosystemServicesProvidesNone };
 	
-	public static String [] narrativeFields = new String [] { UseTradeDocumentation, ThreatsDocumentation,
-		RedListRationale, TaxonomicNotes, PopulationDocumentation, HabitatDocumentation, RangeDocumentation,
-		ConservationActionsDocumentation };
+	public static String [] narrativeFields = new String [] { 
+		ConservationActionsDocumentation, HabitatDocumentation, NonConsumptiveUseDescription,  
+		PopulationDocumentation, RangeDocumentation, RedListRationale, 
+		TaxonomicNotes, ThreatsDocumentation, UseTradeDocumentation
+	};
+	
+	public static String [] classificationSchemes = new String [] {
+		ConservationActions, CountryOccurrence, EcosystemServices, FAOOccurrence, 
+		GeneralHabitats, Lakes, LandCover, LargeMarineEcosystems, 
+		PlantGrowthForms, Research, Rivers, Threats
+	};
 }
