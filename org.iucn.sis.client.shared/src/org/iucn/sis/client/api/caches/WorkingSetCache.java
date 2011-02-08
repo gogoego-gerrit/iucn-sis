@@ -312,6 +312,10 @@ public class WorkingSetCache {
 		});
 	}
 	
+	public void uncacheAssessmentsForWorkingSet(final WorkingSet ws) {
+		assessmentRelations.remove(ws.getId());
+	}
+	
 	/**
 	 * Get all assessments for a working set for the given taxon 
 	 * (or all assessments if taxon is null), THEN pre-fetch and 

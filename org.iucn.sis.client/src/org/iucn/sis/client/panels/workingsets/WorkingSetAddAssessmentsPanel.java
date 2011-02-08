@@ -172,7 +172,6 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 		}
 		
 		AssessmentCache.impl.createGlobalDraftAssessments(speciesID, useTemplate, filter, new GenericCallback<String>() {
-
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("There was an error while creating the draft assessments <br/>: " + caught.getMessage());
 				add.enable();
@@ -180,12 +179,13 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 			}
 
 			public void onSuccess(String arg0) {
+				WorkingSetCache.impl.uncacheAssessmentsForWorkingSet(WorkingSetCache.impl.getCurrentWorkingSet());
+				
 				WindowUtils.infoAlert("Success", (String) arg0);
 				cancel();
 				add.enable();
 				hideList();
 			}
-
 		});
 
 	}
