@@ -5,6 +5,7 @@ package org.iucn.sis.client.panels.users;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -25,7 +26,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -42,8 +42,11 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.EditorGrid;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -52,13 +55,16 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
-import com.solertium.util.extjs.client.CheckboxMultiTriggerField;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.GenericPagingLoader;
 import com.solertium.util.extjs.client.PagingLoaderFilter;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -91,7 +97,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 	private FormPanel filterPanel;
 	private Window filterPopup;
 
-	private final CheckboxMultiTriggerField permissionGroups;
+	private UserPermissionPanel permissionGroups;
 
 	public UserViewPanel(ContentManager contentManager) {
 		super();
@@ -107,9 +113,11 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 
 		ArrayList<String> groups = new ArrayList<String>(AuthorizationCache.impl.getGroups().keySet());
 		ArrayUtils.quicksort(groups, new PortableAlphanumericComparator());
-		permissionGroups = new CheckboxMultiTriggerField(groups);
+		
+		permissionGroups = new UserPermissionPanel();
+		/*permissionGroups = new CheckboxMultiTriggerField(groups);
 		permissionGroups.setDelimiter(",");
-		permissionGroups.setFilterRegex("^ws\\d+.*");
+		permissionGroups.setFilterRegex("^ws\\d+.*");*/
 
 		pagingBar = new PagingToolBar(50);
 		pagingBar.bind(loader.getPagingLoader());
@@ -508,16 +516,59 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		final ColumnConfig quickGroup = new ColumnConfig();
 		quickGroup.setId("quickgroup");
 		quickGroup.setWidth(120);
+		quickGroup.setAlignment(HorizontalAlignment.CENTER);
 		quickGroup.setHeader("Permission Groups");
-		CellEditor cellEditor = new CellEditor(permissionGroups) {
+		/*CellEditor cellEditor = new CellEditor(permissionGroups) {
 			@Override
 			protected void onBlur(FieldEvent fe) {
 				fe.cancelBubble();
 			}
 		};
-		quickGroup.setEditor(cellEditor);
+		quickGroup.setEditor(cellEditor);*/
 		quickGroup.setHidden(!AuthorizationCache.impl.hasRight(SISClientBase.currentUser,
 				AuthorizableObject.USE_FEATURE, AuthorizableFeature.PERMISSION_MANAGEMENT_FEATURE));
+		quickGroup.setRenderer(new GridCellRenderer<UserModelData>() {
+			@Override
+			public Object render(final UserModelData model, final String property,
+					ColumnData config, final int rowIndex, final int colIndex,
+					final ListStore<UserModelData> store, final Grid<UserModelData> grid) {
+				HTML button = new HTML("[Edit]");
+				button.addStyleName("SIS_HyperlinkLookAlike");
+				button.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						final List<String> selected = new ArrayList<String>();
+						final String q = model.get(property);
+						if (q != null)
+							for (String value : q.split(","))
+								selected.add(value);
+						
+						permissionGroups.setSaveListener(new ComplexListener<List<String>>() {
+							public void handleEvent(List<String> eventData) {
+								final StringBuilder builder = new StringBuilder();
+								for (Iterator<String> iter = eventData.iterator(); iter.hasNext(); )
+									builder.append(iter.next() + (iter.hasNext() ? "," : ""));
+								
+								model.set(property, builder.toString());
+								
+								final GridEvent<UserModelData> event = 
+									new GridEvent<UserModelData>(grid);
+								event.setProperty(property);
+								event.setValue(builder.toString());
+								event.setStartValue(q);
+								event.setRowIndex(rowIndex);
+								event.setColIndex(colIndex);
+								
+								grid.fireEvent(Events.AfterEdit, event);
+							}
+						});
+						permissionGroups.setSelection(selected);
+						permissionGroups.show();
+					}
+				});
+				
+				return button;
+			}
+		});
 		configs.add(quickGroup);
 
 		final ColumnConfig sis = new ColumnConfig();
@@ -670,6 +721,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 	protected void addUsersToLoader(NativeDocument ndoc) {
 		NativeElement docElement = ndoc.getDocumentElement();
 		NativeNodeList users = docElement.getElementsByTagName(User.ROOT_TAG);
+		
 		for (int i = 0; i < users.getLength(); i++) {
 			ClientUser user = ClientUser.fromXML(users.elementAt(i));
 
@@ -686,9 +738,7 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 	}
 
 	public void refresh() {
-		ArrayList<String> groups = new ArrayList<String>(AuthorizationCache.impl.getGroups().keySet());
-		ArrayUtils.quicksort(groups, new PortableAlphanumericComparator());
-		permissionGroups.setOptions(groups);
+		permissionGroups.updateStore();
 		draw();
 
 	}
