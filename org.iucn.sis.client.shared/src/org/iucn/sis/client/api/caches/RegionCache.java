@@ -3,7 +3,6 @@ package org.iucn.sis.client.api.caches;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -139,14 +138,14 @@ public class RegionCache {
 	
 	public String getRegionNamesAsReadable(Collection<Region> regions) {
 		StringBuilder csv = new StringBuilder();
-		for (Iterator<Region> iter = regions.iterator(); iter.hasNext(); ) {
-			if (!iter.hasNext() && regions.size() > 1)
-				csv.append("and ");
-			csv.append(iter.next().getName());
-			if (iter.hasNext() && regions.size() > 2)
-				csv.append(", ");
+		int size = regions.size();
+		int index = 0;
+		for (Region region : regions) {
+			csv.append(region.getName());
+			if (index + 1 < size)
+				csv.append(index + 2 < size ? ", " : " & ");
+			index++;
 		}
-		
 		return csv.toString();
 	}
 	
