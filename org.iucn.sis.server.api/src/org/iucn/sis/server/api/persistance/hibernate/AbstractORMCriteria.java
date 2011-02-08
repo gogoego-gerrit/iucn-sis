@@ -20,6 +20,7 @@ public abstract class AbstractORMCriteria implements Criteria {
 
 	public AbstractORMCriteria(Criteria criteria) {
 		this._criteria = criteria;
+		setFlushMode(FlushMode.COMMIT);
 	}
 
 	public Criteria add(Criterion aCriterion) {
