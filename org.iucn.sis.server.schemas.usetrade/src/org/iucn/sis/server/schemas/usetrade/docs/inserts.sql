@@ -17,10 +17,7 @@ INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('14', 'Sport hunting/spec
 INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('15', 'Establishing ex-situ production *');
 INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('16', 'Other (free text)');
 INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('17', 'Unknown');
-INSERT INTO UTCaptiveHarvest (name, data_type, number_allowed) VALUES ('value', 'fk_primitive_field', '?');
-INSERT INTO UTCaptiveHarvest_valueLookup (name, label) VALUES ('0', 'Yes');
-INSERT INTO UTCaptiveHarvest_valueLookup (name, label) VALUES ('1', 'No');
-INSERT INTO UTCaptiveHarvest_valueLookup (name, label) VALUES ('2', 'Unknown');
+INSERT INTO UTCaptiveHarvest (name, data_type, number_allowed) VALUES ('value', 'boolean_unknown_primitive_field', '?');
 INSERT INTO UTHarvestTrendComments (name, data_type, number_allowed) VALUES ('narrative', 'text_primitive_field', '?');
 INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('subsistence', 'boolean_unknown_primitive_field', '?');
 INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('localcommercial', 'boolean_unknown_primitive_field', '?');

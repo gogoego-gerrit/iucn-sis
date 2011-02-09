@@ -4,11 +4,7 @@
 <classOfService>None</classOfService>
 <structures>
 <structure description="Is there harvest from captive/cultivated sources of this species?" id="value">
-<singleSelect>
-<option><![CDATA[Yes]]></option>
-<option><![CDATA[No]]></option>
-<option><![CDATA[Unknown]]></option>
-</singleSelect>
+<booleanUnknown/>
 </structure>
 </structures>
 </field>
