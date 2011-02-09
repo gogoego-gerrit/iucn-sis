@@ -271,6 +271,7 @@ public class PermissionResourceUI extends LayoutContainer {
 	
 	@SuppressWarnings("unchecked")
 	public void showEditingWindow() {
+		WindowUtils.showLoadingAlert("Initializing...");
 		WorkingSetCache.impl.getAllSubscribableWorkingSets(new GenericCallback<List<WorkingSet>>() {
 			public void onFailure(Throwable caught) {
 				onSuccess(new ArrayList<WorkingSet>());
@@ -317,6 +318,9 @@ public class PermissionResourceUI extends LayoutContainer {
 						w.hide();
 					}
 				}));
+				
+				WindowUtils.hideLoadingAlert();
+				
 				w.show();	
 			}
 		});
