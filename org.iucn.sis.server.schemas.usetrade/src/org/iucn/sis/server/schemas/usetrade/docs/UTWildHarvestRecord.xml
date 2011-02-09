@@ -283,7 +283,7 @@
 						<structure id="habitatConservationBenefits" description="Conservation Benefits for the habitat">
 							<booleanUnknown/>
 						</structure>
-						<structure id="habitatConservationBenefitsText" description="Details for conservation benefits for the habitat">
+						<structure id="habitatConservationBenefitsText" description="Details for conservation benefits for the habitat/ecosystem">
 							<text/>
 						</structure>
 						<structure id="UTEndUseRecord" description="End Use Record">
