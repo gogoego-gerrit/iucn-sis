@@ -237,7 +237,7 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 	private void updateHeaderCount(NavigationModelData<WorkingSet> header, int count, int size) {
 		if (header != null) {
 			String name = header.get("name");
-			name += " (" + count + "/" + size + ")";
+			name += " (" + count + ")";
 			header.set("name", name);
 		}
 	}

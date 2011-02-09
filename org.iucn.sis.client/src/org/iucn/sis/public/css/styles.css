@@ -204,10 +204,10 @@ body,td,div,input,p,select,input,button {
  */
  
  .monkey_navigation_section_header {
- 	background-color: #DDD !important;
+ 	background-color: #DFE8F6 !important;
  	width: 100%;
  	height: 100%;
- 	border: 1px dotted black !important;
+ 	border: 1px dotted #00428C !important;
  	text-align: center;
  	font-weight: bold;
  }
