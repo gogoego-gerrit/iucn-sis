@@ -200,7 +200,7 @@ public class TaxonImage {
 		out.append(XMLWritingUtils.writeTag("weight", getWeight() + ""));
 		out.append(XMLWritingUtils.writeTag("showredlist", Boolean.toString(getShowRedList())));
 		out.append(XMLWritingUtils.writeTag("showsis", Boolean.toString(getShowSIS())));
-		out.append(getTaxon().toXMLMinimal());
+		out.append(getTaxon().toParentXML());
 		out.append("</" + ROOT_TAG + ">");
 		
 		return out.toString();
@@ -243,7 +243,7 @@ public class TaxonImage {
 				image.setShowRedList("true".equals(current.getTextContent()));
 			else if ("showsis".equals(current.getNodeName()))
 				image.setShowSIS("true".equals(current.getTextContent()));
-			else if (Taxon.ROOT_TAG.equals(current.getNodeName()))
+			else if ("parent".equals(current.getNodeName()))
 				image.setTaxon(Taxon.fromXMLminimal((NativeElement)current));
 		}
 		

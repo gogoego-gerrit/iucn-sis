@@ -22,11 +22,11 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.google.gwt.http.client.URL;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.xml.client.Node;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -470,18 +470,18 @@ public class TaxonomyCache {
 		List<Taxon> taxaList = new ArrayList<Taxon>();
 		
 		if (doc.getDocumentElement().getNodeName().trim().equalsIgnoreCase("nodes")) {
-			NativeNodeList nodes = doc.getDocumentElement().getElementsByTagName(Taxon.ROOT_TAG);
-			int numNodes = nodes.getLength();
-
-			for (int i = 0; i < numNodes; i++) {
-				Taxon newNode = Taxon.fromXML(nodes.elementAt(i));
-				putTaxon(newNode);
-				taxaList.add(newNode);
+			final NativeNodeList nodes = doc.getDocumentElement().getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				final NativeNode node = nodes.item(i);
+				if (Taxon.ROOT_TAG.equals(node.getNodeName())) {
+					Taxon newNode = Taxon.fromXML((NativeElement)node);
+					putTaxon(newNode);
+					taxaList.add(newNode);
+				}
 			}
 			
 		} else if (doc.getDocumentElement().getNodeName().equalsIgnoreCase("parsererror")) {
-			Window.alert("Error -- Someone probably modified an xml file by hand, and SIS "
-					+ "is unable to parse the file.");
+			WindowUtils.errorAlert("Unknown error parsing taxon data.");
 		} else {
 			try {
 				Taxon newNode = Taxon.fromXML(doc.getDocumentElement());
