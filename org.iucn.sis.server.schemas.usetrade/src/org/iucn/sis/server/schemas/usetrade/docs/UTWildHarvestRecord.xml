@@ -13,14 +13,14 @@
 									</structure> 
 								</dominantStructures>
 								<dependentStructures>
-									<!--  If NOT checked... -->
+									<!--  If checked... -->
 									<structure id="percentGlobalRange" description="% of global range/population (as decimal)">
 										<number restriction="0-1"/>
 									</structure>
 									<structure id="otherGeographicScope" description="Other">
 										<text/>
 									</structure>
-									<!-- If checked -->
+									<!-- If NOT checked -->
 									<structure id="CountryOccurrence" description="Countries of Occurrence">
 										<treeStructure>
 											<defaultStructure>
@@ -179,7 +179,7 @@
 								</dependentStructures>
 								<rules>
 									<booleanRule>
-										<activateOnRule>false</activateOnRule>
+										<activateOnRule>true</activateOnRule>
 										<actions>
 											<onTrue>SHOW</onTrue>
 											<onFalse>HIDE</onFalse>
@@ -188,7 +188,7 @@
 										</actions>
 									</booleanRule>
 									<booleanRule>
-										<activateOnRule>true</activateOnRule>
+										<activateOnRule>false</activateOnRule>
 										<actions>
 											<onTrue>SHOW</onTrue>
 											<onFalse>HIDE</onFalse>
