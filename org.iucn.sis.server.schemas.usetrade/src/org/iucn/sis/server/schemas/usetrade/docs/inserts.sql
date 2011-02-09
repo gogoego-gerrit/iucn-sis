@@ -23,8 +23,8 @@ INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('subsist
 INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('localcommercial', 'boolean_unknown_primitive_field', '?');
 INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('subsistenceRationale', 'text_primitive_field', '?');
 INSERT INTO UTLocalLivelihood (name, data_type, number_allowed) VALUES ('localcommercialDetail', 'text_primitive_field', '?');
-INSERT INTO UTCommercialValue (name, data_type, number_allowed) VALUES ('national', 'boolean_unknown_primitive_field', '?');
-INSERT INTO UTCommercialValue (name, data_type, number_allowed) VALUES ('international', 'boolean_unknown_primitive_field', '?');
+INSERT INTO UTNatlCommercialValue (name, data_type, number_allowed) VALUES ('value', 'boolean_unknown_primitive_field', '?');
+INSERT INTO UTIntlCommercialValue (name, data_type, number_allowed) VALUES ('value', 'boolean_unknown_primitive_field', '?');
 
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('isTotalSpeciesRange', 'boolean_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('percentGlobalRange', 'float_primitive_field', '?');

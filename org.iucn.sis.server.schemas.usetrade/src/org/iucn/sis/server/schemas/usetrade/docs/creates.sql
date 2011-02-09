@@ -3,7 +3,8 @@ CREATE TABLE UTEndUse_valueLookup (id integer auto_increment primary key, name v
 CREATE TABLE UTCaptiveHarvest (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE UTHarvestTrendComments (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE UTLocalLivelihood (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE UTCommercialValue (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE UTNatlCommercialValue (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE UTIntlCommercialValue (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 
 CREATE TABLE UTWildHarvestRecord (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE UTWildHarvestRecord_sourceLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));

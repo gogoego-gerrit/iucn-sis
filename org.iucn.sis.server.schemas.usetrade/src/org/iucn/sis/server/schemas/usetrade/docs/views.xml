@@ -5,7 +5,8 @@
 				<pageOrganizations>
 					<organization shortTitle="Global Summary" title="Global Summary">
 <field id="UTLocalLivelihood"/>
-<field id="UTCommercialValue"/>
+<field id="UTNatlCommercialValue"/>
+<field id="UTIntlCommercialValue"/>
 						<field id="UTEndUse"/>
 <field id="UTCaptiveHarvest"/>
 <field id="UTHarvestTrendComments"/>

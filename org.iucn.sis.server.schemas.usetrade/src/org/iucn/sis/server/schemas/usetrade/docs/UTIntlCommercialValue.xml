@@ -1,0 +1,10 @@
+<field>
+<canonicalName>UTIntlCommercialValue</canonicalName>
+<description><![CDATA[International Commercial Value]]></description>
+<classOfService>None</classOfService>
+<structures>
+<structure id="value">
+<booleanUnknown/>
+</structure>
+</structures>
+</field>

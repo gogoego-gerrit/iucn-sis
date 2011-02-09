@@ -1,0 +1,10 @@
+<field>
+<canonicalName>UTNatlCommercialValue</canonicalName>
+<description><![CDATA[National Commercial Value]]></description>
+<classOfService>None</classOfService>
+<structures>
+<structure id="value">
+<booleanUnknown/>
+</structure>
+</structures>
+</field>
