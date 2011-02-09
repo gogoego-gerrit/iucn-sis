@@ -193,8 +193,24 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		
 		store.add(noneModel);
 		
-		final List<WorkingSet> list = new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values());
-		Collections.sort(list, new WorkingSetComparator());
+		/*
+		 * TODO: smarter sorting.
+		 */
+		
+		final List<WorkingSet> mine = new ArrayList<WorkingSet>();
+		final List<WorkingSet> subscribed = new ArrayList<WorkingSet>();
+		for (WorkingSet ws : WorkingSetCache.impl.getWorkingSets().values()) {
+			if (ws.getCreator().getId() == myOwnerID)
+				mine.add(ws);
+			else
+				subscribed.add(ws);
+		}
+		Collections.sort(mine, new WorkingSetComparator());
+		Collections.sort(subscribed, new WorkingSetComparator());
+		
+		final List<WorkingSet> list = new ArrayList<WorkingSet>();
+		list.addAll(mine);
+		list.addAll(subscribed);
 		
 		int currentCreator = -1;
 		NavigationModelData<WorkingSet> currentHeader = null;
@@ -399,7 +415,7 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		addTool(createIconButton("icon-image", "Download Working Set", new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
 				// TODO Auto-generated method stub
-				
+				WindowUtils.infoAlert("This feature is not yet available.");
 			}
 		}));
 		addTool(new SeparatorToolItem());
@@ -416,57 +432,14 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 	private static class WorkingSetComparator implements Comparator<WorkingSet> {
 		
 		private final PortableAlphanumericComparator comparator;
-		private final int myOwnerID;
 		
 		public WorkingSetComparator() {
 			comparator = new PortableAlphanumericComparator();
-			myOwnerID = SISClientBase.currentUser.getId();
 		}
 		
 		@Override
 		public int compare(WorkingSet o1, WorkingSet o2) {
-			int o1Points = 0;
-			int o2Points = 0;
-			
-			String u1 = o1.getCreator().getDisplayableName();
-			String u2 = o2.getCreator().getDisplayableName();
-			
-			Integer i1 = o1.getCreator().getId();
-			if (i1.intValue() == myOwnerID)
-				i1 = -1;
-			Integer i2 = o2.getCreator().getId();
-			if (i2.intValue() == myOwnerID)
-				i2 = -1;
-				
-			String ws1 = o1.getName();
-			String ws2 = o2.getName();
-			
-			int result = comparator.compare(u1, u2);
-			if (result > 0)
-				o2Points++;
-			else
-				o1Points++;
-			
-			result = i1.compareTo(i2);
-			if (result > 0)
-				o2Points++;
-			else
-				o1Points++;
-			
-			result = comparator.compare(ws1, ws2);
-			if (result > 0)
-				o2Points++;
-			else
-				o1Points++;
-			
-			result = o2Points - o1Points;
-		
-			if (result > 0)
-				return 1;
-			else if (result < 0)
-				return -1;
-			else
-				return 0;
+			return comparator.compare(o1.getName(), o2.getName());
 		}
 		
 	}

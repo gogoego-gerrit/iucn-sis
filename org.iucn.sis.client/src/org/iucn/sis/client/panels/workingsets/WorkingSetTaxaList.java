@@ -594,10 +594,12 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 					
 					for (Integer taxaID : recentWorkingSet.getSpeciesIDs()) {
 						Taxon node = TaxonomyCache.impl.getTaxon(taxaID);
-						String taxaName = node.getFullName();
-						fullNames.put(taxaName, String.valueOf(taxaID));
-						pagingLoader.getFullList().add(
-								new TaxaData(taxaName, TaxaData.FULLNAME, String.valueOf(taxaID), null));
+						if (node != null) {
+							String taxaName = node.getFullName();
+							fullNames.put(taxaName, String.valueOf(taxaID));
+							pagingLoader.getFullList().add(
+									new TaxaData(taxaName, TaxaData.FULLNAME, String.valueOf(taxaID), null));
+						}
 					}
 
 					// ArrayUtils.quicksort((ArrayList)
