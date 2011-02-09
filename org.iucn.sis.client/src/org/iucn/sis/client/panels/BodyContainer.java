@@ -53,7 +53,6 @@ public class BodyContainer extends LayoutContainer {
 		addStyleName("gwt-background");
 		addStyleName("sis_bodyContainer");
 
-		homePage = new HomePageTab();
 		workingSetPage = new WorkingSetPage();
 		taxonHomePage = new TaxonHomePageTab();
 		assessmentPage = new DEMPanel();
@@ -177,6 +176,8 @@ public class BodyContainer extends LayoutContainer {
 	public void openHomePage(boolean updateNavigation) {
 		removeAll();
 		
+		if (homePage == null)
+			homePage = new HomePageTab();
 		add(homePage);
 		
 		if (updateNavigation)
