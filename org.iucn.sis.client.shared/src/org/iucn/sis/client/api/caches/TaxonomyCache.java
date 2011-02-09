@@ -488,7 +488,7 @@ public class TaxonomyCache {
 				putTaxon(newNode);
 				taxaList.add(newNode);
 			} catch (Exception e) {
-				e.printStackTrace();
+				Debug.println(e);
 			}
 		}
 

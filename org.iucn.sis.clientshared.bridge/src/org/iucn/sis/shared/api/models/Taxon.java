@@ -312,6 +312,7 @@ public class Taxon implements AuthorizableObject, Serializable {
 		assessments = new java.util.HashSet<Assessment>();
 		synonyms = new java.util.HashSet<Synonym>();
 		commonNames = new java.util.HashSet<CommonName>();
+		images = new java.util.HashSet<TaxonImage>();
 	}
 
 	private int id;
@@ -351,6 +352,8 @@ public class Taxon implements AuthorizableObject, Serializable {
 	private java.util.Set<Synonym> synonyms;
 
 	private java.util.Set<CommonName> commonNames;
+	
+	private java.util.Set<TaxonImage> images;
 
 	private Infratype infratype;
 	
@@ -511,6 +514,14 @@ public class Taxon implements AuthorizableObject, Serializable {
 	public java.util.Set<CommonName> getCommonNames() {
 		return commonNames;
 	}
+	
+	public void setImages(java.util.Set<TaxonImage> images) {
+		this.images = images;
+	}
+	
+	public java.util.Set<TaxonImage> getImages() {
+		return images;
+	}
 
 	public void setInfratype(Infratype value) {
 		this.infratype = value;
@@ -601,6 +612,10 @@ public class Taxon implements AuthorizableObject, Serializable {
 		if (getInfratype() != null) {
 			xml.append(getInfratype().toXML());
 		}
+		
+		if (getImages() != null)
+			for (TaxonImage image : getImages())
+				xml.append(image.toXML());
 	
 		xml.append("</" + ROOT_TAG + ">");
 		generatedXML = xml.toString();
@@ -760,6 +775,15 @@ public class Taxon implements AuthorizableObject, Serializable {
 			reference.getTaxon().add(taxon);
 			taxon.getReference().add(reference);
 		}
+		
+		NativeNodeList images = nodeElement.getElementsByTagName(TaxonImage.ROOT_TAG);
+		taxon.setImages(new HashSet<TaxonImage>());
+		for (int i = 0; i < images.getLength(); i++) {
+			TaxonImage image = TaxonImage.fromXML(images.elementAt(i));
+			image.setTaxon(taxon);
+			taxon.getImages().add(image);
+		}
+		
 		return taxon;
 	}
 

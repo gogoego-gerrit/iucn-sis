@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,11 +22,14 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.TaxonIO;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
-import org.iucn.sis.server.api.utils.DocumentUtils;
-import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.data.ManagedImageData;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonImage;
 import org.restlet.Context;
 import org.restlet.data.CharacterSet;
 import org.restlet.data.Language;
@@ -34,14 +38,12 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.fileupload.RestletFileUpload;
-import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import com.solertium.util.BaseDocumentUtils;
+import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.CSVTokenizer;
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.NotFoundException;
@@ -65,28 +67,34 @@ public class ImageRestlet extends BaseServiceRestlet {
 		paths.add("/images/{taxonId}");
 	}
 	
+	private Taxon getTaxon(Request request, Session session) throws ResourceException {
+		return getTaxon((String)request.getAttributes().get("taxonId"), session);
+	}
+	
+	private Taxon getTaxon(String taxonID, Session session) throws ResourceException {
+		TaxonIO taxonIO = new TaxonIO(session);
+		try {
+			return taxonIO.getTaxon(Integer.valueOf(taxonID));
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
+		}
+	}
+	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		final String taxonId = (String) request.getAttributes().get("taxonId");
-		if (taxonId == null)
+		if (taxonId == null || request.getResourceRef().getLastSegment().equals("upload"))
 			return buildUploadHTML();
 		
-		final VFSPath stripedPath = 
-			new VFSPath("/images/" + FilenameStriper.getIDAsStripedPath(taxonId) + ".xml");
+		final Taxon taxon = getTaxon(request, session);
 		
-		final Document document;
-		if (vfs.exists(stripedPath)) {
-			try {
-				document = vfs.getDocument(stripedPath);
-			} catch (IOException e) {
-				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-			}
-		}
-		else
-			document = 
-				BaseDocumentUtils.impl.createDocumentFromString("<images id=\"" + taxonId + "\"></images>");
+		final StringBuilder builder = new StringBuilder();
+		builder.append("<images>");
+		for (TaxonImage image : taxon.getImages())
+			builder.append(image.toXML());
+		builder.append("</images>");
 		
-		return new DomRepresentation(MediaType.TEXT_XML, document);
+		return new StringRepresentation(builder.toString(), MediaType.TEXT_XML);
 	}
 	
 	@Override
@@ -143,7 +151,7 @@ public class ImageRestlet extends BaseServiceRestlet {
 			if (taxonId == null || taxonId.equals("batch")) {
 				if (!running.getAndSet(true)) {
 					try {
-						handleBatchUpload(id, response);
+						handleBatchUpload(id, response, session);
 					} finally {
 						running.set(false);
 					}
@@ -152,7 +160,21 @@ public class ImageRestlet extends BaseServiceRestlet {
 					response.setStatus(Status.SUCCESS_OK);
 				}
 			} else {
-				writeXML(taxonId, String.valueOf(id), encoding, null);
+				final Taxon taxon = getTaxon(request, session);
+				
+				TaxonImage image = new TaxonImage();
+				image.setEncoding(encoding);
+				image.setIdentifier(id+"");
+				image.setPrimary(taxon.getImages().isEmpty());
+				image.setRating(0.0F);
+				image.setWeight(0);
+				image.setTaxon(taxon);
+				
+				try {
+					SISPersistentManager.instance().saveObject(session, image);
+				} catch (PersistentException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
 			}
 		}
 	}
@@ -213,27 +235,56 @@ public class ImageRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
-		final String taxonId = (String) request.getAttributes().get("taxonId");
+		final Taxon taxon = getTaxon(request, session);
+		final Map<String, TaxonImage> map = new HashMap<String, TaxonImage>();
+		for (TaxonImage image : taxon.getImages())
+			map.put(image.getIdentifier(), image);
 		
-		final Document document;
-		try {
-			document = new DomRepresentation(entity).getDocument();
-		} catch (Exception e) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+		final NativeDocument document = getEntityAsNativeDocument(entity);
+		final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName(TaxonImage.ROOT_TAG);
+		for (int i = 0; i < nodes.getLength(); i++) {
+			TaxonImage source = TaxonImage.fromXML(nodes.elementAt(i));
+			TaxonImage target = map.remove(source.getIdentifier());
+			if (target == null) {
+				source.setTaxon(taxon);
+				try {
+					SISPersistentManager.instance().saveObject(session, source);
+				} catch (PersistentException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+			}
+			else {
+				target.setCaption(source.getCaption());
+				target.setCredit(target.getCredit());
+				target.setPrimary(source.getPrimary());
+				target.setRating(source.getRating());
+				target.setShowRedList(source.getShowRedList());
+				target.setShowSIS(source.getShowSIS());
+				target.setSource(source.getSource());
+				target.setWeight(source.getWeight());
+				
+				try {
+					SISPersistentManager.instance().updateObject(session, target);
+				} catch (PersistentException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+			}
 		}
 		
-		try {
-			DocumentUtils.writeVFSFile("/images/" + FilenameStriper.getIDAsStripedPath(taxonId) + 
-				".xml", vfs, true, document);
-		} catch (Exception e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		for (TaxonImage image : map.values()) {
+			taxon.getImages().remove(image);
+			try {
+				SISPersistentManager.instance().deleteObject(session, image);
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
 		}
 		
 		response.setStatus(Status.SUCCESS_CREATED);
 	}
 
 	@SuppressWarnings("unchecked")
-	private void handleBatchUpload(int id, Response response) throws ResourceException {
+	private void handleBatchUpload(int id, Response response, Session session) throws ResourceException {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=cp1252\">" +
 				"</head><body><div>");
@@ -306,12 +357,22 @@ public class ImageRestlet extends BaseServiceRestlet {
 			}
 			
 			for (String key : map.keySet()) {
-				if (writeXML(map.get(key).getField("sp_id"), String.valueOf(filenames.get(key)), encodings.get(key), map.get(key))){
+				String result = null;
+				String taxonID = map.get(key).getField("sp_id");
+				Taxon taxon = null;
+				try {
+					taxon = getTaxon(taxonID, session);
+				} catch (ResourceException e) {
+					result = "Taxon " + taxonID + " not found.";
+				}
+				
+				if (result == null)
+					result = writeXML(taxon, String.valueOf(filenames.get(key)), encodings.get(key), map.get(key), session);
+				
+				if (result == null)
 					xml.append("<div>"+map.get(key).getField("filename")+": Success</div><br/>");
-				}
-				else{
-					xml.append("<div>"+map.get(key).getField("filename")+": Failure</div><br/>");
-				}
+				else
+					xml.append("<div>"+map.get(key).getField("filename")+": Failure -- " + result + "</div><br/>");
 			}
 				
 			xml.append("</div></body></html>");
@@ -373,31 +434,16 @@ public class ImageRestlet extends BaseServiceRestlet {
 		return new StringRepresentation(sb, MediaType.TEXT_HTML);
 	}
 
-	private boolean writeXML(String taxonID, String id, String encoding, ManagedImageData data) {
-		if (taxonID == null || id == null || id.equals("null")) 
-			return false;
-
-		final String stripedID = FilenameStriper.getIDAsStripedPath(taxonID);
-		final VFSPath stripedPath = new VFSPath("/images/" + stripedID + ".xml");
+	private String writeXML(Taxon taxon, String id, String encoding, ManagedImageData data, Session session) throws ResourceException {
+		final TaxonImage image = new TaxonImage();
+		image.setIdentifier(id);
+		image.setEncoding(encoding);
+		image.setPrimary(taxon.getImages().isEmpty());
+		image.setRating(0.0F);
+		image.setWeight(0);
+		image.setTaxon(taxon);
 		
-		boolean primary = false;
-		Document xml = null;
-		if (vfs.exists(stripedPath)) {
-			try {
-				xml = vfs.getDocument(stripedPath);
-			} catch (IOException e) {
-				return false;
-			}
-		}
-		else {
-			xml = DocumentUtils.createDocumentFromString("<images id=\"" + taxonID + "\"></images>");
-			primary = true;
-		}
-
-		Element el = xml.createElement("image");
-		el.setAttribute("id", id);
-		el.setAttribute("encoding", encoding);
-		el.setAttribute("primary", Boolean.toString(primary));
+		taxon.getImages().add(image);
 		
 		if (data != null) {
 			/*
@@ -406,20 +452,24 @@ public class ImageRestlet extends BaseServiceRestlet {
 			 * like a recipe for success.  Should probably  
 			 * wrap this information in a child CDATA node.
 			 */
-			if (data.containsField("caption")) 
-				el.setAttribute("caption", data.getField("caption"));
+			if (data.containsField("caption"))
+				image.setCaption(data.getField("caption"));
 			if (data.containsField("credit")) 
-				el.setAttribute("credit", data.getField("credit"));
+				image.setCredit(data.getField("credit"));
 			if (data.containsField("source")) 
-				el.setAttribute("source", data.getField("source"));
+				image.setSource(data.getField("source"));
 			if (data.containsField("showRedlist")) 
-				el.setAttribute("showRedlist", data.getField("showRedlist"));
+				image.setShowRedList("true".equals(data.getField("showRedlist")));
 			if (data.containsField("showSIS"))
-				el.setAttribute("showSIS", data.getField("showSIS"));
+				image.setShowSIS("true".equals(data.getField("showSIS")));
 		}
-			
-		xml.getDocumentElement().appendChild(el);
 
-		return DocumentUtils.writeVFSFile(stripedPath.toString(), vfs, true, xml);
+		try {
+			SISPersistentManager.instance().saveObject(session, image);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		return null;
 	}
 }

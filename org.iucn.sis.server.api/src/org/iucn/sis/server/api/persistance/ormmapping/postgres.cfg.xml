@@ -36,6 +36,7 @@
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxomaticHistory.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxomaticOperation.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Taxon.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonImage.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonLevel.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonStatus.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/User.hbm.xml" />

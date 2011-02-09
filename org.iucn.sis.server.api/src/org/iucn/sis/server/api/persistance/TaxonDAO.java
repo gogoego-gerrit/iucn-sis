@@ -26,6 +26,7 @@ import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonImage;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 public class TaxonDAO {
@@ -328,6 +329,11 @@ public class TaxonDAO {
 			for(int i = 0; i < lCommonNamess.length; i++) {
 				CommonNameDAO.deleteAndDissociate(lCommonNamess[i], session);
 			}
+			TaxonImage[] lImagess = (TaxonImage[])taxon.getImages().toArray(new TaxonImage[taxon.getImages().size()]);
+			for (int i = 0; i < lImagess.length; i++) {
+				session.delete(lImagess[i]);
+			}
+			
 			if(taxon.getInfratype() != null) {
 				taxon.getInfratype().getTaxa().remove(taxon);
 			}

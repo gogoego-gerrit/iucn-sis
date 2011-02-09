@@ -62,6 +62,9 @@ License Type: Evaluation
 			<key column="taxonid" not-null="true"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.CommonName"/>
 		</set>
-		
+		<set name="Images" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="taxonid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.TaxonImage"/>
+		</set>
 	</class>
 </hibernate-mapping>

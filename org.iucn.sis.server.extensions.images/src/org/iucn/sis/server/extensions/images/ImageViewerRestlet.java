@@ -1,12 +1,16 @@
 package org.iucn.sis.server.extensions.images;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonImage;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -51,26 +55,13 @@ public class ImageViewerRestlet extends BaseServiceRestlet {
 		final Integer taxonID = getTaxonID(request);
 		final String uri = request.getResourceRef().getLastSegment();
 		
-		
-		final VFSPath stripedPath = 
-			new VFSPath("/images/" + FilenameStriper.getIDAsStripedPath(taxonID) + ".xml");
-		
-		if (!vfs.exists(stripedPath)) {
+		final TaxonIO taxonIO = new TaxonIO(session);
+		final Taxon taxon = taxonIO.getTaxon(taxonID);
+		if (taxon == null)
 			return notAvailable();
-		}
 		
-		final Document document;
-		try {
-			document = vfs.getDocument(stripedPath);
-		} catch (IOException e) {
-			Debug.println(e);
-			return notAvailable();
-		}
-		
-		final ElementCollection nodes = 
-			new ElementCollection(document.getDocumentElement().getElementsByTagName("image"));
-		for (Element node : nodes) {
-			String encoding = node.getAttribute("encoding");
+		for (TaxonImage image : taxon.getImages()) {
+			String encoding = image.getEncoding();
 			
 			String extension;
 			MediaType mt;
@@ -91,8 +82,8 @@ public class ImageViewerRestlet extends BaseServiceRestlet {
 				continue;
 			}
 			
-			String currentItemUri = node.getAttribute("id") + "." + extension;
-			boolean isPrimary = "true".equals(node.getAttribute("primary"));
+			String currentItemUri = image.getIdentifier() + "." + extension;
+			boolean isPrimary = image.getPrimary();
 			
 			if (uri.equals(currentItemUri) || (uri.equals("primary") && isPrimary)) {
 				final String path = "/images/bin/" + currentItemUri;
