@@ -200,6 +200,19 @@ body,td,div,input,p,select,input,button {
 }
 
 /**
+ * Navigation Stylings
+ */
+ 
+ .monkey_navigation_section_header {
+ 	background-color: #DDD !important;
+ 	width: 100%;
+ 	height: 100%;
+ 	border: 1px dotted black !important;
+ 	text-align: center;
+ 	font-weight: bold;
+ }
+
+/**
  * Page Stylings
 */
 .featured_left {

@@ -1,6 +1,8 @@
 package org.iucn.sis.client.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.MarkedCache;
@@ -33,10 +35,6 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GridView;
-import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
-import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -49,8 +47,9 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<WorkingSet> {
+public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel<WorkingSet> {
 	
 	private WorkingSet curNavWorkingSet;
 	
@@ -67,7 +66,7 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 		return store;
 	}
 	
-	protected void onSelectionChanged(PagingMonkeyNavigatorPanel.NavigationModelData<WorkingSet> model) {
+	protected void onSelectionChanged(NavigationModelData<WorkingSet> model) {
 		MonkeyNavigator.NavigationChangeEvent<WorkingSet> e = 
 			new NavigationChangeEvent<WorkingSet>(model.getModel());
 		
@@ -87,21 +86,8 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 	}
 	
 	@Override
-	protected GridView getView() {
-		final String ownerID = SISClientBase.currentUser.getId() + "";
-		GroupingView view = new GroupingView();
-		view.setShowGroupedColumn(false);
-		view.setEmptyText("No Working Sets");
-		view.setGroupRenderer(new GridGroupRenderer() {
-			public String render(GroupColumnData data) {
-				if (ownerID.equals(data.group)) 
-					return "My Working Sets (" + data.models.size() + ")";
-				else
-					return "Subscribed Working Sets (" + data.models.size() + ")";
-			}
-		});
-		
-		return view;
+	protected String getEmptyText() {
+		return "No Working Sets";
 	}
 	
 	protected ColumnModel getColumnModel() {
@@ -113,28 +99,28 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 			public Object render(NavigationModelData<WorkingSet> model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<NavigationModelData<WorkingSet>> store, Grid<NavigationModelData<WorkingSet>> grid) {
+				Boolean header = model.get("header");
+				if (header == null)
+					header = Boolean.FALSE;
 				WorkingSet ws = model.getModel();
 				String style;
 				String value;
 				if (ws == null) {
-					style = MarkedCache.NONE;
+					style = header ? "monkey_navigation_section_header" : MarkedCache.NONE;
 					value = model.get(property);
 				}
 				else {
+					Boolean mine = model.get("mine");
+					if (mine == null)
+						mine = Boolean.FALSE;
 					style = MarkedCache.impl.getWorkingSetStyle(ws.getId());
-					value = ws.getName();
+					value = ws.getName() + (mine ? "" : " via " + ws.getCreator().getDisplayableName());
 				}
-				return "<span class=\"" + style + "\">" + value + "</span>";
+				return "<div class=\"" + style + "\">" + value + "</div>";
 			}
 		});
 		
-		ColumnConfig owner = new ColumnConfig("owner", "Owner", 100);
-		
-		ColumnConfig ownerid = new ColumnConfig("ownerid", "Owner ID", 100);
-		
 		list.add(display);
-		list.add(owner);
-		list.add(ownerid);
 		
 		return new ColumnModel(list);
 	}
@@ -184,13 +170,14 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 	
 	@Override
 	protected void getStore(GenericCallback<ListStore<NavigationModelData<WorkingSet>>> callback) {
-		final GroupingStore<NavigationModelData<WorkingSet>> store = 
-			new GroupingStore<NavigationModelData<WorkingSet>>();
-		//final ListStore<NavigationModelData<WorkingSet>> store = new ListStore<NavigationModelData<WorkingSet>>();
+		final ListStore<NavigationModelData<WorkingSet>> store = new ListStore<NavigationModelData<WorkingSet>>();
 		store.setKeyProvider(new ModelKeyProvider<NavigationModelData<WorkingSet>>() {
 			public String getKey(NavigationModelData<WorkingSet> model) {
 				if (model.getModel() == null)
-					return "-1";
+					if (model.get("none") != null)
+						return "-1";
+					else
+						return null;
 				else
 					return Integer.toString(model.getModel().getId());
 			}
@@ -200,29 +187,59 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 		
 		NavigationModelData<WorkingSet> noneModel = new NavigationModelData<WorkingSet>(null);
 		noneModel.set("name", "None");
-		noneModel.set("owner", "");
-		noneModel.set("ownerid", myOwnerID + "");
+		noneModel.set("none", Boolean.TRUE);
+		noneModel.set("header", Boolean.FALSE);
+		noneModel.set("mine", Boolean.FALSE);
 		
 		store.add(noneModel);
 		
-		for (WorkingSet cur : WorkingSetCache.impl.getWorkingSets().values()) {
-			NavigationModelData<WorkingSet> model = new NavigationModelData<WorkingSet>(cur);
-			model.set("name", cur.getName());
-			if (myOwnerID == cur.getCreator().getId()) {
-				model.set("owner", "");
-				model.set("ownerid", myOwnerID + "");
-			}
-			else {
-				model.set("owner", " (" + cur.getCreator().getDisplayableName() + ")");
-				model.set("ownerid", "-1");
+		final List<WorkingSet> list = new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values());
+		Collections.sort(list, new WorkingSetComparator());
+		
+		int currentCreator = -1;
+		NavigationModelData<WorkingSet> currentHeader = null;
+		int groupCount = 0;
+		
+		int size = list.size();
+		
+		for (WorkingSet cur : list) {
+			if (cur.getCreator().getId() != currentCreator) {
+				if (currentHeader != null)
+					updateHeaderCount(currentHeader, groupCount, size);
+				
+				currentCreator = cur.getCreator().getId();
+				
+				NavigationModelData<WorkingSet> model = new NavigationModelData<WorkingSet>(null);
+				model.set("header", Boolean.TRUE);
+				model.set("name", myOwnerID == currentCreator ? "My Working Sets" : "Subscribed Working Sets");
+				
+				store.add(model);
+				
+				currentHeader = model;
+				groupCount = 0;
 			}
 			
+			NavigationModelData<WorkingSet> model = new NavigationModelData<WorkingSet>(cur);
+			model.set("name", cur.getName());
+			model.set("header", Boolean.FALSE);
+			model.set("mine", cur.getCreator().getId() == myOwnerID);
+			
 			store.add(model);
+			
+			groupCount++;
 		}
-	
-		store.groupBy("ownerid");
+		
+		updateHeaderCount(currentHeader, groupCount, size);
 		
 		callback.onSuccess(store);
+	}
+	
+	private void updateHeaderCount(NavigationModelData<WorkingSet> header, int count, int size) {
+		if (header != null) {
+			String name = header.get("name");
+			name += " (" + count + "/" + size + ")";
+			header.set("name", name);
+		}
 	}
 	
 	@Override
@@ -394,6 +411,64 @@ public class WorkingSetMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 		if (hasSelection()) {
 			navigate(getSelected(), null, null);
 		}	
+	}
+	
+	private static class WorkingSetComparator implements Comparator<WorkingSet> {
+		
+		private final PortableAlphanumericComparator comparator;
+		private final int myOwnerID;
+		
+		public WorkingSetComparator() {
+			comparator = new PortableAlphanumericComparator();
+			myOwnerID = SISClientBase.currentUser.getId();
+		}
+		
+		@Override
+		public int compare(WorkingSet o1, WorkingSet o2) {
+			int o1Points = 0;
+			int o2Points = 0;
+			
+			String u1 = o1.getCreator().getDisplayableName();
+			String u2 = o2.getCreator().getDisplayableName();
+			
+			Integer i1 = o1.getCreator().getId();
+			if (i1.intValue() == myOwnerID)
+				i1 = -1;
+			Integer i2 = o2.getCreator().getId();
+			if (i2.intValue() == myOwnerID)
+				i2 = -1;
+				
+			String ws1 = o1.getName();
+			String ws2 = o2.getName();
+			
+			int result = comparator.compare(u1, u2);
+			if (result > 0)
+				o2Points++;
+			else
+				o1Points++;
+			
+			result = i1.compareTo(i2);
+			if (result > 0)
+				o2Points++;
+			else
+				o1Points++;
+			
+			result = comparator.compare(ws1, ws2);
+			if (result > 0)
+				o2Points++;
+			else
+				o1Points++;
+			
+			result = o2Points - o1Points;
+		
+			if (result > 0)
+				return 1;
+			else if (result < 0)
+				return -1;
+			else
+				return 0;
+		}
+		
 	}
 
 }

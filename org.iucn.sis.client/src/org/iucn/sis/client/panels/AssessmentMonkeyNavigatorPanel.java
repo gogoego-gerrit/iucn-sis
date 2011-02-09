@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -22,11 +23,9 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
-import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
@@ -36,18 +35,15 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GridView;
-import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
-import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Assessment> {
+public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel<Assessment> {
 	
 	private WorkingSet curNavWorkingSet;
 	private Taxon curNavTaxon;
@@ -76,19 +72,8 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 	}
 	
 	@Override
-	protected GridView getView() {
-		GroupingView view = new GroupingView();
-		view.setEmptyText("No assessments for this taxon");
-		view.setGroupRenderer(new GridGroupRenderer() {
-			public String render(GroupColumnData data) {
-				if ("draft".equals(data.group))
-					return "Draft Assessments";
-				else
-					return "Published Assessments";
-			}
-		});
-		
-		return view;
+	protected String getEmptyText() {
+		return "No assessments to list.";
 	}
 	
 	@Override
@@ -121,15 +106,6 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 	}
 	
 	@Override
-	protected ListStore<NavigationModelData<Assessment>> getStoreInstance() {
-		GroupingStore<NavigationModelData<Assessment>> store = 
-			new GroupingStore<NavigationModelData<Assessment>>(getLoader());
-		store.groupBy("status");
-		
-		return store;
-	}
-	
-	@Override
 	protected ColumnModel getColumnModel() {
 		final List<ColumnConfig> list = new ArrayList<ColumnConfig>();
 		
@@ -144,11 +120,14 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 			public Object render(NavigationModelData<Assessment> model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<NavigationModelData<Assessment>> store, Grid<NavigationModelData<Assessment>> grid) {
+				Boolean header = model.get("header");
+				if (header == null)
+					header = Boolean.FALSE;
 				Assessment assessment = model.getModel();
 				String style;
 				String value;
 				if (assessment == null) {
-					style = MarkedCache.NONE;
+					style = header ? "monkey_navigation_section_header" : MarkedCache.NONE;
 					value = model.get(property);
 				}
 				else {
@@ -157,25 +136,19 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 							getDraftDisplayableString(assessment) : getPublishedDisplayableString(assessment);
 				}
 				//TODO: add lock icon if locked.
-				return "<span class=\"" + style + "\">" + value + "</span>";
+				return "<div class=\"" + style + "\">" + value + "</div>";
 			}
 		});
 		
 		list.add(display);
 		
-		ColumnConfig status = new ColumnConfig("status", "Status", 10);
-		status.setHidden(true);
-		
-		list.add(status);
-		
 		return new ColumnModel(list);
 	}
 	
 	@Override
-	protected void getStore(final GenericCallback<ListStore<org.iucn.sis.client.panels.PagingMonkeyNavigatorPanel.NavigationModelData<Assessment>>> callback) {
-		final GroupingStore<NavigationModelData<Assessment>> store = 
-			new GroupingStore<NavigationModelData<Assessment>>();
-		store.setStoreSorter(new AssessmentStoreSorter());
+	protected void getStore(final GenericCallback<ListStore<NavigationModelData<Assessment>>> callback) {
+		final ListStore<NavigationModelData<Assessment>> store = 
+			new ListStore<NavigationModelData<Assessment>>();
 		store.setKeyProvider(new ModelKeyProvider<NavigationModelData<Assessment>>() {
 			public String getKey(NavigationModelData<Assessment> model) {
 				if (model.getModel() == null)
@@ -193,27 +166,49 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 					callback.onSuccess(store);
 				}
 				public void onSuccess(String result) {
-					for (Assessment current : AssessmentCache.impl.getDraftAssessmentsForTaxon(curNavTaxon.getId())) {
+					final List<Assessment> drafts = 
+						new ArrayList<Assessment>(AssessmentCache.impl.getDraftAssessmentsForTaxon(curNavTaxon.getId()));
+					Collections.sort(drafts, new AssessmentGroupedComparator());
+					
+					NavigationModelData<Assessment> draftHeader = new NavigationModelData<Assessment>(null);
+					draftHeader.set("name", "Draft Assessments (" + drafts.size() + ")");
+					draftHeader.set("header", Boolean.TRUE);
+					
+					store.add(draftHeader);
+					
+					for (Assessment current : drafts) {
 						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
 						model.set("name", getDraftDisplayableString(current));
 						model.set("status", "draft");
 						model.set("locked", !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
 									current));
+						model.set("header", Boolean.FALSE);
 						
 						store.add(model);
 					}
 					
-					for (Assessment current : AssessmentCache.impl.getPublishedAssessmentsForTaxon(curNavTaxon.getId())) {
+					final List<Assessment> published = 
+						new ArrayList<Assessment>(AssessmentCache.impl.getPublishedAssessmentsForTaxon(curNavTaxon.getId()));
+					Collections.sort(published, new AssessmentGroupedComparator());
+					
+					NavigationModelData<Assessment> pubHeader = new NavigationModelData<Assessment>(null);
+					pubHeader.set("name", "Published Assessments (" + published.size() + ")");
+					pubHeader.set("header", Boolean.TRUE);
+					
+					store.add(pubHeader);
+					
+					for (Assessment current : published) {
 						if (current == null)
 							continue;
 						
 						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
 						model.set("name", getPublishedDisplayableString(current));
-						model.set("type", "published");
+						model.set("status", "published");
+						model.set("header", Boolean.FALSE);
 
 						store.add(model);
 					}
-					store.sort("name", SortDir.DESC);
+					
 					callback.onSuccess(store);
 				}
 			});
@@ -221,8 +216,31 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 		else {
 			WorkingSetCache.impl.getAssessmentsForWorkingSet(curNavWorkingSet, curNavTaxon, new GenericCallback<List<Assessment>>() {
 				public void onSuccess(List<Assessment> result) {
+					Collections.sort(result, new AssessmentGroupedComparator());
+					
+					String type = null;
+					NavigationModelData<Assessment> currentHeader = null;
+					int groupCount = 0;
+					
 					for (Assessment current : result) {
+						if (!current.getAssessmentType().getDisplayName(true).equals(type)) {
+							if (currentHeader != null)
+								updateHeaderCount(currentHeader, groupCount);
+							
+							type = current.getAssessmentType().getDisplayName(true);
+							
+							NavigationModelData<Assessment> header = new NavigationModelData<Assessment>(null);
+							header.set("name", type + " Assessments");
+							header.set("header", Boolean.TRUE);
+							
+							store.add(header);
+							
+							currentHeader = header;
+							groupCount = 0;
+						}
+						
 						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
+						model.set("header", Boolean.FALSE);
 						if (AssessmentType.DRAFT_ASSESSMENT_STATUS_ID == (current.getAssessmentType().getId())) {
 							model.set("name", getDraftDisplayableString(current));
 							model.set("status", "draft");
@@ -231,17 +249,30 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 						}
 						else {
 							model.set("name", getPublishedDisplayableString(current));
-							model.set("type", "published");
+							model.set("status", "published");
 						}
 						
 						store.add(model);
-						callback.onSuccess(store);
+						
+						groupCount++;
 					}
+					
+					updateHeaderCount(currentHeader, groupCount);
+					
+					callback.onSuccess(store);
 				}
 				public void onFailure(Throwable caught) {
 					WindowUtils.errorAlert("Could not load assessments for the taxon in this working set.");
 				}
 			});
+		}
+	}
+	
+	private void updateHeaderCount(NavigationModelData<Assessment> header, int count) {
+		if (header != null) {
+			String name = header.get("name");
+			name += " (" + count + ")";
+			header.set("name", name);
 		}
 	}
 	
@@ -342,6 +373,31 @@ public class AssessmentMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPan
 				NavigationModelData<Assessment> m1,
 				NavigationModelData<Assessment> m2, String property) {
 			return comparator.compare(m1.getModel(), m2.getModel());
+		}
+		
+	}
+	
+	public static class AssessmentGroupedComparator implements Comparator<Assessment> {
+		
+		private final PortableAlphanumericComparator comparator;
+		private final AssessmentDateComparator dateComparator;
+		
+		public AssessmentGroupedComparator() {
+			comparator = new PortableAlphanumericComparator();
+			dateComparator = new AssessmentDateComparator();
+		}
+		
+		@Override
+		public int compare(Assessment o1, Assessment o2) {
+			String s1 = o1.getAssessmentType().getName();
+			String s2 = o2.getAssessmentType().getName();
+			
+			int result = comparator.compare(s1, s2); 
+			
+			if (result == 0)
+				result = dateComparator.compare(o1, o2);
+			
+			return result;
 		}
 		
 	}

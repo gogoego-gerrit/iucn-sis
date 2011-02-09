@@ -1,6 +1,9 @@
 package org.iucn.sis.client.panels;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
@@ -25,18 +28,15 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GridGroupRenderer;
-import com.extjs.gxt.ui.client.widget.grid.GridView;
-import com.extjs.gxt.ui.client.widget.grid.GroupColumnData;
-import com.extjs.gxt.ui.client.widget.grid.GroupingView;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Taxon> {
+public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel<Taxon> {
 	
 	private WorkingSet curNavWorkingSet;
 	private Taxon curNavTaxon;
@@ -44,8 +44,6 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 	public TaxonMonkeyNavigatorPanel() {
 		super();
 		setHeading("Taxon List");
-		
-		setPageCount(40);
 	}
 	
 	public void refresh(final WorkingSet curNavWorkingSet, final Taxon curNavTaxon) {
@@ -83,21 +81,28 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 			}
 		});
 		
-		for (Taxon taxon : TaxonomyCache.impl.getRecentlyAccessed()) {
-			NavigationModelData<Taxon> model = new NavigationModelData<Taxon>(taxon);
-			model.set("name", taxon.getFriendlyName());
-			model.set("family", "Recent Taxa");
+		Collection<Taxon> recent = TaxonomyCache.impl.getRecentlyAccessed();
+		
+		if (!recent.isEmpty()) {
+			NavigationModelData<Taxon> header = new NavigationModelData<Taxon>(null);
+			header.set("name", "Recent Taxa");
+			header.set("header", Boolean.TRUE);
 			
-			store.add(model);
+			store.add(header);
+			
+			for (Taxon taxon : TaxonomyCache.impl.getRecentlyAccessed()) {
+				NavigationModelData<Taxon> model = new NavigationModelData<Taxon>(taxon);
+				model.set("name", taxon.getFriendlyName());
+				model.set("family", "Recent Taxa");
+				
+				store.add(model);
+			}
 		}
 		
 		callback.onSuccess(store);
 	}
 	
 	private void getTaxonForWorkingSetStore(final GenericCallback<ListStore<NavigationModelData<Taxon>>> callback) {
-		/*final GroupingStore<NavigationModelData<Taxon>> store = 
-			new GroupingStore<NavigationModelData<Taxon>>();
-		store.groupBy("familyid");*/
 		final ListStore<NavigationModelData<Taxon>> store = new ListStore<NavigationModelData<Taxon>>();
 		store.setKeyProvider(new ModelKeyProvider<NavigationModelData<Taxon>>() {
 			public String getKey(NavigationModelData<Taxon> model) {
@@ -110,13 +115,41 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 		
 		WorkingSetCache.impl.fetchTaxaForWorkingSet(curNavWorkingSet, new GenericCallback<List<Taxon>>() {
 			public void onSuccess(List<Taxon> result) {
+				Collections.sort(result, new TaxonComparator());
+				
+				String currentFamily = null;
+				NavigationModelData<Taxon> currentHeader = null;
+				int groupCount = 0;
+				
+				int size = result.size();
+				
 				for (Taxon taxon : result) {
+					String family = taxon.getFootprint()[TaxonLevel.FAMILY];
+					if (!family.equals(currentFamily)) {
+						if (currentHeader != null)
+							updateHeaderCount(currentHeader, groupCount, size);
+						
+						NavigationModelData<Taxon> header = new NavigationModelData<Taxon>(null);
+						header.set("name", family);
+						header.set("header", Boolean.TRUE);
+						
+						store.add(header);
+						
+						currentFamily = family;
+						currentHeader = header;
+						groupCount = 0;
+					}
+					
 					NavigationModelData<Taxon> model = new NavigationModelData<Taxon>(taxon);
 					model.set("name", taxon.getFriendlyName());
 					model.set("family", taxon.getFootprint()[TaxonLevel.FAMILY]);
 					
 					store.add(model);
+					
+					groupCount++;
 				}
+				
+				updateHeaderCount(currentHeader, groupCount, size);
 				
 				callback.onSuccess(store);
 			}
@@ -129,6 +162,14 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 		});
 	}
 	
+	private void updateHeaderCount(NavigationModelData<Taxon> header, int count, int size) {
+		if (header != null) {
+			String name = header.get("name");
+			name += " (" + count + "/" + size + ")";
+			header.set("name", name);
+		}
+	}
+	
 	@Override
 	protected ColumnModel getColumnModel() {
 		final List<ColumnConfig> list = new ArrayList<ColumnConfig>();
@@ -139,13 +180,22 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 			public Object render(NavigationModelData<Taxon> model, String property, ColumnData config,
 					int rowIndex, int colIndex, ListStore<NavigationModelData<Taxon>> store,
 					Grid<NavigationModelData<Taxon>> grid) {
+				Boolean header = model.get("header");
+				if (header == null)
+					header = Boolean.FALSE;
 				Taxon taxon = model.getModel();
 				String style;
-				if (taxon == null)
-					style = MarkedCache.NONE;
-				else
+				String value;
+				if (taxon == null) {
+					style = header ? "monkey_navigation_section_header" : MarkedCache.NONE;
+					value = model.get(property);
+				}
+				else {
 					style = MarkedCache.impl.getTaxaStyle(taxon.getId());
-				return "<span class=\"" + style + "\">" + model.get(property) + "</span>";
+					value = taxon.getFriendlyName();
+				}
+				
+				return "<div class=\"" + style + "\">" + value + "</div>";
 			}
 		});
 		list.add(display);
@@ -158,25 +208,8 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 		return new ColumnModel(list);
 	}
 	
-	@Override
-	protected GridView getView() {
-		GroupingView view = new GroupingView();
-		view.setEmptyText("No taxa to list.");
-		view.setGroupRenderer(new GridGroupRenderer() {
-			public String render(GroupColumnData data) {
-				return data.group;
-			}
-		});
-		
-		return view;
-	}
-	
-	protected ListStore<NavigationModelData<Taxon>> getStoreInstance() {
-		GroupingStore<NavigationModelData<Taxon>> store = 
-			new GroupingStore<NavigationModelData<Taxon>>(getLoader());
-		store.groupBy("family");
-		
-		return store;
+	protected String getEmptyText() {
+		return "No taxa to list.";
 	}
 	
 	@Override
@@ -249,6 +282,33 @@ public class TaxonMonkeyNavigatorPanel extends GridPagingMonkeyNavigatorPanel<Ta
 		});
 		
 		addTool(goToTaxon);
+	}
+	
+	private static class TaxonComparator implements Comparator<Taxon> {
+		
+		private final PortableAlphanumericComparator comparator;
+		
+		public TaxonComparator() {
+			comparator = new PortableAlphanumericComparator();
+		}
+		
+		@Override
+		public int compare(Taxon o1, Taxon o2) {
+			String f1 = o1.getFootprint()[TaxonLevel.FAMILY];
+			String f2 = o2.getFootprint()[TaxonLevel.FAMILY];
+			
+			int result = comparator.compare(f1, f2);
+			
+			if (result == 0) {
+				String n1 = o1.getFriendlyName();
+				String n2 = o2.getFriendlyName();
+				
+				result = comparator.compare(n1, n2);
+			}
+			
+			return result;
+		}
+		
 	}
 
 }
