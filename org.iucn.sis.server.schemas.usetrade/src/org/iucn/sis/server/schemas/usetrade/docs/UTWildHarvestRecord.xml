@@ -3,6 +3,9 @@
 	<description>Wild Harvest Record</description>
 	<classOfService>None</classOfService>
 	<structures>
+		<structure id="dateOfHarvest" description="Date of Information">
+			<date></date>
+		</structure>
 		<structure>
 			<oneToMany>
 				<structure>
