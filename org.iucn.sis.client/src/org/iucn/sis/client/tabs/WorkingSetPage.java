@@ -23,13 +23,15 @@ import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.CenterLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -115,9 +117,13 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 		final WorkingSet item = WorkingSetCache.impl.getWorkingSet(getSelectedItem());
 		
 		if (optionsContainer.getItemCount() == 0) {
-			final VerticalPanel buttonArea = new VerticalPanel();
-			buttonArea.setSpacing(10);
-			buttonArea.setWidth(150);
+			final TableLayout layout = new TableLayout(1);
+			layout.setCellHorizontalAlign(HorizontalAlignment.CENTER);
+			layout.setCellVerticalAlign(VerticalAlignment.MIDDLE);
+			layout.setCellSpacing(20);
+			
+			final LayoutContainer buttonArea = new LayoutContainer(layout);
+			buttonArea.setScrollMode(Scroll.AUTOY);
 			
 			buttonArea.add(createButton("Edit Basic Information", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
@@ -243,7 +249,6 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 			}
 			
 			optionsContainer.removeAll();
-			optionsContainer.setLayout(new CenterLayout());
 			optionsContainer.add(buttonArea);
 		}
 		callback.isDrawn();
@@ -260,6 +265,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 	private Button createButton(String text, String icon, SelectionListener<ButtonEvent> listener) {
 		Button button = new Button(text);
 		button.setIconStyle(icon);
+		button.setWidth(150);
 		button.addSelectionListener(listener);
 		
 		return button;
