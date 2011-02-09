@@ -3,8 +3,8 @@
 <description><![CDATA[Harvest Trend Comments]]></description>
 <classOfService>None</classOfService>
 <structures>
-<structure id="narrative">
-<richText/>
+<structure id="value">
+<text/>
 </structure>
 </structures>
 </field>
