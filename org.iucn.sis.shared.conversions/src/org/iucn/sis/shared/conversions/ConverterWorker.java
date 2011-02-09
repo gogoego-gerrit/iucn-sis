@@ -63,6 +63,8 @@ public class ConverterWorker implements Runnable {
 			success = convertRegions(proceed, writer);
 		else if ("taxa".equals(step))
 			success = convertTaxa(proceed, writer);
+		else if ("images".equals(step))
+			success = convertImages(proceed, writer);
 		else if ("draft".equals(step))
 			success = convertDrafts(proceed, writer);
 		else if ("published".equals(step))
@@ -152,6 +154,14 @@ public class ConverterWorker implements Runnable {
 		TaxonConverter converter = new TaxonConverter();
 		initConverter(converter, writer);
 		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
+		
+		return converter.start() && (!proceed || convertImages(proceed, writer));
+	}
+	
+	private boolean convertImages(boolean proceed, Writer writer) {
+		TaxonImageConverter converter = new TaxonImageConverter();
+		initConverter(converter, writer);
+		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
 		
 		return converter.start() && (!proceed || convertDrafts(proceed, writer));
 	}
