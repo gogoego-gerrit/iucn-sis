@@ -443,8 +443,11 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 	}
 	
 	private void doSave(final GenericCallback<String> callback) {
-		if (language.getSelectedIndex() == 0) {
-			WindowUtils.errorAlert("You must first select a language for the common name.");
+		if(name.getValue().equals("")){
+			WindowUtils.errorAlert("You must enter a name for the common name.");
+			return;
+		}else if (language.getSelectedIndex() == 0) {
+			WindowUtils.errorAlert("You must select a language for the common name.");
 			return;
 		}
 		bar.disable();
