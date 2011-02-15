@@ -189,12 +189,18 @@ public class Field implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		Field other = (Field) obj;
-		if (generationCode == null) {
+		
+		if (getId() > 0)
+			return generationCode.equals(other.generationCode);
+		else
+			return false;
+		
+		/*if (generationCode == null) {
 			if (other.generationCode != null)
 				return false;
 		} else if (!generationCode.equals(other.generationCode))
 			return false;
-		return true;
+		return true;*/
 	}
 
 	public Assessment getAssessment() {
@@ -329,11 +335,15 @@ public class Field implements Serializable {
 	}
 
 	public void setAssessment(Assessment value) {
+		setAssessment(value, true);
+	}
+	
+	public void setAssessment(Assessment value, boolean cascade) {
 		this.assessment = value;
 		/*
 		 * FIXME: is this necessary?
 		 */
-		if (fields != null)
+		if (cascade && fields != null)
 			for (Field field : fields)
 				field.setAssessment(value);
 	}
