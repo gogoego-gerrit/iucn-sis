@@ -174,7 +174,11 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 
 		displayPanel.add(dependentsPanel);
 
-		updateDependantPanel();
+		try {
+			updateDependantPanel();
+		} catch (Throwable e) {
+			//Debug.println(e);
+		}
 
 		return displayPanel;
 	}
@@ -325,7 +329,7 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 					structure.setData(field);
 		}
 		
-		updateDependantPanel();
+		//updateDependantPanel();
 		
 		//Map<String, PrimitiveField> data = field.getKeyToPrimitiveFields();
 		/*for (int i = 0; i < dependantStructures.size() + 1; i++) {
