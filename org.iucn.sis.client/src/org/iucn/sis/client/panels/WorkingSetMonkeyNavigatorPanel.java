@@ -208,53 +208,27 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		Collections.sort(mine, new WorkingSetComparator());
 		Collections.sort(subscribed, new WorkingSetComparator());
 		
-		final List<WorkingSet> list = new ArrayList<WorkingSet>();
-		list.addAll(mine);
-		list.addAll(subscribed);
-		
-		int currentCreator = -1;
-		NavigationModelData<WorkingSet> currentHeader = null;
-		int groupCount = 0;
-		
-		int size = list.size();
-		
-		for (WorkingSet cur : list) {
-			if (cur.getCreator().getId() != currentCreator) {
-				if (currentHeader != null)
-					updateHeaderCount(currentHeader, groupCount, size);
-				
-				currentCreator = cur.getCreator().getId();
-				
-				NavigationModelData<WorkingSet> model = new NavigationModelData<WorkingSet>(null);
-				model.set("header", Boolean.TRUE);
-				model.set("name", myOwnerID == currentCreator ? "My Working Sets" : "Subscribed Working Sets");
-				
-				store.add(model);
-				
-				currentHeader = model;
-				groupCount = 0;
-			}
-			
-			NavigationModelData<WorkingSet> model = new NavigationModelData<WorkingSet>(cur);
-			model.set("name", cur.getName());
-			model.set("header", Boolean.FALSE);
-			model.set("mine", cur.getCreator().getId() == myOwnerID);
-			
-			store.add(model);
-			
-			groupCount++;
-		}
-		
-		updateHeaderCount(currentHeader, groupCount, size);
+		drawWorkingSets(store, mine, "My Working Sets", true);
+		drawWorkingSets(store, subscribed, "Subscribed Working Sets", false);
 		
 		callback.onSuccess(store);
 	}
 	
-	private void updateHeaderCount(NavigationModelData<WorkingSet> header, int count, int size) {
-		if (header != null) {
-			String name = header.get("name");
-			name += " (" + count + ")";
-			header.set("name", name);
+	private void drawWorkingSets(ListStore<NavigationModelData<WorkingSet>> store, 
+			List<WorkingSet> list, String heading, boolean mine) {
+		if (!list.isEmpty()) {
+			NavigationModelData<WorkingSet> header = new NavigationModelData<WorkingSet>(null);
+			header.set("header", Boolean.TRUE);
+			header.set("name", heading + " (" + list.size() + ")");
+			
+			for (WorkingSet cur : list) {
+				NavigationModelData<WorkingSet> model = new NavigationModelData<WorkingSet>(cur);
+				model.set("name", cur.getName());
+				model.set("header", Boolean.FALSE);
+				model.set("mine", mine);
+				
+				store.add(model);
+			}
 		}
 	}
 	

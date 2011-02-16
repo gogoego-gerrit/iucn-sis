@@ -90,12 +90,14 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 			
 			store.add(header);
 			
-			for (Taxon taxon : TaxonomyCache.impl.getRecentlyAccessed()) {
-				NavigationModelData<Taxon> model = new NavigationModelData<Taxon>(taxon);
-				model.set("name", taxon.getFriendlyName());
-				model.set("family", "Recent Taxa");
-				
-				store.add(model);
+			for (Taxon taxon : recent) {
+				if (taxon != null) {
+					NavigationModelData<Taxon> model = new NavigationModelData<Taxon>(taxon);
+					model.set("name", taxon.getFriendlyName());
+					model.set("family", "Recent Taxa");
+					
+					store.add(model);
+				}
 			}
 		}
 		
