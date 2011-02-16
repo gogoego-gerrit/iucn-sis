@@ -190,7 +190,7 @@ CREATE TABLE RedListEvaluated_statusLookup(id integer auto_increment primary key
 CREATE TABLE RedListEvaluated (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RedListEvaluationDate (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RedListEvaluators (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE RedListFacilitators (id interger auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE RedListFacilitators (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RedListFuzzyResult (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RedListManualCategory (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RedListManualCriteria (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
