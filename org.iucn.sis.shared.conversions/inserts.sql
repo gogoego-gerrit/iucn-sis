@@ -1060,9 +1060,9 @@ INSERT INTO InPlaceResearch_monitoringSchemeLookup (name, label) VALUES ('0', 'Y
 INSERT INTO InPlaceResearch_monitoringSchemeLookup (name, label) VALUES ('1', 'No');
 INSERT INTO InPlaceResearch_monitoringSchemeLookup (name, label) VALUES ('2', 'Unknown');
 INSERT INTO InPlaceResearch (name, data_type, number_allowed) VALUES ('recoveryPlan', 'fk_primitive_field', '?');
-INSERT INTO InPlaceResearch (name, data_type, number_allowed) VALUES ('note', 'string_primitive_field', '?');
+INSERT INTO InPlaceResearch (name, data_type, number_allowed) VALUES ('recoveryPlanNote', 'string_primitive_field', '?');
 INSERT INTO InPlaceResearch (name, data_type, number_allowed) VALUES ('monitoringScheme', 'fk_primitive_field', '?');
-INSERT INTO InPlaceResearch (name, data_type, number_allowed) VALUES ('note', 'string_primitive_field', '?');
+INSERT INTO InPlaceResearch (name, data_type, number_allowed) VALUES ('monitoringSchemeNote', 'string_primitive_field', '?');
 INSERT INTO InPlaceSpeciesManagement_harvestPlanLookup (name, label) VALUES ('0', 'Yes');
 INSERT INTO InPlaceSpeciesManagement_harvestPlanLookup (name, label) VALUES ('1', 'No');
 INSERT INTO InPlaceSpeciesManagement_harvestPlanLookup (name, label) VALUES ('2', 'Unknown');
@@ -1073,11 +1073,11 @@ INSERT INTO InPlaceSpeciesManagement_exSituConservationLookup (name, label) VALU
 INSERT INTO InPlaceSpeciesManagement_exSituConservationLookup (name, label) VALUES ('1', 'No');
 INSERT INTO InPlaceSpeciesManagement_exSituConservationLookup (name, label) VALUES ('2', 'Unknown');
 INSERT INTO InPlaceSpeciesManagement (name, data_type, number_allowed) VALUES ('harvestPlan', 'fk_primitive_field', '?');
-INSERT INTO InPlaceSpeciesManagement (name, data_type, number_allowed) VALUES ('note', 'string_primitive_field', '?');
+INSERT INTO InPlaceSpeciesManagement (name, data_type, number_allowed) VALUES ('harvestPlanNote', 'string_primitive_field', '?');
 INSERT INTO InPlaceSpeciesManagement (name, data_type, number_allowed) VALUES ('reintroduced', 'fk_primitive_field', '?');
-INSERT INTO InPlaceSpeciesManagement (name, data_type, number_allowed) VALUES ('note', 'string_primitive_field', '?');
+INSERT INTO InPlaceSpeciesManagement (name, data_type, number_allowed) VALUES ('reintroducedNote', 'string_primitive_field', '?');
 INSERT INTO InPlaceSpeciesManagement (name, data_type, number_allowed) VALUES ('exSituConservation', 'fk_primitive_field', '?');
-INSERT INTO InPlaceSpeciesManagement (name, data_type, number_allowed) VALUES ('note', 'string_primitive_field', '?');
+INSERT INTO InPlaceSpeciesManagement (name, data_type, number_allowed) VALUES ('exSituConservationNote', 'string_primitive_field', '?');
 INSERT INTO InPlaceLandWaterProtection_sitesIdentifiedLookup (name, label) VALUES ('0', 'Yes');
 INSERT INTO InPlaceLandWaterProtection_sitesIdentifiedLookup (name, label) VALUES ('1', 'No');
 INSERT INTO InPlaceLandWaterProtection_sitesIdentifiedLookup (name, label) VALUES ('2', 'Unknown');

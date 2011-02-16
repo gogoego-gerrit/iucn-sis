@@ -13,6 +13,7 @@ CREATE TABLE UTWildHarvestRecord_lifeStageRemovalLookup (id integer auto_increme
 CREATE TABLE UTWildHarvestRecord_genderRemovalLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE UTWildHarvestRecord_relativeHarvestLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE UTEndUseRecord (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE UTEndUseRecordSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE UTEndUseRecord_endUseLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE UTEndUseRecord_scaleLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE UTEndUseRecord_driverLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));

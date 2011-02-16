@@ -68,11 +68,11 @@ public class UseTradeField extends ProxyField {
 	}
 	
 	public void setHarvestLevel(String value) {
-		setStringPrimitiveField(HARVEST_LEVEL_KEY, value);
+		setTextPrimitiveField(HARVEST_LEVEL_KEY, value);
 	}
 	
 	public String getHarvestLevel() {
-		return getStringPrimitiveField(HARVEST_LEVEL_KEY);
+		return getTextPrimitiveField(HARVEST_LEVEL_KEY);
 	}
 	
 	public void setUnits(Integer value) {
