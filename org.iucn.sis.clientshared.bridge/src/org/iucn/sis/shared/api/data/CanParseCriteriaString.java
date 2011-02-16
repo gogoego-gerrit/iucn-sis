@@ -144,10 +144,12 @@ public abstract class CanParseCriteriaString {
 		else
 			semiColonSplit = new String[] { criteria };
 
-		for (int i = 0; i < semiColonSplit.length; i++) {
-			semiColonSplit[i] = semiColonSplit[i].trim();
-			char firstLetter = semiColonSplit[i].charAt(0);
-			String internalCriteria = semiColonSplit[i].substring(1);
+		for (String raw : semiColonSplit) {
+			String value = raw.trim();
+			if ("".equals(value))
+				continue;
+			char firstLetter = value.charAt(0);
+			String internalCriteria = value.substring(1);
 			if (firstLetter == 'A') {
 				String[] plusSplit = internalCriteria.split("\\+");
 				for (int j = 0; j < plusSplit.length; j++) {
