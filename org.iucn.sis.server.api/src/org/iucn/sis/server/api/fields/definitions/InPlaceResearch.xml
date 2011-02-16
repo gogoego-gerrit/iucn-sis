@@ -17,7 +17,7 @@
 					</structure>
 				</dominantStructures>
 				<dependentStructures>
-					<structure id="note">
+					<structure id="recoveryPlanNote">
 						<note></note>
 					</structure>
 				</dependentStructures>
@@ -45,7 +45,7 @@
 					</structure>
 				</dominantStructures>
 				<dependentStructures>
-					<structure id="note">
+					<structure id="monitoringSchemeNote">
 						<note></note>
 					</structure>
 				</dependentStructures>
