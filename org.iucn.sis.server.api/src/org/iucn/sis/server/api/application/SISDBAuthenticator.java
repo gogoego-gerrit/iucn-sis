@@ -51,19 +51,19 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		user.setSisUser(true);
 		user.setRapidlistUser(false);
 		
+		session.beginTransaction();
+		
 		try {
 			io.saveUser(user);
+			session.getTransaction().commit();
 		} catch (PersistentException e) {
+			session.getTransaction().rollback();
 			throw new AccountExistsException(e.getLocalizedMessage());
 		} finally {
 			session.close();
 		}
 		
-		String result = Integer.toString(user.getId()); 
-		
-		session.close();
-		
-		return result;
+		return Integer.toString(user.getId());
 	}
 	
 	@Override
