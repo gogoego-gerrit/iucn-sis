@@ -19,6 +19,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.util.events.ComplexListener;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class UserPermissionPanel extends Window {
@@ -101,8 +102,10 @@ public class UserPermissionPanel extends Window {
 	
 	@Override
 	public void show() {
+		WindowUtils.showLoadingAlert("Loading all permission groups...");
 		draw();
 		super.show();
+		WindowUtils.hideLoadingAlert();
 	}
 	
 	public static class PermissionStoreSorter extends StoreSorter<BaseModelData> {
