@@ -200,14 +200,20 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			}
 			else {
 				Field targetField = existingFields.remove(sourceField.getId());
-				sink(sourceField, targetField, session);
-				if (!targetField.hasData())
-					FieldDAO.deleteAndDissociate(targetField, session);
+				if (targetField != null) {
+					sink(sourceField, targetField, session);
+					if (!targetField.hasData())
+						FieldDAO.deleteAndDissociate(targetField, session);
+				}
 			}
 		}
 		
+		/*
+		 * Only delete top-level fields
+		 */
 		for (Field field : existingFields.values())
-			FieldDAO.deleteAndDissociate(field, session);
+			if (field.getParent() == null)
+				FieldDAO.deleteAndDissociate(field, session);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -223,7 +229,8 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				}
 				else {
 					PrimitiveField targetField = existingFields.remove(sourceField.getId());
-					targetField.setRawValue(sourceField.getRawValue());
+					if (targetField != null)
+						targetField.setRawValue(sourceField.getRawValue());
 				}
 			}
 			
@@ -241,7 +248,8 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				}
 				else {
 					Field targetField = existingFields.remove(sourceField.getId());
-					sink(sourceField, targetField, session);
+					if (targetField != null)
+						sink(sourceField, targetField, session);
 				}
 			}
 			
