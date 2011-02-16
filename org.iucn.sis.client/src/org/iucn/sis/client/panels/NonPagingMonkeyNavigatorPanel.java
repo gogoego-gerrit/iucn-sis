@@ -12,8 +12,6 @@ import com.extjs.gxt.ui.client.widget.Layout;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.DeferredCommand;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
@@ -54,23 +52,22 @@ public abstract class NonPagingMonkeyNavigatorPanel<T extends ModelData> extends
 	}
 	
 	protected void refresh(final DrawsLazily.DoneDrawingCallback callback) {
-		WindowUtils.showLoadingAlert("Loading...");
+		mask("Loading...");
 		getStore(new GenericCallback<ListStore<T>>() {
 			public void onFailure(Throwable caught) {
-				WindowUtils.hideLoadingAlert();
+				unmask();
 				WindowUtils.errorAlert("Could not refresh, please try again later.");
 				if (callback != null)
 					callback.isDrawn();
 			}
 			public void onSuccess(final ListStore<T> result) {
-				WindowUtils.hideLoadingAlert();
 				proxy.setStore(result);
 				
 				loader.load(0, result.getCount());
 				
 				refreshView();
 				
-				WindowUtils.hideLoadingAlert();
+				unmask();
 				if (callback != null)
 					callback.isDrawn();
 			}
