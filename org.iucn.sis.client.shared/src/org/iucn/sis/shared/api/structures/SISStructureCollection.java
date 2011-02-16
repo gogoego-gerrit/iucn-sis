@@ -239,8 +239,13 @@ public class SISStructureCollection extends Structure<Field> {
 	}
 	
 	public boolean hideDescriptionLabel(boolean forever) {
-		if (!structures.isEmpty())
-			return ((Structure)getStructureAt(0)).hideDescriptionLabel(forever);
+		if (!structures.isEmpty()) {
+			String firstDesc = ((Structure)getStructureAt(0)).getDescription();
+			if (firstDesc != null && firstDesc.equals(description))
+				return ((Structure)getStructureAt(0)).hideDescriptionLabel(forever);
+			else
+				return false;
+		}
 		else
 			return false;
 	}
