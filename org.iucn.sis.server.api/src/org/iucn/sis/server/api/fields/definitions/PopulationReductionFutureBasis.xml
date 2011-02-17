@@ -3,24 +3,48 @@
 	<description>Future Population Reduction Basis</description>
 	<classOfService>Factor</classOfService>
 	<structures>
-		<structure id="value">
-			<multipleSelect>
-				<option>
-					b) an index of abundance appropriate for the taxon
-				</option>
-				<option>
-					c) a decline in area of occupancy, extent of
-					occurrence and/or quality of habitat
-				</option>
-				<option>
-					d) actual or potential levels of exploitation
-				</option>
-				<option>
-					e) the effects of introduced taxa, hybridization,
-					pathogens, pollutants, competitors or parasites)
-				</option>
-				<selected></selected>
-			</multipleSelect>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="value">
+						<multipleSelect>
+							<option>
+								b) an index of abundance appropriate for the taxon
+							</option>
+							<option>
+								c) a decline in area of occupancy, extent of
+								occurrence and/or quality of habitat
+							</option>
+							<option>
+								d) actual or potential levels of exploitation
+							</option>
+							<option>
+								e) the effects of introduced taxa, hybridization,
+								pathogens, pollutants, competitors or parasites
+							</option>
+							<selected></selected>
+						</multipleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="detail" description="Decline In...">
+						<multipleSelect>
+							<option>AOO</option>
+							<option>EOO</option>
+							<option>Quality of Habitat</option>
+						</multipleSelect>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>1</activateOnIndex>
+						<actions>
+							<onTrue>show</onTrue>
+							<onFalse>hide</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
 		</structure>
 	</structures>
 </field>

@@ -1523,6 +1523,9 @@ INSERT INTO PopulationReductionFuture_qualifierLookup (name, label) VALUES ('-1'
 INSERT INTO PopulationReductionFuture_qualifierLookup (name, label) VALUES ('4', 'Suspected');
 INSERT INTO PopulationReductionFuture (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionFuture (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
+INSERT INTO PopulationReductionFutureBasis_detailLookup (name, label) VALUES ('0', 'AOO');
+INSERT INTO PopulationReductionFutureBasis_detailLookup (name, label) VALUES ('1', 'EOO');
+INSERT INTO PopulationReductionFutureBasis_detailLookup (name, label) VALUES ('2', 'Quality of Habitat');
 INSERT INTO PopulationReductionFutureBasis_valueLookup (name, label) VALUES ('0', 'b) an index of abundance appropriate for the taxon');
 INSERT INTO PopulationReductionFutureBasis_valueLookup (name, label) VALUES ('1', 'c) a decline in area of occupancy, extent of
 					occurrence and/or quality of habitat');
@@ -1530,6 +1533,7 @@ INSERT INTO PopulationReductionFutureBasis_valueLookup (name, label) VALUES ('2'
 INSERT INTO PopulationReductionFutureBasis_valueLookup (name, label) VALUES ('3', 'e) the effects of introduced taxa, hybridization,
 					pathogens, pollutants, competitors or parasites)');
 INSERT INTO PopulationReductionFutureBasis (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
+INSERT INTO PopulationReductionFutureBasis (name, data_type, number_allowed) VALUES ('detail', 'fk_list_primitive_field', '?');
 INSERT INTO PopulationReductionFutureCeased (name, data_type, number_allowed) VALUES ('hasCeased', 'boolean_range_primitive_field', '?');
 INSERT INTO PopulationReductionFutureReversible (name, data_type, number_allowed) VALUES ('isReversible', 'boolean_range_primitive_field', '?');
 INSERT INTO PopulationReductionFutureUnderstood (name, data_type, number_allowed) VALUES ('isUnderstood', 'boolean_range_primitive_field', '?');
@@ -1541,6 +1545,9 @@ INSERT INTO PopulationReductionPast_qualifierLookup (name, label) VALUES ('3', '
 INSERT INTO PopulationReductionPast_qualifierLookup (name, label) VALUES ('4', 'Suspected');
 INSERT INTO PopulationReductionPast (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionPast (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
+INSERT INTO PopulationReductionPastBasis_detailLookup (name, label) VALUES ('0', 'AOO');
+INSERT INTO PopulationReductionPastBasis_detailLookup (name, label) VALUES ('1', 'EOO');
+INSERT INTO PopulationReductionPastBasis_detailLookup (name, label) VALUES ('2', 'Quality of Habitat');
 INSERT INTO PopulationReductionPastBasis_valueLookup (name, label) VALUES ('0', 'a) direct observation');
 INSERT INTO PopulationReductionPastBasis_valueLookup (name, label) VALUES ('1', 'b) an index of abundance appropriate for the taxon');
 INSERT INTO PopulationReductionPastBasis_valueLookup (name, label) VALUES ('2', 'c) a decline in area of occupancy, extent of
@@ -1549,6 +1556,7 @@ INSERT INTO PopulationReductionPastBasis_valueLookup (name, label) VALUES ('3', 
 INSERT INTO PopulationReductionPastBasis_valueLookup (name, label) VALUES ('4', 'e) the effects of introduced taxa, hybridization,
 					pathogens, pollutants, competitors or parasites)');
 INSERT INTO PopulationReductionPastBasis (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
+INSERT INTO PopulationReductionPastBasis (name, data_type, number_allowed) VALUES ('detail', 'fk_list_primitive_field', '?');
 INSERT INTO PopulationReductionPastCeased (name, data_type, number_allowed) VALUES ('value', 'boolean_range_primitive_field', '?');
 INSERT INTO PopulationReductionPastReversible (name, data_type, number_allowed) VALUES ('value', 'boolean_range_primitive_field', '?');
 INSERT INTO PopulationReductionPastUnderstood (name, data_type, number_allowed) VALUES ('value', 'boolean_range_primitive_field', '?');
@@ -1561,6 +1569,9 @@ INSERT INTO PopulationReductionPastandFuture_qualifierLookup (name, label) VALUE
 INSERT INTO PopulationReductionPastandFuture_qualifierLookup (name, label) VALUES ('4', 'Suspected');
 INSERT INTO PopulationReductionPastandFuture (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionPastandFuture (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
+INSERT INTO PopulationReductionPastandFutureBasis_detailLookup (name, label) VALUES ('0', 'AOO');
+INSERT INTO PopulationReductionPastandFutureBasis_detailLookup (name, label) VALUES ('1', 'EOO');
+INSERT INTO PopulationReductionPastandFutureBasis_detailLookup (name, label) VALUES ('2', 'Quality of Habitat');
 INSERT INTO PopulationReductionPastandFutureBasis_valueLookup (name, label) VALUES ('0', 'a) direct observation');
 INSERT INTO PopulationReductionPastandFutureBasis_valueLookup (name, label) VALUES ('1', 'b) an index of abundance appropriate for the taxon');
 INSERT INTO PopulationReductionPastandFutureBasis_valueLookup (name, label) VALUES ('2', 'c) a decline in area of occupancy, extent of
@@ -1569,6 +1580,7 @@ INSERT INTO PopulationReductionPastandFutureBasis_valueLookup (name, label) VALU
 INSERT INTO PopulationReductionPastandFutureBasis_valueLookup (name, label) VALUES ('4', 'e) the effects of introduced taxa,hybridization,
 					pathogens, pollutants,competitors or parasites');
 INSERT INTO PopulationReductionPastandFutureBasis (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
+INSERT INTO PopulationReductionPastandFutureBasis (name, data_type, number_allowed) VALUES ('detail', 'fk_list_primitive_field', '?');
 INSERT INTO PopulationReductionPastandFutureCeased (name, data_type, number_allowed) VALUES ('value', 'boolean_range_primitive_field', '?');
 INSERT INTO PopulationReductionPastandFutureReversible (name, data_type, number_allowed) VALUES ('value', 'boolean_range_primitive_field', '?');
 INSERT INTO PopulationReductionPastandFutureUnderstood (name, data_type, number_allowed) VALUES ('value', 'boolean_range_primitive_field', '?');
