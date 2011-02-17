@@ -112,8 +112,11 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 	private Representation getFields(AssessmentSchema schema, List<String> fieldNames) {
 		StringBuilder ret = new StringBuilder("<fields>\r\n");
 		for (String field : fieldNames) {
+			String name = field;
+			if (name.endsWith(".xml"))
+				name = name.substring(0, name.lastIndexOf('.'));
 			try {
-				ret.append(getFieldAsString(schema, field));
+				ret.append(getFieldAsString(schema, name));
 			} catch (NotFoundException e) {
 				Debug.println("Field {0} not found!  Skipping...", field);
 			} catch (IOException e) {

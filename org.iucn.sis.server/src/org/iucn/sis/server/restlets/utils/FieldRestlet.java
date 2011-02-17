@@ -186,8 +186,11 @@ public class FieldRestlet extends BaseServiceRestlet {
 	public Representation getFields(Collection<String> fieldNames) {
 		StringBuilder ret = new StringBuilder("<fields>\r\n");
 		for (String field : fieldNames) {
+			String name = field;
+			if (name.endsWith(".xml"))
+				name = name.substring(0, name.lastIndexOf('.'));
 			try {
-				ret.append(getFieldAsString(field));
+				ret.append(getFieldAsString(name));
 			} catch (NotFoundException e) {
 				Debug.println("Field {0} not found!  Skipping...", field);
 			} catch (IOException e) {

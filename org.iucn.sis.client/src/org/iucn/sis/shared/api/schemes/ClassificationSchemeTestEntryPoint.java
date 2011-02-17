@@ -52,19 +52,26 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 	
 	@Override
 	protected void initializeCaches(SimpleListener listener) {
-		
+		listener.handleEvent();
 	}
 	
 	@Override
 	public void buildPostLogin() {
+		WindowUtils.hideLoadingAlert();
+		
 		String field = Window.Location.getParameter("field");
 		if (field == null)
 			field = "Threats";
 		String server = Window.Location.getParameter("server");
 		if (server == null || "local".equals(server))
 			server = "/org.iucn.sis.ClassificationSchemes";
-		else
-			server = UriBase.getInstance().getSISBase();
+		else {
+			String schema = Window.Location.getParameter("schema");
+			if (schema == null)
+				schema = "org.iucn.sis.server.schemas.redlist";
+			server = UriBase.getInstance().getSISBase() + 
+				"/application/schema/" + schema;
+		}
 		
 		open(server + "/field/" + field + ".xml", field);
 	}
