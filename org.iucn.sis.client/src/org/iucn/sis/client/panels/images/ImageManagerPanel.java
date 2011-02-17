@@ -60,10 +60,13 @@ public class ImageManagerPanel extends LayoutContainer {
 
 	public static final int GALLERY_VIEW = 0;
 	public static final int DETAIL_VIEW = 1;
+	
+	private boolean allowRating;
 
 	public ImageManagerPanel(Taxon taxon) {
 		super();
 		this.taxon = taxon;
+		this.allowRating = false;
 		
 		toolbar = new ToolBar();
 		viewbar = new ToolBar();
@@ -91,6 +94,10 @@ public class ImageManagerPanel extends LayoutContainer {
 		setLayout(new RowLayout(Orientation.VERTICAL));
 
 		init();
+	}
+	
+	public void setAllowRating(boolean allowRating) {
+		this.allowRating = allowRating;
 	}
 
 	private void addImage(final TaxonImage image) {
@@ -132,35 +139,38 @@ public class ImageManagerPanel extends LayoutContainer {
 	}
 
 	protected VerticalPanel buildDetailView(final TaxonImage image) {
-		HorizontalPanel rating = new HorizontalPanel();
-		double ratingNum = image.getRating(0.0F);
-		for (int i = 0; i < 5; i++) {
-			if (i < ratingNum) {
-				Image star = new Image(RATING_FILLED);
-				star.setSize("25", "25");
-				rating.add(star);
-			} else {
-				Image star = new Image(RATING_OUTLINE);
-				star.setSize("25", "25");
-				rating.add(star);
-			}
-		}
-		
-		rating.add(new Button("Rate It!", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				displayRateItPopup(image);
-			}
-		}));
-		
-		HTML values = new HTML("Votes: " + image.getWeight() + " Value: " + image.getRating(0.0F));
-		values.setStyleName("SIS_hasSmallerHTML");
-		
 		VerticalPanel details = new VerticalPanel();
 		details.add(new HTML("<b>Description: </b>" + image.getCaption()));
 		details.add(new HTML("<b>Credit: </b>" + image.getCredit()));
 		details.add(new HTML("<b>Source: </b>" + image.getSource()));
-		details.add(rating);
-		details.add(values);
+		
+		if (allowRating) {
+			HorizontalPanel rating = new HorizontalPanel();
+			double ratingNum = image.getRating(0.0F);
+			for (int i = 0; i < 5; i++) {
+				if (i < ratingNum) {
+					Image star = new Image(RATING_FILLED);
+					star.setSize("25", "25");
+					rating.add(star);
+				} else {
+					Image star = new Image(RATING_OUTLINE);
+					star.setSize("25", "25");
+					rating.add(star);
+				}
+			}
+			
+			rating.add(new Button("Rate It!", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					displayRateItPopup(image);
+				}
+			}));
+			
+			HTML values = new HTML("Votes: " + image.getWeight() + " Value: " + image.getRating(0.0F));
+			values.setStyleName("SIS_hasSmallerHTML");
+			
+			details.add(rating);
+			details.add(values);
+		}
 		
 		return details;
 	}
