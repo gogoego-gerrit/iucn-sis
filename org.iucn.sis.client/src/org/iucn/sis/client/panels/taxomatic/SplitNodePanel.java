@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
@@ -61,11 +60,11 @@ public class SplitNodePanel extends TaxomaticWindow {
 	}
 
 	private HTML getInstructions() {
-		return new HTML("<b>Instructions:</b> Click \"Create New Taxa\" to create a new "
-				+ "taxonomic taxon (taxa), then move the children below to those "
-				+ "new groups.  Use CTRL+Click to select multiple children at "
-				+ "the same time.  You should move all the children to a new " + "taxonomic concept as "
-				+ currentNode.getFullName() + " will become deprecated.");
+		return new HTML("<b>Instructions:</b> Click \"Create New Taxa\" to create one or more new taxa, " +
+			"then move the children below, if any exist, to those new taxa." + 
+			"Use CTRL+Click to select multiple children at the same time. " +
+			"You should move all the children to one of the new taxa as " +
+			currentNode.getFullName() + " will become deprecated.");
 	}
 
 	private LayoutContainer getLeftSide() {
