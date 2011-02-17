@@ -27,6 +27,7 @@ import com.solertium.db.Row;
 import com.solertium.db.RowProcessor;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.SelectQuery;
+import com.solertium.db.vendor.PostgreSQLDBSession;
 import com.solertium.util.AlphanumericComparator;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
@@ -48,6 +49,8 @@ public class FieldSchemaGenerator {
 		ec = new SystemExecutionContext(session);
 		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 		ec.setExecutionLevel(ExecutionContext.ADMIN);
+		if (session instanceof PostgreSQLDBSession)
+			ec.getDBSession().setIdentifierCase(DBSession.CASE_UPPER);
 	}
 	
 	public ExecutionContext getExecutionContext() {
@@ -144,6 +147,7 @@ public class FieldSchemaGenerator {
 		
 		final Row.Set rs = new Row.Set();
 		
+		System.out.println(query.getSQL(ec.getDBSession()));
 		ec.doQuery(query, rs);
 		
 		for (Row row : rs.getSet()) {
