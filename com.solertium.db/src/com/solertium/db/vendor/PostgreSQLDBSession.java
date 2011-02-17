@@ -80,12 +80,16 @@ public class PostgreSQLDBSession extends DBSession {
 		switch(getIdentifierCase()){
 			case CASE_LOWER:
 				newIdent = ("\"" + identifier.toLowerCase() + "\"");
+				break;
 			case CASE_UPPER:
 				newIdent = ("\"" + identifier.toUpperCase() + "\"");
+				break;
 			case CASE_UNCHECKED:
 				newIdent = (identifier.toLowerCase());
+				break;
 			default:
 				newIdent = ("\"" + identifier + "\"");
+				break;
 		}
 		return newIdent;
 	}
@@ -115,13 +119,15 @@ public class PostgreSQLDBSession extends DBSession {
 			String value = toFormat[i];
 			switch(getIdentifierCase()){
 				case CASE_LOWER:
+				case CASE_UNCHECKED:
 					newIdent.append("\"" + value.toLowerCase() + "\"");
+					break;
 				case CASE_UPPER:
 					newIdent.append("\"" + value.toUpperCase() + "\"");
-				case CASE_UNCHECKED:
-					newIdent.append(value.toLowerCase());
+					break;
 				default:
 					newIdent.append("\"" + value + "\"");
+					break;
 			}
 			if (i+1 < toFormat.length)
 				newIdent.append('.');
