@@ -95,6 +95,8 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 		
 		add(container);
 		
+		WindowUtils.hideLoadingAlert();
+		
 		StateManager.impl.addStateChangeListener(StateChangeEventType.StateChanged, new ComplexListener<StateChangeEvent>() {
 			public void handleEvent(StateChangeEvent eventData) {
 				boolean updateNavigation = !ClientUIContainer.headerContainer.centerPanel.equals(eventData.getSource());
