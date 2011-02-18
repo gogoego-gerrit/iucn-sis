@@ -1,6 +1,10 @@
 package org.iucn.sis.client.api.assessment;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -74,24 +78,14 @@ public class AssessmentClientSaveUtils {
 						}
 						public void onSuccess(String result) {
 							try {
-								Assessment ret = Assessment.fromXML(ndoc);
-								for ( Field curField : ret.getField() ) {
-									Field clientField = assessmentToSave.getField(curField.getName());
-									if( clientField == null ) {
-										Debug.println("Missing the client field " + curField.getName() + "...????");
-										assessmentToSave.getField().add(curField);
-									} else {
-										if( clientField.getId() == 0 )
-											clientField.setId(curField.getId());
-	
-										for( PrimitiveField curPrim : curField.getPrimitiveField() ) {
-											PrimitiveField clientPrim = clientField.getKeyToPrimitiveFields().get(curPrim.getName());
-											if( clientPrim.getId() == null || clientPrim.getId().equals(Integer.valueOf(0)))
-												clientPrim.setId(curPrim.getId());
-										}	
-									}
-								}
-								assessmentToSave.setEdit(ret.getEdit());
+								Assessment remote = Assessment.fromXML(ndoc);
+								Assessment local = assessmentToSave;
+								
+								//Copy the edit trail
+								local.setEdit(remote.getEdit());
+								
+								//Set the field IDs
+								sink(remote, local);
 							} catch (Throwable e) {
 								Debug.println(e);
 							}
@@ -106,6 +100,60 @@ public class AssessmentClientSaveUtils {
 			}
 		});
 	}
+	
+	private static void sink(Assessment remote, Assessment local) {
+		final Map<String, Field> localFields = mapByFieldName(local.getField());
+		
+		for (Field remoteField : remote.getField()) {
+			Field localField;
+			if (localFields.containsKey(remoteField.getName())) {
+				localField = localFields.get(remoteField.getName());
+				localField.setId(remoteField.getId());
+				
+				sink(remoteField, localField);
+			}
+			else {
+				remoteField.setAssessment(local);
+				local.getField().add(remoteField);
+			}
+		}
+	}
+	
+	private static void sink(Field remoteField, Field localField) {
+		for (PrimitiveField remotePrim : remoteField.getPrimitiveField()) {
+			PrimitiveField localPrim = localField.getPrimitiveField(remotePrim.getName());
+			if (localPrim == null) {
+				remotePrim.setField(localField);
+				localField.getPrimitiveField().add(remotePrim);
+			}
+			else {
+				if (localPrim.getId() == null || localPrim.getId().intValue() == 0)
+					localPrim.setId(remotePrim.getId());
+			}
+		}
+		
+		final Map<String, List<Field>> localSubfields = groupByFieldName(localField.getFields());
+		for (Field remoteSubfield : remoteField.getFields()) {
+			if (localSubfields.containsKey(remoteSubfield.getName())) {
+				List<Field> list = localSubfields.get(remoteSubfield.getName());
+				if (!list.isEmpty()) {
+					Field localSubfield = list.remove(0);
+					localSubfield.setId(remoteSubfield.getId());
+					
+					sink(remoteSubfield, localSubfield);
+				}
+				else {
+					remoteSubfield.setParent(localField);
+					localField.getFields().add(remoteSubfield);
+				}
+			}
+			else {
+				remoteSubfield.setParent(localField);
+				localField.getFields().add(remoteSubfield);
+			}
+		}
+	}
+	
 	
 	/**
 	 * Compares the saved assessment to what is currently displayed in the field
@@ -143,6 +191,8 @@ public class AssessmentClientSaveUtils {
 					if (!curField.hasData()) {
 						Debug.println("+ Removing {0} with id {1} because it doesn't have any data", curField.getName(), curField.getId());
 						assessmentToSave.getField().remove(curField);
+						curField.setId(0);
+						cur.setField(null);
 					}
 					else {
 						Debug.println("+ Adding {0} with id {1}", curField.getName(), curField.getId());
@@ -190,5 +240,26 @@ public class AssessmentClientSaveUtils {
 			});
 		} else
 			listener.handleEvent();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private static Map<String, Field> mapByFieldName(Collection<Field> fields) {
+		Map<String, Field> map = new HashMap<String, Field>();
+		for (Field field : fields)
+			map.put(field.getName(), field);
+		return map;
+	}
+	
+	private static Map<String, List<Field>> groupByFieldName(Collection<Field> fields) {
+		Map<String, List<Field>> map = new HashMap<String, List<Field>>();
+		for (Field field : fields) {
+			List<Field> list = map.get(field.getName());
+			if (list == null) {
+				list = new ArrayList<Field>();
+				map.put(field.getName(), list);
+			}
+			list.add(field);
+		}
+		return map;
 	}
 }

@@ -15,7 +15,6 @@ package org.iucn.sis.shared.api.models;
  */
 import java.io.Serializable;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,8 +40,6 @@ public class Field implements Serializable {
 		else
 			return FieldV1Parser.parse(element);
 	}
-	
-	private String generationCode;
 
 	private int id;
 
@@ -67,16 +64,12 @@ public class Field implements Serializable {
 		fields = new java.util.HashSet<Field>();
 		reference = new java.util.HashSet<Reference>();
 		primitiveField = new java.util.HashSet<PrimitiveField>();
-		
-		generationCode = new Date().getTime()+"";
 	}
 
 	public Field(String canonicalName, Assessment assessment) {
 		this();
 		this.name = canonicalName;
 		this.assessment = assessment;
-		
-		generationCode = new Date().getTime()+canonicalName;
 	}
 
 	/**
@@ -171,12 +164,13 @@ public class Field implements Serializable {
 		return field;	
 	}
 
+	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((generationCode == null) ? 0 : generationCode.hashCode());
+		result = prime * result + id;
 		return result;
 	}
 
@@ -191,7 +185,7 @@ public class Field implements Serializable {
 		Field other = (Field) obj;
 		
 		if (getId() > 0)
-			return generationCode.equals(other.generationCode);
+			return getId() == other.getId();
 		else
 			return false;
 		
@@ -354,14 +348,10 @@ public class Field implements Serializable {
 
 	public void setId(int value) {
 		this.id = value;
-		if (value > 0)
-			this.generationCode = value + "";
 	}
 
 	public void setName(String value) {
 		this.name = value;
-		if (id == 0)
-			generationCode += value;
 	}
 
 	public void setNotes(java.util.Set<Notes> value) {
@@ -381,7 +371,7 @@ public class Field implements Serializable {
 	}
 
 	public String toString() {
-		return "FIELD " + String.valueOf(getId()) + " with gen code " + generationCode;
+		return "FIELD " + String.valueOf(getId());
 	}
 
 	public String toXML() {
@@ -475,8 +465,8 @@ public class Field implements Serializable {
 				result = o1.getName() == null ? o2.getName() == null ? 0 : 1 : -1;
 			else
 				result = o1.getName().compareTo(o2.getName());
-			if (result == 0)
-				result =  o1.generationCode.compareTo(o2.generationCode);
+			/*FIXME: if (result == 0)
+				result =  o1.generationCode.compareTo(o2.generationCode);*/
 			
 			return result;
 		}

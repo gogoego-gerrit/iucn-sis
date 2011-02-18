@@ -413,7 +413,11 @@ public abstract class Display implements Referenceable {
 	}
 	
 	protected void initializeField() {
-		field = new Field(canonicalName, null);
+		if (AssessmentCache.impl.getCurrentAssessment() != null)
+			field = AssessmentCache.impl.getCurrentAssessment().getField(canonicalName);
+		
+		if (field == null)
+			field = new Field(canonicalName, null);
 	}
 
 	public abstract boolean hasChanged();
