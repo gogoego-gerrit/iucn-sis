@@ -311,6 +311,7 @@ public class FieldDAO {
 			}
 			
 			if (field.getParent() != null) {
+				field.getParent().getFields().remove(field);
 				field.setParent(null);
 			}
 			

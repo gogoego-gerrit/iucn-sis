@@ -302,6 +302,7 @@ public class PrimitiveFieldDAO {
 		try {
 			if(primitiveField.getField() != null) {
 				primitiveField.getField().getPrimitiveField().remove(primitiveField);
+				primitiveField.setField(null);
 			}
 			try {
 				session.delete(primitiveField);

@@ -29,5 +29,6 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
  org.hibernate;bundle-version="1.0.0",
  org.iucn.sis.server.api;bundle-version="1.0.0"
-Export-Package: org.iucn.sis.server
+Export-Package: org.iucn.sis.server,
+ org.iucn.sis.server.utils
 Bundle-Vendor: IUCN

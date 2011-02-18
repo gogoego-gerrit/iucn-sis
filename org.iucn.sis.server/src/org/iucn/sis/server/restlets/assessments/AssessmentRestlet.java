@@ -17,6 +17,7 @@ import org.iucn.sis.server.api.persistance.PrimitiveFieldDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.RegionConflictException;
+import org.iucn.sis.server.utils.AssessmentPersistence;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -38,6 +39,7 @@ import org.restlet.resource.ResourceException;
 
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.ComplexListener;
 
 public class AssessmentRestlet extends BaseServiceRestlet {
 
@@ -152,7 +154,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		response.setEntity(ret.toString(), MediaType.TEXT_XML);
 	}
 
-	private void postAssessment(Representation entity, Request request, Response response, User username, Session session) throws ResourceException {
+	private void postAssessment(Representation entity, Request request, Response response, User username, final Session session) throws ResourceException {
 		NativeDocument doc = getEntityAsNativeDocument(entity);
 		final AssessmentIO assessmentIO = new AssessmentIO(session);
 		try {
@@ -163,13 +165,34 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				Assessment target = assessmentIO.getAssessment(source.getId());
 				target.toXML();
 				
-				sink(source, target, session);
+				AssessmentPersistence saver = new AssessmentPersistence();
+				saver.setDeleteFieldListener(new ComplexListener<Field>() {
+					public void handleEvent(Field field) {
+						try {
+							FieldDAO.deleteAndDissociate(field, session);
+						} catch (PersistentException e) {
+							Debug.println(e);
+						}
+					}
+				});
+				saver.setDeletePrimitiveFieldListener(new ComplexListener<PrimitiveField>() {
+					public void handleEvent(PrimitiveField field) {
+						try {
+							PrimitiveFieldDAO.deleteAndDissociate(field, session);
+						} catch (PersistentException e) {
+							Debug.println(e);
+						}
+					}
+				});
+				saver.sink(source, target);
 				
 				AssessmentIOWriteResult result = 
 					assessmentIO.writeAssessment(target, getUser(request, session), true);
 				
 				if (!result.status.isSuccess())
 					throw new ResourceException(result.status, "AssessmentIOWrite threw exception when saving.");
+				
+				session.flush();
 				
 				response.setStatus(result.status);
 				response.setEntity(target.toXML(), MediaType.TEXT_XML);
@@ -184,94 +207,10 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 			}
 
-		} catch (PersistentException e) {
+		} catch (Exception e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
-	
-	private void sink(Assessment source, Assessment target, Session session) throws PersistentException {
-		Map<Integer, Field> existingFields = mapFields(target.getField());
-		
-		for (Field sourceField : source.getField()) {
-			if (sourceField.getId() == 0) {
-				sourceField.setAssessment(target);
-				//FieldDAO.save(sourceField);
-				target.getField().add(sourceField);
-			}
-			else {
-				Field targetField = existingFields.remove(sourceField.getId());
-				if (targetField != null) {
-					sink(sourceField, targetField, session);
-					if (!targetField.hasData())
-						FieldDAO.deleteAndDissociate(targetField, session);
-				}
-			}
-		}
-		
-		/*
-		 * Only delete top-level fields
-		 */
-		for (Field field : existingFields.values())
-			if (field.getParent() == null)
-				FieldDAO.deleteAndDissociate(field, session);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void sink(Field source, Field target, Session session) throws PersistentException {
-		{
-			Map<Integer, PrimitiveField> existingFields = mapFields(target.getPrimitiveField());
-		
-			for (PrimitiveField sourceField : source.getPrimitiveField()) {
-				if (sourceField.getId() == 0) {
-					sourceField.setField(target);
-					//PrimitiveFieldDAO.save(sourceField);
-					target.getPrimitiveField().add(sourceField);
-				}
-				else {
-					PrimitiveField targetField = existingFields.remove(sourceField.getId());
-					if (targetField != null)
-						targetField.setRawValue(sourceField.getRawValue());
-				}
-			}
-			
-			for (PrimitiveField field : existingFields.values())
-				PrimitiveFieldDAO.deleteAndDissociate(field, session);
-		}
-		{
-			Map<Integer, Field> existingFields = mapFields(target.getFields());
-			
-			for (Field sourceField : source.getFields()) {
-				if (sourceField.getId() == 0) {
-					sourceField.setParent(target);
-					//FieldDAO.save(sourceField);
-					target.getFields().add(sourceField);
-				}
-				else {
-					Field targetField = existingFields.remove(sourceField.getId());
-					if (targetField != null)
-						sink(sourceField, targetField, session);
-				}
-			}
-			
-			for (Field field : existingFields.values())
-				FieldDAO.deleteAndDissociate(field, session);
-		}
-		
-		//FieldDAO.save(target);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private <X> Map<Integer, X> mapFields(Collection<X> fields) {
-		Map<Integer, X> map = new HashMap<Integer, X>();
-		for (X field : fields) {
-			if (field instanceof Field) 
-				map.put(((Field)field).getId(), field);
-			else if (field instanceof PrimitiveField)
-				map.put(((PrimitiveField)field).getId(), field);
-		}
-		return map;
-	}
-	
 
 	private void batchCreate(Representation entity, Request request, Response response, User user, Session session) throws ResourceException {
 		NativeDocument doc = getEntityAsNativeDocument(entity);
