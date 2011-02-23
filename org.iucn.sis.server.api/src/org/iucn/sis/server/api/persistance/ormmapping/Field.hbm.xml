@@ -10,7 +10,7 @@ License Type: Evaluation
 			<generator class="native">
 			</generator>
 		</id>
-		<many-to-one name="assessment" cascade="lock" column="assessmentid" class="org.iucn.sis.shared.api.models.Assessment" not-null="true" lazy="no-proxy">
+		<many-to-one name="assessment" cascade="lock" column="assessmentid" class="org.iucn.sis.shared.api.models.Assessment" not-null="false" lazy="no-proxy">
 		</many-to-one>
 		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false"/>
 		<many-to-one name="parent" cascade="lock" column="parentid" class="org.iucn.sis.shared.api.models.Field" not-null="false" lazy="no-proxy">

@@ -14,9 +14,12 @@ package org.iucn.sis.shared.api.models;
  * License Type: Evaluation
  */
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -329,7 +332,7 @@ public class Field implements Serializable {
 	}
 
 	public void setAssessment(Assessment value) {
-		setAssessment(value, true);
+		setAssessment(value, false);
 	}
 	
 	public void setAssessment(Assessment value, boolean cascade) {
@@ -390,8 +393,9 @@ public class Field implements Serializable {
 		
 		if (!getFields().isEmpty()) {
 			str.append("<subfields>\n");
-			TreeSet<Field> sorted = new TreeSet<Field>(new FieldNameComparator());
-			sorted.addAll(getFields());
+			
+			final List<Field> sorted = new ArrayList<Field>(getFields());
+			Collections.sort(sorted, new FieldNameComparator());
 			
 			for (Field subfield : sorted)
 				str.append(subfield.toXML());
