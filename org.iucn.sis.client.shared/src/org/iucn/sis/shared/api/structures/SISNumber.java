@@ -76,16 +76,12 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 						event.getCharCode() == KeyCodes.KEY_HOME)
 					return;
 				
-				if (restrictions == null) {
-					if (!Character.isDigit(event.getCharCode()))
-						textbox.cancelKey();
-				}
-				else if ("year".equals(restrictions)) {
+				if ("year".equals(restrictions)) {
 					if (textbox.getText().length() == 4 || !Character.isDigit(event.getCharCode()))
 						textbox.cancelKey();
 				}
-				else if ("0-1".equals(restrictions)) {
-					if (!Character.isDigit(event.getCharCode()) || '.' != event.getCharCode())
+				else {
+					if (!Character.isDigit(event.getCharCode()))
 						textbox.cancelKey();
 				}
 			}
@@ -133,7 +129,12 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 	@Override
 	public String getData() {
 		String value = textbox.getText();
-		return "".equals(value) ? null : value;
+		try {
+			Double.parseDouble(value);
+		} catch (Exception e) {
+			value = null;
+		}
+		return value == null || "".equals(value) ? null : value;
 	}
 
 	/**
