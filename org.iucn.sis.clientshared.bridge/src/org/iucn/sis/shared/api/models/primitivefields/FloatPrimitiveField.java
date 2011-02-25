@@ -54,6 +54,6 @@ public class FloatPrimitiveField extends PrimitiveField<Float> implements
 	@Override
 	public void setRawValue(String value) throws NumberFormatException {
 		if( value != null && !value.equals("") )
-			setValue(Float.valueOf(value.replaceAll("[^0-9\\.]", "")));
+			setValue(Float.valueOf(value.replaceAll(",", "")));
 	}
 }

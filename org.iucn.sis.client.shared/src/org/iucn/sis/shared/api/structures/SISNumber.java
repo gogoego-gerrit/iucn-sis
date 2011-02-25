@@ -15,6 +15,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyPressEvent;
 import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -22,6 +23,7 @@ import com.google.gwt.user.client.ui.Widget;
 public class SISNumber extends SISPrimitiveStructure<Float> implements DominantStructure<PrimitiveField<Float>> {
 
 	private TextBox textbox;
+	private NumberFormat format;
 
 	public SISNumber(String struct, String descript, String structID, Object data) {
 		super(struct, descript, structID, data);
@@ -64,6 +66,14 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 	@Override
 	public void createWidget() {
 		final String restrictions = getRestrictions();
+		
+		if ("0-1".equals(restrictions))
+			format = NumberFormat.getFormat("0.00");
+		else if ("year".equals(restrictions))
+			format = NumberFormat.getFormat("0000");
+		else
+			format = NumberFormat.getFormat("#############.####");
+		
 		this.descriptionLabel = new HTML(this.description);
 		this.textbox = new TextBox();
 		textbox.addKeyPressHandler(new KeyPressHandler() {
@@ -130,7 +140,7 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 	public String getData() {
 		String value = textbox.getText();
 		try {
-			Double.parseDouble(value);
+			Float.parseFloat(value);
 		} catch (Exception e) {
 			value = null;
 		}
@@ -166,7 +176,11 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 		 * field that's not a float.
 		 */
 		String datum = field != null ? field.getRawValue() : null;
-		textbox.setText(datum == null ? "" : String.valueOf(datum));
+		try {
+			textbox.setText(datum == null ? "" : format.format(Float.parseFloat(datum)));
+		} catch (Exception e) {
+			textbox.setText(datum);
+		}
 	}
 
 	@Override
