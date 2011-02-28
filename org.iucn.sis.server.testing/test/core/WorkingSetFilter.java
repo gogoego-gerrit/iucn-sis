@@ -44,6 +44,7 @@ public class WorkingSetFilter extends BasicTest {
 		WorkingSet ws = createPublishedGlobalWorkingSet();
 		
 		Set<Integer> correctResult = new HashSet<Integer>();
+		correctResult.add(4);
 		
 		filter(ws, correctResult);
 	}
@@ -56,9 +57,10 @@ public class WorkingSetFilter extends BasicTest {
 		for (Assessment assessment : getAssessments())
 			if (allowAssessment(filter, assessment, "org.iucn.sis.server.schemas.redlist", filter.listRegionIDs())) {
 				Debug.println("Filter is published? {0}", filter.isAllPublished() || filter.isRecentPublished());
+				Debug.println("Assessment published?? {0}", assessment.isPublished());
 				if (filter.isDraft() && assessment.isDraft())
 					allowed.add(assessment.getId());
-				else if ((filter.isAllPublished() || filter.isAllPublished()) && assessment.isPublished())
+				else if ((filter.isAllPublished() || filter.isRecentPublished()) && assessment.isPublished())
 					allowed.add(assessment.getId());
 			}
 		
@@ -100,6 +102,16 @@ public class WorkingSetFilter extends BasicTest {
 		}
 		list.add(france);
 		
+		Assessment pubGlobal = new Assessment(); {
+			Collection<Region> regions = new ArrayList<Region>();
+			regions.add(Region.getGlobalRegion());
+		
+			pubGlobal.setId(4);
+			pubGlobal.setAssessmentType(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
+			pubGlobal.setRegions(regions);
+		}
+		list.add(pubGlobal);
+		
 		return list;
 	}
 	
@@ -138,7 +150,7 @@ public class WorkingSetFilter extends BasicTest {
 		boolean result = false;
 		if (filter.isRecentPublished() && assessment.isPublished() && assessment.getIsHistorical() )
 			result = false;
-		else if (filter.isDraft() && !assessment.isDraft())
+		else if (filter.isDraft() && !((filter.isRecentPublished() || filter.isAllPublished()) && !assessment.isDraft()))
 			result = false;
 		else {
 			if (filter.getRelationshipName().equalsIgnoreCase(Relationship.ALL)) {

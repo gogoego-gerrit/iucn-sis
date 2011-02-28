@@ -2,7 +2,6 @@ package org.iucn.sis.server.api.filters;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,8 +12,6 @@ import java.util.Map.Entry;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO;
-import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -44,7 +41,7 @@ public class AssessmentFilterHelper {
 			"Draft: {0}; SI Published: {1}; Recent Published: {2}; " +
 			"Region Relationship: {3}; Regions: {4}", 
 			filter.isDraft(), filter.isAllPublished(), filter.isRecentPublished(), 
-			filter.getRelationshipName(), filter.getRegions()
+			filter.getRelationshipName(), filter.listRegionIDs()
 		);*/
 	}
 
@@ -77,7 +74,8 @@ public class AssessmentFilterHelper {
 
 		if (filter.isRecentPublished() || filter.isAllPublished()) {
 			List<Assessment> publishedAssessments  = io.readPublishedAssessmentsForTaxon(taxaID);
-			Collections.sort(publishedAssessments, new PublishedAssessmentsComparator());
+			//Probably don't need to sort here...
+			//Collections.sort(publishedAssessments, new PublishedAssessmentsComparator());
 			for (Assessment published : publishedAssessments)
 				if (published != null && allowAssessment(published, schema, filterRegions)) 
 					ret.add(published);
@@ -94,9 +92,9 @@ public class AssessmentFilterHelper {
 		reportAssessmentInformation(assessment);
 		
 		boolean result = false;
-		if (filter.isRecentPublished() && assessment.isPublished() && assessment.getIsHistorical() )
+		if (filter.isRecentPublished() && assessment.isPublished() && assessment.getIsHistorical())
 			result = false;
-		else if (filter.isDraft() && !assessment.isDraft())
+		else if (filter.isDraft() && !((filter.isRecentPublished() || filter.isAllPublished()) && !assessment.isDraft()))
 			result = false;
 		else {
 			if (filter.getRelationshipName().equalsIgnoreCase(Relationship.ALL))
@@ -118,7 +116,7 @@ public class AssessmentFilterHelper {
 		if (schema != null)
 			result &= schema.equals(assessment.getSchema(SIS.get().getDefaultSchema()));
 		
-		Debug.println("Assessment {0} is allowed: {1}", assessment.getId(), result);
+		//Debug.println("Assessment {0} is allowed: {1}", assessment.getId(), result);
 		
 		return result;
 	}
