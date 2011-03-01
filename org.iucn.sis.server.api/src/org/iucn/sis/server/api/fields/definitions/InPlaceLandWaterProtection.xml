@@ -24,7 +24,7 @@
 							<selected>0</selected>
 						</singleSelect>
 					</structure>
-					<structure id="note">
+					<structure id="rangeNote">
 						<note></note>
 					</structure>
 				</dependentStructures>
@@ -55,7 +55,7 @@
 					<structure id="populationProtected" description="Percentage of population protected by PAs (0-100)">
 						<number></number>
 					</structure>
-					<structure id="note">
+					<structure id="populationProtectedNote">
 						<note></note>
 					</structure>
 				</dependentStructures>
@@ -83,7 +83,7 @@
 					</structure>
 				</dominantStructures>
 				<dependentStructures>
-					<structure id="note">
+					<structure id="areaPlannedNote">
 						<note></note>
 					</structure>
 				</dependentStructures>
@@ -99,8 +99,8 @@
 			</relatedStructure>
 		</structure>
 		<structure>
-                        <relatedStructure layout="horizontal">^M
-                                <dominantStructures>^M
+                        <relatedStructure layout="horizontal">
+                                <dominantStructures>
                                         <structure id="invasiveControl" description="Invasive species control or prevention">
                                                 <singleSelect>
                                                         <option>Yes</option>
