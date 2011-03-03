@@ -54,12 +54,12 @@ public class AssessmentIO {
 	public static class AssessmentIOWriteResult {
 		public Status status;
 		public Integer id;
-		public long newLastModified;
+		public Edit edit;
 
-		public AssessmentIOWriteResult(Status status, Integer assessmentID, long newLastModified) {
+		public AssessmentIOWriteResult(Status status, Integer assessmentID, Edit edit) {
 			this.status = status;
 			this.id = assessmentID;
-			this.newLastModified = newLastModified;
+			this.edit = edit;
 		}
 	}
 
@@ -340,14 +340,13 @@ public class AssessmentIO {
 					SIS.get().getManager().saveObject(session, assessmentToSave);
 				} catch (PersistentException e) {
 					Debug.println(e);
-					return new AssessmentIOWriteResult(lockStatus, 0, 0);
-					
+					return new AssessmentIOWriteResult(lockStatus, 0, null);
 				}
 
-			return new AssessmentIOWriteResult(lockStatus, assessmentToSave.getId(), edit.getCreatedDate().getTime());
+			return new AssessmentIOWriteResult(lockStatus, assessmentToSave.getId(), edit);
 
 		}
-		return new AssessmentIOWriteResult(lockStatus, 0, 0);
+		return new AssessmentIOWriteResult(lockStatus, 0, null);
 
 	}
 

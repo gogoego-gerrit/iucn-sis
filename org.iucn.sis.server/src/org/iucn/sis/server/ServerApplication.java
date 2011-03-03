@@ -10,6 +10,7 @@ import org.iucn.sis.server.api.application.SISApplication;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.restlets.assessments.AsmChangesResource;
+import org.iucn.sis.server.restlets.assessments.AssessmentChangesRestlet;
 import org.iucn.sis.server.restlets.assessments.AssessmentRestlet;
 import org.iucn.sis.server.restlets.schema.AssessmentSchemaRestlet;
 import org.iucn.sis.server.restlets.taxa.CommonNameRestlet;
@@ -79,6 +80,7 @@ public class ServerApplication extends SISApplication{
 		addServiceToRouter(new AssessmentSchemaRestlet(app.getContext()));
 		addServiceToRouter(new WorkingSetRestlet(app.getContext()));
 		addServiceToRouter(new AssessmentRestlet(app.getContext()));
+		addServiceToRouter(new AssessmentChangesRestlet(app.getContext()));
 		addServiceToRouter(new TaxomaticRestlet(app.getContext()));
 		addServiceToRouter(new WorkingSetExportImportRestlet(app.getContext()));
 		addServiceToRouter(new WorkingsetLogBuilder(app.getContext()));

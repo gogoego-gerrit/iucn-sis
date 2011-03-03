@@ -1,10 +1,17 @@
 package org.iucn.sis.server.utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Session;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentChange;
+import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 
@@ -12,8 +19,14 @@ import com.solertium.util.events.ComplexListener;
 
 public class AssessmentPersistence {
 	
+	private final List<AssessmentChange> changeSet = new ArrayList<AssessmentChange>();
+	
 	private ComplexListener<Field> deleteFieldListener;
 	private ComplexListener<PrimitiveField> deletePrimitiveFieldListener;
+	
+	public List<AssessmentChange> getChangeSet() {
+		return changeSet;
+	}
 	
 	public void setDeleteFieldListener(ComplexListener<Field> deleteFieldListener) {
 		this.deleteFieldListener = deleteFieldListener;
@@ -31,13 +44,20 @@ public class AssessmentPersistence {
 				sourceField.setAssessment(target);
 				//FieldDAO.save(sourceField);
 				target.getField().add(sourceField);
+				changeSet.add(createAddChange(target, sourceField));
 			}
 			else {
 				Field targetField = existingFields.remove(sourceField.getId());
 				if (targetField != null) {
+					AssessmentChange pendingEdit = createEditChange(target, targetField, sourceField);
+					AssessmentChange pendingDelete = createDeleteChange(target, targetField);
 					sink(sourceField, targetField);
-					if (!targetField.hasData())
+					if (!targetField.hasData()) {
+						changeSet.add(pendingDelete);
 						deleteField(targetField);
+					}
+					else
+						changeSet.add(pendingEdit);
 				}
 			}
 		}
@@ -45,9 +65,12 @@ public class AssessmentPersistence {
 		/*
 		 * Only delete top-level fields
 		 */
-		for (Field field : existingFields.values())
-			if (field.getParent() == null)
+		for (Field field : existingFields.values()) {
+			if (field.getParent() == null) {
+				changeSet.add(createDeleteChange(target, field));
 				deleteField(field);
+			}
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -87,8 +110,10 @@ public class AssessmentPersistence {
 				}
 			}
 			
-			for (Field field : existingFields.values())
+			for (Field field : existingFields.values()) {
+				Debug.println("Deleting existing field {0}: {1}", field.getId(), field.getName());
 				deleteField(field);
+			}
 		}
 		
 		//FieldDAO.save(target);
@@ -104,6 +129,54 @@ public class AssessmentPersistence {
 			deletePrimitiveFieldListener.handleEvent(field);
 	}
 	
+	private AssessmentChange createAddChange(Assessment assessment, Field newField) {
+		AssessmentChange change = new AssessmentChange();
+		change.setAssessment(assessment);
+		change.setFieldName(newField.getName());
+		change.setOldField(null);
+		change.setNewField(deepCopy(newField));
+		change.setType(AssessmentChange.ADD);
+		
+		return change;
+	}
+	
+	private AssessmentChange createDeleteChange(Assessment assessment, Field removedField) {
+		AssessmentChange change = new AssessmentChange();
+		change.setAssessment(assessment);
+		change.setFieldName(removedField.getName());
+		change.setOldField(deepCopy(removedField));
+		change.setNewField(null);
+		change.setType(AssessmentChange.DELETE);
+		
+		return change;
+	}
+	
+	private AssessmentChange createEditChange(Assessment assessment, Field oldField, Field newField) {
+		AssessmentChange change = new AssessmentChange();
+		change.setAssessment(assessment);
+		change.setFieldName(oldField.getName());
+		change.setOldField(deepCopy(oldField));
+		change.setNewField(deepCopy(newField));
+		change.setType(AssessmentChange.EDIT);
+		
+		return change;
+	}
+	
+	private Field deepCopy(Field source) {
+		Field target = new Field(source.getName(), null);
+		for (PrimitiveField prim : source.getPrimitiveField()) {
+			PrimitiveField copy = prim.deepCopy(false);
+			copy.setField(target);
+			target.getPrimitiveField().add(copy);
+		}
+		for (Field child : source.getFields()) {
+			Field copy = deepCopy(child);
+			copy.setParent(target);
+			target.getFields().add(copy);
+		}
+		return target;
+	}
+	
 	@SuppressWarnings("unchecked")
 	private <X> Map<Integer, X> mapFields(Collection<X> fields) {
 		Map<Integer, X> map = new HashMap<Integer, X>();
@@ -114,6 +187,65 @@ public class AssessmentPersistence {
 				map.put(((PrimitiveField)field).getId(), field);
 		}
 		return map;
+	}
+	
+	public void saveChanges(Assessment assessment, Edit edit) {
+		ChangeTracker tracker = new ChangeTracker(assessment.getId(), edit.getId(), getChangeSet());
+		new Thread(tracker).start();
+	}
+	
+	public static class ChangeTracker implements Runnable {
+	
+		private Integer assessmentID, editID;
+		private List<AssessmentChange> changes;
+		
+		public ChangeTracker(Integer assessmentID, Integer editID, List<AssessmentChange> changes) {
+			this.assessmentID = assessmentID;
+			this.editID = editID;
+			this.changes = changes;
+		}
+		
+		@Override
+		public void run() {
+			try {
+				execute();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		public void execute() throws Exception {
+			Session session = SISPersistentManager.instance().openSession();
+			session.beginTransaction();
+			
+			Debug.println("Saving change for assessment {0} with edit {1}", assessmentID, editID);
+			
+			Assessment assessment = SISPersistentManager.instance().getObject(session, Assessment.class, assessmentID);
+			Edit edit = SISPersistentManager.instance().getObject(session, Edit.class, editID);
+			
+			for (AssessmentChange change : changes) {
+				if (AssessmentChange.EDIT == change.getType()) {
+					String oldXML = change.getOldField().toXML();
+					String newXML = change.getNewField().toXML();
+					
+					if (oldXML.equals(newXML))
+						continue;
+				}
+				change.setAssessment(assessment);
+				change.setEdit(edit);
+				
+				if (change.getOldField() != null)
+					session.save(change.getOldField());
+				if (change.getNewField() != null)
+					session.save(change.getNewField());
+				
+				session.save(change);
+			}
+			
+			session.getTransaction().commit();
+		}
+		
+		
 	}
 
 }

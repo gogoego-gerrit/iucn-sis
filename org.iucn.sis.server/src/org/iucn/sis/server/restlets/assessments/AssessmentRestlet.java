@@ -1,10 +1,7 @@
 package org.iucn.sis.server.restlets.assessments;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -162,10 +159,10 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			
 			// ONLY ALLOW POSTING OF ASSESSMENTS THAT ALREADY EXIST;
 			if (source.getId() != 0) {
-				Assessment target = assessmentIO.getAssessment(source.getId());
+				final Assessment target = assessmentIO.getAssessment(source.getId());
 				target.toXML();
 				
-				AssessmentPersistence saver = new AssessmentPersistence();
+				final AssessmentPersistence saver = new AssessmentPersistence();
 				saver.setDeleteFieldListener(new ComplexListener<Field>() {
 					public void handleEvent(Field field) {
 						try {
@@ -196,6 +193,11 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				
 				response.setStatus(result.status);
 				response.setEntity(target.toXML(), MediaType.TEXT_XML);
+				
+				if (result.edit == null)
+					Debug.println("Error: No edit associated with this change. Not backing up changes.");
+				else
+					saver.saveChanges(target, result.edit);
 				/*AssessmentIOWriteResult result = saveAssessment(assessment, username);
 				if (result.status.isSuccess()) {
 					response.setEntity(assessment.toXML(), MediaType.TEXT_XML);

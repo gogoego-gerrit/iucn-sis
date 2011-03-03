@@ -100,17 +100,19 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 	
 	@Override
 	protected void drawBody(DoneDrawingCallback callback) {
-		BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
-		toolBarData.setSize(25);
-		
-		BorderLayoutData scrollerData = new BorderLayoutData(LayoutRegion.CENTER, .82f, 300, 3000);
-		
-		final LayoutContainer container = new LayoutContainer(new BorderLayout());
-		container.add(toolBar, toolBarData);
-		container.add(scroller, scrollerData);
-		
-		bodyContainer.removeAll();
-		bodyContainer.add(container);
+		if (bodyContainer.getItemCount() == 0) {
+			BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
+			toolBarData.setSize(25);
+			
+			BorderLayoutData scrollerData = new BorderLayoutData(LayoutRegion.CENTER, .82f, 300, 3000);
+			
+			final LayoutContainer container = new LayoutContainer(new BorderLayout());
+			container.add(toolBar, toolBarData);
+			container.add(scroller, scrollerData);
+			
+			bodyContainer.removeAll();
+			bodyContainer.add(container);
+		}
 		
 		/*
 		 * TODO: check to see if a page should be 
@@ -126,6 +128,8 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 			public void isDrawn() {
 				optionsContainer.removeAll();	
 				optionsContainer.add(viewWrapper);
+				
+				clearDEM();
 				
 				callback.isDrawn();	
 			}

@@ -11,6 +11,7 @@ import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.assessments.AssessmentAttachmentPanel;
 import org.iucn.sis.client.panels.assessments.AssessmentChangesPanel;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
+import org.iucn.sis.client.panels.assessments.TrackChangesPanel;
 import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
 import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
@@ -395,7 +396,9 @@ public class DEMToolbar extends ToolBar {
 		mItem.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				if( SimpleSISClient.iAmOnline ) {
-					final AssessmentChangesPanel panel = new AssessmentChangesPanel();
+					TrackChangesPanel panel = new TrackChangesPanel(AssessmentCache.impl.getCurrentAssessment());
+					panel.show();
+					/*final AssessmentChangesPanel panel = new AssessmentChangesPanel();
 					
 					final Window window = WindowUtils.getWindow(true, false, "Assessment Changes");
 					window.setClosable(true);
@@ -407,7 +410,7 @@ public class DEMToolbar extends ToolBar {
 							window.add(panel);	
 							window.show();	
 						}
-					});
+					});*/
 				} else {
 					WindowUtils.errorAlert("Not available offline.", "Sorry, this feature is not " +
 							"available offline.");

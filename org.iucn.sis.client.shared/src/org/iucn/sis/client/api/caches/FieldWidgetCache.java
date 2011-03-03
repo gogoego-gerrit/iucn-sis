@@ -25,6 +25,14 @@ import com.solertium.util.portable.XMLWritingUtils;
 
 public class FieldWidgetCache {
 	public static final FieldWidgetCache impl = new FieldWidgetCache();
+	
+	public static FieldWidgetCache newInstance() {
+		FieldWidgetCache cache = new FieldWidgetCache();
+		for (CreatesWidget generator : impl.getWidgetGenerators())
+			cache.registerWidgetGenerator(generator);
+		
+		return cache;
+	}
 
 	private final Map<String, Map<String, Display>> schemaToWidgetMap;
 	private final Set<CreatesWidget> widgetGenerators;
