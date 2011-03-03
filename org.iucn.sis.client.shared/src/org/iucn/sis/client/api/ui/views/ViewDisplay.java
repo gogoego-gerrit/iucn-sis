@@ -108,6 +108,7 @@ public class ViewDisplay extends LayoutContainer implements DrawsLazily {
 		private SISView view;
 		private HTML label;
 		private SISPageHolder page;
+		private boolean allowSamePage;
 		
 		public PageChangeRequest(SISView view, SISPageHolder page, HTML label) {
 			this.view = view;
@@ -125,6 +126,14 @@ public class ViewDisplay extends LayoutContainer implements DrawsLazily {
 		
 		public SISView getView() {
 			return view;
+		}
+		
+		public boolean isAllowSamePage() {
+			return allowSamePage;
+		}
+		
+		public void setAllowSamePage(boolean allowSamePage) {
+			this.allowSamePage = allowSamePage;
 		}
 		
 	}

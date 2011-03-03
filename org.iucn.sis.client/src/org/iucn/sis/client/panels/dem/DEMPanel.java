@@ -11,6 +11,8 @@ import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.StateManager;
+import org.iucn.sis.client.api.ui.views.SISPageHolder;
+import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.api.ui.views.ViewDisplay;
 import org.iucn.sis.client.api.ui.views.ViewDisplay.PageChangeRequest;
 import org.iucn.sis.client.api.utils.FormattedDate;
@@ -228,7 +230,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		DEMToolbar toolbar = new DEMToolbar();
 		toolbar.setRefreshListener(new ComplexListener<EditStatus>() {
 			public void handleEvent(EditStatus eventData) {
-				viewOnly = EditStatus.EDIT_DATA.equals(eventData);
+				viewOnly = EditStatus.READ_ONLY.equals(eventData);
 				redraw();
 			}
 		});
@@ -255,11 +257,13 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 					//If the user had a view in play, we want to 
 					//show it again.
 					
-					/*SISView currentView = ViewCache.impl.getCurrentView();
+					SISView currentView = ViewCache.impl.getCurrentView();
 					SISPageHolder page = currentView.getCurPage();
 					
-					changePage(
-						new PageChangeRequest(currentView, page, label));*/
+					PageChangeRequest request = new PageChangeRequest(currentView, page, label);
+					request.setAllowSamePage(true);
+					
+					changePage(request);
 				}
 				else
 					clearDEM();
@@ -292,7 +296,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 				toolBar.setViewOnly(viewOnly);
 				toolBar.resetAutosaveTimer();
 				
-				scroller.add(new HTML("Loading..."));
+				scroller.mask("Loading...");
 				
 				updateBoldedPage(request.getLabel());
 				
@@ -303,7 +307,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 						
 						ViewCache.impl.showPage(request.getView().getId(), page, viewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<TabPanel>() {
 							public void isDrawn(TabPanel parameter) {
-								scroller.removeAll();
+								scroller.unmask();
 								scroller.add(parameter);
 								scroller.layout();
 							}	
@@ -326,7 +330,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		} catch (Exception somethingsNull) {
 		}
 		
-		if (samePage)
+		if (samePage && !request.isAllowSamePage())
 			return;
 		
 		boolean hasEditablePageWithFields = 
