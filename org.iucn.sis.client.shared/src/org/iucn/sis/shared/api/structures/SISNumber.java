@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
 
@@ -145,6 +146,41 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 			value = null;
 		}
 		return value == null || "".equals(value) ? null : value;
+	}
+	
+	/**
+	 * Compares the data this structure was set with, with what it gets from its widget(s).
+	 * Returns true if they differ.
+	 * @return true or false
+	 */
+	public boolean hasChanged(PrimitiveField<Float> field) {
+		String oldValue = field == null ? null : field.getRawValue();
+		if ("".equals(oldValue))
+			oldValue = null;
+		
+		String newValue = getData();
+		if ("".equals(newValue))
+			newValue = null;
+		
+		Debug.println("SISNumber comparing {0} to {1}", oldValue, newValue);
+		
+		if (newValue == null)
+			return oldValue != null;
+		else {
+			if (oldValue == null)
+				return true;
+			else {
+				try {
+					Float oldF = Float.valueOf(oldValue);
+					Float newF = Float.valueOf(newValue);
+					
+					return !newF.equals(oldF);
+				} catch (NumberFormatException e) {
+					//This is bad; and we probably don't want to accept any changes...
+					return false;
+				}
+			}
+		}
 	}
 
 	/**
