@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.ChangesFieldWidgetCache;
 import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
@@ -82,6 +83,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 			// TODO: FLUSH APPROPRIATE CACHES
 			AssessmentCache.impl.doLogout();
 			FieldWidgetCache.impl.doLogout();
+			ChangesFieldWidgetCache.get().doLogout();
 			TaxonomyCache.impl.doLogout();
 			WorkingSetCache.impl.doLogout();
 			MarkedCache.impl.onLogout();

@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.iucn.sis.client.api.caches.FieldWidgetCache;
+import org.iucn.sis.client.api.caches.ChangesFieldWidgetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -41,7 +41,7 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 	private Edit edit;
 	
 	private final LayoutContainer oldField, newField;
-	private final FieldWidgetCache cache;
+	private final ChangesFieldWidgetCache cache;
 	
 	public TrackChangesPanel(Assessment assessment) {
 		this(assessment, null);
@@ -60,7 +60,7 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 		oldField = new LayoutContainer();
 		newField = new LayoutContainer();
 		
-		cache = FieldWidgetCache.newInstance();
+		cache = ChangesFieldWidgetCache.get();
 	}
 	
 	@Override
@@ -156,8 +156,8 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 				oldField.removeAll();
 				newField.removeAll();
 				for (AssessmentChange change : changes.values()) {
-					showChange(change.getOldField(), change.getFieldName(), oldField);
-					showChange(change.getNewField(), change.getFieldName(), newField);
+					showChange(change.getOldField(), change.getFieldName(), oldField, true);
+					showChange(change.getNewField(), change.getFieldName(), newField, false);
 				}
 				oldField.layout();
 				newField.layout();
@@ -169,8 +169,8 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 		});
 	}
 	
-	private void showChange(Field field, String fieldName, LayoutContainer target) {
-		final Display display = cache.get(fieldName);
+	private void showChange(Field field, String fieldName, LayoutContainer target, boolean isOld) {
+		final Display display = isOld ? cache.getOldWidget(fieldName) : cache.getNewWidget(fieldName);
 		if (display == null)
 			return;
 		display.setData(field);

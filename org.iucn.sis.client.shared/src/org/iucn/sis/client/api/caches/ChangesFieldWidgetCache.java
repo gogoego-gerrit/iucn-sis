@@ -23,25 +23,30 @@ import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.XMLWritingUtils;
 
-public class FieldWidgetCache {
-	public static final FieldWidgetCache impl = new FieldWidgetCache();
+public class ChangesFieldWidgetCache {
 	
-	public static FieldWidgetCache newInstance() {
-		FieldWidgetCache cache = new FieldWidgetCache();
-		for (CreatesWidget generator : impl.getWidgetGenerators())
-			cache.registerWidgetGenerator(generator);
-		
-		return cache;
+	private static ChangesFieldWidgetCache impl;
+	
+	public static ChangesFieldWidgetCache get() {
+		if (impl == null)
+			impl = new ChangesFieldWidgetCache();
+		return impl;
 	}
 
-	private final Map<String, Map<String, Display>> schemaToWidgetMap;
+	private final Map<String, Map<String, Display>> schemaToOldWidgetMap, schemaToNewWidgetMap;
 	private final Set<CreatesWidget> widgetGenerators;
 	
-	private CreatesDisplay fieldParser;
+	private FieldWidgetCache.CreatesDisplay fieldParser;
 
-	private FieldWidgetCache() {
-		schemaToWidgetMap = new HashMap<String, Map<String,Display>>();
+	private ChangesFieldWidgetCache() {
+		schemaToOldWidgetMap = new HashMap<String, Map<String,Display>>();
+		schemaToNewWidgetMap = new HashMap<String, Map<String,Display>>();
 		widgetGenerators = new HashSet<CreatesWidget>();
+		
+		for (CreatesWidget generator : FieldWidgetCache.impl.getWidgetGenerators())
+			registerWidgetGenerator(generator);
+		
+		setFieldParser(FieldWidgetCache.impl.getFieldParser());
 	}
 	
 	public void registerWidgetGenerator(CreatesWidget generator) {
@@ -52,14 +57,10 @@ public class FieldWidgetCache {
 		return widgetGenerators;
 	}
 	
-	public void setFieldParser(CreatesDisplay fieldParser) {
+	public void setFieldParser(FieldWidgetCache.CreatesDisplay fieldParser) {
 		this.fieldParser = fieldParser;
 	}
 	
-	public CreatesDisplay getFieldParser() {
-		return fieldParser;
-	}
-
 	// TODO: THIS IS BEING CALLED TOO MANY TIMES!! Fix it.
 	private void addAssessmentToDisplay(Display display) {
 		if (AssessmentCache.impl.getCurrentAssessment() != null && display != null) {
@@ -85,9 +86,12 @@ public class FieldWidgetCache {
 				wayBack.onFailure(caught);
 			}
 			public void onSuccess(String arg0) {
-				Map<String, Display> widgetMap = schemaToWidgetMap.get(schema);
-				if (widgetMap == null)
-					widgetMap = new HashMap<String, Display>();
+				Map<String, Display> oldWidgetMap = schemaToOldWidgetMap.get(schema);
+				Map<String, Display> newWidgetMap = schemaToNewWidgetMap.get(schema);
+				if (oldWidgetMap == null) {
+					oldWidgetMap = new HashMap<String, Display>();
+					newWidgetMap = new HashMap<String, Display>();
+				}
 				
 				final NativeNodeList displays = doc.getDocumentElement().getChildNodes();
 				for (int i = 0; i < displays.getLength(); i++) {
@@ -95,14 +99,16 @@ public class FieldWidgetCache {
 					if (current.getNodeType() != NativeNode.TEXT_NODE && current instanceof NativeElement) {
 						Display dis = fieldParser.parseField((NativeElement)current);
 						if (dis != null && dis.getCanonicalName() != null && !dis.getCanonicalName().equals("")) {
-							widgetMap.put(dis.getCanonicalName(), dis);
+							oldWidgetMap.put(dis.getCanonicalName(), dis);
+							newWidgetMap.put(dis.getCanonicalName(), fieldParser.parseField((NativeElement)current));
 						} else
 							Debug.println("Parsed a " + "display with null canonical " + 
 								"name. Description is: {0}", dis.getDescription());
 					}
 				}
 				
-				schemaToWidgetMap.put(schema, widgetMap);
+				schemaToOldWidgetMap.put(schema, oldWidgetMap);
+				schemaToNewWidgetMap.put(schema, newWidgetMap);
 
 				wayBack.onSuccess("OK");
 			}
@@ -110,7 +116,7 @@ public class FieldWidgetCache {
 	}
 
 	public void doLogout() {
-		schemaToWidgetMap.clear();
+		schemaToOldWidgetMap.clear();
 	}
 
 	/**
@@ -123,15 +129,23 @@ public class FieldWidgetCache {
 	 * @param canonicalName
 	 * @return Display object - MAY BE NULL
 	 */
-	public Display get(String canonicalName) {
+	public Display getOldWidget(String canonicalName) {
+		return get(schemaToOldWidgetMap, canonicalName);
+	}
+	
+	public Display getNewWidget(String canonicalName) {
+		return get(schemaToNewWidgetMap, canonicalName);
+	}
+	
+	private Display get(Map<String, Map<String, Display>> map, String canonicalName) {
 		if (AssessmentCache.impl.getCurrentAssessment() == null)
 			return null;
 		
 		String schema = AssessmentCache.impl.getCurrentAssessment().getSchema(SchemaCache.impl.getDefaultSchema());
-		if (!schemaToWidgetMap.containsKey(schema))
+		if (!map.containsKey(schema))
 			return null;
 		
-		Display cur = schemaToWidgetMap.get(schema).get(canonicalName);
+		Display cur = map.get(schema).get(canonicalName);
 		addAssessmentToDisplay(cur);
 
 		return cur;
@@ -157,12 +171,12 @@ public class FieldWidgetCache {
 		final String schema = AssessmentCache.impl.getCurrentAssessment().
 			getSchema(SchemaCache.impl.getDefaultSchema());
 		
-		final Map<String, Display> widgetMap = schemaToWidgetMap.get(schema);
-		if (widgetMap == null)
+		final Map<String, Display> oldWidgetMap = schemaToOldWidgetMap.get(schema);
+		if (oldWidgetMap == null)
 			uncachedNames.addAll(names);
 		else
 			for (String fieldName : names) 
-				if (!widgetMap.containsKey(fieldName)) 
+				if (!oldWidgetMap.containsKey(fieldName)) 
 					uncachedNames.add(fieldName);
 		
 		if (uncachedNames.isEmpty())
@@ -176,17 +190,15 @@ public class FieldWidgetCache {
 			String schema = AssessmentCache.impl.getCurrentAssessment().
 				getSchema(SchemaCache.impl.getDefaultSchema());
 			
-			final Map<String, Display> widgetMap = schemaToWidgetMap.get(schema);
-			if (widgetMap != null)
-				for (Iterator<Display> iter = widgetMap.values().iterator(); iter.hasNext();)
+			final Map<String, Display> oldWidgetMap = schemaToOldWidgetMap.get(schema);
+			final Map<String, Display> newWidgetMap = schemaToNewWidgetMap.get(schema);
+			if (oldWidgetMap != null)
+				for (Iterator<Display> iter = oldWidgetMap.values().iterator(); iter.hasNext();)
+					addAssessmentToDisplay(iter.next());
+			if (newWidgetMap != null)
+				for (Iterator<Display> iter = newWidgetMap.values().iterator(); iter.hasNext();)
 					addAssessmentToDisplay(iter.next());
 		}
-	}
-	
-	public static interface CreatesDisplay {
-		
-		public Display parseField(NativeElement element);
-		
 	}
 
 }
