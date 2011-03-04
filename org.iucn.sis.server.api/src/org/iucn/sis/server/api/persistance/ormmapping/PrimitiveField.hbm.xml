@@ -62,7 +62,7 @@ License Type: Evaluation
 		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField" table="foreign_key_primitive_field">
 			<key column="id"/>
 			<property name="value" column="value" type="integer" length="10" not-null="true" lazy="false"/>
-			<property name="tableID" column="table_id" type="string" length="255" not-null="true" lazy="false"/>
+			<property name="tableID" column="table_id" type="string" length="255" not-null="false" lazy="false"/>
 		</joined-subclass>
 		
 		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField" table="foreign_key_list_primitive_field">
@@ -72,7 +72,7 @@ License Type: Evaluation
 					<index column="list_index"/>
 					<element type="integer" column="value"/>
 				</primitive-array>
-			<property name="tableID" column="table_id" type="string" length="255" not-null="true" lazy="false"/>
+			<property name="tableID" column="table_id" type="string" length="255" not-null="false" lazy="false"/>
 		</joined-subclass>
 		
 	</class>
