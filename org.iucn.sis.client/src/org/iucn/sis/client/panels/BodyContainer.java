@@ -39,7 +39,7 @@ public class BodyContainer extends LayoutContainer {
 
 	private LayoutContainer homePage;
 	private FeaturedItemContainer<Integer> workingSetPage;
-	private FeaturedItemContainer<Taxon> taxonHomePage;
+	private FeaturedItemContainer<Integer> taxonHomePage;
 	private FeaturedItemContainer<Integer> assessmentPage;
 	
 	private LayoutContainer current;
@@ -79,15 +79,15 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openTaxon(final String url, final boolean updateNavigation) {
-		final GenericCallback<List<Taxon>> callback = new GenericCallback<List<Taxon>>() {
+		final GenericCallback<List<Integer>> callback = new GenericCallback<List<Integer>>() {
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
 				
 			}
-			public void onSuccess(List<Taxon> result) {
+			public void onSuccess(List<Integer> result) {
 				taxonHomePage.setUrl(url);
 				taxonHomePage.setItems(result);
-				taxonHomePage.setSelectedItem(StateManager.impl.getTaxon());
+				taxonHomePage.setSelectedItem(StateManager.impl.getTaxon().getId());
 				taxonHomePage.draw(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
 						removeAll();
@@ -103,10 +103,15 @@ public class BodyContainer extends LayoutContainer {
 		};
 		
 		WorkingSet ws = StateManager.impl.getWorkingSet();
-		if (ws == null)
-			callback.onSuccess(new ArrayList<Taxon>(TaxonomyCache.impl.getRecentlyAccessed()));
+		if (ws == null) {
+			List<Integer> recent = new ArrayList<Integer>();
+			for (Taxon taxon : TaxonomyCache.impl.getRecentlyAccessed())
+				recent.add(taxon.getId());
+			callback.onSuccess(recent);
+		}
 		else {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, callback);
+			//WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, callback);
+			callback.onSuccess(ws.getSpeciesIDs());
 		}
 		
 	}

@@ -38,7 +38,6 @@ import org.iucn.sis.client.panels.taxomatic.TaxonSynonymEditor;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.citations.Referenceable;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
@@ -83,8 +82,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.NativeElement;
-import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -92,7 +89,7 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.gwt.ui.StyledHTML;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
+public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 	
 	private ToolBar toolBar = null;
 	private Button assessmentTools;
@@ -113,11 +110,12 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 	
 	@Override
 	protected void drawBody(DoneDrawingCallback callback) {
+		Taxon taxon = TaxonomyCache.impl.getTaxon(getSelectedItem());
 		//if (bodyContainer.getItemCount() == 0) {
 			bodyContainer.removeAll();
 			
-			goToParent.setText("Up to Parent (" + getSelectedItem().getParentName() + ")");
-			goToParent.setVisible(getSelectedItem().getTaxonLevel().getLevel() > TaxonLevel.KINGDOM);
+			goToParent.setText("Up to Parent (" + taxon.getParentName() + ")");
+			goToParent.setVisible(taxon.getTaxonLevel().getLevel() > TaxonLevel.KINGDOM);
 			
 			final TaxonHomeGeneralInformationTab generalContent = 
 				new TaxonHomeGeneralInformationTab();
@@ -190,7 +188,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 	
 	@Override
 	protected void drawOptions(final DrawsLazily.DoneDrawingCallback callback) {
-		final Taxon taxon = getSelectedItem();
+		final Taxon taxon = TaxonomyCache.impl.getTaxon(getSelectedItem());
 		
 		final ContentPanel children = new ContentPanel();
 		children.setLayout(new FillLayout());
@@ -261,7 +259,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 	
 	@Override
 	protected LayoutContainer updateFeature() {
-		final Taxon node = getSelectedItem();
+		final Taxon node = getTaxon();
 		
 		final Image taxonImage = new Image(UriBase.getInstance().getImageBase() + "/images/view/thumb/" + node.getId() + "/primary?size=100&unique=" + new Date().getTime());
 		/*taxonImage.setWidth("100px");
@@ -270,7 +268,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 		taxonImage.setTitle("Click for Image Viewer");
 		taxonImage.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				final ImageManagerPanel manager = new ImageManagerPanel(getSelectedItem());
+				final ImageManagerPanel manager = new ImageManagerPanel(node);
 				manager.update(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
 						Window window = new Window();
@@ -334,9 +332,20 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 	}
 	
 	@Override
-	protected void updateSelection(Taxon selection) {
+	protected void updateSelection(Integer selection) {
 		//TaxonomyCache.impl.setCurrentTaxon(selection);
-		StateManager.impl.setState(selection, null);
+		TaxonomyCache.impl.fetchTaxon(selection, new GenericCallback<Taxon>() {
+			public void onFailure(Throwable caught) {
+				WindowUtils.errorAlert("Could not load this taxon. Please try again later.");
+			}
+			public void onSuccess(Taxon result) {
+				StateManager.impl.setState(result, null);
+			}
+		});
+	}
+	
+	public Taxon getTaxon() {
+		return TaxonomyCache.impl.getTaxon(getSelectedItem()); 
 	}
 	
 	private ToolBar buildToolBar() {
@@ -346,7 +355,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 		goToParent.setIconStyle("icon-previous");
 		goToParent.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				TaxonomyCache.impl.fetchTaxon(getSelectedItem().getParentId(), true, new GenericCallback<Taxon>() {
+				TaxonomyCache.impl.fetchTaxon(getTaxon().getParentId(), true, new GenericCallback<Taxon>() {
 					public void onFailure(Throwable caught) {
 						//updatePanel(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 					}
@@ -635,20 +644,20 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 							
 							WindowUtils.confirmAlert("Confirm Delete", msg, new WindowUtils.SimpleMessageBoxListener() {
 								public void onYes() {
-									final Taxon taxon = TaxonomyCache.impl.getCurrentTaxon();
+									final Taxon taxon = getTaxon();
 									if (taxon != null) {
 										TaxomaticUtils.impl.deleteTaxon(taxon, new GenericCallback<String>() {
 											public void onSuccess(String result) {
 												TaxonomyCache.impl.clear();
 												TaxonomyCache.impl.evict(taxon.getParentId() + "," + taxon.getId());
-												TaxonomyCache.impl.fetchTaxon(taxon.getParentId(), true,
+												TaxonomyCache.impl.fetchTaxon(getTaxon().getParentId(), true,
 														new GenericCallback<Taxon>() {
 													public void onFailure(Throwable caught) {
 														//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(null);
 														//FIXME: panelManager.recentAssessmentsPanel.update();
 													};
 													public void onSuccess(Taxon result) {
-														updateSelection(taxon);
+														updateSelection(taxon.getId());
 														/*ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
 															.update(TaxonomyCache.impl.getCurrentTaxon().getId());*/
 														//FIXME: panelManager.recentAssessmentsPanel.update();
@@ -743,7 +752,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 		mItem.setIconStyle("icon-taxomatic-history");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				TaxomaticHistoryPanel panel = new TaxomaticHistoryPanel(getSelectedItem());
+				TaxomaticHistoryPanel panel = new TaxomaticHistoryPanel(getTaxon());
 				panel.show();
 			}
 		});
@@ -765,15 +774,17 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 	}
 	
 	public void buildNotePopup() {
-		final NotesWindow window = new NotesWindow(new TaxonNoteAPI(getSelectedItem()));
-		window.setHeading("Notes for " + getSelectedItem().getFullName());
+		final Taxon taxon = getTaxon(); 
+		final NotesWindow window = new NotesWindow(new TaxonNoteAPI(taxon));
+		window.setHeading("Notes for " + taxon.getFullName());
 		window.show();	
 	}
 
 	public void buildReferencePopup() {
+		final Taxon taxon = getTaxon();
 		SimpleSISClient.getInstance().onShowReferenceEditor(
-			"Manage References for " + getSelectedItem().getFullName(), 
-			new ReferenceableTaxon(getSelectedItem(), new SimpleListener() {
+			"Manage References for " + taxon.getFullName(), 
+			new ReferenceableTaxon(taxon, new SimpleListener() {
 				public void handleEvent() {
 					//update(taxon.getId());
 					//TaxonomyCache.impl.setCurrentTaxon(getSelectedItem());
@@ -874,7 +885,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Taxon> {
 		
 	}
 	
-public static class ReferenceableTaxon implements Referenceable {
+	public static class ReferenceableTaxon implements Referenceable {
 		
 		private final Taxon taxon;
 		private final SimpleListener afterChangeListener;
