@@ -28,7 +28,7 @@ import com.solertium.util.TrivialExceptionHandler;
 
 public class PersistentLockRepository extends LockRepository {
 	
-	public static final String LOCK_TABLE = "lock";
+	public static final String LOCK_TABLE = "persistentlock";
 
 	@Override
 	public LockInfo getLockedAssessment(Integer id) {
@@ -55,7 +55,7 @@ public class PersistentLockRepository extends LockRepository {
 			return new LockRepository.LockInfo(
 				identifier, row.get("userid").getInteger(), 
 				LockType.fromString(row.get("type").toString()), 
-				row.get("group").toString(), 
+				row.get("groupname").toString(), 
 				row.get("date").getDate(), this
 			);
 		}
@@ -92,7 +92,7 @@ public class PersistentLockRepository extends LockRepository {
 			try {
 				SIS.get().getExecutionContext().doQuery(query, new RowProcessor() {
 					public void process(Row row) {
-						final String groupID = row.get("group").toString();
+						final String groupID = row.get("groupname").toString();
 						
 						List<Integer> list = map.get(groupID); 
 						if (list == null)
@@ -124,7 +124,7 @@ public class PersistentLockRepository extends LockRepository {
 						list.add(new LockRepository.LockInfo(
 							row.get("lockid").getInteger(), row.get("userid").getInteger(), 
 							LockType.fromString(row.get("type").toString()), 
-							row.get("group").toString(), 
+							row.get("groupname").toString(), 
 							row.get("date").getDate(), 
 							PersistentLockRepository.this
 						));
@@ -166,7 +166,7 @@ public class PersistentLockRepository extends LockRepository {
 		row.add(new CInteger("userid", owner.getId()));
 		row.add(new CDateTime("date", date));
 		row.add(new CString("type", lockType.toString()));
-		row.add(new CString("group", group));
+		row.add(new CString("groupname", group));
 
 		final InsertQuery query = new InsertQuery();
 		query.setRow(row);
@@ -226,7 +226,7 @@ public class PersistentLockRepository extends LockRepository {
 		
 		final DeleteQuery query = new DeleteQuery();
 		query.setTable(LOCK_TABLE);
-		query.constrain(new CanonicalColumnName(LOCK_TABLE, "group"), QConstraint.CT_EQUALS, group);
+		query.constrain(new CanonicalColumnName(LOCK_TABLE, "groupname"), QConstraint.CT_EQUALS, group);
 		
 		try {
 			ec.doUpdate(query);

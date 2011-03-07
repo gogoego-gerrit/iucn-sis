@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-	<class name="org.iucn.sis.shared.api.models.Lock" table="lock" lazy="false">
+	<class name="org.iucn.sis.shared.api.models.Lock" table="persistentlock" lazy="false">
 		<id name="id" column="id" type="integer" unsaved-value="0">
 			<generator class="native">
 			</generator>
@@ -9,7 +9,7 @@
 		<property name="lockID" column="lockid" type="integer" not-null="true" lazy="false" />
 		<property name="date" column="date" type="java.util.Date" not-null="true" lazy="false" />
 		<property name="type" column="type" type="string" not-null="true" lazy="false" />
-		<property name="group" column="group" type="string" not-null="true" lazy="false" />
+		<property name="group" column="groupname" type="string" not-null="true" lazy="false" />
 		<many-to-one name="user" cascade="lock" column="userid" class="org.iucn.sis.shared.api.models.User" not-null="true" lazy="no-proxy"/>
 	</class>
 </hibernate-mapping>

@@ -8,9 +8,9 @@ import java.util.Map;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
+import org.iucn.sis.server.api.locking.HibernateLockRepository;
 import org.iucn.sis.server.api.locking.LockException;
 import org.iucn.sis.server.api.locking.LockRepository;
-import org.iucn.sis.server.api.locking.PersistentLockRepository;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -37,8 +37,8 @@ public class LockManagementRestlet extends BaseServiceRestlet {
 	public LockManagementRestlet(Context context) {
 		super(context);
 		
-		//repository = new HibernateLockRepository();
-		repository = new PersistentLockRepository();
+		repository = new HibernateLockRepository();
+		//repository = new PersistentLockRepository();
 	}
 
 	public void definePaths() {
