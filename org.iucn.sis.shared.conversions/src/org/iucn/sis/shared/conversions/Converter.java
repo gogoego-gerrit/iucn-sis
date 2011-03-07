@@ -19,9 +19,18 @@ public abstract class Converter {
 	
 	protected Session session;
 	
+	private boolean clearSessionAfterTransaction;
+	
 	public Converter() {
+		this.clearSessionAfterTransaction = false;
+		
 		setWriter(new PrintWriter(System.out));
 		setLineBreakRule("\r\n");
+	}
+	
+	public void setClearSessionAfterTransaction(
+			boolean clearSessionAfterTransaction) {
+		this.clearSessionAfterTransaction = clearSessionAfterTransaction;
 	}
 	
 	public void setWriter(Writer writer) {
@@ -67,7 +76,7 @@ public abstract class Converter {
 		millis = millis / 1000;
 		
 		if (success) {
-			printf("! -- Finished %s conversion successfully in %s seconds at %s", getClass().getSimpleName(), millis, start.toString());
+			printf("! -- Finished %s conversion successfully in %s seconds at %s", getClass().getSimpleName(), millis, end.toString());
 			try {
 				session.getTransaction().commit();
 			} catch (Exception e) {
@@ -91,11 +100,15 @@ public abstract class Converter {
 			}
 		}
 		
+		session.close();
+		
 		return success;
 	}
 	
 	protected void commitAndStartTransaction() {
 		session.getTransaction().commit();
+		if (clearSessionAfterTransaction)
+			session.clear();
 		
 		session.beginTransaction();
 	}

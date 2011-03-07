@@ -13,6 +13,11 @@ import com.solertium.db.RowProcessor;
 import com.solertium.db.SystemExecutionContext;
 
 public class ReferenceConverter extends Converter {
+	
+	public ReferenceConverter() {
+		super();
+		setClearSessionAfterTransaction(true);
+	}
 
 	@Override
 	protected void run() throws Exception {
@@ -61,9 +66,10 @@ public class ReferenceConverter extends Converter {
 				ref.setSubmissionType(row.get("SUBMISSION_TYPE").getString());
 				
 				try {
-					session.saveOrUpdate(ref);
+					session.save(ref);
 					
-					if (converted.addAndGet(1) % 20 == 0) {
+					if (converted.addAndGet(1) % 50 == 0) {
+						printf("Converted and saved %s references...", converted.get());
 						commitAndStartTransaction();
 					}
 				} catch (HibernateException e) {

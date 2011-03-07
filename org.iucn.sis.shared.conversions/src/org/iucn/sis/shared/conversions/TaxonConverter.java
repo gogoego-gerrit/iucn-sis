@@ -7,12 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hibernate.HibernateException;
 import org.iucn.sis.server.api.io.InfratypeIO;
 import org.iucn.sis.server.api.io.IsoLanguageIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
-import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.CommonName;
@@ -36,18 +36,24 @@ import com.solertium.lwxml.shared.NativeDocument;
 public class TaxonConverter extends GenericConverter<String> {
 	
 	private UserIO userIO;
-	private TaxonIO taxonIO;
 	private IsoLanguageIO isoLanguageIO;
 	private InfratypeIO infratypeIO;
 	private ReferenceIO referenceIO;
+	
+	private AtomicInteger taxaConverted;
+	
+	public TaxonConverter() {
+		super();
+		setClearSessionAfterTransaction(true);
+	}
 
 	@Override
 	protected void run() throws Exception {
 		userIO = new UserIO(session);
-		taxonIO = new TaxonIO(session);
 		isoLanguageIO = new IsoLanguageIO(session);
 		infratypeIO = new InfratypeIO(session);
 		referenceIO = new ReferenceIO(session);
+		taxaConverted = new AtomicInteger(0);
 		
 		List<File> allFiles = FileListing.main(data + "/HEAD/browse/nodes");
 		User user = userIO.getUserFromUsername("admin");
@@ -87,7 +93,6 @@ public class TaxonConverter extends GenericConverter<String> {
 							taxon.getEdits().add(edit);							
 						}							
 						
-						taxa.put(taxon.getId(), taxon);
 						Integer nodeLevel = taxon.getLevel();
 						if (nodeLevel == TaxonLevel.KINGDOM) {
 							kingdomList.add(taxon);
@@ -169,20 +174,20 @@ public class TaxonConverter extends GenericConverter<String> {
 	protected void writeTaxon(Taxon taxon, Map<Integer, Taxon> taxa ) throws HibernateException, PersistentException {
 		
 		if (taxon.getParent() != null) {
-			taxon.setParent(taxa.get(taxon.getParentId()));
+			taxon.setParent((Taxon)session.get(Taxon.class, taxon.getParentId()));
 		}
 		session.save(taxon);
 		
-		/*taxaConverted++;
 		
-		if( taxaConverted % 100 == 0 ) {
-			SIS.get().getManager().getSession().getTransaction().commit();
-			SIS.get().getManager().getSession().beginTransaction();
-		}*/
+		
+		if (taxaConverted.incrementAndGet() % 100 == 0) {
+			commitAndStartTransaction();
+			printf("Converted %s taxa...", taxaConverted.get());
+		}
 		
 		//taxon.getFootprint();
-		taxon.toXML();
-		taxonIO.afterSaveTaxon(taxon);
+		/*taxon.toXML();
+		taxonIO.afterSaveTaxon(taxon);*/
 	}
 
 	public Taxon convertTaxonNode(TaxonNode taxon, Date lastModified) throws PersistentException {

@@ -20,6 +20,7 @@ import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
@@ -76,6 +77,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	}
 
 	public AssessmentConverter(String dbSessionName) throws NamingException {
+		setClearSessionAfterTransaction(true);
+		
 		ec = new SystemExecutionContext(dbSessionName);
 		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 		ec.setExecutionLevel(ExecutionContext.ADMIN);
@@ -148,19 +151,30 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					
 					Assessment assessment = assessmentDataToAssessment(parser.getAssessment());
 					if (assessment != null) {
-						if( assessment.getTaxon() != null ) {
-							User userToSave;
+						if (assessment.getTaxon() != null) {
+							/*User userToSave;
 							if (assessment.getLastEdit() != null)  {
 								userToSave = assessment.getLastEdit().getUser();
 							} else {
 								userToSave = user;
-							}
-							if (!assessmentIO.writeAssessment(assessment, userToSave, false).status.isSuccess()) {
-								throw new Exception("The assessment " + file.getPath() + " did not want to save");
+							}*/
+							
+							if (assessment.getLastEdit() == null) {
+								Edit edit = new Edit();
+								edit.setUser(user);
+								edit.getAssessment().add((assessment));
+								assessment.getEdit().add(edit);
 							}
 							
-							if (converted.addAndGet(1) % 50 == 0) {
+							session.save(assessment);
+							
+							/*if (!assessmentIO.writeAssessment(assessment, userToSave, false).status.isSuccess()) {
+								throw new Exception("The assessment " + file.getPath() + " did not want to save");
+							}*/
+							
+							if (converted.incrementAndGet() % 50 == 0) {
 								commitAndStartTransaction();
+								printf("Converted %s assessments...", converted.get());
 							}
 						} else {
 							print("The taxon " + parser.getAssessment().getSpeciesID() + " is null");
@@ -190,6 +204,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		OccurrenceMigratorUtils.migrateOccurrenceData(assessData);
 		
 		Assessment assessment = new Assessment();
+		assessment.setSchema("org.iucn.sis.server.schemas.redlist");
 		assessment.setInternalId(assessData.getAssessmentID());
 		assessment.setSource(assessData.getSource());
 		assessment.setSourceDate(assessData.getSourceDate());

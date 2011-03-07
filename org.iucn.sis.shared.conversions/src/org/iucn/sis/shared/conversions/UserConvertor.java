@@ -111,7 +111,11 @@ public class UserConvertor extends Converter {
 
 	protected String getEmailAddresses(Row row) {
 		String email = row.get("USERNAME").getString();
-		if (!email.contains("@")) {
+		if (email == null)
+			return "bademail@noemail.com";
+		else if ("adam.schwartz@solertium.com".equals(email))
+			return "gogoego.tests@gmail.com";
+		else if (!email.contains("@")) {
 			if (email.equalsIgnoreCase("craig.ht"))
 				return "craig.hilton-taylor@iucn.org";
 			else if (email.equalsIgnoreCase("caroline.p"))
@@ -122,8 +126,8 @@ public class UserConvertor extends Converter {
 				return "james.ragle@iucn.org";
 			else if	(email.equalsIgnoreCase("melanie.b"))
 				return "melanie.bilz@iucn.org";
-			else if (email.equalsIgnoreCase("admin") || email.equalsIgnoreCase("adam"))
-				return "adam.schwartz@solertium.com";
+			else if (email.equalsIgnoreCase("admin") || email.equalsIgnoreCase("adam") || email.equalsIgnoreCase("liz"))
+				return "gogoego.tests@gmail.com";
 			else 
 				return "bademail@noemail.com";
 					

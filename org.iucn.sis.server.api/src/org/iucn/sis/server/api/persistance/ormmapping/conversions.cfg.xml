@@ -13,7 +13,9 @@
 		
 		<!-- mapping files -->
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Assessment.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/AssessmentChange.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/AssessmentType.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Bookmark.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/CommonName.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Definition.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Edit.hbm.xml" />
@@ -32,7 +34,10 @@
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/RegionForConversions.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Relationship.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Synonym.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxomaticHistory.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxomaticOperation.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonForConversions.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonImage.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonLevel.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonStatus.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/User.hbm.xml" />
