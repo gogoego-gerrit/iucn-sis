@@ -2,7 +2,6 @@ package org.iucn.sis.client.panels;
 
 import org.iucn.sis.client.panels.NonPagingMonkeyNavigatorPanel.NavigationModelData;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -20,7 +19,6 @@ public abstract class GridNonPagingMonkeyNavigatorPanel<T> extends NonPagingMonk
 	
 	public GridNonPagingMonkeyNavigatorPanel() {
 		super(new FillLayout());
-		setScrollMode(Scroll.AUTOY);
 		
 		grid = new Grid<NavigationModelData<T>>(getStoreInstance(), getColumnModel());
 		grid.setBorders(false);
@@ -65,6 +63,7 @@ public abstract class GridNonPagingMonkeyNavigatorPanel<T> extends NonPagingMonk
 	
 	protected final GridView getView() {
 		BufferView view = new BufferView();
+		view.setForceFit(true);
 		view.setEmptyText(getEmptyText());
 		view.setRowHeight(22);
 		

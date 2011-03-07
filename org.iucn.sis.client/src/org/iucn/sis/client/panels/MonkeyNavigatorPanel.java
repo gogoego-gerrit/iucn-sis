@@ -59,7 +59,7 @@ public class MonkeyNavigatorPanel extends LayoutContainer {
 		content.setLayout(layout);
 		content.setLayoutOnChange(true);
 		content.setBorders(false);
-		content.setScrollMode(Scroll.AUTOY);
+		content.setScrollMode(Scroll.NONE);
 		
 		final LayoutContainer container = new LayoutContainer(new BorderLayout());
 		container.add(header, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
