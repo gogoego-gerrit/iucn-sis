@@ -94,8 +94,8 @@ public class AssessmentFilterHelper {
 		boolean result = false;
 		if (filter.isRecentPublished() && assessment.isPublished() && assessment.getIsHistorical())
 			result = false;
-		else if (filter.isDraft() && !((filter.isRecentPublished() || filter.isAllPublished()) && !assessment.isDraft()))
-			result = false;
+		/*else if (filter.isDraft() && !((filter.isRecentPublished() || filter.isAllPublished()) && !assessment.isDraft()))
+			result = false;*/
 		else {
 			if (filter.getRelationshipName().equalsIgnoreCase(Relationship.ALL))
 				result = true;
