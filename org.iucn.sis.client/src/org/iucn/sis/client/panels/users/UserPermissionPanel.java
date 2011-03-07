@@ -18,6 +18,8 @@ import com.extjs.gxt.ui.client.widget.CheckBoxListView;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
@@ -103,9 +105,18 @@ public class UserPermissionPanel extends Window {
 	@Override
 	public void show() {
 		WindowUtils.showLoadingAlert("Loading all permission groups...");
-		draw();
-		super.show();
+		DeferredCommand.addPause();
+		DeferredCommand.addCommand(new Command() {
+			public void execute() {
+				draw();
+				open();
+			}
+		});
+	}
+	
+	private void open() {
 		WindowUtils.hideLoadingAlert();
+		super.show();
 	}
 	
 	public static class PermissionStoreSorter extends StoreSorter<BaseModelData> {
