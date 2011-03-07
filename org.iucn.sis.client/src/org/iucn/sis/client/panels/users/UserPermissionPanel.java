@@ -74,7 +74,7 @@ public class UserPermissionPanel extends Window {
 			}
 		});
 		for (String group : AuthorizationCache.impl.getGroups().keySet()) {
-			if (group.matches("^ws\\d+.*")) {
+			if (!group.matches("^ws\\d+.*")) {
 				BaseModelData model = new BaseModelData();
 				model.set("text", group);
 				model.set("value", group);
