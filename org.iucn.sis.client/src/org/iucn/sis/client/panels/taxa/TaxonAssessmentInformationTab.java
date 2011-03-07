@@ -16,8 +16,11 @@ import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
+import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -69,6 +72,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 			model.set("category", AssessmentFormatter.getProperCategoryAbbreviation(data));
 			model.set("criteria", AssessmentFormatter.getProperCriteriaString(data));
 			model.set("status", "Published");
+			model.set("region", getRegions(data));
 			model.set("edit", "");
 			model.set("trash", "");
 			model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
@@ -84,24 +88,23 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				model.set("date", data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed()));
 				model.set("category", AssessmentFormatter.getProperCategoryAbbreviation(data));
 				model.set("criteria", AssessmentFormatter.getProperCriteriaString(data));
-				if (data.isRegional())
-					model.set("status", "Draft - " + RegionCache.impl.getRegionName(data.getRegionIDs()));
-				else
-					model.set("status", "Draft");
+				model.set("status", "Draft");
+				model.set("region", getRegions(data));
 				model.set("edit", "");
 				model.set("trash", "");
 				model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
 				model.set("id", data.getId());
-			} else {
+			}/* else {
 				model.set("date", "Sorry, you");
 				model.set("category", "do not have");
 				model.set("criteria", "permission");
 				model.set("status", "to view this");
-				model.set("edit", "draft assessment.");
+				model.set("region", "draft assessment.");
+				model.set("edit", "");
 				model.set("trash", "");
 				model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
 				model.set("id", data.getId());
-			}
+			}*/
 
 			store.add(model);
 		}
@@ -110,8 +113,9 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 
 		columns.add(new ColumnConfig("date", "Assessment Date", 150));
 		columns.add(new ColumnConfig("category", "Category", 100));
-		columns.add(new ColumnConfig("criteria", "Category", 100));
-		columns.add(new ColumnConfig("status", "Category", 100));
+		columns.add(new ColumnConfig("criteria", "Criteria", 100));
+		columns.add(new ColumnConfig("status", "Status", 100));
+		columns.add(new ColumnConfig("region", "Region(s)", 150));
 		
 		ColumnConfig editView = new ColumnConfig("edit", "Edit/View", 60);
 		editView.setRenderer(new GridCellRenderer<BaseModelData>() {
@@ -158,7 +162,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				final String status = model.get("status");
 				final String type = status.equals("Published") ? 
 						AssessmentType.PUBLISHED_ASSESSMENT_TYPE : AssessmentType.DRAFT_ASSESSMENT_TYPE;
-				if (column == 5) {
+				if (column == 6) {
 					if (type == AssessmentType.PUBLISHED_ASSESSMENT_TYPE
 							&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
 									AuthorizableObject.DELETE, AssessmentCache.impl.getPublishedAssessment(id))) {
@@ -202,7 +206,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 							}
 						});
 					}
-				} else if (column == 4) {
+				} else if (column == 5) {
 					Assessment fetched = AssessmentCache.impl.getAssessment(id);
 					// CHANGE
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ,
@@ -232,6 +236,25 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 		assessments.add(tbl);
 		
 		return tbl;
+	}
+	
+	private String getRegions(Assessment data) {
+		if (data.getField(CanonicalNames.RegionInformation) != null) {
+			RegionField proxy = new RegionField(data.getField(CanonicalNames.RegionInformation));
+			List<Region> regions = new ArrayList<Region>();
+			for (Integer id : proxy.getRegionIDs()) {
+				Region r = RegionCache.impl.getRegionByID(id);
+				if (r != null)
+					regions.add(r);
+			}
+			
+			if (regions.isEmpty())
+				return "Unset";
+			else
+				return RegionCache.impl.getRegionNamesAsReadable(regions);
+		}
+		else
+			return "N/A";
 	}
 
 }
