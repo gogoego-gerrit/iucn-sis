@@ -26,6 +26,10 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
@@ -46,6 +50,7 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 
 	public TrackChangesPanel(Assessment assessment, Edit edit) {
 		super();
+		setModal(true);
 		setSize(800, 650);
 		setLayout(new FillLayout());
 		setIconStyle("icon-changes");
@@ -54,10 +59,18 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 		this.assessment = assessment;
 		this.edit = edit;
 		
-		oldField = new LayoutContainer();
-		newField = new LayoutContainer();
+		oldField = createChangeContainer();
+		newField = createChangeContainer();
 		
 		cache = ChangesFieldWidgetCache.get();
+	}
+	
+	private LayoutContainer createChangeContainer() {
+		LayoutContainer container = new LayoutContainer(new FlowLayout(0));
+		container.addStyleName("x-panel");
+		container.setScrollMode(Scroll.AUTO);
+		
+		return container;
 	}
 	
 	@Override
@@ -169,12 +182,20 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 			public void onSuccess(String result) {
 				oldField.removeAll();
 				newField.removeAll();
-				for (AssessmentChange change : changes.values()) {
-					showChange(change.getOldField(), change.getFieldName(), oldField, true);
-					showChange(change.getNewField(), change.getFieldName(), newField, false);
-				}
-				oldField.layout();
-				newField.layout();
+				oldField.mask("Loading...");
+				newField.mask("Loading...");
+				DeferredCommand.addCommand(new Command() {
+					public void execute() {
+						for (AssessmentChange change : changes.values()) {
+							showChange(change.getOldField(), change.getFieldName(), oldField, true);
+							showChange(change.getNewField(), change.getFieldName(), newField, false);
+						}
+						oldField.unmask();
+						newField.unmask();
+						oldField.layout(true);
+						newField.layout(true);
+					}
+				});
 			}
 			public void onFailure(Throwable caught) {
 				// TODO Auto-generated method stub
@@ -184,12 +205,18 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 	}
 	
 	private void showChange(Field field, String fieldName, LayoutContainer target, boolean isOld) {
-		final Display display = isOld ? cache.getOldWidget(fieldName) : cache.getNewWidget(fieldName);
+		final Display display = isOld ? cache.getOldWidget(fieldName, field) : cache.getNewWidget(fieldName, field);
 		if (display == null)
 			return;
+		
 		display.setData(field);
 		
-		target.add(display.showViewOnly());
+		final HorizontalPanel myContent = new HorizontalPanel();
+		myContent.addStyleName("SISPage_Field");
+		myContent.add(display.showViewOnly());
+		myContent.setWidth("100%");
+		
+		target.add(myContent);
 	}
 	
 }

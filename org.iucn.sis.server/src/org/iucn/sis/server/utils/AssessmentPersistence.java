@@ -221,7 +221,7 @@ public class AssessmentPersistence {
 			Debug.println("Saving change for assessment {0} with edit {1}", assessmentID, editID);
 			
 			Assessment assessment = SISPersistentManager.instance().getObject(session, Assessment.class, assessmentID);
-			Edit edit = SISPersistentManager.instance().getObject(session, Edit.class, editID);
+			Edit edit = getEdit(session, editID);
 			
 			for (AssessmentChange change : changes) {
 				if (AssessmentChange.EDIT == change.getType()) {
@@ -245,6 +245,19 @@ public class AssessmentPersistence {
 			session.getTransaction().commit();
 		}
 		
+		private Edit getEdit(Session session, Integer id) throws Exception {
+			Edit edit = null;
+			int tries = 0, max = 10;
+			while (edit == null) {
+				Thread.sleep(2000);
+				edit = SISPersistentManager.instance().getObject(session, Edit.class, editID);
+				if (++tries > max)
+					break;
+			}
+			if (edit == null)
+				throw new Exception("Taking too long to get edit " + id);
+			return edit;
+		}
 		
 	}
 

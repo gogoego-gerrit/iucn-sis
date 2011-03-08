@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,9 +61,9 @@ public class ChangesFieldWidgetCache {
 	}
 	
 	// TODO: THIS IS BEING CALLED TOO MANY TIMES!! Fix it.
-	private void addAssessmentToDisplay(Display display) {
-		if (AssessmentCache.impl.getCurrentAssessment() != null && display != null) {
-			Field field = AssessmentCache.impl.getCurrentAssessment().getField(display.getCanonicalName());
+	private void addAssessmentToDisplay(Display display, Field data) {
+		if (display != null) {
+			Field field = data;
 			if (field == null)
 				field = new Field(display.getCanonicalName(), AssessmentCache.impl.getCurrentAssessment());
 		
@@ -129,24 +128,21 @@ public class ChangesFieldWidgetCache {
 	 * @param canonicalName
 	 * @return Display object - MAY BE NULL
 	 */
-	public Display getOldWidget(String canonicalName) {
-		return get(schemaToOldWidgetMap, canonicalName);
+	public Display getOldWidget(String canonicalName, Field field) {
+		return get(schemaToOldWidgetMap, canonicalName, field);
 	}
 	
-	public Display getNewWidget(String canonicalName) {
-		return get(schemaToNewWidgetMap, canonicalName);
+	public Display getNewWidget(String canonicalName, Field field) {
+		return get(schemaToNewWidgetMap, canonicalName, field);
 	}
 	
-	private Display get(Map<String, Map<String, Display>> map, String canonicalName) {
-		if (AssessmentCache.impl.getCurrentAssessment() == null)
-			return null;
-		
+	private Display get(Map<String, Map<String, Display>> map, String canonicalName, Field field) {	
 		String schema = AssessmentCache.impl.getCurrentAssessment().getSchema(SchemaCache.impl.getDefaultSchema());
 		if (!map.containsKey(schema))
 			return null;
 		
 		Display cur = map.get(schema).get(canonicalName);
-		addAssessmentToDisplay(cur);
+		addAssessmentToDisplay(cur, field);
 
 		return cur;
 	}
@@ -183,22 +179,6 @@ public class ChangesFieldWidgetCache {
 			wayBack.onSuccess("OK");
 		else
 			doListFetch(schema, uncachedNames, wayBack);
-	}
-
-	public void resetWidgetContents() {
-		if (AssessmentCache.impl.getCurrentAssessment() != null) {
-			String schema = AssessmentCache.impl.getCurrentAssessment().
-				getSchema(SchemaCache.impl.getDefaultSchema());
-			
-			final Map<String, Display> oldWidgetMap = schemaToOldWidgetMap.get(schema);
-			final Map<String, Display> newWidgetMap = schemaToNewWidgetMap.get(schema);
-			if (oldWidgetMap != null)
-				for (Iterator<Display> iter = oldWidgetMap.values().iterator(); iter.hasNext();)
-					addAssessmentToDisplay(iter.next());
-			if (newWidgetMap != null)
-				for (Iterator<Display> iter = newWidgetMap.values().iterator(); iter.hasNext();)
-					addAssessmentToDisplay(iter.next());
-		}
 	}
 
 }
