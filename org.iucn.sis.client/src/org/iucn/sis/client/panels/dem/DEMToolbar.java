@@ -5,11 +5,12 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
+import org.iucn.sis.client.api.ui.users.panels.ManageCreditsWindow;
 import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.assessments.AssessmentAttachmentPanel;
-import org.iucn.sis.client.panels.assessments.AssessmentChangesPanel;
+//import org.iucn.sis.client.panels.assessments.AssessmentChangesPanel;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
 import org.iucn.sis.client.panels.assessments.TrackChangesPanel;
 import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
@@ -41,7 +42,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+//import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -54,7 +55,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.gwt.ui.DrawsLazily;
+//import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class DEMToolbar extends ToolBar {
 	
@@ -258,7 +259,7 @@ public class DEMToolbar extends ToolBar {
 
 		add(item);
 		add(new SeparatorToolItem());
-		add(new SeparatorToolItem());
+		//add(new SeparatorToolItem());
 
 		item = new Button();
 		item.setText("Tools");
@@ -486,6 +487,22 @@ public class DEMToolbar extends ToolBar {
 		
 		mainMenu.add(workflow);*/
 
+		add(new SeparatorToolItem());
+		
+		Button mcbutton = new Button();
+		mcbutton.setText("Manage Credits");
+		mcbutton.setIconStyle("icon-user-group");
+
+		mcbutton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+
+				final ManageCreditsWindow panel = new ManageCreditsWindow();
+				panel.show(); 
+			}
+
+		});
+
+		add(mcbutton);
 		add(new SeparatorToolItem());
 		
 		add(new FillToolItem());

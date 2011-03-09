@@ -10,68 +10,31 @@ import org.iucn.sis.client.api.models.ClientUser;
 
 public class UserCache {
 
-	protected List<ClientUser> users;
-	protected Map<Integer, ClientUser> idToUsers;
 	public static final UserCache impl = new UserCache();
-
-	protected UserCache() {
-		idToUsers = new HashMap<Integer, ClientUser>();
-		users = new ArrayList<ClientUser>() {
-			private static final long serialVersionUID = 1L;
-			@Override
-			public boolean add(ClientUser e) {
-				remove(e);
-				return super.add(e);
-			}
-
-			@Override
-			public boolean addAll(Collection<? extends ClientUser> c) {
-				for (ClientUser user : c) {
-					add(user);
-				}
-				return true;
-			}
-
-			@Override
-			public boolean contains(Object o) {
-				int id = ((ClientUser) o).getId();
-				for (ClientUser user : users) {
-					if (user.getId() == id)
-						return true;
-				}
-				return false;
-			}
-
-			@Override
-			public boolean remove(Object o) {
-				int id = ((ClientUser) o).getId();
-				for (ClientUser user : users) {
-					if (user.getId() == id) {
-						super.remove(user);
-						return true;
-					}
-
-				}
-				return false;
-			}
-		};
+	
+	private final Map<Integer, ClientUser> cache;
+	
+	private UserCache() {
+		cache = new HashMap<Integer, ClientUser>();
 	}
 
 	public void addUser(ClientUser user) {
-		users.add(user);
-		idToUsers.put(user.getId(), user);
+		cache.put(user.getId(), user);
 	}
 
 	public void addUsers(Collection<ClientUser> users) {
-		this.users.addAll(users);
-		for( ClientUser user : users )
-			idToUsers.put(user.getId(), user);
+		for (ClientUser user : users)
+			addUser(user);
 	}
 
 	public String generateTextFromUserIDs(List<Integer> ids) {
 		StringBuilder text = new StringBuilder();
 		for (int i = 0; i < ids.size(); i++) {
-			text.append(idToUsers.get(ids.get(i)).getCitationName());
+			ClientUser user = cache.get(ids.get(i));
+			if (user == null)
+				continue;
+					
+			text.append(user.getCitationName());
 			
 			if (i + 1 < ids.size() - 1)
 				text.append(", ");
@@ -83,14 +46,18 @@ public class UserCache {
 	}
 	
 	public List<ClientUser> getUsers() {
-		List<ClientUser> newList = new ArrayList<ClientUser>(users.size());
-		for (ClientUser user : users)
-			newList.add(user);
-		return newList;
+		return new ArrayList<ClientUser>(cache.values());
 	}
 
 	public void removeUser(ClientUser user) {
-		this.users.remove(user);
-		idToUsers.remove(user.getId());
+		cache.remove(user.getId());
+	}
+	
+	public boolean hasUser(Integer userID) {
+		return cache.containsKey(userID);
+	}
+	
+	public ClientUser getUser(Integer userID) {
+		return cache.get(userID);
 	}
 }
