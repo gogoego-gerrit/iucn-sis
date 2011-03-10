@@ -89,7 +89,7 @@ public class WorkingSetCache {
 
 				public void onSuccess(String arg0) {
 					ws.setId(Integer.valueOf(ndoc.getText()));
-					workingSets.put(Integer.valueOf(ws.getId()), ws);
+					addToWorkingSetCache(ws);
 					wayBack.onSuccess(arg0);
 				}
 			});
@@ -98,7 +98,7 @@ public class WorkingSetCache {
 					+ " the working set id."));
 	}
 
-	private void addToWorkingSetCache(ArrayList<WorkingSet> ws) {
+	private void addToWorkingSetCache(Collection<WorkingSet> ws) {
 		for (WorkingSet curWS : ws)
 			addToWorkingSetCache(curWS);
 	}
@@ -162,6 +162,7 @@ public class WorkingSetCache {
 
 			public void onSuccess(String arg0) {
 				workingSets.remove(ws.getId());
+				uncacheAssessmentsForWorkingSet(ws);
 				wayBack.onSuccess("YAY");
 			}
 		});
@@ -178,6 +179,7 @@ public class WorkingSetCache {
 
 			public void onSuccess(String arg0) {
 				workingSets.remove(ws.getId());
+				uncacheAssessmentsForWorkingSet(ws);
 				wayBack.onSuccess("YAY");
 			}
 		});
@@ -199,6 +201,7 @@ public class WorkingSetCache {
 
 				public void onSuccess(String arg0) {
 					workingSets.put(ws.getId(), ws);
+					uncacheAssessmentsForWorkingSet(ws);
 					wayback.onSuccess(arg0);
 				}
 			});
@@ -559,6 +562,7 @@ public class WorkingSetCache {
 			}
 			public void onSuccess(String arg0) {
 				workingSets.clear();
+				assessmentRelations.clear();
 				try {
 					WorkingSetParser parser = new WorkingSetParser();
 					parser.parseWorkingSetXML(ndoc);
