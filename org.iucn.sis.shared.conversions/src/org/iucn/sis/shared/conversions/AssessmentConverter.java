@@ -131,6 +131,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	public void convertAll(String rootURL, VFS oldVFS, VFS newVFS) throws Exception {
 
 		List<File> allFiles = FileListing.main(data.getOldVFSPath() + rootURL);
+		int size = allFiles.size();
 		// List<File> allFiles = new ArrayList<File>();
 		// File aFile = new File(GoGoEgo.getInitProperties().get("sis_vfs") +
 		// "/HEAD/browse/nodes/100/100001.xml");
@@ -174,7 +175,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							
 							if (converted.incrementAndGet() % 50 == 0) {
 								commitAndStartTransaction();
-								printf("Converted %s assessments...", converted.get());
+								printf("Converted %s/%s assessments...", converted.get(), size);
 							}
 						} else {
 							print("The taxon " + parser.getAssessment().getSpeciesID() + " is null");
@@ -213,6 +214,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		assessment.setTaxon(taxonIO.getTaxon(Integer.valueOf(assessData.getSpeciesID())));
 		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType())) {
 			String dateAssessed = assessData.getDateAssessed();
+			dateAssessed.replace('/', '-');
 			if (dateAssessed != null && !"".equals(dateAssessed)) {
 				try {
 					assessment.setDateAssessed(shortfmt.parse(dateAssessed));

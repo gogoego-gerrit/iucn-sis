@@ -2,6 +2,7 @@ package org.iucn.sis.shared.conversions;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +32,73 @@ import org.iucn.sis.shared.helpers.TaxonNode;
 import org.iucn.sis.shared.helpers.TaxonNodeFactory;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
+import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 
 public class TaxonConverter extends GenericConverter<String> {
+	
+	public static void main(String[] args) throws Exception {
+		//List<File> allFiles = FileListing.main("/home/iucn/complete_vfs/HEAD/browse/nodes");
+		List<File> allFiles = new ArrayList<File>();
+		allFiles.add(new File("/home/iucn/complete_vfs/HEAD/browse/nodes/166/166892.xml"));
+		allFiles.add(new File("/home/iucn/complete_vfs/HEAD/browse/nodes/166/166900.xml"));
+		allFiles.add(new File("/home/iucn/complete_vfs/HEAD/browse/nodes/172/172323.xml"));
+		int size = allFiles.size();
+		
+		Map<Integer, Integer> childToParent = new HashMap<Integer, Integer>();
+		
+		for (int i = 0; i < size; i++) {
+			File file = allFiles.get(i);
+			if (file.getPath().endsWith(".xml")) {
+				NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
+				ndoc.parse(FileListing.readFileAsString(file));
+				TaxonNode taxon = TaxonNodeFactory.createNode(ndoc);
+				
+				Taxon newTaxon = new Taxon();
+				newTaxon.state = Taxon.ACTIVE;
+				newTaxon.setId((int) taxon.getId());
+				if (!taxon.getParentId().equals("")) {
+					newTaxon.setParentId(Integer.valueOf(taxon.getParentId()));
+					//Taxon parent = new Taxon();
+					//parent.setId(Integer.valueOf(taxon.getParentId()));
+					//parent.setName(taxon.getParentName());
+				
+				}
+				newTaxon.setStatus(taxon.getStatus());
+				newTaxon.setTaxonLevel(TaxonLevel.getTaxonLevel(taxon.getLevel()));
+				newTaxon.setName(taxon.getName());
+				try {
+					newTaxon.setFriendlyName(taxon.generateFullName());
+				} catch (IndexOutOfBoundsException e) {
+					System.out.println("--- ERROR setting friendly name for taxon " + newTaxon.getId());
+				}
+				newTaxon.setHybrid(taxon.isHybrid());
+				newTaxon.setTaxonomicAuthority(taxon.getTaxonomicAuthority());
+
+				// ADD COMMON NAMES
+				boolean bad = false;
+				int longestLength = 2000;
+				for (CommonNameData commonNameData : taxon.getCommonNames()) {
+					CommonName commonName = new CommonName();
+					commonName.setChangeReason(commonNameData.getChangeReason());
+					commonName.setName(commonNameData.getName());			
+					commonName.setPrincipal(commonNameData.isPrimary());
+					commonName.setValidated(commonNameData.isValidated());
+
+					// ADD ISO LANGUAGUE
+					int len = commonName.getName().length();
+					if (len > longestLength)
+						longestLength = commonName.getName().length();
+							
+				}
+				if (longestLength > 2000)
+					System.out.println("Found bad common name with length " + longestLength + " for " + file.toString());
+				
+				if (i % 1000 == 0)
+					System.out.println(i + "...");
+			}
+		}
+	}
 	
 	private UserIO userIO;
 	private IsoLanguageIO isoLanguageIO;
@@ -46,9 +111,110 @@ public class TaxonConverter extends GenericConverter<String> {
 		super();
 		setClearSessionAfterTransaction(true);
 	}
-
-	@Override
+	
 	protected void run() throws Exception {
+		/*
+		 * First, add 'em all, no relationships.
+		 */
+		userIO = new UserIO(session);
+		isoLanguageIO = new IsoLanguageIO(session);
+		infratypeIO = new InfratypeIO(session);
+		referenceIO = new ReferenceIO(session);
+		taxaConverted = new AtomicInteger(0);
+		
+		User user = userIO.getUserFromUsername("admin");
+		if (user == null)
+			throw new NullPointerException("No user admin exists");
+		
+		Date date = Calendar.getInstance().getTime();
+		
+		List<File> allFiles = FileListing.main(data + "/HEAD/browse/nodes");
+		int size = allFiles.size();
+		
+		Map<Integer, Integer> childToParent = new HashMap<Integer, Integer>();
+		
+		for (File file : allFiles) {
+			if (file.getPath().endsWith(".xml")) {
+				NativeDocument ndoc = new JavaNativeDocument();
+				ndoc.parse(FileListing.readFileAsString(file));
+				
+				Taxon taxon = convertTaxonNode(TaxonNodeFactory.createNode(ndoc), new Date(file.lastModified()));
+				
+				if (taxon != null) {
+					childToParent.put(taxon.getId(), taxon.getParentId());
+					taxon.setParentId(0);
+					taxon.setParent(null);
+					
+					if (taxon.getLastEdit() == null) {
+						Edit edit = new Edit();
+						edit.setUser(user);
+						edit.setCreatedDate(date);
+						edit.getTaxon().add(taxon);
+						taxon.getEdits().add(edit);							
+					}
+					
+					session.save(taxon);
+					
+					if (taxaConverted.incrementAndGet() % 100 == 0) {
+						commitAndStartTransaction();
+						printf("Converted %s/%s taxa...", taxaConverted.get(), size);
+					}
+				}
+			}
+		}
+		
+		commitAndStartTransaction();
+		
+		taxaConverted.set(0);
+		
+		for (Map.Entry<Integer, Integer> entry : childToParent.entrySet()) {
+			if (entry.getValue().intValue() == 0)
+				continue;
+			
+			Taxon taxon = (Taxon)session.get(Taxon.class, entry.getKey());
+			
+			if (taxon.getLevel() == TaxonLevel.KINGDOM)
+				continue;
+			
+			Taxon parent = (Taxon)session.get(Taxon.class, entry.getValue());
+			if (parent == null)
+				continue;
+			
+			if (parent.getLevel() == TaxonLevel.KINGDOM) {
+				Integer trueParent = null;
+				if ("ANIMALIA".equals(parent.getName()))
+					trueParent = 100003;
+				else if ("FUNGI".equals(parent.getName()))
+					trueParent = 100001;
+				else if ("PLANTAE".equals(parent.getName()))
+					trueParent = 100002;
+				else if ("PROTISTA".equals(parent.getName()))
+					trueParent = 100004;
+			
+				if (trueParent != null) {
+					session.delete(parent);
+					commitAndStartTransaction();
+					parent = (Taxon)session.get(Taxon.class, trueParent);
+				}
+					
+			}
+			
+			if (taxon != null)
+				taxon.setParent((Taxon)session.get(Taxon.class, entry.getValue()));
+			if (taxon.getParent() != null) {
+				session.update(taxon);
+				commitAndStartTransaction();
+			}
+			else
+				printf("No parent found for taxon %s at level %s with parent id %s", taxon.getId(), taxon.getTaxonLevel(), entry.getValue());
+			
+			if (taxaConverted.incrementAndGet() % 100 == 0) {
+				printf("Updated %s taxa...", taxaConverted.get());
+			}
+		}
+	}
+
+	protected void runOutOfMemory() throws Exception {
 		userIO = new UserIO(session);
 		isoLanguageIO = new IsoLanguageIO(session);
 		infratypeIO = new InfratypeIO(session);
@@ -215,6 +381,9 @@ public class TaxonConverter extends GenericConverter<String> {
 
 		// ADD COMMON NAMES
 		for (CommonNameData commonNameData : taxon.getCommonNames()) {
+			if (commonNameData.getName().length() > 2000)
+				continue;
+			
 			CommonName commonName = new CommonName();
 			commonName.setChangeReason(commonNameData.getChangeReason());
 			commonName.setName(commonNameData.getName());			
