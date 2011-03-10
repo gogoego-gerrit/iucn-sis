@@ -1,13 +1,10 @@
 package org.iucn.sis.client.panels.assessments;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.client.api.caches.ChangesFieldWidgetCache;
+import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -79,56 +76,73 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 	}
 	
 	@Override
-	public void draw(DoneDrawingCallback callback) {
-		final ContentPanel oldFieldPanel = new ContentPanel();
-		oldFieldPanel.setHeading("Old Version");
-		oldFieldPanel.setCollapsible(true);
-		oldFieldPanel.add(oldField);
-		
-		final ContentPanel newFieldPanel = new ContentPanel();
-		newFieldPanel.setHeading("New Version");
-		newFieldPanel.setCollapsible(true);
-		newFieldPanel.add(newField);
-		
-		final LayoutContainer center = new LayoutContainer(new BorderLayout());
-		center.add(oldFieldPanel, new BorderLayoutData(LayoutRegion.NORTH, 300));
-		center.add(newFieldPanel, new BorderLayoutData(LayoutRegion.CENTER, 300));
-		
-		final LayoutContainer container = new LayoutContainer(new BorderLayout());
-		container.add(drawLeft(), new BorderLayoutData(LayoutRegion.WEST, 200, 200, 200));
-		container.add(center, new BorderLayoutData(LayoutRegion.CENTER));
-		
-		add(container);
-		
-		callback.isDrawn();
+	public void draw(final DoneDrawingCallback callback) {
+		drawLeft(new DoneDrawingCallbackWithParam<LayoutContainer>() {
+			public void isDrawn(LayoutContainer parameter) {
+				final ContentPanel oldFieldPanel = new ContentPanel();
+				oldFieldPanel.setHeading("Old Version");
+				oldFieldPanel.add(oldField);
+				
+				final ContentPanel newFieldPanel = new ContentPanel();
+				newFieldPanel.setHeading("New Version");
+				newFieldPanel.add(newField);
+				
+				final BorderLayoutData oldFieldLD = new BorderLayoutData(LayoutRegion.NORTH, 300);
+				oldFieldLD.setCollapsible(true);
+				oldFieldLD.setFloatable(true);
+				
+				final BorderLayoutData newFieldLD = new BorderLayoutData(LayoutRegion.CENTER, 300);
+				newFieldLD.setCollapsible(true);
+				newFieldLD.setFloatable(true);
+				
+				final LayoutContainer center = new LayoutContainer(new BorderLayout());
+				center.add(oldFieldPanel, oldFieldLD);
+				center.add(newFieldPanel, newFieldLD);
+				
+				final LayoutContainer container = new LayoutContainer(new BorderLayout());
+				container.add(parameter, new BorderLayoutData(LayoutRegion.WEST, 200, 200, 200));
+				container.add(center, new BorderLayoutData(LayoutRegion.CENTER));
+				
+				add(container);
+				
+				callback.isDrawn();
+			}
+		});
 	}
 
 	/*
 	 * TODO: maybe pull this live from the server
 	 * via /changes/assessments/{id}
 	 */
-	private LayoutContainer drawLeft() {
-		List<Edit> edits = new ArrayList<Edit>(assessment.getEdit());
-		Collections.sort(edits, new Comparator<Edit>() {
-			public int compare(Edit o1, Edit o2) {
-				return o2.getCreatedDate().compareTo(o1.getCreatedDate());
+	private void drawLeft(final DrawsLazily.DoneDrawingCallbackWithParam<LayoutContainer> callback) {
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.get(UriBase.getInstance().getSISBase() + "/changes/assessments/" + assessment.getId(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				final LayoutContainer container = new LayoutContainer();
+				container.setScrollMode(Scroll.AUTOY);
+				
+				final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName(Edit.ROOT_TAG);
+				for (int i = 0; i < nodes.getLength(); i++) {
+					final Edit edit = Edit.fromXML(nodes.elementAt(i)); 
+				
+					//TODO: something prettier
+					final LayoutContainer info = new LayoutContainer();
+					info.add(new Html(edit.getUser().getDisplayableName()));
+					info.add(new Html(FormattedDate.FULL.getDate(edit.getCreatedDate())));
+					info.add(new Button("View", new SelectionListener<ButtonEvent>() {
+						public void componentSelected(ButtonEvent ce) {
+							view(edit);
+						}
+					}));
+					container.add(info);
+				}
+				
+				callback.isDrawn(container);
+			}
+			public void onFailure(Throwable caught) {
+				WindowUtils.errorAlert("Failed to load change history, please try again later.");
 			}
 		});
-		final LayoutContainer container = new LayoutContainer();
-		container.setScrollMode(Scroll.AUTOY);
-		for (final Edit edit : edits) {
-			final LayoutContainer info = new LayoutContainer();
-			info.add(new Html(edit.getUser().getDisplayableName()));
-			info.add(new Html(FormattedDate.FULL.getDate(edit.getCreatedDate())));
-			info.add(new Button("View", new SelectionListener<ButtonEvent>() {
-				public void componentSelected(ButtonEvent ce) {
-					view(edit);
-				}
-			}));
-			container.add(info);
-		}
-		
-		return container;
 	}
 	
 	private void view(Edit edit) {

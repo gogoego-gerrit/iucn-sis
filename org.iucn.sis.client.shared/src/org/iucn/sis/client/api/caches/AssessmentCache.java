@@ -11,58 +11,49 @@ import java.util.Set;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
-import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
-import org.iucn.sis.shared.api.models.fields.RegionField;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.Html;
-import com.google.gwt.core.client.GWT;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.util.extjs.client.WindowUtils;
 
 public class AssessmentCache {
+	
+	public enum FetchMode {
+		FULL, PARTIAL
+	}
 
 	public static final AssessmentCache impl = new AssessmentCache();
 
-	private Map<Integer, Assessment> cache;
-	private Map<Integer, List<Assessment>> taxonToAssessmentCache;
-	private Map<Integer, Boolean> taxaFetched;
+	private Map<Integer, AssessmentCacheEntry> cache;
+	private Map<Integer, List<AssessmentCacheEntry>> taxonToAssessmentCache;
 	
 	private AssessmentCache() {
-		cache = new HashMap<Integer, Assessment>();
-		taxaFetched = new HashMap<Integer, Boolean>();
-		taxonToAssessmentCache = new HashMap<Integer, List<Assessment>>();
+		cache = new HashMap<Integer, AssessmentCacheEntry>();
+		taxonToAssessmentCache = new HashMap<Integer, List<AssessmentCacheEntry>>();
 	}
 
-	public void addAssessment(Assessment assessment) {
-		Assessment old = cache.put(Integer.valueOf(assessment.getId()), assessment);
+	public void addAssessment(Assessment assessment, FetchMode mode) {
+		AssessmentCacheEntry entry = new AssessmentCacheEntry(assessment, mode);
+		AssessmentCacheEntry old = cache.put(assessment.getId(), entry);
 		
-		if( !taxonToAssessmentCache.containsKey(Integer.valueOf(assessment.getSpeciesID()) ) )
-			taxonToAssessmentCache.put(Integer.valueOf(assessment.getSpeciesID()), new ArrayList<Assessment>());
-		else if( old != null )
-			taxonToAssessmentCache.remove(old);
-			
-		taxonToAssessmentCache.get(Integer.valueOf(assessment.getSpeciesID())).add(assessment);
+		if (taxonToAssessmentCache.containsKey(assessment.getSpeciesID())) {
+			List<AssessmentCacheEntry> list = taxonToAssessmentCache.get(assessment.getSpeciesID());
+			if (old != null)
+				list.remove(old);
+			list.add(entry);
+		}
 	}
 	
 	public void clear() {
 		cache.clear();
 		taxonToAssessmentCache.clear();
-		taxaFetched.clear();
 	}
 	
 	public boolean contains(Integer id) {
@@ -71,97 +62,6 @@ public class AssessmentCache {
 	
 	public boolean contains(int id) {
 		return contains(Integer.valueOf(id));
-	}
-	
-	public void createGlobalDraftAssessments(List<Integer> taxaIDs, boolean useTemplate,
-			AssessmentFilter filter, final GenericCallback<String> wayback) {
-		if( taxaIDs.size() == 0 )
-			wayback.onSuccess("0");
-		else {
-			StringBuilder ret = new StringBuilder("<create>");
-			ret.append(filter.toXML());
-			ret.append("<useTemplate>" + useTemplate + "</useTemplate>");
-			for( Integer curID : taxaIDs ) {
-				ret.append("<taxon>");
-				ret.append(curID);
-				ret.append("</taxon>");
-			}
-			ret.append("</create>");
-
-			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-			ndoc.postAsText(UriBase.getInstance().getSISBase() +"/assessments?action=batch", ret.toString(), new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					AssessmentCache.impl.clear();
-					
-					String message = ndoc.getText();
-					com.extjs.gxt.ui.client.widget.Window w = WindowUtils.getWindow(true, false, "Batch Create Results");
-					w.setScrollMode(Scroll.AUTOY);
-					w.add(new Html(message));
-					w.setClosable(true);
-					w.show();
-					w.setSize(400, 500);
-				}
-				public void onFailure(Throwable caught) {
-
-				}
-			});	
-		}
-	}
-	
-	/**
-	 * Creates a new assessment.
-	 * 
-	 * @param taxon - the Taxon that is being assessed
-	 * @param type - the assessment type, see AssessmentType
-	 * @param template - an assessment to be used as a template, or null to create from scratch
-	 * @param region - the Locality specification for this new assessment
-	 * @param endemic TODO
-	 * @param wayback - a GenericCallback
-	 */
-	public void createNewAssessment(final Taxon taxon, final String type, final String schema, Assessment template, 
-			List<Integer> regions, boolean endemic, final GenericCallback<String> wayback) {
-		Assessment newAssessment = null;
-		
-		if (template != null)
-			newAssessment = template.deepCopy(new AssessmentCopyFilter());
-		else
-			newAssessment = new Assessment();
-		
-		newAssessment.setTaxon(taxon);
-		newAssessment.setType(type);
-		newAssessment.setSchema(schema);
-		
-		Field regionField = new Field(CanonicalNames.RegionInformation, newAssessment);
-		
-		RegionField proxy = new RegionField(regionField);
-		proxy.setRegions(regions);
-		proxy.setEndemic(endemic);
-		
-		newAssessment.setField(regionField);
-		
-		if (taxaFetched.containsKey(Integer.valueOf(taxon.getId())))
-			taxaFetched.remove(Integer.valueOf(taxon.getId()));
-		
-		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/assessments", newAssessment.toXML(), new GenericCallback<String>() {
-			public void onSuccess(String result) {
-				final String newID = ndoc.getText();
-				fetchAssessments(new AssessmentFetchRequest(Integer.valueOf(newID)), new GenericCallback<String>() {
-					public void onSuccess(String result) {
-						//AssessmentCache.impl.getAssessment(Integer.valueOf(newID), true);
-						StateManager.impl.setAssessment(impl.getAssessment(Integer.valueOf(newID)));
-					};
-					public void onFailure(Throwable caught) {
-						wayback.onFailure(caught);
-					};
-				});
-				
-				wayback.onSuccess(ndoc.getText());
-			}
-			public void onFailure(Throwable caught) {
-				wayback.onFailure(caught);
-			}
-		});
 	}
 	
 	public void doLogout() {
@@ -176,42 +76,93 @@ public class AssessmentCache {
 		}
 	}
 
-	public Assessment remove(int id) {
-		return cache.remove(Integer.valueOf(id));
+	public Assessment remove(Integer id) {
+		AssessmentCacheEntry entry = cache.remove(Integer.valueOf(id));
+		return entry == null ? null : entry.assessment;
 	}
 	
 	public Assessment remove(String id) {
-		return cache.remove(Integer.valueOf(id));
+		return remove(Integer.valueOf(id));
 	}
 	
-	public Assessment remove(Integer id) {
-		return cache.remove(id);
+	public boolean isCached(Integer id, FetchMode mode) {
+		AssessmentCacheEntry cached = cache.get(id);
+		return cached != null && (FetchMode.PARTIAL.equals(mode) || FetchMode.FULL.equals(cached.mode));
 	}
 	
+	public void fetchAssessment(final Integer id, FetchMode mode, final GenericCallback<Assessment> callback) {
+		if (isCached(id, mode))
+			callback.onSuccess(getAssessment(id));
+		else {
+			AssessmentFetchRequest req = new AssessmentFetchRequest();
+			req.addAssessment(id);
+			
+			fetchAssessments(req, mode, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					callback.onSuccess(getAssessment(id));
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		}
+	}
+	
+	public void fetchAssessments(final Collection<Integer> ids, FetchMode mode, final GenericCallback<Collection<Assessment>> callback) {
+		AssessmentFetchRequest req = new AssessmentFetchRequest();
+		for (Integer id : ids)
+			if (!isCached(id, mode))
+				req.addAssessment(id);
+		
+		fetchAssessments(req, mode, new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				List<Assessment> list = new ArrayList<Assessment>();
+				for (Integer id : ids)
+					list.add(getAssessment(id));
+				callback.onSuccess(list);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	public void fetchPartialAssessmentsForTaxon(final Integer taxonID, final GenericCallback<String> callback) {
+		List<AssessmentCacheEntry> list = taxonToAssessmentCache.get(taxonID);
+		if (list != null) {
+			callback.onSuccess("OK");
+		}
+		else {
+			AssessmentFetchRequest req = new AssessmentFetchRequest();
+			req.addForTaxon(taxonID);
+			
+			taxonToAssessmentCache.put(taxonID, new ArrayList<AssessmentCacheEntry>());
+			fetchAssessments(req, FetchMode.PARTIAL, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					if (taxonToAssessmentCache.get(taxonID) == null || taxonToAssessmentCache.get(taxonID).isEmpty())
+						taxonToAssessmentCache.remove(taxonID);
+					callback.onSuccess(result);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		}
+	}
+	
+	/**
+	 * @deprecated use another fetch call!
+	 */
 	public void fetchAssessments(AssessmentFetchRequest request, final GenericCallback<String> callback) {
-		List<Integer> uidsToRemove = new ArrayList<Integer>();
-		List<Integer> taxonIDsToRemove = new ArrayList<Integer>();
-		
-		for( Integer curTaxon : request.getTaxonIDs() ) {
-			if( taxaFetched.containsKey(curTaxon) )
-				taxonIDsToRemove.add(curTaxon);
-			else
-				taxaFetched.put(curTaxon, Boolean.valueOf(true));
-		}
-		
-		for( Integer uid : request.getAssessmentUIDs() ) {
-			if( AssessmentCache.impl.getAssessment(uid) != null )
-				uidsToRemove.add(uid);
-		}
-		
-		request.getTaxonIDs().removeAll(taxonIDsToRemove);
-		request.getAssessmentUIDs().removeAll(uidsToRemove);
-		
-		if( request.getTaxonIDs().size() == 0 && request.getAssessmentUIDs().size() == 0 )
+		fetchAssessments(request, FetchMode.FULL, callback);
+	}
+	
+	private void fetchAssessments(AssessmentFetchRequest request, final FetchMode mode, final GenericCallback<String> callback) {
+		if (request.getTaxonIDs().size() == 0 && request.getAssessmentUIDs().size() == 0)
 			callback.onSuccess("OK");
 		else {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-			ndoc.post(UriBase.getInstance().getSISBase() + "/assessments?action=fetch", request.toXML(), new GenericCallback<String>() {
+			ndoc.post(UriBase.getInstance().getSISBase() + "/assessments?action=fetch&mode=" + mode.name(), request.toXML(), new GenericCallback<String>() {
 				public void onSuccess(String result) {
 					NativeNodeList asses = ndoc.getDocumentElement().getElementsByTagName(Assessment.ROOT_TAG);
 					for (int i = 0; i < asses.getLength(); i++) {
@@ -222,17 +173,13 @@ public class AssessmentCache {
 							if (t != null)
 								current.setTaxon(t);
 
-							addAssessment(current);
-							taxaFetched.put(Integer.valueOf(current.getSpeciesID()), Boolean.TRUE);
-							
+							addAssessment(current, mode);
 						} catch (Throwable e) {
 							Debug.println("Error caching assessment: {0}", e);
 						}
 					}
-					
 					callback.onSuccess(ndoc.getStatusText());
 				}
-
 				public void onFailure(Throwable caught) {
 					callback.onFailure(caught);
 				}
@@ -245,7 +192,8 @@ public class AssessmentCache {
 	}
 	
 	public Assessment getAssessment(Integer id) {
-		return cache.get(id);
+		AssessmentCacheEntry cached = cache.get(id);
+		return cached == null ? null : cached.assessment;
 	}
 	
 	public Assessment getUserAssessment(int id) {
@@ -283,7 +231,8 @@ public class AssessmentCache {
 	public Set<Assessment> getAssessmentsForTaxon(Integer taxonID, int assessmentType, String schema) {
 		if ( taxonToAssessmentCache.containsKey(taxonID)) {
 			Set<Assessment> assessments = new HashSet<Assessment>();
-			for (Assessment cur : taxonToAssessmentCache.get(taxonID)) {
+			for (AssessmentCacheEntry current : taxonToAssessmentCache.get(taxonID)) {
+				Assessment cur = current.assessment;
 				String curSchema = cur.getSchema(SchemaCache.impl.getDefaultSchema());
 				if ((schema == null || schema.equals(curSchema)) && 
 						cur.getAssessmentType().getId() == assessmentType)
@@ -338,7 +287,7 @@ public class AssessmentCache {
 			});
 		} else
 			doSetCurrentAssessment(null, null);
-	}*/
+	}
 	
 	private void doSetCurrentAssessment(final Taxon parent, final Assessment assessment) {
 		if( assessment != null && assessment.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE) && 
@@ -354,7 +303,7 @@ public class AssessmentCache {
 				} catch (Throwable e) {
 					GWT.log("Failed to update recent assessments", e);
 				}
-				/*StatusCache.impl.checkStatus(assessment, true, new GenericCallback<Integer>() {
+				StatusCache.impl.checkStatus(assessment, true, new GenericCallback<Integer>() {
 					public void onFailure(Throwable caught) {
 						// Nothing to do, really.
 					}
@@ -362,13 +311,13 @@ public class AssessmentCache {
 					public void onSuccess(Integer result) {
 						// Nothing to do, really.
 					}
-				});*/
+				});
 			}
 		}
 
 		FieldWidgetCache.impl.resetWidgetContents();
 		SISClientBase.getInstance().onAssessmentChanged();
-	}
+	}*/
 
 	public void updateRecentAssessments() {
 		RecentlyAccessedCache.impl.add(RecentlyAccessed.ASSESSMENT, 
@@ -376,60 +325,14 @@ public class AssessmentCache {
 		);
 	}
 	
-	private static class AssessmentCopyFilter implements Assessment.DeepCopyFilter {
+	private static class AssessmentCacheEntry {
+		private Assessment assessment;
+		private FetchMode mode;
 		
-		private final List<String> excluded;
-		
-		public AssessmentCopyFilter() {
-			excluded = new ArrayList<String>();
-			excluded.add("RedListAssessmentDate");
-			excluded.add("RedListEvaluators");
-			excluded.add("RedListAssessmentAuthors");
-			excluded.add("RedListReasonsForChange");
-			excluded.add("RedListPetition");
-			excluded.add("RedListEvaluated");
-			excluded.add("RedListConsistencyCheck");
+		public AssessmentCacheEntry(Assessment assessment, FetchMode mode) {
+			this.assessment = assessment;
+			this.mode = mode;
 		}
-		
-		@Override
-		public Field copy(Assessment assessment, Field field) {
-			if (excluded.contains(field.getName())) {
-				/*
-				 * First, exclude certain fields.
-				 */
-				return null;
-			}
-			else if (CanonicalNames.RedListCriteria.equals(field.getName())) {
-				RedListCriteriaField proxy = new RedListCriteriaField(field);
-				Integer version = proxy.getCriteriaVersion();
-				if (0 == version.intValue()) {
-					/*
-					 * Will be 0 if there is no data or if 
-					 * the most current version is selected. 
-					 * Either way, we want to remove the data.
-					 */
-					return null;
-				}
-				else {
-					/*
-					 * Return the field, but remove the history text.
-					 */
-					Field copy = field.deepCopy(false, true);
-					PrimitiveField<?> historyText = 
-						copy.getPrimitiveField(RedListCriteriaField.RLHISTORY_TEXT_KEY);
-					if (historyText != null)
-						copy.getPrimitiveField().remove(historyText);
-					
-					return copy;
-				}
-			}
-			else {
-				/*
-				 * Else, return a copy of the field
-				 */
-				return field.deepCopy(false, true);
-			}
-		}
-		
 	}
+	
 }

@@ -13,6 +13,7 @@ import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Relationship;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.utils.AssessmentUtils;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -171,7 +172,7 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 			speciesID = WorkingSetCache.impl.getCurrentWorkingSet().getSpeciesIDs();
 		}
 		
-		AssessmentCache.impl.createGlobalDraftAssessments(speciesID, useTemplate, filter, new GenericCallback<String>() {
+		AssessmentUtils.createGlobalDraftAssessments(speciesID, useTemplate, filter, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("There was an error while creating the draft assessments <br/>: " + caught.getMessage());
 				add.enable();

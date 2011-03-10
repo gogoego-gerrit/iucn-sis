@@ -3,9 +3,9 @@ package org.iucn.sis.client.api.caches;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
 
 import com.extjs.gxt.ui.client.event.Listener;
@@ -161,7 +161,7 @@ public class StatusCache {
 			final GenericCallback<Integer> callback) {
 		if (ndoc != null) {
 			Assessment updatedAssessment = Assessment.fromXML(ndoc.getDocumentElement().getElementByTagName("assessment"));
-			AssessmentCache.impl.addAssessment(updatedAssessment);
+			AssessmentCache.impl.addAssessment(updatedAssessment, FetchMode.FULL);
 			//AssessmentCache.impl.setCurrentAssessment(updatedAssessment);
 
 			Info.display("Updated", "Changes to this assessment were found on the server, "
@@ -173,16 +173,15 @@ public class StatusCache {
 			SISClientBase.getInstance().onAssessmentChanged();
 			callback.onSuccess(UNLOCKED);
 		} else {
-			AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(assessment.getId()), 
-					new GenericCallback<String>() {
-						public void onFailure(Throwable caught) {
-							callback.onFailure(caught);
-						}
-
-						public void onSuccess(String result) {
-							callback.onSuccess(UNLOCKED);
-						}
-					});
+			AssessmentCache.impl.fetchAssessment(assessment.getId(), FetchMode.FULL, 
+					new GenericCallback<Assessment>() {
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+				public void onSuccess(Assessment result) {
+					callback.onSuccess(UNLOCKED);
+				}
+			});
 		}
 	}
 

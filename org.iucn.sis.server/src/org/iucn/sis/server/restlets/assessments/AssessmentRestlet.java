@@ -1,5 +1,6 @@
 package org.iucn.sis.server.restlets.assessments;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -20,11 +21,13 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
+import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -57,7 +60,8 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		if (action == null) {
 			postAssessment(entity, request, response, getUser(request, session), session);
 		} else if (action.equalsIgnoreCase("fetch")) {
-			getAssessments(entity, request, response, getIdentifier(request), (String)request.getAttributes().get("type"), session);
+			String mode = request.getResourceRef().getQueryAsForm().getFirstValue("mode", "FULL");
+			getAssessments(entity, request, response, getIdentifier(request), (String)request.getAttributes().get("type"), mode, session);
 		} else if (action.equalsIgnoreCase("batch")) {
 			batchCreate(entity, request, response, getUser(request, session), session);
 		}
@@ -116,10 +120,10 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 	 * @return
 	 */
 	
-	private void getAssessments(Representation entity, Request request, Response response, String user, String type, Session session) throws ResourceException {
+	private void getAssessments(Representation entity, Request request, Response response, String user, String type, String mode, Session session) throws ResourceException {
 		NativeDocument ndoc = getEntityAsNativeDocument(entity);
 		AssessmentFetchRequest afq = AssessmentFetchRequest.fromXML(ndoc.getDocumentElement());
-		StringBuilder ret = new StringBuilder("<assessments>");
+		
 		Set<Assessment> fetched = new HashSet<Assessment>();
 		
 		final AssessmentIO assessmentIO = new AssessmentIO(session);
@@ -127,8 +131,9 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		for (Integer id : afq.getAssessmentUIDs()) {
 			Assessment assessment = assessmentIO.getAssessment(id);
 			if (assessment != null) {
-				fetched.addAll(assessmentIO.readAssessmentsForTaxon(
-						assessment.getSpeciesID()));
+				fetched.add(assessment);
+				/*fetched.addAll(assessmentIO.readAssessmentsForTaxon(
+						assessment.getSpeciesID()));*/
 			}
 		}
 
@@ -141,14 +146,42 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				fetched.addAll(assessmentIO.readPublishedAssessmentsForTaxon(taxonID));
 			}
 		}
-
+		
+		StringBuilder ret = new StringBuilder("<assessments>");
 		for (Assessment asm : fetched) {
-			ret.append(assessmentIO.getAssessmentXML(asm.getId()));
+			filterFields(asm, mode);
+			ret.append(asm.toXML());
+			//ret.append(assessmentIO.getAssessmentXML(asm.getId()));
 		}
 		ret.append("</assessments>");
 
 		response.setStatus(Status.SUCCESS_OK);
 		response.setEntity(ret.toString(), MediaType.TEXT_XML);
+	}
+	
+	private void filterFields(Assessment assessment, String mode) {
+		Edit lastEdit = assessment.getLastEdit();
+		if (lastEdit != null) {
+			HashSet<Edit> editSet = new HashSet<Edit>();
+			editSet.add(lastEdit);
+			assessment.setEdit(editSet);
+		}
+		
+		if ("PARTIAL".equalsIgnoreCase(mode)) {
+			List<String> allowed = new ArrayList<String>();
+			allowed.add(CanonicalNames.RedListAssessmentDate);
+			allowed.add(CanonicalNames.RedListCriteria);
+			allowed.add(CanonicalNames.RegionInformation);
+			
+			Set<Field> fields = new HashSet<Field>();
+			for (String name : new String[] {CanonicalNames.RedListAssessmentDate, CanonicalNames.RedListCriteria, CanonicalNames.RegionInformation}) {
+				Field field = assessment.getField(name);
+				if (field != null)
+					fields.add(field);
+			}
+			
+			assessment.setField(fields);
+		}
 	}
 
 	private void postAssessment(Representation entity, Request request, Response response, User username, final Session session) throws ResourceException {

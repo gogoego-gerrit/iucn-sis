@@ -15,7 +15,6 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -161,11 +160,11 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		if (curNavTaxon == null)
 			callback.onSuccess(store);
 		else if (curNavWorkingSet == null) {
-			AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, curNavTaxon.getId()), new GenericCallback<String>() {
+			AssessmentCache.impl.fetchPartialAssessmentsForTaxon(curNavTaxon.getId(), new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					callback.onSuccess(store);
 				}
-				public void onSuccess(String result) {
+				public void onSuccess(String all) {
 					final List<Assessment> drafts = 
 						new ArrayList<Assessment>(AssessmentCache.impl.getDraftAssessmentsForTaxon(curNavTaxon.getId()));
 					Collections.sort(drafts, new AssessmentGroupedComparator());

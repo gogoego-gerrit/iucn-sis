@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -343,11 +344,11 @@ public class WorkingSetCache {
 				if (assessments.isEmpty())
 					callback.onSuccess(new ArrayList<Assessment>());
 				else
-					AssessmentCache.impl.fetchAssessments(request, new GenericCallback<String>() {
-						public void onSuccess(String result) {
-							List<Assessment> list = new ArrayList<Assessment>();
-							for (Integer id : assessments)
-								list.add(AssessmentCache.impl.getAssessment(id));
+					AssessmentCache.impl.fetchAssessments(assessments, FetchMode.PARTIAL, new GenericCallback<Collection<Assessment>>() {
+						public void onSuccess(Collection<Assessment> result) {
+							List<Assessment> list = new ArrayList<Assessment>(result);
+							/*for (Integer id : assessments)
+								list.add(AssessmentCache.impl.getAssessment(id));*/
 							
 							callback.onSuccess(list);
 						}

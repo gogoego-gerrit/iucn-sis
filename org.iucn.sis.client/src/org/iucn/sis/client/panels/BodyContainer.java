@@ -7,6 +7,7 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.dem.DEMPanel;
 import org.iucn.sis.client.panels.references.ReferenceViewTabPanel;
@@ -16,7 +17,6 @@ import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.client.tabs.HomePageTab;
 import org.iucn.sis.client.tabs.TaxonHomePageTab;
 import org.iucn.sis.client.tabs.WorkingSetPage;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -120,33 +120,39 @@ public class BodyContainer extends LayoutContainer {
 		FieldWidgetCache.impl.resetWidgetContents();
 		
 		if (StateManager.impl.getWorkingSet() == null) {
-			AssessmentFetchRequest request = new AssessmentFetchRequest(null, StateManager.impl.getTaxon().getId());
-			AssessmentCache.impl.fetchAssessments(request, new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					List<Integer> assessments = new ArrayList<Integer>();
-					for (Assessment assessment : AssessmentCache.impl.getDraftAssessmentsForTaxon(StateManager.impl.getTaxon().getId()))
-						assessments.add(assessment.getId());
-					for (Assessment assessment : AssessmentCache.impl.getPublishedAssessmentsForTaxon(StateManager.impl.getTaxon().getId()))
-						assessments.add(assessment.getId());
-					
-					assessmentPage.setUrl(url);
-					assessmentPage.setItems(assessments);
-					assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
-					
-					assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
-						public void isDrawn() {
-							removeAll();
-							add(assessmentPage);
-							
-							current = assessmentPage;
-							
-							if (updateNavigation)
-								updateNavigation();
-						}
-					});
-				}			
+			AssessmentCache.impl.fetchPartialAssessmentsForTaxon(StateManager.impl.getTaxon().getId(), new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils.errorAlert("Could not load assessment.");
+				}
+				public void onSuccess(String result) {
+					AssessmentCache.impl.fetchAssessment(StateManager.impl.getAssessment().getId(), FetchMode.FULL, new GenericCallback<Assessment>() {
+						public void onSuccess(Assessment result) {
+							List<Integer> assessments = new ArrayList<Integer>();
+							for (Assessment assessment : AssessmentCache.impl.getDraftAssessmentsForTaxon(StateManager.impl.getTaxon().getId()))
+								assessments.add(assessment.getId());
+							for (Assessment assessment : AssessmentCache.impl.getPublishedAssessmentsForTaxon(StateManager.impl.getTaxon().getId()))
+								assessments.add(assessment.getId());
+							
+							assessmentPage.setUrl(url);
+							assessmentPage.setItems(assessments);
+							assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
+							
+							assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
+								public void isDrawn() {
+									removeAll();
+									add(assessmentPage);
+									
+									current = assessmentPage;
+									
+									if (updateNavigation)
+										updateNavigation();
+								}
+							});
+						}			
+						public void onFailure(Throwable caught) {
+							WindowUtils.errorAlert("Could not load assessment.");
+						}
+					});
 				}
 			});
 		}
@@ -154,20 +160,27 @@ public class BodyContainer extends LayoutContainer {
 			WorkingSetCache.impl.listAssessmentsForWorkingSet(
 					StateManager.impl.getWorkingSet(), null, 
 					new GenericCallback<List<Integer>>() {
-				public void onSuccess(List<Integer> result) {
-					assessmentPage.setUrl(url);
-					assessmentPage.setItems(result);
-					assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
-					
-					assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
-						public void isDrawn() {
-							removeAll();
-							add(assessmentPage);
+				public void onSuccess(final List<Integer> result) {
+					AssessmentCache.impl.fetchAssessment(StateManager.impl.getAssessment().getId(), FetchMode.FULL, new GenericCallback<Assessment>() {
+						public void onFailure(Throwable caught) {
+							WindowUtils.errorAlert("Could not load this assessment, please try again later.");
+						}
+						public void onSuccess(Assessment assessment) {
+							assessmentPage.setUrl(url);
+							assessmentPage.setItems(result);
+							assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
 							
-							current = assessmentPage;
-							
-							if (updateNavigation)
-								updateNavigation();
+							assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
+								public void isDrawn() {
+									removeAll();
+									add(assessmentPage);
+									
+									current = assessmentPage;
+									
+									if (updateNavigation)
+										updateNavigation();
+								}
+							});
 						}
 					});
 				}

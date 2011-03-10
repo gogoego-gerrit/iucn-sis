@@ -10,6 +10,7 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
+import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.views.SISPageHolder;
 import org.iucn.sis.client.api.ui.views.SISView;
@@ -23,7 +24,6 @@ import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Region;
@@ -210,9 +210,8 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 	protected void updateSelection(final Integer selection) {
 		AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
 			public void handleEvent() {
-				AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(selection, null), new GenericCallback<String>() {
-					public void onSuccess(String result) {
-						final Assessment assessment = AssessmentCache.impl.getAssessment(selection);
+				AssessmentCache.impl.fetchAssessment(selection, FetchMode.FULL, new GenericCallback<Assessment>() {
+					public void onSuccess(final Assessment assessment) {
 						TaxonomyCache.impl.fetchTaxon(assessment.getTaxon().getId(), new GenericCallback<Taxon>() {
 							public void onFailure(Throwable caught) {
 								WindowUtils.errorAlert("Failed to load the taxon for this assessment.");

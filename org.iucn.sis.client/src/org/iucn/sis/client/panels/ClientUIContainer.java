@@ -3,12 +3,13 @@ package org.iucn.sis.client.panels;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.StateChangeEvent;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.StateManager.StateChangeEventType;
 import org.iucn.sis.client.panels.login.LoginPanel;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
@@ -160,16 +161,23 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 			TaxonomyCache.impl.fetchTaxon(taxonID, new GenericCallback<Taxon>() {
 				public void onSuccess(final Taxon result) {
 					if (assessmentID != null) {
-						AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(assessmentID, taxonID), new GenericCallback<String>() {
-							public void onSuccess(String whoCares) {
-								try {
-									StateManager.impl.setState(ws, result, AssessmentCache.impl.getAssessment(assessmentID));
-								} catch (Throwable e) {
-									Debug.println(e);
-								}
+						AssessmentCache.impl.fetchPartialAssessmentsForTaxon(taxonID, new GenericCallback<String>() {
+							public void onSuccess(String list) {
+								AssessmentCache.impl.fetchAssessment(assessmentID, FetchMode.FULL, new GenericCallback<Assessment>() {
+									public void onSuccess(Assessment assessment) {
+										try {
+											StateManager.impl.setState(ws, result, assessment);
+										} catch (Throwable e) {
+											Debug.println(e);
+										}
+									}
+									public void onFailure(Throwable caught) {
+										failAndBail("Could not load assessment " + assessmentID);
+									}
+								});
 							}
 							public void onFailure(Throwable caught) {
-								failAndBail("Could not load assessment " + assessmentID);
+								failAndBail("Could not load assessments for taxon " + taxonID);
 							}
 						});
 					}

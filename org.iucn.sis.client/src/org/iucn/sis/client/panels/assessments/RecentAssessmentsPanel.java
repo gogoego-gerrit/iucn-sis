@@ -5,6 +5,7 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
@@ -125,13 +126,11 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 
 	public void setAsCurrentAssessment(final Integer id, final String status) {
 		WindowUtils.showLoadingAlert("Loading...");
-		AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(id), new GenericCallback<String>() {
+		AssessmentCache.impl.fetchAssessment(id, FetchMode.FULL, new GenericCallback<Assessment>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.hideLoadingAlert();
 			}
-
-			public void onSuccess(String arg0) {
-				final Assessment assessment = AssessmentCache.impl.getAssessment(id);
+			public void onSuccess(final Assessment assessment) {
 				TaxonomyCache.impl.fetchTaxon(assessment.getSpeciesID(), new GenericCallback<Taxon>() {
 					@Override
 					public void onFailure(Throwable caught) {

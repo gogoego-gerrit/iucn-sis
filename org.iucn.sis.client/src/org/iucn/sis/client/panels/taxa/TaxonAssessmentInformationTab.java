@@ -54,12 +54,19 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 	}
 	
 	@Override
-	public void draw(DoneDrawingCallback callback) {
-		removeAll();
-		
-		add(getAssessmentsPanel(TaxonomyCache.impl.getCurrentTaxon()));
-		
-		callback.isDrawn();
+	public void draw(final DoneDrawingCallback callback) {
+		AssessmentCache.impl.fetchPartialAssessmentsForTaxon(TaxonomyCache.impl.getCurrentTaxon().getId(), new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				callback.isDrawn();
+			}
+			public void onSuccess(String result) {
+				removeAll();
+				
+				add(getAssessmentsPanel(TaxonomyCache.impl.getCurrentTaxon()));
+				
+				callback.isDrawn();
+			}
+		});
 	}
 	
 	private Component getAssessmentsPanel(final Taxon node) {

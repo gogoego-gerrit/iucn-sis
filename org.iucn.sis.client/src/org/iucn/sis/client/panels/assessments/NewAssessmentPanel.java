@@ -2,6 +2,7 @@ package org.iucn.sis.client.panels.assessments;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -12,20 +13,20 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.region.AddRegionPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
 import org.iucn.sis.shared.api.acl.feature.AuthorizablePublishedAssessment;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
+import org.iucn.sis.shared.api.utils.AssessmentUtils;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -348,15 +349,12 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 			final boolean endemicArg = isEndemic;
 			final List<Integer> localityArg = locality;
 			
-			AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(assessmentID), 
-					new GenericCallback<String>() {
+			AssessmentCache.impl.fetchAssessment(assessmentID, FetchMode.FULL, new GenericCallback<Assessment>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils.errorAlert("An error occurred fetching the template Assessment"
 							+ " you chose. Please report this error to an SIS Administrator.");
 				}
-
-				public void onSuccess(String result) {
-					Assessment data = AssessmentCache.impl.getAssessment(assessmentID);
+				public void onSuccess(Assessment data) {
 					doCreate(endemicArg, selSchema, data, localityArg);
 				}
 			});
@@ -365,7 +363,7 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 	}
 
 	private void doCreate(boolean isEndemic, String schema, Assessment theTemplate, List<Integer> locality) {
-		AssessmentCache.impl.createNewAssessment(node, type.getItemText(type.getSelectedIndex()), 
+		AssessmentUtils.createNewAssessment(node, type.getItemText(type.getSelectedIndex()), 
 				schema, theTemplate, locality, isEndemic, new GenericCallback<String>() {
 
 			public void onFailure(Throwable caught) {
@@ -406,15 +404,15 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 			setSize(550, 300);
 			setLayout(new FitLayout());
 			setButtonAlign(HorizontalAlignment.CENTER);
-			AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, node.getId()), new GenericCallback<String>() {
+			
+			AssessmentCache.impl.fetchPartialAssessmentsForTaxon(node.getId(), new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils
-							.errorAlert("Error fetching template assessments! Please "
-									+ "check your Internet connectivity if you are using SIS online, "
-									+ "or ensure your local server is still running if you are using "
-									+ "the offline version.");
+					.errorAlert("Error fetching template assessments! Please "
+							+ "check your Internet connectivity if you are using SIS online, "
+							+ "or ensure your local server is still running if you are using "
+							+ "the offline version.");
 				}
-
 				public void onSuccess(String result) {
 					SchemaCache.impl.list(new ComplexListener<List<AssessmentSchema>>() {
 						public void handleEvent(List<AssessmentSchema> eventData) {
