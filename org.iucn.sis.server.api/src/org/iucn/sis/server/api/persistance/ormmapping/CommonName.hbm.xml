@@ -10,7 +10,7 @@ License Type: Evaluation
 			<generator class="native">
 			</generator>
 		</id>
-		<property name="name" column="name" type="string" length="511" not-null="true" lazy="false"/>
+		<property name="name" column="name" type="string" length="2000" not-null="true" lazy="false"/>
 		<property name="principal" column="principal" type="boolean" length="1" not-null="true" lazy="false"/>
 		<property name="validated" column="validated" type="boolean" length="1" not-null="true" lazy="false"/>
 		<property name="changeReason" column="change_reason" type="integer" length="10" not-null="false" lazy="false"/>
