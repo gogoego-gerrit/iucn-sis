@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.NamingException;
 
+import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.TaxonIO;
@@ -25,6 +26,7 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
@@ -199,6 +201,24 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		}*/
 
 	}
+	
+	private Taxon getTaxon(AssessmentData assessData) {
+		Taxon taxon = taxonIO.getTaxon(Integer.valueOf(assessData.getSpeciesID()));
+		if (taxon != null && taxon.getFriendlyName().equalsIgnoreCase(assessData.getSpeciesName()))
+			return taxon;
+		else if (taxon != null)
+			printf("Found taxa %s by ID, but name %s doesn't match expected name %s", assessData.getSpeciesID(), taxon.getFriendlyName(), assessData.getSpeciesName());
+		
+		Taxon byName = (Taxon)session.createCriteria(Taxon.class).
+			add(Restrictions.eq("friendlyName", assessData.getSpeciesName()))
+			.uniqueResult();
+		if (byName == null)
+			printf("No taxon found matching %s", assessData.getSpeciesName());
+		else
+			return byName;
+		
+		return taxon;
+	}
 
 	public Assessment assessmentDataToAssessment(AssessmentData assessData) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
@@ -211,7 +231,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		assessment.setSourceDate(assessData.getSourceDate());
 		assessment.setType(assessData.getType());
 		assessment.setDateFinalized(assessData.getDateFinalized());
-		assessment.setTaxon(taxonIO.getTaxon(Integer.valueOf(assessData.getSpeciesID())));
+		assessment.setTaxon(getTaxon(assessData));
+		
 		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType())) {
 			String dateAssessed = assessData.getDateAssessed();
 			dateAssessed.replace('/', '-');
