@@ -15,6 +15,7 @@ import org.iucn.sis.server.api.io.InfratypeIO;
 import org.iucn.sis.server.api.io.IsoLanguageIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.UserIO;
+import org.iucn.sis.server.api.persistance.TaxonDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Edit;
@@ -25,6 +26,7 @@ import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.helpers.AssessmentParser;
 import org.iucn.sis.shared.helpers.CommonNameData;
 import org.iucn.sis.shared.helpers.ReferenceUI;
 import org.iucn.sis.shared.helpers.SynonymData;
@@ -34,6 +36,7 @@ import org.iucn.sis.shared.helpers.TaxonNodeFactory;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.vfs.VFS;
 
 public class TaxonConverter extends GenericConverter<String> {
 	
@@ -112,10 +115,116 @@ public class TaxonConverter extends GenericConverter<String> {
 		setClearSessionAfterTransaction(true);
 	}
 	
-	protected void run() throws Exception {
+	public void convertAllFaster() throws Exception {
 		/*
 		 * First, add 'em all, no relationships.
 		 */
+		userIO = new UserIO(session);
+		isoLanguageIO = new IsoLanguageIO(session);
+		infratypeIO = new InfratypeIO(session);
+		referenceIO = new ReferenceIO(session);
+		taxaConverted = new AtomicInteger(0);
+		
+		Map<Integer, Integer> childToParent = new HashMap<Integer, Integer>();
+		final User user = userIO.getUserFromUsername("admin");
+		final AtomicInteger converted = new AtomicInteger(0);
+		
+		File folder = new File(data + "/HEAD/browse/nodes");
+		
+		readFolder(childToParent, user, converted, folder);
+		
+		commitAndStartTransaction();
+		
+		taxaConverted.set(0);
+		
+		for (Map.Entry<Integer, Integer> entry : childToParent.entrySet()) {
+			if (entry.getValue().intValue() == 0)
+				continue;
+			
+			Taxon taxon = (Taxon)session.get(Taxon.class, entry.getKey());
+			
+			if (taxon.getLevel() == TaxonLevel.KINGDOM)
+				continue;
+			
+			Taxon parent = (Taxon)session.get(Taxon.class, entry.getValue());
+			if (parent == null)
+				continue;
+			
+			if (parent.getLevel() == TaxonLevel.KINGDOM) {
+				Integer trueParent = null;
+				if ("ANIMALIA".equals(parent.getName()))
+					trueParent = 100003;
+				else if ("FUNGI".equals(parent.getName()))
+					trueParent = 100001;
+				else if ("PLANTAE".equals(parent.getName()))
+					trueParent = 100002;
+				else if ("PROTISTA".equals(parent.getName()))
+					trueParent = 100004;
+			
+				if (trueParent != null) {
+					if (parent.getId() != trueParent.intValue())
+						parent = (Taxon)session.get(Taxon.class, trueParent);
+					/*TaxonDAO.deleteAndDissociate(taxon, session);
+					commitAndStartTransaction();*/
+					//parent = (Taxon)session.get(Taxon.class, trueParent);
+				}
+					
+			}
+			
+			if (taxon != null)
+				taxon.setParent(parent);
+			if (taxon.getParent() != null) {
+				session.update(taxon);
+				commitAndStartTransaction();
+			}
+			else
+				printf("No parent found for taxon %s at level %s with parent id %s", taxon.getId(), taxon.getTaxonLevel(), entry.getValue());
+			
+			if (taxaConverted.incrementAndGet() % 100 == 0) {
+				printf("Updated %s taxa...", taxaConverted.get());
+			}
+		}
+	}
+	
+	private void readFolder(Map<Integer, Integer> childToParent, User user, AtomicInteger converted, File folder) throws Exception {
+		for (File file : folder.listFiles()) {
+			if (file.isDirectory())
+				readFolder(childToParent, user, converted, file);
+			else if (file.getName().endsWith(".xml"))
+				readFile(childToParent, user, converted, file);
+		}
+	}
+	
+	private void readFile(Map<Integer, Integer> childToParent, User user, AtomicInteger converted, File file) throws Exception {
+		NativeDocument ndoc = new JavaNativeDocument();
+		ndoc.parse(FileListing.readFileAsString(file));
+		
+		Taxon taxon = convertTaxonNode(TaxonNodeFactory.createNode(ndoc), new Date(file.lastModified()));
+		
+		if (taxon != null) {
+			childToParent.put(taxon.getId(), taxon.getParentId());
+			taxon.setParentId(0);
+			taxon.setParent(null);
+			
+			if (taxon.getLastEdit() == null) {
+				Edit edit = new Edit();
+				edit.setUser(user);
+				edit.getTaxon().add(taxon);
+				taxon.getEdits().add(edit);							
+			}
+			
+			session.save(taxon);
+			
+			if (taxaConverted.incrementAndGet() % 100 == 0) {
+				commitAndStartTransaction();
+				printf("Converted %s taxa...", taxaConverted.get());
+			}
+		}
+	}
+	
+	protected void run() throws Exception {
+		convertAllFaster();
+		/*
 		userIO = new UserIO(session);
 		isoLanguageIO = new IsoLanguageIO(session);
 		infratypeIO = new InfratypeIO(session);
@@ -211,7 +320,7 @@ public class TaxonConverter extends GenericConverter<String> {
 			if (taxaConverted.incrementAndGet() % 100 == 0) {
 				printf("Updated %s taxa...", taxaConverted.get());
 			}
-		}
+		}*/
 	}
 
 	protected void runOutOfMemory() throws Exception {

@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.naming.NamingException;
 
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.dialect.PostgreSQLDialect;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.TaxonIO;
@@ -45,10 +46,12 @@ import org.iucn.sis.shared.helpers.CanonicalNames;
 import org.iucn.sis.shared.helpers.ReferenceUI;
 
 import com.solertium.db.DBException;
+import com.solertium.db.DBSession;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.Row.Set;
+import com.solertium.db.query.SelectQuery;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.TrivialExceptionHandler;
@@ -84,6 +87,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		ec = new SystemExecutionContext(dbSessionName);
 		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 		ec.setExecutionLevel(ExecutionContext.ADMIN);
+		ec.getDBSession().setIdentifierCase(DBSession.CASE_UPPER);
+		
 		lookups = new HashMap<String, Set>();
 
 		typeLookup = new HashMap<String, Class>();
@@ -130,8 +135,79 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		convertAll("/HEAD/drafts", oldVFS, newVFS);
 	}
 	
+	public void convertAllFaster(String rootURL, VFS oldVFS, VFS newVFS) throws Exception {
+		final AssessmentParser parser = new AssessmentParser();
+		final User user = userIO.getUserFromUsername("admin");
+		final AtomicInteger converted = new AtomicInteger(0);
+		
+		File folder = new File(data.getOldVFSPath() + rootURL);
+		
+		readFolder(parser, user, converted, folder);
+	}
+	
+	private void readFolder(AssessmentParser parser, User user, AtomicInteger converted, File folder) throws Exception {
+		for (File file : folder.listFiles()) {
+			if (file.isDirectory())
+				readFolder(parser, user, converted, file);
+			else if (file.getName().endsWith(".xml"))
+				readFile(parser, user, converted, file);
+		}
+	}
+	
+	private void readFile(AssessmentParser parser, User user, AtomicInteger converted, File file) throws Exception {
+		try {
+			NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
+			ndoc.parse(FileListing.readFileAsString(file));
+			
+			parser.parse(ndoc);
+				
+			Assessment assessment = assessmentDataToAssessment(parser.getAssessment());
+			if (assessment != null) {
+				if (assessment.getTaxon() != null) {
+					/*User userToSave;
+					if (assessment.getLastEdit() != null)  {
+						userToSave = assessment.getLastEdit().getUser();
+					} else {
+						userToSave = user;
+					}*/
+						
+					if (assessment.getLastEdit() == null) {
+						Edit edit = new Edit();
+						edit.setUser(user);
+						edit.getAssessment().add((assessment));
+						assessment.getEdit().add(edit);
+					}
+						
+					session.save(assessment);
+						
+					/*if (!assessmentIO.writeAssessment(assessment, userToSave, false).status.isSuccess()) {
+						throw new Exception("The assessment " + file.getPath() + " did not want to save");
+					}*/
+						
+					if (converted.incrementAndGet() % 50 == 0) {
+						commitAndStartTransaction();
+						printf("Converted %s assessments...", converted.get());
+					}
+				} else {
+					print("The taxon " + parser.getAssessment().getSpeciesID() + " is null");
+				}
+			} else {
+				print("The assessment " + file.getPath() + " is null");
+			}
+		} catch (Throwable e) {
+			print("Failed on file " + file.getPath());
+			e.printStackTrace();
+			throw new Exception(e);
+		}
+	}
+	
+	
 	public void convertAll(String rootURL, VFS oldVFS, VFS newVFS) throws Exception {
-
+		if (true) {
+			convertAllFaster(rootURL, oldVFS, newVFS);
+			return;
+		}
+			
 		List<File> allFiles = FileListing.main(data.getOldVFSPath() + rootURL);
 		int size = allFiles.size();
 		// List<File> allFiles = new ArrayList<File>();
@@ -235,10 +311,9 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType())) {
 			String dateAssessed = assessData.getDateAssessed();
-			dateAssessed.replace('/', '-');
 			if (dateAssessed != null && !"".equals(dateAssessed)) {
 				try {
-					assessment.setDateAssessed(shortfmt.parse(dateAssessed));
+					assessment.setDateAssessed(shortfmt.parse(dateAssessed.replace('/', '-')));
 				} catch (Exception e) {
 					e.printStackTrace();
 					TrivialExceptionHandler.ignore(this, e);
@@ -248,6 +323,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		else {
 			if (assessData.getDateAssessed() == null || "".equals(assessData.getDateAssessed()))
 				assessData.setDateAssessed("1900-01-01");
+			
+			assessData.setDateAssessed(assessData.getDateAssessed().replace('/', '-'));
 			
 			try {
 				assessment.setDateAssessed(shortfmt.parse(assessData.getDateAssessed()));
@@ -514,10 +591,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	
 	private Integer getIndex(String canonicalName, String libraryTable, String name, String value) throws DBException {
 //		String table = canonicalName + "_" + name + "Lookup";
-		Set lookup = new Set();
-		ec.doQuery("SELECT * FROM " + libraryTable + " ORDER BY ID;", lookup);
 		
-		for( Row row : lookup.getSet() ) {
+		for( Row row : getLookup(libraryTable).getSet() ) {
 			if( row.get("code") != null ) { 
 				if ( value.equalsIgnoreCase(row.get("code").getString()) )
 					return row.get("id").getInteger();
@@ -537,8 +612,13 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		if (lookups.containsKey(fieldName))
 			return lookups.get(fieldName);
 		else {
+			SelectQuery query = new SelectQuery();
+			query.select(fieldName, "ID", "ASC");
+			query.select(fieldName, "*");
+			
 			Set lookup = new Set();
-			ec.doQuery("SELECT * FROM " + fieldName + " ORDER BY ID;", lookup);
+			
+			ec.doQuery(query, lookup);
 
 			lookups.put(fieldName, lookup);
 
