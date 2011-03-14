@@ -106,13 +106,14 @@
                                                         <option>Yes</option>
                                                         <option>No</option>
                                                         <option>Unknown</option>
+							<option>Not Applicable</option>
                                                         <selected>0</selected>
                                                 </singleSelect>
                                         </structure>
                                 </dominantStructures>
                                 <dependentStructures>
                                         <structure id="explanation">
-                                                <text/>
+                                                <note/>
                                         </structure>
                                 </dependentStructures>
                                 <rules>

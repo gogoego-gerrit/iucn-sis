@@ -1506,10 +1506,13 @@ INSERT INTO PopulationContinuingDecline_qualifierLookup (name, label) VALUES ('-
 INSERT INTO PopulationContinuingDecline (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationContinuingDecline (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
 INSERT INTO PopulationDeclineGenerations1 (name, data_type, number_allowed) VALUES ('range', 'range_primitive_field', '?');
+INSERT INTO PopulationDeclineGenerations1 (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationDeclineGenerations1 (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
 INSERT INTO PopulationDeclineGenerations2 (name, data_type, number_allowed) VALUES ('range', 'range_primitive_field', '?');
+INSERT INTO PopulationDeclineGenerations2 (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationDeclineGenerations2 (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
 INSERT INTO PopulationDeclineGenerations3 (name, data_type, number_allowed) VALUES ('range', 'range_primitive_field', '?');
+INSERT INTO PopulationDeclineGenerations3 (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationDeclineGenerations3 (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
 INSERT INTO PopulationDocumentation (name, data_type, number_allowed) VALUES ('narrative', 'text_primitive_field', '?');
 INSERT INTO PopulationExtremeFluctuation (name, data_type, number_allowed) VALUES ('isFluctuating', 'boolean_range_primitive_field', '?');
