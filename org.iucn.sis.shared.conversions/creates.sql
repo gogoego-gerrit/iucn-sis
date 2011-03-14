@@ -142,6 +142,9 @@ CREATE TABLE PlantGrowthForms (id integer auto_increment primary key, name varch
 CREATE TABLE PlantGrowthFormsSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationContinuingDecline (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationContinuingDecline_qualifierLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE PopulationDeclineGenerations1_qualifierLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE PopulationDeclineGenerations2_qualifierLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE PopulationDeclineGenerations3_qualifierLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationDeclineGenerations1 (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationDeclineGenerations2 (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationDeclineGenerations3 (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
