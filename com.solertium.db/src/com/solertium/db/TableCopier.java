@@ -24,6 +24,8 @@
 
 package com.solertium.db;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.naming.NamingException;
 
 import com.solertium.db.query.InsertQuery;
@@ -54,11 +56,24 @@ public class TableCopier extends RowProcessor {
 	private final DBSession dbtarget;
 	private final ExecutionContext ectarget;
 	private final String tablename;
+	
+	private final AtomicInteger idGenerator;
+	private final String idColumn;
 
 	public TableCopier(final ExecutionContext ectarget, final String tablename) {
+		this(ectarget, tablename, "id", 1);
+	}
+	
+	public TableCopier(final ExecutionContext ectarget, final String tablename, final String idColumn, int start) {
 		this.ectarget = ectarget;
 		dbtarget = ectarget.getDBSession();
 		this.tablename = tablename;
+
+		this.idColumn = idColumn;
+		if (idColumn != null)
+			idGenerator = new AtomicInteger(start);
+		else
+			idGenerator = null;
 	}
 
 	@Override
@@ -67,8 +82,12 @@ public class TableCopier extends RowProcessor {
 		try {
 			Row targetRow = ectarget.getRow(tablename);
 			for(Column c : targetRow.getColumns()){
-				Column t = sourceRow.get(c.getLocalName());
-				if(t!=null) c.setObject(t.getObject());
+				if (c.getLocalName().equalsIgnoreCase(idColumn))
+					c.setObject(idGenerator.getAndIncrement());
+				else {
+					Column t = sourceRow.get(c.getLocalName());
+					if(t!=null) c.setObject(t.getObject());
+				}
 			}
 			q.setTable(tablename);
 			q.setRow(targetRow);
