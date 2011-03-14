@@ -3,7 +3,6 @@ package org.iucn.sis.server.extensions.recentasms;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.RegionIO;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Region;
@@ -18,7 +17,7 @@ public class RecentAssessmentInfo extends RecentInfo<Assessment> {
 	}
 	
 	@Override
-	protected void parse(Assessment assessment) {
+	protected void parse(Assessment assessment) throws ParseException {
 		if (assessment != null && assessment.getState() != Assessment.DELETED) {
 			String region;
 			if (assessment.isRegional()) {
@@ -44,7 +43,9 @@ public class RecentAssessmentInfo extends RecentInfo<Assessment> {
 			addField("status", assessment.getAssessmentType().getName());
 			addField("species", assessment.getSpeciesName());
 			addField("region", region);
-		}	
+		}
+		else
+			 throw new ParseException("Assessment has been deleted");
 	}
 
 }

@@ -14,7 +14,7 @@ public abstract class RecentInfo<T> extends RowData {
 		this.session = session;
 	}
 	
-	protected abstract void parse(T data);
+	protected abstract void parse(T data) throws ParseException;
 	
 	public String toXML() {
 		if (isEmpty())
@@ -27,6 +27,26 @@ public abstract class RecentInfo<T> extends RowData {
 		out.append("</row>");
 		
 		return out.toString();
+	}
+	
+	public static class ParseException extends Exception {
+		
+		public ParseException() {
+			super();
+		}
+		
+		public ParseException(String message) {
+			super(message);
+		}
+		
+		public ParseException(Throwable cause) {
+			super(cause);
+		}
+		
+		public ParseException(String message, Throwable cause) {
+			super(message, cause);
+		}
+		
 	}
 
 }

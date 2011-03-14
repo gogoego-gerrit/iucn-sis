@@ -62,10 +62,13 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 		for (RecentlyAccessed accessed : list) {
 			try {
 				RecentInfo info = RecentInfoFactory.load(accessed, session);
-				info.addField("accessid", accessed.getId() + "");
-				info.addField("accessdate", accessed.getDate().getTime() + "");
-				out.append(info.toXML());
+				if (info != null) {
+					info.addField("accessid", accessed.getId() + "");
+					info.addField("accessdate", accessed.getDate().getTime() + "");
+					out.append(info.toXML());
+				}
 			} catch (PersistentException e) {
+				//Entry may not exist anymore, remove it...
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 		}

@@ -47,7 +47,12 @@ public class RecentInfoFactory {
 		else
 			return null;
 		
-		parser.parse(object);
+		try {
+			parser.parse(object);
+		} catch (RecentInfo.ParseException e) {
+			Debug.println("Failed to load existing recently accessed object: {0}", e.getMessage());
+			return null;
+		}
 		
 		return parser;
 	}

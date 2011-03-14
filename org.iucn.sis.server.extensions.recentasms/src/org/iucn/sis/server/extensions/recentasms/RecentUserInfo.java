@@ -10,7 +10,7 @@ public class RecentUserInfo extends RecentInfo<User> {
 	}
 	
 	@Override
-	protected void parse(User user) {
+	protected void parse(User user) throws ParseException {
 		if (user.getState() != User.DELETED) {
 			addField("firstName", user.getFirstName());
 			addField("lastName", user.getLastName());
@@ -22,6 +22,8 @@ public class RecentUserInfo extends RecentInfo<User> {
 			addField("affiliation", user.getAffiliation());
 			addField("quickGroup", user.getQuickGroupString());
 		}
+		else
+			throw new ParseException("User has been deleted.");
 	}
 
 }
