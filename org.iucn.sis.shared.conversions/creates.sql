@@ -213,7 +213,7 @@ CREATE TABLE RedListSource (id integer auto_increment primary key, name varchar(
 CREATE TABLE RedListText (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RegionInformation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RegionExpertQuestions (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE ReproduictivePeriodicity (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE ReproductivePeriodicity (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE ResearchLookup (id integer auto_increment primary key, code varchar(63), parentID varchar(63), level integer, codeable tinyint, ref varchar(63), description varchar(255));
 CREATE TABLE Research (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE ResearchSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));

@@ -1689,7 +1689,7 @@ INSERT INTO RedListText (name, data_type, number_allowed) VALUES ('value', 'stri
 INSERT INTO RegionInformation (name, data_type, number_allowed) VALUES ('regions', 'fk_list_primitive_field', '?');
 INSERT INTO RegionInformation (name, data_type, number_allowed) VALUES ('endemic', 'boolean_primitive_field', '?');
 INSERT INTO RegionExpertQuestions (name, data_type, number_allowed) VALUES ('answers', 'text_primitive_field', '?');
-INSERT INTO ReproduictivePeriodicity (name, data_type, number_allowed) VALUES ('value', 'string_primitive_field', '?');
+INSERT INTO ReproductivePeriodicity (name, data_type, number_allowed) VALUES ('value', 'string_primitive_field', '?');
 INSERT INTO ResearchLookup (code, parentID, level, codeable, ref, description) VALUES('1', '(root)', 0, false, '1', 'Research');
 INSERT INTO ResearchLookup (code, parentID, level, codeable, ref, description) VALUES('2', '1', 1, true, '1.1', 'Taxonomy');
 INSERT INTO ResearchLookup (code, parentID, level, codeable, ref, description) VALUES('3', '1', 1, true, '1.2', 'Population size, distribution & trends');

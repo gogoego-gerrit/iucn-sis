@@ -124,7 +124,7 @@ public interface CanonicalNames {
 	public static String RedListText = "RedListText";
 	public static String RegionInformation = "RegionInformation";
 	public static String RegionExpertQuestions = "RegionExpertQuestions";
-	public static String ReproduictivePeriodicity = "ReproduictivePeriodicity";
+	public static String ReproductivePeriodicity = "ReproductivePeriodicity";
 	public static String Research = "Research";
 	public static String Rivers = "Rivers";
 	public static String SevereFragmentation = "SevereFragmentation";
@@ -171,7 +171,7 @@ public interface CanonicalNames {
 			RedListCaveat, RedListConsistencyCheck, RedListContributors, RedListCriteria, RedListCriteriaVersion,
 			RedListEvaluated, RedListEvaluationDate, RedListEvaluators, RedListFacilitators, RedListFuzzyResult, RedListManualCategory,
 			RedListManualCriteria, RedListNotes, RedListPetition, RedListPublication, RedListRationale,
-			RedListReasonsForChange, RedListText, RegionInformation, ReproduictivePeriodicity, Research, Rivers,
+			RedListReasonsForChange, RedListText, RegionInformation, ReproductivePeriodicity, Research, Rivers,
 			SevereFragmentation, SubpopulationContinuingDecline, SubpopulationExtremeFluctuation, SubpopulationNumber,
 			SubpopulationSingle, System, TaxonomicNotes, Threats, ThreatsDocumentation, ThreatsUnknown, TrendInDomesticOfftake,
 			TrendInWildOfftake, UseTradeDetails, UseTradeDocumentation, UseTradeNoInformation, WaterBreeding };
@@ -201,7 +201,7 @@ public interface CanonicalNames {
 			PossiblyExtinctCandidate, RangeDocumentation, RedListAssessmentDate, RedListAssessmentAuthors, RedListAssessors, RedListCaveat,
 			RedListConsistencyCheck, RedListContributors, RedListCriteria, RedListEvaluated, RedListEvaluators,
 			RedListNotes, RedListPetition, RedListPublication, RedListRationale, RedListReasonsForChange, RedListText,
-			RegionInformation, ReproduictivePeriodicity, Research, Rivers, SevereFragmentation,
+			RegionInformation, ReproductivePeriodicity, Research, Rivers, SevereFragmentation,
 			SubpopulationContinuingDecline, SubpopulationExtremeFluctuation, SubpopulationNumber, SubpopulationSingle,
 			System, TaxonomicNotes, Threats, ThreatsDocumentation, ThreatsUnknown, TrendInDomesticOfftake, TrendInWildOfftake,
 			UseTradeDetails, UseTradeDocumentation, UseTradeNoInformation, WaterBreeding };

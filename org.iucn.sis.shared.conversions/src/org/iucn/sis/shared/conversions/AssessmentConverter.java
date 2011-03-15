@@ -341,7 +341,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		for (Entry<String, Object> curField : assessData.getDataMap().entrySet()) {
 			Set lookup = getLookup(curField.getKey());
 			
-			Field field = new Field(curField.getKey(), assessment);
+			Field field = new Field(correctFieldName(curField.getKey()), assessment);
 			field.setAssessment(assessment);
 			
 			List<Field> subfields = new ArrayList<Field>();
@@ -441,6 +441,19 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		}
 
 		return assessment;
+	}
+	
+	/**
+	 * Perform any corrections or changes to field names 
+	 * from SIS 1 to SIS 2
+	 * @param name
+	 * @return
+	 */
+	private String correctFieldName(String name) {
+		if (CanonicalNames.ReproduictivePeriodicity.equals(name))
+			return org.iucn.sis.shared.api.utils.CanonicalNames.ReproductivePeriodicity;
+		
+		return name;
 	}
 
 	private void addPrimitiveDataToField(String canonicalName, Field field, List<String> rawData,

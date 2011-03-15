@@ -197,7 +197,7 @@
 							<field id="GestationTime"></field>
 						</composite>
 						<composite>
-							<field id="ReproduictivePeriodicity"></field>
+							<field id="ReproductivePeriodicity"></field>
 
 							<field id="AvgAnnualFecundity"></field>
 						</composite>
