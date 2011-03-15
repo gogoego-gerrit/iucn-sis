@@ -320,12 +320,11 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		addTool(new SeparatorToolItem());
 		addTool(createIconButton("icon-information", "Working Set Details", new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
-				if (hasSelection())
-					WindowUtils.errorAlert("Please select a working set.");
-				
 				final WorkingSet ws = getSelected();
-				if (ws == null)
+				if (ws == null) {
+					WindowUtils.errorAlert("Please select a working set.");
 					return;
+				}
 					
 				final Window s = WindowUtils.getWindow(false, true, ws.getWorkingSetName());
 				s.setLayout(new FillLayout());
