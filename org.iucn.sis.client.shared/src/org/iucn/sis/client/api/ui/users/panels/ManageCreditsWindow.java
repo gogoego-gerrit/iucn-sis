@@ -27,6 +27,7 @@ import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.structures.SISOptionsList;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
+import com.extjs.gxt.ui.client.GXT;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -55,6 +56,8 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.TableData;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
@@ -342,11 +345,21 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		topContainer.add(new HTML(""), selectButton);
 		topContainer.add(new HTML(""), selectButton);
 		
-		topContainer.add(new Button("Save Recent Users",
+		topContainer.add(new Button("Clear Recent Users",
 				new SelectionListener<ButtonEvent>() {
-			@Override
 			public void componentSelected(ButtonEvent ce) {
-				saveRecentUsers();
+				WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove all of your recent users?", new WindowUtils.SimpleMessageBoxListener() {
+					public void onYes() {
+						RecentlyAccessedCache.impl.deleteAll(RecentlyAccessed.USER, new GenericCallback<Object>() {
+							public void onSuccess(Object result) {
+								loadRecentUsers();	
+							}
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Failed to clear recent users, please try again later.");
+							}
+						});
+					}
+				});
 			}
 		}), selectButton);
 		topContainer.add(new HTML(""), selectButton);
@@ -535,14 +548,12 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 
 	protected void onSave() {
 		try{
-			
 			Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
 		
 			saveField(CanonicalNames.RedListAssessors, assessment, assessors.getStore());
 			saveField(CanonicalNames.RedListEvaluators, assessment, reviewers.getStore());
 			saveField(CanonicalNames.RedListContributors, assessment, contributors.getStore());
 			saveField(CanonicalNames.RedListFacilitators, assessment, facilitators.getStore());
-			saveRecentUsers();
 
 			WindowUtils.showLoadingAlert("Saving Assessors...");
 			AssessmentClientSaveUtils.saveAssessment(null,assessment, new GenericCallback<Object>() {
@@ -578,7 +589,6 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 	}
 
 	private void saveField(String fieldName, Assessment assessment, ListStore<MCSearchResults> store) {
-		
 		final Set<Integer> userIDs = new HashSet<Integer>();
 		final ArrayList<ClientUser> selectedUsers = new ArrayList<ClientUser>();
 		
@@ -609,20 +619,6 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			selectedUsers.add(user);
 		}
 		UserCache.impl.addUsers(selectedUsers);
-	}
-
-	public void saveRecentUsers(){
-		
-		final List<RecentUser> users = new ArrayList<RecentUser>();
-		final Iterator<MCSearchResults> iterator = recent
-				.getStore().getModels().iterator();
-		while (iterator.hasNext()) {
-			ClientUser user = iterator.next().getUser();			
-			users.add(new RecentUser(user));
-		}
-		
-		RecentlyAccessedCache.impl.add(RecentlyAccessed.USER, users);
-		Info.display("Save Complete", "Recent Users Successfully saved!.","");
 	}
 	
 	public void loadRecentUsers() {
@@ -809,21 +805,17 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			@Override
 			public void dragEnter(DNDEvent e) {
 				try {
+					boolean hasCollision = false;
 					List<MCSearchResults> data = (List<MCSearchResults>)(e.getData());
-					if( data.size() == 1 ) {
-						if( detectCollision(data.get(0))) {
+					for (MCSearchResults datum : data) {
+						if (hasCollision = detectCollision(datum)) {
 							e.setCancelled(true);
 							e.getStatus().update("Duplicate User Detected");
+							break;
 						}
-					} else {
-						for( MCSearchResults datum : data ) {
-							if( detectCollision(datum)) {
-								e.setCancelled(true);
-								e.getStatus().update("Duplicate User Detected");
-								break;
-							}
-						}
-					}				
+					}
+					if (!hasCollision)
+						e.getStatus().update(GXT.MESSAGES.grid_ddText(data.size()));
 				} catch (Throwable e1) {
 					e1.printStackTrace();
 				}
@@ -831,8 +823,20 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			
 			@Override
 			public void dragDrop(DNDEvent e) {
-				if(!id.equals("RECENT"))
-					loadRecentUsers();
+				if (!id.equals("RECENT")) {
+					List<MCSearchResults> data = (List<MCSearchResults>)(e.getData());
+					List<RecentUser> recent = new ArrayList<RecentUser>();
+					for (MCSearchResults user : data)
+						recent.add(new RecentUser(user.getUser()));
+					
+					RecentlyAccessedCache.impl.add(RecentlyAccessed.USER, recent);
+					DeferredCommand.addPause();
+					DeferredCommand.addCommand(new Command() {
+						public void execute() {
+							loadRecentUsers();
+						}
+					});
+				}
 			}
 			
 			private boolean detectCollision(MCSearchResults datum) {
