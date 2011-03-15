@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.UserCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache.RecentUser;
@@ -87,40 +88,16 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 
 		protected final ClientUser user;
 
-		public MCSearchResults(RowData rowData) { 
-			super();
-			user = new ClientUser();
-			final Iterator<String> iterator = rowData.keySet().iterator();
-			while (iterator.hasNext()) {
-				final String property = iterator.next().toLowerCase();
-				set(property, rowData.getField(property));
-				if (property.equalsIgnoreCase("firstname"))
-					user.setFirstName(rowData.getField(property));
-				else if (property.equalsIgnoreCase("lastname"))
-					user.setLastName(rowData.getField(property));
-				else if (property.equalsIgnoreCase("nickname"))
-					user.setNickname(rowData.getField("nickname"));
-				else if (property.equalsIgnoreCase("initials"))
-					user.setInitials(rowData.getField(property));
-				else if (property.equalsIgnoreCase("email"))
-					user.setEmail(rowData.getField(property));
-				else if (property.equalsIgnoreCase("userid"))
-					user.setId(Integer.parseInt(rowData.getField(property)));
-				else if (property.equalsIgnoreCase("quickgroup"))
-					user.setProperty("quickGroup", rowData.getField(property));
-				else if (property.equalsIgnoreCase("username"))
-					user.setUsername(rowData.getField(property));
-				else
-					user.setProperty(property, rowData.getField(property));
-			}
-
-			set("name", user.getDisplayableName());
-		}
-
 		public MCSearchResults(ClientUser user) {
 			this.user = user;
 			set("name", user.getDisplayableName());
 			set("userid", user.getId());
+			
+			for (Map.Entry<String, String> entry : user.properties.entrySet())
+				set(entry.getKey().toLowerCase(), entry.getValue());
+			
+			if ("".equals(user.getFirstName()) && !"".equals(user.getInitials()))
+				set("firstname", user.getInitials());
 		}
 
 		public ClientUser getUser() {
@@ -157,14 +134,22 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		@Override
 		public int compare(Store<MCSearchResults> store, MCSearchResults m1,
 				MCSearchResults m2, String property) {
-			return c.compare(m1.get("name"), m2.get("name"));
+			/*
+			 * Requirement: Sort is done "by Last, First in ascending order"
+			 */
+			for (String current : new String[]{ "lastname", "firstname" }) {
+				int value = c.compare(m1.get(current), m2.get(current));
+				if (value != 0)
+					return value;
+			}
+			return 0;
 		}
 	}
 
 	private final ListView<MCSearchResults> results, recent, assessors, reviewers, contributors, facilitators;
 	private final HTML status;
 
-	public final static int windowWidth = 650;
+	public final static int windowWidth = 750;
 	public final static int windowHeight = 550;
 	public final static int listHeight = 400;
 	public final static int listWidth = 195;
@@ -186,57 +171,60 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		setClosable(true);
 		setHeading("Assessment Credits");
 
-		assessors = new ListView<MCSearchResults>();
-		assessors.setHeight(150);
-		assessors.setWidth(120);
-		assessors.setDisplayProperty("name");
-		assessors.setStore(new ListStore<MCSearchResults>());
+		assessors = newListView();
 		assessors.getStore().setStoreSorter(new MCSearchResultsComparator());
 		
-		reviewers = new ListView<MCSearchResults>();
-		reviewers.setHeight(150);
-		reviewers.setWidth(120);
-		reviewers.setDisplayProperty("name");
-		reviewers.setStore(new ListStore<MCSearchResults>());
+		reviewers = newListView();
 		reviewers.getStore().setStoreSorter(new MCSearchResultsComparator());
 				
-		contributors = new ListView<MCSearchResults>();
-		contributors.setHeight(150);
-		contributors.setWidth(120);
-		contributors.setDisplayProperty("name");
-		contributors.setStore(new ListStore<MCSearchResults>());
+		contributors = newListView();
 		contributors.getStore().setStoreSorter(new MCSearchResultsComparator());
 		
-		facilitators = new ListView<MCSearchResults>();
-		facilitators.setHeight(150);
-		facilitators.setWidth(120);
-		facilitators.setDisplayProperty("name");
-		facilitators.setStore(new ListStore<MCSearchResults>());
+		facilitators = newListView();
 		facilitators.getStore().setStoreSorter(new MCSearchResultsComparator());
 
 		ListViewSelectionModel<MCSearchResults> sm = new ListViewSelectionModel<MCSearchResults>();
 		sm.setSelectionMode(SelectionMode.MULTI);
 
-		results = new ListView<MCSearchResults>();
-		results.setHeight(150);
-		results.setWidth(200);
-		results.setSelectionModel(sm);
-		results.setDisplayProperty("name");
-		results.setStore(new ListStore<MCSearchResults>());
+		results = newListView(300);
+		results.setSelectionModel(sm); 
+		/*
+		 * Requirement: "Search results are returned, including email addresses"
+		 */
+		results.setSimpleTemplate("<div style=\"text-align:left;\">{lastname}, {firstname} ({email})</div>");
 
 		sm = new ListViewSelectionModel<MCSearchResults>();
 		sm.setSelectionMode(SelectionMode.MULTI);
-		recent = new ListView<MCSearchResults>();
-		recent.setHeight(150);
-		recent.setWidth(150);
+		
+		recent = newListView(150);
 		recent.setSelectionModel(sm);
-		recent.setDisplayProperty("name");
-		recent.setStore(new ListStore<MCSearchResults>());
 
 		status = new HTML();
 		
 		setSize(windowWidth, windowHeight);
 
+	}
+	
+	private ListView<MCSearchResults> newListView() {
+		return newListView(120, 150);
+	}
+	
+	private ListView<MCSearchResults> newListView(int width) {
+		return newListView(width, 150);
+	}
+	
+	private ListView<MCSearchResults> newListView(int width, int height) {
+		ListView<MCSearchResults> view = new ListView<MCSearchResults>();
+		view.setHeight(height);
+		view.setWidth(width);
+		/*
+		 * Requirement: "All names in all boxes must appear using 
+		 * Last Name, First name format." 
+		 */
+		view.setSimpleTemplate("<div style=\"text-align:left;\">{lastname}, {firstname}</div>");
+		view.setStore(new ListStore<MCSearchResults>());
+		
+		return view;
 	}
 
 	public boolean containsSearchResult(ListStore<MCSearchResults> store,
@@ -540,7 +528,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				close();
+				hide();
 			}
 		}));
 	}
@@ -568,6 +556,17 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 					Info.display("Save Complete", "Successfully saved assessment {0}.",
 							AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
 					Debug.println("Explicit save happened at {0}", AssessmentCache.impl.getCurrentAssessment().getLastEdit().getCreatedDate());
+					
+					/*
+					 * Requirement: "Upon clicking Save & Close, the panel would close and
+					 * bring the user back to the Assessment Information tab, where the text 
+					 * strings for each of these data boxes would be updated/refreshed." 
+					 */
+					ManageCreditsWindow.this.hide();
+					FieldWidgetCache.impl.resetWidgetContents(
+						CanonicalNames.RedListAssessors, CanonicalNames.RedListEvaluators, 
+						CanonicalNames.RedListContributors, CanonicalNames.RedListFacilitators
+					);
 				}
 			});
 			
@@ -634,7 +633,9 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			
 		for (RecentUser user : users)
 			recentUserStore.add(new MCSearchResults(user.getUser()));
-			
+		
+		recentUserStore.sort("name", SortDir.ASC);
+		
 		recent.setStore(recentUserStore);
 
 	}
@@ -696,8 +697,34 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 				final RowParser parser = new RowParser(document);
 				List<MCSearchResults> results = new ArrayList<MCSearchResults>();
 				
-				for( RowData curData : parser.getRows() )
-					results.add(new MCSearchResults(curData));
+				for (RowData rowData : parser.getRows()) {
+					ClientUser user = new ClientUser();
+					final Iterator<String> iterator = rowData.keySet().iterator();
+					while (iterator.hasNext()) {
+						final String property = iterator.next().toLowerCase();
+						user.setProperty(property, rowData.getField(property));
+						if (property.equalsIgnoreCase("firstname"))
+							user.setFirstName(rowData.getField(property));
+						else if (property.equalsIgnoreCase("lastname"))
+							user.setLastName(rowData.getField(property));
+						else if (property.equalsIgnoreCase("nickname"))
+							user.setNickname(rowData.getField("nickname"));
+						else if (property.equalsIgnoreCase("initials"))
+							user.setInitials(rowData.getField(property));
+						else if (property.equalsIgnoreCase("email"))
+							user.setEmail(rowData.getField(property));
+						else if (property.equalsIgnoreCase("userid"))
+							user.setId(Integer.parseInt(rowData.getField(property)));
+						else if (property.equalsIgnoreCase("quickgroup"))
+							user.setProperty("quickGroup", rowData.getField(property));
+						else if (property.equalsIgnoreCase("username"))
+							user.setUsername(rowData.getField(property));
+						else
+							user.setProperty(property, rowData.getField(property));
+					}
+					
+					results.add(new MCSearchResults(user));
+				}
 				
 				callback.onSuccess(results);
 			}
@@ -718,7 +745,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		GenericCallback<List<MCSearchResults>> callback = new GenericCallback<List<MCSearchResults>>() {
 
 			public void onFailure(Throwable caught) {
-				ManageCreditsWindow.this.close();
+				ManageCreditsWindow.this.hide();
 				WindowUtils.errorAlert("Error",
 						"Could not load results, please try again later");
 
@@ -732,6 +759,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 						store.add(res);
 					}
 				}
+				store.sort("name", SortDir.ASC);
 
 				results.setStore(store);
 
@@ -774,6 +802,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		this.facilitatorsHeading.setHtml("<b>" + facilitatorsHeading + "</b>");
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void allowDropItems(final ListView<MCSearchResults> drList,final String id){
 		ListViewDropTarget selectedTarget = new ListViewDropTarget(drList); 
 		selectedTarget.addDNDListener(new DNDListener() {

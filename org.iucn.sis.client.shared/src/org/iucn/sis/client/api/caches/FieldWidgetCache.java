@@ -172,14 +172,27 @@ public class FieldWidgetCache {
 	}
 
 	public void resetWidgetContents() {
+		resetWidgetContents(new String[0]);
+	}
+	
+	public void resetWidgetContents(String... fieldNames) {
 		if (AssessmentCache.impl.getCurrentAssessment() != null) {
 			String schema = AssessmentCache.impl.getCurrentAssessment().
 				getSchema(SchemaCache.impl.getDefaultSchema());
 			
 			final Map<String, Display> widgetMap = schemaToWidgetMap.get(schema);
-			if (widgetMap != null)
-				for (Iterator<Display> iter = widgetMap.values().iterator(); iter.hasNext();)
-					addAssessmentToDisplay(iter.next());
+			if (widgetMap != null) {
+				if (fieldNames == null || fieldNames.length == 0)
+					for (Iterator<Display> iter = widgetMap.values().iterator(); iter.hasNext();)
+						addAssessmentToDisplay(iter.next());
+				else {
+					for (String fieldName : fieldNames) {
+						Display current = widgetMap.get(fieldName);
+						if (current != null)
+							addAssessmentToDisplay(current);
+					}
+				}	
+			}
 		}
 	}
 	
