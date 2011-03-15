@@ -136,7 +136,13 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
-		Integer accessID = getAccessID(request);
+		Integer accessID = null;
+		try {
+			accessID = getAccessID(request);
+		} catch (Exception e) {
+			//It's OK
+			TrivialExceptionHandler.ignore(this, e);
+		}
 		
 		if (accessID != null) {
 			try {

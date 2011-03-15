@@ -79,6 +79,23 @@ public class RecentlyAccessedCache {
 		});
 	}
 	
+	public void deleteAll(final String type, final GenericCallback<Object> callback) {
+		if (!cache.containsKey(type))
+			callback.onSuccess(null);
+		else {
+			final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+			document.delete(UriBase.getInstance().getRecentAssessmentsBase() + "/recent/" + type, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					cache.get(type).clear();
+					callback.onSuccess(result);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		}
+	}
+	
 	public <X extends RecentInfo> void add(final String type, final X recent) {
 		List<X> list = new ArrayList<X>();
 		list.add(recent);
