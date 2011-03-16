@@ -143,6 +143,8 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 				throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 			}
 			
+			session.flush();
+			
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity(commonName.getId() + "", MediaType.TEXT_PLAIN);
 

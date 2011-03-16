@@ -74,6 +74,8 @@ public class SynonymRestlet extends BaseServiceRestlet {
 			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		}
 		
+		session.flush();
+		
 		response.setStatus(Status.SUCCESS_OK);
 		response.setEntity(synonym.getId() + "", MediaType.TEXT_PLAIN);
 	}
