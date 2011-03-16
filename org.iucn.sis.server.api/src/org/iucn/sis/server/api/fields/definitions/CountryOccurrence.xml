@@ -59,7 +59,7 @@
 									<option>Non-Breeding Season</option>
 									<option>Passage</option>
 									<option>Seasonal Occurrence Uncertain</option>
-									<selected>0</selected>
+									<selected>1</selected>
 								</multipleSelect>
 							</structure>
 						</dependentStructures>
