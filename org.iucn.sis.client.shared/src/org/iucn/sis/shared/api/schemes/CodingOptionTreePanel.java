@@ -32,7 +32,10 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel;
 import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.CheckCascade;
+import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.Timer;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
@@ -42,6 +45,7 @@ public class CodingOptionTreePanel extends LayoutContainer {
 	
 	public CodingOptionTreePanel(TreeData treeData, Collection<TreeDataRow> selected, Collection<String> disabledRows) {
 		super(new FillLayout());
+		setLayoutOnChange(true);
 		draw(treeData, selected, disabledRows);
 	}
 	
@@ -56,12 +60,22 @@ public class CodingOptionTreePanel extends LayoutContainer {
 		return tree;
 	}
 	
-	public void draw(final TreeData treeData, Collection<TreeDataRow> selected, final Collection<String> disabledRows) {
+	public void draw(final TreeData treeData, final Collection<TreeDataRow> selected, final Collection<String> disabledRows) {
 		final Map<String, CodingOption> checked = new HashMap<String, CodingOption>();
 		for (TreeDataRow row : selected) 
 			checked.put(row.getDisplayId(), new CodingOption(row));
 		
-		tree = new TreePanel<CodingOption>(createTreeStore(treeData, checked, disabledRows));
+		createTreeStore(treeData, checked, disabledRows, new ComplexListener<TreeStore<CodingOption>>() {
+			public void handleEvent(TreeStore<CodingOption> eventData) {
+				draw(eventData, treeData, checked, disabledRows);
+			}
+		});
+	}
+	
+	private void draw(final TreeStore<CodingOption> store, final TreeData treeData, final Map<String, CodingOption> checked, final Collection<String> disabledRows) {
+		
+		
+		tree = new TreePanel<CodingOption>(store);
 		tree.setCheckStyle(CheckCascade.NONE);
 		tree.setAutoLoad(true);
 		tree.setCheckable(true);
@@ -119,6 +133,21 @@ public class CodingOptionTreePanel extends LayoutContainer {
 		container.add(tree, new BorderLayoutData(LayoutRegion.CENTER));
 		
 		add(container);
+	}
+	
+	private static void createTreeStore(TreeData treeData, Map<String, CodingOption> selection, Collection<String> disabled, final ComplexListener<TreeStore<CodingOption>> callback) {
+		final IncrementalTreeStoreBuilder builder = new IncrementalTreeStoreBuilder(treeData, selection, disabled);
+		builder.setListener(new ComplexListener<TreeStore<CodingOption>>() {
+			public void handleEvent(TreeStore<CodingOption> eventData) {
+				WindowUtils.hideLoadingAlert();
+				callback.handleEvent(eventData);
+			}
+		});
+		
+		WindowUtils.showLoadingAlert("Loading Tree...");
+		
+		DeferredCommand.addPause();
+		DeferredCommand.addCommand(builder);
 	}
 
 	private static TreeStore<CodingOption> createTreeStore(TreeData treeData, Map<String, CodingOption> selection, Collection<String> disabled) {
@@ -205,7 +234,8 @@ public class CodingOptionTreePanel extends LayoutContainer {
 			String curLevelID = row.getRowNumber();
 			
 			StringBuilder displayableDesc = new StringBuilder();
-			displayableDesc.append(curLevelID.equals("0") ? "" : (curLevelID + ". "));
+			if (showDisplayLevel())
+				displayableDesc.append(curLevelID + ". ");
 			displayableDesc.append(curDesc);
 
 			if (!row.getChildren().isEmpty()) {
@@ -219,6 +249,14 @@ public class CodingOptionTreePanel extends LayoutContainer {
 			}
 			
 			return displayableDesc.toString();
+		}
+		
+		private boolean showDisplayLevel() {
+			try {
+				return Integer.parseInt(row.getRowNumber()) > 0;
+			} catch (Exception e) {
+				return false;
+			}
 		}
 		
 		private boolean isValid() {
@@ -268,6 +306,73 @@ public class CodingOptionTreePanel extends LayoutContainer {
 				return false;
 			return true;
 		}
+		
+	}
+	
+	private static class IncrementalTreeStoreBuilder implements IncrementalCommand {
+		
+		private final TreeStore<CodingOption> store;
+		private final TreeData treeData;
+		private final Map<String, CodingOption> selection;
+		private final Collection<String> disabled;
+		
+		private final List<TreeDataRow> treeRoots;
+		
+		private int current = 0;
+		private int size;
+		private ComplexListener<TreeStore<CodingOption>> listener;
+		
+		public IncrementalTreeStoreBuilder(TreeData treeData, Map<String, CodingOption> selection, Collection<String> disabled) {
+			store = new TreeStore<CodingOption>();
+			store.setStoreSorter(new StoreSorter<CodingOption>(new PortableAlphanumericComparator()));
+			store.setKeyProvider(new ModelKeyProvider<CodingOption>() {
+				public String getKey(CodingOption model) {
+					return model.getValue();
+				}
+			});
+			
+			this.treeData = treeData;
+			this.treeRoots = treeData.getTreeRoots();
+			this.selection = selection;
+			this.disabled = disabled;
+			
+			this.size = treeRoots.size();
+		}
+		
+		public void setListener(ComplexListener<TreeStore<CodingOption>> listener) {
+			this.listener = listener;
+		}
+		
+		@Override
+		public boolean execute() {
+			if (current == size) {
+				store.sort("text", SortDir.ASC);
+				if (listener != null)
+					listener.handleEvent(store);
+				return false;
+			}
+
+			WindowUtils.showLoadingAlert("Loading Group " + (current+1) + " of " + size);
+			
+			TreeDataRow row = treeRoots.get(current);
+			
+			CodingOption option;
+			if (selection.containsKey(row.getDisplayId()))
+				option = selection.get(row.getDisplayId());
+			else
+				option = new CodingOption(row);
+			option.setDisabled(disabled.contains(row.getRowNumber()));
+			if (option.isValid()) {
+				flattenTree(store, selection, option, disabled);
+				store.add(option, true);
+			}
+			
+			current++;
+			
+			return true;
+		}
+		
+		
 		
 	}
 

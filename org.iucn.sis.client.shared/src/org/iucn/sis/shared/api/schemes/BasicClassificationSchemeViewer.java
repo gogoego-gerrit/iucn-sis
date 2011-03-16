@@ -472,7 +472,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		grid.getView().refresh(false);
 	}
 	
-	private class ClassificationSchemeModelDataComparator implements Comparator<Object> {
+	public static class ClassificationSchemeModelDataComparator implements Comparator {
 		
 		private final TreeDataRowComparator comparator = 
 			new TreeDataRowComparator();

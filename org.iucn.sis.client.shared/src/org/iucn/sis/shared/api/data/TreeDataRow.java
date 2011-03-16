@@ -51,8 +51,15 @@ public class TreeDataRow extends DisplayData {
 		if (fullLineage != null)
 			return fullLineage;
 		
+		String prefix = "";
+		try {
+			prefix = Integer.valueOf(rowNumber) + ". ";
+		} catch (Exception e) {
+			//Don't care
+		}
+		
 		StringBuilder out = new StringBuilder();
-		out.append(rowNumber);
+		out.append(prefix);
 		out.append(". ");
 		
 		Stack<String> stack = new Stack<String>();

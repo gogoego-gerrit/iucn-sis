@@ -1,7 +1,7 @@
 package org.iucn.sis.shared.api.displays;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +16,7 @@ import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
+import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer.ClassificationSchemeModelDataComparator;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -206,7 +207,7 @@ public class ClassificationScheme extends Display {
 		buildReadOnlyContainer(container, thinData);
 	}
 	
-	private void buildReadOnlyContainer(VerticalPanel container, Collection<? extends ClassificationSchemeModelData> thinData) {
+	private void buildReadOnlyContainer(VerticalPanel container, List<? extends ClassificationSchemeModelData> thinData) {
 		container.clear();
 		container.add(new StyledHTML("Selections for " + description + ":", "bold"));
 		
@@ -214,6 +215,8 @@ public class ClassificationScheme extends Display {
 			container.add(new HTML("No selections made"));
 		}
 		else {
+			List<ClassificationSchemeModelData> list = new ArrayList<ClassificationSchemeModelData>(thinData);
+			Collections.sort(list, new ClassificationSchemeModelDataComparator());
 			for (ClassificationSchemeModelData model : thinData) {
 				container.add(new HTML(model.getSelectedRow().getFullLineage()));
 			}
