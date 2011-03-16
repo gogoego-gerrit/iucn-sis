@@ -273,6 +273,7 @@ public class FieldParser implements CreatesDisplay {
 				
 				LookupData options = lookups.find(id);
 				if (options == null) {
+					//Create from structure
 					options = new LookupData();
 					NativeNodeList selectOptions = current.getChildNodes();
 				
@@ -281,6 +282,28 @@ public class FieldParser implements CreatesDisplay {
 						if (selectOptions.item(k).getNodeName().equalsIgnoreCase("option"))
 							options.addValue((optionCount++)+"", XMLUtils.getXMLValue(selectOptions.item(k), ""));
 	
+						if (selectOptions.item(k).getNodeName().equalsIgnoreCase("selected")) {
+							String selected = XMLUtils.getXMLValue(selectOptions.item(k), "");
+							if (selected.indexOf(',') != -1) {
+								/*
+								 * Really, this should not be the case, you should 
+								 * just use multiple nodes ... but to support legacy 
+								 * data...
+								 */
+								for (String token : selected.split(",")) {
+									options.addDefaultValue(token);
+								}
+							}
+							else
+								options.addDefaultValue(selected);
+						}
+					}
+				}
+				else {
+					//Looking for pre-selected options (defaults)
+					NativeNodeList selectOptions = current.getChildNodes();
+					
+					for (int k = 0; k < selectOptions.getLength(); k++) {
 						if (selectOptions.item(k).getNodeName().equalsIgnoreCase("selected")) {
 							String selected = XMLUtils.getXMLValue(selectOptions.item(k), "");
 							if (selected.indexOf(',') != -1) {
