@@ -19,6 +19,7 @@ import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.SelectQuery;
+import com.solertium.db.vendor.PostgreSQLDBSession;
 import com.solertium.util.AlphanumericComparator;
 import com.solertium.util.BaseDocumentUtils;
 
@@ -34,6 +35,8 @@ private final ExecutionContext ec;
 		ec = new SystemExecutionContext(session);
 		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 		ec.setExecutionLevel(ExecutionContext.ADMIN);
+		if (ec.getDBSession() instanceof PostgreSQLDBSession)
+			ec.getDBSession().setIdentifierCase(DBSession.CASE_UPPER);
 	}
 	
 	public Document buildTree(String fieldName) {
