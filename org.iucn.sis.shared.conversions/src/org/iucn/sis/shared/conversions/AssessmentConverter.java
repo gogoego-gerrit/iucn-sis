@@ -334,7 +334,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			
 			if (assessment.getDateAssessed() == null)
-				throw new NullPointerException("No date assessed!");
+				assessData.setDateAssessed("1900-01-01");
 		}
 		assessment.generateFields();
 
