@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.Timer;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
@@ -108,8 +109,13 @@ public class UserPermissionPanel extends Window {
 		DeferredCommand.addPause();
 		DeferredCommand.addCommand(new Command() {
 			public void execute() {
-				draw();
-				open();
+				Timer t = new Timer() {
+					public void run() {
+						draw();
+						open();
+					}
+				};
+				t.schedule(1500);
 			}
 		});
 	}
