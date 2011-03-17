@@ -47,20 +47,33 @@ public class TreeDataRow extends DisplayData {
 		return expanded;
 	}
 	
+	/**
+	 * Returns a prefix for a displayable 
+	 * description, if applicable.  Prefixes 
+	 * in formats like 1.1, 1.1.2, 1.3, etc 
+	 * will be returned as "1.1. ".  Any 
+	 * other data will be returned as an empty 
+	 * string; null will never be returned.
+	 *  
+	 * @return the prefix
+	 */
+	public String getPrefix() {
+		if (rowNumber == null || "".equals(rowNumber) || "0".equals(rowNumber))
+			return "";
+		
+		for (char c : rowNumber.toCharArray())
+			if (!('.' == c || Character.isDigit(c)))
+				return "";
+		
+		return rowNumber + ". ";
+	}
+	
 	public String getFullLineage() {
 		if (fullLineage != null)
 			return fullLineage;
 		
-		String prefix = "";
-		try {
-			prefix = Integer.valueOf(rowNumber) + ". ";
-		} catch (Exception e) {
-			//Don't care
-		}
-		
 		StringBuilder out = new StringBuilder();
-		out.append(prefix);
-		out.append(". ");
+		out.append(getPrefix());
 		
 		Stack<String> stack = new Stack<String>();
 		TreeDataRow currentParent = parent;

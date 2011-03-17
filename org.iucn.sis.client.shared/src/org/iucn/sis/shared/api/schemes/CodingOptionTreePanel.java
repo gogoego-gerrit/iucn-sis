@@ -41,15 +41,24 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class CodingOptionTreePanel extends LayoutContainer {
 	
+	private Collection<TreeDataRow> selection;
 	private TreePanel<CodingOption> tree;
+	
+	private boolean isRendered;
 	
 	public CodingOptionTreePanel(TreeData treeData, Collection<TreeDataRow> selected, Collection<String> disabledRows) {
 		super(new FillLayout());
+		this.selection = selected;
+		this.isRendered = false;
+		
 		setLayoutOnChange(true);
 		draw(treeData, selected, disabledRows);
 	}
 	
 	public Set<TreeDataRow> getSelection() {
+		if (!isRendered)
+			return new HashSet<TreeDataRow>(selection);
+		
 		final HashSet<TreeDataRow> set = new HashSet<TreeDataRow>();
 		for (CodingOption item : tree.getCheckedSelection())
 			set.add(item.getRow());
@@ -117,6 +126,8 @@ public class CodingOptionTreePanel extends LayoutContainer {
 							checkList.remove(option);
 						
 						tree.setCheckedSelection(checkList);
+						
+						isRendered = true;
 					}
 				};
 				t.schedule(1000);
@@ -231,11 +242,9 @@ public class CodingOptionTreePanel extends LayoutContainer {
 		
 		private String getDescription() {
 			String curDesc = row.getDescription();
-			String curLevelID = row.getRowNumber();
 			
 			StringBuilder displayableDesc = new StringBuilder();
-			if (showDisplayLevel())
-				displayableDesc.append(curLevelID + ". ");
+			displayableDesc.append(row.getPrefix());
 			displayableDesc.append(curDesc);
 
 			if (!row.getChildren().isEmpty()) {
@@ -249,14 +258,6 @@ public class CodingOptionTreePanel extends LayoutContainer {
 			}
 			
 			return displayableDesc.toString();
-		}
-		
-		private boolean showDisplayLevel() {
-			try {
-				return Integer.parseInt(row.getRowNumber()) > 0;
-			} catch (Exception e) {
-				return false;
-			}
 		}
 		
 		private boolean isValid() {
