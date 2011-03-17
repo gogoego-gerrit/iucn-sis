@@ -202,6 +202,20 @@ public class TaxonConverter extends GenericConverter<String> {
 		Taxon taxon = convertTaxonNode(TaxonNodeFactory.createNode(ndoc), new Date(file.lastModified()));
 		
 		if (taxon != null) {
+			if (taxon.getLevel() == TaxonLevel.KINGDOM) {
+				Integer trueParent = null;
+				if ("ANIMALIA".equals(taxon.getName()))
+					trueParent = 100003;
+				else if ("FUNGI".equals(taxon.getName()))
+					trueParent = 100001;
+				else if ("PLANTAE".equals(taxon.getName()))
+					trueParent = 100002;
+				else if ("PROTISTA".equals(taxon.getName()))
+					trueParent = 100004;
+			
+				if (trueParent != null && taxon.getId() != trueParent.intValue())
+					return;
+			}
 			childToParent.put(taxon.getId(), taxon.getParentId());
 			taxon.setParentId(0);
 			taxon.setParent(null);
