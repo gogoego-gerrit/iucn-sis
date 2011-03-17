@@ -161,7 +161,8 @@ public class AddUserWindow extends Window {
 						.toLowerCase(), firstname.getValue(), lastname.getValue(),
 						affiliation.getValue() == null ? "" : affiliation.getValue(),
 						initials.getValue() == null ? "" : initials.getValue(),
-						nickname.getValue() == null ? "" : nickname.getValue()), new GenericCallback<String>() {
+						nickname.getValue() == null ? "" : nickname.getValue(), 
+						createAccount), new GenericCallback<String>() {
 					public void onSuccess(String result) {
 						hide();
 						AddUserWindow.this.onSuccess(username.getValue().toLowerCase());
@@ -191,7 +192,7 @@ public class AddUserWindow extends Window {
 	
 	
 
-	public String getXML(String username, String firstname, String lastname, String affiliation, String initials, String nickname) {
+	public String getXML(String username, String firstname, String lastname, String affiliation, String initials, String nickname, boolean createAccount) {
 		StringBuilder ret = new StringBuilder("<root>");
 		ret.append("<field name=\"username\"><![CDATA[" + username + "]]></field>");
 		ret.append("<field name=\"firstname\"><![CDATA[" + firstname + "]]></field>");
@@ -199,7 +200,7 @@ public class AddUserWindow extends Window {
 		ret.append("<field name=\"initials\"><![CDATA[" + initials + "]]></field>");
 		ret.append("<field name=\"nickname\"><![CDATA[" + nickname + "]]></field>");
 		ret.append("<field name=\"affiliation\"><![CDATA[" + affiliation + "]]></field>");
-		ret.append("<field name=\"sis\">true</field>");
+		ret.append("<field name=\"sis\">"+ Boolean.toString(createAccount) +"</field>");
 		ret.append("</root>");
 		return ret.toString();
 	}
