@@ -1724,6 +1724,7 @@ INSERT INTO ResearchLookup (code, parentID, level, codeable, ref, description) V
 INSERT INTO ResearchLookup (code, parentID, level, codeable, ref, description) VALUES('19', '(root)', 0, true, '100.2', 'OLD 3-Research actions');
 INSERT INTO Research (name, data_type, number_allowed) VALUES ('ResearchSubfield', 'field', '*');
 INSERT INTO ResearchSubfield (name, data_type, number_allowed) VALUES ('ResearchLookup', 'fk_primitive_field', '1');
+INSERT INTO ResearchSubfield (name, data_type, number_allowed) VALUES ('note', 'string_primitive_field', '?');
 INSERT INTO RiversLookup (code, parentID, level, codeable, ref, description) VALUES('118', '(root)', 0, true, '1', 'Aggia Paraskevi Spring');
 INSERT INTO RiversLookup (code, parentID, level, codeable, ref, description) VALUES('119', '(root)', 0, true, '2', 'Bayou Pierre and tributaries');
 INSERT INTO RiversLookup (code, parentID, level, codeable, ref, description) VALUES('120', '(root)', 0, true, '3', 'Caribbean and east Atlantic region rivers');
