@@ -54,6 +54,7 @@ import com.solertium.db.Row.Set;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.Replacer;
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.VFS;
 
@@ -289,7 +290,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			add(Restrictions.eq("friendlyName", assessData.getSpeciesName()))
 			.uniqueResult();
 		if (byName == null)
-			printf("No taxon found matching %s", assessData.getSpeciesName());
+			debug("No taxon found matching %s", assessData.getSpeciesName());
 		else
 			return byName;
 		
@@ -462,46 +463,56 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		PrimitiveField prim = null;
 		Row curRow = null;
 		int i = 0;
+		debug("Found %s/%s primitive values for %s", rawData.size(), lookup.getSet().size(), canonicalName);
 		for (String curPrimitive : rawData) {
-			if( lookup.getSet().size() <= i ) {
-				print("**** Extra piece of data found for " + canonicalName + ". Eliding.");
+			if (lookup.getSet().size() <= i) {
+				error(5, "Extra piece of data found for %s, Eliding: '%s'", canonicalName, curPrimitive);
 				continue;
 			}
 				
 			curRow = lookup.getSet().get(i);
 			
+			debug("Setting data point %s as %s.%s -> %s", i, field.getName(), curRow.get("name"), curPrimitive);
+			
 			String type = curRow.get("data_type").getString();
 			if (typeLookup.get(type) != Object.class) {
 				if( prim != null && (type.equals("fk_list_primitive_field")) ) {
+					if (!(prim instanceof ForeignKeyListPrimitiveField)) {
+						printf("Trying to magically set %s.%s to %s", field.getName(), curRow.get("name"), curPrimitive);
+						error(3, "Skipping as current field %s.%s is not a fk_list", field.getName(), prim.getName());
+						continue;
+					}
 					PrimitiveField newPrim = (PrimitiveField) typeLookup.get(type).newInstance();
 					newPrim.setRawValue(curPrimitive);
+					
 					prim.appendValue(newPrim.getValue());
 				} else if (!(curPrimitive == null || curPrimitive.equalsIgnoreCase(""))) {
 					prim = (PrimitiveField) typeLookup.get(type).newInstance();
+					prim.setName(curRow.get("name").getString());
 					
-					if( prim instanceof StringPrimitiveField ) {
-						if( curPrimitive.length() >= 1023 ) {
-							print("on current field " + field.getName() + "found some too-long string data in assessment " + field.getAssessment().getInternalId());
+					if (prim instanceof StringPrimitiveField) {
+						if (curPrimitive.length() > 1023) {
+							error(2, "On field %s.%s in assessment %s, this string has been chopped because it is too long: %s", field.getName(), prim.getName(), field.getAssessment().getInternalId(), curPrimitive);
 							
-							try {
-								Thread.sleep(10000);
-							} catch (InterruptedException e) {}
+							curPrimitive = curPrimitive.substring(0, 1023);
+							
 							prim = new TextPrimitiveField(prim.getName(), field, curPrimitive);
 						} else
 							prim.setRawValue(curPrimitive);
-					} else if( prim instanceof ForeignKeyPrimitiveField ) {
+					} else if (prim instanceof ForeignKeyPrimitiveField ) {
 						//Do the indexed lookup.
 						String lookupTable = curRow.get("name").getString().endsWith("Lookup") ?
 								curRow.get("name").getString() : getTableID(canonicalName, curRow.get("name").getString());
 						((ForeignKeyPrimitiveField) prim).setTableID(lookupTable);
 						Integer index = getIndex(canonicalName, lookupTable, curRow.get("name").getString(), curPrimitive);
-						if( index > -1 )
+						if (index > 0)
 							prim.setValue(index);
 						else {
-							print("...in assessment " + field.getAssessment().getInternalId());
+							prim = null;
+							i++;
 							continue;
 						}
-					} else if( prim instanceof ForeignKeyListPrimitiveField ) {
+					} else if ( prim instanceof ForeignKeyListPrimitiveField ) {
 						String lookupTable = curRow.get("name").getString().endsWith("Lookup") ?
 								curRow.get("name").getString() : getTableID(canonicalName, curRow.get("name").getString());
 						((ForeignKeyListPrimitiveField) prim).setTableID(lookupTable);
@@ -509,9 +520,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						try {
 							prim.setRawValue(curPrimitive);
 						} catch (Exception e) {
-							e.printStackTrace();
-							print("ERROR setting data " + curPrimitive + 
-									" for primitive " + prim.getName() + " in field " + field.getName());
+							error(2, "Error setting foreign key list data '%s' " +
+								"for field %s.%s", curPrimitive, prim.getName(), field.getName());
 						}
 						
 						if( canonicalName.equals(CanonicalNames.RegionInformation)) {
@@ -524,7 +534,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							prim.setValue(newData);
 						}
 						
-					} else if( prim instanceof DatePrimitiveField ) {
+					} else if ( prim instanceof DatePrimitiveField ) {
 						String format = "yyyy-MM-dd";
 						String formatWithTime = "yyyy-MM-dd HH:mm:ss";
 						String formatSlashes = "yyyy/MM/dd";
@@ -550,11 +560,14 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 										
 										prim.setValue(formatterYear.parse(curPrimitive));
 									} catch (ParseException e3) {
-										print("*****UNABLE TO PARSE DATE " + curPrimitive + " on assessment " + field.getAssessment().getInternalId());
+										error(3, "Unable to parse date for %s.%s on assessment %s: %s", 
+											curPrimitive, field.getName(), prim.getName(), field.getAssessment().getInternalId());
+										
 										prim.setValue(new Date());
 										
 										Notes note = new Notes();
 										note.setValue("Unable to port data '" + curPrimitive + "' because it is not a valid Date format.");
+										
 										field.getNotes().add(note);
 										note.setField(field);
 									}
@@ -571,12 +584,20 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						try {
 							prim.setRawValue(curPrimitive);
 						} catch (NumberFormatException e) {
-							print("*****NUMBER FORMAT ISSUES WITH DATA " + curPrimitive + "on field " + field.getName() + " in assessment " + field.getAssessment().getInternalId() );
+							error(3, "NumberFormatException on %s.%s in asm %s: '%s'",
+								field.getName(), prim.getName(), field.getAssessment().getInternalId(), curPrimitive);
+							
 							Notes note = new Notes();
 							note.setValue("Unable to port data '" + curPrimitive + "' because it is not a number.");
+							
 							field.getNotes().add(note);
 							note.setField(field);
-							prim.setValue(Float.valueOf(0.0f));
+							
+							String nonNumeric = Replacer.stripNonNumeric(curPrimitive);
+							if ("".equals(nonNumeric))
+								nonNumeric = "0";
+							
+							prim.setValue(Float.valueOf(nonNumeric));
 						}
 					}
 					
@@ -606,8 +627,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 //		String table = canonicalName + "_" + name + "Lookup";
 		
 		for( Row row : getLookup(libraryTable).getSet() ) {
-			if( row.get("code") != null ) { 
-				if ( value.equalsIgnoreCase(row.get("code").getString()) )
+			if (row.get("code") != null) { 
+				if (value.equalsIgnoreCase(row.get("code").getString()))
 					return row.get("id").getInteger();
 			} else if( value.equalsIgnoreCase(row.get("label").getString()) || 
 					value.equalsIgnoreCase( Integer.toString((Integer.parseInt(
@@ -615,13 +636,18 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				return row.get("id").getInteger();
 		}
 		if( !value.equals("0") ) {
-			print("Didn't match value " + value + " to lookup " + libraryTable);
+			error(3, "For %s.%s, didn't find a lookup in %s to match: %s", 
+				canonicalName, name, libraryTable, value);
 			return -1;
 		} else
 			return 0;
 	}
 	
-	private Set getLookup(String fieldName) throws DBException {
+	private Set getLookup(String table) throws DBException {
+		String fieldName = table;
+		if (fieldName.equalsIgnoreCase(CanonicalNames.ReproduictivePeriodicity))
+			fieldName = org.iucn.sis.shared.api.utils.CanonicalNames.ReproductivePeriodicity;
+		
 		if (lookups.containsKey(fieldName))
 			return lookups.get(fieldName);
 		else {
@@ -637,5 +663,19 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 
 			return lookup;
 		}
-	} 
+	}
+	
+	private void debug(String template, Object... args) {
+		//printf(template, args);
+	}
+	
+	private void error(int level, String template, Object... args) {
+		StringBuilder builder = new StringBuilder();
+		for (int i = 0; i < level; i++)
+			builder.append('#');
+		builder.append(" Level " + level + " Error: ");
+		builder.append(template);
+		
+		printf(builder.toString(), args);
+	}
 }

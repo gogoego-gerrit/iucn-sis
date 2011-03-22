@@ -18,6 +18,13 @@ import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.VFSPathToken;
 
 public class TaxonImageConverter extends GenericConverter<VFSInfo> {
+	
+	/*
+	 * Set to false if you plan to manually copy the 
+	 * images to the appropriate destination, or 
+	 * set to true to let the program handle this.
+	 */
+	private static final boolean COPY_FROM_BIN = false;
 
 	@Override
 	protected void run() throws Exception {
@@ -28,7 +35,8 @@ public class TaxonImageConverter extends GenericConverter<VFSInfo> {
 		VFSPathToken[] tokens = data.getOldVFS().list(imageRoot);
 		for (VFSPathToken token : tokens) {
 			if ("bin".equals(token.toString())) {
-				copyImages(imageRoot.child(token));
+				if (COPY_FROM_BIN)
+					copyImages(imageRoot.child(token));
 			}
 			else {
 				copyXML(imageRoot.child(token), new AtomicInteger(0));
@@ -54,7 +62,7 @@ public class TaxonImageConverter extends GenericConverter<VFSInfo> {
 					final TaxonIO io = new TaxonIO(session);
 					final Taxon taxon = io.getTaxon(taxonID);
 					if (taxon == null) {
-						printf("No taxon saved with the ID {0}, skipping...", taxonID);
+						printf("No taxon saved with the ID %s, skipping...", taxonID);
 						continue;
 					}
 					

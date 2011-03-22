@@ -10,6 +10,7 @@ import javax.naming.NamingException;
 import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.conversions.AssessmentConverter.ConversionMode;
+import org.restlet.data.Form;
 
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.NotFoundException;
@@ -28,14 +29,16 @@ public class ConverterWorker implements Runnable {
 	private final String step;
 	private final boolean proceed;
 	private final PrintWriter writer;
+	private final Form parameters;
 	
 	protected VFS oldVFS;
 	protected VFS newVFS;
 	
-	public ConverterWorker(PrintWriter writer, String step, boolean proceed) {
+	public ConverterWorker(PrintWriter writer, String step, boolean proceed, Form parameters) {
 		this.step = step;
 		this.proceed = proceed;
 		this.writer = writer;
+		this.parameters = parameters;
 	}
 	
 	@Override
@@ -207,6 +210,7 @@ public class ConverterWorker implements Runnable {
 	private void initConverter(Converter converter, Writer writer) {
 		converter.setWriter(writer);
 		converter.setLineBreakRule("\r\n");
+		converter.setParameters(parameters);
 	}
 	
 	private void die(String message, Throwable e, Writer writer) {

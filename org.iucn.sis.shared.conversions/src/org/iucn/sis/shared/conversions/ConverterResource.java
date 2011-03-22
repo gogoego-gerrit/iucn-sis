@@ -49,7 +49,7 @@ public class ConverterResource extends Restlet {
 			return;
 		}
 		
-		new Thread(new ConverterWorker(writer, step, proceed)).start();
+		new Thread(new ConverterWorker(writer, step, proceed, arg0.getResourceRef().getQueryAsForm())).start();
 		
 		arg1.setEntity(representation);
 	}

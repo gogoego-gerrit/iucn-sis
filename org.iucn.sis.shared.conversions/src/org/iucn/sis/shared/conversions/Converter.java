@@ -3,26 +3,37 @@ package org.iucn.sis.shared.conversions;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.sql.BatchUpdateException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Properties;
 
+import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.restlet.data.Form;
+
+import com.solertium.mail.GMailer;
 
 public abstract class Converter {
+	
+	protected final StringWriter localWriter;
 	
 	protected BufferedWriter writer;
 	protected String lineBreakRule;
 	
 	protected Session session;
 	
+	protected Form parameters;
 	private boolean clearSessionAfterTransaction;
 	
 	public Converter() {
 		this.clearSessionAfterTransaction = false;
+		this.localWriter = new StringWriter();
+		this.parameters = new Form();
 		
 		setWriter(new PrintWriter(System.out));
 		setLineBreakRule("\r\n");
@@ -39,6 +50,14 @@ public abstract class Converter {
 	
 	public void setLineBreakRule(String lineBreakRule) {
 		this.lineBreakRule = lineBreakRule;
+	}
+	
+	public void setParameters(Form parameters) {
+		this.parameters = parameters;
+	}
+	
+	public boolean isEmailResults() {
+		return "true".equals(parameters.getFirstValue("email", "false"));
 	}
 	
 	public boolean start() {
@@ -100,6 +119,9 @@ public abstract class Converter {
 			}
 		}
 		
+		if (isEmailResults())
+			emailResults(success);
+		
 		session.close();
 		
 		return success;
@@ -128,4 +150,32 @@ public abstract class Converter {
 		print(String.format(out, args));
 	}
 
+	protected void emailResults(boolean success) {
+		Properties properties = GoGoEgo.getInitProperties();
+		String[] required = new String[] {
+			"org.iucn.sis.conversions.mail.account", 
+			"org.iucn.sis.conversions.mail.password", 
+			"org.iucn.sis.conversions.mail.recipient"
+		};
+		for (String s : required)
+			if (properties.getProperty(s) == null)
+				return;
+		
+		
+		GMailer mailer = new GMailer(
+			properties.getProperty("org.iucn.sis.conversions.mail.account"), 
+			properties.getProperty("org.iucn.sis.conversions.mail.password")
+		);
+		mailer.setTo(properties.getProperty("org.iucn.sis.conversions.mail.recipient", "org.iucn.sis.conversions.mail.account"));
+		mailer.setSubject(getClass().getSimpleName() + " SIS-1 -> SIS-2 Conversion Results");
+		mailer.setBody("Success: " + success + lineBreakRule + lineBreakRule + 
+			"Output: " + lineBreakRule + lineBreakRule + localWriter.toString());
+		
+		try {
+			mailer.background_send();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+	}
+	
 }
