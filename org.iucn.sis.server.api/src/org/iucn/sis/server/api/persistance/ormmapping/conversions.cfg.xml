@@ -44,7 +44,7 @@
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Virus.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/WorkflowNotes.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/WorkflowStatus.hbm.xml" />
-		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/WorkingSet.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/WorkingSetForConversions.hbm.xml" />
 		
     </session-factory>
 	

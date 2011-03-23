@@ -1,19 +1,14 @@
 package org.iucn.sis.shared.conversions;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.gogoego.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.io.RelationshipIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.utils.FormattedDate;
-import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Relationship;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -21,13 +16,9 @@ import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.helpers.WorkingSetData;
 import org.iucn.sis.shared.helpers.WorkingSetParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFS;
 
 public class WorkingSetConverter extends GenericConverter<VFSInfo> {
@@ -47,8 +38,8 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 	
 	public void convertAllWorkingSets(VFS oldVFS) throws Exception {
 		List<File> allFiles = FileListing.main(data.getOldVFSPath() + "/HEAD/workingsets");
-		Map<String, HashSet<String>> oldWSIDToUserNames = parseSubscribedDocs(oldVFS);
-		//long converted = 0;
+		//Map<String, HashSet<String>> oldWSIDToUserNames = parseSubscribedDocs(oldVFS);
+		AtomicInteger converted = new AtomicInteger(0);
 
 		for (File file : allFiles) {
 			try {
@@ -56,19 +47,18 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 					NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 					ndoc.parse(FileListing.readFileAsString(file));
 					WorkingSetData data = new WorkingSetParser().parseSingleWorkingSet(ndoc.getDocumentElement());
-					WorkingSet set = convertWorkingSetData(data, oldWSIDToUserNames.get(data.getId()));
+					WorkingSet set = convertWorkingSetData(data);
 					if (set != null) {
 						session.save(set);
 						//converted++;
 					} else {
 						print("The set " + file.getPath() + " is null");
 					}
-/*
-					if( converted % 10 == 0 ) {
-						SIS.get().getManager().getSession().getTransaction().commit();
-						SIS.get().getManager().getSession().beginTransaction();
-					}*/
-					
+
+					if (converted.incrementAndGet() % 50 == 0) {
+						printf("Converted %s working sets...", converted.get());
+						commitAndStartTransaction();
+					}
 				}
 			} catch (Exception e) {
 				print("Failed on file " + file.getPath());
@@ -82,7 +72,7 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		}*/
 	}
 	
-	private Map<String, Document> getSubscribedDocs(VFS vfs) throws NotFoundException {
+	/*private Map<String, Document> getSubscribedDocs(VFS vfs) throws NotFoundException {
 		Map<String, Document> userToDoc = new HashMap<String, Document>();
 		String[] usersDir = vfs.list(ServerPaths.getUserRootPath());
 		for (String userDir : usersDir) {
@@ -115,11 +105,11 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		}
 		
 		return oldWSIDToUserNames;		
-	}
+	}*/
 	
-	public WorkingSet convertWorkingSetData(WorkingSetData data, Set<String> subscribedUsernames) throws Exception {
-		
+	public WorkingSet convertWorkingSetData(WorkingSetData data) throws Exception {
 		WorkingSet ws = new WorkingSet();
+		ws.setId(Integer.valueOf(data.getId()));
 		ws.setDescription(data.getDescription());
 		ws.setName(data.getWorkingSetName());
 		ws.setCreatedDate(FormattedDate.impl.getDate(data.getDate()));
@@ -150,51 +140,41 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 			}
 			Relationship rel = relationshipIO.getRelationshipByName(data.getFilter().getRegionType());
 			ws.setRelationship(rel);
-		}
-		
-		
+		}		
 
 		//ADD USERS
 		User creator = userIO.getUserFromUsername(data.getCreator());
-		if( creator == null ) {
-			print("Couldn't find user " + data.getCreator());
+		if (creator == null) {
+			printf("Migrating working set %s failed, couldn't find user %s", data.getWorkingSetName(), data.getCreator());
 			return null;
 		}
 		ws.setCreator(creator);
 		creator.getOwnedWorkingSets().add(ws);
-		if (subscribedUsernames != null)
-		for (String username : subscribedUsernames) {
-			User user = userIO.getUserFromUsername(username);
-			if (user != null)
-				ws.getUsers().add(user);
-//			user.getSubscribedWorkingSets().add(ws);
-		}
+		
+		/*if (subscribedUsernames != null)
+			for (String username : subscribedUsernames) {
+				User user = userIO.getUserFromUsername(username);
+				if (user != null)
+					ws.getUsers().add(user);
+	//			user.getSubscribedWorkingSets().add(ws);
+			}*/
 		
 		//WORKFLOW
 		ws.setWorkflow("draft");
 		
-		
 		//ADD TAXON
 		for (String taxonID : data.getSpeciesIDs()) {
-			try{
-			Taxon taxon = taxonIO.getTaxon(Integer.valueOf(taxonID));
-			if( taxon != null ) {
-					taxon.setWorking_set(new HashSet<WorkingSet>());
-					taxon.getWorking_set().add(ws);
+			try {
+				Taxon taxon = taxonIO.getTaxon(Integer.valueOf(taxonID));
+				if (taxon != null)
 					ws.getTaxon().add(taxon);
-				}
 			} catch (Exception e) {
 				print("failed while trying taxonID " + taxonID);
 				throw e;
 			}
 		}
 
-		
-//		System.out.println("trying to save:\n" + ws.toXML());
-		
-		
-		return ws;
-		
+		return ws;		
 	}
 
 }

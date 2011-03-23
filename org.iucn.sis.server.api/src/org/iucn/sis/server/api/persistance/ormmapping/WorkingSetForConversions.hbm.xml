@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.WorkingSet" table="working_set" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="assigned">
+			</generator>
+		</id>
+		
+		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="description" column="description" type="text" not-null="true" lazy="false"/>
+		<property name="createdDate" column="created_date" type="java.util.Date" not-null="true" lazy="false"/>
+		<property name="isMostRecentPublished" column="most_recent_published" type="boolean" length="1" not-null="true" lazy="false"/>
+		<property name="workflow" column = "workflow" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="notes" column="notes" type="text" not-null="false" lazy="false" />
+		<many-to-one name="relationship" cascade="lock" column="relationshipid" class="org.iucn.sis.shared.api.models.Relationship" not-null="true" lazy="no-proxy"/>
+		<many-to-one name="creator" cascade="lock" column="creator" class="org.iucn.sis.shared.api.models.User" not-null="true" lazy="no-proxy">
+		</many-to-one>
+		<set name="Taxon" table="working_set_taxon" lazy="true" cascade="save-update,lock">
+			<key column="working_setid" not-null="true"/>
+			<many-to-many column="taxonid" class="org.iucn.sis.shared.api.models.Taxon">
+			</many-to-many>
+		</set>
+		<set name="Region" table="working_set_region" lazy="true" cascade="save-update,lock">
+			<key column="working_setid" not-null="true"/>
+			<many-to-many column="regionid" class="org.iucn.sis.shared.api.models.Region">
+			</many-to-many>
+		</set>
+		<set name="Edit" table="working_set_edit" lazy="true" cascade="save-update,lock">
+			<key column="working_setid" not-null="true"/>
+			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
+			</many-to-many>
+		</set>
+		<set name="Users" table="working_set_subscribe_user" lazy="true" cascade="save-update,lock">
+			<key column="working_setid" not-null="true"/>
+			<many-to-many column="userid" class="org.iucn.sis.shared.api.models.User">
+			</many-to-many>
+		</set>
+		<set name="AssessmentTypes" table="working_set_assessment_type" lazy="true" cascade="save-update,lock">
+			<key column="working_setid" not-null="true"/>
+			<many-to-many column="assessment_typeid" class="org.iucn.sis.shared.api.models.AssessmentType">
+			</many-to-many>
+		</set>
+		
+	</class>
+</hibernate-mapping>

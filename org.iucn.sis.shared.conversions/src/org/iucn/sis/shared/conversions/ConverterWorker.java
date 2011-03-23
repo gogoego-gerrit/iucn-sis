@@ -74,6 +74,8 @@ public class ConverterWorker implements Runnable {
 			success = convertPublished(proceed, writer);
 		else if ("workingsets".equalsIgnoreCase(step))
 			success = convertWorkingSets(proceed, writer);
+		else if ("userworkingsets".equals(step))
+			success = convertUserWorkingSets(proceed, writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -201,6 +203,14 @@ public class ConverterWorker implements Runnable {
 	
 	private boolean convertWorkingSets(boolean proceed, Writer writer) {
 		WorkingSetConverter converter = new WorkingSetConverter();
+		initConverter(converter, writer);
+		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		
+		return converter.start() && (!proceed || convertUserWorkingSets(proceed, writer));
+	}
+	
+	private boolean convertUserWorkingSets(boolean proceed, Writer writer) {
+		UserWorkingSetConverter converter = new UserWorkingSetConverter();
 		initConverter(converter, writer);
 		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
 		
