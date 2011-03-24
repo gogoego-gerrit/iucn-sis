@@ -81,7 +81,7 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 				WindowManager.get().hideAll();
 				Window temp = new EditCommonNamePanel(cn, taxon, new ComplexListener<CommonName>() {
 					public void handleEvent(CommonName eventData) {
-						//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());
+						ClientUIContainer.bodyContainer.refreshTaxonPage();
 					}
 				});
 				temp.show();
