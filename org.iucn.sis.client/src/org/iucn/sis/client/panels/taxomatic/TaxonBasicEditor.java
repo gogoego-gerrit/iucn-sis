@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels.taxomatic;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.models.Infratype;
@@ -293,6 +292,7 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 				WindowUtils.errorAlert("Could not reload taxon, please try again later.");
 			}
 			public void onSuccess(Taxon result) {
+				ClientUIContainer.headerContainer.centerPanel.refreshTaxonView();
 				ClientUIContainer.bodyContainer.refreshBody();
 			}
 		});

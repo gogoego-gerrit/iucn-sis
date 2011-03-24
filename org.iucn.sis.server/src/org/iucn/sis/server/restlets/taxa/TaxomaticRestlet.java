@@ -567,6 +567,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		currentTaxon.setStatus(updatedTaxon.getStatusCode());
 		currentTaxon.setFeral(updatedTaxon.getFeral());
 		currentTaxon.setInvasive(updatedTaxon.getInvasive());
+		currentTaxon.correctFullName();
 		
 		InfratypeIO io = new InfratypeIO(session);
 		
