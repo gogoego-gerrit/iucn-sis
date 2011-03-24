@@ -34,14 +34,7 @@ public class TaxonomyCache {
 
 	public static final TaxonomyCache impl = new TaxonomyCache();
 
-	/**
-	 * ArrayList<Taxon>
-	 */
-	private Set<Taxon> recentlyAccessed;
-
-	/**
-	 * HashMap<String, Taxon>();
-	 */
+	private Set<Integer> recentlyAccessed;
 	private HashMap<Integer, Taxon> cache;
 
 	/**
@@ -58,7 +51,7 @@ public class TaxonomyCache {
 	private TaxonomyCache() {
 		cache = new HashMap<Integer, Taxon>();
 		pathCache = new HashMap<String, NativeDocument>();
-		recentlyAccessed = new LinkedHashSet<Taxon>();
+		recentlyAccessed = new LinkedHashSet<Integer>();
 		requested = new HashMap<Integer, List<GenericCallback<Taxon>>>();
 	}
 
@@ -123,9 +116,8 @@ public class TaxonomyCache {
 		String[] ids = csvIDs.split(",");
 		for (int i = 0; i < ids.length; i++) {
 			Taxon node = (Taxon) remove(Integer.parseInt(ids[i]));
-			if (node != null) {
-				recentlyAccessed.remove(node);
-			}
+			if (node != null)
+				recentlyAccessed.remove(node.getId());
 		}
 		evictPaths();
 	}
@@ -439,13 +431,20 @@ public class TaxonomyCache {
 	}
 
 	public Set<Taxon> getRecentlyAccessed() {
-		return recentlyAccessed;
+		Set<Taxon> set = new LinkedHashSet<Taxon>();
+		for (Integer id : recentlyAccessed) {
+			Taxon taxon = getTaxon(id);
+			if (taxon != null)
+				set.add(taxon);
+		}
+		return set;
 	}
 	
 	public void updateRecentTaxa() {
 		//TODO: should this be persisted?
-		
-		recentlyAccessed.add(getCurrentTaxon());
+		Taxon taxon = getCurrentTaxon();
+		if (taxon != null)
+			recentlyAccessed.add(getCurrentTaxon().getId());
 	}
 
 	public Object invalidatePath(Integer pathID) {

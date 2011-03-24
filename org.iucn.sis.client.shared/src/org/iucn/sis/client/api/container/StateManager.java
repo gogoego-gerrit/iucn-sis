@@ -75,6 +75,19 @@ public final class StateManager implements CoreObservable<ComplexListener<StateC
 	}
 	
 	/**
+	 * Sets the current taxon to the given 
+	 * taxon and resets teh current assessment, 
+	 * if any.  If true is passed for force, it 
+	 * will force a state change, even if the 
+	 * given taxon is the current taxon.
+	 * @param taxon
+	 * @param force
+	 */
+	public void setTaxon(Taxon taxon, boolean force) {
+		setState(new StateChangeEvent(getWorkingSet(), taxon, null, this), force);
+	}
+	
+	/**
 	 * Sets the current working set to the given 
 	 * working set, and resets the current taxon 
 	 * and assessment, if any

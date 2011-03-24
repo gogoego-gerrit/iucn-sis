@@ -72,11 +72,9 @@ public class LateralMove extends TaxonChooser {
 
 	@Override
 	public void onSubmit() {
-
-		move.setEnabled(false);
-		cancel.setEnabled(false);
-
 		if (childrenNodes.size() > 0) {
+			move.setEnabled(false);
+			cancel.setEnabled(false);
 			TaxomaticUtils.impl.lateralMove(parentNode.getId() + "", childrenNodes, new GenericCallback<String>() {
 				public void onFailure(Throwable arg0) {
 					move.setEnabled(true);

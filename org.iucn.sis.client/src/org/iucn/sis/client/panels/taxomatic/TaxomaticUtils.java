@@ -130,7 +130,7 @@ public class TaxomaticUtils {
 
 					public void onSuccess(Taxon  result) {
 						/*ClientUIContainer.bodyContainer.refreshBody();*/
-						StateManager.impl.setTaxon(result);
+						StateManager.impl.setTaxon(result, true);
 						callback.onSuccess(result.getId() + "");
 					}
 				});
