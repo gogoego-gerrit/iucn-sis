@@ -59,6 +59,8 @@ import com.solertium.util.gwt.ui.DrawsLazily;
  * 
  */
 public class ReferenceEditor extends Window implements DrawsLazily {
+	
+	private static final String DEFAULT_TYPE = "journal article";
 
 	private ComboBox<ReferenceTypeModel> typeChooser;
 	private Reference reference;
@@ -135,7 +137,9 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 					Debug.println("Loading reference of type {0}", reference.getType());
 				
 				ReferenceTypeModel selected = null;
-				ReferenceTypeModel other = null;
+				ReferenceTypeModel defaultType = null;
+				
+				String defaultTypeName = reference == null ? DEFAULT_TYPE : "other";
 				
 				final ListStore<ReferenceTypeModel> store = new ListStore<ReferenceTypeModel>();
 				final NativeNodeList types = typesDoc.getDocumentElement().getChildNodes();
@@ -148,8 +152,8 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 						if (reference != null && reference.getType().equalsIgnoreCase(value))
 							selected = model;
 						
-						if ("other".equals(value))
-							other = model;
+						if (defaultTypeName.equals(value))
+							defaultType = model;
 						
 						store.add(model);
 					}
@@ -158,7 +162,7 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 				typeChooser.setStore(store);
 				
 				if (selected == null)
-					selected = other;
+					selected = defaultType;
 				
 				typeChooser.setValue(selected);
 				
