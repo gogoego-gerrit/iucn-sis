@@ -14,7 +14,6 @@ import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.solertium.lwxml.gwt.utils.ClientDocumentUtils;
 import com.solertium.lwxml.shared.GWTResponseException;
@@ -129,7 +128,7 @@ public class TaxomaticUtils {
 					}
 
 					public void onSuccess(Taxon  result) {
-						/*ClientUIContainer.bodyContainer.refreshBody();*/
+						ClientUIContainer.headerContainer.centerPanel.refreshTaxonView();
 						StateManager.impl.setTaxon(result, true);
 						callback.onSuccess(result.getId() + "");
 					}

@@ -99,6 +99,10 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		workingSetContainer.refreshView();
 	}
 	
+	public void refreshTaxonView() {
+		taxonContainer.refreshView();
+	}
+	
 	public void refreshAssessmentView() {
 		assessmentContainer.refreshView();
 	}
