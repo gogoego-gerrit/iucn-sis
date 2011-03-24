@@ -72,6 +72,7 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 			setHeading("Edit Common Name");
 
 		nameBox = new TextBox();
+		nameBox.setWidth("300px");
 		isPrimary = new CheckBox();
 		if (taxon.getCommonNames().size() == 0) {
 			isPrimary.setValue(true);

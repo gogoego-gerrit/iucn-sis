@@ -66,6 +66,7 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 		numberAdded = 0;
 
 		name = new TextBox();
+		name.setWidth("300px");
 		name.addBlurHandler(new BlurHandler() {
 			public void onBlur(BlurEvent event) {
 				String oldName = name.getName();
