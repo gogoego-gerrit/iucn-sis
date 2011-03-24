@@ -332,14 +332,20 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 	}
 	
 	@Override
-	protected void updateSelection(Integer selection) {
-		//TaxonomyCache.impl.setCurrentTaxon(selection);
+	protected void updateSelection(final Integer selection) {
 		TaxonomyCache.impl.fetchTaxon(selection, new GenericCallback<Taxon>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Could not load this taxon. Please try again later.");
 			}
 			public void onSuccess(Taxon result) {
-				StateManager.impl.setState(result, null);
+				if (getSelectedItem() == selection)
+					draw(new DrawsLazily.DoneDrawingCallback() {
+						public void isDrawn() {
+							layout();
+						}
+					});
+				else
+					StateManager.impl.setState(result, null);
 			}
 		});
 	}
@@ -636,7 +642,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 			mItem.setText("Remove Taxon");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					final Taxon node = TaxonomyCache.impl.getCurrentTaxon();
+					final Taxon node = getTaxon();
 					TaxonomyCache.impl.fetchChildren(node, new GenericCallback<List<TaxonListElement>>() {
 						public void onFailure(Throwable caught) {
 							String msg = "If this taxon has assessments, these will be moved to the trash as well. Move"
@@ -644,31 +650,28 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 							
 							WindowUtils.confirmAlert("Confirm Delete", msg, new WindowUtils.SimpleMessageBoxListener() {
 								public void onYes() {
-									final Taxon taxon = getTaxon();
-									if (taxon != null) {
-										TaxomaticUtils.impl.deleteTaxon(taxon, new GenericCallback<String>() {
-											public void onSuccess(String result) {
-												TaxonomyCache.impl.clear();
-												TaxonomyCache.impl.evict(taxon.getParentId() + "," + taxon.getId());
-												TaxonomyCache.impl.fetchTaxon(getTaxon().getParentId(), true,
-														new GenericCallback<Taxon>() {
-													public void onFailure(Throwable caught) {
-														//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(null);
-														//FIXME: panelManager.recentAssessmentsPanel.update();
-													};
-													public void onSuccess(Taxon result) {
-														updateSelection(taxon.getId());
-														/*ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
-															.update(TaxonomyCache.impl.getCurrentTaxon().getId());*/
-														//FIXME: panelManager.recentAssessmentsPanel.update();
-													};
-												});
-											}
-											public void onFailure(Throwable caught) {
-												//close();
-											}
-										});
-									}
+									TaxomaticUtils.impl.deleteTaxon(node, new GenericCallback<String>() {
+										public void onSuccess(String result) {
+											TaxonomyCache.impl.clear();
+											TaxonomyCache.impl.evict(node.getParentId() + "," + node.getId());
+											TaxonomyCache.impl.fetchTaxon(getTaxon().getParentId(), true,
+													new GenericCallback<Taxon>() {
+												public void onFailure(Throwable caught) {
+													//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(null);
+													//FIXME: panelManager.recentAssessmentsPanel.update();
+												};
+												public void onSuccess(Taxon result) {
+													updateSelection(result.getId());
+													/*ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
+														.update(TaxonomyCache.impl.getCurrentTaxon().getId());*/
+													//FIXME: panelManager.recentAssessmentsPanel.update();
+												};
+											});
+										}
+										public void onFailure(Throwable caught) {
+											//close();
+										}
+									});
 								}
 
 							});

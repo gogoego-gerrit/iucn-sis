@@ -6,6 +6,7 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -32,16 +33,21 @@ import com.solertium.util.extjs.client.WindowUtils;
 @SuppressWarnings("deprecation")
 public class TaxomaticAssessmentMover extends TaxomaticWindow {
 
-	protected final Taxon  nodeToMoveAssessmentsOutOf;
-	protected final Html htmlOfNodeToMoveAssessmentsINTO;
-	protected final DataList assessmentList;
-	protected final Button submitButton;
+	private final Taxon source;
+	private final Html htmlOfNodeToMoveAssessmentsINTO;
+	private final DataList assessmentList;
+	private final Button submitButton;
+	
+	private Taxon target; 
 
 	public TaxomaticAssessmentMover(Taxon currentNode) {
 		super();
 		setHeading("Move Assessments");
 		setIconStyle("icon-document-move");
-		nodeToMoveAssessmentsOutOf = currentNode;
+		
+		this.source = currentNode;
+		this.target = null;
+		
 		htmlOfNodeToMoveAssessmentsINTO = new Html("No taxon selected");
 		assessmentList = new DataList();
 		submitButton = new Button("Complete Move", new SelectionListener<ButtonEvent>() {
@@ -53,12 +59,13 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 		load();
 	}
 
-	protected void addItem(Taxon  nodeToMoveAssementsTo) {
-		if (nodeToMoveAssementsTo == null)
+	protected void addItem(Taxon target) {
+		if (target == null)
 			return;
+		
+		this.target = target;
 
-		htmlOfNodeToMoveAssessmentsINTO.setHtml(nodeToMoveAssementsTo.getFullName());
-		htmlOfNodeToMoveAssessmentsINTO.setData("id", nodeToMoveAssementsTo.getId() + "");
+		htmlOfNodeToMoveAssessmentsINTO.setHtml(target.getFullName());
 	}
 
 	protected VerticalPanel getRightSide() {
@@ -76,7 +83,7 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 		assessmentList.setCheckable(true);
 		assessmentList.setWidth("100%");
 		assessmentList.setScrollMode(Scroll.AUTO);
-		for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(nodeToMoveAssessmentsOutOf.getId())) {
+		for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(source.getId())) {
 			DataListItem item = new DataListItem();
 			String displayable = "Published -- ";
 
@@ -124,8 +131,8 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 				}));
 			}
 		};
-		if (nodeToMoveAssessmentsOutOf != null) {
-			tp.update(nodeToMoveAssessmentsOutOf.getId() + "");
+		if (source != null) {
+			tp.update(source.getId() + "");
 		} else {
 			tp.update();
 		}
@@ -138,9 +145,9 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 		left.add(tp);
 
 		full.add(new HTML("<b> Instructions:</b> Select a taxon (species level or lower) and 1 or more "
-				+ nodeToMoveAssessmentsOutOf.getFullName()
+				+ source.getFullName()
 				+ "'s published assessments.  All chosen assessments will move " + "from "
-				+ nodeToMoveAssessmentsOutOf.getFullName() + " to the chosen taxon."), new BorderLayoutData(
+				+ source.getFullName() + " to the chosen taxon."), new BorderLayoutData(
 				LayoutRegion.NORTH, TaxonChooser.HEADER_HEIGHT));
 
 		full.add(left, new BorderLayoutData(LayoutRegion.WEST, size));
@@ -157,19 +164,19 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 	 */
 	protected void onSubmit() {
 		final List<DataListItem> checked = assessmentList.getChecked();
-		final String nodeID = htmlOfNodeToMoveAssessmentsINTO.getData("id");
-		if (nodeID == null) {
+		if (target == null) {
 			WindowUtils.infoAlert("Please select a taxon to move the assessments into.");
 		} else if (checked.size() == 0) {
 			WindowUtils.infoAlert("Please select at least one assessment to move from "
-					+ nodeToMoveAssessmentsOutOf.getFullName() + ".");
+					+ source.getFullName() + ".");
 		} else {
 			submitButton.setEnabled(false);
 			ArrayList<String> ids = new ArrayList<String>();
 			for (DataListItem item : checked) {
-				ids.add((String) item.getData("id"));
+				Integer id = item.getData("id");
+				ids.add(id.toString());
 			}
-			TaxomaticUtils.impl.performMoveAssessments(ids, nodeToMoveAssessmentsOutOf.getId() + "", nodeID,
+			TaxomaticUtils.impl.performMoveAssessments(ids, Integer.toString(source.getId()), Integer.toString(target.getId()),
 					new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils
@@ -179,13 +186,13 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 				public void onSuccess(String result) {
 					if (assessmentList.getChecked().size() == assessmentList.getItemCount()) {
 						WindowUtils.infoAlert("Success", "The selected assessments were moved from "
-								+ nodeToMoveAssessmentsOutOf.getFullName() + " into "
-								+ htmlOfNodeToMoveAssessmentsINTO.getHtml() + ".");
+								+ source.getFullName() + " into "
+								+ target.getFullName() + ".");
 					} else {
 						WindowUtils.confirmAlert("Success", "The selected assessments were moved from "
-								+ nodeToMoveAssessmentsOutOf.getFullName() + " into "
-								+ htmlOfNodeToMoveAssessmentsINTO.getHtml() + ".  Would you like to move more "
-								+ "assessments from " + nodeToMoveAssessmentsOutOf.getFullName() + "?",
+								+ source.getFullName() + " into "
+								+ target.getFullName() + ".  Would you like to move more "
+								+ "assessments from " + source.getFullName() + "?",
 								new WindowUtils.MessageBoxListener() {
 							@Override
 							public void onNo() {
