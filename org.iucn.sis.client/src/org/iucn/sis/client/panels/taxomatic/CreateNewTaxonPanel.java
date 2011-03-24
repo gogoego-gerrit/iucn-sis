@@ -1,5 +1,6 @@
 package org.iucn.sis.client.panels.taxomatic;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -107,23 +108,19 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 		Button add = new Button("Add to Selected", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				String sets = "";
+				final List<Taxon> taxonToAdd = new ArrayList<Taxon>();
+				taxonToAdd.add(newNode);
 
 				List<DataListItem> checked = list.getChecked();
 				for (DataListItem item : checked) {
 					final WorkingSet cur = (WorkingSet) item.getData(DATA_KEY);
-
-					sets += cur.getWorkingSetName() + ", ";
-					cur.getSpeciesIDs().add(newNode.getId());
-//					cur.setSorted(false);
-//					cur.sortSpeciesList();
-					WorkingSetCache.impl.editWorkingSet(cur, new GenericCallback<String>() {
-						public void onFailure(Throwable caught) {
-						}
-
+					WorkingSetCache.impl.editTaxaInWorkingSet(cur, taxonToAdd, null, new GenericCallback<String>() {
 						public void onSuccess(String result) {
 							Info.display("Success!", newNode.getFullName() + " was added to the set {0}.", cur
 									.getWorkingSetName());
+						}
+						public void onFailure(Throwable caught) {
+							WindowUtils.errorAlert("Failed to add taxon to working set.  Please use the taxon manager for the working set(s) you wish update.");
 						}
 					});
 				}
@@ -145,6 +142,7 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 		content.add(message);
 		content.add(list);
 
+		s.getButtonBar().removeAll();
 		s.addButton(add);
 		s.addButton(close);
 
