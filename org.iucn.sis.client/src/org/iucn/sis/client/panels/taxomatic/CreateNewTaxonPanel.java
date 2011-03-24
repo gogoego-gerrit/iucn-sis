@@ -242,24 +242,12 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 
 		WindowUtils.showLoadingAlert("Saving taxon...");
 
-		String fullName = "";
-		
 		final Taxon newNode = Taxon.createNode(0, name.getValue(), level, hybrid.getValue()); 
 		newNode.setParent(parentNode);
 		newNode.setStatus(status.getValue().getValueString());
 		newNode.setTaxonomicAuthority(taxonomicAuthority.getValue());
 		if (infraType != null)
 			newNode.setInfratype(Infratype.getInfratype(infraType, newNode));
-
-		String[] newFootprint = new String[parentNode.getFootprint().length + 1];
-
-		for (int i = 0; i < newFootprint.length - 1; i++)
-			newFootprint[i] = parentNode.getFootprint()[i];
-
-		newFootprint[newFootprint.length - 1] = parentNode.getName();
-		newNode.setFootprint(newFootprint);
-		fullName = newNode.generateFullName();
-		newNode.setFriendlyName(fullName);
 
 		TaxomaticUtils.impl.createNewTaxon(newNode, parentNode, new GenericCallback<Taxon>() {
 			public void onFailure(Throwable caught) {

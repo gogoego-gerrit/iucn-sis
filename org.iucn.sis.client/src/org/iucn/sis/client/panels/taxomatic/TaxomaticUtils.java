@@ -75,20 +75,8 @@ public class TaxomaticUtils {
 		// Update the parent
 		if (parent != null) {
 			newTaxon.setParent(parent);
-
-			if (newTaxon.getFullName() == null || newTaxon.getFullName().equals("")) {
-				String fullName = "";
-				String[] footprint = parent.getFootprint();
-
-				if (newTaxon.getLevel() >= TaxonLevel.SPECIES)
-					for (int i = 5; i < footprint.length; i++)
-						fullName += footprint[i] + " ";
-
-				fullName += newTaxon.getName();
-				newTaxon.setFriendlyName(fullName);
-			}
+			newTaxon.correctFullName();
 		}
-		
 		
 		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
 		doc.putAsText(UriBase.getInstance().getSISBase() + "/taxomatic/new", newTaxon.toXML(), new GenericCallback<String>() {
