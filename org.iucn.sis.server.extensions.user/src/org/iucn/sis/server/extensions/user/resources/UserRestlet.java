@@ -2,8 +2,9 @@ package org.iucn.sis.server.extensions.user.resources;
 
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.iucn.sis.server.api.application.SIS;
+import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.io.PermissionIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -111,10 +112,14 @@ public class UserRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
+		Criteria criteria = session.createCriteria(User.class).add(Restrictions.eq("state", User.ACTIVE));
+		if (getUsername(request) != null)
+			criteria.add(Restrictions.eq("username", getUsername(request)));
+		
 		List<User> list;
 		try {
-			list = SIS.get().getManager().listObjects(User.class, session);
-		} catch (PersistentException e) {
+			list = criteria.list();
+		} catch (Exception e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
