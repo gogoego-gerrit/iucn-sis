@@ -98,22 +98,81 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			StoreSorter<SearchResults> {
 		private static final long serialVersionUID = 1L;
 		private final PortableAlphanumericComparator c = new PortableAlphanumericComparator(); 
+		
+		private List<Integer> order;
+		
+		public MCSearchResultsComparator(String order) {
+			if (order == null || "".equals(order))
+				this.order = null;
+			else {
+				this.order = new ArrayList<Integer>();
+				for (String s : order.split(",")) {
+					try {
+						this.order.add(Integer.valueOf(s));
+					} catch (Exception how) { }
+				}
+			}
+		}
+		
+		public void moveUp(ListStore<SearchResults> store, SearchResults model) {
+			if (order == null) {
+				order = new ArrayList<Integer>();
+				for (SearchResults m : store.getModels())
+					order.add(m.getUser().getId());
+			}
+			
+			int index = order.indexOf(model.getUser().getId());
+			if (index > 0) {
+				order.remove(index);
+				order.add(index-1, model.getUser().getId());
+			}
+			
+			store.sort("order", SortDir.ASC);
+		}
+		
+		public void moveDown(ListStore<SearchResults> store, SearchResults model) {
+			if (order == null) {
+				order = new ArrayList<Integer>();
+				for (SearchResults m : store.getModels())
+					order.add(m.getUser().getId());
+			}
+			
+			int index = order.indexOf(model.getUser().getId());
+			if (index < store.getModels().size() - 1) {
+				order.remove(index);
+				order.add(index + 1, model.getUser().getId());
+			}
+					
+			store.sort("order", SortDir.ASC);
+		}
 
 		@Override
 		public int compare(Store<SearchResults> store, SearchResults m1,
 				SearchResults m2, String property) {
-			if ("name".equals(property)) {
-				/*
-				 * Requirement: Sort is done "by Last, First in ascending order"
-				 */
-				for (String current : new String[]{ "lastname", "firstname" }) {
-					int value = c.compare(m1.get(current), m2.get(current));
-					if (value != 0)
-						return value;
-				}
+			if ("order".equals(property) && order != null) {
+				int m1Index = order.indexOf(m1.getUser().getId());
+				int m2Index = order.indexOf(m2.getUser().getId());
+				
+				if (m1Index == -1)
+					return 1;
+				else if (m2Index == -1)
+					return -1;
+				else
+					return Integer.valueOf(m1Index).compareTo(Integer.valueOf(m2Index));
 			}
 			else {
-				//TODO: order by server order..
+				return sortByName(m1, m2);
+			}
+		}
+		
+		private int sortByName(SearchResults m1, SearchResults m2) {
+			/*
+			 * Requirement: Sort is done "by Last, First in ascending order"
+			 */
+			for (String current : new String[]{ "lastname", "firstname" }) {
+				int value = c.compare(m1.get(current), m2.get(current));
+				if (value != 0)
+					return value;
 			}
 			return 0;
 		}
@@ -143,16 +202,12 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		setHeading("Assessment Credits");
 
 		assessors = newListView();
-		assessors.getStore().setStoreSorter(new MCSearchResultsComparator());
 		
 		reviewers = newListView();
-		reviewers.getStore().setStoreSorter(new MCSearchResultsComparator());
 				
 		contributors = newListView();
-		contributors.getStore().setStoreSorter(new MCSearchResultsComparator());
 		
 		facilitators = newListView();
-		facilitators.getStore().setStoreSorter(new MCSearchResultsComparator());
 
 		ListViewSelectionModel<SearchResults> sm = new ListViewSelectionModel<SearchResults>();
 		sm.setSelectionMode(SelectionMode.MULTI);
@@ -185,7 +240,11 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 	}
 	
 	private ListView<SearchResults> newListView(int width, int height) {
+		ListViewSelectionModel<SearchResults> sm = new ListViewSelectionModel<SearchResults>();
+		sm.setSelectionMode(SelectionMode.SINGLE);
+		
 		ListView<SearchResults> view = new ListView<SearchResults>();
+		view.setSelectionModel(sm);
 		view.setHeight(height);
 		view.setWidth(width);
 		/*
@@ -311,7 +370,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 											ClientUser user = ClientUser.fromXML((NativeElement)node);
 											
 											final ListStore<SearchResults> store = new ListStore<SearchResults>();
-											store.setStoreSorter(new MCSearchResultsComparator());
+											store.setStoreSorter(new MCSearchResultsComparator(null));
 											store.add(new SearchResults(user));
 
 											results.setStore(store);
@@ -405,34 +464,10 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		bottomContainer.add(contributors, lists);
 		bottomContainer.add(facilitators, lists);
 				
-		bottomContainer.add(new Button("Sort A-Z",
-				new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				assessors.getStore().sort("name", SortDir.ASC);
-			}
-		}), sortButtons);
-		bottomContainer.add(new Button("Sort A-Z",
-				new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				reviewers.getStore().sort("name", SortDir.ASC);
-			}	
-		}), sortButtons);
-		bottomContainer.add(new Button("Sort A-Z",
-				new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				contributors.getStore().sort("name", SortDir.ASC);
-			}
-		}), sortButtons);
-		bottomContainer.add(new Button("Sort A-Z",
-				new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				facilitators.getStore().sort("name", SortDir.ASC);
-			}
-		}), sortButtons);
+		bottomContainer.add(createButtonBar(assessors), sortButtons);
+		bottomContainer.add(createButtonBar(reviewers), sortButtons);
+		bottomContainer.add(createButtonBar(contributors), sortButtons);
+		bottomContainer.add(createButtonBar(facilitators), sortButtons);
 					
 		/*----------------------------------------------------------------*/
 		
@@ -470,6 +505,47 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		loadRecentUsers();
 
 		loadAssessmentData(callback);
+	}
+	
+	private ButtonBar createButtonBar(final ListView<SearchResults> view) {
+		Button up = new Button();
+		up.setIconStyle("icon-up");
+		up.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				if (view.getSelectionModel().getSelectedItem() != null) {
+					SearchResults r = (SearchResults)view.getSelectionModel().getSelectedItem();
+					
+					ListStore<SearchResults> store = view.getStore();
+					((MCSearchResultsComparator)store.getStoreSorter()).moveUp(store, r);
+				}
+			}
+		});
+		
+		Button down = new Button();
+		down.setIconStyle("icon-down");
+		down.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				if (view.getSelectionModel().getSelectedItem() != null) {
+					SearchResults r = (SearchResults)view.getSelectionModel().getSelectedItem();
+					
+					ListStore<SearchResults> store = view.getStore();
+					((MCSearchResultsComparator)store.getStoreSorter()).moveDown(store, r);
+				}
+			}
+		});
+		
+		ButtonBar bar = new ButtonBar();
+		bar.setAlignment(HorizontalAlignment.CENTER);
+		bar.add(up);
+		bar.add(down);
+		bar.add(new Button("Sort A-Z",
+				new SelectionListener<ButtonEvent>() {
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				view.getStore().sort("name", SortDir.ASC);
+			}
+		}));
+		return bar;
 	}
 	
 	private boolean canAddProfiles() {
@@ -565,7 +641,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			saveField(CanonicalNames.RedListContributors, assessment, contributors.getStore());
 			saveField(CanonicalNames.RedListFacilitators, assessment, facilitators.getStore());
 
-			WindowUtils.showLoadingAlert("Saving Assessors...");
+			WindowUtils.showLoadingAlert("Saving Credits...");
 			AssessmentClientSaveUtils.saveAssessment(null,assessment, new GenericCallback<Object>() {
 				public void onFailure(Throwable arg0) {
 					WindowUtils.hideLoadingAlert();
@@ -601,9 +677,15 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 	private void saveField(String fieldName, Assessment assessment, ListStore<SearchResults> store) {
 		final Set<Integer> userIDs = new HashSet<Integer>();
 		final ArrayList<ClientUser> selectedUsers = new ArrayList<ClientUser>();
+		final StringBuilder order = new StringBuilder();
 		
-		for (SearchResults model : store.getModels())
+		for (Iterator<SearchResults> iter = store.getModels().listIterator(); iter.hasNext(); ) {
+			SearchResults model = iter.next();
 			userIDs.add(model.getUser().getId());
+			order.append(model.getUser().getId());
+			if (iter.hasNext())
+				order.append(",");
+		}
 			
 		Field field = assessment.getField(fieldName);
 		if (field == null) {
@@ -619,6 +701,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		 */
 		ProxyField proxy = new ProxyField(field);
 		proxy.setForeignKeyListPrimitiveField(SISOptionsList.FK_LIST_KEY, new ArrayList<Integer>(userIDs));
+		proxy.setStringPrimitiveField("order", order.toString());
 		
 		/* 
 		 * Add UI Selected User's to the UserCache		
@@ -633,7 +716,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 	
 	public void loadRecentUsers() {
 		ListStore<SearchResults> recentUserStore = new ListStore<SearchResults>();
-		recentUserStore.setStoreSorter(new MCSearchResultsComparator());
+		recentUserStore.setStoreSorter(new MCSearchResultsComparator(null));
 	
 		List<RecentUser> users = RecentlyAccessedCache.impl.list(RecentlyAccessed.USER); 
 			
@@ -653,19 +736,21 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		if (field == null)
 			return;
 
-		ListStore<SearchResults> store = new ListStore<SearchResults>();
-		//store.setStoreSorter(new MCSearchResultsComparator());
-								
 		List<Integer> ids;
 		ProxyField proxy = new ProxyField(field);
 		ids = proxy.getForeignKeyListPrimitiveField(SISOptionsList.FK_LIST_KEY);
+		
+		ListStore<SearchResults> store = new ListStore<SearchResults>();
+		store.setStoreSorter(new MCSearchResultsComparator(proxy.getStringPrimitiveField("order")));
 		
 		if (ids != null)
 			for (Integer userID : ids)
 				if(userID != 0)
 					if (UserCache.impl.hasUser(userID))
 						store.add(new SearchResults(UserCache.impl.getUser(userID)));
-					
+		
+		store.sort("order", SortDir.NONE);
+		
 		list.setStore(store);
 	}
 
@@ -681,22 +766,16 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 	 */
 	protected void search(Map<String, String> params) {
 		GenericCallback<List<SearchResults>> callback = new GenericCallback<List<SearchResults>>() {
-
 			public void onFailure(Throwable caught) {
 				ManageCreditsWindow.this.hide();
 				WindowUtils.errorAlert("Error",
 						"Could not load results, please try again later");
-
 			}
-
 			public void onSuccess(List<SearchResults> result) {
 				final ListStore<SearchResults> store = new ListStore<SearchResults>();
-				store.setStoreSorter(new MCSearchResultsComparator());
-				for (SearchResults res : result) {
-					if (!containsSearchResult(assessors.getStore(), res)) {
-						store.add(res);
-					}
-				}
+				store.setStoreSorter(new MCSearchResultsComparator(null));
+				for (SearchResults res : result)
+					store.add(res);
 				store.sort("name", SortDir.ASC);
 
 				results.setStore(store);

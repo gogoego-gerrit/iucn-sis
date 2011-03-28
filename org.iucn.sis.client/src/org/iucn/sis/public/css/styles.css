@@ -487,6 +487,14 @@ body,td,div,input,p,select,input,button {
 	background: url(../tango/actions/go-previous.png) no-repeat !important;
 }
 
+.icon-up {
+	background: url(../tango/actions/go-up.png) no-repeat !important;	
+}
+
+.icon-down {
+	background: url(../tango/actions/go-down.png) no-repeat !important;	
+}
+
 .icon-symbolic-link {
 	background: url(../tango/emblems/emblem-symbolic-link.png) no-repeat !important;
 }

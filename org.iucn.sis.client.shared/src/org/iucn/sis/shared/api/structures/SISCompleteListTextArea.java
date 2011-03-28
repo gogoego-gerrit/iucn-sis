@@ -1,6 +1,8 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class SISCompleteListTextArea extends VerticalPanel {
 
@@ -28,10 +31,12 @@ public class SISCompleteListTextArea extends VerticalPanel {
 	protected Button addButton = null;
 
 	protected BrowseUsersWindow browseUserWindow;
+
 	/**
 	 * Text of everything that was typed
 	 */
 	protected List<ClientUser> selectedUsers = null;
+	private String order = null;
 
 	protected String highlightStyle = null;
 
@@ -98,6 +103,8 @@ public class SISCompleteListTextArea extends VerticalPanel {
 //			}
 //
 //		});
+		
+		Collections.sort(selectedUsers, new CreditedUserComparator(order));
 
 		StringBuilder text = new StringBuilder();
 		for (int i = 0; i < selectedUsers.size(); i++) {
@@ -135,25 +142,25 @@ public class SISCompleteListTextArea extends VerticalPanel {
 		generateTextFromUsers();
 	}
 
-	public void setUsersId(List<String> users) {
-
+	public void setUsersId(List<String> users, String order) {
+		this.order = order;
+		
 		if (users.size() > 0) {
 			HashMap<String, List<String>> map = new HashMap<String, List<String>>();
 			map.put("userid", users);
-			UserSearchController.search(map,
-					new GenericCallback<List<SearchResults>>() {
-						public void onFailure(Throwable caught) {
-							WindowUtils.errorAlert("Error", "An error occurred searching for users. " +
-									"Please check your Internet connection, then try again.");
-						};
-
-						public void onSuccess(List<SearchResults> results) {
-							List<ClientUser> users = new ArrayList<ClientUser>();
-							for (SearchResults result : results)
-								users.add(result.getUser());
-							setUsers(users);
-						};
-					});
+			
+			UserSearchController.search(map, new GenericCallback<List<SearchResults>>() {
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Error", "An error occurred searching for users. " +
+						"Please check your Internet connection, then try again.");
+				}
+				public void onSuccess(List<SearchResults> results) {
+					List<ClientUser> users = new ArrayList<ClientUser>();
+					for (SearchResults result : results)
+						users.add(result.getUser());
+					setUsers(users);
+				};
+			});
 		} else {
 			setUsers(new ArrayList<ClientUser>());
 		}
@@ -168,6 +175,52 @@ public class SISCompleteListTextArea extends VerticalPanel {
 	private void showMasterList() {
 		browseUserWindow.refresh(selectedUsers);
 		browseUserWindow.show();
+	}
+	
+	private static class CreditedUserComparator implements Comparator<ClientUser> {
+
+		private static final long serialVersionUID = 1L;
+		private final PortableAlphanumericComparator c = new PortableAlphanumericComparator(); 
+
+		private final List<Integer> order;
+
+		public CreditedUserComparator(String order) {
+			if (order == null || "".equals(order))
+				this.order = null;
+			else {
+				this.order = new ArrayList<Integer>();
+				for (String s : order.split(",")) {
+					try {
+						this.order.add(Integer.valueOf(s));
+					} catch (Exception how) { }
+				}
+			}
+		}
+
+		@Override
+		public int compare(ClientUser arg0, ClientUser arg1) {
+			if (order == null)
+				return sortByName(arg0, arg1);
+		
+			int m1Index = order.indexOf(arg0);
+			int m2Index = order.indexOf(arg1);
+		
+			if (m1Index == -1)
+				return 1;
+			else if (m2Index == -1)
+				return -1;
+			else
+				return Integer.valueOf(m1Index).compareTo(Integer.valueOf(m2Index));
+		}
+		
+		private int sortByName(ClientUser m1, ClientUser m2) {
+			for (String current : new String[]{ "lastname", "firstname" }) {
+				int value = c.compare(m1.getProperty(current), m2.getProperty(current));
+				if (value != 0)
+					return value;
+			}
+			return 0;
+		}
 	}
 
 }

@@ -207,7 +207,7 @@ public class SISOptionsList extends Structure<Field> {
 			for( Integer fk : fks )
 				ids.add(fk.toString());
 			
-			theList.setUsersId(ids);
+			theList.setUsersId(ids, data.get("order") == null ? null : data.get("order").getRawValue());
 		}
 	}
 

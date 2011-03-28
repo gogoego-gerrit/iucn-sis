@@ -1626,6 +1626,7 @@ INSERT INTO RedListAssessmentAuthors (name, data_type, number_allowed) VALUES ('
 INSERT INTO RedListAssessmentDate (name, data_type, number_allowed) VALUES ('value', 'date_primitive_field', '?');
 INSERT INTO RedListAssessors (name, data_type, number_allowed) VALUES ('text', 'string_primitive_field', '?');
 INSERT INTO RedListAssessors (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
+INSERT INTO RedListAssessors (name, data_type, number_allowed) VALUES ('order', 'string_primitive_field', '?');
 INSERT INTO RedListCategory (name, data_type, number_allowed) VALUES ('text', 'string_primitive_field', '?');
 INSERT INTO RedListCaveat (name, data_type, number_allowed) VALUES ('value', 'boolean_primitive_field', '?');
 INSERT INTO RedListConsistencyCheck_progressLookup (name, label) VALUES ('0', 'In Progress');
@@ -1640,6 +1641,7 @@ INSERT INTO RedListConsistencyCheck (name, data_type, number_allowed) VALUES ('r
 INSERT INTO RedListConsistencyCheck (name, data_type, number_allowed) VALUES ('improvementsNeeded', 'text_primitive_field', '?');
 INSERT INTO RedListContributors (name, data_type, number_allowed) VALUES ('text', 'string_primitive_field', '?');
 INSERT INTO RedListContributors (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
+INSERT INTO RedListContributors (name, data_type, number_allowed) VALUES ('order', 'string_primitive_field', '?');
 INSERT INTO RedListCriteria_critVersionLookup (name, label) VALUES ('0', '3.1');
 INSERT INTO RedListCriteria_critVersionLookup (name, label) VALUES ('1', '2.3');
 INSERT INTO RedListCriteria_critVersionLookup (name, label) VALUES ('2', 'Earlier Version');
@@ -1670,7 +1672,9 @@ INSERT INTO RedListEvaluated (name, data_type, number_allowed) VALUES ('improvem
 INSERT INTO RedListEvaluationDate (name, data_type, number_allowed) VALUES ('date', 'date_primitive_field', '?');
 INSERT INTO RedListEvaluators (name, data_type, number_allowed) VALUES ('text', 'string_primitive_field', '?');
 INSERT INTO RedListEvaluators (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
+INSERT INTO RedListEvaluators (name, data_type, number_allowed) VALUES ('order', 'string_primitive_field', '?');
 INSERT INTO RedListFacilitators (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
+INSERT INTO RedListFacilitators (name, data_type, number_allowed) VALUES ('order', 'string_primitive_field', '?');
 INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('text', 'string_primitive_field', '?');
 INSERT INTO RedListManualCategory (name, data_type, number_allowed) VALUES ('rlCategory', 'string_primitive_field', '?');
 INSERT INTO RedListManualCriteria (name, data_type, number_allowed) VALUES ('rlCriteria', 'string_primitive_field', '?');
