@@ -154,9 +154,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 
 	public final static int windowWidth = 750;
 	public final static int windowHeight = 550;
-	public final static int listHeight = 400;
-	public final static int listWidth = 195;
-	//private Html instructions;Select All
+
 	private Html recentUsersHeading = new Html("<b>Recently Used</b>");
 	private Html searchResultHeading = new Html("<b>Search Result</b>");
 	
@@ -209,7 +207,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 	}
 	
 	private ListView<MCSearchResults> newListView() {
-		return newListView(120, 150);
+		return newListView(160, 150);
 	}
 	
 	private ListView<MCSearchResults> newListView(int width) {
