@@ -8,7 +8,8 @@ import java.util.Map.Entry;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.models.ClientUser;
-import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow.SearchResults;
+import org.iucn.sis.client.api.ui.users.panels.UserSearchController;
+import org.iucn.sis.client.api.ui.users.panels.UserSearchController.SearchResults;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.permissions.PermissionUserModel;
@@ -45,7 +46,8 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 				final ListStore<PermissionUserModel> model = new ListStore<PermissionUserModel>();
 				
 				for (RowData curData : parser.getRows()) {
-					final SearchResults curSearchResult = new SearchResults(curData);
+					final SearchResults curSearchResult = 
+						new SearchResults(UserSearchController.userFromRowData(curData));
 					final String quickGroup = curSearchResult.getUser().getProperty("quickGroup");
 					boolean assessor = quickGroup.matches(".*?" + permGroupName + "assessor(\\b|,).*");
 						

@@ -10,16 +10,14 @@ import java.util.Map.Entry;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.UserCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache.RecentUser;
-import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
-import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.api.ui.users.panels.UserSearchController.SearchResults;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.dnd.ListViewDragSource;
 import com.extjs.gxt.ui.client.dnd.ListViewDropTarget;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -47,9 +45,6 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.TextBox;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.utils.RowData;
-import com.solertium.lwxml.shared.utils.RowParser;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
@@ -64,70 +59,6 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
  * 
  */
 public class BrowseUsersWindow extends Window {
-
-	/**
-	 * Wrapper for the RowData results returned from a search query.
-	 * 
-	 * @author carl.scott <carl.scott@solertium.com>
-	 * 
-	 */
-	public static class SearchResults extends BaseModelData {
-		private static final long serialVersionUID = 1L;
-
-		protected final ClientUser user;
-
-		public SearchResults(RowData rowData) {
-			super();
-			user = new ClientUser();
-			final Iterator<String> iterator = rowData.keySet().iterator();
-			while (iterator.hasNext()) {
-				final String property = iterator.next().toLowerCase();
-				set(property, rowData.getField(property));
-				if (property.equalsIgnoreCase("firstname"))
-					user.setFirstName(rowData.getField(property));
-				else if (property.equalsIgnoreCase("lastname"))
-					user.setLastName(rowData.getField(property));
-				else if (property.equalsIgnoreCase("nickname"))
-					user.setNickname(rowData.getField("nickname"));
-				else if (property.equalsIgnoreCase("initials"))
-					user.setInitials(rowData.getField(property));
-				else if (property.equalsIgnoreCase("email"))
-					user.setEmail(rowData.getField(property));
-				else if (property.equalsIgnoreCase("userid"))
-					user.setId(Integer.parseInt(rowData.getField(property)));
-				else if (property.equalsIgnoreCase("quickgroup"))
-					user.setProperty("quickGroup", rowData.getField(property));
-				else if (property.equalsIgnoreCase("username"))
-					user.setUsername(rowData.getField(property));
-				else
-					user.setProperty(property, rowData.getField(property));
-			}
-
-			set("name", user.getDisplayableName());
-		}
-
-		public SearchResults(ClientUser user) {
-			this.user = user;
-			set("name", user.getDisplayableName());
-			set("userid", user.getId());
-		}
-
-		public ClientUser getUser() {
-			return user;
-		}
-
-		public String toString() {
-			return user.getDisplayableName();
-		}
-		
-		@Override
-		public boolean equals(Object obj) {
-			if( obj instanceof SearchResults ) {
-				return ((SearchResults)obj).getUser().getId() == user.getId();
-			} else
-				return super.equals(obj);
-		}
-	}
 
 	/**
 	 * SearchResultsComparator
@@ -226,13 +157,13 @@ public class BrowseUsersWindow extends Window {
 		if (!drawn) {
 			drawn = true;
 			final TextBox first = new TextBox();
-			first.setName("firstname");
+			first.setName(UserSearchController.SEARCH_KEY_FIRST_NAME);
 			final TextBox last = new TextBox();
-			last.setName("lastname");
+			last.setName(UserSearchController.SEARCH_KEY_LAST_NAME);
 			final TextBox nickname = new TextBox();
-			nickname.setName("nickname");
+			nickname.setName(UserSearchController.SEARCH_KEY_NICKNAME);
 			final TextBox affiliation = new TextBox();
-			affiliation.setName("affiliation");
+			affiliation.setName(UserSearchController.SEARCH_KEY_AFFILIATION);
 
 			final FlexTable form = new FlexTable();
 			final ButtonBar bar = new ButtonBar();
@@ -436,48 +367,6 @@ public class BrowseUsersWindow extends Window {
 	}
 
 	/**
-	 * Performs a search for the parameters given, based on an or search, and
-	 * returns the results in the callback
-	 * 
-	 * @param params
-	 * @param callback
-	 */
-	public void search(Map<String, List<String>> params,
-			final GenericCallback<List<SearchResults>> callback) {
-		String query = "";
-		if (!params.isEmpty()) {
-			query = "?";
-			final Iterator<Map.Entry<String, List<String>>> iter = params.entrySet().iterator();
-			while (iter.hasNext()) {
-				Map.Entry<String, List<String>> entry = iter.next();
-				for (Iterator<String> valIter = entry.getValue().iterator(); valIter.hasNext(); ) {
-					query += entry.getKey() + "=" + valIter.next();
-					if (valIter.hasNext())
-						query += "&";
-				}
-			}
-		}
-
-		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-		document.get(UriBase.getInstance().getUserBase()
-				+ "/browse/profile" + query, new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				callback.onFailure(caught);
-			}
-
-			public void onSuccess(String result) {
-				final RowParser parser = new RowParser(document);
-				List<SearchResults> results = new ArrayList<SearchResults>();
-				
-				for( RowData curData : parser.getRows() )
-					results.add(new SearchResults(curData));
-				
-				callback.onSuccess(results);
-			}
-		});
-	}
-
-	/**
 	 * Performs the search and updates the status text. Appropriate parameter
 	 * keys are "lastname", "firstname", and "affiliation", although "email"
 	 * could be added in the future as any column in the profile table is
@@ -519,8 +408,8 @@ public class BrowseUsersWindow extends Window {
 			list.add(entry.getValue());
 			newParams.put(entry.getKey(), list);
 		}
-		search(newParams, callback);
-
+		
+		UserSearchController.search(newParams, callback);
 	}
 
 	public void setInstructions(String instructions) {

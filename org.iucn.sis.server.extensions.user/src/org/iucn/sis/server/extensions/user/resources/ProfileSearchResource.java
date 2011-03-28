@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.user.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -54,9 +55,10 @@ public class ProfileSearchResource extends TransactionResource {
 	
 	@Override
 	public Representation represent(Variant variant, Session session) throws ResourceException {
-		Criteria criteria = session.createCriteria(User.class);
+		Criterion fullCriterion = null;
 		
 		final Form form = getRequest().getResourceRef().getQueryAsForm();
+		final String mode = "or".equals(form.getFirstValue("mode", "or")) ? "or" : "and";
 
 		for (int i = 0; i < searchable.length; i++) {
 			if (form.getFirstValue(searchable[i].toLowerCase()) != null) {
@@ -74,17 +76,23 @@ public class ProfileSearchResource extends TransactionResource {
 					if (current == null)
 						current = crit;
 					else
-						current = Restrictions.or(current, crit);
+						current = Restrictions.or(current, crit); 
 				}
 				
-				if (current != null)
-					criteria = criteria.add(current);
+				if (fullCriterion == null)
+					fullCriterion = current;
+				else if ("or".equals(mode))
+					fullCriterion = Restrictions.or(fullCriterion, current);
+				else if ("and".equals(mode))
+					fullCriterion = Restrictions.and(fullCriterion, current);
 			}
 		}
 
 		final List<User> users;
 		try {
-			users = criteria.list();
+			users = session.createCriteria(User.class)
+				.add(Restrictions.eq("state", User.ACTIVE))
+				.add(fullCriterion).list();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);

@@ -6,7 +6,8 @@ import java.util.List;
 
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
-import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow.SearchResults;
+import org.iucn.sis.client.api.ui.users.panels.UserSearchController;
+import org.iucn.sis.client.api.ui.users.panels.UserSearchController.SearchResults;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -139,7 +140,7 @@ public class SISCompleteListTextArea extends VerticalPanel {
 		if (users.size() > 0) {
 			HashMap<String, List<String>> map = new HashMap<String, List<String>>();
 			map.put("userid", users);
-			browseUserWindow.search(map,
+			UserSearchController.search(map,
 					new GenericCallback<List<SearchResults>>() {
 						public void onFailure(Throwable caught) {
 							WindowUtils.errorAlert("Error", "An error occurred searching for users. " +

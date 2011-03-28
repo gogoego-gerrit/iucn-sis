@@ -11,6 +11,7 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
+import org.iucn.sis.client.api.ui.users.panels.AddUserWindow;
 import org.iucn.sis.client.api.ui.users.panels.ContentManager;
 import org.iucn.sis.client.api.ui.users.panels.HasRefreshableContent;
 import org.iucn.sis.client.api.utils.UriBase;

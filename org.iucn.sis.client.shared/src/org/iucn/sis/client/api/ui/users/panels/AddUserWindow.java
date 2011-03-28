@@ -1,4 +1,4 @@
-package org.iucn.sis.client.panels.users;
+package org.iucn.sis.client.api.ui.users.panels;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -44,17 +44,26 @@ public class AddUserWindow extends Window {
 	private final GenericCallback<String> callback;
 
 	public AddUserWindow(final boolean createAccount, GenericCallback<String> callback) {
+		this(createAccount, null, callback);
+	}
+	
+	public AddUserWindow(final boolean createAccount, final String initialUsername, GenericCallback<String> callback) {
 		super();
 		this.callback = callback;
 		setClosable(true);
 		setModal(true);
 		setHeading("Add User");
+		setSize(410, 325);
 
 		setLayout(new FormLayout(LabelAlign.LEFT));
 
 		add(username = new TextField<String>());
 		username.setFieldLabel("Username (as e-mail address)");
 		username.setAllowBlank(false);
+		if (initialUsername != null && !createAccount) {
+			username.setValue(initialUsername);
+			username.setEnabled(false);
+		}
 		username.setValidator(new Validator() {
 			public String validate(Field<?> field, String value) {
 				if (!value.toUpperCase().matches("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}"))

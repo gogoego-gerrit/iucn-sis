@@ -1,9 +1,9 @@
 package org.iucn.sis.client.panels.login;
 
 import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
+import org.iucn.sis.client.api.ui.users.panels.AddUserWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.users.AddUserWindow;
 import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -79,8 +79,6 @@ public class LoginPanel extends LayoutContainer {
 	private void openNewAccountPanel() {
 		AddUserWindow win = new AddUserWindow(true, null);
 		win.show();
-		win.setSize(410, 325);
-		win.center();
 	}
 	
 	private FieldSet newFieldSet(String heading) {
