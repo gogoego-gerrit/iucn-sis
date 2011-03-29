@@ -87,12 +87,15 @@ public class ProfileSearchResource extends TransactionResource {
 					fullCriterion = Restrictions.and(fullCriterion, current);
 			}
 		}
+		
+		Criteria criteria = session.createCriteria(User.class)
+			.add(Restrictions.eq("state", User.ACTIVE));
+		if (fullCriterion != null)
+			criteria.add(fullCriterion);
 
 		final List<User> users;
 		try {
-			users = session.createCriteria(User.class)
-				.add(Restrictions.eq("state", User.ACTIVE))
-				.add(fullCriterion).list();
+			users = criteria.list();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
