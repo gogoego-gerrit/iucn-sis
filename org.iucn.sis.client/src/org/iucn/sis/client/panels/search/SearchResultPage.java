@@ -60,6 +60,7 @@ public class SearchResultPage extends PagingPanel<SearchResultPage.TaxonSearchRe
 		sm = createSelectionModel();
 		
 		grid = new Grid<TaxonSearchResult>(getStoreInstance(), getColumnModel());
+		grid.setAutoExpandMin(100);
 		grid.setAutoExpandColumn("name");
 		grid.setSelectionModel(sm);
 		grid.addListener(Events.RowClick, new Listener<GridEvent<TaxonSearchResult>>() {
