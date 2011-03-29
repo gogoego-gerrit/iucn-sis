@@ -3,6 +3,8 @@ package org.iucn.sis.client.api.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.DataProxy;
@@ -52,7 +54,9 @@ public class MemoryProxy<T extends ModelData> implements DataProxy<BasePagingLoa
 			filter = new SimpleEqualityFilter();
 			((SimpleEqualityFilter)filter).setMatchingValue(match);
 		}
-		store.addFilter(filter);
+		if (store.getFilters() == null || !store.getFilters().contains(filter))
+			store.addFilter(filter);
+		Debug.println("Filtering with {0}", store.getFilters());
 		store.filter(property);
 	}
 	
