@@ -37,8 +37,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 		document.get(UriBase.getInstance().getUserBase()
 				+ "/browse/profile" + query, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				draw();
-				callback.isDrawn();
+				WindowUtils.errorAlert("Error loading users, please try again later.");
 			}
 
 			public void onSuccess(String result) {
@@ -168,6 +167,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 //				set.set(AuthorizableObject.READ, Boolean.FALSE);
 				
 				Permission permission = new Permission();
+				permission.setPermissionGroup(perm);
 				permission.setUrl(WorkingSetCache.impl.getCurrentWorkingSet().getFullURI());
 				
 				for( String curPerm : perms ) {
@@ -185,6 +185,9 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 						break;
 					}
 				}
+				
+				perm.getPermissions().add(permission);
+				
 //				perm.addPermissionResource(WorkingSetCache.impl.getCurrentWorkingSet().getFullURI(), set);
 				groupsToAdd.add(perm);
 			}

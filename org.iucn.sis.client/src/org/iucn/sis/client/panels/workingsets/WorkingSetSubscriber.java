@@ -1,15 +1,12 @@
 package org.iucn.sis.client.panels.workingsets;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.workingset.WSModel;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
-import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.PagingPanel;
-import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -21,12 +18,11 @@ import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
-import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
-import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.HTML;
@@ -38,6 +34,7 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 
 	private final TextBox textBox;
+	private final PagingToolBar pagingToolbar;
 	
 	private Grid<WSModel> grid;
 	private Button actionButton = null;
@@ -48,9 +45,26 @@ public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 		addStyleName("gwt-background");
 
 		textBox = new TextBox();
+		
+		getProxy().setFilter(new StoreFilter<WSModel>() {
+			public boolean select(Store<WSModel> store, WSModel parent, WSModel item,
+					String property) {
+				if (textBox.getText().length() == 0)
+					return true;
+
+				String compareWith = property.equals("name") ? item.getName().toLowerCase() : 
+					property.equals("date") ? item.getDate().toLowerCase() :
+					item.getCreator().toLowerCase();
+				String text = textBox.getText().toLowerCase();
+				
+				return compareWith.contains(text);
+			}
+		});
 
 		BorderLayoutData north = new BorderLayoutData(LayoutRegion.NORTH, 70f);
 		BorderLayoutData center = new BorderLayoutData(LayoutRegion.CENTER);
+		
+		pagingToolbar = getPagingToolbar();
 
 		buildInstructions(north);
 		buildList(center);
@@ -70,33 +84,19 @@ public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 		
 		list.add(new ColumnConfig("name", "Working Set Name", 300));
 		
-		ColumnConfig creatorConfig = new ColumnConfig("creator", "Creator", 200);
-		creatorConfig.setRenderer(new GridCellRenderer<WSModel>() {
-			public Object render(WSModel model, String property,
-					ColumnData config, int rowIndex, int colIndex,
-					ListStore<WSModel> store, Grid<WSModel> grid) {
-				User user = model.get(property);
-				return user.getUsername();
-			}
-		});
-		list.add(creatorConfig);
+		list.add(new ColumnConfig("creator", "Creator", 200));
 		
-		ColumnConfig dateConfig = new ColumnConfig("date", "Date Created", 100);
-		dateConfig.setRenderer(new GridCellRenderer<WSModel>() {
-			public Object render(WSModel model, String property,
-					ColumnData config, int rowIndex, int colIndex,
-					ListStore<WSModel> store, Grid<WSModel> grid) {
-				Date date = model.get(property);
-				return FormattedDate.impl.getDate(date);
-			}
-		});
-		list.add(dateConfig);
+		list.add(new ColumnConfig("date", "Date Created", 100));
 		
 		return new ColumnModel(list);
 	}
 	
 	public void refresh() {
-		refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+		refresh(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				layout();
+			}
+		});
 	}
 	
 	@Override
@@ -109,10 +109,8 @@ public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 		
 		final SelectionListener<ButtonEvent> event = new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				getProxy().getStore().applyFilters(ce.getButton().getText());
-				/*pagingLoader.applyFilter(ce.getButton().getText());
-				pagingBar.setActivePage(1);
-				pagingLoader.getPagingLoader().load();*/
+				getProxy().filter(ce.getButton().getText(), textBox.getValue());
+				pagingToolbar.refresh();
 			}
 		};
 		
@@ -144,12 +142,18 @@ public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 		bar.add(new SeparatorToolItem());
 		bar.add(new SeparatorToolItem());
 		bar.add(hp);
-		
+		bar.add(hp);
+		bar.add(new Button("Clear Filter", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				getProxy().filter(ce.getButton().getText(), "");
+				pagingToolbar.refresh();
+			}
+		}));
 
 		LayoutContainer container = new LayoutContainer(new BorderLayout());
 		container.add(bar, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
 		container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
-		container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+		container.add(pagingToolbar, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
 		//container.add(actionButton);
 
 //		store.addFilter(filterByName);
@@ -166,19 +170,7 @@ public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 			}
 			public void onSuccess(List<WorkingSet> workingsets) {
 				final ListStore<WSModel> store = new ListStore<WSModel>();
-				store.addFilter(new StoreFilter<WSModel>() {
-					public boolean select(Store<WSModel> store, WSModel parent, WSModel item, String property) {
-						if (textBox.getText().length() == 0)
-							return true;
-
-						String compareWith = property.startsWith("name") ? item.getName().toLowerCase() : 
-							property.startsWith("date") ? item.getDate().toLowerCase() :
-							item.getCreator().toLowerCase();
-						String text = textBox.getText().toLowerCase();
-						
-						return compareWith.startsWith(text);
-					}
-				});
+				
 				for (WorkingSet workingSet : workingsets)
 					store.add(new WSModel(workingSet));
 				

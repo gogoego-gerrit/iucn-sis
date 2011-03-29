@@ -1,5 +1,6 @@
 package org.iucn.sis.client.api.ui.models.workingset;
 
+import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -12,8 +13,8 @@ public class WSModel extends BaseModelData {
 
 	public WSModel(WorkingSet ws) {
 		set("name", ws.getName());
-		set("date", ws.getCreatedDate());
-		set("creator", ws.getCreator());
+		set("date", FormattedDate.impl.getDate(ws.getCreatedDate()));
+		set("creator", ws.getCreator().getDisplayableName());
 		set("id", ws.getId());
 		set("workflow_status", ws.getWorkflow());
 		this.ws = ws;

@@ -145,6 +145,8 @@ public class PermissionGroupsRestlet extends BaseServiceRestlet {
 			}
 		}
 		builder.append("</groups>");
+		
+		response.setEntity(new StringRepresentation(builder.toString(), MediaType.TEXT_XML));
 	}
 
 	@SuppressWarnings("unused")
