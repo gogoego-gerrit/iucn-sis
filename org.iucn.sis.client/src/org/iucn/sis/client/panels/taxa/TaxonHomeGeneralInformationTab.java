@@ -14,6 +14,7 @@ import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.taxomatic.CommonNameToolPanel;
 import org.iucn.sis.client.panels.taxomatic.EditCommonNamePanel;
 import org.iucn.sis.client.tabs.TaxonHomePageTab.ReferenceableTaxon;
+import org.iucn.sis.client.tabs.TaxonHomePageTab.TaxonNoteAPI;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
@@ -134,6 +135,25 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 			refPanel.add(image);
 		}
 		data.add(refPanel);
+		
+		HorizontalPanel notesPanel = new HorizontalPanel(); {
+			int size = node.getNotes().size();
+			final HTML display = new HTML("Notes (" + size + "): ");
+			
+			final Image image = new Image(size > 0 ? "images/icon-note.png" : "images/icon-note-grey.png");
+			image.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					final NotesWindow window = new NotesWindow(new TaxonNoteAPI(node));
+					window.setHeading("Notes for " + node.getFullName());
+					window.show();	
+				}
+			});
+			
+			notesPanel.add(display);
+			notesPanel.add(image);
+		}
+		
+		data.add(notesPanel);
 		
 		final ContentPanel generalInformation = new ContentPanel();
 		generalInformation.setLayoutOnChange(true);

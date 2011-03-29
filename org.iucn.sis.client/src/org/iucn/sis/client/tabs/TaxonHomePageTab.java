@@ -932,7 +932,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		
 	}
 	
-	private static class TaxonNoteAPI implements NoteAPI {
+	public static class TaxonNoteAPI implements NoteAPI {
 		
 		private final Taxon taxon;
 		
@@ -982,7 +982,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		
 		@Override
 		public void onClose() {
-			//Nothing to do
+			ClientUIContainer.bodyContainer.refreshBody();
 		}
 		
 	}
