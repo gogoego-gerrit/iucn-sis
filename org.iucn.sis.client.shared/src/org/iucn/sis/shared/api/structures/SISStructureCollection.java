@@ -226,9 +226,9 @@ public class SISStructureCollection extends Structure<Field> {
 
 	public void setDisplayType(int displayType) {
 		this.displayType = displayType;
-		for (int i = 0; i < structures.size(); i++) {
-			if (getStructureAt(i).getStructureType().equalsIgnoreCase(XMLUtils.STRUCTURE_COLLECTION))
-				((SISStructureCollection) getStructureAt(i)).setDisplayType(displayType);
+		for (DisplayStructure structure : structures) {
+			if (XMLUtils.STRUCTURE_COLLECTION.equals(structure.getStructureType()))
+				((SISStructureCollection) structure).setDisplayType(displayType);
 		}
 	}
 
