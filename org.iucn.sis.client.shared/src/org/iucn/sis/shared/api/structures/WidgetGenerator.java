@@ -153,11 +153,15 @@ public class WidgetGenerator implements CreatesWidget {
 			 */
 			String layout = null;
 			String dependentsLayout = null;
+			boolean label = false;
 
 			layout = (String) ((ArrayList) data).get(3);
 			dependentsLayout = (String) ((ArrayList) data).get(4);
+			label = "true".equals(((ArrayList)data).get(5));
 
 			SISRelatedStructures s = new SISRelatedStructures(theStructure, description, structID, doms, deps, rules);
+			s.setShowLabel(label);
+			
 			int myLayout = 1;
 
 			if (!layout.equals("")) {

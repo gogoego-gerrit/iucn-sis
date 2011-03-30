@@ -45,7 +45,6 @@ public class DisplayDataProcessor {
 
 		if (fieldStructure.equalsIgnoreCase(XMLUtils.MULTIPLE_SELECT_STRUCTURE)
 				|| fieldStructure.equalsIgnoreCase(XMLUtils.SINGLE_SELECT_STRUCTURE)) {
-
 			try {
 				structure = WidgetGenerator.StructureGenerator(fieldStructure, currentDisplayData.getDescription(),
 						uniqueID, currentDisplayData.getData());
@@ -123,6 +122,9 @@ public class DisplayDataProcessor {
 				// Layout
 				pack.add((data).get(3));
 				pack.add((data).get(4));
+				
+				// Label
+				pack.add(data.get(5));
 
 				structure = WidgetGenerator.StructureGenerator(fieldStructure, currentDisplayData.getDescription(),
 						uniqueID, pack);

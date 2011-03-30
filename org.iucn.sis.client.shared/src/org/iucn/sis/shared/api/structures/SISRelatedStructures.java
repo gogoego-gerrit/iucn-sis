@@ -39,6 +39,8 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 
 	private int dependentsDisplayType = DEFAULT_LAYOUT;
 	private int displayType = DEFAULT_LAYOUT;
+	
+	private boolean showLabels;
 
 	private CellPanel dependentsPanel;
 
@@ -56,6 +58,10 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 			// You'd better be trying to create a Structure on the
 			// server-side...
 		}
+	}
+	
+	public void setShowLabel(boolean showLabels) {
+		this.showLabels = showLabels;
 	}
 	
 	@Override
@@ -380,6 +386,9 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 	}
 	
 	public boolean hideDescriptionLabel(boolean forever) {
+		if (showLabels)
+			return false;
+		
 		if (!(dominantStructure instanceof SISDominantStructureCollection)) {
 			Structure dom = (Structure)dominantStructure;
 			return dom.hideDescriptionLabel(forever);

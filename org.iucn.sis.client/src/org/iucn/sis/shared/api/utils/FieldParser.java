@@ -25,6 +25,7 @@ import org.iucn.sis.shared.api.structures.SelectRule;
 import com.google.gwt.core.client.GWT;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNamedNodeMap;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
@@ -354,13 +355,15 @@ public class FieldParser implements CreatesDisplay {
 					if (key.equalsIgnoreCase("dominantStructures")) {
 						ArrayList<DisplayData> dominantData = parseStructures(children.elementAt(i).getChildNodes(), lookups);
 						if (dominantData.size() == 1) {
-							dominantStructure.setStructure(((FieldData) dominantData.get(0)).getStructure());
-							dominantStructure.setData(((FieldData) dominantData.get(0)).getData());
-							dominantStructure.setDescription((((FieldData) dominantData.get(0)).getDescription()));
-							dominantStructure.setName(((FieldData) dominantData.get(0)).getName());
-							dominantStructure.setIsVisible(((FieldData) dominantData.get(0)).getIsVisible());
-							dominantStructure.setStyle(((FieldData) dominantData.get(0)).getStyle());
-							dominantStructure.setUniqueId(((FieldData) dominantData.get(0)).getUniqueId());
+							FieldData fieldData = (FieldData)dominantData.get(0);
+							
+							dominantStructure.setDescription(fieldData.getDescription());
+							dominantStructure.setStructure(fieldData.getStructure());
+							dominantStructure.setData(fieldData.getData());
+							dominantStructure.setName(fieldData.getName());
+							dominantStructure.setIsVisible(fieldData.getIsVisible());
+							dominantStructure.setStyle(fieldData.getStyle());
+							dominantStructure.setUniqueId(fieldData.getUniqueId());
 						} else {
 							dominantStructure.setStructure(XMLUtils.DOMINANT_STRUCTURE_COLLECTION);
 							dominantStructure.setData(dominantData);
@@ -478,6 +481,7 @@ public class FieldParser implements CreatesDisplay {
 				relatedStructureData.add(rules);
 				relatedStructureData.add(XMLUtils.getXMLAttribute(current, "layout", ""));
 				relatedStructureData.add(XMLUtils.getXMLAttribute(current, "dependentsLayout", ""));
+				relatedStructureData.add(XMLUtils.getXMLAttribute(current, "label", ""));
 
 				currentDisplayData.setData(relatedStructureData);
 			}
