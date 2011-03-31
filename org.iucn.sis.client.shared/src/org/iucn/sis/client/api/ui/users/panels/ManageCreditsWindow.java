@@ -145,6 +145,12 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 					
 			store.sort("order", SortDir.ASC);
 		}
+		
+		public void sortAZ(ListStore<SearchResults> store) {
+			order = null; //No more explicit order
+			
+			store.sort("name", SortDir.ASC);
+		}
 
 		@Override
 		public int compare(Store<SearchResults> store, SearchResults m1,
@@ -542,7 +548,9 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 				new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				view.getStore().sort("name", SortDir.ASC);
+				ListStore<SearchResults> store = view.getStore();
+				
+				((MCSearchResultsComparator)store.getStoreSorter()).sortAZ(store);
 			}
 		}));
 		return bar;
