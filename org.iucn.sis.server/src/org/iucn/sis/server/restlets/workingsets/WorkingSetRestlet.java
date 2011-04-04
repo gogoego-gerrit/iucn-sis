@@ -327,7 +327,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 				String properCriteriaString = "N/A"; //first.getProperCriteriaString();
 				String properCategoryAbbrev = "N/A"; //first.getProperCategoryAbbreviation();
 				
-				csv.append(taxon.getFootprintAsString() + ",");
+				csv.append(taxon.getFootprintCSV() + ",");
 				csv.append("\"" + properCriteriaString + "\",");
 				csv.append(properCategoryAbbrev + "\r\n");
 			}
