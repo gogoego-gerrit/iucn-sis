@@ -6,6 +6,7 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -17,6 +18,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -169,7 +171,7 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 
 	private void createTaxaList() {
 		disableButtons();
-		getTaxaListDialog().show();
+		showTaxaListDialog();
 	}
 
 	private void disableButtons() {
@@ -240,83 +242,78 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 		dialog.show();
 	}
 
-	private Dialog getTaxaListDialog() {
-		try {
+	private void showTaxaListDialog() {
+		final Dialog dialog = new Dialog();
+		dialog.setBodyBorder(false);
+		dialog.setHeading("Download CSV File.");
+		dialog.setButtons(Dialog.OKCANCEL);
+		dialog.addText("Choose whether or not to also include the RedList Categories and Criteria in the .csv?  If the RedList Categories and Criteria are included, please choose which assessments generate this information.");
+		dialog.setHeight(500);
+		dialog.setWidth(500);
+		dialog.addListener(Events.Hide, new Listener<WindowEvent>() {
+			public void handleEvent(WindowEvent be) {
+				enableButtons();
+			}
+		});
 
-			final Dialog dialog = new Dialog();
-			dialog.setBodyBorder(false);
-			dialog.setHeading("Download CSV File.");
-			dialog.setButtons(Dialog.OKCANCEL);
-			dialog.addText("Choose whether or not to also include the RedList Categories and Criteria in the .csv?  If the RedList Categories and Criteria are included, please choose which assessments generate this information.");
-			dialog.setHeight(500);
-			dialog.setWidth(500);
+		final AssessmentFilterPanel filterPanel = new AssessmentFilterPanel(WorkingSetCache.impl
+				.getCurrentWorkingSet().getFilter().deepCopy(), true);
+		filterPanel.setVisible(false);
+		
+		
+		
+		final Radio no = new Radio();
+		no.setBoxLabel("taxa only");
+		no.setValue(new Boolean(true));
+		no.addListener(Events.Change, new Listener<FieldEvent>() {
+			public void handleEvent(FieldEvent be) {
+				filterPanel.setVisible(!(Boolean) be.getValue());
+			}
+		});
+		
+		final Radio yes = new Radio();
+		yes.setBoxLabel("also include RedList Category and Criteria");
+		
+		RadioGroup includeCats = new RadioGroup("a");
+		includeCats.add(no);
+		includeCats.add(yes);
 
-			RadioGroup includeCats = new RadioGroup("a");
-			final Radio no = new Radio();
-			final Radio yes = new Radio();
-			final AssessmentFilterPanel filterPanel = new AssessmentFilterPanel(WorkingSetCache.impl
-					.getCurrentWorkingSet().getFilter().deepCopy(), true);
-			filterPanel.setVisible(false);
-			no.setBoxLabel("taxa only");
-			no.setValue(new Boolean(true));
-			no.addListener(Events.Change, new Listener<FieldEvent>() {
-				public void handleEvent(FieldEvent be) {
+		VerticalPanel panel = new VerticalPanel();
+		panel.add(includeCats);
+		panel.add(filterPanel);
 
-					filterPanel.setVisible(!(Boolean) be.getValue());
-				}
-			});
-			includeCats.add(no);
-			yes.setBoxLabel("also include RedList Category and Criteria");
-			includeCats.add(yes);
+		dialog.add(panel);
 
-			VerticalPanel panel = new VerticalPanel();
-			panel.add(includeCats);
-			panel.add(filterPanel);
-
-			dialog.add(panel);
-
-			((Button) dialog.getButtonBar().getItemByItemId(Dialog.CANCEL))
-					.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-						public void componentSelected(ButtonEvent ce) {
+		((Button) dialog.getButtonBar().getItemByItemId(Dialog.CANCEL))
+				.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				dialog.hide();
+			}
+		});
+		((Button) dialog.getButtonBar().getItemByItemId(Dialog.OK))
+				.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				if (yes.getValue()) {
+					String error = filterPanel.checkValidity();
+					if (error == null) {
+						String errorMessage = filterPanel.checkValidity();
+						if (errorMessage != null) {
+							WindowUtils.errorAlert(errorMessage);
+						} else {
+							createTaxaListYesCats(filterPanel.getFilter());
 							dialog.hide();
-							enableButtons();
 						}
-					});
+					} else {
+						WindowUtils.errorAlert(error);
+					}
+				} else {
+					createTaxaListNoCats();
+					dialog.hide();
+				}
+			}
+		});
 
-			((Button) dialog.getButtonBar().getItemByItemId(Dialog.OK))
-					.addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-						public void componentSelected(ButtonEvent ce) {
-							if (yes.getValue()) {
-								String error = filterPanel.checkValidity();
-
-								if (error == null) {
-									String errorMessage = filterPanel.checkValidity();
-									if (errorMessage != null) {
-										WindowUtils.errorAlert(errorMessage);
-									} else {
-										createTaxaListYesCats(filterPanel.getFilter());
-										dialog.hide();
-										enableButtons();
-									}
-								} else {
-									WindowUtils.errorAlert(error);
-								}
-							} else {
-								createTaxaListNoCats();
-								dialog.hide();
-								enableButtons();
-							}
-						}
-
-					});
-
-			return dialog;
-		} catch (Throwable e) {
-			e.printStackTrace();
-			return null;
-		}
+		dialog.show();
 	}
 
 }
