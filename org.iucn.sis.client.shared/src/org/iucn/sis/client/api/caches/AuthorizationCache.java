@@ -192,7 +192,17 @@ public class AuthorizationCache {
 							SISClientBase.currentUser.getPermissionGroups().clear();
 							
 							for (int i = 0; i < list.getLength(); i++) {
-								PermissionGroup group = PermissionGroup.fromXML(list.elementAt(i));
+								PermissionGroup group = PermissionGroup.fromXML(list.elementAt(i), new PermissionGroup.PermissionGroupLocater() {
+									public PermissionGroup findGroup(Integer id, String name) {
+										PermissionGroup parent = idToGroups.get(id);
+										if (parent == null) {
+											parent = new PermissionGroup();
+											parent.setID(id);
+											parent.setName(name);
+										}
+										return parent;
+									}
+								});
 								SISClientBase.currentUser.getPermissionGroups().add(groups.get(group.getName()));
 							}
 							

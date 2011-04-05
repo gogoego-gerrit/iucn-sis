@@ -4,8 +4,6 @@ package org.iucn.sis.shared.api.models;
 import java.io.Serializable;
 import java.util.HashMap;
 
-import org.iucn.sis.shared.api.debug.Debug;
-
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
@@ -18,6 +16,18 @@ public class PermissionGroup implements Serializable {
 	public static final String DEFAULT_PERMISSION_URI = "default";
 
 	public static PermissionGroup fromXML(NativeNode element) {
+		return fromXML(element, new PermissionGroupLocater() {
+			public PermissionGroup findGroup(Integer id, String name) {
+				PermissionGroup parent = new PermissionGroup();
+				parent.setId(id);
+				parent.setName(name);
+				
+				return parent;
+			}
+		});
+	}
+	
+	public static PermissionGroup fromXML(NativeNode element, PermissionGroupLocater locater) {
 		final PermissionGroup group = new PermissionGroup();
 		final NativeNodeList nodes = element.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -34,9 +44,9 @@ public class PermissionGroup implements Serializable {
 				group.getUsers().add(User.fromXML((NativeElement)node));
 			else if ("parent".equals(node.getNodeName())) {
 				NativeElement el = (NativeElement)node;
-				PermissionGroup parent = new PermissionGroup();
-				parent.setId(Integer.valueOf(el.getAttribute("id")));
-				parent.setName(el.getTextContent());
+				PermissionGroup parent = 
+					locater.findGroup(Integer.valueOf(el.getAttribute("id")), el.getTextContent());
+				
 				group.setParent(parent);		
 			}
 		}
@@ -233,6 +243,12 @@ public class PermissionGroup implements Serializable {
 	public void addPermission(Permission permission) {
 		permissions.add(permission);
 		resourceToPermission = null;
+	}
+	
+	public static interface PermissionGroupLocater {
+	
+		public PermissionGroup findGroup(Integer id, String name);
+
 	}
 
 }
