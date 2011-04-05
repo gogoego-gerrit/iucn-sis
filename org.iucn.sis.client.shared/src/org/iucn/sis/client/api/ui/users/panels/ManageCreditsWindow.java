@@ -249,6 +249,9 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		ListViewSelectionModel<SearchResults> sm = new ListViewSelectionModel<SearchResults>();
 		sm.setSelectionMode(SelectionMode.SINGLE);
 		
+		ListStore<SearchResults> store = new ListStore<SearchResults>();
+		store.setStoreSorter(new MCSearchResultsComparator(null));
+		
 		ListView<SearchResults> view = new ListView<SearchResults>();
 		view.setSelectionModel(sm);
 		view.setHeight(height);
@@ -258,7 +261,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		 * Last Name, First name format." 
 		 */
 		view.setSimpleTemplate("<div style=\"text-align:left;\">{lastname}, {firstname}</div>");
-		view.setStore(new ListStore<SearchResults>());
+		view.setStore(store);
 		
 		return view;
 	}
