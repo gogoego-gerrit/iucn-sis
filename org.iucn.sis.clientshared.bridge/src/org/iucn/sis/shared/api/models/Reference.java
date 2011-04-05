@@ -24,6 +24,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.portable.PortableReplacer;
 import com.solertium.util.portable.XMLWritingUtils;
 public class Reference implements Serializable, AuthorizableObject {
 	
@@ -73,10 +74,15 @@ public class Reference implements Serializable, AuthorizableObject {
 			final String value = field.getTextContent();
 	
 			addField(reference, name, value);
-		}
+		}	
 		
 		if (!allowNew && reference.getId() <= 0)
 			throw new IllegalArgumentException("Error building reference from node, required fields not present.");
+		
+		if (reference.getType() == null) {
+			Debug.println("Reference type null for {0}, setting to 'other'", reference.getId());
+			reference.setType("other");
+		}
 		
 		return reference;
 	}
@@ -93,68 +99,82 @@ public class Reference implements Serializable, AuthorizableObject {
 		}
 		else if ("type".equals(name))
 			reference.setType(value);
-		else if ("citationShort".equals(name))
+		else if (matches("citationShort", name))
 			reference.setCitationShort(value);
-		else if ("citation".equals(name))
+		else if (matches("citation", name))
 			reference.setCitation(value);
-		else if ("citationComplete".equals(name) && !isBlank(value))
+		else if (matches("citationComplete", name) && !isBlank(value))
 			reference.setCitationComplete(Boolean.valueOf(value));
-		else if ("author".equals(name))
+		else if (matches("author", name))
 			reference.setAuthor(value);
-		else if ("year".equals(name))
+		else if (matches("year", name))
 			reference.setYear(value);
-		else if ("title".equals(name))
+		else if (matches("title", name))
 			reference.setTitle(value);
-		else if ("secondaryAuthor".equals(name))
+		else if (matches("secondaryAuthor", name))
 			reference.setSecondaryAuthor(value);
-		else if ("secondaryTitle".equals(name))
+		else if (matches("secondaryTitle", name))
 			reference.setSecondaryTitle(value);
-		else if ("placePublished".equals(name))
+		else if (matches("placePublished", name))
 			reference.setPlacePublished(value);
-		else if ("publisher".equals(name))
+		else if (matches("publisher", name))
 			reference.setPublisher(value);
-		else if ("volume".equals(name))
+		else if (matches("volume", name))
 			reference.setVolume(value);
-		else if ("numberOfVolumes".equals(name))
+		else if (matches("numberOfVolumes", name))
 			reference.setNumberOfVolumes(value);
-		else if ("number".equals(name))
+		else if (matches("number", name))
 			reference.setNumber(value);
-		else if ("pages".equals(name))
+		else if (matches("pages", name))
 			reference.setPages(value);
-		else if ("section".equals(name))
+		else if (matches("section", name))
 			reference.setSection(value);
-		else if ("tertiaryAuthor".equals(name))
+		else if (matches("tertiaryAuthor", name))
 			reference.setTertiaryAuthor(value);
-		else if ("tertiaryTitle".equals(name))
+		else if (matches("tertiaryTitle", name))
 			reference.setTertiaryTitle(value);
-		else if ("edition".equals(name))
+		else if (matches("edition", name))
 			reference.setEdition(value);
-		else if ("date".equals(name))
+		else if (matches("date", name))
 			reference.setDateValue(value);
-		else if ("subsidiaryAuthor".equals(name))
+		else if (matches("subsidiaryAuthor", name))
 			reference.setSubsidiaryAuthor(value);
-		else if ("shortTitle".equals(name))
+		else if (matches("shortTitle", name))
 			reference.setShortTitle(value);
-		else if ("alternateTitle".equals(name))
+		else if (matches("alternateTitle", name))
 			reference.setAlternateTitle(value);
-		else if ("isbnissn".equals(name))
+		else if (matches("isbnissn", name))
 			reference.setIsbnIssn(value);
-		else if ("keywords".equals(name))
+		else if (matches("keywords", name))
 			reference.setKeywords(value);
-		else if ("url".equals(name))
+		else if (matches("url", name))
 			reference.setUrl(value);
-		else if ("hash".equals(name))
+		else if (matches("hash", name))
 			reference.setHash(value);
-		else if ("bibCode".equals(name) && !isBlank(value))
+		else if (matches("bibCode", name) && !isBlank(value))
 			reference.setBibCode(Integer.valueOf(value));
-		else if ("bibNoInt".equals(name) && !isBlank(value))
+		else if (matches("bibNoInt", name) && !isBlank(value))
 			reference.setBibNoInt(Integer.valueOf(value));
-		else if ("bibNumber".equals(name) && !isBlank(value))
+		else if (matches("bibNumber", name) && !isBlank(value))
 			reference.setBibNumber(Integer.valueOf(value));
-		else if ("externalBibCode".equals(name))
+		else if (matches("externalBibCode", name))
 			reference.setExternalBibCode(value);
-		else if ("submissionType".equals(name))
+		else if (matches("submissionType", name))
 			reference.setSubmissionType(value);
+	}
+	
+	/**
+	 * Ensures backward compatiblity with the reference server 
+	 * when looking up information.
+	 * @param first
+	 * @param second
+	 * @return
+	 */
+	private static boolean matches(String first, String second) {
+		String s1 = PortableReplacer.stripNonword(first).toLowerCase();
+		String s2 = PortableReplacer.stripNonword(second).toLowerCase();
+		
+		return s1.equals(s2);
 	}
 	
 	private static boolean isBlank(String value) {
@@ -189,15 +209,8 @@ public class Reference implements Serializable, AuthorizableObject {
 	 * the data map.
 	 * @return
 	 */
-	public Map<String, String> toMap() {
-		final Map<String, String> map = new LinkedHashMap<String, String>() {
-			public String put(String key, String value) {
-				if (isBlank(value))
-					return null;
-				else
-					return super.put(key, value);
-			}
-		};
+	public ReferenceMap toMap() {
+		final ReferenceMap map = new ReferenceMap();
 		map.put("id", toStringOrNull(getId()));
 		map.put("type", getType());
 		map.put("citationShort", getCitationShort());
@@ -754,6 +767,42 @@ public class Reference implements Serializable, AuthorizableObject {
 
 	public String toString() {
 		return "Reference #" + String.valueOf(getId()) + " with generation code " + generationCode;
+	}
+	
+	public static class ReferenceMap extends LinkedHashMap<String, String> {
+		
+		private static final long serialVersionUID = 1L;
+		
+		@Override
+		public boolean containsKey(Object arg0) {
+			return arg0 instanceof String ? false : super.containsKey(clean((String)arg0));
+		}
+		
+		@Override
+		public String put(String key, String value) {
+			return super.put(clean(key), value);
+		}
+		
+		private String clean(String s) {
+			return s == null ? null : PortableReplacer.stripNonword(s).toLowerCase();
+		}
+
+		public void addField(final String name, final String value) {
+			put(clean(name), value);
+		}
+		
+		public String get(Object key) {
+			if (key == null)
+				return null;
+			if (key instanceof String)
+				return super.get(((String) key).toLowerCase());
+			return super.get(key);
+		}
+
+		public String getField(final String name) {
+			return get(name.toLowerCase());
+		}
+		
 	}
 	
 }

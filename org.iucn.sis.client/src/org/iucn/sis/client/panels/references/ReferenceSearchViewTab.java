@@ -252,7 +252,6 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 				
 				for (int i = 0; i < referenceList.getLength(); i++) {
 					final NativeNode node = referenceList.item(i);
-					Debug.println("Parsing {0}", node.getNodeName());
 					if ("reference".equals(node.getNodeName())) {
 						final NativeElement currentReference;
 						try {
