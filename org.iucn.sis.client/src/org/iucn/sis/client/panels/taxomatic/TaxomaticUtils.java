@@ -70,13 +70,7 @@ public class TaxomaticUtils {
 	 * @param newTaxon
 	 * @param parent
 	 */
-	public void createNewTaxon (final Taxon newTaxon, Taxon parent, final GenericCallback<Taxon > wayback) {
-		// Update the parent
-		if (parent != null) {
-			newTaxon.setParent(parent);
-			newTaxon.correctFullName();
-		}
-		
+	public void createNewTaxon(final Taxon newTaxon, Taxon parent, final GenericCallback<Taxon> wayback) {
 		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
 		doc.putAsText(UriBase.getInstance().getSISBase() + "/taxomatic/new", newTaxon.toXML(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {

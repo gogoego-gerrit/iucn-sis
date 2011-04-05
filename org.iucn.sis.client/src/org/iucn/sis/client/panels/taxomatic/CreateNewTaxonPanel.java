@@ -5,9 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -246,6 +244,20 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 		newNode.setTaxonomicAuthority(taxonomicAuthority.getValue());
 		if (infraType != null)
 			newNode.setInfratype(Infratype.getInfratype(infraType, newNode));
+		newNode.correctFullName();
+		
+		/*
+		 * Must do this because the footprint may not be 
+		 * downloaded to the client at the model level, 
+		 * which causes incomplete footprint. 
+		 */
+		String[] newFootprint = new String[parentNode.getFootprint().length+1];
+		int index = 0;
+		for (String entry : parentNode.getFootprint())
+			newFootprint[index++] = entry;
+		newFootprint[index] = newNode.getName();
+		
+		newNode.setFootprint(newFootprint);
 
 		TaxomaticUtils.impl.createNewTaxon(newNode, parentNode, new GenericCallback<Taxon>() {
 			public void onFailure(Throwable caught) {
@@ -266,10 +278,10 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 				WindowUtils.hideLoadingAlert();
 				Info.display(new InfoConfig("Taxon Created", "New taxon {0} was created successfully!", new Params(
 						newNode.getFullName())));
-				TaxonomyCache.impl.evictPaths();
+				//TaxonomyCache.impl.evictPaths();
 				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(arg0.getId());
 				//TaxonomyCache.impl.setCurrentTaxon(arg0);
-				StateManager.impl.setState(arg0, null);
+				//StateManager.impl.setState(arg0, null);
 				BaseEvent be = new BaseEvent(newNode);
 				be.setCancelled(false);
 				fireEvent(Events.StateChange, be);
