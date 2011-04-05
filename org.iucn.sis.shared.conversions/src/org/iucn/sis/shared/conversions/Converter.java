@@ -141,6 +141,9 @@ public abstract class Converter {
 		try {
 			writer.write(out + lineBreakRule);
 			writer.flush();
+
+			localWriter.write(out + lineBreakRule);
+			localWriter.flush();
 		} catch (IOException e) {
 			System.out.println(out);
 		}
