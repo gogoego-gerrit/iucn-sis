@@ -94,7 +94,7 @@ public class AddUserWindow extends Window {
 		}
 
 		add(firstname = new TextField<String>());
-		firstname.setFieldLabel("First Name*");
+		firstname.setFieldLabel("First Name");
 		add(lastname = new TextField<String>());
 		lastname.setFieldLabel("Last Name*");
 
@@ -120,17 +120,13 @@ public class AddUserWindow extends Window {
 					else if(!confirmPassword.isValid())
 						WindowUtils.errorAlert("Error",
 										"The contents of the \"confirm password\" field must match the contents of the \"password\" field exactly.");					
-					else if(firstname.getValue() == null)
-						WindowUtils.errorAlert("Error", "Please enter the first name.");		
 					else if(lastname.getValue() == null)
 						WindowUtils.errorAlert("Error", "Please enter the last name.");	
 					else{
 						submit.setEnabled(false);
 						putNewAccountAndProfile(username.getValue().toLowerCase(), password.getValue());
 					}
-				}else if(firstname.getValue() == null)
-					WindowUtils.errorAlert("Error", "Please enter the first name.");		
-				else if(lastname.getValue() == null)
+				} else if(lastname.getValue() == null)
 					WindowUtils.errorAlert("Error", "Please enter the last name.");	
 				else {
 					submit.setEnabled(false);
@@ -167,7 +163,8 @@ public class AddUserWindow extends Window {
 			private void putNewProfile() {
 				final NativeDocument createDoc = SISClientBase.getHttpBasicNativeDocument();
 				createDoc.post(UriBase.getInstance().getUserBase() + "/users/" + username.getValue().toLowerCase(), getXML(username.getValue()
-						.toLowerCase(), firstname.getValue(), lastname.getValue(),
+						.toLowerCase(), firstname.getValue() == null ? "" : firstname.getValue(), 
+							lastname.getValue(),
 						affiliation.getValue() == null ? "" : affiliation.getValue(),
 						initials.getValue() == null ? "" : initials.getValue(),
 						nickname.getValue() == null ? "" : nickname.getValue(), 

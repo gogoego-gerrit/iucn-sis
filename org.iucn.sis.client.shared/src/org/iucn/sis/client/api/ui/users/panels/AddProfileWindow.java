@@ -50,7 +50,7 @@ public class AddProfileWindow extends Window {
 		form.setBorders(false);
 		form.setBodyBorder(false);
 		
-		firstName = FormBuilder.createTextField(UserSearchController.SEARCH_KEY_FIRST_NAME, null, "First Name", true);
+		firstName = FormBuilder.createTextField(UserSearchController.SEARCH_KEY_FIRST_NAME, null, "First Name", false);
 		lastName = FormBuilder.createTextField(UserSearchController.SEARCH_KEY_LAST_NAME, null, "Last Name", true);
 		
 		add(new HtmlContainer("Enter the basic profile information here.  A database " +
@@ -63,16 +63,25 @@ public class AddProfileWindow extends Window {
 		
 		addButton(new Button("Submit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
+				if (!form.isValid())
+					return;
+				
 				doServerValidation(new SimpleListener() {
 					public void handleEvent() {
 						hide();
 						
-						String initialUsername = firstName.getValue().toLowerCase() + 
-							"." + lastName.getValue().toLowerCase() + ".gen." + 
-							new Date().getTime() + "@gen.iucnsis.org";
+						StringBuilder usernameBuilder = new StringBuilder();
+						if (hasValue(firstName.getValue())) {
+							usernameBuilder.append(firstName.getValue().toLowerCase());
+							usernameBuilder.append('.');
+						}
+						usernameBuilder.append(lastName.getValue().toLowerCase());
+						usernameBuilder.append(".gen.");
+						usernameBuilder.append(new Date().getTime());
+						usernameBuilder.append("@gen.iucnsis.org");
 						
 						AddUserWindow window = 
-							new AddUserWindow(false, initialUsername, new GenericCallback<String>() {
+							new AddUserWindow(false, usernameBuilder.toString(), new GenericCallback<String>() {
 								public void onSuccess(String result) {
 									successListener.handleEvent(result);
 								}
@@ -97,7 +106,8 @@ public class AddProfileWindow extends Window {
 	
 	private void doServerValidation(final SimpleListener listener) {
 		Map<String, String> params = new HashMap<String, String>();
-		params.put(UserSearchController.SEARCH_KEY_FIRST_NAME, firstName.getValue());
+		if (hasValue(firstName.getValue()))
+			params.put(UserSearchController.SEARCH_KEY_FIRST_NAME, firstName.getValue());
 		params.put(UserSearchController.SEARCH_KEY_LAST_NAME, lastName.getValue());
 		
 		Map<String, List<String>> newParams = new HashMap<String, List<String>>();
@@ -150,6 +160,10 @@ public class AddProfileWindow extends Window {
 				WindowUtils.errorAlert("Could not perform search verification, please try again later.");
 			}
 		});
+	}
+	
+	private boolean hasValue(String s) {
+		return s != null && !"".equals(s);
 	}
 	
 	@Override
