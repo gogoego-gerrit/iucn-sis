@@ -204,6 +204,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
  
 	public ManageCreditsWindow() {
 		super();
+		setModal(true);
 		setClosable(true);
 		setHeading("Assessment Credits");
 
