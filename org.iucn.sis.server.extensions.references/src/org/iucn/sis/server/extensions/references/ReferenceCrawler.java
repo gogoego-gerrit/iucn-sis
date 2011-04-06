@@ -89,7 +89,7 @@ public class ReferenceCrawler implements Runnable {
 					+ assessmentID);
 		}
 
-		for (Reference ref : assessment.getReferences()) {
+		for (Reference ref : assessment.getReference()) {
 			Integer id = ref.getId();
 			if (!id.equals(ref.getReferenceID())) {
 				ref.setReferenceID(id);

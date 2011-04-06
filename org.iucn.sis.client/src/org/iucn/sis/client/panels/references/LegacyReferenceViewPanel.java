@@ -676,7 +676,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 			}
 
 			@Override
-			public void onSaveSuccessful(final Reference returnedRef) {
+			public void onSaveSuccessful(final Reference returnedRef, final boolean asNew) {
 				// WindowUtils.infoAlert("Success", "Save Successful.");\
 				if( reference == null ) {
 					afterSave(null, null);

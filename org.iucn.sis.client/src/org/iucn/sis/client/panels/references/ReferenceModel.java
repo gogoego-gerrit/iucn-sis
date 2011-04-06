@@ -21,15 +21,21 @@ public class ReferenceModel extends BaseModelData {
 	public ReferenceModel(Reference ref, String count) {
 		this.ref = ref;
 		this.count = count;
+		
+		rebuild();
 	}
 
 	public void rebuild() {
 		set("author", ref.getAuthor());
 		set("title", ref.getTitle());
 		set("year", ref.getYear());
-		set("field", ref.getField());
+		set("field", "N/A");
 		set("citation", getVisibleCitation());
 		set("count", count);
+	}
+	
+	public void setField(String field) {
+		set("field", field);
 	}
 	
 	private String getVisibleCitation() {

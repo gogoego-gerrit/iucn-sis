@@ -90,6 +90,10 @@ public class FieldV2Parser {
 		if (!(node instanceof NativeElement))
 			return null;
 		
-		return ((NativeElement)node).getAttribute(attribute);
+		String value = ((NativeElement)node).getAttribute(attribute);
+		if ("".equals(value))
+			value = null;
+		
+		return value;
 	}
 }

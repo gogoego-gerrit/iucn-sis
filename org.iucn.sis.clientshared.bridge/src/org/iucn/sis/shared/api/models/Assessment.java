@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RegionField;
@@ -35,7 +34,6 @@ import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
-import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
@@ -44,7 +42,7 @@ import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 import com.solertium.util.portable.XMLWritingUtils;
 
-public class Assessment implements Serializable, AuthorizableObject, Referenceable {
+public class Assessment implements Serializable, AuthorizableObject {
 
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	public static final String ROOT_TAG = "assessment";
@@ -212,31 +210,6 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 	
 	public static Assessment fromXML(NativeDocument ndoc) {
 		return fromXML(ndoc.getDocumentElement());
-	}
-	
-	@Override
-	public void addReferences(ArrayList<Reference> references,
-			GenericCallback<Object> callback) {
-		getReferences().addAll(references);
-		callback.onSuccess(this);
-	}
-	
-	@Override
-	public Set<Reference> getReferencesAsList() {
-		return getReferences();
-	}
-	
-	@Override
-	public void onReferenceChanged(GenericCallback<Object> callback) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	@Override
-	public void removeReferences(ArrayList<Reference> references,
-			GenericCallback<Object> callback) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 	@Override
@@ -432,7 +405,7 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 //	}
 	
 	public void clearReferences() {
-		getReferences().clear();
+		getReference().clear();
 		
 		for( Field cur : getField() )
 			cur.getReference().clear();
@@ -472,11 +445,6 @@ public class Assessment implements Serializable, AuthorizableObject, Referenceab
 
 	public String getSpeciesName() {
 		return getTaxon().getFriendlyName();
-	}	
-	
-	public Set<Reference> getReferences() {
-		
-		return getReference();
 	}
 	
 	public String getUID() {

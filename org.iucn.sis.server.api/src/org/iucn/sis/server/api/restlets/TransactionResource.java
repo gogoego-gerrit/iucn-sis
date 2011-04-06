@@ -32,6 +32,8 @@ public abstract class TransactionResource extends Resource {
 		try {
 			representation = represent(variant, session);
 			success = getResponse().getStatus().isSuccess();
+		} catch (ResourceException e) {
+			throw e;
 		} catch (Throwable e) {
 			Debug.println("(!) {0} threw uncaught exception:\r\n{1}", getClass().getSimpleName(), e);
 			success = false;
@@ -56,6 +58,8 @@ public abstract class TransactionResource extends Resource {
 		try {
 			acceptRepresentation(entity, session);
 			success = getResponse().getStatus().isSuccess();
+		} catch (ResourceException e) {
+			throw e;
 		} catch (Throwable e) {
 			Debug.println("(!) {0} threw uncaught exception:\r\n{1}", getClass().getSimpleName(), e);
 			success = false;
@@ -79,6 +83,8 @@ public abstract class TransactionResource extends Resource {
 		try {
 			storeRepresentation(entity, session);
 			success = getResponse().getStatus().isSuccess();
+		} catch (ResourceException e) {
+			throw e;
 		} catch (Throwable e) {
 			Debug.println("(!) {0} threw uncaught exception:\r\n{1}", getClass().getSimpleName(), e);
 			success = false;
@@ -102,6 +108,8 @@ public abstract class TransactionResource extends Resource {
 		try {
 			removeRepresentations(session);
 			success = getResponse().getStatus().isSuccess();
+		} catch (ResourceException e) {
+			throw e;
 		} catch (Throwable e) {
 			Debug.println("(!) {0} threw uncaught exception:\r\n{1}", getClass().getSimpleName(), e);
 			success = false;

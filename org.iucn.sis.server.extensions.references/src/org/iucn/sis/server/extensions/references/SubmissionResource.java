@@ -1,5 +1,7 @@
 package org.iucn.sis.server.extensions.references;
 
+import java.util.List;
+
 import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -47,8 +49,9 @@ public class SubmissionResource extends TransactionResource {
 			if ("reference".equals(node.getNodeName())) {
 				final Reference reference = Reference.fromXML(node, true);
 				if (reference.getId() > 0 && !force) {
-					if (!session.createSQLQuery("SELECT * FROM field_reference " +
-						"WHERE referenceid = " + reference.getId()).list().isEmpty())
+					List existing = session.createSQLQuery("SELECT * FROM field_reference " +
+						"WHERE referenceid = " + reference.getId()).list();
+					if (!existing.isEmpty())
 						throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
 				}
 

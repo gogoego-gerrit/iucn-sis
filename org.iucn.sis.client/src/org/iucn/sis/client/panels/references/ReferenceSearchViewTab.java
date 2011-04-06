@@ -225,7 +225,11 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 			} catch (NumberFormatException e) {
 				countInt = 0;
 			}
-			if (countInt > 0) {
+			listener.onNo();
+			/*
+			 * To prompt the user before they open the window, uncomment the code below.
+			 */
+			/*if (countInt > 0) {
 				WindowUtils.confirmAlert("Confirm", "This reference is being used on at least one assessment, and " +
 					"any changes you make to this reference will be reflected on those assessments.  Would " +
 					"you like to make changes to this existing reference, or save your changes as a " +
@@ -233,7 +237,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 			}
 			else {
 				listener.onNo();
-			}
+			}*/
 		}
 	}
 	

@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.dem;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
+import org.iucn.sis.client.api.assessment.ReferenceableAssessment;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -10,7 +11,6 @@ import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.assessments.AssessmentAttachmentPanel;
-//import org.iucn.sis.client.panels.assessments.AssessmentChangesPanel;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
 import org.iucn.sis.client.panels.assessments.TrackChangesPanel;
 import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
@@ -42,7 +42,6 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-//import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -55,7 +54,6 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
-//import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class DEMToolbar extends ToolBar {
 	
@@ -375,7 +373,9 @@ public class DEMToolbar extends ToolBar {
 					}
 				};
 				
-				ClientUIContainer.bodyContainer.openReferenceManager(AssessmentCache.impl.getCurrentAssessment(), "Manage References -- Add to Global References", callback, callback);
+				ClientUIContainer.bodyContainer.openReferenceManager(
+						new ReferenceableAssessment(AssessmentCache.impl.getCurrentAssessment()), 
+						"Manage References -- Add to Global References", callback, callback);
 				stopAutosaveTimer();
 			}
 		});

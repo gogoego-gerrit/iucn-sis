@@ -1,8 +1,10 @@
 package org.iucn.sis.server.restlets.assessments;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -12,6 +14,7 @@ import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.persistance.FieldDAO;
 import org.iucn.sis.server.api.persistance.PrimitiveFieldDAO;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.RegionConflictException;
@@ -24,6 +27,7 @@ import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
@@ -193,9 +197,28 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			// ONLY ALLOW POSTING OF ASSESSMENTS THAT ALREADY EXIST;
 			if (source.getId() != 0) {
 				final Assessment target = assessmentIO.getAssessment(source.getId());
+				
+				final Map<Integer, Reference> targetRefs = new HashMap<Integer, Reference>();
+				for (Reference reference : target.getReference())
+					targetRefs.put(reference.getId(), reference);
+				
+				for (Reference sourceRef : source.getReference()) {
+					if (sourceRef.getId() == 0)
+						continue;
+					
+					Reference targetRef = targetRefs.remove(sourceRef.getId());
+					if (targetRef == null) {
+						Reference ref = SISPersistentManager.instance().getObject(session, Reference.class, sourceRef.getId());
+						if (ref != null)
+							target.getReference().add(ref);
+					}
+				}
+				
+				target.getReference().removeAll(targetRefs.values());
+				
 				target.toXML();
 				
-				final AssessmentPersistence saver = new AssessmentPersistence();
+				final AssessmentPersistence saver = new AssessmentPersistence(session);
 				saver.setDeleteFieldListener(new ComplexListener<Field>() {
 					public void handleEvent(Field field) {
 						try {
@@ -215,6 +238,17 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 					}
 				});
 				saver.sink(source, target);
+				
+				//This may or may not need to happen for hibernate reasons...
+				target.toXML();
+				
+				/*
+				 * If this happens, then some field that should not have been 
+				 * removed got removed, and I'd rather fail here than continue 
+				 * processing; lest we risk losing data, notes, or references.
+				 */
+				if (source.getField().size() != target.getField().size())
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Server error: fields not persisted correctly.");
 				
 				AssessmentIOWriteResult result = 
 					assessmentIO.writeAssessment(target, getUser(request, session), true);

@@ -10,31 +10,31 @@ import org.junit.Test;
 public class SaveAssessmentTest extends BasicTest {
 	
 	@Test
-	public void testSaveNew() {
+	public void testSaveNew() throws Exception {
 		Assessment target = new Assessment();
 		
-		AssessmentPersistence saver = new AssessmentPersistence();
+		AssessmentPersistence saver = new AssessmentPersistence(null);
 		saver.sink(createBrandNewAssessmentWithFields(), target);
 		
 		//System.out.println(toXML(target));
 	}
 	
 	@Test
-	public void testSaveExisting() {
+	public void testSaveExisting() throws Exception {
 		Assessment target = createExistingAssessmentWithFields();
 		
-		AssessmentPersistence saver = new AssessmentPersistence();
+		AssessmentPersistence saver = new AssessmentPersistence(null);
 		saver.sink(createExistingAssessmentWithFields(), target);
 		
 		//System.out.println(toXML(target));
 	}
 	
 	@Test
-	public void testSaveExistingAsDelete() {
+	public void testSaveExistingAsDelete() throws Exception {
 		Assessment source = createExistingAssessmentWithFields();
 		Assessment target = createExistingAssessmentWithFields(false);
 		
-		AssessmentPersistence saver = new AssessmentPersistence();
+		AssessmentPersistence saver = new AssessmentPersistence(null);
 		saver.sink(source, target);
 		
 		System.out.println(toXML(target));

@@ -483,7 +483,7 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 	 * Called when saving is successful. Can be overridden. By default, it
 	 * 
 	 */
-	public void onSaveSuccessful(Reference returnedRef) {
+	public void onSaveSuccessful(Reference returnedRef, boolean asNew) {
 		if (reference != null)
 			reference.setReferenceID(returnedRef.getReferenceID());
 		else
@@ -513,10 +513,10 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 		reference.setCitation(citation);
 		reference.setCitationComplete(citationComplete);
 
-		post(reference, false);
+		post(false, reference.getId() == 0);
 	}
 	
-	private void post(final Reference reference, boolean force) {
+	private void post(final boolean force, final boolean asNew) {
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.post(UriBase.getInstance().getReferenceBase() +"/refsvr/submit?force=" + Boolean.toString(force), 
 				"<references>" + reference.toXML() + "</references>", new GenericCallback<String>() {
@@ -528,10 +528,10 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 						"reference?", new WindowUtils.MessageBoxListener() {
 							public void onYes() {
 								reference.setId(0);
-								post(reference, true);
+								post(true, true);
 							}
 							public void onNo() {
-								post(reference, true);
+								post(true, false);
 							}
 						}, "Save as New", "Save Existing");
 				}
@@ -540,8 +540,8 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 				}
 			}
 			public void onSuccess(String result) {
-				// TODO Auto-generated method stub
-				
+				final Reference returnedRef = Reference.fromXML(document.getDocumentElement().getElementByTagName("reference"));
+				onSaveSuccessful(returnedRef, asNew);
 			}
 		});
 	}

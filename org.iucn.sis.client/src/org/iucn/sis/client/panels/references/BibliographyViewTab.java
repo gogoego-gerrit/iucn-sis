@@ -5,12 +5,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.iucn.sis.client.api.assessment.ReferenceableAssessment;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
+import org.iucn.sis.shared.api.displays.FieldDisplay;
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Reference;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -145,7 +148,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 				editReference(grid.getSelectionModel().getSelectedItem());
 			}
 		});
-		final ToggleButton showFields = new ToggleButton();
+		/*final ToggleButton showFields = new ToggleButton();
 		showFields.setIconStyle("icon-accept");
 		showFields.setText("Show Field Info");
 		showFields.addListener(Events.Select, new SelectionListener<ComponentEvent>() {
@@ -160,25 +163,18 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 					showFields.setIconStyle("icon-stop");
 
 					refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
-					/*populateBibTable(currentReferences.iterator());
-					biblioContainer.layout();
-					bibTable.sort(0, SortDir.ASC);*/
 				} else {
 					showFields.setText("Show Field Info");
 					showFields.setIconStyle("icon-accept");
 
 					refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
-					
-					/*populateBibTable(currentUniqueReferences.values().iterator());
-					biblioContainer.layout();
-					bibTable.sort(0, SortDir.ASC);*/
 				}
 			}
-		});
+		});*/
 
 		biblioBar.add(removeItem);
 		biblioBar.add(editExisting);
-		biblioBar.add(showFields);
+		//biblioBar.add(showFields);
 		
 		return biblioBar;
 	}
@@ -222,8 +218,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	private ColumnModel getColumnModel() {
 		final ColumnConfig citation = new ColumnConfig("citation", "Citation", 500);
 
-		final ColumnConfig field = new ColumnConfig("field", "Field", 67);
-		field.setHidden(true);
+		final ColumnConfig field = new ColumnConfig("field", "Field", 150);
 		
 		final List<ColumnConfig> list = new ArrayList<ColumnConfig>();
 		list.add(citation);
@@ -237,13 +232,41 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 		if (currentReferences != null) {
 			final ListStore<ReferenceModel> store = new ListStore<ReferenceModel>();
 			store.setStoreSorter(new StoreSorter<ReferenceModel>(new PortableAlphanumericComparator()));
+			
+			if (parent.getReferenceable() != null) {
+				Iterator<Reference> iter;
+				if (parent.getReferenceable() instanceof ReferenceableAssessment) {
+					for (Reference reference : parent.getReferenceable().getReferencesAsList()) {
+						ReferenceModel model = new ReferenceModel(reference);
+						model.setField("Global");
+						
+						store.add(model);
+					}
+					for (Field field : ((ReferenceableAssessment)parent.getReferenceable()).getAssessment().getField()) {
+						for (Reference reference : field.getReference()) {
+							ReferenceModel model = new ReferenceModel(reference);
+							model.setField(field.getName());
+							
+							store.add(model);
+						}
+					}
+				}
+				else {
+					boolean isField = parent.getReferenceable() != null && parent.getReferenceable() instanceof FieldDisplay; 
+					for (Iterator<Reference> local = currentReferences.iterator(); local.hasNext(); ) {
+						final Reference current = local.next();
+						current.generateCitationIfNotAlreadyGenerate();
+						
+						final ReferenceModel model = new ReferenceModel(current);
+						
+						if (isField)
+							model.setField(((FieldDisplay)parent.getReferenceable()).getCanonicalName());
 		
-			for (Iterator<Reference> local = currentReferences.iterator(); local.hasNext(); ) {
-				final Reference current = local.next();
-				current.generateCitationIfNotAlreadyGenerate();
-
-				store.add(new ReferenceModel(current));
+						store.add(model);
+					}
+				}
 			}
+			
 			
 			callback.onSuccess(store);
 		}
@@ -256,7 +279,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	 * 
 	 */
 	private void showBibliography() {
-		grid.getColumnModel().getColumnById("field").setHidden(true);
+		grid.getColumnModel().getColumnById("field").setHidden(parent.getReferenceable() == null || !(parent.getReferenceable() instanceof ReferenceableAssessment));
 		
 		/*if (biblioBar.getParent() == null) {
 			HorizontalPanel hp = new HorizontalPanel();

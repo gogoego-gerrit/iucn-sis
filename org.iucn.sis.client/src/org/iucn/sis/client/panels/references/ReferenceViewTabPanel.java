@@ -169,8 +169,8 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 		}
 
 		@Override
-		public void onSaveSuccessful(final Reference returnedRef) {
-			if (original == null)
+		public void onSaveSuccessful(final Reference returnedRef, final boolean asNew) {
+			if (original == null || asNew)
 				afterSave(null);
 			else {
 				original.getModel().setId(returnedRef.getReferenceID());

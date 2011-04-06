@@ -8,21 +8,29 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentChange;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.Reference;
 
 import com.solertium.util.events.ComplexListener;
 
 public class AssessmentPersistence {
 	
-	private final List<AssessmentChange> changeSet = new ArrayList<AssessmentChange>();
+	private final List<AssessmentChange> changeSet;
+	private final Session session;
 	
 	private ComplexListener<Field> deleteFieldListener;
 	private ComplexListener<PrimitiveField> deletePrimitiveFieldListener;
+	
+	public AssessmentPersistence(Session session) {
+		this.session = session;
+		this.changeSet = new ArrayList<AssessmentChange>();
+	}
 	
 	public List<AssessmentChange> getChangeSet() {
 		return changeSet;
@@ -36,7 +44,7 @@ public class AssessmentPersistence {
 		this.deletePrimitiveFieldListener = deletePrimitiveFieldListener;
 	}
 	
-	public void sink(Assessment source, Assessment target) {
+	public void sink(Assessment source, Assessment target) throws PersistentException {
 		Map<Integer, Field> existingFields = mapFields(target.getField());
 		
 		for (Field sourceField : source.getField()) {
@@ -52,7 +60,7 @@ public class AssessmentPersistence {
 					AssessmentChange pendingEdit = createEditChange(target, targetField, sourceField);
 					AssessmentChange pendingDelete = createDeleteChange(target, targetField);
 					sink(sourceField, targetField);
-					if (!targetField.hasData()) {
+					if (isBlank(targetField)) {
 						changeSet.add(pendingDelete);
 						deleteField(targetField);
 					}
@@ -74,7 +82,26 @@ public class AssessmentPersistence {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void sink(Field source, Field target) {
+	private void sink(Field source, Field target) throws PersistentException {
+		{
+			Map<Integer, Reference> existingReferences = mapFields(target.getReference());
+			
+			for (Reference sourceReference : source.getReference()) {
+				//Should never be the case...
+				if (sourceReference.getId() == 0) {
+					sourceReference.getField().add(target);
+					target.getReference().add(sourceReference);
+				}
+				else {
+					Reference targetReference = existingReferences.remove(sourceReference.getId());
+					if (targetReference == null)
+						target.getReference().add(SISPersistentManager.instance().loadObject(session, Reference.class, sourceReference.getId()));
+				}
+			}
+			
+			target.getReference().removeAll(existingReferences.values());
+			
+		}
 		{
 			Map<Integer, PrimitiveField> existingFields = mapFields(target.getPrimitiveField());
 		
@@ -117,6 +144,10 @@ public class AssessmentPersistence {
 		}
 		
 		//FieldDAO.save(target);
+	}
+	
+	private boolean isBlank(Field field) {
+		return field.getReference().isEmpty() && field.getNotes().isEmpty() && !field.hasData();
 	}
 	
 	private void deleteField(Field field) {
@@ -185,6 +216,8 @@ public class AssessmentPersistence {
 				map.put(((Field)field).getId(), field);
 			else if (field instanceof PrimitiveField)
 				map.put(((PrimitiveField)field).getId(), field);
+			else if (field instanceof Reference)
+				map.put(((Reference)field).getId(), field);
 		}
 		return map;
 	}
