@@ -137,7 +137,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 					}
 				};
 				
-				ReferenceViewTabPanel.openEditor(null, saveListener, true, false);
+				ReferenceViewTabPanel.openEditor(null, saveListener);
 				
 			}
 		});
@@ -164,15 +164,11 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 				} else {
 					ArrayList<Reference> list = new ArrayList<Reference>();
 					
-					for (ReferenceModel curItem : grid.getSelectionModel().getSelectedItems()) {
-						Reference refToAdd = curItem.ref;
-						list.add(refToAdd);
-					}
-
-					if (!list.isEmpty()) {
+					for (ReferenceModel curItem : grid.getSelectionModel().getSelectedItems())
+						list.add(curItem.getModel());
+					
+					if (!list.isEmpty())
 						parent.onAddSelected(list);
-						//onAddSelected(list);
-					}
 				}
 			}
 		});
@@ -186,7 +182,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 		return toolBar;
 	}
 	
-	private void editReference(ReferenceModel model) {
+	private void editReference(final ReferenceModel model) {
 		if (model == null)
 			WindowUtils.errorAlert("Error", "Please select a record to view.");
 		else {
@@ -198,6 +194,8 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 			final ComplexListener<ReferenceModel> saveListener = new ComplexListener<ReferenceModel>() {
 				public void handleEvent(ReferenceModel reference) {
 					//showSearchPanel();
+					if (reference != null)
+						reference.rebuild();
 					refreshView();
 				}
 			};
@@ -207,9 +205,35 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 					refreshView();
 				}
 			};
+			
+			WindowUtils.MessageBoxListener listener = new WindowUtils.MessageBoxListener() {
+				public void onNo() {
+					open(true);
+				}
+				public void onYes() {
+					open(false);
+				}
+				private void open(boolean asNew) {
+					ReferenceViewTabPanel.openEditor(model, saveListener, deleteListener);
+				}
+			};
 
 			String count = model.get("count").toString();
-			ReferenceViewTabPanel.openEditor(model, saveListener, deleteListener, !count.trim().equals("0"), false);
+			int countInt;
+			try {
+				countInt = Integer.parseInt(count);
+			} catch (NumberFormatException e) {
+				countInt = 0;
+			}
+			if (countInt > 0) {
+				WindowUtils.confirmAlert("Confirm", "This reference is being used on at least one assessment, and " +
+					"any changes you make to this reference will be reflected on those assessments.  Would " +
+					"you like to make changes to this existing reference, or save your changes as a " +
+					"new reference?", listener, "Save Existing", "Save as New");
+			}
+			else {
+				listener.onNo();
+			}
 		}
 	}
 	

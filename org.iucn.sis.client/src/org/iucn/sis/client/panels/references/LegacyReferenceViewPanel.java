@@ -290,7 +290,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 					ArrayList<Reference> list = new ArrayList<Reference>();
 					List<ReferenceModel> items = bibBinder.getSelection();
 					for (ReferenceModel curItem : items) {
-						Reference curRef = curItem.ref;
+						Reference curRef = curItem.getModel();
 						list.add(curRef);
 						// currentReferences.remove(curRef);
 						removeFromCurrentList(curRef);
@@ -463,7 +463,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 					ArrayList<Reference> list = new ArrayList<Reference>();
 					List<ReferenceModel> items = searchBinder.getSelection();
 					for (ReferenceModel curItem : items) {
-						Reference refToAdd = curItem.ref;
+						Reference refToAdd = curItem.getModel();
 						list.add(refToAdd);
 					}
 
@@ -607,7 +607,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 	private void openEditor(final ReferenceModel reference, final Store<ReferenceModel> fromStore, final boolean promptToReplace) {
 		Reference ref = null;
 		if( reference != null )
-			ref = reference.ref;
+			ref = reference.getModel();
 			
 		ReferenceEditor editor = new ReferenceEditor(ref) {
 			@Override
@@ -638,18 +638,18 @@ public class LegacyReferenceViewPanel extends TabPanel {
 					final Reference returnedRef, final Integer assessmentID, String assessmentType) {
 				final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
 				ndoc.post(UriBase.getInstance().getReferenceBase() + "/reference/replace", ReferenceUtils.seralizeReplaceRequest(
-						reference.ref, returnedRef, assessmentID, assessmentType), new GenericCallback<String>() {
+						reference.getModel(), returnedRef, assessmentID, assessmentType), new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {
 						WindowUtils.hideLoadingAlert();
 						System.out.println("ERROR preforming replace.");
-						reference.ref.setReferenceID(returnedRef.getReferenceID());
+						reference.getModel().setReferenceID(returnedRef.getReferenceID());
 
 						afterSave(reference, fromStore);
 					}
 					public void onSuccess(String result) {
 						WindowUtils.hideLoadingAlert();
 						
-						reference.ref.setReferenceID(returnedRef.getReferenceID());
+						reference.getModel().setReferenceID(returnedRef.getReferenceID());
 						String message = "";
 						
 						if( assessmentID != null )
@@ -680,11 +680,11 @@ public class LegacyReferenceViewPanel extends TabPanel {
 				// WindowUtils.infoAlert("Success", "Save Successful.");\
 				if( reference == null ) {
 					afterSave(null, null);
-				} else if( promptToReplace && !(reference.ref.getReferenceID() == returnedRef.getReferenceID())
+				} else if( promptToReplace && !(reference.getModel().getReferenceID() == returnedRef.getReferenceID())
 						&& AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.REFERENCE_REPLACE_FEATURE)) {
 					promptToReplace(reference, fromStore, returnedRef);
 				} else {
-					reference.ref.setId(returnedRef.getReferenceID());
+					reference.getModel().setId(returnedRef.getReferenceID());
 					afterSave(reference, fromStore);
 				}
 			}
@@ -719,8 +719,8 @@ public class LegacyReferenceViewPanel extends TabPanel {
 //									HashMap<String, ArrayList<Reference>> curRefs = AssessmentCache.impl.getCurrentAssessment().getReferences();
 									for( Field curField : AssessmentCache.impl.getCurrentAssessment().getField() ) {
 //									for( Entry<String, ArrayList<Reference>> curEntry : curRefs.entrySet() ) {
-										if( curField.getReference().contains(reference.ref) ) {
-											curField.getReference().remove(reference.ref);
+										if( curField.getReference().contains(reference.getModel()) ) {
+											curField.getReference().remove(reference.getModel());
 											curField.getReference().add(returnedRef);
 											returnedRef.getField().add(curField);
 											
@@ -728,8 +728,8 @@ public class LegacyReferenceViewPanel extends TabPanel {
 										}
 									}
 									
-									if( AssessmentCache.impl.getCurrentAssessment().getReference().contains(reference.ref) ) {
-										AssessmentCache.impl.getCurrentAssessment().getReference().remove(reference.ref);
+									if( AssessmentCache.impl.getCurrentAssessment().getReference().contains(reference.getModel()) ) {
+										AssessmentCache.impl.getCurrentAssessment().getReference().remove(reference.getModel());
 										AssessmentCache.impl.getCurrentAssessment().getReference().add(returnedRef);
 										returnedRef.getAssessment().add(AssessmentCache.impl.getCurrentAssessment());
 										
@@ -765,7 +765,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 									doReplace(reference, fromStore, returnedRef, null, null);
 							}
 						} else {
-							reference.ref.setReferenceID(returnedRef.getReferenceID());
+							reference.getModel().setReferenceID(returnedRef.getReferenceID());
 							afterSave(reference, fromStore);
 						}
 					}

@@ -36,6 +36,8 @@ public class SubmissionResource extends TransactionResource {
 			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 		}
 		
+		final boolean force = "true".equals(getRequest().getResourceRef().getQueryAsForm().getFirstValue("force", "false"));
+		
 		final StringBuilder responseDoc = new StringBuilder();
 		responseDoc.append("<references>");
 		
@@ -44,6 +46,11 @@ public class SubmissionResource extends TransactionResource {
 			final NativeNode node = nodes.item(i);
 			if ("reference".equals(node.getNodeName())) {
 				final Reference reference = Reference.fromXML(node, true);
+				if (reference.getId() > 0 && !force) {
+					if (!session.createSQLQuery("SELECT * FROM field_reference " +
+						"WHERE referenceid = " + reference.getId()).list().isEmpty())
+						throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
+				}
 
 				try {
 					SISPersistentManager.instance().saveObject(session, reference);

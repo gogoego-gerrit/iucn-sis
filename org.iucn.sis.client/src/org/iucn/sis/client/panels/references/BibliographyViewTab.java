@@ -125,7 +125,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 					ArrayList<Reference> list = new ArrayList<Reference>();
 					List<ReferenceModel> items = grid.getSelectionModel().getSelectedItems();
 					for (ReferenceModel curItem : items) {
-						Reference curRef = curItem.ref;
+						Reference curRef = curItem.getModel();
 						list.add(curRef);
 						// currentReferences.remove(curRef);
 						removeFromCurrentList(curRef);
@@ -215,7 +215,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 				}
 			};
 			
-			ReferenceViewTabPanel.openEditor(selection, saveListener, true, true);
+			ReferenceViewTabPanel.openEditor(selection, saveListener);
 		}
 	}
 	

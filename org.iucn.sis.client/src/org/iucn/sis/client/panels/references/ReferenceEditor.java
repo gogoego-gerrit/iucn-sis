@@ -41,6 +41,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -84,11 +85,6 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 	 *            the reference.
 	 */
 	public ReferenceEditor(final Reference reference) {
-		this(reference, reference == null ? true : AuthorizationCache.impl.hasRight(
-				SimpleSISClient.currentUser, AuthorizableObject.WRITE, reference));
-	}
-
-	public ReferenceEditor(final Reference reference, final boolean canEdit) {
 		super();
 		setLayout(new FillLayout());
 		setClosable(true);
@@ -97,7 +93,9 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 		setScrollMode(Scroll.AUTO);
 
 		this.reference = reference;
-		this.canEdit = canEdit;
+		this.canEdit = reference == null ? true : 
+			AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, reference);
+		
 		changedType = false;
 
 		registeredFields = new ArrayList<TextBox>();
@@ -515,18 +513,35 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 		reference.setCitation(citation);
 		reference.setCitationComplete(citationComplete);
 
-		final String xml = "<references>" + reference.toXML() + "</references>";
-
+		post(reference, false);
+	}
+	
+	private void post(final Reference reference, boolean force) {
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-		document.post(UriBase.getInstance().getReferenceBase() +"/refsvr/submit", xml, new GenericCallback<String>() {
+		document.post(UriBase.getInstance().getReferenceBase() +"/refsvr/submit?force=" + Boolean.toString(force), 
+				"<references>" + reference.toXML() + "</references>", new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				WindowUtils.errorAlert("Failure", "Save Failed Unexpectedly.");
+				if (caught instanceof GWTConflictException) {
+					WindowUtils.confirmAlert("Confirm", "This reference is being used in some assessments, " +
+						"and any changes you make will be reflected in those assessments.  Do you want to " +
+						"save these changes as a new reference, or save these changes to the existing " +
+						"reference?", new WindowUtils.MessageBoxListener() {
+							public void onYes() {
+								reference.setId(0);
+								post(reference, true);
+							}
+							public void onNo() {
+								post(reference, true);
+							}
+						}, "Save as New", "Save Existing");
+				}
+				else {
+					WindowUtils.errorAlert("Failure", "Save Failed Unexpectedly.");
+				}
 			}
-
 			public void onSuccess(String result) {
-				final Reference returnedRef = Reference.fromXML(document.getDocumentElement().getElementByTagName(
-				"reference"));
-				onSaveSuccessful(returnedRef);
+				// TODO Auto-generated method stub
+				
 			}
 		});
 	}

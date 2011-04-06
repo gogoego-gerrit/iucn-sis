@@ -10,21 +10,17 @@ public class ReferenceModel extends BaseModelData {
 	 * Auto-generated
 	 */
 	private static final long serialVersionUID = 8259134038222297761L;
-	protected Reference ref;
+	
+	private final Reference ref;
+	private final String count;
 
 	public ReferenceModel(Reference ref) {
-		this.ref = ref;
-		set("author", ref.getAuthor());
-		set("title", ref.getTitle());
-		set("year", ref.getYear());
-		set("count", "");
-		set("field", ref.getField());
-		set("citation", getVisibleCitation());
+		this(ref, "");
 	}
 
 	public ReferenceModel(Reference ref, String count) {
-		this(ref);
-		set("count", count);
+		this.ref = ref;
+		this.count = count;
 	}
 
 	public void rebuild() {
@@ -33,6 +29,7 @@ public class ReferenceModel extends BaseModelData {
 		set("year", ref.getYear());
 		set("field", ref.getField());
 		set("citation", getVisibleCitation());
+		set("count", count);
 	}
 	
 	private String getVisibleCitation() {
@@ -43,4 +40,7 @@ public class ReferenceModel extends BaseModelData {
 			return citation;
 	}
 	
+	public Reference getModel() {
+		return ref;
+	}
 }
