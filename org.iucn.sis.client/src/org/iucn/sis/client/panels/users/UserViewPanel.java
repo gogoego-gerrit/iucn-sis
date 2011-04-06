@@ -202,15 +202,9 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 			Button item = new Button("Add Profile and Create Password", new SelectionListener<ButtonEvent>() {
 				@Override
 				public void componentSelected(ButtonEvent ce) {
-					AddUserWindow win = new AddUserWindow(true, new GenericCallback<String>() {
-
-						@Override
-						public void onSuccess(String result) {
+					AddUserWindow win = new AddUserWindow(true, new ComplexListener<String>() {
+						public void handleEvent(String result) {
 							addUser(result);
-						}
-
-						@Override
-						public void onFailure(Throwable caught) {
 						}
 					});
 					win.show();
@@ -225,15 +219,9 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 			item = new Button("Add Profile", new SelectionListener<ButtonEvent>() {
 				@Override
 				public void componentSelected(ButtonEvent ce) {
-					AddUserWindow win = new AddUserWindow(false, new GenericCallback<String>() {
-
-						@Override
-						public void onSuccess(String result) {
+					AddUserWindow win = new AddUserWindow(false, new ComplexListener<String>() {
+						public void handleEvent(String result) {
 							addUser(result);
-						}
-
-						@Override
-						public void onFailure(Throwable caught) {
 						}
 					});
 					win.show();

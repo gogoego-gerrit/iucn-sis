@@ -16,6 +16,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 import ext.ux.pwd.client.PasswordField;
@@ -41,13 +42,13 @@ public class AddUserWindow extends Window {
 	private final TextField<String> nickname;
 
 	private final Button submit;
-	private final GenericCallback<String> callback;
+	private final ComplexListener<String> callback;
 
-	public AddUserWindow(final boolean createAccount, GenericCallback<String> callback) {
+	public AddUserWindow(final boolean createAccount, ComplexListener<String> callback) {
 		this(createAccount, null, callback);
 	}
 	
-	public AddUserWindow(final boolean createAccount, final String initialUsername, GenericCallback<String> callback) {
+	public AddUserWindow(final boolean createAccount, final String initialUsername, ComplexListener<String> callback) {
 		super();
 		this.callback = callback;
 		setClosable(true);
@@ -220,6 +221,6 @@ public class AddUserWindow extends Window {
 	public void onSuccess(String username) {
 		Info.display("Success", "User {0} added.", username);
 		if (this.callback != null)
-			this.callback.onSuccess(username);
+			this.callback.handleEvent(username);
 	}
 }

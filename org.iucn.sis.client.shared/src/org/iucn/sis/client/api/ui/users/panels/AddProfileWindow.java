@@ -1,9 +1,9 @@
 package org.iucn.sis.client.api.ui.users.panels;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,14 +15,26 @@ import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HtmlContainer;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
@@ -53,6 +65,16 @@ public class AddProfileWindow extends Window {
 		firstName = FormBuilder.createTextField(UserSearchController.SEARCH_KEY_FIRST_NAME, null, "First Name", false);
 		lastName = FormBuilder.createTextField(UserSearchController.SEARCH_KEY_LAST_NAME, null, "Last Name", true);
 		
+		KeyListener boxListener = new KeyListener() {
+			public void componentKeyPress(ComponentEvent event) {
+				int keyCode = event.getKeyCode();
+				if (keyCode == KeyCodes.KEY_ENTER)
+					submit();
+			}
+		};
+		firstName.addKeyListener(boxListener);
+		lastName.addKeyListener(boxListener);
+		
 		add(new HtmlContainer("Enter the basic profile information here.  A database " +
 			"search will then be performed to check for possible duplicates."));
 		
@@ -63,38 +85,7 @@ public class AddProfileWindow extends Window {
 		
 		addButton(new Button("Submit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				if (!form.isValid())
-					return;
-				
-				doServerValidation(new SimpleListener() {
-					public void handleEvent() {
-						hide();
-						
-						StringBuilder usernameBuilder = new StringBuilder();
-						if (hasValue(firstName.getValue())) {
-							usernameBuilder.append(firstName.getValue().toLowerCase());
-							usernameBuilder.append('.');
-						}
-						usernameBuilder.append(lastName.getValue().toLowerCase());
-						usernameBuilder.append(".gen.");
-						usernameBuilder.append(new Date().getTime());
-						usernameBuilder.append("@gen.iucnsis.org");
-						
-						AddUserWindow window = 
-							new AddUserWindow(false, usernameBuilder.toString(), new GenericCallback<String>() {
-								public void onSuccess(String result) {
-									successListener.handleEvent(result);
-								}
-								public void onFailure(Throwable caught) {
-									// TODO Auto-generated method stub
-									
-								}
-							});
-						window.setFirstname(firstName.getValue());
-						window.setLastname(lastName.getValue());
-						window.show();
-					}
-				});
+				submit();
 			}
 		}));
 		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
@@ -102,6 +93,37 @@ public class AddProfileWindow extends Window {
 				hide();
 			}
 		}));
+	}
+	
+	private void submit() {
+		if (!form.isValid())
+			return;
+		
+		doServerValidation(new SimpleListener() {
+			public void handleEvent() {
+				hide();
+				
+				StringBuilder usernameBuilder = new StringBuilder();
+				if (hasValue(firstName.getValue())) {
+					usernameBuilder.append(firstName.getValue().toLowerCase());
+					usernameBuilder.append('.');
+				}
+				usernameBuilder.append(lastName.getValue().toLowerCase());
+				usernameBuilder.append(".gen.");
+				usernameBuilder.append(new Date().getTime());
+				usernameBuilder.append("@gen.iucnsis.org");
+				
+				AddUserWindow window = 
+					new AddUserWindow(false, usernameBuilder.toString(), new ComplexListener<String>() {
+						public void handleEvent(String result) {
+							successListener.handleEvent(result);
+						}
+					});
+				window.setFirstname(firstName.getValue());
+				window.setLastname(lastName.getValue());
+				window.show();
+			}
+		});
 	}
 	
 	private void doServerValidation(final SimpleListener listener) {
@@ -122,44 +144,76 @@ public class AddProfileWindow extends Window {
 				if (results.isEmpty())
 					listener.handleEvent();
 				else {
-					String verb, noun;
-					if (results.size() == 1) {
-						verb = "is";
-						noun = "user";
-					}
-					else {
-						verb = "are";
-						noun = "users";
-					}
-					
-					StringBuilder builder = new StringBuilder();
-					builder.append("There " + verb + " " + results.size() + " " + noun + 
-						" that may match this profile, are you sure you want to continue?");
-					for (Iterator<SearchResults> iter = results.listIterator(); iter.hasNext(); ) {
-						SearchResults result = iter.next();
-						String affiliation = "", email = "";
-						if (!"".equals(result.getUser().getAffiliation()))
-							affiliation = " with " + result.getUser().getAffiliation();
-						if (!"".equals(result.getUser().getEmail()) && !result.getUser().getEmail().equals(result.getUser().getUsername()))
-							email = " (" + result.getUser().getEmail() + ")";
-						
-						builder.append("<br/> - " + result.getUser().getUsername() + email + affiliation);
-					}
-					
-					WindowUtils.confirmAlert("Confirm", builder.toString(), new WindowUtils.MessageBoxListener() {
-						public void onNo() {
-							hide();
-						}
-						public void onYes() {
-							listener.handleEvent();
-						}
-					});
+					openConfirmationWindow(results, listener);
 				}
 			}
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Could not perform search verification, please try again later.");
 			}
 		});
+	}
+	
+	private void openConfirmationWindow(Collection<SearchResults> results, final SimpleListener listener) {
+		
+		final List<ColumnConfig> config = new ArrayList<ColumnConfig>();
+		config.add(new ColumnConfig("firstname", "First Name", 150));
+		config.add(new ColumnConfig("lastname", "Last Name", 150));
+		config.add(new ColumnConfig("affiliation", "Affiliation", 150));
+		
+		final ListStore<SearchResults> store = new ListStore<SearchResults>();
+		for (SearchResults result : results)
+			store.add(result);
+		
+		final Grid<SearchResults> grid = new Grid<SearchResults>(store, new ColumnModel(config));
+		grid.setAutoExpandColumn("firstname");
+		grid.setAutoExpandMin(150);
+		
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(new HtmlContainer("<div style=\"margin:5px;font-size:14px;font-weight:bold;\">" + 
+			"<span style=\"color:red\">WARNING: </span><span>" + getErrorMessage(results) + "</span></div>"), 
+			new BorderLayoutData(LayoutRegion.NORTH, 60, 60, 60));
+		container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
+		
+		final Window window = new Window();
+		window.setModal(true);
+		window.setSize(600, 400);
+		window.setHeading("Confirm Profile Creation");
+		window.setClosable(false);
+		window.setLayout(new FillLayout());
+		window.setButtonAlign(HorizontalAlignment.CENTER);
+		
+		window.add(container);
+		
+		window.addButton(new Button("Add New Profile", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				AddProfileWindow.this.hide();
+				window.hide();
+				listener.handleEvent();
+			}
+		}));
+		window.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				AddProfileWindow.this.hide();
+				window.hide();
+			}
+		}));
+		
+		window.show();
+	}
+	
+	private String getErrorMessage(Collection<SearchResults> results) {
+		String verb, noun;
+		if (results.size() == 1) {
+			verb = "is";
+			noun = "user";
+		}
+		else {
+			verb = "are";
+			noun = "users";
+		}
+		
+		return "There " + verb + " " + results.size() + " " + noun + 
+			" that may match this profile, are you sure you want to continue?";
 	}
 	
 	private boolean hasValue(String s) {
