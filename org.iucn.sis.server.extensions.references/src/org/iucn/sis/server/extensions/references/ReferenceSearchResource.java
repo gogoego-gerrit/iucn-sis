@@ -7,7 +7,6 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Reference;
@@ -21,7 +20,6 @@ import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
-import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -86,7 +84,7 @@ public class ReferenceSearchResource extends TransactionResource {
 			"LEFT JOIN field_reference ON reference.id = field_reference.referenceid";
 		if (where != null)
 			query += " " + where;
-		query += " GROUP BY (reference.id)";
+		query += " GROUP BY (reference.id) LIMIT 250";
 		
 		final Map<Integer, Integer> map = new HashMap<Integer, Integer>();
 		synchronized (this) {
