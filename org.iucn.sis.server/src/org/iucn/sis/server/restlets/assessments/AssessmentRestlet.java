@@ -246,9 +246,12 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				 * If this happens, then some field that should not have been 
 				 * removed got removed, and I'd rather fail here than continue 
 				 * processing; lest we risk losing data, notes, or references.
+				 * 
+				 * TODO: add this back; removing the constraint for now until 
+				 * this is further tested with the client 
 				 */
-				if (source.getField().size() != target.getField().size())
-					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Server error: fields not persisted correctly.");
+				/*if (source.getField().size() != target.getField().size())
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Server error: fields not persisted correctly.");*/
 				
 				AssessmentIOWriteResult result = 
 					assessmentIO.writeAssessment(target, getUser(request, session), true);
