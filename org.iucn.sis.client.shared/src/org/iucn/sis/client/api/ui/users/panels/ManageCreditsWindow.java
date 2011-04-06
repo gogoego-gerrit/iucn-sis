@@ -804,7 +804,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			newParams.put(entry.getKey(), list);
 		}
 		
-		UserSearchController.search(newParams, callback);
+		UserSearchController.search(newParams, "and", callback);
 	}
 
 	public void setSearchResultHeading(String searchResultHeading) {
