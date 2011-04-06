@@ -86,24 +86,7 @@ public class SISCompleteListTextArea extends VerticalPanel {
 		textArea.setText("");
 	}
 
-	public void disable() {
-		textArea.setEnabled(false);
-	}
-
-	public void enable() {
-		textArea.setEnabled(true);
-	}
-
 	protected String generateTextFromUsers() {
-//		ArrayUtils.quicksort(selectedUsers, new Comparator<User>() {
-//
-//			public int compare(User user1, User user2) {
-//				return user1.getCitationName().compareTo(
-//						user2.getCitationName());
-//			}
-//
-//		});
-		
 		Collections.sort(selectedUsers, new CreditedUserComparator(order));
 
 		StringBuilder text = new StringBuilder();
@@ -134,6 +117,7 @@ public class SISCompleteListTextArea extends VerticalPanel {
 
 	public void setTextAreaEnabled(boolean enabled) {
 		textArea.setEnabled(enabled);
+		addButton.setVisible(enabled);
 	}
 
 	protected void setUsers(List<ClientUser> users) {
@@ -202,8 +186,8 @@ public class SISCompleteListTextArea extends VerticalPanel {
 			if (order == null)
 				return sortByName(arg0, arg1);
 		
-			int m1Index = order.indexOf(arg0);
-			int m2Index = order.indexOf(arg1);
+			int m1Index = arg0 == null ? -1 : order.indexOf(arg0.getId());
+			int m2Index = arg1 == null ? -1 : order.indexOf(arg1.getId());
 		
 			if (m1Index == -1)
 				return 1;

@@ -195,7 +195,7 @@ public class SISOptionsList extends Structure<Field> {
 				((ForeignKeyListPrimitiveField)data.get(FK_LIST_KEY)).getValue() : new ArrayList<Integer>();
 		
 		// FOR BACKWARDS COMPATIBILITY
-		if (!"".equals(text)) {
+		if (text != null && !"".equals(text)) {
 			theList.setTextAreaEnabled(true);
 			theList.setUserText(text);
 		}
