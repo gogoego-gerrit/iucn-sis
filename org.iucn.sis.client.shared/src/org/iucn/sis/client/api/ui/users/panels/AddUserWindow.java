@@ -199,7 +199,13 @@ public class AddUserWindow extends Window {
 		}));
 	}
 	
+	public void setFirstname(String value) {
+		this.firstname.setValue(value);
+	}
 	
+	public void setLastname(String value) {
+		this.lastname.setValue(value);
+	}
 
 	public String getXML(String username, String firstname, String lastname, String affiliation, String initials, String nickname, boolean createAccount) {
 		StringBuilder ret = new StringBuilder("<root>");

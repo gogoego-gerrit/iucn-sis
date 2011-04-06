@@ -81,6 +81,8 @@ public class AddProfileWindow extends Window {
 									
 								}
 							});
+						window.setFirstname(firstName.getValue());
+						window.setLastname(lastName.getValue());
 						window.show();
 					}
 				});
