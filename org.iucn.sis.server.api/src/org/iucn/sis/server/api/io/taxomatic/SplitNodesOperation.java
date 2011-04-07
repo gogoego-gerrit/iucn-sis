@@ -26,12 +26,12 @@ import org.iucn.sis.shared.api.models.User;
  * which you would like to split the node into (at least 2, lets say New1,
  * New2). For each child of Old1, you can choose to place it under either
  * New1 or in New2. Old1 is deprecated, and has two new Synonyms linking to
- * New1 and New2. New1 and New2 receive the children that was selected for
+ * New1 and New2. New1 and New2 receive the children that were selected for
  * them, and they both receive a deprecated synonym to Old1. None of the
  * assessments are transferred from Old1.
  * 
  * This operation removes all children of the oldTaxon and places them into 
- * the the new Parent which is stored in the parentTOChildren map
+ * the the new Parent which is stored in the parentToChildren map
  * 
  * @author adam.schwartz
  * @author carl.scott
@@ -133,11 +133,16 @@ public class SplitNodesOperation extends TaxomaticWorker {
 
 		for (Entry<Taxon, List<Taxon>> entry : parentToChildren.entrySet()) {
 			Taxon parent = entry.getKey();
+			
 			Synonym synonym = Taxon.synonymizeTaxon(original);
 			synonym.setStatus(Synonym.SPLIT);
 			if (synonym.getSpeciesAuthor() != null)
 				synonym.setSpeciesAuthor(synonym.getSpeciesAuthor() + " <i>pro parte</i>");
+			
+			//Create relationships
+			synonym.setTaxon(parent);
 			parent.getSynonyms().add(synonym);
+			
 			taxaToSave.add(parent);
 
 			// MOVE EACH CHILD AND ADD SYNONYMS
