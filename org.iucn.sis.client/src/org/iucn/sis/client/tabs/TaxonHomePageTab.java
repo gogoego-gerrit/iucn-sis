@@ -651,10 +651,10 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 							WindowUtils.confirmAlert("Confirm Delete", msg, new WindowUtils.SimpleMessageBoxListener() {
 								public void onYes() {
 									TaxomaticUtils.impl.deleteTaxon(node, new GenericCallback<String>() {
-										public void onSuccess(String result) {
+										public void onSuccess(String dresult) {
 											TaxonomyCache.impl.clear();
 											TaxonomyCache.impl.evict(node.getParentId() + "," + node.getId());
-											TaxonomyCache.impl.fetchTaxon(getTaxon().getParentId(), true,
+											TaxonomyCache.impl.fetchTaxon(node.getParentId(), true,
 													new GenericCallback<Taxon>() {
 												public void onFailure(Throwable caught) {
 													//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(null);
