@@ -136,6 +136,24 @@ public class RegionCache {
 		return getRegionNamesAsReadable(filter.getRegions());
 	}
 	
+	/**
+	 * Returns a readable list of region IDs, but does not guarantee 
+	 * that all IDs will be present in that list.  If a region ID in 
+	 * this list is not found in the cache, it will silently ignore 
+	 * that region.
+	 * @param regionIDs
+	 * @return
+	 */
+	public String getRegionNamesAsReadableForIDs(Collection<Integer> regionIDs) {
+		Collection<Region> regions = new ArrayList<Region>();
+		for (Integer id : regionIDs) {
+			Region region = getRegionByID(id);
+			if (region != null)
+				regions.add(region);
+		}
+		return getRegionNamesAsReadable(regions);
+	}
+	
 	public String getRegionNamesAsReadable(Collection<Region> regions) {
 		StringBuilder csv = new StringBuilder();
 		int size = regions.size();

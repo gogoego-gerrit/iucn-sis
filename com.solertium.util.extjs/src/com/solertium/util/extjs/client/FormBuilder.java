@@ -19,7 +19,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
@@ -28,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 
 /**
  * FormBuilder.java
@@ -78,25 +83,31 @@ public class FormBuilder {
 	}
 	
 	public static NumberField createNumberField(String name, String value, String label, boolean isRequired) {
+		Number num = null;
+		try {
+			num = Integer.parseInt(value);
+		} catch (NumberFormatException e) {
+			//Do nothing
+		}
+		return createNumberField(name, num, label, isRequired);
+	}
+	
+	public static NumberField createNumberField(String name, Number value, String label, boolean isRequired) {
 		final NumberField field = new NumberField();
 		field.setAllowDecimals(false);
 		field.setAllowNegative(false);
 		field.setName(name);
 		field.setFieldLabel(label);
 		field.setAllowBlank(!isRequired);
-		if (value != null) {
-			try {
-				field.setValue(Integer.parseInt(value));
-			} catch (NumberFormatException e) {
-				//Do nothing
-			}
-		}
+		if (value != null)
+			field.setValue(value);
 		
 		return field;
 	}
 	
 	public static SimpleComboBox<String> createComboBox(String name, String value, String label, boolean isRequired, String... options) {
 		final SimpleComboBox<String> box = new SimpleComboBox<String>();
+		box.setTriggerAction(TriggerAction.ALL);
 		box.setName(name);
 		box.setFieldLabel(label);
 		box.setEditable(false);
@@ -111,6 +122,45 @@ public class FormBuilder {
 					selected.add(current);
 			box.setSelection(selected);
 		}
+		return box;
+	}
+	
+	public static ComboBox<BaseModelData> createModelComboBox(String name, String value, String label, boolean isRequired, String... options) {
+		final BaseModelData[] array = new BaseModelData[options.length];
+		
+		int index = 0;
+		for (String option : options) {
+			final BaseModelData model = new BaseModelData();
+			model.set("text", option);
+			model.set("value", option);
+			
+			array[index++] = model;
+		}
+		
+		return createModelComboBox(name, value, label, isRequired, array);
+	}
+	
+	public static <X extends ModelData> ComboBox<X> createModelComboBox(String name, String value, String label, boolean isRequired, X... options) {
+		X selected = null;
+		
+		final ListStore<X> store = new ListStore<X>();
+		for (X model : options) {
+			store.add(model);
+			if (selected == null && value != null && value.equals(model.get("value")))
+				selected = model;
+		}
+		
+		final ComboBox<X> box = new ComboBox<X>();
+		box.setName(name);
+		box.setTriggerAction(TriggerAction.ALL);
+		box.setFieldLabel(label);
+		box.setEditable(false);
+		box.setForceSelection(true);
+		box.setAllowBlank(!isRequired);
+		box.setStore(store);
+		if (selected != null)
+			box.setValue(selected);
+		
 		return box;
 	}
 	
