@@ -134,7 +134,7 @@ public class Synonym implements Serializable {
 		xml.append("<stockName><![CDATA[" + ((getStockName() == null)? "" : getStockName()) + "]]></stockName>");
 		xml.append("<author><![CDATA[" + ((getAuthor() == null)? "" : getAuthor()) + "]]></author>");
 		xml.append("<speciesAuthor><![CDATA[" + ((getSpeciesAuthor() == null)? "" : getSpeciesAuthor()) + "]]></speciesAuthor>");
-		xml.append("<infrarankAuthor><![CDATA[" + ((getInfraName() == null)? "" : getInfraName()) + "]]></infrarankAuthor>");
+		xml.append("<infrarankAuthor><![CDATA[" + ((getInfrarankAuthor() == null)? "" : getInfrarankAuthor()) + "]]></infrarankAuthor>");
 		xml.append(getTaxon_level() != null ? "<level><![CDATA[" + getTaxon_level().getLevel() + "]]></level>" : ""); 
 		xml.append("<friendlyName><![CDATA[" + ((getFriendlyName() == null)? "" : getFriendlyName()) + "]]></friendlyName>");
 
@@ -205,7 +205,7 @@ public class Synonym implements Serializable {
 	private String infraType;
 
 	public void setInfraTypeObject(Infratype value) {
-		this.infraType = value.getName();
+		setInfraType(value == null ? null : value.getName());
 	}
 	
 	public void setInfraType(String infratypeName) {
