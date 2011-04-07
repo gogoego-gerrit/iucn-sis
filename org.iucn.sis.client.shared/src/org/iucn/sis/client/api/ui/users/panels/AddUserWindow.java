@@ -63,7 +63,7 @@ public class AddUserWindow extends Window {
 		username.setAllowBlank(false);
 		if (initialUsername != null && !createAccount) {
 			username.setValue(initialUsername);
-			username.setEnabled(false);
+			//username.setEnabled(false);
 		}
 		username.setValidator(new Validator() {
 			public String validate(Field<?> field, String value) {
