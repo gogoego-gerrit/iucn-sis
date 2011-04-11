@@ -100,6 +100,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		private final PortableAlphanumericComparator c = new PortableAlphanumericComparator(); 
 		
 		private List<Integer> order;
+		private boolean isOrderStale = false;
 		
 		public MCSearchResultsComparator(String order) {
 			if (order == null || "".equals(order))
@@ -114,11 +115,17 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			}
 		}
 		
+		public void setOrderStale(boolean isOrderStale) {
+			this.isOrderStale = isOrderStale;
+		}
+		
 		public void moveUp(ListStore<SearchResults> store, SearchResults model) {
-			if (order == null) {
+			if (order == null || isOrderStale) {
 				order = new ArrayList<Integer>();
 				for (SearchResults m : store.getModels())
 					order.add(m.getUser().getId());
+				
+				isOrderStale = false;
 			}
 			
 			int index = order.indexOf(model.getUser().getId());
@@ -131,10 +138,12 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 		}
 		
 		public void moveDown(ListStore<SearchResults> store, SearchResults model) {
-			if (order == null) {
+			if (order == null || isOrderStale) {
 				order = new ArrayList<Integer>();
 				for (SearchResults m : store.getModels())
 					order.add(m.getUser().getId());
+				
+				isOrderStale = false;
 			}
 			
 			int index = order.indexOf(model.getUser().getId());
@@ -857,12 +866,17 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			@Override
 			public void dragDrop(DNDEvent e) {
 				if (!id.equals("RECENT")) {
+					MCSearchResultsComparator sorter = 
+						(MCSearchResultsComparator)drList.getStore().getStoreSorter();
+					sorter.setOrderStale(true);
+					
 					List<SearchResults> data = (List<SearchResults>)(e.getData());
 					List<RecentUser> recent = new ArrayList<RecentUser>();
 					for (SearchResults user : data)
 						recent.add(new RecentUser(user.getUser()));
 					
 					RecentlyAccessedCache.impl.add(RecentlyAccessed.USER, recent);
+					
 					DeferredCommand.addPause();
 					DeferredCommand.addCommand(new Command() {
 						public void execute() {
