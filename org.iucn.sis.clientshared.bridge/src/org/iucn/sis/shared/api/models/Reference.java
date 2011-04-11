@@ -795,7 +795,7 @@ public class Reference implements Serializable, AuthorizableObject {
 			if (key == null)
 				return null;
 			if (key instanceof String)
-				return super.get(((String) key).toLowerCase());
+				return super.get(clean((String) key));
 			return super.get(key);
 		}
 
