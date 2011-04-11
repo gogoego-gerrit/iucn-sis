@@ -63,7 +63,7 @@ public class AddProfileWindow extends Window {
 		form.setBodyBorder(false);
 		
 		firstName = FormBuilder.createTextField(UserSearchController.SEARCH_KEY_FIRST_NAME, null, "First Name", false);
-		lastName = FormBuilder.createTextField(UserSearchController.SEARCH_KEY_LAST_NAME, null, "Last Name", true);
+		lastName = FormBuilder.createTextField(UserSearchController.SEARCH_KEY_LAST_NAME, null, "Last Name", false);
 		
 		KeyListener boxListener = new KeyListener() {
 			public void componentKeyPress(ComponentEvent event) {
@@ -96,9 +96,6 @@ public class AddProfileWindow extends Window {
 	}
 	
 	private void submit() {
-		if (!form.isValid())
-			return;
-		
 		doServerValidation(new SimpleListener() {
 			public void handleEvent() {
 				hide();
@@ -108,8 +105,11 @@ public class AddProfileWindow extends Window {
 					usernameBuilder.append(firstName.getValue().toLowerCase());
 					usernameBuilder.append('.');
 				}
-				usernameBuilder.append(lastName.getValue().toLowerCase());
-				usernameBuilder.append(".gen.");
+				if (hasValue(lastName.getValue())) {
+					usernameBuilder.append(lastName.getValue().toLowerCase());
+					usernameBuilder.append('.');
+				}
+				usernameBuilder.append("gen.");
 				usernameBuilder.append(new Date().getTime());
 				usernameBuilder.append("@gen.iucnsis.org");
 				
@@ -130,27 +130,34 @@ public class AddProfileWindow extends Window {
 		Map<String, String> params = new HashMap<String, String>();
 		if (hasValue(firstName.getValue()))
 			params.put(UserSearchController.SEARCH_KEY_FIRST_NAME, firstName.getValue());
-		params.put(UserSearchController.SEARCH_KEY_LAST_NAME, lastName.getValue());
+		if (hasValue(lastName.getValue()))
+			params.put(UserSearchController.SEARCH_KEY_LAST_NAME, lastName.getValue());
 		
-		Map<String, List<String>> newParams = new HashMap<String, List<String>>();
-		for (Entry<String, String> entry : params.entrySet()) {
-			ArrayList<String> list = new ArrayList<String>();
-			list.add(entry.getValue());
-			newParams.put(entry.getKey(), list);
+		if (params.isEmpty()) {
+			WindowUtils.errorAlert("Both fields can not be blank. " +
+				"Please enter either a first name, last name, or both.");
 		}
-		
-		UserSearchController.search(newParams, "and", new GenericCallback<List<SearchResults>>() {
-			public void onSuccess(List<SearchResults> results) {
-				if (results.isEmpty())
-					listener.handleEvent();
-				else {
-					openConfirmationWindow(results, listener);
+		else {
+			Map<String, List<String>> newParams = new HashMap<String, List<String>>();
+			for (Entry<String, String> entry : params.entrySet()) {
+				ArrayList<String> list = new ArrayList<String>();
+				list.add(entry.getValue());
+				newParams.put(entry.getKey(), list);
+			}
+			
+			UserSearchController.search(newParams, "and", new GenericCallback<List<SearchResults>>() {
+				public void onSuccess(List<SearchResults> results) {
+					if (results.isEmpty())
+						listener.handleEvent();
+					else {
+						openConfirmationWindow(results, listener);
+					}
 				}
-			}
-			public void onFailure(Throwable caught) {
-				WindowUtils.errorAlert("Could not perform search verification, please try again later.");
-			}
-		});
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Could not perform search verification, please try again later.");
+				}
+			});
+		}
 	}
 	
 	private void openConfirmationWindow(Collection<SearchResults> results, final SimpleListener listener) {
