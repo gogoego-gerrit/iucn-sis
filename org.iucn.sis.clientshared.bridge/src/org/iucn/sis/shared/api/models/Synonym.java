@@ -316,11 +316,11 @@ public class Synonym implements Serializable {
 		if (getSpeciesName() != null && !getSpeciesName().trim().equalsIgnoreCase("")) {
 			friendlyName += " " + getSpeciesName();
 			if (getSpeciesAuthor() != null && !getSpeciesAuthor().trim().equalsIgnoreCase("")) 
-				friendlyName += " ("+ getSpeciesAuthor() + ")";
+				friendlyName += " "+ getSpeciesAuthor() + "";
 			if (getInfraName() != null && !getInfraName().trim().equalsIgnoreCase("")) {
 				friendlyName += " " + Infratype.getDisplayString(getInfraType()) + " " + getInfraName();
 				if (getInfrarankAuthor() != null && !getInfrarankAuthor().trim().equalsIgnoreCase("")) 
-					friendlyName += " ("+ getInfrarankAuthor() + ")";
+					friendlyName += " "+ getInfrarankAuthor() + "";
 			}
 			if (getStockName() != null) {
 				friendlyName += " " + getStockName();
@@ -403,20 +403,6 @@ public class Synonym implements Serializable {
 
 	public String toString() {
 		return String.valueOf(getId());
-	}
-
-	private boolean _saved = false;
-
-	public void onSave() {
-		_saved = true;
-	}
-
-	public void onLoad() {
-		_saved = true;
-	}
-
-	public boolean isSaved() {
-		return _saved;
 	}
 
 }
