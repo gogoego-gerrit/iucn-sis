@@ -436,7 +436,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		for (ReferenceUI curRef : assessData.getReferences("global")) {
 			Reference ref = referenceIO.getReferenceByHashCode(curRef.getReferenceID());
 			if (ref != null) {
-				assessment.getReferences().add(ref);
+				assessment.getReference().add(ref);
 				ref.getAssessment().add(assessment);
 			}
 		}
