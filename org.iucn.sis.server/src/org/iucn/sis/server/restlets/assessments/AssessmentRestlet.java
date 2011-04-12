@@ -1,6 +1,7 @@
 package org.iucn.sis.server.restlets.assessments;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -19,7 +20,9 @@ import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.server.utils.AssessmentPersistence;
+import org.iucn.sis.shared.api.assessments.AssessmentDeepCopyFilter;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
+import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
@@ -339,33 +342,30 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 
 		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, draftFilter);
 
-		Assessment curAss = null;
+		Assessment assessment = null;
 
 		if (useTemplate) {
 			List<Assessment> assessments = helper.getAssessments(taxon.getId());
-			if (assessments.size() == 0) {
+			if (assessments.isEmpty()) {
 				draftFilter.getRegions().clear();
 				draftFilter.getRegions().add(Region.getGlobalRegion());
 				assessments = helper.getAssessments(taxon.getId());
 			}
-
-			if (assessments.size() == 0) {
+			if (assessments.isEmpty()) {
 				Debug.println("No template exists for species {0}", taxon.getFullName());
-				curAss = new Assessment(); // No template exists...
+				assessment = new Assessment(); // No template exists...
 			} else {
-				curAss = assessments.get(0).deepCopy();
+				Collections.sort(assessments, new PublishedAssessmentsComparator(false));
+				assessment = assessments.get(0).deepCopy(new AssessmentDeepCopyFilter());
 			}
 		} else
-			curAss = new Assessment();
+			assessment = new Assessment();
 
-//		ArrayList<Integer> regionsIDS = new ArrayList<Integer>();
-//		for (Region region : filter.getRegions())
-//			regionsIDS.add(region.getId());
-//		curAss.setRegionIDs(regionsIDS);
-		curAss.setRegions(filter.getRegions(), filter.getRegions().contains("-1"));
-		curAss.setType(AssessmentType.DRAFT_ASSESSMENT_TYPE);
-		curAss.setTaxon(taxon);
-		return curAss;
+		assessment.setRegions(filter.getRegions(), filter.getRegions().contains("-1"));
+		assessment.setType(AssessmentType.DRAFT_ASSESSMENT_TYPE);
+		assessment.setTaxon(taxon);
+		
+		return assessment;
 	}
 	
 	@Override
