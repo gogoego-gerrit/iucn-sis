@@ -142,26 +142,37 @@ public class Field implements Serializable {
 		
 		if (this.getNotes() != null) {
 			field.setNotes(new HashSet<Notes>());
-			for (Notes note : getNotes())
-				field.getNotes().add(note.deepCopy());
+			for (Notes note : getNotes()) {
+				Notes copy = note.deepCopy();
+				copy.getFields().add(field);
+				field.getNotes().add(copy);
+			}
 		}
 		
 		if (copyFieldReferences && this.getReference() != null) {
 			field.setReference(new HashSet<Reference>());
-			for (Reference reference : getReference())
-				field.getReference().add(reference.deepCopy());
+			for (Reference reference : getReference()) {
+				Reference copy = reference.deepCopy();
+				copy.getField().add(field);
+				field.getReference().add(copy);
+			}
 		}
 		
 		if (this.getPrimitiveField() != null) {
 			field.setPrimitiveField(new HashSet<PrimitiveField>());
-			for (PrimitiveField pf : getPrimitiveField())
-				field.getPrimitiveField().add(pf.deepCopy(false));
+			for (PrimitiveField pf : getPrimitiveField()) {
+				PrimitiveField copy = pf.deepCopy(false);
+				copy.setField(field);
+				field.getPrimitiveField().add(copy);
+			}
 		}
 		
 		if (this.getFields() != null) {
 			field.setFields(new HashSet<Field>());
 			for (Field f : getFields()) {
-				field.getFields().add(f.deepCopy(copyReferenceToAssessment));
+				Field copy = f.deepCopy(copyReferenceToAssessment);
+				copy.setParent(field);
+				field.getFields().add(copy);
 			}
 		}
 		return field;	
