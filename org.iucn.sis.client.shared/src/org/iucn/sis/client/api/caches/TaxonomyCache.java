@@ -813,8 +813,23 @@ public class TaxonomyCache {
 			}
 		
 		});
-		
-		
+	}
+	
+	public void setPrimaryCommonName(final Taxon taxon, final CommonName commonName, final GenericCallback<String> callback) {
+		final String uri = UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + 
+			"/commonname/primary";
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.post(uri, commonName.toXML(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				for (CommonName current : taxon.getCommonNames())
+					current.setPrincipal(current.getId() == commonName.getId());
+				
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
 	}
 	
 	public void editCommonName(final Taxon taxon, final CommonName commonName, final GenericCallback<String> callback) {

@@ -111,8 +111,8 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 		grid.setWidget(0, 1, nameBox);
 		grid.setHTML(1, 0, "Language: ");
 		grid.setWidget(1, 1, language);
-		grid.setHTML(2, 0, "Primary? ");
-		grid.setWidget(2, 1, isPrimary);
+		/*grid.setHTML(2, 0, "Primary? ");
+		grid.setWidget(2, 1, isPrimary);*/
 
 		add(grid);
 		
@@ -152,7 +152,7 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 		}
 		copy.setName(name);;
 		copy.setIso(new IsoLanguage(language.getItemText(languageIndex), language.getValue(languageIndex)));
-		copy.setPrincipal(isPrimary.getValue());
+		//copy.setPrincipal(isPrimary.getValue());
 		
 		if (cn == null) {
 			TaxonomyCache.impl.addCommonName(taxon, copy, new GenericCallback<String>() {

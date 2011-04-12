@@ -105,6 +105,37 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 		}
 	}
 	
+	private void setPrimaryCommonName(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		final NativeDocument newDoc = new JavaNativeDocument();
+		try {
+			newDoc.parse(entity.getText());
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+		}
+		
+		CommonName commonName = CommonName.fromXML(newDoc.getDocumentElement());
+		
+		final int primary = commonName.getId();
+		final TaxonIO taxonIO = new TaxonIO(session);
+		
+		final Taxon taxon = taxonIO.getTaxon(getTaxonID(request));
+		
+		for (CommonName name : taxon.getCommonNames()) {
+			if (name.getId() == primary) {
+				if (!name.isPrimary()) {
+					name.setPrincipal(true);
+					session.save(name);
+				}
+			}
+			else {
+				if (name.isPrimary()) {
+					name.setPrincipal(false);
+					session.save(name);
+				}
+			}
+		}
+	}
+	
 	@Override
 	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		//Adding a new common name
@@ -134,6 +165,9 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 		}
 		commonName.setNotes(notes);
 		if (commonName.getId() == 0) {
+			if (taxon.getCommonNames().isEmpty())
+				commonName.setPrincipal(true);
+			
 			taxon.getCommonNames().add(commonName);
 			commonName.setTaxon(taxon);
 			
@@ -199,6 +233,8 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		if (request.getResourceRef().getPath().contains("reference"))
 			addOrRemoveReference(entity, request, response, session);
+		else if ("primary".equals(request.getAttributes().get("id")))
+			setPrimaryCommonName(entity, request, response, session);
 		else {
 			addOrEditCommonName(entity, request, response, session);
 		}

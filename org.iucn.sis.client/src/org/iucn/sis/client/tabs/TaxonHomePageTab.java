@@ -2,6 +2,7 @@ package org.iucn.sis.client.tabs;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -38,11 +39,13 @@ import org.iucn.sis.client.panels.taxomatic.TaxonSynonymEditor;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.citations.Referenceable;
+import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
+import org.iucn.sis.shared.api.utils.CommonNameComparator;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -91,7 +94,6 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 	
-	private ToolBar toolBar = null;
 	private Button assessmentTools;
 	private Button taxonToolsItem;
 	private Button taxomaticToolItem;
@@ -104,13 +106,13 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 	 */
 	public TaxonHomePageTab() {
 		super();
-
-		toolBar = buildToolBar();
 	}
 	
 	@Override
 	protected void drawBody(DoneDrawingCallback callback) {
 		Taxon taxon = TaxonomyCache.impl.getTaxon(getSelectedItem());
+		
+		ToolBar toolBar = buildToolBar();
 		//if (bodyContainer.getItemCount() == 0) {
 			bodyContainer.removeAll();
 			
@@ -485,6 +487,48 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 					popupChooser(new TaxonCommonNameEditor());
 				}
 			});
+			mainMenu.add(mItem);
+			
+			mItem = new MenuItem();
+			mItem.setText("Set Primary Common Name");
+			mItem.setIconStyle("icon-note-edit");
+			{
+				final SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final MenuItem item = (MenuItem)ce.getItem();
+						final CommonName name = item.getData("model");
+						
+						TaxonomyCache.impl.setPrimaryCommonName(getTaxon(), name, new GenericCallback<String>() {
+							public void onSuccess(String result) {
+								Info.display("Success", "Primary common name set to {0}.", name.getName());
+								
+								ClientUIContainer.bodyContainer.refreshTaxonPage();
+							}
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Error saving primary common name, please try again later.");
+							}
+						});
+					}
+				};
+					
+				Menu commonNameMenu = new Menu();
+				final ArrayList<CommonName> list = new ArrayList<CommonName>(getTaxon().getCommonNames());
+				Collections.sort(list, new CommonNameComparator());
+				for (CommonName current : list) {
+					MenuItem item = new MenuItem();
+					item.addSelectionListener(listener);
+					item.setData("model", current);
+					if (current.isPrimary())
+						item.setText("* " + current.getName());
+					else
+						item.setText(current.getName());
+					
+					commonNameMenu.add(item);
+				}
+				
+				mItem.setSubMenu(commonNameMenu);
+			}
+			
 			mainMenu.add(mItem);
 
 			// TODO: Decide if need to guard against deprecated nodes
