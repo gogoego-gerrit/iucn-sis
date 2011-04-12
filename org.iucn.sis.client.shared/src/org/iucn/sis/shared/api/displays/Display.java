@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
+import org.iucn.sis.client.api.assessment.ReferenceableField;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.client.api.caches.NotesCache;
-import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -148,11 +148,10 @@ public abstract class Display implements Referenceable {
 
 	@Override
 	public void addReferences(ArrayList<Reference> references, final GenericCallback<Object> callback) {
-		ReferenceCache.getInstance().addReferences(references);
-		
 		field.setAssessment(AssessmentCache.impl.getCurrentAssessment());
-
-		ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, field, new GenericCallback<Object>() {
+		
+		ReferenceableField referenceableField = new ReferenceableField(field);
+		referenceableField.addReferences(references, new GenericCallback<Object>() {
 			public void onSuccess(Object result) {
 				if (field != null && field.getReference().size() == 0)
 					refIcon.setUrl("images/icon-book-grey.png");
@@ -379,7 +378,11 @@ public abstract class Display implements Referenceable {
 	}
 
 	public Set<Reference> getReferencesAsList() {
-		return !isSaved() ? new HashSet<Reference>() : field.getReference();
+		if (!isSaved())
+			return new HashSet<Reference>();
+		
+		ReferenceableField f = new ReferenceableField(field);
+		return f.getReferencesAsList();
 	}
 
 	public List<DisplayStructure> getStructures() {
@@ -548,24 +551,20 @@ public abstract class Display implements Referenceable {
 	}
 
 	public void removeReferences(ArrayList<Reference> references, final GenericCallback<Object> callback) {
-		try {
-			AssessmentClientSaveUtils.saveAssessment(new GenericCallback<Object>() {
-				public void onSuccess(Object result) {
-					if (field != null && field.getReference().size() == 0)
-						refIcon.setUrl("images/icon-book-grey.png");
-					else
-						refIcon.setUrl("images/icon-book.png");
+		ReferenceableField referenceableField = new ReferenceableField(field);
+		referenceableField.removeReferences(references, new GenericCallback<Object>() {
+			public void onSuccess(Object result) {
+				if (field != null && field.getReference().size() == 0)
+					refIcon.setUrl("images/icon-book-grey.png");
+				else
+					refIcon.setUrl("images/icon-book.png");
 					
-					callback.onSuccess(result);
-				}
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-			});
-		} catch (InsufficientRightsException e) {
-			WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
-					+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
-		}
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
 	}
 
 	public abstract void removeStructures();

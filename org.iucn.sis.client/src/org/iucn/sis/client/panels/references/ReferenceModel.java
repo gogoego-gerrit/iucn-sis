@@ -1,5 +1,6 @@
 package org.iucn.sis.client.panels.references;
 
+import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.shared.api.models.Reference;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -26,6 +27,8 @@ public class ReferenceModel extends BaseModelData {
 	}
 
 	public void rebuild() {
+		Reference ref = getModel();
+		
 		set("author", ref.getAuthor());
 		set("title", ref.getTitle());
 		set("year", ref.getYear());
@@ -38,7 +41,9 @@ public class ReferenceModel extends BaseModelData {
 		set("field", field);
 	}
 	
-	private String getVisibleCitation() {
+	public String getVisibleCitation() {
+		Reference ref = getModel();
+		
 		String citation = ref.generateCitationIfNotAlreadyGenerate();
 		if (citation == null || "".equals(citation.trim()))
 			return "<i>(Unable to generate citation for reference of type " + ref.getType() + ")</i>";
@@ -47,6 +52,8 @@ public class ReferenceModel extends BaseModelData {
 	}
 	
 	public Reference getModel() {
-		return ref;
+		return ReferenceCache.impl.contains(ref.getId()) ? 
+				ReferenceCache.impl.get(ref.getId()) : ref;
 	}
+	
 }

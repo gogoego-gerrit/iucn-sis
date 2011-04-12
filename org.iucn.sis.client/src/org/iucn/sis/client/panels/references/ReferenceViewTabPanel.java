@@ -2,9 +2,13 @@ package org.iucn.sis.client.panels.references;
 
 import java.util.ArrayList;
 
+import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.Reference;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -48,6 +52,17 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 		searchTab.add(search = new ReferenceSearchViewTab(this));
 		
 		add(searchTab);
+		
+		addListener(Events.Select, new Listener<TabPanelEvent>() {
+			public void handleEvent(TabPanelEvent be) {
+				TabItem item = be.getItem();
+				PagingPanel<ReferenceModel> panel = (PagingPanel)item.getItem(0);
+				if (panel instanceof BibliographyViewTab)
+					((BibliographyViewTab)panel).refreshView();
+				else if (panel instanceof ReferenceSearchViewTab)
+					((ReferenceSearchViewTab)panel).refreshView();
+			}
+		});
 	}
 	
 	public void showSearchTab() {

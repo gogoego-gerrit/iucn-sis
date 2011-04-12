@@ -1,25 +1,15 @@
 package org.iucn.sis.client.api.caches;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Map;
 
-import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
-import org.iucn.sis.shared.api.acl.InsufficientRightsException;
-import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.Reference;
 
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Dialog;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.google.gwt.user.client.ui.HTML;
+import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 
 /**
@@ -33,141 +23,98 @@ import com.solertium.util.extjs.client.WindowUtils;
  * @author carl.scott
  * 
  */
-public class ReferenceCache extends HashMap<Integer, Set<Reference>> {
+public class ReferenceCache {
 
-	private static final long serialVersionUID = 1L;
-	private static ReferenceCache instance;
+	public static final ReferenceCache impl = new ReferenceCache();
 
-	/**
-	 * Gets the static instance of this mapping
-	 * 
-	 * @return the reference cache
-	 */
-	public static ReferenceCache getInstance() {
-		if (instance == null)
-			instance = new ReferenceCache();
-		return instance;
-	}
-
-	/**
-	 * Default Constructor
-	 * 
-	 */
+	private final Map<Integer, Reference> cache; 
+	
 	private ReferenceCache() {
-		super();
+		cache = new HashMap<Integer, Reference>();
 	}
-
+	
+	public void cache(Reference reference) {
+		if (reference != null)
+			cache.put(reference.getId(), reference);
+	}
+	
+	public boolean contains(Integer id) {
+		return cache.containsKey(id);
+	}
+	
+	public Reference get(Integer id) {
+		return cache.get(id);
+	}
+	
 	/**
-	 * Adds a list of reference to the cache given an assessment ID. Does not
-	 * override current references.
-	 * 
-	 * @param assessmentID
-	 *            the assessment ID
-	 * @param references
-	 *            the list of references to add
+	 * Replaces an existing cached reference with the given 
+	 * reference.  If this reference is not already cached, 
+	 * it will NOT be cached via this method. 
+	 * @param reference
 	 */
-	public void addReferences(Collection<Reference> references) {
-		addReferences(AssessmentCache.impl.getCurrentAssessment().getId(), references);
+	public void update(Reference reference) {
+		if (reference != null && contains(reference.getId()))
+			cache.put(reference.getId(), reference);
 	}
 	
-	public void addReferences(Integer assessmentID, Collection<Reference> references) {
-		Set<Reference> current = getReferences(assessmentID);
-		current.addAll(references);
-		put(assessmentID, current);
+	public void save(Reference reference, GenericCallback<ReferenceSaveResult> callback) {
+		post(reference, false, reference.getId() == 0, callback);
 	}
 	
-	public void addReferencesToAssessmentAndSave(Collection<Reference> references, Field field, final GenericCallback<Object> wayback) {
-		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, 
-				AssessmentCache.impl.getCurrentAssessment())) {
-			WindowUtils.errorAlert("You cannot add references to an assessment "
-					+ "you don't have permissions to edit.");
-			return;
-		}
-		
-		if (field == null) {
-			Debug.println("Failed to add references to null field!");
-			try {
-				throw new NullPointerException();
-			} catch (NullPointerException e) {
-				Debug.println(e);
-			}
-			return;
-		}
-
-		int added = 0;
-		final StringBuffer errors = new StringBuffer("");
-		
-		if (field.getReference() == null)
-			field.setReference(new HashSet<Reference>());
-		
-		for (Reference current : references) {
-			if (!field.getReference().contains(current)) {
-				field.getReference().add(current);
-				added++;
-			} else {
-				errors.append("<br/>The reference " + current.getTitle() + ", " + current.getAuthor()
-						+ " is already attached.");
-			}
-		}
-
-		if (added > 0) {
-			Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
-			if (!assessment.getField().contains(field))
-				assessment.getField().add(field);
-			
-			try {
-				AssessmentClientSaveUtils.saveAssessment(null, assessment, new GenericCallback<Object>() {
-					public void onFailure(Throwable caught) {
-						wayback.onFailure(caught);
-					};
-					public void onSuccess(Object result) {
-						wayback.onSuccess("");
-					};
-				});
-			} catch (InsufficientRightsException e) {
-				WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
-						+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
-				wayback.onFailure(e);
-			}
-		} else {
-			final Dialog report = new Dialog();
-			report.setClosable(true);
-			report.add(new HTML("Not saved - no changes were made.<br>" + errors));
-			report.addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
-				@Override
-				public void componentSelected(ButtonEvent ce) {
-					report.hide();
+	private void post(final Reference reference, final boolean force, final boolean asNew, final GenericCallback<ReferenceSaveResult> callback) {
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.post(UriBase.getInstance().getReferenceBase() +"/refsvr/submit?force=" + Boolean.toString(force), 
+				"<references>" + reference.toXML() + "</references>", new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				if (caught instanceof GWTConflictException) {
+					WindowUtils.confirmAlert("Confirm", "This reference is being used in some assessments, " +
+						"and any changes you make will be reflected in those assessments.  Do you want to " +
+						"save these changes as a new reference, or save these changes to the existing " +
+						"reference?", new WindowUtils.MessageBoxListener() {
+							public void onYes() {
+								reference.setId(0);
+								post(reference, true, true, callback);
+							}
+							public void onNo() {
+								post(reference, true, false, callback);
+							}
+						}, "Save as New", "Save Existing");
 				}
-			}));
-			report.show();
-
-			wayback.onFailure(null);
+				else {
+					callback.onFailure(caught);
+				}
+			}
+			public void onSuccess(String result) {
+				final Reference returnedRef = Reference.fromXML(document.getDocumentElement().getElementByTagName("reference"));
+				cache(returnedRef);
+				
+				callback.onSuccess(new ReferenceSaveResult(returnedRef, asNew));
+			}
+		});
+	}
+	
+	public void doLogout() {
+		cache.clear();
+	}
+	
+	public static class ReferenceSaveResult {
+		
+		private final Reference reference;
+		private final boolean asNew;
+		
+		public ReferenceSaveResult(Reference reference, boolean asNew) {
+			this.reference = reference;
+			this.asNew = asNew;
 		}
+		
+		public Reference getReference() {
+			return reference;
+		}
+		
+		public boolean asNew() {
+			return asNew;
+		}
+		
 	}
 
-	/**
-	 * Gets references for this particular assessment, or an empty list if there
-	 * are none
-	 * 
-	 * @param assessmentID
-	 *            the assessment id
-	 * @return the list
-	 */
-	public Set<Reference> getReferences(Integer assessmentID) {
-		Set<Reference> list = new HashSet<Reference>();
-		if (hasReferences(assessmentID))
-			list = get(assessmentID);
-		return list;
-	}
-
-	/**
-	 * Determines if there are references for this assessment.
-	 * 
-	 * @param assessmentID
-	 *            the assessment id
-	 * @return true if there are and the list is not empty, false otherwise
-	 */
-	public boolean hasReferences(Integer assessmentID) {
-		return containsKey(assessmentID) && !get(assessmentID).isEmpty();
-	}
 }

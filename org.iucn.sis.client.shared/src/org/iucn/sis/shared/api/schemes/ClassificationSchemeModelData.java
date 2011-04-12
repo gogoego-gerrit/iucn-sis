@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
-import org.iucn.sis.client.api.caches.ReferenceCache;
+import org.iucn.sis.client.api.assessment.ReferenceableField;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.TreeDataRow;
@@ -164,10 +164,14 @@ public class ClassificationSchemeModelData implements ModelData, Referenceable {
 	@Override
 	public void addReferences(ArrayList<Reference> references,
 			GenericCallback<Object> callback) {
+		/*
+		 * FIXME: need to ensure this field is there...
+		 * or warn to save before adding references.
+		 */
 		this.references.addAll(references);
-		ReferenceCache.getInstance().addReferences(references);
 		if (field != null) {
-			ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references, field, callback);
+			ReferenceableField referenceableField = new ReferenceableField(field);
+			referenceableField.addReferences(references, callback);
 		}
 		else
 			callback.onSuccess(null);

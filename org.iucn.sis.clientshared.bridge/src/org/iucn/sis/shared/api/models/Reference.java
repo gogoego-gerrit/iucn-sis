@@ -21,9 +21,9 @@ import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared;
 import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared.ReturnedCitation;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.parsers.ReferenceParserFactory;
 
 import com.solertium.lwxml.shared.NativeNode;
-import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.PortableReplacer;
 import com.solertium.util.portable.XMLWritingUtils;
 public class Reference implements Serializable, AuthorizableObject {
@@ -60,31 +60,11 @@ public class Reference implements Serializable, AuthorizableObject {
 	}
 	
 	public static Reference fromXML(NativeNode element) throws IllegalArgumentException {
-		return fromXML(element, false);
+		return ReferenceParserFactory.getParser().parse(element);
 	}
 	
 	public static Reference fromXML(NativeNode element, boolean allowNew) {
-		final Reference reference = new Reference();
-		reference.setId(-1);
-		
-		final NativeNodeList nodes = element.getChildNodes();
-		for (int i = 0; i < nodes.getLength(); i++) {
-			final NativeNode field = nodes.item(i);
-			final String name = field.getNodeName();
-			final String value = field.getTextContent();
-	
-			addField(reference, name, value);
-		}	
-		
-		if (!allowNew && reference.getId() <= 0)
-			throw new IllegalArgumentException("Error building reference from node, required fields not present.");
-		
-		if (reference.getType() == null) {
-			Debug.println("Reference type null for {0}, setting to 'other'", reference.getId());
-			reference.setType("other");
-		}
-		
-		return reference;
+		return ReferenceParserFactory.getParser().parse(element, allowNew);
 	}
 	
 	public static void addField(Reference reference, String name, String rawValue) {

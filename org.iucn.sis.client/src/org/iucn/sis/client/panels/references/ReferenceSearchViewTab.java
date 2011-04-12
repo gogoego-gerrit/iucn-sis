@@ -5,12 +5,14 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.models.parsers.ReferenceParser;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -25,8 +27,10 @@ import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -56,6 +60,7 @@ import com.solertium.util.portable.XMLWritingUtils;
 public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 	
 	private final ReferenceViewAPI parent;
+	private final ReferenceParser parser;
 	
 	private final TextBox author;
 	private final TextBox title;
@@ -68,6 +73,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 		setLayout(new FillLayout());
 		
 		this.parent = parent;
+		this.parser = new ReferenceParser();
 		
 		author = new TextBox();
 		title = new TextBox();
@@ -242,13 +248,29 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 	}
 	
 	private List<ColumnConfig> getColumnConfig() {
+		final GridCellRenderer<ReferenceModel> renderer = new GridCellRenderer<ReferenceModel>() {
+			public Object render(ReferenceModel model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<ReferenceModel> store, Grid<ReferenceModel> grid) {
+				model.rebuild();
+				return model.get(property);
+			}
+		};
+		
 		final List<ColumnConfig> searchColumns = new ArrayList<ColumnConfig>();
-		searchColumns.add(new ColumnConfig("author", "Author", 300));
-		searchColumns.add(new ColumnConfig("title", "Title", 300));
-		searchColumns.add(new ColumnConfig("year", "Year", 50));
-		searchColumns.add(new ColumnConfig("count", "# used", 50));
+		searchColumns.add(newColumnConfig("author", "Author", 300, renderer));
+		searchColumns.add(newColumnConfig("title", "Title", 300, renderer));
+		searchColumns.add(newColumnConfig("year", "Year", 50, renderer));
+		searchColumns.add(newColumnConfig("count", "# used", 50, renderer));
 		
 		return searchColumns;
+	}
+	
+	private ColumnConfig newColumnConfig(String id, String name, int width, GridCellRenderer<ReferenceModel> renderer) {
+		ColumnConfig config = new ColumnConfig(id, name, width);
+		config.setRenderer(renderer);
+		
+		return config;
 	}
 	
 	@Override
@@ -291,7 +313,8 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 						
 						Reference current;
 						try {
-							current = Reference.fromXML(currentReference);
+							current = parser.parse(currentReference);
+							ReferenceCache.impl.update(current);
 						} catch (Throwable e) {
 							Debug.println(e);
 							continue;

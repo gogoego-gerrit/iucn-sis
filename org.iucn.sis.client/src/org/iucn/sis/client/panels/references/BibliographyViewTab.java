@@ -29,8 +29,10 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ToggleButton;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -217,6 +219,13 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	
 	private ColumnModel getColumnModel() {
 		final ColumnConfig citation = new ColumnConfig("citation", "Citation", 500);
+		citation.setRenderer(new GridCellRenderer<ReferenceModel>() {
+			public Object render(ReferenceModel model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<ReferenceModel> store, Grid<ReferenceModel> grid) {
+				return model.getVisibleCitation();
+			}
+		});
 
 		final ColumnConfig field = new ColumnConfig("field", "Field", 150);
 		
@@ -270,7 +279,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 			
 			callback.onSuccess(store);
 		}
-	} 
+	}
 	
 	/**
 	 * Shows recently used references. We just want to show them all, and we

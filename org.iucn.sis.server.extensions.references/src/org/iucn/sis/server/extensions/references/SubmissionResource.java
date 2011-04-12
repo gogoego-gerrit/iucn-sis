@@ -7,6 +7,7 @@ import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.models.Reference.ReferenceMap;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -47,12 +48,31 @@ public class SubmissionResource extends TransactionResource {
 		for (int i = 0; i < nodes.getLength(); i++) {
 			final NativeNode node = nodes.item(i);
 			if ("reference".equals(node.getNodeName())) {
-				final Reference reference = Reference.fromXML(node, true);
-				if (reference.getId() > 0 && !force) {
-					List existing = session.createSQLQuery("SELECT * FROM field_reference " +
-						"WHERE referenceid = " + reference.getId()).list();
-					if (!existing.isEmpty())
-						throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
+				Reference reference = Reference.fromXML(node, true);
+				if (reference.getId() > 0) {
+					if (!force) {
+						List existing = session.createSQLQuery("SELECT * FROM field_reference " +
+							"WHERE referenceid = " + reference.getId()).list();
+						if (!existing.isEmpty())
+							throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
+					}
+					
+					Reference existing;
+					try {
+						existing = SISPersistentManager.instance().getObject(session, Reference.class, reference.getId());
+					} catch (Exception e) {
+						throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+					}
+					if (existing == null)
+						throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "A reference reporting to exist was not found in the database.");
+				
+					/*
+					 * For existing references, only data can be saved here. 
+					 * Use a different target to update reference relationships.
+					 */
+					Reference.fromMap(existing, reference.toMap());
+					
+					reference = existing;
 				}
 
 				try {

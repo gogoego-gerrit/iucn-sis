@@ -8,6 +8,7 @@ import org.iucn.sis.client.api.caches.ChangesFieldWidgetCache;
 import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
+import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.StatusCache;
@@ -16,10 +17,12 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.debug.HostedModeDebugger;
 import org.iucn.sis.client.api.debug.LiveDebugger;
 import org.iucn.sis.client.api.models.ClientUser;
+import org.iucn.sis.client.api.utils.ClientReferenceParser;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.parsers.ReferenceParserFactory;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -90,6 +93,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 			StatusCache.impl.clearCache();
 			AuthorizationCache.impl.clear();
 			StateManager.impl.doLogout();
+			ReferenceCache.impl.doLogout();
 			History.newItem("", false);
 		}
 
@@ -243,6 +247,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 	}
 	
 	protected void initializeCaches(final SimpleListener listener) {
+		ReferenceParserFactory.get().setParser(new ClientReferenceParser());
 		DefinitionCache.impl.getDefinables();
 		RegionCache.impl.fetchRegions();
 		MarkedCache.impl.update();

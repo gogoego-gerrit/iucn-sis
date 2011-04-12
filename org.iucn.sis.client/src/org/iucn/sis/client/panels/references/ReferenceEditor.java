@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -41,7 +42,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -468,6 +468,8 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 				public void onYes() {
 					citation = reference.getCitation();
 					citationComplete = reference.isCitationValid();
+					
+					save();
 				}
 				public void onNo() {
 					save();
@@ -513,35 +515,12 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 		reference.setCitation(citation);
 		reference.setCitationComplete(citationComplete);
 
-		post(false, reference.getId() == 0);
-	}
-	
-	private void post(final boolean force, final boolean asNew) {
-		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-		document.post(UriBase.getInstance().getReferenceBase() +"/refsvr/submit?force=" + Boolean.toString(force), 
-				"<references>" + reference.toXML() + "</references>", new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				if (caught instanceof GWTConflictException) {
-					WindowUtils.confirmAlert("Confirm", "This reference is being used in some assessments, " +
-						"and any changes you make will be reflected in those assessments.  Do you want to " +
-						"save these changes as a new reference, or save these changes to the existing " +
-						"reference?", new WindowUtils.MessageBoxListener() {
-							public void onYes() {
-								reference.setId(0);
-								post(true, true);
-							}
-							public void onNo() {
-								post(true, false);
-							}
-						}, "Save as New", "Save Existing");
-				}
-				else {
-					WindowUtils.errorAlert("Failure", "Save Failed Unexpectedly.");
-				}
+		ReferenceCache.impl.save(reference, new GenericCallback<ReferenceCache.ReferenceSaveResult>() {
+			public void onSuccess(ReferenceCache.ReferenceSaveResult result) {
+				onSaveSuccessful(result.getReference(), result.asNew());
 			}
-			public void onSuccess(String result) {
-				final Reference returnedRef = Reference.fromXML(document.getDocumentElement().getElementByTagName("reference"));
-				onSaveSuccessful(returnedRef, asNew);
+			public void onFailure(Throwable caught) {
+				WindowUtils.errorAlert("Failure", "Save Failed Unexpectedly.");
 			}
 		});
 	}
