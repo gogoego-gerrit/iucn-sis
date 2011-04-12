@@ -1,12 +1,9 @@
 package org.iucn.sis.client.panels;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.dem.DEMPanel;
@@ -19,8 +16,6 @@ import org.iucn.sis.client.tabs.TaxonHomePageTab;
 import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -32,6 +27,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -62,31 +58,31 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openWorkingSet(final String url, final boolean updateNavigation) {
-		workingSetPage.setUrl(url);
-		workingSetPage.setItems(new ArrayList<Integer>(WorkingSetCache.impl.getWorkingSets().keySet()));
-		workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet().getId());
-		workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
-			public void isDrawn() {
-				removeAll();
-				add(workingSetPage);
-				
-				current = workingSetPage;
-				
-				if (updateNavigation)
-					updateNavigation();
+		MonkeyNavigator.getSortedWorkingSetIDs(new ComplexListener<List<Integer>>() {
+			public void handleEvent(List<Integer> items) {
+				workingSetPage.setUrl(url);
+				workingSetPage.setItems(items);
+				workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet().getId());
+				workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
+					public void isDrawn() {
+						removeAll();
+						add(workingSetPage);
+						
+						current = workingSetPage;
+						
+						if (updateNavigation)
+							updateNavigation();
+					}
+				});
 			}
 		});
 	}
 	
 	public void openTaxon(final String url, final boolean updateNavigation) {
-		final GenericCallback<List<Integer>> callback = new GenericCallback<List<Integer>>() {
-			public void onFailure(Throwable caught) {
-				// TODO Auto-generated method stub
-				
-			}
-			public void onSuccess(List<Integer> result) {
+		MonkeyNavigator.getSortedTaxaIDs(new ComplexListener<List<Integer>>() {
+			public void handleEvent(List<Integer> items) {
 				taxonHomePage.setUrl(url);
-				taxonHomePage.setItems(result);
+				taxonHomePage.setItems(items);
 				taxonHomePage.setSelectedItem(StateManager.impl.getTaxon().getId());
 				taxonHomePage.draw(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
@@ -100,95 +96,38 @@ public class BodyContainer extends LayoutContainer {
 					}
 				});	
 			}
-		};
-		
-		WorkingSet ws = StateManager.impl.getWorkingSet();
-		if (ws == null) {
-			List<Integer> recent = new ArrayList<Integer>();
-			for (Taxon taxon : TaxonomyCache.impl.getRecentlyAccessed())
-				recent.add(taxon.getId());
-			callback.onSuccess(recent);
-		}
-		else {
-			//WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, callback);
-			callback.onSuccess(ws.getSpeciesIDs());
-		}
-		
+		});
 	}
 	
 	public void openAssessment(final String url, final boolean updateNavigation) {
 		FieldWidgetCache.impl.resetWidgetContents();
 		
-		if (StateManager.impl.getWorkingSet() == null) {
-			AssessmentCache.impl.fetchPartialAssessmentsForTaxon(StateManager.impl.getTaxon().getId(), new GenericCallback<String>() {
-				public void onFailure(Throwable caught) {
-					WindowUtils.errorAlert("Could not load assessment.");
-				}
-				public void onSuccess(String result) {
-					AssessmentCache.impl.fetchAssessment(StateManager.impl.getAssessment().getId(), FetchMode.FULL, new GenericCallback<Assessment>() {
-						public void onSuccess(Assessment result) {
-							List<Integer> assessments = new ArrayList<Integer>();
-							for (Assessment assessment : AssessmentCache.impl.getDraftAssessmentsForTaxon(StateManager.impl.getTaxon().getId()))
-								assessments.add(assessment.getId());
-							for (Assessment assessment : AssessmentCache.impl.getPublishedAssessmentsForTaxon(StateManager.impl.getTaxon().getId()))
-								assessments.add(assessment.getId());
-							
-							assessmentPage.setUrl(url);
-							assessmentPage.setItems(assessments);
-							assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
-							
-							assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
-								public void isDrawn() {
-									removeAll();
-									add(assessmentPage);
-									
-									current = assessmentPage;
-									
-									if (updateNavigation)
-										updateNavigation();
-								}
-							});
-						}			
-						public void onFailure(Throwable caught) {
-							WindowUtils.errorAlert("Could not load assessment.");
-						}
-					});
-				}
-			});
-		}
-		else {
-			WorkingSetCache.impl.listAssessmentsForWorkingSet(
-					StateManager.impl.getWorkingSet(), null, 
-					new GenericCallback<List<Integer>>() {
-				public void onSuccess(final List<Integer> result) {
-					AssessmentCache.impl.fetchAssessment(StateManager.impl.getAssessment().getId(), FetchMode.FULL, new GenericCallback<Assessment>() {
-						public void onFailure(Throwable caught) {
-							WindowUtils.errorAlert("Could not load this assessment, please try again later.");
-						}
-						public void onSuccess(Assessment assessment) {
-							assessmentPage.setUrl(url);
-							assessmentPage.setItems(result);
-							assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
-							
-							assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
-								public void isDrawn() {
-									removeAll();
-									add(assessmentPage);
-									
-									current = assessmentPage;
-									
-									if (updateNavigation)
-										updateNavigation();
-								}
-							});
-						}
-					});
-				}
-				public void onFailure(Throwable caught) {
-					WindowUtils.errorAlert("Failed to loading assessments for this working set.");
-				}
-			});
-		}
+		MonkeyNavigator.getSortedAssessmentIDs(new ComplexListener<List<Integer>>() {
+			public void handleEvent(final List<Integer> items) {
+				AssessmentCache.impl.fetchAssessment(StateManager.impl.getAssessment().getId(), FetchMode.FULL, new GenericCallback<Assessment>() {
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Could not load this assessment, please try again later.");
+					}
+					public void onSuccess(Assessment assessment) {
+						assessmentPage.setUrl(url);
+						assessmentPage.setItems(items);
+						assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
+						
+						assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								removeAll();
+								add(assessmentPage);
+								
+								current = assessmentPage;
+								
+								if (updateNavigation)
+									updateNavigation();
+							}
+						});
+					}
+				});
+			}
+		});
 	}
 	
 	public void openHomePage(boolean updateNavigation) {

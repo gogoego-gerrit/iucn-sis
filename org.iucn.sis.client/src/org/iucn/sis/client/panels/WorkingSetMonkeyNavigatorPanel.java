@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -169,7 +168,7 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 	}
 	
 	@Override
-	protected void getStore(GenericCallback<ListStore<NavigationModelData<WorkingSet>>> callback) {
+	protected void getStore(final GenericCallback<ListStore<NavigationModelData<WorkingSet>>> callback) {
 		final ListStore<NavigationModelData<WorkingSet>> store = new ListStore<NavigationModelData<WorkingSet>>();
 		store.setKeyProvider(new ModelKeyProvider<NavigationModelData<WorkingSet>>() {
 			public String getKey(NavigationModelData<WorkingSet> model) {
@@ -193,43 +192,42 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		
 		store.add(noneModel);
 		
-		/*
-		 * TODO: smarter sorting.
-		 */
-		
-		final List<WorkingSet> mine = new ArrayList<WorkingSet>();
-		final List<WorkingSet> subscribed = new ArrayList<WorkingSet>();
-		for (WorkingSet ws : WorkingSetCache.impl.getWorkingSets().values()) {
-			if (ws.getCreator().getId() == myOwnerID)
-				mine.add(ws);
-			else
-				subscribed.add(ws);
-		}
-		Collections.sort(mine, new WorkingSetComparator());
-		Collections.sort(subscribed, new WorkingSetComparator());
-		
-		drawWorkingSets(store, mine, "My Working Sets", true);
-		drawWorkingSets(store, subscribed, "Subscribed Working Sets", false);
-		
-		callback.onSuccess(store);
-	}
-	
-	private void drawWorkingSets(ListStore<NavigationModelData<WorkingSet>> store, 
-			List<WorkingSet> list, String heading, boolean mine) {
-		if (!list.isEmpty()) {
-			NavigationModelData<WorkingSet> header = new NavigationModelData<WorkingSet>(null);
-			header.set("header", Boolean.TRUE);
-			header.set("name", heading + " (" + list.size() + ")");
-			
-			for (WorkingSet cur : list) {
-				NavigationModelData<WorkingSet> model = new NavigationModelData<WorkingSet>(cur);
-				model.set("name", cur.getName());
-				model.set("header", Boolean.FALSE);
-				model.set("mine", mine);
+		MonkeyNavigator.getSortedWorkingSets(new ComplexListener<List<WorkingSet>>() {
+			public void handleEvent(final List<WorkingSet> list) {
+				Integer currentOwner = null;
+				int groupCount = 0;
+				boolean mine = true;
 				
-				store.add(model);
+				for (WorkingSet ws : list) {
+					Integer owner = ws.getCreator().getId();
+					if (!owner.equals(currentOwner)) {
+						NavigationModelData<WorkingSet> header = new NavigationModelData<WorkingSet>(null);
+						header.set("name", mine ? "My Working Sets" : "Subscribed Working Sets");
+						header.set("header", Boolean.TRUE);
+						
+						if (mine)
+							store.add(header);
+						
+						currentOwner = owner;
+						if (mine)
+							groupCount = 0;
+						
+						mine = owner.intValue() == myOwnerID;
+					}
+					
+					NavigationModelData<WorkingSet> model = new NavigationModelData<WorkingSet>(ws);
+					model.set("name", ws.getName());
+					model.set("header", Boolean.FALSE);
+					model.set("mine", mine);
+					
+					store.add(model);
+					
+					groupCount++;
+				}
+				
+				callback.onSuccess(store);
 			}
-		}
+		});
 	}
 	
 	@Override
@@ -402,19 +400,30 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		}	
 	}
 	
-	private static class WorkingSetComparator implements Comparator<WorkingSet> {
+	public static class WorkingSetNavigationComparator implements Comparator<WorkingSet> {
 		
 		private final PortableAlphanumericComparator comparator;
+		private final Integer userID;
 		
-		public WorkingSetComparator() {
-			comparator = new PortableAlphanumericComparator();
+		public WorkingSetNavigationComparator(Integer userID) {
+			this.userID = userID;
+			this.comparator = new PortableAlphanumericComparator();
 		}
 		
 		@Override
 		public int compare(WorkingSet o1, WorkingSet o2) {
+			if (isMine(o1) && !isMine(o2))
+				return -1;
+			
+			if (!isMine(o1) && isMine(o2))
+				return 1;
+			
 			return comparator.compare(o1.getName(), o2.getName());
 		}
 		
+		private boolean isMine(WorkingSet ws) {
+			return userID.equals(ws.getCreator().getId());
+		}
 	}
 
 }

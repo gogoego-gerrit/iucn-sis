@@ -1,15 +1,11 @@
 package org.iucn.sis.client.panels;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.MarkedCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.panels.MonkeyNavigator.NavigationChangeEvent;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -31,8 +27,8 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
-import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
@@ -61,14 +57,18 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 		});
 	}
 	
-	protected void getStore(GenericCallback<ListStore<NavigationModelData<Taxon>>> callback) {
-		if (curNavWorkingSet == null)
-			getRecentTaxonStore(callback);
-		else
-			getTaxonForWorkingSetStore(callback);
+	protected void getStore(final GenericCallback<ListStore<NavigationModelData<Taxon>>> callback) {
+		MonkeyNavigator.getSortedTaxa(new ComplexListener<List<Taxon>>() {
+			public void handleEvent(List<Taxon> eventData) {
+				if (curNavWorkingSet == null)
+					getRecentTaxonStore(eventData, callback);
+				else
+					getTaxonForWorkingSetStore(eventData, callback);
+			}
+		});
 	}
 	
-	private void getRecentTaxonStore(GenericCallback<ListStore<NavigationModelData<Taxon>>> callback) {
+	private void getRecentTaxonStore(List<Taxon> recent, GenericCallback<ListStore<NavigationModelData<Taxon>>> callback) {
 		final GroupingStore<NavigationModelData<Taxon>> store = 
 			new GroupingStore<NavigationModelData<Taxon>>();
 		store.groupBy("familyid");
@@ -80,8 +80,6 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 					return Integer.toString(model.getModel().getId());
 			}
 		});
-		
-		Collection<Taxon> recent = TaxonomyCache.impl.getRecentlyAccessed();
 		
 		if (!recent.isEmpty()) {
 			NavigationModelData<Taxon> header = new NavigationModelData<Taxon>(null);
@@ -104,7 +102,7 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 		callback.onSuccess(store);
 	}
 	
-	private void getTaxonForWorkingSetStore(final GenericCallback<ListStore<NavigationModelData<Taxon>>> callback) {
+	private void getTaxonForWorkingSetStore(final List<Taxon> result, final GenericCallback<ListStore<NavigationModelData<Taxon>>> callback) {
 		final ListStore<NavigationModelData<Taxon>> store = new ListStore<NavigationModelData<Taxon>>();
 		store.setKeyProvider(new ModelKeyProvider<NavigationModelData<Taxon>>() {
 			public String getKey(NavigationModelData<Taxon> model) {
@@ -115,53 +113,41 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 			}
 		});
 		
-		WorkingSetCache.impl.fetchTaxaForWorkingSet(curNavWorkingSet, new GenericCallback<List<Taxon>>() {
-			public void onSuccess(List<Taxon> result) {
-				Collections.sort(result, new TaxonComparator());
+		String currentFamily = null;
+		NavigationModelData<Taxon> currentHeader = null;
+		int groupCount = 0;
+		
+		int size = result.size();
+		
+		for (Taxon taxon : result) {
+			String family = taxon.getFootprint()[TaxonLevel.FAMILY];
+			if (!family.equals(currentFamily)) {
+				if (currentHeader != null)
+					updateHeaderCount(currentHeader, groupCount, size);
 				
-				String currentFamily = null;
-				NavigationModelData<Taxon> currentHeader = null;
-				int groupCount = 0;
+				NavigationModelData<Taxon> header = new NavigationModelData<Taxon>(null);
+				header.set("name", family);
+				header.set("header", Boolean.TRUE);
 				
-				int size = result.size();
+				store.add(header);
 				
-				for (Taxon taxon : result) {
-					String family = taxon.getFootprint()[TaxonLevel.FAMILY];
-					if (!family.equals(currentFamily)) {
-						if (currentHeader != null)
-							updateHeaderCount(currentHeader, groupCount, size);
-						
-						NavigationModelData<Taxon> header = new NavigationModelData<Taxon>(null);
-						header.set("name", family);
-						header.set("header", Boolean.TRUE);
-						
-						store.add(header);
-						
-						currentFamily = family;
-						currentHeader = header;
-						groupCount = 0;
-					}
-					
-					NavigationModelData<Taxon> model = new NavigationModelData<Taxon>(taxon);
-					model.set("name", taxon.getFriendlyName());
-					model.set("family", taxon.getFootprint()[TaxonLevel.FAMILY]);
-					
-					store.add(model);
-					
-					groupCount++;
-				}
-				
-				updateHeaderCount(currentHeader, groupCount, size);
-				
-				callback.onSuccess(store);
+				currentFamily = family;
+				currentHeader = header;
+				groupCount = 0;
 			}
-			public void onFailure(Throwable caught) {
-				WindowUtils.hideLoadingAlert();
-				WindowUtils.errorAlert("Error loading taxa for this working set.");
-				
-				callback.onSuccess(store);
-			}
-		});
+			
+			NavigationModelData<Taxon> model = new NavigationModelData<Taxon>(taxon);
+			model.set("name", taxon.getFriendlyName());
+			model.set("family", taxon.getFootprint()[TaxonLevel.FAMILY]);
+			
+			store.add(model);
+			
+			groupCount++;
+		}
+		
+		updateHeaderCount(currentHeader, groupCount, size);
+		
+		callback.onSuccess(store);
 	}
 	
 	private void updateHeaderCount(NavigationModelData<Taxon> header, int count, int size) {
@@ -286,7 +272,7 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 		addTool(goToTaxon);
 	}
 	
-	private static class TaxonComparator implements Comparator<Taxon> {
+	public static class TaxonComparator implements Comparator<Taxon> {
 		
 		private final PortableAlphanumericComparator comparator;
 		
