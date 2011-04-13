@@ -50,6 +50,7 @@ public class Synonym implements Serializable {
 				setSpeciesName(taxon.getFootprint()[TaxonLevel.SPECIES]);
 				setInfrarankAuthor(taxon.getTaxonomicAuthority());
 				setInfraName(taxon.getName());
+				setInfraTypeObject(taxon.getInfratype());
 			} else if (taxon.getTaxonLevel().getLevel() == TaxonLevel.SUBPOPULATION) {
 				setSpeciesName(taxon.getFootprint()[TaxonLevel.SPECIES]);
 				setStockName(taxon.getName());
