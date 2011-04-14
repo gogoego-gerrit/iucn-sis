@@ -15,6 +15,7 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -370,6 +371,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 					toSelect = groupData;
 			}
 		}
+		groupStore.sort("name", SortDir.ASC);
 		
 		groupSelector.setSelection(wrapInArray(toSelect)); //This will invoke updateContent()
 	}

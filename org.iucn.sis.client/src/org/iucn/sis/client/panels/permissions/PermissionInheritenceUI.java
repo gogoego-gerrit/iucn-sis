@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
 @SuppressWarnings("unused")
 public class PermissionInheritenceUI extends LayoutContainer {
@@ -47,13 +48,14 @@ public class PermissionInheritenceUI extends LayoutContainer {
 		inheritsLabel = new Html("Inherits: ");
 		
 		unusedStore = new ListStore<BaseModelData>();
-		unusedStore.setStoreSorter(new StoreSorter<BaseModelData>());
+		unusedStore.setStoreSorter(new StoreSorter<BaseModelData>(new PortableAlphanumericComparator()));
 		unused = new ListView<BaseModelData>(unusedStore);
 		unused.setDisplayProperty("name");
 		unusedDragSource = new ListViewDragSource(unused);
 		unusedDropTarget = new ListViewDropTarget(unused);
 		
 		usedStore = new ListStore<BaseModelData>();
+		usedStore.setStoreSorter(new StoreSorter<BaseModelData>(new PortableAlphanumericComparator()));
 		usedStore.addStoreListener(new StoreListener<BaseModelData>() {
 			public void storeAdd(StoreEvent<BaseModelData> se) {
 				super.storeAdd(se);
