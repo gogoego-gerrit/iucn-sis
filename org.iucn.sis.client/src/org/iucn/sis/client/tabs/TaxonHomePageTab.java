@@ -50,6 +50,7 @@ import org.iucn.sis.shared.api.utils.CommonNameComparator;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.binder.DataListBinder;
+import com.extjs.gxt.ui.client.data.ModelStringProvider;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -219,6 +220,14 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 
 					final DataListBinder<TaxonListElement> binder = new DataListBinder<TaxonListElement>(list, store);
 					binder.setDisplayProperty("name");
+					binder.setStyleProvider(new ModelStringProvider<TaxonListElement>() {
+						public String getStringValue(TaxonListElement model, String property) {
+							if (model.getNode().isDeprecated())
+								return "deleted";
+							else
+								return "color-dark-blue";
+						}
+					});
 					binder.init();
 					binder.addSelectionChangedListener(new SelectionChangedListener<TaxonListElement>() {
 						public void selectionChanged(SelectionChangedEvent<TaxonListElement> se) {
