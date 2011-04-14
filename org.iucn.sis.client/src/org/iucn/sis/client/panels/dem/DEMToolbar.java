@@ -583,7 +583,7 @@ public class DEMToolbar extends ToolBar {
 				CheckMenuItem ignore = new CheckMenuItem("Ignore");
 				ignore.setData("value", UserPreferences.IGNORE);
 				ignore.setGroup(UserPreferences.AUTO_SAVE);
-				ignore.setChecked(savePreference.equals(UserPreferences.AUTO_SAVE));
+				ignore.setChecked(savePreference.equals(UserPreferences.IGNORE));
 				ignore.addSelectionListener(listener);
 				ignore.setToolTip("When switching pages or assessments, any unsaved changes to an " +
 					"assessment will be thrown away; you will not be prompted to save them, nor " +
