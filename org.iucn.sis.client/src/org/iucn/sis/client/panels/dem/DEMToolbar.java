@@ -6,6 +6,7 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
+import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.users.panels.ManageCreditsWindow;
 import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -18,6 +19,7 @@ import org.iucn.sis.client.panels.images.ImageManagerPanel;
 import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
 import org.iucn.sis.client.panels.taxomatic.TaxonSynonymEditor;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
+import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
@@ -43,6 +45,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
@@ -62,7 +65,8 @@ public class DEMToolbar extends ToolBar {
 	}
 	
 	private final AutosaveTimer autoSave;
-	private final int autoSaveInterval = 2 * 60 * 1000;
+	
+	private Integer autoSaveInterval = 2;
 	
 	private Button editViewButton;
 	private ComplexListener<EditStatus> refreshListener;
@@ -70,6 +74,21 @@ public class DEMToolbar extends ToolBar {
 	
 	public DEMToolbar() {
 		this.autoSave = new AutosaveTimer();
+		setAutoSaveInterval(SISClientBase.currentUser.getPreference(UserPreferences.AUTO_SAVE_TIMER, "2"));
+	}
+	
+	private void setAutoSaveInterval(String interval) {
+		if ("-1".equals(interval))
+			autoSaveInterval = null;
+		else {
+			try {
+				this.autoSaveInterval = Integer.valueOf(interval);
+			} catch (Exception e) {
+				this.autoSaveInterval = 2;
+			}
+			if (autoSaveInterval.intValue() < 0)
+				autoSaveInterval = null;
+		}
 	}
 	
 	public void setRefreshListener(ComplexListener<EditStatus> refreshListener) {
@@ -505,6 +524,84 @@ public class DEMToolbar extends ToolBar {
 		add(mcbutton);
 		add(new SeparatorToolItem());
 		
+		Button saveMode = new Button("Auto-Save Options"); {
+			MenuItem timedAutoSave = new MenuItem("Timed Auto-Save"); {
+				Menu timedMenu = new Menu();
+				
+				SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						String newPreference = ce.getItem().getData("value");
+						
+						SimpleSISClient.currentUser.setProperty(UserPreferences.AUTO_SAVE_TIMER, newPreference);
+						setAutoSaveInterval(newPreference);
+						resetAutosaveTimer();
+					}
+				};
+				
+				for (String value : new String[] {"-1", "2", "5", "10"}) {
+					CheckMenuItem interval = new CheckMenuItem("-1".equals(value) ? "Off" : "Every " + value + " minutes.");
+					interval.setData("value", value);
+					interval.setGroup(UserPreferences.AUTO_SAVE_TIMER);
+					interval.setChecked("-1".equals(value) ? autoSaveInterval == null : Integer.valueOf(value).equals(autoSaveInterval));
+					interval.addSelectionListener(listener);
+					timedMenu.add(interval);
+				}
+				
+				timedAutoSave.setSubMenu(timedMenu);
+			}
+			MenuItem onPageChange = new MenuItem("On Page Change..."); {
+				Menu pageChangeMenu = new Menu();
+				
+				String savePreference = 
+					SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.PROMPT);
+				
+				SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						String newPreference = ce.getItem().getData("value");
+						SimpleSISClient.currentUser.setProperty(UserPreferences.AUTO_SAVE, newPreference);
+					}
+				};
+				
+				CheckMenuItem autoSave = new CheckMenuItem("Auto-Save");
+				autoSave.setData("value", UserPreferences.DO_ACTION);
+				autoSave.setGroup(UserPreferences.AUTO_SAVE);
+				autoSave.setChecked(savePreference.equals(UserPreferences.DO_ACTION));
+				autoSave.addSelectionListener(listener);
+				autoSave.setToolTip("When switching pages or assessments, any unsaved changes to an " +
+					"assessment will automatically be saved.");
+				pageChangeMenu.add(autoSave);
+				
+				CheckMenuItem autoPrompt = new CheckMenuItem("Prompt Before Auto-Save");
+				autoPrompt.setData("value", UserPreferences.PROMPT);
+				autoPrompt.setGroup(UserPreferences.AUTO_SAVE);
+				autoPrompt.setChecked(savePreference.equals(UserPreferences.PROMPT));
+				autoPrompt.addSelectionListener(listener);
+				autoPrompt.setToolTip("When switching pages or assessments, you will be prompted " +
+					"to save your changes if any unsaved changes are detected.");
+				pageChangeMenu.add(autoPrompt);
+				
+				CheckMenuItem ignore = new CheckMenuItem("Ignore");
+				ignore.setData("value", UserPreferences.IGNORE);
+				ignore.setGroup(UserPreferences.AUTO_SAVE);
+				ignore.setChecked(savePreference.equals(UserPreferences.AUTO_SAVE));
+				ignore.addSelectionListener(listener);
+				ignore.setToolTip("When switching pages or assessments, any unsaved changes to an " +
+					"assessment will be thrown away; you will not be prompted to save them, nor " +
+					"will they be automatically saved.  Only clicking the \"Save\" button will save " +
+					"changes.");
+				pageChangeMenu.add(ignore);
+				
+				onPageChange.setSubMenu(pageChangeMenu);
+			}
+			
+			Menu saveModeOptions = new Menu();
+			saveModeOptions.add(onPageChange);
+			saveModeOptions.add(timedAutoSave);
+			
+			saveMode.setMenu(saveModeOptions);
+		}
+		add(saveMode);
+		
 		add(new FillToolItem());
 	}
 	
@@ -514,9 +611,9 @@ public class DEMToolbar extends ToolBar {
 	}
 	
 	public void startAutosaveTimer() {
-		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl.getCurrentAssessment())) {
+		if (autoSaveInterval != null && AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl.getCurrentAssessment())) {
 			Debug.println("Starting autosave.");
-			autoSave.schedule(autoSaveInterval);
+			autoSave.schedule(autoSaveInterval.intValue() * 60 * 1000);
 		}
 	}
 

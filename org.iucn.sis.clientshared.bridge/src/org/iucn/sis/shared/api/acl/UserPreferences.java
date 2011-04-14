@@ -12,5 +12,6 @@ public interface UserPreferences {
 	public static final String IGNORE = "IGNORE";
 
 	public static final String AUTO_SAVE = "autosave";
+	public static final String AUTO_SAVE_TIMER = "autosavetimer";
 	public static final String VIEW_CHOICES = "viewPreference";
 }
