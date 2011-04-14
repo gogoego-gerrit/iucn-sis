@@ -113,11 +113,8 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 			bodyContainer.removeAll();
 			bodyContainer.add(container);
 		}
-		
-		/*
-		 * TODO: check to see if a page should be 
-		 * pre-loaded 
-		 */
+		else
+			redraw();
 		
 		callback.isDrawn();
 	}
@@ -257,8 +254,10 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 			public void isDrawn() {
 				final HTML label = viewWrapper.getLastSelected();
 				if (label != null) {
-					//If the user had a view in play, we want to 
-					//show it again.
+					/*
+					 * If the user had a view in play, we want to 
+					 * show it again.
+					 */
 					
 					SISView currentView = ViewCache.impl.getCurrentView();
 					SISPageHolder page = currentView.getCurPage();
