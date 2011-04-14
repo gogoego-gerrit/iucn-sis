@@ -120,7 +120,14 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 		int size = result.size();
 		
 		for (Taxon taxon : result) {
-			String family = taxon.getFootprint()[TaxonLevel.FAMILY];
+			String family;
+			try {
+				family = taxon.getFootprint()[TaxonLevel.FAMILY];
+			} catch (IndexOutOfBoundsException e) {
+				Debug.println("Failed to get footprint for {0}: {1}", taxon.getId(), taxon.getFootprint());
+				continue;
+			}
+			
 			if (!family.equals(currentFamily)) {
 				if (currentHeader != null)
 					updateHeaderCount(currentHeader, groupCount, size);
