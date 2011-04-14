@@ -6,10 +6,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
+import org.iucn.sis.client.api.assessment.ReferenceableField;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.notes.NotesWindow;
 import org.iucn.sis.client.api.utils.PagingPanel;
-import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
@@ -214,10 +214,8 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 			public void componentSelected(IconButtonEvent ce) {
 				GenericCallback<Object> callback = new GenericCallback<Object>() {
 					public void onFailure(Throwable caught) {
-						WindowUtils.errorAlert("Error!", "Error committing changes to the "
-								+ "server. Ensure you are connected to the server, then try " + "the process again.");
+						WindowUtils.errorAlert("Error saving changes, please try again.");
 					}
-
 					public void onSuccess(Object result) {
 						
 					}
@@ -226,64 +224,16 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				final ClassificationSchemeModelData model = grid.getSelectionModel().getSelectedItem();
 				if (model == null)
 					WindowUtils.errorAlert("Please select a row to add references.");
-				else {
-					String title = "Add references to " + treeData.getCanonicalName() + 
-						" " + model.getSelectedRow().getLabel(); 
-				
-					SISClientBase.getInstance().onShowReferenceEditor(title, (Referenceable)model, callback, callback);
-				
-				/*SISClientBase.getInstance().onShowReferenceEditor("Add a references to " + canonicalName + " "
-						+ ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey(), 
-						(ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem(), 
-				new GenericCallback<Object>() {
-					public void onFailure(Throwable caught) {
-					};
-
-					public void onSuccess(Object result) {
-						ArrayList references = (ArrayList) result;
-						ReferenceCache.getInstance().addReferences(
-								AssessmentCache.impl.getCurrentAssessment().getId(), references);
-
-						ReferenceCache.getInstance().addReferencesToAssessmentAndSave(references,
-								canonicalName + "." + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey(), new GenericCallback<Object>() {
-							public void onFailure(Throwable caught) {
-							}
-
-							public void onSuccess(Object result) {
-								refIcon.changeStyle("images/icon-book.png");
-							}
-						});
-					};
-				}, 
-				new GenericCallback<Object>() {
-					public void onFailure(Throwable caught) {};
-
-					public void onSuccess(Object result) {
-						ArrayList list = (ArrayList) result;
-						for (int i = 0; i < list.size(); i++) {
-							AssessmentCache.impl.getCurrentAssessment().removeReference(
-									(Reference) list.get(i), canonicalName + "." + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey());
-						}
-
-						if (AssessmentCache.impl.getCurrentAssessment().getReferences(
-								canonicalName + "." + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey()).size() == 0)
-							refIcon.changeStyle("images/icon-book-grey.png");
-						// rebuildIconPanel();
-					};
-				});*/
-				}
+				else if (model.getField() == null || !(model.getField().getId() > 0))
+					WindowUtils.errorAlert("Please save your changes before adding references.");
+				else
+					SISClientBase.getInstance().onShowReferenceEditor(
+						"Add references to " + treeData.getCanonicalName() + " " + model.getSelectedRow().getLabel(), 
+						new ReferenceableField(model.getField()), 
+						callback, callback
+					);
 			}
 		});
-
-		
-
-//		final ClickHandler noteListener = new ClickHandler() {
-//			public void onClick(ClickEvent event) {
-//				String temp = canonicalName + ((ClassificationSchemeEntry)grid.getSelectionModel().getSelectedItem()).getKey();
-//				openEditViewNotesPopup(temp, notesImage);
-//			}
-//		};
-		
 		
 		final IconButton notesImage = new IconButton("icon-note");
 		notesImage.addStyleName("SIS_iconPanelIcon");
@@ -292,7 +242,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				final ClassificationSchemeModelData model = grid.getSelectionModel().getSelectedItem();
 				if (model == null)
 					WindowUtils.errorAlert("Please select a row to add references.");
-				else if (model.getField() == null)
+				else if (model.getField() == null || !(model.getField().getId() > 0))
 					WindowUtils.errorAlert("Please save your changes before adding notes.");
 				else {
 					NotesWindow window = new NotesWindow(new FieldNotes(model.getField()) {
