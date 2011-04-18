@@ -36,6 +36,10 @@ public class ProxyField {
 	}
 	
 	public void setForeignKeyPrimitiveField(String key, Integer value) {
+		setForeignKeyPrimitiveField(key, value, "null");
+	}
+	
+	public void setForeignKeyPrimitiveField(String key, Integer value, String table) {
 		PrimitiveField<?> field = proxy.getPrimitiveField(key);
 		if (field != null) {
 			if (value != null)
@@ -44,7 +48,7 @@ public class ProxyField {
 				proxy.getPrimitiveField().remove(field);
 		}
 		else if (value != null)
-			proxy.addPrimitiveField(new ForeignKeyPrimitiveField(key, proxy, value, null));
+			proxy.addPrimitiveField(new ForeignKeyPrimitiveField(key, proxy, value, table));
 	}
 	
 	public List<Integer> getForeignKeyListPrimitiveField(String key) {
@@ -60,6 +64,10 @@ public class ProxyField {
 	}
 	
 	public void setForeignKeyListPrimitiveField(String key, List<Integer> value) {
+		setForeignKeyListPrimitiveField(key, value, "null");
+	}
+	
+	public void setForeignKeyListPrimitiveField(String key, List<Integer> value, String table) {
 		PrimitiveField<?> field = proxy.getPrimitiveField(key);
 		if (field != null) {
 			if (value != null)
@@ -71,6 +79,7 @@ public class ProxyField {
 			ForeignKeyListPrimitiveField newField = 
 				new ForeignKeyListPrimitiveField(key, proxy);
 			newField.setValue(value);
+			newField.setTableID(table);
 			
 			proxy.addPrimitiveField(newField);
 		}
