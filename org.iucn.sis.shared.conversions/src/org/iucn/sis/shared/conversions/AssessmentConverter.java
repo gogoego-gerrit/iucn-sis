@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.naming.NamingException;
 
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.dialect.PostgreSQLDialect;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.TaxonIO;
@@ -29,6 +28,7 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanUnknownPrimitiveField;
@@ -340,86 +340,12 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		assessment.generateFields();
 
 		for (Entry<String, Object> curField : assessData.getDataMap().entrySet()) {
-			Set lookup = getLookup(curField.getKey());
-			
 			Field field = new Field(correctFieldName(curField.getKey()), assessment);
-			field.setAssessment(assessment);
 			
-			List<Field> subfields = new ArrayList<Field>();
-
-			if (curField.getKey().equals(CanonicalNames.Lakes) || curField.getKey().equals(CanonicalNames.Rivers)) {
-				//DO NOTHING
-			} else if (curField.getKey().equals(CanonicalNames.UseTradeDetails) ||
-					curField.getKey().equals(CanonicalNames.Livelihoods)) {
-				
-				List<String> dataList = (List<String>) (curField.getValue());
-				if( dataList.size() > 1 ) {
-					String subfieldName = curField.getKey().equals(CanonicalNames.UseTradeDetails) ? 
-							"UseTradeSubfield" : "LivelihoodsSubfield";
-					int subfieldDataSize = curField.getKey().equals(CanonicalNames.UseTradeDetails) ? 
-							10 : 18;
-					
-					Integer numStresses = dataList.get(0).matches("\\d") ? Integer.valueOf(dataList.get(0)) : 0;
-					dataList.remove(0);
-							
-					for( int i = 0; i < numStresses.intValue(); i++ ) {
-						List<String> rawData = dataList.subList(subfieldDataSize*i, (subfieldDataSize*(i+1)) );
-						Field subfield = new Field(subfieldName, assessment);
-						addPrimitiveDataToField(field.getName(), subfield, rawData, getLookup(subfieldName));
-						subfields.add(subfield);
-					}
-					
-					field.getFields().addAll(subfields);
-				}
-			} else if (curField.getValue() instanceof List) {
-				List<String> rawData = (List<String>) (curField.getValue());
-				addPrimitiveDataToField(curField.getKey(), field, rawData, lookup);
-			} else {
-				// It's a classification scheme!
-				Map<String, List<String>> dataMap = (Map<String, List<String>>) curField.getValue();
-				if( !field.getName().equals(CanonicalNames.Threats)) {
-					for( Entry<String, List<String>> selected : dataMap.entrySet() ) {
-						Field subfield = new Field(field.getName() + "Subfield", assessment);
-						List<String> dataList = selected.getValue();
-						dataList.add(0, selected.getKey()); //Add the class scheme ID back in
-
-						addPrimitiveDataToField(curField.getKey(), subfield, dataList, getLookup(subfield.getName()));
-						subfield.setParent(field);
-						subfields.add(subfield);
-					}
-					field.getFields().addAll(subfields);
-				} else {
-					for( Entry<String, List<String>> selected : dataMap.entrySet() ) {
-						Field subfield = new Field(field.getName() + "Subfield", assessment);
-						List<String> dataList = selected.getValue();
-						dataList.add(0, selected.getKey()); //Add the threat ID back in
-
-						List<String> threatData = dataList.subList(0, 5);
-						
-						addPrimitiveDataToField(curField.getKey(), subfield, threatData, getLookup(
-								subfield.getName()));
-						subfield.setParent(field);
-						
-						if( dataList.size() > 6 ) {
-							Integer numStresses = dataList.get(6).matches("\\d") ? Integer.valueOf(dataList.get(6)) : 0;
-
-							for( int i = 0; i < numStresses.intValue(); i++ ) {
-								Field stress = new Field("StressesSubfield", assessment);
-								ForeignKeyPrimitiveField fk = new ForeignKeyPrimitiveField("stress", stress);
-								fk.setValue(Integer.valueOf( dataList.get(7+i) ) );
-								fk.setTableID("StressesLookup");
-								stress.getPrimitiveField().add(fk);
-								fk.setField(stress);
-								subfields.add(stress);
-							}
-
-							subfields.add(subfield);
-						}
-					}
-					field.getFields().addAll(subfields);
-				}
-			}
-
+			//Translate data
+			processField(curField, field);
+			
+			//Translate references
 			for (ReferenceUI curRef : assessData.getReferences(curField.getKey())) {
 				Reference ref = referenceIO.getReferenceByHashCode(curRef.getReferenceID());
 				if (ref != null) {
@@ -429,6 +355,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			
 			//TODO: don't see where notes are being parsed...
+			
+			
 			if (field.hasData() || !field.getReference().isEmpty() || !field.getNotes().isEmpty())
 				assessment.getField().add(field);
 		}
@@ -442,6 +370,130 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		}
 
 		return assessment;
+	}
+	
+	private void processField(Entry<String, Object> curField, Field field) throws DBException, InstantiationException,
+			IllegalAccessException, PersistentException {
+		Set lookup = getLookup(curField.getKey());
+		
+		List<Field> subfields = new ArrayList<Field>();
+
+		if (curField.getKey().equals(CanonicalNames.Lakes) || curField.getKey().equals(CanonicalNames.Rivers)) {
+			//DO NOTHING
+		} else if (curField.getKey().equals(CanonicalNames.UseTradeDetails) ||
+				curField.getKey().equals(CanonicalNames.Livelihoods)) {
+			
+			List<String> dataList = (List<String>) (curField.getValue());
+			if( dataList.size() > 1 ) {
+				String subfieldName = curField.getKey().equals(CanonicalNames.UseTradeDetails) ? 
+						"UseTradeSubfield" : "LivelihoodsSubfield";
+				int subfieldDataSize = curField.getKey().equals(CanonicalNames.UseTradeDetails) ? 
+						10 : 18;
+				
+				Integer numStresses = dataList.get(0).matches("\\d") ? Integer.valueOf(dataList.get(0)) : 0;
+				dataList.remove(0);
+						
+				for( int i = 0; i < numStresses.intValue(); i++ ) {
+					List<String> rawData = dataList.subList(subfieldDataSize*i, (subfieldDataSize*(i+1)) );
+					Field subfield = new Field(subfieldName, null);
+					addPrimitiveDataToField(field.getName(), subfield, rawData, getLookup(subfieldName));
+					subfields.add(subfield);
+				}
+				
+				field.getFields().addAll(subfields);
+			}
+		} else if (curField.getValue() instanceof List) {
+			 if (CanonicalNames.RedListAssessors.equals(curField.getKey()) || 
+					 CanonicalNames.RedListContributors.equals(curField.getKey()) || 
+					 CanonicalNames.RedListEvaluators.equals(curField.getKey())) {
+				 RedListCreditedUserField proxy = new RedListCreditedUserField(field);
+				 
+				 List<String> rawData = (List<String>) (curField.getValue());
+				 if (!rawData.isEmpty()) {
+					 proxy.setText(rawData.get(0));
+					 
+					 StringBuilder order = new StringBuilder();
+					 List<Integer> userIDs = new ArrayList<Integer>();
+					 List<User> users = new ArrayList<User>();
+					 for (int i = 1; i < rawData.size(); i++) {
+						 final Integer userID;
+						 try {
+							 userID = Integer.valueOf(rawData.get(i));
+						 } catch (Exception e) {
+							 continue;
+						 }
+						 
+						 userIDs.add(userID);
+						 order.append(userID + ",");
+						 
+						 User user = null;
+						 try {
+							 user = (User)session.get(User.class, userID);
+						 } catch (Exception e) {
+							 continue;
+						 }
+						 if (user != null)
+							 users.add(user);
+					 }
+					 
+					 if (!userIDs.isEmpty()) {
+						 proxy.setUsers(userIDs);
+						 proxy.setOrder(order.toString().substring(0, order.toString().length()-1));
+						 
+						 if ("".equals(proxy.getText()))
+							 proxy.setText(RedListCreditedUserField.generateText(users, proxy.getOrder()));
+					 }
+				 }
+			 }
+			 else {
+				 List<String> rawData = (List<String>) (curField.getValue());
+				 addPrimitiveDataToField(curField.getKey(), field, rawData, lookup);
+			 }
+		} else {
+			// It's a classification scheme!
+			Map<String, List<String>> dataMap = (Map<String, List<String>>) curField.getValue();
+			if( !field.getName().equals(CanonicalNames.Threats)) {
+				for( Entry<String, List<String>> selected : dataMap.entrySet() ) {
+					Field subfield = new Field(field.getName() + "Subfield", null);
+					List<String> dataList = selected.getValue();
+					dataList.add(0, selected.getKey()); //Add the class scheme ID back in
+
+					addPrimitiveDataToField(curField.getKey(), subfield, dataList, getLookup(subfield.getName()));
+					subfield.setParent(field);
+					subfields.add(subfield);
+				}
+				field.getFields().addAll(subfields);
+			} else {
+				for( Entry<String, List<String>> selected : dataMap.entrySet() ) {
+					Field subfield = new Field(field.getName() + "Subfield", null);
+					List<String> dataList = selected.getValue();
+					dataList.add(0, selected.getKey()); //Add the threat ID back in
+
+					List<String> threatData = dataList.subList(0, 5);
+					
+					addPrimitiveDataToField(curField.getKey(), subfield, threatData, getLookup(
+							subfield.getName()));
+					subfield.setParent(field);
+					
+					if( dataList.size() > 6 ) {
+						Integer numStresses = dataList.get(6).matches("\\d") ? Integer.valueOf(dataList.get(6)) : 0;
+
+						for( int i = 0; i < numStresses.intValue(); i++ ) {
+							Field stress = new Field("StressesSubfield", null);
+							ForeignKeyPrimitiveField fk = new ForeignKeyPrimitiveField("stress", stress);
+							fk.setValue(Integer.valueOf( dataList.get(7+i) ) );
+							fk.setTableID("StressesLookup");
+							stress.getPrimitiveField().add(fk);
+							fk.setField(stress);
+							subfields.add(stress);
+						}
+
+						subfields.add(subfield);
+					}
+				}
+				field.getFields().addAll(subfields);
+			}
+		}
 	}
 	
 	/**
@@ -463,7 +515,13 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		PrimitiveField prim = null;
 		Row curRow = null;
 		int i = 0;
+		
 		debug("Found %s/%s primitive values for %s", rawData.size(), lookup.getSet().size(), canonicalName);
+		
+		if (rawData.size() > lookup.getSet().size()) {
+			error(4, "Found more data in SIS 1 than can fit in SIS 2 for %s\n%s", canonicalName, rawData);
+		}
+		
 		for (String curPrimitive : rawData) {
 			if (lookup.getSet().size() <= i) {
 				error(5, "Extra piece of data found for %s, Eliding: '%s'", canonicalName, curPrimitive);
@@ -504,6 +562,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						String lookupTable = curRow.get("name").getString().endsWith("Lookup") ?
 								curRow.get("name").getString() : getTableID(canonicalName, curRow.get("name").getString());
 						((ForeignKeyPrimitiveField) prim).setTableID(lookupTable);
+						
 						Integer index = getIndex(canonicalName, lookupTable, curRow.get("name").getString(), curPrimitive);
 						if (index > 0)
 							prim.setValue(index);
