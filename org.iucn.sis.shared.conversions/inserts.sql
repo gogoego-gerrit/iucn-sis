@@ -96,6 +96,7 @@ INSERT INTO ConservationActionsLookup (code, parentID, level, codeable, ref, des
 INSERT INTO ConservationActionsLookup (code, parentID, level, codeable, ref, description) VALUES('62', '(root)', 0, true, '100.18', 'OLD 3-Research Actions');
 INSERT INTO ConservationActions (name, data_type, number_allowed) VALUES ('ConservationActionsSubfield', 'field', '*');
 INSERT INTO ConservationActionsSubfield (name, data_type, number_allowed) VALUES ('ConservationActionsLookup', 'fk_primitive_field', '1');
+INSERT INTO ConservationActionsSubfield (name, data_type, number_allowed) VALUES ('note', 'string_primitive_field', '?');
 INSERT INTO ConservationActionsDocumentation (name, data_type, number_allowed) VALUES ('narrative', 'text_primitive_field', '?');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('195CFE988FF878099E8B9818E43764FC', '(root)', 1, false, '195CFE988FF878099E8B9818E43764FC', 'Antarctic');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('AQ', '195CFE988FF878099E8B9818E43764FC', 2, true, 'AQ', 'Antarctica');
