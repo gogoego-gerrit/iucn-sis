@@ -40,7 +40,11 @@ public class ViewCache {
 
 	public void doLogout() {
 		schemaToViews.clear();
+		currentViewMap.clear();
 		lastPageViewed.clear();
+		
+		currentView = null;
+		currentSchema = null;
 	}
 	
 	private void resetSchema(String schema) {
