@@ -7,8 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,6 +45,7 @@ import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
 import org.iucn.sis.shared.helpers.AssessmentData;
 import org.iucn.sis.shared.helpers.AssessmentParser;
 import org.iucn.sis.shared.helpers.CanonicalNames;
+import org.iucn.sis.shared.helpers.Note;
 import org.iucn.sis.shared.helpers.ReferenceUI;
 
 import com.solertium.db.DBException;
@@ -50,9 +53,9 @@ import com.solertium.db.DBSession;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
 import com.solertium.db.SystemExecutionContext;
-import com.solertium.db.Row.Set;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
+import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.Replacer;
 import com.solertium.util.TrivialExceptionHandler;
@@ -67,7 +70,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	}
 	
 	private ExecutionContext ec;
-	private Map<String, Set> lookups;
+	private Map<String, Row.Set> lookups;
 
 	private Map<String, Class> typeLookup;
 	
@@ -90,7 +93,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		ec.setExecutionLevel(ExecutionContext.ADMIN);
 		ec.getDBSession().setIdentifierCase(DBSession.CASE_UPPER);
 		
-		lookups = new HashMap<String, Set>();
+		lookups = new HashMap<String, Row.Set>();
 
 		typeLookup = new HashMap<String, Class>();
 		typeLookup.put("range_primitive_field", RangePrimitiveField.class);
@@ -162,7 +165,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			
 			parser.parse(ndoc);
 				
-			Assessment assessment = assessmentDataToAssessment(parser.getAssessment());
+			Assessment assessment = assessmentDataToAssessment(parser.getAssessment(), user);
 			if (assessment != null) {
 				if (assessment.getTaxon() != null) {
 					/*User userToSave;
@@ -229,7 +232,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					ndoc.parse(FileListing.readFileAsString(file));
 					parser.parse(ndoc);
 					
-					Assessment assessment = assessmentDataToAssessment(parser.getAssessment());
+					Assessment assessment = assessmentDataToAssessment(parser.getAssessment(), user);
 					if (assessment != null) {
 						if (assessment.getTaxon() != null) {
 							/*User userToSave;
@@ -297,7 +300,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return taxon;
 	}
 
-	public Assessment assessmentDataToAssessment(AssessmentData assessData) throws DBException, InstantiationException,
+	public Assessment assessmentDataToAssessment(AssessmentData assessData, User user) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
 		OccurrenceMigratorUtils.migrateOccurrenceData(assessData);
 		
@@ -354,8 +357,14 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				}
 			}
 			
-			//TODO: don't see where notes are being parsed...
-			
+			Set<Notes> notes = null;
+			try {
+				notes = getNotesForField(assessData.getType(), assessData.getAssessmentID(), field, user);
+			} catch (Exception e) {
+				notes = null;
+			}
+			if (notes != null && !notes.isEmpty())
+				field.setNotes(notes);
 			
 			if (field.hasData() || !field.getReference().isEmpty() || !field.getNotes().isEmpty())
 				assessment.getField().add(field);
@@ -372,9 +381,61 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return assessment;
 	}
 	
+	private Set<Notes> getNotesForField(String type, String assessmentID, Field field, User user) throws Exception {
+		final VFS vfs = data.getOldVFS();
+		final String canonicalName = field.getName();
+		final String url;
+		if (vfs.exists("/notes/" + type + "/" + assessmentID + "/" + canonicalName + ".xml"))
+			url = "/notes/" + type + "/" + assessmentID + "/" + canonicalName + ".xml";
+		else if (vfs.exists("/notes/" + type + "/" + assessmentID + "/" + canonicalName))
+			url = "/notes/" + type + "/" + assessmentID + "/" + canonicalName;
+		//FIXME: hmm...?
+		/*else if (vfs.exists("/notes/" + type + "/" + username + "/" + assessmentID + "/" + canonicalName + ".xml"))
+			url = "/notes/" + type + "/" + username + "/" + assessmentID + "/" + canonicalName + ".xml";
+		else if (vfs.exists("/notes/" + type + "/" + username + "/" + assessmentID + "/" + canonicalName))
+			url = "/notes/" + type + "/" + username + "/" + assessmentID + "/" + canonicalName;*/
+		else
+			return new HashSet<Notes>();
+		
+		final NativeDocument document = new JavaNativeDocument();
+		document.parse(vfs.getString(url));
+		
+		final Set<Notes> notes = new HashSet<Notes>();
+		
+		for (Note oldNote : Note.notesFromXML(document.getDocumentElement())) {
+			if ("DEMImport".equalsIgnoreCase(oldNote.getUser()))
+				continue;
+			
+			String text = oldNote.getBody();
+			if (text == null)
+				continue;
+			
+			User possibleUser = userIO.getUserFromUsername(oldNote.getUser());
+			if (possibleUser == null) {
+				possibleUser = user;
+				text += " -- " + oldNote.getUser();
+			}
+			
+			final Edit edit = new Edit();
+			edit.setUser(user);
+			edit.setCreatedDate(shortfmt.parse(oldNote.getDate()));
+			
+			final Notes note = new Notes();
+			note.setField(field);
+			note.setValue(text);
+			
+			note.setEdit(edit);
+			edit.getNotes().add(note);
+			
+			notes.add(note);
+		}
+		
+		return notes;
+	}
+	
 	private void processField(Entry<String, Object> curField, Field field) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
-		Set lookup = getLookup(curField.getKey());
+		Row.Set lookup = getLookup(curField.getKey());
 		
 		List<Field> subfields = new ArrayList<Field>();
 
@@ -510,7 +571,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	}
 
 	private void addPrimitiveDataToField(String canonicalName, Field field, List<String> rawData,
-			Set lookup) throws InstantiationException, IllegalAccessException,
+			Row.Set lookup) throws InstantiationException, IllegalAccessException,
 			DBException {
 		PrimitiveField prim = null;
 		Row curRow = null;
@@ -702,7 +763,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			return 0;
 	}
 	
-	private Set getLookup(String table) throws DBException {
+	private Row.Set getLookup(String table) throws DBException {
 		String fieldName = table;
 		if (fieldName.equalsIgnoreCase(CanonicalNames.ReproduictivePeriodicity))
 			fieldName = org.iucn.sis.shared.api.utils.CanonicalNames.ReproductivePeriodicity;
@@ -714,7 +775,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			query.select(fieldName, "ID", "ASC");
 			query.select(fieldName, "*");
 			
-			Set lookup = new Set();
+			Row.Set lookup = new Row.Set();
 			
 			ec.doQuery(query, lookup);
 
