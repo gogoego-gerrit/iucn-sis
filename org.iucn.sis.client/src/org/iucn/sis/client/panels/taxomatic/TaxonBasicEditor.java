@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels.taxomatic;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -123,24 +124,25 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 		if (node.getLevel() == TaxonLevel.SUBPOPULATION) {
 			level.addItem(node.getDisplayableLevel(), node.getLevel() + "");
 			level.addItem(TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_SUBSPECIES),
-					TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_SUBSPECIES);
+					"" + Infratype.INFRARANK_TYPE_SUBSPECIES);
 			if (!node.getFootprintAsString().contains("ANIMALIA"))
 				level.addItem(TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_VARIETY),
-						TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_VARIETY);
+						"" + Infratype.INFRARANK_TYPE_VARIETY);
+			level.setSelectedIndex(0);
 			level.setEnabled(true);
 		} else if (node.getLevel() == TaxonLevel.INFRARANK) {
 			if (node.getInfratype().getName().equals(Infratype.SUBSPECIES_NAME)) {
 				level.addItem(TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_SUBSPECIES),
-						TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_SUBSPECIES);
+						"" + Infratype.INFRARANK_TYPE_SUBSPECIES);
 				if (!node.getFootprintAsString().contains("ANIMALIA"))
 					level.addItem(TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_VARIETY),
-							TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_VARIETY);
+							"" + Infratype.INFRARANK_TYPE_VARIETY);
 			} else {
 				if (!node.getFootprintAsString().contains("ANIMALIA"))
 					level.addItem(TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_VARIETY),
-							TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_VARIETY);
+							"" + Infratype.INFRARANK_TYPE_VARIETY);
 				level.addItem(TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_SUBSPECIES),
-						TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_SUBSPECIES);
+						"" + Infratype.INFRARANK_TYPE_SUBSPECIES);
 			}
 
 			save.setEnabled(false);
@@ -159,6 +161,7 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 						// It has no children - it can be changed to a subpop.
 						level.addItem(TaxonLevel.getDisplayableLevel(TaxonLevel.SUBPOPULATION), TaxonLevel.SUBPOPULATION
 								+ "");
+						level.setSelectedIndex(0);
 						level.setEnabled(true);
 					} else
 						level.setEnabled(false);
@@ -338,17 +341,18 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 
 		if (level.isEnabled()) {
 			int newLevel = Integer.parseInt(level.getValue(level.getSelectedIndex()));
-			int infraType = 1;
-			if (newLevel ==  TaxonLevel.INFRARANK || newLevel == TaxonLevel.INFRARANK_SUBPOPULATION) {
-				infraType = newLevel % (TaxonLevel.INFRARANK * 10);
-				newLevel = Integer.parseInt(level.getValue(level.getSelectedIndex()).substring(0, 1));
+			if (newLevel == TaxonLevel.SUBPOPULATION) {
 				node.setTaxonLevel(TaxonLevel.getTaxonLevel(newLevel));
-				Infratype type = Infratype.getInfratype(infraType, node);
-				node.setInfratype(type);
-			} else {
 				node.setInfratype(null);
 			}
-			
+			else if (newLevel == Infratype.INFRARANK_TYPE_SUBSPECIES || 
+					newLevel == Infratype.INFRARANK_TYPE_VARIETY) {
+				node.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.INFRARANK));
+				node.setInfratype(Infratype.getInfratype(newLevel));
+			} else {
+				Debug.println("Infratype set to null for selected level {0}", newLevel);
+				node.setInfratype(null);
+			}
 		}
 
 		node.setName(name.getText());

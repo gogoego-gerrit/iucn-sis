@@ -78,11 +78,15 @@ public class Taxon implements AuthorizableObject, Serializable {
 	public String getDisplayableLevel() {
 		Debug.println("this is the taxon level " + this.getTaxonLevel().getLevel() + " and id " + this.getTaxonLevel().getId());
 		if (this.getTaxonLevel().getLevel() == TaxonLevel.INFRARANK) {
-			if (getInfratype().getName() == Infratype.SUBSPECIES_NAME) {
+			Infratype infratype = getInfratype();
+			if (infratype == null)
+				return "Unknown";
+			else if (Infratype.SUBSPECIES_NAME.equals(infratype.getName()))
 				return "Subspecies";
-			} else if (getInfratype().getName() == Infratype.VARIETY_NAME) {
+			else if (Infratype.VARIETY_NAME.equals(infratype.getName()))
 				return "Variety";
-			}
+			else
+				return "Unknown";
 		}
 		return TaxonLevel.displayableLevel[this.getTaxonLevel().getLevel()];
 	}
