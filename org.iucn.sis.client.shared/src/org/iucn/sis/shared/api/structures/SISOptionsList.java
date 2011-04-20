@@ -9,6 +9,7 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.fields.ProxyField;
+import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
@@ -49,7 +50,9 @@ public class SISOptionsList extends Structure<Field> {
 			theList.setUsersId(ids);
 		}*/
 		
-		Map<String, PrimitiveField> data;
+		return theList.hasChanged(field);
+		
+		/*Map<String, PrimitiveField> data;
 		if (field == null)
 			data = new HashMap<String, PrimitiveField>();
 		else
@@ -89,7 +92,7 @@ public class SISOptionsList extends Structure<Field> {
 				return !oldValue.isEmpty();
 			else
 				return !(newValue.size() == oldValue.size() && newValue.containsAll(oldValue));
-		}
+		}*/
 	}
 	
 	@Override
@@ -100,7 +103,8 @@ public class SISOptionsList extends Structure<Field> {
 			field.setParent(parent);
 		}
 		
-		ProxyField proxy = new ProxyField(field);
+		theList.save(field);
+		/*ProxyField proxy = new ProxyField(field);
 		if (theList.hasOldText()) {
 			proxy.setStringPrimitiveField(TEXT_ACCOUNT_KEY, theList.getText());
 		}
@@ -110,7 +114,7 @@ public class SISOptionsList extends Structure<Field> {
 				users.add(Integer.valueOf(user.getId()));
 			
 			proxy.setForeignKeyListPrimitiveField(FK_LIST_KEY, users);
-		}
+		}*/
 	}
 	
 	@Override
@@ -132,7 +136,7 @@ public class SISOptionsList extends Structure<Field> {
 		displayPanel.clear();
 		displayPanel.add(descriptionLabel);
 		// displayPanel.add( new HTML( theList.getItemsInListAsCSV() ) );
-		displayPanel.add(new HTML(theList.getText()));
+		displayPanel.add(new HTML(theList.getSavedText()));
 		return displayPanel;
 	}
 
@@ -162,7 +166,7 @@ public class SISOptionsList extends Structure<Field> {
 
 	@Override
 	public String getData() {
-		return XMLUtils.clean(theList.getText());
+		return null;
 	}
 
 	/**
@@ -181,14 +185,13 @@ public class SISOptionsList extends Structure<Field> {
 	
 	@SuppressWarnings("unchecked")
 	public void setData(Field field) {
-		Map<String, PrimitiveField> data;
+		theList.setData(new RedListCreditedUserField(field));
+		/*Map<String, PrimitiveField> data;
 		if (field == null)
 			data = new HashMap<String, PrimitiveField>();
 		else
 			data = field.getKeyToPrimitiveFields();
 		
-		//super.setData(data);
-
 		String text = data.containsKey(TEXT_ACCOUNT_KEY) ? 
 				((StringPrimitiveField)data.get(TEXT_ACCOUNT_KEY)).getValue() : "";
 		List<Integer> fks = data.containsKey(FK_LIST_KEY) ? 
@@ -208,7 +211,7 @@ public class SISOptionsList extends Structure<Field> {
 				ids.add(fk.toString());
 			
 			theList.setUsersId(ids, data.get("order") == null ? null : data.get("order").getRawValue());
-		}
+		}*/
 	}
 
 	public void setEnabled(boolean isEnabled) {

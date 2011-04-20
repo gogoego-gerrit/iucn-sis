@@ -28,6 +28,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.models.fields.ProxyField;
+import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
 import org.iucn.sis.shared.api.structures.SISOptionsList;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
@@ -714,16 +715,6 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			assessment.getField().add(field);
 		}
 		
-		/*
-		 * The SISOptionsList is the field that drives the original 
-		 * UI widget for assessors, evaluatiors, and contributors. 
-		 * So, I am going to use the same field keys from there for 
-		 * this save operation.
-		 */
-		ProxyField proxy = new ProxyField(field);
-		proxy.setForeignKeyListPrimitiveField(SISOptionsList.FK_LIST_KEY, new ArrayList<Integer>(userIDs));
-		proxy.setStringPrimitiveField("order", order.toString());
-		
 		/* 
 		 * Add UI Selected User's to the UserCache		
 		 */
@@ -733,6 +724,17 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 			selectedUsers.add(user);
 		}
 		UserCache.impl.addUsers(selectedUsers);
+		
+		/*
+		 * The SISOptionsList is the field that drives the original 
+		 * UI widget for assessors, evaluatiors, and contributors. 
+		 * So, I am going to use the same field keys from there for 
+		 * this save operation.
+		 */
+		RedListCreditedUserField proxy = new RedListCreditedUserField(field);
+		proxy.setUsers(new ArrayList<Integer>(userIDs));
+		proxy.setOrder(order.toString());
+		proxy.setText(RedListCreditedUserField.generateText(selectedUsers, order.toString()));
 	}
 	
 	public void loadRecentUsers() {
@@ -751,24 +753,19 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 	}
 	
 	public void loadSavedDetails(String canonicalName, ListView<SearchResults> list) {
-		
 		Assessment assessment = AssessmentCache.impl.getCurrentAssessment();			
 		Field field = assessment.getField(canonicalName);
 		if (field == null)
 			return;
 
-		List<Integer> ids;
-		ProxyField proxy = new ProxyField(field);
-		ids = proxy.getForeignKeyListPrimitiveField(SISOptionsList.FK_LIST_KEY);
+		RedListCreditedUserField proxy = new RedListCreditedUserField(field);
 		
 		ListStore<SearchResults> store = new ListStore<SearchResults>();
-		store.setStoreSorter(new MCSearchResultsComparator(proxy.getStringPrimitiveField("order")));
+		store.setStoreSorter(new MCSearchResultsComparator(proxy.getOrder()));
 		
-		if (ids != null)
-			for (Integer userID : ids)
-				if(userID != 0)
-					if (UserCache.impl.hasUser(userID))
-						store.add(new SearchResults(UserCache.impl.getUser(userID)));
+		for (Integer userID : proxy.getUsers())
+			if (userID != 0 && UserCache.impl.hasUser(userID))
+				store.add(new SearchResults(UserCache.impl.getUser(userID)));
 		
 		store.sort("order", SortDir.NONE);
 		
