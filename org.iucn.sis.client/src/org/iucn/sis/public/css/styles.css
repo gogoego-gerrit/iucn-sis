@@ -265,6 +265,15 @@ body,td,div,input,p,select,input,button {
 	border-left: 1px solid #CEDCE9 !important;	
 }
 
+.notes_entry {
+	border-bottom: 1px solid black !important;
+	width: 100%;
+}
+
+.notes_entry_html {
+	font-size: 14px !important;
+}
+
 .icon-zendesk {
 	background: url(../tango/status/weather-severe-alert.png) no-repeat !important;	
 	
