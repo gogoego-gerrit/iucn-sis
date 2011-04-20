@@ -710,7 +710,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 
 		if (cat != null && !cat.equals("")) {
 			for (int i = 0; i < categoryListBox.getItemCount(); i++) {
-				if (cat.trim().equalsIgnoreCase(categoryListBox.getValue(i).trim())) {
+				if (cat.trim().equals(categoryListBox.getValue(i).trim())) {
 					categoryListBox.setSelectedIndex(i);
 					found = true;
 					break;
