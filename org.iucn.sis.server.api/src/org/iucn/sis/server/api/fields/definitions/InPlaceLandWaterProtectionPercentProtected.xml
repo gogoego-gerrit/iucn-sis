@@ -1,0 +1,30 @@
+<field id="0">
+	<canonicalName>InPlaceLandWaterProtectionPercentProtected</canonicalName>
+	<description>Percentage of population protected by PAs (0-100)</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="value">
+						<number></number>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="note" description="Additional Details">
+						<narrative></narrative>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<contentRule>
+						<activateOnContent></activateOnContent>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</contentRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

@@ -66,23 +66,36 @@ CREATE TABLE GestationTime (id integer auto_increment primary key, name varchar(
 CREATE TABLE HabitatContinuingDecline (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE HabitatContinuingDecline_qualifierLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE HabitatDocumentation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE InPlaceResearch_recoveryPlanLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceResearch_monitoringSchemeLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceResearch (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE InPlaceSpeciesManagement_harvestPlanLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceSpeciesManagement_reintroducedLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceSpeciesManagement_exSituConservationLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceSpeciesManagement (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE InPlaceLandWaterProtection_sitesIdentifiedLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceLandWaterProtection_rangeLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceLandWaterProtection_inPALookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceLandWaterProtection_areaPlannedLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceLandWaterProtection_invasiveControlLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceLandWaterProtection (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE InPlaceEducation_subjectToProgramsLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceEducation_internationalLegislationLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceEducation_controlledLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
-CREATE TABLE InPlaceEducation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+
+CREATE TABLE InPlaceResearchRecoveryPlan (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceResearchRecoveryPlan_valueLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE InPlaceResearchMonitoringScheme (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceResearchMonitoringScheme_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+
+CREATE TABLE InPlaceSpeciesManagementHarvestPlan (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceSpeciesManagementHarvestPlan_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE InPlaceSpeciesManagementReintroduced (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceSpeciesManagementReintroduced_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE InPlaceSpeciesManagementExSitu (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceSpeciesManagementExSitu_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+
+CREATE TABLE InPlaceLandWaterProtectionSitesIdentified (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionSitesIdentified_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionInPA (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionInPA_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionPercentProtected (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionPercentProtected_valueLookup (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionAreaPlanned (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionAreaPlanned_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionInvasiveControl (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionInvasiveControl_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+
+CREATE TABLE InPlaceEducationSubjectToPrograms (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceEducationSubjectToPrograms_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE InPlaceEducationInternationalLegislation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceEducationInternationalLegislation_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE InPlaceEducationControlled (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceEducationControlled_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE LakesLookup (id integer auto_increment primary key, code varchar(63), parentID varchar(63), level integer, codeable tinyint, ref varchar(63), description varchar(255));
 CREATE TABLE Lakes_presenceLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE Lakes_originLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));

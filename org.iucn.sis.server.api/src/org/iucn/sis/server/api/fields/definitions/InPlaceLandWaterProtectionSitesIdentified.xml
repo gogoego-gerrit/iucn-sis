@@ -1,0 +1,36 @@
+<field id="0">
+	<canonicalName>InPlaceLandWaterProtectionSitesIdentified</canonicalName>
+	<description>Conservation sites identified</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="value">
+						<singleSelect>
+							<option>Yes, over entire range</option>
+							<option>Yes, over part of range</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="note" description="Additional Details">
+						<narrative></narrative>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>

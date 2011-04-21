@@ -1,0 +1,36 @@
+<field id="0">
+	<canonicalName>InPlaceLandWaterProtectionInvasiveControl</canonicalName>
+	<description>Invasive species control or prevention</description>
+	<classOfService>Documentation</classOfService>
+	<structures>
+		<structure>
+			<relatedStructure>
+				<dominantStructures>
+					<structure id="value">
+						<singleSelect>
+							<option>Yes</option>
+							<option>No</option>
+							<option>Unknown</option>
+							<option>Not Applicable</option>
+							<selected>0</selected>
+						</singleSelect>
+					</structure>
+				</dominantStructures>
+				<dependentStructures>
+					<structure id="note" description="Additional Details">
+						<narrative></narrative>
+					</structure>
+				</dependentStructures>
+				<rules>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
+						<actions>
+							<onTrue>hide</onTrue>
+							<onFalse>show</onFalse>
+						</actions>
+					</selectRule>
+				</rules>
+			</relatedStructure>
+		</structure>
+	</structures>
+</field>
