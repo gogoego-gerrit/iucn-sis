@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.conversions;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -47,6 +48,8 @@ import org.iucn.sis.shared.helpers.AssessmentParser;
 import org.iucn.sis.shared.helpers.CanonicalNames;
 import org.iucn.sis.shared.helpers.Note;
 import org.iucn.sis.shared.helpers.ReferenceUI;
+import org.iucn.sis.shared.report.MigrationReport;
+import org.restlet.util.Couple;
 
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
@@ -165,7 +168,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			
 			parser.parse(ndoc);
 				
-			Assessment assessment = assessmentDataToAssessment(parser.getAssessment(), user);
+			Couple<Assessment, MigrationReport> result = assessmentDataToAssessment(parser.getAssessment(), user);
+			Assessment assessment = result.getFirst();
 			if (assessment != null) {
 				if (assessment.getTaxon() != null) {
 					/*User userToSave;
@@ -183,6 +187,13 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					}
 						
 					session.save(assessment);
+					
+					try {
+						if (!result.getSecond().isMigrationSuccessful())
+							result.getSecond().save(assessment, data.getNewVFS());
+					} catch (IOException e) {
+						printf("Failed to saved migration report: %s", e.getMessage());
+					}
 						
 					/*if (!assessmentIO.writeAssessment(assessment, userToSave, false).status.isSuccess()) {
 						throw new Exception("The assessment " + file.getPath() + " did not want to save");
@@ -232,7 +243,9 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					ndoc.parse(FileListing.readFileAsString(file));
 					parser.parse(ndoc);
 					
-					Assessment assessment = assessmentDataToAssessment(parser.getAssessment(), user);
+					Couple<Assessment, MigrationReport> result = 
+						assessmentDataToAssessment(parser.getAssessment(), user);
+					Assessment assessment = result.getFirst();
 					if (assessment != null) {
 						if (assessment.getTaxon() != null) {
 							/*User userToSave;
@@ -250,6 +263,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							}
 							
 							session.save(assessment);
+							
+							result.getSecond().save(assessment, data.getNewVFS());
 							
 							/*if (!assessmentIO.writeAssessment(assessment, userToSave, false).status.isSuccess()) {
 								throw new Exception("The assessment " + file.getPath() + " did not want to save");
@@ -282,12 +297,12 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 
 	}
 	
-	private Taxon getTaxon(AssessmentData assessData) {
+	private Taxon getTaxon(MigrationReport report, AssessmentData assessData) {
 		Taxon taxon = taxonIO.getTaxon(Integer.valueOf(assessData.getSpeciesID()));
 		if (taxon != null && taxon.getFriendlyName().equalsIgnoreCase(assessData.getSpeciesName()))
 			return taxon;
 		else if (taxon != null)
-			printf("Found taxa %s by ID, but name %s doesn't match expected name %s", assessData.getSpeciesID(), taxon.getFriendlyName(), assessData.getSpeciesName());
+			warning(report, "Found taxa %s by ID, but name %s doesn't match expected name %s", assessData.getSpeciesID(), taxon.getFriendlyName(), assessData.getSpeciesName());
 		
 		Taxon byName = (Taxon)session.createCriteria(Taxon.class).
 			add(Restrictions.eq("friendlyName", assessData.getSpeciesName()))
@@ -300,9 +315,11 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return taxon;
 	}
 
-	public Assessment assessmentDataToAssessment(AssessmentData assessData, User user) throws DBException, InstantiationException,
+	public Couple<Assessment, MigrationReport> assessmentDataToAssessment(AssessmentData assessData, User user) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
 		OccurrenceMigratorUtils.migrateOccurrenceData(assessData);
+		
+		MigrationReport report = new MigrationReport();
 		
 		Assessment assessment = new Assessment();
 		assessment.setSchema("org.iucn.sis.server.schemas.redlist");
@@ -311,7 +328,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		assessment.setSourceDate(assessData.getSourceDate());
 		assessment.setType(assessData.getType());
 		assessment.setDateFinalized(assessData.getDateFinalized());
-		assessment.setTaxon(getTaxon(assessData));
+		assessment.setTaxon(getTaxon(report, assessData));
 		
 		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType())) {
 			String dateAssessed = assessData.getDateAssessed();
@@ -346,7 +363,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			Field field = new Field(correctFieldName(curField.getKey()), assessment);
 			
 			//Translate data
-			processField(curField, field);
+			processField(report, curField, field);
 			
 			//Translate references
 			for (ReferenceUI curRef : assessData.getReferences(curField.getKey())) {
@@ -378,7 +395,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 		}
 
-		return assessment;
+		return new Couple<Assessment, MigrationReport>(assessment, report);
 	}
 	
 	private Set<Notes> getNotesForField(String type, String assessmentID, Field field, User user) throws Exception {
@@ -433,7 +450,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return notes;
 	}
 	
-	private void processField(Entry<String, Object> curField, Field field) throws DBException, InstantiationException,
+	private void processField(MigrationReport report, Entry<String, Object> curField, Field field) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
 		Row.Set lookup = getLookup(curField.getKey());
 		
@@ -457,7 +474,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				for( int i = 0; i < numStresses.intValue(); i++ ) {
 					List<String> rawData = dataList.subList(subfieldDataSize*i, (subfieldDataSize*(i+1)) );
 					Field subfield = new Field(subfieldName, null);
-					addPrimitiveDataToField(field.getName(), subfield, rawData, getLookup(subfieldName));
+					addPrimitiveDataToField(report, field.getName(), subfield, rawData, getLookup(subfieldName));
 					subfields.add(subfield);
 				}
 				
@@ -508,7 +525,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			 }
 			 else {
 				 List<String> rawData = (List<String>) (curField.getValue());
-				 addPrimitiveDataToField(curField.getKey(), field, rawData, lookup);
+				 addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);
 			 }
 		} else {
 			// It's a classification scheme!
@@ -519,7 +536,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					List<String> dataList = selected.getValue();
 					dataList.add(0, selected.getKey()); //Add the class scheme ID back in
 
-					addPrimitiveDataToField(curField.getKey(), subfield, dataList, getLookup(subfield.getName()));
+					addPrimitiveDataToField(report, curField.getKey(), subfield, dataList, getLookup(subfield.getName()));
 					subfield.setParent(field);
 					subfields.add(subfield);
 				}
@@ -532,7 +549,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 
 					List<String> threatData = dataList.subList(0, 5);
 					
-					addPrimitiveDataToField(curField.getKey(), subfield, threatData, getLookup(
+					addPrimitiveDataToField(report, curField.getKey(), subfield, threatData, getLookup(
 							subfield.getName()));
 					subfield.setParent(field);
 					
@@ -570,7 +587,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return name;
 	}
 
-	private void addPrimitiveDataToField(String canonicalName, Field field, List<String> rawData,
+	private void addPrimitiveDataToField(MigrationReport report, String canonicalName, Field field, List<String> rawData,
 			Row.Set lookup) throws InstantiationException, IllegalAccessException,
 			DBException {
 		PrimitiveField prim = null;
@@ -580,7 +597,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		debug("Found %s/%s primitive values for %s", rawData.size(), lookup.getSet().size(), canonicalName);
 		
 		if (rawData.size() > lookup.getSet().size()) {
-			error(4, "Found more data in SIS 1 than can fit in SIS 2 for %s\n%s", canonicalName, rawData);
+			error(4, report, "Found more data in SIS 1 than can fit in SIS 2 for %s\n%s", canonicalName, rawData);
 		}
 		
 		for (String curPrimitive : rawData) {
@@ -611,7 +628,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					
 					if (prim instanceof StringPrimitiveField) {
 						if (curPrimitive.length() > 1023) {
-							error(2, "On field %s.%s in assessment %s, this string has been chopped because it is too long: %s", field.getName(), prim.getName(), field.getAssessment().getInternalId(), curPrimitive);
+							error(2, report, "On field %s.%s in assessment %s, this string has been chopped because it is too long: %s", field.getName(), prim.getName(), field.getAssessment().getInternalId(), curPrimitive);
 							
 							curPrimitive = curPrimitive.substring(0, 1023);
 							
@@ -624,7 +641,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 								curRow.get("name").getString() : getTableID(canonicalName, curRow.get("name").getString());
 						((ForeignKeyPrimitiveField) prim).setTableID(lookupTable);
 						
-						Integer index = getIndex(canonicalName, lookupTable, curRow.get("name").getString(), curPrimitive);
+						Integer index = getIndex(report, canonicalName, lookupTable, curRow.get("name").getString(), curPrimitive);
 						if (index > 0)
 							prim.setValue(index);
 						else {
@@ -640,7 +657,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						try {
 							prim.setRawValue(curPrimitive);
 						} catch (Exception e) {
-							error(2, "Error setting foreign key list data '%s' " +
+							error(2, report, "Error setting foreign key list data '%s' " +
 								"for field %s.%s", curPrimitive, prim.getName(), field.getName());
 						}
 						
@@ -680,7 +697,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 										
 										prim.setValue(formatterYear.parse(curPrimitive));
 									} catch (ParseException e3) {
-										error(3, "Unable to parse date for %s.%s on assessment %s: %s", 
+										error(3, report, "Unable to parse date for %s.%s on assessment %s: %s", 
 											curPrimitive, field.getName(), prim.getName(), field.getAssessment().getInternalId());
 										
 										prim.setValue(new Date());
@@ -704,7 +721,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						try {
 							prim.setRawValue(curPrimitive);
 						} catch (NumberFormatException e) {
-							error(3, "NumberFormatException on %s.%s in asm %s: '%s'",
+							error(3, report, "NumberFormatException on %s.%s in asm %s: '%s'",
 								field.getName(), prim.getName(), field.getAssessment().getInternalId(), curPrimitive);
 							
 							Notes note = new Notes();
@@ -743,7 +760,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return canonicalName + "_" + name + "Lookup";
 	}
 	
-	private Integer getIndex(String canonicalName, String libraryTable, String name, String value) throws DBException {
+	private Integer getIndex(MigrationReport report, String canonicalName, String libraryTable, String name, String value) throws DBException {
 //		String table = canonicalName + "_" + name + "Lookup";
 		
 		for( Row row : getLookup(libraryTable).getSet() ) {
@@ -756,7 +773,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				return row.get("id").getInteger();
 		}
 		if( !value.equals("0") ) {
-			error(3, "For %s.%s, didn't find a lookup in %s to match: %s", 
+			error(3, report, "For %s.%s, didn't find a lookup in %s to match: %s", 
 				canonicalName, name, libraryTable, value);
 			return -1;
 		} else
@@ -790,6 +807,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	}
 	
 	private void error(int level, String template, Object... args) {
+		error(level, null, template, args);
+	}
+	
+	private void error(int level, MigrationReport report, String template, Object... args) {
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < level; i++)
 			builder.append('#');
@@ -797,5 +818,20 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		builder.append(template);
 		
 		printf(builder.toString(), args);
+		
+		if (report != null)
+			report.addError(String.format(builder.toString(), args));
 	}
+	
+	private void warning(MigrationReport report, String template, Object... args) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Warning: ");
+		builder.append(template);
+		
+		printf(builder.toString(), args);
+		
+		if (report != null)
+			report.addWarning(String.format(builder.toString(), args));
+	}
+	
 }
