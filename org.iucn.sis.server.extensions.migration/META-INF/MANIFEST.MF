@@ -1,0 +1,22 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: SIS 2.0 Migration
+Bundle-SymbolicName: org.iucn.sis.server.extensions.migration
+Bundle-Version: 2.0.0
+Bundle-Activator: org.iucn.sis.server.extensions.migration.Activator
+Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
+ org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
+ org.iucn.sis.server.api;bundle-version="2.0.0",
+ com.solertium.vfs;bundle-version="1.1.2",
+ org.hibernate;bundle-version="1.0.0",
+ com.solertium.util;bundle-version="1.1.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Import-Package: org.osgi.framework;version="1.4.0",
+ org.restlet,
+ org.restlet.data,
+ org.restlet.engine,
+ org.restlet.representation,
+ org.restlet.resource,
+ org.restlet.routing,
+ org.restlet.util
+Export-Package: org.iucn.sis.server.extensions.migration
