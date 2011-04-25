@@ -62,6 +62,7 @@ import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.Replacer;
 import com.solertium.util.TrivialExceptionHandler;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.vfs.VFS;
 
 public class AssessmentConverter extends GenericConverter<VFSInfo> {
@@ -315,13 +316,13 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return taxon;
 	}
 
-	public Couple<Assessment, MigrationReport> assessmentDataToAssessment(AssessmentData assessData, User user) throws DBException, InstantiationException,
+	public Couple<Assessment, MigrationReport> assessmentDataToAssessment(final AssessmentData assessData, final User user) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
 		OccurrenceMigratorUtils.migrateOccurrenceData(assessData);
 		
-		MigrationReport report = new MigrationReport();
+		final MigrationReport report = new MigrationReport();
 		
-		Assessment assessment = new Assessment();
+		final Assessment assessment = new Assessment();
 		assessment.setSchema("org.iucn.sis.server.schemas.redlist");
 		assessment.setInternalId(assessData.getAssessmentID());
 		assessment.setSource(assessData.getSource());
@@ -359,32 +360,38 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		}
 		assessment.generateFields();
 
-		for (Entry<String, Object> curField : assessData.getDataMap().entrySet()) {
-			Field field = new Field(correctFieldName(curField.getKey()), assessment);
-			
+		for (final Entry<String, Object> curField : assessData.getDataMap().entrySet()) {
 			//Translate data
-			processField(report, curField, field);
-			
-			//Translate references
-			for (ReferenceUI curRef : assessData.getReferences(curField.getKey())) {
-				Reference ref = referenceIO.getReferenceByHashCode(curRef.getReferenceID());
-				if (ref != null) {
-					field.getReference().add(ref);
-//					ref.getField().add(field);
+			processField(report, curField, assessment, new ComplexListener<Field>() {
+				public void handleEvent(Field field) {
+					//Translate references
+					for (ReferenceUI curRef : assessData.getReferences(curField.getKey())) {
+						Reference ref;
+						try {
+							ref = referenceIO.getReferenceByHashCode(curRef.getReferenceID());
+						} catch (PersistentException e) {
+							continue;
+						}
+						
+						if (ref != null) {
+							field.getReference().add(ref);
+//							ref.getField().add(field);
+						}
+					}
+					
+					Set<Notes> notes = null;
+					try {
+						notes = getNotesForField(assessData.getType(), assessData.getAssessmentID(), field, user);
+					} catch (Exception e) {
+						notes = null;
+					}
+					if (notes != null && !notes.isEmpty())
+						field.setNotes(notes);
+					
+					if (field.hasData() || !field.getReference().isEmpty() || !field.getNotes().isEmpty())
+						assessment.getField().add(field);
 				}
-			}
-			
-			Set<Notes> notes = null;
-			try {
-				notes = getNotesForField(assessData.getType(), assessData.getAssessmentID(), field, user);
-			} catch (Exception e) {
-				notes = null;
-			}
-			if (notes != null && !notes.isEmpty())
-				field.setNotes(notes);
-			
-			if (field.hasData() || !field.getReference().isEmpty() || !field.getNotes().isEmpty())
-				assessment.getField().add(field);
+			});
 		}
 
 		for (ReferenceUI curRef : assessData.getReferences("global")) {
@@ -450,8 +457,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return notes;
 	}
 	
-	private void processField(MigrationReport report, Entry<String, Object> curField, Field field) throws DBException, InstantiationException,
+	private void processField(MigrationReport report, Entry<String, Object> curField, Assessment assessment, ComplexListener<Field> callback) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
+		final Field field = new Field(correctFieldName(curField.getKey()), assessment);
+		
 		Row.Set lookup = getLookup(curField.getKey());
 		
 		List<Field> subfields = new ArrayList<Field>();
@@ -481,52 +490,167 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				field.getFields().addAll(subfields);
 			}
 		} else if (curField.getValue() instanceof List) {
-			 if (CanonicalNames.RedListAssessors.equals(curField.getKey()) || 
-					 CanonicalNames.RedListContributors.equals(curField.getKey()) || 
-					 CanonicalNames.RedListEvaluators.equals(curField.getKey())) {
-				 RedListCreditedUserField proxy = new RedListCreditedUserField(field);
-				 
-				 List<String> rawData = (List<String>) (curField.getValue());
-				 if (!rawData.isEmpty()) {
-					 proxy.setText(rawData.get(0));
+			if (CanonicalNames.RedListAssessors.equals(curField.getKey()) || 
+					CanonicalNames.RedListContributors.equals(curField.getKey()) || 
+					CanonicalNames.RedListEvaluators.equals(curField.getKey())) {
+				RedListCreditedUserField proxy = new RedListCreditedUserField(field);
+				
+				List<String> rawData = (List<String>) (curField.getValue());
+				if (!rawData.isEmpty()) {
+					proxy.setText(rawData.get(0));
 					 
-					 StringBuilder order = new StringBuilder();
-					 List<Integer> userIDs = new ArrayList<Integer>();
-					 List<User> users = new ArrayList<User>();
-					 for (int i = 1; i < rawData.size(); i++) {
-						 final Integer userID;
-						 try {
-							 userID = Integer.valueOf(rawData.get(i));
-						 } catch (Exception e) {
-							 continue;
-						 }
+					StringBuilder order = new StringBuilder();
+					List<Integer> userIDs = new ArrayList<Integer>();
+					List<User> users = new ArrayList<User>();
+					for (int i = 1; i < rawData.size(); i++) {
+						final Integer userID;
+						try {
+							userID = Integer.valueOf(rawData.get(i));
+						} catch (Exception e) {
+							continue;
+						}
 						 
-						 userIDs.add(userID);
-						 order.append(userID + ",");
+						userIDs.add(userID);
+						order.append(userID + ",");
 						 
-						 User user = null;
-						 try {
-							 user = (User)session.get(User.class, userID);
-						 } catch (Exception e) {
-							 continue;
-						 }
-						 if (user != null)
-							 users.add(user);
-					 }
+						User user = null;
+						try {
+							user = (User)session.get(User.class, userID);
+						} catch (Exception e) {
+							continue;
+						}
+						if (user != null)
+							users.add(user);
+					}
 					 
-					 if (!userIDs.isEmpty()) {
-						 proxy.setUsers(userIDs);
-						 proxy.setOrder(order.toString().substring(0, order.toString().length()-1));
+					if (!userIDs.isEmpty()) {
+						proxy.setUsers(userIDs);
+						proxy.setOrder(order.toString().substring(0, order.toString().length()-1));
 						 
-						 if ("".equals(proxy.getText()))
-							 proxy.setText(RedListCreditedUserField.generateText(users, proxy.getOrder()));
-					 }
-				 }
-			 }
-			 else {
-				 List<String> rawData = (List<String>) (curField.getValue());
-				 addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);
-			 }
+						if ("".equals(proxy.getText()))
+							proxy.setText(RedListCreditedUserField.generateText(users, proxy.getOrder()));
+					}
+				}
+			}
+			else if (CanonicalNames.InPlaceEducation.equals(curField.getKey())) {
+				List<String> rawData = (List)curField.getValue();
+				if (rawData.size() == 6) {
+					if (!isBlank(rawData.get(0))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 0, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceEducationSubjectToPrograms, 
+							assessment));
+					}
+					 
+					if (!isBlank(rawData.get(2))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 2, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceEducationInternationalLegislation, 
+							assessment));
+					}
+					 
+					if (!isBlank(rawData.get(4))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 4, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceEducationControlled, 
+							assessment));
+					}
+				}
+				else
+					error(4, report, "Found %s, but with only %s data fields.  Failed to convert.\n%s", curField.getKey(), rawData.size(), curField.getValue());
+			}
+			else if (CanonicalNames.InPlaceLandWaterProtection.equals(curField.getKey())) {
+				List<String> rawData = (List)curField.getValue();
+				if (rawData.size() == 10) {
+					if (!isBlank(rawData.get(0))) {
+						int index = Integer.parseInt(rawData.get(0));
+						if (index == 0 && "1".equals(rawData.get(1)))
+							index = 2;
+						else
+							index++;
+						
+						Field controlled = new Field(correctFieldName(org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionSitesIdentified), assessment); 
+						controlled.addPrimitiveField(new ForeignKeyPrimitiveField("value", controlled, index, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceEducationControlled + "_valueLookup"
+						));
+						controlled.addPrimitiveField(new StringPrimitiveField("note", controlled, rawData.get(2)));
+						
+						callback.handleEvent(controlled);
+					}
+					
+					if (!isBlank(rawData.get(3))) {
+						Field inPA = new Field(correctFieldName(org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionInPA), assessment); 
+						inPA.addPrimitiveField(new ForeignKeyPrimitiveField("value", inPA, Integer.valueOf(rawData.get(3))+1, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionInPA + "_valueLookup"
+						));
+						inPA.addPrimitiveField(new StringPrimitiveField("note", inPA, rawData.get(5)));
+						
+						callback.handleEvent(inPA);
+					}
+					
+					if (!isBlank(rawData.get(4))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 4, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionPercentProtected, 
+							assessment));
+					}
+					
+					if (!isBlank(rawData.get(6))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 6, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionAreaPlanned, 
+							assessment));
+					}
+					
+					if (!isBlank(rawData.get(8))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 8, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionInvasiveControl, 
+							assessment));
+					}
+				}
+				else
+					error(4, report, "Found %s, but with only %s data fields.  Failed to convert.\n%s", curField.getKey(), rawData.size(), curField.getValue());
+			}
+			else if (CanonicalNames.InPlaceResearch.equals(curField.getKey())) {
+				List<String> rawData = (List)curField.getValue();
+				if (rawData.size() == 4) {
+					if (!isBlank(rawData.get(0))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 0, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceResearchMonitoringScheme, 
+							assessment));
+					}
+					if (!isBlank(rawData.get(2))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 2, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceResearchRecoveryPlan, 
+							assessment));
+					}
+				}
+				else
+					error(4, report, "Found %s, but with only %s data fields.  Failed to convert.\n%s", curField.getKey(), rawData.size(), curField.getValue());
+			}
+			else if (CanonicalNames.InPlaceSpeciesManagement.equals(curField.getKey())) {
+				List<String> rawData = (List)curField.getValue();
+				if (rawData.size() == 6) {
+					if (!isBlank(rawData.get(0))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 0, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceSpeciesManagementHarvestPlan, 
+							assessment));
+					}
+					
+					if (!isBlank(rawData.get(2))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 2, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceSpeciesManagementReintroduced, 
+							assessment));
+					}
+					
+					if (!isBlank(rawData.get(4))) {
+						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 4, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceSpeciesManagementExSitu, 
+							assessment));
+					}
+				}
+				else
+					error(4, report, "Found %s, but with only %s data fields.  Failed to convert.\n%s", curField.getKey(), rawData.size(), curField.getValue());
+			}
+			else {
+				List<String> rawData = (List<String>) (curField.getValue());
+				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);
+			}
 		} else {
 			// It's a classification scheme!
 			Map<String, List<String>> dataMap = (Map<String, List<String>>) curField.getValue();
@@ -572,6 +696,23 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				field.getFields().addAll(subfields);
 			}
 		}
+		
+		callback.handleEvent(field);
+	}
+	
+	private Field createSimpleInPlaceFieldWithNote(List<String> rawData, int dataIndex, String fieldName, Assessment assessment) {
+		Field field = new Field(correctFieldName(fieldName), assessment);
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(
+			"value", field, Integer.valueOf(rawData.get(dataIndex))+1, 
+			fieldName + "_valueLookup"
+		));
+		field.addPrimitiveField(new StringPrimitiveField("note", field, rawData.get(dataIndex + 1)));
+		
+		return field;
+	}
+	
+	private boolean isBlank(String value) {
+		return value == null || "".equals(value);
 	}
 	
 	/**
