@@ -40,10 +40,19 @@ public interface CanonicalNames {
 	public static String GestationTime = "GestationTime";
 	public static String HabitatContinuingDecline = "HabitatContinuingDecline";
 	public static String HabitatDocumentation = "HabitatDocumentation";
-	public static String InPlaceResearch = "InPlaceResearch";
-	public static String InPlaceSpeciesManagement = "InPlaceSpeciesManagement";
-	public static String InPlaceLandWaterProtection = "InPlaceLandWaterProtection";
-	public static String InPlaceEducation = "InPlaceEducation";
+	public static String InPlaceResearchMonitoringScheme = "InPlaceResearchMonitoringScheme";
+	public static String InPlaceResearchRecoveryPlan = "InPlaceResearchRecoveryPlan";
+	public static String InPlaceSpeciesManagementExSitu = "InPlaceSpeciesManagementExSitu";
+	public static String InPlaceSpeciesManagementHarvestPlan = "InPlaceSpeciesManagementHarvestPlan";
+	public static String InPlaceSpeciesManagementReintroduced = "InPlaceSpeciesManagementReintroduced";
+	public static String InPlaceLandWaterProtectionAreaPlanned = "InPlaceLandWaterProtectionAreaPlanned";
+	public static String InPlaceLandWaterProtectionInPA = "InPlaceLandWaterProtectionInPA";
+	public static String InPlaceLandWaterProtectionInvasiveControl = "InPlaceLandWaterProtectionInvasiveControl";
+	public static String InPlaceLandWaterProtectionPercentProtected = "InPlaceLandWaterProtectionPercentProtected";
+	public static String InPlaceLandWaterProtectionSitesIdentified = "InPlaceLandWaterProtectionSitesIdentified";
+	public static String InPlaceEducationControlled = "InPlaceEducationControlled";
+	public static String InPlaceEducationInternationalLegislation = "InPlaceEducationInternationalLegislation";
+	public static String InPlaceEducationSubjectToPrograms = "InPlaceEducationSubjectToPrograms";
 	public static String Lakes = "Lakes";
 	public static String LandCover = "LandCover";
 	public static String LargeMarineEcosystems = "LargeMarineEcosystems";
@@ -152,8 +161,12 @@ public interface CanonicalNames {
 			EcosystemServicesProvidesNone, EggLaying, ElevationLower, ElevationUpper,
 			ExtinctionProbabilityGenerations3, ExtinctionProbabilityGenerations5, ExtinctionProbabilityYears100,
 			FAOOccurrence, FemaleMaturityAge, FemaleMaturitySize, FreeLivingLarvae, GeneralHabitats, GenerationLength,
-			GestationTime, HabitatContinuingDecline, HabitatDocumentation, InPlaceResearch, InPlaceSpeciesManagement,
-			InPlaceLandWaterProtection, InPlaceEducation, Lakes, LandCover, LargeMarineEcosystems, LiveBirth,
+			GestationTime, HabitatContinuingDecline, HabitatDocumentation, InPlaceResearchMonitoringScheme, InPlaceResearchRecoveryPlan, 
+			InPlaceSpeciesManagementExSitu, InPlaceSpeciesManagementHarvestPlan, InPlaceSpeciesManagementReintroduced,
+			InPlaceLandWaterProtectionAreaPlanned, InPlaceLandWaterProtectionInPA, InPlaceLandWaterProtectionInvasiveControl, 
+			InPlaceLandWaterProtectionPercentProtected, InPlaceLandWaterProtectionSitesIdentified,
+			InPlaceEducationControlled, InPlaceEducationInternationalLegislation, InPlaceEducationSubjectToPrograms,
+			Lakes, LandCover, LargeMarineEcosystems, LiveBirth,
 			Livelihoods, LocationContinuingDecline, LocationExtremeFluctuation, LocationsNumber, Longevity,
 			MaleMaturityAge, MaleMaturitySize, MapStatus, MaxSize, MaxSubpopulationSize, MovementPatterns,
 			NaturalMortality, NonConsumptiveUse, NonConsumptiveUseDescription, NotUtilized, OldDEMPastDecline,
@@ -184,7 +197,12 @@ public interface CanonicalNames {
 			ElevationUpper, ExtinctionProbabilityGenerations3, ExtinctionProbabilityGenerations5,
 			ExtinctionProbabilityYears100, FAOOccurrence, FemaleMaturityAge, FemaleMaturitySize, FreeLivingLarvae,
 			GeneralHabitats, GenerationLength, GestationTime, HabitatContinuingDecline, HabitatDocumentation,
-			InPlaceResearch, InPlaceSpeciesManagement, InPlaceLandWaterProtection, InPlaceEducation, Lakes, LandCover,
+			InPlaceResearchMonitoringScheme, InPlaceResearchRecoveryPlan, 
+			InPlaceSpeciesManagementExSitu, InPlaceSpeciesManagementHarvestPlan, InPlaceSpeciesManagementReintroduced,
+			InPlaceLandWaterProtectionAreaPlanned, InPlaceLandWaterProtectionInPA, InPlaceLandWaterProtectionInvasiveControl, 
+			InPlaceLandWaterProtectionPercentProtected, InPlaceLandWaterProtectionSitesIdentified,
+			InPlaceEducationControlled, InPlaceEducationInternationalLegislation, InPlaceEducationSubjectToPrograms,
+			Lakes, LandCover,
 			LargeMarineEcosystems, LiveBirth, Livelihoods, LocationContinuingDecline, LocationExtremeFluctuation,
 			LocationsNumber, Longevity, MaleMaturityAge, MaleMaturitySize, MapStatus, MaxSize, MaxSubpopulationSize,
 			MovementPatterns, NaturalMortality, NoThreats, NonConsumptiveUse, NonConsumptiveUseDescription, NotUtilized,
@@ -220,7 +238,11 @@ public interface CanonicalNames {
 		HabitatContinuingDecline, PlantGrowthForms, UseTradeDetails, CropWildRelative, NoThreats, ThreatsUnknown,
 		UseTradeNoInformation, NonConsumptiveUse, NonConsumptiveUseDescription,
 		TrendInDomesticOfftake, TrendInWildOfftake, Livelihoods, Threats, ConservationActions,
-		InPlaceEducation, InPlaceLandWaterProtection, InPlaceResearch, InPlaceSpeciesManagement, 
+		InPlaceResearchMonitoringScheme, InPlaceResearchRecoveryPlan, 
+		InPlaceSpeciesManagementExSitu, InPlaceSpeciesManagementHarvestPlan, InPlaceSpeciesManagementReintroduced,
+		InPlaceLandWaterProtectionAreaPlanned, InPlaceLandWaterProtectionInPA, InPlaceLandWaterProtectionInvasiveControl, 
+		InPlaceLandWaterProtectionPercentProtected, InPlaceLandWaterProtectionSitesIdentified,
+		InPlaceEducationControlled, InPlaceEducationInternationalLegislation, InPlaceEducationSubjectToPrograms,
 		EcosystemServices, EcosystemServicesInsufficientInfo, EcosystemServicesProvidesNone };
 	
 	public static String [] narrativeFields = new String [] { 
