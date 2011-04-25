@@ -307,9 +307,14 @@
 						<composite>
 							<field id="InPlaceLandWaterProtectionSitesIdentified"></field>
 							<field id="InPlaceLandWaterProtectionInPA"></field>
+						</composite>
+						<composite>
 							<field id="InPlaceLandWaterProtectionPercentProtected"></field>
 							<field id="InPlaceLandWaterProtectionAreaPlanned"></field>
+						</composite>
+						<composite>
 							<field id="InPlaceLandWaterProtectionInvasiveControl"></field>
+							<field id="_blank"></field>
 						</composite>
 						<h1>In-Place Species Management</h1>
 						<composite>
