@@ -1,6 +1,8 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.iucn.sis.shared.api.data.LookupData;
@@ -59,7 +61,9 @@ public class SISQualifier extends SISPrimitiveStructure<Integer> {
 		listbox.addItem("--- Select ---", "");
 		
 		LookupData myData = ((LookupData)data);
-		List<LookupDataValue> listItemsToAdd = myData.getValues();
+		List<LookupDataValue> listItemsToAdd = 
+			new ArrayList<LookupDataValue>(myData.getValues());
+		Collections.sort(listItemsToAdd, new QualifierComparator());
 		
 		for (LookupDataValue value : listItemsToAdd)
 			listbox.addItem(value.getLabel(), value.getID());
@@ -125,5 +129,33 @@ public class SISQualifier extends SISPrimitiveStructure<Integer> {
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		listbox.setEnabled(isEnabled);
+	}
+	
+	private static class QualifierComparator implements Comparator<LookupDataValue> {
+		
+		private final List<String> order;
+		
+		public QualifierComparator() {
+			order = new ArrayList<String>();
+			order.add("Observed");
+			order.add("Estimated");
+			order.add("Projected");
+			order.add("Inferred");
+			order.add("Suspected");
+		}
+		
+		@Override
+		public int compare(LookupDataValue arg0, LookupDataValue arg1) {
+			int left = order.indexOf(arg0.getLabel());
+			int right = order.indexOf(arg1.getLabel());
+			
+			if (left == -1)
+				return 1;
+			else if (right == -1)
+				return 1;
+			else
+				return Integer.valueOf(left).compareTo(right);
+		}
+		
 	}
 }
