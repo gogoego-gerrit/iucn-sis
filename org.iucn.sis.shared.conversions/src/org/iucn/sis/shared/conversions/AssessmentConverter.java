@@ -532,22 +532,35 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					}
 				}
 			}
+			else if (CanonicalNames.RedListSource.equals(curField.getKey())) {
+				List<String> rawData = (List)curField.getValue();
+				if (rawData.size() == 2 && "MOST RECENT-NEEDS UPDATING".equals(rawData.get(1))) {
+					warning(report, false, "RedListSource needs updating: %s", rawData);
+					
+					List<String> slimData = new ArrayList<String>();
+					slimData.add(rawData.get(0));
+					
+					rawData = slimData;
+				}
+					
+				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);	
+			}
 			else if (CanonicalNames.InPlaceEducation.equals(curField.getKey())) {
 				List<String> rawData = (List)curField.getValue();
-				if (rawData.size() == 6) {
-					if (!isBlank(rawData.get(0))) {
+				if (!rawData.isEmpty()) {
+					if (!isBlank(rawData, 0)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 0, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceEducationSubjectToPrograms, 
 							assessment));
 					}
 					 
-					if (!isBlank(rawData.get(2))) {
+					if (!isBlank(rawData, 2)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 2, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceEducationInternationalLegislation, 
 							assessment));
 					}
 					 
-					if (!isBlank(rawData.get(4))) {
+					if (!isBlank(rawData, 4)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 4, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceEducationControlled, 
 							assessment));
@@ -558,8 +571,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			else if (CanonicalNames.InPlaceLandWaterProtection.equals(curField.getKey())) {
 				List<String> rawData = (List)curField.getValue();
-				if (rawData.size() == 10) {
-					if (!isBlank(rawData.get(0))) {
+				if (!rawData.isEmpty()) {
+					if (!isBlank(rawData, 0)) {
 						int index = Integer.parseInt(rawData.get(0));
 						if (index == 0 && "1".equals(rawData.get(1)))
 							index = 2;
@@ -575,7 +588,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						callback.handleEvent(controlled);
 					}
 					
-					if (!isBlank(rawData.get(3))) {
+					if (!isBlank(rawData, 3)) {
 						Field inPA = new Field(correctFieldName(org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionInPA), assessment); 
 						inPA.addPrimitiveField(new ForeignKeyPrimitiveField("value", inPA, Integer.valueOf(rawData.get(3))+1, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionInPA + "_valueLookup"
@@ -585,19 +598,24 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						callback.handleEvent(inPA);
 					}
 					
-					if (!isBlank(rawData.get(4))) {
-						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 4, 
-							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionPercentProtected, 
-							assessment));
+					if (!isBlank(rawData, 4)) {						
+						Field percentProtected = 
+							new Field(correctFieldName(org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionPercentProtected), assessment);
+						percentProtected.addPrimitiveField(new StringPrimitiveField(
+							"value", percentProtected, rawData.get(4)
+						));
+						percentProtected.addPrimitiveField(new StringPrimitiveField("note", percentProtected, rawData.get(5)));
+						
+						callback.handleEvent(percentProtected);
 					}
 					
-					if (!isBlank(rawData.get(6))) {
+					if (!isBlank(rawData, 6)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 6, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionAreaPlanned, 
 							assessment));
 					}
 					
-					if (!isBlank(rawData.get(8))) {
+					if (!isBlank(rawData, 8)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 8, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceLandWaterProtectionInvasiveControl, 
 							assessment));
@@ -608,13 +626,13 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			else if (CanonicalNames.InPlaceResearch.equals(curField.getKey())) {
 				List<String> rawData = (List)curField.getValue();
-				if (rawData.size() == 4) {
-					if (!isBlank(rawData.get(0))) {
+				if (!rawData.isEmpty()) {
+					if (!isBlank(rawData, 0)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 0, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceResearchMonitoringScheme, 
 							assessment));
 					}
-					if (!isBlank(rawData.get(2))) {
+					if (!isBlank(rawData, 2)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 2, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceResearchRecoveryPlan, 
 							assessment));
@@ -625,20 +643,20 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			else if (CanonicalNames.InPlaceSpeciesManagement.equals(curField.getKey())) {
 				List<String> rawData = (List)curField.getValue();
-				if (rawData.size() == 6) {
-					if (!isBlank(rawData.get(0))) {
+				if (!rawData.isEmpty()) {
+					if (!isBlank(rawData, 0)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 0, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceSpeciesManagementHarvestPlan, 
 							assessment));
 					}
 					
-					if (!isBlank(rawData.get(2))) {
+					if (!isBlank(rawData, 2)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 2, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceSpeciesManagementReintroduced, 
 							assessment));
 					}
 					
-					if (!isBlank(rawData.get(4))) {
+					if (!isBlank(rawData, 4)) {
 						callback.handleEvent(createSimpleInPlaceFieldWithNote(rawData, 4, 
 							org.iucn.sis.shared.api.utils.CanonicalNames.InPlaceSpeciesManagementExSitu, 
 							assessment));
@@ -711,8 +729,9 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return field;
 	}
 	
-	private boolean isBlank(String value) {
-		return value == null || "".equals(value);
+	private boolean isBlank(List<String> rawData, int index) {
+		return index < 0 || index >= rawData.size() || 
+			rawData.get(index) == null || "".equals(rawData.get(index));
 	}
 	
 	/**
@@ -965,11 +984,16 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	}
 	
 	private void warning(MigrationReport report, String template, Object... args) {
+		warning(report, true, template, args);
+	}
+	
+	private void warning(MigrationReport report, boolean debug, String template, Object... args) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Warning: ");
 		builder.append(template);
 		
-		printf(builder.toString(), args);
+		if (debug)
+			printf(builder.toString(), args);
 		
 		if (report != null)
 			report.addWarning(String.format(builder.toString(), args));

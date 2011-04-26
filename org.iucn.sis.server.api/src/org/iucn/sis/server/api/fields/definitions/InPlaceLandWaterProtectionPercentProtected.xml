@@ -29,13 +29,13 @@
 					</structure>
 				</dependentStructures>
 				<rules>
-					<contentRule>
-						<activateOnContent></activateOnContent>
+					<selectRule>
+						<activateOnIndex>0</activateOnIndex>
 						<actions>
 							<onTrue>hide</onTrue>
 							<onFalse>show</onFalse>
 						</actions>
-					</contentRule>
+					</selectRule>
 				</rules>
 			</relatedStructure>
 		</structure>
