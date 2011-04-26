@@ -298,12 +298,12 @@
 						<field id="InPlaceEducation"></field>
 					</organization>
 					<organization shortTitle="New In-Place" title="New Conservation Actions In-Place">
-						<h1>In-Place Research, Monitoring and Planning</h1>
+						<h3>In-Place Research, Monitoring and Planning</h3>
 						<composite>
 							<field id="InPlaceResearchRecoveryPlan"></field>
 							<field id="InPlaceResearchMonitoringScheme"></field>
 						</composite>
-						<h1>In-Place Land/Water Protection and Management</h1>
+						<h3>In-Place Land/Water Protection and Management</h3>
 						<composite>
 							<field id="InPlaceLandWaterProtectionSitesIdentified"></field>
 							<field id="InPlaceLandWaterProtectionInPA"></field>
@@ -316,13 +316,13 @@
 							<field id="InPlaceLandWaterProtectionInvasiveControl"></field>
 							<field id="_blank"></field>
 						</composite>
-						<h1>In-Place Species Management</h1>
+						<h3>In-Place Species Management</h3>
 						<composite>
 							<field id="InPlaceSpeciesManagementHarvestPlan"></field>
 							<field id="InPlaceSpeciesManagementReintroduced"></field>
 							<field id="InPlaceSpeciesManagementexSitu"></field>
 						</composite>
-						<h1>In-Place Education</h1>
+						<h3>In-Place Education</h3>
 						<composite>
 							<field id="InPlaceEducationSubjectToPrograms"></field>
 							<field id="InPlaceEducationInternationalLegislation"></field>
