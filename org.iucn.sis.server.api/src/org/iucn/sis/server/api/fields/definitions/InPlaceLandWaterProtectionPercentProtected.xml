@@ -7,7 +7,20 @@
 			<relatedStructure>
 				<dominantStructures>
 					<structure id="value">
-						<number></number>
+						<band>
+							<option>0</option>
+							<option>1-10</option>
+							<option>11-20</option>
+							<option>21-30</option>
+							<option>31-40</option>
+							<option>41-50</option>
+							<option>51-60</option>
+							<option>61-70</option>
+							<option>71-80</option>
+							<option>81-90</option>
+							<option>91-100</option>
+							<option>custom</option>
+						</band>
 					</structure>
 				</dominantStructures>
 				<dependentStructures>
