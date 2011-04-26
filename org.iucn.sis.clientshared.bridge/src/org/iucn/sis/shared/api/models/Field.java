@@ -252,7 +252,7 @@ public class Field implements Serializable {
 			primitiveField = new HashSet<PrimitiveField>();
 		
 		PrimitiveField<?> existing = getPrimitiveField(field.getName());
-		if (existing == null)
+		if (existing != null)
 			primitiveField.remove(existing);
 		
 		primitiveField.add(field);
