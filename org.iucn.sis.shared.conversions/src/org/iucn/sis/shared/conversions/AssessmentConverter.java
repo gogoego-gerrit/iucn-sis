@@ -534,11 +534,11 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			else if (CanonicalNames.RedListSource.equals(curField.getKey())) {
 				List<String> rawData = (List)curField.getValue();
-				if (rawData.size() == 2 && "MOST RECENT-NEEDS UPDATING".equals(rawData.get(1))) {
+				if (rawData.size() == 2 && rawData.contains("MOST RECENT-NEEDS UPDATING")) {
 					warning(report, false, "RedListSource needs updating: %s", rawData);
 					
-					List<String> slimData = new ArrayList<String>();
-					slimData.add(rawData.get(0));
+					List<String> slimData = new ArrayList<String>(rawData);
+					slimData.remove("MOST RECENT-NEEDS UPDATING");
 					
 					rawData = slimData;
 				}
