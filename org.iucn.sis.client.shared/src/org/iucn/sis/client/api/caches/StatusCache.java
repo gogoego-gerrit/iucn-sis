@@ -14,6 +14,7 @@ import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.Timer;
+import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -128,23 +129,22 @@ public class StatusCache {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 			ndoc.get(UriBase.getInstance().getSISBase() + "/status/assessment/" + assessment.getId() + "/" + assessment.getType() + "/" + date,
 					new GenericCallback<String>() {
-						public void onFailure(Throwable caught) {
-							// Do nothing. No lock!
-							callback.onSuccess(UNLOCKED);
-						}
-
-						public void onSuccess(String result) {
-							if (ndoc.getDocumentElement().getNodeName().equalsIgnoreCase("save_lock")) {
-								sayAssessmentLocked(ndoc, callback);
-							} else if (ndoc.getDocumentElement().getNodeName().equalsIgnoreCase("checked_out")) {
-								sayAssessmentCheckedOut(ndoc, callback);
-							} else if (ndoc.getDocumentElement().getNodeName().equalsIgnoreCase("update")) {
-								sayAssessmentNeedsUpdate(assessment, ndoc, forceUpdate, callback);
-							} else {
-								callback.onSuccess(UNLOCKED);
-							}
-						}
-					});
+				public void onFailure(Throwable caught) {
+					// Do nothing. No lock!
+					callback.onSuccess(UNLOCKED);
+				}
+				public void onSuccess(String result) {
+					if (ndoc.getDocumentElement().getNodeName().equalsIgnoreCase("save_lock")) {
+						sayAssessmentLocked(ndoc, callback);
+					} else if (ndoc.getDocumentElement().getNodeName().equalsIgnoreCase("checked_out")) {
+						sayAssessmentCheckedOut(ndoc, callback);
+					} else if (ndoc.getDocumentElement().getNodeName().equalsIgnoreCase("update")) {
+						sayAssessmentNeedsUpdate(assessment, ndoc, forceUpdate, callback);
+					} else {
+						callback.onSuccess(UNLOCKED);
+					}
+				}
+			});
 		} else if (curStatus.type == NEEDS_UPDATE) {
 			sayAssessmentNeedsUpdate(assessment, null, forceUpdate, callback);
 		} else if (curStatus.type == HAS_LOCK) {
@@ -203,7 +203,7 @@ public class StatusCache {
 				+ "prompt you to <b>revert your changes and update</b> to the " + "newest version of this assessment."
 				+ "<br>**Assessment was checked out by: " + owner);
 
-		callback.onFailure(new Exception("Checked out."));
+		callback.onFailure(new GWTResponseException(CHECKED_OUT, "Checked out."));
 	}
 
 	public void sayAssessmentLocked(final NativeDocument ndoc, final GenericCallback<Integer> callback) {
@@ -220,7 +220,7 @@ public class StatusCache {
 					+ "stop editing the assessment until you do not receive this message "
 					+ "when you select it as your current assessment." + "<br>** Assessment Locked by: " + owner);
 
-			callback.onFailure(new Exception("Locked."));
+			callback.onFailure(new GWTResponseException(LOCKED, "Locked"));
 		}
 	}
 
@@ -247,8 +247,8 @@ public class StatusCache {
 					public void handleEvent(MessageBoxEvent we) {
 						if (we.getButtonClicked().getText().equalsIgnoreCase("Update")) {
 							doUpdate(assessment, ndoc, callback);
-							callback.onFailure(new Exception("Stale version updated."));
-						} else if (we.getButtonClicked().getText().equalsIgnoreCase("OVerride")) {
+							//callback.onFailure(new Exception("Stale version updated."));
+						} else if (we.getButtonClicked().getText().equalsIgnoreCase("Override")) {
 							callback.onSuccess(StatusCache.UNLOCKED);
 						} else {
 							callback.onFailure(new Exception("Nothing doing."));

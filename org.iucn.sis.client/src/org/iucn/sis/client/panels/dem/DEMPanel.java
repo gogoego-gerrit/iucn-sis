@@ -8,6 +8,7 @@ import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
+import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
@@ -46,6 +47,8 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
+import com.solertium.lwxml.gwt.utils.ClientDocumentUtils;
+import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
@@ -99,24 +102,48 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 	}
 	
 	@Override
-	protected void drawBody(DoneDrawingCallback callback) {
-		if (bodyContainer.getItemCount() == 0) {
-			BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
-			toolBarData.setSize(25);
-			
-			BorderLayoutData scrollerData = new BorderLayoutData(LayoutRegion.CENTER, .82f, 300, 3000);
-			
-			final LayoutContainer container = new LayoutContainer(new BorderLayout());
-			container.add(toolBar, toolBarData);
-			container.add(scroller, scrollerData);
-			
-			bodyContainer.removeAll();
-			bodyContainer.add(container);
-		}
-		else
-			redraw();
-		
-		callback.isDrawn();
+	protected void drawBody(final DoneDrawingCallback callback) {
+		StatusCache.impl.checkStatus(AssessmentCache.impl.getAssessment(getSelectedItem()), true, new GenericCallback<Integer>() {
+			public void onSuccess(Integer result) {
+				if (result == StatusCache.LOCKED)
+					toolBar.setViewOnly(viewOnly = true, false);
+				else
+					toolBar.setViewOnly(viewOnly = true, true);
+				
+					
+				if (bodyContainer.getItemCount() == 0) {
+					BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
+					toolBarData.setSize(25);
+					
+					BorderLayoutData scrollerData = new BorderLayoutData(LayoutRegion.CENTER, .82f, 300, 3000);
+					
+					final LayoutContainer container = new LayoutContainer(new BorderLayout());
+					container.add(toolBar, toolBarData);
+					container.add(scroller, scrollerData);
+					
+					bodyContainer.removeAll();
+					bodyContainer.add(container);
+				}
+				else
+					redraw();
+				
+				callback.isDrawn();
+			}
+			public void onFailure(Throwable caught) {
+				if (caught instanceof GWTResponseException) {
+					int code = ((GWTResponseException)caught).getCode();
+					if (code == StatusCache.CHECKED_OUT || code == StatusCache.LOCKED) {
+						onSuccess(StatusCache.LOCKED);
+					}
+					else {
+						//TODO: what should be done in this case?
+						onSuccess(StatusCache.UNLOCKED);
+					}
+				}
+				else
+					onSuccess(StatusCache.UNLOCKED);
+			}
+		});
 	}
 	
 	@Override

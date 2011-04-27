@@ -623,6 +623,10 @@ public class DEMToolbar extends ToolBar {
 	}
 	
 	public void setViewOnly(boolean viewOnly) {
+		setViewOnly(viewOnly, editViewButton.isEnabled());
+	}
+	
+	public void setViewOnly(boolean viewOnly, boolean enabled) {
 		if (viewOnly) {
 			editViewButton.setText("Edit Data Mode");
 			editViewButton.setIconStyle("icon-unlocked");
@@ -631,6 +635,7 @@ public class DEMToolbar extends ToolBar {
 			editViewButton.setText("Read Only Mode");
 			editViewButton.setIconStyle("icon-read-only");
 		}
+		editViewButton.setEnabled(enabled);
 	}
 	
 	@SuppressWarnings("unused")
