@@ -137,8 +137,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		});
 	}
 	
-	public static void getSortedTaxa(final ComplexListener<List<Taxon>> callback) {
-		final WorkingSet ws = StateManager.impl.getWorkingSet();
+	public static void getSortedTaxa(final WorkingSet ws, final ComplexListener<List<Taxon>> callback) {
 		if (ws == null) {
 			callback.handleEvent(new ArrayList<Taxon>(TaxonomyCache.impl.getRecentlyAccessed()));
 		}
@@ -159,8 +158,8 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		}
 	}
 	
-	public static void getSortedTaxaIDs(final ComplexListener<List<Integer>> callback) {
-		getSortedTaxa(new ComplexListener<List<Taxon>>() {
+	public static void getSortedTaxaIDs(final WorkingSet ws, final ComplexListener<List<Integer>> callback) {
+		getSortedTaxa(ws, new ComplexListener<List<Taxon>>() {
 			public void handleEvent(List<Taxon> eventData) {
 				final List<Integer> list = new ArrayList<Integer>();
 				for (Taxon set : eventData)

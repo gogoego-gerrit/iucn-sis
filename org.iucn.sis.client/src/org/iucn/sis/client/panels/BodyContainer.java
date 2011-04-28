@@ -79,7 +79,7 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openTaxon(final String url, final boolean updateNavigation) {
-		MonkeyNavigator.getSortedTaxaIDs(new ComplexListener<List<Integer>>() {
+		MonkeyNavigator.getSortedTaxaIDs(StateManager.impl.getWorkingSet(), new ComplexListener<List<Integer>>() {
 			public void handleEvent(List<Integer> items) {
 				taxonHomePage.setUrl(url);
 				taxonHomePage.setItems(items);

@@ -58,7 +58,7 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 	}
 	
 	protected void getStore(final GenericCallback<ListStore<NavigationModelData<Taxon>>> callback) {
-		MonkeyNavigator.getSortedTaxa(new ComplexListener<List<Taxon>>() {
+		MonkeyNavigator.getSortedTaxa(curNavWorkingSet, new ComplexListener<List<Taxon>>() {
 			public void handleEvent(List<Taxon> eventData) {
 				if (curNavWorkingSet == null)
 					getRecentTaxonStore(eventData, callback);
