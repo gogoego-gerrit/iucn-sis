@@ -9,6 +9,7 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.permissions.PermissionUserModel.PermissionsModelData;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
@@ -41,7 +42,6 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
@@ -49,7 +49,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.client.ui.HTMLTable.Cell;
 import com.solertium.util.events.ComplexListener;
-import com.solertium.util.extjs.client.CheckboxMultiTriggerField;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
@@ -113,7 +112,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		associatedPermissions.addFilter(new StoreFilter<PermissionUserModel>() {
 			public boolean select(Store<PermissionUserModel> store, PermissionUserModel parent,
 					PermissionUserModel item, String property) {
-				if( property.equals("permission") && item.getPermission() != null && item.getPermission().indexOf("write") > -1 )
+				if( property.equals("permission") && item.getPermission() != null && item.getPermission().toCSV().indexOf("write") > -1 )
 					return AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS);
 				else
 					return true;
@@ -233,22 +232,16 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		
 		ColumnConfig permissionColumn = new ColumnConfig("permission",
 				"Basic Permissions", widthOfPermissionColumn);
-		CheckboxMultiTriggerField permissionField = new CheckboxMultiTriggerField(getOptions(), ",") {
-			@Override
-			public boolean validateValue(String value) {
-				if (value == null || value.equalsIgnoreCase("")) {
-					Window.alert("Must give some permission or remove from permission list.");
-					setRawValue(read);
-					layout();
-					return true;
-				} else if (super.validateValue(value))
-					return true;
-				else{
-					Window.alert("failed");
-					return true;
-				}
-			}
-		};
+		
+		final PermissionComboBox permissionField = new PermissionComboBox();
+				
+		final ListStore<PermissionUserModel.PermissionsModelData> store = 
+			new ListStore<PermissionsModelData>();
+		for (String perm : new String[] { read, write, assign })
+			store.add(new PermissionsModelData(perm));
+						
+		permissionField.setStore(store);
+		
 		CellEditor editor = new CellEditor(permissionField);
 		editor.setCompleteOnEnter(true);
 		editor.setCancelOnEsc(true);
@@ -273,7 +266,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		associatedPermissions.addFilter(new StoreFilter<PermissionUserModel>() {
 			public boolean select(Store<PermissionUserModel> store, PermissionUserModel parent,
 					PermissionUserModel item, String property) {
-				if( property.equals("permission") && item.getPermission() != null && item.getPermission().indexOf("write") > -1 )
+				if( property.equals("permission") && item.getPermission() != null && item.getPermission().toCSV().indexOf("write") > -1 )
 					return AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS);
 				else
 					return true;
@@ -476,7 +469,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 			super();
 			this.defaultPermission = defaultPermission;
 			this.model = model;
-			String value = model.getPermission();
+			PermissionUserModel.PermissionsModelData value = model.getPermission();
 			for (String option : options) {
 				CheckBox box = new CheckBox();
 				box.setName(option);
@@ -485,7 +478,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 						updateModel();
 					}
 				});
-				box.setValue(value.contains(option));
+				box.setValue(value.hasPermission(option));
 				add(box);
 				add(new HTML(option));
 			}

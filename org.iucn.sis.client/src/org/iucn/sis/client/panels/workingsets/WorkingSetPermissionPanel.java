@@ -67,8 +67,8 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 				}
 
 				setAssociatedPermissions(model);
-				//draw();
-				drawSimple();
+				draw();
+				//drawSimple();
 				
 				callback.isDrawn();
 			}
@@ -120,7 +120,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 		models.commitChanges();
 		
 		for( final PermissionUserModel cur : models.getModels() ) {
-			String [] perms = cur.getPermission().split(",");
+			List<String> perms = cur.getPermission().toList();
 			String permGroupName = "ws" + WorkingSetCache.impl.getCurrentWorkingSet().getId();
 			String permAssessorGroup = permGroupName + "assessor";
 			boolean read = false, write = false, grant = false; 
