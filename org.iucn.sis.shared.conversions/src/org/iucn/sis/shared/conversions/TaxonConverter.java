@@ -523,6 +523,15 @@ public class TaxonConverter extends GenericConverter<String> {
 		// ADD SYNONYMS
 		for (SynonymData synData : taxon.getSynonyms()) {
 			Synonym synonym = new Synonym();
+			synonym.setTaxon_level(TaxonLevel.getTaxonLevel(synData.getLevel()));
+			
+			if (synData.getLevel() != TaxonLevel.INFRARANK) {
+				//Adding 1 because SIS 1 starts @ 0, SIS 2 starts @ 1.
+				int infrarankLevel = synData.getInfrarankType() + 1;
+				
+				synonym.setTaxon_level(TaxonLevel.getTaxonLevel(TaxonLevel.INFRARANK));
+				synonym.setInfraTypeObject(Infratype.getInfratype(infrarankLevel));
+			}
 			
 			for (Entry<String, String> entry : synData.getAuthorities().entrySet())
 				synonym.setAuthority(entry.getValue(), Integer.valueOf(entry.getKey()));
