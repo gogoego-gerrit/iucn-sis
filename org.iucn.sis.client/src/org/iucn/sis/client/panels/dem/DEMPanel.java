@@ -47,7 +47,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTML;
-import com.solertium.lwxml.gwt.utils.ClientDocumentUtils;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
@@ -105,11 +104,10 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 	protected void drawBody(final DoneDrawingCallback callback) {
 		StatusCache.impl.checkStatus(AssessmentCache.impl.getAssessment(getSelectedItem()), true, new GenericCallback<Integer>() {
 			public void onSuccess(Integer result) {
-				if (result == StatusCache.LOCKED)
-					toolBar.setViewOnly(viewOnly = true, false);
+				if (result == StatusCache.UNLOCKED || result == StatusCache.HAS_LOCK)
+					toolBar.setViewOnly(viewOnly, true);
 				else
-					toolBar.setViewOnly(viewOnly = true, true);
-				
+					toolBar.setViewOnly(viewOnly = true, false);
 					
 				if (bodyContainer.getItemCount() == 0) {
 					BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
