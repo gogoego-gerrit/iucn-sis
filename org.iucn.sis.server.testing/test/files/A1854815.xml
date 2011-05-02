@@ -1,0 +1,403 @@
+<assessment id="1854815" internalID="3898_0"><source><![CDATA[]]></source><sourceDate><![CDATA[]]></sourceDate><schema><![CDATA[org.iucn.sis.server.schemas.redlist]]></schema><taxon id="3898" name="insculpta" fullname="Carettochelys insculpta"/><assessment_type id="2"/><edit id="1854816" ><user><id>1954</id><username><![CDATA[admin]]></username><email><![CDATA[gogoego.tests@gmail.com]]></email><firstName><![CDATA[The]]></firstName><lastName><![CDATA[Administrator]]></lastName></user><date>1303922598929</date></edit><fields><Longevity version="2" id="1854844">
+<longevity id="1854845" type="StringPrimitiveField"><![CDATA[unknown]]></longevity>
+</Longevity>
+<RedListEvaluators version="2" id="1854846">
+<order id="1854847" type="StringPrimitiveField"><![CDATA[0]]></order>
+<value id="1854848" type="ForeignKeyListPrimitiveField" tableID="user"><![CDATA[0]]></value>
+</RedListEvaluators>
+<Parthenogenesis version="2" id="1854833">
+<exhibitsParthenogenesis id="1854834" type="BooleanUnknownPrimitiveField"><![CDATA[2]]></exhibitsParthenogenesis>
+</Parthenogenesis>
+<LocationContinuingDecline version="2" id="1854835">
+<inDecline id="1854836" type="BooleanRangePrimitiveField"><![CDATA[1]]></inDecline>
+<qualifier id="1854837" type="ForeignKeyPrimitiveField" tableID="LocationContinuingDecline_qualifierLookup"><![CDATA[4]]></qualifier>
+</LocationContinuingDecline>
+<RangeDocumentation version="2" id="1855111">
+
+<narrative id="1855112" type="TextPrimitiveField"><![CDATA[Carettochelys insculpta occurs in the rivers of southern New Guinea (both West Papua, Indonesia, and Papua New guinea) and the rivers of the Northern Territory of Australia. In the NT, it occurs in the Victoria, Daly, East Alligator and South Alligator river systems, and possibly in other rivers. In New Guinea the precise limits of distribution are undetermined. (Iverson, 1992; Cann, 1998; Rhodin & Genorupa, 2000; Georges et al., 2008).<br/>Bold]]></narrative>
+</RangeDocumentation>
+<RedListCriteria version="2" id="1854838">
+<autoCategory id="1854841" type="StringPrimitiveField"><![CDATA[CR]]></autoCategory>
+<autoCriteria id="1854839" type="StringPrimitiveField"><![CDATA[B1ab(i,iv)c(i)]]></autoCriteria>
+<isManual id="1854840" type="BooleanPrimitiveField"><![CDATA[true]]></isManual>
+<manualCategory id="1854843" type="StringPrimitiveField"><![CDATA[VU]]></manualCategory>
+<manualCriteria id="1854842" type="StringPrimitiveField"><![CDATA[A2d+4d]]></manualCriteria>
+</RedListCriteria>
+<EOOExtremeFluctuation version="2" id="1854825">
+<isFluctuating id="1854826" type="BooleanRangePrimitiveField"><![CDATA[1]]></isFluctuating>
+</EOOExtremeFluctuation>
+<LiveBirth version="2" id="1854827">
+<liveBirth id="1854828" type="BooleanUnknownPrimitiveField"><![CDATA[2]]></liveBirth>
+</LiveBirth>
+<SevereFragmentation version="2" id="1854829">
+<isFragmented id="1854830" type="BooleanRangePrimitiveField"><![CDATA[0]]></isFragmented>
+
+</SevereFragmentation>
+<FemaleMaturityAge version="2" id="1854831">
+<age id="1854832" type="StringPrimitiveField"><![CDATA[unknown]]></age>
+</FemaleMaturityAge>
+<OldDEMPeriodFutureDecline version="2" id="1854817">
+<value id="1854818" type="StringPrimitiveField"><![CDATA[15 years / 1 generation]]></value>
+</OldDEMPeriodFutureDecline>
+<MaleMaturityAge version="2" id="1854819">
+<age id="1854820" type="StringPrimitiveField"><![CDATA[unknown]]></age>
+</MaleMaturityAge>
+<ConservationActionsDocumentation version="2" id="1855002">
+<narrative id="1855003" type="TextPrimitiveField"><![CDATA[Carettochelys insculpta was included in CITES Appendix II in 2004, restricting international trade to quantities that should not be detrimental to the survival of the species in the wild. It is protected in Kakadu NP by the National Parks and Wildlife Conservation Act 1975, and elsewhere in the NT by the Territory Parks and Wildlife Conservation Act 1982. In PNG, export is strictly controlled but domestic exploitation is largely unregulated. In West Papua, Indonesia, harvest of eggs for incubation and subsequent export of hatchlings as ‘captive-bred’ is managed by a quota system, while protective measures to prevent exploitation of mature animals is rarely enforced (Rhodin & Genorupa, 2000; Samedi & Iskandar, 2000; Georges et al., 2008, and references therein). <br/>Significant populations of Carettochelys are confirmed to inhabit Kakadu NP, Flora River Nature Park, and several Conservation Areas in the NT (Georges et al., 2008), and in New Guinea it has been recorded from Tonda WMA in PNG (Georges et al., 2008, and references therein), and Wasur and Lorentz NPs in West Papua (Samedi & Iskandar, 2000). <br/><br/>Future conservation priorities include (further) status surveys across key parts of the range and biological and sociological research aimed at developing sustainable management schemes for harvest of eggs and adults for subsistence consumption, and eggs / hatchlings for the pet trade, combined with increased enforcement of regulations to address illegal and unsustainable trade.]]></narrative>
+</ConservationActionsDocumentation>
+<RegionInformation version="2" id="1854821">
+<regions id="1854822" type="ForeignKeyListPrimitiveField" tableID="RegionInformation_regionsLookup"><![CDATA[1]]></regions>
+</RegionInformation>
+<Research version="2" id="1855004">
+
+<subfields>
+<ResearchSubfield version="2" id="1855012">
+<ResearchLookup id="1855013" type="ForeignKeyPrimitiveField" tableID="ResearchLookup"><![CDATA[5]]></ResearchLookup>
+</ResearchSubfield>
+<ResearchSubfield version="2" id="1855010">
+<ResearchLookup id="1855011" type="ForeignKeyPrimitiveField" tableID="ResearchLookup"><![CDATA[4]]></ResearchLookup>
+</ResearchSubfield>
+<ResearchSubfield version="2" id="1855016">
+<ResearchLookup id="1855017" type="ForeignKeyPrimitiveField" tableID="ResearchLookup"><![CDATA[7]]></ResearchLookup>
+</ResearchSubfield>
+<ResearchSubfield version="2" id="1855014">
+<ResearchLookup id="1855015" type="ForeignKeyPrimitiveField" tableID="ResearchLookup"><![CDATA[6]]></ResearchLookup>
+</ResearchSubfield>
+<ResearchSubfield version="2" id="1855005">
+<ResearchLookup id="1855006" type="ForeignKeyPrimitiveField" tableID="ResearchLookup"><![CDATA[13]]></ResearchLookup>
+</ResearchSubfield>
+<ResearchSubfield version="2" id="1855018">
+
+<ResearchLookup id="1855019" type="ForeignKeyPrimitiveField" tableID="ResearchLookup"><![CDATA[3]]></ResearchLookup>
+</ResearchSubfield>
+<ResearchSubfield version="2" id="1855007">
+<ResearchLookup id="1855008" type="ForeignKeyPrimitiveField" tableID="ResearchLookup"><![CDATA[17]]></ResearchLookup>
+<note id="1855009" type="StringPrimitiveField"><![CDATA[Migrated from 3 Research Actions->3.7 Cultural relevance]]></note>
+</ResearchSubfield>
+</subfields>
+</Research>
+<System version="2" id="1854823">
+<value id="1854824" type="ForeignKeyListPrimitiveField" tableID="System_valueLookup"><![CDATA[1,2]]></value>
+</System>
+<Threats version="2" id="1854951">
+<subfields>
+<ThreatsSubfield version="2" id="1854968">
+<ThreatsLookup id="1854969" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[205]]></ThreatsLookup>
+<score id="1854970" type="StringPrimitiveField"><![CDATA[Low Impact: 3]]></score>
+<timing id="1854971" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[2]]></timing>
+
+</ThreatsSubfield>
+<ThreatsSubfield version="2" id="1854952">
+<ThreatsLookup id="1854953" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[211]]></ThreatsLookup>
+<score id="1854954" type="StringPrimitiveField"><![CDATA[Low Impact: 3]]></score>
+<timing id="1854955" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[2]]></timing>
+</ThreatsSubfield>
+<ThreatsSubfield version="2" id="1854984">
+<ThreatsLookup id="1854985" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[188]]></ThreatsLookup>
+<score id="1854986" type="StringPrimitiveField"><![CDATA[Low Impact: 3]]></score>
+<timing id="1854987" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[2]]></timing>
+</ThreatsSubfield>
+<ThreatsSubfield version="2" id="1854994">
+<ThreatsLookup id="1854995" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[105]]></ThreatsLookup>
+<score id="1854996" type="StringPrimitiveField"><![CDATA[No/Negligible Impact: 1]]></score>
+<timing id="1854997" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[3]]></timing>
+</ThreatsSubfield>
+<ThreatsSubfield version="2" id="1854964">
+
+<ThreatsLookup id="1854965" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[2]]></ThreatsLookup>
+<score id="1854966" type="StringPrimitiveField"><![CDATA[Low Impact: 3]]></score>
+<timing id="1854967" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[2]]></timing>
+</ThreatsSubfield>
+<ThreatsSubfield version="2" id="1854980">
+<ThreatsLookup id="1854981" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[206]]></ThreatsLookup>
+<score id="1854982" type="StringPrimitiveField"><![CDATA[Low Impact: 3]]></score>
+<timing id="1854983" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[2]]></timing>
+</ThreatsSubfield>
+<ThreatsSubfield version="2" id="1854976">
+<ThreatsLookup id="1854977" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[218]]></ThreatsLookup>
+<score id="1854978" type="StringPrimitiveField"><![CDATA[Low Impact: 3]]></score>
+<timing id="1854979" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[2]]></timing>
+</ThreatsSubfield>
+<ThreatsSubfield version="2" id="1854972">
+<ThreatsLookup id="1854973" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[177]]></ThreatsLookup>
+<score id="1854974" type="StringPrimitiveField"><![CDATA[Low Impact: 3]]></score>
+
+<timing id="1854975" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[2]]></timing>
+</ThreatsSubfield>
+<ThreatsSubfield version="2" id="1854956">
+<ThreatsLookup id="1854957" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[26]]></ThreatsLookup>
+<score id="1854958" type="StringPrimitiveField"><![CDATA[No/Negligible Impact: 1]]></score>
+<timing id="1854959" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[3]]></timing>
+</ThreatsSubfield>
+<ThreatsSubfield version="2" id="1854988">
+<ThreatsLookup id="1854989" type="ForeignKeyPrimitiveField" tableID="ThreatsLookup"><![CDATA[212]]></ThreatsLookup>
+<score id="1854990" type="StringPrimitiveField"><![CDATA[Low Impact: 3]]></score>
+<timing id="1854991" type="ForeignKeyPrimitiveField" tableID="Threats_timingLookup"><![CDATA[2]]></timing>
+</ThreatsSubfield>
+</subfields>
+</Threats>
+<PopulationContinuingDecline version="2" id="1855087">
+<qualifier id="1855088" type="ForeignKeyPrimitiveField" tableID="PopulationContinuingDecline_qualifierLookup"><![CDATA[4]]></qualifier>
+</PopulationContinuingDecline>
+
+<AreaRestricted version="2" id="1854949">
+<isRestricted id="1854950" type="BooleanRangePrimitiveField"><![CDATA[1]]></isRestricted>
+</AreaRestricted>
+<RedListRationale version="2" id="1854947">
+<value id="1854948" type="TextPrimitiveField"><![CDATA[While the species is clearly under pressure and subject to exploitation levels that subjectively appear unsustainable, particularly in Indonesian Papua, not enough quantitative data is available to conclusively demonstrate or estimate a range-wide rate of decline, nor do we know Carettochelys’ generation time. Tentatively, retaining the species at its current ranking of Vulnerable appears appropriate.]]></value>
+</RedListRationale>
+<MaxSize version="2" id="1854945">
+<size id="1854946" type="StringPrimitiveField"><![CDATA[57]]></size>
+</MaxSize>
+<RedListAssessors version="2" id="1854865">
+<order id="1854867" type="StringPrimitiveField"><![CDATA[0]]></order>
+<text id="1854866" type="StringPrimitiveField"><![CDATA[Peter Paul van Dijk]]></text>
+<value id="1854868" type="ForeignKeyListPrimitiveField" tableID="user"><![CDATA[0]]></value>
+</RedListAssessors>
+<UseTradeDetails version="2" id="1854871">
+</UseTradeDetails>
+<PopulationReductionFuture version="2" id="1854869">
+
+<qualifier id="1854870" type="ForeignKeyPrimitiveField" tableID="PopulationReductionFuture_qualifierLookup"><![CDATA[1]]></qualifier>
+</PopulationReductionFuture>
+<FreeLivingLarvae version="2" id="1854859">
+<hasStage id="1854860" type="BooleanUnknownPrimitiveField"><![CDATA[2]]></hasStage>
+</FreeLivingLarvae>
+<OldDEMPeriodPastDecline version="2" id="1854857">
+<value id="1854858" type="StringPrimitiveField"><![CDATA[30 years / 2 generations]]></value>
+</OldDEMPeriodPastDecline>
+<EcosystemServicesInsufficientInfo version="2" id="1854863">
+<isInsufficient id="1854864" type="BooleanPrimitiveField"><![CDATA[true]]></isInsufficient>
+</EcosystemServicesInsufficientInfo>
+<ConservationActions version="2" id="1855097">
+<subfields>
+<ConservationActionsSubfield version="2" id="1855104">
+<ConservationActionsLookup id="1855105" type="ForeignKeyPrimitiveField" tableID="ConservationActionsLookup"><![CDATA[53]]></ConservationActionsLookup>
+<note id="1855106" type="StringPrimitiveField"><![CDATA[Reallocate to 1.1-Land/water protection->Site/area protection or 2.1-Land/water management-> Site/area management]]></note>
+</ConservationActionsSubfield>
+
+<ConservationActionsSubfield version="2" id="1855102">
+<ConservationActionsLookup id="1855103" type="ForeignKeyPrimitiveField" tableID="ConservationActionsLookup"><![CDATA[23]]></ConservationActionsLookup>
+</ConservationActionsSubfield>
+<ConservationActionsSubfield version="2" id="1855100">
+<ConservationActionsLookup id="1855101" type="ForeignKeyPrimitiveField" tableID="ConservationActionsLookup"><![CDATA[35]]></ConservationActionsLookup>
+</ConservationActionsSubfield>
+<ConservationActionsSubfield version="2" id="1855098">
+<ConservationActionsLookup id="1855099" type="ForeignKeyPrimitiveField" tableID="ConservationActionsLookup"><![CDATA[11]]></ConservationActionsLookup>
+</ConservationActionsSubfield>
+<ConservationActionsSubfield version="2" id="1855109">
+<ConservationActionsLookup id="1855110" type="ForeignKeyPrimitiveField" tableID="ConservationActionsLookup"><![CDATA[3]]></ConservationActionsLookup>
+</ConservationActionsSubfield>
+<ConservationActionsSubfield version="2" id="1855107">
+<ConservationActionsLookup id="1855108" type="ForeignKeyPrimitiveField" tableID="ConservationActionsLookup"><![CDATA[10]]></ConservationActionsLookup>
+</ConservationActionsSubfield>
+</subfields>
+</ConservationActions>
+
+<RedListAssessmentDate version="2" id="1854861">
+<value id="1854862" type="DatePrimitiveField"><![CDATA[1233360000000]]></value>
+</RedListAssessmentDate>
+<EggLaying version="2" id="1855095">
+<layEggs id="1855096" type="BooleanUnknownPrimitiveField"><![CDATA[1]]></layEggs>
+</EggLaying>
+<BirthSize version="2" id="1854851">
+<size id="1854852" type="StringPrimitiveField"><![CDATA[4.1-5.6]]></size>
+</BirthSize>
+<HabitatDocumentation version="2" id="1855093">
+<narrative id="1855094" type="TextPrimitiveField"><![CDATA[In New Guinea, Carettochelys insculpta inhabits rivers including their deltas and estuarine reaches, grassy lagoons, swamps, lakes and waterholes of the southern lowlands. In Australia, the species appears restricted to seasonally clear, shallow, continuously-flowing waters of the Daly drainage and to billabongs and plunge pools of the Alligator Rivers region (Georges et al., 2008, and references therein).<br/>Carettochelys is omnivorous, but feeds principally on fruits, leaves and stems of riparian vegetation, and aquatic plants, with some molluscs, crustaceans, insects, fish and mammals (likely eaten as carrion) also consumed (Georges et al., 2008, and references therein).<br/>Carettochelys females may reach up to 57 cm CL, males to xx cm CL. Females mature at 38 cm CL (Daly River) to 41 cm (Kikori region) or larger. No information is available on age at maturity, or on longevity. (Georges et al., 2008, and references therein). <br/>Females nest gregariously on riverside sandbanks, and appear to produce two clutches every second year, with a non-reproducing year in between (Georges et al., 2008, and references therein). Depending on location, average clutch size ranges from 10 eggs (Daly River) to 21 eggs (Kikori region), with range of 7 to 26 or more. Carettochelys has TSD and hatching is triggered by anoxia associated with torrential rain or flooding of the nest. Hatchlings measure 41-56 mm CL and weigh 21-30 g. Natural egg loss rates can be high from predation (to 25%), flooding (to 20%) or intrinsic issues (infertility, developmental problems; to 20%). (Georges et al., 2008, and references therein).]]></narrative>
+</HabitatDocumentation>
+<PopulationTrend version="2" id="1854849">
+<value id="1854850" type="ForeignKeyPrimitiveField" tableID="PopulationTrend_valueLookup"><![CDATA[2]]></value>
+</PopulationTrend>
+<ReproductivePeriodicity version="2" id="1855091">
+<value id="1855092" type="StringPrimitiveField"><![CDATA[alternate years]]></value>
+
+</ReproductivePeriodicity>
+<PopulationDocumentation version="2" id="1854855">
+<narrative id="1854856" type="TextPrimitiveField"><![CDATA[Although statements on Carettochelys populations vary substantially, the species appears to be reasonably common in suitable habitat, although there is wide variance from locally rare to locally abundant. Population densities for Carettochelys insculpta in the upper reaches of the South Alligator River have been estimated at 33.8 ± 11.3 turtles/ha (equivalent to 67 turtles/km of channel or 227.4 kg/ha). These estimates are comparatively high, and the turtle densities were probably inflated above the carrying capacity of the waters in which they were found because of seasonal contractions of their aquatic habitat (Georges et al., 1993).]]></narrative>
+</PopulationDocumentation>
+<AOOContinuingDecline version="2" id="1855089">
+<qualifier id="1855090" type="ForeignKeyPrimitiveField" tableID="AOOContinuingDecline_qualifierLookup"><![CDATA[4]]></qualifier>
+</AOOContinuingDecline>
+<EOOContinuingDecline version="2" id="1854853">
+<isContinuingDecline id="1854854" type="BooleanRangePrimitiveField"><![CDATA[1]]></isContinuingDecline>
+</EOOContinuingDecline>
+<CountryOccurrence version="2" id="1854898">
+<subfields>
+<CountryOccurrenceSubfield version="2" id="1854909">
+<CountryOccurrenceLookup id="1854913" type="ForeignKeyPrimitiveField" tableID="CountryOccurrenceLookup"><![CDATA[336]]></CountryOccurrenceLookup>
+<origin id="1854911" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_originLookup"><![CDATA[1]]></origin>
+<presence id="1854910" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_presenceLookup"><![CDATA[1]]></presence>
+<seasonality id="1854912" type="ForeignKeyListPrimitiveField" tableID="CountryOccurrence_seasonalityLookup"><![CDATA[1]]></seasonality>
+
+</CountryOccurrenceSubfield>
+<CountryOccurrenceSubfield version="2" id="1854919">
+<CountryOccurrenceLookup id="1854923" type="ForeignKeyPrimitiveField" tableID="CountryOccurrenceLookup"><![CDATA[545]]></CountryOccurrenceLookup>
+<origin id="1854921" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_originLookup"><![CDATA[1]]></origin>
+<presence id="1854920" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_presenceLookup"><![CDATA[1]]></presence>
+<seasonality id="1854922" type="ForeignKeyListPrimitiveField" tableID="CountryOccurrence_seasonalityLookup"><![CDATA[1]]></seasonality>
+</CountryOccurrenceSubfield>
+<CountryOccurrenceSubfield version="2" id="1854904">
+<CountryOccurrenceLookup id="1854908" type="ForeignKeyPrimitiveField" tableID="CountryOccurrenceLookup"><![CDATA[543]]></CountryOccurrenceLookup>
+<origin id="1854906" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_originLookup"><![CDATA[1]]></origin>
+<presence id="1854905" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_presenceLookup"><![CDATA[1]]></presence>
+<seasonality id="1854907" type="ForeignKeyListPrimitiveField" tableID="CountryOccurrence_seasonalityLookup"><![CDATA[1]]></seasonality>
+</CountryOccurrenceSubfield>
+<CountryOccurrenceSubfield version="2" id="1854914">
+<CountryOccurrenceLookup id="1854918" type="ForeignKeyPrimitiveField" tableID="CountryOccurrenceLookup"><![CDATA[343]]></CountryOccurrenceLookup>
+<origin id="1854916" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_originLookup"><![CDATA[1]]></origin>
+<presence id="1854915" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_presenceLookup"><![CDATA[1]]></presence>
+
+<seasonality id="1854917" type="ForeignKeyListPrimitiveField" tableID="CountryOccurrence_seasonalityLookup"><![CDATA[1]]></seasonality>
+</CountryOccurrenceSubfield>
+<CountryOccurrenceSubfield version="2" id="1854899">
+<CountryOccurrenceLookup id="1854903" type="ForeignKeyPrimitiveField" tableID="CountryOccurrenceLookup"><![CDATA[379]]></CountryOccurrenceLookup>
+<origin id="1854901" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_originLookup"><![CDATA[1]]></origin>
+<presence id="1854900" type="ForeignKeyPrimitiveField" tableID="CountryOccurrence_presenceLookup"><![CDATA[1]]></presence>
+<seasonality id="1854902" type="ForeignKeyListPrimitiveField" tableID="CountryOccurrence_seasonalityLookup"><![CDATA[1]]></seasonality>
+</CountryOccurrenceSubfield>
+</subfields>
+</CountryOccurrence>
+<GenerationLength version="2" id="1854893">
+<range id="1854894" type="RangePrimitiveField"><![CDATA[15yearsminimum]]></range>
+</GenerationLength>
+<EOO version="2" id="1854895">
+<qualifier id="1854897" type="ForeignKeyPrimitiveField" tableID="EOO_qualifierLookup"><![CDATA[1]]></qualifier>
+<range id="1854896" type="RangePrimitiveField"><![CDATA[25]]></range>
+</EOO>
+
+<MovementPatterns version="2" id="1854889">
+<pattern id="1854890" type="ForeignKeyListPrimitiveField" tableID="MovementPatterns_patternLookup"><![CDATA[2,3]]></pattern>
+</MovementPatterns>
+<PopulationReductionPast version="2" id="1854891">
+<qualifier id="1854892" type="ForeignKeyPrimitiveField" tableID="PopulationReductionPast_qualifierLookup"><![CDATA[2]]></qualifier>
+</PopulationReductionPast>
+<HabitatContinuingDecline version="2" id="1854943">
+<qualifier id="1854944" type="ForeignKeyPrimitiveField" tableID="HabitatContinuingDecline_qualifierLookup"><![CDATA[4]]></qualifier>
+</HabitatContinuingDecline>
+<AvgReproductiveAge version="2" id="1854941">
+<age id="1854942" type="StringPrimitiveField"><![CDATA[unknown]]></age>
+</AvgReproductiveAge>
+<WaterBreeding version="2" id="1854939">
+<value id="1854940" type="BooleanUnknownPrimitiveField"><![CDATA[2]]></value>
+</WaterBreeding>
+<InPlaceEducationControlled version="2" id="1854936">
+<note id="1854938" type="StringPrimitiveField"><![CDATA[]]></note>
+
+<value id="1854937" type="ForeignKeyPrimitiveField" tableID="InPlaceEducationControlled_valueLookup"><![CDATA[2]]></value>
+</InPlaceEducationControlled>
+<ThreatsDocumentation version="2" id="1855020">
+<value id="1855021" type="TextPrimitiveField"><![CDATA[Carettochelys insculpta is vulnerable by virtue of its limited distribution, and because stereotyped nesting habits render it susceptible to over-exploitation. Adults and their eggs are highly regarded as food by indigenous peoples throughout its range, and exploitation for food is thought to be threatening populations in New Guinea (Rhodin & Genorupa, 2000; Samedi & Iskandar, 2000). In one study, 92% of nests were lost to a combination of flooding and human egg collection (Eisemberg, in Georges et al., 2008). In addition, in West Papua, eggs are collected for local incubation under controlled conditions for sale of the hatchlings into the international pet trade; total numbers of eggs collected amounted to 1.5 to 2 million eggs annually in the late 1990s (Samedi & Iskandar, 2000; Georges et al., 2008, and references therein). Exploitation of the species (eggs and adults alike) has been facilitated in recent years by the availability of outboard motors and the cessation of clan warfare, which now allows people to live along riverbanks (Georges et al., 2008).<br/>Habitat degradation is the major potential threat to Australian populations, involving water extraction for agriculture, pollution from mining, increased sedimentation, changes in water quality, and fragmentation of rivers (Georges et al., 1993; Georges et al., 2008, and references therein). Trampling of nests, and damage to riparian vegetation, by feral water buffalo in the Alligators Rivers region were significant problems, but have been addressed by a buffalo reduction program (Georges et al., 2008, and references therein).]]></value>
+</ThreatsDocumentation>
+<InPlaceEducationInternationalLegislation version="2" id="1854933">
+<note id="1854935" type="StringPrimitiveField"><![CDATA[CITES Appendix II]]></note>
+<value id="1854934" type="ForeignKeyPrimitiveField" tableID="InPlaceEducationInternationalLegislation_valueLookup"><![CDATA[2]]></value>
+</InPlaceEducationInternationalLegislation>
+<LocationsNumber version="2" id="1854931">
+<range id="1854932" type="RangePrimitiveField"><![CDATA[5]]></range>
+</LocationsNumber>
+<BiogeographicRealm version="2" id="1854929">
+<realm id="1854930" type="ForeignKeyListPrimitiveField" tableID="BiogeographicRealm_realmLookup"><![CDATA[3]]></realm>
+</BiogeographicRealm>
+<RedListContributors version="2" id="1855022">
+<order id="1855023" type="StringPrimitiveField"><![CDATA[0]]></order>
+
+<value id="1855024" type="ForeignKeyListPrimitiveField" tableID="user"><![CDATA[0]]></value>
+</RedListContributors>
+<InPlaceLandWaterProtectionInPA version="2" id="1854926">
+<note id="1854928" type="StringPrimitiveField"><![CDATA[Migrated from Conservation Measures 4.4 Habitat and Site-based actions -> Protected Areas: in-place]]></note>
+<value id="1854927" type="ForeignKeyPrimitiveField" tableID="InPlaceLandWaterProtectionInPA_valueLookup"><![CDATA[2]]></value>
+</InPlaceLandWaterProtectionInPA>
+<GeneralHabitats version="2" id="1855025">
+<subfields>
+<GeneralHabitatsSubfield version="2" id="1855026">
+<GeneralHabitatsLookup id="1855027" type="ForeignKeyPrimitiveField" tableID="GeneralHabitatsLookup"><![CDATA[32]]></GeneralHabitatsLookup>
+<suitability id="1855028" type="ForeignKeyPrimitiveField" tableID="GeneralHabitats_suitabilityLookup"><![CDATA[1]]></suitability>
+</GeneralHabitatsSubfield>
+<GeneralHabitatsSubfield version="2" id="1855029">
+<GeneralHabitatsLookup id="1855030" type="ForeignKeyPrimitiveField" tableID="GeneralHabitatsLookup"><![CDATA[125]]></GeneralHabitatsLookup>
+<suitability id="1855031" type="ForeignKeyPrimitiveField" tableID="GeneralHabitats_suitabilityLookup"><![CDATA[1]]></suitability>
+</GeneralHabitatsSubfield>
+</subfields>
+
+</GeneralHabitats>
+<RedListAssessmentDate version="2" id="1854924">
+<value id="1854925" type="DatePrimitiveField"><![CDATA[1233360000000]]></value>
+</RedListAssessmentDate>
+<AvgAnnualFecundity version="2" id="1855032">
+<fecundity id="1855033" type="StringPrimitiveField"><![CDATA[2 clutches of 10-21 eggs]]></fecundity>
+</AvgAnnualFecundity>
+<EcosystemServices version="2" id="1855034">
+<subfields>
+<EcosystemServicesSubfield version="2" id="1855043">
+<EcosystemServicesLookup id="1855045" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[12]]></EcosystemServicesLookup>
+<importance id="1855044" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855046" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855083">
+<EcosystemServicesLookup id="1855085" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[8]]></EcosystemServicesLookup>
+<importance id="1855084" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+
+<rangeOfBenefit id="1855086" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855047">
+<EcosystemServicesLookup id="1855049" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[3]]></EcosystemServicesLookup>
+<importance id="1855048" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855050" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855079">
+<EcosystemServicesLookup id="1855081" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[9]]></EcosystemServicesLookup>
+<importance id="1855080" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855082" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855051">
+<EcosystemServicesLookup id="1855053" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[2]]></EcosystemServicesLookup>
+<importance id="1855052" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855054" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+
+<EcosystemServicesSubfield version="2" id="1855075">
+<EcosystemServicesLookup id="1855077" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[4]]></EcosystemServicesLookup>
+<importance id="1855076" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855078" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855055">
+<EcosystemServicesLookup id="1855057" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[1]]></EcosystemServicesLookup>
+<importance id="1855056" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855058" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855059">
+<EcosystemServicesLookup id="1855061" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[10]]></EcosystemServicesLookup>
+<importance id="1855060" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855062" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855063">
+<EcosystemServicesLookup id="1855065" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[7]]></EcosystemServicesLookup>
+
+<importance id="1855064" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855066" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855035">
+<EcosystemServicesLookup id="1855037" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[13]]></EcosystemServicesLookup>
+<importance id="1855036" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855038" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855067">
+<EcosystemServicesLookup id="1855069" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[6]]></EcosystemServicesLookup>
+<importance id="1855068" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855070" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855039">
+<EcosystemServicesLookup id="1855041" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[11]]></EcosystemServicesLookup>
+<importance id="1855040" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855042" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+
+</EcosystemServicesSubfield>
+<EcosystemServicesSubfield version="2" id="1855071">
+<EcosystemServicesLookup id="1855073" type="ForeignKeyPrimitiveField" tableID="EcosystemServicesLookup"><![CDATA[5]]></EcosystemServicesLookup>
+<importance id="1855072" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_importanceLookup"><![CDATA[5]]></importance>
+<rangeOfBenefit id="1855074" type="ForeignKeyPrimitiveField" tableID="EcosystemServices_rangeOfBenefitLookup"><![CDATA[5]]></rangeOfBenefit>
+</EcosystemServicesSubfield>
+</subfields>
+</EcosystemServices>
+</fields></assessment>

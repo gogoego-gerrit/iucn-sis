@@ -75,6 +75,8 @@ public class FuzzyExpImpl {
 	public final int xVU = 300;
 
 	public final int xLR = 400;
+	
+	private int SUB_LEN = 0;
 
 	public FuzzyExpImpl() {
 		critical = new CR();
@@ -673,7 +675,7 @@ public class FuzzyExpImpl {
 		}
 		if (!b.resultString.equals("")) {
 			if (startedString) {
-				returnString += append + b.resultString.substring(1);
+				returnString += append + b.resultString.substring(SUB_LEN);
 			} else {
 				returnString = b.resultString;
 			}
@@ -682,7 +684,7 @@ public class FuzzyExpImpl {
 		for (CriteriaResult c : more) {
 			if (!c.resultString.equals("")) {
 				if (startedString) {
-					returnString += append + c.resultString.substring(1);
+					returnString += append + c.resultString.substring(SUB_LEN);
 				} else {
 					returnString = c.resultString;
 				}
@@ -718,7 +720,7 @@ public class FuzzyExpImpl {
 	private CriteriaResult getFinalSimple(String classification, String category, CriteriaResult a, CriteriaResult b) {
 		CriteriaResult analysis = new CriteriaResult(classification, category);
 		Range result = Range.independentOR(a.range, b.range);
-
+		
 		// DO COMBINING OF CRITERIA STRINGS
 		boolean startedString = false;
 		String returnString = "";
@@ -728,7 +730,7 @@ public class FuzzyExpImpl {
 		}
 		if (!b.resultString.equals("")) {
 			if (startedString) {
-				returnString += "+" + b.resultString.substring(1);
+				returnString += "+" + b.resultString.substring(SUB_LEN);
 			} else {
 				returnString = b.resultString;
 			}
