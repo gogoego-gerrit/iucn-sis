@@ -301,12 +301,18 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 	private Widget getCommonNameDisplay(CommonName curName, Taxon node) {
 		HorizontalPanel hp = new HorizontalPanel();
 		
-		String displayString = "&nbsp;&nbsp;" + curName.getName() ;
+		StringBuilder display = new StringBuilder();
+		if (curName.isPrimary())
+			display.append("*&nbsp;");
+		else
+			display.append("&nbsp;&nbsp;");
+		
+		display.append(curName.getName());
 		if (curName.getIso() != null) {
-			displayString += " -- " + curName.getLanguage();
+			display.append(" -- " + curName.getLanguage());
 		}
 		
-		HTML html = new HTML(displayString);
+		HTML html = new HTML(display.toString());
 		if (curName.getChangeReason() == CommonName.DELETED) {
 			html.addStyleName("deleted");
 		} else {
