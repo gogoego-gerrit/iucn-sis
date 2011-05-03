@@ -202,7 +202,7 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 					Integer owner = ws.getCreator().getId();
 					if (!owner.equals(currentOwner)) {
 						NavigationModelData<WorkingSet> header = new NavigationModelData<WorkingSet>(null);
-						header.set("name", mine ? "My Working Sets" : "Subscribed Working Sets");
+						header.set("name", currentOwner == null ? "My Working Sets" : "Subscribed Working Sets");
 						header.set("header", Boolean.TRUE);
 						
 						if (mine)
