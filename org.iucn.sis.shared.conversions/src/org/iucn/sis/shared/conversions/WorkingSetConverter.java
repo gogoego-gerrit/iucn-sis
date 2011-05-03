@@ -27,6 +27,11 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 	private RelationshipIO relationshipIO;
 	private TaxonIO taxonIO;
 	
+	public WorkingSetConverter() {
+		super();
+		setClearSessionAfterTransaction(true);
+	}
+	
 	@Override
 	protected void run() throws Exception {
 		userIO = new UserIO(session);

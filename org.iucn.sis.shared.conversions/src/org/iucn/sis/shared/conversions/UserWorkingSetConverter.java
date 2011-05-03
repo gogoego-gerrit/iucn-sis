@@ -16,6 +16,11 @@ import com.solertium.vfs.VFSPath;
 
 public class UserWorkingSetConverter extends GenericConverter<VFSInfo> {
 	
+	public UserWorkingSetConverter() {
+		super();
+		setClearSessionAfterTransaction(true);
+	}
+	
 	/**
 	 * Assumes that:
 	 *  - Users have already been converted
