@@ -448,7 +448,10 @@ public class TaxonomyCache {
 	}
 
 	public Object invalidatePath(Integer pathID) {
-		return pathCache.remove(pathID);
+		if (pathID != null)
+			return pathCache.remove(pathID.toString());
+		else
+			return null;
 	}
 
 	private void invokeCallbacks(Integer id, Taxon defaultNode) {
