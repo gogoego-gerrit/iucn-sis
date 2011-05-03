@@ -233,6 +233,14 @@ public class FuzzyExpImpl {
 		StringBuilder result = new StringBuilder("");
 		if (factorField != null) {
 			for (PrimitiveField<?> curPrim : factorField.getPrimitiveField() ) {
+				/*
+				 * We don't care about details, only values.
+				 * TODO: replace this with a check for the "value" 
+				 * field instead, and only use fields named "value".
+				 */
+				if ("detail".equals(curPrim.getName()))
+					continue;
+				
 				if (curPrim instanceof ForeignKeyListPrimitiveField) {
 					List<Integer> fkList = ((ForeignKeyListPrimitiveField)curPrim).getValue();
 					for (Integer fk : fkList) {
