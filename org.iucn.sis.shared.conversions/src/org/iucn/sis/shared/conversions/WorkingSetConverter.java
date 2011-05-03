@@ -148,8 +148,9 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 			printf("Migrating working set %s failed, couldn't find user %s", data.getWorkingSetName(), data.getCreator());
 			return null;
 		}
-		ws.setCreator(creator);
 		creator.getOwnedWorkingSets().add(ws);
+		ws.setCreator(creator);
+		ws.getUsers().add(creator);
 		
 		/*if (subscribedUsernames != null)
 			for (String username : subscribedUsernames) {
