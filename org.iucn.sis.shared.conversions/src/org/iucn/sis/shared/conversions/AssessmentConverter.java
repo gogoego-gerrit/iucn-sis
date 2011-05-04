@@ -534,13 +534,20 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			else if (CanonicalNames.RedListSource.equals(curField.getKey())) {
 				List<String> rawData = (List)curField.getValue();
-				if (rawData.size() == 2 && rawData.contains("MOST RECENT-NEEDS UPDATING")) {
-					warning(report, false, "RedListSource needs updating: %s", rawData);
-					
+				if (rawData.size() > 1) {
+					/*
+					 * If more than one data point exists, we remove 
+					 * the most-recent flag.  Then, we take only the 
+					 * first element via sublist.  Typically, after 
+					 * the removal of most recent, there will only 
+					 * be one element in the list, but either way, 
+					 * we only take the first one.  We are guaranteed 
+					 * to have at least one. 
+					 */
 					List<String> slimData = new ArrayList<String>(rawData);
 					slimData.remove("MOST RECENT-NEEDS UPDATING");
 					
-					rawData = slimData;
+					rawData = slimData.subList(0, 1);
 				}
 					
 				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);	
