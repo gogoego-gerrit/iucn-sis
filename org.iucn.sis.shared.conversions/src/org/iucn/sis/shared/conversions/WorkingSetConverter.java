@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.io.RelationshipIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
@@ -32,6 +33,18 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		setClearSessionAfterTransaction(true);
 	}
 	
+	private boolean isTestMode() {
+		return "true".equals(parameters.getFirstValue("test"));
+	}
+	
+	@Override
+	protected void commitAndStartTransaction() {
+		if (isTestMode())
+			session.clear();
+		else
+			super.commitAndStartTransaction();
+	}
+	
 	@Override
 	protected void run() throws Exception {
 		userIO = new UserIO(session);
@@ -57,7 +70,11 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 						session.save(set);
 						//converted++;
 					} else {
-						print("The set " + file.getPath() + " is null");
+						User creator = userIO.getUserFromUsername(data.getCreator());
+						if (creator == null)
+							printf("Migrating working set %s failed, couldn't find user %s", data.getWorkingSetName(), data.getCreator());
+						else
+							print("The set " + file.getPath() + " is null");
 					}
 
 					if (converted.incrementAndGet() % 50 == 0) {
@@ -112,7 +129,15 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		return oldWSIDToUserNames;		
 	}*/
 	
-	public WorkingSet convertWorkingSetData(WorkingSetData data) throws Exception {
+	private WorkingSet convertWorkingSetData(WorkingSetData data) throws Exception {
+		return convertWorkingSetData(data, session, relationshipIO, userIO, taxonIO);
+	}
+	
+	public static WorkingSet convertWorkingSetData(WorkingSetData data, Session session, RelationshipIO relationshipIO, UserIO userIO, TaxonIO taxonIO) throws Exception {
+		return convertWorkingSetData(data, session, relationshipIO, userIO, taxonIO, null);
+	}
+	
+	public static WorkingSet convertWorkingSetData(WorkingSetData data, Session session, RelationshipIO relationshipIO, UserIO userIO, TaxonIO taxonIO, User user) throws Exception {
 		WorkingSet ws = new WorkingSet();
 		ws.setId(Integer.valueOf(data.getId()));
 		ws.setDescription(data.getDescription());
@@ -148,12 +173,19 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		}		
 
 		//ADD USERS
-		User creator = userIO.getUserFromUsername(data.getCreator());
-		if (creator == null) {
-			printf("Migrating working set %s failed, couldn't find user %s", data.getWorkingSetName(), data.getCreator());
-			return null;
+		User creator;
+		if (user == null) {
+			creator = userIO.getUserFromUsername(data.getCreator());
+			if (creator == null) {
+				//printf("Migrating working set %s failed, couldn't find user %s", data.getWorkingSetName(), data.getCreator());
+				return null;
+			}
 		}
+		else
+			creator = user;
+		
 		creator.getOwnedWorkingSets().add(ws);
+		
 		ws.setCreator(creator);
 		ws.getUsers().add(creator);
 		
@@ -175,7 +207,6 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 				if (taxon != null)
 					ws.getTaxon().add(taxon);
 			} catch (Exception e) {
-				print("failed while trying taxonID " + taxonID);
 				throw e;
 			}
 		}

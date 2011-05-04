@@ -114,6 +114,7 @@ public abstract class Converter {
 			printf("X -- Failed to finished %s conversion in %s seconds at %s", getClass().getSimpleName(), millis, start.toString());
 			try {
 				session.getTransaction().rollback();
+				session.clear();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

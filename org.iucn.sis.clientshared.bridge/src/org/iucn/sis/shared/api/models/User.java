@@ -19,7 +19,7 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.XMLWritingUtils;
-public class User implements Serializable {
+public class User implements Serializable, Comparable<User> {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -34,6 +34,11 @@ public class User implements Serializable {
 	}
 	public void setState(int state) {
 		this.state = state;
+	}
+	
+	@Override
+	public int compareTo(User o) {
+		return Long.valueOf(generationID).compareTo(o.generationID);
 	}
 	
 	public String toXML() {

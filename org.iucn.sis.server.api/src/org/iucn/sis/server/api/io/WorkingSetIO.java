@@ -153,16 +153,20 @@ public class WorkingSetIO {
 		WorkingSet ws = readWorkingSet(workingSetID);
 		if (ws == null)
 			return false;
-				
+		
+		//Ensure user is not already subscribed...
+		if (ws.getUsers().contains(user))
+			return true;
+		
 		ws.getUsers().add(user);
-		user.getSubscribedWorkingSets().add(ws);
+		//user.getSubscribedWorkingSets().add(ws);
 				
 		try {
 			SIS.get().getManager().saveObject(session, ws);
-			SIS.get().getManager().saveObject(session, user);
+			// SIS.get().getManager().saveObject(session, user);
 			
 			// TODO: MIGHT NEED TO FIGURE OUT HOW TO REFERENCE ALL FIELDS... THAT WOULD BE SAD
-			afterSaveWS(ws);
+			// afterSaveWS(ws);
 					
 			return true;
 		} catch (PersistentException e) {

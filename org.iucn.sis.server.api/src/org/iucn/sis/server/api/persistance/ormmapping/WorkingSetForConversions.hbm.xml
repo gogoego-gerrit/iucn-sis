@@ -35,7 +35,7 @@ License Type: Evaluation
 			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
 			</many-to-many>
 		</set>
-		<set name="Users" table="working_set_subscribe_user" lazy="true" cascade="save-update,lock">
+		<set name="Users" table="working_set_subscribe_user" lazy="true" cascade="none">
 			<key column="working_setid" not-null="true"/>
 			<many-to-many column="userid" class="org.iucn.sis.shared.api.models.User">
 			</many-to-many>
