@@ -26,6 +26,7 @@ import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.XMLWritingUtils;
 
@@ -76,7 +77,6 @@ public class Taxon implements AuthorizableObject, Serializable {
 	}
 
 	public String getDisplayableLevel() {
-		Debug.println("this is the taxon level " + this.getTaxonLevel().getLevel() + " and id " + this.getTaxonLevel().getId());
 		if (this.getTaxonLevel().getLevel() == TaxonLevel.INFRARANK) {
 			Infratype infratype = getInfratype();
 			if (infratype == null)
@@ -553,8 +553,16 @@ public class Taxon implements AuthorizableObject, Serializable {
 	public static Taxon fromXMLminimal(NativeElement element) {
 		Taxon taxon = new Taxon();
 		taxon.setId(Integer.parseInt(element.getAttribute("id")));
-		taxon.setName(element.getAttribute("name"));
-		taxon.setFriendlyName(element.getAttribute("fullname"));
+		
+		NativeNodeList children = element.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			NativeNode child = children.item(i);
+			if ("name".equals(child.getNodeName()))
+				taxon.setName(child.getTextContent());
+			else if ("fullname".equals(child.getNodeName()))
+				taxon.setFriendlyName(child.getTextContent());
+		}
+		
 		return taxon;
 	}
 
@@ -562,13 +570,14 @@ public class Taxon implements AuthorizableObject, Serializable {
 		// TRY TO GET THE PARENT NAME FROM THE SOURCE, IF APPLICABLE
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + " id=\"" + getId() + 
-			"\" name=\"" + getName() + 
+			"\" level=\"" + getLevel() + 
 			"\" hybrid=\"" + getHybrid() +
 			"\" invasive=\"" + getInvasive() +
 			"\" feral=\"" + getFeral() +
-			"\" level=\"" + getLevel() + 
-			"\" fullname=\"" + getFullName() + 
 			"\">");
+		
+		xml.append(XMLWritingUtils.writeCDATATag("name", getName()));
+		xml.append(XMLWritingUtils.writeCDATATag("fullname", getFullName()));
 		
 		if (getInternalID() != null)
 			xml.append(XMLWritingUtils.writeTag("internalID", getInternalID().toString()));
@@ -667,8 +676,13 @@ public class Taxon implements AuthorizableObject, Serializable {
 	 */
 	String toRelatedXML(String tagName) {
 		if (tagName.equals("parent") || tagName.equalsIgnoreCase("child") || tagName.equals(Taxon.ROOT_TAG)) {
-			return "<" + tagName + " id=\"" + getId() + "\" name=\"" + getName() + "\" fullname=\""
-					+ getFriendlyName() + "\"/>";
+			StringBuilder minimal = new StringBuilder();
+			minimal.append("<" + tagName + " id=\"" + getId() + "\">");
+			minimal.append(XMLWritingUtils.writeCDATATag("name", getName()));
+			minimal.append(XMLWritingUtils.writeCDATATag("fullname", getFriendlyName()));
+			minimal.append("</" + tagName + ">");
+			
+			return minimal.toString();
 		}
 		return null;
 	}
@@ -687,18 +701,24 @@ public class Taxon implements AuthorizableObject, Serializable {
 	
 	public static Taxon fromXML(NativeElement nodeElement) {
 		long id = LongUtils.safeParseLong(nodeElement.getAttribute("id"));
-		String name = nodeElement.getAttribute("name");
-		String fullName = nodeElement.getAttribute("fullname");
 		int level = Integer.parseInt(nodeElement.getAttribute("level"));
 		boolean hybrid = (nodeElement.getAttribute("hybrid") != null && nodeElement.getAttribute("hybrid").equals(
 				"true"));
-		boolean feral = "true".equals(nodeElement.getAttribute("feral"));
-		boolean invasive = "true".equals(nodeElement.getAttribute("invasive"));
 		
-		Taxon taxon = Taxon.createNode(id, name, level, hybrid);
-		taxon.setFriendlyName(fullName);
-		taxon.setFeral(feral);
-		taxon.setInvasive(invasive);
+		Taxon taxon = Taxon.createNode(id, "unknown", level, hybrid);
+		
+		NativeNodeList name = nodeElement.getElementsByTagName("name");
+		if (name.getLength() > 0) {
+			taxon.setName(name.elementAt(0).getTextContent());
+		}
+		
+		NativeNodeList fullname = nodeElement.getElementsByTagName("fullname");
+		if (fullname.getLength() > 0) {
+			taxon.setFriendlyName(fullname.elementAt(0).getTextContent());
+		}
+		
+		taxon.setFeral("true".equals(nodeElement.getAttribute("feral")));
+		taxon.setInvasive("true".equals(nodeElement.getAttribute("invasive")));
 		
 		NativeNodeList status = nodeElement.getElementsByTagName(TaxonStatus.ROOT_TAG);
 		if (status.getLength() > 0)
