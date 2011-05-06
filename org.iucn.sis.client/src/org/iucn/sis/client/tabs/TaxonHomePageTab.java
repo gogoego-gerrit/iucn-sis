@@ -14,7 +14,7 @@ import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.ui.notes.NoteAPI;
 import org.iucn.sis.client.api.ui.notes.NotesWindow;
-import org.iucn.sis.client.api.utils.TaxonPagingLoader;
+import org.iucn.sis.client.api.utils.MemoryProxy;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
@@ -42,45 +42,46 @@ import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
-import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.utils.CommonNameComparator;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.binder.DataListBinder;
-import com.extjs.gxt.ui.client.data.ModelStringProvider;
+import com.extjs.gxt.ui.client.Style.SortDir;
+import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
+import com.extjs.gxt.ui.client.data.BasePagingLoader;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.grid.BufferView;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
+import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
+import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -99,6 +100,9 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 	private Button taxonToolsItem;
 	private Button taxomaticToolItem;
 	private Button goToParent;
+	
+	private MemoryProxy<TaxonListElement> proxy;
+	private BasePagingLoader<BasePagingLoadResult<TaxonListElement>> loader;
 
 	private final boolean ENABLE_TAXOMATIC_FEATURES = true;
  
@@ -107,6 +111,12 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 	 */
 	public TaxonHomePageTab() {
 		super();
+		
+		proxy = new MemoryProxy<TaxonListElement>();
+		proxy.setSort(false);
+		
+		loader = new BasePagingLoader<BasePagingLoadResult<TaxonListElement>>(proxy);
+		loader.setRemoteSort(false);
 	}
 	
 	@Override
@@ -189,81 +199,102 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		callback.isDrawn();
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	protected void drawOptions(final DrawsLazily.DoneDrawingCallback callback) {
+		if (optionsContainer.getItemCount() == 0) {
+			final ContentPanel children = new ContentPanel();
+			children.setLayout(new FillLayout());
+			
+			final ListStore<TaxonListElement> store = new ListStore<TaxonListElement>(loader);
+			
+			final ColumnConfig col = new ColumnConfig("name", "Name", 100);
+			col.setRenderer(new GridCellRenderer<TaxonListElement>() {
+				public Object render(TaxonListElement model, String property, ColumnData config, int rowIndex, int colIndex,
+						ListStore<TaxonListElement> store, Grid<TaxonListElement> grid) {
+					String style;
+					if (model.getNode().isDeprecated())
+						style = "deleted";
+					else
+						style = "color-dark-blue";
+					
+					return "<span class=\"" + style + "\">" + model.get(property) + "</span>";
+				}
+			});
+			final List<ColumnConfig> cols = new ArrayList<ColumnConfig>();
+			cols.add(col);
+			
+			final BufferView view = new BufferView();
+			view.setForceFit(true);
+			view.setRowHeight(20);
+			
+			final Grid<TaxonListElement> grid = new Grid<TaxonListElement>(store, new ColumnModel(cols));
+			grid.setBorders(false);
+			grid.setHideHeaders(true);
+			grid.setLoadMask(true);
+			grid.setView(view);
+			grid.setAutoExpandColumn("name");
+			grid.addListener(Events.RowClick, new Listener<GridEvent<TaxonListElement>>() {
+				public void handleEvent(GridEvent<TaxonListElement> be) {
+					TaxonListElement model = be.getGrid().getStore().getAt(be.getRowIndex());
+					if (model != null) {
+						//TaxonomyCache.impl.setCurrentTaxon(se.getSelectedItem().getNode());
+						StateManager.impl.setState(null, model.getNode(), null);
+						//update(se.getSelectedItem().getNode().getId());
+					}
+				}
+			});
+			
+			children.add(grid);
+			
+			optionsContainer.add(children);
+		}
+		
+		final ContentPanel children = (ContentPanel)optionsContainer.getItem(0);
+		
 		final Taxon taxon = TaxonomyCache.impl.getTaxon(getSelectedItem());
-		
-		final ContentPanel children = new ContentPanel();
-		children.setLayout(new FillLayout());
-		
 		if (Taxon.getDisplayableLevelCount() > taxon.getLevel() + 1) {
-			children.setHeading(Taxon.getDisplayableLevel(taxon.getLevel() + 1));
+			final Grid<TaxonListElement> grid = (Grid)children.getItem(0);
+			grid.mask("Loading...");
+			grid.getView().setEmptyText("No " + Taxon.getDisplayableLevel(taxon.getLevel() + 1) + ".");
 
 			TaxonomyCache.impl.fetchChildren(taxon, new GenericCallback<List<TaxonListElement>>() {
 				public void onFailure(Throwable caught) {
-					children.add(new HTML("No " + Taxon.getDisplayableLevel(taxon.getLevel() + 1) + "."));
-					optionsContainer.removeAll();
-					optionsContainer.add(children);
+					final ListStore<TaxonListElement> store = new ListStore<TaxonListElement>();
+					store.setStoreSorter(new StoreSorter<TaxonListElement>(new PortableAlphanumericComparator()));
+					
+					proxy.setStore(store);
+					
+					loader.load(0, store.getCount());
+					
+					children.setHeading(Taxon.getDisplayableLevel(taxon.getLevel() + 1));
+					grid.unmask();
 					callback.isDrawn();
 				}
 				public void onSuccess(List<TaxonListElement> result) {
-					final TaxonPagingLoader loader = new TaxonPagingLoader();
-					final PagingToolBar bar = new PagingToolBar(30);
-					bar.bind(loader.getPagingLoader());
-					
-					final DataList list = new DataList();
-					//list.setSize((com.google.gwt.user.client.Window.getClientWidth() - 500) / 2, 148);
-					list.setScrollMode(Scroll.AUTOY);
-					
-					final ListStore<TaxonListElement> store = new ListStore<TaxonListElement>(loader.getPagingLoader());
+					final ListStore<TaxonListElement> store = new ListStore<TaxonListElement>();
 					store.setStoreSorter(new StoreSorter<TaxonListElement>(new PortableAlphanumericComparator()));
-
-					final DataListBinder<TaxonListElement> binder = new DataListBinder<TaxonListElement>(list, store);
-					binder.setDisplayProperty("name");
-					binder.setStyleProvider(new ModelStringProvider<TaxonListElement>() {
-						public String getStringValue(TaxonListElement model, String property) {
-							if (model.getNode().isDeprecated())
-								return "deleted";
-							else
-								return "color-dark-blue";
-						}
-					});
-					binder.init();
-					binder.addSelectionChangedListener(new SelectionChangedListener<TaxonListElement>() {
-						public void selectionChanged(SelectionChangedEvent<TaxonListElement> se) {
-							if (se.getSelectedItem() != null) {
-								//TaxonomyCache.impl.setCurrentTaxon(se.getSelectedItem().getNode());
-								StateManager.impl.setState(null, se.getSelectedItem().getNode(), null);
-								//update(se.getSelectedItem().getNode().getId());
-							}
-						}
-					});
+					store.add(result);
+					store.sort("name", SortDir.ASC);
 					
-					loader.getFullList().addAll(result);
-					/*ArrayUtils.quicksort(loader.getFullList(), new Comparator<TaxonListElement>() {
-						public int compare(TaxonListElement o1, TaxonListElement o2) {
-							return ((String) o1.get("name")).compareTo((String) o2.get("name"));
-						}
-					});*/
+					proxy.setStore(store);
 					
-					final LayoutContainer container = new LayoutContainer(new BorderLayout());
-					container.add(list, new BorderLayoutData(LayoutRegion.CENTER));
-					container.add(bar, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
-					
-					children.add(container);
-
-					loader.getPagingLoader().load(0, loader.getPagingLoader().getLimit());
-
-					//children.layout();
-					optionsContainer.removeAll();
-					optionsContainer.add(children);		
+					loader.load(0, store.getCount());
+		
+					children.setHeading(Taxon.getDisplayableLevel(taxon.getLevel() + 1));
+					grid.unmask();
 					callback.isDrawn();
 				}
 			});
 		} else {
 			children.setHeading("Not available.");
-			optionsContainer.removeAll();
-			optionsContainer.add(children);	
+			
+			final ListStore<TaxonListElement> store = new ListStore<TaxonListElement>();
+			store.setStoreSorter(new StoreSorter<TaxonListElement>(new PortableAlphanumericComparator()));
+			
+			proxy.setStore(store);
+			
+			loader.load(0, store.getCount());
+			
 			callback.isDrawn();
 		}
 	}
@@ -872,73 +903,6 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		}
 		
 		layout();
-	}
-	
-	private static class SynonymNoteAPI implements NoteAPI {
-		
-		private final Synonym synonym;
-		private final Taxon taxon;
-		
-		private boolean hasChanged;
-		
-		public SynonymNoteAPI(Taxon taxon, Synonym synonym) {
-			this.synonym = synonym;
-			this.taxon = taxon;
-			
-			hasChanged = false;
-		}
-
-		@Override
-		public void addNote(final Notes note, final GenericCallback<Object> callback) {
-			note.setSynonym(synonym);
-			
-			final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-			document.put(UriBase.getInstance().getNotesBase() + "/notes/synonym/" + synonym.getId(), note.toXML(), new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					Notes newNote = Notes.fromXML(document.getDocumentElement());
-					
-					note.setEdits(newNote.getEdits());
-					note.setId(newNote.getId());
-					
-					synonym.getNotes().add(note);
-					
-					hasChanged = true;
-					
-					callback.onSuccess(result);
-				}public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-			});
-		}
-		
-		@Override
-		public void deleteNote(final Notes note, final GenericCallback<Object> callback) {
-			final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-			document.delete(UriBase.getInstance().getNotesBase() + "/notes/note/" + note.getId(), new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					synonym.getNotes().remove(note);
-					hasChanged = true;
-					callback.onSuccess(result);
-				}
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-			});
-		}
-		
-		@Override
-		public void loadNotes(ComplexListener<Collection<Notes>> listener) {
-			listener.handleEvent(synonym.getNotes());
-		}
-		
-		@Override
-		public void onClose() {
-			if (hasChanged)
-				ClientUIContainer.bodyContainer.refreshTaxonPage();
-				//TaxonomyCache.impl.setCurrentTaxon(taxon);
-				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
-		}
-		
 	}
 	
 	public static class ReferenceableTaxon implements Referenceable {
