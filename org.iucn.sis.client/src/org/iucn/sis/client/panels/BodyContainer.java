@@ -32,7 +32,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class BodyContainer extends LayoutContainer {
-
+	
 	private LayoutContainer homePage;
 	private FeaturedItemContainer<Integer> workingSetPage;
 	private FeaturedItemContainer<Integer> taxonHomePage;
@@ -45,7 +45,6 @@ public class BodyContainer extends LayoutContainer {
 
 	public BodyContainer() {
 		super(new FillLayout());
-		setLayoutOnChange(true);
 		addStyleName("gwt-background");
 		addStyleName("sis_bodyContainer");
 
@@ -58,6 +57,7 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openWorkingSet(final String url, final boolean updateNavigation) {
+		WindowUtils.showLoadingAlert("Loading...");
 		MonkeyNavigator.getSortedWorkingSetIDs(new ComplexListener<List<Integer>>() {
 			public void handleEvent(List<Integer> items) {
 				workingSetPage.setUrl(url);
@@ -65,13 +65,7 @@ public class BodyContainer extends LayoutContainer {
 				workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet().getId());
 				workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
-						removeAll();
-						add(workingSetPage);
-						
-						current = workingSetPage;
-						
-						if (updateNavigation)
-							updateNavigation();
+						onPageChange(workingSetPage, updateNavigation);
 					}
 				});
 			}
@@ -79,6 +73,7 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openTaxon(final String url, final boolean updateNavigation) {
+		WindowUtils.showLoadingAlert("Loading...");
 		MonkeyNavigator.getSortedTaxaIDs(StateManager.impl.getWorkingSet(), new ComplexListener<List<Integer>>() {
 			public void handleEvent(List<Integer> items) {
 				taxonHomePage.setUrl(url);
@@ -86,13 +81,7 @@ public class BodyContainer extends LayoutContainer {
 				taxonHomePage.setSelectedItem(StateManager.impl.getTaxon().getId());
 				taxonHomePage.draw(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
-						removeAll();
-						add(taxonHomePage);
-						
-						current = taxonHomePage;
-						
-						if (updateNavigation)
-							updateNavigation();
+						onPageChange(taxonHomePage, updateNavigation);
 					}
 				});	
 			}
@@ -101,7 +90,7 @@ public class BodyContainer extends LayoutContainer {
 	
 	public void openAssessment(final String url, final boolean updateNavigation) {
 		FieldWidgetCache.impl.resetWidgetContents();
-		
+		WindowUtils.showLoadingAlert("Loading...");
 		MonkeyNavigator.getSortedAssessmentIDs(new ComplexListener<List<Integer>>() {
 			public void handleEvent(final List<Integer> items) {
 				AssessmentCache.impl.fetchAssessment(StateManager.impl.getAssessment().getId(), FetchMode.FULL, new GenericCallback<Assessment>() {
@@ -115,13 +104,7 @@ public class BodyContainer extends LayoutContainer {
 						
 						assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
-								removeAll();
-								add(assessmentPage);
-								
-								current = assessmentPage;
-								
-								if (updateNavigation)
-									updateNavigation();
+								onPageChange(assessmentPage, updateNavigation);
 							}
 						});
 					}
@@ -131,14 +114,24 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void openHomePage(boolean updateNavigation) {
-		removeAll();
-		
 		if (homePage == null)
 			homePage = new HomePageTab();
-		add(homePage);
+		
+		onPageChange(homePage, updateNavigation);
+	}
+	
+	private void onPageChange(LayoutContainer current, boolean updateNavigation) {
+		this.current = current;
+		
+		removeAll();
+		add(current);
 		
 		if (updateNavigation)
 			updateNavigation();
+		
+		layout(true);
+		
+		WindowUtils.hideLoadingAlert();
 	}
 	
 	private void updateNavigation() {
@@ -151,12 +144,18 @@ public class BodyContainer extends LayoutContainer {
 	}
 	
 	public void refreshBody() {
+		final DrawsLazily.DoneDrawingCallback callback = new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				layout(true);
+			}
+		};
+		
 		if (workingSetPage == current)
-			workingSetPage.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+			workingSetPage.draw(callback);
 		else if (taxonHomePage == current)
-			taxonHomePage.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+			taxonHomePage.draw(callback);
 		else if (assessmentPage == current)
-			assessmentPage.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+			assessmentPage.draw(callback);
 	}
 	
 	public boolean isAssessmentEditor() {
