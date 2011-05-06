@@ -17,6 +17,7 @@ import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.TaxonDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Infratype;
@@ -28,6 +29,7 @@ import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.helpers.AssessmentParser;
 import org.iucn.sis.shared.helpers.CommonNameData;
+import org.iucn.sis.shared.helpers.Note;
 import org.iucn.sis.shared.helpers.ReferenceUI;
 import org.iucn.sis.shared.helpers.SynonymData;
 import org.iucn.sis.shared.helpers.TaxonNode;
@@ -36,6 +38,7 @@ import org.iucn.sis.shared.helpers.TaxonNodeFactory;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.VFS;
 
 public class TaxonConverter extends GenericConverter<String> {
@@ -199,7 +202,7 @@ public class TaxonConverter extends GenericConverter<String> {
 		NativeDocument ndoc = new JavaNativeDocument();
 		ndoc.parse(FileListing.readFileAsString(file));
 		
-		Taxon taxon = convertTaxonNode(TaxonNodeFactory.createNode(ndoc), new Date(file.lastModified()));
+		Taxon taxon = convertTaxonNode(TaxonNodeFactory.createNode(ndoc), new Date(file.lastModified()), user);
 		
 		if (taxon != null) {
 			if (taxon.getLevel() == TaxonLevel.KINGDOM) {
@@ -370,7 +373,7 @@ public class TaxonConverter extends GenericConverter<String> {
 					NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
 					ndoc.parse(FileListing.readFileAsString(file));
 					TaxonNode node = TaxonNodeFactory.createNode(ndoc);
-					Taxon taxon = convertTaxonNode(node, new Date(file.lastModified()));
+					Taxon taxon = convertTaxonNode(node, new Date(file.lastModified()), user);
 					
 					if (taxon != null) {
 						
@@ -479,7 +482,7 @@ public class TaxonConverter extends GenericConverter<String> {
 		taxonIO.afterSaveTaxon(taxon);*/
 	}
 
-	public Taxon convertTaxonNode(TaxonNode taxon, Date lastModified) throws PersistentException {
+	public Taxon convertTaxonNode(TaxonNode taxon, Date lastModified, User user) throws PersistentException {
 
 		Taxon newTaxon = new Taxon();
 		newTaxon.state = Taxon.ACTIVE;
@@ -517,7 +520,33 @@ public class TaxonConverter extends GenericConverter<String> {
 			commonName.setIso(isoLanguageIO.getIsoLanguageByCode(commonNameData.getIsoCode()));
 			newTaxon.getCommonNames().add(commonName);
 			commonName.setTaxon(newTaxon);
+			
+			if (commonNameData.getNotes() != null) {
+				for (Note note : commonNameData.getNotes()) {
+					User author = null;
+					if (note.getUser() != null && !"".equals(note.getUser()))
+						author = userIO.getUserFromUsername(note.getUser());
+					if (author == null)
+						author = user;
 					
+					Edit edit = new Edit();
+					edit.setUser(author);
+					try {
+						edit.setCreatedDate(FormattedDate.impl.getDate(note.getDate()));
+					} catch (Exception e) {
+						TrivialExceptionHandler.ignore(this, e);
+					}
+					
+					Notes notes = new Notes();
+					notes.setCommonName(commonName);
+					notes.setValue(note.getBody());
+					notes.setEdit(edit);
+					
+					edit.getNotes().add(notes);
+					
+					commonName.getNotes().add(notes);
+				}
+			}
 		}
 
 		// ADD SYNONYMS
@@ -550,9 +579,16 @@ public class TaxonConverter extends GenericConverter<String> {
 			synonym.setStatus(synData.getStatus());
 
 			if (synData.getNotes() != null) {
+				Edit edit = new Edit();
+				edit.setUser(user);
+				
 				Notes note = new Notes();
 				note.setSynonym(synonym);
 				note.setValue(synData.getNotes());
+				note.setEdit(edit);
+				
+				edit.getNotes().add(note);
+				
 				synonym.getNotes().add(note);
 			}
 			
