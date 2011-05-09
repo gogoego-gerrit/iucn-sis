@@ -33,5 +33,10 @@ License Type: Evaluation
 			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
 			</many-to-many>
 		</set>
+		<set name="Attachments" table="fieldattachment_edit" lazy="true" cascade="save-update,lock">
+			<key column="editid" not-null="true"/>
+			<many-to-many column="fieldattachmentid" class="org.iucn.sis.shared.api.models.FieldAttachment">
+			</many-to-many>
+		</set>
 	</class>
 </hibernate-mapping>

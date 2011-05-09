@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
+import org.iucn.sis.client.api.assessment.FieldAttachmentWindow;
 import org.iucn.sis.client.api.assessment.ReferenceableField;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -28,6 +29,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.FieldAttachment;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Relationship;
@@ -882,6 +884,20 @@ public abstract class Display implements Referenceable {
 			batchChange.setSubMenu(subMenu);
 			
 			optionsMenu.add(batchChange);
+		}
+		
+		if (isSaved() && field.isAttachable()) {
+			MenuItem attach = new MenuItem();
+			attach.setText("Attach File");
+			attach.setIconStyle("icon-attachment");
+			attach.addSelectionListener(new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					FieldAttachmentWindow window = new FieldAttachmentWindow(AssessmentCache.impl.getCurrentAssessment(), field);
+					window.show();
+				}
+			});
+			
+			optionsMenu.add(attach);
 		}
 	}
 	

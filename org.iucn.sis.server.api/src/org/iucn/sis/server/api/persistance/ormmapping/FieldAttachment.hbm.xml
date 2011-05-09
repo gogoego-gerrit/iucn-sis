@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.FieldAttachment" table="fieldattachment" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<property name="name" column="name" type="string" length="1024" not-null="true" lazy="false"/>
+		<property name="key" column="key" type="string" length="1024" not-null="true" lazy="false"/>
+		<property name="publish" column="publish" type="boolean" length="1" not-null="true" lazy="false"/>
+		<set name="Edits" table="fieldattachment_edit" lazy="true" cascade="save-update,lock">
+			<key column="fieldattachmentid" not-null="true"/>
+			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
+			</many-to-many>
+		</set>
+		<set name="Fields" table="fieldattachment_field" lazy="false" cascade="save-update,lock">
+			<key column="fieldattachmentid" not-null="true"/>
+			<many-to-many column="fieldid" class="org.iucn.sis.shared.api.models.Field">
+			</many-to-many>
+		</set>
+	</class>
+</hibernate-mapping>

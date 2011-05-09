@@ -14,7 +14,12 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.restlet.ext.fileupload;bundle-version="2.0.0",
  org.apache.commons.fileupload;bundle-version="1.2.0",
  org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
- org.hibernate;bundle-version="1.0.0"
+ org.hibernate;bundle-version="1.0.0",
+ com.solertium.lwxml;bundle-version="1.1.2",
+ com.solertium.lwxml.java;bundle-version="1.1.2",
+ javax.servlet;bundle-version="2.5.0",
+ com.solertium.util;bundle-version="1.1.2"
 Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-Activator: org.iucn.sis.server.extensions.attachments.ServerActivator
 Bundle-Vendor: IUCN
+Export-Package: org.iucn.sis.server.extensions.attachments

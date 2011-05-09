@@ -60,6 +60,8 @@ public class Field implements Serializable {
 
 	private java.util.Set<PrimitiveField> primitiveField;
 	
+	private java.util.Set<FieldAttachment> fieldAttachment;
+	
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 
 	public Field() {
@@ -67,6 +69,7 @@ public class Field implements Serializable {
 		fields = new java.util.HashSet<Field>();
 		reference = new java.util.HashSet<Reference>();
 		primitiveField = new java.util.HashSet<PrimitiveField>();
+		fieldAttachment = new java.util.HashSet<FieldAttachment>();
 	}
 
 	public Field(String canonicalName, Assessment assessment) {
@@ -214,6 +217,23 @@ public class Field implements Serializable {
 	public Assessment getAssessment() {
 		return assessment;
 	}
+	
+	/**
+	 * Recurse to the parent field in order to find which 
+	 * assessment this field relates to.  This is the same 
+	 * as getAssessment for most fields, but for classification 
+	 * schemes and other nested field types, this will return 
+	 * the assessment for its parent instead of null.
+	 * @return
+	 */
+	public Assessment findAssessment() {
+		if (assessment != null)
+			return assessment;
+		else if (parent != null)
+			return parent.findAssessment();
+		else
+			return null;
+	}
 
 	public java.util.Set<Field> getFields() {
 		return fields;
@@ -300,6 +320,10 @@ public class Field implements Serializable {
 		return reference;
 	}
 	
+	public java.util.Set<FieldAttachment> getFieldAttachment() {
+		return fieldAttachment;
+	}
+	
 	public boolean hasData() {
 		boolean hasData = false;
 		if (primitiveField != null) {
@@ -337,6 +361,13 @@ public class Field implements Serializable {
 	
 	public boolean isClassificationScheme() {
 		for (String name : CanonicalNames.classificationSchemes)
+			if (name.equals(getName()))
+				return true;
+		return false;
+	}
+	
+	public boolean isAttachable() {
+		for (String name : CanonicalNames.attachable)
 			if (name.equals(getName()))
 				return true;
 		return false;
@@ -382,6 +413,11 @@ public class Field implements Serializable {
 
 	public void setReference(java.util.Set<Reference> value) {
 		this.reference = value;
+	}
+	
+	public void setFieldAttachment(
+			java.util.Set<FieldAttachment> fieldAttachment) {
+		this.fieldAttachment = fieldAttachment;
 	}
 
 	public String toString() {

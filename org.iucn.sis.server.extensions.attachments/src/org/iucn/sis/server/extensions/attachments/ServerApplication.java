@@ -12,6 +12,9 @@ public class ServerApplication extends SimpleSISApplication {
 	 * Attachments are available online only.
 	 */
 	public void init() {
+		FileAttachmentUploadRestlet upload = new FileAttachmentUploadRestlet(app.getContext());
+		addResource(upload, upload.getPaths(), true);
+		
 		addServiceToRouter(new FileAttachmentRestlet(app.getContext()));
 	}
 

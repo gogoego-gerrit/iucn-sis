@@ -1,359 +1,199 @@
 package org.iucn.sis.server.extensions.attachments;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.List;
+import java.util.HashSet;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
-import org.iucn.sis.server.api.utils.DocumentUtils;
-import org.iucn.sis.server.api.utils.FilenameStriper;
-import org.iucn.sis.shared.api.assessments.AssessmentAttachment;
+import org.iucn.sis.server.extensions.attachments.storage.AttachmentStorage;
+import org.iucn.sis.server.extensions.attachments.storage.VFSAttachmentStorage;
+import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.FieldAttachment;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.restlet.ext.fileupload.RestletFileUpload;
-import org.restlet.ext.xml.DomRepresentation;
+import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 
-import com.solertium.vfs.ConflictException;
-import com.solertium.vfs.NotFoundException;
-import com.solertium.vfs.VFS;
-import com.solertium.vfs.VFSPath;
-import com.solertium.vfs.VFSPathToken;
-import com.solertium.vfs.restlet.VFSResource;
+import com.solertium.lwxml.java.JavaNativeDocument;
+import com.solertium.lwxml.shared.NativeDocument;
 
 public class FileAttachmentRestlet extends BaseServiceRestlet {
 
-	private final VFSPath rootDir;
-	private final VFSPathToken registryFile = new VFSPathToken("_attachments.xml");
-	private final VFS vfs;
-	
+	private final AttachmentStorage storage;
 
 	public FileAttachmentRestlet(Context context) {
 		super(context);
 		
-		rootDir = new VFSPath("/attachments");
-		vfs = SIS.get().getVFS();
+		storage = new VFSAttachmentStorage(SIS.get().getVFS());
 	}
 	
 	public void definePaths() {
-		paths.add("/attachment/{assessmentID}");
-		paths.add("/attachment/file/{attachmentID}");
-	}
-
-	private boolean addToRegistry(VFSPath registryPath,
-			AssessmentAttachment attachment) {
-		String doc = DocumentUtils.getVFSFileAsString(registryPath.toString(), vfs);
-		if (doc == null)
-			doc = "<attachments></attachments>";
-		
-		doc = doc.replace("</attachments>", "");
-		doc += attachment.toXML() + "\r\n</attachments>";
-		return DocumentUtils.writeVFSFile(registryPath.toString(), vfs, doc);
-	}
-
-	private boolean deleteFile(VFSPath path) {
-		if (vfs.exists(path)) {
-			try {
-				vfs.delete(path);
-			} catch (NotFoundException e) {
-				e.printStackTrace();
-				return false;
-			} catch (ConflictException e) {
-				e.printStackTrace();
-				return false;
-			}
-			return true;
-		}
-		return false;
-	}
-
-	private String getAssessmentIDFromAttachmentID(String attachmentID) {
-		int splitIndex = attachmentID.lastIndexOf("_");
-		return attachmentID.substring(0, splitIndex);
-	}
-
-	private VFSPath getAssessmentPath(String assessmentID) {
-		return new VFSPath(rootDir.toString() + "/"
-				+ FilenameStriper.getIDAsStripedPath(assessmentID));
-	}
-
-	private String getAttachmentID(String assessmentID,
-			String attachmentFileName) {
-		if (attachmentFileName.contains("/")) {
-			attachmentFileName = attachmentFileName.substring(
-					attachmentFileName.lastIndexOf("/") + 1, attachmentFileName
-							.length());
-		}
-		return assessmentID + "_" + attachmentFileName;
-	}
-
-	private VFSPath getAttachmentPath(String attachmentID) {
-		VFSPathToken token = new VFSPathToken(
-				getFilenameFromAttachmentID(attachmentID));
-		return getAssessmentPath(getAssessmentIDFromAttachmentID(attachmentID))
-				.child(token);
-	}
-
-	private String getFilenameFromAttachmentID(String attachmentID) {
-		int splitIndex = attachmentID.lastIndexOf("_");
-		return attachmentID.substring(splitIndex + 1);
-	}
-	
-	@Override
-	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
-		String attachmentID = getAttachmentID(request);
-		if (attachmentID == null)
-			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
-
-		if (removeFromRegistry(getAssessmentPath(
-				getAssessmentIDFromAttachmentID(attachmentID)).child(
-				registryFile), attachmentID)
-				&& deleteFile(getAttachmentPath(attachmentID))) {
-
-			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity("Attachment deleted", MediaType.TEXT_PLAIN);
-		} else {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL,
-					"Unable to delete attachment");
-		}
+		//Handle GET, PUT, DELETE
+		paths.add("/browse/assessments/{assessmentID}");
+		paths.add("/browse/assessments/{assessmentID}/{attachmentID}");
 	}
 	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
-		final String assessmentID = getAssessmentID(request);
-		final String attachmentID = getAttachmentID(request);
-
-		// FIND ATTACHMENT
-		if (assessmentID == null && attachmentID != null) {
-			VFSPath attachmentFile = getAttachmentPath(attachmentID);
-			if (vfs.exists(attachmentFile)) {
-				Representation rep;
-				try {
-					rep = VFSResource.getRepresentationForFile(vfs, attachmentFile);
-				} catch (NotFoundException e) {
-					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Attachment not found", e);
-				}
-				return rep;
-			} else {
-				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Attachment not found");
+		final Integer assessmentID = getAssessmentID(request);
+		final Integer attachmentID = getAttachmentID(request);
+		
+		final AttachmentIO io = new AttachmentIO(session);
+		final AssessmentIO assessmentIO = new AssessmentIO(session);
+		
+		final Assessment assessment = assessmentIO.getAssessment(assessmentID);
+		if (assessment == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Assessment not found.");
+		
+		/*
+		 * TODO: write a better query at the AssessmentIO level to 
+		 * avoid these duplicates from coming across...
+		 */
+		final HashSet<Integer> seen = new HashSet<Integer>();
+		
+		if (attachmentID == null) {
+			final StringBuilder out = new StringBuilder();
+			out.append("<attachments>");
+			
+			for (FieldAttachment attachment : io.getAttachments(assessment))
+				if (seen.add(attachment.getId()))
+					out.append(attachment.toXML());
+			
+			out.append("</attachments>");
+			
+			return new StringRepresentation(out.toString(), MediaType.TEXT_XML);
+		}
+		else {
+			FieldAttachment attachment = io.getAttachment(attachmentID);
+			if (attachment == null)
+				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Attachment not found.");
+			
+			InputRepresentation representation = 
+				new InputRepresentation(storage.get(attachment.getKey()));
+			if ("true".equals(request.getResourceRef().getQueryAsForm().getFirstValue("download"))) {
+				representation.setDownloadable(true);
+				representation.setDownloadName(attachment.getName());
 			}
+			
+			return representation;
 		}
-		else if (assessmentID != null && attachmentID == null) {
-			VFSPath path = getAssessmentPath(assessmentID);
-			if (vfs.exists(path)) {
-				Document registryDoc = DocumentUtils.getVFSFileAsDocument(path
-						.child(registryFile).toString(), vfs);
-				if (registryDoc == null)
-					throw new ResourceException(Status.SERVER_ERROR_INTERNAL,
-							"Unable to find registry for attachment "
-									+ assessmentID);
-
-				return (new DomRepresentation(MediaType.TEXT_XML, registryDoc));
-			} else {
-				return new StringRepresentation("<attachments></attachments>",
-						MediaType.TEXT_XML);
-			}
-		}
-		else
-			return super.handleGet(request, response, session);
-	}
-
-	private void handleModifyAttachment(Request request, Response response,
-			String attachmentID) {
-		String assessmentID = getAssessmentIDFromAttachmentID(attachmentID);
-		String isPublic = request.getEntityAsForm().getFirstValue("isPublic");
-		if (updatedRegistry(
-				getAssessmentPath(assessmentID).child(registryFile),
-				attachmentID, isPublic)) {
-			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity("Modified attachment", MediaType.TEXT_PLAIN);
-		} else {
-			response.setStatus(Status.SERVER_ERROR_INTERNAL,
-					"Failed to modify attachment");
-		}
-
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
-		String assessmentID = getAssessmentID(request);
-		String attachmentID = getAttachmentID(request);
-		if (assessmentID != null)
-			handlePost(request, response, assessmentID);
-		else if (attachmentID != null)
-			handleModifyAttachment(request, response, attachmentID);
-		else
-			super.handlePost(entity, request, response, session);
-	}
-
-	private void handlePost(Request request, Response response,
-			String assessmentID) {
-		RestletFileUpload fileUploaded = new RestletFileUpload(
-				new DiskFileItemFactory());
-		List<FileItem> list;
+	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
+		final Integer attachmentID = getAttachmentID(request);
+		
+		if (attachmentID == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply an attachment ID.");
+		
+		final AttachmentIO io = new AttachmentIO(session);
+		
+		final FieldAttachment attachment = io.getAttachment(attachmentID);
+		if (attachment == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Attachment not found, could not delete.");
+		
 		try {
-			list = fileUploaded.parseRequest(request);
-		} catch (FileUploadException e) {
-			e.printStackTrace();
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,
-					"unable to read file");
-			return;
+			io.delete(attachment);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
-		Boolean isPublished = null;
-		FileItem file = null;
-
-		for (FileItem item : list) {
-			if (item.isFormField()) {
-				if (item.getFieldName().equalsIgnoreCase("publish"))
-					isPublished = Boolean.valueOf(item.getString());
-			} else
-				file = item;
-		}
-
-		if (isPublished == null || file == null || assessmentID == null) {
-			response
-					.setStatus(
-							Status.CLIENT_ERROR_BAD_REQUEST,
-							"File, publish status, and Assessment ID must be sent in order to attach to assessment");
-			return;
-		} else if (!isValidFilename(file.getName())) {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST,
-					"Filename must not contain \"_\"");
-			return;
+		
+		/*
+		 * Force a flush to commit the changes.  If something fails, 
+		 * the on-disk file will not be deleted.
+		 */
+		session.flush();
+		
+		/*
+		 * Now safe to attempt to remove on-disk file.  Also, I am 
+		 * catching exceptions here as I don't care if it does not 
+		 * actually delete.
+		 */
+		try {
+			storage.delete(attachment.getKey());
+		} catch (ResourceException e) {
+			Debug.println("The attachment {0} with key {1} failed to delete from the storage server.", attachment.getName(), attachment.getKey());
 		}
 
-		String attachmentID = getAttachmentID(assessmentID, file.getName());
-		VFSPath filePath = getAttachmentPath(attachmentID);
-		VFSPath registryPath = getAssessmentPath(assessmentID).child(
-				registryFile);
-		AssessmentAttachment attachment = new AssessmentAttachment();
-		attachment.assessmentID = assessmentID;
-		attachment.id = attachmentID;
-		attachment.filename = getFilenameFromAttachmentID(attachmentID);
-		attachment.isPublished = isPublished;
-
-		// TRY TO WRITE FILE
-		if (writeFile(filePath, file)) {
-			// ADD TO REGISTRY
-			if (addToRegistry(registryPath, attachment)) {
-				response.setStatus(Status.SUCCESS_OK);
-				response.setEntity(attachmentID, MediaType.TEXT_PLAIN);
-			}
-			// FAILED ADDING TO REGISTY
-			else {
-				deleteFile(filePath);
-				response
-						.setStatus(Status.SERVER_ERROR_INTERNAL,
-								"Unable to add file to the attachment registry, try again later.");
-			}
-		} else {
-			response.setStatus(Status.SERVER_ERROR_INTERNAL,
-					"Unable to save attachment");
-		}
-
-	}
-
-	private boolean isValidFilename(String attachmentFileName) {
-		if (attachmentFileName.contains("/")) {
-			attachmentFileName = attachmentFileName.substring(
-					attachmentFileName.lastIndexOf("/") + 1, attachmentFileName
-							.length());
-		}
-		return !attachmentFileName.contains("_");
+		response.setStatus(Status.SUCCESS_OK);
+		response.setEntity("Attachment deleted", MediaType.TEXT_PLAIN);
 	}
 	
-	private String getAssessmentID(Request request) {
-		return (String) request.getAttributes().get("assessmentID");
+
+	@Override
+	public void handlePut(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		final Integer assessmentID = getAssessmentID(request);
+		final Integer attachmentID = getAttachmentID(request);
+		
+		final AttachmentIO io = new AttachmentIO(session);
+		final AssessmentIO assessmentIO = new AssessmentIO(session);
+		
+		final Assessment assessment = assessmentIO.getAssessment(assessmentID);
+		if (assessment == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Assessment not found.");
+		
+		NativeDocument document = new JavaNativeDocument();
+		try {
+			document.parse(entity.getText());
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+		}
+		
+		FieldAttachment source = FieldAttachment.fromXML(document.getDocumentElement(), new FieldAttachment.FieldFinder() {
+			public Field get(String id, String name) {
+				return assessment.getField(name);
+			}
+		});
+		
+		if (!attachmentID.equals(source.getId()))
+			throw new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED, "Entity ID does not match request ID.");
+		
+		FieldAttachment target = io.getAttachment(source.getId());
+		if (target == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Attachment not found, could not delete.");
+		
+		target.setPublish(source.getPublish());
+		target.setName(source.getName());
+		target.setFields(source.getFields()); //FieldFinder ensures this is correct.
+		
+		try {
+			io.saveMetadata(target);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 	}
 	
-	private String getAttachmentID(Request request) {
-		return (String) request.getAttributes().get("attachmentID");
+	protected Integer getAssessmentID(Request request) throws ResourceException {
+		String id = (String) request.getAttributes().get("assessmentID");
+		if (id == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please specify an assessment.");
+		
+		try {
+			return Integer.valueOf(id);
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please specify a valid assessment ID.");
+		}
 	}
-
-	private boolean removeFromRegistry(VFSPath registryPath,
-			String attachmentID) {
-		Document doc = DocumentUtils.getVFSFileAsDocument(registryPath
-				.toString(), vfs);
-		if (doc == null)
-			return false;
-
-		Element docElement = doc.getDocumentElement();
-		Element elementToRemove = null;
-		NodeList attachments = docElement.getElementsByTagName("attachment");
-		for (int i = 0; i < attachments.getLength(); i++) {
-			Element element = (Element) attachments.item(i);
-			if (element.getAttribute("id").equalsIgnoreCase(attachmentID)) {
-				elementToRemove = element;
-			}
+	
+	protected Integer getAttachmentID(Request request) throws ResourceException {
+		String value = (String) request.getAttributes().get("attachmentID");
+		if (value == null)
+			return null; //Ok to be missing.
+		
+		try {
+			return Integer.valueOf(value);
+		} catch (Exception e) { //Not OK to be wrong.
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please specify a valid attachment ID.");
 		}
-
-		if (elementToRemove == null)
-			return false;
-
-		docElement.removeChild(elementToRemove);
-		return DocumentUtils.writeVFSFile(registryPath.toString(), vfs, doc);
-	}
-
-	private boolean updatedRegistry(VFSPath registryPath,
-			String attachmentID, String isPublic) {
-		Document doc = DocumentUtils.getVFSFileAsDocument(registryPath
-				.toString(), vfs);
-		if (doc == null) {
-			return false;
-		}
-
-		Element docElement = doc.getDocumentElement();
-		Element elementToModify = null;
-		NodeList attachments = docElement.getElementsByTagName("attachment");
-		for (int i = 0; i < attachments.getLength(); i++) {
-			Element element = (Element) attachments.item(i);
-			if (element.getAttribute("id").equalsIgnoreCase(attachmentID)) {
-				elementToModify = element;
-			}
-		}
-
-		if (elementToModify == null) {
-			return false;
-		}
-
-		NodeList published = elementToModify.getElementsByTagName("published");
-		published.item(0).setTextContent(isPublic);
-		return DocumentUtils.writeVFSFile(registryPath.toString(), vfs, true,
-				doc);
-	}
-
-	private boolean writeFile(VFSPath path, FileItem file) {
-		if (!vfs.exists(path)) {
-			OutputStream outputStream = null;
-			try {
-				outputStream = vfs.getOutputStream(path);
-				outputStream.write(file.get());
-			} catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-			try {
-				outputStream.close();
-			} catch (IOException e) {
-				// IGNORE
-			}
-			return true;
-		}
-		return false;
-
-	}
+	}	
 
 }

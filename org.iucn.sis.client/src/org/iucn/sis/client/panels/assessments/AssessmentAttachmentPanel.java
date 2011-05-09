@@ -6,6 +6,7 @@ import java.util.List;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.assessments.AssessmentAttachment;
+import org.iucn.sis.shared.api.models.FieldAttachment;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -44,7 +45,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 	protected final static String desc = "<b>Add another attachment</b><br/><br/>"
 			+ "Choose a file that will be associated with this assessment, and "
 			+ "whether to publish this file if and/or when the assessment is published.";
-	protected final static String url = "/attachment";
+	protected final static String url = "/browse/assessments";
 	protected final static String filenameSize = "200px";
 	protected final static String publishSize = "200px";
 	protected final static String deleteSize = "150px";
@@ -57,8 +58,8 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 
 	protected final String assessmentID;
 	protected Listener<BaseEvent> closeListener;
-	protected List<AssessmentAttachment> attachments;
-	protected AssessmentAttachment tempAssessmentAttach;
+	protected List<FieldAttachment> attachments;
+	protected FieldAttachment tempAssessmentAttach;
 	protected RadioButton noPublish;
 	protected RadioButton publish;
 
@@ -66,7 +67,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 		form = new FormPanel();
 		uploadField = new FileUpload();
 		this.assessmentID = assessmentID;
-		this.attachments = new ArrayList<AssessmentAttachment>();
+		this.attachments = new ArrayList<FieldAttachment>();
 		table = new LayoutContainer();
 		tableContents = new LayoutContainer();
 
@@ -90,7 +91,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 						.getElementsByTagName("attachment");
 				for (int i = 0; i < attachments.getLength(); i++)
 					AssessmentAttachmentPanel.this.attachments
-							.add(new AssessmentAttachment(attachments
+							.add(FieldAttachment.fromXML(attachments
 									.elementAt(i)));
 
 				try {
@@ -118,22 +119,22 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 
 	}
 
-	protected HorizontalPanel getRow(final AssessmentAttachment att) {
+	protected HorizontalPanel getRow(final FieldAttachment att) {
 
-		HTML filenameHTML = new HTML("<a href=\"/attachment/file/" + att.id
-				+ "\" target=\"_blank\">" + att.filename + "</a>");
+		HTML filenameHTML = new HTML("<a href=\"" + UriBase.getInstance().getAttachmentBase() + url + "/" + assessmentID + "/" + att.getId()
+				+ "\" target=\"_blank\">" + att.getName() + "</a>");
 		final ListBox isPublished = new ListBox(false);
 		isPublished.addItem("yes", "true");
 		isPublished.addItem("no", "false");
-		int index = att.isPublished ? 0 : 1;
+		int index = att.getPublish() ? 0 : 1;
 		isPublished.setSelectedIndex(index);
 		isPublished.addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {
-				att.isPublished = Boolean.parseBoolean(isPublished
-						.getValue(isPublished.getSelectedIndex()));
+				att.setPublish(Boolean.parseBoolean(isPublished
+						.getValue(isPublished.getSelectedIndex())));
 				NativeDocument ndoc = SimpleSISClient
 						.getHttpBasicNativeDocument();
-				ndoc.post(UriBase.getInstance().getAttachmentBase() +url + "/file/" + att.id, att.toXML(),
+				ndoc.put(UriBase.getInstance().getAttachmentBase() +url + "/" + assessmentID + "/" + att.getId(), att.toXML(),
 						new GenericCallback<String>() {
 
 							public void onFailure(Throwable caught) {
@@ -159,7 +160,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 				WindowUtils.confirmAlert("Confirm", "Are you sure you want to delete this file? this can not be undone.", new WindowUtils.SimpleMessageBoxListener() {
 					public void onYes() {
 						NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
-						ndoc.delete(UriBase.getInstance().getAttachmentBase() +url + "/file/" + att.id,
+						ndoc.delete(UriBase.getInstance().getAttachmentBase() +url + "/"+assessmentID+"/" + att.getId(),
 								new GenericCallback<String>() {
 							public void onFailure(Throwable caught) {
 								Window.alert("Failed to delete file attachment");
@@ -215,9 +216,8 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 		form.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
 			public void onSubmitComplete(SubmitCompleteEvent event) {
 				if (event.getResults() != null) {
-
-					tempAssessmentAttach.id = event.getResults().replaceAll(
-							"(<pre>)|(</pre>)", "");
+					/*tempAssessmentAttach.setId(Integer.valueOf(event.getResults().replaceAll(
+							"(<pre>)|(</pre>)", "")));*/
 					attachments.add(tempAssessmentAttach);
 					tempAssessmentAttach = null;
 					refreshTable();
@@ -267,7 +267,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 	protected void refreshTable() {
 
 		tableContents.removeAll();
-		for (AssessmentAttachment attach : attachments) {
+		for (FieldAttachment attach : attachments) {
 			tableContents.add(getRow(attach));
 		}
 		tableContents.layout();
@@ -288,8 +288,8 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 				return;
 			}
 
-			for (AssessmentAttachment att : attachments) {
-				if (att.filename.equals(filename)) {
+			for (FieldAttachment att : attachments) {
+				if (att.getName().equals(filename)) {
 					WindowUtils
 							.errorAlert("Unable to upload "
 									+ filename
@@ -300,10 +300,10 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 				}
 			}
 
-			tempAssessmentAttach = new AssessmentAttachment();
-			tempAssessmentAttach.filename = uploadField.getFilename();
-			tempAssessmentAttach.isPublished = publish.getValue();
-			tempAssessmentAttach.assessmentID = assessmentID;
+			tempAssessmentAttach = new FieldAttachment();
+			tempAssessmentAttach.setName(uploadField.getFilename());
+			tempAssessmentAttach.setPublish(publish.getValue());
+			//tempAssessmentAttach.assessmentID = assessmentID;
 			form.submit();
 		}
 

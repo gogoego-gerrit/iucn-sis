@@ -1,6 +1,8 @@
 package org.iucn.sis.client.panels.dem;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
+import org.iucn.sis.client.api.assessment.FieldAttachmentManager;
+import org.iucn.sis.client.api.assessment.FieldAttachmentWindow;
 import org.iucn.sis.client.api.assessment.ReferenceableAssessment;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -11,7 +13,6 @@ import org.iucn.sis.client.api.ui.users.panels.ManageCreditsWindow;
 import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.assessments.AssessmentAttachmentPanel;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
 import org.iucn.sis.client.panels.assessments.TrackChangesPanel;
 import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
@@ -44,7 +45,6 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -52,7 +52,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
@@ -210,36 +209,46 @@ public class DEMToolbar extends ToolBar {
 		item.setIconStyle("icon-attachment");
 		item.setText("Attachments");
 		item.setEnabled(SimpleSISClient.iAmOnline);
-		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
+		
+		Menu attachmentMenu = new Menu();
+		MenuItem newAttachment = new MenuItem();
+		newAttachment.setText("Attach File");
+		newAttachment.setIconStyle("icon-attachment");
+		newAttachment.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
+					WindowUtils.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
+					return;
+				}
+				
+				FieldAttachmentWindow window = 
+					new FieldAttachmentWindow(AssessmentCache.impl.getCurrentAssessment(), null);
+				window.show();
+			}
+		});
+		attachmentMenu.add(newAttachment);
+		
+		MenuItem manageAttachments = new MenuItem();
+		manageAttachments.setText("Manage Attachments");
+		manageAttachments.setIconStyle("icon-attachment");
+		manageAttachments.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
 					WindowUtils.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
 					return;
 				}
 
-				final AssessmentAttachmentPanel attachPanel = new AssessmentAttachmentPanel(AssessmentCache.impl.getCurrentAssessment().getInternalId());
-				attachPanel.draw(new AsyncCallback<String>() {
-					public void onSuccess(String result) {
-						final Window uploadShell = WindowUtils.getWindow(true, true, "");
-						uploadShell.setLayout(new FitLayout());
-						uploadShell.setWidth(800);
-						uploadShell.setHeight(400);
-						uploadShell.setHeading("Attachments");
-						uploadShell.add(attachPanel);
-						uploadShell.show();
-						uploadShell.center();
-						uploadShell.layout();
-					}
-					public void onFailure(Throwable caught) {
-						WindowUtils.errorAlert("Server error: Unable to get file attachments for this assessment");				
-					}
-				});
+				final FieldAttachmentManager window = new FieldAttachmentManager();
+				window.show();
 			}
 		});
+		attachmentMenu.add(manageAttachments);
+		
+		item.setMenu(attachmentMenu);
 
 		add(item);
 
-		add(new Button());
+		add(new SeparatorToolItem());
 
 		item = new Button();
 		item.setIconStyle("icon-information");

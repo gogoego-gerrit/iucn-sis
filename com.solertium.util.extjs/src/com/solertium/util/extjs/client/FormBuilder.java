@@ -26,6 +26,7 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.HiddenField;
 import com.extjs.gxt.ui.client.widget.form.LabelField;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -198,6 +199,14 @@ public class FormBuilder {
 		field.setFieldLabel(label);
 		if (value != null)
 			field.setValue(value);
+		
+		return field;
+	}
+	
+	public static HiddenField<String> createHiddenField(String name, String value) {
+		final HiddenField<String> field = new HiddenField<String>();
+		field.setName(name);
+		field.setValue(value);
 		
 		return field;
 	}

@@ -20,6 +20,7 @@
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Definition.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Edit.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Field.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/FieldAttachment.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Infratype.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/IsoLanguage.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Notes.hbm.xml" />

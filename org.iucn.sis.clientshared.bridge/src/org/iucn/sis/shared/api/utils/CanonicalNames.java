@@ -256,4 +256,11 @@ public interface CanonicalNames {
 		GeneralHabitats, Lakes, LandCover, LargeMarineEcosystems, 
 		PlantGrowthForms, Research, Rivers, Threats
 	};
+	
+	public static String [] attachable = new String [] {
+		TaxonomicNotes, HabitatDocumentation, PopulationDocumentation, 
+		RangeDocumentation, ThreatsDocumentation, ConservationActionsDocumentation, 
+		UseTradeDocumentation, RedListRationale
+	};
+	
 }

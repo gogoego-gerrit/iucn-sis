@@ -42,12 +42,15 @@ public class Edit implements Serializable, Comparable<Edit> {
 	
 	private java.util.Set<Notes> notes;
 	
+	private java.util.Set<FieldAttachment> attachments;
+	
 	public Edit() {
 		createdDate = new Date();
 		working_set = new java.util.HashSet<WorkingSet>();
 		assessment = new java.util.HashSet<Assessment>();
 		taxon = new java.util.HashSet<Taxon>();
 		notes = new java.util.HashSet<Notes>();
+		attachments = new java.util.HashSet<FieldAttachment>();
 	}
 	
 	@Override
@@ -96,6 +99,14 @@ public class Edit implements Serializable, Comparable<Edit> {
 	
 	public void setAssessment(java.util.Set<Assessment> value) {
 		this.assessment = value;
+	}
+	
+	public java.util.Set<FieldAttachment> getAttachments() {
+		return attachments;
+	}
+	
+	public void setAttachments(java.util.Set<FieldAttachment> attachments) {
+		this.attachments = attachments;
 	}
 	
 	public void setCreatedDate(Date value) {
