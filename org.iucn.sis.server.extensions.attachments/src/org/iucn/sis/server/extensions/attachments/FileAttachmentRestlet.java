@@ -25,6 +25,7 @@ import org.restlet.resource.ResourceException;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.restlet.MediaTypeManager;
 
 public class FileAttachmentRestlet extends BaseServiceRestlet {
 
@@ -83,6 +84,8 @@ public class FileAttachmentRestlet extends BaseServiceRestlet {
 				representation.setDownloadable(true);
 				representation.setDownloadName(attachment.getName());
 			}
+			else
+				representation.setMediaType(MediaTypeManager.getMediaType(attachment.getName()));
 			
 			return representation;
 		}
