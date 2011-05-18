@@ -34,6 +34,8 @@ import org.iucn.sis.client.panels.zendesk.ZendeskPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.Bookmark;
+import org.iucn.sis.shared.api.utils.UserAffiliationProperties;
+import org.iucn.sis.shared.api.utils.UserAffiliationPropertiesFactory;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -151,10 +153,12 @@ public class HeaderContainer extends ContentPanel {
 	}*/
 
 	private LayoutContainer buildLeftPanel(String first, String last, String affiliation) {
-		String logoUrl = SimpleSISClient.currentUser.getAffiliation().equalsIgnoreCase("birdlife") 
-			? "images/logo-birdlifeStacked.gif" : "images/sislogo_cropped.png";
+		UserAffiliationProperties properties = UserAffiliationPropertiesFactory.
+			get(SimpleSISClient.currentUser.getAffiliation());
+		
 		HTML logo = new HTML("<div style=\"text-align:center;margin:0px auto;cursor: pointer\">" + 
-			"<img src=\"" + logoUrl + "\" alt=\"Species Information Service\" /></div>");
+			"<img src=\"" + properties.getHeaderLogo() + 
+			"\" alt=\"Species Information Service\" /></div>");
 		logo.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				StateManager.impl.reset();
@@ -221,7 +225,11 @@ public class HeaderContainer extends ContentPanel {
 		for (int i = 0; i < bottom.getCellCount(0); i++)
 			bottom.getCellFormatter().setAlignment(0, i, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
 		
+		String panelStyle = properties.getHeaderBackgroundStyle();
+		
 		LayoutContainer panel = new LayoutContainer(new FlowLayout());
+		if (panelStyle != null)
+			panel.addStyleName(panelStyle);
 		panel.setBorders(false);
 		panel.add(logo);
 		panel.add(createSpacer(10));
