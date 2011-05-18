@@ -20,6 +20,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
 
 public class TaxonIO {
@@ -271,13 +272,19 @@ public class TaxonIO {
 	}
 
 	public Taxon readTaxonByName(String kingdomName, String name) {
+		return readTaxonByName(kingdomName, name, null);
+	}
+	
+	public Taxon readTaxonByName(String kingdomName, String name, TaxonLevel level) {
 		TaxonCriteria criteria = new TaxonCriteria(session);
 		criteria.friendlyName.eq(name);
+		if (level != null)
+			criteria.createTaxonLevelCriteria().level.eq(level.getLevel());
+		
 		Taxon[] taxa = TaxonDAO.getTaxonByCriteria(criteria);
-		for (Taxon taxon : taxa) {
+		for (Taxon taxon : taxa)
 			if (taxon.getKingdomName().equalsIgnoreCase(kingdomName))
 				return taxon;
-		}
 		
 		return null;
 	}

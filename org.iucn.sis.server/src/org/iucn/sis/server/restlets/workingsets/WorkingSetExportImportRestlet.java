@@ -499,8 +499,8 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		Integer importedID = importedTaxon.getId();
 
 		// DETERMINE IF IMPORTING NEW TAXON OR IF ALREADY EXIST IN SIS
-		String kingdomName = importedTaxon.getFootprint()[0];
-		Taxon sisTaxon = taxonIO.readTaxonByName(kingdomName, importedTaxon.getFriendlyName());
+		Taxon sisTaxon = taxonIO.readTaxonByName(importedTaxon.getKingdomName(), 
+				importedTaxon.getFriendlyName(), importedTaxon.getTaxonLevel());
 
 		if (sisTaxon == null) {
 			// THE TAXON IS NEW!
