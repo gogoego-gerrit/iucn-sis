@@ -46,7 +46,9 @@ import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -372,9 +374,12 @@ public class HeaderContainer extends ContentPanel {
 							AuthorizableObject.USE_FEATURE, AuthorizableFeature.DEM_UPLOAD_FEATURE)) {
 						final TabItem tabItem = new TabItem();
 						tabItem.setText("DEM Import");
-						
-						final String target = UriBase.getInstance().getDEMBase() + "/demimport/submit/" + SimpleSISClient.currentUser.getUsername();
-						tabItem.setUrl(target);
+						tabItem.add(new Html("This feature is not yet available."));
+						/*
+						 * FIXME: this form should be created client-side.
+						 */
+						/*final String target = UriBase.getInstance().getDEMBase() + "/demimport/submit/" + SimpleSISClient.currentUser.getUsername();
+						tabItem.setUrl(target);*/
 						tabItem.setIconStyle("icon-refresh");
 						tabItem.getHeader().addListener(Events.OnClick, new Listener<BaseEvent>() {
 							public void handleEvent(BaseEvent be) {
@@ -386,7 +391,7 @@ public class HeaderContainer extends ContentPanel {
 								TaxonomyCache.impl.clear();
 								AssessmentCache.impl.clear();
 
-								tabItem.setUrl(target);
+								//tabItem.setUrl(target);
 								tabItem.layout();
 							}
 						});
@@ -408,8 +413,13 @@ public class HeaderContainer extends ContentPanel {
 						tabItem3.setText("Manage New Taxa");
 						tabItem3.setLayout(new FitLayout());
 						tabItem3.add(taxonFinderPanel);
+						tabItem3.addListener(Events.Select, new Listener<TabPanelEvent>() {
+							public void handleEvent(TabPanelEvent be) {
+								taxonFinderPanel.load();
+								tabItem3.layout();
+							}
+						});
 						tf.add(tabItem3);
-						taxonFinderPanel.load();
 					}
 
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
@@ -417,8 +427,12 @@ public class HeaderContainer extends ContentPanel {
 						final TabItem tabItem4 = new TabItem();
 						tabItem4.setText("Manage Definitions");
 						tabItem4.setLayout(new FitLayout());
-						definitionPanel.draw();
 						tabItem4.add(definitionPanel);
+						tabItem4.addListener(Events.Select, new Listener<TabPanelEvent>() {
+							public void handleEvent(TabPanelEvent be) {
+								tabItem4.layout();
+							}
+						});
 						tf.add(tabItem4);
 					}
 
@@ -427,15 +441,20 @@ public class HeaderContainer extends ContentPanel {
 						final TabItem tabItem = new TabItem();
 						tabItem.setText("Manage Integrity Checks");
 						tabItem.setLayout(new FitLayout());
-						final DrawsLazily.DoneDrawingCallback callback = new DrawsLazily.DoneDrawingCallback() {
-							public void isDrawn() {
-								tabItem.add(integrityPanel);
+						tabItem.add(integrityPanel);
+						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
+							public void handleEvent(TabPanelEvent be) {
+								final DrawsLazily.DoneDrawingCallback callback = new DrawsLazily.DoneDrawingCallback() {
+									public void isDrawn() {
+										tabItem.layout();
+									}
+								};
+								if (integrityPanel.isDrawn())
+									callback.isDrawn();
+								else
+									integrityPanel.draw(callback);
 							}
-						};
-						if (integrityPanel.isDrawn())
-							callback.isDrawn();
-						else
-							integrityPanel.draw(callback);
+						});
 						tf.add(tabItem);
 					}
 
@@ -444,9 +463,14 @@ public class HeaderContainer extends ContentPanel {
 						final TabItem tabItem = new TabItem();
 						tabItem.setText("Manage Locks");
 						tabItem.setLayout(new FitLayout());
-						lockManagementPanel.draw(new DrawsLazily.DoneDrawingCallback() {
-							public void isDrawn() {
-								tabItem.add(lockManagementPanel);
+						tabItem.add(lockManagementPanel);
+						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
+							public void handleEvent(TabPanelEvent be) {
+								lockManagementPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+									public void isDrawn() {
+										tabItem.layout();
+									}
+								});
 							}
 						});
 						tf.add(tabItem);
@@ -457,13 +481,15 @@ public class HeaderContainer extends ContentPanel {
 						final TabItem tabItem = new TabItem();
 						tabItem.setText("Batch Upload");
 						tabItem.setIconStyle("icon-refresh");
-						tabItem.getHeader().addListener(Events.OnClick, new Listener<BaseEvent>() {
-							public void handleEvent(BaseEvent be) {
-								tabItem.setUrl(UriBase.getInstance().getImageBase()+"/images");
+						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
+							public void handleEvent(TabPanelEvent be) {
+								/*
+								 * FIXME: this form should be created client-side.
+								 */
+								tabItem.setUrl(UriBase.getInstance().getImageBase()+"/images/upload");
 								tabItem.layout();
 							}
 						});
-						tabItem.setUrl(UriBase.getInstance().getImageBase()+"/images");
 						tf.add(tabItem);
 					}
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
@@ -471,11 +497,7 @@ public class HeaderContainer extends ContentPanel {
 						final TabItem tabItem = new TabItem();
 						tabItem.setText("Redlist");
 						tabItem.setLayout(new FitLayout());
-						redlistPanel.draw(new DrawsLazily.DoneDrawingCallback() {
-							public void isDrawn() {
-								tabItem.add(redlistPanel);
-							}
-						});
+						tabItem.add(redlistPanel);
 						tf.add(tabItem);
 					}
 					
@@ -483,9 +505,14 @@ public class HeaderContainer extends ContentPanel {
 						final TabItem tabItem = new TabItem();
 						tabItem.setText("Virus Management");
 						tabItem.setLayout(new FitLayout());
-						virusManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
-							public void isDrawn() {
-								tabItem.add(virusManagerPanel);
+						tabItem.add(virusManagerPanel);
+						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
+							public void handleEvent(TabPanelEvent be) {
+								virusManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+									public void isDrawn() {
+										tabItem.layout();
+									}
+								});
 							}
 						});
 						tf.add(tabItem);
@@ -495,11 +522,17 @@ public class HeaderContainer extends ContentPanel {
 						final TabItem tabItem = new TabItem();
 						tabItem.setText("Taxon Tag Management");
 						tabItem.setLayout(new FitLayout());
-						taxaTagManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
-							public void isDrawn() {
-								tabItem.add(taxaTagManagerPanel);
+						tabItem.add(taxaTagManagerPanel);
+						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
+							public void handleEvent(TabPanelEvent be) {
+								taxaTagManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+									public void isDrawn() {
+										tabItem.layout();
+									}
+								});		
 							}
 						});
+						
 						tf.add(tabItem);
 					}
 

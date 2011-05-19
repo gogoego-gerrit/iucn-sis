@@ -161,7 +161,7 @@ public class TaxaTagManager extends LayoutContainer implements DrawsLazily {
 				callback.isDrawn();
 			}
 			public void onFailure(Throwable caught) {
-				WindowUtils.errorAlert("Could not load list.");
+				WindowUtils.errorAlert("Could not load tagged taxa list.");
 				
 				callback.isDrawn();
 			}

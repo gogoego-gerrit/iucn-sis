@@ -14,15 +14,12 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class RedlistPanel extends LayoutContainer implements DrawsLazily {
+public class RedlistPanel extends LayoutContainer {
 
 	public RedlistPanel() {
 		super();
 		setLayout(new FillLayout());
-	}
-
-	public void draw(DoneDrawingCallback callback) {
-		removeAll();
+		
 		VerticalPanel vp = new VerticalPanel();
 		final Button publishImages = new Button("Publish Images to Redlist", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(final ButtonEvent ce) {
@@ -46,11 +43,8 @@ public class RedlistPanel extends LayoutContainer implements DrawsLazily {
 			};
 		});
 		vp.add(publishImages);
+		
 		add(vp);
-		callback.isDrawn();
-		layout();
-
-
 	}
 
 

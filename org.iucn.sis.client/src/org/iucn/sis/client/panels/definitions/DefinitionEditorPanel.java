@@ -46,6 +46,8 @@ public class DefinitionEditorPanel extends ContentPanel {
 		setHeaderVisible(false);
 		
 		setLayout(new TableLayout(3));
+		
+		draw();
 	}
 
 	private TextField<String> addDefinition(Definition definition) {
@@ -97,41 +99,37 @@ public class DefinitionEditorPanel extends ContentPanel {
 		return defText;
 	}
 
-	public void draw() {
-		if (!drawn) {
-			for (Definition definition : DefinitionCache.impl.getDefinitions())
-				addDefinition(definition);
+	private void draw() {
+		for (Definition definition : DefinitionCache.impl.getDefinitions())
+			addDefinition(definition);
 
-			Button save = new Button();
-			save.setText("Save");
-			save.setIconStyle("icon-save");
-			save.setTitle("Save");
-			save.addListener(Events.Select, new Listener<BaseEvent>() {
-				public void handleEvent(BaseEvent be) {
-					save();
-				}
-			});
+		Button save = new Button();
+		save.setText("Save");
+		save.setIconStyle("icon-save");
+		save.setTitle("Save");
+		save.addListener(Events.Select, new Listener<BaseEvent>() {
+			public void handleEvent(BaseEvent be) {
+				save();
+			}
+		});
 
-			Button add = new Button();
-			add.setText("Add new definition");
-			add.setIconStyle("icon-add");
-			add.setTitle("Add new definition");
-			add.addListener(Events.Select, new Listener<BaseEvent>() {
-				public void handleEvent(BaseEvent be) {
-					TextField<String> f = addDefinition(null);
-					layout();
-					
-					scrollIntoView(f);
-				}
-			});
+		Button add = new Button();
+		add.setText("Add new definition");
+		add.setIconStyle("icon-add");
+		add.setTitle("Add new definition");
+		add.addListener(Events.Select, new Listener<BaseEvent>() {
+			public void handleEvent(BaseEvent be) {
+				TextField<String> f = addDefinition(null);
+				layout();
+				
+				scrollIntoView(f);
+			}
+		});
 
-			ToolBar toolbar = new ToolBar();
-			toolbar.add(save);
-			toolbar.add(add);
-			setTopComponent(toolbar);
-			
-			drawn = true;
-		}
+		ToolBar toolbar = new ToolBar();
+		toolbar.add(save);
+		toolbar.add(add);
+		setTopComponent(toolbar);
 	}
 
 	protected boolean isSaveable() {

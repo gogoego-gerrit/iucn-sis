@@ -96,6 +96,8 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 			ReferenceCache.impl.doLogout();
 			ViewCache.impl.doLogout();
 			History.newItem("", false);
+			
+			NativeDocumentFactory.setDefaultInstance(new NativeDocumentFactory());
 		}
 
 		private static void getProfile(final String password, final String username, final String authn) {
@@ -120,6 +122,15 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 						
 						if ("admin".equalsIgnoreCase(username))
 							currentUser.setProperty(UserPreferences.AUTO_SAVE, UserPreferences.DO_ACTION);
+						
+						NativeDocumentFactory.setDefaultInstance(new NativeDocumentFactory() {
+							public NativeDocument createNativeDocument() {
+								if (currentUser != null)
+									return currentUser.getHttpBasicNativeDocument();
+
+								return super.createNativeDocument();
+							}
+						});
 					
 						AuthorizationCache.impl.setCredentials(authn);
 						AuthorizationCache.impl.init(new GenericCallback<String>() {

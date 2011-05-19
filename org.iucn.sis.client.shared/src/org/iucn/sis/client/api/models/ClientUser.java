@@ -2,7 +2,7 @@ package org.iucn.sis.client.api.models;
 
 import org.iucn.sis.shared.api.models.User;
 
-import com.solertium.lwxml.factory.NativeDocumentFactory;
+import com.solertium.lwxml.gwt.NativeDocumentImpl;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.utils.RowData;
@@ -24,7 +24,7 @@ public class ClientUser extends User {
 	}
 	
 	public NativeDocument getHttpBasicNativeDocument() {
-		NativeDocument doc = NativeDocumentFactory.newNativeDocument();
+		NativeDocument doc = new NativeDocumentImpl();
 		doc.setHeader("Authorization", "Basic " + auth);
 
 		return doc;

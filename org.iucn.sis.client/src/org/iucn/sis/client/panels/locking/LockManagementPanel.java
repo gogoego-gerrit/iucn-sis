@@ -7,12 +7,15 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class LockManagementPanel extends LayoutContainer implements DrawsLazily {
 	
+	private boolean isDrawn = false;
+	
 	public LockManagementPanel() {
 		super();
 		setLayout(new FillLayout());
 	}
 	
 	public void draw(final DrawsLazily.DoneDrawingCallback callback) {
+		isDrawn = true;
 		LockLoader.impl.load(new GenericCallback<Object>() {
 			public void onSuccess(Object result) {
 				render(callback);
@@ -21,6 +24,10 @@ public class LockManagementPanel extends LayoutContainer implements DrawsLazily 
 				render(callback);
 			}
 		});
+	}
+	
+	public boolean isDrawn() {
+		return isDrawn;
 	}
 	
 	private void render(final DrawsLazily.DoneDrawingCallback callback) {
