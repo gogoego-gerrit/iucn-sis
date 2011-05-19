@@ -409,16 +409,15 @@ public class LoginPanel extends LayoutContainer {
 							processUpdatesDoc.getAsText(UriBase.getInstance().getSISBase() + "/update", new GenericCallback<String>() {
 								public void onFailure(Throwable caught) {
 									WindowUtils.hideLoadingAlert();
-									Window w = WindowUtils.getWindow(false, false, "Update Message");
+									Window w = WindowUtils.newWindow("Update Message", null, false, false);
 									w.add(new Html(processUpdatesDoc.getText()));
 									w.show();
 								}
 
 								public void onSuccess(String result) {
 									WindowUtils.hideLoadingAlert();
-									Window w = WindowUtils.getWindow(false, false, "Update Message");
+									Window w = WindowUtils.newWindow("Update Message", null, false, false);
 									w.add(new Html(processUpdatesDoc.getText()));
-									w.setModal(true);
 									w.setClosable(false);
 									w.show();
 								}
@@ -719,14 +718,14 @@ public class LoginPanel extends LayoutContainer {
 							processUpdatesDoc.getAsText(UriBase.getInstance().getSISBase() + "/update", new GenericCallback<String>() {
 								public void onFailure(Throwable caught) {
 									WindowUtils.hideLoadingAlert();
-									Window w = WindowUtils.getWindow(false, false, "Update Message");
+									Window w = WindowUtils.newWindow("Update Message", null, false, false);
 									w.add(new Html(processUpdatesDoc.getText()));
 									w.show();
 								}
 
 								public void onSuccess(String result) {
 									WindowUtils.hideLoadingAlert();
-									Window w = WindowUtils.getWindow(false, false, "Update Message");
+									Window w = WindowUtils.newWindow("Update Message", null, false, false);
 									w.add(new Html(processUpdatesDoc.getText()));
 									w.setModal(true);
 									w.setClosable(false);

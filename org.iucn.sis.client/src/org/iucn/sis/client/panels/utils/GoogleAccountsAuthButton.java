@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.extjs.client.WindowUtils;
 
 /**
  * Will communicate with the AppEngineAuthenticateRestlet to facilitate
@@ -81,7 +82,7 @@ public class GoogleAccountsAuthButton extends VerticalPanel {
 		String loginURL = "/googleLogin?reentry=" + appURL;
 		doc.get(loginURL, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				Window.alert("Google Account login is currently experiencing technical difficulties.");
+				WindowUtils.errorAlert("Google Account login is currently experiencing technical difficulties.");
 			}
 
 			public void onSuccess(String result) {
@@ -95,7 +96,7 @@ public class GoogleAccountsAuthButton extends VerticalPanel {
 		String loginURL = "/googleLogin?t=" + ticket + "&usr=" + initialUser;
 		doc.post(loginURL, "<empty></empty>", new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				Window.alert("You are attempting to reuse a stale Google Accounts login "
+				WindowUtils.infoAlert("You are attempting to reuse a stale Google Accounts login "
 						+ "ticket. Click OK to acquire a new ticket to log back in.");
 
 				doGoogleLogin();

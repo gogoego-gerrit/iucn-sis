@@ -6,6 +6,7 @@ package org.iucn.sis.client.api.ui.users.panels;
 import java.util.List;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -17,7 +18,6 @@ import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -44,7 +44,7 @@ import com.solertium.util.gwt.api.XMLWritingUtils;
  * 
  */
 @SuppressWarnings("deprecation")
-public abstract class CustomFieldCreator extends Window {
+public abstract class CustomFieldCreator extends BasicWindow {
 
 	/**
 	 * OptionEditor
@@ -55,19 +55,18 @@ public abstract class CustomFieldCreator extends Window {
 	 * @author carl.scott <carl.scott@solertium.com>
 	 * 
 	 */
-	private static abstract class OptionEditor extends Window {
+	private static abstract class OptionEditor extends BasicWindow {
 
 		public OptionEditor() {
 			this(null);
 		}
 
 		public OptionEditor(String text) {
+			super("Set Option");
+			
 			final TextBox option = new TextBox();
 			if (text != null)
 				option.setText(text);
-
-			setHeading("Set Option");
-			setClosable(true);
 
 			add(new HTML("Enter Option Name: "));
 			add(option);
@@ -102,8 +101,6 @@ public abstract class CustomFieldCreator extends Window {
 
 	public CustomFieldCreator() {
 		super();
-		setModal(true);
-		setClosable(true);
 
 		name = new TextBox();
 		name.setName("name");

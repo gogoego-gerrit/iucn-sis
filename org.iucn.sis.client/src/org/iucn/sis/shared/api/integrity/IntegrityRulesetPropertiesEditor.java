@@ -1,10 +1,11 @@
 package org.iucn.sis.shared.api.integrity;
 
+import org.iucn.sis.client.api.utils.BasicWindow;
+
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -12,20 +13,18 @@ import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class IntegrityRulesetPropertiesEditor extends Window {
+public class IntegrityRulesetPropertiesEditor extends BasicWindow {
 	
 	private final SISQBQuery query;
 	
 	private ComboBox<BaseModelData> failureCondition;
 
 	public IntegrityRulesetPropertiesEditor(SISQBQuery query) {
-		super();
+		super("Edit Properties");
 		this.query = query;
 		
 		setSize(450, 200);
 		setLayout(new FillLayout());
-		setModal(true);
-		setHeading("Edit Properties");
 		
 		buildFailureConditionComboBox();
 		

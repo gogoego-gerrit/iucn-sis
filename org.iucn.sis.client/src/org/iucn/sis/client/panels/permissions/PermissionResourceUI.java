@@ -281,7 +281,7 @@ public class PermissionResourceUI extends LayoutContainer {
 				final HorizontalPanel listPanel = buildLists(result);
 				listPanel.setSize(730, 80);
 
-				final Window w = WindowUtils.getWindow(true, true, "Editing Resource");
+				final Window w = WindowUtils.newWindow("Editing Resource", null, true, true);
 				w.setLayout(new FlowLayout());
 				w.setSize(750, 100);
 				w.add(listPanel);

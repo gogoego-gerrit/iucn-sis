@@ -1,9 +1,9 @@
 package org.iucn.sis.client.panels.zendesk;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.debug.Debug;
 
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.TextBox;
@@ -11,7 +11,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class ZendeskPanel extends Window {
+public class ZendeskPanel extends BasicWindow {
 	
 	@SuppressWarnings("unused")
 	private final TextBox subject;
@@ -20,9 +20,8 @@ public class ZendeskPanel extends Window {
 	private final TextArea ticket;
 	
 	public ZendeskPanel() {
-		super();
+		super("Zendesk");
 		setSize(800, 600);
-		setHeading("Zendesk");
 		
 		subject = new TextBox();
 		ticket = new TextArea();

@@ -1,10 +1,11 @@
 package org.iucn.sis.client.panels.integrity;
 
+import org.iucn.sis.client.api.utils.BasicWindow;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.HtmlContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 
@@ -17,18 +18,13 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
-public class ValidationResultsWindow extends Window {
+public class ValidationResultsWindow extends BasicWindow {
 
 	public ValidationResultsWindow(Integer assessmentID, String results) {
-		super();
-		setIconStyle("icon-integrity");
-		setClosable(true);
-		setModal(true);
-		setHeading("Validation Results for " + assessmentID);
+		super("Validation Results for " + assessmentID, "icon-integrity");
 		setSize(400, 300);
 		setScrollMode(Scroll.AUTO);
 		setLayout(new FillLayout());
-// setAlignment(HorizontalAlignment.CENTER);
 
 		add(new HtmlContainer(results));
 

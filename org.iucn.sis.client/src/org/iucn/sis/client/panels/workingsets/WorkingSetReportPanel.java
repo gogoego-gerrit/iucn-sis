@@ -109,7 +109,7 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 	}
 
 	private void createGeneralReport() {
-		final com.extjs.gxt.ui.client.widget.Window window = WindowUtils.getWindow(true, false, "Report Generator");
+		final com.extjs.gxt.ui.client.widget.Window window = WindowUtils.newWindow("Report Generator", null, false, true);
 		window.addListener(Events.Close, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				window.hide();

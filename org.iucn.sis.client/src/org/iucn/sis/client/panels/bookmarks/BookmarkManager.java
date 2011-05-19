@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.BookmarkCache;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.Bookmark;
 
@@ -14,7 +15,6 @@ import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -32,13 +32,11 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.StyledHTML;
 
-public class BookmarkManager extends Window {
+public class BookmarkManager extends BasicWindow {
 	
 	public BookmarkManager() {
-		super();
+		super("Bookmark Manager", "icon-bookmark");
 		setLayout(new FillLayout());
-		setHeading("Bookmark Manager");
-		setIconStyle("icon-bookmark");
 		setSize(600, 400);
 		
 		draw();

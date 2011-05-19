@@ -1,12 +1,9 @@
 package org.iucn.sis.client.panels.taxa;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
@@ -18,21 +15,16 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.tree.Tree;
 import com.extjs.gxt.ui.client.widget.tree.TreeItem;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 
 @SuppressWarnings("deprecation")
-public class TaxonTreePopup extends Window {
+public class TaxonTreePopup extends BasicWindow {
 
 	public TaxonTreePopup(Taxon node) {
-		super();
-		setClosable(true);
-		setHeading("Full Taxonomic View");
+		super("Full Taxonomic View");
 		setHeight(300);
 		setWidth(350);
 		build(node);

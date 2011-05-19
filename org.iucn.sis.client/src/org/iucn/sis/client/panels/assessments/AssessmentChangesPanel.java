@@ -74,7 +74,7 @@ public class AssessmentChangesPanel extends PagingPanel<ChangesModelData> implem
 	@Override
 	public void draw(DoneDrawingCallback callback) {
 		if (assessment == null) {
-			Window.alert("Unable to view changes.  Please set your current assessment to the assessment you want to view");
+			WindowUtils.infoAlert("Unable to view changes.  Please set your current assessment to the assessment you want to view");
 		} else {
 			grid = new Grid<ChangesModelData>(getStoreInstance(), getColumnModel());
 			

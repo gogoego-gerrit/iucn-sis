@@ -9,6 +9,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.querybuilder.gwt.client.tree.QBConditionGroupItem;
 import com.solertium.util.querybuilder.gwt.client.tree.QBConditionGroupRootItem;
 import com.solertium.util.querybuilder.gwt.client.utils.ContextMenu;
@@ -66,11 +67,7 @@ public abstract class SISQBConditionGroupRootItem extends QBConditionGroupRootIt
 								area.setValue(query.getErrorMessage(id));
 								area.setSize(350, 100);
 								
-								final Window window = new Window();
-								window.setHeading("Set Failure Description");
-								window.setModal(true);
-//								window.setAlignment(HorizontalAlignment.CENTER);
-								window.setClosable(true);
+								final Window window = WindowUtils.newWindow("Set Failure Description");
 								window.setSize(400, 200);
 								window.setLayout(new FillLayout());
 								window.add(area);

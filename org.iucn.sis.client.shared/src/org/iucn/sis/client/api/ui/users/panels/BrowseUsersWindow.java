@@ -12,6 +12,7 @@ import org.iucn.sis.client.api.caches.UserCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache.RecentUser;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.UserSearchController.SearchResults;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -32,7 +33,6 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.ListViewSelectionModel;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -58,7 +58,7 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
-public class BrowseUsersWindow extends Window {
+public class BrowseUsersWindow extends BasicWindow {
 
 	/**
 	 * SearchResultsComparator
@@ -98,9 +98,7 @@ public class BrowseUsersWindow extends Window {
 	private ComplexListener<List<ClientUser>> listener;
 
 	public BrowseUsersWindow() {
-		super();
-		setClosable(true);
-		setHeading("Search for Users");
+		super("Search for Users");
 
 		basicInstructions = "<b>Add User:</b> Choose a recent user or Search for a user and then drag and drop the user to the selected list.  </br></br>"
 			+ "<b>Remove User:</b> Drag name out of the selected users list into the possible users list. </br></br>";

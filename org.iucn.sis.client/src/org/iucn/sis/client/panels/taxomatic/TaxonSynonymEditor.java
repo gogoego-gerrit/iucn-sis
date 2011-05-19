@@ -71,10 +71,7 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 	private int numberAdded;
 
 	public TaxonSynonymEditor() {
-		super();
-		setHeading("Synonym Editor");
-		setIconStyle("icon-note-edit");
-		
+		super("Synonym Editor", "icon-note-edit");
 		
 		this.node = TaxonomyCache.impl.getCurrentTaxon();
 		synonymInfo = new VerticalPanel();

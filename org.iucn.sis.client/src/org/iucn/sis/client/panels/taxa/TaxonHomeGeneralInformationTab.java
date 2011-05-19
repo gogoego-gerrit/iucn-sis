@@ -269,7 +269,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 						return;
 					}
 
-					final Window s = WindowUtils.getWindow(false, false, "Synonyms");
+					final Window s = WindowUtils.newWindow("Synonyms", null, false, false);
 					s.setSize(400, 400);
 					LayoutContainer data = s;
 					data.setScrollMode(Scroll.AUTO);
@@ -339,7 +339,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		viewAll.setStyleName("SIS_HyperlinkLookAlike");
 		viewAll.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				final Window container = WindowUtils.getWindow(false, false, "Edit Common Names");
+				final Window container = WindowUtils.newWindow("Edit Common Names", null, false, false);
 				container.setScrollMode(Scroll.AUTO);
 
 				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {

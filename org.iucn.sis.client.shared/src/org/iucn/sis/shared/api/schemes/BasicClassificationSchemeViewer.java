@@ -19,7 +19,6 @@ import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow.EditMode;
 import org.iucn.sis.shared.api.structures.Structure;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -291,8 +290,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				final CodingOptionTreePanel panel = 
 					new CodingOptionTreePanel(treeData, selected, getDisabledTreeDataRows());
 				
-				final Window window = WindowUtils.getWindow(true, true, "Add " + description);
-				window.setButtonAlign(HorizontalAlignment.CENTER);
+				final Window window = WindowUtils.newWindow("Add " + description, null, true, true);
 				window.setLayout(new FillLayout());
 				window.setSize(600, 600);
 				window.setScrollMode(Scroll.AUTO);

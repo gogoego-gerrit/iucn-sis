@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Edit;
@@ -25,8 +26,6 @@ import com.extjs.gxt.ui.client.widget.HorizontalPanel;
 import com.extjs.gxt.ui.client.widget.HtmlContainer;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.VerticalPanel;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -42,17 +41,16 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class NotesWindow extends Window implements DrawsLazily {
+public class NotesWindow extends BasicWindow implements DrawsLazily {
 	
 	private final NoteAPI api;
 	
 	public NotesWindow(final NoteAPI api) {
-		super();
+		super("View Notes");
 		this.api = api;
 		
 		setLayout(new FillLayout());
 		setSize(500, 550);
-		setHeading("View Notes");
 	}
 	
 	public void show() {

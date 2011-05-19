@@ -313,8 +313,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 				final ImageManagerPanel manager = new ImageManagerPanel(node);
 				manager.update(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
-						Window window = new Window();
-						window.setHeading("Manage Images");
+						Window window = WindowUtils.newWindow("Manage Images");
 						window.add(manager);
 						window.setWidth(600);
 						window.setHeight(300);

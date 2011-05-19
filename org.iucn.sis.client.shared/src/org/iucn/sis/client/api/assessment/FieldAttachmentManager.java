@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
@@ -31,7 +32,6 @@ import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -57,7 +57,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class FieldAttachmentManager extends Window implements DrawsLazily {
+public class FieldAttachmentManager extends BasicWindow implements DrawsLazily {
 	
 	private final Assessment assessment;
 	private final ListStore<FieldAttachmentModelData> store;
@@ -67,12 +67,9 @@ public class FieldAttachmentManager extends Window implements DrawsLazily {
 	}
 	
 	public FieldAttachmentManager(Assessment assessment) {
-		super();
+		super("Assessment Attachment Manager", "icon-attachment");
 		setLayout(new FillLayout());
 		setLayoutOnChange(true);
-		setModal(true);
-		setHeading("Assessment Attachment Manager");
-		setIconStyle("icon-attachment");
 		setSize(750, 500);
 		
 		this.assessment = assessment;

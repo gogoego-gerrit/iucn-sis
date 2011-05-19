@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels.integrity;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.integrity.AssessmentValidationDesigner;
@@ -399,18 +400,14 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 		return UriBase.getInstance().getIntegrityBase() + "/" + service + (ruleName == null ? "" : "/" + ruleName + ".xml");
 	}
 
-	public static class ValidateAssessmentWindow extends Window {
+	public static class ValidateAssessmentWindow extends BasicWindow {
 
 		private final TextField<Integer> field;
 		private final ComboBox<BaseModelData> status;
 
 		public ValidateAssessmentWindow(final String rule) {
-			super();
-
-			setHeading("Validate an Assessment");
+			super("Validate an Assessment");
 			setLayout(new FitLayout());
-			setModal(true);
-			setClosable(true);
 			setSize(400, 150);
 
 			field = new TextField<Integer>();
@@ -495,21 +492,17 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 					close();
 				}
 			}));
-// setAlignment(HorizontalAlignment.CENTER);
 		}
 
 	}
 
-	public static abstract class NewCustomConfigurationPanel extends Window {
+	public static abstract class NewCustomConfigurationPanel extends BasicWindow {
 
 		private final TextField<String> field;
 
 		public NewCustomConfigurationPanel() {
-			super();
-			setHeading("Add Rule Set");
+			super("Add Rule Set");
 			setLayout(new FitLayout());
-			setModal(true);
-			setClosable(true);
 			setSize(400, 200);
 
 			field = new TextField<String>();
@@ -569,7 +562,6 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 					close();
 				}
 			}));
-// setAlignment(HorizontalAlignment.CENTER);
 		}
 
 		private String getDefaultXML() {

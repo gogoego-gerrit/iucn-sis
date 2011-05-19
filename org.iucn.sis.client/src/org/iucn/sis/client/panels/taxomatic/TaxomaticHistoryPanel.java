@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -11,7 +12,6 @@ import org.iucn.sis.shared.api.models.Taxon;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
@@ -20,18 +20,15 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class TaxomaticHistoryPanel extends Window implements DrawsLazily {
+public class TaxomaticHistoryPanel extends BasicWindow implements DrawsLazily {
 
 	private final Taxon taxon;
 	
 	public TaxomaticHistoryPanel(Taxon taxon) {
-		super();
+		super("Taxomatic History");
 		setLayout(new FillLayout());
 		setScrollMode(Scroll.AUTO);
-		setHeading("Taxomatic History");
 		setSize(800, 600);
-		setModal(false);
-		setClosable(true);
 		
 		this.taxon = taxon;
 	}

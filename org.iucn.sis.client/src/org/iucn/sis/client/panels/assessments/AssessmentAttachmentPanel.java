@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.shared.api.assessments.AssessmentAttachment;
 import org.iucn.sis.shared.api.models.FieldAttachment;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -24,7 +23,6 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -143,8 +141,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 								} else {
 									isPublished.setSelectedIndex(0);
 								}
-								Window
-										.alert("Failed to save file attachment publish status");
+								WindowUtils.errorAlert("Failed to save file attachment publish status");
 							}
 
 							public void onSuccess(String result) {
@@ -163,7 +160,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 						ndoc.delete(UriBase.getInstance().getAttachmentBase() +url + "/"+assessmentID+"/" + att.getId(),
 								new GenericCallback<String>() {
 							public void onFailure(Throwable caught) {
-								Window.alert("Failed to delete file attachment");
+								WindowUtils.errorAlert("Failed to delete file attachment");
 							}
 							public void onSuccess(String result) {
 								Info.display("", "File attachment deleted");
@@ -284,7 +281,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 			}
 
 			if (filename.contains("_")) {
-				Window.alert("Filename can not contain \"_\"");
+				WindowUtils.errorAlert("Filename can not contain \"_\"");
 				return;
 			}
 
@@ -308,7 +305,7 @@ public class AssessmentAttachmentPanel extends LayoutContainer {
 		}
 
 		else
-			Window.alert("You must first select a file");
+			WindowUtils.errorAlert("You must first select a file");
 	}
 
 }

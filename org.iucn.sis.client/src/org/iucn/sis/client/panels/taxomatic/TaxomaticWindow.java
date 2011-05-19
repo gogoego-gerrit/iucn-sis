@@ -1,16 +1,16 @@
 package org.iucn.sis.client.panels.taxomatic;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
-import com.extjs.gxt.ui.client.widget.Window;
+import org.iucn.sis.client.api.utils.BasicWindow;
+
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 
-public class TaxomaticWindow extends Window {
+public class TaxomaticWindow extends BasicWindow {
 	
-	public TaxomaticWindow() {
-		super();
+	public TaxomaticWindow(String heading, String iconStyle) {
+		super(heading, iconStyle);
 		setLayout(new FillLayout());
 		setSize(TaxonChooser.PANEL_WIDTH + 30, TaxonChooser.PANEL_HEIGHT + 50);
-		setButtonAlign(HorizontalAlignment.CENTER);
+		
 		getButtonBar().setSpacing(5);
 	}
 

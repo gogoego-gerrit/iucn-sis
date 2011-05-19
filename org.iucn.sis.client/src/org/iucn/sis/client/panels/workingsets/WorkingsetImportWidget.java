@@ -9,7 +9,6 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FileUpload;
@@ -80,26 +79,21 @@ public class WorkingsetImportWidget extends HorizontalPanel {
 						cancelUpload.setEnabled(true);
 
 						if( event.getResults() == null || event.getResults().equals("") || event.getResults().indexOf("<div>") > -1 ) {
-							com.extjs.gxt.ui.client.widget.Window w = WindowUtils.getWindow(true, false, "Successful Import");
+							com.extjs.gxt.ui.client.widget.Window w = WindowUtils.newWindow("Successful Import", null, false, true);
 							w.add( new Html("The working set was successfully imported.<br/>" + event.getResults()));
 							w.setSize(300, 500);
 							w.show();
 							w.center();
-							w.setClosable(true);
 							AssessmentCache.impl.clear();
 							TaxonomyCache.impl.clear();
 						} else {
-							com.extjs.gxt.ui.client.widget.Window w = WindowUtils.getWindow(true, false, "Import Failed!");
+							com.extjs.gxt.ui.client.widget.Window w = WindowUtils.newWindow("Import Failed!", null, false, true);
 							w.add( new Html("Import failed. Please report the following error:" + event.getResults()) );
 							w.setSize(300, 500);
 							w.show();
-							w.setClosable(true);
-}
-
+						}
 					}
-
 				});
-
 			}
 		});
 
@@ -130,7 +124,7 @@ public class WorkingsetImportWidget extends HorizontalPanel {
 	}
 
 	public void onSubmitCompleteOverload(FormSubmitCompleteEvent event) {
-		Window.alert("Successful upload ... refresh page still needed");
+		WindowUtils.infoAlert("Successful upload ... refresh page still needed");
 	}
 
 	public void submit() {

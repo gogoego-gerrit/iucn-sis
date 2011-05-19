@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.caches.ChangesFieldWidgetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -21,7 +22,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -36,7 +36,7 @@ import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class TrackChangesPanel extends Window implements DrawsLazily {
+public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 	
 	private final Assessment assessment;
 	private Edit edit;
@@ -49,12 +49,9 @@ public class TrackChangesPanel extends Window implements DrawsLazily {
 	}
 
 	public TrackChangesPanel(Assessment assessment, Edit edit) {
-		super();
-		setModal(true);
+		super("View Assessment Changes", "icon-changes");
 		setSize(800, 650);
 		setLayout(new FillLayout());
-		setIconStyle("icon-changes");
-		setHeading("View Assessment Changes");
 		
 		this.assessment = assessment;
 		this.edit = edit;

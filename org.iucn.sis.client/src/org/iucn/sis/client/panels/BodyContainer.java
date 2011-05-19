@@ -177,8 +177,7 @@ public class BodyContainer extends LayoutContainer {
 	public void openReferenceManager(Referenceable referenceable, String windowTitle, GenericCallback<Object> addCallback, GenericCallback<Object> removeCallback) {
 		refViewPanel.setReferences(referenceable, addCallback, removeCallback);
 		
-		final Window s = WindowUtils.getWindow(true, true, windowTitle);
-		s.setIconStyle("icon-book");
+		final Window s = WindowUtils.newWindow(windowTitle, "icon-book", true, true);
 		s.setLayout(new FitLayout());
 		s.add(refViewPanel);
 		s.setSize(850, 550);
@@ -196,7 +195,7 @@ public class BodyContainer extends LayoutContainer {
 	public void openSearch(final SearchQuery query, final boolean advanced, final boolean search) {
 		searchPanel.setSearchText("", false);
 		
-		Window window = WindowUtils.getWindow(true, true, "Search Taxonomy");
+		Window window = WindowUtils.newWindow("Search Taxonomy", null, true, true);
 		window.addListener(Events.Show, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
 				DeferredCommand.addCommand(new Command() {

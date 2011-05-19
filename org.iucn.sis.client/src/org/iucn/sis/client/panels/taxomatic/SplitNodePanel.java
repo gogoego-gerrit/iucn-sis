@@ -51,9 +51,7 @@ public class SplitNodePanel extends TaxomaticWindow {
 	public static final int PANEL_WIDTH = TaxonChooser.PANEL_WIDTH;
 
 	public SplitNodePanel() {
-		super();
-		setHeading("Peform Partition");
-		setIconStyle("icon-split");
+		super("Peform Partition", "icon-split");
 		parentToChildList = new HashMap<String, ArrayList<String>>();
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
 		load();

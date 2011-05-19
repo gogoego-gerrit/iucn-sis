@@ -56,9 +56,7 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 	private int numberAdded;
 
 	public TaxonCommonNameEditor() {
-		super();
-		setHeading("Common Names Validator");
-		setIconStyle("icon-note-edit");
+		super("Common Names Validator", "icon-note-edit");
 		
 		this.node = TaxonomyCache.impl.getCurrentTaxon();
 		commonNameInfo = new VerticalPanel();

@@ -11,10 +11,10 @@ import java.util.Map.Entry;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.users.panels.UserSearchController.SearchResults;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -41,7 +41,7 @@ import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class AddProfileWindow extends Window {
+public class AddProfileWindow extends BasicWindow {
 	
 	private final ComplexListener<String> successListener;
 	
@@ -49,12 +49,10 @@ public class AddProfileWindow extends Window {
 	private final FormPanel form;
 	
 	public AddProfileWindow(ComplexListener<String> listener) {
-		super();
-		this.successListener = listener;
-		
-		setHeading("Basic Information");
+		super("Basic Information");
 		setSize(410, 325);
-		setButtonAlign(HorizontalAlignment.CENTER);
+		
+		this.successListener = listener;
 		
 		form = new FormPanel();
 		form.setHeaderVisible(false);
@@ -181,13 +179,10 @@ public class AddProfileWindow extends Window {
 			new BorderLayoutData(LayoutRegion.NORTH, 60, 60, 60));
 		container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
 		
-		final Window window = new Window();
-		window.setModal(true);
+		final Window window = WindowUtils.newWindow("Confirm Profile Creation");
 		window.setSize(600, 400);
-		window.setHeading("Confirm Profile Creation");
 		window.setClosable(false);
 		window.setLayout(new FillLayout());
-		window.setButtonAlign(HorizontalAlignment.CENTER);
 		
 		window.add(container);
 		

@@ -269,7 +269,7 @@ public class DEMToolbar extends ToolBar {
 				ExpertPanel expertPanel = new ExpertPanel();
 				expertPanel.update();
 
-				Window s = WindowUtils.getWindow(true, false, ExpertPanel.titleText);
+				Window s = WindowUtils.newWindow(ExpertPanel.titleText, null, false, true);
 				s.setLayout(new BorderLayout());
 				s.add(new Html("&nbsp"), new BorderLayoutData(LayoutRegion.WEST, 20));
 				s.add(new Html("&nbsp"), new BorderLayoutData(LayoutRegion.NORTH, 5));
@@ -672,7 +672,7 @@ public class DEMToolbar extends ToolBar {
 		form.add(useLimited);
 		form.add(showEmpty);
 		
-		final Window w = WindowUtils.getWindow(true, false, "Report Options");
+		final Window w = WindowUtils.newWindow("Report Options", null, false, true);
 		
 		form.addButton(new Button("Submit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {

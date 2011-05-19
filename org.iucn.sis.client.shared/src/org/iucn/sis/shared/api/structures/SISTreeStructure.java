@@ -28,6 +28,7 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.StyledHTML;
 
 public class SISTreeStructure extends Structure<Field> {
@@ -67,11 +68,9 @@ public class SISTreeStructure extends Structure<Field> {
 		
 		displayPanel.add(new Button(buttonText, new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				final Window window = new Window();
+				final Window window = WindowUtils.newWindow(description);
 				window.setClosable(false);
-				window.setModal(true);
 				window.setSize(800, 600);
-				window.setHeading(description);
 				window.setLayout(new FillLayout());
 				window.setLayoutOnChange(true);
 				window.add(viewer.draw(viewOnly));

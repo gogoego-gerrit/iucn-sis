@@ -6,6 +6,7 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
@@ -22,7 +23,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
@@ -384,14 +384,11 @@ public class WorkingSetWorkflowPanel extends RefreshLayoutContainer implements D
 		}
 	}
 	
-	private static abstract class CommentWindow extends Window {
+	private static abstract class CommentWindow extends BasicWindow {
 		
 		public CommentWindow(WorkflowStatus status) {
-			super();
-			setModal(true);
+			super("Add Comment");
 			setLayout(new FillLayout());
-			setHeading("Add Comment");
-// setAlignment(HorizontalAlignment.CENTER);
 			setSize(350, 200);
 			
 			final TextArea comment = 

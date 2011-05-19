@@ -25,7 +25,6 @@ import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.parsers.ReferenceParserFactory;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -160,13 +159,9 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 	
 	private static void displayJavascriptError(Throwable e) {
 		final com.extjs.gxt.ui.client.widget.Window window = 
-			new com.extjs.gxt.ui.client.widget.Window();
-		window.setHeading("Javascript Error");
-		window.setModal(false);
-		window.setClosable(true);
+			WindowUtils.newWindow("Javascript Error", null, false);
 		window.setAutoHide(true);
 		window.setLayout(new FitLayout());
-		window.setButtonAlign(HorizontalAlignment.CENTER);
 		window.setSize(450, 300);
 		window.addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {

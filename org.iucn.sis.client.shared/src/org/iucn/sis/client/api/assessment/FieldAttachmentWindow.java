@@ -1,6 +1,7 @@
 package org.iucn.sis.client.api.assessment;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -8,14 +9,12 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.FieldAttachment;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -27,7 +26,7 @@ import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class FieldAttachmentWindow extends Window {
+public class FieldAttachmentWindow extends BasicWindow {
 	
 	private final FormPanel form;
 	private final Assessment assessment;
@@ -41,13 +40,8 @@ public class FieldAttachmentWindow extends Window {
 	}
 	
 	public FieldAttachmentWindow(Assessment assessment, Field field, FieldAttachment model) {
-		super();
+		super("Upload File", "icon-attachment");
 		setLayout(new FillLayout());
-		setButtonAlign(HorizontalAlignment.CENTER);
-		setHeading("Upload File");
-		setIconStyle("icon-attachment");
-		setClosable(true);
-		setModal(true);
 		
 		this.assessment = assessment;
 		this.field = field;

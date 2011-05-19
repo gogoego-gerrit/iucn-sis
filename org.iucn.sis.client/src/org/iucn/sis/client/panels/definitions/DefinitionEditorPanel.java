@@ -139,14 +139,12 @@ public class DefinitionEditorPanel extends ContentPanel {
 		for (Entry<TextField<String>, TextArea> entry : fields.entrySet()) {
 			if (entry.getKey() != null) {
 				if (strings.contains(entry.getKey().getValue().toLowerCase())) {
-					Window
-							.alert("Unable to save as there are multiple entries for "
+					WindowUtils.errorAlert("Unable to save as there are multiple entries for "
 									+ entry.getKey().getValue());
 					return false;
 				} else if (entry.getKey().getValue().trim()
 						.equalsIgnoreCase("")) {
-					Window
-							.alert("Unable to save as there are empty definitions");
+					WindowUtils.errorAlert("Unable to save as there are empty definitions");
 					return false;
 				} else {
 					strings.add(entry.getKey().getValue().toLowerCase());

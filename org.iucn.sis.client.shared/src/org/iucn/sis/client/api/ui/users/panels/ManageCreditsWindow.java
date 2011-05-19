@@ -19,6 +19,7 @@ import org.iucn.sis.client.api.caches.RecentlyAccessedCache.RecentUser;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.UserSearchController.SearchResults;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -52,7 +53,6 @@ import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.ListView;
 import com.extjs.gxt.ui.client.widget.ListViewSelectionModel;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -84,7 +84,7 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
  * @author carl.scott <carl.scott@solertium.com>
  *  
  */
-public class ManageCreditsWindow extends Window implements DrawsLazily {
+public class ManageCreditsWindow extends BasicWindow implements DrawsLazily {
 
 	/**
 	 * MCSearchResultsComparator
@@ -213,10 +213,7 @@ public class ManageCreditsWindow extends Window implements DrawsLazily {
 	//private ComplexListener<List<ClientUser>> listener;
  
 	public ManageCreditsWindow() {
-		super();
-		setModal(true);
-		setClosable(true);
-		setHeading("Assessment Credits");
+		super("Assessment Credits");
 
 		assessors = newListView();
 		

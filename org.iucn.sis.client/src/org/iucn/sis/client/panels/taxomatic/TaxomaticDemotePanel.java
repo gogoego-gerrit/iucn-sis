@@ -21,9 +21,7 @@ public class TaxomaticDemotePanel extends TaxonChooser {
 	private String parentid;
 
 	public TaxomaticDemotePanel() {
-		super();
-		setHeading("Demote Taxon");
-		setIconStyle("icon-demote");
+		super("Demote Taxon", "icon-demote");
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
 		load();
 		parentid = null;

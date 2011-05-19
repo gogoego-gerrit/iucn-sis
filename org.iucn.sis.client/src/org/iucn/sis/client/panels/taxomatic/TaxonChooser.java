@@ -37,8 +37,8 @@ public abstract class TaxonChooser extends TaxomaticWindow {
 	private DataList selected;
 	private Taxon  currentNode;
 
-	public TaxonChooser() {
-		super();
+	public TaxonChooser(String heading, String iconStyle) {
+		super(heading, iconStyle);
 	}
 
 	public void addItem(String[] footPrint, Taxon  node) {

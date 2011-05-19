@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.ReferenceCache;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -22,7 +23,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -59,7 +59,7 @@ import com.solertium.util.gwt.ui.DrawsLazily;
  * @author carl.scott
  * 
  */
-public class ReferenceEditor extends Window implements DrawsLazily {
+public class ReferenceEditor extends BasicWindow implements DrawsLazily {
 	
 	private static final String DEFAULT_TYPE = "journal article";
 
@@ -85,7 +85,7 @@ public class ReferenceEditor extends Window implements DrawsLazily {
 	 *            the reference.
 	 */
 	public ReferenceEditor(final Reference reference) {
-		super();
+		super(reference == null ? "New Reference" : "Edit Reference");
 		setLayout(new FillLayout());
 		setClosable(true);
 		setSize(600, 400);

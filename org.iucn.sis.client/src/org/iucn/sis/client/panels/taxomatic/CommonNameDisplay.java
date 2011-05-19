@@ -132,7 +132,7 @@ public class CommonNameDisplay implements Referenceable {
 		if (panel != null)
 			return panel;
 
-		panel = WindowUtils.getWindow(false, false, "");
+		panel = WindowUtils.newWindow("", null, false, false);
 		VerticalPanel contentPanel = new VerticalPanel();
 		contentPanel.setSpacing(5);
 

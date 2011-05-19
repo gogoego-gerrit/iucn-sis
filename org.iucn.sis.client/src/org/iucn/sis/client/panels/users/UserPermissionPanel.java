@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.utils.BasicWindow;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
@@ -15,7 +15,6 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.CheckBoxListView;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.Command;
@@ -25,7 +24,7 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class UserPermissionPanel extends Window {
+public class UserPermissionPanel extends BasicWindow {
 	
 	private ComplexListener<List<String>> saveListener;
 	private ListStore<BaseModelData> store;
@@ -34,11 +33,9 @@ public class UserPermissionPanel extends Window {
 	private List<String> selection;
 	
 	public UserPermissionPanel() {
-		super();
+		super("Edit Permissions");
 		setSize(500, 500);
-		setHeading("Edit Permissions");
 		setLayout(new FillLayout());
-		setButtonAlign(HorizontalAlignment.CENTER);
 		
 		updateStore();
 		

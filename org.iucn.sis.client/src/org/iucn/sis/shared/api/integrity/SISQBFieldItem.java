@@ -1,6 +1,6 @@
 package org.iucn.sis.shared.api.integrity;
 
-import com.google.gwt.user.client.Window;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.querybuilder.gwt.client.tree.QBFieldItem;
 import com.solertium.util.querybuilder.gwt.client.utils.ContextMenu;
 import com.solertium.util.querybuilder.gwt.client.utils.ContextMenuItem;
@@ -53,11 +53,12 @@ public abstract class SISQBFieldItem extends QBFieldItem {
 
 			addItem(new ContextMenuItem("Delete", new SmartCommand() {
 				public void doAction() {
-					if (Window
-							.confirm("Are you sure you want to remove this field?")) {
-						getQuery().removeField(field);
-						getMyParent().refresh();
-					}
+					WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove this field?", new WindowUtils.SimpleMessageBoxListener() {
+						public void onYes() {
+							getQuery().removeField(field);
+							getMyParent().refresh();
+						}
+					});
 				}
 			}));
 		}

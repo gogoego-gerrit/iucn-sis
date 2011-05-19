@@ -35,7 +35,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class NotesViewer {
 	
 	public static void open(final Field field, final SimpleListener closeListener) {
-		final Window window = WindowUtils.getWindow(true, true, "Notes for " + field.getName());
+		final Window window = WindowUtils.newWindow("Notes for " + field.getName(), null, true, true);
 		if (closeListener != null)
 			window.addListener(Events.Hide, new Listener<WindowEvent>() {
 				public void handleEvent(WindowEvent be) {

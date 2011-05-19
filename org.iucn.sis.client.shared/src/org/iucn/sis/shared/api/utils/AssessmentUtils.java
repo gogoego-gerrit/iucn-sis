@@ -97,12 +97,11 @@ public class AssessmentUtils {
 					AssessmentCache.impl.clear();
 					
 					String message = ndoc.getText();
-					com.extjs.gxt.ui.client.widget.Window w = WindowUtils.getWindow(true, false, "Batch Create Results");
+					com.extjs.gxt.ui.client.widget.Window w = WindowUtils.newWindow("Batch Create Results", null, false, true);
 					w.setScrollMode(Scroll.AUTOY);
-					w.add(new Html(message));
-					w.setClosable(true);
-					w.show();
 					w.setSize(400, 500);
+					w.add(new Html(message));
+					w.show();
 				}
 				public void onFailure(Throwable caught) {
 					WindowUtils.errorAlert("Unable to complete request, please try again later.");

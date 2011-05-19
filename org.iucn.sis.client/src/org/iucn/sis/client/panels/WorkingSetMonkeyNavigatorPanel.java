@@ -243,9 +243,8 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 				final MenuItem newWS = new MenuItem("Create New Working Set");
 				newWS.addSelectionListener(new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
-						final Window window = new Window();
+						final Window window = WindowUtils.newWindow("Add New Working Set");
 						window.setSize(700, 700);
-						window.setHeading("Add New Working Set");
 						window.setLayout(new FillLayout());
 						
 						WorkingSetNewWSPanel panel = new WorkingSetNewWSPanel();
@@ -294,10 +293,9 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 					public void componentSelected(MenuEvent ce) {
 						final WorkingSetSubscriber panel = new WorkingSetSubscriber();
 						
-						Window window = new Window();
+						Window window = WindowUtils.newWindow("Subscribe to Working Set");
 						window.setLayout(new FillLayout());
 						window.setSize(700, 700);
-						window.setHeading("Subscribe to Working Set");
 						window.addListener(Events.Show, new Listener<BaseEvent>() {
 							public void handleEvent(BaseEvent be) {
 								panel.refresh();
@@ -324,7 +322,7 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 					return;
 				}
 					
-				final Window s = WindowUtils.getWindow(false, true, ws.getWorkingSetName());
+				final Window s = WindowUtils.newWindow(ws.getWorkingSetName(), null, true, false);
 				s.setLayout(new FillLayout());
 				s.setTitle(ws.getWorkingSetName());
 				s.setSize(600, 400);

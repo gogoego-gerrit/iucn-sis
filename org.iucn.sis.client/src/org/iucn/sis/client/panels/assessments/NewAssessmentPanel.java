@@ -2,7 +2,6 @@ package org.iucn.sis.client.panels.assessments;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -16,6 +15,7 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.region.AddRegionPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -28,12 +28,10 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 import org.iucn.sis.shared.api.utils.AssessmentUtils;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -51,7 +49,7 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class NewAssessmentPanel extends Window implements DrawsLazily {
+public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 
 	private ListBox type = null;
 	private ListBox template = null;
@@ -87,6 +85,10 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 	}
 	
 	public NewAssessmentPanel(Taxon taxon) {
+		super("New " + taxon.getFullName() + " Assessment");
+		setSize(550, 300);
+		setLayout(new FitLayout());
+		
 		this.node = taxon;
 	}
 
@@ -400,11 +402,6 @@ public class NewAssessmentPanel extends Window implements DrawsLazily {
 		if (node == null) {
 			WindowUtils.errorAlert("You must have a taxon selected first.");
 		} else {
-			setHeading("New " + node.getFullName() + " Assessment");
-			setSize(550, 300);
-			setLayout(new FitLayout());
-			setButtonAlign(HorizontalAlignment.CENTER);
-			
 			AssessmentCache.impl.fetchPartialAssessmentsForTaxon(node.getId(), new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils

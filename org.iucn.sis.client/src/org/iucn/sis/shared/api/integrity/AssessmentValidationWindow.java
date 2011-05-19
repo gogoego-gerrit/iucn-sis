@@ -1,5 +1,6 @@
 package org.iucn.sis.shared.api.integrity;
 
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.integrity.ValidationResultsWindow;
@@ -8,7 +9,6 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
@@ -34,23 +34,18 @@ import com.solertium.util.gwt.ui.DrawsLazily;
  *         href="http://www.solertium.com">Solertium Corporation</a>
  * 
  */
-public class AssessmentValidationWindow extends Window implements DrawsLazily {
+public class AssessmentValidationWindow extends BasicWindow implements DrawsLazily {
 
 	private final Integer assessmentID;
 	private final String assessmentType;
 
 	public AssessmentValidationWindow(Integer assessmentID, String assessmentType) {
-		super();
+		super("Integrity Validator", "icon-integrity");
+		setLayout(new FillLayout());
+		setSize(450, 200);
+		
 		this.assessmentID = assessmentID;
 		this.assessmentType = assessmentType;
-
-		setIconStyle("icon-integrity");
-		setClosable(true);
-		setModal(true);
-		setHeading("Integrity Validator");
-		setLayout(new FillLayout());
-// setAlignment(HorizontalAlignment.CENTER);
-		setSize(450, 200);
 	}
 
 	public void draw(final DoneDrawingCallback callback) {

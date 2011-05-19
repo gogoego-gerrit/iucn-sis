@@ -32,9 +32,7 @@ public class LateralMove extends TaxonChooser {
 	private List<String> childrenNodes;
 
 	public LateralMove() {
-		super();
-		setHeading("Perform Lateral Move");
-		setIconStyle("icon-lateral-move");
+		super("Perform Lateral Move", "icon-lateral-move");
 		parentNode = TaxonomyCache.impl.getCurrentTaxon();
 		level = parentNode.getLevel();
 		childrenNodes = new ArrayList<String>();

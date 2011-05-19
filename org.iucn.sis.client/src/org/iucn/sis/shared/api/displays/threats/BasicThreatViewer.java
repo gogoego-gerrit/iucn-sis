@@ -17,7 +17,6 @@ import org.iucn.sis.shared.api.schemes.CodingOptionTreePanel;
 import org.iucn.sis.shared.api.structures.ClassificationInfo;
 import org.iucn.sis.shared.api.structures.Structure;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -321,9 +320,8 @@ public class BasicThreatViewer extends Structure<Field> {
 		if (!viewOnly)
 			stressSelctionContainer.add(new Button("View/Edit Stresses", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					final Window window = WindowUtils.getWindow(true, true, "Add Stresses");
+					final Window window = WindowUtils.newWindow("Add Stresses", null, true, true);
 					window.setClosable(false);
-					window.setButtonAlign(HorizontalAlignment.CENTER);
 					window.setLayout(new FillLayout());
 					window.setSize(600, 600);
 					window.setScrollMode(Scroll.AUTO);

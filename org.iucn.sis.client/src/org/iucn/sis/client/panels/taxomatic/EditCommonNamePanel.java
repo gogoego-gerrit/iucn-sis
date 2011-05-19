@@ -6,13 +6,13 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.LanguageCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.IsoLanguage;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
@@ -24,7 +24,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class EditCommonNamePanel extends Window implements DrawsLazily {
+public class EditCommonNamePanel extends BasicWindow implements DrawsLazily {
 
 	protected final CommonName cn;
 	protected final Taxon taxon;
@@ -34,7 +34,7 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 	protected TextBox nameBox;
 	
 	public EditCommonNamePanel(CommonName cn, Taxon taxon, ComplexListener<CommonName> callback) {
-		super();
+		super(cn == null ? "Add New Common Name" : "Edit Common Name");
 		setSize(550, 250);
 		this.cn = cn;
 		this.taxon = taxon;
@@ -66,11 +66,6 @@ public class EditCommonNamePanel extends Window implements DrawsLazily {
 	}
 	
 	protected void draw(List<IsoLanguage> languages) {
-		if (cn == null)
-			setHeading("Add New Common Name");
-		else
-			setHeading("Edit Common Name");
-
 		nameBox = new TextBox();
 		nameBox.setWidth("300px");
 		isPrimary = new CheckBox();

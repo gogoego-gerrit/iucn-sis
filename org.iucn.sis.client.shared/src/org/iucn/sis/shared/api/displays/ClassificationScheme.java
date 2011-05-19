@@ -19,7 +19,6 @@ import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer.ClassificationSchemeModelDataComparator;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -37,6 +36,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.StyledHTML;
 
 /**
@@ -118,15 +118,12 @@ public class ClassificationScheme extends Display {
 		final ButtonBar buttons = new ButtonBar();
 		buttons.add(new Button(viewOnly ? "View Details" : "View/Edit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				final Window window = new Window();
+				final Window window = WindowUtils.newWindow(description);
 				window.setClosable(false);
-				window.setModal(true);
 				window.setSize(800, 600);
-				window.setHeading(description);
 				window.setLayout(new FillLayout());
 				window.setLayoutOnChange(true);
 				window.add(viewer.draw(viewOnly));
-				window.setButtonAlign(HorizontalAlignment.CENTER);
 				window.addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
 					public void componentSelected(ButtonEvent ce) {
 						buildReadOnlyContainer(readOnlyContainer, viewer.save(false));

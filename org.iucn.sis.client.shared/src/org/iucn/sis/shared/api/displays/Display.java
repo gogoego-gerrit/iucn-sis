@@ -661,7 +661,7 @@ public abstract class Display implements Referenceable {
 		helpIcon.setStyleName("SIS_iconPanelIcon");
 		helpIcon.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				Window s = WindowUtils.getWindow(true, false, "Definitions for " + canonicalName);
+				Window s = WindowUtils.newWindow("Definitions for " + canonicalName, null, false, true);
 				s.setScrollMode(Scroll.AUTO);
 				s.add(buildDefintionPanel());
 				s.setSize(400, 400);
@@ -827,7 +827,7 @@ public abstract class Display implements Referenceable {
 		definitions.setIconStyle("icon-help");
 		definitions.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				Window s = WindowUtils.getWindow(true, false, "Definitions for " + canonicalName);
+				Window s = WindowUtils.newWindow("Definitions for " + canonicalName, null, false, true);
 				s.setScrollMode(Scroll.AUTO);
 				s.add(buildDefintionPanel());
 				s.setSize(400, 400);

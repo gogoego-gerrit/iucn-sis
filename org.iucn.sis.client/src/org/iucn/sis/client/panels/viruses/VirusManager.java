@@ -106,7 +106,6 @@ public class VirusManager extends PagingPanel<VirusModelData> implements DrawsLa
 		bar.add(new Button("New Virus", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				VirusEditor editor = new VirusEditor(null);
-				editor.setHeading("Create New Virus");
 				editor.setSaveListener(new SimpleListener() {
 					public void handleEvent() {
 						refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
@@ -150,7 +149,6 @@ public class VirusManager extends PagingPanel<VirusModelData> implements DrawsLa
 	
 	private void editVirus(VirusModelData virus) {
 		VirusEditor editor = new VirusEditor(virus);
-		editor.setHeading("Edit Virus");
 		editor.setSaveListener(new SimpleListener() {
 			public void handleEvent() {
 				refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());

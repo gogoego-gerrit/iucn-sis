@@ -3,13 +3,12 @@ package org.iucn.sis.client.panels.viruses;
 import java.util.Date;
 
 import org.iucn.sis.client.api.caches.VirusCache;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.models.Virus;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
@@ -18,7 +17,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class VirusEditor extends Window {
+public class VirusEditor extends BasicWindow {
 	
 	private final VirusModelData model;
 	
@@ -28,9 +27,8 @@ public class VirusEditor extends Window {
 	private SimpleListener saveListener;
 	
 	public VirusEditor(VirusModelData model) {
-		super();
+		super(model == null ? "Create New Virus" : "Edit Virus");
 		setSize(400, 300);
-		setButtonAlign(HorizontalAlignment.CENTER);
 		
 		this.model = model;
 		

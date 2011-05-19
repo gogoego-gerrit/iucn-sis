@@ -41,9 +41,7 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 	private CheckBox invasive, feral;
 
 	public TaxonBasicEditor() {
-		super();
-		setHeading("Basic Taxon Information Editor");
-		setIconStyle("icon-note-edit");
+		super("Basic Taxon Information Editor", "icon-note-edit");
 		setSize(500, 300);
 		
 		node = TaxonomyCache.impl.getCurrentTaxon();

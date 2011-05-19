@@ -74,9 +74,7 @@ public class IASThreatRowEditor extends GroupedThreatRowEditor {
 			public void componentSelected(ButtonEvent ce) {
 				final ThreatTaggedSpeciesLocator locator = 
 					new ThreatTaggedSpeciesLocator();
-				final Window window = new Window();
-				window.setHeading("Taxonomy Finder");
-				window.setButtonAlign(HorizontalAlignment.CENTER);
+				final Window window = WindowUtils.newWindow("Taxonomy Finder");
 				window.setSize(600, 600);
 				window.setLayout(new FitLayout());
 				window.addButton(new Button("Add Selected", new SelectionListener<ButtonEvent>() {

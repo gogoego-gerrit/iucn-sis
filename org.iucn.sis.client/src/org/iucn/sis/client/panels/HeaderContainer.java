@@ -37,7 +37,6 @@ import org.iucn.sis.shared.api.models.Bookmark;
 import org.iucn.sis.shared.api.utils.UserAffiliationProperties;
 import org.iucn.sis.shared.api.utils.UserAffiliationPropertiesFactory;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -262,7 +261,7 @@ public class HeaderContainer extends ContentPanel {
 			public void componentSelected(MenuEvent ce) {
 				final TaxonomyBrowserPanel browser = new TaxonomyBrowserPanel();
 				
-				Window window = WindowUtils.getWindow(true, false, "Taxonomy Browser");
+				Window window = WindowUtils.newWindow("Taxonomy Browser", null, false, true);
 				window.setLayout(new FillLayout());
 				window.setSize(400, 420);
 				window.addListener(Events.Show, new Listener<ComponentEvent>() {
@@ -363,7 +362,7 @@ public class HeaderContainer extends ContentPanel {
 			public void componentSelected(MenuEvent ce) {
 				final TabPanel tf = new TabPanel();
 				tf.setTabScroll(true);
-				Window alert = WindowUtils.getWindow(true, false, "Administrative Tools");
+				Window alert = WindowUtils.newWindow("Administrative Tools", null, false, true);
 				alert.setSize(680, 400);
 				alert.setLayout(new FillLayout());
 
@@ -518,7 +517,7 @@ public class HeaderContainer extends ContentPanel {
 		options.add(createMenuItem("icon-find", "Find/Replace", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.FIND_REPLACE_FEATURE)) {
-					Window nS = WindowUtils.getWindow(true, true, "Find and Replace");
+					Window nS = WindowUtils.newWindow("Find and Replace", null, true, true);
 					nS.setSize(875, 600);
 
 					nS.setLayout(new FillLayout());
@@ -534,7 +533,7 @@ public class HeaderContainer extends ContentPanel {
 
 		options.add(createMenuItem("icon-trash", "Trash Bin", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				Window nS = WindowUtils.getWindow(true, true, "Trash Bin");
+				Window nS = WindowUtils.newWindow("Trash Bin", null, true, true);
 				nS.setSize(800, 550);
 				TrashBinPanel tbp = new TrashBinPanel();
 				nS.add(tbp);
@@ -552,7 +551,7 @@ public class HeaderContainer extends ContentPanel {
 					WindowUtils.errorAlert("Error", "A current assessment must be selected; it"
 							+ " is used as the template. Please try again.");
 				} else {
-					Window nS = WindowUtils.getWindow(true, true, "Batch Change");
+					Window nS = WindowUtils.newWindow("Batch Change", null, true, true);
 					nS.setSize(800, 550);
 					nS.setLayout(new FillLayout());
 					nS.add(batchChangePanel);
@@ -567,7 +566,7 @@ public class HeaderContainer extends ContentPanel {
 				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.TAXON_FINDER_FEATURE)) {
 					WindowUtils.errorAlert("This is a currently restricted to administrative users only.");
 				} else {
-					Window nS = WindowUtils.getWindow(true, true, "");
+					Window nS = WindowUtils.newWindow("", null, true, true);
 					nS.setSize(800, 400);
 					nS.setLayout(new FitLayout());
 					nS.add(new RegionPanel());
@@ -584,8 +583,7 @@ public class HeaderContainer extends ContentPanel {
 		
 		options.add(createMenuItem("icon-user-group", "Manage Users", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				final Window s = WindowUtils.getWindow(true, true, "Manage Users");
-				s.setIconStyle("icon-user-group");
+				final Window s = WindowUtils.newWindow("Manage Users", "icon-user-group", true, true);
 				s.setLayout(new FitLayout());
 				
 				TabPanel userPanel = new TabPanel();
@@ -634,13 +632,10 @@ public class HeaderContainer extends ContentPanel {
 		if ("true".equals(com.google.gwt.user.client.Window.Location.getParameter("debug"))) {
 			options.add(createMenuItem("", "View Debugging Output", new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					final Window window = new Window();
-					window.setHeading("Debugging Output");
+					final Window window = WindowUtils.newWindow("Debugging Output");
 					window.setModal(false);
-					window.setClosable(true);
 					window.setAutoHide(true);
 					window.setLayout(new FitLayout());
-					window.setButtonAlign(HorizontalAlignment.CENTER);
 					window.setSize(450, 300);
 					window.addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
 						public void componentSelected(ButtonEvent ce) {

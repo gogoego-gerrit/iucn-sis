@@ -268,7 +268,7 @@ public class WorkingSetCache {
 								final String path = body.substring(0, firstLineBreak);
 
 								if (lock && body.contains("<div>")) {
-									final Window w = WindowUtils.getWindow(true, false, "Assessments Locked");
+									final Window w = WindowUtils.newWindow("Assessments Locked", null, false, true);
 									w.getButtonBar().add(new Button("Close", new SelectionListener<ButtonEvent>() {
 										public void componentSelected(ButtonEvent ce) {
 											wayBack.onSuccess(path);

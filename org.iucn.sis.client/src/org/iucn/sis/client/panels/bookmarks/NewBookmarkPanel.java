@@ -6,14 +6,13 @@ import org.iucn.sis.client.api.caches.BookmarkCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateChangeEvent;
 import org.iucn.sis.client.api.container.StateManager;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.shared.api.models.Bookmark;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.user.client.ui.HTML;
@@ -27,16 +26,13 @@ import com.solertium.util.extjs.client.WindowUtils;
  * @author carl.scott
  *
  */
-public class NewBookmarkPanel extends Window {
+public class NewBookmarkPanel extends BasicWindow {
 	
 	private final TextField<String> name;
 	private final StateChangeEvent state;
 	
 	public NewBookmarkPanel() {
-		super();
-		setIconStyle("icon-bookmark");
-		setButtonAlign(HorizontalAlignment.CENTER);
-		setHeading("Create New Bookmark");
+		super("Create New Bookmark", "icon-bookmark");
 		setSize(400, 200);
 		
 		state = new StateChangeEvent(

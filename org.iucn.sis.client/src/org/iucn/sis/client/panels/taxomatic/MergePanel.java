@@ -28,9 +28,7 @@ public class MergePanel extends TaxonChooser {
 	protected final Taxon  currentNode;
 
 	public MergePanel() {
-		super();
-		setHeading("Perform Merge");
-		setIconStyle("icon-merge");
+		super("Perform Merge", "icon-merge");
 		currentNode = TaxonomyCache.impl.getCurrentTaxon();
 		level = currentNode.getLevel();
 		selectedNodes = new HashMap<String, Taxon>();

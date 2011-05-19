@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 
@@ -16,7 +17,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.HtmlContainer;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -35,7 +35,7 @@ import com.solertium.util.gwt.api.XMLWritingUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.gwt.ui.StyledHTML;
 
-public class WorkflowNotesWindow extends Window {
+public class WorkflowNotesWindow extends BasicWindow {
 	
 	private final Integer workingSetID;
 	private final String scope;
@@ -51,7 +51,7 @@ public class WorkflowNotesWindow extends Window {
 	}
 
 	public WorkflowNotesWindow(Integer workingSetID, String scope) {
-		super();
+		super("Comments", "icon-workflow");
 		this.workingSetID = workingSetID;
 		this.scope = scope;
 		
@@ -62,12 +62,9 @@ public class WorkflowNotesWindow extends Window {
 		commentPanel.setScrollMode(Scroll.AUTO);
 		commentPanel.setLayout(layout);
 		
-		setHeading("Comments");
-		setIconStyle("icon-workflow");
 		setLayout(new FillLayout());
 		setSize(350, 450);
 		setScrollMode(Scroll.AUTO);
-// setAlignment(HorizontalAlignment.CENTER);
 	}
 	
 	private void updateCommentPanel(final DrawsLazily.DoneDrawingCallback callback) {

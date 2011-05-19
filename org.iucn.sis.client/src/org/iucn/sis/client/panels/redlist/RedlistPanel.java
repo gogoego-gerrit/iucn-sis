@@ -9,9 +9,9 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.google.gwt.user.client.Window;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class RedlistPanel extends LayoutContainer implements DrawsLazily {
@@ -32,7 +32,7 @@ public class RedlistPanel extends LayoutContainer implements DrawsLazily {
 				NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 				doc.put(UriBase.getInstance().getRedlistBase() +"/redlist/publish","", new GenericCallback<String>() {
 					public void onSuccess(String result) {
-						Window.alert("Images Published");
+						WindowUtils.infoAlert("Images Published");
 						ce.getButton().setEnabled(true);
 						ce.getButton().setText("Publish Images to Redlist");
 					}

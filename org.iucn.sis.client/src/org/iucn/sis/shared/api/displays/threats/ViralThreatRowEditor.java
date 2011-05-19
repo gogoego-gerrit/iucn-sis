@@ -75,9 +75,7 @@ public class ViralThreatRowEditor extends GroupedThreatRowEditor {
 			public void componentSelected(ButtonEvent ce) {
 				final VirusChooser chooser = new VirusChooser();
 				
-				final Window window = new Window();
-				window.setHeading("Virus Chooser");
-				window.setButtonAlign(HorizontalAlignment.CENTER);
+				final Window window = WindowUtils.newWindow("Virus Chooser");
 				window.setSize(600, 600);
 				window.setLayout(new FitLayout());
 				window.addButton(new Button("Add Selected", new SelectionListener<ButtonEvent>() {

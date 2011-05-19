@@ -54,13 +54,10 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 	private CheckBox hybrid;
 	
 	public CreateNewTaxonPanel(Taxon parent) {
-		super();
+		super("Create New Taxon", "icon-new-document");
 		this.parentNode = parent;
 		
 		setSize(350, 250);
-		setHeading("Create New Taxon");
-		setIconStyle("icon-new-document");
-		setModal(true);
 
 		addButton(new Button("Save and Close", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {

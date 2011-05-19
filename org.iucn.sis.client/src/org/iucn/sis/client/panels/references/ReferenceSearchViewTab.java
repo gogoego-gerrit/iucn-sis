@@ -40,7 +40,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -289,7 +288,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.post(UriBase.getInstance().getReferenceBase() + "/refsvr/search/reference", q.toString(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				Window.alert("Failure: " + caught.getMessage());
+				WindowUtils.errorAlert("Failure: " + caught.getMessage());
 			}
 
 			public void onSuccess(String result) {

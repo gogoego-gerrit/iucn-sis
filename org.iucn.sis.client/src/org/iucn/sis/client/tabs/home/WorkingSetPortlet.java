@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
@@ -23,7 +22,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
-import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 /**
@@ -71,7 +69,7 @@ public class WorkingSetPortlet extends RefreshPortlet {
 	}
 
 	private void createPopup(final WorkingSet ws) {
-		final Window s = WindowUtils.getWindow(false, true, ws.getWorkingSetName());
+		final Window s = WindowUtils.newWindow(ws.getWorkingSetName(), null, true, false);
 		final Grid table = new Grid(5, 2);
 		table.setCellSpacing(4);
 		
@@ -123,9 +121,8 @@ public class WorkingSetPortlet extends RefreshPortlet {
 		}
 
 		s.setLayout(new FillLayout());
-		s.add(table);
-		s.setTitle(ws.getWorkingSetName());
 		s.setSize(600, 400);
+		s.add(table);
 		s.show();
 	}
 

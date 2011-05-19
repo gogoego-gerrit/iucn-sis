@@ -507,7 +507,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 		document.post(UriBase.getInstance().getReferenceBase() + "/refsvr/search/reference", q.toString(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				Window.alert("Failure: " + caught.getMessage());
+				WindowUtils.errorAlert("Failure: " + caught.getMessage());
 			}
 
 			public void onSuccess(String result) {
@@ -772,7 +772,6 @@ public class LegacyReferenceViewPanel extends TabPanel {
 				});
 			}
 		};
-		editor.setHeading(reference == null ? "New Reference" : "Edit Reference");
 	}
 
 	private void populateBibTable(Iterator<Reference> iter) {
@@ -819,7 +818,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 			query += (query.equals("?") ? "" : "&") + "Year=" + year.getText();
 
 		if (query.equals("?")) {
-			Window.alert("Please enter at least one search criterion.");
+			WindowUtils.errorAlert("Please enter at least one search criterion.");
 			return;
 		}
 

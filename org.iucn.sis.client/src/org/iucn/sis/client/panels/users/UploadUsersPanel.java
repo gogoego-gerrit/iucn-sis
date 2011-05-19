@@ -10,6 +10,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
+import com.solertium.util.extjs.client.WindowUtils;
 
 public class UploadUsersPanel extends LayoutContainer {
 
@@ -30,11 +31,8 @@ public class UploadUsersPanel extends LayoutContainer {
 		panel.add(new Html("&nbsp;"));
 		panel.add(new Button("Begin Upload", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				Window window = new Window();
-				window.setModal(true);
-				window.setClosable(true);
+				Window window = WindowUtils.newWindow("Bulk Upload Users from Spreadsheet");
 				window.setSize(500, 500);
-				window.setHeading("Bulk Upload Users from Spreadsheet");
 				window.setUrl(UriBase.getInstance().getUserBase() + "/import/csv");
 				
 				window.show();

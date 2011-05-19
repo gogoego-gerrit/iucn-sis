@@ -176,7 +176,7 @@ public class ImageManagerPanel extends LayoutContainer {
 	}
 
 	protected void displayRateItPopup(final TaxonImage image) {
-		final Window window = WindowUtils.getWindow(false, false, "Rate It!");
+		final Window window = WindowUtils.newWindow("Rate It!", null, false, false);
 		window.setSize(300, 100);
 		window.setLayoutOnChange(true);
 		
@@ -239,7 +239,7 @@ public class ImageManagerPanel extends LayoutContainer {
 		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				// Popup addPopup = new Popup( true );
-				final Window addPopup = WindowUtils.getWindow(false, true, "Attach Image");
+				final Window addPopup = WindowUtils.newWindow("Attach Image", null, true, false);
 				addPopup.add(new FileUploadWidget(UriBase.getInstance().getImageBase() + 
 						"/images/" + taxon.getId()) {
 
@@ -323,7 +323,7 @@ public class ImageManagerPanel extends LayoutContainer {
 					WindowUtils.errorAlert("Info", "Must select image to view.");
 					return;
 				}
-				Window s = WindowUtils.getWindow(true, true, "Taxon Image Viewer");
+				Window s = WindowUtils.newWindow("Taxon Image Viewer", null, true, true);
 				s.setLayout(new FillLayout());
 				s.add(new ImagePopupPanel(imageList.get(selected)));
 				/*s.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().imageViewerPanel);
@@ -347,7 +347,7 @@ public class ImageManagerPanel extends LayoutContainer {
 					return;
 				}
 				
-				final Window content = WindowUtils.getWindow(true, true, "Edit Image Details");
+				final Window content = WindowUtils.newWindow("Edit Image Details", null, true, true);
 				content.setLayout(new RowLayout(Orientation.VERTICAL));
 				
 				final TaxonImage current = imageList.get(selected);

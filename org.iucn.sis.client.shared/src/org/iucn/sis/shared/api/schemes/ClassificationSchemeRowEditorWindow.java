@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -15,7 +15,6 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
@@ -29,7 +28,7 @@ import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class ClassificationSchemeRowEditorWindow extends Window implements DrawsLazily {
+public class ClassificationSchemeRowEditorWindow extends BasicWindow implements DrawsLazily {
 	
 	public enum EditMode {
 		NEW, EXISTING
@@ -50,7 +49,7 @@ public class ClassificationSchemeRowEditorWindow extends Window implements Draws
 	
 	public ClassificationSchemeRowEditorWindow(ClassificationSchemeViewer parent, TreeData treeData, 
 			String description, ClassificationSchemeModelData model, EditMode mode, boolean isViewOnly) {
-		super();
+		super((EditMode.NEW.equals(mode) ? "New " : "Edit ") + description);
 		
 		this.parent = parent;
 		this.description = description;
@@ -62,12 +61,9 @@ public class ClassificationSchemeRowEditorWindow extends Window implements Draws
 		
 		setLayout(new FillLayout());
 		setLayoutOnChange(true);
-		setModal(true);
 		setClosable(false);
 		setSize(800, 600);
 		setScrollMode(Scroll.AUTO);
-		setHeading((EditMode.NEW.equals(mode) ? "New " : "Edit ") + description);
-		setButtonAlign(HorizontalAlignment.CENTER);
 	}
 	
 	public void setSaveListener(ComplexListener<ClassificationSchemeModelData> saveListener) {

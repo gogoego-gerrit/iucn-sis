@@ -142,7 +142,6 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 	
 	public static void openEditor(final ReferenceModel reference, final ComplexListener<ReferenceModel> saveListener, final SimpleListener deleteListener) {
 		final MyReferenceEditor editor = new MyReferenceEditor(reference);
-		editor.setHeading(reference == null ? "New Reference" : "Edit Reference");
 		editor.setDeleteListener(deleteListener);
 		editor.setSaveListener(saveListener);
 		

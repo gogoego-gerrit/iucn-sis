@@ -7,6 +7,9 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
 import org.iucn.sis.shared.api.debug.Debug;
 
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -132,15 +135,15 @@ public class BugPanel extends RefreshPortlet {
 						WindowUtils.errorAlert("Could not load or authenticate you, please visit http://iucnsis.zendesk.com directly.");
 					}
 					public void onSuccess(String result) {
-						final Window w = new Window(){
-							public void hide() {
+						final Window w = WindowUtils.newWindow("Zendesk");
+						w.addListener(Events.Hide, new Listener<WindowEvent>() {
+							@Override
+							public void handleEvent(WindowEvent be) {
 								logout();
 								//Cookies.setCookie("_zendesk_session", "", new Date(0), "iucnsis.zendesk.org", "/", false);
 								Cookies.removeCookie("_zendesk_session");
-								super.hide();
 							}
-						};
-						w.setHeading("Zendesk");
+						});
 						w.setUrl("http://iucnsis.zendesk.com/tickets/"+bugTable.getText(cell.getRowIndex(), 0)+"/"+result);
 						w.setSize(800, 600);
 						w.show();

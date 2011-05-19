@@ -6,7 +6,6 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -41,9 +40,7 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 	private Taxon target; 
 
 	public TaxomaticAssessmentMover(Taxon currentNode) {
-		super();
-		setHeading("Move Assessments");
-		setIconStyle("icon-document-move");
+		super("Move Assessments", "icon-document-move");
 		
 		this.source = currentNode;
 		this.target = null;

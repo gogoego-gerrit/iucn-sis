@@ -1,24 +1,21 @@
 package org.iucn.sis.shared.api.structures;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import org.iucn.sis.client.api.utils.BasicWindow;
+
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 
-public class SISRangeError extends Window {
+public class SISRangeError extends BasicWindow {
 
 	LayoutContainer table;
 
 	public SISRangeError() {
-		super();
-		setModal(true);
-		setHeading("INVALID DATA");
+		super("INVALID DATA");
 		setSize(500, 300);
-		setButtonAlign(HorizontalAlignment.CENTER);
 		
 		add(makeTable());
 

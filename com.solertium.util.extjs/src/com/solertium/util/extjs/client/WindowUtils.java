@@ -16,6 +16,7 @@
 
 package com.solertium.util.extjs.client;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
@@ -23,7 +24,6 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.MessageBox.MessageBoxType;
 import com.extjs.gxt.ui.client.widget.button.Button;
 
 public class WindowUtils {
@@ -164,25 +164,6 @@ public class WindowUtils {
 		});
 
 	}
-
-	/**
-	 * Returns the (formerly Shell) Ext-GWT Window using the args.
-	 * 
-	 * @param resizeable
-	 * @param modal
-	 * @param heading
-	 * @return the Window
-	 */
-	public static Window getWindow(boolean resizeable, boolean modal, String heading) {
-		Window s = new Window();
-		s.setResizable(resizeable);
-		s.setModal(modal);
-		s.setHeading(heading);
-		s.setConstrain(true);
-		s.setMaximizable(true);
-
-		return s;
-	}
 	
 	public static Window newWindow(String heading) {
 		return newWindow(heading, null);
@@ -196,6 +177,15 @@ public class WindowUtils {
 		return newWindow(heading, iconStyle, modal, true);
 	}
 	
+	/**
+	 * Returns the (formerly Shell) Ext-GWT Window using the args.
+	 * @param heading
+	 * @param iconStyle TODO
+	 * @param modal
+	 * @param resizable
+	 * 
+	 * @return the Window
+	 */
 	public static Window newWindow(String heading, String iconStyle, boolean modal, boolean resizable) {
 		Window window = new Window();
 		window.setConstrain(true);
@@ -203,6 +193,7 @@ public class WindowUtils {
 		window.setModal(modal);
 		window.setResizable(resizable);
 		window.setHeading(heading);
+		window.setButtonAlign(HorizontalAlignment.CENTER);
 		if (iconStyle != null)
 			window.setIconStyle(iconStyle);
 		

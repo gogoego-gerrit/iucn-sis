@@ -242,7 +242,7 @@ public class Clipboard {
 	 *            the callback to notify that pasting is complete
 	 */
 	public void pasteConditions(final ClipboardPasteCallback callback) {
-		final Window popup = WindowUtils.getWindow(false, false, "");
+		final Window popup = WindowUtils.newWindow("Paste From Clipboard", null, false, false);
 
 		final Tree tree = new Tree();
 		tree.setCheckable(true);
@@ -327,7 +327,6 @@ public class Clipboard {
 
 		container.add(buttonPanel, new BorderLayoutData(LayoutRegion.SOUTH, 30, 30, 30));
 
-		popup.setHeading("Paste From Clipboard");
 		popup.show();
 	}
 
@@ -336,7 +335,7 @@ public class Clipboard {
 	 * 
 	 */
 	public void show() {
-		final Window popup = WindowUtils.getWindow(false, false, "Clipboard");
+		final Window popup = WindowUtils.newWindow("Clipboard", null, false, false);
 		popup.setLayout(new FillLayout());
 
 		LayoutContainer itemPanel = new LayoutContainer(new AccordionLayout());
