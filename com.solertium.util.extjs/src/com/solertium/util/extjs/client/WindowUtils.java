@@ -179,8 +179,34 @@ public class WindowUtils {
 		s.setModal(modal);
 		s.setHeading(heading);
 		s.setConstrain(true);
+		s.setMaximizable(true);
 
 		return s;
+	}
+	
+	public static Window newWindow(String heading) {
+		return newWindow(heading, null);
+	}
+	
+	public static Window newWindow(String heading, String iconStyle) {
+		return newWindow(heading, iconStyle, true);
+	}
+	
+	public static Window newWindow(String heading, String iconStyle, boolean modal) {
+		return newWindow(heading, iconStyle, modal, true);
+	}
+	
+	public static Window newWindow(String heading, String iconStyle, boolean modal, boolean resizable) {
+		Window window = new Window();
+		window.setConstrain(true);
+		window.setMaximizable(true);
+		window.setModal(modal);
+		window.setResizable(resizable);
+		window.setHeading(heading);
+		if (iconStyle != null)
+			window.setIconStyle(iconStyle);
+		
+		return window;
 	}
 
 	/**
