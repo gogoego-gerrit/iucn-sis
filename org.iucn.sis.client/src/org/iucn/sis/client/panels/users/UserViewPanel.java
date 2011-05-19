@@ -60,6 +60,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.ui.HTML;
+import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -344,11 +345,9 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 			bar.add(new SeparatorToolItem());
 			item = new Button("Show Filter(s)", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					filterPopup = new Window();
-					filterPopup.setHeading("Set Filters");
+					filterPopup = WindowUtils.newWindow("Set Filters");
 					filterPopup.setLayout(new FillLayout());
 					filterPopup.setStyleName("navigator");
-					filterPopup.setButtonAlign(HorizontalAlignment.CENTER);
 					filterPopup.setSize(380, 260);
 					filterPopup.add(filterPanel);
 					filterPopup.show();
@@ -431,6 +430,12 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		name.setId("username");
 		name.setHeader("User Name");
 		name.setWidth(100);
+		{
+			final TextField<String> text = new TextField<String>();
+			text.setAllowBlank(false);
+			text.setMaxLength(255);
+			name.setEditor(new CellEditor(text));
+		}
 		configs.add(name);
 
 		// First name, editable
@@ -649,23 +654,50 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 				}
 
 				final String value = ((String) be.getValue()).trim();
+				final String originalValue = (String)be.getStartValue();
+				
+				if ((value == null && originalValue == null) || value != null && value.equals(originalValue)) {
+					//No changes made.
+					return;
+				}
+				
 				final String col = be.getGrid().getColumnModel().getColumnId(be.getColIndex());
 				final String body = "<root><field name=\"" + col + "\">" + value + "</field></root>";
+				
+				final String username;
+				if ("username".equals(col))
+					username = originalValue;
+				else
+					username = model.get("username");
+				
 				final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-				document.post(UriBase.getInstance().getUserBase() + "/users/" + model.get("username"), body,
+				document.post(UriBase.getInstance().getUserBase() + "/users/" + username, body,
 						new GenericCallback<String>() {
-							public void onFailure(Throwable caught) {
-								Info.display("Error", "Could not save changes, please try again later.");
-								model.set(col, be.getStartValue());
-							}
-
-							public void onSuccess(String result) {
-								Info.display("Success", "Changes saved.");
-								be.getGrid().getStore().commitChanges();
-								model.set(col, be.getValue());
-							}
-						});
-
+					public void onFailure(Throwable caught) {
+						String error;
+						if (caught instanceof GWTConflictException) {
+							if ("username".equals(col))
+								error = "An active user already exists with this username.";
+							else
+								error = "A conflict occured that prevented your changes from being saved.";
+						}
+						else
+							error = "Could not save changes, please try again later.";
+								
+						//Necessary?
+						//model.set(col, be.getStartValue());
+						
+						be.getGrid().getStore().rejectChanges();
+						
+						WindowUtils.errorAlert(error);
+					}
+					public void onSuccess(String result) {
+						//Necessary?
+						be.getGrid().getStore().commitChanges();
+						
+						Info.display("Success", "Changes saved.");
+					}
+				});
 			}
 		});
 

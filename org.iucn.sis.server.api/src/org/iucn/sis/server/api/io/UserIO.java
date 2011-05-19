@@ -30,6 +30,13 @@ public class UserIO {
 		}
 		return false;
 	}
+	
+	public User getUser(Integer userID) {
+		UserCriteria criteria = new UserCriteria(session);
+		criteria.id.eq(userID);
+		
+		return UserDAO.getUserByCriteria(criteria);
+	}
 
 	public User getUserFromUsername(String username) {
 		UserCriteria criteria = new UserCriteria(session);

@@ -63,10 +63,16 @@ public class UserRestlet extends BaseServiceRestlet {
 			else if ("lastname".equalsIgnoreCase(name))
 				user.setLastName(value);
 			else if ("username".equalsIgnoreCase(name)) {
-				/*
-				 * This is a valid property, but you can't 
-				 * actually change it...
-				 */
+				if (!username.equals(value)) {
+					//They want to change the username...
+					User existing = userIO.getUserFromUsername(value);
+					if (existing != null)
+						throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "An active user with this username already exists.");
+					
+					user.setUsername(value);
+					if (user.getEmail() == null || username.equals(user.getEmail()))
+						user.setEmail(value);
+				}
 			}
 			else if ("nickname".equalsIgnoreCase(name))
 				user.setNickname(value);
