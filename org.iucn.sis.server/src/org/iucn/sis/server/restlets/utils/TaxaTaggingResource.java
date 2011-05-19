@@ -55,9 +55,10 @@ public class TaxaTaggingResource extends TransactionResource {
 		if (tag == null || mode == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		
-		Criteria criteria = session.createCriteria(Taxon.class);
 		//Too many taxa to look up untagged, always search for tagged.
-		criteria.add(Restrictions.eq(tag, true));
+		Criteria criteria = session.createCriteria(Taxon.class)
+			.add(Restrictions.eq(tag, true))
+			.add(Restrictions.eq("state", Taxon.ACTIVE));
 		
 		List<Taxon> list;
 		try {
