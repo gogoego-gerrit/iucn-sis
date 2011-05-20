@@ -75,8 +75,6 @@ public class TaxomaticUtils {
 		doc.putAsText(UriBase.getInstance().getSISBase() + "/taxomatic/new", newTaxon.toXML(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				handleFailure(doc, caught, wayback);
-				
-				wayback.onFailure(caught);
 			}
 
 			public void onSuccess(String arg0) {
