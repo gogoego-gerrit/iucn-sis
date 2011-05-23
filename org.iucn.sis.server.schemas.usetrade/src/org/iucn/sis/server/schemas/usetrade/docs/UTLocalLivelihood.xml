@@ -4,7 +4,7 @@
 <classOfService>None</classOfService>
 <structures>
 <structure>
-<relatedStructure>
+<relatedStructure label="true">
 <dominantStructures>
 <structure description="Subsistence:" id="subsistence">
 <booleanUnknown/>
