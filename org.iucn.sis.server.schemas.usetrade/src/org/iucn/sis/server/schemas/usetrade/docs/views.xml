@@ -4,12 +4,13 @@
 			<page id="GlobalSummary" title="Global Summary">
 				<pageOrganizations>
 					<organization shortTitle="Global Summary" title="Global Summary">
-<field id="UTLocalLivelihood"/>
-<field id="UTNatlCommercialValue"/>
-<field id="UTIntlCommercialValue"/>
+						<field id="RedListAssessmentDate"/>
+						<field id="UTLocalLivelihood"/>
+						<field id="UTNatlCommercialValue"/>
+						<field id="UTIntlCommercialValue"/>
 						<field id="UTEndUse"/>
-<field id="UTCaptiveHarvest"/>
-<field id="UTHarvestTrendComments"/>
+						<field id="UTCaptiveHarvest"/>
+						<field id="UTHarvestTrendComments"/>
 					</organization>
 				</pageOrganizations>
 			</page>

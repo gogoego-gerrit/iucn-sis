@@ -1,10 +1,10 @@
 package org.iucn.sis.server.schemas.usetrade;
 
-import org.iucn.sis.server.api.schema.AssessmentSchema;
+import org.iucn.sis.server.api.schema.redlist.RedListAssessmentSchema;
 import org.iucn.sis.server.schemas.usetrade.docs.DocumentLoader;
 import org.w3c.dom.Document;
 
-public class UseTradeAssessmentSchema implements AssessmentSchema {
+public class UseTradeAssessmentSchema extends RedListAssessmentSchema {
 
 	@Override
 	public String getDescription() {
@@ -13,7 +13,8 @@ public class UseTradeAssessmentSchema implements AssessmentSchema {
 
 	@Override
 	public Document getField(String fieldName) {
-		return DocumentLoader.getField(fieldName);
+		Document field = DocumentLoader.getField(fieldName);
+		return field != null ? field : super.getField(fieldName);
 	}
 	
 	@Override
