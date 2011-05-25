@@ -72,6 +72,8 @@ public class ConverterWorker implements Runnable {
 			success = convertDrafts(proceed, writer);
 		else if ("published".equals(step))
 			success = convertPublished(proceed, writer);
+		else if ("attachments".equals(step))
+			success = convertAttachments(proceed, writer);
 		else if ("workingsets".equalsIgnoreCase(step))
 			success = convertWorkingSets(proceed, writer);
 		else if ("userworkingsets".equals(step))
@@ -197,6 +199,14 @@ public class ConverterWorker implements Runnable {
 		initConverter(converter, writer);
 		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
 		converter.setConversionMode(ConversionMode.PUBLISHED);
+		
+		return converter.start() && (!proceed || convertWorkingSets(proceed, writer));
+	}
+	
+	private boolean convertAttachments(boolean proceed, Writer writer) {
+		AttachmentConverter converter = new AttachmentConverter();
+		initConverter(converter, writer);
+		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
 		
 		return converter.start() && (!proceed || convertWorkingSets(proceed, writer));
 	}
