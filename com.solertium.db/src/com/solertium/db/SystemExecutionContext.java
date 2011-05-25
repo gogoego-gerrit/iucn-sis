@@ -37,7 +37,11 @@ public class SystemExecutionContext extends ExecutionContext {
 	final PrintWriter out;
 
 	public SystemExecutionContext() {
-		out = new PrintWriter(new OutputStreamWriter(System.out));
+		this(new PrintWriter(new OutputStreamWriter(System.out)));
+	}
+	
+	public SystemExecutionContext(PrintWriter out) {
+		this.out = out;
 	}
 
 	public SystemExecutionContext(final DBSession dbsession) {

@@ -562,6 +562,10 @@ public abstract class DBSession {
 	public String formatIdentifier(final String identifier) {
 		return "`" + identifier + "`";
 	}
+	
+	public String formatIdentifier(final String identifier, final boolean isColumn) {
+		return formatIdentifier(identifier);
+	}
 
 	public String formatLiteral(final Literal literal) {
 		if (literal instanceof StringLiteral)

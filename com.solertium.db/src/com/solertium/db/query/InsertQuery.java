@@ -51,7 +51,7 @@ public class InsertQuery extends BaseQuery implements Query {
 		final int cols = row.size();
 		for (int i = 0; i < cols; i++) {
 			final Column c = row.get(i);
-			buf.append(ds.formatIdentifier(c.getLocalName()));
+			buf.append(ds.formatIdentifier(c.getLocalName(), true));
 			if (i < cols - 1)
 				buf.append(",");
 		}

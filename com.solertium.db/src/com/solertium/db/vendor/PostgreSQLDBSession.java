@@ -74,6 +74,10 @@ public class PostgreSQLDBSession extends DBSession {
 				+ formatCreateSpecifier(prototype) + ")", ec);
 		createIndices(table, prototype, ec);
 	}
+	
+	protected String assembleColumnSpecifier(final Column c, final String dbtype) {
+		return formatIdentifier(c.getLocalName(), true) + " " + dbtype + getKeySpec(c);
+	}
 
 	private String formatIdentifierColumn(final String identifier) {
 		String newIdent;
