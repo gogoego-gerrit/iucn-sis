@@ -8,6 +8,7 @@ import java.io.PipedOutputStream;
 import java.io.PrintWriter;
 
 import org.restlet.Restlet;
+import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -22,7 +23,21 @@ public class ConverterResource extends Restlet {
 		String step = (String)arg0.getResourceRef().getLastSegment();
 		if (step == null || step.endsWith(".conversions"))
 			step = "all";
+		Form parameters = arg0.getResourceRef().getQueryAsForm();
 		boolean proceed = "true".equals(arg0.getResourceRef().getQueryAsForm().getFirstValue("proceed"));
+		
+		boolean run = "true".equals(parameters.getFirstValue("run"));
+		if (!run) {
+			String url = arg0.getResourceRef().getPath();
+			if (arg0.getResourceRef().getQuery() == null || "".equals(arg0.getResourceRef().getPath()))
+				url += "?run=true";
+			else
+				url += "&run=true";
+			arg1.setStatus(Status.SUCCESS_OK);
+			arg1.setEntity("<html><head><title>BirdLife Conversion Script</title></head>" +
+				"<body><div><a href=\"" + url + "\">Click to Execute Script</a></div></body></html>", MediaType.TEXT_HTML);
+			return;
+		}
 		
 		if (step.equals("all")) {
 			step = "libraries";
@@ -49,7 +64,7 @@ public class ConverterResource extends Restlet {
 			return;
 		}
 		
-		new Thread(new ConverterWorker(writer, step, proceed, arg0.getResourceRef().getQueryAsForm())).start();
+		new Thread(new ConverterWorker(writer, step, proceed, parameters)).start();
 		
 		arg1.setEntity(representation);
 	}
