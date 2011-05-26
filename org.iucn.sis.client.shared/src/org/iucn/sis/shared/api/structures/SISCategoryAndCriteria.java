@@ -260,7 +260,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		categoryListBox.addChangeListener(customCatListener);
 		
 		categoryListBox.addItem("--- No Category Selected ---", "");
-		categoryListBox.addItem("Extinct (EX)", "EX");
+		/*categoryListBox.addItem("Extinct (EX)", "EX");
 		categoryListBox.addItem("Extinct in the Wild (EW)", "EW");
 		categoryListBox.addItem("Critically Endangered (CR)", "CR");
 		categoryListBox.addItem("Endangered (EN)", "EN");
@@ -272,7 +272,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		categoryListBox.addItem("Not Evaluated (NE)", "NE");
 		categoryListBox.addItem("Near Threatened (NT)", "NT");
 		categoryListBox.addItem("Least Concern (LC)", "LC");
-		categoryListBox.addItem("Not Recognised (NR)", "NR");
+		categoryListBox.addItem("Not Recognised (NR)", "NR");*/
 		categoryListBox.addItem("Endangered (E)", "E");
 		categoryListBox.addItem("Vulnerable (V)", "V");
 		categoryListBox.addItem("Threatened (T)", "T");
