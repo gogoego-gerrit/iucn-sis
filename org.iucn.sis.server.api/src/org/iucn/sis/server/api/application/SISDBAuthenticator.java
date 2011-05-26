@@ -26,6 +26,20 @@ public class SISDBAuthenticator extends DBAuthenticator {
 	}
 	
 	@Override
+	public boolean doesAccountExist(String login) {
+		Session session = SISPersistentManager.instance().openSession();
+		UserIO io = new UserIO(session);
+		
+		User user = io.getUserFromUsername(login);
+		
+		boolean doesExist = user != null;
+		
+		session.close();
+		
+		return doesExist;
+	}
+	
+	@Override
 	public String putNewAccount(String login, String password) throws AccountExistsException {
 		if (doesAccountExist(login))
 			throw new AccountExistsException();

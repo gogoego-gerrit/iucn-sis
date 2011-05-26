@@ -11,10 +11,10 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
-import org.iucn.sis.client.api.ui.users.panels.AddUserWindow;
 import org.iucn.sis.client.api.ui.users.panels.ContentManager;
 import org.iucn.sis.client.api.ui.users.panels.HasRefreshableContent;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.client.panels.users.UserViewToolBar.UserViewToolbarAPI;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.User;
@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
@@ -54,11 +53,12 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
-import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.IncrementalCommand;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -67,6 +67,7 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.events.ComplexListener;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.GenericPagingLoader;
 import com.solertium.util.extjs.client.PagingLoaderFilter;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -81,7 +82,7 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
-public class UserViewPanel extends LayoutContainer implements HasRefreshableContent {
+public class UserViewPanel extends LayoutContainer implements HasRefreshableContent, UserViewToolbarAPI {
 
 	private final LayoutContainer center;
 
@@ -150,17 +151,17 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 					"".equals(activeAccountFilter.getValue().getValue())) ? 
 					null : activeAccountFilter.getValue().getValue();
 				
-				if (active != null & filterOut(active, (String) item.get("sis")))
+				if (active != null & filterOut(active, (String) item.get(ClientUser.SIS_USER)))
 					return true;
-				if (filterOut(usernameFilter.getValue(), (String) item.get("username")))
+				if (filterOut(usernameFilter.getValue(), (String) item.get(ClientUser.USERNAME)))
 					return true;
-				if (filterOut(firstFilter.getValue(), (String) item.get("firstName")))
+				if (filterOut(firstFilter.getValue(), (String) item.get(ClientUser.FIRST_NAME)))
 					return true;
-				if (filterOut(lastFilter.getValue(), (String) item.get("lastName")))
+				if (filterOut(lastFilter.getValue(), (String) item.get(ClientUser.LAST_NAME)))
 					return true;
-				if (filterOut(nicknameFilter.getValue(), (String) item.get("nickname")))
+				if (filterOut(nicknameFilter.getValue(), (String) item.get(ClientUser.NICKNAME)))
 					return true;
-				if (filterOut(affiliationFilter.getValue(), (String) item.get("affiliation")))
+				if (filterOut(affiliationFilter.getValue(), (String) item.get(ClientUser.AFFILIATION)))
 					return true;
 
 				return false;
@@ -175,191 +176,69 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		setLayout(new BorderLayout());
 	}
 
-	private void addUser(String username) {
+	public void addUser(String username) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.get(UriBase.getInstance().getUserBase() + "/users/" + username, new GenericCallback<String>() {
-
-			@Override
 			public void onSuccess(String result) {
-				addUsersToLoader(ndoc);
+				NativeElement node = ndoc.getDocumentElement().getElementByTagName(User.ROOT_TAG);
+				loader.add(new UserModelData(ClientUser.fromXML(node)));
 			}
-
-			@Override
 			public void onFailure(Throwable caught) {
-				Info.display("Error",
+				WindowUtils.errorAlert("Error",
 						"Failed to load new user.  If you want to view the new user, please reopen window.");
-
 			}
 		});
+	}
+	
+	@Override
+	public UserModelData getSelectedUser() {
+		return userGrid.getSelectionModel().getSelectedItem();
+	}
+	
+	@Override
+	public void removeUser(UserModelData user) {
+		loader.getFullList().remove(user);
+		loader.getPagingLoader().load();
+	}
+	
+	public void setUserState(UserModelData user, int state) {
+		saveChange((String)user.get(ClientUser.USERNAME), ClientUser.STATE, Integer.toString(state));
+	}
+	
+	@Override
+	public void showFilter() {
+		filterPopup = WindowUtils.newWindow("Set Filters");
+		filterPopup.setLayout(new FillLayout());
+		filterPopup.setStyleName("navigator");
+		filterPopup.setSize(380, 260);
+		filterPopup.add(filterPanel);
+		filterPopup.show();
 	}
 
 	private void draw() {
 		removeAll();
-
-		final ToolBar bar = new ToolBar();
-
+		
+		ToolBar bar = new ToolBar();
 		if (AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.USE_FEATURE,
 				AuthorizableFeature.USER_MANAGEMENT_FEATURE)) {
-			Button item = new Button("Add Profile and Create Password", new SelectionListener<ButtonEvent>() {
-				@Override
-				public void componentSelected(ButtonEvent ce) {
-					AddUserWindow win = new AddUserWindow(true, new ComplexListener<String>() {
-						public void handleEvent(String result) {
-							addUser(result);
-						}
-					});
-					win.show();
-					win.setSize(410, 325);
-					win.center();
-				}
-			});
-			item.setIconStyle("icon-user-suit");
-			bar.add(item);
-
-			bar.add(new SeparatorToolItem());
-			item = new Button("Add Profile", new SelectionListener<ButtonEvent>() {
-				@Override
-				public void componentSelected(ButtonEvent ce) {
-					AddUserWindow win = new AddUserWindow(false, new ComplexListener<String>() {
-						public void handleEvent(String result) {
-							addUser(result);
-						}
-					});
-					win.show();
-					win.setSize(410, 325);
-					win.center();
-				}
-			});
-			item.setIconStyle("icon-user-green");
-			bar.add(item);
-
-			bar.add(new SeparatorToolItem());
-			if (AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.USE_FEATURE,
-					AuthorizableFeature.DELETE_USERS_FEATURE)) {
-				item = new Button("Delete User", new SelectionListener<ButtonEvent>() {
-					@Override
-					public void componentSelected(ButtonEvent ce) {
-						if (userGrid.getSelectionModel().getSelectedItem() != null) {
-							final UserModelData selected = userGrid.getSelectionModel().getSelectedItem();
-
-							WindowUtils.confirmAlert("Delete User", "Are you sure you want to delete the user "
-									+ selected.get("username") + "? This SHOULD NOT be performed on a user that "
-									+ "is an assessor or contributor on an assessment, as that information "
-									+ "will be irretrievably lost.", new Listener<MessageBoxEvent>() {
-								public void handleEvent(MessageBoxEvent be) {
-									if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-										NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-										ndoc.post(UriBase.getInstance().getSISBase() + "/authn/authn/remove",
-												"<root><u>" + selected.get("username") + "</u></root>",
-												new GenericCallback<String>() {
-
-													public void onFailure(Throwable caught) {
-														String message;
-														if (caught.getMessage().equals("412"))
-															message = "Sorry - you cannot delete yourself.";
-														else if (caught.getMessage().equals("500"))
-															message = "Error deleting this user. Server failure - "
-																	+ "please report this to an SIS administrator, "
-																	+ "along with the user you were attempting to delete.";
-														else
-															message = "Error deleting this user. Please check your connection and try again.";
-
-														WindowUtils.errorAlert("Delete failed!", message);
-													}
-
-													public void onSuccess(String result) {
-
-														// Removing zendesk account
-														NativeDocument zdoc = SISClientBase.getHttpBasicNativeDocument();
-														String xml = "<root><user email=\"" + selected.get("username")
-																+ "\"/></root>";
-														zdoc.post(UriBase.getInstance().getZendeskBase()
-																+ "/zendesk/remove/", xml,
-																new GenericCallback<String>() {
-
-																	public void onSuccess(String result) {}
-
-																	public void onFailure(Throwable caught) {
-																		Info.display("Error", "Failed to delete zen desk account associated with user " + selected.get("username"));
-																	}
-																});
-
-														Info.display("Success", "User {0} removed.", (String) selected
-																.get("username"));
-														loader.getFullList().remove(selected);
-														loader.getPagingLoader().load();
-														
-													}
-
-												});
-									}
-								};
-							});
-						} else
-							WindowUtils.errorAlert("Please select a user to delete.");
-					}
-				});
-				item.setIconStyle("icon-user-delete");
-				bar.add(item);
-			}
-
-			bar.add(new SeparatorToolItem());
-			item = new Button("Reset Password", new SelectionListener<ButtonEvent>() {
-				@Override
-				public void componentSelected(ButtonEvent ce) {
-					if (userGrid.getSelectionModel().getSelectedItem() != null) {
-						final String username = userGrid.getSelectionModel().getSelectedItem().get("username");
-						WindowUtils.confirmAlert("Reset Password", "Are you sure you want to reset " + username
-								+ "'s password? A new password will be supplied via e-mail.",
-								new Listener<MessageBoxEvent>() {
-
-									public void handleEvent(MessageBoxEvent be) {
-
-										if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-											NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-											ndoc.post(UriBase.getInstance().getSISBase() + "/authn/reset", "<root><u>"
-													+ username + "</u></root>", new GenericCallback<String>() {
-												public void onSuccess(String result) {
-													Info.display("Reset Success!",
-															"A new password for {0} has been sent.", username);
-												}
-
-												public void onFailure(Throwable caught) {
-													WindowUtils
-															.errorAlert(
-																	"Reset failed!",
-																	"Resetting this "
-																			+ "user's password failed. Please check your Internet connection and try again.");
-												}
-											});
-										}
-									};
-								});
-					} else
-						WindowUtils.errorAlert("Please select a user.");
-				}
-			});
-			item.setIconStyle("icon-user-go");
-			bar.add(item);
-
-			bar.add(new SeparatorToolItem());
-			item = new Button("Show Filter(s)", new SelectionListener<ButtonEvent>() {
-				public void componentSelected(ButtonEvent ce) {
-					filterPopup = WindowUtils.newWindow("Set Filters");
-					filterPopup.setLayout(new FillLayout());
-					filterPopup.setStyleName("navigator");
-					filterPopup.setSize(380, 260);
-					filterPopup.add(filterPanel);
-					filterPopup.show();
-				}
-			});
-			item.setIconStyle("icon-user-comment");
-			bar.add(item);
+			bar = new UserViewToolBar(this);
 		}
 
 		LayoutContainer c = new LayoutContainer(new FitLayout());
 		c.add(pagingBar);
 
+		buildFilterPanel();
+
+		add(bar, new BorderLayoutData(LayoutRegion.NORTH, 25));
+		add(c, new BorderLayoutData(LayoutRegion.SOUTH, 25));
+		add(center, new BorderLayoutData(LayoutRegion.CENTER));
+
+		populateStore();
+
+		layout();
+	}
+	
+	private void buildFilterPanel() {
 		filterPanel = new FormPanel();
 		filterPanel.setBodyBorder(false);
 		filterPanel.setBorders(false);
@@ -399,20 +278,12 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 				lastFilter.setValue("");
 				nicknameFilter.setValue("");
 				affiliationFilter.setValue("");
-				activeAccountFilter.setValue(activeAccountFilter.findModel(""));
+				activeAccountFilter.setValue(null);
 				loader.applyFilter("");
 				pagingBar.setActivePage(1);
 				loader.getPagingLoader().load();
 			}
 		}));
-
-		add(bar, new BorderLayoutData(LayoutRegion.NORTH, 25));
-		add(c, new BorderLayoutData(LayoutRegion.SOUTH, 25));
-		add(center, new BorderLayoutData(LayoutRegion.CENTER));
-
-		populateStore();
-
-		layout();
 	}
 
 	private ColumnModel getColumnModel() {
@@ -662,7 +533,6 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 				}
 				
 				final String col = be.getGrid().getColumnModel().getColumnId(be.getColIndex());
-				final String body = "<root><field name=\"" + col + "\">" + value + "</field></root>";
 				
 				final String username;
 				if ("username".equals(col))
@@ -670,32 +540,12 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 				else
 					username = model.get("username");
 				
-				final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-				document.post(UriBase.getInstance().getUserBase() + "/users/" + username, body,
-						new GenericCallback<String>() {
+				saveChange(username, col, value, new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {
-						String error;
-						if (caught instanceof GWTConflictException) {
-							if ("username".equals(col))
-								error = "An active user already exists with this username.";
-							else
-								error = "A conflict occured that prevented your changes from being saved.";
-						}
-						else
-							error = "Could not save changes, please try again later.";
-								
-						//Necessary?
-						//model.set(col, be.getStartValue());
-						
 						be.getGrid().getStore().rejectChanges();
-						
-						WindowUtils.errorAlert(error);
 					}
 					public void onSuccess(String result) {
-						//Necessary?
 						be.getGrid().getStore().commitChanges();
-						
-						Info.display("Success", "Changes saved.");
 					}
 				});
 			}
@@ -703,6 +553,41 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 
 		center.add(userGrid);
 		center.layout();
+	}
+	
+	private void saveChange(final String username, final String column, final String value) {
+		saveChange(username, column, value, null);
+	}
+	
+	private void saveChange(final String username, final String column, final String value, final GenericCallback<String> callback) {
+		final String body = "<root><field name=\"" + column + "\">" + value + "</field></root>";
+		
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.post(UriBase.getInstance().getUserBase() + "/users/" + username, body,
+				new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				String error;
+				if (caught instanceof GWTConflictException) {
+					if ("username".equals(username))
+						error = "An active user already exists with this username.";
+					else
+						error = "A conflict occured that prevented your changes from being saved.";
+				}
+				else
+					error = "Could not save changes, please try again later.";
+				
+				WindowUtils.errorAlert(error);
+				
+				if (callback != null)
+					callback.onFailure(caught);
+			}
+			public void onSuccess(String result) {
+				Info.display("Success", "Changes saved.");
+				
+				if (callback != null)
+					callback.onSuccess(result);
+			}
+		});
 	}
 
 	private void populateStore() {
@@ -720,12 +605,18 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		} else {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 			ndoc.get(UriBase.getInstance().getUserBase() + "/users", new GenericCallback<String>() {
-
-				@Override
 				public void onSuccess(String result) {
-					addUsersToLoader(ndoc);
-					finalizeStorePopulation();
-
+					IncrementalUserParser parser = new IncrementalUserParser(ndoc, loader);
+					parser.setListener(new SimpleListener() {
+						public void handleEvent() {
+							finalizeStorePopulation();
+						}
+					});
+					
+					WindowUtils.showLoadingAlert("Loading Users...");
+					
+					DeferredCommand.addPause();
+					DeferredCommand.addCommand(parser);
 				}
 
 				@Override
@@ -738,30 +629,67 @@ public class UserViewPanel extends LayoutContainer implements HasRefreshableCont
 		}
 
 	}
-
-	protected void addUsersToLoader(NativeDocument ndoc) {
-		NativeElement docElement = ndoc.getDocumentElement();
-		NativeNodeList users = docElement.getElementsByTagName(User.ROOT_TAG);
-		
-		for (int i = 0; i < users.getLength(); i++) {
-			ClientUser user = ClientUser.fromXML(users.elementAt(i));
-
-			loader.add(new UserModelData(user));
-		}
-
-		ArrayUtils.quicksort(loader.getFullList(), new Comparator<UserModelData>() {
-			public int compare(UserModelData o1, UserModelData o2) {
-				return ((String) o1.get("username")).compareTo((String) o2.get("username"));
-			}
-		});
-		loader.getPagingLoader().load();
-
-	}
-
+	
 	public void refresh() {
 		permissionGroups.updateStore();
 		draw();
 
+	}
+	
+	public static class IncrementalUserParser implements IncrementalCommand {
+		
+		private static final int NUM_TO_PARSE = 200;
+		
+		private final NativeNodeList nodes;
+		private final GenericPagingLoader<UserModelData> loader;
+		
+		private int current = 0;
+		private int size;
+		
+		private SimpleListener listener;
+		
+		public IncrementalUserParser(NativeDocument document, GenericPagingLoader<UserModelData> loader) {
+			this.loader = loader;
+			this.nodes = document.getDocumentElement().getElementsByTagName(User.ROOT_TAG);
+			this.size = nodes.getLength();
+		}
+		
+		@Override
+		public boolean execute() {
+			if (current >= size) {
+				ArrayUtils.quicksort(loader.getFullList(), new Comparator<UserModelData>() {
+					public int compare(UserModelData o1, UserModelData o2) {
+						return ((String) o1.get("username")).compareTo((String) o2.get("username"));
+					}
+				});
+				//loader.getPagingLoader().load();
+				
+				WindowUtils.hideLoadingAlert();
+				
+				if (listener != null)
+					listener.handleEvent();
+				
+				return false;
+			}
+			
+			int max = current + NUM_TO_PARSE;
+			if (max > size)
+				max = size;
+			
+			WindowUtils.showLoadingAlert("Loading Users " + (current+1) + "-" + (max) + " of " + size);
+			
+			for (int i = current; i < current + NUM_TO_PARSE && i < size; i++)
+				loader.add(new UserModelData(ClientUser.fromXML(nodes.elementAt(i))));
+			
+			current += NUM_TO_PARSE;
+			
+			return true;
+		}
+		
+		public void setListener(SimpleListener listener) {
+			this.listener = listener;
+		}
+		
 	}
 
 }

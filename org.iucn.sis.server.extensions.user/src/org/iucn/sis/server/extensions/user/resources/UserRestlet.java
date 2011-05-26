@@ -23,6 +23,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.solertium.util.TrivialExceptionHandler;
+
 public class UserRestlet extends BaseServiceRestlet {
 	
 	public UserRestlet(Context context) {
@@ -100,6 +102,22 @@ public class UserRestlet extends BaseServiceRestlet {
 						throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 					}
 				}
+			}
+			else if ("state".equalsIgnoreCase(name)) {
+				Integer state = null;
+				try {
+					state = Integer.valueOf(value);
+				} catch (Exception e) {
+					TrivialExceptionHandler.ignore(this, e);
+				}
+				
+				if (state == null || !(state.intValue() == User.ACTIVE || state.intValue() == User.DELETED)) {
+					response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+					response.setEntity("Invalid user state specified.", MediaType.TEXT_PLAIN);
+					return;
+				}
+				
+				user.setState(state);
 			}
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "The property " + name + " is invalid.");

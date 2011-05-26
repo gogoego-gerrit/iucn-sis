@@ -8,6 +8,20 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.utils.RowData;
 
 public class ClientUser extends User {
+	
+	public static final String ID = "id";
+	public static final String USERNAME = "username";
+	public static final String EMAIL = "email";
+	public static final String STATE = "state";
+	public static final String FIRST_NAME = "firstName";
+	public static final String LAST_NAME = "lastName";
+	public static final String NICKNAME = "nickname";
+	public static final String INITIALS = "initials";
+	public static final String AFFILIATION = "affiliation";
+	public static final String SIS_USER = "sisUser";
+	public static final String RAPIDLIST_USER = "rapidListUser";
+	public static final String QUICK_GROUP = "quickGroup";
+	
 	private static final long serialVersionUID = 1L;
 	
 	public String auth;
@@ -39,18 +53,18 @@ public class ClientUser extends User {
 		
 		User.fromXML(element, target);
 		
-		target.setProperty("id", target.getId()+"");
-		target.setProperty("username", target.getUsername());
-		target.setProperty("email", target.getEmail());
-		target.setProperty("state", target.getState() + "");
-		target.setProperty("firstName", target.getFirstName());
-		target.setProperty("lastName",target.getLastName());
-		target.setProperty("nickname", target.getNickname());
-		target.setProperty("initials", target.getInitials());
-		target.setProperty("affiliation", target.getAffiliation());
-		target.setProperty("sisUser", target.getSisUser().toString());
-		target.setProperty("rapidListUser", target.getRapidlistUser().toString());
-		target.setProperty("quickgroup", target.getQuickGroupString());
+		target.setProperty(ID, target.getId()+"");
+		target.setProperty(USERNAME, target.getUsername());
+		target.setProperty(EMAIL, target.getEmail());
+		target.setProperty(STATE, target.getState() + "");
+		target.setProperty(FIRST_NAME, target.getFirstName());
+		target.setProperty(LAST_NAME,target.getLastName());
+		target.setProperty(NICKNAME, target.getNickname());
+		target.setProperty(INITIALS, target.getInitials());
+		target.setProperty(AFFILIATION, target.getAffiliation());
+		target.setProperty(SIS_USER, target.getSisUser().toString());
+		target.setProperty(RAPIDLIST_USER, target.getRapidlistUser().toString());
+		target.setProperty(QUICK_GROUP, target.getQuickGroupString());
 		
 		return target;
 	}
