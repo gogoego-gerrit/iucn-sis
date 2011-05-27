@@ -4,9 +4,11 @@ import java.util.List;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.io.PermissionIO;
 import org.iucn.sis.server.api.io.UserIO;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.PermissionGroup;
@@ -49,7 +51,25 @@ public class UserRestlet extends BaseServiceRestlet {
 		UserIO userIO = new UserIO(session);
 		PermissionIO permissionIO = new PermissionIO(session);
 		
-		User user = userIO.getUserFromUsername(username);
+		boolean isID = false;
+		try {
+			Integer.parseInt(username);
+			isID = true;
+		} catch (Exception e) {
+			TrivialExceptionHandler.ignore(this, e);
+		}
+		
+		final User user;
+		if (isID) {
+			try {
+				user = SISPersistentManager.instance().getObject(session, User.class, Integer.valueOf(username));
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
+		}
+		else
+			user = userIO.getUserFromUsername(username);
+		
 		if (user == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "User not found.");
 		
@@ -117,6 +137,15 @@ public class UserRestlet extends BaseServiceRestlet {
 					return;
 				}
 				
+				if (state.intValue() == User.ACTIVE && user.getState() == User.DELETED) {
+					/*
+					 * Ensure this is legal!
+					 */
+					User existing = userIO.getUserFromUsername(user.getUsername());
+					if (existing != null)
+						throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "An active user with this username already exists.");
+				}
+				
 				user.setState(state);
 			}
 			else {
@@ -136,9 +165,13 @@ public class UserRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
-		Criteria criteria = session.createCriteria(User.class).add(Restrictions.eq("state", User.ACTIVE));
+		Criteria criteria = session.createCriteria(User.class);
 		if (getUsername(request) != null)
 			criteria.add(Restrictions.eq("username", getUsername(request)));
+		
+		String sort = request.getResourceRef().getQueryAsForm().getFirstValue("sort");
+		if (sort != null && !"".equals(sort))
+			criteria.addOrder(Order.asc(sort));
 		
 		List<User> list;
 		try {

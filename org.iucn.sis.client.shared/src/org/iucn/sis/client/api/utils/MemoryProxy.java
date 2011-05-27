@@ -9,6 +9,8 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.DataProxy;
 import com.extjs.gxt.ui.client.data.DataReader;
+import com.extjs.gxt.ui.client.data.FilterConfig;
+import com.extjs.gxt.ui.client.data.FilterPagingLoadConfig;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.data.PagingLoadConfig;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -78,11 +80,27 @@ public class MemoryProxy<T extends ModelData> implements DataProxy<BasePagingLoa
 		
 		final Command command = new Command() {
 			public void execute() {
-				List<T> retData = new ArrayList<T>();
-				for (int i = loadConfig.getOffset(); i < (loadConfig.getOffset() + loadConfig.getLimit()) && i < store.getCount(); i++) {
-					retData.add(store.getAt(i));
+				ListStore<T> storeToPage;
+				
+				if (loadConfig instanceof FilterPagingLoadConfig) {
+					List<FilterConfig> filters = ((FilterPagingLoadConfig)loadConfig).getFilterConfigs();
+					if (filters == null || filters.isEmpty())
+						storeToPage = store;
+					else {
+						storeToPage = new ListStore<T>();
+						for (T model : store.getModels())
+							if (select(model, filters))
+								storeToPage.add(model);
+					}
 				}
-				callback.onSuccess(new BasePagingLoadResult<T>(retData, loadConfig.getOffset(), store.getCount()));		
+				else
+					storeToPage = store;
+				
+				List<T> retData = new ArrayList<T>();
+				for (int i = loadConfig.getOffset(); i < (loadConfig.getOffset() + loadConfig.getLimit()) && i < storeToPage.getCount(); i++) {
+					retData.add(storeToPage.getAt(i));
+				}
+				callback.onSuccess(new BasePagingLoadResult<T>(retData, loadConfig.getOffset(), storeToPage.getCount()));		
 			}
 		};
 		
@@ -99,6 +117,14 @@ public class MemoryProxy<T extends ModelData> implements DataProxy<BasePagingLoa
 		}
 		else
 			command.execute();
+	}
+	
+	private boolean select(T model, List<FilterConfig> filters) {
+		for (FilterConfig filter : filters) {
+			if (filter.isFiltered(model, filter.getValue(), filter.getComparison(), model.get(filter.getField())))
+				return false;
+		}
+		return true;
 	}
 	
 	/*public void load(

@@ -1,15 +1,17 @@
 package org.iucn.sis.client.panels.users;
 
 import org.iucn.sis.client.api.ui.users.panels.ContentManager;
-import org.iucn.sis.client.api.ui.users.panels.HasRefreshableContent;
+import org.iucn.sis.client.panels.users.UserViewPanel.HasStore;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
+import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 /**
  * UserModelTabPanel.java
@@ -29,29 +31,51 @@ public class UserModelTabPanel extends TabPanel implements ContentManager {
 		super();
 		setAutoSelect(false);
 		setTabPosition(TabPosition.BOTTOM);		
+
+		final TabItem active = new TabItem("Active Users");
+		active.setData("id", "active");
+		active.setLayout(new FillLayout());
+		active.setClosable(false);
+		active.setScrollMode(Scroll.AUTO);
+		active.add(new UserViewPanel(new HasStore() {
+			public ListStore<UserModelData> getStore() {
+				return UserStore.impl.getActiveUsers();
+			}
+		}));
+		active.setData("stale", "true");
+
+		add(active);
 		
+		final TabItem disabled = new TabItem("Disabled Users");
+		disabled.setData("id", "disabled");
+		disabled.setLayout(new FillLayout());
+		disabled.setClosable(false);
+		disabled.setScrollMode(Scroll.AUTO);
+		disabled.add(new UserViewPanel(new HasStore() {
+			public ListStore<UserModelData> getStore() {
+				return UserStore.impl.getDisabledUsers();
+			}
+		}));
+		disabled.setData("stale", "true");
 
-		final TabItem users = new TabItem("Users");
-		users.setData("id", "users");
-		users.setLayout(new FillLayout());
-		users.setClosable(false);
-		users.setScrollMode(Scroll.AUTO);
-		users.add(new UserViewPanel(this));
-		users.setData("stale", "true");
-
-		add(users);
+		add(disabled);
 		
 		addListener(Events.Select, new Listener<TabPanelEvent>() {
 			public void handleEvent(TabPanelEvent be) {
-				if ("true".equals(be.getItem().getData("stale"))) {
+				((DrawsLazily)be.getItem().getWidget(0)).draw(new DrawsLazily.DoneDrawingCallback() {
+					public void isDrawn() {
+						layout();
+					}
+				});
+				/*if ("true".equals(be.getItem().getData("stale"))) {
 					((HasRefreshableContent) be.getItem().getWidget(0)).refresh();
 					be.getItem().setData("stale", "false");
-				}
+				}*/
 			}
 		});
 
 		/*WindowUtils.showLoadingAlert("Initializing...");*/
-		setSelection(users);
+		setSelection(active);
 	}
 
 	/**
@@ -67,4 +91,5 @@ public class UserModelTabPanel extends TabPanel implements ContentManager {
 				getItem(i).setData("stale", "true");
 		}
 	}
+	
 }

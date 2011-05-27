@@ -357,6 +357,10 @@ body,td,div,input,p,select,input,button {
 	background: url(../images/icon-user-go.png) no-repeat !important;	
 }
 
+.icon-user-add {
+	background: url(../images/user_add.png) no-repeat !important;
+}
+
 .icon-user-delete {
 	background: url(../images/user_delete.png) no-repeat !important;	
 }

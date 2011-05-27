@@ -10,7 +10,7 @@ License Type: Evaluation
 			<generator class="native">
 			</generator>
 		</id>
-		<property name="username" column="username" unique="true" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="username" column="username" type="string" length="255" not-null="true" lazy="false"/>
 		<property name="firstName" column="first_name" type="string" length="255" not-null="true" lazy="false"/>
 		<property name="lastName" column="last_name" type="string" length="255" not-null="false" lazy="false"/>
 		<property name="nickname" column="nickname" type="string" length="255" not-null="false" lazy="false"/>

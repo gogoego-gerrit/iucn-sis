@@ -14,9 +14,11 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -37,6 +39,22 @@ public class UserViewToolBar extends ToolBar {
 	}
 	
 	private void build() {
+		ToolTipConfig config = new ToolTipConfig();
+		config.setShowDelay(200);
+		config.setDismissDelay(0);
+		config.setCloseable(true);
+		config.setTitle("Help");
+		config.setText("Double-click a row to edit any of the available data in the columns " +
+			"for a given user.<br/><br/>" +
+			"Use the column headings to show additional columns or hide unused ones, and to apply filters.");
+		
+		IconButton icon = new IconButton("icon-help");
+		icon.setToolTip(config);
+		
+		add(icon);
+		
+		add(new SeparatorToolItem());
+		
 		add(newButton("Add Profile and Create Password", "icon-user-suit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				AddUserWindow win = new AddUserWindow(true, new ComplexListener<String>() {
@@ -63,14 +81,6 @@ public class UserViewToolBar extends ToolBar {
 				win.center();
 			}
 		}));
-		
-		add(new SeparatorToolItem());
-		
-		add(newButton("Show Filter(s)", "icon-user-comment", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				api.showFilter();
-			}
-		}));
 
 		add(new FillToolItem());
 		
@@ -91,7 +101,7 @@ public class UserViewToolBar extends ToolBar {
 	private Menu createMenu(final UserModelData selected) {
 		Menu menu = new Menu();
 		
-		if (canDelete()) {
+		/*if (canDelete()) {
 			menu.add(newMenuItem("Delete User", "icon-user-delete", new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
 					WindowUtils.confirmAlert("Delete User", "Are you sure you want to delete the user "
@@ -141,7 +151,7 @@ public class UserViewToolBar extends ToolBar {
 			}));
 			
 			menu.add(new SeparatorMenuItem());
-		}
+		}*/
 		
 		menu.add(newMenuItem("Reset Password", "icon-user-go", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
@@ -170,11 +180,18 @@ public class UserViewToolBar extends ToolBar {
 		menu.add(new SeparatorMenuItem());
 		
 		final boolean active = Integer.toString(User.ACTIVE).equals(selected.get(ClientUser.STATE));
-		menu.add(newMenuItem(active ? "Disable Account" : "Activate Account", "", new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				api.setUserState(selected, active ? User.DELETED : User.ACTIVE);
-			}
-		}));
+		if (!active || canDelete())
+			menu.add(newMenuItem(active ? "Disable Account" : "Activate Account", 
+					active ? "icon-user-delete" : "icon-user-add", new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					WindowUtils.confirmAlert("Confirm", active ? "Are you sure you want to disable this user?" : 
+						"Are you sure you want to activate this user?", new WindowUtils.SimpleMessageBoxListener() {
+						public void onYes() {
+							api.setUserState(selected, active ? User.DELETED : User.ACTIVE);			
+						}
+					});
+				}
+			}));
 		
 		return menu;
 	}
@@ -207,8 +224,6 @@ public class UserViewToolBar extends ToolBar {
 		public UserModelData getSelectedUser();
 		
 		public void setUserState(UserModelData user, int state);
-		
-		public void showFilter();
 		
 	}
 

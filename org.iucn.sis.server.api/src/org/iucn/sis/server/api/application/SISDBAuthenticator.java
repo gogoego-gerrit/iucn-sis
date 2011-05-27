@@ -3,6 +3,7 @@ package org.iucn.sis.server.api.application;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.io.UserIO;
@@ -45,7 +46,7 @@ public class SISDBAuthenticator extends DBAuthenticator {
 			throw new AccountExistsException();
 		
 		Session session = SISPersistentManager.instance().openSession();
-		
+		session.beginTransaction();
 		UserIO io = new UserIO(session);
 		
 		User user = io.getUserFromUsername(login);
@@ -65,12 +66,13 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		user.setSisUser(true);
 		user.setRapidlistUser(false);
 		
-		session.beginTransaction();
-		
 		try {
 			io.saveUser(user);
 			session.getTransaction().commit();
 		} catch (PersistentException e) {
+			session.getTransaction().rollback();
+			throw new AccountExistsException(e.getLocalizedMessage());
+		} catch (HibernateException e) {
 			session.getTransaction().rollback();
 			throw new AccountExistsException(e.getLocalizedMessage());
 		} finally {

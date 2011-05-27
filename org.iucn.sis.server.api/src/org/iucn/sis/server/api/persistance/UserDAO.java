@@ -54,7 +54,7 @@ public class UserDAO {
 	}
 	
 	public static User getUserByCriteria(UserCriteria criteria) {
-		criteria.state.equals(User.ACTIVE);
+		criteria.state.eq(User.ACTIVE);
 		return loadUserByCriteria(criteria);
 	}
 	

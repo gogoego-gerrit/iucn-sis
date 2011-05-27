@@ -1,7 +1,12 @@
 package org.iucn.sis.client.api.utils;
 
+import java.util.List;
+
+import com.extjs.gxt.ui.client.data.BasePagingLoadConfig;
 import com.extjs.gxt.ui.client.data.BasePagingLoadResult;
 import com.extjs.gxt.ui.client.data.BasePagingLoader;
+import com.extjs.gxt.ui.client.data.FilterConfig;
+import com.extjs.gxt.ui.client.data.FilterPagingLoadConfig;
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -23,7 +28,11 @@ public abstract class PagingPanel<T extends ModelData> extends LayoutContainer {
 		proxy = new MemoryProxy<T>();
 		
 		loader = 
-			new BasePagingLoader<BasePagingLoadResult<T>>(proxy);
+			new BasePagingLoader<BasePagingLoadResult<T>>(proxy) {
+			protected Object newLoadConfig() {
+				return new PagingPanelLoadConfig();
+			}
+		};
 		loader.setRemoteSort(false);
 		
 		pageCount = 25;
@@ -80,5 +89,27 @@ public abstract class PagingPanel<T extends ModelData> extends LayoutContainer {
 	protected abstract void refreshView();
 	
 	protected abstract void getStore(final GenericCallback<ListStore<T>> callback);
+	
+	public static class PagingPanelLoadConfig extends BasePagingLoadConfig implements FilterPagingLoadConfig {
+		
+		private static final long serialVersionUID = 1L;
+		
+		private List<FilterConfig> configs;
+		
+		public PagingPanelLoadConfig() {
+			super();
+		}
+		
+		@Override
+		public List<FilterConfig> getFilterConfigs() {
+			return configs;
+		}
+		
+		@Override
+		public void setFilterConfigs(List<FilterConfig> configs) {
+			this.configs = configs;
+		}
+		
+	}
 
 }
