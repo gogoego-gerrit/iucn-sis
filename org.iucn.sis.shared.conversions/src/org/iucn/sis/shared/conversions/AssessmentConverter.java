@@ -330,6 +330,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		assessment.setType(assessData.getType());
 		assessment.setDateFinalized(assessData.getDateFinalized());
 		assessment.setTaxon(getTaxon(report, assessData));
+		assessment.setIsHistorical(assessData.isHistorical());
 		
 		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType())) {
 			String dateAssessed = assessData.getDateAssessed();
