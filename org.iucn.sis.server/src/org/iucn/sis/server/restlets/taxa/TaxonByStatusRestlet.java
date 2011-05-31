@@ -26,6 +26,7 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -54,8 +55,35 @@ public class TaxonByStatusRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public void definePaths() {
-		paths.add("/taxaFinder");
+		paths.add("/taxaFinder/{status}");
 		paths.add("/taxaFinder/workingSet");
+	}
+	
+	@Override
+	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
+		final String status = (String)request.getAttributes().get("status");
+		if (!isValid(status))
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a valid status code.");
+		
+		final TaxonIO io = new TaxonIO(session);
+		final Taxon[] results = io.getTaxaByStatus(status);
+		
+		final StringBuilder out = new StringBuilder();
+		out.append("<root>");
+		
+		for (Taxon taxon : results)
+			out.append(taxon.toXMLMinimal());
+		
+		out.append("</root>");
+		
+		return new StringRepresentation(out.toString(), MediaType.TEXT_XML);
+	}
+	
+	private boolean isValid(String code) {
+		return TaxonStatus.STATUS_NEW.equals(code) || 
+			TaxonStatus.STATUS_ACCEPTED.equals(code) || 
+			TaxonStatus.STATUS_DISCARDED.equals(code) ||
+			TaxonStatus.STATUS_SYNONYM.equals(code);
 	}
 	
 	@Override

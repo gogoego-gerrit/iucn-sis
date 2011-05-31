@@ -9,11 +9,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.locking.TaxonLockAquirer;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.persistance.TaxonDAO;
+import org.iucn.sis.server.api.persistance.TaxonStatusCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -21,6 +23,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
+import org.iucn.sis.shared.api.models.TaxonStatus;
 import org.iucn.sis.shared.api.models.User;
 
 public class TaxonIO {
@@ -289,6 +292,19 @@ public class TaxonIO {
 		return null;
 	}
 
+	public Taxon[] getTaxaByStatus(String code) {
+		return getTaxaByStatus(TaxonStatus.fromCode(code));
+	}
+	
+	public Taxon[] getTaxaByStatus(TaxonStatus status) {
+		TaxonCriteria criteria = new TaxonCriteria(session);
+		TaxonStatusCriteria c = criteria.createTaxonStatusCriteria();
+		c.id.eq(status.getId());
+		
+		criteria.addOrder(Order.asc("friendlyName"));
+		
+		return criteria.listTaxon();
+	}
 
 	/**
 	 * SHOULD ONLY BE CALLED FROM THE SISHIBERNATELISTENER, 

@@ -415,8 +415,11 @@ public class HeaderContainer extends ContentPanel {
 						tabItem3.add(taxonFinderPanel);
 						tabItem3.addListener(Events.Select, new Listener<TabPanelEvent>() {
 							public void handleEvent(TabPanelEvent be) {
-								taxonFinderPanel.load();
-								tabItem3.layout();
+								taxonFinderPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+									public void isDrawn() {
+										taxonFinderPanel.layout();
+									}
+								});
 							}
 						});
 						tf.add(tabItem3);
