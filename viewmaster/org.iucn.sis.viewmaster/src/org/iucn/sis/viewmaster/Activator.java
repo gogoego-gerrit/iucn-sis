@@ -2,11 +2,10 @@ package org.iucn.sis.viewmaster;
 
 import static org.gogoego.util.db.fluent.Statics.configure;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.gogoego.util.db.DBException;
 import org.gogoego.util.db.RowProcessor;
 import org.gogoego.util.db.fluent.Connection;
 import org.gogoego.util.db.shared.Row;
@@ -19,11 +18,62 @@ public class Activator implements BundleActivator {
 	public void start(BundleContext context) throws Exception {
 		
 		final Connection c = configure(
-			"sisdev",
-			"YOUR URL HERE",
-			"YOUR USERNAME",
-			"YOUR PASSWORD");
+				"sistest_clean_20110525",
+				"**URL**",
+				"**USERNAME**",
+				"**PASSWORD**");
 
+		final Connection l = configure(
+				"sis_lookups",
+				"**URL**",
+				"**USERNAME**",
+				"**PASSWORD**");
+		
+		c.update("DROP TABLE IF EXISTS universe");
+		c.update("CREATE TABLE universe (a VARCHAR(255), b VARCHAR(255), c VARCHAR(255), d VARCHAR(255));");
+		
+		try{
+			c.update("CREATE TABLE vw_filter (taxonid INTEGER, assessmentid INTEGER);");
+			c.update("DELETE FROM vw_filter");
+			c.update("insert into vw_filter select taxonid, id from assessment;");
+			c.update("create index taxonid on vw_filter (taxonid);");
+			c.update("create index assessmentid on vw_filter (assessmentid);");
+			c.update("create index taxonid_assessmentid on vw_filter (taxonid, assessmentid);");
+			c.update("GRANT SELECT ON vw_filter TO iucn");
+		} catch (Exception ignored) {};
+		
+		l.query("SELECT CAST(relname as varchar(255)) as relname FROM pg_stat_user_tables WHERE schemaname='public'", new RowProcessor(){
+			@Override
+			public void process(Row row) {
+				if(row.get("relname")!=null){
+					final String relname = row.get("relname").getString();
+					if(!relname.endsWith("LOOKUP")){
+						GetOut.log(relname);
+						try{
+							String q = "SELECT * from \""+relname+"\"";
+							GetOut.log(q);
+							l.query(q, new RowProcessor(){
+								public void process(Row fieldRow) {
+									String vb = "";
+									if (fieldRow.getColumns().get(0) != null) vb = fieldRow.getColumns().get(0).getString();
+									String vc = "";
+									if (fieldRow.getColumns().get(1) != null) vc = fieldRow.getColumns().get(1).getString();
+									String vd = "";
+									if (fieldRow.getColumns().get(2) != null) vd = fieldRow.getColumns().get(2).getString();
+									c.update(String.format("INSERT INTO universe (a,b,c,d) VALUES ('%s','%s','%s','%s')",
+											relname, vb, vc, vd));
+								}
+							});
+						} catch (DBException dbx) {
+							GetOut.log(dbx);
+						}
+					}
+				}
+			}
+		});
+
+
+		/*
 		c.update("DROP FUNCTION IF EXISTS getPrimitiveId(a int, f varchar(255), t varchar(255), n varchar(255)) CASCADE");
 
 		BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -38,6 +88,7 @@ public class Activator implements BundleActivator {
 		br.close();
 		
 		c.update(sql.toString());
+		*/
 
 		c.query("select * from universe", new RowProcessor(){
 			String currentViewName = "aoo";
@@ -53,7 +104,7 @@ public class Activator implements BundleActivator {
 					StringBuilder columnspecs = new StringBuilder();
 					StringBuilder joinspecs = new StringBuilder();
 					StringBuilder subcolumnspecs = new StringBuilder();
-					StringBuilder updaters = new StringBuilder();
+					// StringBuilder updaters = new StringBuilder();
 					boolean first = true;
 					int count = 0;
 					for(String s : currentColumns.keySet()){
@@ -67,6 +118,7 @@ public class Activator implements BundleActivator {
 						subcolumnspecs.append("ff"+count+".value as "+s);
 						joinspecs.append("    JOIN primitive_field pf"+count+" ON pf"+count+".fieldid = field.id\n");
 						joinspecs.append("    JOIN "+currentColumns.get(s)+" ff"+count+" ON ff"+count+".id = pf"+count+".id\n");
+						/*
 						updaters.append(
 							  "  IF r."+s+" IS NOT NULL\n"
 							+ "  THEN\n"
@@ -80,6 +132,7 @@ public class Activator implements BundleActivator {
 							+ "      USING '', primitive_id;\n"
 							+ "  END IF;\n"
 						);
+						*/
 					}
 					String sql = 
 						"CREATE VIEW "+localViewName+" AS SELECT vw_filter.taxonid, vw_filter.assessmentid, "
@@ -93,6 +146,9 @@ public class Activator implements BundleActivator {
 						+ joinspecs
 						+ ") s1 ON vw_filter.assessmentid = s1.assessmentid";
 					c.update(sql);
+					c.update("GRANT SELECT ON "+localViewName+" TO iucn");
+					
+					/*
 					c.update("DROP RULE IF EXISTS up ON "+localViewName);
 					c.update("DROP FUNCTION IF EXISTS "+localViewName+"_up_f(r "+localViewName+")");
 					c.update("DROP FUNCTION IF EXISTS "+localViewName+"up_f(r "+localViewName+")");
@@ -110,6 +166,7 @@ public class Activator implements BundleActivator {
 						+ "AS ON UPDATE to "+localViewName+"\n"
 						+ "DO INSTEAD (SELECT "+localViewName+"_up_f(new));\n";
 					c.update(sql);
+					*/
 					currentViewName = newViewName;
 					currentColumns.clear();
 				}
