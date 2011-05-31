@@ -526,9 +526,6 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					if (!userIDs.isEmpty()) {
 						proxy.setUsers(userIDs);
 						proxy.setOrder(order.toString().substring(0, order.toString().length()-1));
-						 
-						if ("".equals(proxy.getText()))
-							proxy.setText(RedListCreditedUserField.generateText(users, proxy.getOrder()));
 					}
 				}
 			}
