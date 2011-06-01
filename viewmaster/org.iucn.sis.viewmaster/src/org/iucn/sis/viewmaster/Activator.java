@@ -2,6 +2,7 @@ package org.iucn.sis.viewmaster;
 
 import static org.gogoego.util.db.fluent.Statics.configure;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -10,6 +11,7 @@ import org.gogoego.util.db.RowProcessor;
 import org.gogoego.util.db.fluent.Connection;
 import org.gogoego.util.db.shared.Row;
 import org.gogoego.util.getout.GetOut;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
@@ -42,6 +44,10 @@ public class Activator implements BundleActivator {
 			c.update("GRANT SELECT ON vw_filter TO iucn");
 		} catch (Exception ignored) {};
 		
+		final Map<String, String> pretty = new HashMap<String, String>();
+		for (String name : CanonicalNames.allCanonicalNames)
+			pretty.put(name.toUpperCase(), name);
+		
 		l.query("SELECT CAST(relname as varchar(255)) as relname FROM pg_stat_user_tables WHERE schemaname='public'", new RowProcessor(){
 			@Override
 			public void process(Row row) {
@@ -54,6 +60,7 @@ public class Activator implements BundleActivator {
 							GetOut.log(q);
 							l.query(q, new RowProcessor(){
 								public void process(Row fieldRow) {
+									String formattedRelname = pretty.containsKey(relname) ? pretty.get(relname) : relname;
 									String vb = "";
 									if (fieldRow.getColumns().get(0) != null) vb = fieldRow.getColumns().get(0).getString();
 									String vc = "";
@@ -61,7 +68,7 @@ public class Activator implements BundleActivator {
 									String vd = "";
 									if (fieldRow.getColumns().get(2) != null) vd = fieldRow.getColumns().get(2).getString();
 									c.update(String.format("INSERT INTO universe (a,b,c,d) VALUES ('%s','%s','%s','%s')",
-											relname, vb, vc, vd));
+											formattedRelname, vb, vc, vd));
 								}
 							});
 						} catch (DBException dbx) {
@@ -91,7 +98,7 @@ public class Activator implements BundleActivator {
 		*/
 
 		c.query("select * from universe", new RowProcessor(){
-			String currentViewName = "aoo";
+			String currentViewName = CanonicalNames.AOO;
 			Map<String,String> currentColumns = new TreeMap<String,String>();
 			
 			@Override
@@ -142,7 +149,7 @@ public class Activator implements BundleActivator {
 						+ "  SELECT vw_filter.assessmentid, "
 						+ subcolumnspecs + "\n"
 						+ "  FROM vw_filter \n"
-						+ "  JOIN field on field.assessmentid = vw_filter.assessmentid AND field.name='"+currentViewName.toUpperCase()+"'\n"
+						+ "  JOIN field on field.assessmentid = vw_filter.assessmentid AND field.name='"+currentViewName+"'\n"
 						+ joinspecs
 						+ ") s1 ON vw_filter.assessmentid = s1.assessmentid";
 					c.update(sql);
