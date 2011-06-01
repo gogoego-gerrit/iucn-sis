@@ -29,12 +29,12 @@ public class ConverterResource extends Restlet {
 		boolean run = "true".equals(parameters.getFirstValue("run"));
 		if (!run) {
 			String url = arg0.getResourceRef().getPath();
-			if (arg0.getResourceRef().getQuery() == null || "".equals(arg0.getResourceRef().getPath()))
+			if (arg0.getResourceRef().getQuery() == null || "".equals(arg0.getResourceRef().getQuery()))
 				url += "?run=true";
 			else
-				url += "&run=true";
+				url += "?" + arg0.getResourceRef().getQuery() + "&run=true";
 			arg1.setStatus(Status.SUCCESS_OK);
-			arg1.setEntity("<html><head><title>BirdLife Conversion Script</title></head>" +
+			arg1.setEntity("<html><head><title>IUCN SIS Conversion Script</title></head>" +
 				"<body><div><a href=\"" + url + "\">Click to Execute Script</a></div></body></html>", MediaType.TEXT_HTML);
 			return;
 		}

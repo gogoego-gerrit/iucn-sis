@@ -1,6 +1,8 @@
 package org.iucn.sis.shared.conversions;
 
 import java.io.File;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -138,11 +140,15 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 	}
 	
 	public static WorkingSet convertWorkingSetData(WorkingSetData data, Session session, RelationshipIO relationshipIO, UserIO userIO, TaxonIO taxonIO, User user) throws Exception {
+		Date created = FormattedDate.impl.getDate(data.getDate());
+		if (created == null)
+			created = Calendar.getInstance().getTime();
+		
 		WorkingSet ws = new WorkingSet();
 		ws.setId(Integer.valueOf(data.getId()));
 		ws.setDescription(data.getDescription());
 		ws.setName(data.getWorkingSetName());
-		ws.setCreatedDate(FormattedDate.impl.getDate(data.getDate()));
+		ws.setCreatedDate(created);
 		ws.setIsMostRecentPublished(new Boolean(false));
 		ws.setNotes(data.getNotes());
 		//ADD ASSESSMENT TYPE

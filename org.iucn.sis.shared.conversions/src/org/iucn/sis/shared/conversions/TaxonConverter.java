@@ -529,13 +529,13 @@ public class TaxonConverter extends GenericConverter<String> {
 					if (author == null)
 						author = user;
 					
+					Date created = FormattedDate.impl.getDate(note.getDate());
+					if (created == null)
+						created = Calendar.getInstance().getTime();
+					
 					Edit edit = new Edit();
 					edit.setUser(author);
-					try {
-						edit.setCreatedDate(FormattedDate.impl.getDate(note.getDate()));
-					} catch (Exception e) {
-						TrivialExceptionHandler.ignore(this, e);
-					}
+					edit.setCreatedDate(created);
 					
 					Notes notes = new Notes();
 					notes.setCommonName(commonName);
