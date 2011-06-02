@@ -90,3 +90,6 @@ create index working_set_subscribe_user_userid on working_set_subscribe_user (us
 
 create index working_set_taxon_taxonid on working_set_taxon (taxonid);
 create index working_set_taxon_working_setid on working_set_taxon (working_setid);
+
+create index field_name on field (name);
+create index primitive_field_name on primitive_field (name);
