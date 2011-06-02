@@ -42,7 +42,7 @@ public class AttachmentConverter extends GenericConverter<VFSInfo> {
 			final VFSPath uri = folder.child(token);
 			if (vfs.isCollection(uri))
 				scanFolder(user, vfs, uri);
-			else if ("_attachments.xml".equals(token))
+			else if ("_attachments.xml".equals(token.toString()))
 				scanFile(user, vfs, uri);
 		}
 	}
@@ -84,7 +84,7 @@ public class AttachmentConverter extends GenericConverter<VFSInfo> {
 			attachment.getEdits().add(edit);
 			attachment.setName(filename);
 			attachment.setPublish(published);
-			attachment.setKey(uri.toString());
+			attachment.setKey(uri.getCollection().child(new VFSPathToken(filename)).toString());
 			
 			Field field = assessment.getField(CanonicalNames.TaxonomicNotes);
 			if (field == null) {
@@ -111,6 +111,8 @@ public class AttachmentConverter extends GenericConverter<VFSInfo> {
 			
 			session.save(attachment);
 			session.save(field);
+			
+			printf("Wrote attachment %s for assessment %s (%s)", attachment.getName(), assessment.getId(), assessment.getInternalId());
 		}
 		
 		if (!nodes.isEmpty())
