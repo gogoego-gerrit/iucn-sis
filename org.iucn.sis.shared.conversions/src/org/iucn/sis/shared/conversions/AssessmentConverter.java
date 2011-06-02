@@ -466,7 +466,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		List<Field> subfields = new ArrayList<Field>();
 
-		if (curField.getKey().equals(CanonicalNames.Lakes) || curField.getKey().equals(CanonicalNames.Rivers)) {
+		if (curField.getKey().equals(CanonicalNames.Lakes) || curField.getKey().equals(CanonicalNames.Rivers) || 
+				curField.getKey().equals(CanonicalNames.RedListAssessmentDate)) {
 			//DO NOTHING
 		} else if (curField.getKey().equals(CanonicalNames.UseTradeDetails) ||
 				curField.getKey().equals(CanonicalNames.Livelihoods)) {
