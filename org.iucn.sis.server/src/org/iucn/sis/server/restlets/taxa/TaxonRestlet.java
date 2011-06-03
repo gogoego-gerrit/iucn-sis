@@ -1,6 +1,8 @@
 package org.iucn.sis.server.restlets.taxa;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +11,7 @@ import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
+import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
@@ -37,6 +40,7 @@ import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
+import com.solertium.util.portable.XMLWritingUtils;
 
 public class TaxonRestlet extends BaseServiceRestlet {
 
@@ -84,7 +88,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		else if (action.equalsIgnoreCase("taxonName"))
 			representation = serveByName(parameters.getSecond(), parameters.getThird(), taxonIO);
 		else if (action.equalsIgnoreCase("taxonomy"))
-			representation = serveBrowsing(parameters.getSecond(), taxonIO);
+			representation = serveBrowsing(parameters.getSecond(), taxonIO, session);
 		else if (action.equalsIgnoreCase("footprint")) {
 			representation = getFullFootprint(parameters.getSecond(), taxonIO);
 		}
@@ -265,7 +269,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 	}
 
-	private Representation serveBrowsing(String hierarchy, TaxonIO taxonIO) throws ResourceException {
+	private Representation serveBrowsing(String hierarchy, TaxonIO taxonIO, Session session) throws ResourceException {
 		Taxon taxon = null;
 
 		if (hierarchy != null) {
@@ -277,32 +281,59 @@ public class TaxonRestlet extends BaseServiceRestlet {
 			}
 		}
 
-		return new StringRepresentation(getHierarchyFootprintXML(taxon, taxonIO), MediaType.TEXT_XML);
+		return new StringRepresentation(getHierarchyFootprintXML(taxon, taxonIO, session), MediaType.TEXT_XML);
 	}
 
-	private String getHierarchyFootprintXML(Taxon root, TaxonIO taxonIO) {
-		String xml = "<hierarchy>\r\n";
-		xml += "<footprint>" + (root == null ? "" : root.getIDFootprintAsString(0, "-")) + "</footprint>\r\n";
+	private String getHierarchyFootprintXML(Taxon root, TaxonIO taxonIO, Session session) {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<hierarchy>\r\n");
+		xml.append("<footprint>" + (root == null ? "" : root.getIDFootprintAsString(0, "-")) + "</footprint>\r\n");
 
-		xml += "<options>\r\n";
+		xml.append("<options>\r\n");
 		if (root != null)
 			for (Taxon child : root.getChildren()) {
 				if (Taxon.ACTIVE == child.getState())
-					xml += "<option>" + child.getId() + "</option>\r\n";
+					xml.append("<option>" + child.getId() + "</option>\r\n");
 			}
 		else {
-			xml += "<option>" + taxonIO.readTaxonByName("ANIMALIA", "ANIMALIA").getId()
-					+ "</option>\r\n";
-			xml += "<option>" + taxonIO.readTaxonByName("PLANTAE", "PLANTAE").getId() + "</option>\r\n";
-			xml += "<option>" + taxonIO.readTaxonByName("PROTISTA", "PROTISTA").getId()
-					+ "</option>\r\n";
-			xml += "<option>" + taxonIO.readTaxonByName("FUNGI", "FUNGI").getId() + "</option>\r\n";
+			TaxonCriteria criteria = new TaxonCriteria(session);
+			criteria.createTaxonLevelCriteria().level.eq(TaxonLevel.KINGDOM);
+			
+			Taxon[] list = taxonIO.search(criteria);
+			List<Taxon> results = new ArrayList<Taxon>();
+			for (Taxon taxon : list)
+				results.add(taxon);
+			
+			//TODO: this should be at the database level
+			final List<String> order = new ArrayList<String>();
+			order.add("ANIMALIA");
+			order.add("PLANTAE");
+			order.add("PROTISTA");
+			order.add("FUNGI");
+			
+			Collections.sort(results, new Comparator<Taxon>() {
+				public int compare(Taxon arg0, Taxon arg1) {
+					int left = order.indexOf(arg0.getName());
+					int right = order.indexOf(arg1.getName());
+					if (left == right)
+						return 0;
+					else if (left == -1)
+						return 1;
+					else if (right == -1)
+						return -1;
+					else
+						return left > right ? -1 : 1;
+				}
+			});
+			
+			for (Taxon taxon : results) {
+				xml.append(XMLWritingUtils.writeTag("option", Integer.toString(taxon.getId()))+"\r\n");
+			}
 		}
-		xml += "</options>\r\n";
+		xml.append("</options>\r\n");
+		xml.append("</hierarchy>");
 
-		xml += "</hierarchy>";
-
-		return xml;
+		return xml.toString();
 	}
 
 	private Representation serveByName(String kingdomName, String fullName, TaxonIO taxonIO) throws ResourceException {
