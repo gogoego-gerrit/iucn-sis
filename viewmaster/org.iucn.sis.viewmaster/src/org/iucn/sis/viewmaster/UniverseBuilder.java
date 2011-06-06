@@ -1,14 +1,10 @@
 package org.iucn.sis.viewmaster;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.gogoego.util.db.DBException;
 import org.gogoego.util.db.RowProcessor;
 import org.gogoego.util.db.fluent.Connection;
 import org.gogoego.util.db.shared.Row;
 import org.gogoego.util.getout.GetOut;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 public class UniverseBuilder {
 	
@@ -26,9 +22,7 @@ public class UniverseBuilder {
 			c.update("GRANT SELECT ON vw_filter TO iucn");
 		} catch (Exception ignored) {};
 		
-		final Map<String, String> pretty = new HashMap<String, String>();
-		for (String name : CanonicalNames.allCanonicalNames)
-			pretty.put(name.toUpperCase(), name);
+		
 		
 		l.query("SELECT CAST(relname as varchar(255)) as relname FROM pg_stat_user_tables WHERE schemaname='public'", new RowProcessor(){
 			@Override
@@ -42,7 +36,7 @@ public class UniverseBuilder {
 							GetOut.log(q);
 							l.query(q, new RowProcessor(){
 								public void process(Row fieldRow) {
-									String formattedRelname = pretty.containsKey(relname) ? pretty.get(relname) : relname;
+									String formattedRelname = FriendlyNameFactory.get(relname);
 									String vb = "";
 									if (fieldRow.getColumns().get(0) != null) vb = fieldRow.getColumns().get(0).getString();
 									String vc = "";
