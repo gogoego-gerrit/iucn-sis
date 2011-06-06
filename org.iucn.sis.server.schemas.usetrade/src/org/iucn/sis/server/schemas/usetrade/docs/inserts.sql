@@ -104,4 +104,4 @@ INSERT INTO UTEndUseRecord_driverLookup (name, label) VALUES ('2', 'Secondary');
 INSERT INTO UTEndUseRecord_driverLookup (name, label) VALUES ('3', 'Bycatch (where species is used)');
 INSERT INTO UTEndUseRecord_driverLookup (name, label) VALUES ('4', 'Minor');
 INSERT INTO UTEndUseRecord_driverLookup (name, label) VALUES ('5', 'Unknown');
-INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('"driverDetails"', 'text_primitive_field', '?');
+INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('driverDetails', 'text_primitive_field', '?');
