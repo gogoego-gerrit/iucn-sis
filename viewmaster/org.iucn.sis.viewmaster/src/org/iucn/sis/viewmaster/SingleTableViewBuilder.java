@@ -36,17 +36,16 @@ public class SingleTableViewBuilder {
 							columnspecs.append(", ");
 							subcolumnspecs.append(", ");
 						}
-						else
-							joinspecs.append("    JOIN primitive_field pf ON pf.fieldid = field.id\n");
 						first = false;
 						columnspecs.append("s1."+s);
 						subcolumnspecs.append("ff"+count+".value as "+s);
+						joinspecs.append("    LEFT JOIN primitive_field pf"+count+" ON pf"+count+".fieldid = field.id AND pf"+count+".name = '" + s + "'\n");
 						if ("foreign_key_list_primitive_field".equals(currentColumns.get(s))) {
-							joinspecs.append("    LEFT JOIN "+currentColumns.get(s)+" fi"+count+" ON fi"+count+".id = pf.id\n");
-							joinspecs.append("    LEFT JOIN fk_list_primitive_values ff" + count+ " ON ff"+count+".fk_list_primitive_id = pf.id\n");
+							joinspecs.append("    LEFT JOIN "+currentColumns.get(s)+" fi"+count+" ON fi"+count+".id = pf"+count+".id\n");
+							joinspecs.append("    LEFT JOIN fk_list_primitive_values ff" + count+ " ON ff"+count+".fk_list_primitive_id = pf"+count+".id\n");
 						}
 						else
-							joinspecs.append("    LEFT JOIN "+currentColumns.get(s)+" ff"+count+" ON ff"+count+".id = pf.id\n");
+							joinspecs.append("    LEFT JOIN "+currentColumns.get(s)+" ff"+count+" ON ff"+count+".id = pf"+count+".id\n");
 						/*
 						updaters.append(
 							  "  IF r."+s+" IS NOT NULL\n"
