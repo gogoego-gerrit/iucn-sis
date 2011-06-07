@@ -40,6 +40,13 @@ public class TaxonDAO {
 		return null;
 	}
 	
+	public static Taxon getDeletedTaxon(Session session, int id) throws PersistentException {
+		Taxon taxon = SISPersistentManager.instance().getObject(session, Taxon.class, id);
+		if (taxon != null && taxon.getState() == Taxon.DELETED)
+			return taxon;
+		return null;
+	}	
+	
 	/*public static Taxon getTaxonNonLazily(int id) throws PersistentException {
 		Taxon taxon = getTaxon(session, id); 
 		if (taxon != null) {
@@ -66,7 +73,7 @@ public class TaxonDAO {
 	
 	
 	public static Taxon getTrashedTaxon(Session session, int id) throws PersistentException {
-		Taxon taxon = getTaxon(session, id);
+		Taxon taxon = getDeletedTaxon(session, id);
 		if (taxon != null && taxon.getState() == Taxon.DELETED)
 			return taxon;
 		return null;
