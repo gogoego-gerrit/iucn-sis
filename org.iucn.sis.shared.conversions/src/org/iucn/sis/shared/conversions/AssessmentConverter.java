@@ -300,10 +300,13 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	
 	private Taxon getTaxon(MigrationReport report, AssessmentData assessData) {
 		Taxon taxon = taxonIO.getTaxon(Integer.valueOf(assessData.getSpeciesID()));
-		if (taxon != null && taxon.getFriendlyName().equalsIgnoreCase(assessData.getSpeciesName()))
+		/*if (taxon != null && taxon.getFriendlyName().equalsIgnoreCase(assessData.getSpeciesName()))
 			return taxon;
 		else if (taxon != null)
 			warning(report, "Found taxa %s by ID, but name %s doesn't match expected name %s", assessData.getSpeciesID(), taxon.getFriendlyName(), assessData.getSpeciesName());
+		*/
+		if (taxon != null)
+			return taxon;
 		
 		Taxon byName = (Taxon)session.createCriteria(Taxon.class).
 			add(Restrictions.eq("friendlyName", assessData.getSpeciesName()))
