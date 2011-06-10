@@ -70,11 +70,15 @@ GRANT SELECT ON vw_subpopulation_infrarank TO iucn;
 
 DROP VIEW IF EXISTS vw_footprint CASCADE;
 CREATE VIEW vw_footprint AS
-  SELECT * from vw_subpopulation_species
+  SELECT vw_subpopulation_species.*, taxon.taxonomic_authority from vw_subpopulation_species
+  JOIN taxon ON taxon.id = vw_subpopulation_species.taxonid
   UNION ALL
-  SELECT * from vw_subpopulation_infrarank
+  SELECT vw_subpopulation_infrarank.*, taxon.taxonomic_authority from vw_subpopulation_infrarank
+  JOIN taxon ON taxon.id = vw_subpopulation_infrarank.taxonid
   UNION ALL
-  SELECT *, NULL from vw_infrarank
+  SELECT vw_infrarank.*, NULL, taxon.taxonomic_authority from vw_infrarank
+  JOIN taxon ON taxon.id = vw_infrarank.taxonid
   UNION ALL
-  SELECT vw_species.*, NULL, NULL, NULL from vw_species;
+  SELECT vw_species.*, NULL, NULL, NULL, taxon.taxonomic_authority from vw_species
+  JOIN taxon ON taxon.id = vw_species.taxonid;
 GRANT SELECT ON vw_footprint TO iucn;
