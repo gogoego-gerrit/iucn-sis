@@ -22,37 +22,23 @@ public class Activator implements BundleActivator {
 				"**USERNAME**",
 				"**PASSWORD**");
 		
-		UniverseBuilder universe = new UniverseBuilder();
-		universe.build(c, l);
-
-		/*
-		c.update("DROP FUNCTION IF EXISTS getPrimitiveId(a int, f varchar(255), t varchar(255), n varchar(255)) CASCADE");
-
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-			getClass().getResourceAsStream("getPrimitiveId.sql")
-		));
-		String in = "";
-		StringBuilder sql = new StringBuilder();
-		while(in != null){
-			sql.append(in+"\n");
-			in = br.readLine();
-		}
-		br.close();
+		final String targetSchema = "vw_published";
+		final String targetUser = "iucn_published";
 		
-		c.update(sql.toString());
-		*/
+		UniverseBuilder universe = new UniverseBuilder();
+		universe.build(c, l, targetSchema, targetUser);
 
 		/*
 		 * The old school method
 		 */
 		SingleTableViewBuilder byTable = new SingleTableViewBuilder();
-		byTable.build(c);
+		byTable.build(c, targetSchema, targetUser);
 		
 		/*
 		 * Each column is its own view
 		 */
 		SingleColumnViewBuilder byColumn = new SingleColumnViewBuilder();
-		byColumn.build(c);
+		byColumn.build(c, targetSchema, targetUser);
 		
 		/*
 		 * Re-creates the old school way based on the views.
@@ -65,7 +51,13 @@ public class Activator implements BundleActivator {
 		 * Build up the taxonomy views
 		 */
 		TaxonomyViewBuilder taxonomy = new TaxonomyViewBuilder();
-		taxonomy.build(c);
+		taxonomy.build(c, targetSchema, targetUser);
+		
+		/*
+		 * Quickie additional views
+		 */
+		AdditionalViewBuilder additional = new AdditionalViewBuilder();
+		additional.build(c, targetSchema, targetUser);
 	}
 
 	public void stop(BundleContext context) throws Exception {

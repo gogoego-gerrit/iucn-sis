@@ -12,8 +12,8 @@ import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 public class SingleTableViewBuilder {
 	
-	public void build(final Connection c) throws DBException {
-		c.query("select * from universe", new RowProcessor(){
+	public void build(final Connection c, final String schema, final String user) throws DBException {
+		c.query("select * from "+ schema + ".universe", new RowProcessor(){
 			String currentViewName = CanonicalNames.AOO;
 			Map<String,String> currentColumns = new TreeMap<String,String>();
 			
@@ -28,7 +28,7 @@ public class SingleTableViewBuilder {
 					
 					GetOut.log("New view: %s", currentViewName);
 					String localViewName = "vw_" + currentViewName;
-					c.update(String.format("DROP VIEW IF EXISTS %s CASCADE", localViewName));
+					c.update(String.format("DROP VIEW IF EXISTS %s.%s CASCADE", schema, localViewName));
 					StringBuilder columnspecs = new StringBuilder();
 					StringBuilder joinspecs = new StringBuilder();
 					StringBuilder subcolumnspecs = new StringBuilder();
@@ -38,7 +38,7 @@ public class SingleTableViewBuilder {
 					if (sfi > 0) {
 						columnspecs.append("s1.recordid, ");
 						subcolumnspecs.append("sf.id as recordid, ");
-						joinspecs.append("    JOIN field sf ON field.id = sf.parentid AND sf.name = '" + joinTable + "Subfield'\n");
+						joinspecs.append("    JOIN public.field sf ON public.field.id = sf.parentid AND sf.name = '" + joinTable + "Subfield'\n");
 						joinPrimWith = "sf";
 					}
 					
@@ -55,20 +55,20 @@ public class SingleTableViewBuilder {
 						if ("field".equals(currentColumns.get(s))) {
 							columnspecs.append("s1."+s);
 							subcolumnspecs.append("sf" + count + ".id as " + s);
-							joinspecs.append("    LEFT JOIN field sf" + count + " ON " + joinPrimWith + ".id = sf"+count+".parentid AND sf"+count+".name = '" + s + "'\n");
+							joinspecs.append("    LEFT JOIN public.field sf" + count + " ON " + joinPrimWith + ".id = sf"+count+".parentid AND sf"+count+".name = '" + s + "'\n");
 						}
 						else {
 							columnspecs.append("s1."+s);
 							subcolumnspecs.append("ff"+count+".value as "+s);
-							joinspecs.append("    LEFT JOIN primitive_field pf"+count+" ON pf"+count+".fieldid = "+joinPrimWith+".id AND pf"+count+".name = '" + s + "'\n");
+							joinspecs.append("    LEFT JOIN public.primitive_field pf"+count+" ON pf"+count+".fieldid = "+joinPrimWith+".id AND pf"+count+".name = '" + s + "'\n");
 							
 							
 							if ("foreign_key_list_primitive_field".equals(currentColumns.get(s))) {
-								joinspecs.append("    LEFT JOIN "+currentColumns.get(s)+" fi"+count+" ON fi"+count+".id = pf"+count+".id\n");
-								joinspecs.append("    LEFT JOIN fk_list_primitive_values ff" + count+ " ON ff"+count+".fk_list_primitive_id = pf"+count+".id\n");
+								joinspecs.append("    LEFT JOIN public."+currentColumns.get(s)+" fi"+count+" ON fi"+count+".id = pf"+count+".id\n");
+								joinspecs.append("    LEFT JOIN public.fk_list_primitive_values ff" + count+ " ON ff"+count+".fk_list_primitive_id = pf"+count+".id\n");
 							}
 							else
-								joinspecs.append("    LEFT JOIN "+currentColumns.get(s)+" ff"+count+" ON ff"+count+".id = pf"+count+".id\n");
+								joinspecs.append("    LEFT JOIN public."+currentColumns.get(s)+" ff"+count+" ON ff"+count+".id = pf"+count+".id\n");
 						}
 						/*
 						updaters.append(
@@ -87,18 +87,18 @@ public class SingleTableViewBuilder {
 						*/
 					}
 					String sql = 
-						"CREATE VIEW "+localViewName+" AS SELECT vw_filter.taxonid, vw_filter.assessmentid, "
+						"CREATE VIEW "+schema+"."+localViewName+" AS SELECT "+schema+".vw_filter.taxonid, "+schema+".vw_filter.assessmentid, "
 						+ columnspecs + "\n"
-						+ "FROM vw_filter \n"
+						+ "FROM " + schema + ".vw_filter \n"
 						+ "LEFT JOIN ( \n"
-						+ "  SELECT vw_filter.assessmentid, "
+						+ "  SELECT " + schema + ".vw_filter.assessmentid, "
 						+ subcolumnspecs + "\n"
-						+ "  FROM vw_filter \n"
-						+ "  JOIN field on field.assessmentid = vw_filter.assessmentid AND field.name='"+joinTable+"'\n"
+						+ "  FROM " + schema + ".vw_filter \n"
+						+ "  JOIN public.field on public.field.assessmentid = " + schema + ".vw_filter.assessmentid AND public.field.name='"+joinTable+"'\n"
 						+ joinspecs
-						+ ") s1 ON vw_filter.assessmentid = s1.assessmentid";
+						+ ") s1 ON " + schema + ".vw_filter.assessmentid = s1.assessmentid";
 					c.update(sql);
-					c.update("GRANT SELECT ON "+localViewName+" TO iucn");
+					c.update("GRANT SELECT ON "+schema+"."+localViewName+" TO " + user);
 					
 					/*
 					c.update("DROP RULE IF EXISTS up ON "+localViewName);
