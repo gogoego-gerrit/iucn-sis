@@ -49,13 +49,13 @@ public class UserConvertor extends Converter {
 		ec.setExecutionLevel(ExecutionContext.SQL_ALLOWED);
 		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 
-		ec.doQuery("SELECT * FROM USER JOIN PROFILE ON PROFILE.USERID=USER.ID;", new RowProcessor() {
+		ec.doQuery("SELECT USER.ID AS USERID, USER.*, PROFILE.* FROM USER JOIN PROFILE ON PROFILE.USERID=USER.ID;", new RowProcessor() {
 
 			@Override
 			public void process(Row row){
 				User user = new User();
 				user.setUsername(row.get("USERNAME").getString());
-				user.setId(row.get("ID").getInteger());
+				user.setId(row.get("USERID").getInteger());
 				user.setFirstName(row.get("FIRSTNAME").toString());
 				user.setLastName(row.get("LASTNAME").toString());
 				user.setEmail(getEmailAddresses(row));
