@@ -235,7 +235,7 @@ public class PostgreSQLDBSession extends DBSession {
 		try {
 			final DatabaseMetaData md = conn.getMetaData();
 			
-			ResultSet rs = md.getColumns(conn.getCatalog(), null, tableName, "%");
+			ResultSet rs = md.getColumns(conn.getCatalog(), getSchema(), tableName, "%");
 					
 			return rsToRow(rs);
 		} catch (SQLException e) {

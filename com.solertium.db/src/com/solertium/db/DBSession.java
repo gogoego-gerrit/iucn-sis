@@ -284,7 +284,7 @@ public abstract class DBSession {
 			conn = getDataSource().getConnection();
 			final DatabaseMetaData metaData = conn.getMetaData();
 			final String[] types = { "TABLE" };
-			rs = metaData.getTables(conn.getCatalog(), null, "%", types);
+			rs = metaData.getTables(conn.getCatalog(), getSchema(), "%", types);
 			while (rs.next())
 				s.add(rs.getString("TABLE_NAME"));
 		} catch (final Exception e) {
@@ -648,7 +648,12 @@ public abstract class DBSession {
 	public Row getRow(final String tableName, final ExecutionContext ec) throws DBException {
 		if (structure == null)
 			setStructure(analyzeExistingStructure(ec), ec);
-		return new Row(structure.get(tableName));
+		
+		Row template = structure.get(tableName);
+		if (template == null)
+			throw new DBException("The table " + tableName + " was not found.");
+		
+		return new Row(template);
 	}
 
 	private Row getRowFromElement(final Element e) throws DBException {
