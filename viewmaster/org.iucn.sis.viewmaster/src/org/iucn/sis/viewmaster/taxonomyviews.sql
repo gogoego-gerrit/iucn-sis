@@ -48,21 +48,22 @@ GRANT SELECT ON vw_species TO iucn;
 
 DROP VIEW IF EXISTS vw_infrarank CASCADE;
 CREATE VIEW vw_infrarank AS
-  SELECT taxon.id as taxonid, kingdom, phylum, class, "order", family, genus, species, name as infrarank
+  SELECT taxon.id as taxonid, kingdom, phylum, class, "order", family, genus, species, taxon.name as infrarank, public.infratype.name as infratype
   FROM vw_species
-  JOIN taxon on parentid = taxonid and taxon_levelid=8;
+  JOIN taxon on parentid = taxonid and taxon_levelid=8
+  JOIN public.infratype on taxon.taxon_infratype_id = public.infratype.id;
 GRANT SELECT ON vw_infrarank TO iucn;
 
 DROP VIEW IF EXISTS vw_subpopulation_species CASCADE;
 CREATE VIEW vw_subpopulation_species AS
-  SELECT taxon.id as taxonid, kingdom, phylum, class, "order", family, genus, species, NULL as infrarank, name as subpopulation
+  SELECT taxon.id as taxonid, kingdom, phylum, class, "order", family, genus, species, NULL as infrarank, NULL as infratype, name as subpopulation
   FROM vw_species
   JOIN taxon on parentid = taxonid and (taxon_levelid=9 or taxon_levelid=10);
 GRANT SELECT ON vw_subpopulation_species TO iucn;
 
 DROP VIEW IF EXISTS vw_subpopulation_infrarank CASCADE;
 CREATE VIEW vw_subpopulation_infrarank AS
-  SELECT taxon.id as taxonid, kingdom, phylum, class, "order", family, genus, species, infrarank, name as subpopulation
+  SELECT taxon.id as taxonid, kingdom, phylum, class, "order", family, genus, species, infrarank, infratype, name as subpopulation
   FROM vw_infrarank
   JOIN taxon on parentid = taxonid and (taxon_levelid=9 or taxon_levelid=10);
 GRANT SELECT ON vw_subpopulation_infrarank TO iucn;
@@ -75,5 +76,5 @@ CREATE VIEW vw_footprint AS
   UNION ALL
   SELECT *, NULL from vw_infrarank
   UNION ALL
-  SELECT vw_species.*, NULL, NULL from vw_species;
+  SELECT vw_species.*, NULL, NULL, NULL from vw_species;
 GRANT SELECT ON vw_footprint TO iucn;
