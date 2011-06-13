@@ -58,6 +58,11 @@ public class Activator implements BundleActivator {
 		 */
 		AdditionalViewBuilder additional = new AdditionalViewBuilder();
 		additional.build(c, targetSchema, targetUser);
+		
+		if (!"public".equals(targetSchema)) {
+			VWFilterViewBuilder filter = new VWFilterViewBuilder();
+			filter.build(c, targetSchema, targetUser);
+		}
 	}
 
 	public void stop(BundleContext context) throws Exception {
