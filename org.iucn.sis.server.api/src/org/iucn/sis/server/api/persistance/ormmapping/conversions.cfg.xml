@@ -41,7 +41,7 @@
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonImage.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonLevel.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonStatus.hbm.xml" />
-		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/User.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/UserForConversions.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Virus.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/WorkflowNotes.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/WorkflowStatus.hbm.xml" />
