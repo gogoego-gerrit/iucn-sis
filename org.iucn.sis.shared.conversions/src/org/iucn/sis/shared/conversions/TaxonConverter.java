@@ -554,7 +554,7 @@ public class TaxonConverter extends GenericConverter<String> {
 			Synonym synonym = new Synonym();
 			synonym.setTaxon_level(TaxonLevel.getTaxonLevel(synData.getLevel()));
 			
-			if (synData.getLevel() != TaxonLevel.INFRARANK) {
+			if (synData.getLevel() == TaxonLevel.INFRARANK) {
 				//Adding 1 because SIS 1 starts @ 0, SIS 2 starts @ 1.
 				int infrarankLevel = synData.getInfrarankType() + 1;
 				
