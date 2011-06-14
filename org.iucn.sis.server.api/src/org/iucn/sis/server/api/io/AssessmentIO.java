@@ -436,6 +436,9 @@ public class AssessmentIO {
 
 	public boolean allowedToCreateNewAssessment(Assessment assessment) {
 		if (assessment.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
+			if (!assessment.hasRegions())
+				return true;
+			
 			List<Assessment> compareTo = readDraftAssessmentsForTaxon(
 					assessment.getTaxon().getId());
 			List<Integer> regionIDs = assessment.getRegionIDs();

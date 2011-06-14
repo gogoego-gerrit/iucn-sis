@@ -33,7 +33,7 @@ public class AssessmentUtils {
 	 * @param wayback - a GenericCallback
 	 */
 	public static void createNewAssessment(final Taxon taxon, final String type, final String schema, Assessment template, 
-			List<Integer> regions, boolean endemic, final GenericCallback<String> wayback) {
+			List<Integer> regions, Boolean endemic, final GenericCallback<String> wayback) {
 		Assessment newAssessment = null;
 		
 		if (template != null)
@@ -45,13 +45,15 @@ public class AssessmentUtils {
 		newAssessment.setType(type);
 		newAssessment.setSchema(schema);
 		
-		Field regionField = new Field(CanonicalNames.RegionInformation, newAssessment);
-		
-		RegionField proxy = new RegionField(regionField);
-		proxy.setRegions(regions);
-		proxy.setEndemic(endemic);
-		
-		newAssessment.setField(regionField);
+		if (regions != null && endemic != null) {
+			Field regionField = new Field(CanonicalNames.RegionInformation, newAssessment);
+			
+			RegionField proxy = new RegionField(regionField);
+			proxy.setRegions(regions);
+			proxy.setEndemic(endemic);
+			
+			newAssessment.setField(regionField);
+		}
 		
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/assessments", newAssessment.toXML(), new GenericCallback<String>() {

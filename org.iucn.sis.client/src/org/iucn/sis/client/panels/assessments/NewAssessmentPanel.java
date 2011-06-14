@@ -166,6 +166,8 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 		
 		endemicLabel = new Label("Is Endemic? ");
 		refreshRegionStore();
+		
+		updateRegions(SchemaCache.impl.getDefaultSchema());
 	}
 
 	private void buildSaveButton() {
@@ -266,11 +268,21 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 			schema.addChangeHandler(new ChangeHandler() {
 				public void onChange(ChangeEvent event) {
 					updateTemplates(schema.getValue(schema.getSelectedIndex()));
+					updateRegions(schema.getValue(schema.getSelectedIndex()));
 				}
 			});
 		
 			schemaLabel = new Label("Assessment Schema: ");
 		}
+	}
+	
+	private void updateRegions(String schema) {
+		boolean visible = !schema.endsWith("usetrade");
+		
+		regionLabel.setVisible(visible);
+		regionsPanel.setVisible(visible);
+		endemicLabel.setVisible(visible);
+		endemic.setVisible(visible);
 	}
 
 	private String checkValidity() {
@@ -282,59 +294,68 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 			List<Integer> locality = new ArrayList<Integer>();
 			boolean isEndemic = false;
 
-			HashMap<ComboBox<RegionModel>, RegionModel> regionMap = regionsPanel.getBoxesToSelected();
-				
-			if (regionMap.isEmpty()) {
-				error = "Please select a region.";
-			} else if (endemic.getSelectedIndex() == 0) {
-				error = "Please select whether the new assessment should be endemic.";
-			} else {
-				isEndemic = endemic.getItemText(endemic.getSelectedIndex()).equalsIgnoreCase("yes");
-
-				for (Entry<ComboBox<RegionModel>, RegionModel> cur : regionMap.entrySet())
-					locality.add(cur.getValue().getRegion().getId());
-				
-				if (locality.contains(Region.GLOBAL_ID) && !isEndemic) {
-					WindowUtils.infoAlert("Global is Endemic", "A Global assessment must be " +
-						"also flagged endemic. This has been fixed for you.");
-					endemic.setSelectedIndex(2);
-				}
-			}
-
-			if (error == null) {
-				String selectedSchema = schema.getValue(schema.getSelectedIndex());
-				
-				Set<Assessment> checkAgainst = AssessmentCache.impl.
-					getAssessmentsForTaxon(node.getId(), AssessmentType.DRAFT_ASSESSMENT_STATUS_ID, selectedSchema);
-				
-				for (Assessment cur : checkAgainst) {
-					if ((cur.isEndemic() || cur.isGlobal()) && isEndemic)
-						error = "Only one draft assessment for each taxon may exist that is either endemic " +
-						" or global.";
-					else {
-						for (Integer curLocality : locality)
-							if (cur.getRegionIDs().contains(curLocality)) {
-								error = "An assessment exists that contains the locality " + 
-									RegionCache.impl.getRegionName(curLocality) + ". " +
-										"Only one assessment may use each locality.";
-								break;
-							}
+			if (regionsPanel.isVisible()) {
+				HashMap<ComboBox<RegionModel>, RegionModel> regionMap = regionsPanel.getBoxesToSelected();
+					
+				if (regionMap.isEmpty()) {
+					error = "Please select a region.";
+				} else if (endemic.getSelectedIndex() == 0) {
+					error = "Please select whether the new assessment should be endemic.";
+				} else {
+					isEndemic = endemic.getItemText(endemic.getSelectedIndex()).equalsIgnoreCase("yes");
+	
+					for (Entry<ComboBox<RegionModel>, RegionModel> cur : regionMap.entrySet())
+						locality.add(cur.getValue().getRegion().getId());
+					
+					if (locality.contains(Region.GLOBAL_ID) && !isEndemic) {
+						WindowUtils.infoAlert("Global is Endemic", "A Global assessment must be " +
+							"also flagged endemic. This has been fixed for you.");
+						endemic.setSelectedIndex(2);
 					}
- 				}
+				}
+			
+				if (error == null) {
+					String selectedSchema = schema.getValue(schema.getSelectedIndex());
+					
+					Set<Assessment> checkAgainst = AssessmentCache.impl.
+						getAssessmentsForTaxon(node.getId(), AssessmentType.DRAFT_ASSESSMENT_STATUS_ID, selectedSchema);
+	
+					for (Assessment cur : checkAgainst) {
+						if ((cur.isEndemic() || cur.isGlobal()) && isEndemic)
+							error = "Only one draft assessment for each taxon may exist that is either endemic " +
+							" or global.";
+						else {
+							for (Integer curLocality : locality)
+								if (cur.getRegionIDs().contains(curLocality)) {
+									error = "An assessment exists that contains the locality " + 
+										RegionCache.impl.getRegionName(curLocality) + ". " +
+											"Only one assessment may use each locality.";
+									break;
+								}
+						}
+	 				}
+				}
 			}
 		}
 		return error;
 	}
 
 	private void createNewAssessment() {
-		boolean isEndemic = false;
-		List<Integer> locality = new ArrayList<Integer>();
+		final Boolean isEndemic;
+		final List<Integer> locality;
 		
-		//Check locality things
-		isEndemic = this.endemic.getItemText(this.endemic.getSelectedIndex()).equalsIgnoreCase("yes");
-
-		for( Entry<ComboBox<RegionModel>, RegionModel> cur : regionsPanel.getBoxesToSelected().entrySet() )
-			locality.add(cur.getValue().getRegion().getId());
+		if (regionsPanel.isVisible()) {
+			//Check locality things
+			isEndemic = this.endemic.getItemText(this.endemic.getSelectedIndex()).equalsIgnoreCase("yes");
+	
+			locality = new ArrayList<Integer>();
+			for( Entry<ComboBox<RegionModel>, RegionModel> cur : regionsPanel.getBoxesToSelected().entrySet() )
+				locality.add(cur.getValue().getRegion().getId());
+		}
+		else {
+			locality = null;
+			isEndemic = null;
+		}
 		
 		final String selSchema;
 		if (schema.getSelectedIndex() != -1)
@@ -345,26 +366,21 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 		// CHECK TEMPLATE
 		if (template.getSelectedIndex() != 0) {
 			final Integer assessmentID = Integer.valueOf(template.getValue(template.getSelectedIndex()));
-			/*final String assessmentType = template.getItemText(template.getSelectedIndex()).substring(0,
-				template.getItemText(template.getSelectedIndex()).indexOf('-')).trim().toLowerCase() + "_status";*/
-
-			final boolean endemicArg = isEndemic;
-			final List<Integer> localityArg = locality;
-			
+	
 			AssessmentCache.impl.fetchAssessment(assessmentID, FetchMode.FULL, new GenericCallback<Assessment>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils.errorAlert("An error occurred fetching the template Assessment"
 							+ " you chose. Please report this error to an SIS Administrator.");
 				}
 				public void onSuccess(Assessment data) {
-					doCreate(endemicArg, selSchema, data, localityArg);
+					doCreate(isEndemic, selSchema, data, locality);
 				}
 			});
 		} else
 			doCreate(isEndemic, selSchema, null, locality);
 	}
 
-	private void doCreate(boolean isEndemic, String schema, Assessment theTemplate, List<Integer> locality) {
+	private void doCreate(Boolean isEndemic, String schema, Assessment theTemplate, List<Integer> locality) {
 		AssessmentUtils.createNewAssessment(node, type.getItemText(type.getSelectedIndex()), 
 				schema, theTemplate, locality, isEndemic, new GenericCallback<String>() {
 

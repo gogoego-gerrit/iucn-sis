@@ -20,12 +20,14 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
@@ -90,34 +92,15 @@ public class Assessment implements Serializable, AuthorizableObject {
 		return true;
 	}
 	public String getCategoryAbbreviation() {
-		if( (Boolean)getPrimitiveValue(CanonicalNames.RedListCriteria, "isManual") )
-			return (String)getPrimitiveValue(CanonicalNames.RedListCriteria, "manualCategory");
-		else
-			return (String)getPrimitiveValue(CanonicalNames.RedListCriteria, "generatedCategory");
-	}
-	
-	public Set<Reference> getReferences(String canonicalName) {
-		Field field = getField(canonicalName);
-		return field == null ? null : getField(canonicalName).getReference();
-	}
-	
-	public boolean removeReference(Reference ref, String canonicalName) {
-		Field field = getField(canonicalName);
-		return field == null ? false : getField(canonicalName).getReference().remove(ref);
-	}
-	
-	/**
-	 * Checks the individual regions to see if there is an overlap.
-	 * @param other assessment to compare with
-	 * @return Integer representing the conflicting region, null if no conflict
-	 */
-	public Integer isRegionConflict(Assessment other) {
-		List<Integer> otherRegions = other.getRegionIDs();
-		for( Integer cur : getRegionIDs() )
-			if( otherRegions.contains(cur) )
-				return cur;
+		Field field = getField(CanonicalNames.RedListCriteria);
+		if (field == null)
+			return "N/A";
 		
-		return null;
+		RedListCriteriaField proxy = new RedListCriteriaField(field);
+		if (proxy.isManual())
+			return proxy.getManualCategory();
+		else
+			return proxy.getGeneratedCategory();
 	}
 	
 	public static Assessment fromXML(NativeElement element) {
@@ -231,61 +214,20 @@ public class Assessment implements Serializable, AuthorizableObject {
 	private String serializeRegionIDs(List<Integer> regionIDs) {
         ArrayUtils.insertionSort(regionIDs, new PortableAlphanumericComparator());
         StringBuilder str = new StringBuilder();
-        for( Integer curID : regionIDs )
-            str.append("," + curID);
+        for (Iterator<Integer> iter = regionIDs.iterator(); iter.hasNext(); )
+            str.append(iter.next() + (iter.hasNext() ? "," : ""));
        
         return str.substring(1);
     }
 	
-	public boolean setDateAssessed(Date dateAssessed) {
-		return setPrimitiveValue(dateAssessed, CanonicalNames.RedListAssessmentDate, "value", PrimitiveFieldType.DATE_PRIMITIVE.toString());
+	public void setDateAssessed(Date dateAssessed) {
+		ProxyField proxy = new ProxyField(getField(CanonicalNames.RedListAssessmentDate));
+		proxy.setDatePrimitiveField("value", dateAssessed);
 	}
 	
 	public Date getDateAssessed() {
-		return (Date)getPrimitiveValue(CanonicalNames.RedListAssessmentDate, "value");
-	}
-	
-	public boolean setPrimitiveValue(Object value, String canonicalName, String primitiveName, String primitiveType) {
-		boolean ret = false;
-		
-		Field field = getField(canonicalName);
-		if (field == null) {
-			field = new Field(canonicalName, this);
-			field.setPrimitiveField(new HashSet<PrimitiveField>());
-			
-			this.field.add(field);
-		}
-
-		PrimitiveField prims = field.getKeyToPrimitiveFields().get(primitiveName);
-		if (prims != null) {
-			prims.setValue(value);
-			ret = true;
-		} else {
-			PrimitiveField prim = PrimitiveFieldFactory.generatePrimitiveField(PrimitiveFieldType.DATE_PRIMITIVE);
-			prim.setField(field);
-			prim.setName(primitiveName);
-			prim.setValue(value);
-			
-			field.getPrimitiveField().add(prim);
-			
-			ret = true;
-		}
-		
-		return ret;
-	}
-	
-	public Object getPrimitiveValue(String canonicalName, String primitiveName) {
-		PrimitiveField field = getPrimitiveField(canonicalName, primitiveName);
-		if (field != null)
-			return field.getValue();
-		return null;
-	}
-	
-	public PrimitiveField getPrimitiveField(String canonicalName, String primitiveName) {
-		Field field = getField(canonicalName);
-		if (field != null)
-			return field.getKeyToPrimitiveFields().get(primitiveName);
-		return null;
+		ProxyField proxy = new ProxyField(getField(CanonicalNames.RedListAssessmentDate));
+		return proxy.getDatePrimitiveField("value");
 	}
 
 	public boolean isGlobal() {
@@ -298,9 +240,12 @@ public class Assessment implements Serializable, AuthorizableObject {
 	}
 
 	public boolean isRegional() {
-		return !isGlobal();
+		return !isGlobal() && hasRegions();
 	}
 
+	public boolean hasRegions() {
+		return !getRegionIDs().isEmpty();
+	}
 	
 	public boolean getIsHistorical() {
 		return isHistorical;
@@ -445,10 +390,6 @@ public class Assessment implements Serializable, AuthorizableObject {
 
 	public String getSpeciesName() {
 		return getTaxon().getFriendlyName();
-	}
-	
-	public String getUID() {
-		return getInternalId() + "_" + getAssessmentType().getName();
 	}
 	
 	protected Edit lastEdit;

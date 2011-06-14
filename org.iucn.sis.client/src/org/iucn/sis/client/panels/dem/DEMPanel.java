@@ -29,6 +29,8 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.CommonNameComparator;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -164,10 +166,12 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		final Taxon taxon = StateManager.impl.getTaxon();
 		
 		String abbreviation = "";
-		try {
-			abbreviation = " (" + item.getCategoryAbbreviation() + ")";
-		} catch (Exception e) {
-			//Debug.println(e);
+		if (item.getField(CanonicalNames.RedListCriteria) != null) {
+			try {
+				abbreviation = " (" + item.getCategoryAbbreviation() + ")";
+			} catch (Exception e) {
+				//Debug.println(e);
+			}
 		}
 		
 		final StyledHTML speciesName = 

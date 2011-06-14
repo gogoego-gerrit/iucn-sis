@@ -11,6 +11,7 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
 import org.iucn.sis.client.api.caches.RegionCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -290,15 +291,21 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 				else
 					displayable = FormattedDate.impl.getDate(current.getLastEdit().getCreatedDate());
 
-			if (current.isRegional())
+			if (!current.hasRegions())
+				displayable += " --- No Regions";
+			else if (current.isRegional())
 				displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
 			else
 				displayable += " --- " + "Global";
 		} else {
-			if (current.isRegional())
-				displayable = "Regional Draft Assessment";
-			else
-				displayable = "Global Draft Assessment";
+			if (!current.hasRegions())
+				displayable = SchemaCache.impl.getFromCache(current.getSchema()).getName() + " Draft Assessment";
+			else {
+				if (current.isRegional())
+					displayable = "Regional Draft Assessment";
+				else
+					displayable = "Global Draft Assessment";
+			}
 		}
 		
 		return displayable;
@@ -311,7 +318,9 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		else
 			displayable = "";
 
-		if (current.isRegional())
+		if (!current.hasRegions())
+			displayable += " --- " + "No Regions";
+		else if (current.isRegional())
 			displayable += " --- " + RegionCache.impl.getRegionName(current.getRegionIDs());
 		else
 			displayable += " --- " + "Global";

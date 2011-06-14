@@ -20,7 +20,11 @@ public class RecentAssessmentInfo extends RecentInfo<Assessment> {
 	protected void parse(Assessment assessment) throws ParseException {
 		if (assessment != null && assessment.getState() != Assessment.DELETED) {
 			String region;
-			if (assessment.isRegional()) {
+			if (!assessment.hasRegions())
+				region = "None";
+			else if (assessment.isGlobal())
+				region = "Global";
+			else {
 				List<Integer> regions = assessment.getRegionIDs();
 				if (regions.isEmpty())
 					region = "(Unspecified Region)";
@@ -36,8 +40,6 @@ public class RecentAssessmentInfo extends RecentInfo<Assessment> {
 				if (assessment.isEndemic())
 					region += " -- Endemic";
 			}
-			else
-				region = "Global";
 			
 			addField("id", assessment.getId() + "");
 			addField("status", assessment.getAssessmentType().getName());
