@@ -61,6 +61,9 @@ public class SISDate extends SISPrimitiveStructure<Date> {
 		if ("".equals(value))
 			value = null;
 		
+		if (value != null)
+			value = Long.toString(FormattedDate.SHORT.getDate(value).getTime());
+		
 		return value;
 	}
 
@@ -73,7 +76,7 @@ public class SISDate extends SISPrimitiveStructure<Date> {
 	 */
 	@Override
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
-		prettyData.add(offset, rawData.get(offset));
+		prettyData.add(offset, formatTimestamp(rawData.get(offset)));
 		return ++offset;
 	}
 	
@@ -81,7 +84,7 @@ public class SISDate extends SISPrimitiveStructure<Date> {
 	public boolean hasChanged(PrimitiveField<Date> field) {
 		Date oldValue = field == null ? null : field.getValue();
 		
-		String newValue = getData();
+		String newValue = formatTimestamp(getData());
 		
 		if (newValue == null)
 			return oldValue != null;
@@ -112,6 +115,18 @@ public class SISDate extends SISPrimitiveStructure<Date> {
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		datePicker.setEnabled(isEnabled);
+	}
+	
+	private String formatTimestamp(String value) {
+		try {
+			return formatTimestamp(Long.valueOf(value));
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	private String formatTimestamp(long value) {
+		return FormattedDate.SHORT.getDate(new Date(value));
 	}
 
 }
