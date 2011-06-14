@@ -12,7 +12,7 @@ public class DisplayableDataHelper {
 	public static String toDisplayableSingleSelect(String index, Object[] options) {
 		if( options[0] instanceof ArrayList ) {
 			ArrayList<String> listItemsToAdd = (ArrayList<String>)options[0];
-			int prettyIndex = index.matches("\\d+") ? Integer.parseInt(index) : 0;
+			int prettyIndex = index == null ? -1 : (index.matches("\\d+") ? Integer.parseInt(index) : 0);
 			String ret;
 			if (prettyIndex > 0)
 				ret = (String) listItemsToAdd.get(prettyIndex-1);
@@ -21,7 +21,7 @@ public class DisplayableDataHelper {
 			return ret;
 		}
 		
-		int prettyIndex = index.matches("\\d+") ? Integer.parseInt(index) : 0;
+		int prettyIndex = index == null ? -1 : (index.matches("\\d+") ? Integer.parseInt(index) : 0);
 		String ret;
 		if (prettyIndex > 0)
 			ret = (String) options[prettyIndex - 1];
