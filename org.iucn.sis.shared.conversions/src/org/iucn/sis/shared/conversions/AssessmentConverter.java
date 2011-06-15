@@ -263,7 +263,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 								assessment.getEdit().add(edit);
 							}
 							
-							session.save(assessment);
+							if (assessment.getId() == 0)
+								session.save(assessment);
+							else
+								session.update(assessment);
 							
 							result.getSecond().save(assessment, data.getNewVFS());
 							
@@ -318,6 +321,21 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		return taxon;
 	}
+	
+	private Assessment getAssessment(MigrationReport report, AssessmentData assessData) {
+		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType()))
+			return new Assessment();
+		
+		Assessment assessment = (Assessment)session.createCriteria(Assessment.class)
+			.add(Restrictions.eq("internalId", assessData.getAssessmentID()))
+			.add(Restrictions.eq("state", 3))
+			.uniqueResult();
+		
+		if (assessment == null)
+			error(5, report, "Published assessment %s found on file, but unlisted for taxon. Skipping...", assessData.getAssessmentID());
+		
+		return assessment;
+	}
 
 	public Couple<Assessment, MigrationReport> assessmentDataToAssessment(final AssessmentData assessData, final User user) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
@@ -325,7 +343,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		final MigrationReport report = new MigrationReport();
 		
-		final Assessment assessment = new Assessment();
+		final Assessment assessment = getAssessment(report, assessData);
+		if (assessment == null)
+			return new Couple<Assessment, MigrationReport>(null, report);
+		
 		assessment.setSchema("org.iucn.sis.server.schemas.redlist");
 		assessment.setInternalId(assessData.getAssessmentID());
 		assessment.setSource(assessData.getSource());

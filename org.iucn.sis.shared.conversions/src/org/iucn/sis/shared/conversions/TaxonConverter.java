@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,9 +17,10 @@ import org.iucn.sis.server.api.io.InfratypeIO;
 import org.iucn.sis.server.api.io.IsoLanguageIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.UserIO;
-import org.iucn.sis.server.api.persistance.TaxonDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.FormattedDate;
+import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Infratype;
@@ -27,7 +30,6 @@ import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
-import org.iucn.sis.shared.helpers.AssessmentParser;
 import org.iucn.sis.shared.helpers.CommonNameData;
 import org.iucn.sis.shared.helpers.Note;
 import org.iucn.sis.shared.helpers.ReferenceUI;
@@ -38,8 +40,6 @@ import org.iucn.sis.shared.helpers.TaxonNodeFactory;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.util.TrivialExceptionHandler;
-import com.solertium.vfs.VFS;
 
 public class TaxonConverter extends GenericConverter<String> {
 	
@@ -464,13 +464,18 @@ public class TaxonConverter extends GenericConverter<String> {
 	}
 	
 	protected void writeTaxon(Taxon taxon, Map<Integer, Taxon> taxa ) throws HibernateException, PersistentException {
+		Set<Assessment> assessments = new HashSet<Assessment>(taxon.getAssessments());
 		
-		if (taxon.getParent() != null) {
+		taxon.setAssessments(new HashSet<Assessment>());
+		if (taxon.getParent() != null)
 			taxon.setParent((Taxon)session.get(Taxon.class, taxon.getParentId()));
-		}
 		session.save(taxon);
 		
-		
+		if (!assessments.isEmpty()) {
+			printf("- Writing %s published assessments...");
+			for (Assessment assessment : assessments)
+				session.save(assessment);
+		}
 		
 		if (taxaConverted.incrementAndGet() % 100 == 0) {
 			commitAndStartTransaction();
@@ -624,6 +629,18 @@ public class TaxonConverter extends GenericConverter<String> {
 			edit.setUser(userIO.getUserFromUsername(taxon.getLastUpdatedBy()));
 			edit.setCreatedDate(lastModified);
 		}
+		
+		// ADD PUBLISHED ASSESSMENT PLACEHOLDERS
+		for (String assessmentID : taxon.getAssessments()) {
+			Assessment assessment = new Assessment();
+			assessment.setInternalId(assessmentID);
+			assessment.setTaxon(newTaxon);
+			assessment.setAssessmentType(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_TYPE));
+			assessment.setState(3); //so I can find these later.
+			
+			newTaxon.getAssessments().add(assessment);
+		}
+		
 		return newTaxon;
 	}
 }
