@@ -766,7 +766,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		debug("Found %s/%s primitive values for %s", rawData.size(), lookup.getSet().size(), canonicalName);
 		
 		if (rawData.size() > lookup.getSet().size()) {
-			if (!(lookup.getSet().size() == 1 && lookup.getSet().get(0).get("data_type").equals("fk_list_primitive_field")))
+			if (!(lookup.getSet().size() == 1 && lookup.getSet().get(0).get("data_type").toString().equals("fk_list_primitive_field")))
 				error(4, report, "Found more data in SIS 1 than can fit in SIS 2 for %s\n%s", canonicalName, rawData);
 		}
 		
