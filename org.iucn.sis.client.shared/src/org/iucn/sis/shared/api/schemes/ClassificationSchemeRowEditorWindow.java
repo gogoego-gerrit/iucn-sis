@@ -198,7 +198,7 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 			if ("true".equals(row.getCodeable())) {
 				final CodingOption option = new CodingOption(row);
 				store.add(option);
-				if (row.equals(selected))
+				if (selected != null && row.getDisplayId().equals(selected.getDisplayId()))
 					selectedOption = option;
 			}
 		}
