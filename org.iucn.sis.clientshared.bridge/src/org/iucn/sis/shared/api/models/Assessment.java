@@ -31,8 +31,6 @@ import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
-import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
-import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
@@ -221,7 +219,14 @@ public class Assessment implements Serializable, AuthorizableObject {
     }
 	
 	public void setDateAssessed(Date dateAssessed) {
-		ProxyField proxy = new ProxyField(getField(CanonicalNames.RedListAssessmentDate));
+		Field field = getField(CanonicalNames.RedListAssessmentDate);
+		if (field == null) {
+			field = new Field(CanonicalNames.RedListAssessmentDate, this);
+			getField().add(field);
+			keyToField.put(field.getName(), field);
+		}
+		
+		ProxyField proxy = new ProxyField(field);
 		proxy.setDatePrimitiveField("value", dateAssessed);
 	}
 	
