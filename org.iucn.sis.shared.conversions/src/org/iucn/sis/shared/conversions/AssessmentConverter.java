@@ -1,6 +1,8 @@
 package org.iucn.sis.shared.conversions;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -18,11 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.naming.NamingException;
 
 import org.hibernate.criterion.Restrictions;
-import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
@@ -83,7 +85,6 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	private UserIO userIO;
 	private TaxonIO taxonIO;
 	private ReferenceIO referenceIO;
-	private AssessmentIO assessmentIO;
 	
 	public AssessmentConverter() throws NamingException {
 		this("sis_lookups");
@@ -123,7 +124,6 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		userIO = new UserIO(session);
 		taxonIO = new TaxonIO(session);
 		referenceIO = new ReferenceIO(session);
-		assessmentIO = new AssessmentIO(session);
 		
 		if (ConversionMode.DRAFT.equals(mode))
 			convertAllDrafts(data.getOldVFS(), data.getNewVFS());
@@ -136,7 +136,11 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	}
 
 	public void convertAllPublished(VFS oldVFS, VFS newVFS) throws Exception {
-		convertAll("/HEAD/browse/assessments", oldVFS, newVFS);
+		File cache = new File(data.getOldVFSPath() + "/HEAD/migration/assessments.dat");
+		if (cache.exists())
+			convertCached(new AssessmentParser(), userIO.getUserFromUsername("admin"), new AtomicInteger(), cache);
+		else
+			convertAll("/HEAD/browse/assessments", oldVFS, newVFS);
 	}
 	
 	public void convertAllDrafts(VFS oldVFS, VFS newVFS) throws Exception {
@@ -151,6 +155,42 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		File folder = new File(data.getOldVFSPath() + rootURL);
 		
 		readFolder(parser, user, converted, folder);
+	}
+	
+	private void convertCached(AssessmentParser parser, User user, AtomicInteger converted, File cache) throws Exception {
+		final BufferedReader reader = new BufferedReader(new FileReader(cache));
+		String line = null;
+		
+		HashSet<String> taxa = new HashSet<String>();
+		if (parameters.getFirstValue("subset", null) != null)
+			for (String taxon : parameters.getValuesArray("subset"))
+				taxa.add(taxon);
+		
+		boolean subset = !taxa.isEmpty();
+		boolean found = false;
+		boolean canStop = false;
+		
+		if (subset)
+			printf("Converting the subset: %s", taxa);
+		
+		while ((line = reader.readLine()) != null) {
+			String[] split = line.split(":");
+			File file = new File(data.getOldVFSPath() + "/HEAD/browse/assessments/" + 
+					FilenameStriper.getIDAsStripedPath(split[1]) + ".xml");
+			if (!file.exists()) {
+				printf("No assessment found on disk for taxon %s at %s", split[0], file.getPath());
+				continue;
+			}
+			
+			if (!subset || (found = taxa.contains(split[0])))
+				readFile(parser, user, converted, file);
+			
+			if (subset && found)
+				canStop = true;
+			
+			if (subset && !found && canStop)
+				break;
+		}
 	}
 	
 	private void readFolder(AssessmentParser parser, User user, AtomicInteger converted, File folder) throws Exception {
@@ -321,21 +361,6 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		return taxon;
 	}
-	
-	private Assessment getAssessment(MigrationReport report, AssessmentData assessData) {
-		if (AssessmentData.DRAFT_ASSESSMENT_STATUS.equals(assessData.getType()))
-			return new Assessment();
-		
-		Assessment assessment = (Assessment)session.createCriteria(Assessment.class)
-			.add(Restrictions.eq("internalId", assessData.getAssessmentID()))
-			.add(Restrictions.eq("state", 3))
-			.uniqueResult();
-		
-		if (assessment == null)
-			error(5, report, "Published assessment %s found on file, but unlisted for taxon. Skipping...", assessData.getAssessmentID());
-		
-		return assessment;
-	}
 
 	public Couple<Assessment, MigrationReport> assessmentDataToAssessment(final AssessmentData assessData, final User user) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
@@ -343,12 +368,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		final MigrationReport report = new MigrationReport();
 		
-		final Assessment assessment = getAssessment(report, assessData);
-		if (assessment == null)
-			return new Couple<Assessment, MigrationReport>(null, report);
-		
+		final Assessment assessment = new Assessment();
 		assessment.setSchema("org.iucn.sis.server.schemas.redlist");
 		assessment.setInternalId(assessData.getAssessmentID());
+		assessment.setState(Assessment.ACTIVE);
 		assessment.setSource(assessData.getSource());
 		assessment.setSourceDate(assessData.getSourceDate());
 		assessment.setType(assessData.getType());

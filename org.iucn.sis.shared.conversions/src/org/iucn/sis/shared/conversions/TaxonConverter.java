@@ -1,14 +1,18 @@
 package org.iucn.sis.shared.conversions;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -40,6 +44,7 @@ import org.iucn.sis.shared.helpers.TaxonNodeFactory;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.TrivialExceptionHandler;
 
 public class TaxonConverter extends GenericConverter<String> {
 	
@@ -112,6 +117,7 @@ public class TaxonConverter extends GenericConverter<String> {
 	private ReferenceIO referenceIO;
 	
 	private AtomicInteger taxaConverted;
+	private BufferedWriter assessments;
 	
 	public TaxonConverter() {
 		super();
@@ -128,6 +134,13 @@ public class TaxonConverter extends GenericConverter<String> {
 		referenceIO = new ReferenceIO(session);
 		taxaConverted = new AtomicInteger(0);
 		
+		File file = new File(data + "/HEAD/migration/assessments.dat");
+		file.getParentFile().mkdirs();
+		
+		assessments = new BufferedWriter(new PrintWriter(
+			new FileWriter(file)
+		));
+		
 		Map<Integer, Integer> childToParent = new HashMap<Integer, Integer>();
 		final User user = userIO.getUserFromUsername("admin");
 		final AtomicInteger converted = new AtomicInteger(0);
@@ -137,6 +150,12 @@ public class TaxonConverter extends GenericConverter<String> {
 		readFolder(childToParent, user, converted, folder);
 		
 		commitAndStartTransaction();
+		
+		try {
+			assessments.close();
+		} catch (IOException e) {
+			TrivialExceptionHandler.ignore(this, e);
+		}
 		
 		taxaConverted.set(0);
 		
@@ -230,7 +249,15 @@ public class TaxonConverter extends GenericConverter<String> {
 				taxon.getEdits().add(edit);							
 			}
 			
+			Collection<Assessment> assessments = new ArrayList<Assessment>(taxon.getAssessments());
+			taxon.setAssessments(new HashSet<Assessment>());
+			
 			session.save(taxon);
+			
+			if (!assessments.isEmpty()) {
+				for (Assessment assessment : assessments)
+					this.assessments.write(taxon.getId() + ":" + assessment.getInternalId() + "\n");
+			}
 			
 			if (taxaConverted.incrementAndGet() % 100 == 0) {
 				commitAndStartTransaction();
@@ -464,18 +491,9 @@ public class TaxonConverter extends GenericConverter<String> {
 	}
 	
 	protected void writeTaxon(Taxon taxon, Map<Integer, Taxon> taxa ) throws HibernateException, PersistentException {
-		Set<Assessment> assessments = new HashSet<Assessment>(taxon.getAssessments());
-		
-		taxon.setAssessments(new HashSet<Assessment>());
 		if (taxon.getParent() != null)
 			taxon.setParent((Taxon)session.get(Taxon.class, taxon.getParentId()));
 		session.save(taxon);
-		
-		if (!assessments.isEmpty()) {
-			printf("- Writing %s published assessments...");
-			for (Assessment assessment : assessments)
-				session.save(assessment);
-		}
 		
 		if (taxaConverted.incrementAndGet() % 100 == 0) {
 			commitAndStartTransaction();
@@ -559,11 +577,15 @@ public class TaxonConverter extends GenericConverter<String> {
 			Synonym synonym = new Synonym();
 			synonym.setTaxon_level(TaxonLevel.getTaxonLevel(synData.getLevel()));
 			
-			if (synData.getLevel() == TaxonLevel.INFRARANK) {
+			if (synData.getLevel() == TaxonNode.INFRARANK || synData.getLevel() == TaxonNode.SPECIES) {
 				//Adding 1 because SIS 1 starts @ 0, SIS 2 starts @ 1.
-				int infrarankLevel = synData.getInfrarankType() + 1;
+				int infrarankLevel;
+				if (synData.getInfrarankType() == -1)
+					infrarankLevel = Infratype.INFRARANK_TYPE_SUBSPECIES;
+				else
+					infrarankLevel = synData.getInfrarankType() + 1;
 				
-				synonym.setTaxon_level(TaxonLevel.getTaxonLevel(TaxonLevel.INFRARANK));
+				synonym.setTaxon_level(TaxonLevel.getTaxonLevel(synData.getLevel() + 1));
 				synonym.setInfraTypeObject(Infratype.getInfratype(infrarankLevel));
 			}
 			
@@ -631,8 +653,10 @@ public class TaxonConverter extends GenericConverter<String> {
 		}
 		
 		// ADD PUBLISHED ASSESSMENT PLACEHOLDERS
+		int fauxID = 0;
 		for (String assessmentID : taxon.getAssessments()) {
 			Assessment assessment = new Assessment();
+			assessment.setId(++fauxID);
 			assessment.setInternalId(assessmentID);
 			assessment.setTaxon(newTaxon);
 			assessment.setAssessmentType(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_TYPE));
