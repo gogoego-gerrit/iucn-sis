@@ -190,9 +190,10 @@ public class SISSelect extends SISPrimitiveStructure<Integer> implements Dominan
 	
 	@Override
 	public void setData(PrimitiveField<Integer> field) {
+		listbox.setSelectedIndex(0);
+		
 		String value = field != null ? field.getRawValue() : "";
 		if (value != null && !"".equals(value)) {
-			listbox.setSelectedIndex(0);
 			try {
 				for (int i = 1; i < listbox.getItemCount(); i++)
 					if (listbox.getValue(i).equals(value))
