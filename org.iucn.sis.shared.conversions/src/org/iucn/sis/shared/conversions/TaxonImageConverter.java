@@ -26,6 +26,11 @@ public class TaxonImageConverter extends GenericConverter<VFSInfo> {
 	 * set to true to let the program handle this.
 	 */
 	private static final boolean COPY_FROM_BIN = false;
+	
+	public TaxonImageConverter() {
+		super();
+		setClearSessionAfterTransaction(true);
+	}
 
 	@Override
 	protected void run() throws Exception {
