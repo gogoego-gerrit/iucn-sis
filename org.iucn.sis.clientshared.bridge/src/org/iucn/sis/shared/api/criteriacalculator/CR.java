@@ -437,22 +437,22 @@ class CR extends Classification {
 		// returnResult.resultString = createCString(pdg1, sps, div, pf);
 		// return returnResult;
 
-		Range ps = (Range) factors.get(Factors.populationSize);
+		Range ps = factors.get(Factors.populationSize);
 		Range ps1 = Range.lessthan(ps, cPopulationSize);
 
 		Range pdg1 = (Range) factors.get(Factors.populationDeclineGenerations1);
 		pdg1 = Range.greaterthanequal(pdg1, cPopulationDeclineGenerations1);
 
-		Range pd = (Range) factors.get(Factors.populationDecline);
-		Range sps = (Range) factors.get(Factors.subpopulationSize);
+		Range pd = factors.get(Factors.populationDecline);
+		Range sps = factors.get(Factors.subpopulationSize);
 		Range div = Range.divide(sps, ps);
 		sps = Range.lessthanequal(sps, cMaxSubpopulationSize);
 
 		Range pf = (Range) factors.get(Factors.populationFluctuation);
 
 		Range result = Range.independentOR(sps, div);
-		result = Range.independentAND(result, pd);
 		result = Range.independentOR(result, pf);
+		result = Range.independentAND(result, pd);
 		result = Range.independentOR(result, pdg1);
 		result = Range.independentAND(result, ps1);
 
