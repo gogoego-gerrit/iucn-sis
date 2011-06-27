@@ -44,11 +44,11 @@ public class SISCompleteListTextArea extends VerticalPanel {
 		
 		final ButtonBar bar = new ButtonBar();
 		bar.setSize("100%", "100%");
-		bar.add(generate = new Button("Generate", new SelectionListener<ButtonEvent>() {
+		/*bar.add(generate = new Button("Generate", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				generateTextFromUsers(true);
 			}
-		}));
+		}));*/
 		bar.add(edit = new Button("Edit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				if ("Edit".equals(edit.getText())) {
@@ -120,6 +120,8 @@ public class SISCompleteListTextArea extends VerticalPanel {
 	public void setData(RedListCreditedUserField field) {
 		this.field = field;
 		if (!field.getUsers().isEmpty()) {
+			edit.setVisible(false);
+			
 			final List<String> users = new ArrayList<String>();
 			for (Integer userID : field.getUsers())
 				users.add(userID.toString());
@@ -140,6 +142,7 @@ public class SISCompleteListTextArea extends VerticalPanel {
 				};
 			});
 		} else {
+			edit.setVisible(!"".equals(field.getText()));
 			setUsers(new ArrayList<ClientUser>());
 		}
 	}
