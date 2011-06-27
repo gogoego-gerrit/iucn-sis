@@ -1,0 +1,9 @@
+<assessment id="1854815" internalID="3898_0"><source><![CDATA[]]></source><sourceDate><![CDATA[]]></sourceDate><schema><![CDATA[org.iucn.sis.server.schemas.redlist]]></schema><taxon id="3898" name="insculpta" fullname="Carettochelys insculpta"/><assessment_type id="2"/><edit id="1854816" ><user><id>1954</id><username><![CDATA[admin]]></username><email><![CDATA[gogoego.tests@gmail.com]]></email><firstName><![CDATA[The]]></firstName><lastName><![CDATA[Administrator]]></lastName></user><date>1303922598929</date></edit>
+<fields>
+<PopulationSize version="2" id="1">
+<range id="1" type="RangePrimitiveField">230</range>
+</PopulationSize>
+<PopulationExtremeFluctuation version="2" id="2">
+<isFluctuating id="2" type="BooleanRangePrimitiveField">1</isFluctuating>
+</PopulationExtremeFluctuation>
+</fields></assessment>
