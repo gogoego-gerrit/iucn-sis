@@ -315,35 +315,26 @@ public class FuzzyExpImpl {
 			// result.setEnoughData(criterias[1]);
 
 		} else if (finalResultEN.range != null && finalResultVU.range != null) {
-			Range pretendCR = new Range();
-			pretendCR.setHigh(0);
-			pretendCR.setHighBest(0);
-			pretendCR.setLow(0);
-			pretendCR.setLowBest(0);
-			result = calculateResult(pretendCR, finalResultEN.range, finalResultVU.range, assessment);
+			result = calculateResult(newPretendRange(), finalResultEN.range, finalResultVU.range, assessment);
+			
 			String[] criterias = getCriterias(analysisA, analysisB, analysisC, analysisD, analysisE).split("-");
 			result.setCriteriaString(calculateCriteriaString(result, finalResultCR, finalResultEN, finalResultVU));
+			result.setCriteriaStringCR(null);
+			result.setCriteriaStringEN(finalResultEN.resultString);
+			result.setCriteriaStringVU(finalResultVU.resultString);
+			
 			result.setNotEnoughData(criterias[0]);
 		}
 
 		else if (finalResultVU.range != null) {
-			Range pretendCR = new Range();
-			pretendCR.setHigh(0);
-			pretendCR.setHighBest(0);
-			pretendCR.setLow(0);
-			pretendCR.setLowBest(0);
-
-			Range pretendEN = new Range();
-			pretendEN.setHigh(0);
-			pretendEN.setHighBest(0);
-			pretendEN.setLow(0);
-			pretendEN.setLowBest(0);
-
-			result = calculateResult(pretendCR, pretendEN, finalResultVU.range, assessment);
-			println(
-					"THIS IS THE FINAL RESULT {0},{1},{2}   {3}", result.getLeft(), result.getBest(), result.getRight(), result.getResult());
+			result = calculateResult(newPretendRange(), newPretendRange(), finalResultVU.range, assessment);
+			
 			String[] criterias = getCriterias(analysisA, analysisB, analysisC, analysisD, analysisE).split("-");
 			result.setCriteriaString(calculateCriteriaString(result, finalResultCR, finalResultEN, finalResultVU));
+			result.setCriteriaStringCR(null);
+			result.setCriteriaStringEN(null);
+			result.setCriteriaStringVU(finalResultVU.resultString);
+			
 			result.setNotEnoughData(criterias[0]);
 			// result.setEnoughData(criterias[1]);
 		}
@@ -362,7 +353,16 @@ public class FuzzyExpImpl {
 			println("Not enough data: {0}", result.getNotEnoughData());
 		// return result;
 		return result;
-
+	}
+	
+	private Range newPretendRange() {
+		Range pretend = new Range();
+		pretend.setHigh(0);
+		pretend.setHighBest(0);
+		pretend.setLow(0);
+		pretend.setLowBest(0);
+		
+		return pretend;
 	}
 	
 	private Range analyzeFirstFactor(String[] factors, Assessment assessment) {
@@ -395,62 +395,65 @@ public class FuzzyExpImpl {
 		AnalysisResult analysis = new AnalysisResult();
 
 		// GET ALL ENTERED INFORMATION FOR A1
+		String populationReductionPastBasis = 
+			createStringFromAssessment(assessment, Factors.populationReductionPastBasis);
+		
 		CriteriaResult resultCR1 = critical.a1(
-			analyzeFactors(critical.factorsA1, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionPastBasis)
-		);
+			analyzeFactors(critical.factorsA1, assessment), populationReductionPastBasis);
 
 		CriteriaResult resultEN1 = endangered.a1(
-			analyzeFactors(endangered.factorsA1, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionPastBasis));
+			analyzeFactors(endangered.factorsA1, assessment), populationReductionPastBasis);
 
 		CriteriaResult resultVU1 = vulnerable.a1(
-			analyzeFactors(vulnerable.factorsA1, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionPastBasis));
+			analyzeFactors(vulnerable.factorsA1, assessment), populationReductionPastBasis);
 
 		// GET ALL ENTERED INFORMATION FOR A2
 		CriteriaResult resultCR2 = critical.a2(
 			analyzeFactors(critical.factorsA2, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionPastBasis)
+			populationReductionPastBasis
 		);
 
 		CriteriaResult resultEN2 = endangered.a2(
 			analyzeFactors(endangered.factorsA2, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionPastBasis)
+			populationReductionPastBasis
 		);
 
 		CriteriaResult resultVU2 = vulnerable.a2(
 			analyzeFactors(vulnerable.factorsA2, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionPastBasis)
+			populationReductionPastBasis
 		);
 
 		// GET ALL ENTERED INFORMATION FOR A3
+		String populationReductionFutureBasis = 
+			createStringFromAssessment(assessment, Factors.populationReductionFutureBasis);
 		CriteriaResult resultCR3 = critical.a3(
 			analyzeFirstFactor(critical.factorsA3, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionFutureBasis)
+			populationReductionFutureBasis
 		);
 
 		CriteriaResult resultEN3 = endangered.a3(
 			analyzeFirstFactor(endangered.factorsA3, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionFutureBasis));
+			populationReductionFutureBasis);
 
 		CriteriaResult resultVU3 = vulnerable.a3(
 			analyzeFirstFactor(vulnerable.factorsA3, assessment), 
-			createStringFromAssessment(assessment,  Factors.populationReductionFutureBasis));
+			populationReductionFutureBasis);
 
 		// GET ALL ENTERED INFORMATION FOR A4
+		String populationReductionEitherBasis = 
+			createStringFromAssessment(assessment, Factors.populationReductionEitherBasis);
 		CriteriaResult resultCR4 = critical.a4(
 			analyzeFactors(critical.factorsA4, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionEitherBasis));
+			populationReductionEitherBasis);
 
 		CriteriaResult resultEN4 = endangered.a4(
 			analyzeFactors(endangered.factorsA4, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionEitherBasis)
+			populationReductionEitherBasis
 		);
 
 		CriteriaResult resultVU4 = vulnerable.a4(
 			analyzeFactors(vulnerable.factorsA4, assessment), 
-			createStringFromAssessment(assessment, Factors.populationReductionEitherBasis)
+			populationReductionEitherBasis
 		);
 
 		// GET FINAL INFO FOR A
@@ -516,24 +519,24 @@ public class FuzzyExpImpl {
 
 		// GET ALL ENTERED INFORMATION FOR C1
 		CriteriaResult resultCR = critical.c(analyzeFactors(critical.factorsC, assessment));
-		CriteriaResult resultEN1 = endangered.c1(analyzeFactors(critical.factorsC, assessment));
-		CriteriaResult resultVU1 = vulnerable.c1(analyzeFactors(vulnerable.factorsC1, assessment));
+		CriteriaResult resultEN = endangered.c(analyzeFactors(endangered.factorsC, assessment));
+		CriteriaResult resultVU = vulnerable.c(analyzeFactors(vulnerable.factorsC, assessment));
 
 		// GET ALL ENTERED INFORMATION FOR C2
-		CriteriaResult resultEN2 = endangered.c2(analyzeFactors(endangered.factorsC2, assessment));
-		CriteriaResult resultVU2 = vulnerable.c2(analyzeFactors(vulnerable.factorsC2, assessment));
+		//CriteriaResult resultEN2 = endangered.c2(analyzeFactors(endangered.factorsC2, assessment));
+		//CriteriaResult resultVU2 = vulnerable.c2(analyzeFactors(vulnerable.factorsC2, assessment));
 		
 		CriteriaResult finalCR = resultCR;
-		CriteriaResult finalEN = getFinalC("EN", resultEN1, resultEN2);
-		CriteriaResult finalVU = getFinalC("VU", resultVU1, resultVU2);
+		CriteriaResult finalEN = resultEN;//getFinalC("EN", resultEN1, resultEN2);
+		CriteriaResult finalVU = resultVU;//getFinalC("VU", resultVU1, resultVU2);
 
 		analysis.addResult(resultCR);
 
-		analysis.addResult(resultEN1);
-		analysis.addResult(resultEN2);
+		analysis.addResult(resultEN);
+		//analysis.addResult(resultEN2);
 
-		analysis.addResult(resultVU1);
-		analysis.addResult(resultVU2);
+		analysis.addResult(resultVU);
+		//analysis.addResult(resultVU2);
 
 		analysis.addCRResult(finalCR);
 		analysis.addENResult(finalEN);
