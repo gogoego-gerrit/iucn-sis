@@ -2,6 +2,8 @@ package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
+
 /**
  * Represents the endangered class
  * 
@@ -56,7 +58,7 @@ class EN extends Classification {
 	public final String[] factorsE = new String[] { Factors.extinctionGenerations5 };
 
 	public EN() {
-		super("EN");
+		super(ResultCategory.EN);
 		
 		// A1, A2, or A3 must be true in order for A to be true
 		aPopulationReductionPast1 = 70; // >=70

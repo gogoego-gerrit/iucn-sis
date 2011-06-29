@@ -9,46 +9,69 @@ import org.iucn.sis.shared.api.models.Assessment;
  * 
  */
 public class ExpertResult {
+	
+	public enum ResultCategory {
+		CR("CR", "Critically Endangered", "CR"), 
+		EN("EN", "Endangered", "EN", "CR", "EN"),
+		VU("VU", "Vulnerable", "CR", "EN", "VU"),
+		LR("LC", "Lower Risk"),
+		DD("DD", "Data Deficient");
+		
+		public static ResultCategory fromString(String shortName) {
+			for (ResultCategory c : ResultCategory.values())
+				if (c.shortName.equals(shortName))
+					return c;
+			return null;
+		}
+		
+		private final String shortName, name;
+		private final String[] includes;
+		
+		private ResultCategory(String shortName, String name, String... includes) {
+			this.shortName = shortName;
+			this.name = name;
+			this.includes = includes;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		public String getShortName() {
+			return shortName;
+		}
+		
+		public boolean includes(String categoryShortName) {
+			for (String name : includes)
+				if (name.equals(categoryShortName))
+					return true;
+			return false;
+		}
+		
+	}
+	
 	protected Assessment assessment;
 	protected int left;
 	protected int right;
 	protected int best;
-	protected String result;  //the category
+	protected ResultCategory result;  //the category
 	protected String notEnoughData; 
-	protected String criteriaString;
-	protected String criteriaStringVU;
-	protected String criteriaStringEN;
-	protected String criteriaStringCR;
+	
+	protected CriteriaSet criteria;
+	protected CriteriaSet criteriaVU;
+	protected CriteriaSet criteriaEN;
+	protected CriteriaSet criteriaCR;
 
 	public ExpertResult(Assessment assessment) {
 		this.assessment = assessment;
-		this.criteriaString = "";
-		this.criteriaStringCR = "";
-		this.criteriaStringEN = "";
-		this.criteriaStringVU = "";
+		this.criteria = new CriteriaSet(ResultCategory.DD);
+		this.criteriaCR = new CriteriaSet(ResultCategory.CR);
+		this.criteriaEN = new CriteriaSet(ResultCategory.EN);
+		this.criteriaVU = new CriteriaSet(ResultCategory.VU);
 	}
 
 	public String getAbbreviatedCategory() {
-		if ((getCriteriaString() == null || getResult() == null))
-		{
-			return "DD";
-		}
-		else if (getResult().equalsIgnoreCase("endangered"))
-		{
-			return "EN";
-		}
-		else if (getResult().equalsIgnoreCase("vulnerable"))
-		{
-			return "VU";
-		}
-		else if (getResult().equalsIgnoreCase("lower risk"))
-		{
-			return "LC";
-		}
-		else
-		{
-			return "CR";
-		}
+		return getResult().getShortName();
 	}
 
 	public Assessment getAssessment() {
@@ -58,22 +81,25 @@ public class ExpertResult {
 	public int getBest() {
 		return best;
 	}
-
+	
 	public String getCriteriaString() {
-		return criteriaString;
+		return criteria.toString();
 	}
-
-	public String getCriteriaStringCR() {
-		return criteriaStringCR;
+	
+	public CriteriaSet getCriteriaMet() {
+		return criteria;
 	}
-
-	public String getCriteriaStringEN() {
-		
-		return criteriaStringEN;
+	
+	public CriteriaSet getCriteriaCR() {
+		return criteriaCR;
 	}
-
-	public String getCriteriaStringVU() {
-		return criteriaStringVU;
+	
+	public CriteriaSet getCriteriaEN() {
+		return criteriaEN;
+	}
+	
+	public CriteriaSet getCriteriaVU() {
+		return criteriaVU;
 	}
 
 	public int getLeft() {
@@ -83,9 +109,8 @@ public class ExpertResult {
 	public String getNotEnoughData() {
 		return notEnoughData;
 	}
-	
 
-	public String getResult() {
+	public ResultCategory getResult() {
 		return result;
 	}
 
@@ -97,28 +122,20 @@ public class ExpertResult {
 		this.best = best;
 	}
 
-	public void setCriteriaString(String criteriaString) {
-		if (criteriaString == null)
-			criteriaString = "";
-		this.criteriaString = criteriaString;
+	public void setCriteriaMet(CriteriaSet criteria) {
+		this.criteria = criteria;
 	}
-
-	public void setCriteriaStringCR(String criteriaStringCR) {
-		if (criteriaStringCR == null)
-			criteriaStringCR = "";
-		this.criteriaStringCR = criteriaStringCR;
+	
+	public void setCriteriaCR(CriteriaSet criteriaCR) {
+		this.criteriaCR = criteriaCR;
 	}
-
-	public void setCriteriaStringEN(String criteriaStringEN) {
-		if (criteriaStringEN == null)
-			criteriaStringEN = "";
-		this.criteriaStringEN = criteriaStringEN;
+	
+	public void setCriteriaEN(CriteriaSet criteriaEN) {
+		this.criteriaEN = criteriaEN;
 	}
-
-	public void setCriteriaStringVU(String criteriaStringVU) {
-		if (criteriaStringVU == null)
-			criteriaStringVU = "";
-		this.criteriaStringVU = criteriaStringVU;
+	
+	public void setCriteriaVU(CriteriaSet criteriaVU) {
+		this.criteriaVU = criteriaVU;
 	}
 
 	public void setLeft(int left) {
@@ -129,7 +146,7 @@ public class ExpertResult {
 		this.notEnoughData = notEnoughData;
 	}
 	
-	public void setResult(String result) {
+	public void setResult(ResultCategory result) {
 		this.result = result;
 	}
 

@@ -6,6 +6,7 @@ import java.util.List;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
 import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
 import org.iucn.sis.shared.api.criteriacalculator.RegionalExpertQuestions;
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
@@ -27,7 +28,11 @@ public class ExpertUtils {
 		//currentAssessment.setEnCriteria(expertResult.getCriteriaStringEN());
 		//currentAssessment.setVuCriteria(expertResult.getCriteriaStringVU());
 
-		if (expertResult.getResult() != null) {
+		if (expertResult.getResult() == null || expertResult.getResult().equals(ResultCategory.DD)) {
+			currentAssessment.setCategoryFuzzyResult("-1,-1,-1");
+			currentAssessment.setCategoryAbbreviation("DD");
+		}
+		else {
 			currentAssessment.setCategoryFuzzyResult(expertResult.getLeft() + "," + expertResult.getBest() + ","
 					+ expertResult.getRight());
 			currentAssessment.setCategoryAbbreviation(expertResult.getAbbreviatedCategory());
@@ -59,11 +64,7 @@ public class ExpertUtils {
 			} else {
 				Debug.println("Couldn't find regional expert question data.");
 			}
-
-		} else {
-			currentAssessment.setCategoryFuzzyResult("-1,-1,-1");
-			currentAssessment.setCategoryAbbreviation("DD");
-		}
+		} 
 	}
 	
 	private static String slideCategory(int amount, String startValue) {

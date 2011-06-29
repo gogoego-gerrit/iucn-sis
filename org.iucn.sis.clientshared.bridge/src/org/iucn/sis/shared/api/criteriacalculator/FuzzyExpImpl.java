@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
@@ -62,45 +63,138 @@ public class FuzzyExpImpl {
 
 	boolean INDIVIDUALDT = false;
 
-	boolean TESTING = true;
 	private CR critical;
 	private VU vulnerable;
-
 	private EN endangered;
+	
 	private static final double dt = 0.5;
 	private static final double rt = 0.5;
 	
-	public final int xCR = 100;
-	public final int xEN = 200;
-	public final int xVU = 300;
-
-	public final int xLR = 400;
-	
-	private int SUB_LEN = 0;
+	public static final int xDD = 0;
+	public static final int xCR = 100;
+	public static final int xEN = 200;
+	public static final int xVU = 300;
+	public static final int xLR = 400;
 
 	public FuzzyExpImpl() {
 		critical = new CR();
 		vulnerable = new VU();
 		endangered = new EN();
 	}
+	
+	/**
+	 * Does the analysis of the current assessment. Returns an ExpertResult if
+	 * there is enough data, null otherwise.
+	 * 
+	 * @param assessment
+	 *            TODO
+	 * 
+	 * @return
+	 */
+	public ExpertResult doAnalysis(Assessment assessment) {
+		// GET ALL RANGES FOR SPECIFIC CRITERIA
+		AnalysisResult analysisA = doAnalysisA(assessment);
+		AnalysisResult analysisB = doAnalysisB(assessment);
+		AnalysisResult analysisC = doAnalysisC(assessment);
+		AnalysisResult analysisD = doAnalysisD(assessment);
+		AnalysisResult analysisE = doAnalysisE(assessment);
 
-	private String calculateCriteriaString(ExpertResult result, CriteriaResult cr, CriteriaResult en, CriteriaResult vu) {
-		String returnString = "";
+		// DO FINAL RANGES FOR EACH CLASSIFICATION
+		CriteriaResult finalResultCR = finalResult(ResultCategory.CR, 
+				analysisA.CRResult,
+				analysisB.CRResult, analysisC.CRResult,
+				analysisD.CRResult, analysisE.CRResult);
+		CriteriaResult finalResultEN = finalResult(ResultCategory.EN, 
+				analysisA.ENResult,
+				analysisB.ENResult, analysisC.ENResult,
+				analysisD.ENResult, analysisE.ENResult);
+		CriteriaResult finalResultVU = finalResult(ResultCategory.VU, 
+				analysisA.VUResult,
+				analysisB.VUResult, analysisC.VUResult,
+				analysisD.VUResult, analysisE.VUResult);
 
-		// IF CRITICALLY ENDANGERED
-		if (result.getResult().startsWith("C")) {
-			returnString = cr.resultString;
-		}
-		// IF ENDANGERED
-		else if (result.getResult().startsWith("E")) {
-			returnString = en.resultString;
-		}
-		// IF VULNERABLE
-		else if (result.getResult().startsWith("V")) {
-			returnString = vu.resultString;
+		// DO DT IF DIDN'T DO INDIVIDUALLY
+		if (!INDIVIDUALDT) {
+			finalResultCR.range = Range.dt(finalResultCR.range, dt);
+			finalResultEN.range = Range.dt(finalResultEN.range, dt);
+			finalResultVU.range = Range.dt(finalResultVU.range, dt);
 		}
 
-		return returnString;
+		println("Final Results...");
+		finalResultCR.printRange();
+		finalResultEN.printRange();
+		finalResultVU.printRange();
+		// GET RESULT WITH SPECIFIC RT
+
+		println("FINAL CR ----- {0}", finalResultCR.getResultString());
+		println("FINAL EN ----- {0}", finalResultEN.getResultString());
+		println("FINAL VU ----- {0}", finalResultVU.getResultString());
+
+		final ExpertResult result;
+		if (finalResultCR.range != null && finalResultEN.range != null && finalResultVU.range != null) {
+			result = calculateResult(finalResultCR.range, finalResultEN.range, finalResultVU.range, assessment);
+			
+			String[] criterias = getCriterias(analysisA, analysisB, analysisC, analysisD, analysisE).split("-");
+			result.setCriteriaMet(calculateCriteriaMet(result, finalResultCR, finalResultEN, finalResultVU));
+			result.setCriteriaCR(finalResultCR.getCriteriaSet());
+			result.setCriteriaEN(finalResultEN.getCriteriaSet());
+			result.setCriteriaVU(finalResultVU.getCriteriaSet());
+			
+			result.setNotEnoughData(criterias[0]);
+			// result.setEnoughData(criterias[1]);
+
+		} else if (finalResultEN.range != null && finalResultVU.range != null) {
+			result = calculateResult(newPretendRange(), finalResultEN.range, finalResultVU.range, assessment);
+			
+			String[] criterias = getCriterias(analysisA, analysisB, analysisC, analysisD, analysisE).split("-");
+			result.setCriteriaMet(calculateCriteriaMet(result, finalResultCR, finalResultEN, finalResultVU));
+			result.setCriteriaCR(new CriteriaSet(ResultCategory.CR));
+			result.setCriteriaEN(finalResultEN.getCriteriaSet());
+			result.setCriteriaVU(finalResultVU.getCriteriaSet());
+			
+			result.setNotEnoughData(criterias[0]);
+		}
+
+		else if (finalResultVU.range != null) {
+			result = calculateResult(newPretendRange(), newPretendRange(), finalResultVU.range, assessment);
+			
+			String[] criterias = getCriterias(analysisA, analysisB, analysisC, analysisD, analysisE).split("-");
+			result.setCriteriaMet(calculateCriteriaMet(result, finalResultCR, finalResultEN, finalResultVU));
+			result.setCriteriaCR(new CriteriaSet(ResultCategory.CR));
+			result.setCriteriaEN(new CriteriaSet(ResultCategory.EN));
+			result.setCriteriaVU(finalResultVU.getCriteriaSet());
+			
+			result.setNotEnoughData(criterias[0]);
+			// result.setEnoughData(criterias[1]);
+		}
+
+		else {
+			result = new ExpertResult(assessment);
+			result.setNotEnoughData(null);
+			result.setCriteriaMet(new CriteriaSet(ResultCategory.DD));
+			result.setResult(ResultCategory.DD);
+			result.setLeft(-1);
+			result.setRight(-1);
+			result.setBest(-1);
+		}
+
+		if (result != null)
+			println("Not enough data: {0}", result.getNotEnoughData());
+		
+		return result;
+	}
+
+	private CriteriaSet calculateCriteriaMet(ExpertResult result, CriteriaResult cr, CriteriaResult en, CriteriaResult vu) {
+		CriteriaSet criteriaSet = new CriteriaSet(ResultCategory.DD);
+
+		if (result.getResult() == ResultCategory.CR)
+			criteriaSet = cr.getCriteriaSet();
+		else if (result.getResult() == ResultCategory.EN)
+			criteriaSet = en.getCriteriaSet();
+		else if (result.getResult() == ResultCategory.VU)
+			criteriaSet = vu.getCriteriaSet();
+		
+		return criteriaSet;
 	}
 
 	private ExpertResult calculateResult(Range cr, Range en, Range vu, Assessment assessment) {
@@ -112,24 +206,18 @@ public class FuzzyExpImpl {
 		result.setRight(lines.get(2).x(rt));
 		result.setBest(lines.get(1).x(rt));
 		
-		println(
-				"This is highLine (" + lines.get(0).x1 + "," + lines.get(0).y1 + "), ("
-						+ lines.get(0).x2 + "," + lines.get(0).y2 + ")");
-		println(
-				"This is midLine (" + lines.get(1).x1 + "," + lines.get(1).y1 + "), ("
-						+ lines.get(1).x2 + "," + lines.get(1).y2 + ")");
-		println(
-				"This is lowLine (" +  lines.get(2).x1 + "," + lines.get(2).y1 + "), ("
-						+ lines.get(2).x2 + "," + lines.get(2).y2 + ")");
-
+		for (Line line : lines)
+			println("Calculated {0}line ({1},{2}), ({3},{4})", 
+					line.name, line.x1, line.y1, line.x2, line.y2);
+		
 		if (result.getBest() <= xCR) {
-			result.setResult("Critically Endangered");
+			result.setResult(ResultCategory.CR);
 		} else if (result.getBest() <= xEN) {
-			result.setResult("Endangered");
+			result.setResult(ResultCategory.EN);
 		} else if (result.getBest() <= xVU) {
-			result.setResult("Vulnerable");
+			result.setResult(ResultCategory.VU);
 		} else
-			result.setResult("Lower Risk");
+			result.setResult(ResultCategory.LR);
 		
 		println("Calculated result: {0}, {1}, {2}: {3}", result.getLeft(), 
 				result.getBest(), result.getRight(),  result.getResult());
@@ -155,42 +243,37 @@ public class FuzzyExpImpl {
 		double lowvu = vu.getLow();
 		double highvu = vu.getHigh();
 		double midvu = (lowvu + highvu) / 2;
-		println("LowCR: " + lowcr);
-		println("HighCR: " + highcr);
-		println("MidCR: " + midcr);
-		println("LowEN: " + lowen);
-		println("HighEN: " + highen);
-		println("MidEN: " + miden);
-		println("LowVU: " + lowvu);
-		println("HighVU: " + highvu);
-		println("MidVU: " + midvu);
+		
+		println("Line for CR: Low {0}, High {1}, Mid {2}", lowcr, highcr, midcr);
+		println("Line for EN: Low {0}, High {1}, Mid {2}", lowen, highen, miden);
+		println("Line for VU: Low {0}, High {1}, Mid {2}", lowvu, highvu, midvu);
 
 		if (highcr >= rt) {
-			lineHigh = new Line(x, xCR, y, highcr);
+			lineHigh = new Line("high", x, xCR, y, highcr);
 		} else if (highen >= rt) {
-			lineHigh = new Line(xCR, xEN, highcr, highen);
+			lineHigh = new Line("high", xCR, xEN, highcr, highen);
 		} else if (highvu >= rt) {
-			lineHigh = new Line(xEN, xVU, highen, highvu);
+			lineHigh = new Line("high", xEN, xVU, highen, highvu);
 		} else
-			lineHigh = new Line(xVU, xLR, highvu, yfinal);
+			lineHigh = new Line("high", xVU, xLR, highvu, yfinal);
 
 		if (midcr >= rt) {
-			lineMid = new Line(x, xCR, y, midcr);
+			lineMid = new Line("mid", x, xCR, y, midcr);
 		} else if (miden >= rt) {
-			lineMid = new Line(xCR, xEN, midcr, miden);
+			lineMid = new Line("mid", xCR, xEN, midcr, miden);
 		} else if (midvu >= rt) {
-			lineMid = new Line(xEN, xVU, miden, midvu);
+			lineMid = new Line("mid", xEN, xVU, miden, midvu);
 		} else
-			lineMid = new Line(xVU, xLR, midvu, yfinal);
+			lineMid = new Line("mid", xVU, xLR, midvu, yfinal);
 
 		if (lowcr >= rt) {
-			lineLow = new Line(x, xCR, y, lowcr);
+			lineLow = new Line("low", x, xCR, y, lowcr);
 		} else if (lowen >= rt) {
-			lineLow = new Line(xCR, xEN, lowcr, lowen);
+			lineLow = new Line("low", xCR, xEN, lowcr, lowen);
 		} else if (lowvu >= rt) {
-			lineLow = new Line(xEN, xVU, lowen, lowvu);
+			lineLow = new Line("low", xEN, xVU, lowen, lowvu);
 		} else
-			lineLow = new Line(xVU, xLR, lowvu, yfinal);
+			lineLow = new Line("low", xVU, xLR, lowvu, yfinal);
 
 		ArrayList<Line> returnVals = new ArrayList<Line>();
 		returnVals.add(lineHigh);
@@ -254,106 +337,7 @@ public class FuzzyExpImpl {
 		String value = result.toString();
 		
 		return "".equals(value) ? value : value.substring(1);
-	}
-
-	/**
-	 * Does the analysis of the current assessment. Returns an ExpertResult if
-	 * there is enough data, null otherwise.
-	 * 
-	 * @param assessment
-	 *            TODO
-	 * 
-	 * @return
-	 */
-	public ExpertResult doAnalysis(Assessment assessment) {
-		// GET ALL RANGES FOR SPECIFIC CRITERIA
-		AnalysisResult analysisA = doAnalysisA(assessment);
-		AnalysisResult analysisB = doAnalysisB(assessment);
-		AnalysisResult analysisC = doAnalysisC(assessment);
-		AnalysisResult analysisD = doAnalysisD(assessment);
-		AnalysisResult analysisE = doAnalysisE(assessment);
-
-		// DO FINAL RANGES FOR EACH CLASSIFICATION
-		CriteriaResult finalResultCR = finalResult(analysisA.CRResult,
-				analysisB.CRResult, analysisC.CRResult,
-				analysisD.CRResult, analysisE.CRResult);
-		CriteriaResult finalResultEN = finalResult(analysisA.ENResult,
-				analysisB.ENResult, analysisC.ENResult,
-				analysisD.ENResult, analysisE.ENResult);
-		CriteriaResult finalResultVU = finalResult(analysisA.VUResult,
-				analysisB.VUResult, analysisC.VUResult,
-				analysisD.VUResult, analysisE.VUResult);
-
-		// DO DT IF DIDN'T DO INDIVIDUALLY
-		if (!INDIVIDUALDT) {
-			finalResultCR.range = Range.dt(finalResultCR.range, dt);
-			finalResultEN.range = Range.dt(finalResultEN.range, dt);
-			finalResultVU.range = Range.dt(finalResultVU.range, dt);
-		}
-
-		println("Final Results...");
-		finalResultCR.printRange();
-		finalResultEN.printRange();
-		finalResultVU.printRange();
-		// GET RESULT WITH SPECIFIC RT
-
-		println("FINAL CR ----- {0}", finalResultCR.resultString);
-		println("FINAL EN ----- {0}", finalResultEN.resultString);
-		println("FINAL VU ----- {0}", finalResultVU.resultString);
-
-		final ExpertResult result;
-		if (finalResultCR.range != null && finalResultEN.range != null && finalResultVU.range != null) {
-			result = calculateResult(finalResultCR.range, finalResultEN.range, finalResultVU.range, assessment);
-			
-			String[] criterias = getCriterias(analysisA, analysisB, analysisC, analysisD, analysisE).split("-");
-			result.setCriteriaString(calculateCriteriaString(result, finalResultCR, finalResultEN, finalResultVU));
-			result.setCriteriaStringCR(finalResultCR.resultString);
-			result.setCriteriaStringEN(finalResultEN.resultString);
-			result.setCriteriaStringVU(finalResultVU.resultString);
-			
-			result.setNotEnoughData(criterias[0]);
-			// result.setEnoughData(criterias[1]);
-
-		} else if (finalResultEN.range != null && finalResultVU.range != null) {
-			result = calculateResult(newPretendRange(), finalResultEN.range, finalResultVU.range, assessment);
-			
-			String[] criterias = getCriterias(analysisA, analysisB, analysisC, analysisD, analysisE).split("-");
-			result.setCriteriaString(calculateCriteriaString(result, finalResultCR, finalResultEN, finalResultVU));
-			result.setCriteriaStringCR(null);
-			result.setCriteriaStringEN(finalResultEN.resultString);
-			result.setCriteriaStringVU(finalResultVU.resultString);
-			
-			result.setNotEnoughData(criterias[0]);
-		}
-
-		else if (finalResultVU.range != null) {
-			result = calculateResult(newPretendRange(), newPretendRange(), finalResultVU.range, assessment);
-			
-			String[] criterias = getCriterias(analysisA, analysisB, analysisC, analysisD, analysisE).split("-");
-			result.setCriteriaString(calculateCriteriaString(result, finalResultCR, finalResultEN, finalResultVU));
-			result.setCriteriaStringCR(null);
-			result.setCriteriaStringEN(null);
-			result.setCriteriaStringVU(finalResultVU.resultString);
-			
-			result.setNotEnoughData(criterias[0]);
-			// result.setEnoughData(criterias[1]);
-		}
-
-		else {
-			result = new ExpertResult(assessment);
-			result.setNotEnoughData(null);
-			result.setCriteriaString(null);
-			result.setResult(null);
-			result.setLeft(-1);
-			result.setRight(-1);
-			result.setBest(-1);
-		}
-
-		if (result != null)
-			println("Not enough data: {0}", result.getNotEnoughData());
-		// return result;
-		return result;
-	}
+	}	
 	
 	private Range newPretendRange() {
 		Range pretend = new Range();
@@ -457,9 +441,9 @@ public class FuzzyExpImpl {
 		);
 
 		// GET FINAL INFO FOR A
-		CriteriaResult crA = getFinalA("CR", resultCR1, resultCR2, resultCR3, resultCR4);
-		CriteriaResult enA = getFinalA("EN", resultEN1, resultEN2, resultEN3, resultEN4);
-		CriteriaResult vuA = getFinalA("VU", resultVU1, resultVU2, resultVU3, resultVU4);
+		CriteriaResult crA = getFinalA(ResultCategory.CR, resultCR1, resultCR2, resultCR3, resultCR4);
+		CriteriaResult enA = getFinalA(ResultCategory.EN, resultEN1, resultEN2, resultEN3, resultEN4);
+		CriteriaResult vuA = getFinalA(ResultCategory.VU, resultVU1, resultVU2, resultVU3, resultVU4);
 
 		analysis.addResult(resultCR1);
 		analysis.addResult(resultCR2);
@@ -495,9 +479,9 @@ public class FuzzyExpImpl {
 		CriteriaResult resultEN2 = endangered.b2(analyzeFactors(endangered.factorsB2, assessment));
 		CriteriaResult resultVU2 = vulnerable.b2(analyzeFactors(vulnerable.factorsB2, assessment));
 
-		CriteriaResult finalCRb = getFinalB("CR", resultCR1, resultCR2);
-		CriteriaResult finalENb = getFinalB("EN", resultEN1, resultEN2);
-		CriteriaResult finalVUb = getFinalB("VU", resultVU1, resultVU2);
+		CriteriaResult finalCRb = getFinalSimple(ResultCategory.CR, "B", resultCR1, resultCR2);
+		CriteriaResult finalENb = getFinalSimple(ResultCategory.EN, "B", resultEN1, resultEN2);
+		CriteriaResult finalVUb = getFinalSimple(ResultCategory.VU, "B", resultVU1, resultVU2);
 
 		analysis.addResult(resultCR1);
 		analysis.addResult(resultCR2);
@@ -555,7 +539,7 @@ public class FuzzyExpImpl {
 		// GET ALL ENTERED INFORMATION FOR D2
 		CriteriaResult resultVU2 = vulnerable.d2(analyzeFirstFactor(vulnerable.factorsD2, assessment));
 
-		CriteriaResult finalVU = getFinalD("VU", resultVU1, resultVU2);
+		CriteriaResult finalVU = getFinalSimple(ResultCategory.VU, "D", resultVU1, resultVU2);
 
 		analysis.addResult(resultCR);
 		analysis.addResult(resultEN);
@@ -579,32 +563,9 @@ public class FuzzyExpImpl {
 		return analysis;
 	}
 
-	private CriteriaResult finalResult(CriteriaResult a, CriteriaResult b, CriteriaResult c, CriteriaResult d,
+	private CriteriaResult finalResult(ResultCategory category, CriteriaResult a, CriteriaResult b, CriteriaResult c, CriteriaResult d,
 			CriteriaResult e) {
-		Range aRange = null;
-		Range bRange = null;
-		Range cRange = null;
-		Range dRange = null;
-		Range eRange = null;
-		if (a != null)
-			aRange = a.range;
-		if (b != null)
-			bRange = b.range;
-		if (c != null)
-			cRange = c.range;
-		if (d != null)
-			dRange = d.range;
-		if (e != null)
-			eRange = e.range;
-		Range result = Range.dependentOR(aRange, bRange);
-		result = Range.independentOR(result, cRange);
-		result = Range.independentOR(result, dRange);
-		result = Range.independentOR(result, eRange);
-
-		CriteriaResult r = getFinalA("All", "; ", a, b, c, d, e);
-		r.range = result;
-		
-		return r;
+		return getFinalA(category, a, b, c, d, e);
 	}
 	
 	private void parseCriteria(StringBuilder noData, StringBuilder data, int sizeCR, int sizeEN, int sizeVU, String append, ArrayList<CriteriaResult> list) {
@@ -670,91 +631,41 @@ public class FuzzyExpImpl {
 	 * @param d
 	 * @return
 	 */
-	private CriteriaResult getFinalA(String classification, CriteriaResult a, CriteriaResult b, CriteriaResult... more) {
-		return getFinalA(classification, "+", a, b, more);
-	}
-	
-	private CriteriaResult getFinalA(String classification, String append, CriteriaResult a, CriteriaResult b, CriteriaResult... more) {
-		CriteriaResult analysis = new CriteriaResult(classification, "A");
-
-		// DO COMBINING OF CRITERIA STRINGS
-		boolean startedString = false;
-		String returnString = "";
-		if (!a.resultString.equals("")) {
-			returnString = a.resultString;
-			startedString = true;
-		}
-		if (!b.resultString.equals("")) {
-			if (startedString) {
-				returnString += append + b.resultString.substring(SUB_LEN);
-			} else {
-				returnString = b.resultString;
-			}
-			startedString = true;
-		}
-		for (CriteriaResult c : more) {
-			if (!c.resultString.equals("")) {
-				if (startedString) {
-					returnString += append + c.resultString.substring(SUB_LEN);
-				} else {
-					returnString = c.resultString;
-				}
-				startedString = true;
-			}
-		}
-		
-		analysis.resultString = returnString;
+	private CriteriaResult getFinalA(ResultCategory category, CriteriaResult a, CriteriaResult b, CriteriaResult... more) {
+		//Do combining of criteria
+		List<CriteriaSet> sets = new ArrayList<CriteriaSet>();
+		sets.add(a.getCriteriaSet());
+		sets.add(b.getCriteriaSet());
+		for (CriteriaResult result : more)
+			sets.add(result.getCriteriaSet());
 		
 		// DO COMBINING OF RANGES		
 		Range result = Range.dependentOR(a.range, b.range);
 		for (CriteriaResult c : more)
 			result = Range.independentOR(result, c.range);
+		
+		CriteriaResult analysis = new CriteriaResult(category, "A");
 		analysis.range = result;
+		analysis.getCriteriaSet().merge(sets);
 		
 		analysis.printRange();
 		
 		return analysis;
 	}
 
-	private CriteriaResult getFinalB(String classification, CriteriaResult a, CriteriaResult b) {
-		return getFinalSimple(classification, "B", a, b);
-	}
-
-	private CriteriaResult getFinalC(String classification, CriteriaResult a, CriteriaResult b) {
-		return getFinalSimple(classification, "C", a, b);
-	}
-
-	private CriteriaResult getFinalD(String classification, CriteriaResult a, CriteriaResult b) {
-		return getFinalSimple(classification, "D", a, b);
-	}
-	
-	private CriteriaResult getFinalSimple(String classification, String category, CriteriaResult a, CriteriaResult b) {
-		CriteriaResult analysis = new CriteriaResult(classification, category);
+	private CriteriaResult getFinalSimple(ResultCategory category, String criterion, CriteriaResult a, CriteriaResult b) {
 		Range result = Range.independentOR(a.range, b.range);
-		
-		// DO COMBINING OF CRITERIA STRINGS
-		boolean startedString = false;
-		String returnString = "";
-		if (!a.resultString.equals("")) {
-			returnString = a.resultString;
-			startedString = true;
-		}
-		if (!b.resultString.equals("")) {
-			if (startedString) {
-				returnString += "+" + b.resultString.substring(SUB_LEN);
-			} else {
-				returnString = b.resultString;
-			}
-			startedString = true;
-		}
 
+		CriteriaResult analysis = new CriteriaResult(category, criterion);
+		analysis.getCriteriaSet().merge(a.getCriteriaSet(), b.getCriteriaSet());
 		analysis.range = result;
-		analysis.resultString = returnString;
+		
 		analysis.printRange();
+		
 		return analysis;
 	}
 	
-	private void println(String template, Object... obj) {
+	private static void println(String template, Object... obj) {
 		if (VERBOSE)
 			Debug.println(template, obj);
 	}

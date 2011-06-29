@@ -24,8 +24,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
  */
 public class ExpertPanel extends LayoutContainer {
 	
-	public final static String titleText = "Criteria Generator";
-	
 	private HTML title;
 	private HorizontalPanel expertBar;
 	private HTML criteria;
@@ -37,12 +35,6 @@ public class ExpertPanel extends LayoutContainer {
 	private String criteriaConstant;
 	private HTML range;
 	private VerticalPanel centerWidget;
-	
-	public final int xDD = 0;
-	public final int xCR = 100;
-	public final int xEN = 200;
-	public final int xVU = 300;
-	public final int xLR = 400;
 
 	public ExpertPanel() {
 		super();
@@ -153,11 +145,11 @@ public class ExpertPanel extends LayoutContainer {
 	}
 
 	private String getCriteria(int criteria) {
-		if (criteria <= xCR)
+		if (criteria <= FuzzyExpImpl.xCR)
 			return "Critically Endangered";
-		else if (criteria <= xEN)
+		else if (criteria <= FuzzyExpImpl.xEN)
 			return "Endangered";
-		else if (criteria <= xVU)
+		else if (criteria <= FuzzyExpImpl.xVU)
 			return "Vulnerable";
 		else
 			return "Least Concern";
@@ -218,16 +210,17 @@ public class ExpertPanel extends LayoutContainer {
 			bestInt = result.getBest();
 			rightInt = result.getRight();
 			
-			CRString = result.getCriteriaStringCR();
-			ENString = result.getCriteriaStringEN();
-			VUString = result.getCriteriaStringVU();
+			CRString = result.getCriteriaCR().toString();
+			ENString = result.getCriteriaEN().toString();
+			VUString = result.getCriteriaVU().toString();
 			
 			criteriaStr = result.getCriteriaString();
 		} else {
 			leftInt = Integer.valueOf(expertResults[0]).intValue();
 			bestInt = Integer.valueOf(expertResults[1]).intValue();
 			rightInt = Integer.valueOf(expertResults[2]).intValue();
-			
+		
+			//FIXME: get this from the database
 			CRString = ENString = VUString = "N/A";
 			
 			criteriaStr = assessment.getCategoryCriteria();

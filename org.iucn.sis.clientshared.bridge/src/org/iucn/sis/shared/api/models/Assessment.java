@@ -410,11 +410,8 @@ public class Assessment implements Serializable, AuthorizableObject {
 	}
 	
 	public String getCategoryFuzzyResult() {
-		Field field = getField(CanonicalNames.RedListFuzzyResult);
-		if (field == null)
-			return "";
-		else
-			return field.getPrimitiveField("text").getRawValue();
+		ProxyField field = new ProxyField(getField(CanonicalNames.RedListFuzzyResult));
+		return field.getStringPrimitiveField("text");
 	}
 	
 	public String getCategoryCriteria() {

@@ -2,6 +2,8 @@ package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
+
 /**
  * Represents the critically endangered class
  * 
@@ -44,7 +46,7 @@ class CR extends Classification {
 	public final String[] factorsE = new String[] { Factors.extinctionGenerations3 };
 
 	public CR() {
-		super("CR");
+		super(ResultCategory.CR);
 		// A1, A2, A3, or A4 must be true in order for A to be true
 		aPopulationReductionPast1 = 90; // >=
 		aPopulationReductionPast2 = 80; // >=

@@ -15,6 +15,7 @@ import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveFie
 import org.iucn.sis.shared.api.models.primitivefields.RangePrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
@@ -28,14 +29,14 @@ public class ExpertSystem extends BasicTest {
 	
 	static AtomicInteger idGenerator = new AtomicInteger(0);
 	
+	@BeforeClass
+	public static void setup() {
+		FuzzyExpImpl.VERBOSE = true;
+	}
+	
 	@Test
 	public void tryIt() {
-		Assessment assessment = getAssessment("A1854815");
-		
-		FuzzyExpImpl impl = new FuzzyExpImpl();
-		impl.VERBOSE = true;
-		
-		run(assessment, impl);
+		run(getAssessment("A1854815"));
 	}
 	
 	@Test
@@ -57,9 +58,6 @@ public class ExpertSystem extends BasicTest {
 			newFKList("value", 1, 4)	
 		));
 		
-		FuzzyExpImpl impl = new FuzzyExpImpl();
-		impl.VERBOSE = true;
-		
 		int index = 0;
 		String[] crit = new String[] { "CR", "EN", "VU", "DD" };
 		String[] cat = new String[] { "A1ad", "A1ad", "A1ad", "" };
@@ -67,7 +65,7 @@ public class ExpertSystem extends BasicTest {
 			Field field = assessment.getField(CanonicalNames.PopulationReductionPast);
 			field.getPrimitiveField("range").setRawValue(value);
 			
-			ExpertResult result = run(assessment, impl);
+			ExpertResult result = run(assessment);
 			Assert.assertEquals(cat[index], result.getCriteriaString());
 			Assert.assertEquals(crit[index++], result.getAbbreviatedCategory());
 		}
@@ -92,9 +90,6 @@ public class ExpertSystem extends BasicTest {
 			newFKList("value", 1, 4)
 		));
 		
-		FuzzyExpImpl impl = new FuzzyExpImpl();
-		impl.VERBOSE = true;
-		
 		int index = 0;
 		String[] crit = new String[] { "CR", "EN", "VU", "DD" };
 		String[] cat = new String[] { "A2ad", "A2ad", "A2ad", "" };
@@ -102,7 +97,7 @@ public class ExpertSystem extends BasicTest {
 			Field field = assessment.getField(CanonicalNames.PopulationReductionPast);
 			field.getPrimitiveField("range").setRawValue(value);
 			
-			ExpertResult result = run(assessment, impl);
+			ExpertResult result = run(assessment);
 			Assert.assertEquals(cat[index], result.getCriteriaString());
 			Assert.assertEquals(crit[index++], result.getAbbreviatedCategory());
 		}
@@ -118,9 +113,6 @@ public class ExpertSystem extends BasicTest {
 			newFKList("value", 3)
 		));
 		
-		FuzzyExpImpl impl = new FuzzyExpImpl();
-		impl.VERBOSE = true;
-		
 		int index = 0;
 		String[] crit = new String[] { "CR", "EN", "VU", "DD" };
 		String[] cat = new String[] { "A3d", "A3d", "A3d", "" };
@@ -128,10 +120,53 @@ public class ExpertSystem extends BasicTest {
 			Field field = assessment.getField(CanonicalNames.PopulationReductionFuture);
 			field.getPrimitiveField("range").setRawValue(value);
 			
-			ExpertResult result = run(assessment, impl);
+			ExpertResult result = run(assessment);
 			Assert.assertEquals(cat[index], result.getCriteriaString());
 			Assert.assertEquals(crit[index++], result.getAbbreviatedCategory());
 		}
+	}
+	
+	@Test
+	public void goodB1() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.EOO, 
+			new RangePrimitiveField("range", null, "50")
+		));
+		assessment.getField().add(newField(CanonicalNames.SevereFragmentation, 
+			new BooleanRangePrimitiveField("isFragmented", null, "1")	
+		));
+		assessment.getField().add(newField(CanonicalNames.AOOContinuingDecline, 
+			new BooleanRangePrimitiveField("isInContinuingDecline", null, "1")	
+		));
+		
+		ExpertResult result = run(assessment);
+		
+		Assert.assertEquals(result.getAbbreviatedCategory(), "CR");
+		Assert.assertEquals(result.getCriteriaString(), "B1ab(ii)");
+	}
+	
+	@Test
+	public void goodB1B2() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.EOO, 
+			new RangePrimitiveField("range", null, "50")
+		));
+		assessment.getField().add(newField(CanonicalNames.AOO, 
+			new RangePrimitiveField("range", null, "5")
+		));
+		assessment.getField().add(newField(CanonicalNames.SevereFragmentation, 
+			new BooleanRangePrimitiveField("isFragmented", null, "1")	
+		));
+		assessment.getField().add(newField(CanonicalNames.AOOContinuingDecline, 
+			new BooleanRangePrimitiveField("isInContinuingDecline", null, "1")	
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "999")));
+		
+		ExpertResult result = run(assessment);
+		
+		Assert.assertEquals(result.getAbbreviatedCategory(), "CR");
+		Assert.assertEquals(result.getCriteriaString(), "B1ab(ii)+2ab(ii)");
 	}
 	
 	@Test
@@ -143,10 +178,8 @@ public class ExpertSystem extends BasicTest {
 			new BooleanRangePrimitiveField("isFluctuating", null, "1")	
 		));
 		
-		FuzzyExpImpl impl = new FuzzyExpImpl();
-		impl.VERBOSE = true;
+		ExpertResult result = run(assessment);
 		
-		ExpertResult result = run(assessment, impl);
 		Assert.assertFalse("C2b".equals(result.getCriteriaString()));
 	}
 	
@@ -162,11 +195,34 @@ public class ExpertSystem extends BasicTest {
 			new BooleanRangePrimitiveField("isDeclining", null, "1")
 		));
 		
-		FuzzyExpImpl impl = new FuzzyExpImpl();
-		impl.VERBOSE = true;
-		
-		ExpertResult result = run(assessment, impl);
+		ExpertResult result = run(assessment);
 		Assert.assertTrue("C2b".equals(result.getCriteriaString()));
+	}
+	
+	@Test
+	public void goodD() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "45")
+		));
+		
+		String[] cat = new String[] { "CR", "EN", "VU", "LC", "DD" };
+		String[] crit = new String[] { "D", "D", "D1", "", "" };
+		
+		for (int i = 0; i < cat.length; i++) {
+			if (i == 1)
+				assessment.getField(CanonicalNames.PopulationSize).getPrimitiveField("range").setRawValue("245");
+			else if (i == 2)
+				assessment.getField(CanonicalNames.PopulationSize).getPrimitiveField("range").setRawValue("545");
+			else if (i == 3)
+				assessment.getField(CanonicalNames.PopulationSize).getPrimitiveField("range").setRawValue("5000");
+			else if (i == 4)
+				assessment.getField().remove(assessment.getField(CanonicalNames.PopulationSize));
+			
+			ExpertResult result = run(assessment);
+			Assert.assertEquals(cat[i], result.getAbbreviatedCategory());
+			Assert.assertEquals(crit[i], result.getCriteriaString());
+		}
 	}
 	
 	@Test
@@ -182,11 +238,8 @@ public class ExpertSystem extends BasicTest {
 			new RangePrimitiveField("range", null, "15")
 		));
 		
-		FuzzyExpImpl impl = new FuzzyExpImpl();
-		impl.VERBOSE = true;
-		
-		String[] cat = new String[] { "CR", "EN", "VU", "LC" };
-		String[] crit = new String[] { "E", "E", "E", "" };
+		String[] cat = new String[] { "CR", "EN", "VU", "LC", "DD" };
+		String[] crit = new String[] { "E", "E", "E", "", "" };
 		
 		for (int i = 0; i < crit.length; i++) {
 			if (i == 1) 
@@ -195,15 +248,14 @@ public class ExpertSystem extends BasicTest {
 				assessment.getField().remove(assessment.getField(CanonicalNames.ExtinctionProbabilityGenerations5));
 			else if (i == 3)
 				assessment.getField(CanonicalNames.ExtinctionProbabilityYears100).getPrimitiveField("range").setRawValue("5");
+			else if (i == 4)
+				assessment.getField().remove(assessment.getField(CanonicalNames.ExtinctionProbabilityYears100));
 			
-			ExpertResult result = run(assessment, impl);
+			ExpertResult result = run(assessment);
 			
 			Assert.assertEquals(cat[i], result.getAbbreviatedCategory());
 			Assert.assertEquals(crit[i], result.getCriteriaString());
 		}
-		
-		
-		
 	}
 	
 	private Field newField(String name, PrimitiveField<?>... prims) {
@@ -232,14 +284,15 @@ public class ExpertSystem extends BasicTest {
 		
 	}
 	
-	private ExpertResult run(Assessment assessment, FuzzyExpImpl impl) {
+	private ExpertResult run(Assessment assessment) {
 		System.out.println("----- Begin Test -----");
 		
+		FuzzyExpImpl impl = new FuzzyExpImpl();
 		ExpertResult result = impl.doAnalysis(assessment);
-		Debug.println("Result: " + result.getCriteriaString());
-		Debug.println("CR: " + result.getCriteriaStringCR());
-		Debug.println("EN: " + result.getCriteriaStringEN());
-		Debug.println("VU: " + result.getCriteriaStringVU());
+		Debug.println("Result: {0} -> {1}", result.getAbbreviatedCategory(), result.getCriteriaString());
+		Debug.println("CR: {0} -> {1}", result.getCriteriaCR(), result.getCriteriaCR().getCriteria());
+		Debug.println("EN: {0} -> {1}", result.getCriteriaEN(), result.getCriteriaEN().getCriteria());
+		Debug.println("VU: {0} -> {1}", result.getCriteriaVU(), result.getCriteriaVU().getCriteria());
 		
 		System.out.println("----- Done Test -----");
 		

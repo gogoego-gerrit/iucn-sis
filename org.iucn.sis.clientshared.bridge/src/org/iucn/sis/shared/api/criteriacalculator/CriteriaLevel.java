@@ -7,9 +7,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
-
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class CriteriaLevel implements Comparable<CriteriaLevel> {
@@ -26,18 +23,26 @@ public class CriteriaLevel implements Comparable<CriteriaLevel> {
 	private final String code;
 	private final int level;
 	private final String separator;
-	private final List<CriteriaLevel> children;
+	private final Map<String, CriteriaLevel> children;
 	
 	public CriteriaLevel(String code) {
 		this.code = code;
 		this.level = calculateLevel();
-		this.separator = level > 0 ? SEPARATORS[level-1] : ",";
-		this.children = new ArrayList<CriteriaLevel>();
+		this.separator = level > 0 ? SEPARATORS[level-1] : ";";
+		this.children = new HashMap<String, CriteriaLevel>();
 		this.comparator = new PortableAlphanumericComparator();
 	}
 	
 	public void add(CriteriaLevel level) {
-		children.add(level);
+		children.put(level.getCode(), level);
+	}
+	
+	public boolean contains(String code) {
+		return children.containsKey(code);
+	}
+	
+	public CriteriaLevel getChild(String code) {
+		return children.get(code);
 	}
 	
 	public int getLevel() {
@@ -63,6 +68,7 @@ public class CriteriaLevel implements Comparable<CriteriaLevel> {
 	
 	@Override
 	public String toString() {
+		List<CriteriaLevel> children = new ArrayList<CriteriaLevel>(this.children.values());
 		Collections.sort(children);
 		
 		final StringBuilder out = new StringBuilder();
@@ -85,54 +91,6 @@ public class CriteriaLevel implements Comparable<CriteriaLevel> {
 			return 1;
 		else
 			return comparator.compare(code, o.getCode());
-	}
-	
-	public static CriteriaLevel parse(Field field, String category) {
-		Map<String, Map<String, CriteriaLevel>> graphs = new HashMap<String, Map<String,CriteriaLevel>>();
-		
-		Map<String,CriteriaLevel> graph = null;
-		
-		CriteriaLevel head = new CriteriaLevel("");
-		CriteriaLevel current = head;
-		
-		for (PrimitiveField<String> prim : field.getPrimitiveField()) {
-			String name = prim.getName();
-			if (!CriteriaLevel.L1.contains(name.charAt(0)+"") || !category.equals(prim.getValue()))
-				continue;
-			
-			graph = graphs.get("" + name.charAt(0));
-			if (graph == null) {
-				graph = new HashMap<String, CriteriaLevel>();
-				graphs.put("" + name.charAt(0), graph);
-			}
-			
-			StringBuilder buf = new StringBuilder(3);
-			
-			char[] chars = name.toCharArray();
-			for (int i = 0; i < chars.length; i++) {
-				char c = chars[i];
-				buf.append(c);
-				if (CriteriaLevel.L4.contains(buf.toString()) && i+1 < chars.length) {
-					continue;
-				}
-				else {
-					CriteriaLevel level = graph.get(buf.toString());
-					if (level == null) {
-						level = new CriteriaLevel(buf.toString());
-					
-						graph.put(buf.toString(), level);
-					
-						current.add(level);
-					}
-					current = level;
-				}
-				buf = new StringBuilder(3);
-			}
-			
-			current = head;
-		}
-		
-		return head;
 	}
 
 }

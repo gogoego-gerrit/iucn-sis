@@ -2,12 +2,34 @@ package core;
 
 import junit.framework.Assert;
 
-import org.iucn.sis.shared.api.criteriacalculator.CriteriaLevel;
+import org.iucn.sis.shared.api.criteriacalculator.CriteriaSet;
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.junit.Test;
 
 public class CriteriaLevelTest {
+	
+	/*
+	 * This is probably about as complicated as it gets...
+	 */
+	@Test
+	public void testMultipleB() {
+		Field B1abii = new Field();
+		B1abii.addPrimitiveField(new StringPrimitiveField("B1a", B1abii, "CR"));
+		B1abii.addPrimitiveField(new StringPrimitiveField("B1bii", B1abii, "CR"));
+		
+		check("B1ab(ii)", B1abii, "CR");
+		
+		Field B1abii2abii = new Field();
+		B1abii2abii.addPrimitiveField(new StringPrimitiveField("B1a", B1abii2abii, "CR"));
+		B1abii2abii.addPrimitiveField(new StringPrimitiveField("B1bii", B1abii2abii, "CR"));
+		B1abii2abii.addPrimitiveField(new StringPrimitiveField("B2a", B1abii2abii, "CR"));
+		B1abii2abii.addPrimitiveField(new StringPrimitiveField("B2bii", B1abii2abii, "CR"));
+		B1abii2abii.addPrimitiveField(new StringPrimitiveField("B2biv", B1abii2abii, "CR"));
+		
+		check("B1ab(ii)+2ab(ii,iv)", B1abii2abii, "CR");
+	}
 	
 	@Test
 	public void testC() {
@@ -20,6 +42,15 @@ public class CriteriaLevelTest {
 		C2ai.addPrimitiveField(new StringPrimitiveField("C2ai", C2ai, "CR"));
 		
 		check("C2a(i)", C2ai, "CR");
+		
+		Field E = new Field();
+		E.addPrimitiveField(new StringPrimitiveField("E", E, "CR"));
+		
+		check("E", E, "CR");
+		
+		String manual = new CriteriaSet(ResultCategory.CR, "E").toString();
+		
+		Assert.assertEquals("E", manual);
 	}
 	
 	@Test
@@ -49,7 +80,7 @@ public class CriteriaLevelTest {
 		
 		ABC.addPrimitiveField(new StringPrimitiveField("D", ABC, "CR"));
 		
-		check("C1+2a(i,ii)b,D", ABC, "CR");
+		check("C1+2a(i,ii)b;D", ABC, "CR");
 		
 		ABC.addPrimitiveField(new StringPrimitiveField("A2", ABC, "CR"));
 		ABC.addPrimitiveField(new StringPrimitiveField("A1c", ABC, "CR"));
@@ -57,14 +88,35 @@ public class CriteriaLevelTest {
 		ABC.addPrimitiveField(new StringPrimitiveField("B1a", ABC, "CR"));
 		ABC.addPrimitiveField(new StringPrimitiveField("B2biv", ABC, "CR"));
 		
-		check("A1bc+2,B1a+2b(iv),C1+2a(i,ii)b,D", ABC, "CR");
+		check("A1bc+2;B1a+2b(iv);C1+2a(i,ii)b;D", ABC, "CR");
+	}
+	
+	@Test
+	public void testLevels() {
+		Field levels = new Field();
+		levels.addPrimitiveField(new StringPrimitiveField("A2", levels, "VU"));
+		levels.addPrimitiveField(new StringPrimitiveField("D", levels, "EN"));
+		
+		check("", levels, "CR");
+		
+		check("D", levels, "EN");
+		
+		check("A2;D", levels, "VU");
+		
+		Field high = new Field();
+		high.addPrimitiveField(new StringPrimitiveField("A2", high, "CR"));
+		high.addPrimitiveField(new StringPrimitiveField("D", high, "CR"));
+		high.addPrimitiveField(new StringPrimitiveField("E", high, "CR"));
+		high.addPrimitiveField(new StringPrimitiveField("B2ciii", high, "CR"));
+		
+		check("A2;B2c(iii);D;E", high, "VU");
 	}
 	
 	private void check(String expected, Field field, String category) {
-		CriteriaLevel l = CriteriaLevel.parse(field, category);
+		CriteriaSet set = new CriteriaSet(ResultCategory.fromString(category), field);
 		
-		String str = l.toString();
-		System.out.println(str);
+		String str = set.toString();
+		System.out.println(str + " -> " + set.getCriteria());
 		
 		Assert.assertEquals(expected, str);
 	}

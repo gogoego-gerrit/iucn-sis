@@ -259,7 +259,7 @@ public class DEMToolbar extends ToolBar {
 
 		MenuItem mItem = new MenuItem();
 		mItem.setIconStyle("icon-expert");
-		mItem.setText("Quick " + ExpertPanel.titleText + " Result");
+		mItem.setText("Quick Criteria Generator Result");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				if (AssessmentCache.impl.getCurrentAssessment() == null) {
@@ -269,7 +269,7 @@ public class DEMToolbar extends ToolBar {
 				ExpertPanel expertPanel = new ExpertPanel();
 				expertPanel.update();
 
-				Window s = WindowUtils.newWindow(ExpertPanel.titleText, null, false, true);
+				Window s = WindowUtils.newWindow("Criteria Generator", null, false, true);
 				s.setLayout(new BorderLayout());
 				s.add(new Html("&nbsp"), new BorderLayoutData(LayoutRegion.WEST, 20));
 				s.add(new Html("&nbsp"), new BorderLayoutData(LayoutRegion.NORTH, 5));

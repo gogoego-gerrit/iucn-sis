@@ -1,13 +1,15 @@
 package org.iucn.sis.shared.api.criteriacalculator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 
 
 public abstract class Classification {
 	
-	protected final String name;
+	protected final ResultCategory name;
 	
 	// RANGES FOR EACH CRITERIA
 	public Range a1;
@@ -43,13 +45,8 @@ public abstract class Classification {
 	
 	protected int eExtinctionGenerations;
 	
-	public Classification(String name) {
+	public Classification(ResultCategory name) {
 		this.name = name;
-	}
-	
-	protected void println(String template, Object... args) {
-		if (FuzzyExpImpl.VERBOSE)
-			Debug.println(template, args);
 	}
 	
 	public CriteriaResult a1(HashMap<String, Range> factors, String populationReductionPastBasis) {
@@ -70,8 +67,8 @@ public abstract class Classification {
 
 		a1 = result;
 		returnResult.range = result;
-		returnResult.resultString = createAString(result, csv, "1");
-		if (returnResult.resultString.equals(""))
+		returnResult.setCriteriaSet(createAString(result, csv, "1"));
+		if (returnResult.getResultString().equals(""))
 			returnResult.range = null;
 		
 		returnResult.printRange();
@@ -102,8 +99,8 @@ public abstract class Classification {
 		}
 		a2 = result;
 		returnResult.range = result;
-		returnResult.resultString = createAString(result, csv, "2");
-		if (returnResult.resultString.equals(""))
+		returnResult.setCriteriaSet(createAString(result, csv, "2"));
+		if (returnResult.getResultString().equals(""))
 			returnResult.range = null;
 		
 		returnResult.printRange();
@@ -122,8 +119,8 @@ public abstract class Classification {
 		}
 		a3 = result;
 		returnResult.range = result;
-		returnResult.resultString = createA3String(result, csv);
-		if (returnResult.resultString.equalsIgnoreCase(""))
+		returnResult.setCriteriaSet(createA3String(result, csv));
+		if (returnResult.getResultString().equals(""))
 			returnResult.range = null;
 		
 		returnResult.printRange();
@@ -152,8 +149,8 @@ public abstract class Classification {
 		}
 		a4 = result;
 		returnResult.range = result;
-		returnResult.resultString = createAString(result, csv, "4");
-		if (returnResult.resultString.equalsIgnoreCase(""))
+		returnResult.setCriteriaSet(createAString(result, csv, "4"));
+		if (returnResult.getResultString().equals(""))
 			returnResult.range = null;
 		
 		returnResult.printRange();
@@ -162,121 +159,23 @@ public abstract class Classification {
 	}
 	
 	public CriteriaResult b1(HashMap<String, Range> factors) {
-		CriteriaResult returnResult = new CriteriaResult(name, "b1");
-		Range result = null;
-		returnResult.resultString = "";
-
 		Range extent = (Range) factors.get(Factors.extent);
 		Range and1 = Range.lessthan(extent, bExtent);
 
-		// EXTENT < 100
-		if (and1 != null && !Range.isConstant(and1, 0)) {
-
-			Range sf = (Range) factors.get(Factors.severeFragmentation);
-			Range loc = (Range) factors.get(Factors.locations);
-			loc = Range.equals(loc, bLocations);
-			Range or1 = Range.independentOR(sf, loc);
-
-			Range ed = (Range) factors.get(Factors.extentDecline);
-			Range ad = (Range) factors.get(Factors.areaDecline);
-			Range hd = (Range) factors.get(Factors.habitatDecline);
-			Range ld = (Range) factors.get(Factors.locationDecline);
-			Range sd = (Range) factors.get(Factors.subpopulationDecline);
-			Range pd = (Range) factors.get(Factors.populationDecline);
-			Range or2 = Range.independentOR(ed, ad);
-			or2 = Range.independentOR(or2, hd);
-			or2 = Range.independentOR(or2, ld);
-			or2 = Range.independentOR(or2, sd);
-			or2 = Range.independentOR(or2, pd);
-
-			Range ef = (Range) factors.get(Factors.extentFluctuation);
-			Range af = (Range) factors.get(Factors.areaFluctuation);
-			Range lf = (Range) factors.get(Factors.locationFluctuation);
-			Range sef = (Range) factors.get(Factors.subpopulationFluctuation);
-			Range pf = (Range) factors.get(Factors.populationFluctuation);
-			Range or3 = Range.independentOR(ef, af);
-			or3 = Range.independentOR(or3, lf);
-			or3 = Range.independentOR(or3, sef);
-			or3 = Range.independentOR(or3, pf);
-
-			if ((or1 != null && !Range.isConstant(or1, 0)) && (or2 != null && !Range.isConstant(or2, 0))
-					&& (or3 != null && !Range.isConstant(or3, 0))) {
-
-				Range and = Range.independentAND(and1, or1);
-				and = Range.independentAND(and, or2);
-				and = Range.independentAND(and, or3);
-				b1 = and;
-				returnResult.range = and;
-				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-					returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-
-			} else if (or1 != null && !Range.isConstant(or1, 0)) {
-
-				if (or2 != null && !Range.isConstant(or2, 0)) {
-					Range and = Range.independentAND(and1, or1);
-					and = Range.independentAND(and, or2);
-					b1 = and;
-					returnResult.range = and;
-					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-						returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				} else if (or3 != null && !Range.isConstant(or3, 0)) {
-					Range and = Range.independentAND(and1, or1);
-					and = Range.independentAND(and, or3);
-					b1 = and;
-					returnResult.range = and;
-					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-						returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				}
-
-				// NOT ENOUGH DATA
-				else {
-					b1 = result;
-					returnResult.range = result;
-					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-						returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				}
-			}
-
-			else if ((or2 != null && !Range.isConstant(or2, 0)) && (or3 != null && !Range.isConstant(or3, 0))) {
-				Range and = Range.independentAND(and1, or2);
-				and = Range.independentAND(and, or3);
-				b1 = and;
-				returnResult.range = and;
-				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-					returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-			}
-
-			// NOT ENOUGH DATA
-			else {
-				b1 = result;
-				returnResult.range = result;
-				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-					returnResult.resultString = createBString("1", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-			}
-
-		}
-		// EXTENT >= 100
-		else {
-			b1 = result;
-			returnResult.range = result;
-		}
-		
-		returnResult.printRange();
-		
-		return returnResult;
+		return b(factors, and1, "1");
 	}
 	
 	public CriteriaResult b2(HashMap<String, Range> factors) {
-		CriteriaResult returnResult = new CriteriaResult(name, "b2");
-		Range result = null;
-		returnResult.resultString = "";
-
 		Range area = (Range) factors.get(Factors.area);
 		Range and1 = Range.lessthan(area, bArea);
-
-		// EXTENT < 100
-		if (and1 != null && !Range.isConstant(and1, 0)) {
-
+		
+		return b(factors, and1, "2");
+	}
+	
+	private CriteriaResult b(HashMap<String, Range> factors, Range and1, String number) {
+		CriteriaResult returnResult = new CriteriaResult(name, "b"+number);
+		
+		if (isNonZero(and1)) {
 			Range sf = (Range) factors.get(Factors.severeFragmentation);
 			Range loc = (Range) factors.get(Factors.locations);
 			loc = Range.equals(loc, bLocations);
@@ -310,63 +209,59 @@ public abstract class Classification {
 				Range and = Range.independentAND(and1, or1);
 				and = Range.independentAND(and, or2);
 				and = Range.independentAND(and, or3);
-				b2 = and;
+				
 				returnResult.range = and;
-				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-					returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
+				if (isNonZero(returnResult.range))
+					returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
 
 			} else if (or1 != null && !Range.isConstant(or1, 0)) {
-
 				if (or2 != null && !Range.isConstant(or2, 0)) {
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or2);
-					b2 = and;
+					
 					returnResult.range = and;
-					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-						returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
+					if (isNonZero(returnResult.range))
+						returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
 					
 				} else if (or3 != null && !Range.isConstant(or3, 0)) {
 					Range and = Range.independentAND(and1, or1);
 					and = Range.independentAND(and, or3);
-					b2 = and;
-					returnResult.range = and;
-					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-						returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
 					
+					returnResult.range = and;
+					if (isNonZero(returnResult.range))
+						returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
 				}
-
 				// NOT ENOUGH DATA
 				else {
-					b2 = result;
-					if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-						returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
-				
+					returnResult.range = null;
+					if (isNonZero(returnResult.range))
+						returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
 				}
 			}
 
 			else if ((or2 != null && !Range.isConstant(or2, 0)) && (or3 != null && !Range.isConstant(or3, 0))) {
 				Range and = Range.independentAND(and1, or2);
 				and = Range.independentAND(and, or3);
-				b2 = and;
 				returnResult.range = and;
-				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-					returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
+				if (isNonZero(returnResult.range))
+					returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
 			}
 
 			// NOT ENOUGH DATA
 			else {
-				b2 = result;
-				returnResult.range = result;
-				if (returnResult.range != null && !Range.isConstant(returnResult.range, 0))
-					returnResult.resultString = createBString("2", sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf);
+				returnResult.range = null;
+				if (isNonZero(returnResult.range))
+					returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
 			}
-
 		}
-		// EXTENT >= 100
 		else {
-			b2 = result;
-			returnResult.range = result;
+			returnResult.range = null;
 		}
+		
+		if ("1".equals(number))
+			b1 = returnResult.range;
+		else if ("2".equals(number))
+			b2 = returnResult.range;
 		
 		returnResult.printRange();
 		
@@ -377,7 +272,6 @@ public abstract class Classification {
 	
 	public CriteriaResult c(HashMap<String, Range> factors, String declineGenFactor) {
 		CriteriaResult returnResult = new CriteriaResult(name, "c");
-		returnResult.resultString = "";
 
 		Range ps = factors.get(Factors.populationSize);
 		Range ps1 = Range.lessthan(ps, cPopulationSize);
@@ -400,9 +294,9 @@ public abstract class Classification {
 
 		c = result;
 		returnResult.range = result;
-		if (result != null && (!Range.isConstant(result, 0))) {
-			returnResult.resultString = createCString(pdg1, sps, div, pf);
-		}
+		
+		if (isNonZero(result))
+			returnResult.setCriteriaSet(createCString(pdg1, sps, div, pf));
 		
 		returnResult.printRange();
 		
@@ -414,11 +308,10 @@ public abstract class Classification {
 		CriteriaResult returnResult = new CriteriaResult(name, "d");
 		d = Range.lessthan(ps, dPopulationSize);
 		returnResult.range = d;
-
-		if ((d != null) && (!(Range.isConstant(d, 0)))) {
-			returnResult.resultString = "D";
-		}
 		
+		if (isNonZero(d))
+			returnResult.setCriteriaSet(new CriteriaSet(name, "D"));
+
 		returnResult.printRange();
 		
 		return returnResult;
@@ -428,223 +321,96 @@ public abstract class Classification {
 		CriteriaResult returnResult = new CriteriaResult(name, "e");
 		e = Range.greaterthanequal(eg3, eExtinctionGenerations);
 		returnResult.range = e;
-		if ((e != null) && (!(Range.isConstant(e, 0)))) {
-			returnResult.resultString = "E";
-		}
+		
+		if (isNonZero(e))
+			returnResult.setCriteriaSet(new CriteriaSet(name, "E"));
 		
 		returnResult.printRange();
 		
 		return returnResult;
 	}
 	
-	protected String createAString(Range result, String[] csv, String number) {
-		boolean stringSet = false;
-		String resultString = "";
-		if ((result != null) && (!(Range.isConstant(result, 0)))) {
-			for (int i = 0; i < csv.length; i++) {
-				if (csv[i].equals("1")) {
-					if (stringSet)
-						resultString += "a";
-					else
-						resultString = "A" + number + "a";
-					stringSet = true;
-				} else if (csv[i].equals("2")) {
-					if (stringSet)
-						resultString += "b";
-					else
-						resultString = "A" + number + "b";
-					stringSet = true;
-				} else if (csv[i].equals("3")) {
-					if (stringSet)
-						resultString += "c";
-					else
-						resultString = "A" + number + "c";
-					stringSet = true;
-				} else if (csv[i].equals("4")) {
-					if (stringSet)
-						resultString += "d";
-					else
-						resultString = "A" + number + "d";
-					stringSet = true;
-				} else if (csv[i].equals("5")) {
-					if (stringSet)
-						resultString += "e";
-					else
-						resultString = "A" + number + "e";
-					stringSet = true;
+	private CriteriaSet createAString(Range result, String[] csv, String number, String legend) {
+		List<String> criteriaMet = new ArrayList<String>();
+		if (isNonZero(result)) {
+			for (String selection : csv) {
+				try {
+					criteriaMet.add("A" + number + legend.charAt(Integer.valueOf(selection)-1));
+				} catch (Exception e) {
+					continue;
 				}
 			}
 		}
-
-		return resultString;
+		return new CriteriaSet(name, criteriaMet);	
 	}
 	
-	protected String createA3String(Range result, String[] csv) {
-		boolean stringSet = false;
-		String resultString = "";
-		if ((result != null) && (!(Range.isConstant(result, 0)))) {
-			for (int i = 0; i < csv.length; i++) {
-				if (csv[i].equals("1")) {
-					if (stringSet)
-						resultString += "b";
-					else
-						resultString = "A" + 3 + "b";
-				} else if (csv[i].equals("2")) {
-					if (stringSet)
-						resultString += "c";
-					else
-						resultString = "A" + 3 + "c";
-					stringSet = true;
-				} else if (csv[i].equals("3")) {
-					if (stringSet)
-						resultString += "d";
-					else
-						resultString = "A" + 3 + "d";
-					stringSet = true;
-				} else if (csv[i].equals("4")) {
-					if (stringSet)
-						resultString += "e";
-					else
-						resultString = "A" + 3 + "e";
-					stringSet = true;
-				}
-			}
-		}
-
-		return resultString;
+	protected CriteriaSet createAString(Range result, String[] csv, String number) {
+		return createAString(result, csv, number, "abcde");
 	}
 	
-	protected String createBString(String number, Range sf, Range ed, Range ad, Range hd, Range ld, Range sd, Range pd,
+	protected CriteriaSet createA3String(Range result, String[] csv) {
+		return createAString(result, csv, "3", "bcde");
+	}
+	
+	protected CriteriaSet createBString(String number, Range sf, Range ed, Range ad, Range hd, Range ld, Range sd, Range pd,
 			Range ef, Range af, Range lf, Range sef, Range pf) {
-		String returnString = "";
-		String aString = "";
-		String bString = "";
-		String cString = "";
-		boolean stringStarted = false;
-		boolean bStarted = false;
-		boolean cStarted = false;
-
-		// DO C STRING
-		if ((ef != null) && (!(Range.isConstant(ef, 0)))) {
-			if (cStarted) {
-				cString += ",i";
-			} else
-				cString += "i";
-			cStarted = true;
-		}
-		if ((af != null) && (!(Range.isConstant(af, 0)))) {
-			if (cStarted) {
-				cString += ",ii";
-			} else
-				cString += "ii";
-			cStarted = true;
-		}
-		if ((lf != null) && (!(Range.isConstant(lf, 0))) || ((sef != null) && (!(Range.isConstant(sef, 0))))) {
-			if (cStarted) {
-				cString += ",iii";
-			} else
-				cString += "iii";
-			cStarted = true;
-		}
-		if ((pf != null) && (!(Range.isConstant(pf, 0)))) {
-			if (cStarted) {
-				cString += ",iv";
-			} else
-				cString += "iv";
-			cStarted = true;
-		}
-		if (cStarted) {
-			cString = "c(" + cString + ")";
-		}
-
-		// DO B STRING
-		if ((ed != null) && (!(Range.isConstant(ed, 0)))) {
-			if (bStarted) {
-				bString += ",i";
-			} else
-				bString += "i";
-			bStarted = true;
-		}
-		if ((ad != null) && (!(Range.isConstant(ad, 0)))) {
-			if (bStarted) {
-				bString += ",ii";
-			} else
-				bString += "ii";
-			bStarted = true;
-		}
-		if ((hd != null) && (!(Range.isConstant(hd, 0)))) {
-			if (bStarted) {
-				bString += ",iii";
-			} else
-				bString += "iii";
-			bStarted = true;
-		}
-		if ((ld != null) && (!(Range.isConstant(ld, 0))) || ((sd != null) && (!(Range.isConstant(sd, 0))))) {
-			if (bStarted) {
-				bString += ",iv";
-			} else
-				bString += "iv";
-			bStarted = true;
-		}
-		if ((pd != null) && (!(Range.isConstant(pd, 0)))) {
-			if (bStarted) {
-				bString += ",v";
-			} else
-				bString += "v";
-			bStarted = true;
-		}
-		if (bStarted) {
-			bString = "b(" + bString + ")";
-		}
-
+		List<String> criteriaMet = new ArrayList<String>();
+		
 		// DO A STRING
-		if ((sf != null) || (!(Range.isConstant(sf, 0)))) {
-			aString = "a";
-			stringStarted = true;
-		}
-
-		if (stringStarted || bStarted || cStarted) {
-			returnString = "B" + number + aString + bString + cString;
-		}
-
-		return returnString;
+		if (isNonZero(sf))
+			criteriaMet.add("B" + number + "a");
+		
+		// DO B STRING
+		if (isNonZero(ed))
+			criteriaMet.add("B" + number + "bi");
+		
+		if (isNonZero(ad))
+			criteriaMet.add("B" + number + "bii");
+		
+		if (isNonZero(hd))
+			criteriaMet.add("B" + number + "biii");
+		
+		if (isNonZero(ld) || isNonZero(sd))
+			criteriaMet.add("B" + number + "biv");
+		
+		if (isNonZero(pd))
+			criteriaMet.add("B" + number + "bv");
+		
+		// DO C STRING
+		if (isNonZero(ef))
+			criteriaMet.add("B" + number + "ci");
+		
+		if (isNonZero(af))
+			criteriaMet.add("B" + number + "cii");
+		
+		if (isNonZero(lf) || isNonZero(sef))
+			criteriaMet.add("B" + number + "ciii");
+		
+		if (isNonZero(pf))
+			criteriaMet.add("B" + number + "civ");
+		
+		return new CriteriaSet(name, criteriaMet);
 	}
 
-	protected String createCString(Range pdg1, Range sps, Range div, Range pf) {
-		String returnString = "";
-		String string1 = "";
-		String stringa = "";
-		String stringb = "";
+	protected CriteriaSet createCString(Range pdg1, Range sps, Range div, Range pf) {
+		List<String> criteriaMet = new ArrayList<String>();
+		if (isNonZero(pdg1))
+			criteriaMet.add("C1");
 
-		if (pdg1 != null && (!Range.isConstant(pdg1, 0))) {
-			string1 = "1";
-		}
-		if (sps != null && (!Range.isConstant(sps, 0))) {
-			stringa = "i";
-		}
-		if (div != null && (!Range.isConstant(div, 0))) {
-			if (stringa.equals(""))
-				stringa = "ii";
-			else
-				stringa += ",ii";
-		}
-		if (!stringa.equals(""))
-			stringa = "a(" + stringa + ")";
-		if (pf != null && (!Range.isConstant(pf, 0))) {
-			stringb = "b";
-		}
-
-		if (!(stringa.equals("") && stringb.equals(""))) {
-			stringa = "2" + stringa + stringb;
-
-			if (string1.equals("")) {
-				returnString = "C" + stringa;
-			} else
-				returnString = "C" + string1 + "+" + stringa;
-		} else if (!(string1.equals("")))
-			returnString = "C" + string1;
-
-		return returnString;
+		if (isNonZero(sps))
+			criteriaMet.add("C2ai");
+		
+		if (isNonZero(div))
+			criteriaMet.add("C2aii");
+		
+		if (isNonZero(pf))
+			criteriaMet.add("C2b");
+		
+		return new CriteriaSet(name, criteriaMet);
+	}
+	
+	protected boolean isNonZero(Range range) {
+		return range != null && !Range.isConstant(range, 0);
 	}
 	
 }

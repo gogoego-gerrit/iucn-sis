@@ -2,6 +2,8 @@ package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
+
 
 /**
  * Represents the vulnerable classification
@@ -59,7 +61,7 @@ class VU extends Classification {
 	public final String[] factorsE = new String[] { Factors.extinctionYears100 };
 
 	public VU() {
-		super("VU");
+		super(ResultCategory.VU);
 		
 		// A1, A2, or A3 must be true in order for A to be true
 		aPopulationReductionPast1 = 50; // >=70
@@ -98,12 +100,13 @@ class VU extends Classification {
 	}
 
 	public CriteriaResult d1(Range ps) {
-		CriteriaResult analysis = new CriteriaResult(name, "d1");
 		d1 = Range.lessthan(ps, dPopulationSize);
+		
+		CriteriaResult analysis = new CriteriaResult(name, "d1");
 		analysis.range = d1;
-		if ((d1 != null) && (!(Range.isConstant(d1, 0)))) {
-			analysis.resultString = "D1";
-		}
+		if (isNonZero(d1))
+			analysis.setCriteriaSet(new CriteriaSet(name, "D1"));
+		
 		return analysis;
 	}
 
@@ -111,11 +114,10 @@ class VU extends Classification {
 		CriteriaResult analysis = new CriteriaResult(name, "d2");
 		d2 = ar;
 		analysis.range = d2;
-		if ((d2 != null) && (!(Range.isConstant(d2, 0)))) {
-			analysis.resultString = "D2";
-		}
+		if (isNonZero(d2))
+			analysis.setCriteriaSet(new CriteriaSet(name, "D2"));
+		
 		return analysis;
 	}
-
 
 }
