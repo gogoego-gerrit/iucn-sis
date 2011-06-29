@@ -306,13 +306,40 @@ public class Synonym implements Serializable {
 	}
 
 	public String getFriendlyName() {
-		if (friendlyName == null || friendlyName.trim().equals("")) {
+		if (isBlank(friendlyName)) {
 			generateFriendlyName();
 		}
 		return friendlyName;
 	}
 	
 	public String generateFriendlyName() {
+		if (getTaxon_level() == null)
+			return friendlyName = getName();
+		
+		if (TaxonLevel.SPECIES > getTaxon_level().getLevel()) {
+			friendlyName = getName();
+		}
+		else {
+			friendlyName = getGenusName();
+		
+			if (!isBlank(getSpeciesName())) {
+				friendlyName += " " + getSpeciesName();
+				if (!isBlank(getSpeciesAuthor()))
+					friendlyName += " " + getSpeciesAuthor();
+				
+				if (TaxonLevel.INFRARANK == getTaxon_level().getLevel() && !isBlank(getInfraName())) {
+					friendlyName += " " + Infratype.getDisplayString(getInfraType()) + " " + getInfraName();
+					if (!isBlank(getInfrarankAuthor()))
+						friendlyName += " " + getInfrarankAuthor();
+				}
+				else if (TaxonLevel.SUBPOPULATION == getTaxon_level().getLevel() && !isBlank(getStockName()))
+					friendlyName += " " + getStockName();
+			}
+		}
+		
+		if (true)
+			return friendlyName;
+		
 		friendlyName = getName();
 		if (getSpeciesName() != null && !getSpeciesName().trim().equalsIgnoreCase("")) {
 			friendlyName += " " + getSpeciesName();
@@ -328,6 +355,10 @@ public class Synonym implements Serializable {
 			}
 		}
 		return friendlyName;
+	}
+	
+	private boolean isBlank(String value) {
+		return value == null || "".equals(value.trim());
 	}
 
 	public void setSpeciesName(String value) {

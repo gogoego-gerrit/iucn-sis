@@ -27,6 +27,7 @@ import org.iucn.sis.client.panels.taxomatic.CreateNewTaxonPanel;
 import org.iucn.sis.client.panels.taxomatic.LateralMove;
 import org.iucn.sis.client.panels.taxomatic.MergePanel;
 import org.iucn.sis.client.panels.taxomatic.MergeUpInfrarank;
+import org.iucn.sis.client.panels.taxomatic.NewTaxonSynonymEditor;
 import org.iucn.sis.client.panels.taxomatic.SplitNodePanel;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticAssessmentMover;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticDemotePanel;
@@ -35,7 +36,7 @@ import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticWindow;
 import org.iucn.sis.client.panels.taxomatic.TaxonBasicEditor;
 import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
-import org.iucn.sis.client.panels.taxomatic.TaxonSynonymEditor;
+import org.iucn.sis.client.panels.taxomatic.LegacyTaxonSynonymEditor;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.citations.Referenceable;
@@ -513,7 +514,8 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 			mItem.setIconStyle("icon-note-edit");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
-					popupChooser(new TaxonSynonymEditor());
+					popupChooser(new NewTaxonSynonymEditor());
+					//popupChooser(new TaxonSynonymEditor());
 				}
 			});
 			mainMenu.add(mItem);

@@ -52,19 +52,21 @@ public class Infratype implements Serializable {
 	
 	public static Infratype getInfratype(String name) {
 		Infratype ret = new Infratype();
-		if( name.equals(SUBSPECIES_NAME))
-			ret.id= INFRARANK_TYPE_SUBSPECIES;
+		if (SUBSPECIES_NAME.equals(name))
+			ret.id = INFRARANK_TYPE_SUBSPECIES;
+		else if (VARIETY_NAME.equals(name))
+			ret.id = INFRARANK_TYPE_VARIETY;
 		else
-			ret.id= INFRARANK_TYPE_VARIETY;
+			return null;
 		ret.name = name;
 		return ret;
 	}
 	
 	public static Infratype getInfratype(int code, Taxon taxon) {
 		Infratype ret = new Infratype();
-		if( code == INFRARANK_TYPE_SUBSPECIES )
+		if (code == INFRARANK_TYPE_SUBSPECIES)
 			ret.name = SUBSPECIES_NAME;
-		else
+		else if (code == INFRARANK_TYPE_VARIETY)
 			ret.name = VARIETY_NAME;
 		ret.id = code;
 		

@@ -17,8 +17,8 @@ import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
 import org.iucn.sis.client.panels.assessments.TrackChangesPanel;
 import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
+import org.iucn.sis.client.panels.taxomatic.NewTaxonSynonymEditor;
 import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
-import org.iucn.sis.client.panels.taxomatic.TaxonSynonymEditor;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -332,7 +332,7 @@ public class DEMToolbar extends ToolBar {
 					return;
 				}
 
-				TaxonSynonymEditor editor = new TaxonSynonymEditor();
+				NewTaxonSynonymEditor editor = new NewTaxonSynonymEditor();
 				editor.show();
 			}
 		});

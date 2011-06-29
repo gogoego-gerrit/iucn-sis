@@ -34,7 +34,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class TaxonSynonymEditor extends TaxomaticWindow {
+public class LegacyTaxonSynonymEditor extends TaxomaticWindow {
 
 	private final Taxon node;
 	private final VerticalPanel synonymInfo;
@@ -70,7 +70,7 @@ public class TaxonSynonymEditor extends TaxomaticWindow {
 	private ListBox level;
 	private int numberAdded;
 
-	public TaxonSynonymEditor() {
+	private LegacyTaxonSynonymEditor() {
 		super("Synonym Editor", "icon-note-edit");
 		
 		this.node = TaxonomyCache.impl.getCurrentTaxon();
