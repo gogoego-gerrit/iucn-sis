@@ -149,7 +149,7 @@ public class SISCompleteListTextArea extends VerticalPanel {
 	
 	private void setUsers(List<ClientUser> users) {
 		selectedUsers = users;
-		generate.setEnabled(!users.isEmpty());
+		//generate.setEnabled(!users.isEmpty());
 		edit.setText("Edit");
 		textArea.setReadOnly(true);
 		generateTextFromUsers(false);
