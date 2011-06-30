@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
+import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
@@ -32,6 +34,7 @@ import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.util.extjs.client.WindowUtils;
 
 @SuppressWarnings({"deprecation", "unchecked"})
 public class SISCategoryAndCriteria extends Structure<Field> {
@@ -554,6 +557,15 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		manualOverride.addListener(Events.Select, new Listener() {
 			public void handleEvent(BaseEvent be) {
 				isManual = !isManual;
+				if (!isManual) {
+					WindowUtils.showLoadingAlert("Calculating result...");
+					FuzzyExpImpl impl = new FuzzyExpImpl();
+					ExpertResult result = impl.doAnalysis(AssessmentCache.impl.getCurrentAssessment());
+					
+					generatedCategory = result.getAbbreviatedCategory();
+					generatedCriteria = result.getCriteriaString();
+					WindowUtils.hideLoadingAlert();
+				}
 				refreshStructures();
 			}
 		});
