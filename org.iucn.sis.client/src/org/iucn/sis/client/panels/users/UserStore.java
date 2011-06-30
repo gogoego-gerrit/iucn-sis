@@ -1,11 +1,16 @@
 package org.iucn.sis.client.panels.users;
 
+import java.util.List;
+
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
+import org.iucn.sis.client.api.caches.RecentlyAccessedCache.RecentUser;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
+import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.models.User;
 
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -88,6 +93,18 @@ public class UserStore {
 		 */
 		active.remove(user);
 		disabled.add(user);
+		
+		final GenericCallback<Object> callback = new GenericCallback<Object>() {
+			public void onSuccess(Object result) { }
+			public void onFailure(Throwable caught) { }
+		};
+	
+		List<RecentUser> list = 
+			RecentlyAccessedCache.impl.list(RecentlyAccessed.USER);
+		for (RecentUser cached : list) {
+			if (cached.getUser().getId() == Integer.parseInt((String)user.get("id")))
+				RecentlyAccessedCache.impl.delete(cached, callback);
+		}
 		
 		user.set(ClientUser.STATE, Integer.toString(ClientUser.DELETED));
 	}
