@@ -108,9 +108,10 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	//private HorizontalPanel categoryPanel;
 	private ListBox categoryListBox;
 	private VerticalPanel critAndGridPanel;
-	private CriteriaGrid v3_1Grid;
 
+	private CriteriaGrid v3_1Grid;
 	private CriteriaGrid v2_3Grid;
+	
 	private ListBox critVersion;
 	private ArrayList<String> critVersionDisclaimerChoices;
 
@@ -229,7 +230,8 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		proxy.setManual(isManual);
 		proxy.setCriteriaVersion(version);
 		proxy.setManualCategory(manualCategory);
-		proxy.setManualCriteria(manualCriteria);
+		proxy.setManualCriteria(version == 0 ? v3_1Grid.createCriteriaString() : 
+			version == 1 ? v2_3Grid.createCriteriaString() : "");
 		proxy.setGeneratedCategory(generatedCategory);
 		proxy.setGeneratedCriteria(generatedCriteria);
 		proxy.setRLHistoryText(rlText.getText());
@@ -417,7 +419,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 
 		return displayPanel;
 	}
-
+	
 	public void createWidget() {
 		dateLastSeen = new TextBox();
 		dateLastSeenPanel = new HorizontalPanel();
@@ -459,14 +461,14 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		critVersionListener = new ChangeListener() {
 			public void onChange(Widget sender) {
 				critVersionDisclaimer
-						.setHTML((String) critVersionDisclaimerChoices.get(critVersion.getSelectedIndex()));
-
+				.setHTML((String) critVersionDisclaimerChoices.get(critVersion.getSelectedIndex()));
+		
 				if (critVersion.getSelectedIndex() == 2) {
 					v2_3Grid.setVisible(false);
 					v3_1Grid.setVisible(false);
 					criteriaStringBox.setText("N/A");
 					categoryTextBox.setVisible(true);
-//					build2_3CategoriesListBox();
+				//	build2_3CategoriesListBox();
 					buildPreCategoriesListBox();
 				} else if (critVersion.getSelectedIndex() == 1) {
 					v3_1Grid.setVisible(false);
@@ -481,7 +483,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 					categoryTextBox.setVisible(false);
 					build3_1ListBox();
 				}
-
+				
 				version = critVersion.getSelectedIndex();
 				refreshStructures();
 				updateValidityOfCriteriaString();
@@ -704,7 +706,6 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		
 		critVersion.setSelectedIndex(version);
 
-		categoryListBox.setSelectedIndex(0);
 		String cat = isManual ? manualCategory : generatedCategory;
 		boolean found = false;
 
@@ -721,6 +722,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 				categoryListBox.setSelectedIndex(categoryListBox.getItemCount() - 1);
 			}
 		} else {
+			categoryListBox.setSelectedIndex(0);
 			possiblyExtinctPanel.setVisible(false);
 			dataDeficientPanel.setVisible(false);
 			dataDeficientListBox.setSelectedIndex(0);
@@ -732,14 +734,14 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		if (critVersion.getSelectedIndex() == 0)
 			if (isManual)
 				v3_1Grid.parseCriteriaString(manualCriteria);
-			else
-				v3_1Grid.parseCriteriaString(generatedCriteria);
+			//else
+				//v3_1Grid.parseCriteriaString(generatedCriteria);
 
 		else if (critVersion.getSelectedIndex() == 1)
 			if (isManual)
 				v2_3Grid.parseCriteriaString(manualCriteria);
-			else
-				v2_3Grid.parseCriteriaString(generatedCriteria);
+			//else
+				//v2_3Grid.parseCriteriaString(generatedCriteria);
 		
 		if (categoryListBox.getItemText(categoryListBox.getSelectedIndex()).startsWith("Extinct"))
 			dateLastSeenPanel.setVisible(true);
@@ -803,7 +805,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 
 	private void updateResult(String criteriaString, boolean isValidString) {
 		criteriaStringBox.setText(criteriaString);
-		manualCriteria = criteriaString;
+		//manualCriteria = criteriaString;
 		updateValidityOfCriteriaString();
 
 	}

@@ -33,7 +33,7 @@ public class RedListCriteriaField extends ProxyField {
 		 * conversely, if not manual, do we remove all manual 
 		 * data? 
 		 */
-		setBooleanPrimitiveField(IS_MANUAL_KEY, isManual, false);
+		setBooleanPrimitiveField(IS_MANUAL_KEY, isManual, null);
 	}
 	
 	/*

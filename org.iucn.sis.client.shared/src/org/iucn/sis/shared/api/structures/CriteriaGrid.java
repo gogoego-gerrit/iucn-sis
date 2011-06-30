@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import org.iucn.sis.shared.api.data.CanParseCriteriaString;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -87,6 +88,7 @@ public abstract class CriteriaGrid extends CanParseCriteriaString {
 			}
 
 		} catch (Exception e) {
+			GWT.log("Error checking grid for "+ grid + ":" + key, e);
 		}
 
 	}
