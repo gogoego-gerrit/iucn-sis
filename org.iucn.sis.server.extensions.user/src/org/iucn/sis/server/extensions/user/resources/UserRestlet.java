@@ -86,10 +86,16 @@ public class UserRestlet extends BaseServiceRestlet {
 				user.setLastName(value);
 			else if ("username".equalsIgnoreCase(name)) {
 				if (!username.equals(value)) {
-					//They want to change the username...
-					User existing = userIO.getUserFromUsername(value);
-					if (existing != null)
-						throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "An active user with this username already exists.");
+					/*
+					 * They want to change the username... check if this 
+					 * user is active first; if they are disabled, we 
+					 * don't care what they do...
+					 */
+					if (user.getState() == User.ACTIVE) {
+						User existing = userIO.getUserFromUsername(value);
+						if (existing != null)
+							throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "An active user with this username already exists.");
+					}
 					
 					user.setUsername(value);
 					if (user.getEmail() == null || username.equals(user.getEmail()))
