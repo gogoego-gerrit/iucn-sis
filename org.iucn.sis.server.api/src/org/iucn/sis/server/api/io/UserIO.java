@@ -40,7 +40,11 @@ public class UserIO {
 
 	public User getUserFromUsername(String username) {
 		UserCriteria criteria = new UserCriteria(session);
-		criteria.username.eq(username);
+		//criteria.username.eq(username);
+		/*
+		 * Username not unique by case, see #441
+		 */
+		criteria.username.ilike(username);
 		return UserDAO.getUserByCriteria(criteria);
 	}
 
