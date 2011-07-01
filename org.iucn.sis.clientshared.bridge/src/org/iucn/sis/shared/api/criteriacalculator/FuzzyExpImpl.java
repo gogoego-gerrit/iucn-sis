@@ -296,7 +296,7 @@ public class FuzzyExpImpl {
 				else if (curPrim instanceof BooleanRangePrimitiveField) {
 					String value = ((PrimitiveField<String>)curPrim).getValue();
 					//Disregard "unknown" as of ticket #57
-					if (!".5".equals(value))
+					if (!BooleanRangePrimitiveField.UNKNOWN.equals(value))
 						result = new Range(value);
 					break;
 				}

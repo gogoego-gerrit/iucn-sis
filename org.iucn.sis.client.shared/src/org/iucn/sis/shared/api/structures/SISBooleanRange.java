@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class SISBooleanRange extends SISPrimitiveStructure<String> implements DominantStructure<PrimitiveField<String>> {
-
+	
 	private ListBox options;
 	private TextBox range;
 
@@ -176,15 +176,17 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 				int selected = options.getSelectedIndex();
 
 				if (selected == 0) {
-					range.setText(".5");
+					range.setText(BooleanRangePrimitiveField.UNKNOWN);
 					range.setVisible(false);
 				} else if (selected == 1) {
-					range.setText("1");
+					range.setText(BooleanRangePrimitiveField.YES);
 					range.setVisible(false);
 				} else if (selected == 2) {
-					range.setText("0");
+					range.setText(BooleanRangePrimitiveField.NO);
 					range.setVisible(false);
 				} else if (selected == 3) {
+					if (BooleanRangePrimitiveField.UNKNOWN.equals(range.getText()))
+						range.setText("");
 					range.setVisible(true);
 				}
 			}
@@ -213,11 +215,11 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 		if (data.length() == 0) {
 			prettyData.add(offset, "(Not Specified)");
 		} else {
-			if (data.equals(".5"))
+			if (data.equals(BooleanRangePrimitiveField.UNKNOWN))
 				prettyData.add(offset, "Unknown");
-			else if (data.equals("1"))
+			else if (data.equals(BooleanRangePrimitiveField.YES))
 				prettyData.add(offset, "Yes");
-			else if (data.equals("0"))
+			else if (data.equals(BooleanRangePrimitiveField.NO))
 				prettyData.add(offset, "No");
 			else
 				prettyData.add(offset, "Custom range: " + data);
@@ -245,13 +247,13 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 		range.setText(XMLUtils.cleanFromXML(datum.replaceAll("\\s*", "")));
 
 		if (range.getText() != null && range.getText() != "")
-			if (range.getText().equals("1")) {
+			if (range.getText().equals(BooleanRangePrimitiveField.YES)) {
 				options.setSelectedIndex(1);
 				range.setVisible(false);
-			} else if (range.getText().equals("0")) {
+			} else if (range.getText().equals(BooleanRangePrimitiveField.NO)) {
 				options.setSelectedIndex(2);
 				range.setVisible(false);
-			} else if (range.getText().equals(".5")) {
+			} else if (range.getText().equals(BooleanRangePrimitiveField.UNKNOWN)) {
 				options.setSelectedIndex(0);
 				range.setVisible(false);
 			} else {

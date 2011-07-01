@@ -8,6 +8,10 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
  */
 public class BooleanRangePrimitiveField extends PrimitiveField<String> implements
 		java.io.Serializable {
+	
+	public static final String YES = "1";
+	public static final String NO = "0";
+	public static final String UNKNOWN = "U";
 
 	private String value;
 

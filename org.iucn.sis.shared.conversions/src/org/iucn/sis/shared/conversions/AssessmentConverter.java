@@ -931,6 +931,11 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							prim = null;
 						else
 							prim.setRawValue(curPrimitive);
+					} else if (prim instanceof BooleanRangePrimitiveField) {
+						if (".5".equals(curPrimitive))
+							prim.setRawValue(BooleanRangePrimitiveField.UNKNOWN);
+						else
+							prim.setRawValue(curPrimitive);
 					} else {
 						try {
 							prim.setRawValue(curPrimitive);
