@@ -64,5 +64,12 @@ public abstract class Factors {
 			populationReductionEitherReversible, populationReductionEitherUnderstood };
 
 	public final static int NUMBER_OF_FACTORS = factors.length;
+	
+	public static boolean isFactor(String canonicalName) {
+		for (String factor : factors)
+			if (factor.equals(canonicalName))
+				return true;
+		return false;
+	}
 
 }

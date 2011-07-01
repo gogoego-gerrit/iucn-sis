@@ -14,6 +14,8 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.criteriacalculator.ExpertUtils;
+import org.iucn.sis.shared.api.criteriacalculator.Factors;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -179,8 +181,12 @@ public class AssessmentClientSaveUtils {
 			final Assessment assessmentToSave) {
 		
 		Debug.println("Saving assessment...");
+		
+		boolean factorChanged = false;
+		
 		for (Display cur : fieldWidgets) {
 			//Debug.println("Saving data to Field {0}: {1}", cur.getCanonicalName(), cur.getField().getPrimitiveField());
+			
 			try {
 				cur.save();
 				
@@ -200,10 +206,18 @@ public class AssessmentClientSaveUtils {
 						curField.setAssessment(assessmentToSave);
 					}
 				}
+				
+				if (Factors.isFactor(cur.getCanonicalName()))
+					factorChanged = true;
 			} catch (Throwable e) {
 				GWT.log("Failed to save display " + cur.getCanonicalName(), e);
 				Debug.println(e);
 			}
+		}
+		
+		if (factorChanged) {
+			Debug.println("A factor was changed, re-analyzing criteria");
+			ExpertUtils.processAssessment(assessmentToSave);
 		}
 	}
 	
