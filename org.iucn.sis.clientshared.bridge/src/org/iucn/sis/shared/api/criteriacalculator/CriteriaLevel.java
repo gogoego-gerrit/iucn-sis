@@ -16,7 +16,7 @@ public class CriteriaLevel implements Comparable<CriteriaLevel> {
 	public static final String L3 = "abcde";
 	public static final String L4 = "iiiv"; //i,ii,iii,iv,v
 	
-	private static final String[] SEPARATORS = new String[] { "+", "", ",", "" };
+	public static final String[] SEPARATORS = new String[] { "+", "", ",", "" };
 	
 	private final PortableAlphanumericComparator comparator;
 	

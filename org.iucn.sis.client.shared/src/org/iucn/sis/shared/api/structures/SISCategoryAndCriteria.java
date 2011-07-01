@@ -7,12 +7,12 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
-import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
+import org.iucn.sis.shared.api.criteriacalculator.ExpertUtils;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.models.fields.RedListFuzzyResultField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -559,11 +559,13 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 				isManual = !isManual;
 				if (!isManual) {
 					WindowUtils.showLoadingAlert("Calculating result...");
-					FuzzyExpImpl impl = new FuzzyExpImpl();
-					ExpertResult result = impl.doAnalysis(AssessmentCache.impl.getCurrentAssessment());
+					ExpertUtils.processAssessment(AssessmentCache.impl.getCurrentAssessment());
+					RedListFuzzyResultField result = new RedListFuzzyResultField(AssessmentCache.
+							impl.getCurrentAssessment().getField(CanonicalNames.RedListFuzzyResult));
 					
-					generatedCategory = result.getAbbreviatedCategory();
-					generatedCriteria = result.getCriteriaString();
+					generatedCategory = result.getCategory();
+					generatedCriteria = result.getCriteriaMet();
+					
 					WindowUtils.hideLoadingAlert();
 				}
 				refreshStructures();

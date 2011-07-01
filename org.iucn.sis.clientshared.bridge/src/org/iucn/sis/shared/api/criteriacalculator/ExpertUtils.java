@@ -3,17 +3,14 @@ package org.iucn.sis.shared.api.criteriacalculator;
 import java.util.Arrays;
 import java.util.List;
 
-import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
-import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
-import org.iucn.sis.shared.api.criteriacalculator.RegionalExpertQuestions;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.models.fields.RedListFuzzyResultField;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
-
-import com.solertium.util.extjs.client.WindowUtils;
 
 public class ExpertUtils {
 
@@ -21,21 +18,41 @@ public class ExpertUtils {
 		FuzzyExpImpl expert = new FuzzyExpImpl();
 		ExpertResult expertResult = expert.doAnalysis(currentAssessment);
 		
-		currentAssessment.setCategoryCriteria(expertResult.getCriteriaString());
+		RedListCriteriaField redListCriteriaField; {
+			Field proxy = currentAssessment.getField(CanonicalNames.RedListCriteria);
+			if (proxy == null) {
+				proxy = new Field(CanonicalNames.RedListCriteria, currentAssessment);
+				currentAssessment.getField().add(proxy);
+			}
+			redListCriteriaField = new RedListCriteriaField(proxy);
+		}
 		
-		//TODO: Add this Field data AND shortcut methods IF necessary
-		//currentAssessment.setCrCriteria(expertResult.getCriteriaStringCR());
-		//currentAssessment.setEnCriteria(expertResult.getCriteriaStringEN());
-		//currentAssessment.setVuCriteria(expertResult.getCriteriaStringVU());
+		RedListFuzzyResultField redListFuzzyResultField; {
+			Field proxy = currentAssessment.getField(CanonicalNames.RedListFuzzyResult);
+			if (proxy == null) {
+				proxy = new Field(CanonicalNames.RedListFuzzyResult, currentAssessment);
+				currentAssessment.getField().add(proxy);
+			}
+			redListFuzzyResultField = new RedListFuzzyResultField(proxy);
+		}
+		
+		redListCriteriaField.setGeneratedCriteria(expertResult.getCriteriaString());
 
-		if (expertResult.getResult() == null || expertResult.getResult().equals(ResultCategory.DD)) {
-			currentAssessment.setCategoryFuzzyResult("-1,-1,-1");
-			currentAssessment.setCategoryAbbreviation("DD");
+		if (expertResult.getResult().equals(ResultCategory.DD)) {
+			redListCriteriaField.setGeneratedCategory("DD");
+			
+			redListFuzzyResultField.clearCriteria();
+			redListFuzzyResultField.setCategory("DD");
+			redListFuzzyResultField.setCriteriaCR("");
+			redListFuzzyResultField.setCriteriaEN("");
+			redListFuzzyResultField.setCriteriaVU("");
+			redListFuzzyResultField.setCriteriaMet("");
+			redListFuzzyResultField.setResult("-1,-1,-1");
 		}
 		else {
-			currentAssessment.setCategoryFuzzyResult(expertResult.getLeft() + "," + expertResult.getBest() + ","
-					+ expertResult.getRight());
-			currentAssessment.setCategoryAbbreviation(expertResult.getAbbreviatedCategory());
+			redListCriteriaField.setGeneratedCategory(expertResult.getAbbreviatedCategory());
+			
+			redListFuzzyResultField.setExpertResult(expertResult);
 
 			if (currentAssessment.isRegional()
 					&& currentAssessment.getField(CanonicalNames.RegionExpertQuestions) != null) {
@@ -48,7 +65,7 @@ public class ExpertUtils {
 					if (regionalExpData.length > 2) {
 						String upDown = regionalExpData[0];
 						String amount = regionalExpData[1];
-						String category = currentAssessment.getCategoryAbbreviation();
+						String category = expertResult.getAbbreviatedCategory();
 
 						if (upDown.equals(RegionalExpertQuestions.UPGRADE)) {
 							int amountUp = Integer.valueOf(amount);
@@ -58,7 +75,10 @@ public class ExpertUtils {
 							category = slideCategory(-1 * amountDown, category);
 						}
 
-						currentAssessment.setCategoryAbbreviation(category);
+						redListCriteriaField.setGeneratedCategory(category);
+						
+						redListFuzzyResultField.setCategory(category);
+						
 					}
 				}
 			} else {
@@ -77,12 +97,12 @@ public class ExpertUtils {
 			int newIndex = index + amount;
 
 			if (newIndex < 0) {
-				WindowUtils.errorAlert("The number of categories to downgrade is too many. " + "You cannot shift " + -1
-						* amount + " categories from " + startValue + ". Please correct this error.");
+				/*WindowUtils.errorAlert("The number of categories to downgrade is too many. " + "You cannot shift " + -1
+						* amount + " categories from " + startValue + ". Please correct this error.");*/
 				return startValue;
 			} else if (newIndex >= cats.size()) {
-				WindowUtils.errorAlert("The number of categories to upgrade is too many. " + "You cannot shift "
-						+ amount + " categories from " + startValue + ". Please correct this error.");
+				/*WindowUtils.errorAlert("The number of categories to upgrade is too many. " + "You cannot shift "
+						+ amount + " categories from " + startValue + ". Please correct this error.");*/
 				return startValue;
 			} else {
 				return cats.get(newIndex);

@@ -29,6 +29,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.CommonNameComparator;
 
@@ -166,14 +167,16 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		
 		String abbreviation = "";
 		if (item.getField(CanonicalNames.RedListCriteria) != null) {
-			try {
-				String cat = item.getCategoryAbbreviation();
-				if (!"".equals(cat))
-					abbreviation = " (" + cat + ")";
-			} catch (Exception e) {
-				//Debug.println(e);
-			}
+			RedListCriteriaField field = new RedListCriteriaField(item.getField(CanonicalNames.RedListCriteria));
+			if (field.isManual())
+				abbreviation = " (" + field.getManualCategory() + ")";
+			else
+				abbreviation = " (" + field.getGeneratedCategory() + ")";
+			if (" ()".equals(abbreviation))
+				abbreviation = " (DD)";
 		}
+		else
+			abbreviation = " (NE)";
 		
 		final StyledHTML speciesName = 
 			new StyledHTML("<center>" + item.getSpeciesName() + abbreviation + "</center>", "page_assessment_featured_header;clickable");

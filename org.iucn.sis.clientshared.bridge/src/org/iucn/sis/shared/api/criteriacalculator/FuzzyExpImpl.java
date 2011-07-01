@@ -169,7 +169,7 @@ public class FuzzyExpImpl {
 		}
 
 		else {
-			result = new ExpertResult(assessment);
+			result = new ExpertResult();
 			result.setNotEnoughData(null);
 			result.setCriteriaMet(new CriteriaSet(ResultCategory.DD));
 			result.setResult(ResultCategory.DD);
@@ -201,7 +201,7 @@ public class FuzzyExpImpl {
 		// CREATE HIGH, MID, LOW LINES in that order
 		ArrayList<Line> lines = createLines(cr, en, vu);
 		
-		ExpertResult result = new ExpertResult(assessment);
+		ExpertResult result = new ExpertResult();
 		result.setLeft(lines.get(0).x(rt));
 		result.setRight(lines.get(2).x(rt));
 		result.setBest(lines.get(1).x(rt));

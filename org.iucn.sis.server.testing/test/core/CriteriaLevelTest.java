@@ -21,6 +21,12 @@ public class CriteriaLevelTest {
 		
 		check("B1ab(ii)", B1abii, "CR");
 		
+		Field B1aci = new Field();
+		B1aci.addPrimitiveField(new StringPrimitiveField("B1a", B1aci, "CR"));
+		B1aci.addPrimitiveField(new StringPrimitiveField("B1ci", B1aci, "CR"));
+		
+		check("B1ac(i)", B1aci, "CR");
+		
 		Field B1abii2abii = new Field();
 		B1abii2abii.addPrimitiveField(new StringPrimitiveField("B1a", B1abii2abii, "CR"));
 		B1abii2abii.addPrimitiveField(new StringPrimitiveField("B1bii", B1abii2abii, "CR"));
@@ -110,6 +116,37 @@ public class CriteriaLevelTest {
 		high.addPrimitiveField(new StringPrimitiveField("B2ciii", high, "CR"));
 		
 		check("A2;B2c(iii);D;E", high, "VU");
+	}
+	
+	@Test
+	public void testFromString() {
+		//Simple
+		testString("A1+2");
+		testString("D;E");
+		testString("E");
+		testString("B1a");
+		testString("B1ac(i)");
+		
+		//Complete
+		testString("B1ac(i,ii,iii)");
+		testString("A2c+3c;B1ab(iii)");
+		testString("B2ab(i,ii,iii)");
+		testString("A1c;B1ab(iii);C2a(i)");
+		testString("B1ab(i,ii,v)c(iii,iv)+2b(i)c(ii,v)");
+		testString("A2abc+3bc+4abc;B1b(iii,iv,v)c(ii,iii,iv)+2b(iii,iv,v)c(ii,iii,iv)");
+		testString("A1cd");
+		testString("A2c;D");
+		testString("D");
+		testString("C2a(ii)");
+		testString("B2b(iii)c(ii)");
+		testString("B1ab(iii)+2ab(iii)");
+		testString("A2c+3c");
+		testString("D1+2");
+		testString("D2");
+	}
+	
+	private void testString(String criteria) {
+		Assert.assertEquals(criteria, CriteriaSet.fromString(ResultCategory.CR, criteria).toString());
 	}
 	
 	private void check(String expected, Field field, String category) {

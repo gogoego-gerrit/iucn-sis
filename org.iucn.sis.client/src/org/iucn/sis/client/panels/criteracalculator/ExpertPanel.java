@@ -2,8 +2,12 @@ package org.iucn.sis.client.panels.criteracalculator;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
+import org.iucn.sis.shared.api.criteriacalculator.ExpertUtils;
 import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.fields.RedListFuzzyResultField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -193,18 +197,25 @@ public class ExpertPanel extends LayoutContainer {
 		title.addStyleName("expert-title");
 		title.setWordWrap(false);
 		
-		String[] expertResults = assessment.getCategoryFuzzyResult().split(",");
+		Field fuzzyField = AssessmentCache.impl.getCurrentAssessment().getField(CanonicalNames.RedListFuzzyResult);
+		if (fuzzyField == null) {
+			ExpertUtils.processAssessment(AssessmentCache.impl.getCurrentAssessment());
+			fuzzyField = AssessmentCache.impl.getCurrentAssessment().getField(CanonicalNames.RedListFuzzyResult);
+		}
+		
 		int leftInt;
 		int bestInt;
 		int rightInt;
-
+		
 		String CRString, ENString, VUString, criteriaStr;
 		
-		// THEY ARE OPENING IT WITHOUT CHANGING DATA, AND DIDN'T NEED TO
-		// SAVE
-		if (expertResults.length != 3) {
-			FuzzyExpImpl expert = new FuzzyExpImpl();
-			ExpertResult result = expert.doAnalysis(AssessmentCache.impl.getCurrentAssessment());
+		if (fuzzyField == null) {
+			leftInt = bestInt = rightInt = 0;
+			CRString = ENString = VUString = criteriaStr = "N/A";
+		}
+		else {
+			RedListFuzzyResultField proxy = new RedListFuzzyResultField(fuzzyField);
+			ExpertResult result = proxy.getExpertResult();
 			
 			leftInt = result.getLeft();
 			bestInt = result.getBest();
@@ -215,15 +226,6 @@ public class ExpertPanel extends LayoutContainer {
 			VUString = result.getCriteriaVU().toString();
 			
 			criteriaStr = result.getCriteriaString();
-		} else {
-			leftInt = Integer.valueOf(expertResults[0]).intValue();
-			bestInt = Integer.valueOf(expertResults[1]).intValue();
-			rightInt = Integer.valueOf(expertResults[2]).intValue();
-		
-			//FIXME: get this from the database
-			CRString = ENString = VUString = "N/A";
-			
-			criteriaStr = assessment.getCategoryCriteria();
 		}
 
 		// CHECK TO MAKE SURE ENOUGH INFORMATION FOR RESULT

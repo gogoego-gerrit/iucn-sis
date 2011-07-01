@@ -89,6 +89,11 @@ public class Assessment implements Serializable, AuthorizableObject {
 			return false;
 		return true;
 	}
+	
+	/**
+	 * @deprecation use RedListCriteriaField directly instead 
+	 */
+	@Deprecated
 	public String getCategoryAbbreviation() {
 		Field field = getField(CanonicalNames.RedListCriteria);
 		if (field == null)
@@ -409,28 +414,6 @@ public class Assessment implements Serializable, AuthorizableObject {
 		
 	}
 	
-	public String getCategoryFuzzyResult() {
-		ProxyField field = new ProxyField(getField(CanonicalNames.RedListFuzzyResult));
-		return field.getStringPrimitiveField("text");
-	}
-	
-	public String getCategoryCriteria() {
-		RedListCriteriaField field = new RedListCriteriaField(getField(CanonicalNames.RedListCriteria));
-		return field.getGeneratedCriteria();
-	}
-	
-	public String getCrCriteria() {
-		return "TODO";
-	}
-	
-	public String getEnCriteria() {
-		return "TODO";
-	}
-	
-	public String getVuCriteria() {
-		return "TODO";
-	}
-	
 	private Map<String, Field> keyToField;
 	
 	public void generateFields() {
@@ -588,41 +571,6 @@ public class Assessment implements Serializable, AuthorizableObject {
 
 	public String toString() {
 		return String.valueOf(getId());
-	}
-	
-	public void setCategoryCriteria(String criteriaString) {
-		// TODO Auto-generated method stub
-		RedListCriteriaField field = new RedListCriteriaField(getField(CanonicalNames.RedListCriteria));
-		field.setGeneratedCriteria(criteriaString);
-	}
-	
-	public void setCrCriteria(String criteriaStringCR) {
-		// TODO Auto-generated method stub
-		
-	}
-	public void setCategoryFuzzyResult(String string) {
-		Field field = getField(CanonicalNames.RedListFuzzyResult);
-		if (field == null) {
-			field = new Field(CanonicalNames.RedListFuzzyResult, this);
-			getField().add(field);
-		}
-		
-		PrimitiveField value = field.getPrimitiveField("text");
-		if (value == null) {
-			value = new StringPrimitiveField("text", field);
-			field.getPrimitiveField().add(value);
-		}
-		if (string == null) {
-			if (value != null)
-				field.getPrimitiveField().remove(value);
-		}
-		else
-			value.setRawValue(string);
-	}
-	
-	public void setCategoryAbbreviation(String abbreviatedCategory) {
-		RedListCriteriaField field = new RedListCriteriaField(getField(CanonicalNames.RedListCriteria));
-		field.setGeneratedCategory(abbreviatedCategory);
 	}
 	
 	public String getDisplayText() {

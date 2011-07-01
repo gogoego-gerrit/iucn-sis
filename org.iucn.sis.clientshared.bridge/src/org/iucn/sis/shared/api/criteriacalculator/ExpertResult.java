@@ -62,8 +62,7 @@ public class ExpertResult {
 	protected CriteriaSet criteriaEN;
 	protected CriteriaSet criteriaCR;
 
-	public ExpertResult(Assessment assessment) {
-		this.assessment = assessment;
+	public ExpertResult() {
 		this.criteria = new CriteriaSet(ResultCategory.DD);
 		this.criteriaCR = new CriteriaSet(ResultCategory.CR);
 		this.criteriaEN = new CriteriaSet(ResultCategory.EN);
@@ -72,10 +71,6 @@ public class ExpertResult {
 
 	public String getAbbreviatedCategory() {
 		return getResult().getShortName();
-	}
-
-	public Assessment getAssessment() {
-		return assessment;
 	}
 
 	public int getBest() {
