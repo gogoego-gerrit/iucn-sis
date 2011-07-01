@@ -102,6 +102,7 @@ public class CriteriaLevelTest {
 		Field levels = new Field();
 		levels.addPrimitiveField(new StringPrimitiveField("A2", levels, "VU"));
 		levels.addPrimitiveField(new StringPrimitiveField("D", levels, "EN"));
+		levels.addPrimitiveField(new StringPrimitiveField("D1", levels, "VU"));
 		
 		check("", levels, "CR");
 		
@@ -112,9 +113,11 @@ public class CriteriaLevelTest {
 		Field high = new Field();
 		high.addPrimitiveField(new StringPrimitiveField("A2", high, "CR"));
 		high.addPrimitiveField(new StringPrimitiveField("D", high, "CR"));
+		high.addPrimitiveField(new StringPrimitiveField("D1", high, "VU"));
 		high.addPrimitiveField(new StringPrimitiveField("E", high, "CR"));
 		high.addPrimitiveField(new StringPrimitiveField("B2ciii", high, "CR"));
 		
+		check("A2;B2c(iii);D;E", high, "EN");
 		check("A2;B2c(iii);D1;E", high, "VU");
 	}
 	
