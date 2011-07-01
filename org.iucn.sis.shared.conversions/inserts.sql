@@ -1739,11 +1739,8 @@ INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('E', 's
 INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('category', 'string_primitive_field', '?');
 INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criteriaMet', 'string_primitive_field', '?');
 INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criteriaCR', 'string_primitive_field', '?');
-INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criteriaSetCR', 'string_primitive_field', '?');
 INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criteriaEN', 'string_primitive_field', '?');
-INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criteriaSetEN', 'string_primitive_field', '?');
 INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criteriaVU', 'string_primitive_field', '?');
-INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criteriaSetVU', 'string_primitive_field', '?');
 INSERT INTO RedListManualCategory (name, data_type, number_allowed) VALUES ('rlCategory', 'string_primitive_field', '?');
 INSERT INTO RedListManualCriteria (name, data_type, number_allowed) VALUES ('rlCriteria', 'string_primitive_field', '?');
 INSERT INTO RedListNotes (name, data_type, number_allowed) VALUES ('value', 'text_primitive_field', '?');
