@@ -95,9 +95,15 @@ public class RedListFuzzyResultField extends ProxyField {
 		setResult(result.getLeft() + "," + result.getBest() + "," + result.getRight());
 		
 		clearCriteria();
-		CriteriaSet criteriaSet = result.getCriteriaMet();
-		for (String criterion : criteriaSet.getCriteria())
-			setCriteria(criterion, criteriaSet.getCategory());
+		
+		/*
+		 * Write criteria lowest to highest, so that the 
+		 * highest met criteria will overwrite the lower 
+		 * ones...
+		 */
+		for (CriteriaSet set : new CriteriaSet[] { result.getCriteriaVU(), result.getCriteriaEN(), result.getCriteriaCR() })
+			for (String criterion : set.getCriteria())
+				setCriteria(criterion, set.getCategory());
 	}
 	
 	public ExpertResult getExpertResult() {

@@ -107,7 +107,7 @@ public class CriteriaLevelTest {
 		
 		check("D", levels, "EN");
 		
-		check("A2;D", levels, "VU");
+		check("A2;D1", levels, "VU");
 		
 		Field high = new Field();
 		high.addPrimitiveField(new StringPrimitiveField("A2", high, "CR"));
@@ -115,7 +115,7 @@ public class CriteriaLevelTest {
 		high.addPrimitiveField(new StringPrimitiveField("E", high, "CR"));
 		high.addPrimitiveField(new StringPrimitiveField("B2ciii", high, "CR"));
 		
-		check("A2;B2c(iii);D;E", high, "VU");
+		check("A2;B2c(iii);D1;E", high, "VU");
 	}
 	
 	@Test
