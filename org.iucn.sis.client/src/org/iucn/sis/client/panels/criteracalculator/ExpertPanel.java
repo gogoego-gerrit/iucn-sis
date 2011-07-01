@@ -202,6 +202,13 @@ public class ExpertPanel extends LayoutContainer {
 			ExpertUtils.processAssessment(AssessmentCache.impl.getCurrentAssessment());
 			fuzzyField = AssessmentCache.impl.getCurrentAssessment().getField(CanonicalNames.RedListFuzzyResult);
 		}
+		else {
+			RedListFuzzyResultField proxy = new RedListFuzzyResultField(fuzzyField);
+			if ("".equals(proxy.getCategory()) || "DD".equals(proxy.getCategory())) {
+				ExpertUtils.processAssessment(AssessmentCache.impl.getCurrentAssessment());
+				fuzzyField = AssessmentCache.impl.getCurrentAssessment().getField(CanonicalNames.RedListFuzzyResult);
+			}
+		}
 		
 		int leftInt;
 		int bestInt;
