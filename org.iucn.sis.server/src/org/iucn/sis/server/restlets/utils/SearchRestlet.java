@@ -4,14 +4,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.TaxonIO;
-import org.iucn.sis.server.api.persistance.CommonNameCriteria;
-import org.iucn.sis.server.api.persistance.SynonymCriteria;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
@@ -59,37 +61,42 @@ public class SearchRestlet extends BaseServiceRestlet {
 		NodeList commonName = docElement.getElementsByTagName("commonName");
 		NodeList sciName = docElement.getElementsByTagName("sciName");
 		NodeList synonym = docElement.getElementsByTagName("synonym");
-		String commonNameString;
-		String sciNameString;
-		String synonymString;
 		
 		TaxonIO taxonIO = new TaxonIO(session);
 		AssessmentIO assessmentIO = new AssessmentIO(session);
-			
-		HashSet<Taxon> taxa = new HashSet<Taxon>();
-						
+		
+		Disjunction disjunction = Restrictions.disjunction(); 
+		boolean hasQuery = false;
+								
 		if (commonName.getLength() > 0) {
-			TaxonCriteria criteria = getTaxonCriteria(taxonIO);
-			commonNameString = "%" + commonName.item(0).getTextContent() + "%" ;
-			CommonNameCriteria commonNameCriteria = criteria.createCommonNamesCriteria();
-			commonNameCriteria.name.ilike(commonNameString);
-			taxa.addAll(search(criteria, taxonIO));
+			hasQuery = true;
+			disjunction.add(Restrictions.ilike("CommonNames.name", commonName.item(0).getTextContent(), MatchMode.ANYWHERE));
 		}
 		
 		if (synonym.getLength() > 0) {
-			TaxonCriteria criteria = getTaxonCriteria(taxonIO);
-			synonymString = "%" + synonym.item(0).getTextContent() + "%" ;
-			SynonymCriteria synonymCriteria = criteria.createSynonymsCriteria();
-			synonymCriteria.friendlyName.ilike(synonymString);
-			taxa.addAll(search(criteria, taxonIO));
+			hasQuery = true;
+			disjunction.add(Restrictions.ilike("Synonyms.friendlyName", synonym.item(0).getTextContent(), MatchMode.ANYWHERE));
 		}			
 			
 		if (sciName.getLength() > 0) {
-			TaxonCriteria criteria = getTaxonCriteria(taxonIO);
-			sciNameString = "%" + sciName.item(0).getTextContent() + "%" ;
-			criteria.friendlyName.ilike(sciNameString);
-			taxa.addAll(search(criteria, taxonIO));
+			hasQuery = true;
+			disjunction.add(Restrictions.ilike("friendlyName", sciName.item(0).getTextContent(), MatchMode.ANYWHERE));
 		}
+		
+		final Collection<Taxon> taxa;
+		if (hasQuery) {
+			TaxonCriteria search = new TaxonCriteria(session.createCriteria(Taxon.class)
+				.createAlias("CommonNames", "CommonNames", Criteria.LEFT_JOIN)
+				.createAlias("Synonyms", "Synonyms", Criteria.LEFT_JOIN)
+				.add(disjunction)
+				.addOrder(Order.asc("friendlyName"))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
+			search.createTaxonLevelCriteria().level.ge(TaxonLevel.SPECIES);
+			
+			taxa = search(search, taxonIO);
+		}
+		else
+			taxa = new ArrayList<Taxon>();
 		
 		final CommonNameComparator comparator = new CommonNameComparator();
 			
@@ -137,12 +144,4 @@ public class SearchRestlet extends BaseServiceRestlet {
 	protected Collection<Taxon> search(TaxonCriteria criteria, TaxonIO taxonIO) {
 		return Arrays.asList(taxonIO.search(criteria));
 	}
-	
-	protected TaxonCriteria getTaxonCriteria(TaxonIO taxonIO) {
-		TaxonCriteria criteria = taxonIO.getCriteria();
-		criteria.createTaxonLevelCriteria().level.ge(TaxonLevel.SPECIES);
-		return criteria;
-	}
-	
-
 }
