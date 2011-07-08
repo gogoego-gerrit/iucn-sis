@@ -65,7 +65,7 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 	private LayoutContainer createChangeContainer() {
 		LayoutContainer container = new LayoutContainer(new FlowLayout(0));
 		container.addStyleName("x-panel");
-		container.setScrollMode(Scroll.AUTO);
+		//container.setScrollMode(Scroll.AUTO);
 		
 		return container;
 	}
@@ -91,10 +91,12 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 			public void isDrawn(LayoutContainer parameter) {
 				final ContentPanel oldFieldPanel = new ContentPanel();
 				oldFieldPanel.setHeading("Old Version");
+				oldFieldPanel.setScrollMode(Scroll.AUTO);
 				oldFieldPanel.add(oldField);
 				
 				final ContentPanel newFieldPanel = new ContentPanel();
 				newFieldPanel.setHeading("New Version");
+				newFieldPanel.setScrollMode(Scroll.AUTO);
 				newFieldPanel.add(newField);
 				
 				final BorderLayoutData oldFieldLD = new BorderLayoutData(LayoutRegion.NORTH, 300);
