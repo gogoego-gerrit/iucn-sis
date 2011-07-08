@@ -35,6 +35,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.portable.XMLWritingUtils;
 
 public class SearchRestlet extends BaseServiceRestlet {
@@ -61,6 +62,9 @@ public class SearchRestlet extends BaseServiceRestlet {
 		NodeList commonName = docElement.getElementsByTagName("commonName");
 		NodeList sciName = docElement.getElementsByTagName("sciName");
 		NodeList synonym = docElement.getElementsByTagName("synonym");
+		NodeList level = docElement.getElementsByTagName("level");
+		
+		int taxonLevel = TaxonLevel.SPECIES;
 		
 		TaxonIO taxonIO = new TaxonIO(session);
 		AssessmentIO assessmentIO = new AssessmentIO(session);
@@ -83,6 +87,14 @@ public class SearchRestlet extends BaseServiceRestlet {
 			disjunction.add(Restrictions.ilike("friendlyName", sciName.item(0).getTextContent(), MatchMode.ANYWHERE));
 		}
 		
+		if (level.getLength() > 0) {
+			try {
+				taxonLevel = Integer.valueOf(level.item(0).getTextContent());
+			} catch (Exception e) {
+				TrivialExceptionHandler.ignore(this, e);
+			}
+		}
+		
 		final Collection<Taxon> taxa;
 		if (hasQuery) {
 			TaxonCriteria search = new TaxonCriteria(session.createCriteria(Taxon.class)
@@ -91,7 +103,7 @@ public class SearchRestlet extends BaseServiceRestlet {
 				.add(disjunction)
 				.addOrder(Order.asc("friendlyName"))
 				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
-			search.createTaxonLevelCriteria().level.ge(TaxonLevel.SPECIES);
+			search.createTaxonLevelCriteria().level.ge(taxonLevel);
 			
 			taxa = search(search, taxonIO);
 		}

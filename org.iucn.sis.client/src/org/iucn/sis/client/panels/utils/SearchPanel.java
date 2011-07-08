@@ -9,6 +9,7 @@ import org.iucn.sis.client.panels.search.SearchQuery;
 import org.iucn.sis.client.panels.search.SearchResultPage;
 import org.iucn.sis.client.panels.search.SearchResultPage.TaxonSearchResult;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -31,6 +32,7 @@ import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.NativeNodeList;
@@ -48,6 +50,7 @@ public class SearchPanel extends LayoutContainer {
 	private final CheckBox common;
 	private final CheckBox synonym;
 	private final CheckBox sciName;
+	private final RadioButton all, species;
 	private final CheckBox countryOfOcc;
 	private final TextBox countryOfOccText;
 	private final CheckBox assessor;
@@ -80,6 +83,8 @@ public class SearchPanel extends LayoutContainer {
 		common = new CheckBox();
 		synonym = new CheckBox();
 		sciName = new CheckBox();
+		all = new RadioButton("level", "Search All Taxonomy Levels");
+		species = new RadioButton("level", "Search Only Species and Below");
 		countryOfOcc = new CheckBox();
 		countryOfOccText = new TextBox();
 		assessor = new CheckBox();
@@ -181,6 +186,13 @@ public class SearchPanel extends LayoutContainer {
 
 		sciName.setText("Search Scientific Names");
 		sciName.setValue(true);
+		
+		all.setValue(false);
+		species.setValue(true);
+		
+		HorizontalPanel level = new HorizontalPanel();
+		level.add(species);
+		level.add(all);
 
 		HorizontalPanel hp1 = new HorizontalPanel();
 		countryOfOcc.setText("Country of Occurrence");
@@ -201,6 +213,8 @@ public class SearchPanel extends LayoutContainer {
 		vp.add(common);
 		vp.add(synonym);
 		vp.add(sciName);
+		vp.add(level);
+		
 		vp.add(new HTML("<hr><b>Assessment Filters:</b>"));
 		vp.add(hp1);
 		vp.add(hp2);
@@ -280,6 +294,7 @@ public class SearchPanel extends LayoutContainer {
 		resultsPage.draw(new DrawsLazily.DoneDrawingCallback() {
 			public void isDrawn() {
 				searchButton.setEnabled(true);
+				advancedOptions.collapse();
 				expandableResults.setHeading("Search Results [" + resultsPage.getLength() + " results]");
 				expandableResults.removeAll();
 				expandableResults.add(resultsPage);
@@ -287,11 +302,15 @@ public class SearchPanel extends LayoutContainer {
 		});
 	}
 
-	protected SearchQuery searchToXML(String searchQuery) {
+	private SearchQuery searchToXML(String searchQuery) {
 		final SearchQuery query = new SearchQuery(searchQuery);
 		query.setCommonName(common.getValue());
 		query.setSynonym(synonym.getValue());
 		query.setScientificName(sciName.getValue());
+		if (all.getValue())
+			query.setLevel(TaxonLevel.KINGDOM);
+		else
+			query.setLevel(TaxonLevel.SPECIES);
 		if (countryOfOcc.getValue())
 			query.setCountryOfOccurrence(countryOfOccText.getValue());
 		if (assessor.getValue())

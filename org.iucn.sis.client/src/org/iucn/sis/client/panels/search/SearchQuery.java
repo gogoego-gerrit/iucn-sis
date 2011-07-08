@@ -2,6 +2,8 @@ package org.iucn.sis.client.panels.search;
 
 import java.util.Date;
 
+import org.iucn.sis.shared.api.models.TaxonLevel;
+
 import com.solertium.util.portable.XMLWritingUtils;
 
 /**
@@ -20,6 +22,7 @@ public class SearchQuery {
 	private boolean commonName;
 	private boolean synonym;
 	private boolean scientificName;
+	private int level;
 	
 	private String countryOfOccurrence;
 	private String assessor;
@@ -27,6 +30,7 @@ public class SearchQuery {
 	public SearchQuery(String query) {
 		this.query = query;
 		this.searchID = new Date().getTime() + query.toString();
+		this.level = TaxonLevel.SPECIES;
 	}
 	
 	public String getQuery() {
@@ -73,6 +77,14 @@ public class SearchQuery {
 		this.assessor = assessor;
 	}
 	
+	public int getLevel() {
+		return level;
+	}
+	
+	public void setLevel(int level) {
+		this.level = level;
+	}
+	
 	private boolean isBlank(String text) {
 		return text == null || "".equals(text.trim());
 	}
@@ -106,6 +118,7 @@ public class SearchQuery {
 	public String toXML() {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<search>");
+		xml.append(XMLWritingUtils.writeTag("level", getLevel()+""));
 		if (isCommonName())
 			xml.append(XMLWritingUtils.writeCDATATag("commonName", query));
 		if (isSynonym())
