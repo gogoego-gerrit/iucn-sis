@@ -88,7 +88,7 @@ public class SearchResultPage extends PagingPanel<SearchResultPage.TaxonSearchRe
 		columns.add(new ColumnConfig("name", "Scientific Name", 175));
 		columns.add(newColumnConfig("commonName", "Common Name", 175, HorizontalAlignment.LEFT));
 		columns.add(new ColumnConfig("level", "Level", 75));
-		columns.add(newColumnConfig("category", "Category", 75, HorizontalAlignment.RIGHT));
+		//columns.add(newColumnConfig("category", "Category", 75, HorizontalAlignment.RIGHT));
 		columns.add(newColumnConfig("family", "Family", 100, HorizontalAlignment.RIGHT));
 		columns.add(newColumnConfig("genus", "Genus", 100, HorizontalAlignment.RIGHT));
 		
