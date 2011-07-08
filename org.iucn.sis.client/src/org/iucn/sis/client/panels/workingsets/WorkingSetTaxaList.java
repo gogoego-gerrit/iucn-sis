@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.workingsets;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +46,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.extjs.client.GenericPagingLoader;
 import com.solertium.util.extjs.client.ViewerFilterTextBox;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
 @SuppressWarnings("deprecation")
 public class WorkingSetTaxaList extends RefreshLayoutContainer {
@@ -601,6 +603,14 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 									new TaxaData(taxaName, TaxaData.FULLNAME, String.valueOf(taxaID), null));
 						}
 					}
+					
+					Collections.sort(pagingLoader.getFullList(), new Comparator<TaxaData>() {
+						private final PortableAlphanumericComparator comparator = 
+							new PortableAlphanumericComparator();
+						public int compare(TaxaData o1, TaxaData o2) {
+							return comparator.compare(o1.get("display"), o2.get("display"));
+						}
+					});
 
 					// ArrayUtils.quicksort((ArrayList)
 					// pagingLoader.getFullList(), new Comparator<TaxaData>() {

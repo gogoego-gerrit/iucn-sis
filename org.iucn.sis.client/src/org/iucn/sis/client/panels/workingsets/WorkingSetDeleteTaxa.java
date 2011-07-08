@@ -1,6 +1,9 @@
 package org.iucn.sis.client.panels.workingsets;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -27,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
 /**
  * Events:
@@ -135,12 +139,21 @@ public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 
 	public void refreshTaxa(List<TaxaData> checked) {
 		list.removeAll();
-			
+		
+		List<DataListItem> items = new ArrayList<DataListItem>();
+		
 		for (TaxaData data : checked)
-			refreshTaxa(data.getName(), data.getType(), data.getID(), data.getChildIDS());
+			addItem(data.getName(), data.getType(), data.getID(), data.getChildIDS(), items);
+		
+		Collections.sort(items, new ListItemComparator());
+		
+		for (DataListItem item : items)
+			list.add(item);
+		
+		layout();
 	}
 
-	public void refreshTaxa(String name, String type, String id, String childIDS) {
+	private void addItem(String name, String type, String id, String childIDS, List<DataListItem> list) {
 		// ADDING TO LIST
 		if (type.equals(TaxaData.FULLNAME)) {
 			DataListItem item = new DataListItem();
@@ -151,16 +164,10 @@ public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 		} else {
 			String[] ids = childIDS.split(",");
 			for (int i = 0; i < ids.length; i++) {
-				DataListItem item = new DataListItem();
-				item.setIconStyle("icon-trash");
-				Taxon  node = TaxonomyCache.impl.getTaxon(ids[i]);
-				item.setText(node.getFullName());
-				item.setId(node.getId() + "");
-				list.add(item);
+				Taxon node = TaxonomyCache.impl.getTaxon(ids[i]);
+				addItem(node.getFullName(), TaxaData.FULLNAME, node.getId()+"", "", list);
 			}
 		}
-
-		layout();
 	}
 
 	@Override
@@ -170,4 +177,16 @@ public class WorkingSetDeleteTaxa extends RefreshLayoutContainer {
 		list.setHeight(height - 40 - 30);
 	}
 
+	private static class ListItemComparator implements Comparator<DataListItem> {
+		
+		private final PortableAlphanumericComparator comparator = 
+			new PortableAlphanumericComparator();
+		
+		 @Override
+		public int compare(DataListItem o1, DataListItem o2) {
+			return comparator.compare(o1.getText(), o2.getText());
+		}
+		
+	}
+	
 }
