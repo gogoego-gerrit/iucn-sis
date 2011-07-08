@@ -1,301 +1,302 @@
-<?xml version="1.0" encoding="UTF-8"?>
-	<views>
-	<view id="FullView" title="All Fields View" xsi:noNamespaceSchemaLocation="views.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><views>
+	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="FullView" title="All Fields View" xsi:noNamespaceSchemaLocation="views.xsd">
 		<pages>
-			<page title="Taxonomic Notes" id="TaxonomicNotes">
+			<page id="TaxonomicNotes" title="Taxonomic Notes">
 				<pageOrganizations>
-					<organization title="Taxonomic Notes Documentation" shortTitle="Taxonomic Notes">
-						<field id="TaxonomicNotes"></field>	
+					<organization shortTitle="Taxonomic Notes" title="Taxonomic Notes Documentation">
+						<field id="TaxonomicNotes"/>	
 					</organization>
 				</pageOrganizations>
-
 			</page>
-			<page title="Distribution" id="Distribution">
+
+			<page id="Distribution" title="Distribution">
 				<pageOrganizations>
 					<organization title="Geographic Range">
-						<field id="RangeDocumentation"></field>
+						<field id="RangeDocumentation"/>
 					</organization>
 					<organization shortTitle="AOO" title="Area of Occupancy (AOO)">
 					  <text>AOO applies to criteria A, B, and D</text>
-
 						<composite>
-							<field id="AOO"></field>
-							<field id="AOOContinuingDecline"></field>
+
+							<field id="AOO"/>
+							<field id="AOOContinuingDecline"/>
 						</composite>
 						<composite>
-							<field id="AOOExtremeFluctuation"></field>
+							<field id="AOOExtremeFluctuation"/>
 						</composite>
 					</organization>
 					<organization shortTitle="EOO" title="Extent of Occurrence (EOO)">
-
 					  <text>EOO applies to criteria A and B</text>
-						<composite>
-							<field id="EOO"></field>
-							<field id="EOOContinuingDecline"></field>
-						</composite>
-						<composite>
-							<field id="EOOExtremeFluctuation"></field>
-						</composite>
 
+						<composite>
+							<field id="EOO"/>
+							<field id="EOOContinuingDecline"/>
+						</composite>
+						<composite>
+							<field id="EOOExtremeFluctuation"/>
+						</composite>
 					</organization>
 					<organization shortTitle="Locations" title="Locations Information">
-							<field id="LocationsNumber"></field>
-							<field id="LocationContinuingDecline"></field>
-							<field id="LocationExtremeFluctuation"></field>
+
+							<field id="LocationsNumber"/>
+							<field id="LocationContinuingDecline"/>
+							<field id="LocationExtremeFluctuation"/>
 						</organization>
 					<organization shortTitle="Very restricted" title="Very restricted AOO or number locations (D2)">
 					  <text>Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</text>
-
-		  <field id="AreaRestricted"></field>
+		  <field id="AreaRestricted"/>
 		</organization>  
 					<organization shortTitle="Elevation/Depth" title="Elevation / Depth / Depth Zones">
+
 						<text>Elevation Limits</text>
 		  <composite>
-							<field id="ElevationLower"></field>
-							<field id="ElevationUpper"></field>
+							<field id="ElevationLower"/>
+							<field id="ElevationUpper"/>
 						</composite>
 						<text>Depth Limits</text>
-
 						<composite>
-							<field id="DepthLower"></field>
-							<field id="DepthUpper"></field>
+							<field id="DepthLower"/>
+
+							<field id="DepthUpper"/>
 						</composite>
 						<text>Depth Zones</text>
 						<composite>
-						<field id="DepthZone"></field>
+						<field id="DepthZone"/>
 						</composite>
-
 					</organization>
 					<organization title="Map Status">
-						<field id="MapStatus"></field>
+
+						<field id="MapStatus"/>
 					</organization>
 					<organization title="Biogeographic Realms">
-						<field id="BiogeographicRealm"></field>
+						<field id="BiogeographicRealm"/>
 					</organization>
 				</pageOrganizations>
 			</page>
-
-			<page title="Occurrence" id="Occurrence">
+			<page id="Occurrence" title="Occurrence">
 				<pageOrganizations>
+
 					<organization shortTitle="Countries" title="Countries of Occurrence">
-						<field id="CountryOccurrence"></field>
+						<field id="CountryOccurrence"/>
 					</organization>
-					<organization title="Large Marine Ecosystems (LME) Occurrence" shortTitle="LME">
-						<field id="LargeMarineEcosystems"></field>
+					<organization shortTitle="LME" title="Large Marine Ecosystems (LME) Occurrence">
+						<field id="LargeMarineEcosystems"/>
 					</organization>
 					<organization shortTitle="FAO" title="FAO Area Occurrence">
-
-						<field id="FAOOccurrence"></field>
+						<field id="FAOOccurrence"/>
 					</organization>
+
 				</pageOrganizations>
 			</page>
-			<page title="Population" id="Population">
+			<page id="Population" title="Population">
 				<pageOrganizations>
 					<organization shortTitle="Documentation" title="Population Documentation">
-						<field id="PopulationDocumentation"></field>
+						<field id="PopulationDocumentation"/>
 					</organization>
-
 					<organization shortTitle="Population" title="Population Information">
 		    <text>Population Size information applies to criteria A, B, C and D</text>
-							<field id="PopulationTrend"></field>
+
+							<field id="PopulationTrend"/>
 						    <composite>
-				  		    <field id="PopulationSize"></field>
-							<field id="PopulationExtremeFluctuation"></field>
+				  		    <field id="PopulationSize"/>
+							<field id="PopulationExtremeFluctuation"/>
 							</composite>
 							<composite>
-
-							<field id="SevereFragmentation"></field>
-							<field id="PopulationContinuingDecline"></field>
+							<field id="SevereFragmentation"/>
+							<field id="PopulationContinuingDecline"/>
 							</composite>
-							<field id="PopulationDeclineGenerations1"></field>
-							<field id="PopulationDeclineGenerations2"></field>
-							<field id="PopulationDeclineGenerations3"></field>
-							<text>Subpopulation size information applies to criteria B and C</text>
-							<field id="SubpopulationExtremeFluctuation"></field>
 
-		    <field id="SubpopulationContinuingDecline"></field>
-							<field id="SubpopulationSingle"></field>
-							<field id="MaxSubpopulationSize"></field>
+							<field id="PopulationDeclineGenerations1"/>
+							<field id="PopulationDeclineGenerations2"/>
+							<field id="PopulationDeclineGenerations3"/>
+							<text>Subpopulation size information applies to criteria B and C</text>
+							<field id="SubpopulationExtremeFluctuation"/>
+		    <field id="SubpopulationContinuingDecline"/>
+							<field id="SubpopulationSingle"/>
+							<field id="MaxSubpopulationSize"/>
+							<field id="SubpopulationNumber"/>
 					</organization>
 					<organization shortTitle="Past Reduction" title="Population Reduction - Past">
 					  <text>A population size reduction in the past 10 years or 3 generations, whichever is the longer, up to a maximum of 100 years</text>
-						<field id="PopulationReductionPast"></field>
-						<field id="PopulationReductionPastBasis"></field>
+						<field id="PopulationReductionPast"/>
+						<field id="PopulationReductionPastBasis"/>
+						<field id="PopulationReductionPastReversible"/>
+						<field id="PopulationReductionPastUnderstood"/>
+						<field id="PopulationReductionPastCeased"/>
 
-						<field id="PopulationReductionPastReversible"></field>
-						<field id="PopulationReductionPastUnderstood"></field>
-						<field id="PopulationReductionPastCeased"></field>
 					</organization>
 					<organization shortTitle="Future Reduction" title="Population Reduction - Future">
 						<text>A population size reduction projected or suspected to be met within the next 10 years or 3 generations, whichever is the longer, up to a maximum of 100 years</text>
-		  <field id="PopulationReductionFuture"></field>
-						<field id="PopulationReductionFutureBasis"></field>
+		  <field id="PopulationReductionFuture"/>
+						<field id="PopulationReductionFutureBasis"/>
+						<field id="PopulationReductionFutureReversible" row="1"/>
+						<field id="PopulationReductionFutureUnderstood"/>
+						<field id="PopulationReductionFutureCeased"/>
 
-						<field row="1" id="PopulationReductionFutureReversible"></field>
-						<field id="PopulationReductionFutureUnderstood"></field>
-						<field id="PopulationReductionFutureCeased"></field>
 					</organization>
 					<organization shortTitle="Ongoing Reduction" title="Population Reduction - Ongoing">
 					<text>A population size reduction over any 10 year or three generation period, whichever is longer (up to a maximum of 100 years in the future), where the time period must include both the past and the future</text>
-						<field id="PopulationReductionPastandFuture"></field>
-						<field id="PopulationReductionPastandFutureBasis"></field>
+						<field id="PopulationReductionPastandFuture"/>
+						<field id="PopulationReductionPastandFutureBasis"/>
+						<field id="PopulationReductionPastandFutureReversible"/>
+						<field id="PopulationReductionPastandFutureUnderstood"/>
+						<field id="PopulationReductionPastandFutureCeased"/>
 
-						<field id="PopulationReductionPastandFutureReversible"></field>
-						<field id="PopulationReductionPastandFutureUnderstood"></field>
-						<field id="PopulationReductionPastandFutureCeased"></field>
 					</organization>
 					<organization title="DEM Reduction">
-						<field id="OldDEMPastDecline" />
-						<field id="OldDEMPeriodPastDecline" />
-						<field id="OldDEMFutureDecline" />
-						<field id="OldDEMPeriodFutureDecline" />
-
+						<field id="OldDEMPastDecline"/>
+						<field id="OldDEMPeriodPastDecline"/>
+						<field id="OldDEMFutureDecline"/>
+						<field id="OldDEMPeriodFutureDecline"/>
 					</organization>
 				</pageOrganizations>
 			</page>
-			<page title="Habitats and Ecology" id="Habitats">
+
+			<page id="Habitats" title="Habitats and Ecology">
 				<pageOrganizations>
 					<organization title="Documentation">
-						<field id="HabitatDocumentation"></field>
+						<field id="HabitatDocumentation"/>
 					</organization>
 					<organization shortTitle="Coded Habitats" title="IUCN Habitats Classification Scheme">
-
-						<field id="GeneralHabitats"></field>
+						<field id="GeneralHabitats"/>
 					</organization>
 					<organization shortTitle="Hab. Decline" title="Continuing Decline in Habitat">
-					<field id="HabitatContinuingDecline"></field>
+
+					<field id="HabitatContinuingDecline"/>
 					</organization>
 					<organization shortTitle="Land Cover" title="Land Cover - GLCC 2000">
-						<field id="LandCover"></field>
+						<field id="LandCover"/>
 					</organization>
 					<organization title="Life History">
-
 						<text>Generation Length</text>
 		  <composite>
-							<field id="GenerationLength"></field>
+
+							<field id="GenerationLength"/>
 						</composite>
 						<text>General Life History Information</text>
 		  <composite>
-							<field id="FemaleMaturityAge"></field>
-							<field id="MaleMaturityAge"></field>
+							<field id="FemaleMaturityAge"/>
+							<field id="MaleMaturityAge"/>
+						</composite>
+						<composite>
 
+							<field id="FemaleMaturitySize"/>
+							<field id="MaleMaturitySize"/>
 						</composite>
 						<composite>
-							<field id="FemaleMaturitySize"></field>
-							<field id="MaleMaturitySize"></field>
+							<field id="Longevity"/>
+							<field id="AvgReproductiveAge"/>
 						</composite>
 						<composite>
-							<field id="Longevity"></field>
-							<field id="AvgReproductiveAge"></field>
-						</composite>
+							<field id="MaxSize"/>
 
-						<composite>
-							<field id="MaxSize"></field>
-						  <field id="BirthSize"></field>
+						  <field id="BirthSize"/>
 		  </composite>
 						<composite>
-							<field id="GestationTime"></field>
+							<field id="GestationTime"/>
 						</composite>
 						<composite>
-							<field id="ReproductivePeriodicity"></field>
+							<field id="ReproductivePeriodicity"/>
+							<field id="AvgAnnualFecundity"/>
+						</composite>
 
-							<field id="AvgAnnualFecundity"></field>
-						</composite>
 						<composite>
-							<field id="PopulationIncreaseRate"></field>
-							<field id="NaturalMortality"></field>
+							<field id="PopulationIncreaseRate"/>
+							<field id="NaturalMortality"/>
 						</composite>
 						<text>Breeding strategy for amphibians and reptiles</text>
 						<composite>
+							<field id="EggLaying"/>
+							<field id="LiveBirth"/>
 
-							<field id="EggLaying"></field>
-							<field id="LiveBirth"></field>
 						</composite>
 						<composite>
-							<field id="Parthenogenesis"></field>
-							<field id="FreeLivingLarvae"></field>
+							<field id="Parthenogenesis"/>
+							<field id="FreeLivingLarvae"/>
 						</composite>
 						<composite>
-							<field id="WaterBreeding"></field>
-
+							<field id="WaterBreeding"/>
 						</composite>
 					</organization>
+
 					<organization title="Movement Patterns">
-						<field id="MovementPatterns"></field>
+						<field id="MovementPatterns"/>
 					</organization>
 					<organization title="Systems">
-						<field id="System"></field>
+						<field id="System"/>
 					</organization>
 					<organization shortTitle="Plant Specific" title="Plant Specific">
+						<field id="CropWildRelative"/>
+						<field id="PlantGrowthForms"/>
 
-						<field id="CropWildRelative"></field>
-						<field id="PlantGrowthForms"></field>
 					</organization>
 				</pageOrganizations>
 			</page>
-			<page title="Use and Trade" id="UseTrade">
+			<page id="UseTrade" title="Use and Trade">
 				<pageOrganizations>
 					<organization title="General Use and Trade Information">
 		  <composite>
+							<field id="NotUtilized"/>
+							<field id="UseTradeNoInformation"/>
 
-							<field id="NotUtilized"></field>
-							<field id="UseTradeNoInformation"></field>
 						</composite>
 						<composite>
-				      <field id="UseTradeDocumentation"></field>
+				      <field id="UseTradeDocumentation"/>
 				  </composite>
 		</organization>
 				<organization title="Detailed Use and Trade Information">
-		  <field id="UseTradeDetails"></field>
-
+		  <field id="UseTradeDetails"/>
 		      </organization>
 				  <organization shortTitle="Non-consumptive" title="Non-Consumptive Use">
-			      <field id="NonConsumptiveUse"></field>
-			      <field id="NonConsumptiveUseDescription"></field>
+
+			      <field id="NonConsumptiveUse"/>
+			      <field id="NonConsumptiveUseDescription"/>
 			    </organization>
 					<organization shortTitle="Trends" title="Offtake trends">
 					  <composite>
-							<field id="TrendInWildOfftake"></field>
-							<field id="TrendInDomesticOfftake"></field>
-
+							<field id="TrendInWildOfftake"/>
+							<field id="TrendInDomesticOfftake"/>
 						</composite>
 					</organization>
+
 					<organization title="Livelihoods">
-						<field id="Livelihoods"></field>
+						<field id="Livelihoods"/>
 					</organization>
 				</pageOrganizations>
 		</page>
-			<page title="Threats" id="Threats">
+			<page id="Threats" title="Threats">
 				<pageOrganizations>
-
 					<organization shortTitle="Documentation" title="Threats Documentation">
-						<field id="ThreatsDocumentation"></field>
+						<field id="ThreatsDocumentation"/>
+
 					</organization>
 					<organization shortTitle="Coded Threats" title="Threats Classification Scheme">
-						<field id="NoThreats"/>
-						<field id="ThreatsUnknown"/>
+					        <composite>
+                                                        <field id="NoThreats"/>
+                                                        <field id="ThreatsUnknown"/>
+                                                </composite>
 						<field id="Threats"/>
 					</organization>
 				</pageOrganizations>
 
 			</page>
-			<page title="Conservation" id="Conservation">
+			<page id="Conservation" title="Conservation">
 				<pageOrganizations>
 					<organization shortTitle="Documentation" title="Conservation Actions Documentation">
-						<field id="ConservationActionsDocumentation"></field>
+						<field id="ConservationActionsDocumentation"/>
 					</organization>
 					<organization title="Research Needed">
-						<field id="Research"></field>
+						<field id="Research"/>
 					</organization>
 
 					<organization shortTitle="Conservation Needed" title="Conservation Actions Needed">
-						<field id="ConservationActions"></field>
+						<field id="ConservationActions"/>
 					</organization>
 					<organization shortTitle="In-Place" title="Conservation Actions In-Place">
-						<field id="InPlaceResearch"></field>
-						<field id="InPlaceLandWaterProtection"></field>
-						<field id="InPlaceSpeciesManagement"></field>
-						<field id="InPlaceEducation"></field>
+						<field id="InPlaceResearch"/>
+						<field id="InPlaceLandWaterProtection"/>
+						<field id="InPlaceSpeciesManagement"/>
+						<field id="InPlaceEducation"/>
 					</organization>
 					<organization shortTitle="New In-Place" title="New Conservation Actions In-Place">
 						<h3>In-Place Research, Monitoring and Planning</h3>
@@ -331,362 +332,340 @@
 					</organization>
 				</pageOrganizations>
 			</page>
-			<page title="Ecosystem Services" id="EcosystemServices">
+			<page id="EcosystemServices" title="Ecosystem Services">
 				<!-- AAH note: this page added by AAH -->
 				<pageOrganizations>
 					<organization shortTitle="Services" title="Ecosystem Services Provided by the Species">
 						<composite>
-							<field id="EcosystemServicesInsufficientInfo"></field>
-							<field id="EcosystemServicesProvidesNone"></field>
+							<field id="EcosystemServicesInsufficientInfo"/>
+							<field id="EcosystemServicesProvidesNone"/>
 
 						</composite>
 						<composite>
-							<field id="EcosystemServices"></field>
+							<field id="EcosystemServices"/>
 						</composite>
 					</organization>
 				</pageOrganizations>
 			</page>
-			<page title="Red List Assessment" id="RedListing">
+			<page id="RedListing" title="Red List Assessment">
 				<pageOrganizations>
 
 					<organization title="Red List Status">
 						<composite>
-							<field id="RedListCriteria"></field>
+							<field id="RedListCriteria"/>
 						</composite>
 					</organization>
 					<organization title="Assessment Information">
 						<composite>
-							<field id="RedListAssessmentDate"></field>
-							<field id="RedListEvaluated"></field>
+							<field id="RedListAssessmentDate"/>
+							<field id="RedListEvaluated"/>
 
-							<field id="RedListConsistencyCheck"></field>
+							<field id="RedListConsistencyCheck"/>
 						</composite>
 						<composite>
-							<field id="RedListAssessors"></field>
-							<field id="RedListEvaluators"></field>
-							<field id="RedListContributors"></field>
-							<field id="RedListFacilitators"></field>
+							<field id="RedListAssessors"/>
+							<field id="RedListEvaluators"/>
+							<field id="RedListContributors"/>
+							<field id="RedListFacilitators"/>
 						</composite>
 						<composite>
-							<field id="RedListCaveat"></field>
+							<field id="RedListCaveat"/>
 
-							<field id="RedListPetition"></field>
+							<field id="RedListPetition"/>
 						</composite>
 						<composite>
-							<field id="RegionInformation"></field>
-							<field id="RegionExpertQuestions"></field>
+							<field id="RegionInformation"/>
+							<field id="RegionExpertQuestions"/>
 					</composite>
 				</organization>
 				<organization title="Publication Information">
 					<composite>
 
-						<field id="RedListPublication"></field>
-						<field id="OtherPublication"></field>
+						<field id="RedListPublication"/>
+						<field id="OtherPublication"/>
 					</composite>
 					<composite>
-						<field id="RedListAssessmentAuthors"></field>
-						<field id="RedListSource"></field>
+						<field id="RedListAssessmentAuthors"/>
+						<field id="RedListSource"/>
 					</composite>
 				</organization>
 				<organization title="Assessment Rationale">
 
-					<field id="RedListRationale"></field>
-					<field id="RedListNotes"></field>
+					<field id="RedListRationale"/>
+					<field id="RedListNotes"/>
 				</organization>
 				<organization title="Reasons for Change">
 					<composite>
-						<field id="RedListReasonsForChange"></field>
+						<field id="RedListReasonsForChange"/>
 					</composite>
 				</organization>
 
 			</pageOrganizations>
 		</page>
-		<page title="Text Formatting Examples" id="TestingText">
-				<pageOrganizations>
-					<organization title="Simple Text Options">
-						<h1>Text in h1 mode</h1>
-						<h1 align="center">h1 text, center aligned</h1>
-						<h2>Text in h2 mode</h2>
-
-						<h2 align="right">right-aligned h2 text</h2>
-						<h3>h3 text mode, the smallest allowed</h3>
-						<text>Simple text, legacy mode</text>
-					</organization>
-					<organization title="Advanced Text Options">
-						<information>Information block, with an appropriate icon to denote that yes, this is something 
-
-important that you should note before continuing on.</information>
-						<warning>Similar to the information block, but it has a different icon and the text is red, so 
-
-that you KNOW this is something important -- you're being warned.</warning>
-
-					</organization>
-				</pageOrganizations>
-		</page>
 	</pages>
 </view>
-	<view id="FactorView" title="Factor View" xsi:noNamespaceSchemaLocation="views.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="FactorView" title="Factor View" xsi:noNamespaceSchemaLocation="views.xsd">
 		<pages>
-			<page title="Locations, Area, Extent" id="Location">
+			<page id="Location" title="Locations, Area, Extent">
 				<pageOrganizations>
-
 					<organization title="Locations">
-						<field id="LocationsNumber"></field>
-						<field id="LocationContinuingDecline"></field>
-						<field id="LocationExtremeFluctuation"></field>
+
+						<field id="LocationsNumber"/>
+						<field id="LocationContinuingDecline"/>
+						<field id="LocationExtremeFluctuation"/>
 					</organization>
 					<organization title="Area">
-						<field id="AOO"></field>
-						<field id="AOOContinuingDecline"></field>
-						<field id="AOOExtremeFluctuation"></field>
+						<field id="AOO"/>
+						<field id="AOOContinuingDecline"/>
+						<field id="AOOExtremeFluctuation"/>
+						<field id="AreaRestricted"/>
 
-						<field id="AreaRestricted"></field>
 					</organization>
 					<organization title="Extent">
-						<field id="EOO"></field>
-						<field id="EOOContinuingDecline"></field>
-						<field id="EOOExtremeFluctuation"></field>
+						<field id="EOO"/>
+						<field id="EOOContinuingDecline"/>
+						<field id="EOOExtremeFluctuation"/>
 					</organization>
 					<organization title="Habitat">
-						<field id="HabitatContinuingDecline"></field>
+						<field id="HabitatContinuingDecline"/>
+						<field id="SevereFragmentation"/>
 
-						<field id="SevereFragmentation"></field>
-						<field id="GenerationLength"></field>
+						<field id="GenerationLength"/>
 					</organization>
 				</pageOrganizations>
 			</page>
-			<page title="Population Information" id="Location">
+			<page id="Location" title="Population Information">
 				<pageOrganizations>
 					<organization shortTitle="General" title="Population General">
-						<field id="PopulationSize"></field>
+						<field id="PopulationSize"/>
+						<field id="PopulationExtremeFluctuation"/>
 
-						<field id="PopulationExtremeFluctuation"></field>
-						<field id="PopulationContinuingDecline"></field>
-						<field id="PopulationDeclineGenerations1"></field>
-						<field id="PopulationDeclineGenerations2"></field>
-						<field id="PopulationDeclineGenerations3"></field>
+						<field id="PopulationContinuingDecline"/>
+						<field id="PopulationDeclineGenerations1"/>
+						<field id="PopulationDeclineGenerations2"/>
+						<field id="PopulationDeclineGenerations3"/>
 					</organization>
 					<organization shortTitle="Subpopulation" title="Subpopulation General">
-						<field id="SubpopulationContinuingDecline"></field>
-						<field id="SubpopulationExtremeFluctuation"></field>
+						<field id="SubpopulationContinuingDecline"/>
+						<field id="SubpopulationExtremeFluctuation"/>
+						<field id="SubpopulationSingle"/>
 
-						<field id="SubpopulationSingle"></field>
-						<field id="MaxSubpopulationSize"></field>
+						<field id="MaxSubpopulationSize"/>
 					</organization>
 					<organization shortTitle="Past" title="Population Past">
-						<field id="PopulationReductionPast"></field>
-						<field id="PopulationReductionPastBasis"></field>
-						<field id="PopulationReductionPastUnderstood"></field>
-						<field id="PopulationReductionPastReversible"></field>
-						<field id="PopulationReductionPastCeased"></field>
-
+						<field id="PopulationReductionPast"/>
+						<field id="PopulationReductionPastBasis"/>
+						<field id="PopulationReductionPastUnderstood"/>
+						<field id="PopulationReductionPastReversible"/>
+						<field id="PopulationReductionPastCeased"/>
 					</organization>
+
 					<organization shortTitle="Future" title="Population Future">
-						<field id="PopulationReductionFuture"></field>
-						<field id="PopulationReductionFutureBasis"></field>
-						<field id="PopulationReductionFutureUnderstood"></field>
-						<field id="PopulationReductionFutureReversible"></field>
-						<field id="PopulationReductionFutureCeased"></field>
+						<field id="PopulationReductionFuture"/>
+						<field id="PopulationReductionFutureBasis"/>
+						<field id="PopulationReductionFutureUnderstood"/>
+						<field id="PopulationReductionFutureReversible"/>
+						<field id="PopulationReductionFutureCeased"/>
 					</organization>
 					<organization shortTitle="Past/Future" title="Population Past and Future">
+						<field id="PopulationReductionPastandFuture"/>
 
-						<field id="PopulationReductionPastandFuture"></field>
-						<field id="PopulationReductionPastandFutureBasis"></field>
-						<field id="PopulationReductionPastandFutureUnderstood"></field>
-						<field id="PopulationReductionPastandFutureReversible"></field>
-						<field id="PopulationReductionPastandFutureCeased"></field>
+						<field id="PopulationReductionPastandFutureBasis"/>
+						<field id="PopulationReductionPastandFutureUnderstood"/>
+						<field id="PopulationReductionPastandFutureReversible"/>
+						<field id="PopulationReductionPastandFutureCeased"/>
 					</organization>
 				</pageOrganizations>
 			</page>
 		</pages>
-
 </view>
-<view id="FactorByCrit" title="Criteria Factor View" xsi:noNamespaceSchemaLocation="views.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="FactorByCrit" title="Criteria Factor View" xsi:noNamespaceSchemaLocation="views.xsd">
 		<pages>
-			<page title="Generation Length" id="GenLen">
+			<page id="GenLen" title="Generation Length">
 				<pageOrganizations>
 					<organization shortTitle="Generation Length" title="Generation Length">
-						<field id="GenerationLength"></field>
+						<field id="GenerationLength"/>
 					</organization>
 				</pageOrganizations>
 			</page>
 
-			<page title="A Criteria" id="A">
+			<page id="A" title="A Criteria">
 				<pageOrganizations>
 				<organization shortTitle="Past Reduction" title="Population Size Reduction in the past (A1 and A2)">
-					<field id="PopulationReductionPast"></field>
-					<field id="PopulationReductionPastBasis"></field>
-					<field id="PopulationReductionPastUnderstood"></field>
-					<field id="PopulationReductionPastReversible"></field>
-					<field id="PopulationReductionPastCeased"></field>
+					<field id="PopulationReductionPast"/>
+					<field id="PopulationReductionPastBasis"/>
+					<field id="PopulationReductionPastUnderstood"/>
+					<field id="PopulationReductionPastReversible"/>
+					<field id="PopulationReductionPastCeased"/>
 				</organization>
 
 				<organization shortTitle="Future Reduction" title="Population Size Reduction in the future (A3)">
-					<field id="PopulationReductionFuture"></field>
-					<field id="PopulationReductionFutureBasis"></field>
-					<field id="PopulationReductionFutureUnderstood"></field>
-					<field id="PopulationReductionFutureReversible"></field>
-					<field id="PopulationReductionFutureCeased"></field>
+					<field id="PopulationReductionFuture"/>
+					<field id="PopulationReductionFutureBasis"/>
+					<field id="PopulationReductionFutureUnderstood"/>
+					<field id="PopulationReductionFutureReversible"/>
+					<field id="PopulationReductionFutureCeased"/>
 				</organization>
 				<organization shortTitle="Ongoing Reduction" title="Population Size Reduction in the past and future (A4)">
-					<field id="PopulationReductionPastandFuture"></field>
+					<field id="PopulationReductionPastandFuture"/>
 
-					<field id="PopulationReductionPastandFutureBasis"></field>
-					<field id="PopulationReductionPastandFutureUnderstood"></field>
-					<field id="PopulationReductionPastandFutureReversible"></field>
-					<field id="PopulationReductionPastandFutureCeased"></field>
+					<field id="PopulationReductionPastandFutureBasis"/>
+					<field id="PopulationReductionPastandFutureUnderstood"/>
+					<field id="PopulationReductionPastandFutureReversible"/>
+					<field id="PopulationReductionPastandFutureCeased"/>
 				</organization>
 				</pageOrganizations>
 			</page>
-			<page title="B Criteria" id="B">
+			<page id="B" title="B Criteria">
 				<pageOrganizations>
 
 				<organization shortTitle="EOO" title="Extent of Occurrence (B1)">
-					<field id="EOO"></field>
-					<field id="EOOContinuingDecline"></field>
-					<field id="EOOExtremeFluctuation"></field>
+					<field id="EOO"/>
+					<field id="EOOContinuingDecline"/>
+					<field id="EOOExtremeFluctuation"/>
 				</organization>
 				<organization shortTitle="Habitat" title="Habitat Decline">
-					<field id="HabitatContinuingDecline"></field>
+					<field id="HabitatContinuingDecline"/>
 				</organization>
 				<organization shortTitle="AOO" title="Area of Occupancy (B2)">
 
-					<field id="AOO"></field>
-					<field id="AOOContinuingDecline"></field>
-					<field id="AOOExtremeFluctuation"></field>
+					<field id="AOO"/>
+					<field id="AOOContinuingDecline"/>
+					<field id="AOOExtremeFluctuation"/>
 				</organization>
 				<organization shortTitle="Locations" title="Location information (B1a and B2a)">
-					<field id="LocationsNumber"></field>
-					<field id="LocationContinuingDecline"></field>
-					<field id="LocationExtremeFluctuation"></field>
-					<field id="SevereFragmentation"></field>
+					<field id="LocationsNumber"/>
+					<field id="LocationContinuingDecline"/>
+					<field id="LocationExtremeFluctuation"/>
+					<field id="SevereFragmentation"/>
 
 				</organization>
 				<organization shortTitle="Pop Info" title="Population and Subpopulation Information (B1b+c and B2b+c)">
-					<field id="PopulationContinuingDecline"></field>
-					<field id="PopulationExtremeFluctuation"></field>
-					<field id="SubpopulationContinuingDecline"></field>
-					<field id="SubpopulationExtremeFluctuation"></field>
+					<field id="PopulationContinuingDecline"/>
+					<field id="PopulationExtremeFluctuation"/>
+					<field id="SubpopulationContinuingDecline"/>
+					<field id="SubpopulationExtremeFluctuation"/>
 				</organization>
 				</pageOrganizations>
 			</page>
 
-			<page title="C Criteria" id="C">
+			<page id="C" title="C Criteria">
 				<pageOrganizations>
 				<organization shortTitle="Population Size" title="Population Size (C1,C2, D)">
-					<field id="PopulationSize"></field>
-					<field id="PopulationExtremeFluctuation"></field>
+					<field id="PopulationSize"/>
+					<field id="PopulationExtremeFluctuation"/>
 				</organization>
 				<organization shortTitle="Population Decline" title="Population Continuing Decline (C1,C2)">
-					<field id="PopulationContinuingDecline"></field>
-					<field id="PopulationDeclineGenerations1"></field>
+					<field id="PopulationContinuingDecline"/>
+					<field id="PopulationDeclineGenerations1"/>
 
-					<field id="PopulationDeclineGenerations2"></field>
-					<field id="PopulationDeclineGenerations3"></field>
+					<field id="PopulationDeclineGenerations2"/>
+					<field id="PopulationDeclineGenerations3"/>
 				</organization>
 				<organization shortTitle="Subpopulations" title="Subpopulation Info (C2a)">
-					<field id="SubpopulationSingle"></field>
-					<field id="MaxSubpopulationSize"></field>
+					<field id="SubpopulationSingle"/>
+					<field id="MaxSubpopulationSize"/>
 				</organization>
 				</pageOrganizations>
 			</page>
 
-			<page title="D Criteria" id="D">
+			<page id="D" title="D Criteria">
 				<pageOrganizations>
 				<organization shortTitle="Population Size" title="Population Size (D)">
-					<field id="PopulationSize"></field>
-					<field id="AreaRestricted"></field>
+					<field id="PopulationSize"/>
+					<field id="AreaRestricted"/>
 				</organization>
 				</pageOrganizations>
 			</page>
-			<page title="E Criteria" id="E">
+			<page id="E" title="E Criteria">
 
 				<pageOrganizations>
 				<organization shortTitle="Quanitative Analysis" title="Quantitative Analysis">
-					<field id="ExtinctionProbabilityYears100"></field>
+					<field id="ExtinctionProbabilityYears100"/>
 				</organization>
 				</pageOrganizations>
 			</page>
 		</pages>
 </view>
-	<view id="NarrativeView" title="Narrative View" xsi:noNamespaceSchemaLocation="views.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="NarrativeView" title="Narrative View" xsi:noNamespaceSchemaLocation="views.xsd">
 
 		<pages>
-			<page title="Taxonomic Notes" id="TaxonomicNotes">
+			<page id="TaxonomicNotes" title="Taxonomic Notes">
 				<pageOrganizations>
-					<organization title="Taxonomic Notes Documentation" shortTitle="Taxon Notes">
-						<field id="TaxonomicNotes"></field>	
+					<organization shortTitle="Taxon Notes" title="Taxonomic Notes Documentation">
+						<field id="TaxonomicNotes"/>	
 					</organization>
 				</pageOrganizations>
 			</page>
-			<page title="Conservation Actions" id="ConservationActionsDocumentation">
+			<page id="ConservationActionsDocumentation" title="Conservation Actions">
 
 				<pageOrganizations>
 					<organization title="Conservation Actions Documentation">
-						<field id="ConservationActionsDocumentation"></field>
+						<field id="ConservationActionsDocumentation"/>
 					</organization>					
 				</pageOrganizations>
 			</page>
-			<page title="Geographic Range" id="RangeDocumentation">
+			<page id="RangeDocumentation" title="Geographic Range">
 				<pageOrganizations>
 					<organization title="Geographic Range">
 
-						<field id="RangeDocumentation"></field>
+						<field id="RangeDocumentation"/>
 					</organization>					
 				</pageOrganizations>
 			</page>
-			<page title="Habitat Information" id="HabitatDocumentation">
+			<page id="HabitatDocumentation" title="Habitat Information">
 				<pageOrganizations>
 					<organization title="Habitat Information">
-						<field id="HabitatDocumentation"></field>
+						<field id="HabitatDocumentation"/>
 					</organization>					
 				</pageOrganizations>
 
 			</page>
-			<page title="Trade and Use" id="UseTradeDocumentation">
+			<page id="UseTradeDocumentation" title="Trade and Use">
 				<pageOrganizations>
 					<organization title="General notes regarding trade and use of this species">
-						<field id="UseTradeDocumentation"></field>
+						<field id="UseTradeDocumentation"/>
 					</organization>					
 				</pageOrganizations>
 			</page>
-			<page title="Rationale" id="RedListRationale">
+			<page id="RedListRationale" title="Rationale">
 
 				<pageOrganizations>
 					<organization title="Rationale for the Red List Assesssment">
-						<field id="RedListRationale"></field>
+						<field id="RedListRationale"/>
 					</organization>					
 				</pageOrganizations>
 			</page>
-			<page title="Threats Information" id="ThreatsDocumentation">
+			<page id="ThreatsDocumentation" title="Threats Information">
 				<pageOrganizations>
 					<organization title="Threats Information">
 
-						<field id="ThreatsDocumentation"></field>
+						<field id="ThreatsDocumentation"/>
 					</organization>					
 				</pageOrganizations>
 			</page>
-			<page title="Population Information" id="PopulationDocumentation">
+			<page id="PopulationDocumentation" title="Population Information">
 				<pageOrganizations>
 					<organization title="Population Information">
-						<field id="PopulationDocumentation"></field>
+						<field id="PopulationDocumentation"/>
 					</organization>					
 				</pageOrganizations>
 
 			</page>
 		</pages>
 </view>
-<view id="SXbeetles" title="SX Beetle View" xsi:noNamespaceSchemaLocation="views.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="SXbeetles" title="SX Beetle View" xsi:noNamespaceSchemaLocation="views.xsd">
 
 		<pages>
 
-			<page title="Taxonomic Notes" id="TaxonomicNotes">
+			<page id="TaxonomicNotes" title="Taxonomic Notes">
 
 				<pageOrganizations>
 
-					<organization title="Taxonomic Notes Documentation" shortTitle="Taxon Notes">
+					<organization shortTitle="Taxon Notes" title="Taxonomic Notes Documentation">
 
-						<field id="TaxonomicNotes"></field>	
+						<field id="TaxonomicNotes"/>	
 
 					</organization>
 
@@ -694,7 +673,7 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 			</page>
 
-			<page title="Distribution" id="Distribution">
+			<page id="Distribution" title="Distribution">
 
 				<pageOrganizations>
 
@@ -702,17 +681,17 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 						<composite>
 
-							<field id="System"></field>
+							<field id="System"/>
 
-							<field id="BiogeographicRealm"></field>
+							<field id="BiogeographicRealm"/>
 
-							<field id="MapStatus"></field>
+							<field id="MapStatus"/>
 
 						</composite>	
 
-						<field id="CountryOccurrence"></field>															
+						<field id="CountryOccurrence"/>															
 
-						<field id="RangeDocumentation"></field>
+						<field id="RangeDocumentation"/>
 
 					</organization>
 
@@ -720,13 +699,13 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 			</page>
 
-			<page title="Population Information" id="PopulationDocumentation">
+			<page id="PopulationDocumentation" title="Population Information">
 
 				<pageOrganizations>
 
 					<organization title="Population Information">
 
-						<field id="PopulationDocumentation"></field>
+						<field id="PopulationDocumentation"/>
 
 					</organization>					
 
@@ -734,7 +713,7 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 			</page>
 
-			<page title="Habitat" id="Habitats">
+			<page id="Habitats" title="Habitat">
 
 				<pageOrganizations>
 
@@ -742,15 +721,15 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 						<composite>
 
-							<field id="ElevationUpper"></field>
+							<field id="ElevationUpper"/>
 
-							<field id="ElevationLower"></field>
+							<field id="ElevationLower"/>
 
 						</composite>
 
-						<field id="GeneralHabitats"></field>
+						<field id="GeneralHabitats"/>
 
-						<field id="HabitatDocumentation"></field>			
+						<field id="HabitatDocumentation"/>			
 
 					</organization>					
 
@@ -758,15 +737,15 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 			</page>
 
-			<page title="Threats" id="Threats">
+			<page id="Threats" title="Threats">
 
 				<pageOrganizations>
 
 					<organization title="Threats">
 
-						<field id="ThreatsDocumentation"></field>
+						<field id="ThreatsDocumentation"/>
 
-						<field id="Threats"></field>
+						<field id="Threats"/>
 
 					</organization>
 
@@ -774,21 +753,21 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 			</page>
 
-			<page title="Actions in place" id="ActionsInPlace">
+			<page id="ActionsInPlace" title="Actions in place">
 
 				<pageOrganizations>
 
 					<organization title="Actions in place">
 
-						<field id="ConservationActionsDocumentation"></field>
+						<field id="ConservationActionsDocumentation"/>
 
-						<field id="InPlaceResearch"></field>
+						<field id="InPlaceResearch"/>
 
-						<field id="InPlaceLandWaterProtection"></field>
+						<field id="InPlaceLandWaterProtection"/>
 
-						<field id="InPlaceSpeciesManagement"></field>
+						<field id="InPlaceSpeciesManagement"/>
 
-						<field id="InPlaceEducation"></field>
+						<field id="InPlaceEducation"/>
 
 					</organization>
 
@@ -796,25 +775,25 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 			</page>
 
-			<page title="Actions needed" id="ActionsNeeded">
+			<page id="ActionsNeeded" title="Actions needed">
 
 				<pageOrganizations>
 
 					<organization title="Actions documentation">
 
-						<field id="ConservationActionsDocumentation"></field>
+						<field id="ConservationActionsDocumentation"/>
 
 					</organization>
 
 					<organization title="Conservation Actions">
 
-						<field id="ConservationActions"></field>
+						<field id="ConservationActions"/>
 
 					</organization>
 
 					<organization title="Research Actions">
 
-						<field id="Research"></field>
+						<field id="Research"/>
 
 					</organization>
 
@@ -822,7 +801,7 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 			</page>
 
-			<page title="Text Account" id="TextAccount">
+			<page id="TextAccount" title="Text Account">
 
 				<pageOrganizations>
 
@@ -830,17 +809,17 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 						<composite>
 
-							<field id="RangeDocumentation"></field>
+							<field id="RangeDocumentation"/>
 
-							<field id="HabitatDocumentation"></field>
+							<field id="HabitatDocumentation"/>
 
 						</composite>
 
 						<composite>
 
-							<field id="ThreatsDocumentation"></field>
+							<field id="ThreatsDocumentation"/>
 
-							<field id="ConservationActionsDocumentation"></field>	
+							<field id="ConservationActionsDocumentation"/>	
 
 						</composite>
 
@@ -852,5 +831,924 @@ that you KNOW this is something important -- you're being warned.</warning>
 
 		</pages>
 
+	</view>
+	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="PlantsView" title="Plants View" xsi:noNamespaceSchemaLocation="views.xsd">
+		<pages>
+			<page id="TaxonomicNotes" title="Taxonomic Notes">
+				<pageOrganizations>
+					<organization title="Taxonomic Notes">
+
+						<field id="TaxonomicNotes"/>	
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="Distribution" title="Distribution">
+				<pageOrganizations>
+					<organization title="Distribution Information">
+						<field id="RangeDocumentation"/>
+						<composite>
+
+							<field id="ElevationLower"/>
+							<field id="ElevationUpper"/>
+						</composite>
+						<composite>
+						<field id="BiogeographicRealm"/>
+						<field id="EOO"/>
+						<field id="AOO"/>
+						</composite>
+						<composite>
+
+						<field id="LocationsNumber"/>
+						<field id="AreaRestricted"/>
+						</composite>
+						<composite>
+						<field id="MapStatus"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+			</page>
+
+			<page id="Occurrence" title="Occurrence">
+				<pageOrganizations>
+					<organization title="Occurrence Information">
+						<field id="CountryOccurrence"/>
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="Population" title="Population">
+				<pageOrganizations>
+
+					<organization title="Population Information">
+						<composite>
+						<field id="PopulationDocumentation"/>
+						</composite>
+						<composite>
+						<field id="PopulationTrend"/>
+						<field id="PopulationSize"/>
+						</composite>
+							<composite>
+
+								<field id="PopulationExtremeFluctuation"/>
+								<field id="SevereFragmentation"/>
+							</composite>
+							<composite>
+								<field id="PopulationContinuingDecline"/>
+							</composite>
+							<composite>
+								<field id="PopulationDeclineGenerations1"/>
+								<field id="PopulationDeclineGenerations2"/>
+
+								<field id="PopulationDeclineGenerations3"/>
+							</composite>
+							<composite>
+								<field id="SubpopulationExtremeFluctuation"/>
+								<field id="SubpopulationContinuingDecline"/>
+								<field id="SubpopulationSingle"/>
+								<field id="MaxSubpopulationSize"/>
+							</composite>
+					  <text>****** Population size reduction in the past 10 years or 3 generations, whichever is the longer, up to a maximum of 100 years ******</text>
+
+					  <composite>
+						<field id="PopulationReductionPast"/>
+						<field id="PopulationReductionPastBasis"/>
+						</composite>
+						<composite>
+						<field id="PopulationReductionPastReversible"/>
+						<field id="PopulationReductionPastUnderstood"/>
+						<field id="PopulationReductionPastCeased"/>
+						</composite>
+
+						<text>****** Population size reduction projected or suspected to be met within the next 10 years or 3 generations, whichever is the longer, up to a maximum of 100 years ******</text>
+						<composite>
+						<field id="PopulationReductionFuture"/>
+						<field id="PopulationReductionFutureBasis"/>
+						</composite>
+						<composite>
+						<field id="PopulationReductionFutureReversible"/>
+						<field id="PopulationReductionFutureUnderstood"/>
+
+						<field id="PopulationReductionFutureCeased"/>
+						</composite>
+					<text>****** Population size reduction over any 10 year or three generation period, whichever is longer (max. of 100 years in the future), where the time period must include both the past and the future ******</text>
+						<composite>
+						<field id="PopulationReductionPastandFuture"/>
+						<field id="PopulationReductionPastandFutureBasis"/>
+						</composite>
+						<composite>
+
+						<field id="PopulationReductionPastandFutureReversible"/>
+						<field id="PopulationReductionPastandFutureUnderstood"/>
+						<field id="PopulationReductionPastandFutureCeased"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="Habitats" title="Habitats and Ecology">
+				<pageOrganizations>
+
+					<organization title="Habitat and Ecology Information">
+						<composite>
+						<field id="HabitatDocumentation"/>
+						</composite>
+						<composite>
+						<field id="GeneralHabitats"/>
+						</composite>
+						<composite>
+						<field id="HabitatContinuingDecline"/>
+
+						</composite>
+						<composite>
+						<field id="System"/>
+						<field id="CropWildRelative"/>
+						</composite>
+						<composite>
+						<field id="PlantGrowthForms"/>
+						</composite>
+						<text>General Life History Information</text>
+
+						<composite>
+							<field id="GenerationLength"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="UseTrade" title="Use and Trade">
+				<pageOrganizations>
+					<organization title="General Use and Trade Information">
+
+						<composite>
+							<field id="NotUtilized"/>
+							<field id="UseTradeNoInformation"/>
+						</composite>
+						<composite>
+							<field id="UseTradeDocumentation"/>
+						</composite>
+						<composite>
+							<field id="UseTradeDetails"/>
+
+						</composite>
+						<composite>
+							<field id="NonConsumptiveUse"/>
+							<field id="NonConsumptiveUseDescription"/>
+						</composite>
+					    <composite>
+							<field id="TrendInWildOfftake"/>
+							<field id="TrendInDomesticOfftake"/>
+						</composite>
+
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="Threats" title="Threats">
+				<pageOrganizations>
+					<organization title="Threats Documentation">
+						<composite>
+							<field id="NoThreats"/>
+							<field id="ThreatsUnknown"/>
+
+						</composite>
+						<composite>
+							<field id="ThreatsDocumentation"/>
+						</composite>
+						<composite>
+							<field id="Threats"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+
+			</page>
+			<page id="Conservation" title="Conservation">
+				<pageOrganizations>
+					<organization title="Conservation Actions Documentation">
+						<composite>
+							<field id="ConservationActionsDocumentation"/>
+						</composite>
+						<composite>
+							<field id="ConservationActions"/>
+
+						</composite>
+						<composite>
+							<field id="Research"/>
+						</composite>
+						<composite>
+							<field id="InPlaceResearch"/>
+							<field id="InPlaceLandWaterProtection"/>
+						</composite>
+						<composite>
+
+							<field id="InPlaceSpeciesManagement"/>
+							<field id="InPlaceEducation"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="EcoSysServ" title="Ecosystem Services">
+				<pageOrganizations>
+					<organization title="Ecosystem Services">
+
+						<composite>
+							<field id="EcosystemServicesInsufficientInfo"/>
+							<field id="EcosystemServicesProvidesNone"/>
+						</composite>
+						<composite>
+							<field id="EcosystemServices"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+
+			</page>
+			<page id="RedListing" title="Red List Assessment">
+				<pageOrganizations>
+					<organization title="Red List Assessment">
+						<composite>
+							<field id="RedListCriteria"/>
+						</composite>
+						<composite>
+						<field id="RedListRationale"/>
+
+						</composite>
+						<composite>
+							<field id="RedListAssessmentDate"/>
+							<field id="RedListEvaluated"/>
+							<field id="RedListConsistencyCheck"/>
+						</composite>
+						<composite>
+							<field id="RedListAssessors"/>
+							<field id="RedListEvaluators"/>
+
+							<field id="RedListContributors"/>
+							<field id="RedListFacilitators"/>
+						</composite>
+						<composite>
+							<field id="RegionInformation"/>
+						</composite>
+						<composite>
+						<field id="RedListReasonsForChange"/>
+						</composite>
+					</organization>
+
+				</pageOrganizations>
+			</page>
+			<page id="TextAccount" title="Text Accounts">
+				<pageOrganizations>
+					<organization title="Text Account">
+						<composite>
+							<field id="RangeDocumentation"/>
+							<field id="PopulationDocumentation"/>
+						</composite>
+
+						<composite>
+							<field id="HabitatDocumentation"/>
+							<field id="UseTradeDocumentation"/>
+						</composite>
+						<composite>
+							<field id="ThreatsDocumentation"/>
+							<field id="ConservationActionsDocumentation"/>
+						</composite>
+						<composite>
+
+							<field id="RedListRationale"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+			</page>
+		</pages>
+	</view>
+<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="InvertView" title="Invertebrates View" xsi:noNamespaceSchemaLocation="views.xsd">
+
+		<pages>
+
+			<page id="TaxonomicNotes" title="Taxonomic Notes">
+
+				<pageOrganizations>
+
+					<organization title="Taxonomic Notes">
+
+						<field id="TaxonomicNotes"/>	
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+			<page id="Distribution" title="Distribution">
+
+				<pageOrganizations>
+
+					<organization title="Distribution Information">
+
+						<composite>
+
+						<field id="EOO"/>
+
+						<field id="AOO"/>
+
+						</composite>
+
+						<composite>
+
+						<field id="LocationsNumber"/>
+
+						<field id="AreaRestricted"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="ElevationLower"/>
+
+							<field id="ElevationUpper"/>
+
+						</composite>
+						<composite>
+                                                        <field id="DepthLower"/>
+                                                        <field id="DepthUpper"/>
+
+                                                </composite>
+
+						<composite>
+
+						<field id="MapStatus"/>
+
+						<field id="System"/>
+
+						<field id="BiogeographicRealm"/>
+
+						</composite>
+
+						<field id="RangeDocumentation"/>
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+			<page id="Occurrence" title="Occurrence">
+
+				<pageOrganizations>
+
+					<organization title="Occurrence Information">
+
+						<field id="CountryOccurrence"/>
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+			<page id="Population" title="Population">
+
+				<pageOrganizations>
+
+					<organization title="Population Information">
+
+						<field id="PopulationTrend"/>
+						<composite>
+
+						<field id="PopulationDocumentation"/>
+
+						</composite>
+
+							<composite>
+
+								<field id="PopulationExtremeFluctuation"/>
+
+								<field id="SevereFragmentation"/>
+
+							</composite>
+
+								<field id="PopulationContinuingDecline"/>
+
+						<text>****** If you have more information on population, please go to the All Fields View and click on Population ******</text>
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+			<page id="Habitats" title="Habitats and Ecology">
+
+				<pageOrganizations>
+
+					<organization title="Habitat and Ecology Information">
+
+						<composite>
+
+						<field id="HabitatDocumentation"/>
+
+						</composite>
+
+						<composite>
+
+						<field id="HabitatContinuingDecline"/>
+
+						</composite>
+
+						<text>General Life History Information</text>
+
+						<composite>
+
+							<field id="GenerationLength"/>
+
+						</composite>
+
+
+						<composite>
+
+						<field id="GeneralHabitats"/>
+
+						</composite>
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+                        <page id="EcoSysServ" title="Ecosystem Services">
+
+                                <pageOrganizations>
+                                        <organization title="Ecosystem Services">
+                                                <composite>
+                                                        <field id="EcosystemServicesInsufficientInfo"/>
+                                                        <field id="EcosystemServicesProvidesNone"/>
+                                                </composite>
+                                                <composite>
+                                                        <field id="EcosystemServices"/>
+                                                </composite>
+
+                                        </organization>
+                                </pageOrganizations>
+                        </page>
+
+
+			<page id="UseTrade" title="Use and Trade">
+
+				<pageOrganizations>
+
+					<organization title="General Use and Trade Information">
+
+						<text> Use and Trade General Info </text>
+
+						<composite>
+
+							<field id="NotUtilized"/>
+
+							<field id="UseTradeNoInformation"/>
+
+						</composite>
+
+						<text> Detailed Use and Trade Info </text>
+
+						<composite>
+
+							<field id="UseTradeDetails"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="NonConsumptiveUse"/>
+
+							<field id="NonConsumptiveUseDescription"/>
+
+						</composite>
+
+					    <composite>
+
+							<field id="TrendInWildOfftake"/>
+
+							<field id="TrendInDomesticOfftake"/>
+
+						</composite>
+
+						<composite>
+
+						<field id="Livelihoods"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="UseTradeDocumentation"/>
+
+						</composite>
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+			<page id="Threats" title="Threats">
+
+				<pageOrganizations>
+
+					<organization title="Threats Documentation">
+
+						<composite>
+
+							<field id="NoThreats"/>
+
+							<field id="ThreatsUnknown"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="ThreatsDocumentation"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="Threats"/>
+
+						</composite>
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+			<page id="Conservation" title="Conservation">
+
+				<pageOrganizations>
+
+					<organization title="Conservation Actions Documentation">
+
+						<composite>
+
+							<field id="ConservationActionsDocumentation"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="ConservationActions"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="Research"/>
+
+						</composite>
+
+						<text/><text> **** Conservation Actions In-Place **** </text><text/>
+						<composite>
+
+							<field id="InPlaceResearch"/>
+
+							<field id="InPlaceLandWaterProtection"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="InPlaceSpeciesManagement"/>
+
+							<field id="InPlaceEducation"/>
+
+						</composite>
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+			<page id="RedListing" title="Red List Assessment">
+
+				<pageOrganizations>
+
+					<organization title="Red List Assessment">
+
+						<composite>
+
+							<field id="RedListCriteria"/>
+
+						</composite>
+
+						<composite>
+
+						<field id="RedListRationale"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="RedListAssessmentDate"/>
+
+							<field id="RedListEvaluated"/>
+
+							<field id="RedListConsistencyCheck"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="RedListAssessors"/>
+
+							<field id="RedListEvaluators"/>
+
+							<field id="RedListContributors"/>
+							
+							<field id="RedListFacilitators"/>
+						</composite>
+
+						<composite>
+
+							<field id="RegionInformation"/>
+
+						</composite>
+
+						<composite>
+
+						<field id="RedListReasonsForChange"/>
+
+						</composite>
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+			<page id="TextAccount" title="Text Accounts">
+
+				<pageOrganizations>
+
+					<organization title="Text Account">
+
+						<composite>
+
+							<field id="RangeDocumentation"/>
+
+							<field id="PopulationDocumentation"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="HabitatDocumentation"/>
+
+							<field id="UseTradeDocumentation"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="ThreatsDocumentation"/>
+
+							<field id="ConservationActionsDocumentation"/>
+
+						</composite>
+
+						<composite>
+
+							<field id="RedListRationale"/>
+
+						</composite>
+
+					</organization>
+
+				</pageOrganizations>
+
+			</page>
+
+		</pages>
+
+	</view>
+
+<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="FWView" title="Freshwater View" xsi:noNamespaceSchemaLocation="views.xsd">
+		<pages>
+			<page id="TaxonomicNotes" title="Taxonomic Notes">
+				<pageOrganizations>
+					<organization title="Taxonomic Notes">
+						<field id="TaxonomicNotes"/>	
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="Distribution" title="Distribution">
+
+				<pageOrganizations>
+					<organization title="Distribution Information">
+						<field id="RangeDocumentation"/>
+						<composite>			
+						<field id="CountryOccurrence"/>
+						</composite>
+						<composite>
+						<field id="AOO"/>
+						<field id="EOO"/>
+
+						</composite>
+						<composite>
+						<field id="LocationsNumber"/>
+						<field id="BiogeographicRealm"/>
+						</composite>
+						<composite>
+							<field id="ElevationLower"/>
+							<field id="ElevationUpper"/>
+						</composite>
+
+						<composite>
+							<field id="FAOOccurrence"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="Population" title="Population">
+				<pageOrganizations>
+					<organization title="Population Information">
+
+						<field id="PopulationDocumentation"/>
+						<composite>
+						<field id="PopulationTrend"/>
+						<field id="PopulationSize"/>
+						</composite>
+						<text>****** If you have more information on population, please go to the All Fields View and click on Population ******</text>
+					</organization>
+				</pageOrganizations>
+
+			</page>
+			<page id="Habitats" title="Habitats and Ecology">
+				<pageOrganizations>
+					<organization title="Habitat and Ecology Information">
+						<composite>
+						<field id="HabitatDocumentation"/>
+						</composite>
+						<composite>
+						<field id="MovementPatterns"/>
+
+						<field id="System"/>
+						<field id="GenerationLength"/>
+						</composite>
+						
+						<composite>
+						<field id="GeneralHabitats"/>
+						</composite>
+						<text> *** Plant Specific Information ***</text>
+						<composite>
+
+						
+						<field id="CropWildRelative"/>
+						<field id="PlantGrowthForms"/>
+						</composite>
+						
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="UseTrade" title="Use and Trade">
+				<pageOrganizations>
+					<organization title="General Use and Trade Information">
+
+						
+						<composite>
+							<field id="NotUtilized"/>
+							<field id="UseTradeNoInformation"/>
+						</composite>
+						<composite>
+							<field id="UseTradeDocumentation"/>
+						</composite>
+						<text> Detailed Use and Trade Info </text>
+
+						<composite>
+							<field id="UseTradeDetails"/>
+						</composite>
+					    <composite>
+							<field id="TrendInWildOfftake"/>
+							<field id="TrendInDomesticOfftake"/>
+						</composite>
+						<text> ************** Livelihoods Information ************** </text>
+
+						<composite>
+						<field id="Livelihoods"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="Threats" title="Threats">
+				<pageOrganizations>
+					<organization title="Threats Documentation">
+
+						<composite>
+							<field id="NoThreats"/>
+							<field id="ThreatsUnknown"/>
+						</composite>
+						<composite>
+							<field id="ThreatsDocumentation"/>
+						</composite>
+						<composite>
+							<field id="Threats"/>
+
+						</composite>
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="Conservation" title="Conservation">
+				<pageOrganizations>
+					<organization title="Conservation Actions Documentation">
+						<composite>
+							<field id="ConservationActionsDocumentation"/>
+
+						</composite>
+						<composite>
+							<field id="Research"/>
+						</composite>
+						<composite>
+							<field id="ConservationActions"/>
+						</composite>
+						<text/><text> **** Conservation Actions In-Place **** </text><text/>
+
+						<composite>
+							<field id="InPlaceResearch"/>
+							<field id="InPlaceLandWaterProtection"/>
+						</composite>
+						<composite>
+							<field id="InPlaceSpeciesManagement"/>
+							<field id="InPlaceEducation"/>
+						</composite>
+					</organization>
+
+				</pageOrganizations>
+			</page>
+			
+			<page id="EcoSysServ" title="Ecosystem Services">
+                                <pageOrganizations>
+                                        <organization title="Ecosystem Services">
+                                                <composite>
+                                                        <field id="EcosystemServicesInsufficientInfo"/>
+                                                        <field id="EcosystemServicesProvidesNone"/>
+                                                </composite>
+
+                                                <composite>
+                                                        <field id="EcosystemServices"/>
+                                                </composite>
+                                        </organization>
+                                </pageOrganizations>
+                        </page>
+			<page id="RedListing" title="Red List Assessment">
+				<pageOrganizations>
+					<organization title="Red List Assessment">
+
+						<composite>
+							<field id="RedListCriteria"/>
+						</composite>
+						<composite>
+						<field id="RedListRationale"/>
+						</composite>
+						<composite>
+							<field id="RedListAssessmentDate"/>
+							<field id="RedListEvaluated"/>
+
+							<field id="RedListConsistencyCheck"/>
+						</composite>
+						<composite>
+							<field id="RedListAssessors"/>
+							<field id="RedListEvaluators"/>
+							<field id="RedListContributors"/>
+							<field id="RedListFacilitators"/>
+						</composite>
+						<composite>
+							<field id="RegionInformation"/>
+
+						</composite>
+						<composite>
+						<field id="RedListReasonsForChange"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+			</page>
+			<page id="TextAccount" title="Text Accounts">
+				<pageOrganizations>
+
+					<organization title="Text Account">
+						<composite>
+							<field id="RangeDocumentation"/>
+							<field id="PopulationDocumentation"/>
+						</composite>
+						<composite>
+							<field id="HabitatDocumentation"/>
+							<field id="UseTradeDocumentation"/>
+						</composite>
+
+						<composite>
+							<field id="ThreatsDocumentation"/>
+							<field id="ConservationActionsDocumentation"/>
+						</composite>
+						<composite>
+							<field id="RedListRationale"/>
+						</composite>
+					</organization>
+				</pageOrganizations>
+
+			</page>
+		</pages>
 	</view>
 </views>
