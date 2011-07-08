@@ -80,6 +80,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 			model.set("criteria", AssessmentFormatter.getProperCriteriaString(data));
 			model.set("status", "Published");
 			model.set("region", getRegions(data));
+			model.set("attachments", data.hasAttachments());
 			model.set("edit", "");
 			model.set("trash", "");
 			model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
@@ -97,6 +98,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				model.set("criteria", AssessmentFormatter.getProperCriteriaString(data));
 				model.set("status", "Draft");
 				model.set("region", getRegions(data));
+				model.set("attachments", data.hasAttachments());
 				model.set("edit", "");
 				model.set("trash", "");
 				model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
@@ -123,6 +125,21 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 		columns.add(new ColumnConfig("criteria", "Criteria", 100));
 		columns.add(new ColumnConfig("status", "Status", 100));
 		columns.add(new ColumnConfig("region", "Region(s)", 150));
+		
+		ColumnConfig attachments = new ColumnConfig("attachments", "", 60);
+		attachments.setRenderer(new GridCellRenderer<BaseModelData>() {
+			@Override
+			public Object render(BaseModelData model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<BaseModelData> store, Grid<BaseModelData> grid) {
+				boolean value = model.get(property);
+				if (!value)
+					return "";
+				
+				return "<img src=\"tango/status/mail-attachment.png\" alt=\"This assessment has attachments\" />";
+			}
+		});
+		columns.add(attachments);
 		
 		ColumnConfig editView = new ColumnConfig("edit", "Edit/View", 60);
 		editView.setRenderer(new GridCellRenderer<BaseModelData>() {
@@ -169,7 +186,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				final String status = model.get("status");
 				final String type = status.equals("Published") ? 
 						AssessmentType.PUBLISHED_ASSESSMENT_TYPE : AssessmentType.DRAFT_ASSESSMENT_TYPE;
-				if (column == 6) {
+				if (column == 7) {
 					if (type == AssessmentType.PUBLISHED_ASSESSMENT_TYPE
 							&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
 									AuthorizableObject.DELETE, AssessmentCache.impl.getPublishedAssessment(id))) {
@@ -213,7 +230,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 							}
 						});
 					}
-				} else if (column == 5) {
+				} else if (column == 6) {
 					Assessment fetched = AssessmentCache.impl.getAssessment(id);
 					// CHANGE
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ,

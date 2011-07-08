@@ -265,6 +265,16 @@ public class Assessment implements Serializable, AuthorizableObject {
 		isHistorical = historical;
 	}
 
+	public boolean hasAttachments() {
+		if (getField() == null)
+			return false;
+		
+		for (Field field : getField())
+			if (field.isAttachable() && field.getFieldAttachment() != null && !field.getFieldAttachment().isEmpty())
+				return true;
+		
+		return false;
+	}
 	
 	protected String dateFinalized;
 	public String getDateFinalized() {
