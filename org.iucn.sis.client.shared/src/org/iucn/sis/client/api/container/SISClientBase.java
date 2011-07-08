@@ -114,7 +114,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 				public void onSuccess(String result) {
 					ClientUser user = ClientUser.fromXML(doc.getDocumentElement());
 					if (user.isSISUser()) {
-						WindowUtils.showLoadingAlert("Login sucessful, loading...");
+						WindowUtils.showLoadingAlert("Login successful, loading...");
 						
 						currentUser = user;
 						currentUser.auth = authn;
