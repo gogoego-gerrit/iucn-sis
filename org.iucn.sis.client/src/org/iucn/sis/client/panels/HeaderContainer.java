@@ -198,10 +198,28 @@ public class HeaderContainer extends ContentPanel {
 		userInfoWrapper.add(namePanel);
 		userInfoWrapper.add(affiliationPanel);
 		
-		HTML logout = new HTML("[ logout ]");
-		logout.addStyleName("SIS_HyperlinkLookAlike");
-		logout.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+		IconButton optionsIcon = new IconButton("icon-header-options");
+		optionsIcon.setSize(32, 32);
+		optionsIcon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				getMenu().show(ce.getIconButton());
+			}
+		});
+		
+		IconButton reportBug = new IconButton("icon-header-zendesk");
+		reportBug.setSize(32, 32);
+		reportBug.setToolTip("Report a bug or question to the help desk.");
+		reportBug.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
+				 new ZendeskPanel();
+			}
+		});
+		
+		IconButton logout = new IconButton("icon-header-logout");
+		logout.setSize(32, 32);
+		logout.setToolTip("Logout");
+		logout.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+			public void componentSelected(IconButtonEvent ce) {
 				WindowUtils.confirmAlert("Logout", "Are you sure you want to log out?", new WindowUtils.SimpleMessageBoxListener() {
 					public void onYes() {
 						WindowManager.get().hideAll();
@@ -210,19 +228,12 @@ public class HeaderContainer extends ContentPanel {
 				});
 			}
 		});
-		
-		IconButton optionsIcon = new IconButton("icon-header-options");
-		optionsIcon.setSize(32, 32);
-		optionsIcon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
-			public void componentSelected(IconButtonEvent ce) {
-				getMenu().show(ce.getIconButton());
-			}
-		});
 
-		Grid bottom = new Grid(1, 2);
+		Grid bottom = new Grid(1, 3);
 		bottom.setWidth("100%");
 		bottom.setWidget(0, 0, optionsIcon);
-		bottom.setWidget(0, 1, logout);
+		bottom.setWidget(0, 1, reportBug);
+		bottom.setWidget(0, 2, logout);
 		for (int i = 0; i < bottom.getCellCount(0); i++)
 			bottom.getCellFormatter().setAlignment(0, i, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_MIDDLE);
 		
@@ -656,12 +667,6 @@ public class HeaderContainer extends ContentPanel {
 				s.setSize(800, 600);
 				s.show();
 				s.center();
-			}
-		}));
-		
-		options.add(createMenuItem("icon-zendesk", "Report Bug", new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				 new ZendeskPanel();
 			}
 		}));
 		

@@ -283,6 +283,14 @@ body,td,div,input,p,select,input,button {
 	background: url(../images/emblem-system-32.png) no-repeat !important;	
 }
 
+.icon-header-zendesk {
+	background: url(../images/zendesk-32.png) no-repeat !important;
+}
+
+.icon-header-logout {
+	background: url(../images/logout-32.png) no-repeat !important;
+}
+
 .icon-gear {
 	background: url(../tango/emblems/emblem-system.png) no-repeat !important;	
 }
