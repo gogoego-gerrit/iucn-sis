@@ -3,6 +3,9 @@ package org.iucn.sis.client.panels.taxa;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -18,31 +21,36 @@ import org.iucn.sis.client.tabs.TaxonHomePageTab.TaxonNoteAPI;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.utils.CommonNameComparator;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.InfoConfig;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -50,8 +58,13 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class TaxonHomeGeneralInformationTab extends LayoutContainer implements DrawsLazily {
+	
+	private static final int SECTION_LIST_LIMIT = 10;
+	
+	private static final String NO_DATA_STYLE = "";
 	
 	public TaxonHomeGeneralInformationTab() {
 		super(new FillLayout());
@@ -167,140 +180,207 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		return generalInformation;
 	}
 	
-	private LayoutContainer drawCommonNamesAndSynonyms(final Taxon node) {
-		LayoutContainer data = new LayoutContainer();
-		
-		// ADD SYNONYMS
-		if (!node.getSynonyms().isEmpty()) {
-			addSynonyms(node, data);
-		}
-
-		// ADD COMMON NAMES
-		Image addName = new Image("images/add.png");
-		addName.setSize("14px", "14px");
-		addName.setTitle("Add New Common Name");
-		addName.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				Window addNameBox = new EditCommonNamePanel(null, node, 
-						new ComplexListener<CommonName>() {
-					public void handleEvent(CommonName eventData) {
-						//TaxonomyCache.impl.setCurrentTaxon(node);
-						ClientUIContainer.bodyContainer.refreshBody();
-					}
-				});
-				addNameBox.show();
-			}
-		});
-//
-		HTML commonNamesHeader = new HTML("<b>Common Name --- Language</b>");
-		
-		LayoutContainer commonNamePanel = new LayoutContainer();
-		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node))
-			commonNamePanel.add(addName);
-		commonNamePanel.add(commonNamesHeader);
-		data.add(new HTML("<hr><br />"));
-		data.add(commonNamePanel);
-
-		if (!node.getCommonNames().isEmpty()) {
-			int loop = 5;
-			if (node.getCommonNames().size() < 5)
-				loop = node.getCommonNames().size();
-			
-			addCommonNames(node, data, loop);
-		} else
-			data.add(new HTML("No Common Names."));
-		
-		final ContentPanel generalInformation = new ContentPanel();
-		generalInformation.setLayoutOnChange(true);
-		generalInformation.setHeading("Common Names & Synonyms");
-		generalInformation.setStyleName("x-panel");
-		generalInformation.setWidth(350);
-		// generalLayout.setSpacing(5);
-		//generalInformation.setHeight(panelHeight);
-		generalInformation.add(data, new BorderLayoutData(LayoutRegion.CENTER));
-		
-		return generalInformation;
+	private LayoutContainer createSectionHeader(final String name) {
+		return createSectionHeader(name, null);
 	}
 	
-	private void addSynonyms(final Taxon node, LayoutContainer data) {
-		data.add(new HTML("<hr><br />"));
-		data.add(new HTML("<b>Synonyms</b>"));
-		int size = node.getSynonyms().size();
-		if (size > 5)
-			size = 5;
-
-		for (final Synonym curSyn : node.getSynonyms()) {
-			size--;
-			if (size < 0)
-				break;
+	private LayoutContainer createSectionHeader(final String name, final ComplexListener<IconButton> listener) {
+		return createSectionHeader(name, listener, null);
+	}
+	
+	private LayoutContainer createSectionHeader(final String name, final ComplexListener<IconButton> listener, final String styleName) {
+		return createSectionHeader(name, listener, styleName, "icon-gear");
+	}
+	
+	private LayoutContainer createSectionHeader(final String name, final ComplexListener<IconButton> listener, final String styleName, final String iconStyle) {
+		final TableLayout layout = new TableLayout(2);
+		layout.setCellPadding(2);
+		layout.setCellSpacing(2);
+		layout.setWidth("100%");
+		
+		final LayoutContainer container = new LayoutContainer(layout);
+		container.setHeight(30);
+		container.setStyleName(styleName == null ? "page_taxon_section_header" : styleName);
+		container.add(new HTML(name), new TableData(HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
+		
+		if (listener != null) {
+			final IconButton icon = new IconButton(iconStyle);
+			icon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+				public void componentSelected(IconButtonEvent ce) {
+					listener.handleEvent(ce.getIconButton());
+				}
+			});			
+			container.add(icon, new TableData(HorizontalAlignment.RIGHT, VerticalAlignment.MIDDLE));
+		}
+		
+		return container;
+	}
+	
+	private LayoutContainer drawCommonNamesAndSynonyms(final Taxon node) {
+		LayoutContainer data = new LayoutContainer();
+		data.setScrollMode(Scroll.AUTO);
+		
+		data.add(createSectionHeader("Synonyms (" + node.getSynonyms().size() + ")"));
+		if (node.getSynonyms().isEmpty())
+			data.add(createSectionHeader("<i>No Synonyms.</i>", null, NO_DATA_STYLE));
+		else
+			addSynonyms(node, data);
+		
+		ComplexListener<IconButton> commonNameListener = null;
+		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+			commonNameListener = new ComplexListener<IconButton>() {
+				public void handleEvent(IconButton icon) {
+					Window addNameBox = new EditCommonNamePanel(null, node, 
+							new ComplexListener<CommonName>() {
+						public void handleEvent(CommonName eventData) {
+							//TaxonomyCache.impl.setCurrentTaxon(node);
+							ClientUIContainer.bodyContainer.refreshBody();
+						}
+					});
+					addNameBox.show();
+				}
+			};
+		}
+		
+		data.add(createSectionHeader("Common Names (" + node.getCommonNames().size() + ")", commonNameListener, null, "icon-add"));
+		
+		if (node.getCommonNames().isEmpty())
+			data.add(createSectionHeader("<i>No Common Names.</i>", null, NO_DATA_STYLE));
+		else {
+			addCommonNames(node, data);
+		}
+		
+		final String referenceStyle = node.getReference().isEmpty() ? 
+			"icon-book-grey" : "icon-book";
+		data.add(createSectionHeader("References (" + node.getReference().size() + ")", new ComplexListener<IconButton>() {
+			public void handleEvent(IconButton eventData) {
+				SimpleSISClient.getInstance().onShowReferenceEditor(
+					"Manage References for " + node.getFullName(), 
+					new ReferenceableTaxon(node, new SimpleListener() {
+						public void handleEvent() {
+							ClientUIContainer.bodyContainer.refreshBody();
+						}
+					}), 
+					null, null
+				);
+			}
+		}, null, referenceStyle));
+		
+		if (node.getReference().isEmpty())
+			data.add(createSectionHeader("<i>No References.</i>", null, NO_DATA_STYLE));
+		else {
+			int count = 0;
+			for (Iterator<Reference> iter = node.getReference().iterator(); iter.hasNext() && count < SECTION_LIST_LIMIT; count++)
+				data.add(createSectionHeader(iter.next().getCitation(), null, ""));
 			
-			HorizontalPanel hp = new HorizontalPanel();
-			
-			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
-				final Image notesImage = new Image("images/icon-note.png");
-				if (curSyn.getNotes().isEmpty())
-					notesImage.setUrl("images/icon-note-grey.png");
-				notesImage.setTitle("Add/Remove Notes");
-				notesImage.addClickHandler(new ClickHandler() {
+			if (node.getReference().size() > SECTION_LIST_LIMIT) {
+				HTML viewAll = new HTML("View all...");
+				viewAll.addStyleName("page_taxon_section_view_all");
+				viewAll.addStyleName("SIS_HyperlinkLookAlike");
+				viewAll.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
-						final NotesWindow window = new NotesWindow(new SynonymNoteAPI(node, curSyn));
+						SimpleSISClient.getInstance().onShowReferenceEditor(
+							"Manage References for " + node.getFullName(), 
+							new ReferenceableTaxon(node, new SimpleListener() {
+								public void handleEvent() {
+									ClientUIContainer.bodyContainer.refreshBody();
+								}
+							}), 
+							null, null
+						);
+					}
+				});
+				data.add(new Html("View All..."));
+			}
+		}
+		
+		final String notesStyle = node.getNotes().isEmpty() ? 
+			"icon-note-grey" : "icon-note";
+		data.add(createSectionHeader("Notes (" + node.getNotes().size() + ")", new ComplexListener<IconButton>() {
+			public void handleEvent(IconButton eventData) {
+				final NotesWindow window = new NotesWindow(new TaxonNoteAPI(node));
+				window.setHeading("Notes for " + node.getFullName());
+				window.show();	
+			}
+		}, null, notesStyle));
+		
+		if (node.getNotes().isEmpty())
+			data.add(createSectionHeader("<i>No Notes.</i>", null, NO_DATA_STYLE));
+		else {
+			int count = 0;
+			for (Iterator<Notes> iter = node.getNotes().iterator(); iter.hasNext() && count < SECTION_LIST_LIMIT; count++)
+				data.add(createSectionHeader(NotesWindow.formatNote(iter.next()), null, ""));
+			
+			if (node.getNotes().size() > SECTION_LIST_LIMIT) {
+				HTML viewAll = new HTML("View all...");
+				viewAll.addStyleName("page_taxon_section_view_all");
+				viewAll.addStyleName("SIS_HyperlinkLookAlike");
+				viewAll.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						final NotesWindow window = new NotesWindow(new TaxonNoteAPI(node));
+						window.setHeading("Notes for " + node.getFullName());
 						window.show();
 					}
 				});
-				hp.add(notesImage);
+				data.add(viewAll);
 			}
-
-			String value = curSyn.toDisplayableString();
-			if (curSyn.getStatus().equals(Synonym.ADDED) || curSyn.getStatus().equals(Synonym.DELETED))
-				value += "-- " + curSyn.getStatus();
-
-			hp.add(new HTML("&nbsp;&nbsp;" + value));
-
-			data.add(hp);
 		}
 		
-		if (node.getSynonyms().size() > 5) {
+		return data;
+	}
+	
+	private void addSynonyms(final Taxon node, LayoutContainer data) {
+		final List<Synonym> ordered = new ArrayList<Synonym>(node.getSynonyms());
+		Collections.sort(ordered, new Comparator<Synonym>() {
+			private final PortableAlphanumericComparator comparator = new PortableAlphanumericComparator();
+			public int compare(Synonym o1, Synonym o2) {
+				return comparator.compare(o1.toDisplayableString(), o2.toDisplayableString());
+			}
+		});
+		
+		int count = 0;
+		for (Iterator<Synonym> iter = ordered.listIterator(); iter.hasNext() && count < SECTION_LIST_LIMIT; count++)
+			data.add(getSynonymDisplay(iter.next(), node));
+		
+		if (node.getSynonyms().size() > SECTION_LIST_LIMIT) {
 			HTML viewAll = new HTML("View all...");
-			viewAll.setStyleName("SIS_HyperlinkLookAlike");
+			viewAll.addStyleName("page_taxon_section_view_all");
+			viewAll.addStyleName("SIS_HyperlinkLookAlike");
 			viewAll.addClickHandler(new ClickHandler() {
 				public void onClick(ClickEvent event) {
-					if (TaxonomyCache.impl.getCurrentTaxon() == null) {
-						Info.display(new InfoConfig("No Taxa Selected", "Please select a taxa first."));
-						return;
-					}
+					final Window window = WindowUtils.newWindow("Synonyms", null, false, false);
+					window.setSize(350, 350);
+					window.setScrollMode(Scroll.AUTO);
+					
+					for (final Synonym current : ordered)
+						window.add(getSynonymDisplay(current, node));
 
-					final Window s = WindowUtils.newWindow("Synonyms", null, false, false);
-					s.setSize(400, 400);
-					LayoutContainer data = s;
-					data.setScrollMode(Scroll.AUTO);
-
-					VerticalPanel currentSynPanel = new VerticalPanel();
-					currentSynPanel.setSpacing(3);
-
-					HTML curHTML = new HTML("Current Synonyms");
-					curHTML.addStyleName("bold");
-					currentSynPanel.add(curHTML);
-
-					if (TaxonomyCache.impl.getCurrentTaxon().getSynonyms().size() == 0)
-						currentSynPanel.add(new HTML("There are no synonyms for this taxon."));
-
-					for (Synonym curSyn : TaxonomyCache.impl.getCurrentTaxon().getSynonyms()) {
-						curHTML = new HTML(curSyn.getFriendlyName());
-						currentSynPanel.add(curHTML);
-					}
-
-					data.add(currentSynPanel);
-					s.show();
-
+					window.show();
 				}
 			});
 			data.add(viewAll);
 		}
 	}
 	
-	private Widget getCommonNameDisplay(CommonName curName, Taxon node) {
-		HorizontalPanel hp = new HorizontalPanel();
+	private Widget getSynonymDisplay(final Synonym synonym, final Taxon node) {
+		String value = synonym.toDisplayableString();
+		if (Synonym.ADDED.equals(synonym.getStatus()) || Synonym.DELETED.equals(synonym.getStatus()))
+			value += "-- " + synonym.getStatus();
 		
+		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+			String iconStyle = synonym.getNotes().isEmpty() ? "icon-note-grey" : "icon-note";
+			return (createSectionHeader(value, new ComplexListener<IconButton>() {
+				public void handleEvent(IconButton eventData) {
+					final NotesWindow window = new NotesWindow(new SynonymNoteAPI(node, synonym));
+					window.show();
+				}
+			}, null, iconStyle));
+		}
+		else
+			return (createSectionHeader(value, null, null));
+	}
+	
+	private Widget getCommonNameDisplay(final CommonName curName, final Taxon node) {
 		StringBuilder display = new StringBuilder();
 		if (curName.isPrimary())
 			display.append("*&nbsp;");
@@ -309,87 +389,76 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		
 		display.append(curName.getName());
 		if (curName.getIso() != null) {
-			display.append(" -- " + curName.getLanguage());
+			display.append(" (" + curName.getLanguage() + ")");
 		}
+	
+		String styleName = curName.getChangeReason() == CommonName.DELETED ? "deleted" : "";
 		
-		HTML html = new HTML(display.toString());
-		if (curName.getChangeReason() == CommonName.DELETED) {
-			html.addStyleName("deleted");
-		} else {
-			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
-				CommonNameToolPanel cntp = new CommonNameToolPanel(curName, node);
-				hp.add(cntp);
+		return createSectionHeader(display.toString(), new ComplexListener<IconButton>() {
+			public void handleEvent(IconButton icon) {
+				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+					CommonNameToolPanel cntp = new CommonNameToolPanel(curName, node);
+					cntp.show(icon);
+				}	
 			}
-		}
-		hp.add(html);
-		return hp;
+		}, styleName);
 	}
 	
-	private void addCommonNames(final Taxon node, LayoutContainer data, int loop) {
+	private void addCommonNames(final Taxon node, LayoutContainer data) {
 		final ArrayList<CommonName> commonNames = new ArrayList<CommonName>(node.getCommonNames());
 		Collections.sort(commonNames, new CommonNameComparator());
-		for (final CommonName curName : commonNames) {
-			loop--;
-			if (loop < 0)
-				break;			
-			data.add(getCommonNameDisplay(curName, node));
-		}
-
-		HTML viewAll = new HTML("View all...");
-		viewAll.setStyleName("SIS_HyperlinkLookAlike");
-		viewAll.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				final Window container = WindowUtils.newWindow("Edit Common Names", null, false, false);
-				container.setScrollMode(Scroll.AUTO);
-
-				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
-					Button item = new Button();
-					item.setText("New Common Name");
-					item.setIconStyle("icon-add");
-					item.addSelectionListener(new SelectionListener<ButtonEvent>() {
-						public void componentSelected(ButtonEvent ce) {
-							container.hide();
-							Window addNameBox = new EditCommonNamePanel(null, node, new ComplexListener<CommonName>() {
-								public void handleEvent(CommonName eventData) {
-									//TaxonomyCache.impl.setCurrentTaxon(node);
-									ClientUIContainer.bodyContainer.refreshBody();
-								}
-							});
-							addNameBox.show();
-						}
-					});
-
-					ToolBar tBar = new ToolBar();
-					tBar.add(item);
-
-					container.add(tBar);
-				}
-				
-				HTML commonNamesHeader = new HTML("<b>Common Name --- Language</b>");
-
-				LayoutContainer commonNamePanel = new LayoutContainer();
-				commonNamePanel.add(commonNamesHeader);
-
-				container.add(new HTML("<hr><br />"));
-				container.add(commonNamePanel);
-
-				if (commonNames.size() != 0) {
+		
+		int count = 0;
+		for (Iterator<CommonName> iter = commonNames.listIterator(); iter.hasNext() && count < SECTION_LIST_LIMIT; count++)
+			data.add(getCommonNameDisplay(iter.next(), node));
+		
+		if (commonNames.size() > SECTION_LIST_LIMIT) {
+			HTML viewAll = new HTML("View all...");
+			viewAll.addStyleName("page_taxon_section_view_all");
+			viewAll.addStyleName("SIS_HyperlinkLookAlike");
+			viewAll.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					final Window container = WindowUtils.newWindow("Edit Common Names", null, false, false);
+					container.setScrollMode(Scroll.AUTO);
+	
+					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+						Button item = new Button();
+						item.setText("New Common Name");
+						item.setIconStyle("icon-add");
+						item.addSelectionListener(new SelectionListener<ButtonEvent>() {
+							public void componentSelected(ButtonEvent ce) {
+								container.hide();
+								Window addNameBox = new EditCommonNamePanel(null, node, new ComplexListener<CommonName>() {
+									public void handleEvent(CommonName eventData) {
+										//TaxonomyCache.impl.setCurrentTaxon(node);
+										ClientUIContainer.bodyContainer.refreshBody();
+									}
+								});
+								addNameBox.show();
+							}
+						});
+	
+						ToolBar tBar = new ToolBar();
+						tBar.add(item);
+	
+						container.add(tBar);
+					}
+	
 					for (CommonName curName : commonNames) {
 						container.add(getCommonNameDisplay(curName, node));
 					}
-				} else
-					container.add(new HTML("No Common Names."));
-				container.setSize(350, 550);
-				container.show();
-				container.center();
-
-			}
-		});
-		if (node.getCommonNames().size() > 5)
+					container.setSize(350, 550);
+					container.show();
+					container.center();
+	
+				}
+			});
+			
 			data.add(viewAll);
+		}
 	}
 	
-private static class SynonymNoteAPI implements NoteAPI {
+	private static class SynonymNoteAPI implements NoteAPI {
 		
 		private final Synonym synonym;
 		private final Taxon taxon;

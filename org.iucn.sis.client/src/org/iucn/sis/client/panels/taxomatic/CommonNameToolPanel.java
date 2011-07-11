@@ -14,41 +14,37 @@ import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.Widget;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class CommonNameToolPanel extends HorizontalPanel implements Referenceable {
+public class CommonNameToolPanel extends Menu implements Referenceable {
 
-	protected final CommonName cn;
-	protected final Taxon taxon;
+	private final CommonName cn;
+	private final Taxon taxon;
 
 	public CommonNameToolPanel(CommonName commonName, Taxon taxon) {
-		cn = commonName;
+		this.cn = commonName;
 		this.taxon = taxon;
-		draw();
-	}
-
-	protected void draw() {
+		
 		add(getDeleteWidget());
 		add(getEditWidget());
 		add(getReferenceWidget());
 		add(getNotesWiget());
 	}
 
-	protected Widget getDeleteWidget() {
-		Image removeImage = new Image("images/icon-note-delete.png");
-		removeImage.setPixelSize(14, 14);
-		removeImage.setTitle("Remove this common name");
-		removeImage.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+	private MenuItem getDeleteWidget() {
+		MenuItem removeImage = new MenuItem();
+		removeImage.setText("Remove this common name");
+		removeImage.setIconStyle("icon-note-delete");
+		removeImage.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove this common name?", new WindowUtils.SimpleMessageBoxListener() {
 					public void onYes() {
 						cn.setChangeReason(CommonName.DELETED);
@@ -72,12 +68,12 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		return removeImage;
 	}
 
-	protected Widget getEditWidget() {
-		Image editImage = new Image("images/icon-note-edit.png");
-		editImage.setPixelSize(14, 14);
-		editImage.setTitle("Edit this common name");
-		editImage.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+	private MenuItem getEditWidget() {
+		MenuItem editImage = new MenuItem();
+		editImage.setIconStyle("icon-note-edit");
+		editImage.setText("Edit this common name");
+		editImage.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				WindowManager.get().hideAll();
 				Window temp = new EditCommonNamePanel(cn, taxon, new ComplexListener<CommonName>() {
 					public void handleEvent(CommonName eventData) {
@@ -90,14 +86,14 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		return editImage;
 	}
 
-	protected Widget getReferenceWidget() {
-		Image referenceImage = new Image("images/icon-book.png");
-		if (cn.getReference().size() == 0)
-			referenceImage.setUrl("images/icon-book-grey.png");
-		referenceImage.setPixelSize(14, 14);
-		referenceImage.setTitle("Add/Remove References");
-		referenceImage.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+	private MenuItem getReferenceWidget() {
+		String icon = cn.getReference().isEmpty() ? "icon-book-grey" : "icon-book";
+		
+		MenuItem referenceImage = new MenuItem();
+		referenceImage.setIconStyle(icon);
+		referenceImage.setText("Add/Remove References");
+		referenceImage.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
 				ClientUIContainer.bodyContainer.openReferenceManager(
 					CommonNameToolPanel.this, "Add a references to Common Name" + cn.getName());
 			}
@@ -105,26 +101,19 @@ public class CommonNameToolPanel extends HorizontalPanel implements Referenceabl
 		return referenceImage;
 	}
 
-	protected Widget getNotesWiget() {
-		final Image notesImage = new Image("images/icon-note.png");
-		if (cn.getNotes().isEmpty())
-			notesImage.setUrl("images/icon-note-grey.png");
-		notesImage.setTitle("Add/Remove Notes");
-		notesImage.addClickHandler(new ClickHandler() {
-			
-			@Override
-			public void onClick(ClickEvent event) {
-				buildNotePopup(notesImage);
-				
+	private MenuItem getNotesWiget() {
+		String icon = cn.getNotes().isEmpty() ? "icon-note-grey" : "icon-note"; 
+		MenuItem notesImage = new MenuItem();
+		notesImage.setIconStyle(icon);
+		notesImage.setText("Add/Remove Notes");
+		notesImage.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				NotesWindow window = new NotesWindow(new CommonNameNoteAPI(taxon, cn));
+				window.show();
 			}
 		});
 
 		return notesImage;
-	}
-
-	public void buildNotePopup(final Image notesImage) {
-		NotesWindow window = new NotesWindow(new CommonNameNoteAPI(taxon, cn));
-		window.show();
 	}
 
 	@Override

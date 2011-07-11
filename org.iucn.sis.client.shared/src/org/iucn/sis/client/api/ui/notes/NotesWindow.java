@@ -111,7 +111,7 @@ public class NotesWindow extends BasicWindow implements DrawsLazily {
 						a.setSpacing(4);
 						a.add(deleteNote);
 						a.add(new HtmlContainer("<div class=\"notes_entry_html\">" + 
-							createEditLabelText(current) + " -- " + toHTML(current.getValue()) + "</div>"));
+							formatNote(current) + "</div>"));
 
 						eBar.add(a, layoutData);
 					}
@@ -180,7 +180,7 @@ public class NotesWindow extends BasicWindow implements DrawsLazily {
 		return sorted;
 	}
 	
-	protected String createEditLabelText(Notes note) {
+	private static String createEditLabelText(Notes note) {
 		final String defaultValue = "<i>Edit information unavailable</i>";
 		if (note.getEdits() == null || note.getEdits().isEmpty())
 			return defaultValue;
@@ -196,8 +196,12 @@ public class NotesWindow extends BasicWindow implements DrawsLazily {
 		}
 	}
 	
-	protected String toHTML(String value) {
+	private static String toHTML(String value) {
 		return value.replace("\n", "<br/>");
+	}
+	
+	public static String formatNote(Notes current) {
+		return createEditLabelText(current) + " -- " + toHTML(current.getValue());
 	}
 	
 	private static class NotesComparator implements Comparator<Notes> {

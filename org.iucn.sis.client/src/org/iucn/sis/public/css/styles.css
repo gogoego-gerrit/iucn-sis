@@ -219,10 +219,25 @@ body,td,div,input,p,select,input,button {
 	
 }
 
+.page_taxon_section_header {
+ 	background-color: #DFE8F6 !important;
+ 	width: 100%;
+ 	height: 100%;
+ 	border: 1px dotted #00428C !important;
+ 	font-weight: bold !important;
+}
+
+.page_taxon_section_header .x-border-panel {
+ 	background-color: #DFE8F6 !important;	
+}
+
+.page_taxon_section_view_all {
+	text-align: center;	
+}
+
 .page_workingSet_featured_header {
 	color: #a72625;
 	font-size: 18px !important;
-	margin-top: 5px !important;
 	font-weight: bold;
 	width: 100%;
 }
@@ -468,12 +483,20 @@ body,td,div,input,p,select,input,button {
 	background: url(../images/icon-note-go.png) no-repeat !important;
 }
 
+.icon-note-grey {
+	background: url(../images/icon-note-grey.png) no-repeat !important;	
+}
+
 .icon-note {
 	background: url(../images/icon-note.png) no-repeat !important;
 }
 
 .icon-book {
 	background: url(../images/icon-book.png) no-repeat !important;
+}
+
+.icon-book-grey {
+	background: url(../images/icon-book-grey.png) no-repeat !important;	
 }
 
 .icon-book-open {
