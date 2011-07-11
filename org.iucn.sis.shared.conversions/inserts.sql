@@ -1534,7 +1534,7 @@ INSERT INTO PopulationContinuingDecline (name, data_type, number_allowed) VALUES
 INSERT INTO PopulationDeclineGenerations1_qualifierLookup (name, label) VALUES ('0', 'Observed');
 INSERT INTO PopulationDeclineGenerations1_qualifierLookup (name, label) VALUES ('1', 'Projected');
 INSERT INTO PopulationDeclineGenerations1_qualifierLookup (name, label) VALUES ('2', 'Inferred');
-INSERT INTO PopulationDeclineGenerations1_qualifierLookup (name, label) VALUES ('3', 'Estimated');
+INSERT INTO PopulationDeclineGenerations1_qualifierLookup (name, label) VALUES ('-1', 'Estimated');
 INSERT INTO PopulationDeclineGenerations1_qualifierLookup (name, label) VALUES ('4', 'Suspected');
 INSERT INTO PopulationDeclineGenerations1 (name, data_type, number_allowed) VALUES ('range', 'range_primitive_field', '?');
 INSERT INTO PopulationDeclineGenerations1 (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
@@ -1542,7 +1542,7 @@ INSERT INTO PopulationDeclineGenerations1 (name, data_type, number_allowed) VALU
 INSERT INTO PopulationDeclineGenerations2_qualifierLookup (name, label) VALUES ('0', 'Observed');
 INSERT INTO PopulationDeclineGenerations2_qualifierLookup (name, label) VALUES ('1', 'Projected');
 INSERT INTO PopulationDeclineGenerations2_qualifierLookup (name, label) VALUES ('2', 'Inferred');
-INSERT INTO PopulationDeclineGenerations2_qualifierLookup (name, label) VALUES ('3', 'Estimated');
+INSERT INTO PopulationDeclineGenerations2_qualifierLookup (name, label) VALUES ('-1', 'Estimated');
 INSERT INTO PopulationDeclineGenerations2_qualifierLookup (name, label) VALUES ('4', 'Suspected');
 INSERT INTO PopulationDeclineGenerations2 (name, data_type, number_allowed) VALUES ('range', 'range_primitive_field', '?');
 INSERT INTO PopulationDeclineGenerations2 (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
@@ -1550,7 +1550,7 @@ INSERT INTO PopulationDeclineGenerations2 (name, data_type, number_allowed) VALU
 INSERT INTO PopulationDeclineGenerations3_qualifierLookup (name, label) VALUES ('0', 'Observed');
 INSERT INTO PopulationDeclineGenerations3_qualifierLookup (name, label) VALUES ('1', 'Projected');
 INSERT INTO PopulationDeclineGenerations3_qualifierLookup (name, label) VALUES ('2', 'Inferred');
-INSERT INTO PopulationDeclineGenerations3_qualifierLookup (name, label) VALUES ('3', 'Estimated');
+INSERT INTO PopulationDeclineGenerations3_qualifierLookup (name, label) VALUES ('-1', 'Estimated');
 INSERT INTO PopulationDeclineGenerations3_qualifierLookup (name, label) VALUES ('4', 'Suspected');
 INSERT INTO PopulationDeclineGenerations3 (name, data_type, number_allowed) VALUES ('range', 'range_primitive_field', '?');
 INSERT INTO PopulationDeclineGenerations3 (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
@@ -1941,7 +1941,7 @@ INSERT INTO SubpopulationContinuingDecline_qualifierLookup (name, label) VALUES 
 INSERT INTO SubpopulationContinuingDecline_qualifierLookup (name, label) VALUES ('1', 'Projected');
 INSERT INTO SubpopulationContinuingDecline_qualifierLookup (name, label) VALUES ('2', 'Inferred');
 INSERT INTO SubpopulationContinuingDecline_qualifierLookup (name, label) VALUES ('3', 'Estimated');
-INSERT INTO SubpopulationContinuingDecline_qualifierLookup (name, label) VALUES ('4', 'Suspected');
+INSERT INTO SubpopulationContinuingDecline_qualifierLookup (name, label) VALUES ('-1', 'Suspected');
 INSERT INTO SubpopulationContinuingDecline (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO SubpopulationContinuingDecline (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
 INSERT INTO SubpopulationExtremeFluctuation (name, data_type, number_allowed) VALUES ('isFluctuating', 'boolean_range_primitive_field', '?');
