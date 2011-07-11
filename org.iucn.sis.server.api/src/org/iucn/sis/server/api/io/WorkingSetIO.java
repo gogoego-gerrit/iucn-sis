@@ -71,9 +71,11 @@ public class WorkingSetIO {
 			+ userName + "') t JOIN working_set_subscribe_user on userid = t.id);";*/
 		
 		String queryString = "SELECT * FROM working_set " +
-			"JOIN working_set_subscribe_user ON working_set.id = working_set_subscribe_user.working_setid " +
-			"JOIN \"user\" ON working_set_subscribe_user.userid = \"user\".id " +
-			"WHERE \"user\".username != '"+userName+"'";
+			"WHERE working_set.id NOT IN ( "+
+			"SELECT working_setid FROM working_set_subscribe_user " +
+			"JOIN \"user\" ON \"user\".id = working_set_subsribe_user.userid AND \"user\".username = '"+userName+"' "+
+			") "+
+			"ORDER BY working_set.name";
 		
 		List<WorkingSet> list = 
 			session.createSQLQuery(queryString).addEntity(WorkingSet.class).list();
