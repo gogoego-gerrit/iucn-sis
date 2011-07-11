@@ -114,7 +114,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 	
 	@Override
 	protected void drawOptions(DrawsLazily.DoneDrawingCallback callback) {
-		final WorkingSet item = WorkingSetCache.impl.getWorkingSet(getSelectedItem());
+		//final WorkingSet item = WorkingSetCache.impl.getWorkingSet(getSelectedItem());
 		
 		if (optionsContainer.getItemCount() == 0) {
 			final TableLayout layout = new TableLayout(1);
@@ -169,7 +169,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 							+ "taxa information, and the draft assessments associated with each taxa if they" 
 							+ " exist.  Proceed?", new WindowUtils.SimpleMessageBoxListener() {
 						public void onYes() {
-							export(item);
+							export(WorkingSetCache.impl.getWorkingSet(getSelectedItem()));
 						}
 					});
 				}
@@ -196,9 +196,9 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 							"permissions are unchanged.",
 							new WindowUtils.SimpleMessageBoxListener() {
 						public void onYes() {
-							WorkingSetCache.impl.unsubscribeToWorkingSet(item, new GenericCallback<String>() {
+							WorkingSetCache.impl.unsubscribeToWorkingSet(WorkingSetCache.impl.getWorkingSet(getSelectedItem()), new GenericCallback<String>() {
 								public void onSuccess(String result) {
-									WindowUtils.infoAlert("You have successfully unsubscribed from the working set " + item.getWorkingSetName() + ".");
+									WindowUtils.infoAlert("You have successfully unsubscribed from the working set " + WorkingSetCache.impl.getWorkingSet(getSelectedItem()).getWorkingSetName() + ".");
 									WSStore.getStore().update();
 									StateManager.impl.reset();
 								}
@@ -211,14 +211,14 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 				}
 			}));
 			
-			if (canDelete(item)) {
+			if (canDelete(WorkingSetCache.impl.getWorkingSet(getSelectedItem()))) {
 				buttonArea.add(createButton("Delete", new SelectionListener<ButtonEvent>() {
 					public void componentSelected(ButtonEvent ce) {
 						WindowUtils.confirmAlert("Delete working set?", "Are you sure you " +
 								"want to completely delete this working set? <b>You can not " +
 								"undo this operation.</b>", new WindowUtils.SimpleMessageBoxListener() {
 							public void onYes() {
-								DeleteWorkingSetPanel.ensurePermissionsCleared(item.getId(), new GenericCallback<String>() {
+								DeleteWorkingSetPanel.ensurePermissionsCleared(WorkingSetCache.impl.getWorkingSet(getSelectedItem()).getId(), new GenericCallback<String>() {
 									public void onFailure(Throwable caught) {
 										if (caught != null) {
 											WindowUtils.errorAlert("Error communicating with the server. Please try again later.");
@@ -229,13 +229,13 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 										}
 									}
 									public void onSuccess(String result) {
-										WorkingSetCache.impl.deleteWorkingSet(item, new GenericCallback<String>() {
+										WorkingSetCache.impl.deleteWorkingSet(WorkingSetCache.impl.getWorkingSet(getSelectedItem()), new GenericCallback<String>() {
 											public void onFailure(Throwable caught) {
 												WindowUtils.errorAlert("Failed to delete this working set. Please try again later.");
 											}
 											@Override
 											public void onSuccess(String result) {
-												WindowUtils.infoAlert("You have successfully deleted the working set " + item.getWorkingSetName() + ".");
+												WindowUtils.infoAlert("You have successfully deleted the working set " + WorkingSetCache.impl.getWorkingSet(getSelectedItem()).getWorkingSetName() + ".");
 												WSStore.getStore().update();
 												StateManager.impl.reset();
 											}
