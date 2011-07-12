@@ -1,5 +1,6 @@
 package org.iucn.sis.server.restlets.assessments;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -66,9 +67,12 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 	}
 	
 	private Representation showEdits(Assessment assessment) {
+		final List<Edit> edits = new ArrayList<Edit>(assessment.getEdit());
+		Collections.sort(edits, Collections.reverseOrder());
+		
 		final StringBuilder out = new StringBuilder();
 		out.append("<root>");
-		for (Edit edit : assessment.getEdit())
+		for (Edit edit : edits)
 			out.append(edit.toXML());
 		out.append("</root>");
 		
