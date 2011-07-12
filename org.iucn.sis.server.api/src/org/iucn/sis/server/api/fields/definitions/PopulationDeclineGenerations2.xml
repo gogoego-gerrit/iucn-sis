@@ -1,7 +1,7 @@
 <field id="42">
 	<canonicalName>PopulationDeclineGenerations2</canonicalName>
 	<description>
-		Estimated continuing decline % in mature individuals within 2
+		Continuing decline % in mature individuals within 2
 		generations or 5 years, whichever is longer, note to not go 100
 		years in future
 	</description>
