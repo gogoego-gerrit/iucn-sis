@@ -140,7 +140,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 					setBodyContainer(assessments);
 				}
 			}));
-			buttonArea.add(createButton("Permisison Manager", new SelectionListener<ButtonEvent>() {
+			buttonArea.add(createButton("Permission Manager", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
 					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.GRANT, 
 							WorkingSetCache.impl.getCurrentWorkingSet())) {
