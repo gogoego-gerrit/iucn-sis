@@ -359,8 +359,6 @@
 						<composite>
 							<field id="RedListAssessmentDate"/>
 							<field id="RedListEvaluated"/>
-
-							<field id="RedListConsistencyCheck"/>
 						</composite>
 						<composite>
 							<field id="RedListAssessors"/>
@@ -370,8 +368,6 @@
 						</composite>
 						<composite>
 							<field id="RedListCaveat"/>
-
-							<field id="RedListPetition"/>
 						</composite>
 						<composite>
 							<field id="RegionInformation"/>
@@ -380,12 +376,6 @@
 				</organization>
 				<organization title="Publication Information">
 					<composite>
-
-						<field id="RedListPublication"/>
-						<field id="OtherPublication"/>
-					</composite>
-					<composite>
-						<field id="RedListAssessmentAuthors"/>
 						<field id="RedListSource"/>
 					</composite>
 				</organization>
@@ -1751,4 +1741,25 @@
 			</page>
 		</pages>
 	</view>
+	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="AdminView" title="Admin View" xsi:noNamespaceSchemaLocation="views.xsd">
+		<pages>
+			<page id="RedListing" title="Red List Assessment">
+				<pageOrganizations>
+					<organization title="Assessment Information">
+						<composite>
+							<field id="RedListConsistencyCheck"/>
+							<field id="RedListPetition"/>
+						</composite>
+					</organization>					
+					<organization title="Publication Information">
+						<composite>
+							<field id="RedListPublication"/>
+							<field id="OtherPublication"/>
+							<field id="RedListAssessmentAuthors"/>
+						</composite>
+					</organization>										
+				</pageOrganizations>
+			</page>
+		</pages>
+	</view> 	
 </views>
