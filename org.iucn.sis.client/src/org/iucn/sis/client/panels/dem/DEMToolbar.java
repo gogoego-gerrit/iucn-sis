@@ -589,17 +589,18 @@ public class DEMToolbar extends ToolBar {
 					"to save your changes if any unsaved changes are detected.");
 				pageChangeMenu.add(autoPrompt);
 				
-				CheckMenuItem ignore = new CheckMenuItem("Ignore");
-				ignore.setData("value", UserPreferences.IGNORE);
-				ignore.setGroup(UserPreferences.AUTO_SAVE);
-				ignore.setChecked(savePreference.equals(UserPreferences.IGNORE));
-				ignore.addSelectionListener(listener);
-				ignore.setToolTip("When switching pages or assessments, any unsaved changes to an " +
-					"assessment will be thrown away; you will not be prompted to save them, nor " +
-					"will they be automatically saved.  Only clicking the \"Save\" button will save " +
-					"changes.");
-				pageChangeMenu.add(ignore);
-				
+				if(SimpleSISClient.currentUser.getUsername().equalsIgnoreCase("admin")){
+					CheckMenuItem ignore = new CheckMenuItem("Ignore");
+					ignore.setData("value", UserPreferences.IGNORE);
+					ignore.setGroup(UserPreferences.AUTO_SAVE);
+					ignore.setChecked(savePreference.equals(UserPreferences.IGNORE));
+					ignore.addSelectionListener(listener);
+					ignore.setToolTip("When switching pages or assessments, any unsaved changes to an " +
+						"assessment will be thrown away; you will not be prompted to save them, nor " +
+						"will they be automatically saved.  Only clicking the \"Save\" button will save " +
+						"changes.");
+					pageChangeMenu.add(ignore);
+				}
 				onPageChange.setSubMenu(pageChangeMenu);
 			}
 			
