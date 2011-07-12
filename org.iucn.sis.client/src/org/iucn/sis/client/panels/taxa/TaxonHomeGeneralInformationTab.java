@@ -59,6 +59,7 @@ import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.portable.PortableAlphanumericComparator;
+import com.solertium.util.portable.XMLWritingUtils;
 
 public class TaxonHomeGeneralInformationTab extends LayoutContainer implements DrawsLazily {
 	
@@ -88,19 +89,18 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 	
 	private ContentPanel drawGeneralInformation(final Taxon node) {
 		LayoutContainer data = new LayoutContainer();
-		//data.setWidth(240);
-		if (!node.isDeprecated())
-			data.add(new HTML("Name: <i>" + node.getName() + "</i>"));
-		else
-			data.add(new HTML("Name: <s>" + node.getName() + "</s>"));
-		data.add(new HTML("&nbsp;&nbsp;Taxon ID: "
-				+ "<a target='_blank' href='http://www.iucnredlist.org/apps/redlist/details/" + node.getId()
-				+ "'>" + node.getId() + "</a>"));
-
-		if (node.getLevel() >= TaxonLevel.SPECIES) {
-			data.add(new HTML("Full Name:  <i>" + node.getFullName() + "</i>"));
-		}
+		data.addStyleName("page_taxon_general");
+		
+		String url = "http://www.iucnredlist.org/apps/redlist/details/" + node.getId();
+		String prefix = node.getTaxonLevel().getLevel() >= TaxonLevel.SPECIES ? "Full Name" : "Name";
+		String tag = node.isDeprecated() ? "s" : "i";
+		
+		data.add(new HTML(prefix + ":  " + XMLWritingUtils.writeTag(tag, node.getFullName()) + 
+				"&nbsp;(<a target=\"blank\" href=\"" + url + "\">" + 
+				node.getId() + "</a>)"));
+		
 		data.add(new HTML("Level: " + node.getDisplayableLevel()));
+		
 		if (node.getParentName() != null) {
 			HTML parentHTML = new HTML("Parent:  <i>" + node.getParentName() + "</i>"
 					+ "<img src=\"images/icon-tree.png\"></img>");
@@ -116,57 +116,9 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 			data.add(new HTML("Taxonomic Authority: " + node.getTaxonomicAuthority()));
 		}
 
-		data.add(new HTML("Status: " + node.getStatusCode()));
+		data.add(new HTML("Status: " + node.getTaxonStatus().getName()));
 		data.add(new HTML("Hybrid: " + node.getHybrid()));
 		
-		HorizontalPanel refPanel = new HorizontalPanel(); {
-			int size = node.getReference().size();
-			final HTML display = new HTML("References (" + size + "): ");
-			
-			final Image image = new Image(size > 0 ? "images/icon-book.png" : "images/icon-book-grey.png");
-			image.addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					SimpleSISClient.getInstance().onShowReferenceEditor(
-						"Manage References for " + node.getFullName(), 
-						new ReferenceableTaxon(node, new SimpleListener() {
-							public void handleEvent() {
-								//Short way...
-								int size = node.getReference().size();
-								display.setHTML("References (" + size + "): ");
-								image.setUrl(size > 0 ? "images/icon-book.png" : "images/icon-book-grey.png");
-								
-								//Long way
-								//update(taxon.getId());
-							}
-						}), 
-						null, null
-					);
-				}
-			});
-			
-			refPanel.add(display);
-			refPanel.add(image);
-		}
-		data.add(refPanel);
-		
-		HorizontalPanel notesPanel = new HorizontalPanel(); {
-			int size = node.getNotes().size();
-			final HTML display = new HTML("Notes (" + size + "): ");
-			
-			final Image image = new Image(size > 0 ? "images/icon-note.png" : "images/icon-note-grey.png");
-			image.addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					final NotesWindow window = new NotesWindow(new TaxonNoteAPI(node));
-					window.setHeading("Notes for " + node.getFullName());
-					window.show();	
-				}
-			});
-			
-			notesPanel.add(display);
-			notesPanel.add(image);
-		}
-		
-		data.add(notesPanel);
 		
 		final ContentPanel generalInformation = new ContentPanel();
 		generalInformation.setLayoutOnChange(true);

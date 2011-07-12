@@ -219,6 +219,18 @@ body,td,div,input,p,select,input,button {
 	
 }
 
+.page_taxon_general {
+	font-size: 16pt !important;
+}
+
+.page_taxon_general_prompt {
+
+}
+
+.page_taxon_general_value {
+
+}
+
 .page_taxon_section_header {
  	background-color: #DFE8F6 !important;
  	width: 100%;
@@ -598,6 +610,10 @@ body,td,div,input,p,select,input,button {
 
 .icon-arrow-left {
 	background: url(../images/icon-arrow-left.png) no-repeat !important;
+}
+
+.icon-tree {
+	background: url(../images/icon-tree.png) no-repeat !important;
 }
 
 .icon-search {

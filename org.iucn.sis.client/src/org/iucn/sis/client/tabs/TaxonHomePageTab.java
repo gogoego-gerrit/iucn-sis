@@ -23,6 +23,7 @@ import org.iucn.sis.client.panels.images.ImageManagerPanel;
 import org.iucn.sis.client.panels.taxa.TaxonAssessmentInformationTab;
 import org.iucn.sis.client.panels.taxa.TaxonHomeGeneralInformationTab;
 import org.iucn.sis.client.panels.taxa.TaxonHomeWorkingSetsTab;
+import org.iucn.sis.client.panels.taxa.TaxonTreePopup;
 import org.iucn.sis.client.panels.taxomatic.CreateNewTaxonPanel;
 import org.iucn.sis.client.panels.taxomatic.LateralMove;
 import org.iucn.sis.client.panels.taxomatic.MergePanel;
@@ -36,7 +37,6 @@ import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticWindow;
 import org.iucn.sis.client.panels.taxomatic.TaxonBasicEditor;
 import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
-import org.iucn.sis.client.panels.taxomatic.LegacyTaxonSynonymEditor;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.citations.Referenceable;
@@ -426,69 +426,27 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		assessmentTools.setText("Assessment Tools");
 		assessmentTools.setIconStyle("icon-preferences-wrench");
 
-		MenuItem mItem = new MenuItem();
-		mItem.setText("Goto Most Recent");
-		mItem.setIconStyle("icon-go-jump");
-		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+		MenuItem hierarchy = new MenuItem();
+		hierarchy.setText("View Hierarchy");
+		hierarchy.setIconStyle("icon-tree");
+		hierarchy.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-
+				new TaxonTreePopup(getTaxon()).show();
 			}
 		});
 
-		mItem = new MenuItem();
-		mItem.setText("Assess Current Taxon");
-		mItem.setIconStyle("icon-new-document");
-
-		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+		MenuItem assessTaxon = new MenuItem();
+		assessTaxon.setText("Assess Taxon");
+		assessTaxon.setIconStyle("icon-new-document");
+		assessTaxon.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				if (TaxonomyCache.impl.getCurrentTaxon().getFootprint().length < TaxonLevel.SPECIES) {
-					WindowUtils.errorAlert("You must select a species or lower taxa to assess.  "
-							+ "You can select a different taxon using the navigator, the search function, "
-							+ " or the browser.");
-				} else {
-					final NewAssessmentPanel panel = new NewAssessmentPanel();
-					panel.show();
-				}
+				final NewAssessmentPanel panel = new NewAssessmentPanel();
+				panel.show();
 			}
 		});
-
-		Menu mainMenu = new Menu();
-		mainMenu.add(mItem);
-		assessmentTools.setMenu(mainMenu);
-
-		toolbar.add(assessmentTools);
-		toolbar.add(new SeparatorToolItem());
-
-		taxonToolsItem = new Button();
-		taxonToolsItem.setText("Taxon Tools");
-		taxonToolsItem.setIconStyle("icon-preferences-wrench-orange");
-
-		mainMenu = new Menu();
-		taxonToolsItem.setMenu(mainMenu);
-
-		// mainMenu.add( mItem );
-
-		mItem = new MenuItem();
-		mItem.setText("View/Attach Note");
-		mItem.setIconStyle("icon-note");
-		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				buildNotePopup();
-			}
-		});
-		mainMenu.add(mItem);
-
-		mItem = new MenuItem();
-		mItem.setText("View/Attach Reference");
-		mItem.setIconStyle("icon-book");
-		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				buildReferencePopup();
-			}
-		});
-		mainMenu.add(mItem);
-
-		toolbar.add(taxonToolsItem);
+		assessTaxon.setEnabled(getTaxon().getTaxonLevel().getLevel() >= TaxonLevel.SPECIES);
+			
+		toolbar.add(assessTaxon);
 		toolbar.add(new SeparatorToolItem());
 
 		// BEGIN TAXOMATIC FEATURES
@@ -496,10 +454,10 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 			taxomaticToolItem = new Button();
 			taxomaticToolItem.setText("Taxomatic Tools");
 			taxomaticToolItem.setIconStyle("icon-preferences-wrench-green");
-			mainMenu = new Menu();
+			Menu mainMenu = new Menu();
 			taxomaticToolItem.setMenu(mainMenu);
 
-			mItem = new MenuItem();
+			MenuItem mItem = new MenuItem();
 			mItem.setText("Edit Taxon");
 			mItem.setIconStyle("icon-note-edit");
 			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
@@ -832,31 +790,32 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 					});
 				}
 			});
+		
+			mainMenu.add(mItem);
+			
+			mItem = new MenuItem();
+			mItem.setText("View Taxomatic History");
+			mItem.setIconStyle("icon-taxomatic-history");
+			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					TaxomaticHistoryPanel panel = new TaxomaticHistoryPanel(getTaxon());
+					panel.show();
+				}
+			});
+			mainMenu.add(mItem);
+	
+			mItem = new MenuItem();
+			mItem.setText("Move Assessments");
+			mItem.setIconStyle("icon-document-move");
+			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					popupChooser(new TaxomaticAssessmentMover(TaxonomyCache.impl.getCurrentTaxon()));
+				}
+			});
+			
+	
+			mainMenu.add(mItem);
 		}
-		mainMenu.add(mItem);
-		
-		mItem = new MenuItem();
-		mItem.setText("View Taxomatic History");
-		mItem.setIconStyle("icon-taxomatic-history");
-		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				TaxomaticHistoryPanel panel = new TaxomaticHistoryPanel(getTaxon());
-				panel.show();
-			}
-		});
-		mainMenu.add(mItem);
-
-		mItem = new MenuItem();
-		mItem.setText("Move Assessments");
-		mItem.setIconStyle("icon-document-move");
-		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				popupChooser(new TaxomaticAssessmentMover(TaxonomyCache.impl.getCurrentTaxon()));
-			}
-		});
-		
-
-		mainMenu.add(mItem);
 
 		return toolbar;
 	}
