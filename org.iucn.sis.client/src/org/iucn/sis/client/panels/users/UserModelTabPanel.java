@@ -46,7 +46,7 @@ public class UserModelTabPanel extends TabPanel implements ContentManager {
 
 		add(active);
 		
-		final TabItem disabled = new TabItem("Disabled Users");
+		final TabItem disabled = new TabItem("Deactivated Users");
 		disabled.setData("id", "disabled");
 		disabled.setLayout(new FillLayout());
 		disabled.setClosable(false);
