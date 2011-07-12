@@ -314,7 +314,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 				new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				if (selectedItem != null) {
-					associatedPermissions.remove(selectedItem);
+					//associatedPermissions.remove(selectedItem);
 					List<PermissionUserModel> l = new ArrayList<PermissionUserModel>();
 					l.add(selectedItem);
 					onRemoveUsers(l);

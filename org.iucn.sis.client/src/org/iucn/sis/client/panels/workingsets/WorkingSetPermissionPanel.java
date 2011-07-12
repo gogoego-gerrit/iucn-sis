@@ -99,9 +99,10 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 				for( final PermissionUserModel cur : removed ) {
 					final ClientUser user = cur.getUser();
 					final String newGroup = removeGroupsFromUser(user);
+					associatedPermissions.remove(cur);
 					user.setProperty("quickGroup", newGroup);
 				}
-
+					
 				associatedPermissions.filter("all");
 				if( associatedPermissions.getModels().size() == 0 ) {
 					deletePermissionGroups();
