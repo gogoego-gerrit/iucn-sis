@@ -420,26 +420,28 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		});
 		
 		toolbar.add(goToParent);
-		toolbar.add(new SeparatorToolItem());
 
 		assessmentTools = new Button();
 		assessmentTools.setText("Assessment Tools");
 		assessmentTools.setIconStyle("icon-preferences-wrench");
 
-		MenuItem hierarchy = new MenuItem();
+		Button hierarchy = new Button();
 		hierarchy.setText("View Hierarchy");
-		hierarchy.setIconStyle("icon-tree");
-		hierarchy.addSelectionListener(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
+		hierarchy.setIconStyle("icon-hierarchy");
+		hierarchy.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				new TaxonTreePopup(getTaxon()).show();
 			}
 		});
+		
+		toolbar.add(hierarchy);
+		toolbar.add(new SeparatorToolItem());
 
-		MenuItem assessTaxon = new MenuItem();
+		Button assessTaxon = new Button();
 		assessTaxon.setText("Assess Taxon");
 		assessTaxon.setIconStyle("icon-new-document");
-		assessTaxon.addSelectionListener(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
+		assessTaxon.addSelectionListener(new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
 				final NewAssessmentPanel panel = new NewAssessmentPanel();
 				panel.show();
 			}
@@ -449,14 +451,10 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		toolbar.add(assessTaxon);
 		toolbar.add(new SeparatorToolItem());
 
+		Menu mainMenu = new Menu();
+		
 		// BEGIN TAXOMATIC FEATURES
 		if (ENABLE_TAXOMATIC_FEATURES) {
-			taxomaticToolItem = new Button();
-			taxomaticToolItem.setText("Taxomatic Tools");
-			taxomaticToolItem.setIconStyle("icon-preferences-wrench-green");
-			Menu mainMenu = new Menu();
-			taxomaticToolItem.setMenu(mainMenu);
-
 			MenuItem mItem = new MenuItem();
 			mItem.setText("Edit Taxon");
 			mItem.setIconStyle("icon-note-edit");
@@ -730,11 +728,6 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 			});
 			mainMenu.add(mItem);
 
-			// END TAXOMATIC FEATURES
-
-			toolbar.add(taxomaticToolItem);
-			toolbar.add(new SeparatorToolItem());
-
 			mItem = new MenuItem();
 			mItem.setIconStyle("icon-undo");
 			mItem.setText("Undo Taxomatic Operation");
@@ -816,6 +809,13 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 	
 			mainMenu.add(mItem);
 		}
+		
+		taxomaticToolItem = new Button();
+		taxomaticToolItem.setText("Taxomatic Tools");
+		taxomaticToolItem.setIconStyle("icon-preferences-wrench-green");
+		taxomaticToolItem.setMenu(mainMenu);
+		
+		toolbar.add(taxomaticToolItem);
 
 		return toolbar;
 	}

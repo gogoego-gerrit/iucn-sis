@@ -219,8 +219,8 @@ body,td,div,input,p,select,input,button {
 	
 }
 
-.page_taxon_general {
-	font-size: 16pt !important;
+.page_taxon_general span {
+	font-size: 16px !important;
 }
 
 .page_taxon_general_prompt {
@@ -232,15 +232,18 @@ body,td,div,input,p,select,input,button {
 }
 
 .page_taxon_section_header {
- 	background-color: #DFE8F6 !important;
- 	width: 100%;
+	width: 100%;
  	height: 100%;
- 	border: 1px dotted #00428C !important;
- 	font-weight: bold !important;
+ 	background-color: #DFE8F6 !important;
 }
 
 .page_taxon_section_header .x-border-panel {
- 	background-color: #DFE8F6 !important;	
+ 	background-color: #DFE8F6 !important;
+}
+
+.page_taxon_section_header span {
+ 	font-weight: bold !important;
+ 	font-size: 12px !important;
 }
 
 .page_taxon_section_view_all {
@@ -612,7 +615,7 @@ body,td,div,input,p,select,input,button {
 	background: url(../images/icon-arrow-left.png) no-repeat !important;
 }
 
-.icon-tree {
+.icon-hierarchy {
 	background: url(../images/icon-tree.png) no-repeat !important;
 }
 
@@ -2061,5 +2064,3 @@ SIS_Header_Summary_Title {
 .sis_ws_permissionpanel_row_selected {
 	border: 1px dotted black;
 }
-
-

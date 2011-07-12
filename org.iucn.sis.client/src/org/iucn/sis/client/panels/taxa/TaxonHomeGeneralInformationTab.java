@@ -63,7 +63,7 @@ import com.solertium.util.portable.XMLWritingUtils;
 
 public class TaxonHomeGeneralInformationTab extends LayoutContainer implements DrawsLazily {
 	
-	private static final int SECTION_LIST_LIMIT = 10;
+	private static final int SECTION_LIST_LIMIT = 5;
 	
 	private static final String NO_DATA_STYLE = "";
 	
@@ -87,49 +87,35 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		callback.isDrawn();
 	}
 	
-	private ContentPanel drawGeneralInformation(final Taxon node) {
-		LayoutContainer data = new LayoutContainer();
+	private LayoutContainer drawGeneralInformation(final Taxon node) {
+		final TableData layout = new TableData();
+		layout.setPadding(5);
+		
+		final LayoutContainer data = new LayoutContainer(new TableLayout(1));
 		data.addStyleName("page_taxon_general");
 		
 		String url = "http://www.iucnredlist.org/apps/redlist/details/" + node.getId();
 		String prefix = node.getTaxonLevel().getLevel() >= TaxonLevel.SPECIES ? "Full Name" : "Name";
 		String tag = node.isDeprecated() ? "s" : "i";
 		
-		data.add(new HTML(prefix + ":  " + XMLWritingUtils.writeTag(tag, node.getFullName()) + 
+		data.add(new Span(prefix + ":  " + XMLWritingUtils.writeTag(tag, node.getFullName()) + 
 				"&nbsp;(<a target=\"blank\" href=\"" + url + "\">" + 
-				node.getId() + "</a>)"));
+				node.getId() + "</a>)"), layout);
 		
-		data.add(new HTML("Level: " + node.getDisplayableLevel()));
+		data.add(new Span("Level: " + node.getDisplayableLevel()), layout);
 		
 		if (node.getParentName() != null) {
-			HTML parentHTML = new HTML("Parent:  <i>" + node.getParentName() + "</i>"
-					+ "<img src=\"images/icon-tree.png\"></img>");
-			parentHTML.addStyleName("clickable");
-			parentHTML.addClickHandler(new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					new TaxonTreePopup(node).show();
-				}
-			});
-			data.add(parentHTML);
+			HTML parentHTML = new Span("Parent:  <i>" + node.getParentName() + "</i>");
+			data.add(parentHTML, layout);
 		}
-		if (node.getTaxonomicAuthority() != null && !node.getTaxonomicAuthority().equalsIgnoreCase("")) {
-			data.add(new HTML("Taxonomic Authority: " + node.getTaxonomicAuthority()));
+		if (node.getTaxonomicAuthority() != null && !node.getTaxonomicAuthority().equals("")) {
+			data.add(new Span("Taxonomic Authority: " + node.getTaxonomicAuthority()), layout);
 		}
 
-		data.add(new HTML("Status: " + node.getTaxonStatus().getName()));
-		data.add(new HTML("Hybrid: " + node.getHybrid()));
+		data.add(new Span("Status: " + node.getTaxonStatus().getName()), layout);
+		data.add(new Span("Hybrid: " + (node.getHybrid() ? "Yes" : "No")), layout);
 		
-		
-		final ContentPanel generalInformation = new ContentPanel();
-		generalInformation.setLayoutOnChange(true);
-		generalInformation.setHeading("General Information");
-		generalInformation.setStyleName("x-panel");
-		//generalInformation.setWidth(350);
-		// generalLayout.setSpacing(5);
-		//generalInformation.setHeight(panelHeight);
-		generalInformation.add(data);//, new BorderLayoutData(LayoutRegion.CENTER));
-		
-		return generalInformation;
+		return data;
 	}
 	
 	private LayoutContainer createSectionHeader(final String name) {
@@ -153,7 +139,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		final LayoutContainer container = new LayoutContainer(layout);
 		container.setHeight(30);
 		container.setStyleName(styleName == null ? "page_taxon_section_header" : styleName);
-		container.add(new HTML(name), new TableData(HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
+		container.add(new Span(name), new TableData(HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
 		
 		if (listener != null) {
 			final IconButton icon = new IconButton(iconStyle);
@@ -326,7 +312,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 					final NotesWindow window = new NotesWindow(new SynonymNoteAPI(node, synonym));
 					window.show();
 				}
-			}, null, iconStyle));
+			}, "", iconStyle));
 		}
 		else
 			return (createSectionHeader(value, null, null));
@@ -473,6 +459,16 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 				//TaxonomyCache.impl.setCurrentTaxon(taxon);
 				ClientUIContainer.bodyContainer.refreshBody();
 				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
+		}
+		
+	}
+	
+	private static class Span extends HTML {
+		
+		public Span(String html, String... style) {
+			super("<span>" + html + "</span>");
+			for (String styleName : style)
+				addStyleName(styleName);
 		}
 		
 	}
