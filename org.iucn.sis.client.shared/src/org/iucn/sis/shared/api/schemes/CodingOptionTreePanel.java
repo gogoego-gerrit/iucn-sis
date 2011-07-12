@@ -346,35 +346,58 @@ public class CodingOptionTreePanel extends LayoutContainer {
 		
 		@Override
 		public boolean execute() {
-			if (current == size) {
+			if (size < 5) {
+				executeAll();
 				store.sort("text", SortDir.ASC);
 				if (listener != null)
 					listener.handleEvent(store);
 				return false;
 			}
-
-			WindowUtils.showLoadingAlert("Loading Group " + (current+1) + " of " + size);
-			
-			TreeDataRow row = treeRoots.get(current);
-			
-			CodingOption option;
-			if (selection.containsKey(row.getDisplayId()))
-				option = selection.get(row.getDisplayId());
-			else
-				option = new CodingOption(row);
-			option.setDisabled(disabled.contains(row.getRowNumber()));
-			if (option.isValid()) {
-				flattenTree(store, selection, option, disabled);
-				store.add(option, true);
+			else {
+				if (current == size) {
+					store.sort("text", SortDir.ASC);
+					if (listener != null)
+						listener.handleEvent(store);
+					return false;
+				}
+	
+				WindowUtils.showLoadingAlert("Loading Group " + (current+1) + " of " + size);
+				
+				TreeDataRow row = treeRoots.get(current);
+				
+				CodingOption option;
+				if (selection.containsKey(row.getDisplayId()))
+					option = selection.get(row.getDisplayId());
+				else
+					option = new CodingOption(row);
+				option.setDisabled(disabled.contains(row.getRowNumber()));
+				if (option.isValid()) {
+					flattenTree(store, selection, option, disabled);
+					store.add(option, true);
+				}
+				
+				current++;
+				
+				return true;
 			}
-			
-			current++;
-			
-			return true;
 		}
 		
-		
-		
+		private void executeAll() {
+			for (current = 0; current < size; current++) {
+				TreeDataRow row = treeRoots.get(current);
+				
+				CodingOption option;
+				if (selection.containsKey(row.getDisplayId()))
+					option = selection.get(row.getDisplayId());
+				else
+					option = new CodingOption(row);
+				option.setDisabled(disabled.contains(row.getRowNumber()));
+				if (option.isValid()) {
+					flattenTree(store, selection, option, disabled);
+					store.add(option, true);
+				}
+			}
+		}
 	}
 
 }
