@@ -295,6 +295,15 @@ body,td,div,input,p,select,input,button {
 	border-left: 1px solid #CEDCE9 !important;	
 }
 
+.page_assessment_trackChanges_edits {
+	border-bottom: 1px dotted black;
+}
+
+.page_assessment_trackChanges_edits_user {
+	font-weight: bold !important;
+	font-size: 12px !important;
+}
+
 .notes_entry {
 	border-bottom: 1px solid black !important;
 	width: 100%;

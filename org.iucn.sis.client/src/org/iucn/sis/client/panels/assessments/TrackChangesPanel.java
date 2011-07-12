@@ -15,14 +15,17 @@ import org.iucn.sis.shared.api.models.AssessmentChange;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -130,22 +133,30 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
 		document.get(UriBase.getInstance().getSISBase() + "/changes/assessments/" + assessment.getId(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
-				final LayoutContainer container = new LayoutContainer();
+				final FlowLayout l = new FlowLayout();
+				l.setMargins(new Margins(5, 0, 5, 0));
+				
+				final LayoutContainer container = new LayoutContainer(l);
 				container.setScrollMode(Scroll.AUTOY);
 				
 				final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName(Edit.ROOT_TAG);
 				for (int i = 0; i < nodes.getLength(); i++) {
 					final Edit edit = Edit.fromXML(nodes.elementAt(i)); 
 				
-					//TODO: something prettier
-					final LayoutContainer info = new LayoutContainer();
-					info.add(new Html(edit.getUser().getDisplayableName()));
-					info.add(new Html(FormattedDate.FULL.getDate(edit.getCreatedDate())));
-					info.add(new Button("View", new SelectionListener<ButtonEvent>() {
+					final ButtonBar bar = new ButtonBar();
+					bar.setAlignment(HorizontalAlignment.CENTER);
+					bar.add(new Button("View", new SelectionListener<ButtonEvent>() {
 						public void componentSelected(ButtonEvent ce) {
 							view(edit);
 						}
 					}));
+					
+					final LayoutContainer info = new LayoutContainer();
+					info.addStyleName("page_assessment_trackChanges_edits");
+					info.add(new Html("<span class=\"page_assessment_trackChanges_edits_user\">" + edit.getUser().getDisplayableName() + "</span>"));
+					info.add(new Html("<span>" + FormattedDate.FULL.getDate(edit.getCreatedDate()) + "</span>"));
+					info.add(bar);
+					
 					container.add(info);
 				}
 				
