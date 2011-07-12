@@ -14,7 +14,8 @@ Require-Bundle: org.restlet;bundle-version="2.0.0",
  org.restlet.ext.xml;bundle-version="2.0.0",
  com.solertium.util;bundle-version="1.1.2",
  com.solertium.vfs.restlet;bundle-version="1.1.2",
- org.hibernate;bundle-version="1.0.0"
+ org.hibernate;bundle-version="1.0.0",
+ com.solertium.mail;bundle-version="1.1.2"
 Import-Package: org.osgi.framework;version="1.4.0"
 Bundle-Activator: org.iucn.sis.server.extensions.zendesk.ServerActivator
 Bundle-Vendor: IUCN

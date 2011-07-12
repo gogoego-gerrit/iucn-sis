@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
+import org.gogoego.api.mail.InstanceMailer;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -24,8 +25,11 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.solertium.mail.Mailer;
+import com.solertium.util.NodeCollection;
 import com.solertium.util.restlet.RestletUtils;
 
 public class ZendeskResource extends BaseServiceRestlet {
@@ -39,6 +43,7 @@ public class ZendeskResource extends BaseServiceRestlet {
 	
 	@Override
 	public void definePaths() {
+		paths.add("/assembla/mail");
 		paths.add("/zendesk/{action}");
 		paths.add("/zendesk/{action}/{id}");
 		
@@ -69,8 +74,39 @@ public class ZendeskResource extends BaseServiceRestlet {
 			throw new ResourceException(res.getStatus());
 	}
 	
+	private void sendMail(Representation entity, Request request, Response response) throws ResourceException {
+		String subject = null, body = null;
+		
+		Document document = getEntityAsDocument(entity);
+		for (Node node : new NodeCollection(document.getDocumentElement().getChildNodes())) {
+			if ("subject".equals(node.getNodeName()))
+				subject = node.getTextContent();
+			else if ("body".equals(node.getNodeName()))
+				body = node.getTextContent();
+		}
+		
+		if (subject == null || body == null)
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a subject and a body.");
+		
+		Mailer mailer = InstanceMailer.getInstance().getMailer();
+		mailer.setTo("sis@support.assembla.com");
+		mailer.setSubject(subject);
+		mailer.setBody(body);
+		
+		try {
+			mailer.background_send();
+		} catch (Exception e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+	}
+	
 	@Override
 	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		if (request.getResourceRef().getPath().endsWith("mail")) {
+			sendMail(entity, request, response);
+			return;
+		}
+			
 		final String action = (String)request.getAttributes().get("action");
 		if ("login".equals(action)) {
 			validateLogin(entity, request, response);

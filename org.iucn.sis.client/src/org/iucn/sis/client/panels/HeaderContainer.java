@@ -211,7 +211,8 @@ public class HeaderContainer extends ContentPanel {
 		reportBug.setToolTip("Report a bug or question to the help desk.");
 		reportBug.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
-				 new ZendeskPanel();
+				 //new ZendeskPanel();
+				new AssemblaSupportPanel().show();
 			}
 		});
 		
