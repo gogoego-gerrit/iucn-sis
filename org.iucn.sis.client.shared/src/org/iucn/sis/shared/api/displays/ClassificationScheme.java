@@ -214,7 +214,7 @@ public class ClassificationScheme extends Display {
 		else {
 			List<ClassificationSchemeModelData> list = new ArrayList<ClassificationSchemeModelData>(thinData);
 			Collections.sort(list, new ClassificationSchemeModelDataComparator());
-			for (ClassificationSchemeModelData model : thinData) {
+			for (ClassificationSchemeModelData model : list) {
 				container.add(new HTML(model.getSelectedRow().getFullLineage()));
 			}
 		}

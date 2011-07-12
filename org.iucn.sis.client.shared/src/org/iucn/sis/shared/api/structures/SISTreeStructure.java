@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
+import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer.ClassificationSchemeModelDataComparator;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -121,6 +123,7 @@ public class SISTreeStructure extends Structure<Field> {
 		buildReadOnlyContainer(thinData);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void buildReadOnlyContainer(Collection<? extends ClassificationSchemeModelData> thinData) {
 		readOnlyContainer.clear();
 		readOnlyContainer.add(new StyledHTML("Selections for " + description + ":", "bold"));
@@ -129,7 +132,9 @@ public class SISTreeStructure extends Structure<Field> {
 			readOnlyContainer.add(new HTML("No selections made"));
 		}
 		else {
-			for (ClassificationSchemeModelData model : thinData) {
+			List<ClassificationSchemeModelData> list = new ArrayList<ClassificationSchemeModelData>(thinData);
+			Collections.sort(list, new ClassificationSchemeModelDataComparator());
+			for (ClassificationSchemeModelData model : list) {
 				readOnlyContainer.add(new HTML(model.getSelectedRow().getFullLineage()));
 			}
 		}
