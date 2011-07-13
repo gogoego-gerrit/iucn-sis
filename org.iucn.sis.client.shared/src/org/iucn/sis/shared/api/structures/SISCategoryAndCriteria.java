@@ -419,7 +419,67 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 
 	protected Widget createViewOnlyLabel() {
 		refreshStructures();
+		clearDisplayPanel();
+		
+		HorizontalPanel topPanel = new HorizontalPanel();
+		topPanel.setSpacing(6);
+		topPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+		topPanel.add(new HTML("Category: "));
+		topPanel.add(new HTML(categoryListBox.getValue(categoryListBox.getSelectedIndex())));		
+		displayPanel.add(topPanel);
+		
+		HorizontalPanel secondPanel = new HorizontalPanel();
+		secondPanel.setSpacing(6);
+		secondPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+		secondPanel.add(new HTML("Criteria String: "));
+		secondPanel.add(new HTML(criteriaStringBox.getText()));		
+		displayPanel.add(secondPanel);		
+		
+		HorizontalPanel versionPanel = new HorizontalPanel();
+		versionPanel.setSpacing(6);
+		versionPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+		versionPanel.add(new HTML("Criteria version: "));
+		versionPanel.add(new HTML(critVersion.getValue(critVersion.getSelectedIndex())));		
+		displayPanel.add(versionPanel);		
+		
+		HorizontalPanel historyTextPanel = new HorizontalPanel();
+		historyTextPanel.setSpacing(6);
+		historyTextPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+		historyTextPanel.add(new HTML("Red List History Text: "));
+		historyTextPanel.add(new HTML(rlText.getText()));
+		displayPanel.add(historyTextPanel);
+		
+		if (categoryListBox.getItemText(categoryListBox.getSelectedIndex()).startsWith("Extinct")){
+			HorizontalPanel lastDatePanel = new HorizontalPanel();
+			lastDatePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+			lastDatePanel.setSpacing(6);
+			lastDatePanel.add(new HTML("Date Last Seen: "));
+			lastDatePanel.add(new HTML(dateLastSeen.getText()));
+			displayPanel.add(lastDatePanel);
+		}	
 
+		if (categoryListBox.getValue(categoryListBox.getSelectedIndex()).equals("CR")){
+			HorizontalPanel extinctPanel = new HorizontalPanel();
+			extinctPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+			extinctPanel.setSpacing(6);
+			extinctPanel.add(new HTML("Possibly Extinct"));
+			extinctPanel.add(possiblyExtinctBox);
+			possiblyExtinctBox.setEnabled(false);
+			extinctPanel.add(new HTML("Possibly Extinct Candidate"));
+			extinctPanel.add(possiblyExtinctCandidateBox);
+			possiblyExtinctCandidateBox.setEnabled(false);
+			displayPanel.add(extinctPanel);
+		}	
+		
+		if (categoryListBox.getValue(categoryListBox.getSelectedIndex()).equals("DD")) {
+			HorizontalPanel deficientPanel = new HorizontalPanel();
+			deficientPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
+			deficientPanel.setSpacing(6);
+			deficientPanel.add(new HTML("Data Deficient reason: "));
+			deficientPanel.add(new HTML(dataDeficientListBox.getValue(dataDeficientListBox.getSelectedIndex())));
+			displayPanel.add(deficientPanel);
+		}
+		
 		return displayPanel;
 	}
 	
