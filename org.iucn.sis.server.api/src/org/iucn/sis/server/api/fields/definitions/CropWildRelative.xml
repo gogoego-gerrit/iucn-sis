@@ -5,7 +5,10 @@
 	<classOfService>Species Attributes</classOfService>
 	<structures>
 		<structure id="isRelative">
-			<boolean></boolean>
+			<singleSelect>
+				<option>Yes</option>
+				<option>No</option>
+			</singleSelect>
 		</structure>
 	</structures>
 </field>

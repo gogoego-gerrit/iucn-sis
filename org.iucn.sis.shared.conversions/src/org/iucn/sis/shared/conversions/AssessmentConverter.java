@@ -718,6 +718,18 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				else
 					error(4, report, "Found %s, but with only %s data fields.  Failed to convert.\n%s", curField.getKey(), rawData.size(), curField.getValue());
 			}
+			else if (CanonicalNames.CropWildRelative.equals(curField.getKey())) {
+				List<String> rawData = (List)curField.getValue();
+				if (!rawData.isEmpty()) {
+					if (!isBlank(rawData, 0)) {
+						if(rawData.get(0).equals("true")){
+							callback.handleEvent(createSimpleCropWildRelative(rawData, 0, 
+							org.iucn.sis.shared.api.utils.CanonicalNames.CropWildRelative, 
+							assessment));
+						}						
+					}					
+				}
+			}			
 			else {
 				List<String> rawData = (List<String>) (curField.getValue());
 				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);
@@ -781,6 +793,16 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		return field;
 	}
+	
+	private Field createSimpleCropWildRelative(List<String> rawData, int dataIndex, String fieldName, Assessment assessment) {
+		Field field = new Field(correctFieldName(fieldName), assessment);
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(
+			"isRelative", field, 1, 
+			fieldName + "_isRelativeLookup"
+		));
+		
+		return field;
+	}	
 	
 	private boolean isBlank(List<String> rawData, int index) {
 		return index < 0 || index >= rawData.size() || 

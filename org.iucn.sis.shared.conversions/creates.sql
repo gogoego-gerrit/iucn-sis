@@ -22,6 +22,7 @@ CREATE TABLE CountryOccurrence_seasonalityLookup(id integer auto_increment prima
 CREATE TABLE CountryOccurrence (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE CountryOccurrenceSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE CropWildRelative (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE CropWildRelative_isRelativeLookup(id integer auto_increment primary key,name varchar(255), label varchar(255));
 CREATE TABLE DateLastSeen (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE DepthLower (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE DepthUpper (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));

@@ -802,7 +802,9 @@ INSERT INTO CountryOccurrenceSubfield (name, data_type, number_allowed) VALUES (
 INSERT INTO CountryOccurrenceSubfield (name, data_type, number_allowed) VALUES ('formerlyBred', 'boolean_unknown_primitive_field', '?');
 INSERT INTO CountryOccurrenceSubfield (name, data_type, number_allowed) VALUES ('origin', 'fk_primitive_field', '?');
 INSERT INTO CountryOccurrenceSubfield (name, data_type, number_allowed) VALUES ('seasonality', 'fk_list_primitive_field', '?');
-INSERT INTO CropWildRelative (name, data_type, number_allowed) VALUES ('isRelative', 'boolean_primitive_field', '?');
+INSERT INTO CropWildRelative (name, data_type, number_allowed) VALUES ('isRelative', 'fk_primitive_field', '?');
+INSERT INTO CropWildRelative_isRelativeLookup (name, label) VALUES ('0','Yes');
+INSERT INTO CropWildRelative_isRelativeLookup (name, label) VALUES ('1', 'No');
 INSERT INTO DateLastSeen (name, data_type, number_allowed) VALUES ('lastSeen', 'date_primitive_field', '?');
 INSERT INTO DepthLower (name, data_type, number_allowed) VALUES ('limit', 'float_primitive_field', '?');
 INSERT INTO DepthUpper (name, data_type, number_allowed) VALUES ('limit', 'float_primitive_field', '?');
