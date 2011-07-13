@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
@@ -241,6 +242,8 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 					}
 				});
 				saver.sink(source, target);
+				
+				Hibernate.initialize(target.getEdit());
 				
 				//This may or may not need to happen for hibernate reasons...
 				target.toXML();
