@@ -120,12 +120,12 @@ public class Infratype implements Serializable {
 	}
 	
 	public static String getDisplayString(String infratype) {
-		if (infratype != null && infratype.equalsIgnoreCase(VARIETY_NAME))
+		if (VARIETY_NAME.equals(infratype))
 			return "var.";
-		else
+		else if (SUBSPECIES_NAME.equals(infratype))
 			return "ssp.";
+		else
+			return "";
 	}
-
-
 
 }

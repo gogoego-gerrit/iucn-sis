@@ -21,7 +21,6 @@ import java.util.List;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.data.LongUtils;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.solertium.lwxml.shared.NativeDocument;
@@ -123,10 +122,7 @@ public class Taxon implements AuthorizableObject, Serializable {
 		else {
 			fullName = getParent().getFriendlyName();
 			if (infratype != null) {
-				if (infratype.getName().equals(Infratype.SUBSPECIES_NAME))
-					fullName += " ssp.";
-				else if (infratype.getName().equals(Infratype.VARIETY_NAME))
-					fullName += " var.";
+				fullName += infratype.getDisplayString();
 				
 				name = name.replace("ssp.", "").trim();
 				name = name.replace("var.", "").trim();

@@ -60,10 +60,10 @@ public class Synonym implements Serializable {
 				setStockName(taxon.getName());
 			}
 		}
-		setFriendlyName(taxon.getFriendlyName());
 		setStatus(Synonym.NEW);
 		setTaxon(taxon);
 		setTaxon_level(taxon.getTaxonLevel());
+		generateFriendlyName();
 	}
 
 	public static Synonym fromXML(NativeElement synTag, Taxon taxon) {
