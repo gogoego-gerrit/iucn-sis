@@ -1,0 +1,10 @@
+<field id="129">
+	<canonicalName>RedListHistory</canonicalName>
+	<description>Red List History Text</description>
+	<classOfService>IUCN Internal</classOfService>
+	<structures>
+		<structure id="value">
+			<narrative></narrative>
+		</structure>
+	</structures>
+</field>

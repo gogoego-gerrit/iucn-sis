@@ -133,7 +133,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	
 	private RadioButton possiblyExtinctCandidateBox;
 
-	private TextArea rlText;
+	//private TextArea rlText;
 
 	private TextBox categoryTextBox;
 
@@ -237,7 +237,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			version == 1 ? v2_3Grid.createCriteriaString() : "");
 		proxy.setGeneratedCategory(generatedCategory);
 		proxy.setGeneratedCriteria(generatedCriteria);
-		proxy.setRLHistoryText(rlText.getText());
+		//proxy.setRLHistoryText(rlText.getText());
 		proxy.setPossiblyExtinct(possiblyExtinctBox.getValue());
 		proxy.setPossiblyExtinctCandidate(possiblyExtinctCandidateBox.getValue());
 		
@@ -381,7 +381,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		categoryListBox.setSelectedIndex(0);
 		criteriaStringBox.setText("");
 		invalidCriteriaString.setHTML("");
-		rlText.setText("");
+		//rlText.setText("");
 		possiblyExtinctBox.setChecked(false);
 		possiblyExtinctCandidateBox.setChecked(false);
 		dateLastSeen.setText("");
@@ -441,14 +441,14 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		versionPanel.add(new HTML("Criteria version: "));
 		versionPanel.add(new HTML(critVersion.getValue(critVersion.getSelectedIndex())));		
 		displayPanel.add(versionPanel);		
-		
+		/*
 		HorizontalPanel historyTextPanel = new HorizontalPanel();
 		historyTextPanel.setSpacing(6);
 		historyTextPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		historyTextPanel.add(new HTML("Red List History Text: "));
 		historyTextPanel.add(new HTML(rlText.getText()));
 		displayPanel.add(historyTextPanel);
-		
+		*/
 		if (categoryListBox.getItemText(categoryListBox.getSelectedIndex()).startsWith("Extinct")){
 			HorizontalPanel lastDatePanel = new HorizontalPanel();
 			lastDatePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
@@ -631,17 +631,17 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 				refreshStructures();
 			}
 		});
-
+		/*
 		rlText = new TextArea();
 		rlText.setWidth("100%");
 		rlText.setHeight("200px");
-
+		*/
 		VerticalPanel buttonAndHistoryText = new VerticalPanel();
 		buttonAndHistoryText.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
 		buttonAndHistoryText.setSpacing(10);
 		buttonAndHistoryText.add(manualOverride);
-		buttonAndHistoryText.add(new HTML("Red List History Text"));
-		buttonAndHistoryText.add(rlText);
+		//buttonAndHistoryText.add(new HTML("Red List History Text"));
+		//buttonAndHistoryText.add(rlText);
 
 		manualPanel = new HorizontalPanel();
 		manualPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
@@ -852,7 +852,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		manualCriteria = proxy.getManualCriteria();
 		generatedCategory = proxy.getGeneratedCategory();
 		generatedCriteria = proxy.getGeneratedCriteria();
-		rlText.setText(proxy.getRLHistoryText());
+		//rlText.setText(proxy.getRLHistoryText());
 		possiblyExtinctBox.setValue(proxy.isPossiblyExtinct());
 		possiblyExtinctCandidateBox.setValue(proxy.isPossiblyExtinctCandidate());
 		Date date = proxy.getDateLastSeen();

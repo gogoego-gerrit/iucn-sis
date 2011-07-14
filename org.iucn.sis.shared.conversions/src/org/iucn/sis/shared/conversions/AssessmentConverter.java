@@ -736,12 +736,12 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);
 				
 				RedListCriteriaField proxy = new RedListCriteriaField(field);
-				String value = proxy.getRLHistoryText();
+				String value = proxy.getStringPrimitiveField("rlHistoryText");
 				if (!"".equals(value)) {
-					proxy.setRLHistoryText(null);
+					proxy.setStringPrimitiveField("rlHistoryText", null);
 					
 					//TODO: pull the field name from CanonicalNames
-					Field history = new Field("RedListHistory", assessment);
+					Field history = new Field(CanonicalNames.RedListHistory, assessment);
 					history.addPrimitiveField(new TextPrimitiveField("value", history, value));
 					
 					callback.handleEvent(history);

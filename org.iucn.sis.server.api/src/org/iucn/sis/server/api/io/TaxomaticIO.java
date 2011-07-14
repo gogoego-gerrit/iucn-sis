@@ -35,6 +35,7 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.fields.ProxyField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 public class TaxomaticIO {
 
@@ -327,9 +328,9 @@ public class TaxomaticIO {
 	public void updateRLHistoryText(Taxon taxon, User user) {
 		for (Assessment current : assessmentIO.readPublishedAssessmentsForTaxon(taxon)) {
 			//TODO: pull the field name from CanonicalNames
-			Field field = current.getField("RedListHistory");
+			Field field = current.getField(CanonicalNames.RedListHistory);
 			if (field == null)
-				field = new Field("RedListHistory", null);
+				field = new Field(CanonicalNames.RedListHistory, null);
 			
 			ProxyField proxy = new ProxyField(field);
 			String text = proxy.getTextPrimitiveField("value");

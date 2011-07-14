@@ -1745,6 +1745,11 @@
 		<pages>
 			<page id="RedListing" title="Red List Assessment">
 				<pageOrganizations>
+					<organization title="Red List Status">
+						<composite>
+							<field id="RedListHistory"/>
+						</composite>
+					</organization>				
 					<organization title="Assessment Information">
 						<composite>
 							<field id="RedListConsistencyCheck"/>

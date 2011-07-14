@@ -112,6 +112,7 @@ public interface CanonicalNames {
 	public static String RedListEvaluationDate = "RedListEvaluationDate";
 	public static String RedListEvaluators = "RedListEvaluators";
 	public static String RedListFuzzyResult = "RedListFuzzyResult";
+	public static String RedListHistory = "RedListHistory";
 	public static String RedListManualCategory = "RedListManualCategory";
 	public static String RedListManualCriteria = "RedListManualCriteria";
 	public static String RedListNotes = "RedListNotes";
@@ -168,7 +169,7 @@ public interface CanonicalNames {
 			PopulationReductionPastandFutureUnderstood, PopulationSize, PopulationTrend, PossiblyExtinct,
 			PossiblyExtinctCandidate, RangeDocumentation, RedListAssessmentDate, RedListAssessors, RedListCategory,
 			RedListCaveat, RedListConsistencyCheck, RedListContributors, RedListCriteria, RedListCriteriaVersion,
-			RedListEvaluated, RedListEvaluationDate, RedListEvaluators, RedListFuzzyResult, RedListManualCategory,
+			RedListEvaluated, RedListEvaluationDate, RedListEvaluators, RedListFuzzyResult, RedListHistory, RedListManualCategory,
 			RedListManualCriteria, RedListNotes, RedListPetition, RedListPublication, RedListRationale,
 			RedListReasonsForChange, RedListText, RegionInformation, RegionExpertQuestions, ReproduictivePeriodicity, Research, Rivers,
 			SevereFragmentation, SubpopulationContinuingDecline, SubpopulationExtremeFluctuation, SubpopulationNumber,
@@ -198,7 +199,7 @@ public interface CanonicalNames {
 			PopulationReductionPastandFutureCeased, PopulationReductionPastandFutureReversible,
 			PopulationReductionPastandFutureUnderstood, PopulationSize, PopulationTrend, PossiblyExtinct,
 			PossiblyExtinctCandidate, RangeDocumentation, RedListAssessmentDate, RedListAssessmentAuthors, RedListAssessors, RedListCaveat,
-			RedListConsistencyCheck, RedListContributors, RedListCriteria, RedListEvaluated, RedListEvaluators,
+			RedListConsistencyCheck, RedListContributors, RedListCriteria, RedListEvaluated, RedListEvaluators, 
 			RedListNotes, RedListPetition, RedListPublication, RedListRationale, RedListReasonsForChange, RedListText,
 			RegionInformation, ReproduictivePeriodicity, Research, Rivers, SevereFragmentation,
 			SubpopulationContinuingDecline, SubpopulationExtremeFluctuation, SubpopulationNumber, SubpopulationSingle,
