@@ -193,6 +193,8 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 	}
 
 	private void postAssessment(Representation entity, Request request, Response response, User username, final Session session) throws ResourceException {
+		session.clear();
+		
 		NativeDocument doc = getEntityAsNativeDocument(entity);
 		final AssessmentIO assessmentIO = new AssessmentIO(session);
 		try {

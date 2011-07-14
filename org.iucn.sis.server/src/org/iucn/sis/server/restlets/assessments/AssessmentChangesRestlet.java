@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.io.AssessmentIO;
@@ -40,6 +41,7 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 		AssessmentIO io = new AssessmentIO(session);
 		
 		Assessment assessment = io.getAssessment(getAssessmentID(request));
+		Hibernate.initialize(assessment.getEdit());
 		if (request.getAttributes().get("mode") == null)
 			return showEdits(assessment);
 		

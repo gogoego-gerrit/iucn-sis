@@ -196,8 +196,8 @@ public class AssessmentClientSaveUtils {
 				else { 
 					if (!curField.hasData()) {
 						Debug.println("+ Removing {0} with id {1} because it doesn't have any data", curField.getName(), curField.getId());
-						assessmentToSave.getField().remove(curField);
-						curField.setId(0);
+						assessmentToSave.getField().remove(assessmentToSave.getField(curField.getName()));
+						curField.reset();
 						cur.setField(null);
 					}
 					else {

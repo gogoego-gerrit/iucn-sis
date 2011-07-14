@@ -372,6 +372,18 @@ public class Field implements Serializable {
 				return true;
 		return false;
 	}
+	
+	public void reset() {
+		setId(0);
+		if (getPrimitiveField() != null)
+			getPrimitiveField().clear();
+		if (getFields() != null) {
+			getFields().clear();
+			
+			for (Field field : getFields())
+				field.reset();
+		}
+	}
 
 	public void setAssessment(Assessment value) {
 		setAssessment(value, false);
