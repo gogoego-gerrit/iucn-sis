@@ -110,6 +110,7 @@ public class AssemblaSupportPanel extends BasicWindow {
 		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
 		document.post(UriBase.getInstance().getZendeskBase() + "/assembla/mail", out.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
+				hide();
 				WindowUtils.infoAlert("Thank you", "Your ticket has been filed.  Please visit http://assembla.com/spaces/sis to track this ticket.");
 			}
 			public void onFailure(Throwable caught) {
