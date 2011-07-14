@@ -34,6 +34,7 @@ import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanUnknownPrimitiveField;
@@ -729,7 +730,24 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						}						
 					}					
 				}
-			}			
+			}
+			else if (CanonicalNames.RedListCriteria.equals(curField.getKey())) {
+				List<String> rawData = (List<String>) (curField.getValue());
+				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);
+				
+				RedListCriteriaField proxy = new RedListCriteriaField(field);
+				String value = proxy.getRLHistoryText();
+				if (!"".equals(value)) {
+					proxy.setRLHistoryText(null);
+					
+					//TODO: pull the field name from CanonicalNames
+					Field history = new Field("RedListHistory", assessment);
+					history.addPrimitiveField(new TextPrimitiveField("value", history, value));
+					
+					callback.handleEvent(history);
+				}
+				
+			}
 			else {
 				List<String> rawData = (List<String>) (curField.getValue());
 				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);

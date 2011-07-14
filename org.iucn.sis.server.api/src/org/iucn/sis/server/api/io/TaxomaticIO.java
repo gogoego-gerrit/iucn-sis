@@ -34,8 +34,7 @@ import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
-import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
+import org.iucn.sis.shared.api.models.fields.ProxyField;
 
 public class TaxomaticIO {
 
@@ -327,14 +326,19 @@ public class TaxomaticIO {
 	 */
 	public void updateRLHistoryText(Taxon taxon, User user) {
 		for (Assessment current : assessmentIO.readPublishedAssessmentsForTaxon(taxon)) {
-			Field field = current.getField(CanonicalNames.RedListCriteria);
+			//TODO: pull the field name from CanonicalNames
+			Field field = current.getField("RedListHistory");
 			if (field == null)
-				field = new Field(CanonicalNames.RedListCriteria, current);
+				field = new Field("RedListHistory", null);
 			
-			RedListCriteriaField proxy = new RedListCriteriaField(field);
-			String text = proxy.getRLHistoryText();
+			ProxyField proxy = new ProxyField(field);
+			String text = proxy.getTextPrimitiveField("value");
 			if (text == null || text.equals("")) {
-				proxy.setRLHistoryText("as " + generateRLHistoryText(taxon));
+				proxy.setTextPrimitiveField("value", "as " + generateRLHistoryText(taxon));
+				if (field.getAssessment() == null) {
+					field.setAssessment(current);
+					current.getField().add(field);
+				}
 			}
 			
 			assessmentIO.writeAssessment(current, user, false);
