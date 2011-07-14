@@ -82,10 +82,11 @@ public class TaxomaticUtils {
 					newTaxon.setId(Integer.parseInt(doc.getText()));
 					TaxonomyCache.impl.putTaxon(newTaxon);
 					TaxonomyCache.impl.invalidatePath(newTaxon.getParentId());
-					
+					TaxonomyCache.impl.evictPaths();
 					StateManager.impl.setTaxon(newTaxon);
 				} catch (Exception e) {
-					//TaxonomyCache.impl.invalidatePath(newTaxon.getParentId());
+					TaxonomyCache.impl.invalidatePath(newTaxon.getParentId());
+					TaxonomyCache.impl.evictPaths();
 					//TaxonomyCache.impl.setCurrentTaxon(TaxonomyCache.impl.getTaxon(newTaxon.getParentId()));
 					StateManager.impl.setTaxon(TaxonomyCache.impl.getTaxon(newTaxon.getParentId()));
 				}
