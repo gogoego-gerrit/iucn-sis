@@ -49,7 +49,6 @@ public class Assessment implements Serializable, AuthorizableObject {
 	public static final int DELETED = -1;
 	public static final int ACTIVE = 0;
 	
-	protected boolean isHistorical;
 	protected int state;
 	
 	public int getState() {
@@ -255,14 +254,6 @@ public class Assessment implements Serializable, AuthorizableObject {
 
 	public boolean hasRegions() {
 		return !getRegionIDs().isEmpty();
-	}
-	
-	public boolean getIsHistorical() {
-		return isHistorical;
-	}
-	
-	public void setIsHistorical(Boolean historical) {
-		isHistorical = historical;
 	}
 
 	public boolean hasAttachments() {

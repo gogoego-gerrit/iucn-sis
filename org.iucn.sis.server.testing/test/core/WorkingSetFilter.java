@@ -148,7 +148,8 @@ public class WorkingSetFilter extends BasicTest {
 		//reportAssessmentInformation(assessment);
 		
 		boolean result = false;
-		if (filter.isRecentPublished() && assessment.isPublished() && assessment.getIsHistorical() )
+		//FIXME : Use AssessmentFilterHelper directly
+		if (filter.isRecentPublished() && assessment.isPublished() )
 			result = false;
 		else if (filter.isDraft() && !((filter.isRecentPublished() || filter.isAllPublished()) && !assessment.isDraft()))
 			result = false;

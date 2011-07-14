@@ -2,6 +2,7 @@ package org.iucn.sis.server.api.filters;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Map.Entry;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -72,13 +74,22 @@ public class AssessmentFilterHelper {
 					ret.add(draft);
 		}
 
-		if (filter.isRecentPublished() || filter.isAllPublished()) {
+		if (filter.isAllPublished()) {
 			List<Assessment> publishedAssessments  = io.readPublishedAssessmentsForTaxon(taxaID);
 			//Probably don't need to sort here...
 			//Collections.sort(publishedAssessments, new PublishedAssessmentsComparator());
 			for (Assessment published : publishedAssessments)
 				if (published != null && allowAssessment(published, schema, filterRegions)) 
 					ret.add(published);
+		}else if (filter.isRecentPublished()) {
+			List<Assessment> publishedAssessments  = io.readPublishedAssessmentsForTaxon(taxaID);
+			Collections.sort(publishedAssessments, new PublishedAssessmentsComparator(false));
+			if(!publishedAssessments.isEmpty()){
+				Assessment published = publishedAssessments.get(0);
+					
+				if (published != null && allowAssessment(published, schema, filterRegions)) 
+					ret.add(published);
+			}
 		}
 
 		return ret;
@@ -92,7 +103,7 @@ public class AssessmentFilterHelper {
 		reportAssessmentInformation(assessment);
 		
 		boolean result = false;
-		if (filter.isRecentPublished() && assessment.isPublished() && assessment.getIsHistorical())
+		if (filter.isRecentPublished() && assessment.isPublished())
 			result = false;
 		/*else if (filter.isDraft() && !((filter.isRecentPublished() || filter.isAllPublished()) && !assessment.isDraft()))
 			result = false;*/

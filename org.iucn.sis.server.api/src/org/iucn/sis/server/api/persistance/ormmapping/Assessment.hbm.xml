@@ -13,7 +13,6 @@ License Type: Evaluation
 		<many-to-one name="AssessmentType" cascade="lock" column="assessment_typeid" class="org.iucn.sis.shared.api.models.AssessmentType" not-null="false" lazy="no-proxy">
 		</many-to-one>
 		<property name="state" column="state" type="integer" length="8" not-null="true" lazy="false"/>
-		<property name="isHistorical" column="historical" type="boolean" length="1" not-null="true" lazy="false"/>
 		<property name="source" column="source" type="string" length="1023" not-null="false" lazy="false"/>
 		<property name="sourceDate" column="source_date" type="string" length="127" not-null="false" lazy="false"/>
 		<property name="schema" column="schema" type="string" length="1023" not-null="false" lazy="false"/>
