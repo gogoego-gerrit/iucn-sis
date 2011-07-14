@@ -129,7 +129,7 @@ public class SISCompleteListTextArea extends VerticalPanel {
 			HashMap<String, List<String>> map = new HashMap<String, List<String>>();
 			map.put("userid", users);
 			
-			UserSearchController.search(map, new GenericCallback<List<SearchResults>>() {
+			UserSearchController.search(map, "or", true, new GenericCallback<List<SearchResults>>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils.errorAlert("Error", "An error occurred searching for users. " +
 						"Please check your Internet connection, then try again.");

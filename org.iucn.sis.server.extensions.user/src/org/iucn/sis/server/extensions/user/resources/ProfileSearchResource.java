@@ -1,6 +1,5 @@
 package org.iucn.sis.server.extensions.user.resources;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -8,7 +7,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
-import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
@@ -21,7 +19,6 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
-import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -59,6 +56,7 @@ public class ProfileSearchResource extends TransactionResource {
 		
 		final Form form = getRequest().getResourceRef().getQueryAsForm();
 		final String mode = "or".equals(form.getFirstValue("mode", "or")) ? "or" : "and";
+		final boolean ignoreState = "all".equals(form.getFirstValue("state"));
 
 		for (int i = 0; i < searchable.length; i++) {
 			if (form.getFirstValue(searchable[i].toLowerCase()) != null) {
@@ -88,8 +86,9 @@ public class ProfileSearchResource extends TransactionResource {
 			}
 		}
 		
-		Criteria criteria = session.createCriteria(User.class)
-			.add(Restrictions.eq("state", User.ACTIVE));
+		Criteria criteria = session.createCriteria(User.class);
+		if (!ignoreState)
+			criteria.add(Restrictions.eq("state", User.ACTIVE));
 		if (fullCriterion != null)
 			criteria.add(fullCriterion);
 

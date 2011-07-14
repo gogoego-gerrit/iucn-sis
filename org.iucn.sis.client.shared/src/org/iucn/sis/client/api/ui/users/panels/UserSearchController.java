@@ -30,11 +30,18 @@ public class UserSearchController {
 	
 	public static void search(Map<String, List<String>> params, String mode, 
 			final GenericCallback<List<SearchResults>> callback) {
+		search(params, "or", false, callback);
+	}
+	
+	public static void search(Map<String, List<String>> params, String mode, 
+			boolean ignoreState, final GenericCallback<List<SearchResults>> callback) {
 		StringBuilder query = new StringBuilder();
 		if (!params.isEmpty()) {
 			query.append('?');
 			if (!"or".equals(mode))
 				query.append("mode=and&");
+			if (ignoreState)
+				query.append("state=all&");
 			final Iterator<Map.Entry<String, List<String>>> iter = params.entrySet().iterator();
 			while (iter.hasNext()) {
 				Map.Entry<String, List<String>> entry = iter.next();
