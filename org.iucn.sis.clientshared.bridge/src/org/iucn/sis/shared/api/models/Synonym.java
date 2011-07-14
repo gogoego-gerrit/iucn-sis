@@ -42,7 +42,7 @@ public class Synonym implements Serializable {
 			setName(taxon.getName());
 			setAuthor(taxon.getTaxonomicAuthority());
 		} else {
-			setName(taxon.getFootprint()[TaxonLevel.GENUS]);
+			setGenusName(taxon.getFootprint()[TaxonLevel.GENUS]);
 			if (taxon.getTaxonLevel().getLevel() == TaxonLevel.SPECIES) {
 				setSpeciesAuthor(taxon.getTaxonomicAuthority());
 				setSpeciesName(taxon.getName());
@@ -318,6 +318,8 @@ public class Synonym implements Serializable {
 		
 		if (TaxonLevel.SPECIES > getTaxon_level().getLevel()) {
 			friendlyName = getName();
+			if (!isBlank(getGenusAuthor()))
+				friendlyName += " " + getGenusAuthor();
 		}
 		else {
 			friendlyName = getGenusName();

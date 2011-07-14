@@ -59,7 +59,7 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 	private final FormPanel editingArea;
 	private final TextField<String> upperLevelName, 
 		genusName, specieName, infrarankName, stockName, 
-		specieAuthor, infrarankAuthor;
+		genusAuthor, specieAuthor, infrarankAuthor;
 	private final SimpleComboBox<String> status;
 	
 	private LayoutContainer completeEditingArea;
@@ -130,6 +130,15 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 				current.setGenusName(genusName.getValue());
 			}
 		});
+		
+		this.genusAuthor = new TextField<String>();
+		this.genusAuthor.setFieldLabel("Genus Author");
+		this.genusAuthor.addListener(Events.Blur, new BlurListener() {
+			public void update() {
+				current.setGenusAuthor(genusAuthor.getValue());
+			}
+		});
+		
 		this.specieName = new TextField<String>();
 		this.specieName.setFieldLabel("Species Name");
 		this.specieName.addListener(Events.Blur, new BlurListener() {
@@ -234,8 +243,11 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 		if (key != null)
 			this.level.setValue(this.level.getStore().findModel(key));
 		
+		level.setReadOnly(current.getTaxon_level().getLevel() <= TaxonLevel.GENUS);
+		
 		upperLevelName.setValue(current.getName());
 		genusName.setValue(current.getGenusName());
+		genusAuthor.setValue(current.getGenusAuthor());
 		specieName.setValue(current.getSpeciesName());
 		infrarankName.setValue(current.getInfraName());
 		specieAuthor.setValue(current.getSpeciesAuthor());
@@ -294,7 +306,7 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 		final ToolBar bar = new ToolBar();
 		bar.add(fullNameDisplay);
 		bar.add(new FillToolItem());
-		bar.add(new Html("Level: "));
+		bar.add(new Html("Level:&nbsp;"));
 		bar.add(level);
 		
 		final ButtonBar bottom = new ButtonBar();
@@ -324,13 +336,19 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 		editingArea.removeAll();
 		
 		if (level < TaxonLevel.GENUS) {
+			genusAuthor.setFieldLabel("Authority");
 			editingArea.add(upperLevelName);
+			editingArea.add(genusAuthor);
 		}
 		
-		if (level >= TaxonLevel.GENUS)
+		if (level == TaxonLevel.GENUS) {
+			genusAuthor.setFieldLabel("Genus Authority");
 			editingArea.add(genusName);
+			editingArea.add(genusAuthor);
+		}
 		
 		if (level >= TaxonLevel.SPECIES) {
+			editingArea.add(genusName);
 			editingArea.add(specieName);
 		}
 		
@@ -500,13 +518,17 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 	private void stageChanges() {
 		current.sink(new Synonym(), current);
 		
+		current.clearAuthorities();
+		
 		int curLevel = level.getValue().get("value");
 
-		if (curLevel < TaxonLevel.GENUS)
+		if (curLevel < TaxonLevel.GENUS) {
 			current.setName(upperLevelName.getValue());
-		
-		if (curLevel == TaxonLevel.GENUS) {
+			current.setAuthor(genusAuthor.getValue());
+		}
+		else if (curLevel == TaxonLevel.GENUS) {
 			current.setGenusName(genusName.getValue());
+			current.setGenusAuthor(genusAuthor.getValue());
 		} else if (curLevel == TaxonLevel.SPECIES) {
 			current.setGenusName(genusName.getValue());
 			current.setSpeciesName(specieName.getValue());
@@ -535,13 +557,9 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 		}
 
 		current.setStatus(status.getValue().getValue());
-
-		current.clearAuthorities();
-		
 		current.setTaxon_level(TaxonLevel.getTaxonLevel(curLevel));
 		current.setSpeciesAuthor(specieAuthor.getValue());
 		current.setInfrarankAuthor(infrarankAuthor.getValue());
-		// currentSynonym.setAuthor(authorTextBox.getValue());
 		current.setFriendlyName(null);
 		current.getFriendlyName();
 	}
@@ -549,47 +567,44 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 	private boolean validateEntry(){
 		int curLevel = level.getValue().get("value");
 		
-		boolean flag = true;
+		String message = null;
 
-		if (curLevel < TaxonLevel.GENUS && current.getName().equals("")){
-			WindowUtils.infoAlert("Please enter the Synonym name!");
-			flag = false; 
-		} else if (curLevel == TaxonLevel.GENUS && current.getGenusName().equals("")) {
-			WindowUtils.infoAlert("Please enter the Genus name!");
-			flag = false; 
+		if (curLevel < TaxonLevel.GENUS && isBlank(current.getName())) {
+			message = "Please enter the Synonym name.";
+		} else if (curLevel == TaxonLevel.GENUS && isBlank(current.getGenusName())) {
+			message = "Please enter the Genus name.";
 		} else if (curLevel == TaxonLevel.SPECIES) {
-			if (current.getGenusName().equals("")){
-				WindowUtils.infoAlert("Please enter the Genus name!");
-				flag = false; 
-			} else if (current.getSpeciesName().equals("")){
-				WindowUtils.infoAlert("Please enter the Species name!"); 
-				flag = false; 
+			if (isBlank(current.getGenusName())){
+				message = "Please enter the Genus name.";
+			} else if (isBlank(current.getSpeciesName())){
+				message = "Please enter the Species name."; 
 			}
 		} else if (curLevel == TaxonLevel.INFRARANK) {
-			if(current.getGenusName().equals("")){
-				WindowUtils.infoAlert("Please enter the Genus name!");
-				flag = false; 
-			}else if(current.getSpeciesName().equals("")){
-				WindowUtils.infoAlert("Please enter the Species name!");
-				flag = false; 
-			}else if(current.getInfraName().equals("")){
-				WindowUtils.infoAlert("Please enter the Infrarank name!");
-				flag = false; 
-			}
-			
+			if (isBlank(current.getGenusName()))
+				message = "Please enter the Genus name.";
+			else if(isBlank(current.getSpeciesName()))
+				message = "Please enter the Species name.";
+			else if(isBlank(current.getInfraName()))
+				message = "Please enter the Infrarank name.";
 		} else if (curLevel == TaxonLevel.SUBPOPULATION) {
-			if (current.getGenusName().equals("")){
-				WindowUtils.infoAlert("Please enter the Genus name!"); 
-				flag = false; 
-			} else if (current.getSpeciesName().equals("")){
-				WindowUtils.infoAlert("Please enter the Species name!");
-				flag = false; 
-			}else if(current.getStockName().equals("")){
-				WindowUtils.infoAlert("Please enter the Subpopulation name!");
-				flag = false; 
-			}				
+			if (isBlank(current.getGenusName()))
+				message = "Please enter the Genus name."; 
+			else if (isBlank(current.getSpeciesName()))
+				message = "Please enter the Species name.";
+			else if (isBlank(current.getStockName()))
+				message = "Please enter the Subpopulation name.";
 		}
-		return flag;
+		
+		if (message == null)
+			return true;
+		else {
+			WindowUtils.errorAlert(message);
+			return false;
+		}
+	}
+	
+	private boolean isBlank(String value) {
+		return value == null || "".equals(value);
 	}
 	
 	private abstract class BlurListener implements Listener<FieldEvent> {
