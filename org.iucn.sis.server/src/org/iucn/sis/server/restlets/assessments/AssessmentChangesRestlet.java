@@ -68,7 +68,7 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 	
 	private Representation showEdits(Assessment assessment) {
 		final List<Edit> edits = new ArrayList<Edit>(assessment.getEdit());
-		Collections.sort(edits, Collections.reverseOrder());
+		Collections.sort(edits, new SortEditByDate());
 		
 		final StringBuilder out = new StringBuilder();
 		out.append("<root>");
@@ -144,6 +144,25 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 		@Override
 		public int compare(AssessmentChange o1, AssessmentChange o2) {
 			return o2.getEdit().getCreatedDate().compareTo(o1.getEdit().getCreatedDate());
+		}
+		
+	}
+	
+	private static class SortEditByDate implements Comparator<Edit> {
+		
+		@Override
+		public int compare(Edit arg0, Edit arg1) {
+			int value;
+			
+			if (arg0 == null || arg0.getCreatedDate() == null) 
+				value = 1;
+			else if (arg1 == null || arg1.getCreatedDate() == null) 
+				value = 0;
+			else
+				value = arg0.getCreatedDate().compareTo(arg1.getCreatedDate());
+			
+			//-1 for reverse order
+			return value * -1;
 		}
 		
 	}
