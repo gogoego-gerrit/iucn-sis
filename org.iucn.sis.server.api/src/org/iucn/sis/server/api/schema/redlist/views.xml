@@ -367,9 +367,6 @@
 							<field id="RedListFacilitators"/>
 						</composite>
 						<composite>
-							<field id="RedListCaveat"/>
-						</composite>
-						<composite>
 							<field id="RegionInformation"/>
 							<field id="RegionExpertQuestions"/>
 					</composite>
@@ -1754,7 +1751,8 @@
 						<composite>
 							<field id="RedListConsistencyCheck"/>
 							<field id="RedListPetition"/>
-						</composite>
+							<field id="RedListCaveat"/>
+						</composite>						
 					</organization>					
 					<organization title="Publication Information">
 						<composite>
