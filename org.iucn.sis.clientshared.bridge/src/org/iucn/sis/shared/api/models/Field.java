@@ -15,6 +15,7 @@ package org.iucn.sis.shared.api.models;
  */
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -523,15 +524,61 @@ public class Field implements Serializable {
 		
 		@Override
 		public int compare(Field o1, Field o2) {
-			int result;
-			if (o1.getName() == null || o2.getName() == null)
-				result = o1.getName() == null ? o2.getName() == null ? 0 : 1 : -1;
-			else
-				result = o1.getName().compareTo(o2.getName());
-			/*FIXME: if (result == 0)
-				result =  o1.generationCode.compareTo(o2.generationCode);*/
+			int result = compareString(o1.getName(), o2.getName());
+			
+			//Sort on the subfields...
+			if (result == 0) {
+				List<Field> f1 = newArrayList(o1.getFields());
+				List<Field> f2 = newArrayList(o2.getFields());
+				
+				Collections.sort(f1, new FieldNameComparator());
+				Collections.sort(f2, new FieldNameComparator());
+				
+				if (f1.size() != f2.size())
+					result = f1.size() < f2.size() ? -1 : 1;
+				else {
+					for (int i = 0; i < f1.size(); i++)
+						result = compare(f1.get(i), f2.get(i));
+				
+					if (result == 0)
+						result = comparePrims(o1, o2);
+				}
+			}
 			
 			return result;
+		}
+		
+		private int comparePrims(Field o1, Field o2) {
+			List<PrimitiveField> p1 = newArrayList(o1.getPrimitiveField());
+			List<PrimitiveField> p2 = newArrayList(o2.getPrimitiveField());
+			
+			Collections.sort(p1, new PrimitiveFieldNameComparator());
+			Collections.sort(p2, new PrimitiveFieldNameComparator());
+			
+			if (p1.size() != p2.size())
+				return p1.size() < p2.size() ? -1 : 1;
+			
+			for (int i = 0; i < p1.size(); i++) {
+				PrimitiveField p1c = p1.get(i);
+				PrimitiveField p2c = p2.get(i);
+				
+				int result = compareString(p1c.getRawValue(), p2c.getRawValue());
+				if (result != 0)
+					return result;
+			}
+			
+			return 0;
+		}
+		
+		private int compareString(String o1, String o2) {
+			if (o1 == null || o2 == null)
+				return o1 == null ? o2 == null ? 0 : 1 : -1;
+			else
+				return o1.compareTo(o2);
+		}
+		
+		private <X> List<X> newArrayList(Collection<X> list) {
+			return list == null ? new ArrayList<X>() : new ArrayList<X>(list);
 		}
 		
 	}
