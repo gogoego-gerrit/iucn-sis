@@ -66,7 +66,8 @@ public class CBoolean extends BaseColumn {
 	}
 
 	public Literal getLiteral() {
-		return new NumericLiteral(getInteger());
+		return new StringLiteral(Boolean.toString(b));
+		//return new NumericLiteral(getInteger());
 	}
 
 	public Long getLong() throws ConversionException {

@@ -192,6 +192,23 @@ public abstract class DBSession {
 	public void setSchema(String schema) {
 		this.schema = schema;
 	}
+	
+	private String[] tableTypes = null;
+	
+	public String[] getAllowedTableTypes() {
+		return tableTypes;
+	}
+	
+	/**
+	 * Set the list of allowed table types when listing 
+	 * what tables exist in the database.  Defaults to 
+	 * { "TABLE" }.  Useful for finding views.
+	 * 
+	 * @param tableTypes
+	 */
+	public void setAllowedTableTypes(String... tableTypes) {
+		this.tableTypes = tableTypes;
+	}
 
 	private ConcurrentHashMap<String, Row> structure = null;
 	private ConcurrentHashMap<String, String> descriptions = null;
@@ -283,7 +300,11 @@ public abstract class DBSession {
 		try {
 			conn = getDataSource().getConnection();
 			final DatabaseMetaData metaData = conn.getMetaData();
-			final String[] types = { "TABLE" };
+			
+			String[] types = getAllowedTableTypes();
+			if (types == null)
+				types = new String[] { "TABLE" };
+			
 			rs = metaData.getTables(conn.getCatalog(), getSchema(), "%", types);
 			while (rs.next())
 				s.add(rs.getString("TABLE_NAME"));
