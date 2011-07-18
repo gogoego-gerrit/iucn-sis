@@ -38,6 +38,14 @@ public class DynamicWriter {
 	public DynamicWriter() {
 		setOutputStream(new BufferedWriter(new PrintWriter(System.out)), "\r\n");
 	}
+	
+	public void close() {
+		try {
+			out.close();
+		} catch (IOException ignored) {
+			TrivialExceptionHandler.ignore(this, ignored);
+		}
+	}
 
 	public void setOutputStream(Writer writer, String lineBreakRule) {
 		this.out = writer;
