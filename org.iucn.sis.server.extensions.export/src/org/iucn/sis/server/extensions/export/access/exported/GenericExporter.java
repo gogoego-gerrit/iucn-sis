@@ -1,15 +1,24 @@
 package org.iucn.sis.server.extensions.export.access.exported;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.naming.NamingException;
 
 import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.io.WorkingSetIO;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.restlet.data.Status;
+import org.restlet.resource.ResourceException;
 
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.Column;
@@ -27,17 +36,18 @@ import com.solertium.util.TrivialExceptionHandler;
 
 public class GenericExporter extends DynamicWriter implements Runnable {
 	
-	private final Session session;
 	private final ExecutionContext source;
-	private final WorkingSet workingSet;
+	private final Integer workingSetID;
 	
 	private ExecutionContext target, template;
 	
-	public GenericExporter(Session session, ExecutionContext source, WorkingSet workingSet) {
+	private Session session;
+	private WorkingSet workingSet;
+	
+	public GenericExporter(Session session, ExecutionContext source, Integer workingSetID) {
 		super();
-		this.session = session;
 		this.source = source;
-		this.workingSet = workingSet;
+		this.workingSetID = workingSetID;
 	}
 	
 	public void setTarget(String name) throws NamingException {
@@ -65,6 +75,34 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 	}
 	
 	public void run() {
+		Date start = Calendar.getInstance().getTime();
+		
+		write("Export started at %s", start);
+		try {
+			session = SIS.get().getManager().openSession();
+			workingSet = new WorkingSetIO(session).readWorkingSet(workingSetID);
+			
+			if (workingSet == null)
+				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Working set " + workingSet + " was not found");
+			
+			execute();
+		} catch (Throwable e) {
+			Debug.println(e);
+			write("Failed unexpectedly: %s", e.getMessage());
+		} finally {
+			Date end = Calendar.getInstance().getTime();
+			
+			long time = end.getTime() - start.getTime();
+			int secs = (int) (time / 1000);
+			int mins = (int) (secs / 60);
+			
+			write("Export completed at %s in %s minutes, %s seconds.", end, mins, secs);
+			
+			close();
+		}
+	}
+	
+	private void execute() throws Throwable {
 		if (target == null) {
 			write("Please specify a target.");
 			return;
@@ -75,6 +113,7 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 				initFromTemplate();
 			} catch (DBException e) {
 				write("Failed to initialize database: %s", e.getMessage());
+				Debug.println(e);
 				return;
 			}
 		}
@@ -83,7 +122,36 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 			copyAssessmentData();
 		} catch (DBException e) {
 			write("Failed to copy assessment data: %s", e.getMessage());
+			Debug.println(e);
 			return;
+		}
+	}
+	
+	private void insertTaxa(Taxon taxon, HashSet<Integer> seen) throws DBException {
+		if (taxon != null && !seen.contains(taxon.getId())) {
+			SelectQuery query = new SelectQuery();
+			query.select("taxon", "*");
+			query.constrain(new QComparisonConstraint(
+				new CanonicalColumnName("taxon", "id"), 
+				QConstraint.CT_EQUALS, taxon.getId()
+			));
+			Row.Loader rl = new Row.Loader();
+			source.doQuery(query, rl);
+			
+			Row row = rl.getRow();
+			if (row != null) {
+				InsertQuery insert = new InsertQuery();
+				insert.setTable("taxon");
+				insert.setRow(row);
+				
+				write("Adding taxon %s to taxon table", taxon.getFullName());
+				
+				target.doUpdate(insert);
+			}
+			
+			seen.add(taxon.getId());
+			
+			insertTaxa(taxon.getParent(), seen);
 		}
 	}
 	
@@ -95,50 +163,73 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 	 * @throws DBException
 	 */
 	private void copyAssessmentData() throws DBException {
-		final Collection<String> tables = source.getDBSession().listTables(source);
+		final Collection<String> allTables = source.getDBSession().listTables(source);
+		final Collection<String> tables = new ArrayList<String>();
+		
+		//Create taxon table, will be populated later
+		try {
+			target.dropTable("taxon");
+		} catch (DBException e) {
+			TrivialExceptionHandler.ignore(this, e);
+		}
+		target.createTable("taxon", source.getRow("taxon"));
+		
+		//Create and populate other tables that don't have assessment data
+		for (String table : allTables) {
+			if (table.startsWith("export_"))
+				tables.add(table);
+			else if (!"taxon".equals(table)) {
+				write("Copying table %s", table);
+				createAndCopyTable(table, source, table);
+			}
+		}
 		
 		final AssessmentFilterHelper helper = new AssessmentFilterHelper(session, workingSet.getFilter());
 		final int size = workingSet.getTaxon().size();
+		final HashSet<Integer> seen = new HashSet<Integer>();
 		
 		int count = 0;
 		for (Taxon taxon : workingSet.getTaxon()) {
-			write("Copying %s, (%s/%s)", taxon.getFullName(), ++count, size);
-			for (Assessment assessment : helper.getAssessments(taxon.getId())) {
+			insertTaxa(taxon, seen);
+			Collection<Assessment> assessments = helper.getAssessments(taxon.getId());
+			write("Copying %s eligible assessments for %s, (%s/%s)", 
+				assessments.size(), taxon.getFullName(), ++count, size);
+			for (Assessment assessment : assessments) {
 				for (String table : tables) {
-					if (table.startsWith("export_")) {
-						createAndCopyTable(source, table, new QComparisonConstraint(
-							new CanonicalColumnName(table, "assessmentid"), 
-							QConstraint.CT_EQUALS, assessment.getId()
-						));
-					}
+					String friendly = table.substring("export_".length());
+					write("Writing to %s", friendly);
+					createAndCopyTable(friendly, source, table, new QComparisonConstraint(
+						new CanonicalColumnName(table, "assessmentid"), 
+						QConstraint.CT_EQUALS, assessment.getId()
+					));
 				}
 			}
 		}	
 	}
 	
-	private void createAndCopyTable(final ExecutionContext source, final String table) throws DBException {
-		createAndCopyTable(source, table, null);
+	private void createAndCopyTable(final String targetTable, final ExecutionContext source, final String table) throws DBException {
+		createAndCopyTable(targetTable, source, table, null);
 	}
 	
-	private void createAndCopyTable(final ExecutionContext source, final String table, final QConstraint constraint) throws DBException {
+	private void createAndCopyTable(final String targetTable, final ExecutionContext source, final String sourceTable, final QConstraint constraint) throws DBException {
 		try {
-			target.dropTable(table);
+			target.dropTable(targetTable);
 		} catch (DBException ignored) {
 			TrivialExceptionHandler.ignore(this, ignored);
 		}
-		target.createTable(table, source.getRow(table));
+		target.createTable(targetTable, source.getRow(sourceTable));
 		
 		final SelectQuery sq = new SelectQuery();
-		sq.select(new CanonicalColumnName(table, "*"));
+		sq.select(new CanonicalColumnName(sourceTable, "*"));
 		if (constraint != null)
 			sq.constrain(constraint);
 		
-		source.doQuery(sq, new CopyProcessor(table));
+		source.doQuery(sq, new CopyProcessor(targetTable));
 	}
 	
 	private void initFromTemplate() throws DBException {
 		for (String table : template.getDBSession().listTables(template))
-			createAndCopyTable(template, table);
+			createAndCopyTable(table, template, table);
 	}
 	
 	private void write(String template, Object... args) {
@@ -159,15 +250,20 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 			final InsertQuery q = new InsertQuery();
 			try {
 				Row targetRow = target.getRow(table);
-				for(Column c : targetRow.getColumns()){
-					Column t = sourceRow.get(c.getLocalName());
-					if(t!=null) c.setObject(t.getObject());
-				}
-				q.setTable(table);
-				q.setRow(targetRow);
-				target.doUpdate(q);
+				if (targetRow != null) {
+					for(Column c : targetRow.getColumns()){
+						Column t = sourceRow.get(c.getLocalName());
+						if(t!=null) c.setObject(t.getObject());
+					}
+					q.setTable(table);
+					q.setRow(targetRow);
+					target.doUpdate(q);
+				} else
+					write("No table named %s found", table);
 			} catch (final Exception recorded) {
-				write(q.getSQL(target.getDBSession()));
+				try {
+					write(q.getSQL(target.getDBSession()));
+				} catch (Exception f) { }
 				write(
 						"  Exception: " + recorded.getClass().getName() + ": "
 								+ recorded.getMessage());

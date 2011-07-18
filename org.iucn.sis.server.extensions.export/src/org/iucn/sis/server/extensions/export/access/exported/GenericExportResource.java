@@ -14,9 +14,7 @@ import javax.naming.NamingException;
 import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.restlets.TransactionResource;
-import org.iucn.sis.shared.api.models.WorkingSet;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -33,6 +31,7 @@ import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.util.restlet.CookieUtility;
 
+@SuppressWarnings("deprecation")
 public class GenericExportResource extends TransactionResource {
 	
 	private final String schema;
@@ -41,7 +40,9 @@ public class GenericExportResource extends TransactionResource {
 	public GenericExportResource(Context context, Request request, Response response) {
 		super(context, request, response);
 		schema = (String)request.getAttributes().get("source");
-		workingSet = (String)request.getAttributes().get("workingSet");
+		workingSet = (String)request.getAttributes().get("working-set");
+		
+		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
 
 	@Override
@@ -55,11 +56,6 @@ public class GenericExportResource extends TransactionResource {
 		} catch (Exception e) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a valid working set ID");
 		}
-		
-		final WorkingSetIO io = new WorkingSetIO(session);
-		final WorkingSet workingSet = io.readWorkingSet(workingSetID);
-		if (workingSet == null)
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Working set " + workingSet + " was not found");
 		
 		String name = "export_"+Calendar.getInstance().getTimeInMillis()+"_"+CookieUtility.newUniqueID();
 		if (DBSessionFactory.isRegistered(name))
@@ -81,6 +77,7 @@ public class GenericExportResource extends TransactionResource {
 			DBSessionFactory.registerDataSource(name, sourceProperties);
 			DBSession sourceDB = DBSessionFactory.getDBSession(name);
 			sourceDB.setSchema(schema);
+			sourceDB.setAllowedTableTypes("TABLE", "VIEW");
 			
 			source = new SystemExecutionContext(sourceDB);
 			source.setAPILevel(ExecutionContext.SQL_ALLOWED);
@@ -114,10 +111,11 @@ public class GenericExportResource extends TransactionResource {
 		 */
 		
 		
-		GenericExporter exporter = new GenericExporter(session, source, workingSet);
+		GenericExporter exporter = new GenericExporter(session, source, workingSetID);
 		exporter.setOutputStream(writer, "\n");
 		try {
-			exporter.setTarget(createH2Target(name));
+			//exporter.setTarget(createH2Target(name));
+			exporter.setTarget(createPostgresTestTarget(name));
 		} catch (NamingException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
@@ -127,7 +125,7 @@ public class GenericExportResource extends TransactionResource {
 		return representation;
 	}
 	
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("unused")
 	private String createH2Target(String source) throws ResourceException {
 		String location = SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extensions.export.location", "export");
 		String name = source + "_target";
@@ -135,6 +133,25 @@ public class GenericExportResource extends TransactionResource {
 		Properties properties = new Properties();
 		properties.setProperty("dbsession." + name + ".uri", "jdbc:h2:file://" + location + "/" + name);
 		properties.setProperty("dbsession." + name + ".driver", "org.h2.Driver");
+		properties.setProperty("dbsession." + name + ".user", "sa");
+		properties.setProperty("dbsession." + name + ".password", "");
+		
+		try {
+			DBSessionFactory.registerDataSource(name, properties);
+		} catch (NamingException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		return name;
+	}
+	
+	private String createPostgresTestTarget(String source) throws ResourceException {
+		String location = "localhost:5432";
+		String name = source + "_target";
+		
+		Properties properties = new Properties();
+		properties.setProperty("dbsession." + name + ".uri", "jdbc:postgresql://" + location + "/sis_target");
+		properties.setProperty("dbsession." + name + ".driver", "org.postgresql.Driver");
 		properties.setProperty("dbsession." + name + ".user", "sa");
 		properties.setProperty("dbsession." + name + ".password", "");
 		
