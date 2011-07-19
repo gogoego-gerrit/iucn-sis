@@ -233,6 +233,9 @@ public class BaseDocumentUtils {
 		throws TransformerException {
 		
 		final TransformerFactory tfac = TransformerFactory.newInstance();
+		if (tfac.getClass().getName().contains("xalan"))
+			outputProps.put("{http://xml.apache.org/xslt}indent-amount", factoryAttrs.remove("indent-number"));
+			
 		if (factoryAttrs != null) {
 			final Iterator<Map.Entry<String, String>> it = factoryAttrs.entrySet().iterator();
 			while (it.hasNext()) {
