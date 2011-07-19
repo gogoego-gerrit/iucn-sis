@@ -127,6 +127,21 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 		}
 	}
 	
+	private void insertAssessment(Assessment assessment) throws DBException {
+		SelectQuery query = new SelectQuery();
+		query.select("assessment", "*");
+		query.constrain(new QComparisonConstraint(
+			new CanonicalColumnName("assessment", "id"),
+			QConstraint.CT_EQUALS, assessment.getId()
+		));
+		
+		Row.Loader rl = new Row.Loader();
+		source.doQuery(query, rl);
+		
+		if (rl.getRow() != null)
+			target.doUpdate(new InsertQuery("assessment", rl.getRow()));
+	}
+	
 	private void insertTaxa(Taxon taxon, HashSet<Integer> seen) throws DBException {
 		if (taxon != null && !seen.contains(taxon.getId())) {
 			SelectQuery query = new SelectQuery();
@@ -166,13 +181,9 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 		final Collection<String> allTables = source.getDBSession().listTables(source);
 		final Collection<String> tables = new ArrayList<String>();
 		
-		//Create taxon table, will be populated later
-		try {
-			target.dropTable("taxon");
-		} catch (DBException e) {
-			TrivialExceptionHandler.ignore(this, e);
-		}
-		target.createTable("taxon", source.getRow("taxon"));
+		//Create taxon and assessment tables, will be populated later
+		createTable("taxon");
+		createTable("assessment");
 		
 		//Create and populate other tables that don't have assessment data
 		for (String table : allTables) {
@@ -195,9 +206,10 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 			write("Copying %s eligible assessments for %s, (%s/%s)", 
 				assessments.size(), taxon.getFullName(), ++count, size);
 			for (Assessment assessment : assessments) {
+				insertAssessment(assessment);
+				write("Writing assessment #%s", assessment.getId());
 				for (String table : tables) {
 					String friendly = table.substring("export_".length());
-					write("Writing to %s", friendly);
 					createAndCopyTable(friendly, source, table, new QComparisonConstraint(
 						new CanonicalColumnName(table, "assessmentid"), 
 						QConstraint.CT_EQUALS, assessment.getId()
@@ -205,6 +217,15 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 				}
 			}
 		}	
+	}
+	
+	private void createTable(String table) throws DBException {
+		try {
+			target.dropTable(table);
+		} catch (DBException e) {
+			TrivialExceptionHandler.ignore(this, e);
+		}
+		target.createTable(table, source.getRow(table));
 	}
 	
 	private void createAndCopyTable(final String targetTable, final ExecutionContext source, final String table) throws DBException {
