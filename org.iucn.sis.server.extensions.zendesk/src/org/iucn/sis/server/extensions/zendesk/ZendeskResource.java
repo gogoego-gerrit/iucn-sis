@@ -10,6 +10,7 @@ import org.gogoego.api.mail.InstanceMailer;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.shared.api.models.User;
 import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.data.ChallengeResponse;
@@ -74,8 +75,9 @@ public class ZendeskResource extends BaseServiceRestlet {
 			throw new ResourceException(res.getStatus());
 	}
 	
-	private void sendMail(Representation entity, Request request, Response response) throws ResourceException {
-		String subject = null, body = null;
+	private void sendMail(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		User user = getUser(request, session);
+		String subject = null, body = null, reporter = null;
 		
 		Document document = getEntityAsDocument(entity);
 		for (Node node : new NodeCollection(document.getDocumentElement().getChildNodes())) {
@@ -83,15 +85,24 @@ public class ZendeskResource extends BaseServiceRestlet {
 				subject = node.getTextContent();
 			else if ("body".equals(node.getNodeName()))
 				body = node.getTextContent();
+			else if ("reporter".equals(node.getNodeName()))
+				reporter = node.getTextContent();
 		}
 		
-		if (subject == null || body == null)
+		if (subject == null || body == null || reporter == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a subject and a body.");
+		
+		final StringBuilder out = new StringBuilder();
+		out.append("Reporter Name: " + reporter + "\n");
+		out.append("Reporter Username: " + user.getUsername() + "\n");
+		out.append("Affiliation: " + user.getAffiliation() + "\n");
+		out.append("Component: Support\n");
+		out.append("Description:\n" + body + "\n.");
 		
 		Mailer mailer = InstanceMailer.getInstance().getMailer();
 		mailer.setTo("sis@support.assembla.com");
 		mailer.setSubject(subject);
-		mailer.setBody(body);
+		mailer.setBody(out.toString());
 		
 		try {
 			mailer.background_send();
@@ -103,7 +114,7 @@ public class ZendeskResource extends BaseServiceRestlet {
 	@Override
 	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		if (request.getResourceRef().getPath().endsWith("mail")) {
-			sendMail(entity, request, response);
+			sendMail(entity, request, response, session);
 			return;
 		}
 			

@@ -17,6 +17,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -32,19 +33,20 @@ public class AssemblaSupportPanel extends BasicWindow {
 	
 	private final TextArea area;
 	private final SimpleComboBox<String> type;
+	private final TextField<String> reporter;
 	private final Map<String, String> text;
 	
 	public AssemblaSupportPanel() {
 		super("Report an Issue", "icon-header-zendesk");
 		setLayout(new FillLayout());
-		setSize(450, 450);
+		setSize(450, 475);
 		
 		text = new HashMap<String, String>();
 		text.put(QUESTION, "Question:\n");
 		text.put(BUG, "What steps will reproduce the problem?\n" +
-			"1.\n" +
-			"2.\n" +
-			"3.\n" +
+			"1. \n" +
+			"2. \n" +
+			"3. \n" +
 			"\n" +
 			"What is the expected output? What do you see instead?\n" +
 			"\n" +
@@ -62,6 +64,7 @@ public class AssemblaSupportPanel extends BasicWindow {
 		form.setBorders(false);
 		form.setHeaderVisible(false);
 		form.setLayout(layout);
+		form.add(reporter = FormBuilder.createTextField("reporter", SISClientBase.currentUser.getDisplayableName(), "Reported By", true));
 		form.add(type = FormBuilder.createComboBox("type", null, "I'd like to: ", true, BUG, QUESTION));
 		form.add(area = FormBuilder.createTextArea("body", null, "Message", true));
 		
@@ -88,8 +91,8 @@ public class AssemblaSupportPanel extends BasicWindow {
 					String subject = QUESTION.equals(type.getValue().getValue()) ? 
 						"Question from SIS user " + user.getUsername() + " (" + user.getDisplayableName() + ", " + affil + ")" :
 						"Bug Report from SIS user " + user.getUsername() + " (" + user.getDisplayableName() + ", " + affil + ")";
-					String body = area.getValue();
-					submit(subject, body);
+					
+					submit(subject, area.getValue(), reporter.getValue());
 				}
 			}
 		}));
@@ -100,10 +103,11 @@ public class AssemblaSupportPanel extends BasicWindow {
 		}));
 	}
 	
-	private void submit(String subject, String value) {
+	private void submit(String subject, String reporter, String value) {
 		final StringBuilder out = new StringBuilder();
 		out.append("<root>");
 		out.append(XMLWritingUtils.writeCDATATag("subject", subject));
+		out.append(XMLWritingUtils.writeCDATATag("reporter", reporter));
 		out.append(XMLWritingUtils.writeCDATATag("body", value));
 		out.append("</root>");
 		
@@ -111,7 +115,7 @@ public class AssemblaSupportPanel extends BasicWindow {
 		document.post(UriBase.getInstance().getZendeskBase() + "/assembla/mail", out.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				hide();
-				WindowUtils.infoAlert("Thank you", "Your ticket has been filed.  Please visit http://assembla.com/spaces/sis to track this ticket.");
+				WindowUtils.infoAlert("Thank you", "Your ticket is being processed and will be filed shortly.  Please visit https://www.assembla.com/spaces/sis/support/tickets to track this ticket.");
 			}
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Failed to communicate with help desk, please try again later.");
