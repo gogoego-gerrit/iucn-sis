@@ -57,6 +57,8 @@ public class Activator implements BundleActivator {
 		 * Quickie additional views
 		 */
 		AdditionalViewBuilder additional = new AdditionalViewBuilder();
+		additional.addFile("additional.sql");
+		additional.addFile("attachments.sql");
 		additional.build(c, targetSchema, targetUser);
 		
 		if (!"public".equals(targetSchema)) {

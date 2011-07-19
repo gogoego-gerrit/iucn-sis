@@ -81,3 +81,77 @@ CREATE VIEW $schema.vw_redlistcategoryandcriteria AS
    LEFT JOIN public.primitive_field pf9 ON pf9.fieldid = public.field.id AND pf9.name::text = 'manualCriteria'::text
    LEFT JOIN public.string_primitive_field ff9 ON ff9.id = pf9.id) s1 ON vw.assessmentid = s1.assessmentid;
 GRANT SELECT ON $schema.vw_redlistcategoryandcriteria TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_redlistcaveat_value CASCADE;
+CREATE VIEW $schema.vw_redlistcaveat_value AS
+ SELECT vw.taxonid, vw.assessmentid, CASE WHEN vw.value IS NULL OR vw.value > '$caveat' THEN 'false' ELSE 'true' END as value
+ FROM $schema.vw_redlistassessmentdate_value vw;
+GRANT SELECT ON $schema.vw_redlistcaveat_value TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_redlistassessors_publication CASCADE;
+CREATE VIEW $schema.vw_redlistassessors_publication AS
+ SELECT vw.taxonid, vw.assessmentid, 
+  CASE
+   WHEN vw.text IS NULL THEN
+   CASE
+    WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
+    WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
+    ELSE u.last_name||', '||u.initials
+   END
+   ELSE vw.text
+  END AS value
+ FROM $schema.vw_redlistassessors vw
+ LEFT JOIN public."user" u ON u.id = vw.value
+ ORDER BY u.last_name, u.first_name;
+GRANT SELECT ON $schema.vw_redlistassessors_publication TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_redlistevaluators_publication CASCADE;
+CREATE VIEW $schema.vw_redlistevaluators_publication AS
+ SELECT vw.taxonid, vw.assessmentid, 
+  CASE
+   WHEN vw.text IS NULL THEN
+   CASE
+    WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
+    WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
+    ELSE u.last_name||', '||u.initials
+   END
+   ELSE vw.text
+  END AS value
+ FROM $schema.vw_redlistevaluators vw
+ LEFT JOIN public."user" u ON u.id = vw.value
+ ORDER BY u.last_name, u.first_name;
+GRANT SELECT ON $schema.vw_redlistevaluators_publication TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_redlistcontributors_publication CASCADE;
+CREATE VIEW $schema.vw_redlistcontributors_publication AS
+ SELECT vw.taxonid, vw.assessmentid, 
+  CASE
+   WHEN vw.text IS NULL THEN
+   CASE
+    WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
+    WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
+    ELSE u.last_name||', '||u.initials
+   END
+   ELSE vw.text
+  END AS value
+ FROM $schema.vw_redlistcontributors vw
+ LEFT JOIN public."user" u ON u.id = vw.value
+ ORDER BY u.last_name, u.first_name;
+GRANT SELECT ON $schema.vw_redlistcontributors_publication TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_redlistfacilitators_publication CASCADE;
+CREATE VIEW $schema.vw_redlistfacilitators_publication AS
+ SELECT vw.taxonid, vw.assessmentid, 
+  CASE
+   WHEN vw.text IS NULL THEN
+   CASE
+    WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
+    WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
+    ELSE u.last_name||', '||u.initials
+   END
+   ELSE vw.text
+  END AS value
+ FROM $schema.vw_redlistfacilitators vw
+ LEFT JOIN public."user" u ON u.id = vw.value
+ ORDER BY u.last_name, u.first_name;
+GRANT SELECT ON $schema.vw_redlistfacilitators_publication TO $user;
