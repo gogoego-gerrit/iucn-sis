@@ -5,7 +5,7 @@
 	<classOfService>Documentation</classOfService>
 	<structures>
 		<structure>
-			<relatedStructure>
+			<relatedStructure label="true">
 				<dominantStructures>
 					<structure id="noInfo" description="No Livelihood Information">
 						<boolean />
