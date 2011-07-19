@@ -7,6 +7,7 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
@@ -183,7 +184,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 							setManagerTab();
 						}
 					}));
-					panel.setUrl("/export/access/" + WorkingSetCache.impl.getCurrentWorkingSet().getId());
+					panel.setUrl(UriBase.getInstance().getExportBase() + "/sources/access/" + WorkingSetCache.impl.getCurrentWorkingSet().getId());
 					
 					setBodyContainer(panel);
 				}
