@@ -331,6 +331,8 @@ public class Taxon implements AuthorizableObject, Serializable {
 
 	private TaxonStatus taxonStatus;
 	
+	private int sequence;
+	
 	private boolean invasive;
 	
 	private boolean feral;
@@ -397,6 +399,14 @@ public class Taxon implements AuthorizableObject, Serializable {
 
 	public boolean getHybrid() {
 		return hybrid;
+	}
+	
+	public void setSequence(int sequence) {
+		this.sequence = sequence;
+	}
+	
+	public int getSequence() {
+		return sequence;
 	}
 	
 	public void setInvasive(boolean invasive) {
@@ -567,6 +577,7 @@ public class Taxon implements AuthorizableObject, Serializable {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + " id=\"" + getId() + 
 			"\" level=\"" + getLevel() + 
+			"\" sequence=\"" + getSequence() + 
 			"\" hybrid=\"" + getHybrid() +
 			"\" invasive=\"" + getInvasive() +
 			"\" feral=\"" + getFeral() +
@@ -698,10 +709,17 @@ public class Taxon implements AuthorizableObject, Serializable {
 	public static Taxon fromXML(NativeElement nodeElement) {
 		long id = LongUtils.safeParseLong(nodeElement.getAttribute("id"));
 		int level = Integer.parseInt(nodeElement.getAttribute("level"));
+		int sequence;
+		try {
+			sequence = Integer.parseInt(nodeElement.getAttribute("sequence"));
+		} catch (Exception e) {
+			sequence = 0;
+		}
 		boolean hybrid = (nodeElement.getAttribute("hybrid") != null && nodeElement.getAttribute("hybrid").equals(
 				"true"));
 		
 		Taxon taxon = Taxon.createNode(id, "unknown", level, hybrid);
+		taxon.setSequence(sequence);
 		
 		NativeNodeList name = nodeElement.getElementsByTagName("name");
 		if (name.getLength() > 0) {
