@@ -2,6 +2,7 @@ package org.iucn.sis.client.tabs.home;
 
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.search.SearchQuery;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -66,6 +67,11 @@ public class SearchPortlet extends Portlet {
 		if (value == null || "".equals(value)) {
 			WindowUtils.errorAlert("Please enter search terms.");
 			return;
+		}
+		
+		if(value.toString().length() < 3){
+			WindowUtils.errorAlert("Please enter at least 3 Characters to search.");
+			return;			
 		}
 		
 		SearchQuery query = new SearchQuery(value);

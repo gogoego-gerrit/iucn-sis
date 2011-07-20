@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 @SuppressWarnings("unchecked")
@@ -236,9 +237,15 @@ public class SearchPanel extends LayoutContainer {
 		searchButton = new Button("Search", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				if (!searchBox.getText().trim().equalsIgnoreCase("")) {
+				
+				if (searchBox.getText().trim().equalsIgnoreCase("")) {
+					WindowUtils.errorAlert("Please enter search terms.");
+					return;
+				}else if(searchBox.getText().trim().length() < 3){
+					WindowUtils.errorAlert("Please enter at least 3 Characters to search.");
+					return;			
+				}else	
 					search(searchBox.getText());
-				}
 			}
 		});
 
