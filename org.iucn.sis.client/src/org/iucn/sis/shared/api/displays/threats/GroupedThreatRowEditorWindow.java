@@ -56,7 +56,7 @@ public class GroupedThreatRowEditorWindow extends ClassificationSchemeRowEditorW
 			
 			return editor;
 		}
-		else if ("Named taxa".equals(model.getSelectedRow().getDescription())) {
+		else if (ThreatViewerFactory.hasTaxa(model.getSelectedRow())) {
 			final Collection<ClassificationSchemeModelData> models = 
 				new ArrayList<ClassificationSchemeModelData>();
 			for (ClassificationSchemeModelData current : parent.getModels())

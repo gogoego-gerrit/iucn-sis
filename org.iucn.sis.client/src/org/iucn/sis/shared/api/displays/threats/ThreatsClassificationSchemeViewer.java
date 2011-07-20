@@ -43,7 +43,8 @@ public class ThreatsClassificationSchemeViewer extends
 	}
 	
 	private boolean containsRow(TreeDataRow row, boolean allowDuplicates) {
-		return super.containsRow(row) || (allowDuplicates && "Named taxa".equals(row.getDescription()));
+		return super.containsRow(row) || (allowDuplicates && 
+			("8.5.2".equals(row.getRowNumber()) || ThreatViewerFactory.hasTaxa(row)));
 	}
 	
 	protected Collection<String> getDisabledTreeDataRows() {
