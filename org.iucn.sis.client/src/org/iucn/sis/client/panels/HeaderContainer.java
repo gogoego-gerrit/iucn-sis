@@ -47,6 +47,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
@@ -116,8 +117,13 @@ public class HeaderContainer extends ContentPanel {
 
 		leftPanel = buildLeftPanel(first, last, affiliation);
 		
-		BorderLayoutData leftData = new BorderLayoutData(LayoutRegion.WEST, 205f);
+		BorderLayoutData leftData = new BorderLayoutData(LayoutRegion.WEST);
+		leftData.setSplit(false);
+		leftData.setSize(200);
+		leftData.setMargins(new Margins(0, 5, 0, 5));
+		
 		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER);
+		centerData.setMargins(new Margins(0, 0, 0, 5));
 		
 		centerPanel = new MonkeyNavigator();
 		centerPanel.draw(new DrawsLazily.DoneDrawingWithNothingToDoCallback());

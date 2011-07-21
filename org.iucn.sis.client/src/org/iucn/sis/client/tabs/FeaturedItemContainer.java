@@ -36,7 +36,7 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 		
 		selected = null;
 		
-		featuredItemContainer = new LayoutContainer(new FitLayout());
+		featuredItemContainer = new LayoutContainer(new FillLayout());
 		featuredItemContainer.setLayoutOnChange(true);
 		optionsContainer = new LayoutContainer(new FillLayout());
 		optionsContainer.setLayoutOnChange(true);

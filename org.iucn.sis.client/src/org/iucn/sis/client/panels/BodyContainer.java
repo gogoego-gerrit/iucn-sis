@@ -45,6 +45,7 @@ public class BodyContainer extends LayoutContainer {
 
 	public BodyContainer() {
 		super(new FillLayout());
+		setLayoutOnChange(true);
 		addStyleName("gwt-background");
 		addStyleName("sis_bodyContainer");
 
@@ -60,6 +61,7 @@ public class BodyContainer extends LayoutContainer {
 		WindowUtils.showLoadingAlert("Loading...");
 		MonkeyNavigator.getSortedWorkingSetIDs(new ComplexListener<List<Integer>>() {
 			public void handleEvent(List<Integer> items) {
+				workingSetPage = new WorkingSetPage();
 				workingSetPage.setUrl(url);
 				workingSetPage.setItems(items);
 				workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet().getId());
@@ -76,6 +78,7 @@ public class BodyContainer extends LayoutContainer {
 		WindowUtils.showLoadingAlert("Loading...");
 		MonkeyNavigator.getSortedTaxaIDs(StateManager.impl.getWorkingSet(), new ComplexListener<List<Integer>>() {
 			public void handleEvent(List<Integer> items) {
+				taxonHomePage = new TaxonHomePageTab();
 				taxonHomePage.setUrl(url);
 				taxonHomePage.setItems(items);
 				taxonHomePage.setSelectedItem(StateManager.impl.getTaxon().getId());
@@ -105,6 +108,12 @@ public class BodyContainer extends LayoutContainer {
 						assessmentPage.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
 								onPageChange(assessmentPage, updateNavigation);
+								
+								DeferredCommand.addCommand(new Command() {
+									public void execute() {
+										layout(true);
+									}
+								});
 							}
 						});
 					}
@@ -120,16 +129,14 @@ public class BodyContainer extends LayoutContainer {
 		onPageChange(homePage, updateNavigation);
 	}
 	
-	private void onPageChange(LayoutContainer current, boolean updateNavigation) {
+	private void onPageChange(final LayoutContainer current, boolean updateNavigation) {
 		this.current = current;
-		
-		removeAll();
-		add(current);
 		
 		if (updateNavigation)
 			updateNavigation();
 		
-		layout(true);
+		removeAll();
+		add(current);
 		
 		WindowUtils.hideLoadingAlert();
 	}
