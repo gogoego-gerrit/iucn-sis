@@ -175,6 +175,10 @@ public class Reference implements Serializable, AuthorizableObject {
 	}
 	
 	public String toXML() {
+		return toXML(ROOT_TAG);
+	}
+	
+	public String toXML(String ROOT_TAG) {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + ">");
 		for (Map.Entry<String, String> entry : toMap().entrySet())

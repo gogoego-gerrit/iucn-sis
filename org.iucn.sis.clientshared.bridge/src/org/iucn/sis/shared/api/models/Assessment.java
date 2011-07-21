@@ -31,7 +31,6 @@ import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.solertium.lwxml.shared.NativeDocument;
@@ -131,6 +130,9 @@ public class Assessment implements Serializable, AuthorizableObject {
 			}
 			else if (Taxon.ROOT_TAG.equals(current.getNodeName())) {
 				assessment.setTaxon(Taxon.fromXMLminimal((NativeElement)current));		
+			}
+			else if ("publicationReference".equals(current.getNodeName())) {
+				assessment.setPublicationReference(Reference.fromXML(current));
 			}
 			else if (Edit.ROOT_TAG.equals(current.getNodeName())) {
 				Edit cur = Edit.fromXML((NativeElement)current);
@@ -292,6 +294,9 @@ public class Assessment implements Serializable, AuthorizableObject {
 		xml.append(getTaxon().toXMLMinimal());
 		xml.append(getAssessmentType().toXML());
 		
+		if (getPublicationReference() != null)
+			xml.append(getPublicationReference().toXML("publicationReference"));
+		
 		if (getEdit() != null) {
 			for (Edit edit : getEdit())
 				xml.append(edit.toXML());
@@ -339,6 +344,7 @@ public class Assessment implements Serializable, AuthorizableObject {
 		assessment.setSchema(getSchema());
 		assessment.setState(getState());
 		assessment.setTaxon(getTaxon());
+		assessment.setPublicationReference(getPublicationReference());
 		
 		assessment.setField(new HashSet<Field>());
 		for (Field field : getField()) {
@@ -465,6 +471,8 @@ public class Assessment implements Serializable, AuthorizableObject {
 	private Taxon taxon;
 
 	private String internalId;
+	
+	private Reference publicationReference;
 
 	private java.util.Set<Edit> edit = new java.util.HashSet<Edit>();
 
@@ -543,6 +551,14 @@ public class Assessment implements Serializable, AuthorizableObject {
 
 	public Taxon getTaxon() {
 		return taxon;
+	}
+	
+	public void setPublicationReference(Reference publicationReference) {
+		this.publicationReference = publicationReference;
+	}
+	
+	public Reference getPublicationReference() {
+		return publicationReference;
 	}
 
 	public void setEdit(java.util.Set<Edit> value) {

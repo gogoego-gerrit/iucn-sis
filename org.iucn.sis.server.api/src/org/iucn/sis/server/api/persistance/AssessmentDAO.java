@@ -258,6 +258,8 @@ public class AssessmentDAO {
 				assessment.getTaxon().getAssessments().remove(assessment);
 			}
 			
+			assessment.setPublicationReference(null);
+			
 			Edit[] lEdits = (Edit[])assessment.getEdit().toArray(new Edit[assessment.getEdit().size()]);
 			for(int i = 0; i < lEdits.length; i++) {
 				lEdits[i].getAssessment().remove(assessment);
