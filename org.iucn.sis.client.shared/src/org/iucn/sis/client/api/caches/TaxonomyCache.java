@@ -517,7 +517,7 @@ public class TaxonomyCache {
 				out.toString(), callback);
 	}
 
-	public void saveTaxon(Taxon taxon, final GenericCallback<String> callback) {
+	public void saveTaxon(final Taxon taxon, final GenericCallback<String> callback) {
 		/*
 		 * TODO: do we need to check permissions?
 		 */
@@ -528,6 +528,15 @@ public class TaxonomyCache {
 				callback.onFailure(caught);
 			}
 			public void onSuccess(String result) {
+				Taxon returned = Taxon.fromXML(doc.getDocumentElement());
+				if (returned.getTaxonomicNotes() != null) {
+					if (taxon.getTaxonomicNotes() == null)
+						taxon.setTaxonomicNotes(returned.getTaxonomicNotes());
+					else
+						taxon.getTaxonomicNotes().setId(returned.getTaxonomicNotes().getId());
+				}
+				else
+					taxon.setTaxonomicNotes(null);
 				callback.onSuccess(result);
 			}
 		});

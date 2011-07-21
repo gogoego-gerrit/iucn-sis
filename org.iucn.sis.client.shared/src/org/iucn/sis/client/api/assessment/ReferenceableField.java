@@ -47,7 +47,7 @@ public class ReferenceableField implements Referenceable {
 		persist(callback);
 	}
 	
-	private void persist(final GenericCallback<Object> callback) {
+	protected void persist(final GenericCallback<Object> callback) {
 		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, 
 				AssessmentCache.impl.getCurrentAssessment())) {
 			WindowUtils.errorAlert("You cannot add references to an assessment "

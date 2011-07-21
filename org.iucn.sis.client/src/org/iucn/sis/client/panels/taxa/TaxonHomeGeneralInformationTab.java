@@ -14,17 +14,21 @@ import org.iucn.sis.client.api.ui.notes.NotesWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
+import org.iucn.sis.client.panels.assessments.SingleFieldEditorPanel;
 import org.iucn.sis.client.panels.taxomatic.CommonNameToolPanel;
 import org.iucn.sis.client.panels.taxomatic.EditCommonNamePanel;
 import org.iucn.sis.client.tabs.TaxonHomePageTab.ReferenceableTaxon;
 import org.iucn.sis.client.tabs.TaxonHomePageTab.TaxonNoteAPI;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.CommonName;
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
+import org.iucn.sis.shared.api.models.fields.ProxyField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.CommonNameComparator;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -35,11 +39,14 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.HtmlContainer;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
+import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -49,8 +56,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -88,6 +93,88 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 	}
 	
 	private LayoutContainer drawGeneralInformation(final Taxon node) {
+		final AccordionLayout layout = new AccordionLayout();
+		
+		final LayoutContainer container = new LayoutContainer();
+		container.setLayout(layout);
+		
+		final ContentPanel overview = new ContentPanel(new FillLayout());
+		overview.setHeading("Overview");
+		overview.add(getOverviewInformation(node));
+		
+		container.add(overview);
+		
+		final ContentPanel taxonomicNotes = new ContentPanel(new FillLayout());
+		taxonomicNotes.setHeading("Taxonomic Notes");
+		taxonomicNotes.add(getTaxonomicNotesInformation(node));
+		
+		container.add(taxonomicNotes);
+		
+		layout.setActiveItem(overview);
+		
+		return container;
+	}
+	
+	private LayoutContainer getTaxonomicNotesInformation(final Taxon node) {
+		final ProxyField field = new ProxyField(node.getTaxonomicNotes());
+		final String value = field.getTextPrimitiveField("value");
+		
+		final HtmlContainer html = new HtmlContainer();
+		
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		if ("".equals(value))
+			html.setHtml("<i>No taxonomic notes.</i>");
+		else
+			html.setHtml(value);
+		
+		container.add(html, new BorderLayoutData(LayoutRegion.CENTER));
+		
+		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+			final ButtonBar bar = new ButtonBar();
+			bar.setAlignment(HorizontalAlignment.CENTER);
+			bar.add(new Button("Edit", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					final Field field = node.getTaxonomicNotes() != null? 
+						node.getTaxonomicNotes() : 
+						new Field(CanonicalNames.TaxonomicNotes, null);
+					
+					SingleFieldEditorPanel editor = new SingleFieldEditorPanel(field);
+					editor.setSaveListener(new ComplexListener<Field>() {
+						public void handleEvent(final Field eventData) {
+							if (!eventData.hasData() && (eventData.getReference() == null || eventData.getReference().isEmpty()))
+								node.setTaxonomicNotes(null);
+							else
+								node.setTaxonomicNotes(field);
+							
+							// TODO save to server...
+							TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
+								public void onSuccess(String result) {
+									ProxyField proxy = new ProxyField(eventData);
+									String value = proxy.getTextPrimitiveField("value");
+									if ("".equals(value))
+										html.setHtml("<i>No taxonomic notes.</i>");
+									else
+										html.setHtml(value);
+									
+									Info.display("Success", "Changes saved.");
+								}
+								public void onFailure(Throwable caught) {
+									WindowUtils.errorAlert("Could not save changes, please try again later.");
+								}
+							});
+						}
+					});
+					editor.show();
+				}
+			}));
+			
+			container.add(bar, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+		}
+		
+		return container;
+	}
+	
+	private LayoutContainer getOverviewInformation(final Taxon node) {
 		final TableData layout = new TableData();
 		layout.setPadding(5);
 		
@@ -115,7 +202,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		data.add(new Span("Status: " + node.getTaxonStatus().getName()), layout);
 		data.add(new Span("Hybrid: " + (node.getHybrid() ? "Yes" : "No")), layout);
 		
-		return data;
+		return data;	
 	}
 	
 	private LayoutContainer createSectionHeader(final String name) {
@@ -190,10 +277,10 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		
 		final String referenceStyle = node.getReference().isEmpty() ? 
 			"icon-book-grey" : "icon-book";
-		data.add(createSectionHeader("References (" + node.getReference().size() + ")", new ComplexListener<IconButton>() {
+		data.add(createSectionHeader("Taxonomic Sources (" + node.getReference().size() + ")", new ComplexListener<IconButton>() {
 			public void handleEvent(IconButton eventData) {
 				SimpleSISClient.getInstance().onShowReferenceEditor(
-					"Manage References for " + node.getFullName(), 
+					"Manage Taxonomic Sources for " + node.getFullName(), 
 					new ReferenceableTaxon(node, new SimpleListener() {
 						public void handleEvent() {
 							ClientUIContainer.bodyContainer.refreshBody();
@@ -205,7 +292,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		}, null, referenceStyle));
 		
 		if (node.getReference().isEmpty())
-			data.add(createSectionHeader("<i>No References.</i>", null, NO_DATA_STYLE));
+			data.add(createSectionHeader("<i>No Taxonomic Sources.</i>", null, NO_DATA_STYLE));
 		else {
 			int count = 0;
 			for (Iterator<Reference> iter = node.getReference().iterator(); iter.hasNext() && count < SECTION_LIST_LIMIT; count++)
@@ -218,7 +305,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 				viewAll.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
 						SimpleSISClient.getInstance().onShowReferenceEditor(
-							"Manage References for " + node.getFullName(), 
+							"Manage Taxonomic Sources for " + node.getFullName(), 
 							new ReferenceableTaxon(node, new SimpleListener() {
 								public void handleEvent() {
 									ClientUIContainer.bodyContainer.refreshBody();
@@ -228,7 +315,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 						);
 					}
 				});
-				data.add(new Html("View All..."));
+				data.add(viewAll);
 			}
 		}
 		

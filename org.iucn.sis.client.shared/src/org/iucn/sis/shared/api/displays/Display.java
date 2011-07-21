@@ -69,6 +69,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.StyledHTML;
 import com.solertium.util.portable.XMLWritingUtils;
@@ -121,6 +122,9 @@ public abstract class Display implements Referenceable {
 	protected String associatedFieldId; // id this field is associated with
 
 	protected int dominantStructureIndex = 0;
+	
+	private IDAssigner assigner;
+	private ReferenceableFieldFactory referenceableFieldFactory;
 
 	/**
 	 * Creates a new Display by instantiating an ArrayList of Structures
@@ -146,13 +150,47 @@ public abstract class Display implements Referenceable {
 		this.canonicalName = canonicalName;
 		this.classOfService = classOfService;
 		this.associatedFieldId = associate;
+		
+		assigner = new IDAssigner() {
+			public void assignID(Field field, final GenericCallback<Object> callback) {
+				Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+				initializeField();
+				assessment.getField().add(field);
+				
+				try {
+					AssessmentClientSaveUtils.saveAssessment(null, assessment, new GenericCallback<Object>() {
+						public void onSuccess(Object result) {
+							callback.onSuccess(result);
+						}
+						public void onFailure(Throwable caught) {
+							callback.onFailure(caught);
+						}
+					});
+				} catch (InsufficientRightsException e) {
+					callback.onFailure(e);
+				}
+			}
+		};
+		
+		referenceableFieldFactory = new ReferenceableFieldFactory() {
+			public Referenceable newReferenceableField(Field field) {
+				return new ReferenceableField(field);
+			}
+		};
+	}
+	
+	public void setAssigner(IDAssigner assigner) {
+		this.assigner = assigner;
+	}
+	
+	public void setReferenceableFieldFactory(
+			ReferenceableFieldFactory referenceableFieldFactory) {
+		this.referenceableFieldFactory = referenceableFieldFactory;
 	}
 
 	@Override
 	public void addReferences(ArrayList<Reference> references, final GenericCallback<Object> callback) {
-		field.setAssessment(AssessmentCache.impl.getCurrentAssessment());
-		
-		ReferenceableField referenceableField = new ReferenceableField(field);
+		Referenceable referenceableField = referenceableFieldFactory.newReferenceableField(field);
 		referenceableField.addReferences(references, new GenericCallback<Object>() {
 			public void onSuccess(Object result) {
 				if (field != null && field.getReference().size() == 0)
@@ -383,8 +421,7 @@ public abstract class Display implements Referenceable {
 		if (!isSaved())
 			return new HashSet<Reference>();
 		
-		ReferenceableField f = new ReferenceableField(field);
-		return f.getReferencesAsList();
+		return referenceableFieldFactory.newReferenceableField(field).getReferencesAsList();
 	}
 
 	public List<DisplayStructure> getStructures() {
@@ -456,25 +493,17 @@ public abstract class Display implements Referenceable {
 		
 		final WindowUtils.MessageBoxListener listener = new WindowUtils.SimpleMessageBoxListener() {
 			public void onYes() {
-				Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
-				initializeField();
-				assessment.getField().add(field);
-				
-				try {
-					AssessmentClientSaveUtils.saveAssessment(null, assessment, new GenericCallback<Object>() {
-						public void onSuccess(Object result) {
-							Debug.println("New ID assigned to field {0}: {1}", canonicalName, field.getId());
-							callback.onSuccess(result);
-						}
-						public void onFailure(Throwable caught) {
-							WindowUtils.errorAlert("Could not load field information, " +
-								"please try saving this assessment first before continuing.");
-							callback.onFailure(caught);
-						}
-					});
-				} catch (InsufficientRightsException e) {
-					callback.onFailure(e);
-				}
+				assigner.assignID(field, new GenericCallback<Object>() {
+					public void onSuccess(Object result) {
+						Debug.println("New ID assigned to field {0}: {1}", canonicalName, field.getId());
+						callback.onSuccess(result);
+					}
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Could not load field information, " +
+							"please try saving this assessment first before continuing.");
+						callback.onFailure(caught);
+					}
+				});
 			}
 		};
 		
@@ -553,7 +582,7 @@ public abstract class Display implements Referenceable {
 	}
 
 	public void removeReferences(ArrayList<Reference> references, final GenericCallback<Object> callback) {
-		ReferenceableField referenceableField = new ReferenceableField(field);
+		Referenceable referenceableField = referenceableFieldFactory.newReferenceableField(field);
 		referenceableField.removeReferences(references, new GenericCallback<Object>() {
 			public void onSuccess(Object result) {
 				if (field != null && field.getReference().size() == 0)
@@ -752,6 +781,8 @@ public abstract class Display implements Referenceable {
 	}
 	
 	protected void buildOptionsMenu() {
+		boolean hasAssessment = AssessmentCache.impl.getCurrentAssessment() != null;
+		
 		optionsMenu = new Menu();
 		
 		/* This code adds the Clipboard icon to the display mini-menuCS */
@@ -769,21 +800,23 @@ public abstract class Display implements Referenceable {
 			optionsMenu.add(clipboard);
 		}
 		
-		String notesIconStyle;
-		List<Notes> notes = NotesCache.impl.getNotesForCurrentAssessment(field);
-		if (notes == null || notes.isEmpty())
-			notesIconStyle = ("images/icon-note-grey.png");
-		else
-			notesIconStyle = ("images/icon-note.png");
-		
-		MenuItem notesMenu = new MenuItem("Notes");
-		notesMenu.setIconStyle(notesIconStyle);
-		notesMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				openEditViewNotesPopup();
-			}
-		});
-		optionsMenu.add(notesMenu);
+		if (hasAssessment) {
+			String notesIconStyle;
+			List<Notes> notes = NotesCache.impl.getNotesForCurrentAssessment(field);
+			if (notes == null || notes.isEmpty())
+				notesIconStyle = ("images/icon-note-grey.png");
+			else
+				notesIconStyle = ("images/icon-note.png");
+			
+			MenuItem notesMenu = new MenuItem("Notes");
+			notesMenu.setIconStyle(notesIconStyle);
+			notesMenu.addSelectionListener(new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					openEditViewNotesPopup();
+				}
+			});
+			optionsMenu.add(notesMenu);
+		}
 		
 		String referencesIconStyle;
 		if (field != null && !field.getReference().isEmpty())
@@ -840,7 +873,7 @@ public abstract class Display implements Referenceable {
 		optionsMenu.add(definitions);
 		
 		final WorkingSet ws = WorkingSetCache.impl.getCurrentWorkingSet();
-		if (isSaved() && ws != null) {
+		if (hasAssessment && isSaved() && ws != null) {
 			MenuItem batchChange = new MenuItem("Batch Change " + ws.getName() + " Working Set");
 			batchChange.setIconStyle("icon-page-copy");
 			
@@ -886,7 +919,7 @@ public abstract class Display implements Referenceable {
 			optionsMenu.add(batchChange);
 		}
 		
-		if (isSaved() && field.isAttachable()) {
+		if (hasAssessment && isSaved() && field.isAttachable()) {
 			MenuItem attach = new MenuItem();
 			attach.setText("Attach File");
 			attach.setIconStyle("icon-attachment");
@@ -1001,6 +1034,18 @@ public abstract class Display implements Referenceable {
 	
 	public boolean isSaved() {
 		return field != null && field.getId() > 0;
+	}
+	
+	public static interface IDAssigner {
+		
+		public void assignID(Field field, GenericCallback<Object> callback);
+		
+	}
+	
+	public static interface ReferenceableFieldFactory {
+		
+		public Referenceable newReferenceableField(Field field);
+		
 	}
 
 }// class Display

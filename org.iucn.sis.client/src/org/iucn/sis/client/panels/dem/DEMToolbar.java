@@ -14,6 +14,7 @@ import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
+import org.iucn.sis.client.panels.assessments.SingleFieldEditorPanel;
 import org.iucn.sis.client.panels.assessments.TrackChangesPanel;
 import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
@@ -26,7 +27,10 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
+import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -333,6 +337,51 @@ public class DEMToolbar extends ToolBar {
 				}
 
 				NewTaxonSynonymEditor editor = new NewTaxonSynonymEditor();
+				editor.show();
+			}
+		});
+		mainMenu.add(mItem);
+		
+		mItem = new MenuItem();
+		mItem.setText("Edit Taxonomic Notes");
+		mItem.setIconStyle("icon-text-bold");
+		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				final Taxon node = TaxonomyCache.impl.getCurrentTaxon(); 
+				if (node == null) {
+					Info.display(new InfoConfig("No Taxa Selected", "Please select a taxa first."));
+					return;
+				}
+
+				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+					WindowUtils
+					.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
+					return;
+				}
+				
+				final Field field = node.getTaxonomicNotes() != null? 
+					node.getTaxonomicNotes() : 
+					new Field(CanonicalNames.TaxonomicNotes, null);
+					
+				SingleFieldEditorPanel editor = new SingleFieldEditorPanel(field);
+				editor.setSaveListener(new ComplexListener<Field>() {
+					public void handleEvent(final Field eventData) {
+						if (!eventData.hasData() && (eventData.getReference() == null || eventData.getReference().isEmpty()))
+							node.setTaxonomicNotes(null);
+						else
+							node.setTaxonomicNotes(field);
+						
+						// TODO save to server...
+						TaxonomyCache.impl.saveTaxon(node, new GenericCallback<String>() {
+							public void onSuccess(String result) {
+								Info.display("Success", "Changes saved.");
+							}
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Could not save changes, please try again later.");
+							}
+						});
+					}
+				});
 				editor.show();
 			}
 		});

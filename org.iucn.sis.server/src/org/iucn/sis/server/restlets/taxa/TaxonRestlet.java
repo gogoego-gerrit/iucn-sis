@@ -11,12 +11,14 @@ import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
+import org.iucn.sis.server.api.persistance.FieldDAO;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -231,7 +233,6 @@ public class TaxonRestlet extends BaseServiceRestlet {
 
 	private void updateTaxon(Request request, Response response, Integer nodeID, TaxonIO taxonIO, Session session) throws ResourceException {
 		if (nodeID != null) {
-			ArrayList<Taxon> nodesToSave = new ArrayList<Taxon>();
 			User user = getUser(request, session);
 			
 			NativeDocument newDoc = new JavaNativeDocument();
@@ -240,8 +241,28 @@ public class TaxonRestlet extends BaseServiceRestlet {
 			} catch (Exception e) {
 				throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
 			}
-				
+			
 			Taxon newNode = Taxon.fromXML(newDoc);
+			Taxon existing = taxonIO.getTaxon(newNode.getId());
+			
+			Field possibleUnsaved = newNode.getTaxonomicNotes();
+			if (possibleUnsaved != null) {
+				try {
+					SIS.get().getManager().saveObject(session, possibleUnsaved);
+				} catch (Exception e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+			}
+			
+			if (existing.getTaxonomicNotes() != null && possibleUnsaved == null) {
+				try {
+					FieldDAO.deleteAndDissociate(existing.getTaxonomicNotes(), session);
+				} catch (Exception e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+				newNode.setTaxonomicNotes(null);
+			}
+			
 			try {
 				newNode = SIS.get().getManager().mergeObject(session, newNode);
 			} catch (PersistentException e) {
@@ -249,21 +270,14 @@ public class TaxonRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 			
-			nodesToSave.add(newNode);
 			try {
-				taxonIO.writeTaxa(nodesToSave, user, true);
+				taxonIO.writeTaxon(newNode, user, true);
 			} catch (TaxomaticException e) {
 				throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e);
 			}
-				
-			StringBuilder xml = new StringBuilder();
-			xml.append("<nodes>");
-			for (Taxon taxon : nodesToSave) {
-				xml.append(taxon.getId() + ",");
-			}
-			xml.append("</nodes>");
+			
 			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity(xml.toString(), MediaType.TEXT_XML);
+			response.setEntity(newNode.toXML(), MediaType.TEXT_XML);
 			
 		} else
 			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
