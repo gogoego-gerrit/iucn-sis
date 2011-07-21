@@ -331,7 +331,7 @@ public class Taxon implements AuthorizableObject, Serializable {
 
 	private TaxonStatus taxonStatus;
 	
-	private int sequence;
+	private Integer sequence;
 	
 	private boolean invasive;
 	
@@ -401,11 +401,11 @@ public class Taxon implements AuthorizableObject, Serializable {
 		return hybrid;
 	}
 	
-	public void setSequence(int sequence) {
+	public void setSequence(Integer sequence) {
 		this.sequence = sequence;
 	}
 	
-	public int getSequence() {
+	public Integer getSequence() {
 		return sequence;
 	}
 	
