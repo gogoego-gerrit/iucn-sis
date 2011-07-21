@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.iucn.sis.shared.api.utils.CanonicalNames;
+
 public class TreeData extends DisplayData implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -48,6 +50,12 @@ public class TreeData extends DisplayData implements Serializable {
 
 	public void setDefaultStructure(TreeData defaultStructure) {
 		this.defaultStructure = defaultStructure;
+	}
+	
+	public int getTopLevelDisplay() {
+		if (CanonicalNames.CountryOccurrence.equals(getCanonicalName()))
+			return 1;
+		return 0;
 	}
 
 }

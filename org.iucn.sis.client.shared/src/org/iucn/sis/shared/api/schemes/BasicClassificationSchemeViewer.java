@@ -76,7 +76,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		this.hasChanged = false;
 		this.server = new ListStore<ClassificationSchemeModelData>();
 		server.setStoreSorter(new StoreSorter<ClassificationSchemeModelData>(
-			new ClassificationSchemeModelDataComparator()
+			new ClassificationSchemeModelDataComparator(treeData.getTopLevelDisplay())
 		));
 	}
 	
@@ -422,10 +422,13 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 	
 	public static class ClassificationSchemeModelDataComparator implements Comparator {
 		
-		private final TreeDataRowComparator comparator = 
-			new TreeDataRowComparator();
-		private final PortableAlphanumericComparator stringComparator = 
-			new PortableAlphanumericComparator();
+		private final TreeDataRowComparator comparator;
+		private final PortableAlphanumericComparator stringComparator;
+		
+		public ClassificationSchemeModelDataComparator(int topLevel) {
+			comparator = new TreeDataRowComparator(topLevel);
+			stringComparator = new PortableAlphanumericComparator();
+		}
 		
 		@Override
 		public int compare(Object o1, Object o2) {
@@ -451,9 +454,19 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		private final PortableAlphanumericComparator comparator = 
 			new PortableAlphanumericComparator();
 		
+		private final int topLevel;
+		
+		public TreeDataRowComparator() {
+			this(0);
+		}
+		
+		public TreeDataRowComparator(int topLevel) {
+			this.topLevel = topLevel;
+		}
+		
 		public int compare(TreeDataRow o1, TreeDataRow o2) {
 			//return comparator.compare(o1.getLabel(), o2.getLabel());
-			return comparator.compare(o1.getFullLineage(), o2.getFullLineage());
+			return comparator.compare(o1.getFullLineage(topLevel), o2.getFullLineage(topLevel));
 		}
 		
 	}

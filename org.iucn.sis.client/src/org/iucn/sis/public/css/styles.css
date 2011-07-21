@@ -304,6 +304,14 @@ body,td,div,input,p,select,input,button {
 	font-size: 12px !important;
 }
 
+.page_assessment_classScheme_header {
+	font-weight: bold !important;	
+}
+
+.page_assessment_classScheme_header {
+	
+}
+
 .notes_entry {
 	border-bottom: 1px solid black !important;
 	width: 100%;

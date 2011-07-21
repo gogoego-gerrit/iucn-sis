@@ -3,6 +3,8 @@ package org.iucn.sis.shared.api.data;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import org.iucn.sis.shared.api.debug.Debug;
+
 public class TreeDataRow extends DisplayData {
 	private static final long serialVersionUID = 1L;
 	// Tree data
@@ -72,6 +74,10 @@ public class TreeDataRow extends DisplayData {
 		if (fullLineage != null)
 			return fullLineage;
 		
+		return getFullLineage(0);
+	}
+	
+	public String getFullLineage(int topLevel) {
 		StringBuilder out = new StringBuilder();
 		out.append(getPrefix());
 		
@@ -82,9 +88,14 @@ public class TreeDataRow extends DisplayData {
 			currentParent = currentParent.parent;
 		}
 		
+		int index = 0;
+		
 		while (!stack.isEmpty()) {
-			out.append(stack.pop());
-			out.append(" -> ");
+			String current = stack.pop();
+			if (index++ >= topLevel) {
+				out.append(current);
+				out.append(" -> ");
+			}
 		}
 		
 		out.append(description);

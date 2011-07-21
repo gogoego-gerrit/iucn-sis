@@ -18,6 +18,7 @@ import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer.ClassificationSchemeModelDataComparator;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
+import org.iucn.sis.shared.api.structures.Structure;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -27,6 +28,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
+import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -187,6 +189,7 @@ public class ClassificationScheme extends Display {
 	private void buildReadOnlyContainer(VerticalPanel container) {
 		final List<ClassificationSchemeModelData> thinData = new ArrayList<ClassificationSchemeModelData>();
 		if (field != null && field.getFields() != null) {
+			Structure<?> str = viewer.generateDefaultStructure(null);
 			for (Field subfield : field.getFields()) {
 				PrimitiveField lookup = subfield.getPrimitiveField(canonicalName+"Lookup"); 
 				if (lookup == null || !flatTree.containsKey(lookup.getRawValue()))
@@ -194,7 +197,7 @@ public class ClassificationScheme extends Display {
 				
 				TreeDataRow row = flatTree.get(lookup.getRawValue());
 				
-				ClassificationSchemeModelData model = new ClassificationSchemeModelData(null);
+				ClassificationSchemeModelData model = new ClassificationSchemeModelData(str, subfield);
 				model.setSelectedRow(row);
 				
 				thinData.add(model); 
@@ -212,11 +215,33 @@ public class ClassificationScheme extends Display {
 			container.add(new HTML("No selections made"));
 		}
 		else {
-			List<ClassificationSchemeModelData> list = new ArrayList<ClassificationSchemeModelData>(thinData);
-			Collections.sort(list, new ClassificationSchemeModelDataComparator());
-			for (ClassificationSchemeModelData model : list) {
-				container.add(new HTML(model.getSelectedRow().getFullLineage()));
+			List<ClassificationSchemeModelData> rows = new ArrayList<ClassificationSchemeModelData>(thinData);
+			Collections.sort(rows, new ClassificationSchemeModelDataComparator(treeData.getTopLevelDisplay()));
+			
+			Structure<?> str = viewer.generateDefaultStructure(null);
+			List<String> columns = str.extractDescriptions();
+
+			Grid grid = new Grid(rows.size() + 1, columns.size() + 1);
+			grid.setHTML(0, 0, "");
+			int col = 1;
+			for (String column : columns)
+				grid.setHTML(0, col++, "<span class=\"page_assessment_classScheme_header\">" + column + "</span>");
+			
+			int row = 1;
+			for (ClassificationSchemeModelData model : rows) {
+				col = 0;
+				grid.setHTML(row, col++, "<span class=\"page_assessment_classScheme_content\">" + model.get("text") + "</span>");
+				for (String column : columns)
+					grid.setHTML(row, col++, "<span class=\"page_assessment_classScheme_content\">" + model.get(column) + "</span>");
+				row++;
+				//container.add(new HTML(model.getSelectedRow().getFullLineage()));
 			}
+			
+			grid.getColumnFormatter().setWidth(0, "350px");
+			for (int i = 1; i < grid.getColumnCount(); i++)
+				grid.getColumnFormatter().setWidth(i, "80px");
+			
+			container.add(grid);
 		}
 	}
 

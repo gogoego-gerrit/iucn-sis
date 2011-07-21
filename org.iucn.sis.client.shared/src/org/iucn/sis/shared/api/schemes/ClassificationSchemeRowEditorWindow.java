@@ -173,11 +173,13 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 	}
 	
 	protected ComboBox<CodingOption> createClassificationOptions(TreeDataRow selected) {
+		int topLevel = treeData.getTopLevelDisplay();
+		
 		/*
 		 * Flatten the tree into a list...
 		 */
 		final List<TreeDataRow> list = new ArrayList<TreeDataRow>(treeData.flattenTree().values());
-		Collections.sort(list, new BasicClassificationSchemeViewer.TreeDataRowComparator());
+		Collections.sort(list, new BasicClassificationSchemeViewer.TreeDataRowComparator(topLevel));
 		
 		final ListStore<CodingOption> store = new ListStore<CodingOption>();
 		
@@ -196,7 +198,7 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 			}
 			
 			if ("true".equals(row.getCodeable())) {
-				final CodingOption option = new CodingOption(row);
+				final CodingOption option = new CodingOption(row, topLevel);
 				store.add(option);
 				if (selected != null && row.getDisplayId().equals(selected.getDisplayId()))
 					selectedOption = option;
@@ -221,11 +223,10 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 		
 		private final TreeDataRow row;
 		
-		public CodingOption(TreeDataRow row) {
+		public CodingOption(TreeDataRow row, int topLevel) {
 			super();
 			this.row = row;
-			
-			set("text", row.getFullLineage());
+			set("text", row.getFullLineage(topLevel));
 			set("value", row.getDisplayId());
 		}
 		
