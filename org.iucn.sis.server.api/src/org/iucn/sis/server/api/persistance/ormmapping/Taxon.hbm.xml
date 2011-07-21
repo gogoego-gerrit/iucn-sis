@@ -21,6 +21,8 @@ License Type: Evaluation
 		<property name="sequence" column="sequence" type="integer" length="8" not-null="false" lazy="false" />
 		<property name="invasive" column="invasive" type="boolean" length="1" not-null="true" lazy="false" />
 		<property name="feral" column="feral" type="boolean" length="1" not-null="true" lazy="false" />
+		<many-to-one name="taxonomicNotes" cascade="lock" column="taxonomicNotes_id" class="org.iucn.sis.shared.api.models.Field" not-null="false" lazy="no-proxy">
+		</many-to-one>
 		<many-to-one name="taxonStatus" cascade="lock" column="taxon_statusid" class="org.iucn.sis.shared.api.models.TaxonStatus" not-null="true" lazy="no-proxy">
 		</many-to-one>
 		<many-to-one name="infratype" cascade="lock" column="taxon_infratype_id" class="org.iucn.sis.shared.api.models.Infratype" not-null="false" lazy="no-proxy">

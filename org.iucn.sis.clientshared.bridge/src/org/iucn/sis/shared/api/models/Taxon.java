@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.data.LongUtils;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.solertium.lwxml.shared.NativeDocument;
@@ -359,6 +360,8 @@ public class Taxon implements AuthorizableObject, Serializable {
 
 	private Infratype infratype;
 	
+	private Field taxonomicNotes;
+	
 	private String generatedXML;
 
 	public int getId() {
@@ -540,6 +543,14 @@ public class Taxon implements AuthorizableObject, Serializable {
 	public Infratype getInfratype() {
 		return infratype;
 	}
+	
+	public void setTaxonomicNotes(Field taxonomicNotes) {
+		this.taxonomicNotes = taxonomicNotes;
+	}
+	
+	public Field getTaxonomicNotes() {
+		return taxonomicNotes;
+	}
 
 	public String toString() {
 		return "Taxon #" + id + " :" + name;
@@ -591,6 +602,9 @@ public class Taxon implements AuthorizableObject, Serializable {
 	
 		if (getTaxonStatus() != null)
 			xml.append(getTaxonStatus().toXML());
+		
+		if (getTaxonomicNotes() != null)
+			xml.append(getTaxonomicNotes().toXML());
 	
 		if (getParent() != null) {
 			xml.append(getParent().toParentXML());
@@ -766,6 +780,10 @@ public class Taxon implements AuthorizableObject, Serializable {
 		NativeNodeList taxAuths = nodeElement.getElementsByTagName("taxonomicAuthority");
 		if (taxAuths.getLength() > 0)
 			taxon.setTaxonomicAuthority(XMLUtils.clean(taxAuths.elementAt(0).getTextContent()));
+		
+		NativeNodeList taxNotes = nodeElement.getElementsByTagName(CanonicalNames.TaxonomicNotes);
+		if (taxNotes.getLength() > 0)
+			taxon.setTaxonomicNotes(Field.fromXML(taxNotes.elementAt(0)));
 
 		NativeNodeList names = nodeElement.getElementsByTagName(CommonName.ROOT_TAG);
 		taxon.setCommonNames(new HashSet<CommonName>());

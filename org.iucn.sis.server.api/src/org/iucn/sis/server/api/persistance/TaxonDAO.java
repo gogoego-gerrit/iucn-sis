@@ -304,6 +304,8 @@ public class TaxonDAO {
 				taxon.getParent().getChildren().remove(taxon);
 			}
 			
+			taxon.setTaxonomicNotes(null);
+			
 			WorkingSet[] lWorking_sets = (WorkingSet[])taxon.getWorking_set().toArray(new WorkingSet[taxon.getWorking_set().size()]);
 			for(int i = 0; i < lWorking_sets.length; i++) {
 				lWorking_sets[i].getTaxon().remove(taxon);
