@@ -73,7 +73,7 @@ public class WorkingSetIO {
 		String queryString = "SELECT * FROM working_set " +
 			"WHERE working_set.id NOT IN ( "+
 			"SELECT working_setid FROM working_set_subscribe_user " +
-			"JOIN \"user\" ON \"user\".id = working_set_subsribe_user.userid AND \"user\".username = '"+userName+"' "+
+			"JOIN \"user\" ON \"user\".id = working_set_subscribe_user.userid AND \"user\".username = '"+userName+"' "+
 			") "+
 			"ORDER BY working_set.name";
 		
