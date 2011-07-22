@@ -157,7 +157,8 @@ public class FieldSchemaGenerator {
 			PrimitiveFieldType dataType = PrimitiveFieldType.get(data_type);
 			
 			if (PrimitiveFieldType.FOREIGN_KEY_PRIMITIVE.equals(dataType) || 
-					PrimitiveFieldType.FOREIGN_KEY_LIST_PRIMITIVE.equals(dataType)) {
+					PrimitiveFieldType.FOREIGN_KEY_LIST_PRIMITIVE.equals(dataType) ||
+					PrimitiveFieldType.RANGE_PRIMITIVE.equals(dataType)) {
 				String tableName = fieldName;
 				if (name.toLowerCase().endsWith("lookup")) {
 					tableName = name;
