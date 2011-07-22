@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.iucn.sis.shared.api.debug.Debug;
 
-import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 /**
@@ -86,7 +85,7 @@ public class SISView {
 	}
 
 	public void showPage(int pageNum, boolean viewOnly, DrawsLazily.DoneDrawingCallbackWithParam
-			<TabPanel> callback) {
+			<SISPageHolder> callback) {
 		if (pages != null)
 			Debug.println("Showing page {0} of {1}", pageNum, pages.size());
 		curPage = pages.get(pageNum);

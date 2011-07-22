@@ -32,7 +32,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -190,20 +189,16 @@ public class SISPageHolder extends TabPanel {
 			// Parsing the organizations
 			NativeNodeList organizations = pageOrganizations.elementAt(h).getElementsByTagName("organization");
 			for (int i = 0; i < organizations.getLength(); i++) {
-
 				final TabItem curTab = new TabItem();
+				curTab.setLayout(new FlowLayout(0));
+				curTab.setScrollMode(Scroll.AUTOY);
 				curTab.addListener(Events.Select, new Listener<BaseEvent>() {
 					public void handleEvent(BaseEvent be) {
 						selectedTab = indexOf(curTab);
 					}
 				});
-				LayoutContainer content = new LayoutContainer();
-				content.setLayout(new FlowLayout(0));
-				content.addStyleName("x-panel");
-				content.setScrollMode(Scroll.AUTOY);
-
-				curTab.setLayout(new FitLayout());
-				curTab.add(content);
+				
+				LayoutContainer content = curTab;
 
 				// Set the fieldArrangement type (there is only one per
 				// organization)
@@ -360,37 +355,6 @@ public class SISPageHolder extends TabPanel {
 
 	public boolean isViewOnly() {
 		return viewOnly;
-	}
-
-	@Override
-	protected void onResize(int width, int height) {
-		super.onResize(width, height);
-
-		// this.setTa
-		//		
-		// try
-		// {
-		// for (int i = 0; i < getItemCount(); i++)
-		// {
-		// TextMetrics metrics = TextMetrics.get();
-		// metrics.bind(getItem(i).getElement());
-		// int textWidth = metrics.getWidth(getItem(i).getText());
-		//
-		// int daWidth = width / getItemCount() - 10;
-		//
-		// if (textWidth < daWidth)
-		// getItem(i).setWidth(textWidth);
-		// else if (textWidth > daWidth)
-		// {
-		// getItem(i).setText(getItem(i).getText().substring(0, 15) + "...");
-		// getItem(i).setWidth(daWidth);
-		// } else
-		// getItem(i).setWidth(daWidth);
-		// }
-		// } catch (Exception ignored)
-		// {
-		// // Tabs aren't rendered yet ... *tear*
-		// }
 	}
 
 	/**
@@ -619,11 +583,11 @@ public class SISPageHolder extends TabPanel {
 				dis.removeStructures();
 	}
 
-	public void showPage(final DrawsLazily.DoneDrawingCallbackWithParam<TabPanel> callback) {
+	public void showPage(final DrawsLazily.DoneDrawingCallbackWithParam<SISPageHolder> callback) {
 		showPage(callback, false);
 	}
 
-	public void showPage(final DrawsLazily.DoneDrawingCallbackWithParam<TabPanel> callback, final boolean viewOnly) {
+	public void showPage(final DrawsLazily.DoneDrawingCallbackWithParam<SISPageHolder> callback, final boolean viewOnly) {
 		removeAll();
 		// add(new TabItem());
 		// WindowUtils.showLoadingAlert("Loading page...");

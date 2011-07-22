@@ -8,6 +8,7 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
+import org.iucn.sis.client.api.caches.ViewCache.EditStatus;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.users.panels.ManageCreditsWindow;
 import org.iucn.sis.client.api.ui.views.SISView;
@@ -62,10 +63,6 @@ import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class DEMToolbar extends ToolBar {
-	
-	public enum EditStatus {
-		READ_ONLY, EDIT_DATA
-	}
 	
 	private final AutosaveTimer autoSave;
 	

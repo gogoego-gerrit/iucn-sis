@@ -87,7 +87,7 @@ public class ViewDisplay extends LayoutContainer implements DrawsLazily {
 								public void onClick(ClickEvent event) {
 									if (pageChangelistener != null)
 										pageChangelistener.handleEvent(
-											new PageChangeRequest(curView, curPage, curPageLabel)
+											new PageChangeRequest(curView, curPage)
 										);
 								}
 							});
@@ -106,18 +106,12 @@ public class ViewDisplay extends LayoutContainer implements DrawsLazily {
 	public static class PageChangeRequest {
 		
 		private SISView view;
-		private HTML label;
 		private SISPageHolder page;
 		private boolean allowSamePage;
 		
-		public PageChangeRequest(SISView view, SISPageHolder page, HTML label) {
+		public PageChangeRequest(SISView view, SISPageHolder page) {
 			this.view = view;
 			this.page = page;
-			this.label = label;
-		}
-		
-		public HTML getLabel() {
-			return label;
 		}
 		
 		public SISPageHolder getPage() {

@@ -12,6 +12,7 @@ import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
+import org.iucn.sis.client.api.caches.ViewCache.EditStatus;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.views.SISPageHolder;
 import org.iucn.sis.client.api.ui.views.SISView;
@@ -20,7 +21,6 @@ import org.iucn.sis.client.api.ui.views.ViewDisplay.PageChangeRequest;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
-import org.iucn.sis.client.panels.dem.DEMToolbar.EditStatus;
 import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
@@ -38,8 +38,6 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
@@ -48,7 +46,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
@@ -73,21 +70,20 @@ import com.solertium.util.gwt.ui.StyledHTML;
  */
 public class DEMPanel extends FeaturedItemContainer<Integer> {
 
-	private boolean viewOnly = false;
 	private LayoutContainer scroller;
 
-	private AccordionLayout viewChooser;
-	private ViewDisplay viewWrapper;
+	//private AccordionLayout viewChooser;
+	private DEMLayoutChooser viewWrapper;
 
 	private DEMToolbar toolBar;
 
 	public DEMPanel() {
-		viewChooser = new AccordionLayout();
+		//viewChooser = new AccordionLayout();
 		
-		viewWrapper = new ViewDisplay();
-		viewWrapper.setLayout(viewChooser);
+		viewWrapper = new DEMLayoutChooser();
+		//viewWrapper.setLayout(viewChooser);
 		viewWrapper.setLayoutOnChange(true);
-		viewWrapper.setPageChangelistener(new ComplexListener<PageChangeRequest>() {
+		viewWrapper.setPageChangeListener(new ComplexListener<PageChangeRequest>() {
 			public void handleEvent(PageChangeRequest eventData) {
 				changePage(eventData);
 			}
@@ -106,26 +102,25 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 	protected void drawBody(final DoneDrawingCallback callback) {
 		StatusCache.impl.checkStatus(AssessmentCache.impl.getAssessment(getSelectedItem()), true, new GenericCallback<Integer>() {
 			public void onSuccess(Integer result) {
+				boolean viewOnly = EditStatus.READ_ONLY.equals(ViewCache.impl.getEditStatus());
 				if (result == StatusCache.UNLOCKED || result == StatusCache.HAS_LOCK)
 					toolBar.setViewOnly(viewOnly, true);
-				else
-					toolBar.setViewOnly(viewOnly = true, false);
-					
-				if (bodyContainer.getItemCount() == 0) {
-					BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
-					toolBarData.setSize(25);
-					
-					BorderLayoutData scrollerData = new BorderLayoutData(LayoutRegion.CENTER, .82f, 300, 3000);
-					
-					final LayoutContainer container = new LayoutContainer(new BorderLayout());
-					container.add(toolBar, toolBarData);
-					container.add(scroller, scrollerData);
-					
-					bodyContainer.removeAll();
-					bodyContainer.add(container);
+				else {
+					ViewCache.impl.setEditStatus(EditStatus.READ_ONLY);
+					toolBar.setViewOnly(true, false);
 				}
-				else
-					redraw();
+					
+				BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
+				toolBarData.setSize(25);
+					
+				BorderLayoutData scrollerData = new BorderLayoutData(LayoutRegion.CENTER, .82f, 300, 3000);
+					
+				final LayoutContainer container = new LayoutContainer(new BorderLayout());
+				container.add(toolBar, toolBarData);
+				container.add(scroller, scrollerData);
+					
+				bodyContainer.removeAll();
+				bodyContainer.add(container);
 				
 				callback.isDrawn();
 			}
@@ -148,16 +143,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 	
 	@Override
 	protected void drawOptions(final DrawsLazily.DoneDrawingCallback callback) {
-		viewWrapper.draw(new DrawsLazily.DoneDrawingCallback() {
-			public void isDrawn() {
-				optionsContainer.removeAll();	
-				optionsContainer.add(viewWrapper);
-				
-				clearDEM();
-				
-				callback.isDrawn();	
-			}
-		});
+		redraw(true, callback);
 	}
 	
 	@Override
@@ -263,7 +249,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		DEMToolbar toolbar = new DEMToolbar();
 		toolbar.setRefreshListener(new ComplexListener<EditStatus>() {
 			public void handleEvent(EditStatus eventData) {
-				viewOnly = EditStatus.READ_ONLY.equals(eventData);
+				ViewCache.impl.setEditStatus(eventData);
 				redraw();
 			}
 		});
@@ -278,14 +264,17 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 	}
 	
 	public void redraw() {
-		if (AssessmentCache.impl.getCurrentAssessment() == null) {
-			Info.display(new InfoConfig("No Assessment", "Please select an assessment first."));
-			return;
-		}
-		
-		viewWrapper.draw(new DrawsLazily.DoneDrawingCallback() {
-			public void isDrawn() {
-				final HTML label = viewWrapper.getLastSelected();
+		redraw(false, new DrawsLazily.DoneDrawingWithNothingToDoCallback());
+	}
+	
+	public void redraw(final boolean removeAndAddContainer, final DrawsLazily.DoneDrawingCallback callback) {
+		viewWrapper.draw(new DrawsLazily.DoneDrawingCallbackWithParam<String>() {
+			public void isDrawn(String label) {
+				if (removeAndAddContainer) {
+					optionsContainer.removeAll();	
+					optionsContainer.add(viewWrapper);
+				}
+				
 				if (label != null) {
 					/*
 					 * If the user had a view in play, we want to 
@@ -295,7 +284,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 					SISView currentView = ViewCache.impl.getCurrentView();
 					SISPageHolder page = currentView.getCurPage();
 					
-					PageChangeRequest request = new PageChangeRequest(currentView, page, label);
+					PageChangeRequest request = new PageChangeRequest(currentView, page);
 					request.setAllowSamePage(true);
 					
 					changePage(request);
@@ -303,7 +292,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 				else
 					clearDEM();
 				
-				layout();
+				callback.isDrawn();
 			}
 		});
 	}
@@ -323,25 +312,27 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 						.getCurrentAssessment())) {
 					Info.display("Insufficient Permissions", "NOTICE: You do not have "
 							+ "permission to save modifications to this assessment.");
-					viewOnly = true;
+					ViewCache.impl.setEditStatus(EditStatus.READ_ONLY);
 				}
 				
 				clearDEM();
+				
+				final boolean viewOnly = EditStatus.READ_ONLY.equals(ViewCache.impl.getEditStatus());
 				
 				toolBar.setViewOnly(viewOnly);
 				toolBar.resetAutosaveTimer();
 				
 				scroller.mask("Loading...");
 				
-				updateBoldedPage(request.getLabel());
+				//updateBoldedPage(request.getLabel());
 				
 				DeferredCommand.addPause();
 				DeferredCommand.addCommand(new Command() {
 					public void execute() {
 						int page = request.getView().getPages().indexOf(request.getPage());
 						
-						ViewCache.impl.showPage(request.getView().getId(), page, viewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<TabPanel>() {
-							public void isDrawn(TabPanel parameter) {
+						ViewCache.impl.showPage(request.getView().getId(), page, viewOnly, new DrawsLazily.DoneDrawingCallbackWithParam<SISPageHolder>() {
+							public void isDrawn(final SISPageHolder parameter) {
 								scroller.unmask();
 								scroller.add(parameter);
 								scroller.layout();
@@ -368,8 +359,10 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		if (samePage && !request.isAllowSamePage())
 			return;
 		
-		boolean hasEditablePageWithFields = 
-			!viewOnly && ViewCache.impl.getCurrentView() != null && ViewCache.impl.getCurrentView().getCurPage() != null;
+		boolean hasEditablePageWithFields =
+			EditStatus.EDIT_DATA.equals(ViewCache.impl.getEditStatus()) && 
+			ViewCache.impl.getCurrentView() != null && 
+			ViewCache.impl.getCurrentView().getCurPage() != null;
 		
 		if (hasEditablePageWithFields && AssessmentClientSaveUtils.shouldSaveCurrentAssessment(
 				ViewCache.impl.getCurrentView().getCurPage().getMyFields())) {
@@ -438,10 +431,10 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		super.onHide();
 	}
 
-	private void updateBoldedPage(final HTML curPageLabel) {
+	/*private void updateBoldedPage(final HTML curPageLabel) {
 		viewWrapper.selectPage(curPageLabel);
 		viewWrapper.layout();
-	}
+	}*/
 	
 	/*public void updateWorkflowStatus() {
 		try {

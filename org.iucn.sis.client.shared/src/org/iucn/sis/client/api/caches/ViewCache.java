@@ -14,7 +14,6 @@ import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
-import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -22,6 +21,10 @@ import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class ViewCache {
+	
+	public enum EditStatus {
+		READ_ONLY, EDIT_DATA
+	}
 
 	public static final ViewCache impl = new ViewCache();
 
@@ -32,15 +35,20 @@ public class ViewCache {
 
 	SISView currentView = null;
 	String currentSchema = null;
+	
+	EditStatus editStatus;
 
 	private ViewCache() {
 		schemaToViews = new HashMap<String, Map<String,SISView>>();
 		lastPageViewed = new HashMap<String, Integer>();
+		
+		editStatus = EditStatus.EDIT_DATA;
 	}
 
 	public void doLogout() {
 		schemaToViews.clear();
 		lastPageViewed.clear();
+		editStatus = EditStatus.EDIT_DATA;
 		
 		currentViewMap = null;
 		currentView = null;
@@ -147,10 +155,18 @@ public class ViewCache {
 	}
 
 	public void showPage(String viewID, int pageNum, boolean viewOnly, 
-			DrawsLazily.DoneDrawingCallbackWithParam<TabPanel> callback) {
+			DrawsLazily.DoneDrawingCallbackWithParam<SISPageHolder> callback) {
 		currentView = currentViewMap.get(viewID);
 		lastPageViewed.put(viewID, new Integer(pageNum));
 		
 		currentViewMap.get(viewID).showPage(pageNum, viewOnly, callback);
+	}
+	
+	public EditStatus getEditStatus() {
+		return editStatus;
+	}
+	
+	public void setEditStatus(EditStatus editStatus) {
+		this.editStatus = editStatus;
 	}
 }

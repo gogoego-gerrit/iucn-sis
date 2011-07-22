@@ -101,6 +101,7 @@ public class BodyContainer extends LayoutContainer {
 						WindowUtils.errorAlert("Could not load this assessment, please try again later.");
 					}
 					public void onSuccess(Assessment assessment) {
+						assessmentPage = new DEMPanel();
 						assessmentPage.setUrl(url);
 						assessmentPage.setItems(items);
 						assessmentPage.setSelectedItem(StateManager.impl.getAssessment().getId());
