@@ -255,7 +255,7 @@ public class ImageRestlet extends BaseServiceRestlet {
 			}
 			else {
 				target.setCaption(source.getCaption());
-				target.setCredit(target.getCredit());
+				target.setCredit(source.getCredit());
 				target.setPrimary(source.getPrimary());
 				target.setRating(source.getRating());
 				target.setShowRedList(source.getShowRedList());
