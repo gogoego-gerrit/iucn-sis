@@ -1,7 +1,7 @@
 <field id="29">
 	<canonicalName>PopulationReductionPastandFuture</canonicalName>
 	<description>
-		Both: Percent Reduction over any 10 year or 3 generation period,
+		Both: Percent Change over any 10 year or 3 generation period,
 		whichever is longer, and must include both past and future,
 		future can't go beyond 100 years
 	</description>
@@ -15,6 +15,12 @@
 					</structure>
 				</dominantStructures>
 				<dependentStructures>
+					<structure id="direction" description="Reduction or Increase">
+						<singleSelect>
+							<option>Reduction</option>
+							<option>Increase</option>
+						</singleSelect>
+					</structure>
 					<structure id="numYears" description="Number of years for this period">
 						<number></number>
 					</structure>

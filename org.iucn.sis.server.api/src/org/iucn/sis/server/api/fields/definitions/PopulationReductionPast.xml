@@ -1,6 +1,6 @@
 <field id="24">
 	<canonicalName>PopulationReductionPast</canonicalName>
-	<description>Percent Reduction in past</description>
+	<description>Percent Change in past</description>
 	<classOfService>Factor</classOfService>
 	<structures>
 		<structure>
@@ -11,6 +11,12 @@
 					</structure>
 				</dominantStructures>
 				<dependentStructures>
+					<structure id="direction" description="Reduction or Increase">
+						<singleSelect>
+							<option>Reduction</option>
+							<option>Increase</option>
+						</singleSelect>
+					</structure>
 					<structure id="qualifier">
 						<qualifier></qualifier>
 					</structure>

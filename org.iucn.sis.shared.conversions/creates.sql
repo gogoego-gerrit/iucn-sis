@@ -166,6 +166,7 @@ CREATE TABLE PopulationDocumentation (id integer auto_increment primary key, nam
 CREATE TABLE PopulationExtremeFluctuation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationIncreaseRate (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationReductionFuture (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE PopulationReductionFuture_directionLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationReductionFuture_qualifierLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationReductionFutureBasis_detailLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationReductionFutureBasis_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
@@ -174,6 +175,7 @@ CREATE TABLE PopulationReductionFutureCeased (id integer auto_increment primary 
 CREATE TABLE PopulationReductionFutureReversible (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationReductionFutureUnderstood (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationReductionPast (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE PopulationReductionPast_directionLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationReductionPast_qualifierLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationReductionPastBasis_detailLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationReductionPastBasis_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
@@ -182,6 +184,7 @@ CREATE TABLE PopulationReductionPastCeased (id integer auto_increment primary ke
 CREATE TABLE PopulationReductionPastReversible (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationReductionPastUnderstood (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE PopulationReductionPastandFuture (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE PopulationReductionPastandFuture_directionLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationReductionPastandFuture_qualifierLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationReductionPastandFutureBasis_detailLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE PopulationReductionPastandFutureBasis_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));

@@ -1,6 +1,6 @@
 <field id="27">
 	<canonicalName>PopulationReductionFuture</canonicalName>
-	<description>Percent Reduction in future</description>
+	<description>Percent Change in future</description>
 	<classOfService>Factor</classOfService>
 	<structures>
 		<structure>
@@ -11,6 +11,12 @@
 					</structure>
 				</dominantStructures>
 				<dependentStructures>
+					<structure id="direction" description="Reduction or Increase">
+						<singleSelect>
+							<option>Reduction</option>
+							<option>Increase</option>
+						</singleSelect>
+					</structure>
 					<structure id="qualifier">
 						<qualifier></qualifier>
 					</structure>
