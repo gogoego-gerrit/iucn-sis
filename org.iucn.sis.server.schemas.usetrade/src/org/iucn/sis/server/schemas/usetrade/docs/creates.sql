@@ -5,7 +5,6 @@ CREATE TABLE UTHarvestTrendComments (id integer auto_increment primary key, name
 CREATE TABLE UTLocalLivelihood (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE UTNatlCommercialValue (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE UTIntlCommercialValue (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-
 CREATE TABLE UTWildHarvestRecord (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE UTWildHarvestRecord_sourceLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE UTWildHarvestRecord_formRemovedLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
