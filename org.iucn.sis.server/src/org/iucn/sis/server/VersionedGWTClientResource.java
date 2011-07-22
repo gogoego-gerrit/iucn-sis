@@ -27,8 +27,27 @@ import org.restlet.resource.ResourceException;
 @SuppressWarnings("deprecation")
 public abstract class VersionedGWTClientResource extends SimpleClasspathResource {
 	
+	private final String version;
+	
 	public VersionedGWTClientResource(Context context, Request request, Response response) {
 		super(context, request, response);
+		
+		String latestVersion = null;
+		{
+			Map<String, Map<String, String>> version = 
+				GoGoEgo.get().getClassLoaderPluginMetadata(getPluginName());
+			if (!version.isEmpty()) {
+				List<String> list = new ArrayList<String>(version.keySet());
+				Collections.sort(list, Collections.reverseOrder(new PluginBroker.VersionNumberComparator()));
+				
+				latestVersion = list.get(0);
+			}
+		}
+		String version = getVersion();
+		if (version == null)
+			version = latestVersion;
+		
+		this.version = version;
 	}
 	
 	@Override
@@ -57,7 +76,7 @@ public abstract class VersionedGWTClientResource extends SimpleClasspathResource
 		representation.setModificationDate(Calendar.getInstance().getTime());
 		
 		if ("/index.html".equals(encodedUri))
-			return gzip(GoGoEgo.get().applyTemplating(representation, new ClientTemplateRepresentation(getPluginName())));
+			return gzip(GoGoEgo.get().applyTemplating(representation, new ClientTemplateRepresentation(getPluginName(), version)));
 		else
 			return gzip(representation);
 	}
@@ -82,21 +101,6 @@ public abstract class VersionedGWTClientResource extends SimpleClasspathResource
 
 	@Override
 	public ClassLoader getClassLoader() {
-		String latestVersion = null;
-		{
-			Map<String, Map<String, String>> version = 
-				GoGoEgo.get().getClassLoaderPluginMetadata(getPluginName());
-			if (!version.isEmpty()) {
-				List<String> list = new ArrayList<String>(version.keySet());
-				Collections.sort(list, Collections.reverseOrder(new PluginBroker.VersionNumberComparator()));
-				
-				latestVersion = list.get(0);
-			}
-		}
-		String version = getVersion();
-		if (version == null)
-			version = latestVersion;
-		
 		if (version == null)
 			return GoGoEgo.get().getClassLoaderPlugin(getPluginName());
 		else
@@ -106,24 +110,22 @@ public abstract class VersionedGWTClientResource extends SimpleClasspathResource
 	public static class ClientTemplateRepresentation extends GoGoEgoStringRepresentation {
 		
 		private final String plugin;
+		private final String version;
 		
-		public ClientTemplateRepresentation(String bundleName) {
+		public ClientTemplateRepresentation(String bundleName, String version) {
 			super("template");
 			this.plugin = bundleName;
+			this.version = version;
 			setModificationDate(Calendar.getInstance().getTime());
 		}
 		
 		@Override
 		public String resolveEL(String key) {
 			if ("version".equals(key)) {
-				Map<String, Map<String, String>> version = GoGoEgo.get().getClassLoaderPluginMetadata(plugin);
-				if (version.isEmpty())
+				if (version == null)
 					return "2.0.0";
-				else {
-					List<String> list = new ArrayList<String>(version.keySet());
-					Collections.sort(list, Collections.reverseOrder(new PluginBroker.VersionNumberComparator()));
-					return version.get(list.get(0)).get("Bundle-Version");
-				}
+				else
+					return version;
 			}
 			else
 				return super.resolveEL(key);
