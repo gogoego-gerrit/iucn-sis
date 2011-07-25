@@ -615,7 +615,7 @@ public class ManageCreditsWindow extends BasicWindow implements DrawsLazily {
 			Map<String, List<String>> map = new HashMap<String, List<String>>();
 			map.put("userid", new ArrayList<String>(userids));
 			
-			UserSearchController.search(map, new GenericCallback<List<SearchResults>>() {
+			UserSearchController.search(map, "or", true, new GenericCallback<List<SearchResults>>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils.errorAlert("Error loading existing values, please try again later.");
 					//No callback, no need to draw the window.
