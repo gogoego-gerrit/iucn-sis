@@ -2,6 +2,7 @@ package org.iucn.sis.client.panels.dem;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
@@ -46,6 +47,9 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasValue;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
@@ -198,6 +202,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		container.add(createSpacer(20));
 		
 		FlexTable stats = new FlexTable();
+		stats.setCellPadding(2);
 		stats.setCellSpacing(4);
 				
 		int row = 0;
@@ -215,6 +220,18 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 			stats.setWidget(++row, 0, new StyledHTML("Last Modified: ", "page_assessment_featured_prompt"));
 			stats.setWidget(row, 1, new StyledHTML(FormattedDate.FULL.getDate(item.getLastEdit().getCreatedDate()) + 
 					" by " + item.getLastEdit().getUser().getDisplayableName(), "page_assessment_featured_content"));
+		}
+		
+		Date created = item.getDateAssessed();
+		if (created != null) {
+			Date tenYearsAgo = new Date();
+			tenYearsAgo.setYear(tenYearsAgo.getYear() - 10);
+			
+			if (!created.after(tenYearsAgo)) {
+				stats.setWidget(++row, 0, new StyledHTML("<br/>(Needs Updating)", "page_assessment_featured_needsUpdating"));
+				stats.getFlexCellFormatter().setColSpan(row, 0, 2);
+				stats.getFlexCellFormatter().setAlignment(row, 0, HasHorizontalAlignment.ALIGN_CENTER, HasVerticalAlignment.ALIGN_BOTTOM);
+			}
 		}
 		
 		container.add(stats);

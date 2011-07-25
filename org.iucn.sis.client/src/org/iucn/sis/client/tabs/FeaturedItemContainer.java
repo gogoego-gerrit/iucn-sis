@@ -12,7 +12,6 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.HTML;
@@ -45,7 +44,11 @@ public abstract class FeaturedItemContainer<T> extends PageContainer implements 
 		bodyContainer.addStyleName("gwt-background");
 		
 		final LayoutContainer left = new LayoutContainer(new BorderLayout()); {
-			left.add(featuredItemContainer, new BorderLayoutData(LayoutRegion.NORTH, 200, 200, 200));
+			BorderLayoutData north = new BorderLayoutData(LayoutRegion.NORTH);
+			north.setSize(250);
+			north.setSplit(false);
+			
+			left.add(featuredItemContainer, north);
 			left.add(optionsContainer, new BorderLayoutData(LayoutRegion.CENTER));
 		}
 		left.addStyleName("gwt-background");

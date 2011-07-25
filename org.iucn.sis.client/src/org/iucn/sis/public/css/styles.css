@@ -291,6 +291,11 @@ body,td,div,input,p,select,input,button {
 	width: 100%;
 }
 
+.page_assessment_featured_needsUpdating {
+	font-style: italic !important;
+	font-size: 11px !important;	
+}
+
 .page_assessment_body {
 	border-left: 1px solid #CEDCE9 !important;	
 }
