@@ -31,7 +31,6 @@ CREATE TABLE DepthUpper (id integer auto_increment primary key, name varchar(255
 CREATE TABLE DepthZone_depthZoneLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE DepthZone (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE EOO (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE EOO_qualifierLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE EOOContinuingDecline (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE EOOContinuingDecline_qualifierLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE EOOExtremeFluctuation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));

@@ -2,7 +2,7 @@
 <field id="4">
 	<!-- AAH used General Info -->
 	<canonicalName>EOO</canonicalName>
-	<description>Extent of occurrence (EOO)- in km2</description>
+	<description>Estimated extent of occurrence (EOO)- in km2</description>
 	<classOfService>Factor</classOfService>
 	<structures>
 		<structure>
@@ -12,11 +12,6 @@
 						<range></range>
 					</structure>
 				</dominantStructures>
-				<dependentStructures>
-					<structure id="qualifier">
-						<qualifier></qualifier>
-					</structure>
-				</dependentStructures>
 				<rules>
 					<contentRule>
 						<activateOnContent></activateOnContent>

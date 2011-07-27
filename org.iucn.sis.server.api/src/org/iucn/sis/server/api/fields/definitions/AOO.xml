@@ -2,7 +2,7 @@
 <field id="1">
 	<!-- AAH used General Info -->
 	<canonicalName>AOO</canonicalName>
-	<description>Area of occupancy (AOO) - in km2</description>
+	<description>Estimated area of occupancy (AOO) - in km2</description>
 	<classOfService>Factor</classOfService>
 	<structures>
 		<structure>
