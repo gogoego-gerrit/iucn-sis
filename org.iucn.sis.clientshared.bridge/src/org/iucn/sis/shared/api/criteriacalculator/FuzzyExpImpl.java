@@ -302,6 +302,10 @@ public class FuzzyExpImpl {
 				}
 			}
 			
+			PrimitiveField<?> qualifier = factorField.getPrimitiveField("qualifier");
+			if (result != null && qualifier != null && qualifier instanceof ForeignKeyPrimitiveField)
+				result.setQualifier(((ForeignKeyPrimitiveField)qualifier).getValue());
+			
 			PrimitiveField<?> direction = factorField.getPrimitiveField("direction");
 			if (direction != null && direction instanceof ForeignKeyPrimitiveField)
 				if (((ForeignKeyPrimitiveField)direction).getValue().intValue() != 1)

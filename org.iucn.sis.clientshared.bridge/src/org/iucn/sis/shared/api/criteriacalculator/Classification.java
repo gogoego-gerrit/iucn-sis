@@ -276,10 +276,15 @@ public abstract class Classification {
 		Range ps = factors.get(Factors.populationSize);
 		Range ps1 = Range.lessthan(ps, cPopulationSize);
 
+		//Population decline gen X for C1, but must be Observed or Estimated
 		Range pdg1 = (Range) factors.get(declineGenFactor);
+		pdg1 = Range.qualify(pdg1, Range.OBSERVED, Range.ESTIMATED);
 		pdg1 = Range.greaterthanequal(pdg1, cPopulationDeclineGenerations1);
 
+		//Population decline for C2, but must be Observed, Estimated, Projected or Inferred...
 		Range pd = factors.get(Factors.populationDecline);
+		pd = Range.qualify(pd, Range.OBSERVED, Range.ESTIMATED, Range.PROJECTED, Range.INFERRED);
+		
 		Range sps = factors.get(Factors.subpopulationSize);
 		Range div = Range.divide(sps, ps);
 		sps = Range.lessthanequal(sps, cMaxSubpopulationSize);
@@ -289,7 +294,11 @@ public abstract class Classification {
 		Range result = Range.independentOR(sps, div);
 		result = Range.independentOR(result, pf);
 		result = Range.independentAND(result, pd);
+		
+		//C1
 		result = Range.independentOR(result, pdg1);
+		
+		//Must meet the first criteria of C
 		result = Range.independentAND(result, ps1);
 
 		c = result;

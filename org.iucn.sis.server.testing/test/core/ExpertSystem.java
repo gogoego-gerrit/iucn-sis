@@ -12,6 +12,7 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.RangePrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.junit.Assert;
@@ -27,6 +28,12 @@ import files.Files;
 
 public class ExpertSystem extends BasicTest {
 	
+	public static final int OBSERVED = 1;
+	public static final int PROJECTED = 2;
+	public static final int INFERRED = 3;
+	public static final int ESTIMATED = 4;
+	public static final int SUSPECTED = 5;
+	
 	static AtomicInteger idGenerator = new AtomicInteger(0);
 	
 	@BeforeClass
@@ -34,7 +41,6 @@ public class ExpertSystem extends BasicTest {
 		FuzzyExpImpl.VERBOSE = true;
 	}
 	
-	@Test
 	public void tryIt() {
 		run(getAssessment("A1854815"));
 	}
@@ -192,7 +198,8 @@ public class ExpertSystem extends BasicTest {
 			new BooleanRangePrimitiveField("isFluctuating", null, "1")	
 		));
 		assessment.getField().add(newField(CanonicalNames.PopulationContinuingDecline,
-			new BooleanRangePrimitiveField("isDeclining", null, "1")
+			new BooleanRangePrimitiveField("isDeclining", null, "1"),
+			new ForeignKeyPrimitiveField("qualifier", null, OBSERVED, "test")
 		));
 		
 		ExpertResult result = run(assessment);
@@ -256,6 +263,96 @@ public class ExpertSystem extends BasicTest {
 			Assert.assertEquals(cat[i], result.getAbbreviatedCategory());
 			Assert.assertEquals(crit[i], result.getCriteriaString());
 		}
+	}
+	
+	@Test
+	public void contDecline1WithQualifier() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationDeclineGenerations1, 
+			new RangePrimitiveField("range", null, "50"),
+			new ForeignKeyPrimitiveField("qualifier", null, OBSERVED, "none")
+		));
+		
+		//Assert.assertEquals("DD", run(assessment).getAbbreviatedCategory());
+		
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "249")
+		));
+		
+		ExpertResult r2 = run(assessment);
+		
+		Assert.assertEquals("CR", r2.getAbbreviatedCategory());
+		Assert.assertEquals("C1", r2.getCriteriaString());
+	}
+	
+	@Test
+	public void contDecline1WithNoQuaifier() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "249")
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationDeclineGenerations1, 
+			new RangePrimitiveField("range", null, "26")
+		));
+		
+		ExpertResult result = run(assessment);
+		
+		Assert.assertNotSame("CR", result.getAbbreviatedCategory());
+		Assert.assertEquals("EN", result.getAbbreviatedCategory());
+		Assert.assertEquals("D", result.getCriteriaString());
+	}
+	
+	@Test
+	public void contDecline1WithBadQuaifier() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "249")
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationDeclineGenerations1, 
+			new RangePrimitiveField("range", null, "26"),
+			new ForeignKeyPrimitiveField("qualifier", null, INFERRED, "none")
+		));
+		
+		ExpertResult result = run(assessment);
+		
+		Assert.assertNotSame("CR", result.getAbbreviatedCategory());
+		Assert.assertEquals("EN", result.getAbbreviatedCategory());
+		Assert.assertEquals("D", result.getCriteriaString());
+	}
+	
+	@Test
+	public void contDecline1WithQuaifierAt0() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "249")
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationDeclineGenerations1, 
+			new RangePrimitiveField("range", null, "0"),
+			new ForeignKeyPrimitiveField("qualifier", null, OBSERVED, "none")
+		));
+		
+		ExpertResult result = run(assessment);
+		
+		Assert.assertEquals("EN", result.getAbbreviatedCategory());
+	}
+	
+	/*
+	 * One day, this test should come up as EW?
+	 * See #529
+	 */
+	public void contDecline1WithQuaifierAt100() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "249")
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationDeclineGenerations1, 
+			new RangePrimitiveField("range", null, "100"),
+			new ForeignKeyPrimitiveField("qualifier", null, OBSERVED, "none")
+		));
+		
+		ExpertResult result = run(assessment);
+		
+		Assert.assertEquals("EW", result.getAbbreviatedCategory());
 	}
 	
 	private Field newField(String name, PrimitiveField<?>... prims) {

@@ -15,6 +15,13 @@ import org.iucn.sis.shared.api.debug.Debug;
  * 
  */
 public class Range {
+	
+	public static final int OBSERVED = 1;
+	public static final int PROJECTED = 2;
+	public static final int INFERRED = 3;
+	public static final int ESTIMATED = 4;
+	public static final int SUSPECTED = 5;
+	
 	public static Range dependentAND(Range a, Range b) {
 		if (a != null && b != null)
 			return min(a, b);
@@ -395,6 +402,10 @@ public class Range {
 
 		return newA;
 	}
+	
+	public static Range qualify(Range range, Integer... qualifiers) {
+		return range != null && range.qualifies(qualifiers) ? range : null;
+	}
 
 	public static String toString(Range a) {
 		if (a == null)
@@ -413,6 +424,8 @@ public class Range {
 	private String original;
 
 	private String type;
+	
+	private Integer qualifier;
 
 	public Range() {
 	}
@@ -420,6 +433,21 @@ public class Range {
 	public Range(String original) {
 		this.original = original;
 		parseRange(original);
+	}
+	
+	public void setQualifier(Integer qualifier) {
+		this.qualifier = qualifier;
+	}
+	
+	public boolean qualifies(Integer... qualifiers) {
+		if (qualifier == null)
+			return false;
+		
+		for (Integer current : qualifiers)
+			if (current.intValue() == qualifier.intValue())
+				return true;
+		
+		return false;
 	}
 
 	public double getHigh() {
