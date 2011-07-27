@@ -1654,7 +1654,6 @@ INSERT INTO RedListAssessors (name, data_type, number_allowed) VALUES ('text', '
 INSERT INTO RedListAssessors (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
 INSERT INTO RedListAssessors (name, data_type, number_allowed) VALUES ('order', 'string_primitive_field', '?');
 INSERT INTO RedListCategory (name, data_type, number_allowed) VALUES ('text', 'string_primitive_field', '?');
-INSERT INTO RedListCaveat (name, data_type, number_allowed) VALUES ('value', 'boolean_primitive_field', '?');
 INSERT INTO RedListConsistencyCheck_progressLookup (name, label) VALUES ('0', 'In Progress');
 INSERT INTO RedListConsistencyCheck_progressLookup (name, label) VALUES ('1', 'Done');
 INSERT INTO RedListConsistencyCheck_successStatusLookup (name, label) VALUES ('0', 'Passed');

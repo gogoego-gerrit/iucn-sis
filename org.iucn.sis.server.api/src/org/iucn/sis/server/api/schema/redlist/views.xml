@@ -1752,7 +1752,6 @@
 						<composite>
 							<field id="RedListConsistencyCheck"/>
 							<field id="RedListPetition"/>
-							<field id="RedListCaveat"/>
 						</composite>						
 					</organization>					
 					<organization title="Publication Information">

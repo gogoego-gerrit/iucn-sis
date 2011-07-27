@@ -197,7 +197,6 @@ CREATE TABLE RedListAssessmentAuthors (id integer auto_increment primary key, na
 CREATE TABLE RedListAssessmentDate (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RedListAssessors (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RedListCategory (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE RedListCaveat (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE RedListConsistencyCheck_progressLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE RedListConsistencyCheck_successStatusLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE RedListConsistencyCheck (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
