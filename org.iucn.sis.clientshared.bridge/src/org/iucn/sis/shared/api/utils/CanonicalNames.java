@@ -11,6 +11,7 @@ public interface CanonicalNames {
 	public static String BiogeographicRealm = "BiogeographicRealm";
 	public static String BirthSize = "BirthSize";
 	public static String Cities = "CITES";
+	public static String Congregatory = "Congregatory";
 	public static String ConservationActions = "ConservationActions";
 	public static String ConservationActionsDocumentation = "ConservationActionsDocumentation";
 	public static String CountryOccurrence = "CountryOccurrence";

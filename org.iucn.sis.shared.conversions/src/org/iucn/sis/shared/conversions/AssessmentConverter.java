@@ -730,6 +730,41 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					}					
 				}
 			}
+			else if (CanonicalNames.MovementPatterns.equals(curField.getKey())) {
+				List<String> rawData = (List)curField.getValue();
+				if (!rawData.isEmpty()) {
+					Integer value = null; 
+					boolean isCongregatory = false;
+					
+					for (String pattern : rawData) {
+						if (value != null && "0".equals(pattern)) //Nomadic
+							value = 4;
+						else if ("1".equals(pattern)) //Congregatory
+							isCongregatory = true;
+						else if ("2".equals(pattern)) //Migratory
+							value = 1;
+						else if ("3".equals(pattern)) //Altitudinal Migrant
+							value = 2;
+					}
+					
+					if (value != null) {
+						field.addPrimitiveField(new ForeignKeyPrimitiveField(
+							"value", field, value, field.getName() + "_valueLookup"
+						));
+						
+						callback.handleEvent(field);
+					}
+					
+					if (isCongregatory) {
+						Field congregatory = new Field(org.iucn.sis.shared.api.utils.CanonicalNames.Congregatory, assessment);
+						congregatory.addPrimitiveField(new ForeignKeyPrimitiveField(
+							"value", field, 1, congregatory.getName() + "_valueLookup"
+						));
+						
+						callback.handleEvent(congregatory);
+					}
+				}
+			}
 			else if (CanonicalNames.RedListCriteria.equals(curField.getKey())) {
 				List<String> rawData = (List<String>) (curField.getValue());
 				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);

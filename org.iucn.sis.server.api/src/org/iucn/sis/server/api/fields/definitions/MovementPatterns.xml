@@ -4,14 +4,14 @@
 	<description>Movement Patterns</description>
 	<classOfService>Species Attributes</classOfService>
 	<structures>
-		<structure id="pattern">
-			<multipleSelect>
+		<structure id="value">
+			<singleSelect>
+				<option>Full Migrant</option>
+				<option>Altitudinal Migrant</option>
+				<option>Not a Migrant</option>
 				<option>Nomadic</option>
-				<option>Congregatory/dispersive</option>
-				<option>Migratory</option>
-				<option>Altitudinally migrant</option>
-				<selected></selected>
-			</multipleSelect>
+				<option>Unknown</option>
+			</singleSelect>
 		</structure>
 	</structures>
 </field>

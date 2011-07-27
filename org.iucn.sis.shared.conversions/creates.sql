@@ -11,6 +11,8 @@ CREATE TABLE AvgReproductiveAge (id integer auto_increment primary key, name var
 CREATE TABLE BiogeographicRealm_realmLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE BiogeographicRealm (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE BirthSize (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE Congregatory (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE Congregatory_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE ConservationActionsLookup (id integer auto_increment primary key, code varchar(63), parentID varchar(63), level integer, codeable tinyint, ref varchar(63), description varchar(255));
 CREATE TABLE ConservationActions (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE ConservationActionsSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));

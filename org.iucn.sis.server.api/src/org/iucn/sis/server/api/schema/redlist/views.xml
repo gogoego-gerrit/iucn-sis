@@ -221,6 +221,7 @@
 
 					<organization title="Movement Patterns">
 						<field id="MovementPatterns"/>
+						<field id="Congregatory"/>
 					</organization>
 					<organization title="Systems">
 						<field id="System"/>
@@ -1572,7 +1573,7 @@
 						</composite>
 						<composite>
 						<field id="MovementPatterns"/>
-
+						<field id="Congregatory"/>
 						<field id="System"/>
 						<field id="GenerationLength"/>
 						</composite>

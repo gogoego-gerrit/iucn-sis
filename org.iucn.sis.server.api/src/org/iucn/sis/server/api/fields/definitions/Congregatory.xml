@@ -1,0 +1,13 @@
+<field id="990">
+	<canonicalName>Congregatory</canonicalName>
+	<description>Congregatory</description>
+	<classOfService>Species Attributes</classOfService>
+	<structures>
+		<structure id="value" default="--- Not Congregatory ---">
+			<singleSelect>
+				<option>Congregatory (and dispersive)</option>
+				<option>Congregatory (year-round)</option>
+			</singleSelect>
+		</structure>
+	</structures>
+</field>
