@@ -68,8 +68,6 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 
 				setAssociatedPermissions(model);
 				draw();
-				//drawSimple();
-				
 				callback.isDrawn();
 			}
 		});
@@ -82,7 +80,6 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 		for( final PermissionUserModel cur : removed ) {
 			final ClientUser user = cur.getUser();
 			final String newGroup = removeGroupsFromUser(user);
-			
 			body.append("<user id=\"" + user.getId() + "\"><field name=\"quickGroup\">" + newGroup 
 					+ "</field></user>");
 		}
@@ -104,10 +101,10 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 				}
 					
 				associatedPermissions.filter("all");
-				if( associatedPermissions.getModels().size() == 0 ) {
+				if( associatedPermissions.getModels().size() == 0 ) 
 					deletePermissionGroups();
-				} else
-					Info.display("Success", "Changes saved.");
+				else
+					Info.display("Success", "Changes saved.");				
 				associatedPermissions.filter("permission");
 			}
 		});
@@ -160,13 +157,14 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 			}
 
 			if( !AuthorizationCache.impl.getGroups().containsKey(permGroupName) && !groupsToAdd.contains(perm) ) {
-//				PermissionSet set = new PermissionSet();
-//				set.set(AuthorizableObject.CREATE, Boolean.FALSE);
-//				set.set(AuthorizableObject.DELETE, Boolean.FALSE);
-//				set.set(AuthorizableObject.WRITE, Boolean.FALSE);
-//				set.set(AuthorizableObject.GRANT, Boolean.FALSE);
-//				set.set(AuthorizableObject.READ, Boolean.FALSE);
-				
+				/*
+				PermissionSet set = new PermissionSet();
+				set.set(AuthorizableObject.CREATE, Boolean.FALSE);
+				set.set(AuthorizableObject.DELETE, Boolean.FALSE);
+				set.set(AuthorizableObject.WRITE, Boolean.FALSE);
+				set.set(AuthorizableObject.GRANT, Boolean.FALSE);
+				set.set(AuthorizableObject.READ, Boolean.FALSE);
+				*/
 				Permission permission = new Permission();
 				permission.setPermissionGroup(perm);
 				permission.setUrl(WorkingSetCache.impl.getCurrentWorkingSet().getFullURI());
@@ -189,7 +187,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 				
 				perm.getPermissions().add(permission);
 				
-//				perm.addPermissionResource(WorkingSetCache.impl.getCurrentWorkingSet().getFullURI(), set);
+				//perm.addPermissionResource(WorkingSetCache.impl.getCurrentWorkingSet().getFullURI(), set);
 				groupsToAdd.add(perm);
 			}
 

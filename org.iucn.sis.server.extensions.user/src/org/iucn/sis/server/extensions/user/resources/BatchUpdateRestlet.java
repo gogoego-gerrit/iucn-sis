@@ -62,6 +62,7 @@ public class BatchUpdateRestlet extends BaseServiceRestlet {
 					if ("".equals(value))
 						user.getPermissionGroups().clear();
 					else {
+						user.getPermissionGroups().clear();
 						String[] csv = value.split(",");
 						for (String current : csv) {
 							if ("".equals(current))
@@ -73,7 +74,6 @@ public class BatchUpdateRestlet extends BaseServiceRestlet {
 							} catch (PersistentException e) {
 								continue;
 							}
-							
 							user.getPermissionGroups().add(group);
 						}
 					}
