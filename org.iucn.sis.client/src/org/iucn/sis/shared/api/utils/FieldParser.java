@@ -783,6 +783,8 @@ public class FieldParser implements CreatesDisplay {
 						if (structureSet.size() == 1) {
 							defaultTreeStructure.setStructure((structureSet.get(0)).getStructure());
 							defaultTreeStructure.setData((structureSet.get(0)).getData());
+							defaultTreeStructure.setDisplayId(structureSet.get(0).getDisplayId());
+							defaultTreeStructure.setUniqueId(structureSet.get(0).getUniqueId());
 						} else {
 							defaultTreeStructure.setStructure(XMLUtils.STRUCTURE_COLLECTION);
 							defaultTreeStructure.setData(structureSet);
