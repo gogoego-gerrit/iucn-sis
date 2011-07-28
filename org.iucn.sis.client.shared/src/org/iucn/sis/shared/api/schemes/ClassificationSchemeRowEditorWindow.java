@@ -188,17 +188,11 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 			/*
 			 * Weed out legacy data
 			 */
-			if ("100".equals(row.getRowNumber()) || row.getRowNumber().indexOf('.') > 0) {
-				try {
-					if (Integer.parseInt(row.getRowNumber()) >= 100)
-						continue;
-				} catch (NumberFormatException e) {
-					//Not a number, doesn't apply to deprecation format
-				}
-			}
-			
 			if ("true".equals(row.getCodeable())) {
 				final CodingOption option = new CodingOption(row, topLevel);
+				if (isLegacyOption((String)option.get("text")))
+					continue;
+				
 				store.add(option);
 				if (selected != null && row.getDisplayId().equals(selected.getDisplayId()))
 					selectedOption = option;
@@ -215,6 +209,23 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 			box.setValue(selectedOption);
 		
 		return box;
+	}
+	
+	private boolean isLegacyOption(String text) {
+		StringBuilder num = new StringBuilder();
+		for (char c : text.toCharArray()) {
+			if (Character.isDigit(c))
+				num.append(c);
+			else
+				break;
+		}
+		boolean isLegacy = false;
+		try {
+			isLegacy = Integer.parseInt(num.toString()) >= 100;
+		} catch (Exception e) {
+			//Nothing to do
+		}
+		return isLegacy;
 	}
 
 	protected static class CodingOption extends BaseModelData {
