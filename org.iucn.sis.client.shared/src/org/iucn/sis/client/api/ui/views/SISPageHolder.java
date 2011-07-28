@@ -29,11 +29,14 @@ import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
@@ -95,6 +98,42 @@ public class SISPageHolder extends TabPanel {
 		pageID = id;
 		myFields = new ArrayList<Display>();
 		setTabScroll(true);
+		setMonitorWindowResize(true);
+	}
+	
+	protected void afterRender() {
+		correctSize();
+	}
+	
+	protected void onWindowResize(int width, int height) {
+		correctSize();
+	}
+	
+	/**
+	 * Need this to correct the sizing of tabitems. 
+	 * I think this is part GXT bug, part issues with 
+	 * mixing use of GWT widgets & GXT widgets, but 
+	 * overall, this needs to happen to ensure that 
+	 * nothing gets lost when scrolling long pages in 
+	 * tabs.  Could also opt to not use TabPanel here.
+	 * 
+	 * Am setting the size of the tab panel to its 
+	 * parent, and laying out.  Using DeferredCommand 
+	 * to ensure this happens after other stuff has 
+	 * happened.
+	 */
+	private void correctSize() {
+		DeferredCommand.addCommand(new Command() {
+			public void execute() {
+				try {
+					Component parent = (Component)getParent();
+					onResize(parent.getOffsetWidth(), parent.getOffsetHeight());
+					layout(true);
+				} catch (Throwable e) { 
+					//Just in case stupidity happens...
+				}
+			}
+		});
 	}
 
 	/**

@@ -48,7 +48,6 @@ import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -117,7 +116,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 				BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
 				toolBarData.setSize(25);
 					
-				BorderLayoutData scrollerData = new BorderLayoutData(LayoutRegion.CENTER, .82f, 300, 3000);
+				BorderLayoutData scrollerData = new BorderLayoutData(LayoutRegion.CENTER);
 					
 				final LayoutContainer container = new LayoutContainer(new BorderLayout());
 				container.add(toolBar, toolBarData);
