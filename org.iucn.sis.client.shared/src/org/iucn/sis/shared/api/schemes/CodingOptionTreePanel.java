@@ -85,7 +85,7 @@ public class CodingOptionTreePanel extends LayoutContainer {
 		
 		
 		tree = new TreePanel<CodingOption>(store);
-		tree.setCheckStyle(CheckCascade.NONE);
+		tree.setCheckStyle(CheckCascade.PARENTS);
 		tree.setAutoLoad(true);
 		tree.setCheckable(true);
 		
