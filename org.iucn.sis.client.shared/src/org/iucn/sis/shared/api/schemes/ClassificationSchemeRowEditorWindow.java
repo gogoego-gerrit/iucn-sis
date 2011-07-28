@@ -62,7 +62,7 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 		setLayout(new FillLayout());
 		setLayoutOnChange(true);
 		setClosable(false);
-		setSize(800, 600);
+		setSize(800, 700);
 		setScrollMode(Scroll.AUTO);
 	}
 	
@@ -209,7 +209,7 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 		box.setStore(store);
 		box.setForceSelection(true);
 		box.setTriggerAction(TriggerAction.ALL);
-		box.setWidth(575);
+		box.setWidth(675);
 		
 		if (selectedOption != null)
 			box.setValue(selectedOption);

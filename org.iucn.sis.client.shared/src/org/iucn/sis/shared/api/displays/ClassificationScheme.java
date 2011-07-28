@@ -117,7 +117,7 @@ public class ClassificationScheme extends Display {
 			public void componentSelected(ButtonEvent ce) {
 				final Window window = WindowUtils.newWindow(description);
 				window.setClosable(false);
-				window.setSize(800, 600);
+				window.setSize(800, 700);
 				window.setLayout(new FillLayout());
 				window.setLayoutOnChange(true);
 				window.add(viewer.draw(viewOnly));
