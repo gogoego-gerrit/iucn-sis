@@ -1,7 +1,6 @@
 package org.iucn.sis.shared.api.displays;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -14,9 +13,9 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
+import org.iucn.sis.shared.api.schemes.ClassificationSchemeReadOnlyFactory;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
-import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer.ClassificationSchemeModelDataComparator;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 import org.iucn.sis.shared.api.structures.Structure;
 
@@ -27,13 +26,11 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
-import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.events.ComplexListener;
@@ -111,13 +108,11 @@ public class ClassificationScheme extends Display {
 	}
 
 	protected Widget generateContent(final boolean viewOnly) {
-		final VerticalPanel panel = new VerticalPanel();
-		
 		buildReadOnlyContainer(readOnlyContainer);
 		
-		panel.add(readOnlyContainer);
-		
-		final ButtonBar buttons = new ButtonBar();
+		final HorizontalPanel buttons = new HorizontalPanel();
+		buttons.setSpacing(5);
+		buttons.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 		buttons.add(new Button(viewOnly ? "View Details" : "View/Edit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				final Window window = WindowUtils.newWindow(description);
@@ -174,7 +169,18 @@ public class ClassificationScheme extends Display {
 				}
 			}));
 		
-		panel.add(buttons);
+		
+		final Grid header = new Grid(1, 2);
+		header.setWidth("100%");
+		header.setCellSpacing(2);
+		header.addStyleName("page_assessment_classScheme_header");
+		header.setWidget(0, 0, new StyledHTML("&nbsp;Selections for " + description, "bold"));
+		header.setWidget(0, 1, buttons);
+		header.getCellFormatter().setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_RIGHT);
+		
+		final VerticalPanel panel = new VerticalPanel();
+		panel.add(header);
+		panel.add(readOnlyContainer);
 		
 		return panel;
 	}
@@ -208,41 +214,7 @@ public class ClassificationScheme extends Display {
 	}
 	
 	private void buildReadOnlyContainer(VerticalPanel container, List<? extends ClassificationSchemeModelData> thinData) {
-		container.clear();
-		container.add(new StyledHTML("Selections for " + description + ":", "bold"));
-		
-		if (thinData.isEmpty()) {
-			container.add(new HTML("No selections made"));
-		}
-		else {
-			List<ClassificationSchemeModelData> rows = new ArrayList<ClassificationSchemeModelData>(thinData);
-			Collections.sort(rows, new ClassificationSchemeModelDataComparator(treeData.getTopLevelDisplay()));
-			
-			Structure<?> str = viewer.generateDefaultStructure(null);
-			List<String> columns = str.extractDescriptions();
-
-			Grid grid = new Grid(rows.size() + 1, columns.size() + 1);
-			grid.setHTML(0, 0, "");
-			int col = 1;
-			for (String column : columns)
-				grid.setHTML(0, col++, "<span class=\"page_assessment_classScheme_header\">" + column + "</span>");
-			
-			int row = 1;
-			for (ClassificationSchemeModelData model : rows) {
-				col = 0;
-				grid.setHTML(row, col++, "<span class=\"page_assessment_classScheme_content\">" + model.get("text") + "</span>");
-				for (String column : columns)
-					grid.setHTML(row, col++, "<span class=\"page_assessment_classScheme_content\">" + model.get(column) + "</span>");
-				row++;
-				//container.add(new HTML(model.getSelectedRow().getFullLineage()));
-			}
-			
-			grid.getColumnFormatter().setWidth(0, "350px");
-			for (int i = 1; i < grid.getColumnCount(); i++)
-				grid.getColumnFormatter().setWidth(i, "80px");
-			
-			container.add(grid);
-		}
+		ClassificationSchemeReadOnlyFactory.buildReadOnlyContainer(treeData, container, thinData, viewer.generateDefaultStructure(null));
 	}
 
 	public TreeData getTreeData() {

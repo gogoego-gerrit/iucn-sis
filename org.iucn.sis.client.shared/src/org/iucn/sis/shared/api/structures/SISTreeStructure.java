@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -14,8 +13,8 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
+import org.iucn.sis.shared.api.schemes.ClassificationSchemeReadOnlyFactory;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
-import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer.ClassificationSchemeModelDataComparator;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -27,12 +26,9 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.gwt.ui.StyledHTML;
 
 public class SISTreeStructure extends Structure<Field> {
 	
@@ -125,43 +121,9 @@ public class SISTreeStructure extends Structure<Field> {
 		buildReadOnlyContainer(thinData);
 	}
 	
-	@SuppressWarnings("unchecked")
 	private void buildReadOnlyContainer(Collection<? extends ClassificationSchemeModelData> thinData) {
-		readOnlyContainer.clear();
-		readOnlyContainer.add(new StyledHTML("Selections for " + description + ":", "bold"));
-		
-		if (thinData.isEmpty()) {
-			readOnlyContainer.add(new HTML("No selections made"));
-		}
-		else {
-			List<ClassificationSchemeModelData> rows = new ArrayList<ClassificationSchemeModelData>(thinData);
-			Collections.sort(rows, new ClassificationSchemeModelDataComparator(((TreeData)data).getTopLevelDisplay()));
-			
-			Structure<?> str = viewer.generateDefaultStructure(null);
-			List<String> columns = str.extractDescriptions();
-
-			Grid grid = new Grid(rows.size() + 1, columns.size() + 1);
-			grid.setHTML(0, 0, "");
-			int col = 1;
-			for (String column : columns)
-				grid.setHTML(0, col++, "<span class=\"page_assessment_classScheme_header\">" + column + "</span>");
-			
-			int row = 1;
-			for (ClassificationSchemeModelData model : rows) {
-				col = 0;
-				grid.setHTML(row, col++, "<span class=\"page_assessment_classScheme_content\">" + model.get("text") + "</span>");
-				for (String column : columns)
-					grid.setHTML(row, col++, "<span class=\"page_assessment_classScheme_content\">" + model.get(column) + "</span>");
-				row++;
-				//container.add(new HTML(model.getSelectedRow().getFullLineage()));
-			}
-			
-			grid.getColumnFormatter().setWidth(0, "350px");
-			for (int i = 1; i < grid.getColumnCount(); i++)
-				grid.getColumnFormatter().setWidth(i, "80px");
-			
-			readOnlyContainer.add(grid);
-		}
+		ClassificationSchemeReadOnlyFactory.buildReadOnlyContainer(
+			(TreeData)data, readOnlyContainer, thinData, viewer.generateDefaultStructure(null));
 	}
 	
 	@Override
