@@ -108,7 +108,7 @@ public class H2DBSession extends DBSession {
 
 	@Override
 	protected String getDBColumnType(CBoolean c) {
-		return "INT";
+		return "BOOLEAN";
 	}
 
 	@Override
@@ -211,7 +211,7 @@ public class H2DBSession extends DBSession {
 				throw new SQLException("Conversion problem: "
 							+ e.getMessage());
 			} 
-		} else if (typename.startsWith("LONGVARCHAR")) {
+		} else if (typename.startsWith("LONGVARCHAR") || typename.equalsIgnoreCase("CLOB")) {
 			c = new CString();
 			c.setScale(65536);
 			try {
@@ -274,6 +274,15 @@ public class H2DBSession extends DBSession {
 			try {
 				if (i != null)
 					c.setObject(rs.getLong(i.intValue()));
+			} catch (final ConversionException e) {
+				throw new SQLException("Conversion problem: "
+						+ e.getMessage());
+			}
+		} else if (typename.startsWith("BOOLEAN")) {
+			c = new CBoolean();
+			try {
+				if (i != null)
+					c.setObject(rs.getBoolean(i.intValue()));
 			} catch (final ConversionException e) {
 				throw new SQLException("Conversion problem: "
 						+ e.getMessage());
