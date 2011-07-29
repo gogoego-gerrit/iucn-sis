@@ -253,7 +253,7 @@ public class PostgreSQLDBSession extends DBSession {
 			final ResultSetMetaData rsmd = rs.getMetaData();
 			final String name = rs.getString("COLUMN_NAME");
 			final String type = rs.getString("TYPE_NAME");
-			try {
+			try {				
 				Column c = convertColumn(type, rs, rsmd, null);
 				c.setLocalName(name);				
 				row.add(c);
@@ -286,7 +286,10 @@ public class PostgreSQLDBSession extends DBSession {
 		final String typename = type.toUpperCase();
 		if (typename.startsWith("VARCHAR")) {
 			c = new CString();
-			c.setScale(255);
+			if (i == null && rs.getString("COLUMN_SIZE") != null)
+				c.setScale(rs.getInt("COLUMN_SIZE"));
+			else
+				c.setScale(255);
 			try {
 				if (i != null)
 					c.setObject(rs.getString(i.intValue()));
@@ -317,6 +320,8 @@ public class PostgreSQLDBSession extends DBSession {
 			c = new CString();
 			if (i != null)
 				c.setScale(rsmd.getPrecision(i.intValue()));
+			else if (rs.getString("COLUMN_SIZE") != null)
+				c.setScale(rs.getInt("COLUMN_SIZE"));
 			try {
 				if (i != null)
 					c.setObject(Replacer.stripWhitespace(rs.getString(i.intValue())));
