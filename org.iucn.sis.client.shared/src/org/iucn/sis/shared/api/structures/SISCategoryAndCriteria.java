@@ -108,7 +108,6 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	private Label criteriaStringBox;
 	private HTML invalidCriteriaString;
 
-	//private HorizontalPanel categoryPanel;
 	private ListBox categoryListBox;
 	private VerticalPanel critAndGridPanel;
 
@@ -212,8 +211,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			
 			if (hasChanged)
 				return hasChanged;
-		}
-		
+		}		
 		return false;
 	}
 	
@@ -240,6 +238,18 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		//proxy.setRLHistoryText(rlText.getText());
 		proxy.setPossiblyExtinct(possiblyExtinctBox.getValue());
 		proxy.setPossiblyExtinctCandidate(possiblyExtinctCandidateBox.getValue());
+		
+		if(isManual) {
+			if ("CR".equals(manualCategory)) {
+				proxy.setPossiblyExtinct(possiblyExtinctBox.getValue());
+				proxy.setPossiblyExtinctCandidate(possiblyExtinctCandidateBox.getValue());
+			}else {
+				proxy.setPossiblyExtinct(null);
+				proxy.setPossiblyExtinctCandidate(null);
+				possiblyExtinctBox.setValue(false);
+				possiblyExtinctCandidateBox.setValue(false);
+			}
+		}
 		
 		Date dateLastSeenValue = null;
 		try {
@@ -463,11 +473,9 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			extinctPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 			extinctPanel.setSpacing(6);
 			extinctPanel.add(new HTML("Possibly Extinct"));
-			extinctPanel.add(possiblyExtinctBox);
-			possiblyExtinctBox.setEnabled(false);
+			extinctPanel.add(new HTML((possiblyExtinctBox.getValue()) ? " Yes " : " No "));
 			extinctPanel.add(new HTML("Possibly Extinct Candidate"));
-			extinctPanel.add(possiblyExtinctCandidateBox);
-			possiblyExtinctCandidateBox.setEnabled(false);
+			extinctPanel.add(new HTML((possiblyExtinctCandidateBox.getValue()) ? " Yes " : " No "));
 			displayPanel.add(extinctPanel);
 		}	
 		
