@@ -338,7 +338,7 @@ public class PostgreSQLDBSession extends DBSession {
 				throw new SQLException("Conversion problem: "
 						+ e.getMessage());
 			} 
-		} else if (typename.startsWith("INT")) {
+		} else if (typename.startsWith("INT") || typename.equalsIgnoreCase("SERIAL")) {
 			c = new CInteger();
 			try {
 				if (i != null)
