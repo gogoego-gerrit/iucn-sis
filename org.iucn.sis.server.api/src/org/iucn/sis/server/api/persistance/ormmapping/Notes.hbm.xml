@@ -26,7 +26,7 @@ License Type: Evaluation
 			<many-to-many column="taxonid" class="org.iucn.sis.shared.api.models.Taxon">
 			</many-to-many>
 		</set>
-		<set name="Edits" table="notes_edit" lazy="true" cascade="save-update,lock">
+		<set name="Edits" table="notes_edit" lazy="true" cascade="save-update,lock,replicate">
 			<key column="notesid" not-null="true"/>
 			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
 			</many-to-many>

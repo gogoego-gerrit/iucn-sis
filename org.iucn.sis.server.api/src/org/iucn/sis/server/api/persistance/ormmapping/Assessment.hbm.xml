@@ -18,10 +18,10 @@ License Type: Evaluation
 		<property name="schema" column="schema" type="string" length="1023" not-null="false" lazy="false"/>
 		<many-to-one name="taxon" cascade="lock" column="taxonid" class="org.iucn.sis.shared.api.models.Taxon" not-null="false" lazy="no-proxy">
 		</many-to-one>
-		<many-to-one name="publicationReference" cascade="lock" column="publicationReference_id" class="org.iucn.sis.shared.api.models.Reference" not-null="false" lazy="no-proxy">
+		<many-to-one name="publicationReference" cascade="lock,replicate" column="publicationReference_id" class="org.iucn.sis.shared.api.models.Reference" not-null="false" lazy="no-proxy">
 		</many-to-one>
 		<property name="internalId" column="internal_id" type="string" length="255" not-null="false" lazy="false"/>
-		<set name="Edit" table="assessment_edit" lazy="true" cascade="save-update,lock">
+		<set name="Edit" table="assessment_edit" lazy="true" cascade="save-update,lock,replicate">
 			<key column="assessmentid" not-null="true"/>
 			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
 			</many-to-many>
@@ -31,7 +31,7 @@ License Type: Evaluation
 			<many-to-many column="referenceid" class="org.iucn.sis.shared.api.models.Reference">
 			</many-to-many>
 		</set>
-		<set name="Field" lazy="true" cascade="save-update,lock" inverse="true">
+		<set name="Field" lazy="true" cascade="save-update,lock,replicate" inverse="true">
 			<key column="assessmentid" not-null="false"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.Field"/>
 		</set>

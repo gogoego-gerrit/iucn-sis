@@ -27,14 +27,14 @@ License Type: Evaluation
 		</many-to-one>
 		<many-to-one name="infratype" cascade="lock" column="taxon_infratype_id" class="org.iucn.sis.shared.api.models.Infratype" not-null="false" lazy="no-proxy">
 		</many-to-one>
-		<many-to-one name="parent" cascade="lock" column="parentid" class="org.iucn.sis.shared.api.models.Taxon" not-null="false" lazy="no-proxy">
+		<many-to-one name="parent" cascade="lock,replicate" column="parentid" class="org.iucn.sis.shared.api.models.Taxon" not-null="false" lazy="no-proxy">
 		</many-to-one>
 		<set name="Working_set" table="working_set_taxon" lazy="true" cascade="save-update,lock" inverse="true">
 			<key column="taxonid" not-null="true"/>
 			<many-to-many column="working_setid" class="org.iucn.sis.shared.api.models.WorkingSet">
 			</many-to-many>
 		</set>
-		<set name="Reference" table="reference_taxon" lazy="true" cascade="save-update,lock" inverse="true">
+		<set name="Reference" table="reference_taxon" lazy="true" cascade="save-update,lock,replicate" inverse="true">
 			<key column="taxonid" not-null="true"/>
 			<many-to-many column="referenceid" class="org.iucn.sis.shared.api.models.Reference">
 			</many-to-many>
@@ -43,12 +43,12 @@ License Type: Evaluation
 			<key column="parentid" not-null="true"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.Taxon"/>
 		</set>
-		<set name="Edits" table="taxon_edit" lazy="true" cascade="save-update,lock">
+		<set name="Edits" table="taxon_edit" lazy="true" cascade="save-update,lock,replicate">
 			<key column="taxonid" not-null="true"/>
 			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
 			</many-to-many>
 		</set>
-		<set name="Notes" table="taxon_notes" lazy="true" cascade="save-update,lock">
+		<set name="Notes" table="taxon_notes" lazy="true" cascade="save-update,lock,replicate">
 			<key column="taxonid" not-null="true"/>
 			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
 			</many-to-many>
@@ -57,15 +57,15 @@ License Type: Evaluation
 			<key column="taxonid" not-null="true"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.Assessment"/>
 		</set>
-		<set name="Synonyms" lazy="true" cascade="save-update,lock" inverse="true">
+		<set name="Synonyms" lazy="true" cascade="save-update,lock,replicate" inverse="true">
 			<key column="taxonid" not-null="true"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.Synonym"/>
 		</set>
-		<set name="CommonNames" lazy="true" cascade="save-update,lock" inverse="true">
+		<set name="CommonNames" lazy="true" cascade="save-update,lock,replicate" inverse="true">
 			<key column="taxonid" not-null="true"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.CommonName"/>
 		</set>
-		<set name="Images" lazy="true" cascade="save-update,lock" inverse="true">
+		<set name="Images" lazy="true" cascade="save-update,lock,replicate" inverse="true">
 			<key column="taxonid" not-null="true"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.TaxonImage"/>
 		</set>

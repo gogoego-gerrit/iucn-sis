@@ -18,12 +18,12 @@ License Type: Evaluation
 		</many-to-one>
 		<many-to-one name="taxon" cascade="lock" column="taxonid" class="org.iucn.sis.shared.api.models.Taxon" not-null="true" lazy="no-proxy">
 		</many-to-one>
-		<set name="Reference" table="common_name_reference" lazy="true" cascade="save-update,lock">
+		<set name="Reference" table="common_name_reference" lazy="true" cascade="save-update,lock,replicate">
 			<key column="common_nameid" not-null="true"/>
 			<many-to-many column="referenceid" class="org.iucn.sis.shared.api.models.Reference">
 			</many-to-many>
 		</set>
-		<set name="Notes" table="common_name_notes" lazy="true" cascade="save-update,lock">
+		<set name="Notes" table="common_name_notes" lazy="true" cascade="save-update,lock,replicate">
 			<key column="common_nameid" not-null="true"/>
 			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
 			</many-to-many>

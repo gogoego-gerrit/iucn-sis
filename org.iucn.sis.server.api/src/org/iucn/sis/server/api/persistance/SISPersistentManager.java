@@ -5,6 +5,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Properties;
 
 import javassist.util.proxy.MethodFilter;
 
@@ -16,7 +17,9 @@ import org.hibernate.MappingException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.dialect.H2Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
+import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tuple.entity.EntityTuplizerFactory;
 import org.hibernate.tuple.entity.PojoEntityTuplizer;
 import org.iucn.sis.server.api.application.MultiClassLoader;
@@ -26,6 +29,11 @@ import org.iucn.sis.server.api.persistance.ormmapping.ClassLoaderTester;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.postgresql.Driver;
 import org.slf4j.impl.StaticLoggerBinder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
+import com.solertium.util.BaseDocumentUtils;
+import com.solertium.util.ElementCollection;
 
 public class SISPersistentManager {
 
@@ -39,8 +47,6 @@ public class SISPersistentManager {
 	private static ClassLoader createClassLoader() {
 		MultiClassLoader loader = new MultiClassLoader(SISPersistentManager.class.getClassLoader().getParent());
 		loader.addClassLoader(SISPersistentManager.class.getClassLoader());
-		loader.addClassLoader(Driver.class.getClassLoader());
-		loader.addClassLoader(PostgreSQLDialect.class.getClassLoader());
 		loader.addClassLoader(MethodFilter.class.getClassLoader());
 		loader.addClassLoader(PojoEntityTuplizer.class.getClassLoader());
 		loader.addClassLoader(EntityTuplizerFactory.class.getClassLoader());
@@ -49,6 +55,14 @@ public class SISPersistentManager {
 		loader.addClassLoader(DocumentException.class.getClassLoader().getParent());
 		loader.addClassLoader(SISHibernateListener.class.getClassLoader());
 		
+		//Postgresql
+		loader.addClassLoader(Driver.class.getClassLoader());
+		loader.addClassLoader(PostgreSQLDialect.class.getClassLoader());
+		
+		//H2
+		loader.addClassLoader(org.h2.Driver.class.getClassLoader());
+		loader.addClassLoader(H2Dialect.class.getClassLoader());
+		
 		return loader;
 	}
 
@@ -56,13 +70,32 @@ public class SISPersistentManager {
 		if (instance == null || instance.sessionFactory == null) {
 			setCurrentThread();
 			instance = new SISPersistentManager();
-			instance.sessionFactory = instance.buildSessionFactory();
+			instance.sessionFactory = instance.buildSessionFactory("sis", GoGoEgo.getInitProperties());
 		}
 		return instance;
 	}
+	
+	public static synchronized final SISPersistentManager newInstance(String name, Properties properties, boolean fresh) {
+		setCurrentThread();
+		
+		SISPersistentManager instance = new SISPersistentManager();
+		
+		if (fresh) {
+			Configuration config = instance.buildConfiguration(name, properties);
+			
+			SchemaExport export = new SchemaExport(config);
+			export.create(false, true);
+			
+			instance.sessionFactory = config.buildSessionFactory();		
+		}
+		else
+			instance.sessionFactory = instance.buildSessionFactory(name, properties);
+		
+		return instance;
+	}
 
-	private SessionFactory buildSessionFactory() {
-		return buildConfiguration().buildSessionFactory();
+	private SessionFactory buildSessionFactory(String session, Properties properties) {
+		return buildConfiguration(session, properties).buildSessionFactory();
 	}
 
 	public SessionFactory getSessionFactory() {
@@ -74,16 +107,17 @@ public class SISPersistentManager {
 		return sessionFactory.openSession();
 	}
 
-	/*public Session getSession() {
-		setCurrentThread();
-		return sessionFactory.getCurrentSession();
-	}*/
-
-	private Configuration buildConfiguration() {
-		Configuration configuration = new SISPersistenceConfiguration();
+	public void shutdown() {
+		sessionFactory.close();
+	}
+	
+	private Configuration buildConfiguration(String session, Properties properties) {
+		String generator = properties.getProperty("generator", null);
+		
+		Configuration configuration = new SISPersistenceConfiguration(generator);
 		setCurrentThread();
 		
-		final String configUri = GoGoEgo.getInitProperties().getProperty("org.iucn.sis.server.configuration.uri", "local:SIS");
+		final String configUri = properties.getProperty("org.iucn.sis.server.configuration.uri", "local:postgres");
 		if (configUri.startsWith("file")) {
 			Debug.println("Creating new persistence manager from file " + configUri);
 			try {
@@ -104,11 +138,12 @@ public class SISPersistentManager {
 			}
 		}
 		
-		String driverClass = GoGoEgo.getInitProperties().getProperty("dbsession.sis.driver");
-		String dialect = GoGoEgo.getInitProperties().getProperty("database_dialect");
-		String connectionURL = GoGoEgo.getInitProperties().getProperty("dbsession.sis.uri");
-		String username = GoGoEgo.getInitProperties().getProperty("dbsession.sis.user");
-		String password = GoGoEgo.getInitProperties().getProperty("dbsession.sis.password");
+		String dialect = properties.getProperty("database_dialect");
+		
+		String driverClass = properties.getProperty("dbsession."+session+".driver");
+		String connectionURL = properties.getProperty("dbsession."+session+".uri");
+		String username = properties.getProperty("dbsession."+session+".user");
+		String password = properties.getProperty("dbsession."+session+".password");
 		
 		SISHibernateListener listener = new SISHibernateListener();
 		
@@ -190,8 +225,11 @@ public class SISPersistentManager {
 		
 		private static final long serialVersionUID = 1L;
 		
-		public SISPersistenceConfiguration() {
+		private final String generator;
+		
+		public SISPersistenceConfiguration(String generator) {
 			super();
+			this.generator = generator;
 		}
 		
 		@Override
@@ -202,7 +240,21 @@ public class SISPersistentManager {
 		@Override
 		public Configuration addResource(String arg0, ClassLoader arg1)
 				throws MappingException {
-			return addInputStream(arg1.getResourceAsStream(arg0));
+			if (generator == null)
+				return addInputStream(arg1.getResourceAsStream(arg0));
+			
+			try {
+				final Document document = BaseDocumentUtils.impl.getInputStreamFile(arg1.getResourceAsStream(arg0));
+				final ElementCollection nodes = 
+					new ElementCollection(document.getDocumentElement().getElementsByTagName("generator"));
+				for (Element el : nodes) {
+					el.setAttribute("class", generator);
+					break;
+				}
+				return addDocument(document);
+			} catch (Exception e) {
+				return addInputStream(arg1.getResourceAsStream(arg0));	
+			}
 		}
 	}
 

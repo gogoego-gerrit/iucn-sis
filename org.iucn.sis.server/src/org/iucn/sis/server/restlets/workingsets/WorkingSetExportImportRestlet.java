@@ -1,15 +1,21 @@
 package org.iucn.sis.server.restlets.workingsets;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -17,7 +23,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.TaxomaticIO;
 import org.iucn.sis.server.api.io.TaxonIO;
@@ -29,12 +34,10 @@ import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.server.api.locking.LockRepository.LockInfo;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
-import org.iucn.sis.server.api.utils.FileZipper;
-import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.server.api.utils.TaxomaticException;
+import org.iucn.sis.server.utils.WorkingSetExporter;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -50,6 +53,8 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.fileupload.RestletFileUpload;
+import org.restlet.representation.InputRepresentation;
+import org.restlet.representation.OutputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
@@ -79,10 +84,25 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		paths.add("/workingSetExporter/private/{username}/{workingsetID}");
 		paths.add("/workingSetImporter/{username}");
 		paths.add("/workingSetExporter/public/{username}/{workingsetID}");
+		paths.add("/workingSetExporter/downloads/{file}");
 	}
 	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
+		String file = (String)request.getAttributes().get("file");
+		if (file != null) {
+			final InputRepresentation dl;
+			try {
+				dl = new InputRepresentation(new FileInputStream(open(file)));
+			} catch (IOException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
+			dl.setDownloadable(true);
+			dl.setDownloadName(file);
+			
+			return dl;
+		}
+		
 		String username = (String) request.getAttributes().get("username");
 		String workingSetID = (String) request.getAttributes().get("workingsetID");
 		
@@ -111,99 +131,77 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 	private Representation export(final User user, final Integer workingsetID, boolean lockParam, final Response response,
 			final Request request, Session session) throws IOException, ResourceException {
 
-		final StringBuilder lockLog = new StringBuilder();
-		final HashMap<Integer, String> locked = new HashMap<Integer, String>();
-		
-		WorkingSetIO workingSetIO = new WorkingSetIO(session);
-		AssessmentIO assessmentIO = new AssessmentIO(session);
-
-		WorkingSet ws = workingSetIO.readWorkingSet(workingsetID);
-		if (ws == null)
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Working set " + workingsetID + " does not exist.");
-		
-		AssessmentFilter filter = ws.getFilter();
-		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
-
-		
-		// MAKE TEMPORARY FILE REPRESENTING SINGLE WORKINGSET
-		String workingSetName = ws.getWorkingSetName();
-		workingSetName = workingSetName.replaceAll("\\s", "");
-		DocumentUtils
-				.writeVFSFile(getWorkingSetTempPath(workingSetName, user.getUsername()), vfs, true, ws.toXML());
-
-		ArrayList<String> filenames = new ArrayList<String>();
-		filenames.add(getWorkingSetTempPath(workingSetName, user.getUsername()));
-
-		for (Taxon curNode : ws.getTaxon()) {
-
-			for (Assessment assessment : assessmentIO.readPublishedAssessmentsForTaxon(curNode))
-				filenames.add(ServerPaths.getAssessmentUrl(assessment.getId() + ""));
-
-			List<Assessment> drafts = assessmentIO.readDraftAssessmentsForTaxon(curNode.getId());
-
-			for (Assessment data : drafts) {
-				if (helper.allowAssessment(data)) {
-					filenames.add(ServerPaths.getAssessmentURL(data));
-					if (SIS.amIOnline() && lockParam) {
-						doLockThings(user, lockLog, ws, data.getId(), curNode, locked);
-					}
+		final PipedInputStream inputStream = new PipedInputStream(); 
+		final Representation representation = new OutputRepresentation(MediaType.TEXT_HTML) {
+			public void write(OutputStream out) throws IOException {
+				byte[] b = new byte[8];
+				int read;
+				while ((read = inputStream.read(b)) != -1) {
+					out.write(b, 0, read);
+					out.flush();
 				}
 			}
-
-			for (Integer hierarchicalTaxonID : curNode.getIDFootprint()) {
-				filenames.add(ServerPaths.getTaxonURL(hierarchicalTaxonID + ""));
-			}
-
-		}
-
-		// CREATING FOLDER IF DOESN'T EXIST
-		if (!vfs.exists(new VFSPath(getZippedFolder(user.getUsername())))) {
-			vfs.makeCollections(new VFSPath(getZippedFolder(user.getUsername())));
-		}
-
-		// MAKE A FILE TO REWRITE ...
-		if (!vfs.exists(new VFSPath(getZippedPath(workingSetName, user.getUsername())))) {
-			Writer writer = vfs.getWriter(new VFSPath(getZippedPath(workingsetID + "", user.getUsername())));
-			writer.close();
-		}
-
-		// ZIPPING IT!
-		for (String cur : filenames)
-			if (!vfs.exists(new VFSPath(cur)))
-				Debug.println("Will not be able to export file " + cur + " because it does not exist.");
-
-		FileZipper.zipper(vfs, filenames.toArray(new String[filenames.size()]), getZippedPath(workingsetID + "",
-				user.getUsername()));
-
-		// REMOVE TEMPFILE
-		vfs.delete(new VFSPath(getWorkingSetTempPath(workingSetName, user.getUsername())));
-
-		String exportPath = request.getResourceRef().getHostIdentifier() + "/raw"
-				+ getZippedPath(workingsetID + "", user.getUsername());
-		String entity = exportPath + "\r\n";
-		entity += "<div><b>" + locked.size() + "</b> assessments successfully locked.<br/> Please"
-				+ " note they will be locked until you re-import the working set that "
-				+ " contains these assessments.</div><br/>";
-		if (lockLog.length() > 0)
-			entity += "<div><b><u>Some Assessments Could Not Be Locked!</u></b></div><br/>"
-					+ "<div>This means your import will NOT be able to update the online"
-					+ " version of the following assessments. You may re-export this working set"
-					+ " once the locks are returned to obtain them for yourself.<br/><br/>"
-					+ " The follow assessments were not locked:</div>" + lockLog.toString();
-
-		response.setStatus(Status.SUCCESS_CREATED);
-
-		if (!response.getStatus().isSuccess())
-			// Release partially acquired locks...
-			for (Entry<Integer, String> curLocked : locked.entrySet()) {
-				try {
-					SIS.get().getLocker().persistentEagerRelease(curLocked.getKey(), user);
-				} catch (LockException e) {
-					Debug.println(e);
-				}
-			}
+		};
 		
-		return new StringRepresentation(entity, MediaType.TEXT_ALL);
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(new OutputStreamWriter(new PipedOutputStream(inputStream)), true);
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		String fileName = user.getUsername()+ "_" + workingsetID + "_" + 
+			Calendar.getInstance().getTimeInMillis();
+		
+		WorkingSetExporter exporter = new WorkingSetExporter( 
+				workingsetID, user.getUsername(), lockParam, 
+				createTempFolder(fileName), fileName);
+		exporter.setOutputStream(writer, "<br/>");
+		
+		new Thread(exporter).start();
+		
+		return representation;
+	}
+	
+	private File open(String fileName) throws ResourceException {
+		File tmp;
+		try {
+			tmp = File.createTempFile("toDelete", "tmp");
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INSUFFICIENT_STORAGE, e);
+		}
+		
+		try {
+			String folder = fileName.split("\\.")[0];
+			File tmpFolder = new File(tmp.getParentFile(), folder);
+			File tmpFile = new File(tmpFolder, fileName);
+			
+			if (!tmpFile.exists())
+				throw new ResourceException(Status.CLIENT_ERROR_GONE);
+			
+			return tmpFile;
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_GONE, e);
+		} finally {
+			tmp.delete();
+		}
+	}
+	
+	private String createTempFolder(String fileName) throws ResourceException {
+		File tmp;
+		try {
+			tmp = File.createTempFile("toDelete", "tmp");
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INSUFFICIENT_STORAGE, e);
+		}
+		
+		File folder = tmp.getParentFile();
+		File tmpFolder = new File(folder, fileName);
+		tmpFolder.mkdirs();
+		
+		tmp.delete();
+		
+		return tmpFolder.getAbsolutePath();
 	}
 
 	private void doLockThings(final User username, final StringBuilder lockLog, WorkingSet ws, Integer assessmentID,

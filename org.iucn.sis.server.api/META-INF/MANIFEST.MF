@@ -32,9 +32,11 @@ Export-Package: org.iucn.sis.server.api.application,
  org.iucn.sis.server.api.restlets,
  org.iucn.sis.server.api.schema,
  org.iucn.sis.server.api.schema.redlist,
- org.iucn.sis.server.api.utils
+ org.iucn.sis.server.api.utils,
+ org.iucn.sis.server.api.utils.export
 Import-Package: com.solertium.util.restlet,
  com.solertium.util.restlet.authentication,
+ org.h2,
  org.osgi.framework,
  org.postgresql,
  org.restlet.ext.xml

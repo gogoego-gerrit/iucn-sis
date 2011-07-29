@@ -111,7 +111,7 @@ public class GenericExportResource extends TransactionResource {
 		 */
 		
 		
-		GenericExporter exporter = new GenericExporter(session, source, workingSetID);
+		AccessExporter exporter = new AccessExporter(source, workingSetID);
 		exporter.setOutputStream(writer, "\n");
 		try {
 			//exporter.setTarget(createH2Target(name));
