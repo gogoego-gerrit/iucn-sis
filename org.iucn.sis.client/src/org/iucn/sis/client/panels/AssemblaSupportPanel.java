@@ -92,7 +92,7 @@ public class AssemblaSupportPanel extends BasicWindow {
 						"Question from SIS user " + user.getUsername() + " (" + user.getDisplayableName() + ", " + affil + ")" :
 						"Bug Report from SIS user " + user.getUsername() + " (" + user.getDisplayableName() + ", " + affil + ")";
 					
-					submit(subject, area.getValue(), reporter.getValue());
+					submit(subject, reporter.getValue(), area.getValue());
 				}
 			}
 		}));
