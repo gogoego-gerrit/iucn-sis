@@ -17,6 +17,7 @@ import org.iucn.sis.server.api.schema.AssessmentSchema;
 import org.iucn.sis.server.api.schema.AssessmentSchemaBroker;
 import org.iucn.sis.server.api.schema.AssessmentSchemaFactory;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -229,7 +230,10 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 				document.getDocumentElement().getElementsByTagName("coding")
 			);
 			for (Element el : coding) {
-				treeBuilder.buildTree(el.getAttribute("name"), document, el);
+				if (CanonicalNames.Threats.equals(fieldName))
+					treeBuilder.buildTree(el.getAttribute("name"), document, el);
+				else
+					treeBuilder.buildTree(el.getAttribute("name"), document, el.getParentNode());
 			}
 			
 			return BaseDocumentUtils.impl.serializeDocumentToString(document, true, false);

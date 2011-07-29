@@ -11,6 +11,7 @@ import javax.naming.NamingException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
@@ -51,6 +52,10 @@ private final ExecutionContext ec;
 	}
 	
 	public void buildTree(String fieldName, Document document, Element element) {
+		buildTree(fieldName, document, (Node)element);
+	}
+	
+	public void buildTree(String fieldName, Document document, Node element) {
 		final SelectQuery query = new SelectQuery();
 		query.select(fieldName + "Lookup", "level", "ASC");
 		query.select(fieldName + "Lookup", "*");

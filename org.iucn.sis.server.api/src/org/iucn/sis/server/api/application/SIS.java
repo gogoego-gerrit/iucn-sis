@@ -8,28 +8,12 @@ import java.util.Properties;
 import javax.naming.NamingException;
 
 import org.gogoego.api.plugins.GoGoEgo;
-import org.iucn.sis.server.api.io.AssessmentIO;
-import org.iucn.sis.server.api.io.EditIO;
-import org.iucn.sis.server.api.io.FieldIO;
-import org.iucn.sis.server.api.io.InfratypeIO;
-import org.iucn.sis.server.api.io.IsoLanguageIO;
-import org.iucn.sis.server.api.io.NoteIO;
-import org.iucn.sis.server.api.io.PermissionIO;
-import org.iucn.sis.server.api.io.PrimitiveFieldIO;
-import org.iucn.sis.server.api.io.ReferenceIO;
-import org.iucn.sis.server.api.io.RegionIO;
-import org.iucn.sis.server.api.io.RelationshipIO;
-import org.iucn.sis.server.api.io.TaxomaticIO;
-import org.iucn.sis.server.api.io.TaxonIO;
-import org.iucn.sis.server.api.io.UserIO;
-import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.schema.AssessmentSchemaBroker;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.debug.Debugger;
-import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
@@ -52,7 +36,6 @@ import com.solertium.util.restlet.authentication.Authenticator.AccountNotFoundEx
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSFactory;
-import com.solertium.vfs.provider.VersionedFileVFS;
 
 public class SIS {
 
