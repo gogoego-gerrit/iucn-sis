@@ -1,9 +1,8 @@
 package org.iucn.sis.client.api.models;
 
+import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.shared.api.models.User;
 
-import com.solertium.lwxml.gwt.NativeDocumentImpl;
-import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.utils.RowData;
 
@@ -24,7 +23,6 @@ public class ClientUser extends User {
 	
 	private static final long serialVersionUID = 1L;
 	
-	public String auth;
 	public String password;
 	public RowData properties;
 	
@@ -36,13 +34,6 @@ public class ClientUser extends User {
 	public void setProperty(String key, String value) {
 		properties.addField(key, value);
 	}
-	
-	public NativeDocument getHttpBasicNativeDocument() {
-		NativeDocument doc = new NativeDocumentImpl();
-		doc.setHeader("Authorization", "Basic " + auth);
-
-		return doc;
-	}
 
 	public String getProperty(String prop) {
 		return properties.getField(prop);
@@ -51,7 +42,7 @@ public class ClientUser extends User {
 	public static ClientUser fromXML(NativeElement element) {
 		ClientUser target = new ClientUser();
 		
-		User.fromXML(element, target);
+		User.fromXML(element, target, AuthorizationCache.impl.getFinder());
 		
 		target.setProperty(ID, target.getId()+"");
 		target.setProperty(USERNAME, target.getUsername());

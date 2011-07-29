@@ -106,6 +106,10 @@ public class User implements Serializable, Comparable<User> {
 	}
 	
 	public static void fromXML(NativeElement element, User user) {
+		fromXML(element, user, null);
+	}
+	
+	public static void fromXML(NativeElement element, User user, PermissionGroup.PermissionGroupLocater oracle) {
 		final NativeNodeList nodes = element.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			final NativeNode node = nodes.item(i);
@@ -138,7 +142,10 @@ public class User implements Serializable, Comparable<User> {
 		//FULL XML
 		NativeNodeList permGroups = element.getElementsByTagName(PermissionGroup.ROOT_TAG);
 		for (int i = 0; i < permGroups.getLength(); i++) {
-			user.getPermissionGroups().add(PermissionGroup.fromXML(permGroups.elementAt(i)));
+			if (oracle == null)
+				user.getPermissionGroups().add(PermissionGroup.fromXML(permGroups.elementAt(i)));
+			else
+				user.getPermissionGroups().add(PermissionGroup.fromXML(permGroups.elementAt(i), oracle));
 		}
 	}
 	

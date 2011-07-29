@@ -101,68 +101,64 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		}
 
 		private static void getProfile(final String password, final String username, final String authn) {
-			final NativeDocument doc = NativeDocumentFactory.newNativeDocument();
-			doc.setHeader("Authorization", "Basic " + authn);
-			doc.get(UriBase.getInstance().getSISBase() + "/profile/" + username, new GenericCallback<String>() {
-				public void onFailure(Throwable caught) {
-					if( "403".equals(caught.getMessage()) )
-						instance.buildLogin("Login " + username + " not active.");
-					else
-						instance.buildLogin("Invalid credentials.");
+			AuthorizationCache.impl.setCredentials(authn);
+			NativeDocumentFactory.setDefaultInstance(new NativeDocumentFactory() {
+				public NativeDocument createNativeDocument() {
+					return AuthorizationCache.impl.getNativeDocument();
 				}
-
+			});
+			
+			AuthorizationCache.impl.init(new GenericCallback<String>() {
 				public void onSuccess(String result) {
-					ClientUser user = ClientUser.fromXML(doc.getDocumentElement());
-					if (user.isSISUser()) {
-						WindowUtils.showLoadingAlert("Login successful, loading...");
-						
-						currentUser = user;
-						currentUser.auth = authn;
-						currentUser.password = password;
-						
-						if ("admin".equalsIgnoreCase(username))
-							currentUser.setProperty(UserPreferences.AUTO_SAVE, UserPreferences.DO_ACTION);
-						
-						NativeDocumentFactory.setDefaultInstance(new NativeDocumentFactory() {
-							public NativeDocument createNativeDocument() {
-								if (currentUser != null)
-									return currentUser.getHttpBasicNativeDocument();
+					final NativeDocument doc = NativeDocumentFactory.newNativeDocument();
+					doc.get(UriBase.getInstance().getSISBase() + "/profile/" + username, new GenericCallback<String>() {
+						public void onFailure(Throwable caught) {
+							if( "403".equals(caught.getMessage()) )
+								instance.buildLogin("Login " + username + " not active.");
+							else
+								instance.buildLogin("Invalid credentials.");
+						}
 
-								return super.createNativeDocument();
+						public void onSuccess(String result) {
+							ClientUser user = ClientUser.fromXML(doc.getDocumentElement());
+							if (!user.isSISUser()) {
+								WindowUtils.hideLoadingAlert();
+								instance.buildLogin("Login " + username + " not active.");
 							}
-						});
-					
-						AuthorizationCache.impl.setCredentials(authn);
-						AuthorizationCache.impl.init(new GenericCallback<String>() {
-							public void onSuccess(String result) {
+							else {
+								WindowUtils.showLoadingAlert("Login successful, loading...");
+								
+								currentUser = user;
+								currentUser.password = password;
+								
+								if ("admin".equalsIgnoreCase(username))
+									currentUser.setProperty(UserPreferences.AUTO_SAVE, UserPreferences.DO_ACTION);
+								
 								try {
-									if( !iAmOnline )
+									if (!iAmOnline)
 										currentUser.setProperty("quickGroup", "offline");
+									
 									AuthorizationCache.impl.addUser(currentUser);
-	
+			
 									instance.initializeCaches(new SimpleListener() {
 										public void handleEvent() {
 											instance.buildPostLogin();		
 										}
 									});
 								} catch (Exception e) {
-									e.printStackTrace();
+									Debug.println(e);
 								}
 							}
-							public void onFailure(Throwable caught) {
-								WindowUtils.errorAlert("Error Initializing Oracle", caught.getMessage());
-								instance.initializeCaches(new SimpleListener() {
-									public void handleEvent() {
-										instance.buildPostLogin();	
-									}
-								});
-							}
-						});						
-					} else {
-						WindowUtils.hideLoadingAlert();
-						
-						instance.buildLogin("Login " + username + " not active.");
-					}
+						}
+					});
+				}
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Error Initializing Oracle", caught.getMessage());
+					instance.initializeCaches(new SimpleListener() {
+						public void handleEvent() {
+							instance.buildPostLogin();
+						}
+					});
 				}
 			});
 		}
@@ -202,9 +198,6 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 	public static boolean iAmOnline = true;
 
 	public static NativeDocument getHttpBasicNativeDocument() {
-		if (currentUser != null)
-			return currentUser.getHttpBasicNativeDocument();
-
 		return NativeDocumentFactory.newNativeDocument();
 	}
 

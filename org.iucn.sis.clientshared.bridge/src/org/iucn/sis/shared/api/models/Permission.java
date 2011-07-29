@@ -182,7 +182,17 @@ public class Permission implements Serializable {
 	
 	
 	public String toString() {
-		return String.valueOf(getId());
+		return "For "+ getUrl() + ", " +
+			"R" + plusOrMinus(read) + ", " + 
+			"W" + plusOrMinus(write) + ", " +
+			"C" + plusOrMinus(create) + ", " + 
+			"D" + plusOrMinus(delete) + ", " + 
+			"G" + plusOrMinus(grant) + ", " + 
+			"U" + plusOrMinus(use); 
+	}
+	
+	private String plusOrMinus(boolean value) {
+		return value ? "+" : "-";
 	}
 
 	public boolean isRead() {

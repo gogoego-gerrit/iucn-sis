@@ -2,6 +2,7 @@ package org.iucn.sis.client.api.caches;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -10,12 +11,13 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PermissionGroup;
-import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.utils.PermissionUtils;
 
-import com.solertium.lwxml.factory.NativeDocumentFactory;
+import com.google.gwt.core.client.GWT;
+import com.solertium.lwxml.gwt.NativeDocumentImpl;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNode;
@@ -23,12 +25,11 @@ import com.solertium.lwxml.shared.NativeNodeList;
 
 public class AuthorizationCache {
 
-	public static AuthorizationCache impl = new AuthorizationCache();
-
+	public static final AuthorizationCache impl = new AuthorizationCache();
 
 	private HashMap<Integer, PermissionGroup> idToGroups;
 	private HashMap<String, PermissionGroup> groups;
-	private HashMap<User, Set<PermissionGroup>> permissionMaps;
+	private Set<PermissionGroup> permissionGroups = null;
 	private String credentials;
 	
 	private AuthorizationCache() {}
@@ -41,8 +42,8 @@ public class AuthorizationCache {
 		this.credentials = credentials;
 	}
 	
-	private NativeDocument getNativeDocument() {
-		NativeDocument doc = NativeDocumentFactory.newNativeDocument();
+	public NativeDocument getNativeDocument() {
+		NativeDocument doc = new NativeDocumentImpl();
 		doc.setHeader("Authorization", "Basic " + credentials);
 		
 		return doc;
@@ -140,18 +141,9 @@ public class AuthorizationCache {
 	}
 
 	public void clear() {
-		permissionMaps = null;
+		permissionGroups = null;
 		idToGroups = null;
 		groups = null;
-	}
-
-	/**
-	 * Initializes the cache by fetching the permission groups and populating itself with
-	 * them. If credentials are required to fetch the groups, you should first set them
-	 * via the setCredentials(...) call on this object.
-	 */
-	public void init() {
-		this.init(null);
 	}
 
 	/**
@@ -162,105 +154,80 @@ public class AuthorizationCache {
 	 * @param initCallback - invokes this callback when done
 	 */
 	public void init(final GenericCallback<String> initCallback) {
-		if( permissionMaps == null ) {
-			permissionMaps = new HashMap<User, Set<PermissionGroup>>();
-			idToGroups = new HashMap<Integer, PermissionGroup>();
-			groups = new HashMap<String, PermissionGroup>();
+		idToGroups = new HashMap<Integer, PermissionGroup>();
+		groups = new HashMap<String, PermissionGroup>();
 
-			final NativeDocument ndoc = getNativeDocument();
-			ndoc.get(UriBase.getInstance() + "/acl/groups", new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					NativeNodeList groupEls = ndoc.getDocumentElement().getElementsByTagName(PermissionGroup.ROOT_TAG);
-					for (int i = 0; i < groupEls.getLength(); i++) {
-						PermissionGroup group = PermissionGroup.fromXML(groupEls.elementAt(i));
-						groups.put(group.getName(), group);
-						idToGroups.put(Integer.valueOf(group.getId()), group);
-					}
-					for (Entry<String, PermissionGroup> entry : groups.entrySet()) {
-						if (entry.getValue().getParent() != null) {
-							entry.getValue().setParent(idToGroups.get(Integer.valueOf(entry.getValue().getParent().getId())));
-						}
-					}
-					
-					final NativeDocument userDoc = getNativeDocument();
-					userDoc.get(UriBase.getInstance() + "/acl/user/" + SISClientBase.currentUser.getUsername() , new GenericCallback<String>() {
-					
-						@Override
-						public void onSuccess(String result) {
-							NativeNodeList list = userDoc.getDocumentElement().getElementsByTagName(PermissionGroup.ROOT_TAG);
-							
-							SISClientBase.currentUser.getPermissionGroups().clear();
-							
-							for (int i = 0; i < list.getLength(); i++) {
-								PermissionGroup group = PermissionGroup.fromXML(list.elementAt(i), new PermissionGroup.PermissionGroupLocater() {
-									public PermissionGroup findGroup(Integer id, String name) {
-										PermissionGroup parent = idToGroups.get(id);
-										if (parent == null) {
-											parent = new PermissionGroup();
-											parent.setID(id);
-											parent.setName(name);
-										}
-										return parent;
-									}
-								});
-								SISClientBase.currentUser.getPermissionGroups().add(groups.get(group.getName()));
-							}
-							
-							addUser(SISClientBase.currentUser);
-							
-							if (initCallback != null)
-								initCallback.onSuccess(result);
-					
-						}
-					
-						@Override
-						public void onFailure(Throwable caught) {
-							if (initCallback != null)
-								initCallback.onFailure(caught);					
-						}
-						
-					});
+		final NativeDocument ndoc = getNativeDocument();
+		ndoc.get(UriBase.getInstance() + "/acl/groups", new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				NativeNodeList groupEls = ndoc.getDocumentElement().getElementsByTagName(PermissionGroup.ROOT_TAG);
+				for (int i = 0; i < groupEls.getLength(); i++) {
+					PermissionGroup group = PermissionGroup.fromXML(groupEls.elementAt(i));
+					groups.put(group.getName(), group);
+					idToGroups.put(Integer.valueOf(group.getId()), group);
 				}
-
-				public void onFailure(Throwable caught) {
-					if (initCallback != null)
-						initCallback.onFailure(caught);
-				}				
+				for (Entry<String, PermissionGroup> entry : groups.entrySet()) {
+					if (entry.getValue().getParent() != null) {
+						entry.getValue().setParent(idToGroups.get(Integer.valueOf(entry.getValue().getParent().getId())));
+					}
+				}
 				
-			});
-		}
+				if (initCallback != null)
+					initCallback.onSuccess(result);
+			}
+
+			public void onFailure(Throwable caught) {
+				if (initCallback != null)
+					initCallback.onFailure(caught);
+			}
+		});
+		
+	}
+	
+	public PermissionGroup.PermissionGroupLocater getFinder() {
+		return new PermissionGroup.PermissionGroupLocater() {
+			public PermissionGroup findGroup(Integer id, String name) {
+				PermissionGroup parent = idToGroups == null ? null : idToGroups.get(id);
+				if (parent == null) {
+					parent = new PermissionGroup();
+					parent.setID(id);
+					parent.setName(name);
+				}
+				return parent;
+			}
+		};
 	}
 
 	public void addUser(ClientUser user) {
 		try {
-			
 			if (user.getPermissionGroups().isEmpty()) {
 				user.getPermissionGroups().add(groups.get("guest"));
 			}
-			permissionMaps.put(user, user.getPermissionGroups());
+			permissionGroups = new HashSet<PermissionGroup>(user.getPermissionGroups());
 		} catch (Throwable e) {
-			e.printStackTrace();
+			Debug.println(e);
+			GWT.log("Permission Loading Error", e);
 		}
+	}
+	
+	public boolean hasRight(String operation, AuthorizableObject auth) {
+		return hasRight(SISClientBase.currentUser, operation, auth);
 	}
 
 	public boolean hasRight(ClientUser user, String operation, AuthorizableObject auth) {
-		if (permissionMaps.containsKey(user)) {			
-			boolean ret = false;
+		boolean ret = false;
 
-			//If it's a working set, test ownership first to escape early
-			if( auth instanceof WorkingSet && 
-					user.getUsername().equalsIgnoreCase(((WorkingSet)auth).getCreator().getUsername() ) )
-				return true;
+		//If it's a working set, test ownership first to escape early
+		if( auth instanceof WorkingSet && 
+				user.getUsername().equalsIgnoreCase(((WorkingSet)auth).getCreator().getUsername() ) )
+			return true;
 
-			for( PermissionGroup curGroup : permissionMaps.get(user) ) {
-				ret |= PermissionUtils.checkMe(curGroup, auth, operation);
-				if( ret ) //SHORT CIRCUIT!
-					break;
-			}
-			return ret;
+		for (PermissionGroup curGroup : permissionGroups) {
+			ret |= PermissionUtils.checkMe(curGroup, auth, operation);
+			if( ret ) //SHORT CIRCUIT!
+				break;
 		}
-		else
-			throw new RuntimeException("No permissions for user " + user.getUsername()); 
+		return ret;
 	}
 	
 	public HashMap<Integer, PermissionGroup> getIdToGroups() {
