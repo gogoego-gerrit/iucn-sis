@@ -784,6 +784,9 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				
 				//As per #36, remove this field
 				proxy.setPossiblyExtinctCandidate(null);
+				
+				if (proxy.isManual() && !"CR".equals(proxy.getManualCategory()))
+					proxy.setPossiblyExtinct(null);
 			}
 			else {
 				List<String> rawData = (List<String>) (curField.getValue());
