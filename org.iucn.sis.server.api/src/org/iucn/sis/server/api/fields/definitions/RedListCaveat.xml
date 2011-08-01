@@ -1,0 +1,10 @@
+<field id="1234">
+	<canonicalName>RedListCaveat</canonicalName>
+	<description>Five Year Rule</description>
+	<classOfService>Outcome</classOfService>
+	<structures>
+		<structure id="value">
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>
