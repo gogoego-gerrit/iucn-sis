@@ -221,11 +221,12 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		final TableLayout layout = new TableLayout(2);
 		layout.setCellPadding(2);
 		layout.setCellSpacing(2);
+		layout.setCellVerticalAlign(VerticalAlignment.MIDDLE);
 		layout.setWidth("100%");
 		
 		final LayoutContainer container = new LayoutContainer(layout);
-		container.setHeight(30);
-		container.setStyleName(styleName == null ? "page_taxon_section_header" : styleName);
+		container.addStyleName(styleName == null ? "page_taxon_section_header" : styleName);
+		container.addStyleName("page_taxon_section_content_basic");
 		container.add(new Span(name), new TableData(HorizontalAlignment.LEFT, VerticalAlignment.MIDDLE));
 		
 		if (listener != null) {
@@ -554,6 +555,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		
 		public Span(String html, String... style) {
 			super("<span>" + html + "</span>");
+			setHeight("100%");
 			for (String styleName : style)
 				addStyleName(styleName);
 		}
