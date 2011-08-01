@@ -25,6 +25,7 @@ import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.FilenameStriper;
+import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
@@ -35,6 +36,7 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.models.fields.RedListFuzzyResultField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanUnknownPrimitiveField;
@@ -214,12 +216,50 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			Assessment assessment = result.getFirst();
 			if (assessment != null) {
 				if (assessment.getTaxon() != null) {
-					/*User userToSave;
-					if (assessment.getLastEdit() != null)  {
-						userToSave = assessment.getLastEdit().getUser();
-					} else {
-						userToSave = user;
-					}*/
+					/*
+					 * Run Expert System to Generate RedListFuzzyResults, 
+					 * then fix data appropriately
+					 */
+					{
+						Field existing = assessment.getField(org.iucn.sis.shared.api.utils.CanonicalNames.RedListFuzzyResult);
+						if (existing == null)
+							existing = new Field(org.iucn.sis.shared.api.utils.CanonicalNames.RedListFuzzyResult, assessment);
+						
+						RedListFuzzyResultField proxy = new RedListFuzzyResultField(existing);
+						proxy.setExpertResult(new FuzzyExpImpl().doAnalysis(assessment));
+						
+						Field critField = assessment.getField(org.iucn.sis.shared.api.utils.CanonicalNames.RedListCriteria);
+						
+						RedListCriteriaField criteria = new RedListCriteriaField(critField);
+						String oldGen = Replacer.stripWhitespace(criteria.getGeneratedCriteria());
+						String newGen = proxy.getCriteriaMet();
+						if (!criteria.isManual() && !oldGen.equals(newGen)) {
+							if (critField == null) {
+								critField = new Field(org.iucn.sis.shared.api.utils.CanonicalNames.RedListCriteria, assessment);
+								criteria = new RedListCriteriaField(critField);
+							}
+							
+							criteria.setManual(true);
+							criteria.setManualCategory(proxy.getCategory());
+							criteria.setManualCriteria(proxy.getCriteriaMet());
+							
+							Edit edit = new Edit();
+							edit.setUser(user);
+							
+							Notes note = new Notes();
+							note.setValue("SIS 1's generated criteria of " + 
+								criteria.getGeneratedCategory() + " " + 
+								criteria.getGeneratedCriteria() + " does not match " + 
+								"SIS 2's generated criteria of " + proxy.getCategory() + " " + 
+								proxy.getCriteriaMet() + ". This assessment has been changed " +
+								"from generated to manual to reflect these changes.");
+							note.setEdit(edit);
+							edit.getNotes().add(note);
+							
+							note.setField(critField);
+							critField.getNotes().add(note);	
+						}
+					}
 						
 					if (assessment.getLastEdit() == null) {
 						Edit edit = new Edit();
