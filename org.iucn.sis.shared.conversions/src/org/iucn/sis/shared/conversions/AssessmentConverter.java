@@ -34,6 +34,7 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RedListFuzzyResultField;
@@ -258,6 +259,62 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							
 							note.setField(critField);
 							critField.getNotes().add(note);	
+						}
+					}
+					
+					/*
+					 * Set the taxon's taxonomic notes to a copy of 
+					 * the same field in the most recent published 
+					 * assessment
+					 */
+					if (assessment.isPublished()) {
+						Date date = assessment.getDateAssessed();
+						
+						Field asmTaxNotes = assessment.getField(org.iucn.sis.shared.api.utils.CanonicalNames.TaxonomicNotes);
+						Field taxonTaxNotes = assessment.getTaxon().getTaxonomicNotes();
+						
+						if (asmTaxNotes != null) {
+							if (taxonTaxNotes == null) {
+								HashSet<Reference> references = new HashSet<Reference>(asmTaxNotes.getReference());
+								taxonTaxNotes = asmTaxNotes.deepCopy(false, false);
+								taxonTaxNotes.setAssessment(null);
+								
+								Edit edit = new Edit();
+								edit.setUser(user);
+								edit.setCreatedDate(date);
+								
+								Notes note = new Notes();
+								note.setValue("Set from assessment " + assessment.getInternalId() + " assessed on " + date);
+								note.setEdit(edit);
+								edit.getNotes().add(note);
+								
+								taxonTaxNotes.getNotes().add(note);
+								note.setField(taxonTaxNotes);
+								
+								assessment.getTaxon().setTaxonomicNotes(taxonTaxNotes);
+								
+								session.save(taxonTaxNotes);
+								session.save(assessment.getTaxon());
+								
+								taxonTaxNotes.setReference(references);
+								
+								session.save(taxonTaxNotes);
+							}
+							else {
+								Edit edit = taxonTaxNotes.getNotes().iterator().next().getEdit();
+								if (edit.getCreatedDate().before(date)) {
+									taxonTaxNotes.setReference(asmTaxNotes.getReference());
+									ProxyField source = new ProxyField(asmTaxNotes);
+									ProxyField target = new ProxyField(taxonTaxNotes);
+									
+									target.setTextPrimitiveField("value", source.getTextPrimitiveField("value"));
+									
+									edit.setCreatedDate(date);
+									
+									session.save(edit);
+									session.save(taxonTaxNotes);
+								}
+							}
 						}
 					}
 						
