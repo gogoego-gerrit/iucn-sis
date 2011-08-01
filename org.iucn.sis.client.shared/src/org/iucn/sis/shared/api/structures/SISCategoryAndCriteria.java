@@ -474,7 +474,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			extinctPanel.setSpacing(6);
 			extinctPanel.add(new HTML("Possibly Extinct"));
 			extinctPanel.add(new HTML((possiblyExtinctBox.getValue()) ? " Yes " : " No "));
-			extinctPanel.add(new HTML("Possibly Extinct Candidate"));
+			extinctPanel.add(new HTML("Possibly Extinct in the Wild"));
 			extinctPanel.add(new HTML((possiblyExtinctCandidateBox.getValue()) ? " Yes " : " No "));
 			displayPanel.add(extinctPanel);
 		}	
@@ -509,7 +509,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		possiblyExtinctPanel.add(new HTML("&nbsp&nbsp&nbsp&nbsp&nbsp"));
 		possiblyExtinctPanel.add(new HTML("Possibly Extinct"));
 		possiblyExtinctPanel.add(possiblyExtinctBox);
-		possiblyExtinctPanel.add(new HTML("Possibly Extinct Candidate"));
+		possiblyExtinctPanel.add(new HTML("Possibly Extinct in the Wild"));
 		possiblyExtinctPanel.add(possiblyExtinctCandidateBox);
 		possiblyExtinctPanel.setVisible(false);
 		
@@ -675,7 +675,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		ret.add("Auto Criteria");
 		ret.add("Red List History Text");
 		ret.add("Possibly Extinct");
-		ret.add("Possibly Extinct Candidate");
+		ret.add("Possibly Extinct in the Wild");
 		ret.add("Date Last Seen");
 		ret.add("Category Text");
 		return ret;

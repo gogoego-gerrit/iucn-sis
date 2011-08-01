@@ -782,6 +782,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					callback.handleEvent(history);
 				}
 				
+				//As per #36, remove this field
+				proxy.setPossiblyExtinctCandidate(null);
 			}
 			else {
 				List<String> rawData = (List<String>) (curField.getValue());
