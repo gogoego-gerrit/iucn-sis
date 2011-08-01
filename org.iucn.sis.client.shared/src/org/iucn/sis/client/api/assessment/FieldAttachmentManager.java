@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelComparer;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
@@ -33,8 +34,9 @@ import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -227,8 +229,8 @@ public class FieldAttachmentManager extends BasicWindow implements DrawsLazily {
 				}
 				
 				FieldAttachment model = data.getModel();
-				model.setName((String)data.get("name"));
-				model.setPublish((Boolean)data.get("publish"));
+				model.setName(data.getName());
+				model.setPublish(data.getPublish());
 				model.setFields(fields);
 			
 				final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
@@ -261,14 +263,29 @@ public class FieldAttachmentManager extends BasicWindow implements DrawsLazily {
 		
 		list.add(name);
 		
-		final ColumnConfig toPublish = new ColumnConfig("publish", "To Publish?", 100);
-		toPublish.setEditor(new CellEditor(new CheckBox()));
+		final ColumnConfig toPublish = new ColumnConfig("publish", "To Publish?", 100); {
+			final ListStore<BooleanModelData> store = new ListStore<BooleanModelData>();
+			store.setModelComparer(new ModelComparer<BooleanModelData>() {
+				public boolean equals(BooleanModelData m1, BooleanModelData m2) {
+					return m1 != null ? m2 == null ? false : m1.get("value").equals(m2.get("value")) : m2 == null;
+				}
+			});
+			store.add(new BooleanModelData(Boolean.TRUE));
+			store.add(new BooleanModelData(Boolean.FALSE));
+			
+			final ComboBox<BooleanModelData> box = new ComboBox<BooleanModelData>();
+			box.setStore(store);
+			box.setTriggerAction(TriggerAction.ALL);
+			
+			toPublish.setEditor(new CellEditor(box));
+		}
 		toPublish.setRenderer(new GridCellRenderer<FieldAttachmentModelData>() {
 			public Object render(FieldAttachmentModelData model,
 					String property, ColumnData config, int rowIndex,
 					int colIndex, ListStore<FieldAttachmentModelData> store,
 					Grid<FieldAttachmentModelData> grid) {
-				return Boolean.TRUE.equals(model.get(property)) ? "Yes" : "No";
+				BooleanModelData value = model.get(property);
+				return value.get("text");
 			}
 		});
 		list.add(toPublish);
@@ -314,6 +331,22 @@ public class FieldAttachmentManager extends BasicWindow implements DrawsLazily {
 			assessment.getId();
 	}
 	
+	private static class BooleanModelData extends BaseModelData {
+		
+		private static final long serialVersionUID = 1L;
+		
+		public BooleanModelData(boolean value) {
+			super();
+			set("text", value ? "Yes" : "No");
+			set("value", value);
+		}
+		
+		public String toString() {
+			return get("text");
+		}
+		
+	}
+	
 	private static class FieldAttachmentModelData extends BaseModelData {
 	
 		private static final long serialVersionUID = 1L;
@@ -326,7 +359,7 @@ public class FieldAttachmentManager extends BasicWindow implements DrawsLazily {
 			
 			set("id", model.getId());
 			set("name", model.getName());
-			set("publish", model.getPublish());
+			set("publish", new BooleanModelData(model.getPublish()));
 			
 			final List<String> fieldNames = new ArrayList<String>();
 			for (Field field : model.getFields())
@@ -339,6 +372,15 @@ public class FieldAttachmentManager extends BasicWindow implements DrawsLazily {
 				set("version", "Version " + model.getEdits().size() + " by " + author);
 			else
 				set("version", "N/A");
+		}
+		
+		public String getName() {
+			return get("name");
+		}
+		
+		public Boolean getPublish() {
+			BooleanModelData value = get("publish");
+			return value.get("value");
 		}
 		
 		private String getAuthor() {
