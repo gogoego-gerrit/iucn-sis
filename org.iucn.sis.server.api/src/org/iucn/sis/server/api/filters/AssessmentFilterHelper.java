@@ -103,7 +103,7 @@ public class AssessmentFilterHelper {
 		reportAssessmentInformation(assessment);
 		
 		boolean result = false;
-		if (filter.isRecentPublished() && assessment.isPublished())
+		if (filter.isRecentPublished() && !assessment.isPublished())
 			result = false;
 		/*else if (filter.isDraft() && !((filter.isRecentPublished() || filter.isAllPublished()) && !assessment.isDraft()))
 			result = false;*/
