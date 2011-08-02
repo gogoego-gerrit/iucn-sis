@@ -12,6 +12,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.persistance.FieldDAO;
@@ -378,18 +379,44 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		NativeDocument doc = getEntityAsNativeDocument(entity);
 		try {
 			Assessment assessment = Assessment.fromXML(doc);
+			
+			final Map<String, List<Integer>> references = new HashMap<String, List<Integer>>();
+			for (Field field : assessment.getField()) {
+				if (field.getReference() != null && !field.getReference().isEmpty()) {
+					List<Integer> refs = new ArrayList<Integer>();
+					for (Reference reference : field.getReference())
+						refs.add(reference.getId());
+					references.put(field.getName(), refs);
+					field.setReference(new HashSet<Reference>());
+				}
+			}
+			
 			AssessmentIO io = new AssessmentIO(session);
 			AssessmentIOWriteResult result = io.saveNewAssessment(assessment, getUser(request, session));
 			if (result.status.isSuccess()) {
+				for (Map.Entry<String, List<Integer>> entry : references.entrySet()) {
+					Field field = assessment.getField(entry.getKey());
+					if (field != null && field.getId() > 0) {
+						HashSet<Reference> refs = new HashSet<Reference>();
+						for (Integer id : entry.getValue()) 
+							refs.add((Reference)session.get(Reference.class, id));
+						field.setReference(refs);
+						
+						session.update(field);
+					}
+				}
+				
 				response.setEntity(assessment.getId()+"", MediaType.TEXT_PLAIN);
 				response.setStatus(Status.SUCCESS_OK);
 			} else {
 				throw new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED);
 			}
 		} catch (RegionConflictException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
+			throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, e);
+		} catch (ResourceException e) {
+			throw e;
 		} catch (Exception e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
 	
