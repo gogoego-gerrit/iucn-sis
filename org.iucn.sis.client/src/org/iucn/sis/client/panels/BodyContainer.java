@@ -130,6 +130,12 @@ public class BodyContainer extends LayoutContainer {
 		onPageChange(homePage, updateNavigation);
 	}
 	
+	public void openAdministrativePage(LayoutContainer container, boolean updateNavigation) {
+		StateManager.impl.reset();
+		
+		onPageChange(container, updateNavigation);
+	}
+	
 	private void onPageChange(final LayoutContainer current, boolean updateNavigation) {
 		this.current = current;
 		

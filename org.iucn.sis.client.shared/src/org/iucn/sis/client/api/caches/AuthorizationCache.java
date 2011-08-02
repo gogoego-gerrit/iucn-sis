@@ -11,6 +11,7 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -208,6 +209,10 @@ public class AuthorizationCache {
 			Debug.println(e);
 			GWT.log("Permission Loading Error", e);
 		}
+	}
+	
+	public boolean canUse(AuthorizableFeature feature) {
+		return hasRight(AuthorizableObject.USE_FEATURE, feature);
 	}
 	
 	public boolean hasRight(String operation, AuthorizableObject auth) {

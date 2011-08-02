@@ -5,7 +5,6 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.BookmarkCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
@@ -30,7 +29,6 @@ import org.iucn.sis.client.panels.users.UploadUsersPanel;
 import org.iucn.sis.client.panels.users.UserModelTabPanel;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.client.panels.viruses.VirusManager;
-import org.iucn.sis.client.panels.zendesk.ZendeskPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.Bookmark;
@@ -38,7 +36,6 @@ import org.iucn.sis.shared.api.utils.UserAffiliationProperties;
 import org.iucn.sis.shared.api.utils.UserAffiliationPropertiesFactory;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
-import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -46,7 +43,6 @@ import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
@@ -269,10 +265,26 @@ public class HeaderContainer extends ContentPanel {
 	private MenuItem createMenuItem(String icon, String text, SelectionListener<MenuEvent> listener) {
 		MenuItem item = new MenuItem();
 		item.setText(text);
-		item.setIconStyle(icon);
+		if (icon != null)
+			item.setIconStyle(icon);
 		item.addSelectionListener(listener);
 		
 		return item;
+	}
+	
+	private void openAdministrativeTool(String title, String iconStyle, LayoutContainer container) {
+		/*final ContentPanel panel = new ContentPanel();
+		panel.setHeading(title);
+		panel.setIconStyle(iconStyle);
+		panel.setLayout(new FillLayout());
+		panel.add(container);
+		
+		ClientUIContainer.bodyContainer.openAdministrativePage(panel, true);*/
+		Window window = WindowUtils.newWindow(title, iconStyle, false, true);
+		window.setLayout(new FillLayout());
+		window.setSize(700, 500);
+		window.add(container);
+		window.show();
 	}
 	
 	private Menu getMenu() {
@@ -378,195 +390,138 @@ public class HeaderContainer extends ContentPanel {
 			options.add(item);
 		}
 		
-		options.add(createMenuItem("icon-prefs", "Administrative Tools", new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				final TabPanel tf = new TabPanel();
-				tf.setTabScroll(true);
-				Window alert = WindowUtils.newWindow("Administrative Tools", null, false, true);
-				alert.setSize(680, 400);
-				alert.setLayout(new FillLayout());
-
-				if( SimpleSISClient.iAmOnline ) {
-
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-							AuthorizableObject.USE_FEATURE, AuthorizableFeature.DEM_UPLOAD_FEATURE)) {
-						final TabItem tabItem = new TabItem();
-						tabItem.setText("DEM Import");
-						tabItem.add(new Html("This feature is not yet available."));
-						/*
-						 * FIXME: this form should be created client-side.
-						 */
-						/*final String target = UriBase.getInstance().getDEMBase() + "/demimport/submit/" + SimpleSISClient.currentUser.getUsername();
-						tabItem.setUrl(target);*/
-						tabItem.setIconStyle("icon-refresh");
-						tabItem.getHeader().addListener(Events.OnClick, new Listener<BaseEvent>() {
-							public void handleEvent(BaseEvent be) {
-								/*AssessmentCache.impl.resetCurrentAssessment();
-								TaxonomyCache.impl.resetCurrentTaxon();*/
-								
-								StateManager.impl.reset();
-
-								TaxonomyCache.impl.clear();
-								AssessmentCache.impl.clear();
-
-								//tabItem.setUrl(target);
-								tabItem.layout();
-							}
-						});
-						tf.add(tabItem);
-					}
-
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-							AuthorizableObject.USE_FEATURE, AuthorizableFeature.ACCESS_EXPORT_FEATURE)) {
-						final TabItem tabItem2 = new TabItem();
-						tabItem2.setText("Access Export");
-						final String atarget = "/export/access";
-						tabItem2.setUrl(atarget);
-						tf.add(tabItem2);
-					}
-
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-							AuthorizableObject.USE_FEATURE, AuthorizableFeature.TAXON_FINDER_FEATURE)) {
-						final TabItem tabItem3 = new TabItem();
-						tabItem3.setText("Manage New Taxa");
-						tabItem3.setLayout(new FitLayout());
-						tabItem3.add(taxonFinderPanel);
-						tabItem3.addListener(Events.Select, new Listener<TabPanelEvent>() {
-							public void handleEvent(TabPanelEvent be) {
-								taxonFinderPanel.draw(new DrawsLazily.DoneDrawingCallback() {
-									public void isDrawn() {
-										taxonFinderPanel.layout();
-									}
-								});
-							}
-						});
-						tf.add(tabItem3);
-					}
-
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-							AuthorizableObject.USE_FEATURE, AuthorizableFeature.DEFINITION_MANAGEMENT_FEATURE)) {
-						final TabItem tabItem4 = new TabItem();
-						tabItem4.setText("Manage Definitions");
-						tabItem4.setLayout(new FitLayout());
-						tabItem4.add(definitionPanel);
-						tabItem4.addListener(Events.Select, new Listener<TabPanelEvent>() {
-							public void handleEvent(TabPanelEvent be) {
-								tabItem4.layout();
-							}
-						});
-						tf.add(tabItem4);
-					}
-
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-							AuthorizableObject.USE_FEATURE, AuthorizableFeature.INTEGRITY_CHECK_FEATURE)) {
-						final TabItem tabItem = new TabItem();
-						tabItem.setText("Manage Integrity Checks");
-						tabItem.setLayout(new FitLayout());
-						tabItem.add(integrityPanel);
-						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
-							public void handleEvent(TabPanelEvent be) {
-								final DrawsLazily.DoneDrawingCallback callback = new DrawsLazily.DoneDrawingCallback() {
-									public void isDrawn() {
-										tabItem.layout();
-									}
-								};
-								if (integrityPanel.isDrawn())
-									callback.isDrawn();
-								else
-									integrityPanel.draw(callback);
-							}
-						});
-						tf.add(tabItem);
-					}
-
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-							AuthorizableObject.USE_FEATURE, AuthorizableFeature.LOCK_MANAGEMENT_FEATURE)) {
-						final TabItem tabItem = new TabItem();
-						tabItem.setText("Manage Locks");
-						tabItem.setLayout(new FitLayout());
-						tabItem.add(lockManagementPanel);
-						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
-							public void handleEvent(TabPanelEvent be) {
-								lockManagementPanel.draw(new DrawsLazily.DoneDrawingCallback() {
-									public void isDrawn() {
-										tabItem.layout();
-									}
-								});
-							}
-						});
-						tf.add(tabItem);
-					}
-					
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-							AuthorizableObject.USE_FEATURE, AuthorizableFeature.BATCH_UPLOAD_FEATURE)) {
-						final TabItem tabItem = new TabItem();
-						tabItem.setText("Batch Upload");
-						tabItem.setIconStyle("icon-refresh");
-						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
-							public void handleEvent(TabPanelEvent be) {
-								/*
-								 * FIXME: this form should be created client-side.
-								 */
-								tabItem.setUrl(UriBase.getInstance().getImageBase()+"/images/upload");
-								tabItem.layout();
-							}
-						});
-						tf.add(tabItem);
-					}
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-							AuthorizableObject.USE_FEATURE, AuthorizableFeature.REDLIST_FEATURE)) {
-						final TabItem tabItem = new TabItem();
-						tabItem.setText("Redlist");
-						tabItem.setLayout(new FitLayout());
-						tabItem.add(redlistPanel);
-						tf.add(tabItem);
-					}
-					
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.VIRUS_MANAGEMENT_FEATURE)) {
-						final TabItem tabItem = new TabItem();
-						tabItem.setText("Virus Management");
-						tabItem.setLayout(new FitLayout());
-						tabItem.add(virusManagerPanel);
-						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
-							public void handleEvent(TabPanelEvent be) {
-								virusManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
-									public void isDrawn() {
-										tabItem.layout();
-									}
-								});
-							}
-						});
-						tf.add(tabItem);
-					}
-					
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.TAXA_TAGGING_FEATURE)) {
-						final TabItem tabItem = new TabItem();
-						tabItem.setText("Taxon Tag Management");
-						tabItem.setLayout(new FitLayout());
-						tabItem.add(taxaTagManagerPanel);
-						tabItem.addListener(Events.Select, new Listener<TabPanelEvent>() {
-							public void handleEvent(TabPanelEvent be) {
-								taxaTagManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
-									public void isDrawn() {
-										tabItem.layout();
-									}
-								});		
-							}
-						});
+		if (SISClientBase.iAmOnline) {
+			Menu menu = new Menu();
+			
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.DEM_UPLOAD_FEATURE)) {
+				menu.add(createMenuItem("icon-refresh", "DEM Import", new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final LayoutContainer container = new LayoutContainer();
+						container.add(new Html("This feature is not yet available."));
 						
-						tf.add(tabItem);
+						openAdministrativeTool("DEM Import", "icon-refresh", container);
 					}
-
-				}
-				
-				if( tf.getItems().size() > 0 ) {
-					alert.add(tf);
-					alert.show();
-				} else
-					WindowUtils.errorAlert("Sorry, but you do not have permission to access to these tools.");
-				return;
+				}));
 			}
-		}));
+			
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.ACCESS_EXPORT_FEATURE)) {
+				menu.add(createMenuItem(null, "Access Export", new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final LayoutContainer container = new LayoutContainer();
+						container.add(new Html("This feature is not yet available."));
+						
+						openAdministrativeTool("Access Export", null, container);
+					}
+				}));
+			}
+			
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.TAXON_FINDER_FEATURE)) {
+				final String title = "Manage New Taxa";
+				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						taxonFinderPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								openAdministrativeTool(title, null, taxonFinderPanel);
+							}
+						});
+					}
+				}));
+			}
+
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.DEFINITION_MANAGEMENT_FEATURE)) {
+				final String title = "Manage Definitions";
+				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						openAdministrativeTool(title, null, definitionPanel);
+					}
+				}));
+			}
+
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.INTEGRITY_CHECK_FEATURE)) {
+				final String title = "Manage Integrity Checks";
+				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final DrawsLazily.DoneDrawingCallback callback = new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								openAdministrativeTool(title, null, integrityPanel);
+							}
+						};
+						if (integrityPanel.isDrawn())
+							callback.isDrawn();
+						else
+							integrityPanel.draw(callback);
+					}
+				}));
+			}
+
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.LOCK_MANAGEMENT_FEATURE)) {
+				final String title = "Manage Locks";
+				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						lockManagementPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								openAdministrativeTool(title, null, lockManagementPanel);
+							}
+						});
+					}
+				}));
+			}
+			
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.BATCH_UPLOAD_FEATURE)) {
+				final String title = "Batch Upload";
+				menu.add(createMenuItem("icon-refresh", title, new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final ContentPanel tabItem = new ContentPanel();
+						tabItem.setUrl(UriBase.getInstance().getImageBase()+"/images/upload");
+						
+						openAdministrativeTool(title, "icon-refresh", tabItem);
+					}
+				}));
+			}
+			
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.REDLIST_FEATURE)) {
+				final String title = "Redlist";
+				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						openAdministrativeTool(title, null, redlistPanel);
+					}
+				}));
+			}
+			
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.VIRUS_MANAGEMENT_FEATURE)) {
+				final String title = "Virus Management";
+				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						virusManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								openAdministrativeTool(title, null, virusManagerPanel);
+							}
+						});
+					}
+				}));
+			}
+			
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.TAXA_TAGGING_FEATURE)) {
+				final String title = "Taxon Tag Management";
+				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						taxaTagManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								openAdministrativeTool(title, null, taxaTagManagerPanel);
+							}
+						});
+					}
+				}));
+			}
+			
+			if (!menu.getItems().isEmpty()) {
+				MenuItem item = new MenuItem("Administrative Tools");
+				item.setIconStyle("icon-prefs");
+				item.setSubMenu(menu);
+				
+				options.add(item);
+			}
+		}
 
 		options.add(createMenuItem("icon-find", "Find/Replace", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
