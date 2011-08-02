@@ -10,6 +10,7 @@ import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.solertium.db.Column;
 import com.solertium.db.DBException;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
@@ -37,7 +38,29 @@ public class IntegrityStructureGenerator {
 		final Document document = BaseDocumentUtils.impl.newDocument();
 		document.appendChild(document.createElement("tables"));
 		
+		//Manually attach the assessment table
 		ExecutionContext ec = SIS.get().getLookupDatabase();
+		try {
+			Row row = SIS.get().getExecutionContext().getRow("assessment");
+			final Element el = document.createElement("table");
+			el.setAttribute("name", "assessment");
+			
+			for (Column c : row.getColumns()) {
+				final String dataType = c.getClass().getSimpleName();
+				final String columnName = c.getLocalName();
+				
+				final Element columnEl = document.createElement("column");
+				columnEl.setAttribute("name", columnName);
+				columnEl.setAttribute("type", dataType);
+				
+				el.appendChild(columnEl);
+			}
+			
+			document.getDocumentElement().appendChild(el);
+		} catch (DBException e) {
+			TrivialExceptionHandler.ignore(ec, e);
+		}
+		
 		
 		final List<String> allFields =
 			FieldIO.getAllFields();
