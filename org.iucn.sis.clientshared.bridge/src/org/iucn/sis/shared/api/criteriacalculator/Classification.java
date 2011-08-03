@@ -274,38 +274,39 @@ public abstract class Classification {
 		CriteriaResult returnResult = new CriteriaResult(name, "c");
 
 		Range ps = factors.get(Factors.populationSize);
-		Range ps1 = Range.lessthan(ps, cPopulationSize);
+		Range sps = factors.get(Factors.subpopulationSize);
+		
+		Range C = Range.lessthan(ps, cPopulationSize);
 
 		//Population decline gen X for C1, but must be Observed or Estimated
-		Range pdg1 = (Range) factors.get(declineGenFactor);
-		pdg1 = Range.qualify(pdg1, Range.OBSERVED, Range.ESTIMATED);
-		pdg1 = Range.greaterthanequal(pdg1, cPopulationDeclineGenerations1);
+		Range C1 = factors.get(declineGenFactor);
+		C1 = Range.qualify(C1, Range.OBSERVED, Range.ESTIMATED);
+		C1 = Range.greaterthanequal(C1, cPopulationDeclineGenerations1);
 
 		//Population decline for C2, but must be Observed, Estimated, Projected or Inferred...
-		Range pd = factors.get(Factors.populationDecline);
-		pd = Range.qualify(pd, Range.OBSERVED, Range.ESTIMATED, Range.PROJECTED, Range.INFERRED);
+		Range C2 = factors.get(Factors.populationDecline);
+		C2 = Range.qualify(C2, Range.OBSERVED, Range.ESTIMATED, Range.PROJECTED, Range.INFERRED);
 		
-		Range sps = factors.get(Factors.subpopulationSize);
-		Range div = Range.divide(sps, ps);
-		sps = Range.lessthanequal(sps, cMaxSubpopulationSize);
-
-		Range pf = (Range) factors.get(Factors.populationFluctuation);
-
-		Range result = Range.independentOR(sps, div);
-		result = Range.independentOR(result, pf);
-		result = Range.independentAND(result, pd);
+		Range C2ai = Range.lessthanequal(sps, cMaxSubpopulationSize);
 		
-		//C1
-		result = Range.independentOR(result, pdg1);
+		Range C2aii = Range.divide(sps, ps);
+		C2aii = Range.greaterthanequal(C2aii, cAlotInSubpopulation);
+
+		Range C2b = factors.get(Factors.populationFluctuation);
+
+		Range result = Range.independentOR(C2ai, C2aii); //C2a
+		result = Range.independentOR(result, C2b); //C2a or C2b
+		result = Range.independentAND(result, C2); //C2 and C2a or C2b
+		result = Range.independentOR(result, C1); //C2 or C1
 		
 		//Must meet the first criteria of C
-		result = Range.independentAND(result, ps1);
+		result = Range.independentAND(result, C); //C1 or C2 and C
 
 		c = result;
 		returnResult.range = result;
 		
 		if (isNonZero(result))
-			returnResult.setCriteriaSet(createCString(pdg1, sps, div, pf));
+			returnResult.setCriteriaSet(createCString(C1, C2ai, C2aii, C2b));
 		
 		returnResult.printRange();
 		
@@ -401,18 +402,18 @@ public abstract class Classification {
 		return new CriteriaSet(name, criteriaMet);
 	}
 
-	protected CriteriaSet createCString(Range pdg1, Range sps, Range div, Range pf) {
+	protected CriteriaSet createCString(Range C1, Range C2ai, Range C2aii, Range C2b) {
 		List<String> criteriaMet = new ArrayList<String>();
-		if (isNonZero(pdg1))
+		if (isNonZero(C1))
 			criteriaMet.add("C1");
 
-		if (isNonZero(sps))
+		if (isNonZero(C2ai))
 			criteriaMet.add("C2ai");
 		
-		if (isNonZero(div))
+		if (isNonZero(C2aii))
 			criteriaMet.add("C2aii");
 		
-		if (isNonZero(pf))
+		if (isNonZero(C2b))
 			criteriaMet.add("C2b");
 		
 		return new CriteriaSet(name, criteriaMet);

@@ -207,6 +207,69 @@ public class ExpertSystem extends BasicTest {
 	}
 	
 	@Test
+	public void goodC2aii() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "200")));
+		assessment.getField().add(newField(CanonicalNames.PopulationContinuingDecline, 
+			new BooleanRangePrimitiveField("isDeclining", null, "1"),
+			new ForeignKeyPrimitiveField("qualifier", null, OBSERVED, "test")
+		));
+		assessment.getField().add(newField(CanonicalNames.MaxSubpopulationSize, 
+			new RangePrimitiveField("range", null, "180") 
+		));
+		
+		ExpertResult result = run(assessment);
+		Assert.assertEquals("CR", result.getAbbreviatedCategory());
+		Assert.assertEquals("C2a(ii)", result.getCriteriaString());
+	}
+	
+	@Test
+	public void goodVUC2aii() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "9000")));
+		assessment.getField().add(newField(CanonicalNames.PopulationContinuingDecline, 
+			new BooleanRangePrimitiveField("isDeclining", null, "1"),
+			new ForeignKeyPrimitiveField("qualifier", null, OBSERVED, "test")
+		));
+		assessment.getField().add(newField(CanonicalNames.MaxSubpopulationSize, 
+			new RangePrimitiveField("range", null, "8900") 
+		));
+		
+		ExpertResult result = run(assessment);
+		
+		Assert.assertFalse("VU".equals(result.getAbbreviatedCategory()));
+		
+		assessment.getField(CanonicalNames.MaxSubpopulationSize).getPrimitiveField("range")
+			.setRawValue("9000");
+		
+		result = run(assessment);
+		
+		Assert.assertEquals("VU", result.getAbbreviatedCategory());
+		Assert.assertEquals("C2a(ii)", result.getCriteriaString());
+	}
+	
+	@Test
+	public void badC2aii() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationSize, 
+			new RangePrimitiveField("range", null, "200")));
+		assessment.getField().add(newField(CanonicalNames.PopulationContinuingDecline, 
+			new BooleanRangePrimitiveField("isDeclining", null, "1"),
+			new ForeignKeyPrimitiveField("qualifier", null, OBSERVED, "test")
+		));
+		assessment.getField().add(newField(CanonicalNames.MaxSubpopulationSize, 
+			new RangePrimitiveField("range", null, "170") 
+		));
+		
+		ExpertResult result = run(assessment);
+		Assert.assertFalse("CR".equals(result.getAbbreviatedCategory()));
+		Assert.assertFalse("C2a(ii)".equals(result.getCriteriaString()));
+		Assert.assertEquals("EN", result.getAbbreviatedCategory());
+	}
+	
+	@Test
 	public void goodD() {
 		Assessment assessment = new Assessment();
 		assessment.getField().add(newField(CanonicalNames.PopulationSize, 

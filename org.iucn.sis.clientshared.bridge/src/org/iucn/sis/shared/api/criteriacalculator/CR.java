@@ -60,8 +60,7 @@ class CR extends Classification {
 		cPopulationSize = 250; // <250
 		cPopulationDeclineGenerations1 = 25; // >=25
 		cMaxSubpopulationSize = 50; // <=50
-		cAlotInSubpopulation = 0.9; // (maxSubpopulationSize)/
-		// populationSize >= .9
+		cAlotInSubpopulation = 0.9; // (maxSubpopulationSize)/populationSize >= .9
 		
 		// D
 		dPopulationSize = 50; // < 50	

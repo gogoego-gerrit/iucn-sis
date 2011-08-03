@@ -75,8 +75,7 @@ class EN extends Classification {
 		cPopulationSize = 2500; // <250
 		cPopulationDeclineGenerations1 = 25; // >=25
 		cMaxSubpopulationSize = 250; // <=250
-		cAlotInSubpopulation = 0.95; // (maxSubpopulationSize)/
-		// populationSize >= .95
+		cAlotInSubpopulation = 0.95; // (maxSubpopulationSize)/populationSize >= .95
 		
 		// D
 		dPopulationSize = 250; // < 250
