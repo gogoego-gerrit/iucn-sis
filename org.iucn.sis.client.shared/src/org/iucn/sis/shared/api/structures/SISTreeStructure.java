@@ -8,6 +8,7 @@ import java.util.Map;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
+import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
@@ -69,7 +70,7 @@ public class SISTreeStructure extends Structure<Field> {
 			public void componentSelected(ButtonEvent ce) {
 				final Window window = WindowUtils.newWindow(description);
 				window.setClosable(false);
-				window.setSize(800, 700);
+				window.setSize(ClassificationScheme.WINDOW_WIDTH, ClassificationScheme.WINDOW_HEIGHT);
 				window.setLayout(new FillLayout());
 				window.setLayoutOnChange(true);
 				window.add(viewer.draw(viewOnly));

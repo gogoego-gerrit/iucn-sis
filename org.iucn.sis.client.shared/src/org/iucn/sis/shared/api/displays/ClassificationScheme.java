@@ -45,6 +45,9 @@ import com.solertium.util.gwt.ui.StyledHTML;
  */
 @SuppressWarnings("unchecked")
 public class ClassificationScheme extends Display {
+	
+	public static final int WINDOW_WIDTH = 800;
+	public static final int WINDOW_HEIGHT = 575;
 
 	protected final TreeData treeData;
 	protected final Map<String, TreeDataRow> flatTree;
@@ -117,7 +120,7 @@ public class ClassificationScheme extends Display {
 			public void componentSelected(ButtonEvent ce) {
 				final Window window = WindowUtils.newWindow(description);
 				window.setClosable(false);
-				window.setSize(800, 700);
+				window.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 				window.setLayout(new FillLayout());
 				window.setLayoutOnChange(true);
 				window.add(viewer.draw(viewOnly));

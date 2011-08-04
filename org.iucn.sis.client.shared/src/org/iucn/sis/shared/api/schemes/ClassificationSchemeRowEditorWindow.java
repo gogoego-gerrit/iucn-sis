@@ -7,6 +7,7 @@ import java.util.List;
 import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
+import org.iucn.sis.shared.api.displays.ClassificationScheme;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -62,7 +63,7 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 		setLayout(new FillLayout());
 		setLayoutOnChange(true);
 		setClosable(false);
-		setSize(800, 700);
+		setSize(ClassificationScheme.WINDOW_WIDTH, ClassificationScheme.WINDOW_HEIGHT);
 		setScrollMode(Scroll.AUTO);
 	}
 	
@@ -123,7 +124,7 @@ public class ClassificationSchemeRowEditorWindow extends BasicWindow implements 
 				box.setEnabled(EditMode.NEW.equals(mode));
 				
 				final ToolBar top = new ToolBar();
-				top.add(new LabelToolItem(description+":"));
+				top.add(new LabelToolItem("Select:"));
 				top.add(box);
 				
 				final LayoutContainer container = new LayoutContainer(new BorderLayout());
