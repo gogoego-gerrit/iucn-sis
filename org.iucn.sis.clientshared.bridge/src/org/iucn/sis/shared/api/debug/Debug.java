@@ -7,7 +7,12 @@ public class Debug {
 	}
 	
 	public static void setInstance(Debugger debugger) {
-		instance = new Debug(debugger); 
+		setInstance(debugger, false); 
+	}
+	
+	public static void setInstance(Debugger debugger, boolean force) {
+		if (isDefaultInstance() || force)
+			instance = new Debug(debugger); 
 	}
 	
 	/*

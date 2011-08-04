@@ -40,26 +40,13 @@ import com.solertium.vfs.VFSFactory;
 public class SIS {
 
 	private static SIS impl;
+	
 	protected final FileLocker locker;
-	/*protected final AssessmentIO assessmentIO;
-	protected final TaxonIO taxonIO;
-	protected final UserIO userIO;
-	protected final PermissionIO permissionIO;
-	protected final WorkingSetIO workingSetIO;
-	protected final InfratypeIO infratypeIO;
-	protected final TaxomaticIO taxomaticIO;*/
 	protected final VFS vfs;
 	protected final String vfsroot;
-	/*protected final IsoLanguageIO isoLanguageIO;
-	protected final RelationshipIO relationshipIO;
-	protected final RegionIO regionIO;
-	protected final ReferenceIO referenceIO;
-	protected final PrimitiveFieldIO primitiveFieldIO;
-	protected final FieldIO fieldIO;
-	protected final EditIO editIO;
-	protected final NoteIO noteIO;*/
 	protected final ExecutionContext ec, lookups;
-	protected final AssessmentSchemaBroker broker;
+	
+	protected AssessmentSchemaBroker broker;
 	protected Properties settings;
 
 	protected SIS() {
@@ -94,8 +81,6 @@ public class SIS {
 			lookups = new SystemExecutionContext("sis_lookups");
 			lookups.setAPILevel(ExecutionContext.SQL_ALLOWED);
 			lookups.setExecutionLevel(ExecutionContext.ADMIN);
-			
-			broker = new AssessmentSchemaBroker();
 		} catch (NotFoundException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
@@ -105,6 +90,12 @@ public class SIS {
 		} catch (NamingException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
+		}
+		
+		try {
+			broker = new AssessmentSchemaBroker();
+		} catch (Exception e) {
+			//OK.
 		}
 
 		SISPersistentManager.instance();
