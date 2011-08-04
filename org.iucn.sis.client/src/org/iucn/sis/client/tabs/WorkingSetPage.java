@@ -1,9 +1,12 @@
 package org.iucn.sis.client.tabs;
 
+import java.util.Date;
+
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
@@ -15,7 +18,6 @@ import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workingsets.DeleteWorkingSetPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetAddAssessmentsPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetEditBasicPanel;
-import org.iucn.sis.client.panels.workingsets.WorkingSetExporter;
 import org.iucn.sis.client.panels.workingsets.WorkingSetOptionsPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetPermissionPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetReportPanel;
@@ -31,6 +33,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.user.client.ui.Grid;
@@ -336,10 +339,30 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 	}
 	
 	public void fireExport(final WorkingSet workingSet, boolean lock) {
+		final String url = UriBase.getInstance().getSISBase() + "/workingSetExporter/public/"
+			+ SISClientBase.currentUser.getUsername() + "/" + workingSet.getId() + "?lock="
+			+ lock + "&time=" + new Date().getTime();
+		
+		final ContentPanel content = new ContentPanel();
+		content.setUrl(url);
+		
+		final Window exportWindow = WindowUtils.newWindow("Export " + workingSet.getName() + "...");
+		exportWindow.setScrollMode(Scroll.AUTO);
+		exportWindow.setSize(500, 400);
+		exportWindow.addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				exportWindow.hide();
+			}
+		}));
+		exportWindow.setUrl(url);
+		exportWindow.show();
+		
 		WindowUtils.infoAlert("Export Started", "Your working sets are being exported. A popup "
 				+ "will notify you when the export has finished and when the files are "
-				+ "available for download.");
+				+ "available for download.  Please be patient as larger working sets will "
+				+ "take longer to export.");
 		
+		/*
 		WorkingSetCache.impl.exportWorkingSet(workingSet.getId(), lock, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Export failed, please try again later.");
@@ -347,7 +370,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 			public void onSuccess(String arg0) {
 				WorkingSetExporter.saveExportedZip(arg0, workingSet);
 			}
-		});
+		});*/
 	}
 
 }

@@ -126,7 +126,7 @@ public class WorkingSetExporter extends DatabaseExporter {
 	@Override
 	protected void insertAssessment(Session session, Assessment assessment) throws DBException {
 		if (lock)
-			lockAssessment(session, assessment);
+			lockAssessment(assessment);
 		
 		/*
 		 * Initialize everything this way because it's lazy & recursive.
@@ -137,8 +137,10 @@ public class WorkingSetExporter extends DatabaseExporter {
 		target.replicate(assessment, ReplicationMode.OVERWRITE);
 	}
 	
-	private void lockAssessment(Session session, Assessment assessment) {
+	private void lockAssessment(Assessment assessment) throws DBException {
+		Session session = SISPersistentManager.instance().openSession();
 		User user = new UserIO(session).getUserFromUsername(username);
+		
 		Status ret = SIS.get().getLocker().persistentLockAssessment(
 			assessment.getId(), LockType.CHECKED_OUT, user,
 				workingSetID + "");
@@ -161,6 +163,8 @@ public class WorkingSetExporter extends DatabaseExporter {
 			}
 		} else
 			locked.put(assessment.getId(), username);
+		
+		session.close();
 	}
 	
 	protected void execute() throws Throwable {
