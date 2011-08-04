@@ -28,6 +28,8 @@ public class HibernateLockRepository extends LockRepository {
 	@Override
 	public void clearGroup(String id) throws LockException {
 		Session session = manager.openSession();
+		session.beginTransaction();
+		
 		Criteria criteria = session.createCriteria(Lock.class);
 		criteria = criteria.add(Restrictions.eq("group", id));
 		
@@ -36,23 +38,23 @@ public class HibernateLockRepository extends LockRepository {
 			results = criteria.list();
 		} catch (HibernateException e) {
 			Debug.println(e);
-			throw new LockException(e);
-		} finally {
 			session.close();
+			throw new LockException(e);
 		}
+		
 		if (results != null && !results.isEmpty()) {
 			for (Lock lock : results) {
 				try {
 					manager.deleteObject(session, lock);
 				} catch (PersistentException e) {
-					Debug.println(e);
-					throw new LockException(e);
-				} finally {
+					session.getTransaction().rollback();
 					session.close();
+					throw new LockException(e);
 				}
 			}
 		}
 		
+		session.getTransaction().commit();
 		session.close();
 	}
 
@@ -66,13 +68,17 @@ public class HibernateLockRepository extends LockRepository {
 		try {
 			lock = (Lock)criteria.list().get(0);
 		} catch (NullPointerException e) {
+			Debug.println(e);
+			session.close();
 			return null;
 		} catch (IndexOutOfBoundsException e) {
+			Debug.println(e);
+			session.close();
 			return null;
 		} catch (ClassCastException e) {
-			return null;
-		} finally {
+			Debug.println(e);
 			session.close();
+			return null;
 		}
 		
 		LockInfo info = new LockInfo(lock.getLockID(), lock.getUser().getId(), 
@@ -107,9 +113,9 @@ public class HibernateLockRepository extends LockRepository {
 		try {
 			list = manager.listObjects(Lock.class, session);
 		} catch (PersistentException e) {
-			return new HashMap<String, List<Integer>>();
-		} finally {
+			Debug.println(e);
 			session.close();
+			return new HashMap<String, List<Integer>>();
 		}
 		
 		final Map<String, List<Integer>> map = 
@@ -137,9 +143,9 @@ public class HibernateLockRepository extends LockRepository {
 		try {
 			locks = manager.listObjects(Lock.class, session);
 		} catch (PersistentException e) {
-			return new ArrayList<LockRepository.LockInfo>();
-		} finally {
+			Debug.println(e);
 			session.close();
+			return new ArrayList<LockRepository.LockInfo>();
 		}
 		
 		for (Lock lock : locks)
@@ -171,19 +177,26 @@ public class HibernateLockRepository extends LockRepository {
 		lock.setGroup(groupID);
 		
 		Session session = manager.openSession();
+		session.beginTransaction();
 		
 		try {
 			manager.saveObject(session, lock);
 		} catch (PersistentException e) {
-			return null;
-		} finally {
+			Debug.println(e);
+			session.getTransaction().rollback();
 			session.close();
+			return null;
 		}
 		
 		LockInfo result = new LockInfo(lock.getLockID(), lock.getUser().getId(), 
 				LockType.fromString(lock.getType()), groupID, this);
 		
+		Debug.println("Created Hibernate lock ({0}): {1}", lock.getId(), result);
+		
+		session.getTransaction().commit();
 		session.close();
+		
+		Debug.println(listLocks());
 		
 		return result;
 	}
@@ -191,6 +204,8 @@ public class HibernateLockRepository extends LockRepository {
 	@Override
 	public void removeLockByID(Integer id) {
 		Session session = manager.openSession();
+		session.beginTransaction();
+		
 		Criteria criteria = session.createCriteria(Lock.class);
 		criteria = criteria.add(Restrictions.eq("lockid", id));
 		
@@ -198,20 +213,26 @@ public class HibernateLockRepository extends LockRepository {
 		try {
 			lock = (Lock)criteria.list().get(0);
 		} catch (NullPointerException e) {
+			Debug.println(e);
+			session.close();
 			return;
 		} catch (IndexOutOfBoundsException e) {
+			Debug.println(e);
+			session.close();
 			return;
 		} catch (ClassCastException e) {
-			return;
-		} finally {
+			Debug.println(e);
 			session.close();
+			return;
 		}
 		
 		try {
 			manager.deleteObject(session, lock);
 		} catch (PersistentException e) {
+			session.getTransaction().rollback();
 			Debug.println(e);
 		} finally {
+			session.getTransaction().commit();
 			session.close();
 		}
 	}

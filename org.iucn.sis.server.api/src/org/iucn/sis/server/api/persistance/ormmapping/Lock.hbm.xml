@@ -6,10 +6,10 @@
 			<generator class="native">
 			</generator>
 		</id>
-		<property name="lockID" column="lockid" type="integer" not-null="true" lazy="false" />
+		<property name="lockid" column="lockid" type="integer" not-null="true" lazy="false" />
 		<property name="date" column="date" type="java.util.Date" not-null="true" lazy="false" />
 		<property name="type" column="type" type="string" not-null="true" lazy="false" />
-		<property name="group" column="groupname" type="string" not-null="true" lazy="false" />
+		<property name="group" column="groupname" type="string" not-null="false" lazy="false" />
 		<many-to-one name="user" cascade="lock" column="userid" class="org.iucn.sis.shared.api.models.User" not-null="true" lazy="no-proxy"/>
 	</class>
 </hibernate-mapping>

@@ -5,7 +5,7 @@ import java.util.Date;
 public class Lock {
 	
 	private int id;
-	private int lockID;
+	private int lockid;
 	private String type;
 	private Date date;
 	private User user;
@@ -45,13 +45,21 @@ public class Lock {
 	public void setUser(User user) {
 		this.user = user;
 	}
-
+	
 	public int getLockID() {
-		return lockID;
+		return lockid;
 	}
 
+	public int getLockid() {
+		return lockid;
+	}
+	
 	public void setLockID(int lockID) {
-		this.lockID = lockID;
+		setLockid(lockID);
+	}
+	
+	public void setLockid(int lockid) {
+		this.lockid = lockid;
 	}
 	
 	public String getGroup() {

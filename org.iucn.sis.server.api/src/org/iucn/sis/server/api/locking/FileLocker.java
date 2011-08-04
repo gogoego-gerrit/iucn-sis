@@ -38,8 +38,8 @@ public class FileLocker {
 	public FileLocker() {
 		locks = new ConcurrentHashMap<String, SimpleLock>();
 		//assessmentLocks = new ConcurrentHashMap<String, Lock>();
-		assessmentLocks = new PersistentLockRepository();
-		//assessmentLocks = new HibernateLockRepository();
+		//assessmentLocks = new PersistentLockRepository();
+		assessmentLocks = new HibernateLockRepository();
 		/*
 		if(OnlineUtil.amIOnline())
 			assessmentLocks = new PersistentLockRepository();
@@ -219,13 +219,14 @@ public class FileLocker {
 			}
 		} else {
 			//assessmentLocks.put(id + assessmentType, new Lock(id + assessmentType, owner, lockType));
+			LockInfo lock = null;
 			try {
-				assessmentLocks.lockAssessment(assessmentID, owner, lockType, group);
+				lock = assessmentLocks.lockAssessment(assessmentID, owner, lockType, group);
 			} catch (LockException e) {
 				Debug.println(e);
 				return Status.SERVER_ERROR_INTERNAL;
 			}
-			return Status.SUCCESS_OK;
+			return lock == null ? Status.SERVER_ERROR_INTERNAL : Status.SUCCESS_OK;
 		}
 	}
 	
