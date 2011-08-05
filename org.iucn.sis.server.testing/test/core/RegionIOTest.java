@@ -30,7 +30,7 @@ public class RegionIOTest extends BasicHibernateTest {
 		try {
 			io.saveRegion(newRegion);
 			session.getTransaction().commit();
-		} catch (PersistentException e) {
+		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getMessage());
 		}
 		
@@ -38,12 +38,21 @@ public class RegionIOTest extends BasicHibernateTest {
 		session.beginTransaction();
 		Assert.assertTrue(id != 0);
 		
+		newRegion.setDescription("JUnit Test Region New Description");
+		
+		try {
+			io.saveRegion(newRegion);
+			session.getTransaction().commit();
+		} catch (Exception e) {
+			Assert.fail("Exception thrown: " + e.getMessage());
+		}
+		
 		newRegion.setName("JUnit Test Region Renamed");
 		
 		try {
 			io.saveRegion(newRegion);
 			closeTransation(session);
-		} catch (PersistentException e) {
+		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getMessage());
 		}
 		
@@ -54,6 +63,68 @@ public class RegionIOTest extends BasicHibernateTest {
 		Assert.assertNotNull(existing);
 		Assert.assertEquals(id, existing.getId());
 		Assert.assertEquals("JUnit Test Region Renamed", existing.getName());
+	}
+	
+	/**
+	 * Ensure that I can not rename an  
+	 * existing region to a region that 
+	 * already exists.
+	 */
+	@Test
+	public void testRenameToExisting() {
+		final String baseName = "JUnit Test Region";
+		final String diffName = "JUnit Test Region Existing";
+		Session session = openTransaction();
+		RegionIO io = new RegionIO(session);
+		
+		Region newRegion = new Region();
+		newRegion.setName(baseName);
+		newRegion.setDescription("JUnit Test Region");
+		
+		try {
+			io.saveRegion(newRegion);
+			session.getTransaction().commit();
+		} catch (Exception e) {
+			Assert.fail("Exception thrown: " + e.getMessage());
+		}
+		
+		int regionID = newRegion.getId();
+		Assert.assertFalse(regionID == 0);
+		
+		session.beginTransaction();
+		
+		newRegion = new Region();
+		newRegion.setName(diffName);
+		newRegion.setDescription("JUnit Test Region with Different Name");
+		
+		try {
+			io.saveRegion(newRegion);
+			closeTransation(session);
+		} catch (Exception e) {
+			Assert.fail("Exception thrown: " + e.getMessage());
+		}
+		
+		Assert.assertFalse(newRegion.getId() == 0);
+		Assert.assertFalse(newRegion.getId() == regionID);
+		
+		session = openTransaction();
+		io = new RegionIO(session);
+		
+		Region existing = io.getRegion(regionID);
+		Assert.assertNotNull(existing);
+		
+		existing.setName(diffName);
+		
+		try {
+			io.saveRegion(existing);
+			closeTransation(session);
+			Assert.fail("Region using the same name got saved successfully");
+		} catch (PersistentException e) {
+			Assert.fail();
+		} catch (Exception e) {
+			session.getTransaction().rollback();
+			Debug.println("Failed to save regions, probably a good thing...: {0}", e.getMessage());
+		}
 	}
 	
 	/**
@@ -74,7 +145,7 @@ public class RegionIOTest extends BasicHibernateTest {
 		try {
 			io.saveRegion(newRegion);
 			session.getTransaction().commit();
-		} catch (PersistentException e) {
+		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getMessage());
 		}
 		
@@ -101,6 +172,8 @@ public class RegionIOTest extends BasicHibernateTest {
 			io.saveRegion(brandNewRegion);
 			session.getTransaction().commit();
 			Debug.println("This should have failed...");
+		} catch (PersistentException e) {
+			Assert.fail(e.getMessage());
 		} catch (Exception e) {
 			session.getTransaction().rollback();
 			Debug.println("Failed to save regions, probably a good thing...: {0}", e.getMessage());
@@ -135,7 +208,7 @@ public class RegionIOTest extends BasicHibernateTest {
 		try {
 			io.saveRegion(newRegion);
 			session.getTransaction().commit();
-		} catch (PersistentException e) {
+		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getMessage());
 		}
 		
@@ -163,6 +236,8 @@ public class RegionIOTest extends BasicHibernateTest {
 			io.saveRegion(brandNewRegion);
 			session.getTransaction().commit();
 			Debug.println("This should have failed...");
+		} catch (PersistentException e) {
+			Assert.fail(e.getMessage());
 		} catch (Exception e) {
 			session.getTransaction().rollback();
 			Debug.println("Failed to save regions, probably a good thing...: {0}", e.getMessage());
