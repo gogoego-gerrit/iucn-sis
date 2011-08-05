@@ -2,11 +2,9 @@ package org.iucn.sis.client.panels.region;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.shared.api.models.Region;
-
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
@@ -36,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridView;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
+import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -71,7 +70,6 @@ public class RegionPanel extends ContentPanel {
 		if (built)
 			return;
 
-		// setSize(800, 400);
 		setLayout(new RowLayout(Orientation.HORIZONTAL));
 		setHeaderVisible(true);
 		setFrame(true);
@@ -125,7 +123,6 @@ public class RegionPanel extends ContentPanel {
 		formBindings.setStore(store);
 
 		add(panel, new RowData(.5, 1));
-// setAlignment(HorizontalAlignment.LEFT);
 		add = new Button("Add New Region", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
@@ -209,8 +206,7 @@ public class RegionPanel extends ContentPanel {
 		panel = new FormPanel();
 		panel.setHeaderVisible(false);
 		panel.setBorders(true);
-		// panel.setHeading("Edit Selected Region");
-
+		
 		id = new TextField<String>();
 		id.setName("id");
 		id.setFieldLabel("ID");
@@ -231,9 +227,24 @@ public class RegionPanel extends ContentPanel {
 					return "You must enter valid data for " + field.getFieldLabel();
 				else if (grid.getSelectionModel().getSelectedItem().get("id").equals(DEFAULT_NEW_ID+"")
 						&& RegionCache.impl.getRegionByName(value) != null)
-					return "A region with the name " + value + "already exists.";
-				else
-					return null;
+					return "A region with the name " + value + " already exists.";
+				else{
+					if(!grid.getSelectionModel().getSelectedItem().get("id").equals(DEFAULT_NEW_ID+""))
+						return null;
+					else{	
+						boolean status = true;
+						for (Region obj : RegionCache.impl.getRegions()) {
+							if (obj.getName().trim().equalsIgnoreCase(value.trim())) {
+								status = false; 
+								break;
+							}	
+						}
+						if(status)
+							return null;
+						else
+							return "A region with the name " + value + " already exists.";
+					}
+				}	
 			}
 		});
 		panel.add(name);
@@ -310,20 +321,24 @@ public class RegionPanel extends ContentPanel {
 						list.add(model.getRegion());
 					}
 				}
-				RegionCache.impl.saveRegions(list,
-						new GenericCallback<String>() {
-					public void onFailure(Throwable caught) {
-						WindowUtils.errorAlert("Could not save changes to regions, please try again later.");
+				
+				RegionCache.impl.saveRegions(list, new GenericCallback<String>() {
+					public void onFailure(Throwable caught) {	
 						store.rejectChanges();
-						store.removeAll();
-						for (Region curRegion : RegionCache.impl.getRegions())
-							store.add(new RegionModel(curRegion));
+
+						if( caught instanceof GWTConflictException)
+							WindowUtils.errorAlert("Could not save changes to regions, duplicates region names deteced.");
+						else
+							WindowUtils.errorAlert("Could not save changes to regions, please try again later.");		
 					}
 					public void onSuccess(String result) {
+						resetStoreData();
 						store.commitChanges();
 						store.removeAll();
 						for (Region curRegion : RegionCache.impl.getRegions())
-							store.add(new RegionModel(curRegion));
+							store.add(new RegionModel(curRegion));						
+						
+						WindowUtils.infoAlert("Save Successful.");
 					}
 				});
 			} else {

@@ -49,8 +49,7 @@ public class RegionRestlet extends BaseServiceRestlet {
 			regions = regionIO.getRegions();
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
-		
+		}		
 		for (Region reg : regions)
 			ret.append(reg.toXML());
 		ret.append("</regions>");
@@ -65,10 +64,12 @@ public class RegionRestlet extends BaseServiceRestlet {
 		NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(Region.ROOT_TAG);
 		for (int i = 0; i < list.getLength(); i++) {
 			Region regionUpdated = Region.fromXML(list.elementAt(i));
-			try {
+			try {	
 				regionIO.saveRegion(regionUpdated);
 			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+			} catch (ResourceException e){
+				throw new ResourceException(Status.CLIENT_ERROR_CONFLICT);
 			}
 		}
 		response.setEntity(handleGet(request, response, session));
