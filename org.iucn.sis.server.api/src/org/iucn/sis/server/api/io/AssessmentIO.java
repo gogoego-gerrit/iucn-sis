@@ -14,7 +14,6 @@ import org.iucn.sis.server.api.persistance.AssessmentDAO;
 import org.iucn.sis.server.api.persistance.AssessmentTypeCriteria;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.utils.OnlineUtil;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.io.AssessmentIOMessage;
@@ -324,7 +323,7 @@ public class AssessmentIO {
 	public AssessmentIOWriteResult writeAssessment(Assessment assessmentToSave, User user, boolean requireLocking) {
 
 		Status lockStatus = Status.SUCCESS_OK;
-		if (OnlineUtil.amIOnline() && requireLocking)
+		if (SIS.amIOnline() && requireLocking)
 			lockStatus = SIS.get().getLocker().persistentLockAssessment(assessmentToSave.getId(), LockType.SAVE_LOCK,
 					user);
 
@@ -361,17 +360,17 @@ public class AssessmentIO {
 	 */
 	public AssessmentIOMessage writeAssessments(List<Assessment> assessments, User user, boolean requireLocking) {
 		AssessmentIOMessage ret = new AssessmentIOMessage();
-		for (Assessment ass : assessments) {
-			AssessmentIOWriteResult result = writeAssessment(ass, user, requireLocking);
-			if (result.status == Status.CLIENT_ERROR_FORBIDDEN) {
-				ret.addLocked(ass);
+		for (Assessment current : assessments) {
+			AssessmentIOWriteResult result = writeAssessment(current, user, requireLocking);
+			if (result.status.isClientError()) {
+				ret.addLocked(current);
 			} else if (result.status.isServerError()) {
-				ret.addFailed(ass);
+				ret.addFailed(current);
 			} else if (result.status.isSuccess()) {
-				ret.addSuccessfullySaved(ass);
-			} else if (result.status.isClientError()) {
-				ret.addInsufficientPermissions(ass);
-			}
+				ret.addSuccessfullySaved(current);
+			}/* else if (result.status.isClientError()) {
+				ret.addInsufficientPermissions(current);
+			}*/
 		}
 		return ret;
 	}

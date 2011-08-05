@@ -12,7 +12,6 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
-import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.persistance.FieldDAO;

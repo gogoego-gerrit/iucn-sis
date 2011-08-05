@@ -24,6 +24,7 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
 
 import com.extjs.gxt.ui.client.widget.Info;
 import com.google.gwt.core.client.GWT;
+import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.events.SimpleListener;
@@ -69,10 +70,20 @@ public class AssessmentClientSaveUtils {
 					final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 					ndoc.post(UriBase.getInstance().getSISBase() +"/assessments", assessmentToSave.toXML(), new GenericCallback<String>() {
 						public void onFailure(Throwable caught) {
-							if (ndoc.getStatusText().indexOf("409") > -1) {
-								callback.onFailure(new Exception("A draft assessment " +
+							if (caught instanceof GWTResponseException) {
+								int code = ((GWTResponseException)caught).getCode();
+								if (code == 409)
+									callback.onFailure(new Exception("A draft assessment " +
 										"with the specified regions already exists. Please modify " +
-								"your choice of regions and try again."));
+										"your choice of regions and try again."));
+								else if (code == 403)
+									callback.onFailure(new Exception("This assessment has " +
+										"been locked since you opened it; no changes will " +
+										"be saved.  Please try again in a few minutes."));
+								else if (code == 423)
+									callback.onFailure(new Exception("This assessment has " +
+										"been locked since you opened it; no changes will " +
+										"be saved."));
 							} else {
 								callback.onFailure(new Exception("Please check your internet " +
 								"connection and try again."));

@@ -215,7 +215,10 @@ public class FileLocker {
 			} else {
 				if( verboseOutput )
 					Debug.println("You can't have the lock " + owner + ", it's already owned by " + l.username);
-				return Status.CLIENT_ERROR_FORBIDDEN;
+				if (LockType.SAVE_LOCK.equals(l.getLockType()))
+					return Status.CLIENT_ERROR_FORBIDDEN;
+				else
+					return Status.CLIENT_ERROR_LOCKED;
 			}
 		} else {
 			//assessmentLocks.put(id + assessmentType, new Lock(id + assessmentType, owner, lockType));
