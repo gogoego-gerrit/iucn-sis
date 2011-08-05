@@ -202,7 +202,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 						public void onYes() {
 							WorkingSetCache.impl.unsubscribeToWorkingSet(WorkingSetCache.impl.getWorkingSet(getSelectedItem()), new GenericCallback<String>() {
 								public void onSuccess(String result) {
-									WindowUtils.infoAlert("You have successfully unsubscribed from the working set " + WorkingSetCache.impl.getWorkingSet(getSelectedItem()).getWorkingSetName() + ".");
+									WindowUtils.infoAlert("You have successfully unsubscribed from the working set " + result + ".");
 									WSStore.getStore().update();
 									StateManager.impl.reset();
 								}

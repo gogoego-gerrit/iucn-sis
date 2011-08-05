@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.workingset.WSModel;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.PagingPanel;
@@ -11,6 +12,7 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
@@ -190,11 +192,11 @@ public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 
 			public void onSuccess(String arg0) {
 				WindowUtils.infoAlert("Working Set Added", model.getName()
-						+ " was successfully added to your working sets.  To view this " + model.getName()
-						+ " click on the quick summary tab.");
+						+ " was successfully added to your working sets.");
 				actionButton.enable();
-				// refreshList();
 				WSStore.getStore().update();
+				fireEvent(Events.Hide);
+				StateManager.impl.setState(WorkingSetCache.impl.getWorkingSet(model.getID()), null, null);
 			}
 		});
 	}

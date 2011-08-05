@@ -20,6 +20,7 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -293,7 +294,7 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 					public void componentSelected(MenuEvent ce) {
 						final WorkingSetSubscriber panel = new WorkingSetSubscriber();
 						
-						Window window = WindowUtils.newWindow("Subscribe to Working Set");
+						final Window window = WindowUtils.newWindow("Subscribe to Working Set");
 						window.setLayout(new FillLayout());
 						window.setSize(700, 700);
 						window.addListener(Events.Show, new Listener<BaseEvent>() {
@@ -302,6 +303,13 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 							}
 						});
 						window.add(panel);
+						
+						panel.addListener(Events.Hide, new Listener<ComponentEvent>() {
+							public void handleEvent(ComponentEvent be) {
+								window.hide();
+							}
+						});
+						
 						window.show();
 					}
 				});
