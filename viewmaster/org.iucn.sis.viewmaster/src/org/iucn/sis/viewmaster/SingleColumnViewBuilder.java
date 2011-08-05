@@ -32,20 +32,24 @@ public class SingleColumnViewBuilder {
 				c.update(String.format("DROP VIEW IF EXISTS %s.%s CASCADE", schema, localViewName));
 				StringBuilder columnspecs = new StringBuilder();
 				StringBuilder joinspecs = new StringBuilder();
+				StringBuilder wherespecs = new StringBuilder("    WHERE ");
 				
 				if ("field".equals(type)) {
 					columnspecs.append("sf.id as recordid");
-					joinspecs.append("    JOIN public.field sf ON public.field.id = sf.parentid AND sf.name = '" + joinTable + "Subfield'");
+					joinspecs.append("    JOIN public.field sf ON public.field.id = sf.parentid");
+					wherespecs.append("sf.name = '" + joinTable + "Subfield'");
 				}
 				else {
 					String joinPrimWith = "field";
 					if (sfi > 0) {
 						columnspecs.append("sf.id as recordid, ");
-						joinspecs.append("    JOIN public.field sf ON field.id = sf.parentid AND sf.name = '" + joinTable + "Subfield'\n");
+						joinspecs.append("    JOIN public.field sf ON field.id = sf.parentid\n");
+						wherespecs.append("sf.name = '" + joinTable + "Subfield' AND ");
 						joinPrimWith = "sf";
 					}
 					columnspecs.append("ff.value");
-					joinspecs.append("    JOIN public.primitive_field pf ON pf.fieldid = "+joinPrimWith+".id AND pf.name = '" + name + "'\n");
+					joinspecs.append("    JOIN public.primitive_field pf ON pf.fieldid = "+joinPrimWith+".id\n");
+					wherespecs.append("pf.name = '" + name + "'");
 					if ("foreign_key_list_primitive_field".equals(type)) {
 						joinspecs.append("    JOIN public."+type+" fi ON fi.id = pf.id\n");
 						joinspecs.append("    JOIN public.fk_list_primitive_values ff ON ff.fk_list_primitive_id = pf.id\n");
@@ -59,7 +63,8 @@ public class SingleColumnViewBuilder {
 					+ columnspecs + "\n"
 					+ "FROM " + schema + ".vw_filter \n"
 					+ "  JOIN public.field on public.field.assessmentid = " + schema + ".vw_filter.assessmentid AND public.field.name='"+joinTable+"'\n"
-					+ joinspecs;
+					+ joinspecs + "\n"
+					+ wherespecs;
 					c.update(sql);
 					c.update("GRANT SELECT ON "+schema+"."+localViewName+" TO " + user);
 				

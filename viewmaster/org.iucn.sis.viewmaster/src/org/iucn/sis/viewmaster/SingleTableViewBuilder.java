@@ -32,6 +32,7 @@ public class SingleTableViewBuilder {
 					StringBuilder columnspecs = new StringBuilder();
 					StringBuilder joinspecs = new StringBuilder();
 					StringBuilder subcolumnspecs = new StringBuilder();
+					StringBuilder wherespecs = new StringBuilder("    WHERE ");
 					// StringBuilder updaters = new StringBuilder();
 					
 					String joinPrimWith = "field";
@@ -39,9 +40,11 @@ public class SingleTableViewBuilder {
 						columnspecs.append("s1.recordid, ");
 						subcolumnspecs.append("sf.id as recordid, ");
 						joinspecs.append("    JOIN public.field sf ON public.field.id = sf.parentid AND sf.name = '" + joinTable + "Subfield'\n");
+						wherespecs.append("sf.name = '" + joinTable + "Subfield'");
 						joinPrimWith = "sf";
 					}
 					
+					boolean firstWhere = true;
 					boolean first = true;
 					int count = 0;
 					for(String s : currentColumns.keySet()){
@@ -55,13 +58,18 @@ public class SingleTableViewBuilder {
 						if ("field".equals(currentColumns.get(s))) {
 							columnspecs.append("s1."+s);
 							subcolumnspecs.append("sf" + count + ".id as " + s);
-							joinspecs.append("    LEFT JOIN public.field sf" + count + " ON " + joinPrimWith + ".id = sf"+count+".parentid AND sf"+count+".name = '" + s + "'\n");
+							joinspecs.append("    LEFT JOIN public.field sf" + count + " ON " + joinPrimWith + ".id = sf"+count+".parentid\n");
+							if (!firstWhere)
+								wherespecs.append(" AND ");
+							wherespecs.append("sf"+count+".name = '" + s + "'");
 						}
 						else {
 							columnspecs.append("s1."+s);
 							subcolumnspecs.append("ff"+count+".value as "+s);
-							joinspecs.append("    LEFT JOIN public.primitive_field pf"+count+" ON pf"+count+".fieldid = "+joinPrimWith+".id AND pf"+count+".name = '" + s + "'\n");
-							
+							joinspecs.append("    LEFT JOIN public.primitive_field pf"+count+" ON pf"+count+".fieldid = "+joinPrimWith+".id\n");
+							if (!firstWhere)
+								wherespecs.append(" AND ");
+							wherespecs.append("pf"+count+".name = '" + s + "'");
 							
 							if ("foreign_key_list_primitive_field".equals(currentColumns.get(s))) {
 								joinspecs.append("    LEFT JOIN public."+currentColumns.get(s)+" fi"+count+" ON fi"+count+".id = pf"+count+".id\n");
@@ -95,7 +103,8 @@ public class SingleTableViewBuilder {
 						+ subcolumnspecs + "\n"
 						+ "  FROM " + schema + ".vw_filter \n"
 						+ "  JOIN public.field on public.field.assessmentid = " + schema + ".vw_filter.assessmentid AND public.field.name='"+joinTable+"'\n"
-						+ joinspecs
+						+ joinspecs + "\n"
+						+ wherespecs
 						+ ") s1 ON " + schema + ".vw_filter.assessmentid = s1.assessmentid";
 					c.update(sql);
 					c.update("GRANT SELECT ON "+schema+"."+localViewName+" TO " + user);
