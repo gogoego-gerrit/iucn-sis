@@ -11,6 +11,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Region;
 import org.junit.After;
 import org.junit.Test;
+import org.restlet.resource.ResourceException;
 
 public class RegionIOTest extends BasicHibernateTest {
 	
@@ -46,6 +47,8 @@ public class RegionIOTest extends BasicHibernateTest {
 		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getMessage());
 		}
+		
+		session.beginTransaction();
 		
 		newRegion.setName("JUnit Test Region Renamed");
 		
@@ -121,7 +124,7 @@ public class RegionIOTest extends BasicHibernateTest {
 			Assert.fail("Region using the same name got saved successfully");
 		} catch (PersistentException e) {
 			Assert.fail();
-		} catch (Exception e) {
+		} catch (ResourceException e) {
 			session.getTransaction().rollback();
 			Debug.println("Failed to save regions, probably a good thing...: {0}", e.getMessage());
 		}
@@ -174,7 +177,7 @@ public class RegionIOTest extends BasicHibernateTest {
 			Debug.println("This should have failed...");
 		} catch (PersistentException e) {
 			Assert.fail(e.getMessage());
-		} catch (Exception e) {
+		} catch (ResourceException e) {
 			session.getTransaction().rollback();
 			Debug.println("Failed to save regions, probably a good thing...: {0}", e.getMessage());
 		}
@@ -238,7 +241,7 @@ public class RegionIOTest extends BasicHibernateTest {
 			Debug.println("This should have failed...");
 		} catch (PersistentException e) {
 			Assert.fail(e.getMessage());
-		} catch (Exception e) {
+		} catch (ResourceException e) {
 			session.getTransaction().rollback();
 			Debug.println("Failed to save regions, probably a good thing...: {0}", e.getMessage());
 		}
