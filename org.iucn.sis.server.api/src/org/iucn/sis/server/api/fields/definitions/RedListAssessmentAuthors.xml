@@ -4,7 +4,7 @@
 	<classOfService>Outcome</classOfService>
 	<structures>
 		<structure id="value">
-			<text></text>
+			<narrative></narrative>
 		</structure>
 	</structures>
 </field>
