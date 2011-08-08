@@ -180,7 +180,7 @@ public class WorkingSetCache {
 			public void onSuccess(String arg0) {
 				workingSets.remove(ws.getId());
 				uncacheAssessmentsForWorkingSet(ws);
-				wayBack.onSuccess("YAY");
+				wayBack.onSuccess(ws.getName());
 			}
 		});
 

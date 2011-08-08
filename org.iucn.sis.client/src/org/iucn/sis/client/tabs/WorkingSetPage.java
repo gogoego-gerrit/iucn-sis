@@ -239,7 +239,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 											}
 											@Override
 											public void onSuccess(String result) {
-												WindowUtils.infoAlert("You have successfully deleted the working set " + WorkingSetCache.impl.getWorkingSet(getSelectedItem()).getWorkingSetName() + ".");
+												WindowUtils.infoAlert("You have successfully deleted the working set " + result + ".");
 												WSStore.getStore().update();
 												StateManager.impl.reset();
 											}
