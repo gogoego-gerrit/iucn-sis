@@ -1,6 +1,6 @@
 <field id="121">
 	<canonicalName>RedListRationale</canonicalName>
-	<description>Rationale for the Red List Assesssment</description>
+	<description>Rationale for the Red List Assessment</description>
 	<classOfService>Outcome</classOfService>
 	<structures>
 		<structure id="value">
