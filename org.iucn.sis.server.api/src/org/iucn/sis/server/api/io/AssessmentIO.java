@@ -434,32 +434,26 @@ public class AssessmentIO {
 	}
 
 	public boolean allowedToCreateNewAssessment(Assessment assessment) {
-		if (assessment.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
-			if (!assessment.hasRegions())
-				return true;
+		return assessment.isPublished() || 
+			!assessment.hasRegions() || 
+			!(assessment.isDraft() && conflicts(assessment, 
+					readDraftAssessmentsForTaxon(assessment.getTaxon().getId())));
+	}
+	
+	public boolean conflicts(Assessment assessment, List<Assessment> existing) {
+		List<Integer> regionIDs = assessment.getRegionIDs();
+		String defaultSchema = SIS.get().getDefaultSchema();
+		for (Assessment cur : existing) {
+			if (!cur.getSchema(defaultSchema).equals(assessment.getSchema(defaultSchema)))
+				continue;
 			
-			List<Assessment> compareTo = readDraftAssessmentsForTaxon(
-					assessment.getTaxon().getId());
-			List<Integer> regionIDs = assessment.getRegionIDs();
-			String defaultSchema = SIS.get().getDefaultSchema();
-			for (Assessment cur : compareTo) {
-				if (!cur.getSchema(defaultSchema).equals(assessment.getSchema(defaultSchema)))
-					continue;
-				
-				if ((cur.isGlobal() && assessment.isGlobal())
-						|| cur.getRegionIDs().containsAll(regionIDs)) {
-					if (cur.getId() != assessment.getId())
-						return false;
-				}
+			if ((cur.isGlobal() && assessment.isGlobal())
+					|| cur.getRegionIDs().containsAll(regionIDs)) {
+				if (cur.getId() != assessment.getId())
+					return true;
 			}
-
-			/*try {
-				SIS.get().getManager().getSession().clear();
-			} catch (PersistentException e) {
-				Debug.println(e);
-			}*/
 		}
-		return true;
+		return false;
 	}
 
 	public AssessmentIOWriteResult saveNewAssessment(Assessment assessent, User user) throws RegionConflictException {

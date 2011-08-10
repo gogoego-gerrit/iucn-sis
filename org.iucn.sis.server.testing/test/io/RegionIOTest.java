@@ -1,4 +1,4 @@
-package core;
+package io;
 
 import junit.framework.Assert;
 
@@ -12,6 +12,8 @@ import org.iucn.sis.shared.api.models.Region;
 import org.junit.After;
 import org.junit.Test;
 import org.restlet.resource.ResourceException;
+
+import core.BasicHibernateTest;
 
 public class RegionIOTest extends BasicHibernateTest {
 	
