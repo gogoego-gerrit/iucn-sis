@@ -138,11 +138,8 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		
 		for (Integer id : afq.getAssessmentUIDs()) {
 			Assessment assessment = assessmentIO.getAssessment(id);
-			if (assessment != null) {
+			if (assessment != null) 
 				fetched.add(assessment);
-				/*fetched.addAll(assessmentIO.readAssessmentsForTaxon(
-						assessment.getSpeciesID()));*/
-			}
 		}
 
 		for (Integer taxonID : afq.getTaxonIDs()) {
@@ -159,7 +156,6 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		for (Assessment asm : fetched) {
 			filterFields(asm, mode);
 			ret.append(asm.toXML());
-			//ret.append(assessmentIO.getAssessmentXML(asm.getId()));
 		}
 		ret.append("</assessments>");
 
@@ -192,7 +188,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		}
 	}
 
-	private void postAssessment(Representation entity, Request request, Response response, User username, final Session session) throws ResourceException {
+	private void postAssessment(Representation entity, Request request, Response response, User username, final Session session) throws ResourceException  {
 		session.clear();
 		
 		NativeDocument doc = getEntityAsNativeDocument(entity);
@@ -261,6 +257,9 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				/*if (source.getField().size() != target.getField().size())
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Server error: fields not persisted correctly.");*/
 				
+				if (!assessmentIO.allowedToCreateNewAssessment(target))
+					throw new RegionConflictException();
+				
 				AssessmentIOWriteResult result = 
 					assessmentIO.writeAssessment(target, getUser(request, session), true);
 				
@@ -276,20 +275,16 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 					Debug.println("Error: No edit associated with this change. Not backing up changes.");
 				else
 					saver.saveChanges(target, result.edit);
-				/*AssessmentIOWriteResult result = saveAssessment(assessment, username);
-				if (result.status.isSuccess()) {
-					response.setEntity(assessment.toXML(), MediaType.TEXT_XML);
-					response.setStatus(result.status);
-				} else {
-					throw new ResourceException(Status.CLIENT_ERROR_EXPECTATION_FAILED);
-				}*/
+
 			} else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 			}
 
-		} catch (Exception e) {
+		} catch (RegionConflictException e) {
+			throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, e);
+		} catch (Exception e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
+		}	
 	}
 
 	private void batchCreate(Representation entity, Request request, Response response, User user, Session session) throws ResourceException {
