@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.TaxonIO;
@@ -335,16 +336,16 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 	}
 
 	private Assessment doCreateAssessmentForBatch(User user, AssessmentFilter filter, boolean useTemplate, Taxon taxon, Session session) {
-		AssessmentFilter draftFilter = filter.deepCopy();
-		draftFilter.setDraft(false);
-		draftFilter.setRecentPublished(true);
-		draftFilter.setAllPublished(false);
-
-		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, draftFilter);
-
 		Assessment assessment = null;
 
 		if (useTemplate) {
+			//Find most recent published first...
+			AssessmentFilter draftFilter = filter.deepCopy();
+			draftFilter.setDraft(false);
+			draftFilter.setRecentPublished(true);
+			draftFilter.setAllPublished(false);
+			
+			AssessmentFilterHelper helper = new AssessmentFilterHelper(session, draftFilter);
 			List<Assessment> assessments = helper.getAssessments(taxon.getId());
 			if (assessments.isEmpty()) {
 				draftFilter.getRegions().clear();
@@ -361,9 +362,10 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		} else
 			assessment = new Assessment();
 
-		assessment.setRegions(filter.getRegions(), filter.getRegions().contains("-1"));
-		assessment.setType(AssessmentType.DRAFT_ASSESSMENT_TYPE);
 		assessment.setTaxon(taxon);
+		assessment.setType(AssessmentType.DRAFT_ASSESSMENT_TYPE);
+		assessment.setSchema(SIS.get().getDefaultSchema());
+		assessment.setRegions(filter.getRegions(), filter.listRegionIDs().contains(Region.GLOBAL_ID));
 		
 		return assessment;
 	}

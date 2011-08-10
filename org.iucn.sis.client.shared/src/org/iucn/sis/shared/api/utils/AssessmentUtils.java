@@ -14,11 +14,8 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.fields.RegionField;
 
-import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.util.extjs.client.WindowUtils;
 
 public class AssessmentUtils {
 	
@@ -80,8 +77,8 @@ public class AssessmentUtils {
 	
 	public static void createGlobalDraftAssessments(List<Integer> taxaIDs, boolean useTemplate,
 			AssessmentFilter filter, final GenericCallback<String> wayback) {
-		if( taxaIDs.size() == 0 )
-			wayback.onSuccess("0");
+		if (taxaIDs.isEmpty())
+			wayback.onSuccess(null);
 		else {
 			StringBuilder ret = new StringBuilder("<create>");
 			ret.append(filter.toXML());
@@ -98,15 +95,10 @@ public class AssessmentUtils {
 				public void onSuccess(String result) {
 					AssessmentCache.impl.clear();
 					
-					String message = ndoc.getText();
-					com.extjs.gxt.ui.client.widget.Window w = WindowUtils.newWindow("Batch Create Results", null, false, true);
-					w.setScrollMode(Scroll.AUTOY);
-					w.setSize(400, 500);
-					w.add(new Html(message));
-					w.show();
+					wayback.onSuccess(ndoc.getText());
 				}
 				public void onFailure(Throwable caught) {
-					WindowUtils.errorAlert("Unable to complete request, please try again later.");
+					wayback.onFailure(caught);
 				}
 			});	
 		}

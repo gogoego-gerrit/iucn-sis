@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.DataList;
 import com.extjs.gxt.ui.client.widget.DataListItem;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
@@ -174,15 +175,22 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 		
 		AssessmentUtils.createGlobalDraftAssessments(speciesID, useTemplate, filter, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
-				WindowUtils.errorAlert("There was an error while creating the draft assessments <br/>: " + caught.getMessage());
+				WindowUtils.errorAlert("Unable to complete request, please try again later.");
 				add.enable();
 				hideList();
 			}
 
 			public void onSuccess(String arg0) {
+				if (arg0 != null) {
+					com.extjs.gxt.ui.client.widget.Window w = WindowUtils.newWindow("Batch Create Results", null, false, true);
+					w.setScrollMode(Scroll.AUTOY);
+					w.setSize(400, 500);
+					w.add(new Html(arg0));
+					w.show();
+				}
+				
 				WorkingSetCache.impl.uncacheAssessmentsForWorkingSet(WorkingSetCache.impl.getCurrentWorkingSet());
 				
-				WindowUtils.infoAlert("Success", (String) arg0);
 				cancel();
 				add.enable();
 				hideList();
