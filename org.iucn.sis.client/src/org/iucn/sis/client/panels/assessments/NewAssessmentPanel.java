@@ -2,6 +2,7 @@ package org.iucn.sis.client.panels.assessments;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -16,7 +17,9 @@ import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.client.api.utils.BasicWindow;
+import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.AssessmentMonkeyNavigatorPanel;
 import org.iucn.sis.client.panels.region.AddRegionPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
@@ -192,13 +195,18 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 	private void updateTemplates(String schema) {
 		template.clear();
 		template.insertItem("blank", 0);
-		for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId())) {
+		final List<Assessment> published = new ArrayList<Assessment>(
+			AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId())
+		);
+		Collections.sort(published, new AssessmentMonkeyNavigatorPanel.AssessmentDateComparator());
+		for (Assessment data : published) {
 			if (!schema.equals(data.getSchema(SchemaCache.impl.getDefaultSchema())))
 				continue;
 			
 			String displayable = "Published -- ";
-
-			displayable += data.getDateAssessed();
+			
+			displayable += data.getDateAssessed() == null ? "No date assessed" : 
+				FormattedDate.FULL.getDate(data.getDateAssessed());
 
 			if (data.isRegional())
 				displayable += " --- " + RegionCache.impl.getRegionName(data.getRegionIDs());
@@ -208,13 +216,19 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 			displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(data);
 			template.addItem(displayable, data.getId()+"");
 		}
-		for (Assessment data : AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId())) {
+		
+		final List<Assessment> drafts = new ArrayList<Assessment>(
+			AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId())
+		);
+		Collections.sort(drafts, new AssessmentMonkeyNavigatorPanel.AssessmentDateComparator());
+		for (Assessment data : drafts) {
 			if (!schema.equals(data.getSchema(SchemaCache.impl.getDefaultSchema())))
 				continue;
 			
 			String displayable = "Draft -- ";
 
-			displayable += data.getDateAssessed();
+			displayable += data.getDateAssessed() == null ? "No date assessed" : 
+				FormattedDate.FULL.getDate(data.getDateAssessed());
 
 			if (data.isRegional())
 				displayable += " --- " + RegionCache.impl.getRegionName(data.getRegionIDs());
@@ -223,9 +237,7 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 
 			displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(data);
 			template.addItem(displayable, data.getId()+"");
-		}
-
-		// TODO: ADD USER ONES		
+		}		
 	}
 
 	private void buildTemplate() {
