@@ -10,6 +10,7 @@ import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.fields.IASTaxaThreatsSubfield;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
 import org.iucn.sis.shared.api.structures.Structure;
@@ -57,8 +58,12 @@ public class IASThreatRowEditor extends GroupedThreatRowEditor {
 			item.setText("(No taxon selected)");
 		else {
 			Taxon taxon = TaxonomyCache.impl.getTaxon(taxonID);
-			if (taxon != null)
-				item.setText(taxon.getFullName());
+			if (taxon != null) {
+				if (taxon.getLevel() <= TaxonLevel.GENUS)
+					item.setText("Unspecified " + taxon.getFullName());
+				else
+					item.setText(taxon.getFullName());
+			}
 			else //Taxon specified doesnt exist.
 				return null;
 		}
@@ -102,7 +107,10 @@ public class IASThreatRowEditor extends GroupedThreatRowEditor {
 									model.setSelectedRow(groupBy);
 									
 									DataListItem item = new DataListItem();
-									item.setText(entry.getValue().getFullName());
+									if (entry.getValue().getLevel() <= TaxonLevel.GENUS)
+										item.setText("Unspecified " + entry.getValue().getFullName());
+									else
+										item.setText(entry.getValue().getFullName());
 									item.setData("taxon", entry.getKey());
 									item.setData("value", model);
 									

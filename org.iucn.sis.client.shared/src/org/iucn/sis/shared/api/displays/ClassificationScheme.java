@@ -206,7 +206,7 @@ public class ClassificationScheme extends Display {
 				
 				TreeDataRow row = flatTree.get(lookup.getRawValue());
 				
-				ClassificationSchemeModelData model = new ClassificationSchemeModelData(str, subfield);
+				ClassificationSchemeModelData model = createModelData(str, subfield);
 				model.setSelectedRow(row);
 				
 				thinData.add(model); 

@@ -155,15 +155,11 @@ public class ViralThreatRowEditor extends GroupedThreatRowEditor {
 	}
 	
 	private void fetchList(ArrayList<Integer> list, final SimpleListener callback) {
-		if (list.isEmpty())
-			callback.handleEvent();
-		else {
-			VirusCache.impl.get(list, new ComplexListener<List<Virus>>() {
-				public void handleEvent(List<Virus> eventData) {
-					callback.handleEvent();
-				}
-			});
-		}
+		VirusCache.impl.get(list, new ComplexListener<List<Virus>>() {
+			public void handleEvent(List<Virus> eventData) {
+				callback.handleEvent();
+			}
+		});
 	}
 
 }

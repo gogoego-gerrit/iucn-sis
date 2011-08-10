@@ -44,7 +44,7 @@ public class GroupedThreatRowEditorWindow extends ClassificationSchemeRowEditorW
 		if (model.getSelectedRow() == null)
 			return super.createRowEditor(model, isViewOnly); 
 		
-		if ("8.5.2".equals(model.getSelectedRow().getRowNumber())) {
+		if (ThreatViewerFactory.hasVirus(model.getSelectedRow())) {
 			final Collection<ClassificationSchemeModelData> models = 
 				new ArrayList<ClassificationSchemeModelData>();
 			for (ClassificationSchemeModelData current : parent.getModels())
