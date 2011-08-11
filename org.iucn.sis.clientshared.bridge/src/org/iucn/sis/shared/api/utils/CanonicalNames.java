@@ -265,4 +265,8 @@ public interface CanonicalNames {
 		UseTradeDocumentation, RedListRationale
 	};
 	
+	public static String [] credits = new String [] {
+		RedListAssessors, RedListEvaluators, RedListContributors, RedListFacilitators
+	};
+	
 }

@@ -3,7 +3,9 @@ package org.iucn.sis.server.api.io;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -13,6 +15,7 @@ import org.iucn.sis.server.api.persistance.AssessmentCriteria;
 import org.iucn.sis.server.api.persistance.AssessmentDAO;
 import org.iucn.sis.server.api.persistance.AssessmentTypeCriteria;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
+import org.iucn.sis.server.api.persistance.UserCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -20,8 +23,13 @@ import org.iucn.sis.shared.api.io.AssessmentIOMessage;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Edit;
+import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.fields.ProxyField;
+import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.data.Status;
 
 /**
@@ -460,6 +468,70 @@ public class AssessmentIO {
 		if (!allowedToCreateNewAssessment(assessent))
 			throw new RegionConflictException();
 		return writeAssessment(assessent, user, true);
+	}
+	
+	public void publish(Assessment assessment) {
+		assessment.setType(AssessmentType.PUBLISHED_ASSESSMENT_TYPE);
+		//TODO: attach reference from target release to publicationreference
+		Field rlAsmAuthorsField = assessment.getField(CanonicalNames.RedListAssessmentAuthors);
+		ProxyField rlAsmAuthors = new ProxyField(rlAsmAuthorsField);
+		String value = rlAsmAuthors.getStringPrimitiveField("value");
+		if ("".equals(value)) {
+			if (rlAsmAuthorsField == null) {
+				rlAsmAuthorsField = new Field(CanonicalNames.RedListAssessmentAuthors, assessment);
+				rlAsmAuthors = new ProxyField(rlAsmAuthorsField);
+				assessment.getField().add(rlAsmAuthorsField);
+				session.save(rlAsmAuthorsField);
+			}
+			RedListCreditedUserField assessors = new RedListCreditedUserField(assessment.getField(CanonicalNames.RedListAssessors));
+			if (!assessors.getUsers().isEmpty()) {
+				UserCriteria criteria = new UserCriteria(session);
+				criteria.id.in(assessors.getUsers().toArray(new Integer[assessors.getUsers().size()]));
+				List<User> users = Arrays.asList(criteria.listUser());
+				rlAsmAuthors.setStringPrimitiveField("value", RedListCreditedUserField.generateText(users, assessors.getOrder()));
+				session.saveOrUpdate(rlAsmAuthorsField);
+			}
+		}
+		
+		for (String fieldName : CanonicalNames.credits) {
+			Field field = assessment.getField(fieldName);
+			if (field == null)
+				continue;
+			
+			RedListCreditedUserField proxy = new RedListCreditedUserField(field);
+			if (!proxy.getText().equals("")) {
+				proxy.setTextPrimitiveField("publication", proxy.getText());
+			}
+			else if (!proxy.getUsers().isEmpty()) {
+				UserCriteria criteria = new UserCriteria(session);
+				criteria.id.in(proxy.getUsers().toArray(new Integer[proxy.getUsers().size()]));
+				List<User> users = Arrays.asList(criteria.listUser());
+				
+				proxy.setTextPrimitiveField("publication",
+					RedListCreditedUserField.generateText(users, proxy.getOrder())
+				);
+			}
+			session.update(field);
+		}
+		
+		/*
+		 * TODO: elide highlight tag from narratives
+		 */
+		
+		Field taxonomicNotes = assessment.getTaxon().getTaxonomicNotes();
+		if (taxonomicNotes != null) {
+			Set<Reference> refs = new HashSet<Reference>();
+			for (Reference reference : taxonomicNotes.getReference())
+				refs.add((Reference)session.get(Reference.class, reference.getId()));
+			
+			taxonomicNotes = taxonomicNotes.deepCopy(false, false);
+			taxonomicNotes.setReference(refs);
+			
+			Field existing = assessment.getField(CanonicalNames.TaxonomicNotes);
+			if (existing != null)
+				assessment.getField().remove(existing);
+			assessment.getField().add(taxonomicNotes);
+		}
 	}
 
 	/**
