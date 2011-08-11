@@ -14,7 +14,7 @@ public class RegionalExpertQuestions {
 	
 	private final String A = "Is the taxon a non-breeding visitor?";
 	private final String B = "Does the regional population experience "
-			+ "any significant immigration of propagules capable of reporducing in the regions?";
+			+ "any significant immigration of propagules capable of reproducing in the regions?";
 	private final String C = "Is the immigration expected to decrease?";
 	private final String D = "Is the regional population a sink?";
 	private final String E = "Are the conditions outside the region deteriorating?";
