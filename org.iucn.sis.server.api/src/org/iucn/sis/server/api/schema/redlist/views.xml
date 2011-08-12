@@ -265,111 +265,115 @@
 					</organization>
 				</pageOrganizations>
 		</page>
-			<page id="Threats" title="Threats">
-				<pageOrganizations>
-					<organization shortTitle="Documentation" title="Threats Documentation">
-						<field id="ThreatsDocumentation"/>
+		<page id="Threats" title="Threats">
+			<pageOrganizations>
+				<organization shortTitle="Documentation" title="Threats Documentation">
+					<field id="ThreatsDocumentation"/>
 
-					</organization>
-					<organization shortTitle="Coded Threats" title="Threats Classification Scheme">
-					        <composite>
-                                                        <field id="NoThreats"/>
-                                                        <field id="ThreatsUnknown"/>
-                                                </composite>
-						<field id="Threats"/>
-					</organization>
-				</pageOrganizations>
+				</organization>
+				<organization shortTitle="Coded Threats" title="Threats Classification Scheme">
+				        <composite>
+                                                       <field id="NoThreats"/>
+                                                       <field id="ThreatsUnknown"/>
+                                               </composite>
+					<field id="Threats"/>
+				</organization>
+			</pageOrganizations>
 
-			</page>
-			<page id="Conservation" title="Conservation">
-				<pageOrganizations>
-					<organization shortTitle="Documentation" title="Conservation Actions Documentation">
-						<field id="ConservationActionsDocumentation"/>
-					</organization>
-					<organization title="Research Needed">
-						<field id="Research"/>
-					</organization>
+		</page>
+		<page id="Conservation" title="Conservation">
+			<pageOrganizations>
+				<organization shortTitle="Documentation" title="Conservation Actions Documentation">
+					<field id="ConservationActionsDocumentation"/>
+				</organization>
+				<organization title="Research Needed">
+					<field id="Research"/>
+				</organization>
 
-					<organization shortTitle="Conservation Needed" title="Conservation Actions Needed">
-						<field id="ConservationActions"/>
-					</organization>
-					<organization shortTitle="In-Place" title="Conservation Actions In-Place">
-						<field id="InPlaceResearch"/>
-						<field id="InPlaceLandWaterProtection"/>
-						<field id="InPlaceSpeciesManagement"/>
-						<field id="InPlaceEducation"/>
-					</organization>
-					<organization shortTitle="New In-Place" title="New Conservation Actions In-Place">
-						<h3>In-Place Research, Monitoring and Planning</h3>
-						<composite>
-							<field id="InPlaceResearchRecoveryPlan"></field>
-							<field id="InPlaceResearchMonitoringScheme"></field>
-						</composite>
-						<h3>In-Place Land/Water Protection and Management</h3>
-						<composite>
-							<field id="InPlaceLandWaterProtectionSitesIdentified"></field>
-							<field id="InPlaceLandWaterProtectionInPA"></field>
-						</composite>
-						<composite>
-							<field id="InPlaceLandWaterProtectionPercentProtected"></field>
-							<field id="InPlaceLandWaterProtectionAreaPlanned"></field>
-						</composite>
-						<composite>
-							<field id="InPlaceLandWaterProtectionInvasiveControl"></field>
-							<field id="_blank"></field>
-						</composite>
-						<h3>In-Place Species Management</h3>
-						<composite>
-							<field id="InPlaceSpeciesManagementHarvestPlan"></field>
-							<field id="InPlaceSpeciesManagementReintroduced"></field>
-							<field id="InPlaceSpeciesManagementExSitu"></field>
-						</composite>
-						<h3>In-Place Education</h3>
-						<composite>
-							<field id="InPlaceEducationSubjectToPrograms"></field>
-							<field id="InPlaceEducationInternationalLegislation"></field>
-							<field id="InPlaceEducationControlled"></field>
-						</composite>
-					</organization>
-				</pageOrganizations>
-			</page>
-			<page id="EcosystemServices" title="Ecosystem Services">
-				<!-- AAH note: this page added by AAH -->
-				<pageOrganizations>
-					<organization shortTitle="Services" title="Ecosystem Services Provided by the Species">
-						<composite>
-							<field id="EcosystemServicesInsufficientInfo"/>
-							<field id="EcosystemServicesProvidesNone"/>
+				<organization shortTitle="Conservation Needed" title="Conservation Actions Needed">
+					<field id="ConservationActions"/>
+				</organization>
+				<organization shortTitle="In-Place" title="Conservation Actions In-Place">
+					<field id="InPlaceResearch"/>
+					<field id="InPlaceLandWaterProtection"/>
+					<field id="InPlaceSpeciesManagement"/>
+					<field id="InPlaceEducation"/>
+				</organization>
+				<organization shortTitle="New In-Place" title="New Conservation Actions In-Place">
+					<h3>In-Place Research, Monitoring and Planning</h3>
+					<composite>
+						<field id="InPlaceResearchRecoveryPlan"></field>
+						<field id="InPlaceResearchMonitoringScheme"></field>
+					</composite>
+					<h3>In-Place Land/Water Protection and Management</h3>
+					<composite>
+						<field id="InPlaceLandWaterProtectionSitesIdentified"></field>
+						<field id="InPlaceLandWaterProtectionInPA"></field>
+					</composite>
+					<composite>
+						<field id="InPlaceLandWaterProtectionPercentProtected"></field>
+						<field id="InPlaceLandWaterProtectionAreaPlanned"></field>
+					</composite>
+					<composite>
+						<field id="InPlaceLandWaterProtectionInvasiveControl"></field>
+						<field id="_blank"></field>
+					</composite>
+					<h3>In-Place Species Management</h3>
+					<composite>
+						<field id="InPlaceSpeciesManagementHarvestPlan"></field>
+						<field id="InPlaceSpeciesManagementReintroduced"></field>
+						<field id="InPlaceSpeciesManagementExSitu"></field>
+					</composite>
+					<h3>In-Place Education</h3>
+					<composite>
+						<field id="InPlaceEducationSubjectToPrograms"></field>
+						<field id="InPlaceEducationInternationalLegislation"></field>
+						<field id="InPlaceEducationControlled"></field>
+					</composite>
+				</organization>
+			</pageOrganizations>
+		</page>
+		<page id="EcosystemServices" title="Ecosystem Services">
+			<!-- AAH note: this page added by AAH -->
+			<pageOrganizations>
+				<organization shortTitle="Services" title="Ecosystem Services Provided by the Species">
+					<composite>
+						<field id="EcosystemServicesInsufficientInfo"/>
+						<field id="EcosystemServicesProvidesNone"/>
 
-						</composite>
-						<composite>
-							<field id="EcosystemServices"/>
-						</composite>
-					</organization>
-				</pageOrganizations>
-			</page>
-			<page id="RedListing" title="Red List Assessment">
-				<pageOrganizations>
-
-					<organization title="Red List Status">
-						<composite>
-							<field id="RedListCriteria"/>
-						</composite>
-					</organization>
-					<organization title="Assessment Information">
-						<composite>
-							<field id="RedListAssessmentDate"/>
-							<field id="RedListEvaluated"/>
-						</composite>
-						<composite>
-							<field id="RedListAssessors"/>
-							<field id="RedListEvaluators"/>
-							<field id="RedListContributors"/>
-							<field id="RedListFacilitators"/>
-						</composite>
-						<composite>
-							<field id="RegionInformation"/>
-							<field id="RegionExpertQuestions"/>
+					</composite>
+					<composite>
+						<field id="EcosystemServices"/>
+					</composite>
+				</organization>
+			</pageOrganizations>
+		</page>
+		<page id="RedListing" title="Red List Assessment">
+			<pageOrganizations>
+				<organization title="Red List Status">
+					<composite>
+						<field id="RedListCriteria"/>
+					</composite>
+				</organization>
+				<organization title="Assessment Information">
+					<composite>
+						<field id="RedListAssessmentDate"/>
+						<field id="RedListEvaluated"/>
+					</composite>
+					<h3>Assessment Credits</h3>
+					<text><![CDATA[<i>Note: This information is managed via the "Manage Credits" panel.</i>]]></text>
+					<composite>
+						<field id="RedListAssessors"/>
+						<field id="RedListEvaluators"/>
+					</composite>
+					<composite>
+						<field id="RedListContributors"/>
+						<field id="RedListFacilitators"/>
+					</composite>
+					<h3>Regional Assessment Information</h3>
+					<composite>
+						<field id="RegionInformation"/>
+						<field id="RegionExpertQuestions"/>
 					</composite>
 				</organization>
 				<organization title="Publication Information">
@@ -387,7 +391,6 @@
 						<field id="RedListReasonsForChange"/>
 					</composite>
 				</organization>
-
 			</pageOrganizations>
 		</page>
 	</pages>

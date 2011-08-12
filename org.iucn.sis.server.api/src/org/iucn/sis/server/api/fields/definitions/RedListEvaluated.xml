@@ -1,7 +1,7 @@
 <!-- SUBSTANTIAL DIFFERENCES -->
 <field id="127">
 	<canonicalName>RedListEvaluated</canonicalName>
-	<description>Evaluated?</description>
+	<description>Reviewed?</description>
 	<classOfService>Outcome</classOfService>
 	<structures>
 		<structure>
@@ -12,7 +12,7 @@
 					</structure>
 				</dominantStructures>
 				<dependentStructures>
-					<structure id="date" description="Date of Evaluation:">
+					<structure id="date" description="Date of Review:">
 						<date></date>
 					</structure>
 					<structure>
