@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels.taxa;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -9,14 +8,15 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.ui.notes.NoteAPI;
 import org.iucn.sis.client.api.ui.notes.NotesWindow;
-import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.assessments.SingleFieldEditorPanel;
 import org.iucn.sis.client.panels.taxomatic.CommonNameToolPanel;
 import org.iucn.sis.client.panels.taxomatic.EditCommonNamePanel;
+import org.iucn.sis.client.panels.taxomatic.NewCommonNameEditor;
+import org.iucn.sis.client.panels.taxomatic.NewTaxonSynonymEditor;
+import org.iucn.sis.client.panels.taxomatic.SynonymToolPanel;
 import org.iucn.sis.client.tabs.TaxonHomePageTab.ReferenceableTaxon;
 import org.iucn.sis.client.tabs.TaxonHomePageTab.TaxonNoteAPI;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -58,7 +58,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -246,7 +245,18 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		LayoutContainer data = new LayoutContainer();
 		data.setScrollMode(Scroll.AUTO);
 		
-		data.add(createSectionHeader("Synonyms (" + node.getSynonyms().size() + ")"));
+		ComplexListener<IconButton> synonymListener = null;
+		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+			synonymListener = new ComplexListener<IconButton>() {
+				public void handleEvent(IconButton eventData) {
+					final NewTaxonSynonymEditor editor = new NewTaxonSynonymEditor();
+					editor.add();
+					editor.show();
+				}
+			};
+		}
+		
+		data.add(createSectionHeader("Synonyms (" + node.getSynonyms().size() + ")", synonymListener, null, "icon-add"));
 		if (node.getSynonyms().isEmpty())
 			data.add(createSectionHeader("<i>No Synonyms.</i>", null, NO_DATA_STYLE));
 		else
@@ -256,14 +266,21 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
 			commonNameListener = new ComplexListener<IconButton>() {
 				public void handleEvent(IconButton icon) {
-					Window addNameBox = new EditCommonNamePanel(null, node, 
+					final NewCommonNameEditor editor = new NewCommonNameEditor();
+					editor.draw(new DrawsLazily.DoneDrawingCallback() {
+						public void isDrawn() {
+							editor.add();
+							editor.show();
+						}
+					});
+					/*Window addNameBox = new EditCommonNamePanel(null, node, 
 							new ComplexListener<CommonName>() {
 						public void handleEvent(CommonName eventData) {
 							//TaxonomyCache.impl.setCurrentTaxon(node);
 							ClientUIContainer.bodyContainer.refreshBody();
 						}
 					});
-					addNameBox.show();
+					addNameBox.show();*/
 				}
 			};
 		}
@@ -391,19 +408,20 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 	private Widget getSynonymDisplay(final Synonym synonym, final Taxon node) {
 		String value = synonym.toDisplayableString();
 		if (Synonym.ADDED.equals(synonym.getStatus()) || Synonym.DELETED.equals(synonym.getStatus()))
-			value += "-- " + synonym.getStatus();
+			value += " -- " + synonym.getStatus();
 		
-		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
-			String iconStyle = synonym.getNotes().isEmpty() ? "icon-note-grey" : "icon-note";
-			return (createSectionHeader(value, new ComplexListener<IconButton>() {
+		ComplexListener<IconButton> listener = null;
+		
+		if (AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, node)) {
+			listener = new ComplexListener<IconButton>() {
 				public void handleEvent(IconButton eventData) {
-					final NotesWindow window = new NotesWindow(new SynonymNoteAPI(node, synonym));
-					window.show();
+					SynonymToolPanel menu = new SynonymToolPanel(synonym, node);
+					menu.show(eventData);
 				}
-			}, "", iconStyle));
+			};
 		}
-		else
-			return (createSectionHeader(value, null, null));
+		
+		return (createSectionHeader(value, listener, ""));
 	}
 	
 	private Widget getCommonNameDisplay(final CommonName curName, final Taxon node) {
@@ -420,14 +438,17 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 	
 		String styleName = curName.getChangeReason() == CommonName.DELETED ? "deleted" : "";
 		
-		return createSectionHeader(display.toString(), new ComplexListener<IconButton>() {
-			public void handleEvent(IconButton icon) {
-				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+		ComplexListener<IconButton> listener = null;
+		if (AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, node)) {
+			listener = new ComplexListener<IconButton>() {
+				public void handleEvent(IconButton icon) {
 					CommonNameToolPanel cntp = new CommonNameToolPanel(curName, node);
 					cntp.show(icon);
-				}	
-			}
-		}, styleName);
+				}
+			};
+		}
+		
+		return createSectionHeader(display.toString(), listener, styleName);
 	}
 	
 	private void addCommonNames(final Taxon node, LayoutContainer data) {
@@ -482,73 +503,6 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 			
 			data.add(viewAll);
 		}
-	}
-	
-	private static class SynonymNoteAPI implements NoteAPI {
-		
-		private final Synonym synonym;
-		private final Taxon taxon;
-		
-		private boolean hasChanged;
-		
-		public SynonymNoteAPI(Taxon taxon, Synonym synonym) {
-			this.synonym = synonym;
-			this.taxon = taxon;
-			
-			hasChanged = false;
-		}
-
-		@Override
-		public void addNote(final Notes note, final GenericCallback<Object> callback) {
-			note.setSynonym(synonym);
-			
-			final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-			document.put(UriBase.getInstance().getNotesBase() + "/notes/synonym/" + synonym.getId(), note.toXML(), new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					Notes newNote = Notes.fromXML(document.getDocumentElement());
-					
-					note.setEdits(newNote.getEdits());
-					note.setId(newNote.getId());
-					
-					synonym.getNotes().add(note);
-					
-					hasChanged = true;
-					
-					callback.onSuccess(result);
-				}public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-			});
-		}
-		
-		@Override
-		public void deleteNote(final Notes note, final GenericCallback<Object> callback) {
-			final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-			document.delete(UriBase.getInstance().getNotesBase() + "/notes/note/" + note.getId(), new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					synonym.getNotes().remove(note);
-					hasChanged = true;
-					callback.onSuccess(result);
-				}
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-			});
-		}
-		
-		@Override
-		public void loadNotes(ComplexListener<Collection<Notes>> listener) {
-			listener.handleEvent(synonym.getNotes());
-		}
-		
-		@Override
-		public void onClose() {
-			if (hasChanged)
-				//TaxonomyCache.impl.setCurrentTaxon(taxon);
-				ClientUIContainer.bodyContainer.refreshBody();
-				//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(taxon.getId());			
-		}
-		
 	}
 	
 	private static class Span extends HTML {

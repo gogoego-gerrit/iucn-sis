@@ -310,6 +310,7 @@ public class SynonymDAO {
 			}
 			
 			if(synonym.getTaxon() != null) {
+				synonym.getTaxon().getSynonyms().remove(synonym);
 				synonym.setTaxon(null);
 			}
 			

@@ -19,8 +19,8 @@ import org.iucn.sis.client.panels.assessments.SingleFieldEditorPanel;
 import org.iucn.sis.client.panels.assessments.TrackChangesPanel;
 import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
+import org.iucn.sis.client.panels.taxomatic.NewCommonNameEditor;
 import org.iucn.sis.client.panels.taxomatic.NewTaxonSynonymEditor;
-import org.iucn.sis.client.panels.taxomatic.TaxonCommonNameEditor;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -61,6 +61,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class DEMToolbar extends ToolBar {
 	
@@ -311,8 +312,15 @@ public class DEMToolbar extends ToolBar {
 					return;
 				}
 				
-				TaxonCommonNameEditor editor = new TaxonCommonNameEditor();
-				editor.show();
+				/*TaxonCommonNameEditor editor = new TaxonCommonNameEditor();
+				editor.show();*/
+				final NewCommonNameEditor editor = new NewCommonNameEditor();
+				editor.draw(new DrawsLazily.DoneDrawingCallback() {
+					@Override
+					public void isDrawn() {
+						editor.show();
+					}
+				});
 			}
 		});
 		mainMenu.add(mItem);

@@ -19,11 +19,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.iucn.sis.shared.api.models.interfaces.HasNotes;
+import org.iucn.sis.shared.api.models.interfaces.HasReferences;
+
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
-public class Synonym implements Serializable {
+public class Synonym implements Serializable, HasReferences, HasNotes {
 
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	// FIXME -- DELETE TAXON STATUS

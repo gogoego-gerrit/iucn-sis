@@ -9,29 +9,26 @@ import org.iucn.sis.client.api.ui.notes.NoteAPI;
 import org.iucn.sis.client.api.ui.notes.NotesWindow;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.citations.Referenceable;
-import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class CommonNameToolPanel extends Menu implements Referenceable {
-
-	private final CommonName cn;
+public class SynonymToolPanel extends Menu implements Referenceable {
+	
+	private final Synonym synonym;
 	private final Taxon taxon;
-
-	public CommonNameToolPanel(CommonName commonName, Taxon taxon) {
-		this.cn = commonName;
+	
+	public SynonymToolPanel(Synonym synonym, Taxon taxon) {
+		this.synonym = synonym;
 		this.taxon = taxon;
 		
 		add(getDeleteWidget());
@@ -39,27 +36,22 @@ public class CommonNameToolPanel extends Menu implements Referenceable {
 		add(getReferenceWidget());
 		add(getNotesWiget());
 	}
-
+	
 	private MenuItem getDeleteWidget() {
 		MenuItem removeImage = new MenuItem();
-		removeImage.setText("Remove this common name");
+		removeImage.setText("Remove this synonym");
 		removeImage.setIconStyle("icon-note-delete");
 		removeImage.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove this common name?", new WindowUtils.SimpleMessageBoxListener() {
+				WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove this synonym?", new WindowUtils.SimpleMessageBoxListener() {
 					public void onYes() {
-						cn.setChangeReason(CommonName.DELETED);
-						cn.setValidated(false);
-						TaxonomyCache.impl.editCommonName(taxon, cn, new GenericCallback<String>() {
+						TaxonomyCache.impl.deleteSynonymn(taxon, synonym, new GenericCallback<String>() {
 							public void onSuccess(String result) {
-								WindowUtils.infoAlert("Successful delete of common name " + cn.getName());
+								WindowUtils.infoAlert("Successful delete of synonym " + synonym.getName());
 								ClientUIContainer.bodyContainer.refreshBody();
 							}
-
-							@Override
 							public void onFailure(Throwable caught) {
-								WindowUtils.errorAlert("Common name was unable to be deleted");
-								
+								WindowUtils.errorAlert("Synonym was unable to be deleted");
 							}
 						});
 					}
@@ -68,34 +60,23 @@ public class CommonNameToolPanel extends Menu implements Referenceable {
 		});
 		return removeImage;
 	}
-
+	
 	private MenuItem getEditWidget() {
 		MenuItem editImage = new MenuItem();
 		editImage.setIconStyle("icon-note-edit");
-		editImage.setText("Edit this common name");
+		editImage.setText("Edit this synonym");
 		editImage.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				WindowManager.get().hideAll();
-				final NewCommonNameEditor editor = new NewCommonNameEditor();
-				editor.draw(new DrawsLazily.DoneDrawingCallback() {
-					public void isDrawn() {
-						editor.setCommonName(cn);
-						editor.show();
-					}
-				});
-				/*Window temp = new EditCommonNamePanel(cn, taxon, new ComplexListener<CommonName>() {
-					public void handleEvent(CommonName eventData) {
-						ClientUIContainer.bodyContainer.refreshTaxonPage();
-					}
-				});
-				temp.show();*/
+				NewTaxonSynonymEditor editor = new NewTaxonSynonymEditor();
+				editor.setSynonym(synonym);
+				editor.show();
 			}
 		});
 		return editImage;
 	}
-
+	
 	private MenuItem getReferenceWidget() {
-		String icon = cn.getReference().isEmpty() ? "icon-book-grey" : "icon-book";
+		String icon = synonym.getReference().isEmpty() ? "icon-book-grey" : "icon-book";
 		
 		MenuItem referenceImage = new MenuItem();
 		referenceImage.setIconStyle(icon);
@@ -103,64 +84,63 @@ public class CommonNameToolPanel extends Menu implements Referenceable {
 		referenceImage.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				ClientUIContainer.bodyContainer.openReferenceManager(
-					CommonNameToolPanel.this, "Add a references to Common Name " + cn.getName());
+					SynonymToolPanel.this, "Add a references to Synonym " + synonym.getFriendlyName());
 			}
 		});
 		return referenceImage;
 	}
-
+	
 	private MenuItem getNotesWiget() {
-		String icon = cn.getNotes().isEmpty() ? "icon-note-grey" : "icon-note"; 
+		String icon = synonym.getNotes().isEmpty() ? "icon-note-grey" : "icon-note"; 
 		MenuItem notesImage = new MenuItem();
 		notesImage.setIconStyle(icon);
 		notesImage.setText("Add/Remove Notes");
 		notesImage.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				NotesWindow window = new NotesWindow(new CommonNameNoteAPI(taxon, cn));
+				NotesWindow window = new NotesWindow(new SynonymNoteAPI(taxon, synonym));
 				window.show();
 			}
 		});
 
 		return notesImage;
 	}
-
+	
 	@Override
 	public void addReferences(ArrayList<Reference> references, GenericCallback<Object> callback) {
-		TaxonomyCache.impl.addReferencesToCommonName(taxon, cn, references, callback);
-	}
-
-	@Override
-	public Set<Reference> getReferencesAsList() {
-		return cn.getReference();
-	}
-
-	@Override
-	public void onReferenceChanged(GenericCallback<Object> callback) {
-		// NOT NECESSARY I DON"T THINK
-	}
-
-	@Override
-	public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> listener) {
-		TaxonomyCache.impl.removeReferencesFromCommonName(taxon, cn, references, listener);
+		TaxonomyCache.impl.addReferencesToSynonym(taxon, synonym, references, callback);
 	}
 	
-	public static class CommonNameNoteAPI implements NoteAPI {
+	public Set<Reference> getReferencesAsList() {
+		return synonym.getReference();
+	}
+	
+	@Override
+	public void onReferenceChanged(GenericCallback<Object> callback) {
+	}
+	
+	@Override
+	public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> listener) {
+		TaxonomyCache.impl.removeReferencesFromSynonym(taxon, synonym, references, listener);
+	}
+	
+	
+	public static class SynonymNoteAPI implements NoteAPI {
 		
-		private final CommonName commonName;
+		private final Synonym synonym;
 		private final Taxon taxon;
 		
 		private boolean hasChanged;
 		
-		public CommonNameNoteAPI(Taxon taxon, CommonName commonName) {
+		public SynonymNoteAPI(Taxon taxon, Synonym synonym) {
 			this.taxon = taxon;
-			this.commonName = commonName;
+			this.synonym = synonym;
 			
 			hasChanged = false;
 		}
 		
 		@Override
 		public void addNote(Notes note, final GenericCallback<Object> callback) {
-			TaxonomyCache.impl.addNoteToCommonName(taxon, commonName, note, new GenericCallback<String>() {
+			TaxonomyCache.impl.addNoteToSynonym(taxon, synonym, note, new GenericCallback<String>() {
 				public void onSuccess(String result) {
 					hasChanged = true;
 					callback.onSuccess(result);
@@ -173,7 +153,7 @@ public class CommonNameToolPanel extends Menu implements Referenceable {
 		
 		@Override
 		public void deleteNote(Notes note, final GenericCallback<Object> callback) {
-			TaxonomyCache.impl.deleteNoteOnCommonNames(taxon, commonName, note, new GenericCallback<String>() {
+			TaxonomyCache.impl.deleteNoteOnSynonym(taxon, synonym, note, new GenericCallback<String>() {
 				public void onSuccess(String result) {
 					hasChanged = true;
 					callback.onSuccess(result);
@@ -194,10 +174,9 @@ public class CommonNameToolPanel extends Menu implements Referenceable {
 		
 		@Override
 		public void loadNotes(ComplexListener<Collection<Notes>> listener) {
-			listener.handleEvent(commonName.getNotes());
+			listener.handleEvent(synonym.getNotes());
 		}
 		
 	}
-	
 
 }

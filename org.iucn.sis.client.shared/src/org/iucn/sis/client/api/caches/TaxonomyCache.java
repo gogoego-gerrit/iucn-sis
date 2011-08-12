@@ -20,6 +20,8 @@ import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.models.interfaces.HasNotes;
+import org.iucn.sis.shared.api.models.interfaces.HasReferences;
 
 import com.google.gwt.http.client.URL;
 import com.google.gwt.xml.client.Node;
@@ -744,32 +746,61 @@ public class TaxonomyCache {
 		});
 	}
 	
+	public void deleteNoteOnSynonym(final Taxon taxon, final Synonym synonym, final Notes note, final GenericCallback<String> callback) {
+		deleteNoteOnNotable(taxon, synonym, note, callback);
+	}
+	
 	public void deleteNoteOnCommonNames(final Taxon taxon, final CommonName commonName, final Notes note, final GenericCallback<String> callback) {
+		deleteNoteOnNotable(taxon, commonName, note, callback);
+	}
+	
+	private void deleteNoteOnNotable(final Taxon taxon, final HasNotes hasNotes, final Notes note, final GenericCallback<String> callback) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.delete(UriBase.getInstance().getNotesBase() + "/notes/note/" + note.getId(), new GenericCallback<String>() {
-
-			@Override
 			public void onSuccess(String result) {
-				commonName.getNotes().remove(note);
+				hasNotes.getNotes().remove(note);
 				callback.onSuccess(result);
 			}
-
-			@Override
 			public void onFailure(Throwable caught) {
 				callback.onFailure(caught);
 			}
-		
 		});
 	}
 	
 	public void addNoteToCommonName(final Taxon taxon, final CommonName commonName, final Notes note, final GenericCallback<String> callback) {
-		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.putAsText(UriBase.getInstance().getNotesBase() + "/notes/commonName/" + commonName.getId(), note.toXML(), new GenericCallback<String>() {
+		addNoteToNotable(taxon, commonName, "commonName", commonName.getId(), note, new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				note.setCommonName(commonName);
-				result = ndoc.getText();
-				note.setId(Integer.parseInt(result));
-				commonName.getNotes().add(note);
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	public void addNoteToSynonym(final Taxon taxon, final Synonym synonym, final Notes note, final GenericCallback<String> callback) {
+		addNoteToNotable(taxon, synonym, "synonym", synonym.getId(), note, new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				note.setSynonym(synonym);
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	private void addNoteToNotable(final Taxon taxon, final HasNotes hasNotes, final String type, final int id, final Notes note, final GenericCallback<String> callback) {
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.put(UriBase.getInstance().getNotesBase() + "/notes/"+type+"/" + id, note.toXML(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				Notes newNote = Notes.fromXML(ndoc.getDocumentElement());
+				
+				note.setId(newNote.getId());
+				note.setEdits(newNote.getEdits());
+				
+				hasNotes.getNotes().add(note);
 				callback.onSuccess(result);
 			}
 
@@ -782,48 +813,57 @@ public class TaxonomyCache {
 	}
 	
 	public void addReferencesToCommonName(final Taxon taxon, final CommonName commonName, final Collection<Reference> refs, final GenericCallback<Object> callback) {
+		addReferencesToHasReferences(taxon, commonName, "commonname", commonName.getId(), refs, callback);
+	}
+	
+	public void addReferencesToSynonym(final Taxon taxon, final Synonym synonym, final Collection<Reference> refs, final GenericCallback<Object> callback) {
+		addReferencesToHasReferences(taxon, synonym, "synonym", synonym.getId(), refs, callback);
+	}
+	
+	private void addReferencesToHasReferences(final Taxon taxon, final HasReferences hasReferences, final String type, final int id, final Collection<Reference> refs, final GenericCallback<Object> callback) {
 		StringBuilder xml = new StringBuilder("<references>");
-		for (Reference ref : refs) {
-			xml.append("<action id=\"" + ref.getId() + "\">action</action>");
-		}		
+		for (Reference ref : refs)
+			xml.append("<action id=\"" + ref.getId() + "\">add</action>");
 		xml.append("</references>");
+		
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId() + "/reference", xml.toString(), new GenericCallback<String>() {
-
+		ndoc.post(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/"+type+"/" + id + "/reference", 
+				xml.toString(), new GenericCallback<String>() {
 			@Override
 			public void onSuccess(String result) {
-				commonName.getReference().addAll(refs);
+				hasReferences.getReference().addAll(refs);
 				callback.onSuccess(result);
 			}
-
 			@Override
 			public void onFailure(Throwable caught) {
 				callback.onFailure(caught);
 			}
-		
 		});
 	}
 	
-	public void removeReferencesToCommonName(final Taxon taxon, final CommonName commonName, final Collection<Reference> refs, final GenericCallback<Object> callback) {
+	public void removeReferencesFromCommonName(final Taxon taxon, final CommonName commonName, final Collection<Reference> refs, final GenericCallback<Object> callback) {
+		removeReferencesFromHasReferences(taxon, commonName, "commonname", commonName.getId(), refs, callback);
+	}
+	
+	public void removeReferencesFromSynonym(final Taxon taxon, final Synonym synonym, final Collection<Reference> refs, final GenericCallback<Object> callback) {
+		removeReferencesFromHasReferences(taxon, synonym, "synonym", synonym.getId(), refs, callback);
+	}
+	
+	private void removeReferencesFromHasReferences(final Taxon taxon, final HasReferences hasReferences, final String type, final int id, final Collection<Reference> refs, final GenericCallback<Object> callback) {
 		StringBuilder xml = new StringBuilder("<references>");
-		for (Reference ref : refs) {
+		for (Reference ref : refs)
 			xml.append("<action id=\"" + ref.getId() + "\">remove</action>");
-		}		
 		xml.append("</references>");
+		
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.putAsText(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/commonname/" + commonName.getId() + "/reference", xml.toString(), new GenericCallback<String>() {
-
-			@Override
+		ndoc.post(UriBase.getInstance().getSISBase() + "/taxon/" + taxon.getId() + "/"+type+"/" + id + "/reference", xml.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
-				commonName.getReference().removeAll(refs);
+				hasReferences.getReference().removeAll(refs);
 				callback.onSuccess(result);
 			}
-
-			@Override
 			public void onFailure(Throwable caught) {
 				callback.onFailure(caught);
 			}
-		
 		});
 	}
 	
@@ -842,6 +882,13 @@ public class TaxonomyCache {
 				callback.onFailure(caught);
 			}
 		});
+	}
+	
+	public void addOrEditCommonName(final Taxon taxon, final CommonName commonName, final GenericCallback<String> callback) {
+		if (commonName.getId() == 0)
+			addCommonName(taxon, commonName, callback);
+		else
+			editCommonName(taxon, commonName, callback);
 	}
 	
 	public void editCommonName(final Taxon taxon, final CommonName commonName, final GenericCallback<String> callback) {
@@ -885,6 +932,8 @@ public class TaxonomyCache {
 					}
 					taxon.getCommonNames().remove(toRemove);
 				}
+				if (taxon.getCommonNames().isEmpty())
+					commonName.setPrincipal(true);
 				taxon.getCommonNames().add(commonName);
 				callback.onSuccess(newId);
 		

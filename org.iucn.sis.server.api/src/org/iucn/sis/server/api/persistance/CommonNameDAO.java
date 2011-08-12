@@ -309,6 +309,7 @@ public class CommonNameDAO {
 			}
 			
 			if(commonName.getTaxon() != null) {
+				commonName.getTaxon().getCommonNames().remove(commonName);
 				commonName.setTaxon(null);
 			}
 			

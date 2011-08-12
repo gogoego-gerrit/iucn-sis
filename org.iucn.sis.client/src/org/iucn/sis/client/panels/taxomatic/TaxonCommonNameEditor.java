@@ -204,31 +204,26 @@ public class TaxonCommonNameEditor extends TaxomaticWindow implements DrawsLazil
 
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				TaxonomyCache.impl.deleteCommonName(node, currentCommonName, new GenericCallback<String>() {
-					
-					@Override
-					public void onSuccess(String result) {
-						allCommonNames.remove(currentCommonName);
-						
-						bar.enable();
-						WindowUtils.infoAlert("Deleted", "Common name " + currentCommonName.getName() + " has been deleted");
-						//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(node.getId());
-						ClientUIContainer.bodyContainer.refreshTaxonPage();
-						//TaxonomyCache.impl.setCurrentTaxon(node);
-						currentCommonName = null;
-						refreshListBox();
-						refreshCommonName(null);
-				
+				WindowUtils.confirmAlert("Confirm", "Are you sure you want to *permanently* delete this common name?  You can not undo this action.", new WindowUtils.SimpleMessageBoxListener() {
+					public void onYes() {
+						TaxonomyCache.impl.deleteCommonName(node, currentCommonName, new GenericCallback<String>() {
+							public void onSuccess(String result) {
+								allCommonNames.remove(currentCommonName);
+								
+								bar.enable();
+								WindowUtils.infoAlert("Deleted", "Common name " + currentCommonName.getName() + " has been deleted");
+								ClientUIContainer.bodyContainer.refreshTaxonPage();
+								currentCommonName = null;
+								refreshListBox();
+								refreshCommonName(null);
+							}
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Unable to delete the common name");
+							}
+						});
 					}
-				
-					@Override
-					public void onFailure(Throwable caught) {
-						WindowUtils.errorAlert("Unable to delete the common name");
-				
-					}
-				} );
+				});
 			}
-
 		});
 		bar.add(close);
 		bar.add(save);

@@ -16,11 +16,13 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 
+import org.iucn.sis.shared.api.models.interfaces.HasNotes;
+import org.iucn.sis.shared.api.models.interfaces.HasReferences;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
-public class CommonName implements Serializable {
+public class CommonName implements Serializable, HasReferences, HasNotes {
 	
 	public static CommonName createCommonName(String name, String language,
 			String isoCode, boolean primary) {
@@ -34,8 +36,6 @@ public class CommonName implements Serializable {
 	
 	public static CommonName fromXML(NativeElement commonNameTag) {
 		String id = commonNameTag.getAttribute("id");
-		String iso = commonNameTag.getAttribute("iso");
-		String language = commonNameTag.getAttribute("language");
 		boolean validated = commonNameTag.getAttribute("validated")
 				.equalsIgnoreCase("true");
 		String name = commonNameTag.getAttribute("name");
@@ -43,18 +43,19 @@ public class CommonName implements Serializable {
 				.equalsIgnoreCase("true");
 		String reason = commonNameTag.getAttribute("reason");
 		
-		
 		CommonName curName = new CommonName();
 		curName.setId(Integer.valueOf(id).intValue());
 		curName.setName(name);
-		if( iso != null || language != null )
-			curName.setIso(new IsoLanguage(language, iso));
 		curName.setValidated(validated);
 		curName.setPrincipal(primary);
 		if (!validated)
 			curName.setChangeReason(Integer.valueOf(reason).intValue());
+		
+		NativeElement iso = commonNameTag.getElementByTagName("language");
+		if (iso != null)
+			curName.setIso(IsoLanguage.fromXML(iso));
+		
 		NativeNodeList refs = commonNameTag.getElementsByTagName("reference");
-	
 		for (int i = 0; i < refs.getLength(); i++) {
 			curName.getReference().add(
 					Reference.fromXML((NativeElement) refs.item(i)));
@@ -113,6 +114,7 @@ public class CommonName implements Serializable {
 	
 	public CommonName deepCopy() {
 		CommonName cn =  new CommonName(name, iso == null ? null : iso.getName(), iso == null ? null : iso.getCode(), validated, principal);
+		cn.setIso(getIso());
 		cn.setId(getId());
 		cn.setNotes(new HashSet<Notes>());
 		cn.setChangeReason(getChangeReason());
@@ -260,16 +262,15 @@ public class CommonName implements Serializable {
 
 	public String toXML() {
 		String xml = "<" + ROOT_TAG + " ";
-		xml += (getIso() == null ? "" : (" iso=\""
-				+ XMLUtils.clean(getIso().getCode())
-				+ "\" language=\""
-				+ XMLUtils.clean(getIso().getName()) + "\""));
-		xml += " validated=\"" + getValidated() + "\" name=\""
+		xml += "validated=\"" + getValidated() + "\" name=\""
 				+ XMLUtils.clean(getName()) + "\" primary=\""
 				+ getPrincipal() + "\" id=\"" + getId() + "\"";
 		if (!getValidated())
 			xml += " reason=\"" + getChangeReason() + "\"";
 		xml += ">";
+		
+		if (getIso() != null)
+			xml += getIso().toXML();
 	
 		xml += "<sources>";
 		for (Reference ref : getReference()) {

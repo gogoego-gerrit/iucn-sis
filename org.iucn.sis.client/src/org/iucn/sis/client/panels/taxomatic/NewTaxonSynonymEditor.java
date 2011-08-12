@@ -71,6 +71,12 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 		
 		this.taxon = TaxonomyCache.impl.getCurrentTaxon();
 		this.store = new ListStore<BaseModelData>();
+		this.store.setKeyProvider(new ModelKeyProvider<BaseModelData>() {
+			public String getKey(BaseModelData model) {
+				int id = model.get("id");
+				return Integer.toString(id);
+			}
+		});
 		this.view = new ListView<BaseModelData>(store);
 		
 		this.fullNameDisplay = new Html();
@@ -230,7 +236,13 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 		add(container);
 	}
 	
-	public void setCurrent(Synonym synonym) {
+	public void setSynonym(Synonym synonym) {
+		BaseModelData model = store.findModel(Integer.toString(synonym.getId()));
+		if (model != null)
+			view.getSelectionModel().select(model, false);
+	}
+	
+	private void setCurrent(Synonym synonym) {
 		center.removeAll();
 		center.add(completeEditingArea);
 		
@@ -373,6 +385,7 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 		for (Synonym synonym : taxon.getSynonyms()) {
 			BaseModelData model = new BaseModelData();
 			model.set("model", synonym);
+			model.set("id", synonym.getId());
 			model.set("text", synonym.getFriendlyName());
 			
 			store.add(model);
@@ -423,7 +436,7 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 		return container;
 	}
 	
-	private void add() {
+	public void add() {
 		WindowUtils.SimpleMessageBoxListener callback = new WindowUtils.SimpleMessageBoxListener() {
 			public void onYes() {
 				stopEditing();
@@ -486,6 +499,7 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 						
 						BaseModelData model = new BaseModelData();
 						model.set("model", synonym);
+						model.set("id", synonym.getId());
 						model.set("text", synonym.getFriendlyName());
 						
 						store.add(model);			
