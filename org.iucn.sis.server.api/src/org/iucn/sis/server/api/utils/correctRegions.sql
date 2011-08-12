@@ -54,3 +54,20 @@ WHERE "id" = 19;
 
 DELETE FROM region 
 WHERE "id" = 6;
+
+UPDATE assessment
+SET state = -1
+WHERE id IN (
+  SELECT DISTINCT assessment.id
+  FROM assessment
+  JOIN field ON field.assessmentid = assessment.id
+  JOIN primitive_field ON field.id = primitive_field.fieldid
+  JOIN foreign_key_list_primitive_field fk ON primitive_field.id = fk.id
+  JOIN fk_list_primitive_values fi ON fk.id = fi.fk_list_primitive_id
+  WHERE field.name = 'RegionInformation'
+    AND primitive_field.name = 'regions'
+    AND fi."value" = 13
+);
+
+DELETE FROM region
+WHERE "id" = 13;
