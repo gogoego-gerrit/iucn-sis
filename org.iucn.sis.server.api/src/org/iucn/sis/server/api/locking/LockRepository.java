@@ -34,50 +34,12 @@ public abstract class LockRepository {
 	
 	public static class LockInfo {
 
-		private class LockExpiry implements Runnable {
-
-			private LockInfo l;
-			private LockRepository owner;
-
-			public LockExpiry(LockInfo lock, LockRepository owner) {
-				this.l = lock;
-				this.owner = owner;
-			}
-
-			public void run() {
-				while (l.restart) {
-					l.restart = false;
-
-					try {
-						Thread.sleep(SAVE_LOCK_EXPIRY_MS);
-						owner.removeLockByID(l.id);
-						
-//						if( verboseOutput )
-//							System.out.println("Removing lock: " + l.toString());
-					} catch (InterruptedException e) {
-						if (!l.restart) {
-							owner.removeLockByID(l.id);
-							
-//							if( verboseOutput )
-//								System.out.println("Removing lock: " + l.toString());
-						}
-					} finally {
-						if (!l.restart)
-							owner.removeLockByID(l.id);
-					}
-				}
-			}
-		}
-
 		Integer userID;
 		Integer id;
 		LockType lockType;
 		long whenLockAcquired;
-		Thread expiry;
 		String group;
 		String username;
-
-		boolean restart = true;
 
 		public LockInfo(Integer id, Integer userID, LockType lockType, String group, LockRepository owner) {
 			this(id, userID, lockType, group, new Date(), owner);
@@ -89,28 +51,6 @@ public abstract class LockRepository {
 			this.id = id;
 			this.group = group;
 			this.whenLockAcquired = lockDate.getTime();
-
-//			if( verboseOutput )
-//				System.out.println("Acquiring: " + toString());
-			if (lockType.equals(LockType.SAVE_LOCK)) {
-				expiry = new Thread(new LockExpiry(this, owner));
-				expiry.start();
-			}
-		}
-
-		public void forceExpiration(LockRepository owner) {
-			if (expiry != null)
-				expiry.interrupt();
-			else
-				owner.removeLockByID(id);
-		}
-
-		public void restartTimer() {
-			// No need to restart timer for CHECKED_OUT locks, at the moment.
-			if (lockType.equals(LockType.SAVE_LOCK)) {
-				restart = true;
-				expiry.interrupt();
-			}
 		}
 
 		@Override

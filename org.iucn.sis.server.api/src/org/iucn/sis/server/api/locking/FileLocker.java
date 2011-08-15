@@ -16,16 +16,9 @@ import org.iucn.sis.shared.api.models.User;
 import org.restlet.data.Status;
 
 public class FileLocker {
-	public class SimpleLock {
-
-		Date date;
-
-		public SimpleLock() {
-			date = new Date();
-		}
-	}
-
-
+	
+	protected static final int SAVE_LOCK_EXPIRY_MS = 3 * 60 * 1000;
+	
 	ConcurrentHashMap<String, SimpleLock> locks;
 	
 	private LockRepository assessmentLocks;
@@ -47,21 +40,26 @@ public class FileLocker {
 			assessmentLocks = new MemoryLockRepository();*/
 	}
 
-	public boolean aquireLock(String url) {
-		boolean aquiredLock = false;
+	public boolean acquireLock(String url, String owner, boolean autoExpire) {
+		boolean acquiredLock = false;
 
 		synchronized (locks) {
-			if (!locks.contains(url)) {
-				locks.put(url, new SimpleLock());
-				aquiredLock = true;
+			SimpleLock existing = locks.get(url);
+			if (existing == null) {
+				locks.put(url, new SimpleLock(url, owner));
+				acquiredLock = true;
+			}
+			else if (existing.owner.equals(owner)) {
+				existing.restartTimer();
+				acquiredLock = true;
 			}
 		}
 
-		return aquiredLock;
+		return acquiredLock;
 	}
 
-	public boolean aquireWithRetry(String url, int maxTries) {
-		boolean locked = aquireLock(url);
+	public boolean acquireWithRetry(String url, String owner, boolean autoExpire, int maxTries) {
+		boolean locked = acquireLock(url, owner, autoExpire);
 		if (!locked) {
 			int count = 0;
 			do {
@@ -69,7 +67,7 @@ public class FileLocker {
 					Thread.sleep(250);
 				} catch (Exception e) {
 				}
-				locked = aquireLock(url);
+				locked = acquireLock(url, owner, autoExpire);
 				count++;
 			} while (count < maxTries && !locked);
 		}
@@ -201,6 +199,12 @@ public class FileLocker {
 	}
 	
 	public synchronized Status persistentLockAssessment(Integer assessmentID, LockType lockType, User owner, String group) {
+		if (LockType.SAVE_LOCK.equals(lockType)) {
+			boolean hasLock = acquireLock("assessment/" + assessmentID, owner.getUsername(), true);
+			
+			return hasLock ? Status.SUCCESS_OK : Status.CLIENT_ERROR_LOCKED; 
+		}
+		
 		if (assessmentLocks.isAssessmentPersistentLocked(assessmentID)) {
 			LockRepository.LockInfo l;
 			try {
@@ -210,7 +214,6 @@ public class FileLocker {
 				return Status.SERVER_ERROR_INTERNAL;
 			}
 			if (l.getUsername().equalsIgnoreCase(owner.getUsername())) {
-				l.restartTimer();
 				return Status.SUCCESS_OK;
 			} else {
 				if( verboseOutput )
@@ -247,7 +250,6 @@ public class FileLocker {
 		if (assessmentLocks.isAssessmentPersistentLocked(id)) {
 			LockRepository.LockInfo l = assessmentLocks.getLockedAssessment(id);
 			if (l.getUsername().equalsIgnoreCase(owner.getUsername())) {
-				l.forceExpiration(assessmentLocks);
 				return Status.SUCCESS_OK;
 			} else {
 				return Status.CLIENT_ERROR_FORBIDDEN;
@@ -265,6 +267,77 @@ public class FileLocker {
 		synchronized (locks) {
 			locks.remove(url);
 		}
+	}
+	
+	public class SimpleLock {
+		
+		private class LockExpiry implements Runnable {
+
+			private SimpleLock l;
+			
+			public LockExpiry(SimpleLock lock) {
+				this.l = lock;
+			}
+
+			public void run() {
+				while (l.restart) {
+					l.restart = false;
+
+					try {
+						Thread.sleep(SAVE_LOCK_EXPIRY_MS);
+						releaseLock(l.url);
+						
+//						if( verboseOutput )
+//							System.out.println("Removing lock: " + l.toString());
+					} catch (InterruptedException e) {
+						if (!l.restart) {
+							releaseLock(l.url);
+							
+//							if( verboseOutput )
+//								System.out.println("Removing lock: " + l.toString());
+						}
+					} finally {
+						if (!l.restart)
+							releaseLock(l.url);
+					}
+				}
+			}
+		}
+
+		Date date;
+		boolean restart = true;
+		Thread expiry;
+		String url;
+		String owner;
+
+		public SimpleLock(String url, String owner) {
+			this(url, owner, false);
+		}
+		
+		public SimpleLock(String url, String owner, boolean expires) {
+			this.url = url;
+			this.owner = owner;
+			this.date = new Date();
+			if (expires) {
+				expiry = new Thread(new LockExpiry(this));
+				expiry.start();
+			}
+		}
+		
+		public void forceExpiration(LockRepository owner) {
+			if (expiry != null)
+				expiry.interrupt();
+			else
+				releaseLock(url);
+		}
+
+		public void restartTimer() {
+			if (expiry != null) {
+				restart = true;
+				expiry.interrupt();
+			}
+		}
+		
 	}
 
 }

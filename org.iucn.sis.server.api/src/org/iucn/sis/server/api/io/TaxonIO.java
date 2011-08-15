@@ -174,7 +174,7 @@ public class TaxonIO {
 		// TRY TO AQUIRE LOCKS
 		TaxonLockAquirer aquirer = new TaxonLockAquirer(taxaToSave);
 		if (requireLocking)
-			aquirer.aquireLocks();
+			aquirer.aquireLocks(user.getUsername());
 
 		if (!requireLocking || aquirer.isSuccess()) {
 			try {

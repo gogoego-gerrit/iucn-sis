@@ -43,11 +43,11 @@ public class TaxonLockAquirer {
 	}
 	
 
-	public void aquireLocks() {
+	public void aquireLocks(String owner) {
 		for (int i = 0; i < ids.length; i++) {
 			String url = ServerPaths.getTaxonURL(ids[i]);
 			if (!locks.contains(url)) {
-				if (SIS.get().getLocker().aquireLock(url)) {
+				if (SIS.get().getLocker().acquireLock(url, owner, false)) {
 					locks.add(url);
 				} else {
 					retry.add(url);
@@ -63,7 +63,7 @@ public class TaxonLockAquirer {
 
 			}
 			for (int i = 0; i < retry.size(); i++) {
-				if (SIS.get().getLocker().aquireLock(retry.get(i))) {
+				if (SIS.get().getLocker().acquireLock(retry.get(i), owner, false)) {
 					locks.add(retry.remove(i));
 				}
 			}

@@ -277,7 +277,7 @@ public class TaxomaticIO {
 	public void updateAndSave(Collection<Taxon> taxaToSave, User user, boolean requireLocking) throws TaxomaticException {
 		TaxonLockAquirer acquirer = new TaxonLockAquirer(taxaToSave);
 		if (requireLocking)
-			acquirer.aquireLocks();
+			acquirer.aquireLocks(user.getUsername());
 
 		if (requireLocking && !acquirer.isSuccess())
 			throw new TaxomaticException("Failed to acquire lock to save taxa.", false);
