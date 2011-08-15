@@ -13,7 +13,7 @@ public class ReferenceModel extends BaseModelData {
 	private static final long serialVersionUID = 8259134038222297761L;
 	
 	private final Reference ref;
-	private final String count;
+	private String count;
 
 	public ReferenceModel(Reference ref) {
 		this(ref, "");
@@ -35,6 +35,29 @@ public class ReferenceModel extends BaseModelData {
 		set("field", "N/A");
 		set("citation", getVisibleCitation());
 		set("count", count);
+	}
+	
+	public void increment() {
+		int cInt;
+		try {
+			cInt = Integer.valueOf(count);
+		} catch (Exception e) {
+			cInt = 0;
+		}
+		
+		count = Integer.toString(cInt + 1);
+	}
+	
+	public void decrement() {
+		int cInt;
+		try {
+			cInt = Integer.valueOf(count);
+		} catch (Exception e) {
+			cInt = 0;
+		}
+		
+		if (cInt > 0)
+			count = Integer.toString(cInt - 1);
 	}
 	
 	public void setField(String field) {

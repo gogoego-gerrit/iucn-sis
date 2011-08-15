@@ -8,6 +8,30 @@ import org.iucn.sis.shared.api.models.Reference;
 import com.solertium.lwxml.shared.GenericCallback;
 
 public interface Referenceable {
+	
+	public enum ReferenceGroup {
+		Assessment("assessment_reference", "assessmentid"), 
+		Field("field_reference", "fieldid"),
+		CommonName("common_name_reference", "common_nameid"),
+		Synonym("synonym_reference", "synonymid"),
+		Taxon("reference_taxon", "taxonid");
+		
+		private final String table, column;
+		
+		private ReferenceGroup(String table, String column) {
+			this.table = table;
+			this.column = column;
+		}
+		
+		public String getColumn() {
+			return column;
+		}
+		
+		public String getTable() {
+			return table;
+		}
+	}
+	
 	/**
 	 * Invoked when addition of references has been instigated. The argument
 	 * contains ReferenceUI objects that should be added to this object's List
@@ -46,4 +70,10 @@ public interface Referenceable {
 	 * @param callback
 	 */
 	public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> listener);
+	
+	/**
+	 * Table to group these references by.
+	 * @return
+	 */
+	public ReferenceGroup groupBy();
 }

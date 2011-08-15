@@ -144,6 +144,11 @@ public class CommonNameToolPanel extends Menu implements Referenceable {
 		TaxonomyCache.impl.removeReferencesFromCommonName(taxon, cn, references, listener);
 	}
 	
+	@Override
+	public ReferenceGroup groupBy() {
+		return ReferenceGroup.CommonName;
+	}
+	
 	public static class CommonNameNoteAPI implements NoteAPI {
 		
 		private final CommonName commonName;

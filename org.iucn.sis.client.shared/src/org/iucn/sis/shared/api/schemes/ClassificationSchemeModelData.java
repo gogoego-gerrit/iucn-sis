@@ -208,5 +208,10 @@ public class ClassificationSchemeModelData implements ModelData, Referenceable {
 		 * that hasn't changed...
 		 */
 	}
+	
+	@Override
+	public ReferenceGroup groupBy() {
+		return ReferenceGroup.Field;
+	}
 
 }

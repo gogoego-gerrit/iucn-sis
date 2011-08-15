@@ -894,6 +894,11 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		public void onReferenceChanged(GenericCallback<Object> callback) {
 
 		}
+		
+		@Override
+		public ReferenceGroup groupBy() {
+			return ReferenceGroup.Taxon;
+		}
 
 		public void removeReferences(ArrayList<Reference> references, GenericCallback<Object> callback) {
 			taxon.getReference().removeAll(references);

@@ -10,12 +10,14 @@ import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.citations.Referenceable.ReferenceGroup;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.parsers.ReferenceParser;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -169,8 +171,10 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 				} else {
 					ArrayList<Reference> list = new ArrayList<Reference>();
 					
-					for (ReferenceModel curItem : grid.getSelectionModel().getSelectedItems())
+					for (ReferenceModel curItem : grid.getSelectionModel().getSelectedItems()) {
+						curItem.increment();
 						list.add(curItem.getModel());
+					}
 					
 					if (!list.isEmpty())
 						parent.onAddSelected(list);
@@ -277,12 +281,30 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 		grid.getView().refresh(false);
 	}
 	
+	public void decrement(ArrayList<Reference> selectedValues) {
+		boolean hasChanged = false;
+		ListStore<ReferenceModel> store = grid.getStore();
+		for (Reference reference : selectedValues) {
+			ReferenceModel model = store.findModel(reference.getId()+"");
+			if (hasChanged |= model != null)
+				model.decrement();
+		}
+		if (hasChanged)
+			refreshView();
+	}
+	
 	@Override
 	protected void getStore(final GenericCallback<ListStore<ReferenceModel>> callback) {
+		ReferenceGroup group = parent.getReferenceable() == null ? null : parent.getReferenceable().groupBy();
+		
 		StringBuilder q = new StringBuilder("<query>");
 		q.append(XMLWritingUtils.writeCDATATag("author", author.getText(), true));
 		q.append(XMLWritingUtils.writeCDATATag("title", title.getText(), true));
 		q.append(XMLWritingUtils.writeCDATATag("year", year.getText(), true));
+		if (group != null) {
+			q.append(XMLWritingUtils.writeCDATATag("groupTable", group.getTable()));
+			q.append(XMLWritingUtils.writeCDATATag("groupColumn", group.getColumn()));
+		}
 		q.append("</query>");
 
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
@@ -294,6 +316,11 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 			public void onSuccess(String result) {
 				final ListStore<ReferenceModel> ret = new ListStore<ReferenceModel>();
 				ret.setStoreSorter(new StoreSorter<ReferenceModel>(new PortableAlphanumericComparator()));
+				ret.setKeyProvider(new ModelKeyProvider<ReferenceModel>() {
+					public String getKey(ReferenceModel model) {
+						return Integer.toString(model.getModel().getId());
+					}
+				});
 				
 				final NativeNodeList referenceList = document.getDocumentElement().getChildNodes();
 				

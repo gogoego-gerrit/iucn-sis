@@ -106,6 +106,7 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 			curReferenceable.removeReferences(selectedValues, removeCallback);
 			setReferences(curReferenceable, addCallback, removeCallback);
 		}
+		search.decrement(selectedValues);
 	}
 	
 	public void setReferences(Referenceable referenceable) {

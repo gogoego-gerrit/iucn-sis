@@ -123,6 +123,10 @@ public class SynonymToolPanel extends Menu implements Referenceable {
 		TaxonomyCache.impl.removeReferencesFromSynonym(taxon, synonym, references, listener);
 	}
 	
+	@Override
+	public ReferenceGroup groupBy() {
+		return ReferenceGroup.Synonym;
+	}
 	
 	public static class SynonymNoteAPI implements NoteAPI {
 		

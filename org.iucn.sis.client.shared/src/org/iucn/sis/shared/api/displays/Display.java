@@ -29,7 +29,6 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.FieldAttachment;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Relationship;
@@ -69,7 +68,6 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.StyledHTML;
 import com.solertium.util.portable.XMLWritingUtils;
@@ -422,6 +420,12 @@ public abstract class Display implements Referenceable {
 			return new HashSet<Reference>();
 		
 		return referenceableFieldFactory.newReferenceableField(field).getReferencesAsList();
+	}
+	
+	@Override
+	public ReferenceGroup groupBy() {
+		return ReferenceGroup.Field;
+		//TODO: use this? return referenceableFieldFactory.newReferenceableField(field).groupBy();
 	}
 
 	public List<DisplayStructure> getStructures() {

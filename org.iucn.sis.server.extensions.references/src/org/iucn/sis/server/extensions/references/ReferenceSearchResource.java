@@ -68,6 +68,14 @@ public class ReferenceSearchResource extends TransactionResource {
 	}
 	
 	private Representation doQuery(Map<String, String> constraints, final Session session) throws ResourceException {
+		String joinTable = constraints.remove("groupTable");
+		String joinColumn = constraints.remove("groupColumn");
+		
+		if (joinTable == null || joinColumn == null) {
+			joinTable = "field_reference";
+			joinColumn = "fieldid";
+		}
+		
 		String where = null;
 		for (Map.Entry<String, String> entry : constraints.entrySet()) {
 			if (!"start".equals(entry.getKey()) && !"limit".equals(entry.getKey())) {
@@ -79,12 +87,12 @@ public class ReferenceSearchResource extends TransactionResource {
 			}
 		}
 
-		String query = "SELECT reference.id, COUNT(field_reference.fieldid) as usage " +
+		String query = "SELECT reference.id, COUNT("+joinTable+"."+joinColumn+") as usage " +
 			"FROM reference " + 
-			"LEFT JOIN field_reference ON reference.id = field_reference.referenceid";
+			"LEFT JOIN " + joinTable + " ON reference.id = "+joinTable+".referenceid";
 		if (where != null)
 			query += " " + where;
-		query += " GROUP BY (reference.id) LIMIT 250";
+		query += " GROUP BY (reference.id) LIMIT 500";
 		
 		final Map<Integer, Integer> map = new HashMap<Integer, Integer>();
 		synchronized (this) {

@@ -47,6 +47,11 @@ public class ReferenceableField implements Referenceable {
 		persist(callback);
 	}
 	
+	@Override
+	public ReferenceGroup groupBy() {
+		return ReferenceGroup.Field;
+	}
+	
 	protected void persist(final GenericCallback<Object> callback) {
 		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, 
 				AssessmentCache.impl.getCurrentAssessment())) {
