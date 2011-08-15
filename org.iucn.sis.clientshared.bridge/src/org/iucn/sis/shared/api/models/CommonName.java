@@ -21,6 +21,7 @@ import org.iucn.sis.shared.api.models.interfaces.HasReferences;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 public class CommonName implements Serializable, HasReferences, HasNotes {
 	
@@ -51,21 +52,29 @@ public class CommonName implements Serializable, HasReferences, HasNotes {
 		if (!validated)
 			curName.setChangeReason(Integer.valueOf(reason).intValue());
 		
-		NativeElement iso = commonNameTag.getElementByTagName("language");
-		if (iso != null)
-			curName.setIso(IsoLanguage.fromXML(iso));
+		NativeNodeList children = commonNameTag.getChildNodes();
+		for (int i = 0; i < children.getLength(); i++) {
+			NativeNode current = children.item(i);
+			if ("language".equals(current.getNodeName()))
+				curName.setIso(IsoLanguage.fromXML((NativeElement)current));
+			else if ("sources".equals(current.getNodeName())) {
+				NativeNodeList refs = current.getChildNodes();
+				for (int k = 0; k < refs.getLength(); k++) {
+					NativeNode curChild = refs.item(k);
+					if (Reference.ROOT_TAG.equals(curChild.getNodeName()))
+						curName.getReference().add(Reference.fromXML((NativeElement)curChild));
+				}
+			}
+			else if ("notes".equals(current.getNodeName())) {
+				NativeNodeList notes = current.getChildNodes();
+				for (int k = 0; k < notes.getLength(); k++) {
+					NativeNode curChild = notes.item(k);
+					if (Notes.ROOT_TAG.equals(curChild.getNodeName()))
+						curName.getNotes().add(Notes.fromXML((NativeElement)curChild));
+				}
+			}
+		}
 		
-		NativeNodeList refs = commonNameTag.getElementsByTagName("reference");
-		for (int i = 0; i < refs.getLength(); i++) {
-			curName.getReference().add(
-					Reference.fromXML((NativeElement) refs.item(i)));
-		}
-	
-		NativeNodeList notes = commonNameTag.getElementsByTagName("note");
-		for (int i = 0; i < notes.getLength(); i++) {
-			NativeElement current = (NativeElement) notes.item(i);
-			curName.getNotes().add(Notes.fromXML(current));
-		}
 		return curName;
 	}
 	
