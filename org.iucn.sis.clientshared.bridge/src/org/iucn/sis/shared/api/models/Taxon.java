@@ -123,7 +123,7 @@ public class Taxon implements AuthorizableObject, Serializable {
 		else {
 			fullName = getParent().getFriendlyName();
 			if (infratype != null) {
-				fullName += infratype.getDisplayString();
+				fullName += " " + infratype.getDisplayString();
 				
 				name = name.replace("ssp.", "").trim();
 				name = name.replace("var.", "").trim();
