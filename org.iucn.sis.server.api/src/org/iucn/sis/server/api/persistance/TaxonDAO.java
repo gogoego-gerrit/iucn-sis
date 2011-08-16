@@ -12,11 +12,14 @@ package org.iucn.sis.server.api.persistance;
  * Licensee: 
  * License Type: Evaluation
  */
+import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -25,6 +28,8 @@ import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
+import org.iucn.sis.shared.api.models.TaxomaticHistory;
+import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonImage;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -305,6 +310,28 @@ public class TaxonDAO {
 			}
 			
 			taxon.setTaxonomicNotes(null);
+			
+			List<TaxomaticOperation> operations = session.createCriteria(TaxomaticOperation.class)
+				.createAlias("history", "TaxomaticHistory")
+				.add(Restrictions.eq("TaxomaticHistory.taxon", taxon))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY)
+				.list();
+			
+			for (TaxomaticOperation current : operations) {
+				Hibernate.initialize(current.getHistory());
+				List<TaxomaticHistory> toRemove = new ArrayList<TaxomaticHistory>();
+				for (TaxomaticHistory history : current.getHistory())
+					if (history.getTaxon().getId() == taxon.getId())
+						toRemove.add(history);
+				for (TaxomaticHistory history : toRemove) {
+					history.setTaxon(null);
+					history.setOperation(null);
+					current.getHistory().remove(history);
+					session.delete(history);
+				}
+				if (current.getHistory().isEmpty())
+					session.delete(current);
+			}
 			
 			WorkingSet[] lWorking_sets = (WorkingSet[])taxon.getWorking_set().toArray(new WorkingSet[taxon.getWorking_set().size()]);
 			for(int i = 0; i < lWorking_sets.length; i++) {
