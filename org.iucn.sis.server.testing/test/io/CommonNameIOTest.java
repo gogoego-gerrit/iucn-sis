@@ -43,7 +43,7 @@ public class CommonNameIOTest extends BasicHibernateTest {
 			Assert.fail();
 		}
 	
-		closeTransation(session);
+		closeTransaction(session);
 		
 		int testID = 0;
 		Assert.assertTrue(test.getId() > 0);
@@ -91,7 +91,7 @@ public class CommonNameIOTest extends BasicHibernateTest {
 			Assert.fail();
 		}
 	
-		closeTransation(session);
+		closeTransaction(session);
 		
 		int testID = 0;
 		Assert.assertTrue(test.getId() > 0);
@@ -141,7 +141,7 @@ public class CommonNameIOTest extends BasicHibernateTest {
 			Assert.fail();
 		}
 	
-		closeTransation(session);
+		closeTransaction(session);
 		
 		int testID = 0;
 		Assert.assertTrue(test.getId() > 0);
@@ -164,7 +164,7 @@ public class CommonNameIOTest extends BasicHibernateTest {
 			Assert.fail("Persistent Exception thrown: " + e.getMessage());
 		}
 		
-		closeTransation(session);
+		closeTransaction(session);
 		
 		session = openSession();
 		
@@ -210,7 +210,7 @@ public class CommonNameIOTest extends BasicHibernateTest {
 			Assert.fail();
 		}
 	
-		closeTransation(session);
+		closeTransaction(session);
 		
 		int testID = 0, test2ID = 0;
 		
@@ -240,7 +240,7 @@ public class CommonNameIOTest extends BasicHibernateTest {
 		Assert.assertTrue(test2.isPrimary());
 		Assert.assertFalse(test.isPrimary());
 		
-		closeTransation(session);
+		closeTransaction(session);
 		
 		session = openSession();
 		

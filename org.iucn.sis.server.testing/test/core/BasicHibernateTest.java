@@ -93,7 +93,7 @@ public class BasicHibernateTest extends BasicTest {
 	 * cases, this is good.
 	 * @param session
 	 */
-	protected void closeTransation(Session session) {
+	protected void closeTransaction(Session session) {
 		session.getTransaction().commit();
 		session.close();
 	}

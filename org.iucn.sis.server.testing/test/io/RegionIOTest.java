@@ -56,7 +56,7 @@ public class RegionIOTest extends BasicHibernateTest {
 		
 		try {
 			io.saveRegion(newRegion);
-			closeTransation(session);
+			closeTransaction(session);
 		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getMessage());
 		}
@@ -104,7 +104,7 @@ public class RegionIOTest extends BasicHibernateTest {
 		
 		try {
 			io.saveRegion(newRegion);
-			closeTransation(session);
+			closeTransaction(session);
 		} catch (Exception e) {
 			Assert.fail("Exception thrown: " + e.getMessage());
 		}
@@ -122,7 +122,7 @@ public class RegionIOTest extends BasicHibernateTest {
 		
 		try {
 			io.saveRegion(existing);
-			closeTransation(session);
+			closeTransaction(session);
 			Assert.fail("Region using the same name got saved successfully");
 		} catch (PersistentException e) {
 			Assert.fail();
