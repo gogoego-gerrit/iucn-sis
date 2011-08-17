@@ -1,0 +1,10 @@
+<field id="123">
+	<canonicalName>RedListHidden</canonicalName>
+	<description>Hide Assessment from Publication?</description>
+	<classOfService>IUCN</classOfService>
+	<structures>
+		<structure id="value">
+			<boolean></boolean>
+		</structure>
+	</structures>
+</field>

@@ -1755,6 +1755,7 @@ INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criter
 INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criteriaEN', 'string_primitive_field', '?');
 INSERT INTO RedListFuzzyResult (name, data_type, number_allowed) VALUES ('criteriaVU', 'string_primitive_field', '?');
 INSERT INTO RedListHistory (name, data_type, number_allowed) VALUES ('value','text_primitive_field', '?');
+INSERT INTO RedListHidden (name, data_type, number_allowed) VALUES ('value', 'boolean_primitive_field', '?');
 INSERT INTO RedListManualCategory (name, data_type, number_allowed) VALUES ('rlCategory', 'string_primitive_field', '?');
 INSERT INTO RedListManualCriteria (name, data_type, number_allowed) VALUES ('rlCriteria', 'string_primitive_field', '?');
 INSERT INTO RedListNotes (name, data_type, number_allowed) VALUES ('value', 'text_primitive_field', '?');

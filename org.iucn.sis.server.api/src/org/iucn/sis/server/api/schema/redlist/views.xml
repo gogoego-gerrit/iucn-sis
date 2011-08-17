@@ -1749,6 +1749,7 @@
 					<organization title="Red List Status">
 						<composite>
 							<field id="RedListHistory"/>
+							<field id="RedListHidden"/>
 						</composite>
 					</organization>				
 					<organization title="Assessment Information">
