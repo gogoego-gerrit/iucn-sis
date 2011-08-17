@@ -14,6 +14,7 @@ import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.acl.BasePermissionUtils;
 import org.iucn.sis.shared.api.acl.PermissionDataSource;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -52,6 +53,74 @@ public class PermissionTesting extends BasicHibernateTest {
 		checkSchemaRestriction(UT, "", false, false, false);
 		checkSchemaRestriction(UT, "org.iucn.sis.server.schema.redlist", false, false, false);
 		
+	}
+	
+	@Test
+	public void testCreateDraftAssessment() {
+		Permission d = new Permission();
+		d.setUrl("default");
+		d.setRead(false);
+		d.setWrite(false);
+		d.setCreate(false);
+		d.setDelete(false);
+		d.setGrant(false);
+		d.setUse(false);
+		
+		PermissionGroup group = new PermissionGroup();
+		group.addPermission(d);
+		group.setScopeURI("");
+		
+		String schema = "org.iucn.sis.server.schemas.redlist";
+		
+		Taxon taxon = new Taxon();
+		
+		AuthorizableDraftAssessment asm = new AuthorizableDraftAssessment(taxon, schema);
+		
+		//Should fail, since I only have the default permission, with create = false.
+		Assert.assertFalse(Oracle.hasPermission(group, asm, AuthorizableObject.CREATE));
+		
+		Permission createDraftPermission = new Permission();
+		createDraftPermission.setUrl("resource/assessment/draft_status");
+		createDraftPermission.setRead(false);
+		createDraftPermission.setWrite(false);
+		createDraftPermission.setCreate(true);
+		createDraftPermission.setDelete(false);
+		createDraftPermission.setGrant(false);
+		createDraftPermission.setUse(false);
+		
+		group.addPermission(createDraftPermission);
+		
+		//Should be true, since I set the create method to true for draft asms 
+		Assert.assertTrue(Oracle.hasPermission(group, asm, AuthorizableObject.CREATE));
+		
+		PermissionResourceAttribute regionAttr = new PermissionResourceAttribute();
+		regionAttr.setName("region");
+		regionAttr.setRegex("global");
+		regionAttr.setPermission(createDraftPermission);
+		createDraftPermission.getAttributes().add(regionAttr);
+		
+		//False, since no region has been specified...
+		Assert.assertFalse(Oracle.hasPermission(group, asm, AuthorizableObject.CREATE));
+		
+		//...so let's specify the global region
+		asm = new AuthorizableDraftAssessment(taxon, schema, "global");
+		
+		//True, since I set the region to global
+		Assert.assertTrue(Oracle.hasPermission(group, asm, AuthorizableObject.CREATE));
+		
+		PermissionResourceAttribute schemaAttr = new PermissionResourceAttribute();
+		schemaAttr.setName("schema");
+		schemaAttr.setRegex("org.iucn.sis.server.schemas.redlist");
+		schemaAttr.setPermission(createDraftPermission);
+		createDraftPermission.getAttributes().add(schemaAttr);
+		
+		//True, since I can access redlist schemas
+		Assert.assertTrue(Oracle.hasPermission(group, asm, AuthorizableObject.CREATE));
+		
+		schemaAttr.setRegex("org.iucn.sis.server.schemas.usetrade");
+		
+		//False, since I'm restricted to redlist, I don't have access to use/trade 
+		Assert.assertFalse(Oracle.hasPermission(group, asm, AuthorizableObject.CREATE));
 	}
 	
 	/**

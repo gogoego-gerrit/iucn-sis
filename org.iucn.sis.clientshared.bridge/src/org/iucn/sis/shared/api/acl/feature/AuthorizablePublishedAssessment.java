@@ -13,12 +13,12 @@ public class AuthorizablePublishedAssessment extends AuthorizableAssessmentShim 
 
 	private String regionValue;
 	
-	public AuthorizablePublishedAssessment(Taxon taxon) {
-		super(taxon);
+	public AuthorizablePublishedAssessment(Taxon taxon, String schema) {
+		this(taxon, schema, null);
 	}
 	
-	public AuthorizablePublishedAssessment(Taxon taxon, String region) {
-		super(taxon);
+	public AuthorizablePublishedAssessment(Taxon taxon, String schema, String region) {
+		super(taxon, schema);
 		regionValue = region;
 	}
 	
@@ -31,6 +31,6 @@ public class AuthorizablePublishedAssessment extends AuthorizableAssessmentShim 
 		if(regionValue != null && "region".equalsIgnoreCase(key) )
 			return regionValue;
 		else
-			return "";
+			return super.getProperty(key);
 	}
 }

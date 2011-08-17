@@ -12,6 +12,7 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.client.api.caches.NotesCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -31,6 +32,7 @@ import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Relationship;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -956,7 +958,11 @@ public abstract class Display implements Referenceable {
 					taxaIDs = "";
 					for (Taxon curTaxa : ws.getSpecies()) {
 						for (Integer region : filter.listRegionIDs()) {
-							if(!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, new AuthorizablePublishedAssessment(curTaxa, region+"")) ) {
+							String regionRegex = region+"";
+							if (region == Region.GLOBAL_ID)
+								regionRegex = "global";
+							if(!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, 
+									new AuthorizablePublishedAssessment(curTaxa, SchemaCache.impl.getDefaultSchema(), regionRegex)) ) {
 								WindowUtils.errorAlert("Unauthorized!", "You are unauthorized to modify " +
 										"published assessments for at least the taxon " + curTaxa.getFullName() +
 								". This operation has been cancelled.");

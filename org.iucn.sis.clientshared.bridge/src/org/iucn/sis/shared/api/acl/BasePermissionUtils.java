@@ -135,10 +135,9 @@ public class BasePermissionUtils {
 	 */
 	public boolean hasPermission(PermissionGroup group, AuthorizableObject object, String operation) {
 		boolean hasPermission = group.getDefaultPermission(operation);
-		
-		if (object != null && object != null && inScope(group, object)) {			
+		if (object != null && inScope(group, object)) {			
 			String uri = object.getFullURI();
-			boolean found = false;			
+			boolean found = false;
 			while (uri.indexOf("/") > -1 && !found) {
 				if (group.getResourceToPermission().containsKey(uri)) {
 					Permission perm = group.getResourceToPermission().get(uri);
@@ -146,7 +145,7 @@ public class BasePermissionUtils {
 					if (hasPermission) {
 						for (PermissionResourceAttribute cur : perm.getAttributes()) {
 							if (cur != null && cur.getName() != null && cur.getRegex() != null)
-								hasPermission = object.getProperty(cur.getName()).matches(cur.getRegex());
+								hasPermission &= object.getProperty(cur.getName()).matches(cur.getRegex());
 						}
 					}
 					found = true;

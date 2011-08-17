@@ -14,12 +14,12 @@ public class AuthorizableDraftAssessment extends AuthorizableAssessmentShim {
 
 	private String regionValue;
 	
-	public AuthorizableDraftAssessment(Taxon taxon) {
-		this(taxon, null);
+	public AuthorizableDraftAssessment(Taxon taxon, String schema) {
+		this(taxon, schema, null);
 	}
 	
-	public AuthorizableDraftAssessment(Taxon taxon, String region) {
-		super(taxon);
+	public AuthorizableDraftAssessment(Taxon taxon, String schema, String region) {
+		super(taxon, schema);
 		regionValue = region;
 	}
 	
@@ -32,6 +32,6 @@ public class AuthorizableDraftAssessment extends AuthorizableAssessmentShim {
 		if(regionValue != null && "region".equalsIgnoreCase(key) )
 			return regionValue;
 		else
-			return "";
+			return super.getProperty(key);
 	}
 }

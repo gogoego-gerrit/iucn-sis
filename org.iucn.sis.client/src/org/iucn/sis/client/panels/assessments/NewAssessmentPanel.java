@@ -251,14 +251,15 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 		type = new ListBox(false);
 		type.insertItem("", 0);
 		
-
-		canCreateDraft = AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node));
-		canCreateDraftRegional = AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, "0"));
-		canCreateDraftGlobal = AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, Region.GLOBAL_ID+""));
+		String defaultSchema = SchemaCache.impl.getDefaultSchema();
+		canCreateDraft = AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, defaultSchema));
+		canCreateDraftRegional = AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, defaultSchema, "0"));
+		canCreateDraftGlobal = AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, defaultSchema, "global"));
 		
 		if (canCreateDraft || canCreateDraftRegional || canCreateDraftGlobal )
 			type.insertItem(AssessmentType.DRAFT_ASSESSMENT_TYPE, type.getItemCount());
-		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, new AuthorizablePublishedAssessment(node)))
+		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, 
+				new AuthorizablePublishedAssessment(node, defaultSchema)))
 			type.insertItem(AssessmentType.PUBLISHED_ASSESSMENT_TYPE, type.getItemCount());
 
 		typeLabel = new Label("Assessment Type: ");
