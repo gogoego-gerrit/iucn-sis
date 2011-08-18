@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -317,7 +318,9 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 		String permissionProblem = null;
 		for (Integer curSpecies : ws.getSpeciesIDs()) {
 			AuthorizableDraftAssessment d = new AuthorizableDraftAssessment(
-					TaxonomyCache.impl.getTaxon(curSpecies), ws.getFilter().getRegionIDsCSV());
+					TaxonomyCache.impl.getTaxon(curSpecies), 
+					SchemaCache.impl.getDefaultSchema(), 
+					ws.getFilter().getRegionIDsCSV());
 			
 			if(!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, d))
 				permissionProblem = d.getTaxon().getFullName();

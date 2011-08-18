@@ -978,7 +978,8 @@ public abstract class Display implements Referenceable {
 					taxaIDs = "";
 					for (Taxon curTaxa : ws.getSpecies()) {
 						for (Integer region : filter.listRegionIDs())
-							if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, new AuthorizableDraftAssessment(curTaxa, region+"")))
+							if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, 
+								new AuthorizableDraftAssessment(curTaxa, SchemaCache.impl.getDefaultSchema(), region+"")))
 							{	
 								WindowUtils.hideLoadingAlert();
 								WindowUtils.errorAlert("Unauthorized!", "You are unauthorized to modify " +

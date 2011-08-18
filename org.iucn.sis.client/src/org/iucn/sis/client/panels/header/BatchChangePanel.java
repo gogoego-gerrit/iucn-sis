@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.StateManager;
@@ -327,7 +328,8 @@ public class BatchChangePanel extends LayoutContainer {
 					taxaIDs = "";
 					for (Taxon curTaxa : ws.getSpecies()) {
 						for (Integer region : filter.listRegionIDs())
-							if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, new AuthorizableDraftAssessment(curTaxa, region+"")))
+							if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, 
+									new AuthorizableDraftAssessment(curTaxa, SchemaCache.impl.getDefaultSchema(), region+"")))
 							{	
 								WindowUtils.hideLoadingAlert();
 								WindowUtils.errorAlert("Unauthorized!", "You are unauthorized to modify " +
