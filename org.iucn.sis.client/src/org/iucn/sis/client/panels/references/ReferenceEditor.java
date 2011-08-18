@@ -93,8 +93,9 @@ public class ReferenceEditor extends BasicWindow implements DrawsLazily {
 		setScrollMode(Scroll.AUTO);
 
 		this.reference = reference;
-		this.canEdit = reference == null ? true : 
-			AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, reference);
+		this.canEdit = reference == null ? 
+			AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new Reference()): 
+			AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, reference);
 		
 		changedType = false;
 
@@ -204,17 +205,18 @@ public class ReferenceEditor extends BasicWindow implements DrawsLazily {
 		delete.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				WindowUtils.confirmAlert("Confirm Delete", "Are you sure you want to delete this reference?",
-						new WindowUtils.MessageBoxListener() {
-							@Override
-							public void onNo() {
-							}
-
-							@Override
+				if (reference != null) {
+					if (!AuthorizationCache.impl.hasRight(AuthorizableObject.DELETE, reference))
+						WindowUtils.errorAlert("Sorry, you do not have permission to delete this reference.");
+					else {
+						WindowUtils.confirmAlert("Confirm Delete", "Are you sure you want to delete this reference?",
+								new WindowUtils.SimpleMessageBoxListener() {
 							public void onYes() {
 								onDelete();
 							}
 						});
+					}
+				}
 			}
 		});
 

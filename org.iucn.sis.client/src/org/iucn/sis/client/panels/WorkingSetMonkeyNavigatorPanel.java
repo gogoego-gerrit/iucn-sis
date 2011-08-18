@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -14,6 +15,7 @@ import org.iucn.sis.client.panels.MonkeyNavigator.NavigationChangeEvent;
 import org.iucn.sis.client.panels.workingsets.WorkingSetNewWSPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetSubscriber;
 import org.iucn.sis.client.tabs.WorkingSetPage;
+import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -244,6 +246,11 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 				final MenuItem newWS = new MenuItem("Create New Working Set");
 				newWS.addSelectionListener(new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
+						if (!AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new WorkingSet())) {
+							WindowUtils.errorAlert("Sorry, you do not have permission to create new working sets.");
+							return;
+						}
+							
 						final Window window = WindowUtils.newWindow("Add New Working Set");
 						window.setSize(700, 700);
 						window.setLayout(new FillLayout());
