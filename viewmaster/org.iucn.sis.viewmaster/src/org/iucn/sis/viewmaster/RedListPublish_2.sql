@@ -3,14 +3,13 @@ CREATE TEMPORARY TABLE _published_1 AS
   FROM (
     SELECT DISTINCT taxonid, assessmentid, value 
     FROM public.vw_redlistassessmentdate_value
-  ) t2,
-  public.vw_regioninformation_regions,
-  public.assessment,
-  public.taxon
+  ) t2
+  JOIN public.vw_regioninformation_regions ON public.vw_regioninformation_regions.assessmentid = t2.assessmentid
+  JOIN public.assessment ON public.assessment.id = t2.assessmentid
+  JOIN public.taxon ON public.taxon.id = public.assessment.id
+  LEFT JOIN public.vw_redlisthidden_value ON public.vw_redlisthidden_value.assessmentid = t2.assessmentid
   WHERE 
-  t2.assessmentid = public.assessment.id AND
-  public.assessment.taxonid = public.taxon.id AND
-  public.assessment.id = public.vw_regioninformation_regions.assessmentid AND
+  public.vw_redlisthidden_value.value is null AND
   public.assessment.assessment_typeid=1 AND
   public.taxon.taxon_statusid in(1,4) AND
   (t2.taxonid,t2.value,public.vw_regioninformation_regions.value) IN (

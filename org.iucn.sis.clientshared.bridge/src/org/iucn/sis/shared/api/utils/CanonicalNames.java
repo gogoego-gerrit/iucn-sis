@@ -123,6 +123,7 @@ public interface CanonicalNames {
 	public static String RedListEvaluators = "RedListEvaluators";
 	public static String RedListFacilitators = "RedListFacilitators";
 	public static String RedListFuzzyResult = "RedListFuzzyResult";
+	public static String RedListHidden = "RedListHidden";
 	public static String RedListHistory = "RedListHistory";
 	public static String RedListManualCategory = "RedListManualCategory";
 	public static String RedListManualCriteria = "RedListManualCriteria";
@@ -184,7 +185,8 @@ public interface CanonicalNames {
 			PopulationReductionPastandFutureUnderstood, PopulationSize, PopulationTrend, PossiblyExtinct,
 			PossiblyExtinctCandidate, RangeDocumentation, RedListAssessmentDate, RedListAssessors, RedListCategory,
 			RedListCaveat, RedListConsistencyCheck, RedListContributors, RedListCriteria, RedListCriteriaVersion,
-			RedListEvaluated, RedListEvaluationDate, RedListEvaluators, RedListFacilitators, RedListFuzzyResult, RedListHistory, RedListManualCategory,
+			RedListEvaluated, RedListEvaluationDate, RedListEvaluators, RedListFacilitators, RedListFuzzyResult, 
+			RedListHidden, RedListHistory, RedListManualCategory,
 			RedListManualCriteria, RedListNotes, RedListPetition, RedListPublication, RedListRationale,
 			RedListReasonsForChange, RedListText, RegionInformation, ReproductivePeriodicity, Research, Rivers,
 			SevereFragmentation, SubpopulationContinuingDecline, SubpopulationExtremeFluctuation, SubpopulationNumber,
