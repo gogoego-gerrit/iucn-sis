@@ -51,7 +51,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	}
 
 	public String getFullURI() {
-		return "workingSet/" + getId();
+		return "resource/workingSet/" + getId();
 	}
 
 	public String getProperty(String key) {

@@ -273,7 +273,7 @@ public class PermissionTesting extends BasicHibernateTest {
 		d.setRead(true);
 		d.setWrite(true);
 		d.setDelete(false);	
-		d.setUrl(ws.getFullURI());
+		d.setUrl("resource/workingSet");
 		group.addPermission(d);
 		
 		// True, since the permission is set to working set
