@@ -22,6 +22,7 @@ import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.PermissionResourceAttribute;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.junit.After;
 import org.junit.Before;
@@ -173,47 +174,112 @@ public class PermissionTesting extends BasicHibernateTest {
 	public void testCanUseFeature() {
 		Permission d = new Permission();
 		d.setUrl("default");
-		d.setRead(true);
-		d.setWrite(true);
+		d.setRead(false);
+		d.setWrite(false);
 		d.setDelete(false);
-		d.setUse(true);
+		d.setUse(false);
 		
 		PermissionGroup group = new PermissionGroup();
 		group.addPermission(d);
 		group.setScopeURI("");
 		
-		Assert.assertTrue(Oracle.hasPermission(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.USE_FEATURE));		
+		// False, since the default permission is false
+		Assert.assertFalse(Oracle.hasPermission(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.READ));
+		
+		Permission p = new Permission();
+		p.setUrl("feature/batchChange");
+		p.setRead(true);
+		p.setWrite(true);
+		p.setDelete(false);
+		p.setUse(true);
+		group.addPermission(p);
+		
+		// True, bcos set the permission to batch change
+		Assert.assertTrue(Oracle.hasPermission(group, AuthorizableFeature.BATCH_CHANGE_FEATURE, AuthorizableObject.READ));
+		
+		// False, bcos addProfile feature not allowed
+		Assert.assertFalse(Oracle.hasPermission(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.READ));
+		
+		// Set Permission to addProfile
+		Permission q = new Permission();
+		q.setUrl("feature/addProfile");
+		q.setRead(true);
+		q.setWrite(true);
+		q.setDelete(false);
+		q.setUse(true);
+		group.addPermission(q);
+		
+		// True, bcos set the permission to addProfile
+		Assert.assertTrue(Oracle.hasPermission(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.READ));
+		Assert.assertTrue(Oracle.hasPermission(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.WRITE));
+		Assert.assertFalse(Oracle.hasPermission(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.DELETE));
+		Assert.assertTrue(Oracle.hasPermission(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.USE_FEATURE));
 	}
 	
 	@Test
 	public void testAccessToTaxonomicGroup() {
-		/*
-		 * Check deny the cccess to taxonomic group
-		 * 
-		 */
+		Permission p = new Permission();
+		p.setUrl("default");
+		p.setRead(false);
+		p.setWrite(false);
+		p.setDelete(false);
+		
+		PermissionGroup group = new PermissionGroup();
+		group.addPermission(p);			
+		group.setScopeURI("");//taxon/0/0
+				
+		Taxon tax = new Taxon();
+		tax.setName("Test Taxa");
+		tax.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.KINGDOM));
+		
+		// False, bcos default permission set to false
+		Assert.assertFalse(Oracle.hasPermission(group, tax, AuthorizableObject.READ));
+			
+		// Set Permission to the taxa
+		Permission d = new Permission();
+		d.setRead(true);
+		d.setWrite(true);
+		d.setDelete(false);	
+		d.setUrl("resource/taxon");
+		group.addPermission(d);
+		
+		// True, since the permission is set to working set
+		Assert.assertTrue(Oracle.hasPermission(group, tax, AuthorizableObject.READ));
+		Assert.assertTrue(Oracle.hasPermission(group, tax, AuthorizableObject.WRITE));
+		Assert.assertFalse(Oracle.hasPermission(group, tax, AuthorizableObject.DELETE));
 	}
 	
 	@Test
 	public void testAccessToWorkingSet() {
 		Permission p = new Permission();
 		p.setUrl("default");
-		p.setRead(true);
-		p.setWrite(true);
+		p.setRead(false);
+		p.setWrite(false);
 		p.setDelete(false);
 		
 		PermissionGroup group = new PermissionGroup();
-		group.addPermission(p);
+		group.addPermission(p);		
 		group.setScopeURI("");
-		
+
 		WorkingSet ws = new WorkingSet();	
 		ws.setName("Test Name");
 		ws.setDescription("Test Description");
 		
+		// False, bcos default permission set to false
+		Assert.assertFalse(Oracle.hasPermission(group, ws, AuthorizableObject.READ));
+		
+		// Set Permission to the working set
+		Permission d = new Permission();
+		d.setRead(true);
+		d.setWrite(true);
+		d.setDelete(false);	
+		d.setUrl(ws.getFullURI());
+		group.addPermission(d);
+		
+		// True, since the permission is set to working set
 		Assert.assertTrue(Oracle.hasPermission(group, ws, AuthorizableObject.READ));
 		Assert.assertTrue(Oracle.hasPermission(group, ws, AuthorizableObject.WRITE));
 		Assert.assertFalse(Oracle.hasPermission(group, ws, AuthorizableObject.DELETE));
-		
-		System.out.println("-- Done --");
 	}
 	
 	
