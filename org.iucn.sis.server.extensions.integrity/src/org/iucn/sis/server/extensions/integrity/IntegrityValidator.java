@@ -1,42 +1,41 @@
 package org.iucn.sis.server.extensions.integrity;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.hibernate.Session;
+import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
+import org.iucn.sis.shared.api.models.Edit;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.solertium.db.CDateTime;
-import com.solertium.db.CInteger;
-import com.solertium.db.CString;
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
-import com.solertium.db.RowID;
-import com.solertium.db.SQLDateHelper;
 import com.solertium.db.query.ExperimentalSelectQuery;
-import com.solertium.db.query.InsertQuery;
 import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.QConstraintGroup;
-import com.solertium.db.query.SelectQuery;
-import com.solertium.db.query.UpdateQuery;
 import com.solertium.util.ElementCollection;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPathToken;
 
 public class IntegrityValidator {
 	
-	public static boolean validate_background(VFS vfs, ExecutionContext ec, Integer assessmentID) throws DBException {
+	public static boolean validate_background(Session session, VFS vfs, ExecutionContext ec, Integer assessmentID) throws DBException {
 		final VFSPathToken[] tokens;
 		try {
 			tokens = vfs.list(ValidationResource.ROOT_PATH);
@@ -45,7 +44,6 @@ public class IntegrityValidator {
 		}
 		
 		boolean success = true;
-		ArrayList<String> messages = new ArrayList<String>();
 		
 		for (VFSPathToken token : tokens) {
 			Document rule;
@@ -56,12 +54,12 @@ public class IntegrityValidator {
 				continue;
 			}
 			
-			IntegrityValidationResponse response = 
-				validate(ec, token.toString(), rule, assessmentID);
+			AssessmentIntegrityValidation response = 
+				validate(session, ec, token.toString(), rule, assessmentID);
 			
 			if (!response.isSuccess()) {
 				success = false;
-				messages.addAll(response.getErrorMessages());
+				break;
 			}
 		}
 		
@@ -82,10 +80,10 @@ public class IntegrityValidator {
 	 *            the assessment to validate
 	 * @throws IntegrityValidationResponse
 	 */
-	public static IntegrityValidationResponse validate(ExecutionContext ec,
+	public static AssessmentIntegrityValidation validate(Session session, ExecutionContext ec,
 			String rule, Document document, Integer assessmentID) throws DBException {
-		final IntegrityValidationResponse preCheck = 
-			getExistingValidation(ec, rule, assessmentID);
+		final AssessmentIntegrityValidation preCheck = 
+			getExistingValidation(session, ec, rule, assessmentID);
 		if (preCheck != null) {
 			System.out.println("Validating based off a previous run; valid? " + preCheck.isSuccess());
 			return preCheck;
@@ -121,164 +119,67 @@ public class IntegrityValidator {
 				.addAll(query.getConstraints().constraints);
 
 		query.constrain(QConstraint.CG_AND, new QComparisonConstraint(
-				new CanonicalColumnName("assessment", "uid"),
+				new CanonicalColumnName("assessment", "id"),
 				QConstraint.CT_EQUALS, assessmentID));
 		
 		final Row.Set rs = new Row.Set();
 		
 		ec.doQuery(query, rs);
 
-		final IntegrityValidationResponse response = passesValidation(rs, properties) ? new IntegrityValidationResponse()
-				: new IntegrityValidationResponse(getCause(ec,
+		final AssessmentIntegrityValidation response = passesValidation(rs, properties) ? new AssessmentIntegrityValidation()
+				: new AssessmentIntegrityValidation(getCause(ec,
 						originalConstraints, document, errorMessages, properties, assessmentID));
 		
 		try {
-			updateStatus(ec, rule, assessmentID, response);
-		} catch (DBException e) {
-			e.printStackTrace();
+			updateStatus(session, rule, assessmentID, response);
+		} catch (PersistentException e) {
+			Debug.println(e);
 		}
 		
 		return response;
 	}
 	
-	public static void updateStatus(ExecutionContext ec, String rule, Integer assessmentID, IntegrityValidationResponse response) throws DBException {
-		final SelectQuery query = new SelectQuery();
-		query.select("assessment_integrity_status", "id");
-		query.constrain(new CanonicalColumnName("assessment_integrity_status", "asm_uid"), QConstraint.CT_EQUALS, assessmentID);
-		query.constrain(QConstraint.CG_AND, new CanonicalColumnName("assessment_integrity_status", "rule"), QConstraint.CT_EQUALS, rule);
+	public static void updateStatus(Session session, String rule, Integer assessmentID, AssessmentIntegrityValidation response) throws PersistentException {
+		final AssessmentIO io = new AssessmentIO(session);
 		
-		final Row.Loader rl = new Row.Loader();
-		Integer rowID = null;
+		AssessmentIntegrityValidation existing = io.getValidation(assessmentID, rule);
 		
-		ec.doQuery(query, rl);
-		
-		if (rl.getRow() != null)
-			rowID = rl.getRow().get("id").getInteger();
-		
-		final StringBuilder message = new StringBuilder();
-		if (response.isSuccess())
-			message.append("success");
-		else {
-			for (final Iterator<String> iter = response.getErrorMessages().iterator(); iter.hasNext(); ) {
-				message.append(iter.next());
-				if (iter.hasNext())
-					message.append('|');
-			}
-		}
-		
-		final Row row = new Row();
-		row.add(new CString("status", Boolean.toString(response.isSuccess())));
-		row.add(new CString("message", message.toString()));
-		row.add(new CDateTime("date", new SQLDateHelper.SQLDate(new Date())));
-		row.add(new CString("rule", rule));
-		
-		if (rowID == null) {
-			row.add(new CInteger("id", rowID = Integer.valueOf((int)RowID.get(ec, "assessment_integrity_status", "id"))));
-			row.add(new CString("asm_uid", assessmentID+""));
-			
-			final InsertQuery insert = new InsertQuery();
-			insert.setTable("assessment_integrity_status");
-			insert.setRow(row);
-			
-			ec.doUpdate(insert);
+		if (existing == null) {
+			io.addValidation(assessmentID, response);
 		}
 		else {
-			final UpdateQuery update = new UpdateQuery();
-			update.setTable("assessment_integrity_status");
-			update.setRow(row);
-			update.constrain(new CanonicalColumnName("assessment_integrity_status", "id"), QConstraint.CT_EQUALS, rowID);
+			existing.setDate(response.getDate());
+			existing.setMessage(response.getMessage());
+			existing.setStatus(response.getStatus());
 			
-			ec.doUpdate(update);
+			io.updateValidation(existing);
 		}
 	}
 	
-	private static IntegrityValidationResponse getExistingValidation(ExecutionContext ec, String rule, Integer assessmentID) {
-		final Row row;
+	private static AssessmentIntegrityValidation getExistingValidation(Session session, ExecutionContext ec, String rule, Integer assessmentID) {
+		final AssessmentIO io = new AssessmentIO(session);
+		
+		final AssessmentIntegrityValidation row;
 		final Date date;
 		{
-			final SelectQuery query = new SelectQuery();
-			query.select("assessment_integrity_status", "*");
-			query.constrain(new CanonicalColumnName("assessment_integrity_status", "asm_uid"), QConstraint.CT_EQUALS, assessmentID);
-			query.constrain(QConstraint.CG_AND, new CanonicalColumnName("assessment_integrity_status", "rule"), QConstraint.CT_EQUALS, rule);
-		
-			final Row.Loader rl = new Row.Loader();
-			
-			try {
-				ec.doQuery(query, rl);
-			} catch (DBException e) {
-				return null;
-			}
-			
-			if (rl.getRow() == null)
-				return null;
-			
-			date = rl.getRow().get("date").getDate();
-			row = rl.getRow();
+			row = io.getValidation(assessmentID, rule);
+			date = row.getDate();
 		}
 		
 		final Date date2;
 		{
-			final SelectQuery query = new SelectQuery();
-			query.select("assessment", "dateModified");
-			query.constrain(new CanonicalColumnName("assessment", "uid"), QConstraint.CT_EQUALS, assessmentID);
-			
-			final Row.Loader rl = new Row.Loader();
-			
-			try {
-				ec.doQuery(query, rl);
-			} catch (DBException e) {
-				return null;
-			}
-			
-			if (rl.getRow() == null) {
-				System.out.println("Date not found.");
-				return null;
-			}
-			
-			String mod = rl.getRow().get("dateModified").toString();
-			mod = mod.replace('\'', ' ');
-			mod = mod.trim();
-			
-			try {
-				date2 = new Date(Long.parseLong(mod));
-			} catch (Exception e) {
-				return null;
-			}
+			final Assessment asm = io.getAssessment(assessmentID);
+			final Edit lastEdit = asm.getLastEdit();
+			if (lastEdit == null)
+				date2 = Calendar.getInstance().getTime();
+			else
+				date2 = lastEdit.getCreatedDate();
 		}
 		
 		if (date2.after(date))
 			return null;
-		
-		if ("true".equals(row.get("status").toString())) {
-			final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-			final IntegrityValidationResponse valid = new IntegrityValidationResponse();
-			valid.setSuccessMessage("This assessment is valid.  It was marked valid " +  
-				format.format(date) + " and no changes have since been made."
-			);
-			return valid;
-		}
-		else {
-			final ArrayList<String> failures = new ArrayList<String>();
-			String messages = row.get("message").toString();
-			int index = messages.indexOf("|");
-			if (index == -1)
-				failures.add(messages);
-			else {
-				StringBuilder builder = new StringBuilder();
-				for (char c : messages.toCharArray()) {
-					if (c != '|')
-						builder.append(c);
-					else {
-						failures.add(builder.toString());
-						builder = new StringBuilder();
-					}
-				}
-				String finalMsg = builder.toString();
-				if (finalMsg.length() > 0)
-					failures.add(builder.toString());
-			}
-			return new IntegrityValidationResponse(failures);
-		}
+	
+		return row;
 	}
 	
 	/**

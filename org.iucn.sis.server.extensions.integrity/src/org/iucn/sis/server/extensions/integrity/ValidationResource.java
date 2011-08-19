@@ -7,11 +7,14 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 
+import javax.naming.NamingException;
+
 import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -30,12 +33,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
-import com.solertium.db.Row;
+import com.solertium.db.DBSessionFactory;
+import com.solertium.db.ExecutionContext;
 import com.solertium.db.SQLDateHelper;
-import com.solertium.db.query.QConstraint;
-import com.solertium.db.query.SelectQuery;
+import com.solertium.db.SystemExecutionContext;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
 import com.solertium.util.NodeCollection;
@@ -68,6 +70,19 @@ public class ValidationResource extends BaseIntegrityResource {
 		rule = (String) request.getAttributes().get("rule");
 
 		getVariants().add(new Variant(MediaType.TEXT_HTML));
+	}
+	
+	protected ExecutionContext getExecutionContext() {
+		try {
+			SystemExecutionContext ec = new SystemExecutionContext(DBSessionFactory.getDBSession("integrity"));
+			ec.setAPILevel(ExecutionContext.API_ONLY);
+			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
+			ec.getDBSession().setSchema("integrity");
+			
+			return ec;
+		} catch (NamingException e) {
+			return null;
+		}
 	}
 	
 	public Representation represent(Variant variant, Session session) throws ResourceException {
@@ -162,7 +177,7 @@ public class ValidationResource extends BaseIntegrityResource {
 				continue;
 			
 			try {
-				runAssessment(rule, ruleset, response, info.getName(), info.getID(), info.getType(), root, true, true);
+				runAssessment(session, rule, ruleset, response, info.getName(), info.getID(), info.getType(), root, true, true);
 			} catch (ResourceException e) {
 				e.printStackTrace();
 				final Element failure = BaseDocumentUtils.impl
@@ -177,13 +192,14 @@ public class ValidationResource extends BaseIntegrityResource {
 		return response;
 	}
 	
-	protected boolean runAssessment(final String rulesetName, final Document ruleset, final Document response, final String speciesName, final Integer assessmentID, 
+	protected boolean runAssessment(final Session session, final String rulesetName, final Document ruleset, 
+			final Document response, final String speciesName, final Integer assessmentID, 
 			final String type, final Element root, boolean notifyOnSuccess, boolean attachHeader) throws ResourceException{
 		final Element header = BaseDocumentUtils.impl
 				.createElementWithText(response, "div", speciesName + " -- " + type.substring(0, type.indexOf("_")) + " -- ");
 		header.setAttribute("class", "sis_integrity_header");
 		
-		if (!isAssessmentInDatabase(assessmentID, type)) {
+		if (!isAssessmentInDatabase(session, assessmentID, type)) {
 			if (attachHeader)
 				root.appendChild(header);
 			final Element failure = BaseDocumentUtils.impl
@@ -194,9 +210,9 @@ public class ValidationResource extends BaseIntegrityResource {
 			return false;
 		}
 		
-		final IntegrityValidationResponse resp;
+		final AssessmentIntegrityValidation resp;
 		try {
-			resp = IntegrityValidator.validate(ec, rulesetName, ruleset,
+			resp = IntegrityValidator.validate(session, ec, rulesetName, ruleset,
 					assessmentID);
 		} catch (DBException e) {
 			e.printStackTrace();
@@ -211,7 +227,7 @@ public class ValidationResource extends BaseIntegrityResource {
 					root.appendChild(header);
 				final Element success = BaseDocumentUtils.impl
 						.createElementWithText(response, "p",
-								resp.getSuccessMessage());
+								"This assessment is valid");
 				success.setAttribute("class", "sis_integrity_success");
 				success.setAttribute("id", rulesetName);
 				root.appendChild(success);
@@ -219,18 +235,20 @@ public class ValidationResource extends BaseIntegrityResource {
 		} else {
 			if (attachHeader)
 				root.appendChild(header);
-			if (resp.getErrorMessages().isEmpty()) {
+			String styleClass = resp.hasWarnings() ? "sis_integrity_warning" : "sis_integrity_failure";
+			if (resp.getMessages().isEmpty()) {
+				String prefix = resp.hasWarnings() ? "Failed with warnings" : "Failed";
 				final Element failure = BaseDocumentUtils.impl
-						.createElementWithText(response, "p", "Failed, but could not determine exact condition.");
-				failure.setAttribute("class", "sis_integrity_failure");
+						.createElementWithText(response, "p", prefix + ", but could not determine exact condition.");
+				failure.setAttribute("class", styleClass);
 				failure.setAttribute("id", rulesetName);
 				root.appendChild(failure);
 			}
 			else {
-				for (String message : resp.getErrorMessages()) {
+				for (String message : resp.getMessages()) {
 					final Element failure = BaseDocumentUtils.impl
 							.createElementWithText(response, "p", message);
-					failure.setAttribute("class", "sis_integrity_failure");
+					failure.setAttribute("class", styleClass);
 					failure.setAttribute("id", rulesetName);
 					root.appendChild(failure);
 				}
@@ -240,22 +258,8 @@ public class ValidationResource extends BaseIntegrityResource {
 		return resp.isSuccess();
 	}
 	
-	private boolean isAssessmentInDatabase(Integer assessmentID, String assessmentType) {
-		final SelectQuery query = new SelectQuery();
-		query.select("assessment", "asm_id");
-		query.constrain(new CanonicalColumnName("assessment", "uid"), QConstraint.CT_EQUALS, 
-			assessmentID + "_" + assessmentType
-		);
-		
-		final Row.Loader rl = new Row.Loader();
-		
-		try {
-			ec.doQuery(query, rl);
-		} catch (DBException e) {
-			return false;
-		}
-		
-		return rl.getRow() != null;
+	private boolean isAssessmentInDatabase(Session session, Integer assessmentID, String assessmentType) {
+		return new AssessmentIO(session).getAssessment(assessmentID) != null;
 	}
 	
 	private Document getRuleset() throws ResourceException {

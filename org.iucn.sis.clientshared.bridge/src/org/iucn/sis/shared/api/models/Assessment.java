@@ -480,7 +480,7 @@ public class Assessment implements Serializable, AuthorizableObject {
 
 	private java.util.Set<Field> field = new java.util.HashSet<Field>();
 
-	
+	private java.util.Set<AssessmentIntegrityValidation> validation = new java.util.HashSet<AssessmentIntegrityValidation>();
 
 	public int getId() {
 		return id;
@@ -584,6 +584,15 @@ public class Assessment implements Serializable, AuthorizableObject {
 
 	public java.util.Set<Field> getField() {
 		return field;
+	}
+	
+	public void setValidation(
+			java.util.Set<AssessmentIntegrityValidation> validation) {
+		this.validation = validation;
+	}
+	
+	public java.util.Set<AssessmentIntegrityValidation> getValidation() {
+		return validation;
 	}
 
 	public String toString() {

@@ -35,5 +35,9 @@ License Type: Evaluation
 			<key column="assessmentid" not-null="false"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.Field"/>
 		</set>
+		<set name="Validation" lazy="true" cascade="save-update,lock,replicate" inverse="true">
+			<key column="assessmentid" not-null="true"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.TaxonImage"/>
+		</set>
 	</class>
 </hibernate-mapping>

@@ -14,11 +14,13 @@ package org.iucn.sis.server.api.persistance;
  */
 import java.util.List;
 
+import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Reference;
@@ -256,6 +258,16 @@ public class AssessmentDAO {
 			
 			if(assessment.getTaxon() != null) {
 				assessment.getTaxon().getAssessments().remove(assessment);
+			}
+			
+			Hibernate.initialize(assessment.getValidation());
+			if (assessment.getValidation() != null) {
+				AssessmentIntegrityValidation[] lValidations = 
+					(AssessmentIntegrityValidation[])assessment.getValidation().toArray(
+						new AssessmentIntegrityValidation[assessment.getValidation().size()]);
+				for (int i = 0; i < lValidations.length; i++)
+					lValidations[i].setAssessment(null);
+				assessment.setValidation(null);
 			}
 			
 			assessment.setPublicationReference(null);

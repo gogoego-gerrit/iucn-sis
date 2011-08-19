@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.naming.NamingException;
+
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.restlet.Restlet;
@@ -15,6 +17,7 @@ import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.InputRepresentation;
 
+import com.solertium.db.DBSessionFactory;
 import com.solertium.util.TrivialExceptionHandler;
 
 public class ServerApplication extends SimpleSISApplication {
@@ -86,5 +89,16 @@ public class ServerApplication extends SimpleSISApplication {
 		};
 	}
 	
+	@Override
+	public boolean isInstalled() {
+		boolean hasIntegrityDB;
+		try {
+			hasIntegrityDB = DBSessionFactory.getDBSession("integrity") != null;
+		} catch (NamingException e) {
+			return false;
+		}
+		
+		return hasIntegrityDB && super.isInstalled();
+	}
 
 }

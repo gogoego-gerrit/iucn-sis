@@ -46,7 +46,7 @@ public class MultipleValidationResource extends ValidationResource {
 			
 			for (Map.Entry<String, Document> entry : rulesetDocuments.entrySet()) {
 				try {
-					runAssessment(entry.getKey(), entry.getValue(), response, info.getName(), info.getID(), info.getType(), assessmentInfoDiv, false, false);
+					runAssessment(session, entry.getKey(), entry.getValue(), response, info.getName(), info.getID(), info.getType(), assessmentInfoDiv, false, false);
 				} catch (ResourceException e) {
 					e.printStackTrace();
 					final Element failure = BaseDocumentUtils.impl

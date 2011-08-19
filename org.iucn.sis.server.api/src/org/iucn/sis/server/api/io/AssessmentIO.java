@@ -7,8 +7,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.server.api.persistance.AssessmentCriteria;
@@ -21,6 +23,7 @@ import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.io.AssessmentIOMessage;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
@@ -463,6 +466,47 @@ public class AssessmentIO {
 			}
 		}
 		return false;
+	}
+	
+	public AssessmentIntegrityValidation getValidation(int assessmentID, String rule) {
+		Assessment asm = getAssessment(assessmentID);
+		if (asm == null)
+			return null;
+		
+		return getValidation(asm, rule);
+	}
+	
+	public AssessmentIntegrityValidation getValidation(Assessment assessment, String rule) {
+		Object result = session.createCriteria(AssessmentIntegrityValidation.class)
+			.add(Restrictions.eq("assessment", assessment))
+			.add(Restrictions.eq("rule", rule))
+			.uniqueResult();
+		
+		if (result == null)
+			return null;
+		else
+			return (AssessmentIntegrityValidation) result;
+	}
+	
+	public void addValidation(int assessmentID, AssessmentIntegrityValidation validation) throws PersistentException {
+		Assessment asm = getAssessment(assessmentID);
+		if (asm == null)
+			throw new PersistentException("Could not find assessment " + assessmentID);
+		
+		addValidation(asm, validation);
+	}
+	
+	public void addValidation(Assessment assessment, AssessmentIntegrityValidation validation) throws PersistentException {
+		Hibernate.initialize(assessment.getValidation());
+		if (assessment.getValidation() == null)
+			assessment.setValidation(new HashSet<AssessmentIntegrityValidation>());
+		
+		session.save(validation);
+		assessment.getValidation().add(validation);
+	}
+	
+	public void updateValidation(AssessmentIntegrityValidation validation) throws PersistentException {
+		session.update(validation);
 	}
 
 	public AssessmentIOWriteResult saveNewAssessment(Assessment assessent, User user) throws RegionConflictException {
