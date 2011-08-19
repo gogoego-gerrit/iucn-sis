@@ -3,6 +3,7 @@ package org.iucn.sis.server.restlets.workingsets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -15,12 +16,15 @@ import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -192,7 +196,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param request
 	 * @param response
-	 * @param workingSetIO TODO
+	 * @param workingSetIO
 	 */
 	private Representation getSubscribableWorkingSets(Request request, Response response, String username, WorkingSetIO workingSetIO) throws ResourceException {
 		WorkingSet[] sets;
@@ -222,7 +226,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 
 	/**
 	 * Gets all working sets the user is subscribed to.
-	 * @param workingSetIO TODO
+	 * @param workingSetIO
 	 * @param request
 	 * @param response
 	 */
@@ -248,7 +252,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	 * 
 	 * @param request
 	 * @param response
-	 * @param workingSetIO TODO
+	 * @param workingSetIO
 	 */
 	private Representation getTaxaFootprintForWorkingSet(Request request, Response response, String username, Integer workingSetID, WorkingSetIO workingSetIO) throws ResourceException {
 		final WorkingSet ws = workingSetIO.readWorkingSet(workingSetID);
@@ -286,7 +290,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	
 	/**
 	 * Returns all taxa associated with a working set
-	 * @param workingSetIO TODO
+	 * @param workingSetIO
 	 * @param request
 	 * @param response
 	 */
@@ -307,12 +311,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
-		NativeDocument entityDoc = NativeDocumentFactory.newNativeDocument();
-		try {
-			entityDoc.parse(entity.getText());
-		} catch (IOException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-		}
+		NativeDocument entityDoc = getEntityAsNativeDocument(entity);
 		
 		AssessmentFilter filter = AssessmentFilter.fromXML(entityDoc);
 		AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
@@ -321,11 +320,26 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		for (Taxon taxon : ws.getTaxon()) {
 			List<Assessment> assessments = helper.getAssessments(taxon.getId());
 			if (!assessments.isEmpty()) {
-				//TODO, FIXME: Implement the correct functions
+				Collections.sort(assessments, new PublishedAssessmentsComparator());
 				Assessment first = assessments.get(0);
 				
-				String properCriteriaString = "N/A"; //first.getProperCriteriaString();
-				String properCategoryAbbrev = "N/A"; //first.getProperCategoryAbbreviation();
+				String properCriteriaString;
+				String properCategoryAbbrev;
+				
+				RedListCriteriaField field = new RedListCriteriaField(first.getField(CanonicalNames.RedListCriteria));
+				if (field.isManual()) {
+					properCriteriaString = field.getManualCriteria();
+					properCategoryAbbrev = field.getManualCategory();
+				}
+				else {
+					properCriteriaString = field.getGeneratedCriteria();
+					properCategoryAbbrev = field.getGeneratedCategory();
+				}
+				
+				if ("".equals(properCategoryAbbrev))
+					properCategoryAbbrev = "N/A";
+				if ("".equals(properCriteriaString))
+					properCriteriaString = "N/A";
 				
 				csv.append(taxon.getFootprintCSV() + ",");
 				csv.append("\"" + properCriteriaString + "\",");
@@ -350,12 +364,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		if (user == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		
-		final Document doc;
-		try {
-			doc = new DomRepresentation(request.getEntity()).getDocument();
-		} catch (Exception e) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-		}
+		final Document doc = getEntityAsDocument(entity);
 		
 		Element docElement = doc.getDocumentElement();
 
@@ -395,12 +404,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	}
 
 	private void createWorkingSet(Representation entity, Response response, String username, Session session) throws ResourceException  {
-		NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
-		try {
-			ndoc.parse(entity.getText());
-		} catch (Exception e) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-		}
+		NativeDocument ndoc = getEntityAsNativeDocument(entity);
 		
 		WorkingSet ws = WorkingSet.fromXML(ndoc.getDocumentElement());
 		
@@ -424,17 +428,12 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 
 	/**
 	 * Posts to a public working set and adds creates taxa
-	 * @param session TODO
+	 * @param session
 	 * @param request
 	 * @param response
 	 */
 	private void editWorkingSet(Representation entity, String username, Integer id, Session session) throws ResourceException {
-		NativeDocument ndoc = new JavaNativeDocument();
-		try {
-			ndoc.parse(entity.getText());
-		} catch (IOException e) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-		}
+		NativeDocument ndoc = getEntityAsNativeDocument(entity);
 		WorkingSetIO workingSetIO = new WorkingSetIO(session);
 		UserIO userIO = new UserIO(session);
 		
