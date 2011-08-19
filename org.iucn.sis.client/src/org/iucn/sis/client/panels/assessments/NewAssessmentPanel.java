@@ -323,7 +323,7 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 			boolean isEndemic = false;
 
 			if (regions.isEnabled()) {
-				List<NameValueModelData> regionMap = regions.getSelectionModel().getSelectedItems();
+				List<NameValueModelData> regionMap = regions.getChecked();
 				
 				if (regionMap.isEmpty()) {
 					error = "Please select a region.";
@@ -377,7 +377,7 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 			isEndemic = this.endemic.getValue().getValue().equalsIgnoreCase("yes");
 	
 			locality = new ArrayList<Integer>();
-			for (NameValueModelData model : regions.getSelectionModel().getSelectedItems())
+			for (NameValueModelData model : regions.getChecked())
 				locality.add(Integer.valueOf(model.getValue()));
 		}
 		else {
