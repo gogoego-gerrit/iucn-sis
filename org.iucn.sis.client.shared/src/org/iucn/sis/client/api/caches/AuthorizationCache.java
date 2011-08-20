@@ -223,9 +223,11 @@ public class AuthorizationCache {
 		boolean ret = false;
 
 		//If it's a working set, test ownership first to escape early
-		if( auth instanceof WorkingSet && 
-				user.getUsername().equalsIgnoreCase(((WorkingSet)auth).getCreator().getUsername() ) )
-			return true;
+		if (auth instanceof WorkingSet) {
+			WorkingSet ws = (WorkingSet)auth;
+			if (ws.getCreator() != null && user.getUsername().equals(ws.getCreator().getUsername()))
+				return true;
+		}
 
 		for (PermissionGroup curGroup : permissionGroups) {
 			ret |= PermissionUtils.checkMe(curGroup, auth, operation);
