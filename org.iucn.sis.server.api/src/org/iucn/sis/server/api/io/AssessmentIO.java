@@ -332,7 +332,8 @@ public class AssessmentIO {
 
 		Status lockStatus = Status.SUCCESS_OK;
 		if (SIS.amIOnline() && requireLocking)
-			lockStatus = SIS.get().getLocker().persistentLockAssessment(assessmentToSave.getId(), LockType.SAVE_LOCK,
+			lockStatus = SIS.get().getLocker().
+			persistentLockAssessment(assessmentToSave.getId(), LockType.SAVE_LOCK,
 					user);
 
 		if (lockStatus.isSuccess()) {
@@ -467,7 +468,7 @@ public class AssessmentIO {
 	public AssessmentIOWriteResult saveNewAssessment(Assessment assessent, User user) throws RegionConflictException {
 		if (!allowedToCreateNewAssessment(assessent))
 			throw new RegionConflictException();
-		return writeAssessment(assessent, user, true);
+		return writeAssessment(assessent, user, false);
 	}
 	
 	public void publish(Assessment assessment) {
