@@ -439,11 +439,11 @@ public class HeaderContainer extends ContentPanel {
 
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.INTEGRITY_CHECK_FEATURE)) {
 				final String title = "Manage Integrity Checks";
-				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+				menu.add(createMenuItem("icon-integrity", title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						final DrawsLazily.DoneDrawingCallback callback = new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
-								openAdministrativeTool(title, null, integrityPanel);
+								openAdministrativeTool(title, "icon-integrity", integrityPanel);
 							}
 						};
 						if (integrityPanel.isDrawn())
@@ -456,11 +456,11 @@ public class HeaderContainer extends ContentPanel {
 
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.LOCK_MANAGEMENT_FEATURE)) {
 				final String title = "Manage Locks";
-				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+				menu.add(createMenuItem("icon-lock", title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						lockManagementPanel.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
-								openAdministrativeTool(title, null, lockManagementPanel);
+								openAdministrativeTool(title, "icon-lock", lockManagementPanel);
 							}
 						});
 					}
@@ -549,24 +549,6 @@ public class HeaderContainer extends ContentPanel {
 				nS.setLayout(new FillLayout());
 				nS.show();
 				// trashBinPanel.refresh();
-			}
-		}));
-
-		options.add(createMenuItem("icon-page-copy", "Batch Change", new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.BATCH_CHANGE_FEATURE)) {
-					WindowUtils.errorAlert("This is a currently restricted to " + "administrative users only.");
-				} else if (AssessmentCache.impl.getCurrentAssessment() == null) {
-					WindowUtils.errorAlert("Error", "A current assessment must be selected; it"
-							+ " is used as the template. Please try again.");
-				} else {
-					Window nS = WindowUtils.newWindow("Batch Change", null, true, true);
-					nS.setSize(800, 550);
-					nS.setLayout(new FillLayout());
-					nS.add(batchChangePanel);
-					batchChangePanel.refresh();
-					nS.show();
-				}
 			}
 		}));
 		
