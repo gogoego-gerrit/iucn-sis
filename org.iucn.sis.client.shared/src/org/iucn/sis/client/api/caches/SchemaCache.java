@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 
@@ -16,7 +17,7 @@ import com.solertium.lwxml.shared.utils.RowParser;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 
-public class SchemaCache {
+public class SchemaCache implements HasCache {
 
 	public static final SchemaCache impl = new SchemaCache();
 	
@@ -26,6 +27,33 @@ public class SchemaCache {
 	private SchemaCache() {
 		cache = null;
 		defaultSchema = "org.iucn.sis.server.schemas.redlist";
+	}
+	
+	@Override
+	public String getCacheUrl() {
+		return UriBase.getInstance().getSISBase() + "/application/schema";
+	}
+	
+	@Override
+	public GenericCallback<NativeDocument> getCacheInitializer() {
+		return new GenericCallback<NativeDocument>() {
+			public void onSuccess(NativeDocument document) {
+				cache = new HashMap<String, AssessmentSchema>();
+				
+				final RowParser parser = new RowParser(document);
+				for (RowData row : parser.getRows()) {
+					AssessmentSchema schema = new AssessmentSchema(row.getField("id"), row.getField("name"), row.getField("description"));
+					cache.put(schema.id, schema);
+					if ("true".equals(row.getField("default")))
+						defaultSchema = schema.id;
+				}
+				
+				//callback.handleEvent();
+			}
+			public void onFailure(Throwable caught) {
+				//callback.handleEvent();
+			}
+		};
 	}
 	
 	private void init(final SimpleListener callback) {

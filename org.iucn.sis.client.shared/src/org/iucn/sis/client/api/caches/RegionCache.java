@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
@@ -16,7 +17,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 
-public class RegionCache {
+public class RegionCache implements HasCache {
 
 	public static RegionCache impl = new RegionCache();
 	private HashMap<Integer, Region> idToRegion;
@@ -43,6 +44,33 @@ public class RegionCache {
 			public void onSuccess(String result) {
 			}
 		});
+	}
+	
+	@Override
+	public GenericCallback<NativeDocument> getCacheInitializer() {
+		return new GenericCallback<NativeDocument>() {
+			public void onFailure(Throwable caught) {
+				//wayback.onFailure(caught);
+			}
+
+			public void onSuccess(NativeDocument doc) {
+				idToRegion.clear();
+				nameToRegion.clear();
+				
+				NativeNodeList nodeList = doc.getDocumentElement().getElementsByTagName("region");
+				for (int i = 0; i < nodeList.getLength(); i++) {
+					final NativeElement el = nodeList.elementAt(i);
+					add(Region.fromXML(el));
+				}				
+				add(Region.getGlobalRegion());
+				//wayback.onSuccess("OK");
+			}
+		};
+	}
+	
+	@Override
+	public String getCacheUrl() {
+		return UriBase.getInstance().getSISBase() +"/regions";
 	}
 
 	public void fetchRegions(final GenericCallback<String> wayback) {

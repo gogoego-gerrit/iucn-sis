@@ -1,6 +1,11 @@
 package org.iucn.sis.client.api.container;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -19,6 +24,8 @@ import org.iucn.sis.client.api.debug.HostedModeDebugger;
 import org.iucn.sis.client.api.debug.LiveDebugger;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.utils.ClientReferenceParser;
+import org.iucn.sis.client.api.utils.HasCache;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.citations.Referenceable;
@@ -247,21 +254,38 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		loadModule();
 	}
 	
-	protected void initializeCaches(final SimpleListener listener) {
+	protected final void initializeCaches(final SimpleListener listener) {
 		ReferenceParserFactory.get().setParser(new ClientReferenceParser());
-		DefinitionCache.impl.getDefinables();
-		RegionCache.impl.fetchRegions();
-		MarkedCache.impl.update();
-		SchemaCache.impl.loadAsync();
-		WorkingSetCache.impl.update(new GenericCallback<String>() {
+		
+		List<String> inits = new ArrayList<String>();
+		Map<String, GenericCallback<NativeDocument>> handlers = 
+			new HashMap<String, GenericCallback<NativeDocument>>();
+		
+		//Implementation-specific caches
+		for (HasCache cache : getCachesToInitialize()) {
+			inits.add(cache.getCacheUrl());
+			handlers.put(cache.getCacheUrl(), cache.getCacheInitializer());
+		}
+		
+		//Default, required caches
+		for (HasCache cache : new HasCache[] { MarkedCache.impl, DefinitionCache.impl, 
+				SchemaCache.impl, RegionCache.impl, WorkingSetCache.impl }) {
+			inits.add(cache.getCacheUrl());
+			handlers.put(cache.getCacheUrl(), cache.getCacheInitializer());
+		}
+		
+		SIS.fetchList(inits, handlers, new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				listener.handleEvent();
 			}
 			public void onFailure(Throwable caught) {
+				WindowUtils.errorAlert("Failed to load cache data.");
 				listener.handleEvent();
 			}
 		});
 	}
+	
+	protected abstract Collection<HasCache> getCachesToInitialize();
 	
 	public abstract void loadModule();
 	

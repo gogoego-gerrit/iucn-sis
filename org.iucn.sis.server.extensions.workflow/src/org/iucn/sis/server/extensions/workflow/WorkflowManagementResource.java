@@ -133,7 +133,7 @@ public class WorkflowManagementResource extends WFDBResource {
 				for (Assessment assessment : assessments) {
 					try {
 						success &= IntegrityValidator.
-							validate_background(SIS.get().getVFS(), 
+							validate_background(session, SIS.get().getVFS(), 
 								ec, assessment.getId()
 							);
 					} catch (DBException e) {

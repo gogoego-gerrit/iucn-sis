@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Definition;
@@ -20,13 +21,12 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
-public class DefinitionCache {
+public class DefinitionCache implements HasCache {
 	public static final DefinitionCache impl = new DefinitionCache();
 	private static Map<String, Definition> hoverDefinitions;
 
 	private DefinitionCache() {
 		hoverDefinitions = new HashMap<String, Definition>();
-		fetchDefinitions();
 	}
 
 	private void addDefinition(String name, String value) {
@@ -78,13 +78,40 @@ public class DefinitionCache {
 						"quantitative analysis",
 						"A quantitative analysis is defined here as any form of analysis which estimates the extinction probability of a taxon based on known life history, habitat requirements, threats and any specified management options. Population viability analysis (PVA) is one such technique.");
 	}
+	
+	@Override
+	public GenericCallback<NativeDocument> getCacheInitializer() {
+		return new GenericCallback<NativeDocument>() {
+			public void onFailure(Throwable caught) {
+				hoverDefinitions.clear();
+				
+				buildHardcodedDefinitions();
+				Debug.println("Could not load definitions from server...");
+			}
+			public void onSuccess(NativeDocument doc) {
+				hoverDefinitions.clear();
+				
+				NativeNodeList list = doc.getDocumentElement().getElementsByTagName("definition");
+				for (int i = 0; i < list.getLength(); i++) {
+					NativeElement cur = list.elementAt(i);
+					Definition definition = Definition.fromXML(cur);
+					
+					hoverDefinitions.put(clean(definition.getName()), definition);
+				}
+			}
+		};
+	}
+	
+	@Override
+	public String getCacheUrl() {
+		return UriBase.getInstance().getDefinitionBase() + "/definitions";
+	}
 
 	private void fetchDefinitions() {
 		hoverDefinitions.clear();
 		
 		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
-		doc.get(UriBase.getInstance().getDefinitionBase() + "/definitions",
-				new GenericCallback<String>() {
+		doc.get(getCacheUrl(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				buildHardcodedDefinitions();
 				Debug.println("Could not load definitions from server...");

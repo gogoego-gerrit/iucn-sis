@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.Marked;
 
@@ -11,7 +12,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
 
-public class MarkedCache {
+public class MarkedCache implements HasCache {
 	
 	public static final String WORKING_SET = "working_set";
 	public static final String ASSESSMENT = "assessment";
@@ -154,7 +155,7 @@ public class MarkedCache {
 	 */
 	public void update() {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.get(UriBase.getInstance().getTagBase() + "/mark/" + SISClientBase.currentUser.getUsername(), new GenericCallback<String>() {
+		ndoc.get(getCacheUrl(), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				cache.clear();
 			}
@@ -162,6 +163,23 @@ public class MarkedCache {
 				parseXML(ndoc);
 			}
 		});
+	}
+	
+	@Override
+	public GenericCallback<NativeDocument> getCacheInitializer() {
+		return new GenericCallback<NativeDocument>() {
+			public void onFailure(Throwable caught) {
+				cache.clear();
+			}
+			public void onSuccess(NativeDocument document) {
+				parseXML(document);
+			}
+		};
+	}
+	
+	@Override
+	public String getCacheUrl() {
+		return UriBase.getInstance().getTagBase() + "/mark/" + SISClientBase.currentUser.getUsername();
 	}
 
 }

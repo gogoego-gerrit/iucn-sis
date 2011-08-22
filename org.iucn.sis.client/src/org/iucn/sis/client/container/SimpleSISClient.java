@@ -1,10 +1,15 @@
 package org.iucn.sis.client.container;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.iucn.sis.client.api.caches.BookmarkCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.extensions.birdlife.structures.BirdlifeWidgetGenerator;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.citations.Referenceable;
@@ -19,7 +24,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.util.events.SimpleListener;
 
 import ext.ux.theme.black.client.Black;
 import ext.ux.theme.darkgray.client.DarkGray;
@@ -58,17 +62,22 @@ public class SimpleSISClient extends SISClientBase {
 		});
 
 		RootPanel.get().add(clientContainer);
-	}
-	
-	@Override
-	protected void initializeCaches(SimpleListener listener) {
+		
+		//No server contact, just setup
 		FieldWidgetCache.impl.setFieldParser(new FieldParser());
 		FieldWidgetCache.impl.registerWidgetGenerator(new WidgetGenerator());
 		FieldWidgetCache.impl.registerWidgetGenerator(new BirdlifeWidgetGenerator());
+	}
+	
+	@Override
+	protected Collection<HasCache> getCachesToInitialize() {
+		//This runs async
 		RecentlyAccessedCache.impl.load(RecentlyAccessed.USER);
-		BookmarkCache.impl.load();
 		
-		super.initializeCaches(listener);
+		List<HasCache> list = new ArrayList<HasCache>();
+		list.add(BookmarkCache.impl);
+		
+		return list;
 	}
 	
 	@Override

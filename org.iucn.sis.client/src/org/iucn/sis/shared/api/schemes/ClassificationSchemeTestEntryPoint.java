@@ -1,7 +1,11 @@
 package org.iucn.sis.shared.api.schemes;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.displays.Display;
@@ -26,7 +30,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class ClassificationSchemeTestEntryPoint extends SISClientBase {
@@ -51,8 +54,8 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 	}
 	
 	@Override
-	protected void initializeCaches(SimpleListener listener) {
-		listener.handleEvent();
+	protected Collection<HasCache> getCachesToInitialize() {
+		return new ArrayList<HasCache>();
 	}
 	
 	@Override

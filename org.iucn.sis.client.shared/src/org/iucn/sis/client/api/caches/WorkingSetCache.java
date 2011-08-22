@@ -11,6 +11,7 @@ import java.util.Set;
 import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
+import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
@@ -41,7 +42,7 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
  * @author liz.schwartz
  * 
  */
-public class WorkingSetCache {
+public class WorkingSetCache implements HasCache {
 
 	public static class WorkingSetComparator extends PortableAlphanumericComparator {
 		private static final long serialVersionUID = 1L;
@@ -552,10 +553,38 @@ public class WorkingSetCache {
 			}
 		});
 	}
+	
+	@Override
+	public String getCacheUrl() {
+		return UriBase.getInstance().getSISBase() + "/workingSet/list/" + SISClientBase.currentUser.getUsername();
+	}
+	
+	@Override
+	public GenericCallback<NativeDocument> getCacheInitializer() {
+		return new GenericCallback<NativeDocument>() {
+			public void onFailure(Throwable caught) {
+				//backInTheDay.onFailure(caught);
+			}
+			public void onSuccess(NativeDocument ndoc) {
+				workingSets.clear();
+				assessmentRelations.clear();
+				try {
+					WorkingSetParser parser = new WorkingSetParser();
+					parser.parseWorkingSetXML(ndoc);
+					
+					addToWorkingSetCache(parser.getWorkingSets());
+					
+					//backInTheDay.onSuccess(arg0);
+				} catch (Exception e) {
+					Debug.println("Working Set Parse Failure\n{0}", e);
+				}
+			}
+		};
+	}
 
 	public void update(final GenericCallback<String> backInTheDay) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.get(UriBase.getInstance().getSISBase() + "/workingSet/list/" + SISClientBase.currentUser.getUsername(),
+		ndoc.get(getCacheUrl(),
 				new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				backInTheDay.onFailure(caught);

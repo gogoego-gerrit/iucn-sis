@@ -23,6 +23,7 @@ import org.iucn.sis.server.restlets.users.ProfileRestlet;
 import org.iucn.sis.server.restlets.utils.FieldRestlet;
 import org.iucn.sis.server.restlets.utils.LanguageRestlet;
 import org.iucn.sis.server.restlets.utils.LockManagementRestlet;
+import org.iucn.sis.server.restlets.utils.MultiDocumentRestlet;
 import org.iucn.sis.server.restlets.utils.RegionRestlet;
 import org.iucn.sis.server.restlets.utils.SearchRestlet;
 import org.iucn.sis.server.restlets.utils.StatusRestlet;
@@ -92,6 +93,7 @@ public class ServerApplication extends SISApplication{
 		addServiceToRouter(new ProfileRestlet(app.getContext()));
 		addServiceToRouter(new SearchRestlet(app.getContext()));
 		addServiceToRouter(new LanguageRestlet(app.getContext()));
+		addServiceToRouter(new MultiDocumentRestlet(app.getContext()));
 	}
 	
 	private void addServiceToRouter(BaseServiceRestlet curService) {

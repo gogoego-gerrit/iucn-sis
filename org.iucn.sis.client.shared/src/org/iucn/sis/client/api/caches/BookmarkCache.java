@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Bookmark;
@@ -16,7 +17,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
 
-public class BookmarkCache {
+public class BookmarkCache implements HasCache {
 	
 	public static final BookmarkCache impl = new BookmarkCache();
 	
@@ -26,9 +27,32 @@ public class BookmarkCache {
 		cache = new HashMap<Integer, Bookmark>();
 	}
 	
+	@Override
+	public String getCacheUrl() {
+		return UriBase.getInstance().getBookmarksBase() + "/bookmarks";
+	}
+	
+	@Override
+	public GenericCallback<NativeDocument> getCacheInitializer() {
+		return new GenericCallback<NativeDocument>() {
+			public void onSuccess(NativeDocument document) {
+				cache.clear();
+				
+				final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName("bookmark");
+				for (int i = 0; i < nodes.getLength(); i++) {
+					Bookmark bookmark = Bookmark.fromXML(nodes.elementAt(i));
+					cache.put(bookmark.getId(), bookmark);
+				}
+			}
+			public void onFailure(Throwable caught) {
+				Debug.println("Failed to load bookmarks.");
+			}
+		};
+	}
+	
 	public void load() {
 		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-		document.get(UriBase.getInstance().getBookmarksBase() + "/bookmarks", new GenericCallback<String>() {
+		document.get(getCacheUrl(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				cache.clear();
 				
