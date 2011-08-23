@@ -118,9 +118,8 @@ public class AuthorizationCache {
 		for( PermissionGroup group : groupList )
 			str.append(group.toXML());
 		str.append("</groups>");
-		
 		final NativeDocument ndoc = getNativeDocument();
-		ndoc.post(UriBase.getInstance() + "/acl/groups", str.toString(), new GenericCallback<String>() {
+		ndoc.put(UriBase.getInstance() + "/acl/groups", str.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				final NativeNodeList nodes = ndoc.getDocumentElement().getChildNodes();
 				for (int i = 0; i < nodes.getLength(); i++) {
@@ -140,6 +139,39 @@ public class AuthorizationCache {
 			}
 		});
 	}
+	
+	
+	/**
+	 * Update group changes.
+	 * 
+	 * @param group
+	 * @param updateCallback
+	 */
+	public void updateGroup(final PermissionGroup group, final GenericCallback<String> updateCallback) {
+		StringBuilder str = new StringBuilder("<groups>\n");
+		str.append(group.toXML());
+		str.append("</groups>");
+		final NativeDocument ndoc = getNativeDocument();
+		ndoc.post(UriBase.getInstance() + "/acl/groups", str.toString(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				final NativeNodeList nodes = ndoc.getDocumentElement().getChildNodes();
+				for (int i = 0; i < nodes.getLength(); i++) {
+					final NativeNode node = nodes.item(i);
+					if (PermissionGroup.ROOT_TAG.equals(node.getNodeName())) {
+						PermissionGroup group = PermissionGroup.fromXML(node);
+						if (groups.containsKey(group.getName()))
+							groups.get(group.getName()).setID(group.getId());
+						
+						groups.put(group.getName(), group);
+					}
+				}
+				updateCallback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				updateCallback.onFailure(caught);
+			}
+		});
+	}	
 
 	public void clear() {
 		permissionGroups = null;

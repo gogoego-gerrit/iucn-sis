@@ -23,17 +23,19 @@ import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.api.models.User;
 
 public class PermissionGroupDAO {
-	/*public static PermissionGroup loadPermissionByORMID(int id) throws PersistentException {
-		Session session = SISPersistentManager.instance().openSession();
-		try {
-			return loadPermissionByORMID(session, id);
-		}
-		catch (Exception e) {
-			Debug.println(e);
-			throw new PersistentException(e);
-		} finally {
-			session.close();
-		}
+	
+	/*
+	public static PermissionGroup loadPermissionByORMID(int id) throws PersistentException {
+	Session session = SISPersistentManager.instance().openSession();
+	try {
+		return loadPermissionByORMID(session, id);
+	}
+	catch (Exception e) {
+		Debug.println(e);
+		throw new PersistentException(e);
+	} finally {
+		session.close();
+	}
 	}
 	
 	public static PermissionGroup getPermissionByORMID(int id) throws PersistentException {
@@ -73,8 +75,9 @@ public class PermissionGroupDAO {
 		} finally {
 			session.close();
 		}
-	}*/
-	
+	}
+	*/
+
 	public static PermissionGroup loadPermissionByORMID(Session session, int id) throws PersistentException {
 		try {
 			return (PermissionGroup) session.load(PermissionGroup.class, new Integer(id));
@@ -115,17 +118,19 @@ public class PermissionGroupDAO {
 		}
 	}
 	
-	/*public static PermissionGroup[] listPermissionByQuery(String condition, String orderBy) throws PersistentException {
-		Session session = SISPersistentManager.instance().openSession();
-		try {
-			return listPermissionByQuery(session, condition, orderBy);
-		}
-		catch (Exception e) {
-			Debug.println(e);
-			throw new PersistentException(e);
-		} finally {
-			session.close();
-		}
+	
+	/*
+	public static PermissionGroup[] listPermissionByQuery(String condition, String orderBy) throws PersistentException {
+	Session session = SISPersistentManager.instance().openSession();
+	try {
+		return listPermissionByQuery(session, condition, orderBy);
+	}
+	catch (Exception e) {
+		Debug.println(e);
+		throw new PersistentException(e);
+	} finally {
+		session.close();
+	}
 	}
 	
 	public static PermissionGroup[] listPermissionByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
@@ -139,7 +144,7 @@ public class PermissionGroupDAO {
 		} finally {
 			session.close();
 		}
-	}*/
+	}*/	
 	
 	public static PermissionGroup[] listPermissionByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Permission as Permission");
@@ -176,17 +181,19 @@ public class PermissionGroupDAO {
 		}
 	}
 	
-	/*public static PermissionGroup loadPermissionByQuery(String condition, String orderBy) throws PersistentException {
-		Session session = SISPersistentManager.instance().openSession();
-		try {
-			return loadPermissionByQuery(session, condition, orderBy);
-		}
-		catch (Exception e) {
-			Debug.println(e);
-			throw new PersistentException(e);
-		} finally {
-			session.close();
-		}
+	
+	/*
+	public static PermissionGroup loadPermissionByQuery(String condition, String orderBy) throws PersistentException {
+	Session session = SISPersistentManager.instance().openSession();
+	try {
+		return loadPermissionByQuery(session, condition, orderBy);
+	}
+	catch (Exception e) {
+		Debug.println(e);
+		throw new PersistentException(e);
+	} finally {
+		session.close();
+	}
 	}
 	
 	public static PermissionGroup loadPermissionByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
@@ -200,7 +207,7 @@ public class PermissionGroupDAO {
 		} finally {
 			session.close();
 		}
-	}*/
+	}*/	
 	
 	public static PermissionGroup loadPermissionByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		PermissionGroup[] permissions = listPermissionByQuery(session, condition, orderBy);
@@ -218,17 +225,18 @@ public class PermissionGroupDAO {
 			return null;
 	}
 	
-	/*public static java.util.Iterator iteratePermissionByQuery(String condition, String orderBy) throws PersistentException {
-		Session session = SISPersistentManager.instance().openSession();
-		try {
-			return iteratePermissionByQuery(session, condition, orderBy);
-		}
-		catch (Exception e) {
-			Debug.println(e);
-			throw new PersistentException(e);
-		} finally {
-			session.close();
-		}
+	/*
+	public static java.util.Iterator iteratePermissionByQuery(String condition, String orderBy) throws PersistentException {
+	Session session = SISPersistentManager.instance().openSession();
+	try {
+		return iteratePermissionByQuery(session, condition, orderBy);
+	}
+	catch (Exception e) {
+		Debug.println(e);
+		throw new PersistentException(e);
+	} finally {
+		session.close();
+	}
 	}
 	
 	public static java.util.Iterator iteratePermissionByQuery(String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
@@ -243,6 +251,7 @@ public class PermissionGroupDAO {
 			session.close();
 		}
 	}*/
+	
 	
 	public static java.util.Iterator iteratePermissionByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Permission as Permission");
@@ -281,15 +290,16 @@ public class PermissionGroupDAO {
 		return new PermissionGroup();
 	}
 	
-	/*public static boolean save(PermissionGroup permission) throws PersistentException {
-		try {
-			SISPersistentManager.instance().saveObject(session, permission);
-			return true;
-		}
-		catch (Exception e) {
-			Debug.println(e);
-			throw new PersistentException(e);
-		}
+	/*
+	public static boolean save(PermissionGroup permission) throws PersistentException {
+	try {
+		SISPersistentManager.instance().saveObject(session, permission);
+		return true;
+	}
+	catch (Exception e) {
+		Debug.println(e);
+		throw new PersistentException(e);
+	}
 	}
 	
 	public static boolean delete(PermissionGroup permission) throws PersistentException {
@@ -301,14 +311,13 @@ public class PermissionGroupDAO {
 			Debug.println(e);
 			throw new PersistentException(e);
 		}
-	}*/
+	}*/	
 	
 	public static boolean deleteAndDissociate(PermissionGroup permission, Session session)throws PersistentException {
 		try {
 			if(permission.getParent() != null) {
 				permission.getParent().getChildren().remove(permission);
 			}
-			
 			User[] lUsers = (User[])permission.getUsers().toArray(new User[permission.getUsers().size()]);
 			for(int i = 0; i < lUsers.length; i++) {
 				lUsers[i].getPermissionGroups().remove(permission);
@@ -317,9 +326,9 @@ public class PermissionGroupDAO {
 			for(int i = 0; i < lParentPermissions.length; i++) {
 				lParentPermissions[i].setPermissions(null);
 			}
-			Permission[] lPermissionResources = (Permission[])permission.getChildren().toArray(new Permission[permission.getChildren().size()]);
+			Permission[] lPermissionResources = (Permission[])permission.getPermissions().toArray(new Permission[permission.getPermissions().size()]);
 			for(int i = 0; i < lPermissionResources.length; i++) {
-				lPermissionResources[i].setPermissionGroup(null);
+				session.delete(lPermissionResources[i]);
 			}
 			try {
 				session.delete(permission);
@@ -334,15 +343,34 @@ public class PermissionGroupDAO {
 		}
 	}
 	
-	/*public static boolean refresh(PermissionGroup permission) throws PersistentException {
+	public static void savePermissionGroup(PermissionGroup permission, Session session)throws PersistentException {
 		try {
-			SISPersistentManager.instance().getSession().refresh(permission);
-			return true;
-		}
-		catch (Exception e) {
-			Debug.println(e);
+			session.save(permission);
+		} catch(Exception e) {
+			Debug.println(e); 
 			throw new PersistentException(e);
 		}
+	}	
+	
+	public static void updatePermissionGroup(PermissionGroup permission, Session session)throws PersistentException {
+		try {
+			session.update(permission);
+		} catch(Exception e) {
+			Debug.println(e); 
+			throw new PersistentException(e);
+		}
+	}	
+	
+	/*
+	public static boolean refresh(PermissionGroup permission) throws PersistentException {
+	try {
+		SISPersistentManager.instance().getSession().refresh(permission);
+		return true;
+	}
+	catch (Exception e) {
+		Debug.println(e);
+		throw new PersistentException(e);
+	}
 	}
 	
 	public static boolean evict(PermissionGroup permission) throws PersistentException {
@@ -355,6 +383,7 @@ public class PermissionGroupDAO {
 			throw new PersistentException(e);
 		}
 	}*/
+	
 	
 	public static PermissionGroup loadPermissionByCriteria(PermissionGroupCriteria permissionCriteria) {
 		PermissionGroup[] permissions = listPermissionByCriteria(permissionCriteria);

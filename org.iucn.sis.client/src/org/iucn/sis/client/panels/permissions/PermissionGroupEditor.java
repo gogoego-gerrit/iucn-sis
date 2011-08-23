@@ -11,6 +11,7 @@ import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.utils.CaseInsensitiveAlphanumericComparator;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
@@ -52,7 +53,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.CardLayoutContainer;
 import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class PermissionGroupEditor extends LayoutContainer {
 	
@@ -116,7 +116,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 	
 	public PermissionGroupEditor(PermissionGroup baseGroup) {
 		groupStore = new ListStore<PermissionGroupData>();
-		groupStore.setStoreSorter(new StoreSorter<PermissionGroupData>(new PortableAlphanumericComparator()));
+		groupStore.setStoreSorter(new StoreSorter<PermissionGroupData>(new CaseInsensitiveAlphanumericComparator()));
 		
 		groupSelector = new ComboBox<PermissionGroupData>();
 		groupSelector.setTriggerAction(TriggerAction.ALL);
@@ -165,7 +165,6 @@ public class PermissionGroupEditor extends LayoutContainer {
 					PermissionGroupData data = new PermissionGroupData(group);
 					groupStore.add(data);
 					groupSelector.setValue(data);
-					//groupSelector.setSelection(wrapInArray(data));
 					updateContent();
 				} else
 					WindowUtils.errorAlert("Please finish creation/editing of selected group.");
@@ -178,34 +177,59 @@ public class PermissionGroupEditor extends LayoutContainer {
 		saveChanges.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				final PermissionGroupData cur = groupSelector.getSelection().get(0);
-				
+				String selectedName = cur.getGroup().getName();
 				//If it isn't new...
-				if( AuthorizationCache.impl.getGroups().containsKey( cur.getGroup().getName() ) ) {
-					String oldName = cur.getGroup().getName();
+				if( AuthorizationCache.impl.getGroups().containsKey( selectedName ) ) {
+					// Already saved group
 					saveDataToGroup(group);
 					
-					if( !oldName.equalsIgnoreCase(group.getName())) {
-						//Remove old group then add new group
-						AuthorizationCache.impl.removeGroup(oldName, new GenericCallback<PermissionGroup>() {
-							public void onSuccess(PermissionGroup result) {
-								AuthorizationCache.impl.saveGroup(group, new GenericCallback<String>() {
-									public void onSuccess(String result) {
-										WindowUtils.infoAlert("Save Successful", "Permission Edits Successfully Saved");
-										
-										groupStore.remove(cur);
-										cur.setGroup(group);
-										groupStore.add(cur);
-										groupSelector.setSelection(wrapInArray(cur));
-									}
-									public void onFailure(Throwable caught) {
-										WindowUtils.infoAlert("Save Failed", "Permission Edits Not " +
-										"Saved Successfully. Check your connection then try again.");
-									}
-								});
+					if( selectedName.equals(group.getName())) {
+						// Update Group
+						if(group.getId() == 0)
+							setGroupIDFromCache(group.getName());
+						
+						AuthorizationCache.impl.updateGroup(group, new GenericCallback<String>() {
+							public void onSuccess(String result) {
+								WindowUtils.infoAlert("Save Successful", "Permission Edits Successfully Saved");
+									
+								groupStore.remove(cur);
+								cur.setGroup(group);
+								groupStore.add(cur);
+								groupSelector.setSelection(wrapInArray(cur));
+								updateContent();
 							}
-							public void onFailure(Throwable caught) {};
+							public void onFailure(Throwable caught) {
+								WindowUtils.errorAlert("Save Failed", "Permission Edits Not Saved Successfully.");
+							}
 						});
 					} else {
+						// Create New Group with different name
+						if(AuthorizationCache.impl.getGroups().containsKey( group.getName() ) ){
+							WindowUtils.errorAlert("Save Failed", "Permission Group with the same name already exists.");
+							groupSelector.setSelection(wrapInArray(cur));
+						}else{
+							AuthorizationCache.impl.saveGroup(group, new GenericCallback<String>() {
+								public void onSuccess(String result) {
+									WindowUtils.infoAlert("Save Successful", "Permission Edits Successfully Saved.");
+									
+									groupStore.remove(cur);
+									cur.setGroup(group);
+									groupStore.add(cur);
+									groupSelector.setSelection(wrapInArray(cur));
+									updateContent();
+								}
+								public void onFailure(Throwable caught) {
+									WindowUtils.errorAlert("Save Failed", "Permission Edits Not Saved Successfully.");
+								}
+							});
+						}
+					}
+				} else {
+					if(AuthorizationCache.impl.getGroups().containsKey( groupName.getValue().trim() ) ){
+						WindowUtils.errorAlert("Save Failed", "Permission Group with the same name already exists");
+						groupSelector.setSelection(wrapInArray(cur));
+					}else{
+						saveDataToGroup(group);
 						AuthorizationCache.impl.saveGroup(group, new GenericCallback<String>() {
 							public void onSuccess(String result) {
 								WindowUtils.infoAlert("Save Successful", "Permission Edits Successfully Saved");
@@ -214,29 +238,13 @@ public class PermissionGroupEditor extends LayoutContainer {
 								cur.setGroup(group);
 								groupStore.add(cur);
 								groupSelector.setSelection(wrapInArray(cur));
+								updateContent();
 							}
 							public void onFailure(Throwable caught) {
-								WindowUtils.infoAlert("Save Failed", "Permission Edits Not " +
-								"Saved Successfully. Check your connection then try again.");
+								WindowUtils.errorAlert("Save Failed", "Permission Edits Not Saved Successfully.");
 							}
 						});
 					}
-				} else {
-					saveDataToGroup(group);
-					AuthorizationCache.impl.saveGroup(group, new GenericCallback<String>() {
-						public void onSuccess(String result) {
-							WindowUtils.infoAlert("Save Successful", "Permission Edits Successfully Saved");
-							
-							groupStore.remove(cur);
-							cur.setGroup(group);
-							groupStore.add(cur);
-							groupSelector.setSelection(wrapInArray(cur));
-						}
-						public void onFailure(Throwable caught) {
-							WindowUtils.infoAlert("Save Failed", "Permission Edits Not " +
-							"Saved Successfully. Check your connection then try again.");
-						}
-					});
 				}
 			}
 		});
@@ -250,6 +258,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 				if( AuthorizationCache.impl.getGroups().containsKey( cur.getGroup().getName() ) ) {
 					cur.setGroup(AuthorizationCache.impl.getGroups().get( cur.getGroup().getName() ));
 					groupStore.update(cur);
+					groupName.setValue("");
 				} else {
 					groupStore.remove(cur);
 					groupSelector.setSelection(wrapInArray(groupStore.getAt(0)));
@@ -275,8 +284,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 									groupSelector.setSelection(wrapInArray(groupStore.getAt(0)));
 								}
 								public void onFailure(Throwable caught) {
-									WindowUtils.infoAlert("Save Failed", "Permission Edits Not " +
-									"Saved Successfully. Check your connection then try again.");
+									WindowUtils.errorAlert("Save Failed", "Permission Edits Not Saved Successfully.");
 								}
 							});
 						}
@@ -371,9 +379,16 @@ public class PermissionGroupEditor extends LayoutContainer {
 					toSelect = groupData;
 			}
 		}
-		groupStore.sort("name", SortDir.ASC);
-		
+		groupStore.sort("name", SortDir.ASC);		
 		groupSelector.setSelection(wrapInArray(toSelect)); //This will invoke updateContent()
+	}
+	
+	private void setGroupIDFromCache(String groupName){
+		for( Entry<String, PermissionGroup> entry : AuthorizationCache.impl.getGroups().entrySet() ) {
+			if( entry.getValue().getName().equals(groupName) ) {
+				group.setID(entry.getValue().getId());
+			}
+		}
 	}
 	
 	private void scopeChoicesChanged() {
@@ -396,9 +411,9 @@ public class PermissionGroupEditor extends LayoutContainer {
 	 */
 	private String saveDataToGroup(PermissionGroup group) {
 		String scopeURI = "";
-		
+		defaultPermissionSet.sinkToPermission();
 		Permission defaultPermission = defaultPermissionSet.getPermission();
-		
+
 		Object scopeData = scope.getData("scope");
 		
 		if( scopeChoices.getSelectedIndex() == 1 ) {
@@ -420,7 +435,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 		}
 		
 		//Looks like everything checked out fine. Do all the setting of values.
-		group.setName(groupName.getValue());
+		group.setName(groupName.getValue().trim());
 		group.setScopeURI(scopeURI);
 		if( defaultPermission != null ) {
 			defaultPermission.setPermissionGroup(group);
@@ -593,7 +608,6 @@ public class PermissionGroupEditor extends LayoutContainer {
 			workingSetList = new PermissionWorkingSetList(this);
 		
 		accessoryPanel.switchToComponent(workingSetList);
-//		scope.setValue("");
 	}
 	
 	private void clearAccessoryPanel() {
