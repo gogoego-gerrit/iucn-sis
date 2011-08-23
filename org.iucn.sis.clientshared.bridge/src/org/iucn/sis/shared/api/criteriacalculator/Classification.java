@@ -176,82 +176,77 @@ public abstract class Classification {
 		CriteriaResult returnResult = new CriteriaResult(name, "b"+number);
 		
 		if (isNonZero(and1)) {
-			Range sf = (Range) factors.get(Factors.severeFragmentation);
-			Range loc = (Range) factors.get(Factors.locations);
+			Range bxa, bxb, bxc;
+			
+			Range sf = factors.get(Factors.severeFragmentation);
+			Range loc = factors.get(Factors.locations);
 			loc = Range.equals(loc, bLocations);
-			Range or1 = Range.independentOR(sf, loc);
+			
+			bxa = Range.independentOR(sf, loc);
 
-			Range ed = (Range) factors.get(Factors.extentDecline);
-			Range ad = (Range) factors.get(Factors.areaDecline);
-			Range hd = (Range) factors.get(Factors.habitatDecline);
-			Range ld = (Range) factors.get(Factors.locationDecline);
-			Range sd = (Range) factors.get(Factors.subpopulationDecline);
-			Range pd = (Range) factors.get(Factors.populationDecline);
-			Range or2 = Range.independentOR(ed, ad);
-			or2 = Range.independentOR(or2, hd);
-			or2 = Range.independentOR(or2, ld);
-			or2 = Range.independentOR(or2, sd);
-			or2 = Range.independentOR(or2, pd);
+			Range ed = factors.get(Factors.extentDecline);
+			Range ad = factors.get(Factors.areaDecline);
+			Range hd = factors.get(Factors.habitatDecline);
+			Range ld = factors.get(Factors.locationDecline);
+			Range sd = factors.get(Factors.subpopulationDecline);
+			Range pd = factors.get(Factors.populationDecline);
+			
+			bxb = Range.independentOR(ed, ad);
+			bxb = Range.independentOR(bxb, hd);
+			bxb = Range.independentOR(bxb, ld);
+			bxb = Range.independentOR(bxb, sd);
+			bxb = Range.independentOR(bxb, pd);
 
-			Range ef = (Range) factors.get(Factors.extentFluctuation);
-			Range af = (Range) factors.get(Factors.areaFluctuation);
-			Range lf = (Range) factors.get(Factors.locationFluctuation);
-			Range sef = (Range) factors.get(Factors.subpopulationFluctuation);
-			Range pf = (Range) factors.get(Factors.populationFluctuation);
-			Range or3 = Range.independentOR(ef, af);
-			or3 = Range.independentOR(or3, lf);
-			or3 = Range.independentOR(or3, sef);
-			or3 = Range.independentOR(or3, pf);
+			Range ef = factors.get(Factors.extentFluctuation);
+			Range af = factors.get(Factors.areaFluctuation);
+			Range lf = factors.get(Factors.locationFluctuation);
+			Range sef = factors.get(Factors.subpopulationFluctuation);
+			Range pf = factors.get(Factors.populationFluctuation);
+			
+			bxc = Range.independentOR(ef, af);
+			bxc = Range.independentOR(bxc, lf);
+			bxc = Range.independentOR(bxc, sef);
+			bxc = Range.independentOR(bxc, pf);
 
-			if ((or1 != null && !Range.isConstant(or1, 0)) && (or2 != null && !Range.isConstant(or2, 0))
-					&& (or3 != null && !Range.isConstant(or3, 0))) {
-
-				Range and = Range.independentAND(and1, or1);
-				and = Range.independentAND(and, or2);
-				and = Range.independentAND(and, or3);
+			if (isNonZero(bxa) && isNonZero(bxb) && isNonZero(bxc)) {
+				Range and = Range.independentAND(and1, bxa);
+				and = Range.independentAND(and, bxb);
+				and = Range.independentAND(and, bxc);
 				
 				returnResult.range = and;
 				if (isNonZero(returnResult.range))
-					returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
+					returnResult.setCriteriaSet(createBString(number, bxa, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
 
-			} else if (or1 != null && !Range.isConstant(or1, 0)) {
-				if (or2 != null && !Range.isConstant(or2, 0)) {
-					Range and = Range.independentAND(and1, or1);
-					and = Range.independentAND(and, or2);
-					
-					returnResult.range = and;
-					if (isNonZero(returnResult.range))
-						returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
-					
-				} else if (or3 != null && !Range.isConstant(or3, 0)) {
-					Range and = Range.independentAND(and1, or1);
-					and = Range.independentAND(and, or3);
-					
-					returnResult.range = and;
-					if (isNonZero(returnResult.range))
-						returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
-				}
-				// NOT ENOUGH DATA
-				else {
-					returnResult.range = null;
-					if (isNonZero(returnResult.range))
-						returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
-				}
 			}
-
-			else if ((or2 != null && !Range.isConstant(or2, 0)) && (or3 != null && !Range.isConstant(or3, 0))) {
-				Range and = Range.independentAND(and1, or2);
-				and = Range.independentAND(and, or3);
+			else if (isNonZero(bxa) && isNonZero(bxb)) {
+				Range and = Range.independentAND(and1, bxa);
+				and = Range.independentAND(and, bxb);
+				
 				returnResult.range = and;
 				if (isNonZero(returnResult.range))
-					returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
+					returnResult.setCriteriaSet(createBString(number, bxa, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
 			}
-
+			else if (isNonZero(bxa) && isNonZero(bxc)) {
+				Range and = Range.independentAND(and1, bxa);
+				and = Range.independentAND(and, bxc);
+				
+				returnResult.range = and;
+				if (isNonZero(returnResult.range))
+					returnResult.setCriteriaSet(createBString(number, bxa, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
+			}
+			else if (isNonZero(bxb) && isNonZero(bxc)) {
+				Range and = Range.independentAND(and1, bxb);
+				and = Range.independentAND(and, bxc);
+				
+				returnResult.range = and;
+				if (isNonZero(returnResult.range))
+					returnResult.setCriteriaSet(createBString(number, bxa, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
+			}
 			// NOT ENOUGH DATA
 			else {
 				returnResult.range = null;
 				if (isNonZero(returnResult.range))
-					returnResult.setCriteriaSet(createBString(number, sf, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
+					returnResult.setCriteriaSet(createBString(number, bxa, ed, ad, hd, ld, sd, pd, ef, af, lf, sef, pf));
 			}
 		}
 		else {
@@ -362,12 +357,12 @@ public abstract class Classification {
 		return createAString(result, csv, "3", "bcde");
 	}
 	
-	protected CriteriaSet createBString(String number, Range sf, Range ed, Range ad, Range hd, Range ld, Range sd, Range pd,
+	protected CriteriaSet createBString(String number, Range bxa, Range ed, Range ad, Range hd, Range ld, Range sd, Range pd,
 			Range ef, Range af, Range lf, Range sef, Range pf) {
 		List<String> criteriaMet = new ArrayList<String>();
 		
 		// DO A STRING
-		if (isNonZero(sf))
+		if (isNonZero(bxa))
 			criteriaMet.add("B" + number + "a");
 		
 		// DO B STRING
