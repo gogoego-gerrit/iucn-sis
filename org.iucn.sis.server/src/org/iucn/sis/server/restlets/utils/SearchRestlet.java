@@ -119,6 +119,7 @@ public class SearchRestlet extends BaseServiceRestlet {
 			
 			results.append("<result id=\"" + taxon.getId() + "\">");
 			results.append(XMLWritingUtils.writeCDATATag("name", taxon.getFullName()));
+			results.append(XMLWritingUtils.writeCDATATag("status", taxon.getTaxonStatus().getCode()));
 			results.append(XMLWritingUtils.writeCDATATag("commonName", cname.isEmpty() ? "N/A" : cname.get(0).getName()));
 			results.append(XMLWritingUtils.writeCDATATag("level", Taxon.getDisplayableLevel(taxon.getLevel())));
 			//results.append(XMLWritingUtils.writeCDATATag("category", getCategory(taxon, assessmentIO)));

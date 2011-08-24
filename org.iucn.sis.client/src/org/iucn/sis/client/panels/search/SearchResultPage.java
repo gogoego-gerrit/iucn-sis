@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.panels.utils.SearchPanel;
+import org.iucn.sis.shared.api.models.TaxonStatus;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -16,8 +17,10 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -85,7 +88,22 @@ public class SearchResultPage extends PagingPanel<SearchResultPage.TaxonSearchRe
 	protected ColumnModel getColumnModel() {
 		final List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		
-		columns.add(new ColumnConfig("name", "Scientific Name", 175));
+		final ColumnConfig name = new ColumnConfig("name", "Scientific Name", 175);
+		name.setRenderer(new GridCellRenderer<TaxonSearchResult>() {
+			public Object render(TaxonSearchResult model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<TaxonSearchResult> store,
+					Grid<TaxonSearchResult> grid) {
+				String status = model.get("status");
+				if (TaxonStatus.STATUS_DISCARDED.equals(status) || 
+						TaxonStatus.STATUS_SYNONYM.equals(status))
+					return "<span class=\"deleted\">" + model.get(property) + "</span>";
+				else
+					return model.get(property);
+			}
+		});
+		
+		columns.add(name);
 		columns.add(newColumnConfig("commonName", "Common Name", 175, HorizontalAlignment.LEFT));
 		columns.add(new ColumnConfig("level", "Level", 75));
 		//columns.add(newColumnConfig("category", "Category", 75, HorizontalAlignment.RIGHT));
