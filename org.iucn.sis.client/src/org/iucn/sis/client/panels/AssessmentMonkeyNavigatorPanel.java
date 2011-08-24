@@ -132,7 +132,7 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 				}
 				else {
 					style = MarkedCache.impl.getAssessmentStyle(assessment.getId());
-					value = AssessmentType.DRAFT_ASSESSMENT_STATUS_ID == (assessment.getAssessmentType().getId()) ? 
+					value = !assessment.isPublished() ? 
 							getDraftDisplayableString(assessment) : getPublishedDisplayableString(assessment);
 				}
 				//TODO: add lock icon if locked.

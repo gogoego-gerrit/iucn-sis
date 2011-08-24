@@ -117,14 +117,9 @@ public class AssessmentChangesPanel extends PagingPanel<ChangesModelData> implem
 		if (assessment.isRegional())
 			assessmentTitle = "Regional ";
 
-		if (assessment.getType().equalsIgnoreCase(AssessmentType.DRAFT_ASSESSMENT_TYPE))
-			assessmentTitle += "Draft Assessment";
-		else if (assessment.getType().equalsIgnoreCase(AssessmentType.PUBLISHED_ASSESSMENT_TYPE))
-			assessmentTitle += "Published Assessment";
-		else
-			assessmentTitle += "User Assessment";
+		assessmentTitle += assessment.getAssessmentType().getDisplayName(true);
 
-		assessmentTitle += " for " + assessment.getSpeciesName(); 
+		assessmentTitle += " Assessment for " + assessment.getSpeciesName(); 
 		
 		return assessmentTitle;
 	}

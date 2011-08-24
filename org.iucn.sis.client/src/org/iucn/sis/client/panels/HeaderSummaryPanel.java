@@ -83,13 +83,7 @@ public class HeaderSummaryPanel extends LayoutContainer {
 
 		Assessment data = AssessmentCache.impl.getCurrentAssessment();
 		if (data != null) {
-			String text = "";
-			if (data.getType().equalsIgnoreCase(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
-				text += "Draft";
-			} else if (data.getType().equalsIgnoreCase(AssessmentType.PUBLISHED_ASSESSMENT_TYPE)) {
-				text += "Published";
-			} else
-				text += "Mine";
+			String text = data.getAssessmentType().getDisplayName(true);
 			if (data.isRegional()) {
 				text += " -- " + RegionCache.impl.getRegionName(data.getRegionIDs());
 				if (data.isEndemic()) {

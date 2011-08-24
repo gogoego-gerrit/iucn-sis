@@ -117,7 +117,7 @@ public class AssessmentIOMessage {
 		} else {
 			ret.append("Assessments successfully saved:<br><ul>");
 			for (Assessment curAssessment : successfullySaved)
-				ret.append("<li>" + curAssessment.getType().replace("_status", "") + " "
+				ret.append("<li>" + curAssessment.getAssessmentType().getDisplayName(true) + " "
 						+ curAssessment.getId() + " for species " + curAssessment.getSpeciesName() + "</li>");
 			ret.append("</ul><br>");
 		}
@@ -127,7 +127,7 @@ public class AssessmentIOMessage {
 		} else {
 			ret.append("Assessments NOT saved because of insufficient permissions:<br><ul>");
 			for (Assessment curAssessment : insufficientPermissions)
-				ret.append("<li>" + curAssessment.getType().replace("_status", "") + " "
+				ret.append("<li>" + curAssessment.getAssessmentType().getDisplayName(true) + " "
 						+ curAssessment.getId() + " for species " + curAssessment.getSpeciesName() + "</li>");
 			ret.append("</ul><br>");
 		}
