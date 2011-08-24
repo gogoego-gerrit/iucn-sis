@@ -23,21 +23,32 @@ public class Infratype implements Serializable {
 
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	public final static String ROOT_NAME = "infraType";
-	public final static String SUBSPECIES_NAME = "subspecies";
-	public final static String VARIETY_NAME = "variety";
 	
-	//public static final int INFRARANK_TYPE_NA = -1;
 	public static final int INFRARANK_TYPE_SUBSPECIES = 1;
 	public static final int INFRARANK_TYPE_VARIETY = 2;
+	public static final int INFRARANK_TYPE_FORMA = 3;
+	
+	private static final String[] names = new String[] { "", 
+		"subspecies", "variety", "forma"
+	};
+	
+	private static final String[] codes = new String[] { "",
+		"ssp.", "var.", "fma." 
+	};
+	
+	public static final int[] ALL = new int[] {
+		INFRARANK_TYPE_SUBSPECIES, INFRARANK_TYPE_VARIETY, INFRARANK_TYPE_FORMA
+	};
 
 	public String toXML() {
-		return "<" + ROOT_NAME + " id=\"" + id + "\">" + name
+		return "<" + ROOT_NAME + " id=\"" + id + "\" code=\"" + code + "\">" + name
 				+ "</" + ROOT_NAME + ">";
 	}
 
 	public static Infratype fromXML(NativeElement element, Taxon taxon) {
 		Infratype type = new Infratype();
 		type.setId(Integer.valueOf(element.getAttribute("id")));
+		type.setCode(element.getAttribute("code"));
 		type.setName(element.getTextContent());
 		
 		if (taxon != null)
@@ -51,24 +62,19 @@ public class Infratype implements Serializable {
 	}
 	
 	public static Infratype getInfratype(String name) {
-		Infratype ret = new Infratype();
-		if (SUBSPECIES_NAME.equals(name))
-			ret.id = INFRARANK_TYPE_SUBSPECIES;
-		else if (VARIETY_NAME.equals(name))
-			ret.id = INFRARANK_TYPE_VARIETY;
-		else
-			return null;
-		ret.name = name;
-		return ret;
+		int id = -1;
+		for (int i = 0; i < names.length && id < 0; i++)
+			if (names[i].equals(name))
+				id = i;
+		
+		return getInfratype(id, null);
 	}
 	
-	public static Infratype getInfratype(int code, Taxon taxon) {
-		Infratype ret = new Infratype();
-		if (code == INFRARANK_TYPE_SUBSPECIES)
-			ret.name = SUBSPECIES_NAME;
-		else if (code == INFRARANK_TYPE_VARIETY)
-			ret.name = VARIETY_NAME;
-		ret.id = code;
+	public static Infratype getInfratype(int id, Taxon taxon) {
+		if (id <= 0 && id >= names.length)
+			return null;
+		
+		Infratype ret = new Infratype(id, names[id], codes[id]);
 		
 		if (taxon != null)
 			taxon.setInfratype(ret);		
@@ -80,14 +86,17 @@ public class Infratype implements Serializable {
 	public Infratype() {
 	}
 	
-	public Infratype(Integer code, String infraName) {
-		this.id = code;
-		this.name = infraName;
+	public Infratype(int id, String name, String code) {
+		this.id = id;
+		this.name = name;
+		this.code = code;
 	}
 
 	private Integer id;
 
 	private String name;
+	
+	private String code;
 
 	private Set<Taxon> taxa = new HashSet<Taxon>();
 
@@ -106,6 +115,22 @@ public class Infratype implements Serializable {
 	public String getName() {
 		return name;
 	}
+	
+	public void setCode(String code) {
+		this.code = code;
+	}
+	
+	public String getCode() {
+		return code;
+	}
+	
+	/**
+	 * Returns the name with the first character in upper case.
+	 * @return
+	 */
+	public String getFormalName() {
+		return Character.toUpperCase(name.charAt(0)) + name.substring(1);
+	}
 
 	public void setTaxa(Set<Taxon> taxa) {
 		this.taxa = taxa;
@@ -113,19 +138,6 @@ public class Infratype implements Serializable {
 
 	public Set<Taxon> getTaxa() {
 		return taxa;
-	}
-	
-	public String getDisplayString() {
-		return Infratype.getDisplayString(getName());
-	}
-	
-	public static String getDisplayString(String infratype) {
-		if (VARIETY_NAME.equals(infratype))
-			return "var.";
-		else if (SUBSPECIES_NAME.equals(infratype))
-			return "ssp.";
-		else
-			return "";
 	}
 
 }

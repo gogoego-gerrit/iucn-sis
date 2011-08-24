@@ -77,20 +77,21 @@ public class TaxomaticIO {
 			fullName += taxon.getFootprint()[i] + " ";
 
 		if (taxon.getInfratype() != null) {
-			if (taxon.getInfratype().getName().equals(Infratype.SUBSPECIES_NAME))
-				fullName += isPlant ? "subsp." : "ssp. ";
-			else if (taxon.getInfratype().getName().equals(Infratype.VARIETY_NAME))
-				fullName += "var. ";
+			if (isPlant && taxon.getInfratype().getId() == Infratype.INFRARANK_TYPE_SUBSPECIES)
+				fullName += "subsp. ";
+			else
+				fullName += taxon.getInfratype().getCode() + " ";
 		}
 
 		if (taxon.getLevel() == TaxonLevel.SUBPOPULATION || taxon.getLevel() == TaxonLevel.INFRARANK_SUBPOPULATION)
-			fullName += "</i>" + taxon.getName().replace("ssp.", "").replace("var.", "").trim();
+			fullName += "</i>" + taxon.getName().replace("ssp.", "").replace("var.", "").replace("fma.", "").trim();
 		else
-			fullName += taxon.getName().replace("ssp.", "").replace("var.", "").trim() + "</i>";
+			fullName += taxon.getName().replace("ssp.", "").replace("var.", "").replace("fma.", "").trim() + "</i>";
 
 		if (isPlant) {
 			fullName = fullName.replace("subsp.", "</i> subsp. <i>");
 			fullName = fullName.replace("var.", "</i> var. <i>");
+			fullName = fullName.replace("fma.", "</i> fma. <i>");
 		}
 		return fullName;
 	}

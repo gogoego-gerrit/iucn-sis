@@ -15,5 +15,6 @@ License Type: Evaluation
 			<one-to-many class="org.iucn.sis.shared.api.models.Taxon"/>
 		</set>
 		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false"/>
+		<property name="code" column="code" type="string" length="255" not-null="true" lazy="false"/>
 	</class>
 </hibernate-mapping>

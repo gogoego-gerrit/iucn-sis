@@ -333,7 +333,9 @@ public class Synonym implements Serializable, HasReferences, HasNotes {
 					friendlyName += " " + getSpeciesAuthor();
 				
 				if (TaxonLevel.INFRARANK == getTaxon_level().getLevel() && !isBlank(getInfraName())) {
-					friendlyName += " " + Infratype.getDisplayString(getInfraType()) + " " + getInfraName();
+					Infratype obj = Infratype.getInfratype(getInfraType());
+					if (obj != null)
+						friendlyName += " " + obj.getCode() + " " + getInfraName();
 					if (!isBlank(getInfrarankAuthor()))
 						friendlyName += " " + getInfrarankAuthor();
 				}
@@ -351,7 +353,9 @@ public class Synonym implements Serializable, HasReferences, HasNotes {
 			if (getSpeciesAuthor() != null && !getSpeciesAuthor().trim().equalsIgnoreCase("")) 
 				friendlyName += " "+ getSpeciesAuthor() + "";
 			if (getInfraName() != null && !getInfraName().trim().equalsIgnoreCase("")) {
-				friendlyName += " " + Infratype.getDisplayString(getInfraType()) + " " + getInfraName();
+				Infratype obj = Infratype.getInfratype(getInfraType());
+				if (obj != null)
+					friendlyName += " " + obj.getCode() + " " + getInfraName();
 				if (getInfrarankAuthor() != null && !getInfrarankAuthor().trim().equalsIgnoreCase("")) 
 					friendlyName += " "+ getInfrarankAuthor() + "";
 			}

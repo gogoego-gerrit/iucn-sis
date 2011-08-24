@@ -13,6 +13,13 @@ public class InfratypeIO {
 		this.session = session;
 	}
 	
+	public Infratype getInfratype(int id) {
+		InfratypeCriteria criteria = new InfratypeCriteria(session);
+		criteria.id.eq(id);
+		
+		return criteria.uniqueInfratype();
+	}
+	
 	public Infratype getInfratype(String infraname) {
 		InfratypeCriteria criteria = new InfratypeCriteria(session);
 		

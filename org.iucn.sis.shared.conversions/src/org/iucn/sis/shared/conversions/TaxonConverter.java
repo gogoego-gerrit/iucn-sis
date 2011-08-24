@@ -625,14 +625,9 @@ public class TaxonConverter extends GenericConverter<String> {
 		}
 
 		// ADD INFRARANK
-		if (taxon.getInfrarankType() == TaxonNode.INFRARANK_TYPE_SUBSPECIES) {
-			Infratype infratype = infratypeIO.getInfratype(Infratype.SUBSPECIES_NAME);
+		Infratype infratype = Infratype.getInfratype(taxon.getInfrarankType());
+		if (infratype != null)
 			newTaxon.setInfratype(infratype);
-		} else if (taxon.getInfrarankType() == TaxonNode.INFRARANK_TYPE_VARIETY) {
-			Infratype infratype = infratypeIO.getInfratype(Infratype.VARIETY_NAME);
-			newTaxon.setInfratype(infratype);
-		}
-
 
 		// ADD REFERENCES
 		for (ReferenceUI refUI : taxon.getReferencesAsList()) {

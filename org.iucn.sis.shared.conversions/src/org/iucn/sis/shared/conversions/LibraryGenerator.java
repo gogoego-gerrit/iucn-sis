@@ -54,8 +54,8 @@ public class LibraryGenerator extends GenericConverter<String> {
 	}
 
 	public void generateInfratypes() throws PersistentException {
-		session.save(Infratype.getInfratype(Infratype.INFRARANK_TYPE_SUBSPECIES));
-		session.save(Infratype.getInfratype(Infratype.INFRARANK_TYPE_VARIETY));
+		for (int id : Infratype.ALL)
+			session.save(Infratype.getInfratype(id));
 	}
 
 	public void generateAssessmentTypes() throws PersistentException {

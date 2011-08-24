@@ -36,11 +36,9 @@ public class TaxonLevel implements Serializable, Comparable<TaxonLevel> {
 	}
 	
 	public static String getDisplayableLevel(int level, int infratype) {
-		if( level == INFRARANK ) {
-			if( infratype == Infratype.INFRARANK_TYPE_SUBSPECIES )
-				return Infratype.SUBSPECIES_NAME;
-			else
-				return Infratype.VARIETY_NAME;
+		Infratype type;
+		if (level == INFRARANK && (type = Infratype.getInfratype(infratype)) != null) {
+			return type.getName();
 		} else
 			return getDisplayableLevel(level);
 	}

@@ -114,7 +114,7 @@ public class DemoteNodeOperation extends TaxomaticWorker {
 		
 		//Ensure this is called after upading the RL History Text
 		demotedSpecies.setTaxonLevel(TaxonLevel.getTaxonLevel(TaxonLevel.INFRARANK));
-		demotedSpecies.setInfratype(infratypeIO.getInfratype(Infratype.SUBSPECIES_NAME));
+		demotedSpecies.setInfratype(infratypeIO.getInfratype(Infratype.INFRARANK_TYPE_SUBSPECIES));
 		demotedSpecies.setParent(newParent);
 		
 		newParent.getChildren().add(demotedSpecies);

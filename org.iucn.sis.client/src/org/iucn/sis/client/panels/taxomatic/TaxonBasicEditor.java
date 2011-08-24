@@ -129,7 +129,7 @@ public class TaxonBasicEditor extends TaxomaticWindow {
 			level.setSelectedIndex(0);
 			level.setEnabled(true);
 		} else if (node.getLevel() == TaxonLevel.INFRARANK) {
-			if (node.getInfratype().getName().equals(Infratype.SUBSPECIES_NAME)) {
+			if (node.getInfratype().getId() == Infratype.INFRARANK_TYPE_SUBSPECIES) {
 				level.addItem(TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_SUBSPECIES),
 						"" + Infratype.INFRARANK_TYPE_SUBSPECIES);
 				if (!node.getFootprintAsString().contains("ANIMALIA"))

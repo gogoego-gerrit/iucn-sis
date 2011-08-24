@@ -208,7 +208,7 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 			store.add(model);
 		}
 		
-		for (int level : new int[] { Infratype.INFRARANK_TYPE_SUBSPECIES, Infratype.INFRARANK_TYPE_VARIETY }) {
+		for (int level : Infratype.ALL) {
 			BaseModelData model = new BaseModelData();
 			model.set("text", TaxonLevel.getDisplayableLevel(TaxonLevel.INFRARANK, level));
 			model.set("value", TaxonLevel.INFRARANK);
@@ -556,13 +556,8 @@ public class NewTaxonSynonymEditor extends TaxomaticWindow {
 			current.setInfraName(infrarankName.getValue());
 			
 			String text = level.getValue().get("text");
-			if (text.equalsIgnoreCase(Infratype.VARIETY_NAME)) {
-				current.setInfraTypeObject(Infratype.getInfratype(Infratype.VARIETY_NAME));
-				current.setInfraType(Infratype.VARIETY_NAME);
-			} else {
-				current.setInfraTypeObject(Infratype.getInfratype(Infratype.SUBSPECIES_NAME));
-				current.setInfraType(Infratype.SUBSPECIES_NAME);
-			}
+			
+			current.setInfraTypeObject(Infratype.getInfratype(text));
 		} else if (curLevel == TaxonLevel.INFRARANK_SUBPOPULATION) {
 			current.setGenusName(genusName.getValue());
 			current.setSpeciesName(specieName.getValue());

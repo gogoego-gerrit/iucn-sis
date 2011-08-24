@@ -81,12 +81,8 @@ public class Taxon implements AuthorizableObject, Serializable {
 			Infratype infratype = getInfratype();
 			if (infratype == null)
 				return "Unknown";
-			else if (Infratype.SUBSPECIES_NAME.equals(infratype.getName()))
-				return "Subspecies";
-			else if (Infratype.VARIETY_NAME.equals(infratype.getName()))
-				return "Variety";
 			else
-				return "Unknown";
+				return infratype.getFormalName();
 		}
 		return TaxonLevel.displayableLevel[this.getTaxonLevel().getLevel()];
 	}
@@ -123,10 +119,12 @@ public class Taxon implements AuthorizableObject, Serializable {
 		else {
 			fullName = getParent().getFriendlyName();
 			if (infratype != null) {
-				fullName += " " + infratype.getDisplayString();
+				fullName += " " + infratype.getCode();
 				
-				name = name.replace("ssp.", "").trim();
-				name = name.replace("var.", "").trim();
+				for (int code : Infratype.ALL) {
+					Infratype type = Infratype.getInfratype(code);
+					name = name.replace(type.getCode(), "").trim();
+				}
 			}
 			fullName += " " + name;
 			
@@ -234,18 +232,7 @@ public class Taxon implements AuthorizableObject, Serializable {
 	}
 
 	public static String getDisplayableLevel(int level) {
-		return getDisplayableLevel(level, -1);
-	}
-
-	public static String getDisplayableLevel(int level, int infraType) {
-		if (level == TaxonLevel.INFRARANK) {
-			if (infraType == Infratype.INFRARANK_TYPE_SUBSPECIES) {
-				return "Subspecies";
-			} else if (infraType == Infratype.INFRARANK_TYPE_VARIETY) {
-				return "Variety";
-			}
-		}
-		return TaxonLevel.displayableLevel[level];
+		return TaxonLevel.getDisplayableLevel(level);
 	}
 
 	public static int getDisplayableLevelCount() {
