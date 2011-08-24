@@ -882,6 +882,13 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				//As per #36, remove this field
 				proxy.setPossiblyExtinctCandidate(null);
 				
+				//As per #566, correct spaces & punctuation
+				String manualCategory = proxy.getManualCategory();
+				manualCategory = manualCategory.trim();
+				if ("N.E.".equals(manualCategory))
+					manualCategory = "NE";
+				proxy.setManualCategory(manualCategory);
+				
 				if (proxy.isManual() && !"CR".equals(proxy.getManualCategory()))
 					proxy.setPossiblyExtinct(null);
 			}
