@@ -625,9 +625,14 @@ public class TaxonConverter extends GenericConverter<String> {
 		}
 
 		// ADD INFRARANK
-		Infratype infratype = Infratype.getInfratype(taxon.getInfrarankType());
-		if (infratype != null)
-			newTaxon.setInfratype(infratype);
+		// As per #423...
+		if (newTaxon.getId() == 40853 || newTaxon.getId() == 37068 || newTaxon.getId() == 37103)
+			newTaxon.setInfratype(infratypeIO.getInfratype(Infratype.INFRARANK_TYPE_FORMA));
+		else {
+			Infratype infratype = infratypeIO.getInfratype(taxon.getInfrarankType());
+			if (infratype != null)
+				newTaxon.setInfratype(infratype);
+		}
 
 		// ADD REFERENCES
 		for (ReferenceUI refUI : taxon.getReferencesAsList()) {
