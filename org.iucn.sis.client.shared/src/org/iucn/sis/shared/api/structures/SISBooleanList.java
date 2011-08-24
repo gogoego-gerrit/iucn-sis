@@ -91,8 +91,8 @@ public class SISBooleanList extends SISPrimitiveStructure<Integer> implements Do
 
 		listbox = new ListBox();
 		listbox.addItem("--- Select ---");
-		listbox.addItem("True / Yes");
-		listbox.addItem("False / No");
+		listbox.addItem("Yes");
+		listbox.addItem("No");
 		listbox.addItem("Unknown");
 	}
 
@@ -120,8 +120,8 @@ public class SISBooleanList extends SISPrimitiveStructure<Integer> implements Do
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
 		ArrayList<String> data = new ArrayList<String>();
 		// data.add("--- Select ---");
-		data.add("True / Yes");
-		data.add("False / No");
+		data.add("Yes");
+		data.add("No");
 		data.add("Unknown");
 
 		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset), data
