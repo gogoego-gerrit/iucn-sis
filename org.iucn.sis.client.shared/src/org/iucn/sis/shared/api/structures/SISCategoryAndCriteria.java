@@ -29,8 +29,6 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
-import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -125,12 +123,10 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 
 	private TextBox dateLastSeen;
 	private HorizontalPanel possiblyExtinctPanel;
-	private RadioButton possiblyExtinctBox;
+	private ListBox possiblyExtinctListBox;
 	
 	private ListBox dataDeficientListBox;
 	private HorizontalPanel dataDeficientPanel;
-	
-	private RadioButton possiblyExtinctCandidateBox;
 
 	//private TextArea rlText;
 
@@ -236,19 +232,13 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		proxy.setGeneratedCategory(generatedCategory);
 		proxy.setGeneratedCriteria(generatedCriteria);
 		//proxy.setRLHistoryText(rlText.getText());
-		proxy.setPossiblyExtinct(possiblyExtinctBox.getValue());
-		proxy.setPossiblyExtinctCandidate(possiblyExtinctCandidateBox.getValue());
+		proxy.setPossiblyExtinct(possiblyExtinctListBox.getSelectedIndex() == 1);
+		proxy.setPossiblyExtinctCandidate(possiblyExtinctListBox.getSelectedIndex() == 2);
 		
-		if(isManual) {
-			if ("CR".equals(manualCategory)) {
-				proxy.setPossiblyExtinct(possiblyExtinctBox.getValue());
-				proxy.setPossiblyExtinctCandidate(possiblyExtinctCandidateBox.getValue());
-			}else {
-				proxy.setPossiblyExtinct(null);
-				proxy.setPossiblyExtinctCandidate(null);
-				possiblyExtinctBox.setValue(false);
-				possiblyExtinctCandidateBox.setValue(false);
-			}
+		if(isManual && !"CR".equals(manualCategory)) {
+			proxy.setPossiblyExtinct(null);
+			proxy.setPossiblyExtinctCandidate(null);
+			possiblyExtinctListBox.setSelectedIndex(0);
 		}
 		
 		Date dateLastSeenValue = null;
@@ -392,8 +382,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		criteriaStringBox.setText("");
 		invalidCriteriaString.setHTML("");
 		//rlText.setText("");
-		possiblyExtinctBox.setChecked(false);
-		possiblyExtinctCandidateBox.setChecked(false);
+		possiblyExtinctListBox.setSelectedIndex(0);
 		dateLastSeen.setText("");
 
 		refreshStructures();
@@ -472,10 +461,12 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			HorizontalPanel extinctPanel = new HorizontalPanel();
 			extinctPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 			extinctPanel.setSpacing(6);
+			boolean pe = possiblyExtinctListBox.getSelectedIndex() == 1;
+			boolean pew = possiblyExtinctListBox.getSelectedIndex() == 2;
 			extinctPanel.add(new HTML("Possibly Extinct"));
-			extinctPanel.add(new HTML((possiblyExtinctBox.getValue()) ? " Yes " : " No "));
+			extinctPanel.add(new HTML(pe ? " Yes " : " No "));
 			extinctPanel.add(new HTML("Possibly Extinct in the Wild"));
-			extinctPanel.add(new HTML((possiblyExtinctCandidateBox.getValue()) ? " Yes " : " No "));
+			extinctPanel.add(new HTML(pew ? " Yes " : " No "));
 			displayPanel.add(extinctPanel);
 		}	
 		
@@ -501,16 +492,17 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		dateLastSeenPanel.add(dateLastSeen);
 		dateLastSeenPanel.setVisible(false);
 
-		possiblyExtinctBox = new RadioButton("extinctGroup");
-		possiblyExtinctCandidateBox = new RadioButton("extinctGroup");
+		possiblyExtinctListBox = new ListBox();
+		possiblyExtinctListBox.addItem("--- Select ---");
+		possiblyExtinctListBox.addItem("Possibly Extinct");
+		possiblyExtinctListBox.addItem("Possibly Extinct in the Wild");
+		
 		possiblyExtinctPanel = new HorizontalPanel();
 		possiblyExtinctPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		possiblyExtinctPanel.setSpacing(6);
 		possiblyExtinctPanel.add(new HTML("&nbsp&nbsp&nbsp&nbsp&nbsp"));
-		possiblyExtinctPanel.add(new HTML("Possibly Extinct"));
-		possiblyExtinctPanel.add(possiblyExtinctBox);
-		possiblyExtinctPanel.add(new HTML("Possibly Extinct in the Wild"));
-		possiblyExtinctPanel.add(possiblyExtinctCandidateBox);
+		possiblyExtinctPanel.add(new HTML("Possibly Extinct?"));
+		possiblyExtinctPanel.add(possiblyExtinctListBox);
 		possiblyExtinctPanel.setVisible(false);
 		
 		dataDeficientListBox = new ListBox(false);
@@ -861,8 +853,12 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		generatedCategory = proxy.getGeneratedCategory();
 		generatedCriteria = proxy.getGeneratedCriteria();
 		//rlText.setText(proxy.getRLHistoryText());
-		possiblyExtinctBox.setValue(proxy.isPossiblyExtinct());
-		possiblyExtinctCandidateBox.setValue(proxy.isPossiblyExtinctCandidate());
+		if (proxy.isPossiblyExtinct())
+			possiblyExtinctListBox.setSelectedIndex(1);
+		else if (proxy.isPossiblyExtinctCandidate())
+			possiblyExtinctListBox.setSelectedIndex(2);
+		else
+			possiblyExtinctListBox.setSelectedIndex(0);
 		Date date = proxy.getDateLastSeen();
 		String dateValue = "";
 		if (date != null)
