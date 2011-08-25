@@ -50,7 +50,7 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 	private TextField<String> name;
 	private TextField<String> taxonomicAuthority;
 	private ComboBox<ComboOption> rank;
-	private ComboBox<ComboOption> status;
+	private ComboBox<StatusOption> status;
 	private CheckBox hybrid;
 	
 	public CreateNewTaxonPanel(Taxon parent) {
@@ -156,12 +156,12 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 		
 		taxonomicAuthority = FormBuilder.createTextField("authority", null, "Authority", false);
 		
-		ListStore<ComboOption> statusStore = new ListStore<ComboOption>();
+		ListStore<StatusOption> statusStore = new ListStore<StatusOption>();
 		for (Entry<String, String> entry : TaxonStatus.displayableStatus.entrySet())
-			statusStore.add(new ComboOption(entry.getValue(), entry.getKey()));
+			statusStore.add(new StatusOption(entry.getValue(), entry.getKey()));
 		if (parentNode.getLevel() >= TaxonLevel.GENUS)
-			statusStore.add(new ComboOption("Undescribed", "U"));
-		status = new ComboBox<ComboOption>();
+			statusStore.add(new StatusOption("Undescribed", "U"));
+		status = new ComboBox<StatusOption>();
 		status.setTriggerAction(TriggerAction.ALL);
 		status.setFieldLabel("Status");
 		status.setAllowBlank(false);
@@ -182,19 +182,20 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 		
 		ListStore<ComboOption> rankStore = new ListStore<ComboOption>();
 		if (parentNode.getLevel() == TaxonLevel.SPECIES) {
-			rankStore.add(new ComboOption("Subspecies", TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_SUBSPECIES));
+			rankStore.add(new ComboOption("Subspecies", TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_SUBSPECIES));
 			if (!parentNode.getFootprintAsString().contains("ANIMALIA"))
-				rankStore.add(new ComboOption("Variety", TaxonLevel.INFRARANK + "" + Infratype.INFRARANK_TYPE_VARIETY));
-			rankStore.add(new ComboOption("Subpopulation", "" + TaxonLevel.SUBPOPULATION));
+				rankStore.add(new ComboOption("Variety", TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_VARIETY));
+			rankStore.add(new ComboOption("Forma", TaxonLevel.INFRARANK, Infratype.INFRARANK_TYPE_FORMA));
+			rankStore.add(new ComboOption("Subpopulation", TaxonLevel.SUBPOPULATION));
 			rank.setEnabled(true);
 			hybrid.setVisible(true);
 		} else {
 			if (parentNode.getLevel() == TaxonLevel.INFRARANK)
-				rankStore.add(new ComboOption(Taxon.getDisplayableLevel(TaxonLevel.INFRARANK_SUBPOPULATION), ""
-						+ TaxonLevel.INFRARANK_SUBPOPULATION));
+				rankStore.add(new ComboOption(Taxon.getDisplayableLevel(TaxonLevel.INFRARANK_SUBPOPULATION),
+						TaxonLevel.INFRARANK_SUBPOPULATION));
 			else
-				rankStore.add(new ComboOption(Taxon.getDisplayableLevel(parentNode.getLevel() + 1), ""
-								+ (parentNode.getLevel() + 1)));
+				rankStore.add(new ComboOption(Taxon.getDisplayableLevel(parentNode.getLevel() + 1), 
+								(parentNode.getLevel() + 1)));
 
 			rank.setEnabled(false);
 			hybrid.setVisible(false);
@@ -221,12 +222,8 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 		if (!form.isValid())
 			return;
 		
-		int level = rank.getValue().getValue();
-		Integer infraType = null;
-		if (level > TaxonLevel.INFRARANK_SUBPOPULATION) {
-			infraType = level % (TaxonLevel.INFRARANK * 10);
-			level = Integer.parseInt(rank.getValue().getValueString().substring(0, 1));
-		}
+		int level = rank.getValue().getLevel();
+		Integer infraType = rank.getValue().getInfrarank();
 
 		if (level >= TaxonLevel.SPECIES && (taxonomicAuthority.getValue() == null || taxonomicAuthority.getValue().equals(""))) {
 			taxonomicAuthority.markInvalid("A taxonomic authority must be specified.");
@@ -237,7 +234,7 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 
 		final Taxon newNode = Taxon.createNode(0, name.getValue(), level, hybrid.getValue()); 
 		newNode.setParent(parentNode);
-		newNode.setStatus(status.getValue().getValueString());
+		newNode.setStatus(status.getValue().getValue());
 		newNode.setTaxonomicAuthority(taxonomicAuthority.getValue());
 		if (infraType != null)
 			newNode.setInfratype(Infratype.getInfratype(infraType, newNode));
@@ -288,22 +285,44 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 		});
 	}
 	
-	private static class ComboOption extends BaseModelData {
+	private static class StatusOption extends BaseModelData {
 		
 		private static final long serialVersionUID = 1L;
 		
-		public ComboOption(String text, String value) {
+		public StatusOption(String text, String value) {
 			super();
 			set("text", text);
 			set("value", value);
 		}
 		
-		public String getValueString() {
+		public String getValue() {
 			return get("value");
 		}
 		
-		public int getValue() {
-			return Integer.parseInt(getValueString());
+	}
+	
+	private static class ComboOption extends BaseModelData {
+		
+		private static final long serialVersionUID = 1L;
+		
+		public ComboOption(String text, int level) {
+			this(text, level, null);
+		}
+		
+		public ComboOption(String text, int level, Integer infrarank) {
+			super();
+			set("text", text);
+			set("value", text);
+			set("level", level);
+			set("infrarank", infrarank);
+		}
+		
+		public int getLevel() {
+			return get("level");
+		}
+		
+		public Integer getInfrarank() {
+			return get("infrarank");
 		}
 		
 	}
