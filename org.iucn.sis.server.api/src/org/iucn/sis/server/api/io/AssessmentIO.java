@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -497,12 +496,9 @@ public class AssessmentIO {
 	}
 	
 	public void addValidation(Assessment assessment, AssessmentIntegrityValidation validation) throws PersistentException {
-		Hibernate.initialize(assessment.getValidation());
-		if (assessment.getValidation() == null)
-			assessment.setValidation(new HashSet<AssessmentIntegrityValidation>());
+		assessment.setValidation(validation);
 		
 		session.save(validation);
-		assessment.getValidation().add(validation);
 	}
 	
 	public void updateValidation(AssessmentIntegrityValidation validation) throws PersistentException {

@@ -260,14 +260,10 @@ public class AssessmentDAO {
 				assessment.getTaxon().getAssessments().remove(assessment);
 			}
 			
-			Hibernate.initialize(assessment.getValidation());
-			if (assessment.getValidation() != null) {
-				AssessmentIntegrityValidation[] lValidations = 
-					(AssessmentIntegrityValidation[])assessment.getValidation().toArray(
-						new AssessmentIntegrityValidation[assessment.getValidation().size()]);
-				for (int i = 0; i < lValidations.length; i++)
-					lValidations[i].setAssessment(null);
+			AssessmentIntegrityValidation validation = assessment.getValidation();
+			if (validation != null) {
 				assessment.setValidation(null);
+				session.delete(validation);	
 			}
 			
 			assessment.setPublicationReference(null);

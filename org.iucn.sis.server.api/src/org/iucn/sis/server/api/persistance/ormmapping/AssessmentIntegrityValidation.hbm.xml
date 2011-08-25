@@ -16,9 +16,5 @@ License Type: Evaluation
 		<property name="status" column="status" type="integer" not-null="true" lazy="false"/>
 		<property name="message" column="message" type="text" not-null="false" lazy="false"/>
 		<property name="date" column="date" type="java.util.Date" not-null="true" lazy="false"/>
-		<set name="Assessment" lazy="true" cascade="save-update,lock" inverse="true">
-			<key column="assessment_typeid" not-null="false"/>
-			<one-to-many class="org.iucn.sis.shared.api.models.Assessment"/>
-		</set>
 	</class>
 </hibernate-mapping>

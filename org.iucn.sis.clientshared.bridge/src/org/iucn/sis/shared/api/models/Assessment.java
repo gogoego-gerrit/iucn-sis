@@ -134,6 +134,8 @@ public class Assessment implements Serializable, AuthorizableObject {
 			else if ("publicationReference".equals(current.getNodeName())) {
 				assessment.setPublicationReference(Reference.fromXML(current));
 			}
+			else if (AssessmentIntegrityValidation.ROOT_TAG.equals(current.getNodeName()))
+				assessment.setValidation(AssessmentIntegrityValidation.fromXML((NativeElement)current));
 			else if (Edit.ROOT_TAG.equals(current.getNodeName())) {
 				Edit cur = Edit.fromXML((NativeElement)current);
 				if (cur.getAssessment() == null)
@@ -297,6 +299,9 @@ public class Assessment implements Serializable, AuthorizableObject {
 		if (getPublicationReference() != null)
 			xml.append(getPublicationReference().toXML("publicationReference"));
 		
+		if (getValidation() != null)
+			xml.append(getValidation().toXML());
+		
 		if (getEdit() != null) {
 			for (Edit edit : getEdit())
 				xml.append(edit.toXML());
@@ -345,6 +350,8 @@ public class Assessment implements Serializable, AuthorizableObject {
 		assessment.setState(getState());
 		assessment.setTaxon(getTaxon());
 		assessment.setPublicationReference(getPublicationReference());
+		//Never copy over the validation...
+		//assessment.setValidation(getValidation());
 		
 		assessment.setField(new HashSet<Field>());
 		for (Field field : getField()) {
@@ -473,14 +480,14 @@ public class Assessment implements Serializable, AuthorizableObject {
 	private String internalId;
 	
 	private Reference publicationReference;
+	
+	private AssessmentIntegrityValidation validation;
 
 	private java.util.Set<Edit> edit = new java.util.HashSet<Edit>();
 
 	private java.util.Set<Reference> reference = new java.util.HashSet<Reference>();
 
 	private java.util.Set<Field> field = new java.util.HashSet<Field>();
-
-	private java.util.Set<AssessmentIntegrityValidation> validation = new java.util.HashSet<AssessmentIntegrityValidation>();
 
 	public int getId() {
 		return id;
@@ -586,12 +593,11 @@ public class Assessment implements Serializable, AuthorizableObject {
 		return field;
 	}
 	
-	public void setValidation(
-			java.util.Set<AssessmentIntegrityValidation> validation) {
+	public void setValidation(AssessmentIntegrityValidation validation) {
 		this.validation = validation;
 	}
 	
-	public java.util.Set<AssessmentIntegrityValidation> getValidation() {
+	public AssessmentIntegrityValidation getValidation() {
 		return validation;
 	}
 
