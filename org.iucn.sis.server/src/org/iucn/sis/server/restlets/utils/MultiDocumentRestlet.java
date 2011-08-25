@@ -2,6 +2,7 @@ package org.iucn.sis.server.restlets.utils;
 
 import org.hibernate.Session;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
@@ -40,8 +41,11 @@ public class MultiDocumentRestlet extends BaseServiceRestlet {
 		
 		for (Node node : nodes) {
 			if ("uri".equals(node.getNodeName())) {
-				String uri = request.getResourceRef().getHostIdentifier() + 
-					node.getTextContent();
+				String host = request.getResourceRef().getHostIdentifier();
+				//Can fall back to real host, but raip is faster
+				host = "riap://host";
+				
+				String uri = host + node.getTextContent();
 				
 				Request internal = new InternalRequest(request, Method.GET, uri);
 				Response resp = getContext().getClientDispatcher().handle(internal);
@@ -53,12 +57,13 @@ public class MultiDocumentRestlet extends BaseServiceRestlet {
 					final Document respEntity;
 					try {
 						respEntity = getEntityAsDocument(resp.getEntity());
+						
+						Element head = respEntity.getDocumentElement();
+						respNode.appendChild(document.importNode(head, true));
 					} catch (Exception e) {
-						continue;
+						respNode.setAttribute("status", Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY.getCode()+"");
+						Debug.println(e);
 					}
-					
-					Element head = respEntity.getDocumentElement();
-					respNode.appendChild(document.importNode(head, true));
 				}
 				
 				document.getDocumentElement().appendChild(respNode);

@@ -1,6 +1,5 @@
 package org.iucn.sis.server.restlets.workingsets;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,9 +37,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.solertium.lwxml.factory.NativeDocumentFactory;
-import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.BaseDocumentUtils;
 
 /**
  * The Working Set Restlet, handles calls to get and modify a user's
@@ -244,7 +242,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 			xml.append(set.toXML());
 		xml.append("</workingsets>");
 		
-		return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
+		return new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createDocumentFromString(xml.toString()));
 	}
 	
 	/**
