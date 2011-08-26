@@ -9,12 +9,18 @@ import org.restlet.routing.Router;
 
 public abstract class MultiAppGenericBootstrap extends GenericBootstrap {
 	
+	private boolean exitOnFail = true;
+	
 	public MultiAppGenericBootstrap() {
 		super();
 	}
 	
 	public MultiAppGenericBootstrap(int httpPort, int httpsPort) {
 		super(httpPort, httpsPort);
+	}
+	
+	public void setExitOnFail(boolean exitOnFail) {
+		this.exitOnFail = exitOnFail;
 	}
 	
 	protected abstract Map<String, GoGoEgoApplication> getGoGoEgoApplications();
@@ -40,8 +46,12 @@ public abstract class MultiAppGenericBootstrap extends GenericBootstrap {
 				router.attach(buildMount(publicRouteMount, app.getRegistrationKey()), app.getPublicRouter());
 				router.attach(buildMount(privateRouteMount, app.getRegistrationKey()), app.getPrivateRouter());
 			}
-			else
-				throw new RuntimeException("Could not install application " + entry.getKey() + ".");
+			else {
+				if (exitOnFail)
+					throw new RuntimeException("Could not install application " + entry.getKey() + ".");
+				else
+					System.err.println("Could not install application " + entry.getKey() + ".");
+			}
 		}
 		
 		return router;
