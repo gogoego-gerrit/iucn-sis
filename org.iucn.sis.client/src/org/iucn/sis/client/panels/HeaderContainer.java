@@ -2,7 +2,6 @@ package org.iucn.sis.client.panels;
 
 import java.util.List;
 
-import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.BookmarkCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -432,7 +431,11 @@ public class HeaderContainer extends ContentPanel {
 				final String title = "Manage Definitions";
 				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
-						openAdministrativeTool(title, null, definitionPanel);
+						definitionPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								openAdministrativeTool(title, null, definitionPanel);
+							}
+						});
 					}
 				}));
 			}

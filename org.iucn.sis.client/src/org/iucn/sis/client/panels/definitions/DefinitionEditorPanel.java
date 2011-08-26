@@ -25,12 +25,12 @@ import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Image;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
-public class DefinitionEditorPanel extends ContentPanel {
+public class DefinitionEditorPanel extends ContentPanel implements DrawsLazily {
 
 	protected String defColumnWidth = "150px";
 	protected String definitionsColumnWidth = "400px";
@@ -40,14 +40,13 @@ public class DefinitionEditorPanel extends ContentPanel {
 	private boolean drawn = false;
 
 	public DefinitionEditorPanel() {
-//		definitionsPanel = new LayoutContainer();
+		super();
+		
 		fields = new HashMap<TextField<String>, TextArea>();
 		setScrollMode(Scroll.AUTO);
 		setHeaderVisible(false);
 		
 		setLayout(new TableLayout(3));
-		
-		draw();
 	}
 
 	private TextField<String> addDefinition(Definition definition) {
@@ -99,7 +98,13 @@ public class DefinitionEditorPanel extends ContentPanel {
 		return defText;
 	}
 
-	private void draw() {
+	@Override
+	public void draw(DoneDrawingCallback callback) {
+		if (drawn) {
+			callback.isDrawn();
+			return;
+		}
+		
 		for (Definition definition : DefinitionCache.impl.getDefinitions())
 			addDefinition(definition);
 
@@ -130,6 +135,10 @@ public class DefinitionEditorPanel extends ContentPanel {
 		toolbar.add(save);
 		toolbar.add(add);
 		setTopComponent(toolbar);
+		
+		drawn = true;
+		
+		callback.isDrawn();
 	}
 
 	protected boolean isSaveable() {
