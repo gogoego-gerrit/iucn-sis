@@ -888,6 +888,12 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				if ("N.E.".equals(manualCategory))
 					manualCategory = "NE";
 				proxy.setManualCategory(manualCategory);
+
+				//SIS 1 Default value, SIS 2 makes this null/unset
+				if ("None".equals(manualCategory)) {
+					proxy.setManualCategory(null);
+					proxy.setManualCriteria(null);
+				}
 				
 				if (proxy.isManual() && !"CR".equals(proxy.getManualCategory()))
 					proxy.setPossiblyExtinct(null);
