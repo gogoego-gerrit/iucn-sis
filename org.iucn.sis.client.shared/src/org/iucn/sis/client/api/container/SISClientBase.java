@@ -40,6 +40,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.GWT.UncaughtExceptionHandler;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
@@ -257,8 +259,8 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 	protected final void initializeCaches(final SimpleListener listener) {
 		ReferenceParserFactory.get().setParser(new ClientReferenceParser());
 		
-		List<String> inits = new ArrayList<String>();
-		Map<String, GenericCallback<NativeDocument>> handlers = 
+		final List<String> inits = new ArrayList<String>();
+		final Map<String, GenericCallback<NativeDocument>> handlers = 
 			new HashMap<String, GenericCallback<NativeDocument>>();
 		
 		//Implementation-specific caches
@@ -269,18 +271,33 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		
 		//Default, required caches
 		for (HasCache cache : new HasCache[] { MarkedCache.impl, DefinitionCache.impl, 
-				SchemaCache.impl, RegionCache.impl, WorkingSetCache.impl }) {
+				SchemaCache.impl, RegionCache.impl }) {
 			inits.add(cache.getCacheUrl());
 			handlers.put(cache.getCacheUrl(), cache.getCacheInitializer());
 		}
 		
-		SIS.fetchList(inits, handlers, new GenericCallback<String>() {
+		WindowUtils.showLoadingAlert("Loading working sets...");
+		WorkingSetCache.impl.update(new GenericCallback<String>() {
 			public void onSuccess(String result) {
-				listener.handleEvent();
+				SIS.fetchList(inits, handlers, new GenericCallback<String>() {
+					public void onSuccess(String result) {
+						WindowUtils.showLoadingAlert("Done, welcome, " + currentUser.getDisplayableName());
+						DeferredCommand.addPause();
+						DeferredCommand.addCommand(new Command() {
+							public void execute() {
+								listener.handleEvent();
+							}
+						});
+					}
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Failed to load cache data.");
+						listener.handleEvent();
+					}
+				}, false);
 			}
 			public void onFailure(Throwable caught) {
-				WindowUtils.errorAlert("Failed to load cache data.");
-				listener.handleEvent();
+				WindowUtils.errorAlert("Could not load working sets.");
+				onSuccess(null);
 			}
 		});
 	}
