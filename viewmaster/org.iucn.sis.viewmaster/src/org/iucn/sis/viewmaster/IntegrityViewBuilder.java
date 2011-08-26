@@ -15,6 +15,11 @@ public class IntegrityViewBuilder {
 	public void build(final Connection c) throws DBException {
 		final String schema = "integrity";
 		final String user = "public";
+		
+		c.update(String.format("DROP VIEW IF EXISTS %s.%s CASCADE", schema, "assessment"));
+		c.update("CREATE VIEW " + schema + ".assessment AS \nSELECT * FROM public.assessment");
+		c.update("GRANT SELECT ON "+schema+".assessment TO " + user);
+		
 		c.query("select * from "+ "public" + ".universe", new RowProcessor(){
 			String currentViewName = CanonicalNames.AOO;
 			Map<String,String> currentColumns = new TreeMap<String,String>();
@@ -29,23 +34,25 @@ public class IntegrityViewBuilder {
 						joinTable = FriendlyNameFactory.get(currentViewName.substring(0, sfi));
 					
 					GetOut.log("New view: %s", currentViewName);
-					String localViewName = currentViewName;
-					c.update(String.format("DROP VIEW IF EXISTS %s.%s CASCADE", schema, localViewName));
+					String localViewName = currentViewName.toUpperCase();
+					c.update(String.format("DROP VIEW IF EXISTS %s.\"%s\" CASCADE", schema, localViewName));
 					StringBuilder columnspecs = new StringBuilder();
 					StringBuilder joinspecs = new StringBuilder();
 					StringBuilder subcolumnspecs = new StringBuilder();
-					StringBuilder wherespecs = new StringBuilder("    WHERE ");
+					//StringBuilder wherespecs = new StringBuilder("    WHERE ");
+					
+					boolean firstWhere = true;
 					
 					String joinPrimWith = "field";
 					if (sfi > 0) {
 						columnspecs.append("s1.recordid, ");
 						subcolumnspecs.append("sf.id as recordid, ");
 						joinspecs.append("    JOIN public.field sf ON public.field.id = sf.parentid AND sf.name = '" + joinTable + "Subfield'\n");
-						wherespecs.append("sf.name = '" + joinTable + "Subfield'");
+						//wherespecs.append("sf.name = '" + joinTable + "Subfield'");
 						joinPrimWith = "sf";
+						firstWhere = false;
 					}
 					
-					boolean firstWhere = true;
 					boolean first = true;
 					int count = 0;
 					for(String s : currentColumns.keySet()){
@@ -59,18 +66,22 @@ public class IntegrityViewBuilder {
 						if ("field".equals(currentColumns.get(s))) {
 							columnspecs.append("s1."+s);
 							subcolumnspecs.append("sf" + count + ".id as " + s);
-							joinspecs.append("    LEFT JOIN public.field sf" + count + " ON " + joinPrimWith + ".id = sf"+count+".parentid\n");
-							if (!firstWhere)
+							joinspecs.append("    LEFT JOIN public.field sf" + count + " ON " + 
+									joinPrimWith + ".id = sf"+count+".parentid AND sf" + 
+									count + ".name = '" + s + "'\n");
+							/*if (!firstWhere)
 								wherespecs.append(" AND ");
-							wherespecs.append("sf"+count+".name = '" + s + "'");
+							wherespecs.append("sf"+count+".name = '" + s + "'");*/
 						}
 						else {
 							columnspecs.append("s1."+s);
 							subcolumnspecs.append("ff"+count+".value as "+s);
-							joinspecs.append("    LEFT JOIN public.primitive_field pf"+count+" ON pf"+count+".fieldid = "+joinPrimWith+".id\n");
-							if (!firstWhere)
+							joinspecs.append("    LEFT JOIN public.primitive_field pf"+count+
+									" ON pf"+count+".fieldid = "+joinPrimWith+".id AND pf" + 
+									count + ".name = '" + s + "'\n");
+							/*if (!firstWhere)
 								wherespecs.append(" AND ");
-							wherespecs.append("pf"+count+".name = '" + s + "'");
+							wherespecs.append("pf"+count+".name = '" + s + "'");*/
 							
 							if ("foreign_key_list_primitive_field".equals(currentColumns.get(s))) {
 								joinspecs.append("    LEFT JOIN public."+currentColumns.get(s)+" fi"+count+" ON fi"+count+".id = pf"+count+".id\n");
@@ -79,9 +90,10 @@ public class IntegrityViewBuilder {
 							else
 								joinspecs.append("    LEFT JOIN public."+currentColumns.get(s)+" ff"+count+" ON ff"+count+".id = pf"+count+".id\n");
 						}
+						firstWhere = false;
 					}
 					String sql = 
-						"CREATE VIEW "+schema+"."+localViewName+" AS SELECT "+"public"+".assessment.taxonid, "+"public"+".assessment.id as assessmentid, "
+						"CREATE VIEW "+schema+".\""+localViewName+"\" AS SELECT "+"public"+".assessment.taxonid, "+"public"+".assessment.id as assessmentid, "
 						+ columnspecs + "\n"
 						+ "FROM " + "public" + ".assessment \n"
 						+ "LEFT JOIN ( \n"
@@ -90,10 +102,10 @@ public class IntegrityViewBuilder {
 						+ "  FROM " + "public" + ".assessment \n"
 						+ "  JOIN public.field on public.field.assessmentid = " + "public" + ".assessment.id AND public.field.name='"+joinTable+"'\n"
 						+ joinspecs + "\n"
-						+ wherespecs
+						//+ wherespecs
 						+ ") s1 ON " + "public" + ".assessment.id = s1.assessmentid";
 					c.update(sql);
-					c.update("GRANT SELECT ON "+schema+"."+localViewName+" TO " + user);
+					c.update("GRANT SELECT ON "+schema+".\""+localViewName+"\" TO " + user);
 					
 					currentViewName = newViewName;
 					currentColumns.clear();

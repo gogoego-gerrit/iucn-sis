@@ -16,8 +16,13 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.InputRepresentation;
+import org.w3c.dom.Document;
 
+import com.solertium.db.DBException;
+import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
+import com.solertium.db.ExecutionContext;
+import com.solertium.db.SystemExecutionContext;
 import com.solertium.util.TrivialExceptionHandler;
 
 public class ServerApplication extends SimpleSISApplication {
@@ -91,14 +96,29 @@ public class ServerApplication extends SimpleSISApplication {
 	
 	@Override
 	public boolean isInstalled() {
-		boolean hasIntegrityDB;
+		DBSession session;
 		try {
-			hasIntegrityDB = DBSessionFactory.getDBSession("integrity") != null;
+			session = DBSessionFactory.getDBSession("integrity");
 		} catch (NamingException e) {
 			return false;
 		}
 		
-		return hasIntegrityDB && super.isInstalled();
+		if (session == null)
+			return false;
+		
+		session.setAllowedTableTypes("TABLE", "VIEW");
+		session.setSchema("integrity");
+		
+		SystemExecutionContext ec = new SystemExecutionContext(session);
+		
+		try {
+			Document doc = IntegrityStructureGenerator.generateViewStructure(ec);
+			ec.appendStructure(doc, false);
+		} catch (DBException e) {
+			return false;
+		}
+		
+		return super.isInstalled();
 	}
 
 }

@@ -31,6 +31,7 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.NumberField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -70,7 +71,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 
 	private static Collection<SelectedField> loadDefaults() {
 		final Collection<SelectedField> fields = new ArrayList<SelectedField>();
-		fields.add(new SelectedField("assessment", "uid"));
+		fields.add(new SelectedField("assessment", "id"));
 		/*
 		 * TODO: verify that this is correct...
 		 */
@@ -402,7 +403,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 
 	public static class ValidateAssessmentWindow extends BasicWindow {
 
-		private final TextField<Integer> field;
+		private final NumberField field;
 		private final ComboBox<BaseModelData> status;
 
 		public ValidateAssessmentWindow(final String rule) {
@@ -410,10 +411,12 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 			setLayout(new FitLayout());
 			setSize(400, 150);
 
-			field = new TextField<Integer>();
+			field = new NumberField();
 			field.setFieldLabel("Enter Assessment ID");
 			field.setMaxLength(16);
 			field.setAllowBlank(false);
+			field.setAllowDecimals(false);
+			field.setAllowNegative(false);
 			
 			final BaseModelData draft = new BaseModelData();
 			draft.set("text", "Draft");
@@ -451,13 +454,13 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 						return;
 					}
 						
-					final Integer value = field.getValue();
+					final Number value = field.getValue();
 					final String assessmentStatus = (String)status.getValue().get("value");
-					ClientAssessmentValidator.validate(value, assessmentStatus, 
+					ClientAssessmentValidator.validate(value.intValue(), assessmentStatus, 
 							rule, new GenericCallback<NativeDocument>() {
 						public void onSuccess(NativeDocument result) {
 							close();
-							ValidationResultsWindow window = new ValidationResultsWindow(field.getValue(), result
+							ValidationResultsWindow window = new ValidationResultsWindow(value.intValue(), result
 									.getText());
 							window.show();
 						}
@@ -470,13 +473,13 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 			}));
 			addButton(new Button("Validate for All Rules", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					final Integer value = field.getValue();
+					final Number value = field.getValue();
 					
-					ClientAssessmentValidator.validate(value, AssessmentType.PUBLISHED_ASSESSMENT_TYPE, 
+					ClientAssessmentValidator.validate(value.intValue(), AssessmentType.PUBLISHED_ASSESSMENT_TYPE, 
 							null, new GenericCallback<NativeDocument>() {
 						public void onSuccess(NativeDocument result) {
 							close();
-							ValidationResultsWindow window = new ValidationResultsWindow(field.getValue(), result
+							ValidationResultsWindow window = new ValidationResultsWindow(value.intValue(), result
 									.getText());
 							window.show();
 						}

@@ -129,6 +129,7 @@ public class IntegrityValidator {
 		final AssessmentIntegrityValidation response = passesValidation(rs, properties) ? new AssessmentIntegrityValidation()
 				: new AssessmentIntegrityValidation(getCause(ec,
 						originalConstraints, document, errorMessages, properties, assessmentID));
+		response.setRule(rule);
 		
 		try {
 			updateStatus(session, rule, assessmentID, response);
@@ -159,12 +160,9 @@ public class IntegrityValidator {
 	private static AssessmentIntegrityValidation getExistingValidation(Session session, ExecutionContext ec, String rule, Integer assessmentID) {
 		final AssessmentIO io = new AssessmentIO(session);
 		
-		final AssessmentIntegrityValidation row;
-		final Date date;
-		{
-			row = io.getValidation(assessmentID, rule);
-			date = row.getDate();
-		}
+		final AssessmentIntegrityValidation row = io.getValidation(assessmentID, rule);
+		if (row == null)
+			return null;
 		
 		final Date date2;
 		{
@@ -176,7 +174,7 @@ public class IntegrityValidator {
 				date2 = lastEdit.getCreatedDate();
 		}
 		
-		if (date2.after(date))
+		if (date2.after(row.getDate()))
 			return null;
 	
 		return row;
@@ -244,7 +242,7 @@ public class IntegrityValidator {
 		final Collection<String> causes = new ArrayList<String>();
 
 		final QComparisonConstraint constraint = new QComparisonConstraint(
-				new CanonicalColumnName("assessment", "uid"),
+				new CanonicalColumnName("assessment", "id"),
 				QConstraint.CT_EQUALS, assessmentID);
 
 		final Integer AND = Integer.valueOf(QConstraint.CG_AND);

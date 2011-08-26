@@ -137,9 +137,9 @@ public class SISTableChooser extends FriendlyNameTableChooser {
 			for (String table : tableChooser.getCheckedValues()) {
 				final ArrayList<String> list = new ArrayList<String>();
 				if ("assessment".equals(table))
-					list.add("uid");
+					list.add("id");
 				else
-					list.add("asm_id");
+					list.add("assessmentid");
 				(saveListeners.get(i)).onSave(table, list);
 			}
 		}

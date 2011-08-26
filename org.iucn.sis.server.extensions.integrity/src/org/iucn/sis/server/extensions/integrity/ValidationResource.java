@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.naming.NamingException;
 
@@ -13,6 +14,7 @@ import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -33,9 +35,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import com.solertium.db.Column;
 import com.solertium.db.DBException;
+import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
+import com.solertium.db.Row;
 import com.solertium.db.SQLDateHelper;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.util.BaseDocumentUtils;
@@ -77,7 +82,6 @@ public class ValidationResource extends BaseIntegrityResource {
 			SystemExecutionContext ec = new SystemExecutionContext(DBSessionFactory.getDBSession("integrity"));
 			ec.setAPILevel(ExecutionContext.API_ONLY);
 			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
-			ec.getDBSession().setSchema("integrity");
 			
 			return ec;
 		} catch (NamingException e) {

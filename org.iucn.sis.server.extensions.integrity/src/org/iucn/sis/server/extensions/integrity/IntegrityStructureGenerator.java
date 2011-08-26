@@ -6,6 +6,7 @@ import java.util.List;
 import org.gogoego.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.FieldIO;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -24,6 +25,68 @@ public class IntegrityStructureGenerator {
 	
 	public static final VFSPath CACHED_STRUCTURE = 
 		new VFSPath("/integrity/struct.xml");
+	
+	public static final VFSPath CACHED_VIEW_STRUCTURE = 
+		new VFSPath("/integrity/struct-view.xml");
+	
+	public static Document generateViewStructure(ExecutionContext ec) throws DBException {
+		final VFS vfs = SIS.get().getVFS();
+		if (vfs.exists(CACHED_VIEW_STRUCTURE)) {
+			try {
+				return vfs.getDocument(CACHED_VIEW_STRUCTURE);
+			} catch (IOException e) {
+				//??? meh, regenerate...
+				TrivialExceptionHandler.ignore(vfs, e);
+			}
+		}
+			
+		List<String> tables = ec.getDBSession().listTables(ec);
+		final Document doc = BaseDocumentUtils.impl.newDocument();
+		doc.appendChild(doc.createElement("root"));
+		
+		final Element el = doc.createElement("table");
+		el.setAttribute("name", "assessment");
+		
+		Row row = ec.getRow("assessment");
+		for (Column c : row.getColumns()) {
+			Element col = doc.createElement("column");
+			col.setAttribute("name", c.getLocalName());
+			col.setAttribute("type", c.getClass().getSimpleName());
+			el.appendChild(col);
+		}
+		
+		for (String table : tables) {
+			if (!"assessment".equalsIgnoreCase(table)) {
+				/*Element hint = doc.createElement("hint");
+				hint.setAttribute("join", table);
+				hint.setAttribute("via", "assessmentid");
+				el.appendChild(hint);*/
+				
+				final Element view = doc.createElement("table");
+				view.setAttribute("name", table);
+				
+				Row viewRow = ec.getRow(table);
+				for (Column c : viewRow.getColumns()) {
+					Element col = doc.createElement("column");
+					col.setAttribute("name", c.getLocalName());
+					col.setAttribute("type", c.getClass().getSimpleName());
+					if ("assessmentid".equals(c.getLocalName())) {
+						col.setAttribute("relatedTable", "assessment");
+						col.setAttribute("relatedColumn", "id");
+					}
+					view.appendChild(col);
+				}
+				
+				doc.getDocumentElement().appendChild(view);	
+			}
+		}
+		
+		doc.getDocumentElement().appendChild(el);
+		
+		DocumentUtils.writeVFSFile(CACHED_VIEW_STRUCTURE.toString(), vfs, doc);
+		
+		return doc;
+	}
 	
 	public static Document generate() {
 		final VFS vfs = SIS.get().getVFS();

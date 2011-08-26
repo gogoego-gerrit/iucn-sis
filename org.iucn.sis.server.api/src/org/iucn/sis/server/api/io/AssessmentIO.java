@@ -497,6 +497,7 @@ public class AssessmentIO {
 	
 	public void addValidation(Assessment assessment, AssessmentIntegrityValidation validation) throws PersistentException {
 		assessment.setValidation(validation);
+		validation.setAssessment(assessment);
 		
 		session.save(validation);
 	}
