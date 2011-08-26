@@ -44,6 +44,7 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 	
 	public SISTestBootstrap() {
 		super(Integer.valueOf(System.getProperty("HTTP_PORT", "11001")), -1);
+		setExitOnFail(false);
 	}
 	
 	protected Map<String, GoGoEgoApplication> getGoGoEgoApplications() {
