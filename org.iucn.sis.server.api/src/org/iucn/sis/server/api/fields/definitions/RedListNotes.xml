@@ -4,7 +4,7 @@
 	<classOfService>IUCN Internal</classOfService>
 	<structures>
 		<structure id="value">
-			<narrative></narrative>
+			<narrative size="xl"></narrative>
 		</structure>
 	</structures>
 </field>
