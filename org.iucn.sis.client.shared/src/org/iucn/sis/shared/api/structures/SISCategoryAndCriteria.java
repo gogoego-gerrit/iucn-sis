@@ -1,12 +1,11 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
-import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertUtils;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
@@ -63,7 +62,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	public static final int CATEGORY_TEXT_INDEX = 10;
 	public static final int DATA_DEFICIENT_INDEX = 11;
 
-	public static List<String> generateDefaultDataList() {
+	/*public static List<String> generateDefaultDataList() {
 		List<String> rlCritData = new ArrayList<String>();
 		rlCritData.add("false");
 		rlCritData.add("0"); // Corresponds to v3.1
@@ -79,7 +78,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		rlCritData.add(""); //FOR DD STRUCTURE
 		
 		return rlCritData;
-	}
+	}*/
 
 	private MessageBox box = null;
 	public class CustomCategoryChangeListener implements ChangeListener {
@@ -113,7 +112,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	private CriteriaGrid v2_3Grid;
 	
 	private ListBox critVersion;
-	private ArrayList<String> critVersionDisclaimerChoices;
+	private Map<Integer, String> critVersionDisclaimerChoices;
 
 	private HTML critVersionDisclaimer;
 	private HorizontalPanel manualPanel;
@@ -121,7 +120,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	private Button manualOverride;
 	private HorizontalPanel dateLastSeenPanel;
 
-	private TextBox dateLastSeen;
+	private TextBox yearLastSeen;
 	private HorizontalPanel possiblyExtinctPanel;
 	private ListBox possiblyExtinctListBox;
 	
@@ -227,8 +226,8 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		proxy.setManual(isManual);
 		proxy.setCriteriaVersion(version);
 		proxy.setManualCategory(manualCategory);
-		proxy.setManualCriteria(version == 0 ? v3_1Grid.createCriteriaString() : 
-			version == 1 ? v2_3Grid.createCriteriaString() : "");
+		proxy.setManualCriteria(version == RedListCriteriaField.CRIT_VERSION_3_1 ? v3_1Grid.createCriteriaString() : 
+			version == RedListCriteriaField.CRIT_VERSION_2_3 ? v2_3Grid.createCriteriaString() : "");
 		proxy.setGeneratedCategory(generatedCategory);
 		proxy.setGeneratedCriteria(generatedCriteria);
 		//proxy.setRLHistoryText(rlText.getText());
@@ -241,15 +240,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			possiblyExtinctListBox.setSelectedIndex(0);
 		}
 		
-		Date dateLastSeenValue = null;
-		try {
-			dateLastSeenValue = FormattedDate.impl.getDate(dateLastSeen.getValue()); 
-		} catch (IllegalArgumentException e) {
-			Debug.println("RedListCriteria failed to save date last seen due to formatting error on the string {0}", dateLastSeen.getValue());
-		} catch (IndexOutOfBoundsException e) {
-			Debug.println("RedListCriteria failed to save date last seen due to formatting error on the string {0}", dateLastSeen.getValue());
-		}
-		proxy.setDateLastSeen(dateLastSeenValue);
+		proxy.setYearLastSeen(yearLastSeen.getValue());
 		proxy.setCategoryText(categoryTextBox.getText());
 		proxy.setDataDeficient(dataDeficientListBox.getValue(dataDeficientListBox.getSelectedIndex()));
 		
@@ -371,11 +362,12 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		v2_3Grid.clearWidgets();
 
 		isManual = false;
-		version = Integer.valueOf(0);
+		version = RedListCriteriaField.CRIT_VERSION_CURRENT;
 		manualCategory = "";
 		manualCriteria = "";
 		generatedCategory = "";
 		generatedCriteria = "";
+		
 		categoryTextBox.setText("");
 		critVersion.setSelectedIndex(0);
 		categoryListBox.setSelectedIndex(0);
@@ -383,7 +375,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		invalidCriteriaString.setHTML("");
 		//rlText.setText("");
 		possiblyExtinctListBox.setSelectedIndex(0);
-		dateLastSeen.setText("");
+		yearLastSeen.setText("");
 
 		refreshStructures();
 	}
@@ -438,7 +430,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		versionPanel.setSpacing(6);
 		versionPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		versionPanel.add(new HTML("Criteria version: "));
-		versionPanel.add(new HTML(critVersion.getValue(critVersion.getSelectedIndex())));		
+		versionPanel.add(new HTML(critVersion.getItemText(critVersion.getSelectedIndex())));		
 		displayPanel.add(versionPanel);		
 		/*
 		HorizontalPanel historyTextPanel = new HorizontalPanel();
@@ -453,7 +445,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			lastDatePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 			lastDatePanel.setSpacing(6);
 			lastDatePanel.add(new HTML("Date Last Seen: "));
-			lastDatePanel.add(new HTML(dateLastSeen.getText()));
+			lastDatePanel.add(new HTML(yearLastSeen.getText()));
 			displayPanel.add(lastDatePanel);
 		}	
 
@@ -483,13 +475,13 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 	}
 	
 	public void createWidget() {
-		dateLastSeen = new TextBox();
+		yearLastSeen = new TextBox();
 		dateLastSeenPanel = new HorizontalPanel();
 		dateLastSeenPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		dateLastSeenPanel.setSpacing(6);
 		dateLastSeenPanel.add(new HTML("&nbsp&nbsp&nbsp&nbsp&nbsp"));
 		dateLastSeenPanel.add(new HTML("Date Last Seen: "));
-		dateLastSeenPanel.add(dateLastSeen);
+		dateLastSeenPanel.add(yearLastSeen);
 		dateLastSeenPanel.setVisible(false);
 
 		possiblyExtinctListBox = new ListBox();
@@ -518,22 +510,22 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 //		dataDeficientPanel.setVisible(false);
 
 		critVersion = new ListBox();
-		critVersion.addItem("3.1");
-		critVersion.addItem("2.3");
-		critVersion.addItem("Earlier Version...");
+		critVersion.addItem("3.1", Integer.toString(RedListCriteriaField.CRIT_VERSION_3_1));
+		critVersion.addItem("2.3", Integer.toString(RedListCriteriaField.CRIT_VERSION_2_3));
+		critVersion.addItem("Earlier Version...", Integer.toString(RedListCriteriaField.CRIT_VERSION_EARLIER));
 		critVersionListener = new ChangeListener() {
 			public void onChange(Widget sender) {
-				critVersionDisclaimer
-				.setHTML((String) critVersionDisclaimerChoices.get(critVersion.getSelectedIndex()));
+				version = Integer.valueOf(critVersion.getValue(critVersion.getSelectedIndex()));
+				critVersionDisclaimer.setHTML(critVersionDisclaimerChoices.get(version));
 		
-				if (critVersion.getSelectedIndex() == 2) {
+				if (version == RedListCriteriaField.CRIT_VERSION_EARLIER) {
 					v2_3Grid.setVisible(false);
 					v3_1Grid.setVisible(false);
 					criteriaStringBox.setText("N/A");
 					categoryTextBox.setVisible(true);
 				//	build2_3CategoriesListBox();
 					buildPreCategoriesListBox();
-				} else if (critVersion.getSelectedIndex() == 1) {
+				} else if (version == RedListCriteriaField.CRIT_VERSION_2_3) {
 					v3_1Grid.setVisible(false);
 					v2_3Grid.setVisible(true);
 					v2_3Grid.updateCriteriaString(v2_3Grid.createCriteriaString());
@@ -547,20 +539,19 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 					build3_1ListBox();
 				}
 				
-				version = critVersion.getSelectedIndex();
 				refreshStructures();
 				updateValidityOfCriteriaString();
 			}
 		};
 		critVersion.addChangeListener(critVersionListener);
 
-		critVersionDisclaimerChoices = new ArrayList();
-		critVersionDisclaimerChoices
-				.add("<span class=\"navyFont\">Current standard. Use for all new assessments!</span>");
-		critVersionDisclaimerChoices
-				.add("<span class=\"redFont\">Deprecated standard. DO NOT USE unless entering historic assessment.</span>");
-		critVersionDisclaimerChoices
-				.add("<span class=\"redFont\">Prior to standards. DO NOT USE unless entering historic assessment.</span>");
+		critVersionDisclaimerChoices = new HashMap<Integer, String>();
+		critVersionDisclaimerChoices.put(RedListCriteriaField.CRIT_VERSION_3_1,
+				"<span class=\"navyFont\">Current standard. Use for all new assessments!</span>");
+		critVersionDisclaimerChoices.put(RedListCriteriaField.CRIT_VERSION_2_3,
+				"<span class=\"redFont\">Deprecated standard. DO NOT USE unless entering historic assessment.</span>");
+		critVersionDisclaimerChoices.put(RedListCriteriaField.CRIT_VERSION_EARLIER,
+				"<span class=\"redFont\">Prior to standards. DO NOT USE unless entering historic assessment.</span>");
 
 		critVersionDisclaimer = new HTML("");
 
@@ -778,7 +769,13 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		else
 			manualOverride.setText("Enter Manual Data");
 		
-		critVersion.setSelectedIndex(version);
+		critVersion.setSelectedIndex(0);
+		for (int i = 0; i < critVersion.getItemCount(); i++) {
+			if (version == Integer.parseInt(critVersion.getValue(i))) {
+				critVersion.setSelectedIndex(i);
+				break;
+			}
+		}
 
 		String cat = isManual ? manualCategory : generatedCategory;
 		boolean found = false;
@@ -805,13 +802,13 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		criteriaStringBox.setText(isManual ? manualCriteria : generatedCriteria);
 		invalidCriteriaString.setText("");
 
-		if (critVersion.getSelectedIndex() == 0)
+		if (version == RedListCriteriaField.CRIT_VERSION_3_1)
 			if (isManual)
 				v3_1Grid.parseCriteriaString(manualCriteria);
 			//else
 				//v3_1Grid.parseCriteriaString(generatedCriteria);
 
-		else if (critVersion.getSelectedIndex() == 1)
+		else if (version == RedListCriteriaField.CRIT_VERSION_2_3)
 			if (isManual)
 				v2_3Grid.parseCriteriaString(manualCriteria);
 			//else
@@ -859,11 +856,8 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			possiblyExtinctListBox.setSelectedIndex(2);
 		else
 			possiblyExtinctListBox.setSelectedIndex(0);
-		Date date = proxy.getDateLastSeen();
-		String dateValue = "";
-		if (date != null)
-			dateValue = FormattedDate.impl.getDate(date);
-		dateLastSeen.setText(dateValue);
+		
+		yearLastSeen.setValue(proxy.getYearLastSeen());
 		categoryTextBox.setText(proxy.getCategoryText());
 		
 		String dataDeficientText = proxy.getDataDeficient();

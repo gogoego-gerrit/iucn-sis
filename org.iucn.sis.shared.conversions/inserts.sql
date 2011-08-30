@@ -1680,7 +1680,7 @@ INSERT INTO RedListCriteria (name, data_type, number_allowed) VALUES ('autoCrite
 INSERT INTO RedListCriteria (name, data_type, number_allowed) VALUES ('rlHistoryText', 'string_primitive_field', '?');
 INSERT INTO RedListCriteria (name, data_type, number_allowed) VALUES ('possiblyExtinct', 'boolean_primitive_field', '?');
 INSERT INTO RedListCriteria (name, data_type, number_allowed) VALUES ('possiblyExtinctCandidate', 'boolean_primitive_field', '?');
-INSERT INTO RedListCriteria (name, data_type, number_allowed) VALUES ('dateLastSeen', 'date_primitive_field', '?');
+INSERT INTO RedListCriteria (name, data_type, number_allowed) VALUES ('yearLastSeen', 'string_primitive_field', '?');
 INSERT INTO RedListCriteria (name, data_type, number_allowed) VALUES ('categoryText', 'string_primitive_field', '?');
 INSERT INTO RedListCriteria (name, data_type, number_allowed) VALUES ('dataDeficientReason', 'string_primitive_field', '?');
 INSERT INTO RedListCriteriaVersion_criteriaVersionLookup (name, label) VALUES ('0', '3.1');

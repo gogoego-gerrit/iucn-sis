@@ -1,11 +1,14 @@
 package org.iucn.sis.shared.api.models.fields;
 
-import java.util.Date;
-
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 public class RedListCriteriaField extends ProxyField {
+	
+	public static final int CRIT_VERSION_3_1 = 1;
+	public static final int CRIT_VERSION_2_3 = 2;
+	public static final int CRIT_VERSION_EARLIER = 3;
+	public static final int CRIT_VERSION_CURRENT = CRIT_VERSION_3_1;
 	
 	public static final String IS_MANUAL_KEY = "isManual";
 	public static final String CRIT_VERSION_KEY = "critVersion";
@@ -16,7 +19,7 @@ public class RedListCriteriaField extends ProxyField {
 	public static final String RLHISTORY_TEXT_KEY = "rlHistoryText";
 	public static final String POSSIBLY_EXTINCT_KEY = "possiblyExtinct";
 	public static final String POSSIBLY_EXTINCT_CANDIDATE_KEY = "possiblyExtinctCandidate";
-	public static final String DATE_LAST_SEEN_KEY = "dateLastSeen";
+	public static final String YEAR_LAST_SEEN_KEY = "yearLastSeen";
 	public static final String CATEGORY_TEXT_KEY = "categoryText";
 	public static final String DATA_DEFICIENT_KEY = "dataDeficientReason";
 	
@@ -44,13 +47,13 @@ public class RedListCriteriaField extends ProxyField {
 	}
 	
 	public void setCriteriaVersion(Integer version) {
-		setForeignKeyPrimitiveField(CRIT_VERSION_KEY, version);
+		setForeignKeyPrimitiveField(CRIT_VERSION_KEY, version, "RedListCriteria_critVersionLookup");
 	}
 	
 	public Integer getCriteriaVersion() {
 		Integer value = getForeignKeyPrimitiveField(CRIT_VERSION_KEY);
 		if (value == null)
-			value = 0;
+			value = CRIT_VERSION_CURRENT;
 		return value;
 	}
 	
@@ -110,12 +113,12 @@ public class RedListCriteriaField extends ProxyField {
 		return getBooleanPrimitiveField(POSSIBLY_EXTINCT_CANDIDATE_KEY, false);
 	}
 	
-	public void setDateLastSeen(Date value) {
-		setDatePrimitiveField(DATE_LAST_SEEN_KEY, value);
+	public void setYearLastSeen(String value) {
+		setStringPrimitiveField(YEAR_LAST_SEEN_KEY, value);
 	}
 	
-	public Date getDateLastSeen() {
-		return getDatePrimitiveField(DATE_LAST_SEEN_KEY);
+	public String getYearLastSeen() {
+		return getStringPrimitiveField(YEAR_LAST_SEEN_KEY);
 	}
 	
 	public void setCategoryText(String value) {

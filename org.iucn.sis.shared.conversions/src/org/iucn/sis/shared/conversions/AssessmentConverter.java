@@ -879,6 +879,20 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					callback.handleEvent(history);
 				}
 				
+				/*
+				 * Doing this because nulls will come back as the current version, 
+				 * so I need to grab the actual value from the underlying impl.  
+				 * Since SIS 1 stores by list index, I need to up each of these 
+				 * by one so that data binds to the correct lookup value as 
+				 * referenced in RedListCriteria_critVersionLookup 
+				 */
+				Integer critVersion = proxy.getForeignKeyPrimitiveField(RedListCriteriaField.CRIT_VERSION_KEY);
+				if (critVersion == null)
+					critVersion = RedListCriteriaField.CRIT_VERSION_CURRENT;
+				else
+					critVersion = critVersion.intValue() + 1;
+				proxy.setCriteriaVersion(critVersion);
+				
 				//As per #36, remove this field
 				proxy.setPossiblyExtinctCandidate(null);
 				
