@@ -31,6 +31,12 @@ public class ClassificationSchemeReadOnlyFactory {
 			Collections.sort(rows, new ClassificationSchemeModelDataComparator(treeData.getTopLevelDisplay()));
 			
 			List<String> columns = defaultStructure.extractDescriptions();
+			/*
+			 * TODO: would like to see this configurable at the structure 
+			 * level as to what information is summarized and what is not
+			 */
+			if (CanonicalNames.CountryOccurrence.equals(treeData.getCanonicalName()))
+				columns.remove("Formerly Bred");
 
 			Grid grid = new Grid(rows.size() + 1, columns.size() + 1);
 			grid.setBorderWidth(1);
@@ -58,6 +64,10 @@ public class ClassificationSchemeReadOnlyFactory {
 				CanonicalNames.Research.equals(treeData.getCanonicalName())) {
 				optionColWidth = "500px";
 				dataColWidth = "250px";
+			}
+			else if (CanonicalNames.CountryOccurrence.equals(treeData.getCanonicalName())) {
+				optionColWidth = "320px";
+				dataColWidth = "180px";
 			}
 			
 			grid.getColumnFormatter().setWidth(0, optionColWidth);
