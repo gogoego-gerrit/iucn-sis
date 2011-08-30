@@ -77,9 +77,9 @@ public class WidgetGenerator implements CreatesWidget {
 
 		// TEXTAREA
 		else if (theStructure.equalsIgnoreCase(XMLUtils.NARRATIVE_STRUCTURE)) {
-			return new SISTextArea(theStructure, description, structID);
+			return new SISTextArea(theStructure, description, structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.JUSTIFICATION_STRUCTURE)) {
-			return new SISTextArea(theStructure, "Justification: ", structID);
+			return new SISTextArea(theStructure, "Justification: ", structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.RICH_TEXT_STRUCTURE)) {
 			return new SISRichTextArea(theStructure, description, structID);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.NOTE_STRUCTURE)) {

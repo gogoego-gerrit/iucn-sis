@@ -211,6 +211,7 @@ public class FieldParser implements CreatesDisplay {
 				data.put("restriction", XMLUtils.getXMLAttribute(current, "restriction", null));
 				data.put("style", XMLUtils.getXMLAttribute(current, "style", null));
 				data.put("value", XMLUtils.getXMLValue(current, current.getText()));
+				data.put("size", XMLUtils.getXMLAttribute(current, "size"));
 				
 				currentDisplayData.setData(data);
 			}
