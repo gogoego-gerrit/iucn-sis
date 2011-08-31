@@ -142,7 +142,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 			callback.handleEvent(new ArrayList<Taxon>(TaxonomyCache.impl.getRecentlyAccessed()));
 		}
 		else {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, new GenericCallback<List<Taxon>>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(ws.getId(), new GenericCallback<List<Taxon>>() {
 				public void onSuccess(List<Taxon> result) {
 					Collections.sort(result, new TaxonMonkeyNavigatorPanel.TaxonComparator());
 					

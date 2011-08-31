@@ -216,42 +216,46 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 				}
 			}));
 			
-			if (canDelete(WorkingSetCache.impl.getWorkingSet(getSelectedItem()))) {
-				buttonArea.add(createButton("Delete", new SelectionListener<ButtonEvent>() {
-					public void componentSelected(ButtonEvent ce) {
-						WindowUtils.confirmAlert("Delete working set?", "Are you sure you " +
-								"want to completely delete this working set? <b>You can not " +
-								"undo this operation.</b>", new WindowUtils.SimpleMessageBoxListener() {
-							public void onYes() {
-								DeleteWorkingSetPanel.ensurePermissionsCleared(WorkingSetCache.impl.getWorkingSet(getSelectedItem()).getId(), new GenericCallback<String>() {
-									public void onFailure(Throwable caught) {
-										if (caught != null) {
-											WindowUtils.errorAlert("Error communicating with the server. Please try again later.");
-										}
-										else {
-											WindowUtils.errorAlert("Permission Error", "There are still users that are granted permissions via this Working Set. " +
-											"Before you can delete, please visit the Permission Manager and remove all of these users.");
-										}
-									}
-									public void onSuccess(String result) {
-										WorkingSetCache.impl.deleteWorkingSet(WorkingSetCache.impl.getWorkingSet(getSelectedItem()), new GenericCallback<String>() {
-											public void onFailure(Throwable caught) {
-												WindowUtils.errorAlert("Failed to delete this working set. Please try again later.");
-											}
-											@Override
-											public void onSuccess(String result) {
-												WindowUtils.infoAlert("You have successfully deleted the working set " + result + ".");
-												WSStore.getStore().update();
-												StateManager.impl.reset();
-											}
-										});
-									}
-								});
-							}
-						});
+			buttonArea.add(createButton("Delete", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					final WorkingSet ws = WorkingSetCache.impl.getCurrentWorkingSet();
+					if (!canDelete(ws)) {
+						WindowUtils.errorAlert("You do not have permission to delete this working set.");
+						return;
 					}
-				}));
-			}
+					
+					WindowUtils.confirmAlert("Delete working set?", "Are you sure you " +
+							"want to completely delete this working set? <b>You can not " +
+							"undo this operation.</b>", new WindowUtils.SimpleMessageBoxListener() {
+						public void onYes() {
+							DeleteWorkingSetPanel.ensurePermissionsCleared(ws.getId(), new GenericCallback<String>() {
+								public void onFailure(Throwable caught) {
+									if (caught != null) {
+										WindowUtils.errorAlert("Error communicating with the server. Please try again later.");
+									}
+									else {
+										WindowUtils.errorAlert("Permission Error", "There are still users that are granted permissions via this Working Set. " +
+										"Before you can delete, please visit the Permission Manager and remove all of these users.");
+									}
+								}
+								public void onSuccess(String result) {
+									WorkingSetCache.impl.deleteWorkingSet(ws, new GenericCallback<String>() {
+										public void onFailure(Throwable caught) {
+											WindowUtils.errorAlert("Failed to delete this working set. Please try again later.");
+										}
+										@Override
+										public void onSuccess(String result) {
+											WindowUtils.infoAlert("You have successfully deleted the working set " + result + ".");
+											WSStore.getStore().update();
+											StateManager.impl.reset();
+										}
+									});
+								}
+							});
+						}
+					});
+				}
+			}));
 			
 			optionsContainer.removeAll();
 			optionsContainer.add(buttonArea);

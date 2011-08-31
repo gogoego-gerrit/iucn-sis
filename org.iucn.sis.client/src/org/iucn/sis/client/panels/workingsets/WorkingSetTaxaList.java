@@ -393,7 +393,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		taxaList.removeAll();
 		taxaList.add(new DataListItem("Loading ..."));
 		if (recentWorkingSet.getSpeciesIDs().size() > 0) {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<List<Taxon>>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet.getId(), new GenericCallback<List<Taxon>>() {
 				public void onFailure(Throwable caught) {
 					clearList();
 					taxaList.add(new DataListItem("Error fetching taxa."));
@@ -453,7 +453,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		taxaList.add(new DataListItem("Loading ..."));
 
 		if (recentWorkingSet.getSpeciesIDs().size() > 0) {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<List<Taxon>>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet.getId(), new GenericCallback<List<Taxon>>() {
 				public void onFailure(Throwable caught) {
 					clearList();
 					taxaList.add(new DataListItem("Error fetching taxa."));
@@ -516,7 +516,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		taxaList.add(new DataListItem("Loading ..."));
 
 		if (recentWorkingSet.getSpeciesIDs().size() > 0) {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<List<Taxon>>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet.getId(), new GenericCallback<List<Taxon>>() {
 				public void onFailure(Throwable caught) {
 					clearList();
 					taxaList.add(new DataListItem("Error fetching taxa."));
@@ -585,7 +585,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		taxaList.removeAll();
 		taxaList.add(new DataListItem("Loading ..."));
 		if (recentWorkingSet.getSpeciesIDs().size() > 0) {
-			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet, new GenericCallback<List<Taxon>>() {
+			WorkingSetCache.impl.fetchTaxaForWorkingSet(recentWorkingSet.getId(), new GenericCallback<List<Taxon>>() {
 				public void onFailure(Throwable caught) {
 					clearList();
 					taxaList.add(new DataListItem("Error fetching taxa."));

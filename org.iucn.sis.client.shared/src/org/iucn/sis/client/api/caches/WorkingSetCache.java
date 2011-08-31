@@ -8,14 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
-import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
-import org.iucn.sis.shared.api.data.WorkingSetParser;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
@@ -42,30 +39,15 @@ import com.solertium.util.portable.PortableAlphanumericComparator;
  * @author liz.schwartz
  * 
  */
-public class WorkingSetCache implements HasCache {
-
-	public static class WorkingSetComparator extends PortableAlphanumericComparator {
-		private static final long serialVersionUID = 1L;
-		public WorkingSetComparator() {
-			super();
-		}
-
-		@Override
-		public int compare(Object ol, Object or) {
-			WorkingSet ws1 = (WorkingSet) ol;
-			WorkingSet ws2 = (WorkingSet) or;
-
-			return super.compare(ws1.getName(), ws2.getName());
-		}
-	}
+public class WorkingSetCache {
 
 	public static final WorkingSetCache impl = new WorkingSetCache();
 	
-	private Map<Integer, WorkingSet> workingSets;
+	private Map<Integer, CacheEntry<WorkingSet>> workingSets;
 	private Map<Integer, Map<Integer, List<Integer>>> assessmentRelations;
 
 	private WorkingSetCache() {
-		workingSets = new HashMap<Integer, WorkingSet>();
+		workingSets = new HashMap<Integer, CacheEntry<WorkingSet>>();
 		assessmentRelations = new HashMap<Integer, Map<Integer,List<Integer>>>();
 	}
 
@@ -78,9 +60,7 @@ public class WorkingSetCache implements HasCache {
 	 * @param wayBack
 	 */
 	public void createWorkingSet(final WorkingSet ws, final GenericCallback<String> wayBack) {
-
 		if (ws.getId() == 0) {
-
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 			ndoc.putAsText(UriBase.getInstance() + "/workingSet/public/" + SISClientBase.currentUser.getUsername(), ws
 					.toXML(), new GenericCallback<String>() {
@@ -90,7 +70,7 @@ public class WorkingSetCache implements HasCache {
 
 				public void onSuccess(String arg0) {
 					ws.setId(Integer.valueOf(ndoc.getText()));
-					addToWorkingSetCache(ws);
+					cache(ws, FetchMode.FULL);
 					wayBack.onSuccess(arg0);
 				}
 			});
@@ -99,17 +79,17 @@ public class WorkingSetCache implements HasCache {
 					+ " the working set id."));
 	}
 
-	private void addToWorkingSetCache(Collection<WorkingSet> ws) {
-		for (WorkingSet curWS : ws)
-			addToWorkingSetCache(curWS);
+	private void cache(WorkingSet ws, FetchMode mode) {
+		workingSets.put(ws.getId(), new CacheEntry<WorkingSet>(ws, mode));
 	}
-
-	private void addToWorkingSetCache(WorkingSet ws) {
-		workingSets.put(ws.getId(), ws);
+	
+	public boolean isCached(Integer id, FetchMode mode) {
+		CacheEntry<WorkingSet> cached = workingSets.get(id);
+		return cached != null && (FetchMode.PARTIAL.equals(mode) || FetchMode.FULL.equals(cached.getMode()));
 	}
 
 	public void createTaxaList(Integer id, final GenericCallback<String> wayback) {
-		if (getWorkingSet(id) != null) {
+		if (isCached(id, FetchMode.FULL)) {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 			ndoc.getAsText(UriBase.getInstance().getSISBase() + "/workingSet/taxaList/"
 					+ SISClientBase.currentUser.getUsername() + "/" + id, new GenericCallback<String>() {
@@ -131,7 +111,7 @@ public class WorkingSetCache implements HasCache {
 	}
 
 	public void createTaxaListWithCats(Integer id, AssessmentFilter filter, final GenericCallback<String> wayback) {
-		if (getWorkingSet(id) != null) {
+		if (isCached(id, FetchMode.FULL)) {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 			ndoc.postAsText(UriBase.getInstance().getSISBase() + "/workingSet/taxaList/"
 					+ SISClientBase.currentUser.getUsername() + "/" + id, "<root>" + filter.toXML() + "</root>",
@@ -192,7 +172,7 @@ public class WorkingSetCache implements HasCache {
 	}
 
 	public void editWorkingSet(final WorkingSet ws, final GenericCallback<String> wayback) {
-		if (workingSets.containsKey(ws.getId())) {
+		if (isCached(ws.getId(), FetchMode.FULL)) {
 			NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 			ndoc.post(UriBase.getInstance().getSISBase() + "/workingSet/public/"
 					+ SISClientBase.currentUser.getUsername() + "/" + ws.getId(), ws.toXML(), new GenericCallback<String>() {
@@ -201,7 +181,8 @@ public class WorkingSetCache implements HasCache {
 				}
 
 				public void onSuccess(String arg0) {
-					workingSets.put(ws.getId(), ws);
+					cache(ws, FetchMode.FULL);
+					
 					uncacheAssessmentsForWorkingSet(ws);
 					wayback.onSuccess(arg0);
 				}
@@ -293,28 +274,45 @@ public class WorkingSetCache implements HasCache {
 					+ "the working set is not in your working sets"));
 	}
 
-	public void fetchTaxaForWorkingSet(final WorkingSet ws, final GenericCallback<List<Taxon>> wayback) {
-		TaxonomyCache.impl.fetchList(ws.getSpeciesIDs(), new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				wayback.onFailure(caught);
-			}
-
-			public void onSuccess(String arg0) {
-				List<Integer> toRemove = new ArrayList<Integer>();
-				List<Taxon> result = new ArrayList<Taxon>();
-				for (Integer cur : ws.getSpeciesIDs()) {
-					if (!TaxonomyCache.impl.contains(cur))
-						toRemove.add(cur);
-					else
-						result.add(TaxonomyCache.impl.getTaxon(cur));
+	public void fetchTaxaForWorkingSet(final Integer id, final GenericCallback<List<Taxon>> wayback) {
+		if (isCached(id, FetchMode.FULL)) {
+			final WorkingSet ws = getWorkingSet(id);
+			TaxonomyCache.impl.fetchList(ws.getSpeciesIDs(), new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					wayback.onFailure(caught);
 				}
 
-				if (toRemove.size() > 0)
-					ws.getSpeciesIDs().removeAll(toRemove);
+				public void onSuccess(String arg0) {
+					List<Integer> toRemove = new ArrayList<Integer>();
+					List<Taxon> result = new ArrayList<Taxon>();
+					for (Integer cur : ws.getSpeciesIDs()) {
+						if (!TaxonomyCache.impl.contains(cur))
+							toRemove.add(cur);
+						else
+							result.add(TaxonomyCache.impl.getTaxon(cur));
+					}
 
-				wayback.onSuccess(result);
-			}
-		});
+					if (toRemove.size() > 0)
+						ws.getSpeciesIDs().removeAll(toRemove);
+
+					wayback.onSuccess(result);
+				}
+			});
+		}
+		else {
+			WorkingSetCache.impl.fetchWorkingSet(id, FetchMode.FULL, new GenericCallback<WorkingSet>() {
+				public void onSuccess(WorkingSet result) {
+					fetchTaxaForWorkingSet(id, wayback);
+				}
+				public void onFailure(Throwable caught) {
+					wayback.onFailure(caught);
+				}
+			});
+		}
+	}
+	
+	public void uncacheAssessmentsForWorkingSets() {
+		assessmentRelations.clear();
 	}
 	
 	public void uncacheAssessmentsForWorkingSet(final WorkingSet ws) {
@@ -459,9 +457,23 @@ public class WorkingSetCache implements HasCache {
 			}
 		});
 	}
-
-	public int getNumberOfWorkingSets() {
-		return workingSets.size();
+	
+	public void fetchWorkingSet(Integer id, final FetchMode mode, final GenericCallback<WorkingSet> callback) {
+		if (isCached(id, mode))
+			callback.onSuccess(getWorkingSet(id));
+		else {
+			final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+			document.get(getCacheUrl() + "/" + id, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					WorkingSet ws = WorkingSet.fromXML(document);
+					cache(ws, mode);
+					callback.onSuccess(ws);
+				}
+				public void onFailure(Throwable caught) {
+					callback.onFailure(caught);
+				}
+			});
+		}
 	}
 
 	/**
@@ -471,11 +483,15 @@ public class WorkingSetCache implements HasCache {
 	 * @param id
 	 */
 	public WorkingSet getWorkingSet(Integer id) {
-		return workingSets.get(id);
+		return isCached(id, FetchMode.PARTIAL) ? workingSets.get(id).getEntry() : null;
 	}
 
 	public Map<Integer, WorkingSet> getWorkingSets() {
-		return workingSets;
+		final Map<Integer, WorkingSet> map = new HashMap<Integer, WorkingSet>();
+		for (Map.Entry<Integer, CacheEntry<WorkingSet>> entry : workingSets.entrySet())
+			map.put(entry.getKey(), entry.getValue().getEntry());
+		
+		return map;
 	}
 	
 	public WorkingSet getCurrentWorkingSet() {
@@ -539,53 +555,28 @@ public class WorkingSetCache implements HasCache {
 	 * @param workingSetID
 	 * @param wayBack
 	 */
-	public void subscribeToWorkingSet(final String workingSetID, final GenericCallback<String> wayBack) {
+	public void subscribeToWorkingSet(final int workingSetID, final GenericCallback<WorkingSet> wayBack) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.put(UriBase.getInstance().getSISBase() + "/workingSet/subscribe/"
 				+ SISClientBase.currentUser.getUsername() + "/" + workingSetID, "", new GenericCallback<String>() {
-
 			public void onFailure(Throwable caught) {
 				wayBack.onFailure(caught);
 			}
-
 			public void onSuccess(String arg0) {
-				update(wayBack);
+				WorkingSet ws = WorkingSet.fromXML(ndoc);
+				cache(ws, FetchMode.FULL);
+				wayBack.onSuccess(ws);
 			}
 		});
 	}
 	
-	@Override
 	public String getCacheUrl() {
 		return UriBase.getInstance().getSISBase() + "/workingSet/list/" + SISClientBase.currentUser.getUsername();
-	}
-	
-	@Override
-	public GenericCallback<NativeDocument> getCacheInitializer() {
-		return new GenericCallback<NativeDocument>() {
-			public void onFailure(Throwable caught) {
-				//backInTheDay.onFailure(caught);
-			}
-			public void onSuccess(NativeDocument ndoc) {
-				workingSets.clear();
-				assessmentRelations.clear();
-				try {
-					WorkingSetParser parser = new WorkingSetParser();
-					parser.parseWorkingSetXML(ndoc);
-					
-					addToWorkingSetCache(parser.getWorkingSets());
-					
-					//backInTheDay.onSuccess(arg0);
-				} catch (Exception e) {
-					Debug.println("Working Set Parse Failure\n{0}", e);
-				}
-			}
-		};
 	}
 
 	public void update(final GenericCallback<String> backInTheDay) {
 		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.get(getCacheUrl(),
-				new GenericCallback<String>() {
+		ndoc.get(getCacheUrl() + "?mode=PARTIAL", new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				backInTheDay.onFailure(caught);
 			}
@@ -593,10 +584,13 @@ public class WorkingSetCache implements HasCache {
 				workingSets.clear();
 				assessmentRelations.clear();
 				try {
-					WorkingSetParser parser = new WorkingSetParser();
-					parser.parseWorkingSetXML(ndoc);
-					
-					addToWorkingSetCache(parser.getWorkingSets());
+					NativeNodeList nodes = ndoc.getDocumentElement().getElementsByTagName("workingSet");
+					for (int i = 0; i < nodes.getLength(); i++) {
+						NativeElement element = nodes.elementAt(i);
+						WorkingSet ws = WorkingSet.fromXMLMinimal(element);
+						if (ws != null)
+							cache(ws, FetchMode.PARTIAL);
+					}
 					
 					backInTheDay.onSuccess(arg0);
 				} catch (Exception e) {
@@ -604,6 +598,21 @@ public class WorkingSetCache implements HasCache {
 				}
 			}
 		});
+	}
+	
+	public static class WorkingSetComparator extends PortableAlphanumericComparator {
+		private static final long serialVersionUID = 1L;
+		public WorkingSetComparator() {
+			super();
+		}
+
+		@Override
+		public int compare(Object ol, Object or) {
+			WorkingSet ws1 = (WorkingSet) ol;
+			WorkingSet ws2 = (WorkingSet) or;
+
+			return super.compare(ws1.getName(), ws2.getName());
+		}
 	}
 
 }

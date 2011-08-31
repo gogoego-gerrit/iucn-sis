@@ -64,6 +64,10 @@ public final class StateManager implements CoreObservable<ComplexListener<StateC
 		setState(new StateChangeEvent(null, null, null, this), true);
 	}
 	
+	public void reset(StateChangeEvent event) {
+		setState(event, true);
+	}
+	
 	/**
 	 * Sets the current taxon to the given 
 	 * taxon and resets the current assessment, 

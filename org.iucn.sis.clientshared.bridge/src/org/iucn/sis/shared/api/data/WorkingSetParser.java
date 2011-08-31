@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.data;
 
 import java.util.ArrayList;
 
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.solertium.lwxml.shared.NativeDocument;

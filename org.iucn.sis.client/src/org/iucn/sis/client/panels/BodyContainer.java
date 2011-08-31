@@ -3,8 +3,9 @@ package org.iucn.sis.client.panels;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.caches.FetchMode;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
-import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.dem.DEMPanel;
 import org.iucn.sis.client.panels.references.ReferenceViewTabPanel;
@@ -16,6 +17,7 @@ import org.iucn.sis.client.tabs.TaxonHomePageTab;
 import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -60,14 +62,21 @@ public class BodyContainer extends LayoutContainer {
 	public void openWorkingSet(final String url, final boolean updateNavigation) {
 		WindowUtils.showLoadingAlert("Loading...");
 		MonkeyNavigator.getSortedWorkingSetIDs(new ComplexListener<List<Integer>>() {
-			public void handleEvent(List<Integer> items) {
-				workingSetPage = new WorkingSetPage();
-				workingSetPage.setUrl(url);
-				workingSetPage.setItems(items);
-				workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet().getId());
-				workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
-					public void isDrawn() {
-						onPageChange(workingSetPage, updateNavigation);
+			public void handleEvent(final List<Integer> items) {
+				WorkingSetCache.impl.fetchWorkingSet(StateManager.impl.getWorkingSet().getId(), FetchMode.FULL, new GenericCallback<WorkingSet>() {
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Could not load this assessment, please try again later.");
+					}
+					public void onSuccess(WorkingSet result) {
+						workingSetPage = new WorkingSetPage();
+						workingSetPage.setUrl(url);
+						workingSetPage.setItems(items);
+						workingSetPage.setSelectedItem(StateManager.impl.getWorkingSet().getId());
+						workingSetPage.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								onPageChange(workingSetPage, updateNavigation);
+							}
+						});
 					}
 				});
 			}

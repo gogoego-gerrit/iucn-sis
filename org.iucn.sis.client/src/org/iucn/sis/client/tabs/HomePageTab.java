@@ -4,7 +4,6 @@ import org.iucn.sis.client.panels.assessments.RecentAssessmentsPanel;
 import org.iucn.sis.client.panels.zendesk.BugPanel;
 import org.iucn.sis.client.tabs.home.BrowseTaxonomyPortlet;
 import org.iucn.sis.client.tabs.home.SearchPortlet;
-import org.iucn.sis.client.tabs.home.WorkingSetPortlet;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.custom.Portal;

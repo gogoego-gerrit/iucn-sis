@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.FetchMode;
 import org.iucn.sis.client.api.caches.MarkedCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -331,69 +332,75 @@ public class WorkingSetMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		addTool(new SeparatorToolItem());
 		addTool(createIconButton("icon-information", "Working Set Details", new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
-				final WorkingSet ws = getSelected();
+				WorkingSet ws = getSelected();
 				if (ws == null) {
 					WindowUtils.errorAlert("Please select a working set.");
 					return;
 				}
-					
-				final Window s = WindowUtils.newWindow(ws.getWorkingSetName(), null, true, false);
-				s.setLayout(new FillLayout());
-				s.setTitle(ws.getWorkingSetName());
-				s.setSize(600, 400);
 				
-				final FlexTable table = new FlexTable();
-				table.setCellSpacing(4);
+				WorkingSetCache.impl.fetchWorkingSet(ws.getId(), FetchMode.FULL, new GenericCallback<WorkingSet>() {
+					public void onFailure(Throwable caught) {
+						WindowUtils.errorAlert("Could not fetch details for this working set.");
+					}
+					public void onSuccess(final WorkingSet result) {
+						final Window s = WindowUtils.newWindow(result.getWorkingSetName(), null, true, false);
+						s.setLayout(new FillLayout());
+						s.setTitle(result.getWorkingSetName());
+						s.setSize(600, 400);
+						
+						final FlexTable table = new FlexTable();
+						table.setCellSpacing(4);
 
-				// IF THERE ARE SPECIES TO GET
-				if (ws.getSpeciesIDs().size() > 0) {
-					WorkingSetCache.impl.fetchTaxaForWorkingSet(ws, new GenericCallback<List<Taxon>>() {
-						public void onFailure(Throwable caught) {
-							table.setHTML(0, 0, "<b>Manager: </b>");
-							table.setHTML(0, 1, ws.getCreator().getUsername());
-							table.setHTML(1, 0, "<b>Date: </b>");
-							table.setHTML(1, 1, FormattedDate.impl.getDate(ws.getCreatedDate()));
-							table.setHTML(2, 0, "<b>Number of Species: </b>");
-							table.setHTML(2, 1, "" + ws.getSpeciesIDs().size());
-							table.setHTML(3, 0, "<b>Description: </b>");
-							table.setHTML(3, 1, ws.getDescription());
-							s.layout();
-						};
+						// IF THERE ARE SPECIES TO GET
+						if (!result.getTaxon().isEmpty()) {
+							WorkingSetCache.impl.fetchTaxaForWorkingSet(result.getId(), new GenericCallback<List<Taxon>>() {
+								public void onFailure(Throwable caught) {
+									table.setHTML(0, 0, "<b>Manager: </b>");
+									table.setHTML(0, 1, result.getCreator().getUsername());
+									table.setHTML(1, 0, "<b>Date: </b>");
+									table.setHTML(1, 1, FormattedDate.impl.getDate(result.getCreatedDate()));
+									table.setHTML(2, 0, "<b>Number of Species: </b>");
+									table.setHTML(2, 1, "" + result.getSpeciesIDs().size());
+									table.setHTML(3, 0, "<b>Description: </b>");
+									table.setHTML(3, 1, result.getDescription());
+									s.layout();
+								};
 
-						public void onSuccess(List<Taxon> arg0) {
-							table.setHTML(0, 0, "<b>Manager: </b>");
-							table.setHTML(0, 1, ws.getCreator().getUsername());
-							table.setHTML(1, 0, "<b>Date: </b>");
-							table.setHTML(1, 1, FormattedDate.impl.getDate(ws.getCreatedDate()));
-							table.setHTML(2, 0, "<b>Number of Species: </b>");
-							table.setHTML(2, 1, "" + ws.getSpeciesIDs().size());
+								public void onSuccess(List<Taxon> arg0) {
+									table.setHTML(0, 0, "<b>Manager: </b>");
+									table.setHTML(0, 1, result.getCreator().getUsername());
+									table.setHTML(1, 0, "<b>Date: </b>");
+									table.setHTML(1, 1, FormattedDate.impl.getDate(result.getCreatedDate()));
+									table.setHTML(2, 0, "<b>Number of Species: </b>");
+									table.setHTML(2, 1, "" + result.getSpeciesIDs().size());
 
-							String species = "";
-							for (Taxon taxon : arg0) {
-								species += taxon.getFullName() + ", ";
-							}
-							if (species.length() > 0) {
-								table.setHTML(3, 0, "<b>Species: </b>");
-								table.setHTML(3, 1, species.substring(0, species.length() - 2));
-								table.setHTML(4, 0, "<b>Description: </b>");
-								table.setHTML(4, 1, ws.getDescription());
-							} else {
-								table.setHTML(3, 0, "<b>Description: </b>");
-								table.setHTML(3, 1, ws.getDescription());
-							}
+									String species = "";
+									for (Taxon taxon : arg0) {
+										species += taxon.getFullName() + ", ";
+									}
+									if (species.length() > 0) {
+										table.setHTML(3, 0, "<b>Species: </b>");
+										table.setHTML(3, 1, species.substring(0, species.length() - 2));
+										table.setHTML(4, 0, "<b>Description: </b>");
+										table.setHTML(4, 1, result.getDescription());
+									} else {
+										table.setHTML(3, 0, "<b>Description: </b>");
+										table.setHTML(3, 1, result.getDescription());
+									}
+									s.add(table);
+									s.show();
+								};
+							});
+						}
+						// ELSE LOAD NO SPECIES
+						else {
+							table.setHTML(0, 0, "There are no species in the " + result.getWorkingSetName() + " working set.");
 							s.add(table);
+							
 							s.show();
-						};
-					});
-				}
-				// ELSE LOAD NO SPECIES
-				else {
-					table.setHTML(0, 0, "There are no species in the " + ws.getWorkingSetName() + " working set.");
-					s.add(table);
-					
-					s.show();
-				}
-				
+						}
+					}
+				});
 			}
 		}));
 		addTool(createIconButton("icon-image", "Download Working Set", new SelectionListener<IconButtonEvent>() {

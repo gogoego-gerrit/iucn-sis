@@ -25,26 +25,22 @@ import com.solertium.lwxml.shared.NativeNodeList;
 
 public class AssessmentCache {
 	
-	public enum FetchMode {
-		FULL, PARTIAL
-	}
-
 	public static final AssessmentCache impl = new AssessmentCache();
 
-	private Map<Integer, AssessmentCacheEntry> cache;
-	private Map<Integer, List<AssessmentCacheEntry>> taxonToAssessmentCache;
+	private Map<Integer, CacheEntry<Assessment>> cache;
+	private Map<Integer, List<CacheEntry<Assessment>>> taxonToAssessmentCache;
 	
 	private AssessmentCache() {
-		cache = new HashMap<Integer, AssessmentCacheEntry>();
-		taxonToAssessmentCache = new HashMap<Integer, List<AssessmentCacheEntry>>();
+		cache = new HashMap<Integer, CacheEntry<Assessment>>();
+		taxonToAssessmentCache = new HashMap<Integer, List<CacheEntry<Assessment>>>();
 	}
 
 	public void addAssessment(Assessment assessment, FetchMode mode) {
-		AssessmentCacheEntry entry = new AssessmentCacheEntry(assessment, mode);
-		AssessmentCacheEntry old = cache.put(assessment.getId(), entry);
+		CacheEntry<Assessment> entry = new CacheEntry<Assessment>(assessment, mode);
+		CacheEntry<Assessment> old = cache.put(assessment.getId(), entry);
 		
 		if (taxonToAssessmentCache.containsKey(assessment.getSpeciesID())) {
-			List<AssessmentCacheEntry> list = taxonToAssessmentCache.get(assessment.getSpeciesID());
+			List<CacheEntry<Assessment>> list = taxonToAssessmentCache.get(assessment.getSpeciesID());
 			if (old != null)
 				list.remove(old);
 			list.add(entry);
@@ -77,8 +73,8 @@ public class AssessmentCache {
 	}
 
 	public Assessment remove(Integer id) {
-		AssessmentCacheEntry entry = cache.remove(Integer.valueOf(id));
-		return entry == null ? null : entry.assessment;
+		CacheEntry<Assessment> entry = cache.remove(Integer.valueOf(id));
+		return entry == null ? null : entry.getEntry();
 	}
 	
 	public Assessment remove(String id) {
@@ -86,8 +82,8 @@ public class AssessmentCache {
 	}
 	
 	public boolean isCached(Integer id, FetchMode mode) {
-		AssessmentCacheEntry cached = cache.get(id);
-		return cached != null && (FetchMode.PARTIAL.equals(mode) || FetchMode.FULL.equals(cached.mode));
+		CacheEntry<Assessment> cached = cache.get(id);
+		return cached != null && (FetchMode.PARTIAL.equals(mode) || FetchMode.FULL.equals(cached.getMode()));
 	}
 	
 	public void fetchAssessment(final Integer id, FetchMode mode, final GenericCallback<Assessment> callback) {
@@ -128,7 +124,7 @@ public class AssessmentCache {
 	}
 	
 	public void fetchPartialAssessmentsForTaxon(final Integer taxonID, final GenericCallback<String> callback) {
-		List<AssessmentCacheEntry> list = taxonToAssessmentCache.get(taxonID);
+		List<CacheEntry<Assessment>> list = taxonToAssessmentCache.get(taxonID);
 		if (list != null) {
 			callback.onSuccess("OK");
 		}
@@ -136,7 +132,7 @@ public class AssessmentCache {
 			AssessmentFetchRequest req = new AssessmentFetchRequest();
 			req.addForTaxon(taxonID);
 			
-			taxonToAssessmentCache.put(taxonID, new ArrayList<AssessmentCacheEntry>());
+			taxonToAssessmentCache.put(taxonID, new ArrayList<CacheEntry<Assessment>>());
 			fetchAssessments(req, FetchMode.PARTIAL, new GenericCallback<String>() {
 				public void onSuccess(String result) {
 					if (taxonToAssessmentCache.get(taxonID) == null || taxonToAssessmentCache.get(taxonID).isEmpty())
@@ -192,8 +188,8 @@ public class AssessmentCache {
 	}
 	
 	public Assessment getAssessment(Integer id) {
-		AssessmentCacheEntry cached = cache.get(id);
-		return cached == null ? null : cached.assessment;
+		CacheEntry<Assessment> cached = cache.get(id);
+		return cached == null ? null : cached.getEntry();
 	}
 	
 	public Assessment getUserAssessment(int id) {
@@ -231,8 +227,8 @@ public class AssessmentCache {
 	public Set<Assessment> getAssessmentsForTaxon(Integer taxonID, int assessmentType, String schema) {
 		if ( taxonToAssessmentCache.containsKey(taxonID)) {
 			Set<Assessment> assessments = new HashSet<Assessment>();
-			for (AssessmentCacheEntry current : taxonToAssessmentCache.get(taxonID)) {
-				Assessment cur = current.assessment;
+			for (CacheEntry<Assessment> current : taxonToAssessmentCache.get(taxonID)) {
+				Assessment cur = current.getEntry();
 				String curSchema = cur.getSchema(SchemaCache.impl.getDefaultSchema());
 				if ((schema == null || schema.equals(curSchema)) && 
 						cur.getAssessmentType().getId() == assessmentType)
@@ -323,16 +319,6 @@ public class AssessmentCache {
 		RecentlyAccessedCache.impl.add(RecentlyAccessed.ASSESSMENT, 
 			new RecentlyAccessedCache.RecentAssessment(getCurrentAssessment())
 		);
-	}
-	
-	private static class AssessmentCacheEntry {
-		private Assessment assessment;
-		private FetchMode mode;
-		
-		public AssessmentCacheEntry(Assessment assessment, FetchMode mode) {
-			this.assessment = assessment;
-			this.mode = mode;
-		}
 	}
 	
 }

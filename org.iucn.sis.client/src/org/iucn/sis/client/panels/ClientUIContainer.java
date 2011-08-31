@@ -1,9 +1,9 @@
 package org.iucn.sis.client.panels;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.caches.FetchMode;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.StateChangeEvent;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.StateManager.StateChangeEventType;

@@ -3,7 +3,8 @@ package org.iucn.sis.shared.api.utils;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
-import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
+import org.iucn.sis.client.api.caches.FetchMode;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -60,6 +61,7 @@ public class AssessmentUtils {
 				AssessmentCache.impl.fetchAssessment(newID, FetchMode.FULL, new GenericCallback<Assessment>() {
 					public void onSuccess(Assessment result) {
 						//AssessmentCache.impl.getAssessment(Integer.valueOf(newID), true);
+						WorkingSetCache.impl.uncacheAssessmentsForWorkingSets();
 						StateManager.impl.setAssessment(result);
 					};
 					public void onFailure(Throwable caught) {

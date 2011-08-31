@@ -19,6 +19,7 @@ import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
+import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -76,8 +77,10 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		if (identifier == null) {
 			if (action.equalsIgnoreCase("subscribe"))
 				entity = getSubscribableWorkingSets(request, response, username, workingSetIO);
-			else
-				entity = getWorkingSets(username, workingSetIO);
+			else {
+				String mode = request.getResourceRef().getQueryAsForm().getFirstValue("mode", "FULL");
+				entity = getWorkingSets(username, workingSetIO, mode);
+			}
 		}
 		else {
 			final Integer id;
@@ -228,7 +231,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	 * @param request
 	 * @param response
 	 */
-	private Representation getWorkingSets(String username, WorkingSetIO workingSetIO) throws ResourceException {
+	private Representation getWorkingSets(String username, WorkingSetIO workingSetIO, String mode) throws ResourceException {
 		final WorkingSet[] sets;
 		try {
 			sets = workingSetIO.getSubscribedWorkingSets(username);
@@ -239,10 +242,26 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		
 		StringBuilder xml = new StringBuilder("<workingsets>");
 		for (WorkingSet set : sets)
-			xml.append(set.toXML());
+			xml.append(filter(set, mode).toXML());
 		xml.append("</workingsets>");
 		
 		return new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createDocumentFromString(xml.toString()));
+	}
+	
+	private WorkingSet filter(WorkingSet ws, String mode) {
+		Edit lastEdit = ws.getLastEdit();
+		if (lastEdit != null) {
+			HashSet<Edit> editSet = new HashSet<Edit>();
+			editSet.add(lastEdit);
+			ws.setEdit(editSet);
+		}
+		
+		if ("PARTIAL".equalsIgnoreCase(mode)) {
+			ws.setTaxon(new HashSet<Taxon>());
+			ws.setUsers(new HashSet<User>());
+		}
+		
+		return ws;
 	}
 	
 	/**

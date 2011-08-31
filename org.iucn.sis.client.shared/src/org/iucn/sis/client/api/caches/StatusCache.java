@@ -3,7 +3,6 @@ package org.iucn.sis.client.api.caches;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.iucn.sis.client.api.caches.AssessmentCache.FetchMode;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.Assessment;

@@ -183,20 +183,20 @@ public class WorkingSetSubscriber extends PagingPanel<WSModel> {
 
 	private void subscribe(final WSModel model) {
 		actionButton.disable();
-		WorkingSetCache.impl.subscribeToWorkingSet(model.getID().toString(), new GenericCallback<String>() {
+		WorkingSetCache.impl.subscribeToWorkingSet(model.getID(), new GenericCallback<WorkingSet>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert(model.getName()
 						+ " was unable to be added to your working sets.  Please try again.");
 				actionButton.enable();
 			}
 
-			public void onSuccess(String arg0) {
-				WindowUtils.infoAlert("Working Set Added", model.getName()
+			public void onSuccess(WorkingSet ws) {
+				WindowUtils.infoAlert("Working Set Added", ws.getName()
 						+ " was successfully added to your working sets.");
 				actionButton.enable();
 				WSStore.getStore().update();
 				fireEvent(Events.Hide);
-				StateManager.impl.setState(WorkingSetCache.impl.getWorkingSet(model.getID()), null, null);
+				StateManager.impl.setState(ws, null, null);
 			}
 		});
 	}

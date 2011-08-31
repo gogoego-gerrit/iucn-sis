@@ -8,6 +8,8 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.StateChangeEvent;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
@@ -213,6 +215,8 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 										WindowUtils.errorAlert("Could not delete, please try again later.");
 									}
 									public void onSuccess(String arg0) {
+										WorkingSetCache.impl.uncacheAssessmentsForWorkingSets();
+										
 										TaxonomyCache.impl.evict(String.valueOf(node.getId()));
 										TaxonomyCache.impl.fetchTaxon(node.getId(), true,
 												new GenericCallback<Taxon>() {
@@ -221,7 +225,10 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 											public void onSuccess(Taxon result) {
 												AssessmentCache.impl.clear();
 												//TaxonomyCache.impl.setCurrentTaxon(node);
-												ClientUIContainer.bodyContainer.refreshBody();
+												StateChangeEvent event = new StateChangeEvent(StateManager.impl.getWorkingSet(), result, null, null);
+												event.setCanceled(false);
+												
+												StateManager.impl.reset(event);
 												//FIXME: panelManager.recentAssessmentsPanel.update();
 											};
 										});

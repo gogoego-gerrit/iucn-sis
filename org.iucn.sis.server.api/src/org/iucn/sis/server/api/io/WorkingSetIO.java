@@ -3,6 +3,7 @@ package org.iucn.sis.server.api.io;
 import java.util.Date;
 import java.util.List;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.WorkingSetCriteria;
@@ -161,21 +162,20 @@ public class WorkingSetIO {
 			return true;
 		
 		ws.getUsers().add(user);
-		//user.getSubscribedWorkingSets().add(ws);
+		user.getSubscribedWorkingSets().add(ws);
 				
 		try {
-			SIS.get().getManager().saveObject(session, ws);
-			// SIS.get().getManager().saveObject(session, user);
+			session.update(ws);
+			session.update(user);
 			
 			// TODO: MIGHT NEED TO FIGURE OUT HOW TO REFERENCE ALL FIELDS... THAT WOULD BE SAD
 			// afterSaveWS(ws);
 					
 			return true;
-		} catch (PersistentException e) {
+		} catch (HibernateException e) {
 			Debug.println(e);
+			return false;
 		}
-		
-		return false;
 	}
 
 	public boolean saveWorkingSet(WorkingSet ws, User user) {

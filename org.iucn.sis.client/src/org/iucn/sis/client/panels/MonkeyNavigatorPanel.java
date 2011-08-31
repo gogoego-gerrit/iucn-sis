@@ -44,7 +44,7 @@ public class MonkeyNavigatorPanel extends LayoutContainer {
 		setBorders(true);
 		
 		heading = new Html();
-		heading.addStyleName("moneky_nav_heading");
+		heading.addStyleName("monkey_nav_heading");
 		
 		header = new ToolBar();
 		header.setSpacing(4);

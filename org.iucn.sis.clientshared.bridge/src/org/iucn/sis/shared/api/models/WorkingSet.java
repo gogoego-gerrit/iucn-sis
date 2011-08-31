@@ -15,6 +15,7 @@ package org.iucn.sis.shared.api.models;
  */
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -262,6 +263,18 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 
 	public void setIsMostRecentPublished(Boolean isMostRecentPublished) {
 		this.isMostRecentPublished = isMostRecentPublished;
+	}
+	
+	protected Edit lastEdit;
+	public Edit getLastEdit() {
+		if (lastEdit == null && getEdit() != null && !getEdit().isEmpty()) {
+			List<Edit> edits = new ArrayList<Edit>(getEdit());
+			Collections.sort(edits, Collections.reverseOrder());
+			
+			lastEdit = edits.get(0);
+		}
+		return lastEdit;
+		
 	}
 
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
