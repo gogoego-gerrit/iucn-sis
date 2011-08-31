@@ -9,6 +9,7 @@ import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Context;
 import org.restlet.Restlet;
+import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
@@ -25,8 +26,10 @@ public abstract class TransactionRestlet extends Restlet {
 	 * the session's initial transaction before starting anew.
 	 */
 	public final void handle(Request request, Response response) {
+		final boolean openTransation = !Method.GET.equals(request.getMethod());
 		final Session session = SISPersistentManager.instance().openSession();
-		session.beginTransaction();
+		if (openTransation)
+			session.beginTransaction();
 		
 		boolean success;
 		try {
@@ -38,10 +41,12 @@ public abstract class TransactionRestlet extends Restlet {
 		}
 		
 		try {
-			if (success)
-				session.getTransaction().commit();
-			else
-				session.getTransaction().rollback();
+			if (openTransation) {
+				if (success)
+					session.getTransaction().commit();
+				else
+					session.getTransaction().rollback();
+			}
 		} catch (HibernateException e) {
 			Debug.println("Hibernate Error: {0}\n{1}", e.getMessage(), e);
 			if (e.getCause() instanceof BatchUpdateException) {
@@ -50,7 +55,8 @@ public abstract class TransactionRestlet extends Restlet {
 				Debug.println("Caused by SQL Exception: {0}\n{1}", sql.getMessage(), sql);
 			}
 			response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Hibernate Exception Occurred");
-			session.getTransaction().rollback();
+			if (openTransation)
+				session.getTransaction().rollback();
 		} finally {
 			session.close();
 		}
