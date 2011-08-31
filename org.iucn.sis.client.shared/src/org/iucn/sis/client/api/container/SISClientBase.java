@@ -270,7 +270,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		}
 		
 		//Default, required caches
-		for (HasCache cache : new HasCache[] { MarkedCache.impl, DefinitionCache.impl, 
+		for (HasCache cache : new HasCache[] { MarkedCache.impl, 
 				SchemaCache.impl, RegionCache.impl }) {
 			inits.add(cache.getCacheUrl());
 			handlers.put(cache.getCacheUrl(), cache.getCacheInitializer());

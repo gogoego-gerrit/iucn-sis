@@ -10,23 +10,27 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
 public class DefinitionPanel extends DockPanel {
-	public DefinitionPanel() {
-
-	}
 
 	public void updateContent(String word) {
-		clear();
-
 		Definition definition = DefinitionCache.impl.getDefinition(word);
-
-		HTML wordHTML = new HTML("<b>" + word + "</b>");
+		if (definition == null)
+			return;
+		
+		updateContent(definition);
+	}
+	
+	public void updateContent(Definition definition) {
+		clear();
+		
+		HTML wordHTML = new HTML("<b>" + definition.getName() + "</b>");
 		HTML definitionHTML = new HTML(definition.getValue());
 
 		add(wordHTML, DockPanel.NORTH);
 		add(definitionHTML, DockPanel.CENTER);
 		setSpacing(5);
 
-		if (word.equalsIgnoreCase("aoo") || word.toLowerCase().startsWith("area")) {
+		String lower = definition.getName().toLowerCase();
+		if (lower.equals("aoo") || lower.startsWith("area")) {
 			VerticalPanel imagePan = new VerticalPanel();
 			HTML caption = new HTML("Area of occupancy: no of units x unit area");
 			caption.addStyleName("RapidList-ImageCaption");
@@ -37,7 +41,7 @@ public class DefinitionPanel extends DockPanel {
 
 			add(imagePan, DockPanel.WEST);
 			setCellHorizontalAlignment(wordHTML, HasHorizontalAlignment.ALIGN_CENTER);
-		} else if (word.equalsIgnoreCase("eoo") || word.toLowerCase().startsWith("extent")) {
+		} else if (lower.equals("eoo") || lower.startsWith("extent")) {
 			add(new Image("images/eoo.gif"), DockPanel.WEST);
 			setCellHorizontalAlignment(wordHTML, HasHorizontalAlignment.ALIGN_CENTER);
 		}

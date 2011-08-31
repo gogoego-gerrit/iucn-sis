@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.displays;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
+import org.iucn.sis.shared.api.models.Definition;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
@@ -70,6 +72,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.StyledHTML;
 import com.solertium.util.portable.XMLWritingUtils;
@@ -210,40 +213,51 @@ public abstract class Display implements Referenceable {
 		myStructures.add(structureToAdd);
 	}
 
-	private VerticalPanel buildDefintionPanel() {
-		VerticalPanel panelContainer = new VerticalPanel();
-		panelContainer.setSpacing(3);
+	private void buildDefintionPanel() {
+		DefinitionCache.impl.load(new SimpleListener() {
+			public void handleEvent() {
+				List<Definition> found = new ArrayList<Definition>();
 
-		ArrayList<String> found = new ArrayList<String>();
+				String lowerCaseDesc = description.toLowerCase();
 
-		String lowerCaseDesc = description.toLowerCase();
+				for (String curDefinable : DefinitionCache.impl.getDefinables()) {
+					if (lowerCaseDesc.indexOf(curDefinable) > -1 && !found.contains(curDefinable))
+						found.add(DefinitionCache.impl.getDefinition(curDefinable));
+				}
+				
+				if (found.isEmpty())
+					WindowUtils.infoAlert("No definable terms were found.");
+				else {
+					VerticalPanel panelContainer = new VerticalPanel();
+					panelContainer.setSpacing(3);
+					panelContainer.add(new HTML("Definable terms:"));
+					
+					final DefinitionPanel dPanel = new DefinitionPanel();
 
-		for (String curDefinable : DefinitionCache.impl.getDefinables()) {
-			if (lowerCaseDesc.indexOf(curDefinable) >= 0 && !found.contains(curDefinable))
-				found.add(curDefinable);
-		}
+					Collections.sort(found, new DefinitionCache.DefinitionComparator());
+					for (final Definition curDef : found) {
+						HTML curDefHTML = new HTML(curDef.getName());
+						curDefHTML.addStyleName("SIS_HyperlinkLookAlike");
+						curDefHTML.addClickHandler(new ClickHandler() {
+							public void onClick(ClickEvent event) {
+								dPanel.updateContent(curDef);
+							}
+						});
 
-		if (found.size() == 0)
-			panelContainer.add(new HTML("No definable terms were found."));
-		else {
-			final DefinitionPanel dPanel = new DefinitionPanel();
-
-			panelContainer.add(new HTML("Definable terms:"));
-			for (final String curDef : found) {
-				HTML curDefHTML = new HTML(curDef);
-				curDefHTML.addStyleName("SIS_HyperlinkLookAlike");
-				curDefHTML.addClickHandler(new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						dPanel.updateContent(curDef);
+						panelContainer.add(curDefHTML);
 					}
-				});
 
-				panelContainer.add(curDefHTML);
+					panelContainer.add(dPanel);		
+					
+					Window s = WindowUtils.newWindow("Definitions for " + canonicalName, null, false, true);
+					s.setScrollMode(Scroll.AUTO);
+					s.add(panelContainer);
+					s.setSize(400, 400);
+
+					s.show();
+				}
 			}
-
-			panelContainer.add(dPanel);
-		}
-		return panelContainer;
+		});
 	}
 
 	public void checkSecurity() {
@@ -696,13 +710,13 @@ public abstract class Display implements Referenceable {
 		helpIcon.setStyleName("SIS_iconPanelIcon");
 		helpIcon.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				Window s = WindowUtils.newWindow("Definitions for " + canonicalName, null, false, true);
+				/*Window s = WindowUtils.newWindow("Definitions for " + canonicalName, null, false, true);
 				s.setScrollMode(Scroll.AUTO);
 				s.add(buildDefintionPanel());
 				s.setSize(400, 400);
 
 				s.show();
-				s.center();
+				s.center();*/
 			}
 		});
 
@@ -866,13 +880,7 @@ public abstract class Display implements Referenceable {
 		definitions.setIconStyle("icon-help");
 		definitions.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				Window s = WindowUtils.newWindow("Definitions for " + canonicalName, null, false, true);
-				s.setScrollMode(Scroll.AUTO);
-				s.add(buildDefintionPanel());
-				s.setSize(400, 400);
-
-				s.show();
-				s.center();
+				buildDefintionPanel();
 			}
 		});
 		

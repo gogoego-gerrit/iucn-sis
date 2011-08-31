@@ -27,6 +27,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Image;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -99,46 +100,50 @@ public class DefinitionEditorPanel extends ContentPanel implements DrawsLazily {
 	}
 
 	@Override
-	public void draw(DoneDrawingCallback callback) {
+	public void draw(final DoneDrawingCallback callback) {
 		if (drawn) {
 			callback.isDrawn();
 			return;
 		}
 		
-		for (Definition definition : DefinitionCache.impl.getDefinitions())
-			addDefinition(definition);
+		DefinitionCache.impl.load(new SimpleListener() {
+			public void handleEvent() {
+				for (Definition definition : DefinitionCache.impl.getDefinitions())
+					addDefinition(definition);
 
-		Button save = new Button();
-		save.setText("Save");
-		save.setIconStyle("icon-save");
-		save.setTitle("Save");
-		save.addListener(Events.Select, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
-				save();
-			}
-		});
+				Button save = new Button();
+				save.setText("Save");
+				save.setIconStyle("icon-save");
+				save.setTitle("Save");
+				save.addListener(Events.Select, new Listener<BaseEvent>() {
+					public void handleEvent(BaseEvent be) {
+						save();
+					}
+				});
 
-		Button add = new Button();
-		add.setText("Add new definition");
-		add.setIconStyle("icon-add");
-		add.setTitle("Add new definition");
-		add.addListener(Events.Select, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
-				TextField<String> f = addDefinition(null);
-				layout();
+				Button add = new Button();
+				add.setText("Add new definition");
+				add.setIconStyle("icon-add");
+				add.setTitle("Add new definition");
+				add.addListener(Events.Select, new Listener<BaseEvent>() {
+					public void handleEvent(BaseEvent be) {
+						TextField<String> f = addDefinition(null);
+						layout();
+						
+						scrollIntoView(f);
+					}
+				});
+
+				ToolBar toolbar = new ToolBar();
+				toolbar.add(save);
+				toolbar.add(add);
+				setTopComponent(toolbar);
 				
-				scrollIntoView(f);
+				drawn = true;
+				
+				callback.isDrawn();	
 			}
 		});
-
-		ToolBar toolbar = new ToolBar();
-		toolbar.add(save);
-		toolbar.add(add);
-		setTopComponent(toolbar);
-		
-		drawn = true;
-		
-		callback.isDrawn();
 	}
 
 	protected boolean isSaveable() {
