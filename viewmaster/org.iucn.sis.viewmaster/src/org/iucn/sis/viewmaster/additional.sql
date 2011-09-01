@@ -100,7 +100,18 @@ CREATE VIEW $schema.vw_redlistassessors_publication AS
    END
    ELSE vw.text
   END AS value
- FROM $schema.vw_redlistassessors vw
+ FROM ( 
+   SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
+   FROM $schema.vw_filter
+   LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
+           FROM $schema.vw_filter
+      JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListAssessors'::text
+   LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
+   LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
+   LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
+   LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
+   LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
+ ) vw
  LEFT JOIN public."user" u ON u.id = vw.value
  ORDER BY u.last_name, u.first_name;
 GRANT SELECT ON $schema.vw_redlistassessors_publication TO $user;
@@ -117,7 +128,18 @@ CREATE VIEW $schema.vw_redlistevaluators_publication AS
    END
    ELSE vw.text
   END AS value
- FROM $schema.vw_redlistevaluators vw
+ FROM ( 
+   SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
+   FROM $schema.vw_filter
+   LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
+           FROM $schema.vw_filter
+      JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListEvaluators'::text
+   LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
+   LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
+   LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
+   LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
+   LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
+ ) vw
  LEFT JOIN public."user" u ON u.id = vw.value
  ORDER BY u.last_name, u.first_name;
 GRANT SELECT ON $schema.vw_redlistevaluators_publication TO $user;
@@ -134,7 +156,18 @@ CREATE VIEW $schema.vw_redlistcontributors_publication AS
    END
    ELSE vw.text
   END AS value
- FROM $schema.vw_redlistcontributors vw
+ FROM ( 
+   SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
+   FROM $schema.vw_filter
+   LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
+           FROM $schema.vw_filter
+      JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListContributors'::text
+   LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
+   LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
+   LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
+   LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
+   LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
+ ) vw
  LEFT JOIN public."user" u ON u.id = vw.value
  ORDER BY u.last_name, u.first_name;
 GRANT SELECT ON $schema.vw_redlistcontributors_publication TO $user;
@@ -151,7 +184,18 @@ CREATE VIEW $schema.vw_redlistfacilitators_publication AS
    END
    ELSE vw.text
   END AS value
- FROM $schema.vw_redlistfacilitators vw
+ FROM ( 
+   SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
+   FROM $schema.vw_filter
+   LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
+           FROM $schema.vw_filter
+      JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListFacilitators'::text
+   LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
+   LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
+   LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
+   LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
+   LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
+ ) vw
  LEFT JOIN public."user" u ON u.id = vw.value
  ORDER BY u.last_name, u.first_name;
 GRANT SELECT ON $schema.vw_redlistfacilitators_publication TO $user;

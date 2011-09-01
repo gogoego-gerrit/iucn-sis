@@ -34,6 +34,12 @@ public class SQLReader extends ArrayList<String> {
 				read = new StringBuilder();
 			}
 		}
+		
+		try {
+			buff.close();
+		} catch (IOException e) {
+			//meh
+		}
 	}
 
 }

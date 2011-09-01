@@ -9,7 +9,7 @@ import org.gogoego.util.getout.GetOut;
 public class SingleColumnViewBuilder {
 	
 	public void build(final Connection c, final String schema, final String user) throws DBException {
-		c.query("select * from " + schema + ".universe", new RowProcessor(){
+		c.query("select * from " + schema + ".universe order by a", new RowProcessor(){
 			public void process(Row row) {
 				String tableName = row.get("a").getString();
 				String name = row.get("c").getString();
@@ -23,8 +23,12 @@ public class SingleColumnViewBuilder {
 					type = "foreign_key_list_primitive_field";
 				
 				int sfi = tableName.toUpperCase().indexOf("SUBFIELD");
-				if (sfi > 0)
+				if (sfi > 0) {
 					joinTable = FriendlyNameFactory.get(tableName.substring(0, sfi));
+					tableName = joinTable + "Subfield";
+				}
+				else
+					joinTable = FriendlyNameFactory.get(tableName);
 				
 				GetOut.log("New view: %s.%s", tableName, name);
 				String localViewName = "vw_" + tableName + "_" + name;

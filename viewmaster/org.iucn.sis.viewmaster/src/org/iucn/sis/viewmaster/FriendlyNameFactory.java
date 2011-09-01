@@ -17,14 +17,18 @@ public class FriendlyNameFactory {
 	
 	private FriendlyNameFactory() {
 		pretty = new HashMap<String, String>();
-		for (String name : CanonicalNames.allCanonicalNames)
-			pretty.put(name.toUpperCase(), name);
-		
-		//TODO: Birdlife fields?
+		pretty.put("STRESSES", "Stresses");
+		for (String[] array : new String[][] { CanonicalNames.allCanonicalNames, 
+				org.iucn.sis.server.schemas.birdlife.CanonicalNames.values, 
+				org.iucn.sis.server.schemas.usetrade.CanonicalNames.values})
+			for (String name : array)
+				pretty.put(name.toUpperCase(), name);
 	}
 	
 	public String toFriendlyName(String name) {
 		String p = pretty.get(name.toUpperCase());
+		if (p == null)
+			System.err.println("Friendly name cache miss for " + name);
 		return p == null ? name : p;
 	}
 

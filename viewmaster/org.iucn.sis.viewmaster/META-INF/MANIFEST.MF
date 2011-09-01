@@ -9,4 +9,6 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.gogoego.util.db.postgresql;bundle-version="1.0.0",
  org.gogoego.util.db;bundle-version="1.0.0",
  org.gogoego.util.getout;bundle-version="1.0.0",
- org.iucn.sis.clientshared.bridge;bundle-version="1.0.0"
+ org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
+ org.iucn.sis.server.schemas.birdlife;bundle-version="2.0.0",
+ org.iucn.sis.server.schemas.usetrade;bundle-version="2.0.0"
