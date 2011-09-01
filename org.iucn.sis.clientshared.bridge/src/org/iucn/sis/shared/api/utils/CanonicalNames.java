@@ -158,7 +158,7 @@ public interface CanonicalNames {
 
 	public static String[] allCanonicalNames = new String[] { AOO, AOOContinuingDecline, AOOExtremeFluctuation,
 			AreaRestricted, AssessmentGeographicScope, AvgAnnualFecundity, AvgReproductiveAge, BiogeographicRealm,
-			BirthSize, Cities, ConservationActions, ConservationActionsDocumentation, CountryOccurrence,
+			BirthSize, Cities, Congregatory, ConservationActions, ConservationActionsDocumentation, CountryOccurrence,
 			CropWildRelative, DateLastSeen, DepthLower, DepthUpper, DepthZone, EOO,
 			EOOContinuingDecline, EOOExtremeFluctuation, EcosystemServices, EcosystemServicesInsufficientInfo,
 			EcosystemServicesProvidesNone, EggLaying, ElevationLower, ElevationUpper,
@@ -172,7 +172,7 @@ public interface CanonicalNames {
 			Lakes, LandCover, LargeMarineEcosystems, LiveBirth,
 			Livelihoods, LocationContinuingDecline, LocationExtremeFluctuation, LocationsNumber, Longevity,
 			MaleMaturityAge, MaleMaturitySize, MapStatus, MaxSize, MaxSubpopulationSize, MovementPatterns,
-			NaturalMortality, NonConsumptiveUse, NonConsumptiveUseDescription, NotUtilized, OldDEMPastDecline,
+			NaturalMortality, NonConsumptiveUse, NonConsumptiveUseDescription, NoThreats, NotUtilized, OldDEMPastDecline,
 			OldDEMPeriodPastDecline, OldDEMFutureDecline, OldDEMPeriodFutureDecline, OtherPublication, PVAFile,
 			Parthenogenesis, PlantGrowthForms, PopulationContinuingDecline, PopulationDeclineGenerations1,
 			PopulationDeclineGenerations2, PopulationDeclineGenerations3, PopulationDocumentation,
@@ -188,7 +188,7 @@ public interface CanonicalNames {
 			RedListEvaluated, RedListEvaluationDate, RedListEvaluators, RedListFacilitators, RedListFuzzyResult, 
 			RedListHidden, RedListHistory, RedListManualCategory,
 			RedListManualCriteria, RedListNotes, RedListPetition, RedListPublication, RedListRationale,
-			RedListReasonsForChange, RedListText, RegionInformation, ReproductivePeriodicity, Research, Rivers,
+			RedListReasonsForChange, RedListText, RegionExpertQuestions, RegionInformation, ReproductivePeriodicity, Research, Rivers,
 			SevereFragmentation, SubpopulationContinuingDecline, SubpopulationExtremeFluctuation, SubpopulationNumber,
 			SubpopulationSingle, System, TaxonomicNotes, Threats, ThreatsDocumentation, ThreatsUnknown, TrendInDomesticOfftake,
 			TrendInWildOfftake, UseTradeDetails, UseTradeDocumentation, UseTradeNoInformation, WaterBreeding };
