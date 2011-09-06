@@ -88,8 +88,9 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			} else
 				throw new ResourceException(Status.CLIENT_ERROR_LOCKED);
 		} else {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			response.setEntity("Assessment with id " + assessmentID + " was not found.", MediaType.TEXT_PLAIN);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Could not find assessment #" + assessmentID);
+			//response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+			//response.setEntity("Assessment with id " + assessmentID + " was not found.", MediaType.TEXT_PLAIN);
 		}
 	}
 	
@@ -109,8 +110,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			response.setStatus(Status.SUCCESS_OK);
 			return new StringRepresentation(assessment.toXML(), MediaType.TEXT_XML);
 		} else {
-			response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			return new StringRepresentation("No Assessment found with id " + id, MediaType.TEXT_PLAIN);
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Could not find assessment #" + id);
 		}
 	}
 
