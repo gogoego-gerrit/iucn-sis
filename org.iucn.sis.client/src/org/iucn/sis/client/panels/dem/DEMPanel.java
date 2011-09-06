@@ -385,11 +385,11 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 			stopAutosaveTimer();
 
 			String savePreference = 
-				SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.PROMPT);
+				SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.AutoSave.PROMPT);
 			
-			if (savePreference.equals(UserPreferences.DO_ACTION))
+			if (savePreference.equals(UserPreferences.AutoSave.DO_ACTION))
 				doSaveCurrentAssessment(listener);
-			else if (savePreference.equals(UserPreferences.IGNORE)) {
+			else if (savePreference.equals(UserPreferences.AutoSave.IGNORE)) {
 				listener.handleEvent();
 			}
 			else {

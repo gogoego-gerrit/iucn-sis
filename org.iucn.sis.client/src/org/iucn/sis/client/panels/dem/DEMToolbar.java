@@ -595,7 +595,7 @@ public class DEMToolbar extends ToolBar {
 					public void componentSelected(MenuEvent ce) {
 						String newPreference = ce.getItem().getData("value");
 						
-						SimpleSISClient.currentUser.setProperty(UserPreferences.AUTO_SAVE_TIMER, newPreference);
+						SimpleSISClient.currentUser.setPreference(UserPreferences.AUTO_SAVE_TIMER, newPreference);
 						setAutoSaveInterval(newPreference);
 						resetAutosaveTimer();
 					}
@@ -616,28 +616,28 @@ public class DEMToolbar extends ToolBar {
 				Menu pageChangeMenu = new Menu();
 				
 				String savePreference = 
-					SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.PROMPT);
+					SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.AutoSave.PROMPT);
 				
 				SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						String newPreference = ce.getItem().getData("value");
-						SimpleSISClient.currentUser.setProperty(UserPreferences.AUTO_SAVE, newPreference);
+						SimpleSISClient.currentUser.setPreference(UserPreferences.AUTO_SAVE, newPreference);
 					}
 				};
 				
 				CheckMenuItem autoSave = new CheckMenuItem("Auto-Save");
-				autoSave.setData("value", UserPreferences.DO_ACTION);
+				autoSave.setData("value", UserPreferences.AutoSave.DO_ACTION);
 				autoSave.setGroup(UserPreferences.AUTO_SAVE);
-				autoSave.setChecked(savePreference.equals(UserPreferences.DO_ACTION));
+				autoSave.setChecked(savePreference.equals(UserPreferences.AutoSave.DO_ACTION));
 				autoSave.addSelectionListener(listener);
 				autoSave.setToolTip("When switching pages or assessments, any unsaved changes to an " +
 					"assessment will automatically be saved.");
 				pageChangeMenu.add(autoSave);
 				
 				CheckMenuItem autoPrompt = new CheckMenuItem("Prompt Before Auto-Save");
-				autoPrompt.setData("value", UserPreferences.PROMPT);
+				autoPrompt.setData("value", UserPreferences.AutoSave.PROMPT);
 				autoPrompt.setGroup(UserPreferences.AUTO_SAVE);
-				autoPrompt.setChecked(savePreference.equals(UserPreferences.PROMPT));
+				autoPrompt.setChecked(savePreference.equals(UserPreferences.AutoSave.PROMPT));
 				autoPrompt.addSelectionListener(listener);
 				autoPrompt.setToolTip("When switching pages or assessments, you will be prompted " +
 					"to save your changes if any unsaved changes are detected.");
@@ -645,9 +645,9 @@ public class DEMToolbar extends ToolBar {
 				
 				if(SimpleSISClient.currentUser.getUsername().equalsIgnoreCase("admin")){
 					CheckMenuItem ignore = new CheckMenuItem("Ignore");
-					ignore.setData("value", UserPreferences.IGNORE);
+					ignore.setData("value", UserPreferences.AutoSave.IGNORE);
 					ignore.setGroup(UserPreferences.AUTO_SAVE);
-					ignore.setChecked(savePreference.equals(UserPreferences.IGNORE));
+					ignore.setChecked(savePreference.equals(UserPreferences.AutoSave.IGNORE));
 					ignore.addSelectionListener(listener);
 					ignore.setToolTip("When switching pages or assessments, any unsaved changes to an " +
 						"assessment will be thrown away; you will not be prompted to save them, nor " +

@@ -141,7 +141,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 								currentUser.password = password;
 								
 								if ("admin".equalsIgnoreCase(username))
-									currentUser.setProperty(UserPreferences.AUTO_SAVE, UserPreferences.DO_ACTION);
+									currentUser.setProperty(UserPreferences.AUTO_SAVE, UserPreferences.AutoSave.DO_ACTION);
 								
 								try {
 									if (!iAmOnline)

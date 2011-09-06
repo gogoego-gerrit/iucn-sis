@@ -7,11 +7,16 @@ package org.iucn.sis.shared.api.acl;
  * @author adam
  */
 public interface UserPreferences {
-	public static final String PROMPT = "PROMPT";
-	public static final String DO_ACTION = "DO_ACTION";
-	public static final String IGNORE = "IGNORE";
-
+	
 	public static final String AUTO_SAVE = "autosave";
+	
+	public static class AutoSave {
+		public static final String PROMPT = "PROMPT";
+		public static final String DO_ACTION = "DO_ACTION";
+		public static final String IGNORE = "IGNORE";
+	}
+
+	
 	public static final String AUTO_SAVE_TIMER = "autosavetimer";
 	public static final String VIEW_CHOICES = "viewPreference";
 }
