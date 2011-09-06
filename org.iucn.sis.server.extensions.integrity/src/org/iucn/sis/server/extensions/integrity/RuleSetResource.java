@@ -1,7 +1,12 @@
 package org.iucn.sis.server.extensions.integrity;
 
+import java.util.List;
+
 import org.hibernate.Session;
+import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -15,12 +20,7 @@ import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.solertium.db.CanonicalColumnName;
-import com.solertium.db.DBException;
-import com.solertium.db.query.DeleteQuery;
-import com.solertium.db.query.QConstraint;
 import com.solertium.util.BaseDocumentUtils;
-import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
 import com.solertium.vfs.VFSPath;
@@ -82,18 +82,22 @@ public class RuleSetResource extends BaseIntegrityResource {
 		}
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		writeRule(entity, true);
 		if (getResponse().getStatus().isSuccess()) {
-			final DeleteQuery query = new DeleteQuery();
-			query.setTable("assessment_integrity_status");
-			query.constrain(new CanonicalColumnName("assessment_integrity_status", "rule"), QConstraint.CT_EQUALS, rule);
-			
 			try {
-				ec.doUpdate(query);
-			} catch (DBException e) {
-				TrivialExceptionHandler.ignore(this, e);
+				List<AssessmentIntegrityValidation> list = session.
+					createCriteria(AssessmentIntegrityValidation.class)
+					.add(Restrictions.eq("rule", rule)).list();
+				
+				for (AssessmentIntegrityValidation cachedValidation : list) {
+					cachedValidation.getAssessment().setValidation(null);
+					cachedValidation.setAssessment(null);
+					session.delete(cachedValidation);
+				}
+			} catch (Exception e) {
+				Debug.println(e);
 			}
 		}
 	}
