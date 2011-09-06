@@ -123,6 +123,8 @@ public class DEMLayoutChooser extends LayoutContainer {
 				}
 				else
 					sections.filter("none");
+				
+				SISClientBase.currentUser.setPreference(UserPreferences.DEFAULT_LAYOUT, selected.getId());
 			}
 		});
 		
@@ -157,8 +159,17 @@ public class DEMLayoutChooser extends LayoutContainer {
 		
 		SISView current = ViewCache.impl.getCurrentView();
 		if (current == null) {
-			if (listing.getCount() > 0)
-				box.setValue(listing.getAt(0));	
+			String defaultViewID = SISClientBase.currentUser.getPreference(UserPreferences.DEFAULT_LAYOUT, null);
+			
+			ViewModelData defaultSelection = null;
+			if (defaultViewID != null)
+				defaultSelection = listing.findModel(defaultViewID);
+			
+			if (defaultSelection == null && listing.getCount() > 0)
+				defaultSelection = listing.getAt(0);
+			
+			if (defaultSelection != null)
+				box.setValue(defaultSelection);	
 			else
 				sections.filter("none");
 			add(container);
@@ -193,6 +204,10 @@ public class DEMLayoutChooser extends LayoutContainer {
 			super();
 			set("text", name);
 			set("value", id);
+		}
+		
+		public String getId() {
+			return get("value");
 		}
 		
 	}
