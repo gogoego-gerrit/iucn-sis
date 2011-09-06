@@ -6,6 +6,7 @@ import org.iucn.sis.server.api.persistance.UserCriteria;
 import org.iucn.sis.server.api.persistance.UserDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.UserPreference;
 
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
@@ -135,5 +136,12 @@ public class UserIO {
 			newGroup += ",redactTaxomatic";
 
 		return newGroup;
+	}
+	
+	public void deletePreference(UserPreference preference) {
+		preference.getUser().getPreferences().remove(preference);
+		preference.setUser(null);
+		
+		session.delete(preference);
 	}
 }

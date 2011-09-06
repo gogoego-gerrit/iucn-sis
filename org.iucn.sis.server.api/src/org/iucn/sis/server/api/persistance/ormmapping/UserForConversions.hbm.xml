@@ -39,5 +39,9 @@ License Type: Evaluation
 			<key column="userid" not-null="false"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.Edit"/>
 		</set>
+		<set name="Preferences" table="user_preference" lazy="false" cascade="save-update,lock,replicate">
+			<key column="userid" not-null="false"/>
+			<one-to-many class="org.iucn.sis.shared.api.models.UserPreference"/>
+		</set>
 	</class>
 </hibernate-mapping>

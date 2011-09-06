@@ -1,6 +1,8 @@
 package org.iucn.sis.server.extensions.user.resources;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -13,6 +15,7 @@ import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.UserPreference;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -25,6 +28,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
+import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.TrivialExceptionHandler;
 
 public class UserRestlet extends BaseServiceRestlet {
@@ -35,12 +43,61 @@ public class UserRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public void definePaths() {
+		paths.add("/users/{username}/preferences");
 		paths.add("/users/{username}");
 		paths.add("/users");
 	}
 
 	private String getUsername(Request request) {
 		return (String) request.getAttributes().get("username");
+	}
+	
+	private void updatePreferences(Representation entity, Request request, Response response, Session session, User user) throws ResourceException {
+		Map<String, UserPreference> targets = new HashMap<String, UserPreference>();
+		for (UserPreference preference : user.getPreferences())
+			targets.put(preference.getName(), preference);
+		
+		final UserIO io = new UserIO(session);
+		final StringBuilder out = new StringBuilder();
+		
+		NativeDocument document = getEntityAsNativeDocument(entity);
+		NativeNodeList nodes = document.getDocumentElement().getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			NativeNode node = nodes.item(i);
+			if (UserPreference.ROOT_TAG.equals(node.getNodeName())) {
+				UserPreference source = UserPreference.fromXML((NativeElement)node);
+				UserPreference target = targets.get(source.getName());
+				
+				if (source.getId() == 0) {
+					if (source.hasValue()) {
+						source.setUser(user);
+						session.save(source);
+						targets.put(source.getName(), source);
+					}
+					else if (target != null) {
+						io.deletePreference(target);
+						targets.remove(source.getName());
+					}
+				}
+				else {
+					if (target == null) {
+						//This is a problem, not dealing with it...
+						continue;
+					}
+					else {
+						target.setValue(source.getValue());
+						session.update(target);
+					}
+				}
+			}
+		}
+		
+		out.append("<result>");
+		for (UserPreference preference : targets.values())
+			out.append(preference.toXML());
+		out.append("</result>");
+		
+		response.setEntity(out.toString(), MediaType.TEXT_XML);
 	}
 	
 	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
@@ -72,6 +129,11 @@ public class UserRestlet extends BaseServiceRestlet {
 		
 		if (user == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "User not found.");
+		
+		if (request.getResourceRef().getPath().endsWith("preferences")) {
+			updatePreferences(entity, request, response, session, user);
+			return;
+		}
 		
 		Document doc = getEntityAsDocument(entity);
 		

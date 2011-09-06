@@ -1,9 +1,16 @@
 package org.iucn.sis.client.api.models;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.UserPreference;
 
+import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.RowData;
 
 public class ClientUser extends User {
@@ -39,10 +46,64 @@ public class ClientUser extends User {
 		return properties.getField(prop);
 	}
 	
+	public void setPreference(String name, String value) {
+		setProperty(name, value);
+		
+		UserPreference preference = null;
+		for (UserPreference current : getPreferences()) {
+			if (name.equals(current.getName())) {
+				preference = current;
+				break;
+			}
+		}
+		
+		if (preference == null) {
+			preference = new UserPreference(name, value);
+			getPreferences().add(preference);
+		}
+		else {
+			if (value == null) {
+				if (preference.getValue() == null)
+					return;
+			}
+			else if (value.equals(preference.getValue()))
+				return;
+			
+			preference.setValue(value);
+		}
+		
+		setPreference(preference);
+	}
+	
+	public void setPreference(final UserPreference preference) {
+		final StringBuilder out = new StringBuilder();
+		out.append("<root>");
+		out.append(preference.toXML());
+		out.append("</root>");
+		
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.post(UriBase.getInstance().getUserBase() + "/users/" + getUsername() + "/preferences", out.toString(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName(UserPreference.ROOT_TAG);
+				for (int i = 0; i < nodes.getLength(); i++) {
+					UserPreference updated = UserPreference.fromXML(nodes.elementAt(i));
+					if (preference.getName().equals(updated.getName()))
+						preference.setId(updated.getId());
+				}
+			}
+			public void onFailure(Throwable caught) {
+				Debug.println("Preference for {0} not saved: {1}", preference.getName(), caught.getMessage());
+			}
+		});
+	}
+	
 	public static ClientUser fromXML(NativeElement element) {
 		ClientUser target = new ClientUser();
 		
 		User.fromXML(element, target, AuthorizationCache.impl.getFinder());
+		
+		for (UserPreference preference : target.getPreferences())
+			target.setProperty(preference.getName(), preference.getValue());
 		
 		target.setProperty(ID, target.getId()+"");
 		target.setProperty(USERNAME, target.getUsername());

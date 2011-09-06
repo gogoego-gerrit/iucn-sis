@@ -72,6 +72,9 @@ public class User implements Serializable, Comparable<User> {
 		xml.append(XMLWritingUtils.writeCDATATag("rapidListUser", getRapidlistUser() == null ? null : getRapidlistUser()+"", true));
 		xml.append(XMLWritingUtils.writeCDATATag("email", email, true));
 		
+		for (UserPreference preference : getPreferences())
+			xml.append(preference.toXML());
+		
 		for (PermissionGroup group : getPermissionGroups()) {
 			xml.append(group.toXML());
 		}
@@ -137,6 +140,8 @@ public class User implements Serializable, Comparable<User> {
 				user.setSisUser("true".equals(value));
 			else if ("rapidListUser".equals(name))
 				user.setRapidlistUser("true".equals(value));
+			else if (UserPreference.ROOT_TAG.equals(name))
+				user.getPreferences().add(UserPreference.fromXML((NativeElement)node));
 		}
 		
 		//FULL XML
@@ -245,6 +250,8 @@ public class User implements Serializable, Comparable<User> {
 	private java.util.Set<WorkingSet> ownedWorkingSets = new java.util.HashSet<WorkingSet>();
 	
 	private java.util.Set<Edit> edit = new java.util.HashSet<Edit>();
+	
+	private java.util.Set<UserPreference> preferences = new java.util.HashSet<UserPreference>();
 	
 	private long generationID;
 	
@@ -366,6 +373,14 @@ public class User implements Serializable, Comparable<User> {
 	
 	public java.util.Set<Edit> getEdit() {
 		return edit;
+	}
+	
+	public void setPreferences(java.util.Set<UserPreference> preferences) {
+		this.preferences = preferences;
+	}
+	
+	public java.util.Set<UserPreference> getPreferences() {
+		return preferences;
 	}
 	
 	@Override
