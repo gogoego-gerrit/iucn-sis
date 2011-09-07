@@ -62,7 +62,7 @@ public class UpdateQuery extends BaseQuery implements Query {
 		final int cols = row.size();
 		for (int i = 0; i < cols; i++) {
 			final Column c = row.get(i);
-			buf.append(ds.formatIdentifier(c.getLocalName()));
+			buf.append(ds.formatIdentifier(c.getLocalName(), true));
 			buf.append("=");
 			buf.append(ds.formatLiteral(c.getLiteral()));
 			if (i < cols - 1)
