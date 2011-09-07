@@ -25,6 +25,11 @@ public class SISQBQuery extends GWTQBQuery {
 		return properties.get(key);
 	}
 	
+	public String getProperty(String key, String defaultValue) {
+		String value = getProperty(key);
+		return value == null ? defaultValue : value;
+	}
+	
 	public void setErrorMessage(String comparisonID, String message) {
 		errorMessages.put(comparisonID, message);
 	}

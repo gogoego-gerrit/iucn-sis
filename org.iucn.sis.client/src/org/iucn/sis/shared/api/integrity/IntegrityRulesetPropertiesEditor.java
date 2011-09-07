@@ -1,23 +1,24 @@
 package org.iucn.sis.shared.api.integrity;
 
 import org.iucn.sis.client.api.utils.BasicWindow;
+import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class IntegrityRulesetPropertiesEditor extends BasicWindow {
 	
 	private final SISQBQuery query;
 	
-	private ComboBox<BaseModelData> failureCondition;
+	private ComboBox<TextValueModelData> failureCondition;
+	private ComboBox<TextValueModelData> failureMode;
 
 	public IntegrityRulesetPropertiesEditor(SISQBQuery query) {
 		super("Edit Properties");
@@ -34,14 +35,18 @@ public class IntegrityRulesetPropertiesEditor extends BasicWindow {
 		form.setHeaderVisible(false);
 		form.setLabelWidth(150);
 		form.add(failureCondition);
+		form.add(failureMode);
 		
 		add(form);
-// setAlignment(HorizontalAlignment.CENTER);
+		
 		addButton(new Button("Done", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				if (form.isValid()) {
 					IntegrityRulesetPropertiesEditor.this.query.setProperty(
-						failureCondition.getName(), (String)failureCondition.getValue().get("value")
+						failureCondition.getName(), failureCondition.getValue().getValue()
+					);
+					IntegrityRulesetPropertiesEditor.this.query.setProperty(
+						failureMode.getName(), failureMode.getValue().getValue()
 					);
 					
 					hide();
@@ -58,29 +63,31 @@ public class IntegrityRulesetPropertiesEditor extends BasicWindow {
 	}
 	
 	private void buildFailureConditionComboBox() {
-		final BaseModelData failIfMet = new BaseModelData();
-		failIfMet.set("text", "Fail if conditions met (default)");
-		failIfMet.set("value", "default");
+		failureCondition = FormBuilder.createModelComboBox(AssessmentIntegrityValidation.PROPERTY_FAILURE_CONDITION, 
+				query.getProperty(AssessmentIntegrityValidation.PROPERTY_FAILURE_CONDITION, "default"), 
+				"Failure Condition", true, 
+				new TextValueModelData("Fail if conditions met (default)", "default"), 
+				new TextValueModelData("Fail if conditions not met", "not_met"));
+
+		failureMode = FormBuilder.createModelComboBox(AssessmentIntegrityValidation.PROPERTY_FAILURE_MODE, 
+				query.getProperty(AssessmentIntegrityValidation.PROPERTY_FAILURE_MODE, "default"), 
+				"Failure Mode", true, 
+				new TextValueModelData("Fail Validation", "default"), 
+				new TextValueModelData("Passes with Warning", "warning"));
+	}
+	
+	private static class TextValueModelData extends BaseModelData {
+		private static final long serialVersionUID = 1L;
 		
-		final BaseModelData failIfNotMet = new BaseModelData();
-		failIfNotMet.set("text", "Fail if conditions not met");
-		failIfNotMet.set("value", "not_met");
+		public TextValueModelData(String text, String value) {
+			super();
+			set("text", text);
+			set("value", value);
+		}
 		
-		final ListStore<BaseModelData> store = new ListStore<BaseModelData>();
-		store.add(failIfMet);
-		store.add(failIfNotMet);
-		
-		failureCondition = new ComboBox<BaseModelData>();
-		failureCondition.setTriggerAction(TriggerAction.ALL);
-		failureCondition.setAllowBlank(false);
-		failureCondition.setFieldLabel("Failure Condition");
-		failureCondition.setForceSelection(true);
-		failureCondition.setName("failure_condition");
-		failureCondition.setStore(store);
-		if ("not_met".equals(query.getProperty("failure_condition")))
-			failureCondition.setValue(failIfNotMet);
-		else
-			failureCondition.setValue(failIfMet);
+		public String getValue() {
+			return get("value");
+		}
 	}
 
 }

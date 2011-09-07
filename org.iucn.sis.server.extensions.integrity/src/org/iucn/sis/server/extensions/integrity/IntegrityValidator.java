@@ -126,10 +126,13 @@ public class IntegrityValidator {
 		
 		ec.doQuery(query, rs);
 
-		final AssessmentIntegrityValidation response = passesValidation(rs, properties) ? new AssessmentIntegrityValidation()
+		final int status = passesValidation(rs, properties);
+		final AssessmentIntegrityValidation response = status == AssessmentIntegrityValidation.SUCCESS ? 
+				new AssessmentIntegrityValidation()
 				: new AssessmentIntegrityValidation(getCause(ec,
 						originalConstraints, document, errorMessages, properties, assessmentID));
 		response.setRule(rule);
+		response.setStatus(status);
 		
 		try {
 			updateStatus(session, rule, assessmentID, response);
@@ -190,7 +193,7 @@ public class IntegrityValidator {
 	 * @param properties
 	 * @return
 	 */
-	private static boolean passesValidation(Row.Set resultSet, Map<String, String> properties) {
+	private static int passesValidation(Row.Set resultSet, Map<String, String> properties) {
 		final boolean passesValidation;
 		/*
 		 * For the not met condition, validation is failed if the query 
@@ -201,7 +204,7 @@ public class IntegrityValidator {
 		 * TODO: do we care about allowing x number of results constituting 
 		 * a failure condition?
 		 */
-		if ("not_met".equals(properties.get("failure_condition")))
+		if ("not_met".equals(properties.get(AssessmentIntegrityValidation.PROPERTY_FAILURE_CONDITION)))
 			passesValidation = !resultSet.getSet().isEmpty();
 		/*
 		 * By default, validation is failed if the query conditions are met and 
@@ -212,8 +215,16 @@ public class IntegrityValidator {
 		else
 			passesValidation = resultSet.getSet().isEmpty();
 		
-		return passesValidation;
-			
+		/*
+		 * If it does not pass, this constitutes either a failure or 
+		 * a warning, depending on the settings...
+		 */
+		if (passesValidation)
+			return AssessmentIntegrityValidation.SUCCESS;
+		else if ("warning".equals(properties.get(AssessmentIntegrityValidation.PROPERTY_FAILURE_MODE)))
+			return AssessmentIntegrityValidation.WARNING;
+		else
+			return AssessmentIntegrityValidation.FAILURE;
 	}
 
 	/**
@@ -319,9 +330,11 @@ public class IntegrityValidator {
 							+ query.getSQL(ec.getDBSession()));*/
 					ec.doQuery(query, rs);
 
-					if (!passesValidation(rs, properties)) {
+					int status = passesValidation(rs, properties);
+					if (status != AssessmentIntegrityValidation.SUCCESS) {
+						String prefix = status == AssessmentIntegrityValidation.WARNING ? "Warning: " : "Failure: ";
 						if (errorMessages.containsKey(iGroup.getID()))
-							causes.add("Failure: "
+							causes.add(prefix
 									+ getSQL(iGroup, errorMessages, ec.getDBSession()));
 						else {
 							final StringBuilder errorBuilder = new StringBuilder();
@@ -334,7 +347,7 @@ public class IntegrityValidator {
 										errorBuilder.append(" and ");
 								}
 							}
-							causes.add("Failure: " + errorBuilder.toString());
+							causes.add(prefix + errorBuilder.toString());
 						}
 					}
 				}
@@ -361,8 +374,10 @@ public class IntegrityValidator {
 							+ query.getSQL(ec.getDBSession()));*/
 					ec.doQuery(query, rs);
 
-					if (!passesValidation(rs, properties)) {
-						causes.add("Failed on condition "
+					int status = passesValidation(rs, properties);
+					if (status != AssessmentIntegrityValidation.SUCCESS) {
+						String prefix = status == AssessmentIntegrityValidation.WARNING ? "Warning: " : "Failure: ";
+						causes.add(prefix
 								+ getSQL(condition, errorMessages, ec.getDBSession()));
 					}
 				}

@@ -17,6 +17,9 @@ public class AssessmentIntegrityValidation implements Serializable {
 	public static final int WARNING = 2;
 	public static final int FAILURE = 3;
 	
+	public static final String PROPERTY_FAILURE_CONDITION = "failure_condition";
+	public static final String PROPERTY_FAILURE_MODE = "failure_mode";
+	
 	public static final String ROOT_TAG = "validation";
 	
 	private int id;
