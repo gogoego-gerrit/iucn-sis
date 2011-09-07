@@ -46,7 +46,7 @@ public class FileLocker {
 		synchronized (locks) {
 			SimpleLock existing = locks.get(url);
 			if (existing == null) {
-				locks.put(url, new SimpleLock(url, owner));
+				locks.put(url, new SimpleLock(url, owner, autoExpire));
 				acquiredLock = true;
 			}
 			else if (existing.owner.equals(owner)) {
