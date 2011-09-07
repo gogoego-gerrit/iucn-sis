@@ -283,6 +283,8 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 
 		} catch (RegionConflictException e) {
 			throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, e);
+		} catch (ResourceException e) {
+			throw e;
 		} catch (Exception e){
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}	

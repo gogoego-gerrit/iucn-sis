@@ -84,6 +84,9 @@ public class AssessmentClientSaveUtils {
 									callback.onFailure(new Exception("This assessment has " +
 										"been locked since you opened it; no changes will " +
 										"be saved."));
+								else
+									callback.onFailure(new Exception("An unknown error occurred that " +
+										"prevented this assessment from being saved. Please try again later."));
 							} else {
 								callback.onFailure(new Exception("Please check your internet " +
 								"connection and try again."));

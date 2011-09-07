@@ -202,7 +202,7 @@ public class FileLocker {
 		if (LockType.SAVE_LOCK.equals(lockType)) {
 			boolean hasLock = acquireLock("assessment/" + assessmentID, owner.getUsername(), true);
 			
-			return hasLock ? Status.SUCCESS_OK : Status.CLIENT_ERROR_LOCKED; 
+			return hasLock ? Status.SUCCESS_OK : Status.CLIENT_ERROR_FORBIDDEN; 
 		}
 		
 		if (assessmentLocks.isAssessmentPersistentLocked(assessmentID)) {
