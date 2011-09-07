@@ -150,7 +150,7 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 				if( !AuthorizationCache.impl.getGroups().containsKey(permAssessorGroup) && 
 						!groupsToAdd.contains(permAssessorGroup) ) {
 					final PermissionGroup permAssessor = new PermissionGroup(permAssessorGroup);
-					permAssessor.setScopeURI("workingSet/" + WorkingSetCache.impl.getCurrentWorkingSet().getId());
+					permAssessor.setScopeURI("resource/workingSet/" + WorkingSetCache.impl.getCurrentWorkingSet().getId());
 					permAssessor.setParent(AuthorizationCache.impl.getGroups().get("assessor"));
 					groupsToAdd.add(permAssessor);
 				}
