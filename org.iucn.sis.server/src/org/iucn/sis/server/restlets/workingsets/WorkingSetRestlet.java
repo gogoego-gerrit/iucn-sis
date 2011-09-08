@@ -77,6 +77,8 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		if (identifier == null) {
 			if (action.equalsIgnoreCase("subscribe"))
 				entity = getSubscribableWorkingSets(request, response, username, workingSetIO);
+			else if (action.equalsIgnoreCase("grants"))
+				entity = getGrantableWorkingSets(request, response, username, workingSetIO);
 			else {
 				String mode = request.getResourceRef().getQueryAsForm().getFirstValue("mode", "FULL");
 				entity = getWorkingSets(username, workingSetIO, mode);
@@ -203,6 +205,32 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		WorkingSet[] sets;
 		try {
 			sets = workingSetIO.getUnsubscribedWorkingSets(username);
+		} catch (PersistentException e) {
+			response.setEntity(e.getMessage(), MediaType.TEXT_PLAIN);
+			Debug.println("Failed to fetch subscribable working sets for {0}: \n{1}", username, e);
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		StringBuilder xml = new StringBuilder("<xml>\r\n");
+		for (WorkingSet set : sets)
+			xml.append(set.toXMLMinimal());
+		xml.append("</xml>");
+		
+		return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
+	}
+	
+	/**
+	 * Gets all possible grantable working sets, including the ones 
+	 * the user owns.
+	 * 
+	 * @param request
+	 * @param response
+	 * @param workingSetIO
+	 */
+	private Representation getGrantableWorkingSets(Request request, Response response, String username, WorkingSetIO workingSetIO) throws ResourceException {
+		List<WorkingSet> sets;
+		try {
+			sets = workingSetIO.getGrantableWorkingSets(Integer.valueOf(username));
 		} catch (PersistentException e) {
 			response.setEntity(e.getMessage(), MediaType.TEXT_PLAIN);
 			Debug.println("Failed to fetch subscribable working sets for {0}: \n{1}", username, e);

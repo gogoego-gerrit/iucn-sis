@@ -1,14 +1,19 @@
 package org.iucn.sis.server.api.io;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.permissions.PermissionUtils;
 import org.iucn.sis.server.api.persistance.WorkingSetCriteria;
 import org.iucn.sis.server.api.persistance.WorkingSetDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.acl.BasePermissionUtils;
+import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.User;
@@ -66,35 +71,37 @@ public class WorkingSetIO {
 	 * FIXME: This needs to be based off the user ID, not the username.
 	 * @deprecated
 	 */
-	@SuppressWarnings("unchecked")
 	public WorkingSet[] getUnsubscribedWorkingSets(String userName) throws PersistentException {
-		/*String queryString = "SELECT id FROM working_set WHERE id not in (Select working_setid FROM (SELECT id from \"user\" where username='" 
-			+ userName + "') t JOIN working_set_subscribe_user on userid = t.id);";*/
+		User user = userIO.getUserFromUsername(userName);
+		if (user == null)
+			return new WorkingSet[0];
 		
-		String queryString = "SELECT * FROM working_set " +
-			"WHERE working_set.id NOT IN ( "+
-			"SELECT working_setid FROM working_set_subscribe_user " +
-			"JOIN \"user\" ON \"user\".id = working_set_subscribe_user.userid AND \"user\".username = '"+userName+"' "+
-			") "+
-			"ORDER BY working_set.name";
+		return getUnsubscribedWorkingSets(user.getId());
+	}
+	
+	@SuppressWarnings("unchecked")
+	public WorkingSet[] getUnsubscribedWorkingSets(int userid) throws PersistentException {
+		String queryString = SIS.get().getQueries().getSubscribableWorkingSets(userid);
 		
 		List<WorkingSet> list = 
 			session.createSQLQuery(queryString).addEntity(WorkingSet.class).list();
 		
 		return list.toArray(new WorkingSet[list.size()]);
+	}
+	
+	public List<WorkingSet> getGrantableWorkingSets(int userid) throws PersistentException {
+		final User user = new UserIO(session).getUser(userid);
+		if (user == null)
+			return new ArrayList<WorkingSet>();
+			
+		final List<WorkingSet> list = new ArrayList<WorkingSet>();
+		final PermissionUtils perm = new PermissionUtils(session, user);
+		for (WorkingSet ws : SIS.get().getManager().listObjects(WorkingSet.class, session)) {
+			if (perm.hasPermission(AuthorizableObject.GRANT, ws))
+				list.add(ws);
+		}
 		
-		/*
-		
-		List<Integer> results  = (List<Integer>) SIS.get().getManager().getSession().createSQLQuery(queryString).list();
-		if (!results.isEmpty()) {
-			WorkingSetCriteria criteria = new WorkingSetCriteria();
-			criteria.id.in(results.toArray(new Integer[results.size()]));
-			return WorkingSetDAO.listWorkingSetByCriteria(criteria);
-		} else {
-			return new WorkingSet[]{};
-		}*/
-		
-		
+		return list;
 	}
 
 	public boolean deleteWorkingset(WorkingSet workingSet) {
@@ -215,8 +222,7 @@ public class WorkingSetIO {
 		 * 
 		 * Changed to select * instead of select ID...
 		 */
-		String queryString = "select * from working_set where working_set.id in " + 
-			"(select working_setid from working_set_taxon where taxonid = '"+taxonID+"');";
+		String queryString = SIS.get().getQueries().getWorkingSetsForTaxon(taxonID);
 		
 		/*
 		 * ...because calling addEntity() transforms the results to the 

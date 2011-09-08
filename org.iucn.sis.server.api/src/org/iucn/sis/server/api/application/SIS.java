@@ -11,6 +11,8 @@ import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.queries.CannedQueries;
+import org.iucn.sis.server.api.queries.PostgreSQLCannedQueries;
 import org.iucn.sis.server.api.schema.AssessmentSchemaBroker;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.debug.Debugger;
@@ -28,6 +30,8 @@ import org.restlet.representation.Representation;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
+import com.solertium.db.vendor.H2DBSession;
+import com.solertium.db.vendor.PostgreSQLDBSession;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.TrivialExceptionHandler;
@@ -45,6 +49,7 @@ public class SIS {
 	protected final VFS vfs;
 	protected final String vfsroot;
 	protected final ExecutionContext ec, lookups;
+	protected final CannedQueries queries;
 	
 	protected AssessmentSchemaBroker broker;
 	protected Properties settings;
@@ -77,6 +82,13 @@ public class SIS {
 			ec = new SystemExecutionContext(DBSessionFactory.getDBSession(getDBSessionName()));
 			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
 			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
+			
+			if (ec.getDBSession() instanceof H2DBSession) {
+				//FIXME: probably want an H2-specific one!
+				queries = new PostgreSQLCannedQueries(); 
+			}
+			else
+				queries = new PostgreSQLCannedQueries(); 
 			
 			lookups = new SystemExecutionContext("sis_lookups");
 			lookups.setAPILevel(ExecutionContext.SQL_ALLOWED);
@@ -247,6 +259,10 @@ public class SIS {
 
 	public VFS getVFS() {
 		return vfs;
+	}
+	
+	public CannedQueries getQueries() {
+		return queries;
 	}
 
 	public NativeDocument newNativeDocument(ChallengeResponse challengeResponse) {
