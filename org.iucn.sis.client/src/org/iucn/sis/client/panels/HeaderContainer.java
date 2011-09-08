@@ -405,23 +405,23 @@ public class HeaderContainer extends ContentPanel {
 			}
 			
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.ACCESS_EXPORT_FEATURE)) {
-				menu.add(createMenuItem(null, "Access Export", new SelectionListener<MenuEvent>() {
+				menu.add(createMenuItem("icon-prefs", "Access Export", new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						final LayoutContainer container = new LayoutContainer();
 						container.add(new Html("This feature is not yet available."));
 						
-						openAdministrativeTool("Access Export", null, container);
+						openAdministrativeTool("Access Export", "icon-prefs", container);
 					}
 				}));
 			}
 			
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.TAXON_FINDER_FEATURE)) {
 				final String title = "Manage New Taxa";
-				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+				menu.add(createMenuItem("icon-prefs", title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						taxonFinderPanel.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
-								openAdministrativeTool(title, null, taxonFinderPanel);
+								openAdministrativeTool(title, "icon-prefs", taxonFinderPanel);
 							}
 						});
 					}
@@ -430,11 +430,11 @@ public class HeaderContainer extends ContentPanel {
 
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.DEFINITION_MANAGEMENT_FEATURE)) {
 				final String title = "Manage Definitions";
-				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+				menu.add(createMenuItem("icon-help", title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						definitionPanel.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
-								openAdministrativeTool(title, null, definitionPanel);
+								openAdministrativeTool(title, "icon-help", definitionPanel);
 							}
 						});
 					}
@@ -473,32 +473,32 @@ public class HeaderContainer extends ContentPanel {
 			
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.BATCH_UPLOAD_FEATURE)) {
 				final String title = "Batch Upload";
-				menu.add(createMenuItem("icon-refresh", title, new SelectionListener<MenuEvent>() {
+				menu.add(createMenuItem("icon-go-top", title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						final ContentPanel tabItem = new ContentPanel();
 						tabItem.setUrl(UriBase.getInstance().getImageBase()+"/images/upload");
 						
-						openAdministrativeTool(title, "icon-refresh", tabItem);
+						openAdministrativeTool(title, "icon-go-top", tabItem);
 					}
 				}));
 			}
 			
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.REDLIST_FEATURE)) {
 				final String title = "Redlist";
-				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+				menu.add(createMenuItem("icon-image", title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
-						openAdministrativeTool(title, null, redlistPanel);
+						openAdministrativeTool(title, "icon-image", redlistPanel);
 					}
 				}));
 			}
 			
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.VIRUS_MANAGEMENT_FEATURE)) {
 				final String title = "Virus Management";
-				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+				menu.add(createMenuItem("icon-virus", title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						virusManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
-								openAdministrativeTool(title, null, virusManagerPanel);
+								openAdministrativeTool(title, "icon-virus", virusManagerPanel);
 							}
 						});
 					}
@@ -507,11 +507,11 @@ public class HeaderContainer extends ContentPanel {
 			
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.TAXA_TAGGING_FEATURE)) {
 				final String title = "Taxon Tag Management";
-				menu.add(createMenuItem(null, title, new SelectionListener<MenuEvent>() {
+				menu.add(createMenuItem("icon-tag-management", title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						taxaTagManagerPanel.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
-								openAdministrativeTool(title, null, taxaTagManagerPanel);
+								openAdministrativeTool(title, "icon-tag-management", taxaTagManagerPanel);
 							}
 						});
 					}

@@ -469,6 +469,18 @@ body,td,div,input,p,select,input,button {
 	background: url(../tango/actions/go-jump.png) no-repeat !important;
 }
 
+.icon-go-top {
+	background: url(../tango/actions/go-top.png) no-repeat !important;
+}
+
+.icon-virus {
+	background: url(../tango/actions/media-record.png) no-repeat !important;
+}
+
+.icon-tag-management {
+	background: url(../tango/mimetypes/text-x-script.png) no-repeat !important;
+}
+
 .icon-compose-mail {
 	background: url(../tango/actions/mail-message-new.png) no-repeat !important;
 }
@@ -495,6 +507,10 @@ body,td,div,input,p,select,input,button {
 
 .icon-pencil {
 	background: url(../images/pencil-icon.jpg) no-repeat !important;
+}
+
+.icon-spreadsheet {
+	background: url(../tango/mimetypes/x-office-spreadsheet.png) no-repeat !important;
 }
 
 .icon-tag {
