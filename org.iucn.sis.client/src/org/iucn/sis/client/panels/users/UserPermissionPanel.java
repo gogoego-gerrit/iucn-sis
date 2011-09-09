@@ -99,13 +99,13 @@ public class UserPermissionPanel extends BasicWindow {
 	}
 	
 	private void draw() {
+		store.setStoreSorter(new PermissionStoreSorter(selection));
+		store.sort("text", SortDir.ASC);
+		
 		for (BaseModelData model : store.getModels()) {
 			String value = model.get("value");
 			view.setChecked(model, selection != null && selection.contains(value));
 		}
-	
-		store.setStoreSorter(new PermissionStoreSorter(selection));
-		store.sort("text", SortDir.ASC);
 		
 		removeAll();
 		add(view);
@@ -120,7 +120,11 @@ public class UserPermissionPanel extends BasicWindow {
 				Timer t = new Timer() {
 					public void run() {
 						draw();
-						open();
+						DeferredCommand.addCommand(new Command() {
+							public void execute() {
+								open();	
+							}
+						});
 					}
 				};
 				t.schedule(1500);
@@ -131,6 +135,7 @@ public class UserPermissionPanel extends BasicWindow {
 	private void open() {
 		WindowUtils.hideLoadingAlert();
 		super.show();
+		//layout();
 	}
 	
 	public static class PermissionStoreSorter extends StoreSorter<BaseModelData> {
