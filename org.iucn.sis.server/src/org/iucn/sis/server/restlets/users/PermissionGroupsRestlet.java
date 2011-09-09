@@ -91,8 +91,15 @@ public class PermissionGroupsRestlet extends BaseServiceRestlet {
 			return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
 		} else {
 			try {
-				return new StringRepresentation(permissionIO.getPermissionGroupsXML(), MediaType.TEXT_XML);
-			} catch (DBException e) {
+				final StringBuilder out = new StringBuilder();
+				out.append("<permissions>");
+				
+				for (PermissionGroup group : permissionIO.getPermissionGroups())
+					out.append(group.toXML());
+				
+				out.append("</permissions>");
+				return new StringRepresentation(out.toString(), MediaType.TEXT_XML);
+			} catch (PersistentException e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 			}
 		}

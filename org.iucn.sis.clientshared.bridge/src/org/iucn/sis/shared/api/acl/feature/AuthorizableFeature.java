@@ -25,13 +25,6 @@ public class AuthorizableFeature implements AuthorizableObject {
 	private static final String TAXA_TAGGING = "taxaTagging";
 	private static final String ADD_PROFILE = "addProfile";
 	
-	public static String [] featureNames = new String [] { TAXOMATIC, BATCH_CHANGE, 
-		FIND_REPLACE, DEM_UPLOAD, TAXON_FINDER, EDIT_REGIONS, REFERENCE_REPLACE, 
-		PERMISSION_MANAGEMENT, ACCESS_EXPORT, WORKING_SET_ACCESS_EXPORT, USER_MANAGEMENT, 
-		DEFINITION_MANAGEMENT, DELETE_USERS, INTEGRITY_CHECK, VIRUS_MANAGEMENT, TAXA_TAGGING,
-		ADD_PROFILE
-	};
-	
 	public static AuthorizableFeature TAXOMATIC_FEATURE = new AuthorizableFeature(TAXOMATIC); 
 	public static AuthorizableFeature BATCH_CHANGE_FEATURE = new AuthorizableFeature(BATCH_CHANGE);
 	public static AuthorizableFeature FIND_REPLACE_FEATURE = new AuthorizableFeature(FIND_REPLACE);
@@ -52,6 +45,23 @@ public class AuthorizableFeature implements AuthorizableObject {
 	public static AuthorizableFeature VIRUS_MANAGEMENT_FEATURE = new AuthorizableFeature(VIRUS_MANAGEMENT);
 	public static AuthorizableFeature TAXA_TAGGING_FEATURE = new AuthorizableFeature(TAXA_TAGGING);
 	public static AuthorizableFeature ADD_PROFILE_FEATURE = new AuthorizableFeature(ADD_PROFILE);
+	
+	public static String [] featureNames = new String [] { TAXOMATIC, BATCH_CHANGE, 
+		FIND_REPLACE, DEM_UPLOAD, TAXON_FINDER, EDIT_REGIONS, REFERENCE_REPLACE, 
+		PERMISSION_MANAGEMENT, ACCESS_EXPORT, WORKING_SET_ACCESS_EXPORT, USER_MANAGEMENT, 
+		DEFINITION_MANAGEMENT, DELETE_USERS, INTEGRITY_CHECK, VIRUS_MANAGEMENT, TAXA_TAGGING,
+		ADD_PROFILE
+	};
+	
+	public static AuthorizableFeature [] features = new AuthorizableFeature [] { TAXOMATIC_FEATURE, BATCH_CHANGE_FEATURE, 
+		FIND_REPLACE_FEATURE, DEM_UPLOAD_FEATURE, TAXON_FINDER_FEATURE, EDIT_REGIONS_FEATURE, 
+		REFERENCE_REPLACE_FEATURE, PERMISSION_MANAGEMENT_FEATURE, ACCESS_EXPORT_FEATURE, 
+		WORKING_SET_ACCESS_EXPORT_FEATURE, USER_MANAGEMENT_FEATURE, 
+		DEFINITION_MANAGEMENT_FEATURE, DELETE_USERS_FEATURE, INTEGRITY_CHECK_FEATURE, 
+		VIRUS_MANAGEMENT_FEATURE, TAXA_TAGGING_FEATURE, ADD_PROFILE_FEATURE
+	};
+	
+	
 	
 	private String featureName;
 	

@@ -1,11 +1,12 @@
 package org.iucn.sis.client.api.caches;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
@@ -28,15 +29,13 @@ public class AuthorizationCache {
 
 	public static final AuthorizationCache impl = new AuthorizationCache();
 
-	private HashMap<Integer, PermissionGroup> idToGroups;
-	private HashMap<String, PermissionGroup> groups;
+	private final Cache cache;
+	
 	private Set<PermissionGroup> permissionGroups = null;
 	private String credentials;
 	
-	private AuthorizationCache() {}
-
-	public HashMap<String, PermissionGroup> getGroups() {
-		return groups;
+	private AuthorizationCache() {
+		cache = new Cache();
 	}
 
 	public void setCredentials(String credentials) {
@@ -61,7 +60,7 @@ public class AuthorizationCache {
 			NativeDocument ndoc = getNativeDocument();
 			ndoc.delete(UriBase.getInstance() + "/acl/group/" + groupName, new GenericCallback<String>() {
 				public void onSuccess(String result) {
-					PermissionGroup group =  groups.remove(groupName);
+					PermissionGroup group =  cache.remove(groupName);
 					saveCallback.onSuccess(group);
 				}
 				public void onFailure(Throwable caught) {
@@ -84,7 +83,7 @@ public class AuthorizationCache {
 			ndoc.delete(UriBase.getInstance() + "/acl/group/" + groupNames, new GenericCallback<String>() {
 				public void onSuccess(String result) {
 					for( String cur : groupNames.split(",") )
-						groups.remove(cur);
+						cache.remove(cur);
 					
 					saveCallback.onSuccess(null);
 				}
@@ -126,10 +125,10 @@ public class AuthorizationCache {
 					final NativeNode node = nodes.item(i);
 					if (PermissionGroup.ROOT_TAG.equals(node.getNodeName())) {
 						PermissionGroup group = PermissionGroup.fromXML(node);
-						if (groups.containsKey(group.getName()))
-							groups.get(group.getName()).setID(group.getId());
+						if (cache.containsKey(group.getName()))
+							cache.get(group.getName()).setID(group.getId());
 						
-						groups.put(group.getName(), group);
+						cache.put(group);
 					}
 				}
 				saveCallback.onSuccess(result);
@@ -147,25 +146,26 @@ public class AuthorizationCache {
 	 * @param group
 	 * @param updateCallback
 	 */
-	public void updateGroup(final PermissionGroup group, final GenericCallback<String> updateCallback) {
+	public void updateGroup(final PermissionGroup group, final GenericCallback<PermissionGroup> updateCallback) {
 		StringBuilder str = new StringBuilder("<groups>\n");
 		str.append(group.toXML());
 		str.append("</groups>");
 		final NativeDocument ndoc = getNativeDocument();
 		ndoc.post(UriBase.getInstance() + "/acl/groups", str.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
+				PermissionGroup group = null;
 				final NativeNodeList nodes = ndoc.getDocumentElement().getChildNodes();
 				for (int i = 0; i < nodes.getLength(); i++) {
 					final NativeNode node = nodes.item(i);
 					if (PermissionGroup.ROOT_TAG.equals(node.getNodeName())) {
-						PermissionGroup group = PermissionGroup.fromXML(node);
-						if (groups.containsKey(group.getName()))
-							groups.get(group.getName()).setID(group.getId());
+						group = PermissionGroup.fromXML(node);
+						if (cache.containsKey(group.getName()))
+							cache.get(group.getName()).setID(group.getId());
 						
-						groups.put(group.getName(), group);
+						cache.put(group);
 					}
 				}
-				updateCallback.onSuccess(result);
+				updateCallback.onSuccess(group);
 			}
 			public void onFailure(Throwable caught) {
 				updateCallback.onFailure(caught);
@@ -175,8 +175,7 @@ public class AuthorizationCache {
 
 	public void clear() {
 		permissionGroups = null;
-		idToGroups = null;
-		groups = null;
+		cache.clear();
 	}
 
 	/**
@@ -187,21 +186,19 @@ public class AuthorizationCache {
 	 * @param initCallback - invokes this callback when done
 	 */
 	public void init(final GenericCallback<String> initCallback) {
-		idToGroups = new HashMap<Integer, PermissionGroup>();
-		groups = new HashMap<String, PermissionGroup>();
-
+		cache.clear();
+		
 		final NativeDocument ndoc = getNativeDocument();
 		ndoc.get(UriBase.getInstance() + "/acl/groups", new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				NativeNodeList groupEls = ndoc.getDocumentElement().getElementsByTagName(PermissionGroup.ROOT_TAG);
 				for (int i = 0; i < groupEls.getLength(); i++) {
 					PermissionGroup group = PermissionGroup.fromXML(groupEls.elementAt(i));
-					groups.put(group.getName(), group);
-					idToGroups.put(Integer.valueOf(group.getId()), group);
+					cache.put(group);
 				}
-				for (Entry<String, PermissionGroup> entry : groups.entrySet()) {
-					if (entry.getValue().getParent() != null) {
-						entry.getValue().setParent(idToGroups.get(Integer.valueOf(entry.getValue().getParent().getId())));
+				for (PermissionGroup group : cache.values()) {
+					if (group.getParent() != null) {
+						group.setParent(cache.get(Integer.valueOf(group.getParent().getId())));
 					}
 				}
 				
@@ -220,7 +217,7 @@ public class AuthorizationCache {
 	public PermissionGroup.PermissionGroupLocater getFinder() {
 		return new PermissionGroup.PermissionGroupLocater() {
 			public PermissionGroup findGroup(Integer id, String name) {
-				PermissionGroup parent = idToGroups == null ? null : idToGroups.get(id);
+				PermissionGroup parent = cache.get(id);
 				if (parent == null) {
 					parent = new PermissionGroup();
 					parent.setID(id);
@@ -234,7 +231,7 @@ public class AuthorizationCache {
 	public void addUser(ClientUser user) {
 		try {
 			if (user.getPermissionGroups().isEmpty()) {
-				user.getPermissionGroups().add(groups.get("guest"));
+				user.getPermissionGroups().add(cache.get("guest"));
 			}
 			permissionGroups = new HashSet<PermissionGroup>(user.getPermissionGroups());
 		} catch (Throwable e) {
@@ -269,8 +266,79 @@ public class AuthorizationCache {
 		return ret;
 	}
 	
-	public HashMap<Integer, PermissionGroup> getIdToGroups() {
-		return idToGroups;
+	public PermissionGroup getGroup(Integer id) {
+		return cache.get(id);
+	}
+	
+	public PermissionGroup getGroup(String name) {
+		return cache.get(name);
+	}
+	
+	public boolean hasGroup(String name) {
+		return cache.containsKey(name);
+	}
+	
+	public List<PermissionGroup> listGroups() {
+		return new ArrayList<PermissionGroup>(cache.values());
+	}
+	
+	public void sync(PermissionGroup target) {
+		PermissionGroup source = getGroup(target.getName());
+		if (source != null) {
+			target.setID(source.getId());
+		}
+		
+		cache.put(target);
+	}
+	
+	private static class Cache {
+		
+		private final Map<String, PermissionGroup> nameCache;
+		private final Map<Integer, PermissionGroup> idCache;
+		
+		public Cache() {
+			nameCache = new HashMap<String, PermissionGroup>();
+			idCache = new HashMap<Integer, PermissionGroup>();
+		}
+		
+		public PermissionGroup get(String name) {
+			return nameCache.get(name);
+		}
+		
+		public PermissionGroup get(Integer id) {
+			return idCache.get(id);
+		}
+		
+		public void clear() {
+			nameCache.clear();
+			idCache.clear();
+		}
+		
+		public PermissionGroup remove(String name) {
+			return nameCache.remove(name);
+		}
+		
+		public PermissionGroup remove(Integer id) {
+			return idCache.remove(id);
+		}
+		
+		public boolean containsKey(String name) {
+			return nameCache.containsKey(name);
+		}
+		
+		public boolean containsKey(Integer id) {
+			return idCache.containsKey(id);
+		}
+		
+		public void put(PermissionGroup group) {
+			nameCache.put(group.getName(), group);
+			idCache.put(group.getId(), group);
+		}
+		
+		public Collection<PermissionGroup> values() {
+			return idCache.values();
+		}
+		
 	}
 
 }

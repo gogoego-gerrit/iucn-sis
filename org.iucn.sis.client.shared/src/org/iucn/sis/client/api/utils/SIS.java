@@ -24,6 +24,10 @@ import com.solertium.util.portable.XMLWritingUtils;
 
 public class SIS {
 	
+	public static boolean isDebugMode() {
+		return "true".equals(com.google.gwt.user.client.Window.Location.getParameter("debug"));
+	}
+	
 	public static void fetchList(final Collection<String> uriList, final Map<String, GenericCallback<NativeDocument>> listeners) {
 		fetchList(uriList, listeners, null, true);
 	}

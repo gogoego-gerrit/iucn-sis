@@ -458,6 +458,23 @@ public class WorkingSetCache {
 		});
 	}
 	
+	public void getGrantableWorkingSets(final GenericCallback<List<WorkingSet>> wayBack) {
+		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.get(UriBase.getInstance().getSISBase() + "/workingSet/grants/"
+				+ SISClientBase.currentUser.getId(), new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				wayBack.onFailure(caught);
+			}
+			public void onSuccess(String arg0) {
+				List<WorkingSet> grantableWorkingSets = new ArrayList<WorkingSet>();
+				NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(WorkingSet.ROOT_TAG);
+				for (int i = 0; i < list.getLength(); i++)
+					grantableWorkingSets.add(WorkingSet.fromXMLMinimal(list.elementAt(i)));
+				wayBack.onSuccess(grantableWorkingSets);
+			}
+		});
+	}
+	
 	public void fetchWorkingSet(Integer id, final FetchMode mode, final GenericCallback<WorkingSet> callback) {
 		if (isCached(id, mode))
 			callback.onSuccess(getWorkingSet(id));

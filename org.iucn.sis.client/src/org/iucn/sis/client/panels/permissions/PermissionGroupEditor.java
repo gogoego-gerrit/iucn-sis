@@ -51,6 +51,7 @@ import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.user.client.ui.ListBox;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.CardLayoutContainer;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -179,7 +180,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 				final PermissionGroupData cur = groupSelector.getSelection().get(0);
 				String selectedName = cur.getGroup().getName();
 				//If it isn't new...
-				if( AuthorizationCache.impl.getGroups().containsKey( selectedName ) ) {
+				if( AuthorizationCache.impl.hasGroup( selectedName ) ) {
 					// Already saved group
 					saveDataToGroup(group);
 					
@@ -188,8 +189,8 @@ public class PermissionGroupEditor extends LayoutContainer {
 						if(group.getId() == 0)
 							setGroupIDFromCache(group.getName());
 						
-						AuthorizationCache.impl.updateGroup(group, new GenericCallback<String>() {
-							public void onSuccess(String result) {
+						AuthorizationCache.impl.updateGroup(group, new GenericCallback<PermissionGroup>() {
+							public void onSuccess(PermissionGroup result) {
 								WindowUtils.infoAlert("Save Successful", "Permission Edits Successfully Saved");
 									
 								groupStore.remove(cur);
@@ -204,7 +205,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 						});
 					} else {
 						// Create New Group with different name
-						if(AuthorizationCache.impl.getGroups().containsKey( group.getName() ) ){
+						if(AuthorizationCache.impl.hasGroup( group.getName() ) ){
 							WindowUtils.errorAlert("Save Failed", "Permission Group with the same name already exists.");
 							groupSelector.setSelection(wrapInArray(cur));
 						}else{
@@ -225,7 +226,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 						}
 					}
 				} else {
-					if(AuthorizationCache.impl.getGroups().containsKey( groupName.getValue().trim() ) ){
+					if(AuthorizationCache.impl.hasGroup( groupName.getValue().trim() ) ){
 						WindowUtils.errorAlert("Save Failed", "Permission Group with the same name already exists");
 						groupSelector.setSelection(wrapInArray(cur));
 					}else{
@@ -255,8 +256,8 @@ public class PermissionGroupEditor extends LayoutContainer {
 		revertChanges.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				PermissionGroupData cur = groupSelector.getSelection().get(0);
-				if( AuthorizationCache.impl.getGroups().containsKey( cur.getGroup().getName() ) ) {
-					cur.setGroup(AuthorizationCache.impl.getGroups().get( cur.getGroup().getName() ));
+				if( AuthorizationCache.impl.hasGroup( cur.getGroup().getName() ) ) {
+					cur.setGroup(AuthorizationCache.impl.getGroup( cur.getGroup().getName() ));
 					groupStore.update(cur);
 					groupName.setValue("");
 				} else {
@@ -302,7 +303,11 @@ public class PermissionGroupEditor extends LayoutContainer {
 		
 		inheritenceUI = new PermissionInheritenceUI();
 		
-		scopeBrowser = new PermissionScopeTaxonomyBrowser(this);
+		scopeBrowser = new PermissionScopeTaxonomyBrowser(new ComplexListener<Taxon>() {
+			public void handleEvent(Taxon eventData) {
+				updateScope(eventData);
+			}
+		});
 		scope = new TextField<String>();
 		scope.setEmptyText("");
 		scopeChoices = new ListBox(false);
@@ -368,14 +373,14 @@ public class PermissionGroupEditor extends LayoutContainer {
 		group = baseGroup;
 		PermissionGroupData toSelect = null;
 		
-		for( Entry<String, PermissionGroup> entry : AuthorizationCache.impl.getGroups().entrySet() ) {
-			if( !entry.getValue().getName().matches("^ws\\d+.*") ) {
-				PermissionGroupData groupData = new PermissionGroupData(entry.getValue());
+		for( PermissionGroup entry : AuthorizationCache.impl.listGroups() ) {
+			if( !entry.getName().matches("^ws\\d+.*") ) {
+				PermissionGroupData groupData = new PermissionGroupData(entry);
 				groupStore.add(groupData);
 
 				if( group == null )
-					group = entry.getValue();
-				if( entry.getValue().equals(group) )
+					group = entry;
+				if( entry.equals(group) )
 					toSelect = groupData;
 			}
 		}
@@ -384,9 +389,9 @@ public class PermissionGroupEditor extends LayoutContainer {
 	}
 	
 	private void setGroupIDFromCache(String groupName){
-		for( Entry<String, PermissionGroup> entry : AuthorizationCache.impl.getGroups().entrySet() ) {
-			if( entry.getValue().getName().equals(groupName) ) {
-				group.setID(entry.getValue().getId());
+		for( PermissionGroup entry : AuthorizationCache.impl.listGroups() ) {
+			if( entry.getName().equals(groupName) ) {
+				group.setID(entry.getId());
 			}
 		}
 	}
@@ -446,7 +451,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 		
 		group.setParent(null);
 		for( BaseModelData cur : inheritenceUI.getUsedStore().getModels() )
-			group.setParent(AuthorizationCache.impl.getGroups().get((String)cur.get("name")));
+			group.setParent(AuthorizationCache.impl.getGroup((String)cur.get("name")));
 		
 		for( PermissionResourceUI uis : resourceUIs )
 			uis.sinkPermissionSetUIData();
@@ -586,7 +591,7 @@ public class PermissionGroupEditor extends LayoutContainer {
 		scope.setData("scope", taxon);
 	}
 	
-	public void updateScope(ArrayList<WorkingSet> sets) {
+	public void updateScope(List<WorkingSet> sets) {
 		String val = "";
 		String ids = "";
 		for( WorkingSet ws : sets ) {
@@ -605,7 +610,11 @@ public class PermissionGroupEditor extends LayoutContainer {
 
 	private void switchToWorkingSetList() {
 		if( workingSetList == null )
-			workingSetList = new PermissionWorkingSetList(this);
+			workingSetList = new PermissionWorkingSetList(new ArrayList<WorkingSet>(), new ComplexListener<List<WorkingSet>>() {
+				public void handleEvent(List<WorkingSet> eventData) {
+					updateScope(eventData);
+				}
+			});
 		
 		accessoryPanel.switchToComponent(workingSetList);
 	}

@@ -59,7 +59,7 @@ public class PermissionResourceAttribute implements Serializable {
 	
 	private Permission permission;
 	
-	private void setId(int value) {
+	public void setId(int value) {
 		this.id = value;
 	}
 	

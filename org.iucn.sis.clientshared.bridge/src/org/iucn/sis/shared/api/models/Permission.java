@@ -182,7 +182,7 @@ public class Permission implements Serializable {
 	
 	
 	public String toString() {
-		return "For "+ getUrl() + ", " +
+		return "For #" + getId() + " @ "+ getUrl() + ", " +
 			"R" + plusOrMinus(read) + ", " + 
 			"W" + plusOrMinus(write) + ", " +
 			"C" + plusOrMinus(create) + ", " + 

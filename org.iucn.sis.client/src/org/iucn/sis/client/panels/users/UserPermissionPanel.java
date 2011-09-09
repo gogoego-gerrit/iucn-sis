@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.utils.BasicWindow;
+import org.iucn.sis.shared.api.models.PermissionGroup;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -73,11 +74,11 @@ public class UserPermissionPanel extends BasicWindow {
 				return model.get("value");
 			}
 		});
-		for (String group : AuthorizationCache.impl.getGroups().keySet()) {
-			if (!group.matches("^ws\\d+.*")) {
+		for (PermissionGroup group : AuthorizationCache.impl.listGroups()) {
+			if (!group.getName().matches("^ws\\d+.*")) {
 				BaseModelData model = new BaseModelData();
-				model.set("text", group);
-				model.set("value", group);
+				model.set("text", group.getName());
+				model.set("value", group.getName());
 				
 				store.add(model);
 			}

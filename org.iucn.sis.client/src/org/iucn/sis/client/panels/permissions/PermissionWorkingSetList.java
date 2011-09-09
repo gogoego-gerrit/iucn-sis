@@ -5,9 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.workingset.WSModel;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
@@ -27,8 +25,8 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
-import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.GenericPagingLoader;
 import com.solertium.util.extjs.client.PagingLoaderFilter;
 
@@ -47,14 +45,11 @@ public class PermissionWorkingSetList extends ContentPanel {
 	
 	private LayoutContainer listContainer;
 	
-	private PermissionGroupEditor editor;
-	
-	public PermissionWorkingSetList(PermissionGroupEditor permEditor) {
+	public PermissionWorkingSetList(final List<WorkingSet> workingSets, final ComplexListener<List<WorkingSet>> listener) {
+		super();
 		setLayout(new RowLayout());
 		setHeaderVisible(false);
 		setBorders(true);
-		
-		this.editor = permEditor;
 		
 		list = new DataList();
 		list.setCheckable(true);
@@ -101,35 +96,33 @@ public class PermissionWorkingSetList extends ContentPanel {
 		add(listContainer, new RowData(1, 1));
 		add(pagingBar, new RowData(1, 30));
 		
-		getButtonBar().add(new Button("Select", new SelectionListener<ButtonEvent>() {
+		addButton(new Button("Select", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				ArrayList<WorkingSet> sets = new ArrayList<WorkingSet>();
 				for( WSModel wsModel : binder.getCheckedSelection() )
 					sets.add(wsModel.getWorkingSet());
 				
-				editor.updateScope(sets);
+				listener.handleEvent(sets);
+			}
+		}));
+		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				listener.handleEvent(new ArrayList<WorkingSet>());
 			}
 		}));
 		
-		WorkingSetCache.impl.getAllSubscribableWorkingSets(new GenericCallback<List<WorkingSet>>() {
-			public void onSuccess(List<WorkingSet> subs) {
-				for( WorkingSet cur : subs ) {
-					if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-							AuthorizableObject.GRANT, cur))
-						pagingLoader.getFullList().add(new WSModel(cur));
-				}
+		for (WorkingSet cur : workingSets)
+			if (AuthorizationCache.impl.hasRight(AuthorizableObject.GRANT, cur))
+				pagingLoader.getFullList().add(new WSModel(cur));
+		
 				
-//				store.sort("name", SortDir.ASC);
-				ArrayUtils.quicksort(pagingLoader.getFullList(), new Comparator<WSModel>() {
-					public int compare(WSModel o1, WSModel o2) {
-						return o1.getName().compareTo(o2.getName());
-					}
-				});
-				pagingLoader.getPagingLoader().load();
-				layout();
-			}
-			public void onFailure(Throwable caught) {
+//		store.sort("name", SortDir.ASC);
+		ArrayUtils.quicksort(pagingLoader.getFullList(), new Comparator<WSModel>() {
+			public int compare(WSModel o1, WSModel o2) {
+				return o1.getName().compareTo(o2.getName());
 			}
 		});
+		pagingLoader.getPagingLoader().load();
+		layout();
 	}
 }

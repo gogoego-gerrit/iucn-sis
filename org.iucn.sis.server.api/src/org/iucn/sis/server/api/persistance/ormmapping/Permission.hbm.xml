@@ -21,7 +21,7 @@ License Type: Evaluation
 		<many-to-one name="permissionGroup" cascade="lock" column="permission_group_id" class="org.iucn.sis.shared.api.models.PermissionGroup" not-null="true" lazy="no-proxy">
 		</many-to-one>
 		
-		<set name="Attributes" lazy="true" cascade="save-update,lock,replicate" inverse="true">
+		<set name="Attributes" lazy="false" cascade="save-update,lock,replicate" inverse="true">
 			<key column="permission_id" not-null="true"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.PermissionResourceAttribute"/>
 		</set>

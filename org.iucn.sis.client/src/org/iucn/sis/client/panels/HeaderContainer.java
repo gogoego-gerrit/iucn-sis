@@ -7,6 +7,7 @@ import org.iucn.sis.client.api.caches.BookmarkCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.bookmarks.BookmarkManager;
@@ -17,6 +18,7 @@ import org.iucn.sis.client.panels.header.FindReplacePanel;
 import org.iucn.sis.client.panels.header.TrashBinPanel;
 import org.iucn.sis.client.panels.integrity.IntegrityApplicationPanel;
 import org.iucn.sis.client.panels.locking.LockManagementPanel;
+import org.iucn.sis.client.panels.permissions.NewPermissionGroupEditor;
 import org.iucn.sis.client.panels.permissions.PermissionGroupEditor;
 import org.iucn.sis.client.panels.redlist.RedlistPanel;
 import org.iucn.sis.client.panels.region.RegionPanel;
@@ -47,7 +49,6 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.TabPanel;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -575,49 +576,77 @@ public class HeaderContainer extends ContentPanel {
 			}
 		}));
 		
-		options.add(createMenuItem("icon-user-group", "Manage Users", new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				final Window s = WindowUtils.newWindow("Manage Users", "icon-user-group", true, true);
-				s.setLayout(new FitLayout());
-				
-				TabPanel userPanel = new TabPanel();
-				
-				if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, 
-						AuthorizableObject.USE_FEATURE, AuthorizableFeature.PERMISSION_MANAGEMENT_FEATURE)) {
-					permEditor = new PermissionGroupEditor();
-					
-					TabItem ti = new TabItem("Edit Permissions");
-					ti.setIconStyle("icon-user-group-edit");
-					ti.setLayout(new FitLayout());
-					ti.add(permEditor);
-					userPanel.add(ti);
+		{
+			Menu menu = new Menu();
+			
+			if (AuthorizationCache.impl.hasRight(AuthorizableObject.USE_FEATURE, AuthorizableFeature.PERMISSION_MANAGEMENT_FEATURE)) {
+				//TODO: remove this once testing is completed
+				if (SIS.isDebugMode()) {
+					menu.add(createMenuItem("icon-user-group-edit", "Edit Permissions (Old Version)", new SelectionListener<MenuEvent>() {
+						public void componentSelected(MenuEvent ce) {
+							permEditor = new PermissionGroupEditor();
+							
+							final Window s = WindowUtils.newWindow("Edit Permissions (Old Version)", "icon-user-group-edit", true, true);
+							s.setSize(800, 600);
+							s.setLayout(new FitLayout()); 
+							s.add(permEditor);
+							s.show();
+						}
+					}));
 				}
 				
-				userModelPanel = new UserModelTabPanel();
-				TabItem ti = new TabItem("Edit Users");
-				ti.setIconStyle("icon-user-suit");
-				ti.setLayout(new FitLayout());
-				ti.add(userModelPanel);
-				userPanel.add(ti);
-				
-				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.USER_MANAGEMENT_FEATURE)) {
-					TabItem item = new TabItem("Bulk Upload from Spreadsheet");
-					item.setLayout(new FillLayout());
-					item.add(new UploadUsersPanel());
-					
-					userPanel.add(item);
-				}
-				
-				s.add(userPanel);
-				
-				
-				s.setSize(800, 600);
-				s.show();
-				s.center();
+				menu.add(createMenuItem("icon-user-group-edit", "Edit Permissions", new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final NewPermissionGroupEditor editor = new NewPermissionGroupEditor();
+						editor.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								final Window s = WindowUtils.newWindow("Edit Permissions", "icon-user-group-edit", true, true);
+								s.setSize(800, 600);
+								s.setLayout(new FitLayout()); 
+								s.add(editor);
+								s.show();
+							}
+						});
+					}
+				}));
 			}
-		}));
+			
+			menu.add(createMenuItem("icon-user-suit", "Edit Users", new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					userModelPanel = new UserModelTabPanel();
+					TabItem ti = new TabItem("Edit Users");
+					ti.setIconStyle("icon-user-suit");
+					
+					final Window s = WindowUtils.newWindow("Edit Users", "icon-user-suit", true, true);
+					s.setSize(800, 600);
+					s.setLayout(new FitLayout());
+					s.add(userModelPanel);
+					s.show();
+				}
+			}));
+			
+			if (AuthorizationCache.impl.hasRight(AuthorizableObject.USE_FEATURE, AuthorizableFeature.USER_MANAGEMENT_FEATURE)) {
+				menu.add(createMenuItem("icon-spreadsheet", "Bulk Upload from Spreadsheet", new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final Window s = WindowUtils.newWindow("Edit Users", "icon-spreadsheet", true, true);
+						s.setSize(800, 600);
+						s.setLayout(new FitLayout());
+						s.add(new UploadUsersPanel());
+						s.show();
+					}
+				}));
+			}
+			
+			
+			MenuItem item = new MenuItem();
+			item.setText("Manage Users");
+			item.setIconStyle("icon-user-group");
+			item.setSubMenu(menu);
+			
+			options.add(item);
+		}
 		
-		if ("true".equals(com.google.gwt.user.client.Window.Location.getParameter("debug"))) {
+		if (SIS.isDebugMode()) {
 			options.add(createMenuItem("", "View Debugging Output", new SelectionListener<MenuEvent>() {
 				public void componentSelected(MenuEvent ce) {
 					final Window window = WindowUtils.newWindow("Debugging Output");

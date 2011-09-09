@@ -104,12 +104,12 @@ public class PermissionInheritenceUI extends LayoutContainer {
 		usedStore.setFiresEvents(false);
 		unusedStore.setFiresEvents(false);
 		
-		for( Entry<String, PermissionGroup> group : AuthorizationCache.impl.getGroups().entrySet() ) {
-			if( !group.getValue().getName().matches("^ws\\d+.*") ) {
+		for( PermissionGroup group : AuthorizationCache.impl.listGroups() ) {
+			if( !group.getName().matches("^ws\\d+.*") ) {
 				BaseModelData data = new BaseModelData();
-				data.set("name", group.getValue().getName());
+				data.set("name", group.getName());
 
-				if( selectedNames.contains(group.getValue().getName()))
+				if( selectedNames.contains(group.getName()))
 					usedStore.add(data);
 				else
 					unusedStore.add(data);

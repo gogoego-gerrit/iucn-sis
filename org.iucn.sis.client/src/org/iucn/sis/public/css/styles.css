@@ -35,6 +35,10 @@ body,td,div,input,p,select,input,button {
 	font-size: 9px;	
 }
 
+.fontSize12 {
+	font-size: 12px !important;	
+}
+
 .redFont {
 	color: #C01B24 !important;	
 }

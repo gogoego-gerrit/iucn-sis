@@ -16,6 +16,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.solertium.util.events.ComplexListener;
 
 public class PermissionScopeTaxonomyBrowser extends ContentPanel {
 
@@ -29,7 +30,7 @@ public class PermissionScopeTaxonomyBrowser extends ContentPanel {
 	 * 
 	 * @param editor the editor using this taxonomy browser
 	 */
-	public PermissionScopeTaxonomyBrowser(final PermissionGroupEditor editor) {
+	public PermissionScopeTaxonomyBrowser(final ComplexListener<Taxon> listener) {
 		setLayout(new FitLayout());
 		setHeaderVisible(false);
 		currentlySelected = null;
@@ -55,13 +56,20 @@ public class PermissionScopeTaxonomyBrowser extends ContentPanel {
 		
 		select = new Button("No Taxon Selected", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				editor.updateScope(currentlySelected);
+				listener.handleEvent(currentlySelected);
+				//editor.updateScope(currentlySelected);
 			}
 		});
 		select.setEnabled(false);
 		
 		add(scopeBrowser);
-		getButtonBar().add(select);
+		
+		addButton(select);
+		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				listener.handleEvent(null);
+			}
+		}));
 		
 		addListener(Events.Show, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {

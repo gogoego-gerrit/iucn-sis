@@ -147,16 +147,16 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 			final PermissionGroup perm = new PermissionGroup(permGroupName);
 			
 			if( cur.isAssessor() ) {
-				if( !AuthorizationCache.impl.getGroups().containsKey(permAssessorGroup) && 
+				if( !AuthorizationCache.impl.hasGroup(permAssessorGroup) && 
 						!groupsToAdd.contains(permAssessorGroup) ) {
 					final PermissionGroup permAssessor = new PermissionGroup(permAssessorGroup);
-					permAssessor.setScopeURI("resource/workingSet/" + WorkingSetCache.impl.getCurrentWorkingSet().getId());
-					permAssessor.setParent(AuthorizationCache.impl.getGroups().get("assessor"));
+					permAssessor.setScopeURI("workingSet/" + WorkingSetCache.impl.getCurrentWorkingSet().getId());
+					permAssessor.setParent(AuthorizationCache.impl.getGroup("assessor"));
 					groupsToAdd.add(permAssessor);
 				}
 			}
 
-			if( !AuthorizationCache.impl.getGroups().containsKey(permGroupName) && !groupsToAdd.contains(perm) ) {
+			if( !AuthorizationCache.impl.hasGroup(permGroupName) && !groupsToAdd.contains(perm) ) {
 				/*
 				PermissionSet set = new PermissionSet();
 				set.set(AuthorizableObject.CREATE, Boolean.FALSE);
@@ -264,15 +264,15 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 	private void deletePermissionGroups() {
 		StringBuilder groupsToRemove = new StringBuilder();
 		final String prefix = "ws" + WorkingSetCache.impl.getCurrentWorkingSet().getId();
-		if( AuthorizationCache.impl.getGroups().containsKey(prefix + "r") )
+		if( AuthorizationCache.impl.hasGroup(prefix + "r") )
 			groupsToRemove.append(prefix + "r,");
-		if( AuthorizationCache.impl.getGroups().containsKey(prefix + "rw") )
+		if( AuthorizationCache.impl.hasGroup(prefix + "rw") )
 			groupsToRemove.append(prefix + "rw,");
-		if( AuthorizationCache.impl.getGroups().containsKey(prefix + "rwg") )
+		if( AuthorizationCache.impl.hasGroup(prefix + "rwg") )
 			groupsToRemove.append(prefix + "rwg,");
-		if( AuthorizationCache.impl.getGroups().containsKey(prefix + "rg") )
+		if( AuthorizationCache.impl.hasGroup(prefix + "rg") )
 			groupsToRemove.append(prefix + "rg,");
-		if( AuthorizationCache.impl.getGroups().containsKey(prefix + "assessor") )
+		if( AuthorizationCache.impl.hasGroup(prefix + "assessor") )
 			groupsToRemove.append(prefix + "assessor,");
 		
 		if( groupsToRemove.length() > 0 )
