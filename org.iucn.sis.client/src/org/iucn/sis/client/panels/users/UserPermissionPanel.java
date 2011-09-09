@@ -6,6 +6,7 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.shared.api.models.PermissionGroup;
+import org.iucn.sis.shared.api.utils.CaseInsensitiveAlphanumericComparator;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -23,7 +24,6 @@ import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.Timer;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class UserPermissionPanel extends BasicWindow {
 	
@@ -48,6 +48,11 @@ public class UserPermissionPanel extends BasicWindow {
 				for (BaseModelData model : view.getChecked())
 					checked.add((String)model.get("value"));
 				
+				//Add filtered selections
+				for (String group : selection)
+					if (isFilteredOut(group))
+						checked.add(group);
+				
 				saveListener.handleEvent(checked);
 			}
 		}));
@@ -68,14 +73,13 @@ public class UserPermissionPanel extends BasicWindow {
 	
 	public void updateStore() {
 		final ListStore<BaseModelData> store = new ListStore<BaseModelData>();
-		store.setStoreSorter(new PermissionStoreSorter());
 		store.setKeyProvider(new ModelKeyProvider<BaseModelData>() {
 			public String getKey(BaseModelData model) {
 				return model.get("value");
 			}
 		});
 		for (PermissionGroup group : AuthorizationCache.impl.listGroups()) {
-			if (!group.getName().matches("^ws\\d+.*")) {
+			if (!isFilteredOut(group.getName())) {
 				BaseModelData model = new BaseModelData();
 				model.set("text", group.getName());
 				model.set("value", group.getName());
@@ -83,12 +87,15 @@ public class UserPermissionPanel extends BasicWindow {
 				store.add(model);
 			}
 		}
-		store.sort("name", SortDir.ASC);
 		
 		this.store = store;
 		
 		view = new CheckBoxListView<BaseModelData>();
 		view.setStore(store);
+	}
+	
+	private boolean isFilteredOut(String groupName) {
+		return groupName.matches("^ws\\d+.*");
 	}
 	
 	private void draw() {
@@ -97,6 +104,9 @@ public class UserPermissionPanel extends BasicWindow {
 			view.setChecked(model, selection != null && selection.contains(value));
 		}
 	
+		store.setStoreSorter(new PermissionStoreSorter(selection));
+		store.sort("text", SortDir.ASC);
+		
 		removeAll();
 		add(view);
 	}
@@ -125,8 +135,14 @@ public class UserPermissionPanel extends BasicWindow {
 	
 	public static class PermissionStoreSorter extends StoreSorter<BaseModelData> {
 		
-		private final PortableAlphanumericComparator comparator = 
-			new PortableAlphanumericComparator();
+		private final CaseInsensitiveAlphanumericComparator comparator;
+		private final List<String> selection;
+		
+		public PermissionStoreSorter(List<String> selection) {
+			super();
+			this.selection = selection;
+			this.comparator = new CaseInsensitiveAlphanumericComparator();
+		}
 		
 		@Override
 		public int compare(Store<BaseModelData> store, BaseModelData m1,
@@ -137,8 +153,14 @@ public class UserPermissionPanel extends BasicWindow {
 				return 1;
 			else if (v2 == null)
 				return -1;
-			else
-				return comparator.compare(v1, v2);
+			else {
+				if (selection.contains(v1))
+					return -1;
+				else if (selection.contains(v2))
+					return 1;
+				else
+					return comparator.compare(v1, v2);
+			}
 		}
 	}
 	

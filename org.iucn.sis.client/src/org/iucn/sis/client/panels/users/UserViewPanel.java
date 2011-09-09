@@ -225,6 +225,7 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 		filters.setLocal(false);
 		
 		filters.addFilter(new NumericFilter(ClientUser.ID));
+		filters.addFilter(new StringFilter(ClientUser.USERNAME));
 		filters.addFilter(new StringFilter(ClientUser.FIRST_NAME));
 		filters.addFilter(new StringFilter(ClientUser.LAST_NAME));
 		filters.addFilter(new StringFilter(ClientUser.NICKNAME));
