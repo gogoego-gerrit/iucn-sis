@@ -316,8 +316,10 @@ public class FieldDAO {
 			}
 			
 			if(field.getFields() != null) {
-				for (Field childField :field.getFields()){
-					FieldDAO.deleteAndDissociate(childField, session);
+				Field[] lFields = (Field[])field.getFields().toArray(new Field[field.getFields().size()]);
+				for (int i = 0; i < lFields.length; i++) {
+					field.getFields().remove(lFields[i]);
+					FieldDAO.deleteAndDissociate(lFields[i], session);
 				}
 			}
 			
