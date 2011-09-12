@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PojoSR Framework
+Bundle-SymbolicName: de.kalpatec.pojosr.framework
+Bundle-Version: 0.1.4
+Bundle-Vendor: Pojo Service Registry
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: de.kalpatec.pojosr.framework-0.1.4.jar,
+ .
+Export-Package: de.kalpatec.pojosr.framework,
+ de.kalpatec.pojosr.framework.launch
