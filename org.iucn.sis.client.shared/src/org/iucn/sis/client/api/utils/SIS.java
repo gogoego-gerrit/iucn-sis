@@ -6,10 +6,12 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.IncrementalCommand;
+import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -23,6 +25,16 @@ import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.XMLWritingUtils;
 
 public class SIS {
+	
+	public static String getBuildNumber() {
+		String buildNumber = "2.0.0";
+		try {
+			buildNumber = RootPanel.get("version").getElement().getInnerText();
+		} catch (Throwable e) {
+			Debug.println("Error loading build number.");
+		}
+		return buildNumber;
+	}
 	
 	public static boolean isDebugMode() {
 		return "true".equals(com.google.gwt.user.client.Window.Location.getParameter("debug"));

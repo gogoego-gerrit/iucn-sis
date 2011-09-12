@@ -10,7 +10,6 @@ import java.util.Map;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.ChangesFieldWidgetCache;
-import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
 import org.iucn.sis.client.api.caches.ReferenceCache;
@@ -190,6 +189,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 			"error as a bug, please file a Zendesk ticket and copy the contents of " +
 			"this textbox into the body of the ticket.  Thank you.\n\n");
 		builder.append("Error occurred on " + new Date() + "\n");
+		builder.append(SIS.getBuildNumber() + "\n");
 		builder.append(HostedModeDebugger.serializeThrowable(e));
 		
 		final TextArea area = new TextArea();

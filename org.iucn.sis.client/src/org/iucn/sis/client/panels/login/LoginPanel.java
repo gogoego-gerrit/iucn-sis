@@ -2,6 +2,7 @@ package org.iucn.sis.client.panels.login;
 
 import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
 import org.iucn.sis.client.api.ui.users.panels.AddUserWindow;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -98,14 +99,6 @@ public class LoginPanel extends LayoutContainer {
 		headerImage.setWidth("89px");
 		headerImage.setHeight("85px");
 		headerImage.addStyleName("SIS_loginHeaderImage");
-		
-		
-		String buildNumber = "2.0.0";
-		try {
-			buildNumber = RootPanel.get("version").getElement().getInnerText();
-		} catch (Throwable e) {
-			Debug.println("Error loading build number.");
-		}
 
 		/* Left side of the content area */
 		// Add content to description panel
@@ -117,7 +110,7 @@ public class LoginPanel extends LayoutContainer {
 				.add(new HTML("<div style='margin: 5px; margin-top: 20px;'>"
 						+ "This is the Species Information Service (SIS) Toolkit, rev. 1.5-c4.</div>"
 						+ "<div style='margin: 5px; margin-top: 20px;'>"
-						+ buildNumber + "</div>"
+						+ SIS.getBuildNumber() + "</div>"
 						+ "<div style='margin: 5px; margin-top: 20px;'>"
 						+ "<a href=\"/raw/downloads/sisOffline.zip\">Click here</a> to download "
 						+ "a standalone version of the software.</div>"

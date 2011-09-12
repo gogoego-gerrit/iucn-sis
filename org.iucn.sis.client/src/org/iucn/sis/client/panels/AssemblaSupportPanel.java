@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.BasicWindow;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.User;
 
@@ -91,8 +92,9 @@ public class AssemblaSupportPanel extends BasicWindow {
 					String subject = QUESTION.equals(type.getValue().getValue()) ? 
 						"Question from SIS user " + user.getUsername() + " (" + user.getDisplayableName() + ", " + affil + ")" :
 						"Bug Report from SIS user " + user.getUsername() + " (" + user.getDisplayableName() + ", " + affil + ")";
-					
-					submit(subject, reporter.getValue(), area.getValue());
+					String body = area.getValue();
+					body += "\n\n" + SIS.getBuildNumber();
+					submit(subject, reporter.getValue(), body);
 				}
 			}
 		}));
