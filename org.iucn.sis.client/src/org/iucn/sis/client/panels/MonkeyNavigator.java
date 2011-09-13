@@ -107,15 +107,15 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 	}
 	
 	public void refreshWorkingSetView() {
-		workingSetContainer.refreshView();
+		workingSetContainer.refreshView(false);
 	}
 	
 	public void refreshTaxonView() {
-		taxonContainer.refreshView();
+		taxonContainer.refreshView(false);
 	}
 	
 	public void refreshAssessmentView() {
-		assessmentContainer.refreshView();
+		assessmentContainer.refreshView(false);
 	}
 	
 	public static void getSortedWorkingSets(ComplexListener<List<WorkingSet>> callback) {

@@ -84,8 +84,12 @@ public abstract class GridNonPagingMonkeyNavigatorPanel<T> extends NonPagingMonk
 	
 	@Override
 	public void refreshView() {
+		refreshView(true);
+	}
+	
+	public void refreshView(boolean updateSelection) {
 		grid.getView().refresh(false);
-		if (hasSelection())
+		if (updateSelection && hasSelection())
 			setSelection(getSelected());
 	}
 	
