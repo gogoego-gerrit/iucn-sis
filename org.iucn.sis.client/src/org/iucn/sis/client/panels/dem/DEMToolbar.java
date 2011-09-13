@@ -543,7 +543,7 @@ public class DEMToolbar extends ToolBar {
 				fetchReport();
 			}
 		});
-		mainMenu.add(mItem);
+		mainMenu.add(mItem);*/
 		
 		final MenuItem integrity = new MenuItem();
 		integrity.setText("Validate Assessment");
@@ -555,7 +555,7 @@ public class DEMToolbar extends ToolBar {
 		});
 		
 		mainMenu.add(integrity);
-		
+		/*
 		final MenuItem workflow = new MenuItem();
 		workflow.setText("Submission Process Notes");
 		workflow.setIconStyle("icon-workflow");
@@ -702,7 +702,6 @@ public class DEMToolbar extends ToolBar {
 		editViewButton.setEnabled(enabled);
 	}
 	
-	@SuppressWarnings("unused")
 	private void runIntegrityValidator() {
 		final Assessment data = AssessmentCache.impl.getCurrentAssessment();
 		//Popup new window:
