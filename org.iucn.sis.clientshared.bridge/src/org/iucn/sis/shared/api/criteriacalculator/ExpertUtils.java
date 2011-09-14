@@ -84,7 +84,9 @@ public class ExpertUtils {
 			} else {
 				Debug.println("Couldn't find regional expert question data.");
 			}
-		} 
+		}
+		
+		currentAssessment.generateFields();
 	}
 	
 	private static String slideCategory(int amount, String startValue) {

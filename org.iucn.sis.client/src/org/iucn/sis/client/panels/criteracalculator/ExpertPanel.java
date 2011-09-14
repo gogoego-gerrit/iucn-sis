@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.criteracalculator;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertUtils;
 import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
@@ -12,72 +13,58 @@ import org.iucn.sis.shared.api.utils.CanonicalNames;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
+import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.gwt.ui.DrawsLazily;
 
 /**
  * This panel visually shows the results of the Expert System.
  * 
  * @author liz.schwartz
- * 
+ * @author carl.scott
  */
-public class ExpertPanel extends LayoutContainer {
+public class ExpertPanel extends BasicWindow implements DrawsLazily {
 	
-	private HTML title;
+	private final Html criteria, CR, EN, VU, range;
+	
 	private HorizontalPanel expertBar;
-	private HTML criteria;
-	
-	private HTML CR;
-	private HTML EN;
-	private HTML VU;
-	
-	private String criteriaConstant;
-	private HTML range;
 	private VerticalPanel centerWidget;
 
 	public ExpertPanel() {
-		super();
-		setLayout(new BorderLayout());
-		setSize(520, 300);
-		criteriaConstant = "Criteria String: ";
-
-		BorderLayoutData northData = new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 100);
-		BorderLayoutData centerData = new BorderLayoutData(LayoutRegion.CENTER, 25, 25, 100);
-		BorderLayoutData westData = new BorderLayoutData(LayoutRegion.WEST, 10, 10, 10);
-		BorderLayoutData eastData = new BorderLayoutData(LayoutRegion.EAST, 10, 10, 10);
-
-		HorizontalPanel filler = new HorizontalPanel();
-		filler.add(new HTML("&nbsp"));
-		HorizontalPanel filler2 = new HorizontalPanel();
-		filler2.add(new HTML("&nbsp"));
-		add(filler, westData);
-		add(filler2, eastData);
-
-		title = new HTML();
-		add(title, northData);
+		super("Criteria Generator", "icon-expert");
+		setLayout(new FillLayout());
+		setSize(440, 350);
 
 		expertBar = new HorizontalPanel();
 		expertBar.addStyleName("expert-background");
 		expertBar.addStyleName("expert-border");
 
-		range = new HTML();
+		range = new Html();
 		range.addStyleName("expert-criteria");
 //		range.setSize("200px", "60px");
 
-		criteria = new HTML();
+		criteria = new Html();
 		criteria.setStyleName("expert-criteria");
 //		criteria.setSize("275px", "30px");
 
-		CR = new HTML("CR Criteria: N/A");
+		CR = new Html("CR Criteria: N/A");
 		CR.addStyleName("expert-criteria");
-		EN = new HTML("EN Criteria: N/A");
+		
+		EN = new Html("EN Criteria: N/A");
 		EN.addStyleName("expert-criteria");
-		VU = new HTML("VU Criteria: N/A");
+		
+		VU = new Html("VU Criteria: N/A");
 		VU.addStyleName("expert-criteria");
 		
 		centerWidget = new VerticalPanel();
@@ -91,8 +78,6 @@ public class ExpertPanel extends LayoutContainer {
 		centerWidget.add(EN);
 		centerWidget.add(VU);
 		centerWidget.add(new HTML("<br><br>"));
-		
-		add(centerWidget, centerData);
 
 		HTML messageHTML1 = new HTML("** The result reflects most recently saved data **");
 		HTML messageHTML2 = new HTML("** Please save your data before viewing the criteria calculator's result **");
@@ -102,13 +87,15 @@ public class ExpertPanel extends LayoutContainer {
 		messageHTML2.addStyleName("expert-criteria");
 		messageHTML2.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		messageHTML2.setWordWrap(true);
+		
 		VerticalPanel messageWrap = new VerticalPanel();
 		messageWrap.add(messageHTML1);
 		messageWrap.add(messageHTML2);
 		
 		centerWidget.setVerticalAlign(VerticalAlignment.BOTTOM);
 		centerWidget.add(messageWrap);
-//		add(messageWrap, southData);
+		
+		add(centerWidget);
 	}
 
 	public HorizontalPanel createDisplay(int leftInt, int bestInt, int rightInt) {
@@ -159,46 +146,54 @@ public class ExpertPanel extends LayoutContainer {
 			return "Least Concern";
 	}
 
-	public HorizontalPanel getPanel() {
-		if (expertBar == null)
-			update();
-		return expertBar;
-	}
-
 	private void getRange(int left, int best, int right) {
 		String leftCriteria = getCriteria(left);
 		String bestCriteria = getCriteria(best);
 		String rightCriteria = getCriteria(right);
 
 		if (leftCriteria.equals(rightCriteria)) {
-			range.setText("The species is classified as: " + leftCriteria.toUpperCase() + "");
+			range.setHtml("The species is classified as: " + leftCriteria.toUpperCase() + "");
 		} else {
-			range.setHTML("The species is best classified as: " + bestCriteria.toUpperCase()
+			range.setHtml("The species is best classified as: " + bestCriteria.toUpperCase()
 					+ "<br /> Can also be classified " + "as: " + leftCriteria.toUpperCase() + " through "
 					+ rightCriteria.toUpperCase());
 
 		}
 	}
+	
+	@Override
+	public void show() {
+		draw(new DrawsLazily.DoneDrawingCallback() {
+			public void isDrawn() {
+				open();
+			}
+		});
+	}
+	
+	private void open() {
+		super.show();
+	}
 
-	public void update() {
+	@Override
+	public void draw(DoneDrawingCallback callback) {
 		Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
-		expertBar.removeAll();
-		range.setText("");
-		
 		if (assessment == null) {
-			criteria.setHTML("Please select an assessment before starting criteria calculator. <br />");
+			WindowUtils.errorAlert("Please select an assessment before starting criteria calculator.");
 			return;
 		}
+		
+		expertBar.removeAll();
+		range.setHtml("");
 
 		Integer assessmentName = assessment.getId();
 		String speciesName = assessment.getSpeciesName();
 
-		title.setText(speciesName.toUpperCase() + " - " + assessmentName + "\r\n \r\n");
-		title.addStyleName("expert-title");
-		title.setWordWrap(false);
+		setHeading("Criteria Generator - " + speciesName + " (" + assessmentName + ")");
 		
+		AssessmentCache.impl.getCurrentAssessment().generateFields();
 		Field fuzzyField = AssessmentCache.impl.getCurrentAssessment().getField(CanonicalNames.RedListFuzzyResult);
-		if (fuzzyField == null) {
+		boolean isFreshRun;
+		if (isFreshRun = fuzzyField == null) {
 			ExpertUtils.processAssessment(AssessmentCache.impl.getCurrentAssessment());
 			fuzzyField = AssessmentCache.impl.getCurrentAssessment().getField(CanonicalNames.RedListFuzzyResult);
 		}
@@ -248,7 +243,7 @@ public class ExpertPanel extends LayoutContainer {
 			getRange(leftInt, bestInt, rightInt);
 			
 			if (criteriaStr != null)
-				criteria.setHTML(criteriaConstant + criteriaStr);
+				criteria.setHtml("Criteria String: " + criteriaStr);
 				
 			CR.setVisible(true);
 			EN.setVisible(true);
@@ -256,21 +251,39 @@ public class ExpertPanel extends LayoutContainer {
 		} else {
 			if (expertBar.getParent() != null)
 				centerWidget.remove(expertBar);
-			criteria.setHTML("<b>Not enough saved information to run the criteria calculator. <br /></b>");
+			criteria.setHtml("<b>Not enough saved information to run the criteria calculator. <br /></b>");
 				
 			CR.setVisible(false);
 			EN.setVisible(false);
 			VU.setVisible(false);
 		}
 			
-		CR.setHTML("CR Criteria: " + CRString);
-		EN.setHTML("EN Criteria: " + ENString);
-		VU.setHTML("VU Criteria: " + VUString);
-
-		try {
-			layout();
-		} catch (Exception e) {
+		CR.setHtml("CR Criteria: " + CRString);
+		EN.setHtml("EN Criteria: " + ENString);
+		VU.setHtml("VU Criteria: " + VUString);
+		
+		getButtonBar().removeAll();
+		if (!isFreshRun) {
+			addButton(new Button("Re-run Expert System", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(final ButtonEvent ce) {
+					final Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+					Field fuzzyField = assessment.getField(CanonicalNames.RedListFuzzyResult);
+					assessment.getField().remove(fuzzyField);
+					draw(new DrawsLazily.DoneDrawingCallback() {
+						public void isDrawn() {
+							layout();
+						}
+					});
+				}
+			}));
 		}
+		addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				hide();	
+			}
+		}));
+
+		callback.isDrawn();
 	}
 
 }

@@ -33,14 +33,12 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
-import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.Popup;
@@ -48,8 +46,6 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
@@ -268,18 +264,9 @@ public class DEMToolbar extends ToolBar {
 					WindowUtils.infoAlert("Alert", "Please select an assessment first.");
 					return;
 				}
+				
 				ExpertPanel expertPanel = new ExpertPanel();
-				expertPanel.update();
-
-				Window s = WindowUtils.newWindow("Criteria Generator", null, false, true);
-				s.setLayout(new BorderLayout());
-				s.add(new Html("&nbsp"), new BorderLayoutData(LayoutRegion.WEST, 20));
-				s.add(new Html("&nbsp"), new BorderLayoutData(LayoutRegion.NORTH, 5));
-				s.add(new Html("&nbsp"), new BorderLayoutData(LayoutRegion.SOUTH, 5));
-				s.setSize(520, 360);
-				s.add(expertPanel, new BorderLayoutData(LayoutRegion.CENTER));
-				s.show();
-				s.center();
+				expertPanel.show();
 			}
 		});
 

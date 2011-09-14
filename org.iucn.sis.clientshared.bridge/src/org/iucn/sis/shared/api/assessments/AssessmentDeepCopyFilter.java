@@ -15,13 +15,14 @@ public class AssessmentDeepCopyFilter implements Assessment.DeepCopyFilter {
 	
 	public AssessmentDeepCopyFilter() {
 		excluded = new ArrayList<String>();
-		excluded.add("RedListAssessmentDate");
-		excluded.add("RedListEvaluators");
-		excluded.add("RedListAssessmentAuthors");
-		excluded.add("RedListReasonsForChange");
-		excluded.add("RedListPetition");
-		excluded.add("RedListEvaluated");
-		excluded.add("RedListConsistencyCheck");
+		excluded.add(CanonicalNames.RedListAssessmentDate);
+		excluded.add(CanonicalNames.RedListEvaluators);
+		excluded.add(CanonicalNames.RedListAssessmentAuthors);
+		excluded.add(CanonicalNames.RedListReasonsForChange);
+		excluded.add(CanonicalNames.RedListPetition);
+		excluded.add(CanonicalNames.RedListEvaluated);
+		excluded.add(CanonicalNames.RedListConsistencyCheck);
+		excluded.add(CanonicalNames.RedListFuzzyResult);
 	}
 	
 	@Override

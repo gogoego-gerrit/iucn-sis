@@ -21,6 +21,7 @@ import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.widget.Info;
 import com.google.gwt.core.client.GWT;
@@ -221,7 +222,7 @@ public class AssessmentClientSaveUtils {
 					}
 				}
 				
-				if (Factors.isFactor(cur.getCanonicalName()))
+				if (Factors.isFactor(cur.getCanonicalName()) || CanonicalNames.RegionExpertQuestions.equals(cur.getCanonicalName()))
 					factorChanged = true;
 			} catch (Throwable e) {
 				GWT.log("Failed to save display " + cur.getCanonicalName(), e);
