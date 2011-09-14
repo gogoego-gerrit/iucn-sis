@@ -23,6 +23,7 @@ import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
+import org.iucn.sis.server.api.persistance.AssessmentCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
@@ -212,6 +213,16 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			ndoc.parse(FileListing.readFileAsString(file));
 			
 			parser.parse(ndoc);
+			AssessmentData assessData = parser.getAssessment();
+			if ("false".equals(parameters.getFirstValue("overwrite", "true"))) {
+				AssessmentCriteria criteria = new AssessmentCriteria(session);
+				criteria.internalId.eq(assessData.getAssessmentID());
+				Assessment[] results = criteria.listAssessment();
+				
+				Assessment existing = results.length == 0 ? null : results[0];
+				if (existing != null)
+					printf("Skipping assessment %s, already in database", assessData.getAssessmentID());
+			}
 				
 			Couple<Assessment, MigrationReport> result = assessmentDataToAssessment(parser.getAssessment(), user);
 			Assessment assessment = result.getFirst();
@@ -496,15 +507,21 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			try {
 				assessment.setDateAssessed(shortfmt.parse(assessData.getDateAssessed()));
 			} catch (Exception e) {
+				error(1, "Failed to set assessment date from %s for %s: %s", assessData.getDateAssessed(), assessment.getInternalId(), e.getMessage());
 				e.printStackTrace();
 				TrivialExceptionHandler.ignore(this, e);
 			}
 			
-			if (assessment.getDateAssessed() == null)
-				assessData.setDateAssessed("1900-01-01");
+			if (assessment.getDateAssessed() == null) {
+				try {
+					assessment.setDateAssessed(shortfmt.parse("1900-01-01"));
+				} catch (Exception unlikely) {
+					TrivialExceptionHandler.impossible(this, unlikely);
+				}
+			}
 		}
 		assessment.generateFields();
-
+		
 		for (final Entry<String, Object> curField : assessData.getDataMap().entrySet()) {
 			//Translate data
 			processField(report, curField, assessment, new ComplexListener<Field>() {
@@ -613,7 +630,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		if (curField.getKey().equals(CanonicalNames.Lakes) || curField.getKey().equals(CanonicalNames.Rivers) || 
 				curField.getKey().equals(CanonicalNames.RedListAssessmentDate) || 
 				curField.getKey().equals(CanonicalNames.RedListCaveat)) {
-			//DO NOTHING
+			return;
 		} else if (curField.getKey().equals(CanonicalNames.UseTradeDetails) ||
 				curField.getKey().equals(CanonicalNames.Livelihoods)) {
 			
@@ -856,7 +873,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					if (isCongregatory) {
 						Field congregatory = new Field(org.iucn.sis.shared.api.utils.CanonicalNames.Congregatory, assessment);
 						congregatory.addPrimitiveField(new ForeignKeyPrimitiveField(
-							"value", field, 1, congregatory.getName() + "_valueLookup"
+							"value", congregatory, 1, congregatory.getName() + "_valueLookup"
 						));
 						
 						callback.handleEvent(congregatory);

@@ -4,16 +4,17 @@
 		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-    	<property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+    	<property name="database_dialect">org.hibernate.dialect.PostgreSQLDialect</property>
         <property name="current_session_context_class">thread</property>
 		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
-		<property name="show_sql">false</property>
 		<property name="connection.pool_size">1</property>
 		<property name="show_sql">false</property>
+		<property name="use_sql_comments">false</property>
 		
 		<!-- mapping files -->
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Assessment.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/AssessmentChange.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/AssessmentIntegrityValidation.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/AssessmentType.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Bookmark.hbm.xml" />
 		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/CommonName.hbm.xml" />

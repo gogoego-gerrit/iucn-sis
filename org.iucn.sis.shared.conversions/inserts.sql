@@ -1571,9 +1571,9 @@ INSERT INTO PopulationReductionFuture_qualifierLookup (name, label) VALUES ('1',
 INSERT INTO PopulationReductionFuture_qualifierLookup (name, label) VALUES ('-1', 'Inferred');
 INSERT INTO PopulationReductionFuture_qualifierLookup (name, label) VALUES ('-1', 'Estimated');
 INSERT INTO PopulationReductionFuture_qualifierLookup (name, label) VALUES ('4', 'Suspected');
-INSERT INTO PopulationReductionFuture (name, data_type, number_allowed) VALUES ('direction', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionFuture (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionFuture (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
+INSERT INTO PopulationReductionFuture (name, data_type, number_allowed) VALUES ('direction', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionFutureBasis_detailLookup (name, label) VALUES ('0', 'AOO');
 INSERT INTO PopulationReductionFutureBasis_detailLookup (name, label) VALUES ('1', 'EOO');
 INSERT INTO PopulationReductionFutureBasis_detailLookup (name, label) VALUES ('2', 'Quality of Habitat');
@@ -1596,9 +1596,9 @@ INSERT INTO PopulationReductionPast_qualifierLookup (name, label) VALUES ('-1', 
 INSERT INTO PopulationReductionPast_qualifierLookup (name, label) VALUES ('2', 'Inferred');
 INSERT INTO PopulationReductionPast_qualifierLookup (name, label) VALUES ('3', 'Estimated');
 INSERT INTO PopulationReductionPast_qualifierLookup (name, label) VALUES ('4', 'Suspected');
-INSERT INTO PopulationReductionPast (name, data_type, number_allowed) VALUES ('direction', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionPast (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionPast (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
+INSERT INTO PopulationReductionPast (name, data_type, number_allowed) VALUES ('direction', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionPastBasis_detailLookup (name, label) VALUES ('0', 'AOO');
 INSERT INTO PopulationReductionPastBasis_detailLookup (name, label) VALUES ('1', 'EOO');
 INSERT INTO PopulationReductionPastBasis_detailLookup (name, label) VALUES ('2', 'Quality of Habitat');
@@ -1623,9 +1623,9 @@ INSERT INTO PopulationReductionPastandFuture_qualifierLookup (name, label) VALUE
 INSERT INTO PopulationReductionPastandFuture_qualifierLookup (name, label) VALUES ('2', 'Inferred');
 INSERT INTO PopulationReductionPastandFuture_qualifierLookup (name, label) VALUES ('3', 'Estimated');
 INSERT INTO PopulationReductionPastandFuture_qualifierLookup (name, label) VALUES ('4', 'Suspected');
-INSERT INTO PopulationReductionPastandFuture (name, data_type, number_allowed) VALUES ('direction', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionPastandFuture (name, data_type, number_allowed) VALUES ('qualifier', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionPastandFuture (name, data_type, number_allowed) VALUES ('justification', 'string_primitive_field', '?');
+INSERT INTO PopulationReductionPastandFuture (name, data_type, number_allowed) VALUES ('direction', 'fk_primitive_field', '?');
 INSERT INTO PopulationReductionPastandFutureBasis_detailLookup (name, label) VALUES ('0', 'AOO');
 INSERT INTO PopulationReductionPastandFutureBasis_detailLookup (name, label) VALUES ('1', 'EOO');
 INSERT INTO PopulationReductionPastandFutureBasis_detailLookup (name, label) VALUES ('2', 'Quality of Habitat');
