@@ -596,7 +596,7 @@ public class TaxonConverter extends GenericConverter<String> {
 			synonym.setSpeciesName(synData.getSpecie());
 			synonym.setStockName(synData.getStockName());
 
-			if (synData.getLevel() == TaxonLevel.GENUS)
+			if (synData.getLevel() >= TaxonLevel.GENUS)
 				synonym.setGenusName(synData.getGenus());
 			else
 				synonym.setName(synData.getUpperLevelName());
