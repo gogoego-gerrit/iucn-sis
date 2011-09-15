@@ -573,8 +573,10 @@ public class TaxonConverter extends GenericConverter<String> {
 		}
 
 		// ADD SYNONYMS
+		int generationID = 1;
 		for (SynonymData synData : taxon.getSynonyms()) {
 			Synonym synonym = new Synonym();
+			synonym.setGenerationID(generationID++); //Ensure uniqueness for set
 			synonym.setTaxon_level(TaxonLevel.getTaxonLevel(synData.getLevel()));
 			
 			if (synData.getLevel() == TaxonNode.INFRARANK) {
