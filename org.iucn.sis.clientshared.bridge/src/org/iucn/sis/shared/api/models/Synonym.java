@@ -243,6 +243,10 @@ public class Synonym implements Serializable, HasReferences, HasNotes {
 		this.generationID = new Date().getTime();
 		this.notes = new HashSet<Notes>();
 	}
+	
+	public void setGenerationID(long generationID) {
+		this.generationID = generationID;
+	}
 
 	@Override
 	public int hashCode() {
