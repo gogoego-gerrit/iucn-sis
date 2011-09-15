@@ -550,12 +550,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	}
 	
 	public void updateTaxon(Representation entity, Request request, TaxonIO taxonIO, TaxomaticIO taxomaticIO, Session session) throws TaxomaticException, ResourceException {
-		final NativeDocument ndoc = new JavaNativeDocument();
-		try {
-			ndoc.parse(entity.getText());
-		} catch (Exception e) {
-			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
-		}
+		final NativeDocument ndoc = getEntityAsNativeDocument(entity);
 		
 		Taxon updatedTaxon = Taxon.fromXML(ndoc);
 		Taxon currentTaxon = taxonIO.getTaxon(updatedTaxon.getId());
@@ -567,15 +562,15 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		currentTaxon.setStatus(updatedTaxon.getStatusCode());
 		currentTaxon.setFeral(updatedTaxon.getFeral());
 		currentTaxon.setInvasive(updatedTaxon.getInvasive());
-		currentTaxon.correctFullName();
 		
 		InfratypeIO io = new InfratypeIO(session);
-		
 		if (updatedTaxon.getInfratype() == null) 
 			currentTaxon.setInfratype(null);
 		else {
 			currentTaxon.setInfratype(io.getInfratype(updatedTaxon.getInfratype().getName()));
 		}
+		
+		currentTaxon.correctFullName();
 		
 		taxomaticIO.writeTaxon(currentTaxon, getUser(request, session));
 	}

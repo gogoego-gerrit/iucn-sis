@@ -290,7 +290,7 @@ public class TaxomaticUtils {
 	}
 
 
-	public void saveTaxon(Taxon  node, final GenericCallback<Object> callback) {
+	public void saveTaxon(final Taxon node, final GenericCallback<Object> callback) {
 		final NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
 		doc.post(UriBase.getInstance().getSISBase() + "/taxomatic/update/" + node.getId(), node.toXML(),
 				new GenericCallback<String>() {
@@ -299,6 +299,7 @@ public class TaxomaticUtils {
 			}
 			public void onSuccess(String result) {
 				TaxonomyCache.impl.clear();
+				TaxonomyCache.impl.putTaxon(node);
 				callback.onSuccess(result);
 			}
 		});
