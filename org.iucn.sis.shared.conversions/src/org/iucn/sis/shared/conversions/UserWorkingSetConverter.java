@@ -83,10 +83,10 @@ public class UserWorkingSetConverter extends GenericConverter<VFSInfo> {
 										printf("# Failed to subscribe to ws %s", id);
 									else {
 										printf("Subscribed to ws %s", id);
-										if (count.incrementAndGet() % 50 == 0) {
+										/*if (count.incrementAndGet() % 50 == 0) {
 											printf("Converted %s working set subscriptions...", count.get());
 											commitAndStartTransaction();
-										}
+										}*/
 									}
 								}
 							}
@@ -112,10 +112,10 @@ public class UserWorkingSetConverter extends GenericConverter<VFSInfo> {
 					}
 				}
 			}
-			session.evict(user);
+			commitAndStartTransaction();
 		}
 		
-		commitAndStartTransaction();
+		//commitAndStartTransaction();
 	}
 	
 	private boolean isTestMode() {
