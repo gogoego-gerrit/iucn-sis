@@ -444,7 +444,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 			HorizontalPanel lastDatePanel = new HorizontalPanel();
 			lastDatePanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 			lastDatePanel.setSpacing(6);
-			lastDatePanel.add(new HTML("Date Last Seen: "));
+			lastDatePanel.add(new HTML("Year Last Seen: "));
 			lastDatePanel.add(new HTML(yearLastSeen.getText()));
 			displayPanel.add(lastDatePanel);
 		}	
@@ -480,7 +480,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		dateLastSeenPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_BOTTOM);
 		dateLastSeenPanel.setSpacing(6);
 		dateLastSeenPanel.add(new HTML("&nbsp&nbsp&nbsp&nbsp&nbsp"));
-		dateLastSeenPanel.add(new HTML("Date Last Seen: "));
+		dateLastSeenPanel.add(new HTML("Year Last Seen: "));
 		dateLastSeenPanel.add(yearLastSeen);
 		dateLastSeenPanel.setVisible(false);
 
@@ -659,7 +659,7 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		ret.add("Red List History Text");
 		ret.add("Possibly Extinct");
 		ret.add("Possibly Extinct in the Wild");
-		ret.add("Date Last Seen");
+		ret.add("Year Last Seen");
 		ret.add("Category Text");
 		return ret;
 	}
