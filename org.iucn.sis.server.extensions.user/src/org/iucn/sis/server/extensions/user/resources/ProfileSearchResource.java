@@ -7,6 +7,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
@@ -64,7 +65,8 @@ public class ProfileSearchResource extends TransactionResource {
 					QConstraint.CT_CONTAINS_IGNORE_CASE;
 				
 				Criterion current = null;
-				for (String value : form.getValuesArray(searchable[i].toLowerCase())) {
+				for (String rawValue : form.getValuesArray(searchable[i].toLowerCase())) {
+					String value = SIS.get().getQueries().cleanSearchTerm(rawValue);
 					Criterion crit;
 					if (constraintCompare == QConstraint.CT_EQUALS)
 						crit = Restrictions.eq("id", Integer.valueOf(value));

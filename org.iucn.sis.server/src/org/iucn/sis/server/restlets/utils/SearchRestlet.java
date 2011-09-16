@@ -12,6 +12,7 @@ import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
@@ -74,17 +75,17 @@ public class SearchRestlet extends BaseServiceRestlet {
 								
 		if (commonName.getLength() > 0) {
 			hasQuery = true;
-			disjunction.add(Restrictions.ilike("CommonNames.name", commonName.item(0).getTextContent(), MatchMode.ANYWHERE));
+			disjunction.add(Restrictions.ilike("CommonNames.name", clean(commonName.item(0).getTextContent()), MatchMode.ANYWHERE));
 		}
 		
 		if (synonym.getLength() > 0) {
 			hasQuery = true;
-			disjunction.add(Restrictions.ilike("Synonyms.friendlyName", synonym.item(0).getTextContent(), MatchMode.ANYWHERE));
+			disjunction.add(Restrictions.ilike("Synonyms.friendlyName", clean(synonym.item(0).getTextContent()), MatchMode.ANYWHERE));
 		}			
 			
 		if (sciName.getLength() > 0) {
 			hasQuery = true;
-			disjunction.add(Restrictions.ilike("friendlyName", sciName.item(0).getTextContent(), MatchMode.ANYWHERE));
+			disjunction.add(Restrictions.ilike("friendlyName", clean(sciName.item(0).getTextContent()), MatchMode.ANYWHERE));
 		}
 		
 		if (level.getLength() > 0) {
@@ -133,6 +134,10 @@ public class SearchRestlet extends BaseServiceRestlet {
 		
 		response.setEntity(results.toString(), MediaType.TEXT_XML);
 		response.setStatus(Status.SUCCESS_OK);
+	}
+	
+	private String clean(String value) {
+		return SIS.get().getQueries().cleanSearchTerm(value);
 	}
 	
 	private String getCategory(Taxon taxon, AssessmentIO assessmentIO) {

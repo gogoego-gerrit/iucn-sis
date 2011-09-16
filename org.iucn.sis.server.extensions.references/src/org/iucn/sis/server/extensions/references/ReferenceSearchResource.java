@@ -67,6 +67,10 @@ public class ReferenceSearchResource extends TransactionResource {
 		getResponse().setStatus(Status.SUCCESS_OK);
 	}
 	
+	private String clean(String value) {
+		return SIS.get().getQueries().cleanSearchTerm(value).replace("'", "''");
+	}
+	
 	private Representation doQuery(Map<String, String> constraints, final Session session) throws ResourceException {
 		String joinTable = constraints.remove("groupTable");
 		String joinColumn = constraints.remove("groupColumn");
@@ -83,7 +87,7 @@ public class ReferenceSearchResource extends TransactionResource {
 					where = "WHERE ";
 				else
 					where += " AND ";
-				where += "UPPER(reference." + entry.getKey() + ") like '%" + entry.getValue().toUpperCase() + "%'";
+				where += "UPPER(reference." + entry.getKey() + ") like '%" + clean(entry.getValue().toUpperCase()) + "%'";
 			}
 		}
 
