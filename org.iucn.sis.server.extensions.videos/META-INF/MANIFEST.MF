@@ -10,7 +10,7 @@ Require-Bundle: org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
  org.hibernate;bundle-version="1.0.0",
  com.solertium.util;bundle-version="1.1.2"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.osgi.framework;version="1.5.0",
+Import-Package: org.osgi.framework;version="1.4.0",
  org.restlet,
  org.restlet.data,
  org.restlet.ext.xml,
@@ -21,3 +21,4 @@ Import-Package: org.osgi.framework;version="1.5.0",
  org.restlet.service,
  org.restlet.util
 Export-Package: org.iucn.sis.server.extensions.videos
+Bundle-Vendor: IUCN

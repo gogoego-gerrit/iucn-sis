@@ -25,7 +25,9 @@ public class ServerApplication extends SimpleSISApplication {
 
 	@Override
 	public void init() {
-		addServiceToRouter(new YouTubeVideoSource(app.getContext()));
+		YouTubeVideoSource source = new YouTubeVideoSource(app.getContext());
+		
+		addResource(source, source.getPaths(), true);
 	}
 	
 	@Override
