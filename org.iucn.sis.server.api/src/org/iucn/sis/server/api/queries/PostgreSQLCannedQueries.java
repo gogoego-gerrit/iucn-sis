@@ -16,5 +16,9 @@ public class PostgreSQLCannedQueries extends BaseCannedQueries {
 		return format("select * from working_set where working_set.id in " + 
 		"(select working_setid from working_set_taxon where taxonid = '%s');", taxonid);
 	}
+	
+	public String cleanSearchTerm(String value) {
+		return value.replace('’', '\'');
+	}
 
 }

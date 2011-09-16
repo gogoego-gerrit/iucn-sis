@@ -16,5 +16,7 @@ public interface CannedQueries {
 	public String getSubscribableWorkingSets(int userid);
 	
 	public String getWorkingSetsForTaxon(int taxonid);
+	
+	public String cleanSearchTerm(String value);
 
 }
