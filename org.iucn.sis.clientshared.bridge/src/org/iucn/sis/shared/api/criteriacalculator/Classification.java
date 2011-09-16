@@ -180,7 +180,7 @@ public abstract class Classification {
 			
 			Range sf = factors.get(Factors.severeFragmentation);
 			Range loc = factors.get(Factors.locations);
-			loc = Range.equals(loc, bLocations);
+			loc = Range.lessthan(loc, bLocations);
 			
 			bxa = Range.independentOR(sf, loc);
 

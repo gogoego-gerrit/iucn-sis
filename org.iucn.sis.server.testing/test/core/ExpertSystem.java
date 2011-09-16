@@ -133,6 +133,33 @@ public class ExpertSystem extends BasicTest {
 	}
 	
 	@Test
+	public void b1ARanges() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.EOO, 
+			new RangePrimitiveField("range", null, "4999")
+		));
+		assessment.getField().add(newField(CanonicalNames.AOOContinuingDecline, 
+			new BooleanRangePrimitiveField("isInContinuingDecline", null, "1")	
+		));
+		
+		ExpertResult result = run(assessment);
+		
+		Assert.assertNotSame("EN", result.getAbbreviatedCategory());
+		
+		for (String range : new String[] {"4", "2-4", "2-5"}) {
+			assessment.getField().remove(assessment.getField(CanonicalNames.LocationsNumber));
+			assessment.getField().add(newField(CanonicalNames.LocationsNumber, 
+				new RangePrimitiveField("range", null, range)
+			));
+			
+			result = run(assessment);
+			
+			Assert.assertEquals("EN", result.getAbbreviatedCategory());
+			Assert.assertEquals("B1ab(ii)", result.getCriteriaString());
+		}
+	}
+	
+	@Test
 	public void goodB1() {
 		Assessment assessment = new Assessment();
 		assessment.getField().add(newField(CanonicalNames.EOO, 
