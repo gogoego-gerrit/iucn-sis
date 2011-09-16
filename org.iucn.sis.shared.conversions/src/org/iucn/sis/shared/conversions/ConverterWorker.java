@@ -200,7 +200,7 @@ public class ConverterWorker implements Runnable {
 		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
 		converter.setConversionMode(ConversionMode.PUBLISHED);
 		
-		return converter.start() && (!proceed || convertWorkingSets(proceed, writer));
+		return converter.start() && (!proceed || convertAttachments(proceed, writer));
 	}
 	
 	private boolean convertAttachments(boolean proceed, Writer writer) {

@@ -552,7 +552,9 @@ public class TaxonConverter extends GenericConverter<String> {
 					if (author == null)
 						author = user;
 					
-					Date created = FormattedDate.impl.getDate(note.getDate());
+					Date created = null;
+					if (!"".equals(note.getDate()))
+						created = FormattedDate.impl.getDate(note.getDate());
 					if (created == null)
 						created = Calendar.getInstance().getTime();
 					
