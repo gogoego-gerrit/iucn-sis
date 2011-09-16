@@ -1,9 +1,9 @@
 package org.iucn.sis.client.tabs;
 
 import org.iucn.sis.client.panels.assessments.RecentAssessmentsPanel;
-import org.iucn.sis.client.panels.zendesk.BugPanel;
 import org.iucn.sis.client.tabs.home.BrowseTaxonomyPortlet;
 import org.iucn.sis.client.tabs.home.SearchPortlet;
+import org.iucn.sis.client.tabs.home.VideoContentPortlet;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.custom.Portal;
@@ -39,17 +39,17 @@ public class HomePageTab extends LayoutContainer {
 		RecentAssessmentsPanel recentAssessmentsPanel = new RecentAssessmentsPanel();
 		recentAssessmentsPanel.configureThisAsPortlet();
 		
-		BugPanel bugPanel = new BugPanel("925407", "Zendesk Tickets");
+		/*BugPanel bugPanel = new BugPanel("925407", "Zendesk Tickets");
 		bugPanel.configureThisAsPortlet();
 		
 		BugPanel resolvedBugPanel = new BugPanel("926680", "Resolved Tickets");
-		resolvedBugPanel.configureThisAsPortlet();
+		resolvedBugPanel.configureThisAsPortlet();*/
 
 		portal.add(new SearchPortlet(), 0);
 		portal.add(new BrowseTaxonomyPortlet(), 0);
 		portal.add(recentAssessmentsPanel, 1);
-		portal.add(bugPanel, 2);
-		portal.add(resolvedBugPanel, 2);
+		portal.add(new VideoContentPortlet(), 2);
+		
 
 		add(portal);
 	}

@@ -223,6 +223,39 @@ body,td,div,input,p,select,input,button {
 	
 }
 
+.page_home_videos_featured_caption {
+	color: #a72625;
+	font-size: 18px !important;
+	font-weight: bold; 
+}
+
+.page_home_videos_more_heading {
+	width: 100%;
+	height: 18px !important;
+	font-size: 16px !important;
+	font-weight: bold;
+ 	background-color: #DFE8F6 !important;
+}
+
+.page_home_videos_more_caption {
+	font-size: 14px !important;
+}
+
+.page_home_videos_viewer_row {
+	font-size: 12px !important;
+	padding: 2px !important;
+	border-bottom: 1px dotted black !important;
+}
+
+.page_home_videos_viewer_row_selected {
+	background-color: #a72625 !important;
+	color: #FFF;
+}
+
+.page_home_videos_viewer_caption {
+	font-size: 14px !important;	
+}
+
 .page_taxon_general span {
 	font-size: 16px !important;
 }

@@ -60,8 +60,8 @@ public abstract class RefreshPortlet extends Portlet {
 
 	@Override
 	protected void initTools() {
-		// super.initTools();
 		buildRefreshButton();
+		super.initTools();
 	}
 
 	public abstract void refresh();

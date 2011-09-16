@@ -117,6 +117,10 @@ public class UriBase {
 		return getBase() + "/org.iucn.sis.server.extensions.user";
 	}
 	
+	public String getVideoBase() {
+		return getBase() + "/org.iucn.sis.server.extensions.videos";
+	}
+	
 	public String getVirusBase() {
 		return getBase() + "/org.iucn.sis.server.extensions.viruses";
 	}
