@@ -13,7 +13,6 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.bookmarks.BookmarkManager;
 import org.iucn.sis.client.panels.bookmarks.NewBookmarkPanel;
 import org.iucn.sis.client.panels.definitions.DefinitionEditorPanel;
-import org.iucn.sis.client.panels.header.BatchChangePanel;
 import org.iucn.sis.client.panels.header.FindReplacePanel;
 import org.iucn.sis.client.panels.header.TrashBinPanel;
 import org.iucn.sis.client.panels.integrity.IntegrityApplicationPanel;
@@ -84,7 +83,6 @@ public class HeaderContainer extends ContentPanel {
 	private LayoutContainer leftPanel;
 
 	private final FindReplacePanel findReplacePanel;
-	private final BatchChangePanel batchChangePanel;
 	private final TaxonFinderPanel taxonFinderPanel;
 	private final DefinitionEditorPanel definitionPanel;
 	private final IntegrityApplicationPanel integrityPanel;
@@ -102,7 +100,6 @@ public class HeaderContainer extends ContentPanel {
 		setHeight(defaultHeight);
 		
 		findReplacePanel = new FindReplacePanel();
-		batchChangePanel = new BatchChangePanel();
 		taxonFinderPanel = new TaxonFinderPanel();
 		definitionPanel = new DefinitionEditorPanel();
 		integrityPanel = new IntegrityApplicationPanel();
@@ -301,17 +298,9 @@ public class HeaderContainer extends ContentPanel {
 						browser.update();
 					}
 				});
-				//FIXME: content.add(ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomyBrowserPanel);
 				window.add(browser);
 				window.show();
 				window.center();
-				
-
-				// if(!ClientUIContainer.bodyContainer.getTabManager().
-				// getPanelManager().taxonomyBrowserPanel.isRendered())
-				//FIXME: ClientUIContainer.bodyContainer.getTabManager().getPanelManager().taxonomyBrowserPanel.update();
-
-				// ((Button)be.getSource()).setSelected( false );
 			}
 		}));
 		

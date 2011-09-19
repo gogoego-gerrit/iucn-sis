@@ -681,7 +681,8 @@ public class LegacyReferenceViewPanel extends TabPanel {
 				if( reference == null ) {
 					afterSave(null, null);
 				} else if( promptToReplace && !(reference.getModel().getReferenceID() == returnedRef.getReferenceID())
-						&& AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.REFERENCE_REPLACE_FEATURE)) {
+						//&& AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.REFERENCE_REPLACE_FEATURE)
+						) {
 					promptToReplace(reference, fromStore, returnedRef);
 				} else {
 					reference.getModel().setId(returnedRef.getReferenceID());

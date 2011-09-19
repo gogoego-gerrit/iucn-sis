@@ -1,6 +1,8 @@
 package org.iucn.sis.client.panels.permissions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -54,6 +56,7 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -742,8 +745,10 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 		};
 		
 		Menu features = new Menu(); 
-		for (AuthorizableFeature feature : AuthorizableFeature.features)
-			features.add(newMenuItem(feature.getFeatureName(), feature.getFullURI(), listener));
+		List<AuthorizableFeature> featureList = Arrays.asList(AuthorizableFeature.features);
+		Collections.sort(featureList);
+		for (AuthorizableFeature feature : featureList)
+			features.add(newMenuItem(feature.getDescription(), feature.getFullURI(), listener));
 		
 		return features;
 	}
@@ -782,6 +787,10 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 		MenuItem workingSet = new MenuItem("Working Set"); {
 			Menu listWS = new Menu();
 			listWS.setMaxHeight(250);
+			
+			listWS.add(newMenuItem("(All)", "resource/workingSet", listener));
+			if (!workingSets.isEmpty())
+				listWS.add(new SeparatorMenuItem());
 			for (WorkingSet ws : workingSets)
 				listWS.add(newMenuItem(ws.getName(), "resource/workingSet/" + ws.getId(), listener));
 			
