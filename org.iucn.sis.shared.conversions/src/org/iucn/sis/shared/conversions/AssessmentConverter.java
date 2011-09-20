@@ -91,6 +91,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	private TaxonIO taxonIO;
 	private ReferenceIO referenceIO;
 	
+	private boolean reportingMode = false;
+	
 	public AssessmentConverter() throws NamingException {
 		this("sis_lookups");
 	}
@@ -118,6 +120,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		typeLookup.put("text_primitive_field", TextPrimitiveField.class);
 		typeLookup.put("string_primitive_field", StringPrimitiveField.class);
 		typeLookup.put("field", Object.class);
+	}
+	
+	public boolean isReportingMode() {
+		return "true".equals(parameters.getFirstValue("reportOnly"));
 	}
 	
 	public void setConversionMode(ConversionMode mode) {
@@ -335,8 +341,9 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						edit.getAssessment().add((assessment));
 						assessment.getEdit().add(edit);
 					}
-						
-					session.save(assessment);
+					
+					if (!isReportingMode())
+						session.save(assessment);
 					
 					try {
 						if (!result.getSecond().isMigrationSuccessful())
@@ -348,10 +355,12 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					/*if (!assessmentIO.writeAssessment(assessment, userToSave, false).status.isSuccess()) {
 						throw new Exception("The assessment " + file.getPath() + " did not want to save");
 					}*/
-						
-					if (converted.incrementAndGet() % 50 == 0) {
-						commitAndStartTransaction();
-						printf("Converted %s assessments...", converted.get());
+					
+					if (!isReportingMode()) {
+						if (converted.incrementAndGet() % 50 == 0) {
+							commitAndStartTransaction();
+							printf("Converted %s assessments...", converted.get());
+						}
 					}
 				} else {
 					print("The taxon " + parser.getAssessment().getSpeciesID() + " is null");
