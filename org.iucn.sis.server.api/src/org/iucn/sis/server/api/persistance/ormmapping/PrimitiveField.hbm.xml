@@ -51,7 +51,7 @@ License Type: Evaluation
 		
 		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField" table="string_primitive_field">
 			<key column="id"/>
-			<property name="value" column="value" type="string" length="1024" not-null="true" lazy="false"/>
+			<property name="value" column="value" type="string" length="4096" not-null="true" lazy="false"/>
 		</joined-subclass>
 		
 		<joined-subclass name="org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField" table="text_primitive_field">
