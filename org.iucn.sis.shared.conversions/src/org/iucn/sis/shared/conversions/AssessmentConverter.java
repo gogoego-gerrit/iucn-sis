@@ -71,6 +71,7 @@ import com.solertium.util.Replacer;
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.vfs.VFS;
+import com.solertium.vfs.VFSPath;
 
 public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	
@@ -90,8 +91,6 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	private UserIO userIO;
 	private TaxonIO taxonIO;
 	private ReferenceIO referenceIO;
-	
-	private boolean reportingMode = false;
 	
 	public AssessmentConverter() throws NamingException {
 		this("sis_lookups");
@@ -533,7 +532,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		for (final Entry<String, Object> curField : assessData.getDataMap().entrySet()) {
 			//Translate data
-			processField(report, curField, assessment, new ComplexListener<Field>() {
+			processField(assessData, report, curField, assessment, user, new ComplexListener<Field>() {
 				public void handleEvent(Field field) {
 					//Translate references
 					for (ReferenceUI curRef : assessData.getReferences(curField.getKey())) {
@@ -550,14 +549,11 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						}
 					}
 					
-					Set<Notes> notes = null;
 					try {
-						notes = getNotesForField(assessData.getType(), assessData.getAssessmentID(), field, user);
+						addNotesToField(assessData.getType(), assessData.getAssessmentID(), field.getName(), field, user);
 					} catch (Exception e) {
-						notes = null;
+						TrivialExceptionHandler.ignore(this, e);
 					}
-					if (notes != null && !notes.isEmpty())
-						field.setNotes(notes);
 					
 					if (field.hasData() || !field.getReference().isEmpty() || !field.getNotes().isEmpty())
 						assessment.getField().add(field);
@@ -576,10 +572,9 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return new Couple<Assessment, MigrationReport>(assessment, report);
 	}
 	
-	private Set<Notes> getNotesForField(String type, String assessmentID, Field field, User user) throws Exception {
+	private void addNotesToField(String type, String assessmentID, String canonicalName, Field field, User user) throws Exception {
 		final VFS vfs = data.getOldVFS();
-		final String canonicalName = field.getName();
-		final String url;
+		String url;
 		if (vfs.exists("/notes/" + type + "/" + assessmentID + "/" + canonicalName + ".xml"))
 			url = "/notes/" + type + "/" + assessmentID + "/" + canonicalName + ".xml";
 		else if (vfs.exists("/notes/" + type + "/" + assessmentID + "/" + canonicalName))
@@ -590,10 +585,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		else if (vfs.exists("/notes/" + type + "/" + username + "/" + assessmentID + "/" + canonicalName))
 			url = "/notes/" + type + "/" + username + "/" + assessmentID + "/" + canonicalName;*/
 		else
-			return new HashSet<Notes>();
+			return;
 		
 		final NativeDocument document = new JavaNativeDocument();
-		document.parse(vfs.getString(url));
+		document.parse(vfs.getString(new VFSPath(url)));
 		
 		final Set<Notes> notes = new HashSet<Notes>();
 		
@@ -612,7 +607,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			
 			final Edit edit = new Edit();
-			edit.setUser(user);
+			edit.setUser(possibleUser);
 			edit.setCreatedDate(shortfmt.parse(oldNote.getDate()));
 			
 			final Notes note = new Notes();
@@ -625,10 +620,13 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			notes.add(note);
 		}
 		
-		return notes;
+		if (field.getNotes() == null || field.getNotes().isEmpty())
+			field.setNotes(notes);
+		else
+			field.getNotes().addAll(notes);
 	}
 	
-	private void processField(MigrationReport report, Entry<String, Object> curField, Assessment assessment, ComplexListener<Field> callback) throws DBException, InstantiationException,
+	private void processField(final AssessmentData assessData, MigrationReport report, Entry<String, Object> curField, Assessment assessment, final User admin, ComplexListener<Field> callback) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
 		final Field field = new Field(correctFieldName(curField.getKey()), assessment);
 		
@@ -952,6 +950,14 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					dataList.add(0, selected.getKey()); //Add the class scheme ID back in
 
 					addPrimitiveDataToField(report, curField.getKey(), subfield, dataList, getLookup(subfield.getName()));
+					
+					try {
+						addNotesToField(assessData.getType(), assessData.getAssessmentID(), 
+								field.getName() + selected.getKey(), subfield, admin);
+					} catch (Exception e) {
+						TrivialExceptionHandler.ignore(this, e);
+					}
+					
 					subfield.setParent(field);
 					subfields.add(subfield);
 				}
@@ -966,6 +972,14 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					
 					addPrimitiveDataToField(report, curField.getKey(), subfield, threatData, getLookup(
 							subfield.getName()));
+					
+					try {
+						addNotesToField(assessData.getType(), assessData.getAssessmentID(), 
+								field.getName() + selected.getKey(), subfield, admin);
+					} catch (Exception e) {
+						TrivialExceptionHandler.ignore(this, e);
+					}
+					
 					subfield.setParent(field);
 					
 					if( dataList.size() > 6 ) {
