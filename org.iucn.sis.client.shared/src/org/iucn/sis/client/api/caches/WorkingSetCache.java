@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -401,7 +402,7 @@ public class WorkingSetCache {
 					SISClientBase.currentUser.getUsername() + "/" + 
 					ws.getId(), new GenericCallback<String>() {
 				public void onSuccess(String result) {
-					Map<Integer, List<Integer>> mapping = new HashMap<Integer, List<Integer>>();
+					Map<Integer, List<Integer>> mapping = new LinkedHashMap<Integer, List<Integer>>();
 					
 					final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName("assessment");
 					for (int i = 0; i < nodes.getLength(); i++) {

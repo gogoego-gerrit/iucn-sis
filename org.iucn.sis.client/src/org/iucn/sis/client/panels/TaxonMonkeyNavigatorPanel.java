@@ -1,7 +1,6 @@
 package org.iucn.sis.client.panels;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
@@ -30,7 +29,6 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.gwt.ui.DrawsLazily;
-import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel<Taxon> {
 	
@@ -277,33 +275,6 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 		});
 		
 		addTool(goToTaxon);
-	}
-	
-	public static class TaxonComparator implements Comparator<Taxon> {
-		
-		private final PortableAlphanumericComparator comparator;
-		
-		public TaxonComparator() {
-			comparator = new PortableAlphanumericComparator();
-		}
-		
-		@Override
-		public int compare(Taxon o1, Taxon o2) {
-			String f1 = o1.getFootprint()[TaxonLevel.FAMILY];
-			String f2 = o2.getFootprint()[TaxonLevel.FAMILY];
-			
-			int result = comparator.compare(f1, f2);
-			
-			if (result == 0) {
-				String n1 = o1.getFriendlyName();
-				String n2 = o2.getFriendlyName();
-				
-				result = comparator.compare(n1, n2);
-			}
-			
-			return result;
-		}
-		
 	}
 
 }

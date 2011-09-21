@@ -2,8 +2,6 @@ package org.iucn.sis.client.panels;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
@@ -12,6 +10,7 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
+import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -21,6 +20,8 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.models.comparators.AssessmentDateComparator;
+import org.iucn.sis.shared.api.models.comparators.AssessmentNavigationComparator;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
@@ -41,7 +42,6 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
-import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel<Assessment> {
 	
@@ -385,46 +385,12 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		
 	}
 	
-	public static class AssessmentGroupedComparator implements Comparator<Assessment> {
-		
-		private final PortableAlphanumericComparator comparator;
-		private final AssessmentDateComparator dateComparator;
-		
-		public AssessmentGroupedComparator() {
-			comparator = new PortableAlphanumericComparator();
-			dateComparator = new AssessmentDateComparator();
-		}
+	public static class AssessmentGroupedComparator extends AssessmentNavigationComparator {
 		
 		@Override
-		public int compare(Assessment o1, Assessment o2) {
-			String s1 = o1.getAssessmentType().getName();
-			String s2 = o2.getAssessmentType().getName();
-			
-			int result = comparator.compare(s1, s2); 
-			
-			if (result == 0)
-				result = dateComparator.compare(o1, o2);
-			
-			return result;
+		public Taxon getTaxonForAssessment(Assessment assessment) {
+			return TaxonomyCache.impl.getTaxon(assessment.getTaxon().getId());
 		}
-		
-	}
-	
-	public static class AssessmentDateComparator implements Comparator<Assessment> {
-		
-		public int compare(Assessment o1, Assessment o2) {
-			Date date1 = o1.getDateAssessed();
-			Date date2 = o2.getDateAssessed();
-			
-			if (date1 == null && date2 == null)
-				return 0;
-			else if (date1 == null)
-				return 1;
-			else if (date2 == null)
-				return -1;
-			else
-				return date1.compareTo(date2) * -1;
-		}		
 		
 	}
 

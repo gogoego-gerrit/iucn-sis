@@ -23,6 +23,7 @@ import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.models.comparators.AssessmentNavigationComparator;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.Context;
@@ -319,15 +320,26 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
-		final StringBuilder xml = new StringBuilder();
-		xml.append("<root>");
+		final List<Assessment> assessments = new ArrayList<Assessment>();
+		
 		for (Taxon taxon : ws.getTaxon()) {
 			AssessmentFilter filter = ws.getFilter();
 			AssessmentFilterHelper helper = new AssessmentFilterHelper(session, filter);
 			
 			for (Assessment assessment : helper.getAssessments(taxon.getId()))
-				xml.append("<assessment id=\"" + assessment.getId() + "\" taxon=\"" + taxon.getId() + "\" />");
+				assessments.add(assessment);
 		}
+		
+		Collections.sort(assessments, new AssessmentNavigationComparator(true) {
+			public Taxon getTaxonForAssessment(Assessment assessment) {
+				return assessment.getTaxon();
+			}
+		});
+		
+		final StringBuilder xml = new StringBuilder();
+		xml.append("<root>");
+		for (Assessment assessment : assessments)
+			xml.append("<assessment id=\"" + assessment.getId() + "\" taxon=\"" + assessment.getTaxon().getId() + "\" />");
 		xml.append("</root>");
 		
 		return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);

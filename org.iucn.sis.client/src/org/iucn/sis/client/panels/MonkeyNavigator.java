@@ -14,6 +14,7 @@ import org.iucn.sis.client.panels.WorkingSetMonkeyNavigatorPanel.WorkingSetNavig
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.models.comparators.TaxonNavigationComparator;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -144,7 +145,7 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		else {
 			WorkingSetCache.impl.fetchTaxaForWorkingSet(ws.getId(), new GenericCallback<List<Taxon>>() {
 				public void onSuccess(List<Taxon> result) {
-					Collections.sort(result, new TaxonMonkeyNavigatorPanel.TaxonComparator());
+					Collections.sort(result, new TaxonNavigationComparator());
 					
 					callback.handleEvent(result);
 				}
@@ -207,10 +208,8 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 			});
 		}
 		else {
-			WorkingSetCache.impl.getAssessmentsForWorkingSet(workingSet, taxon, new GenericCallback<List<Assessment>>() {
+			WorkingSetCache.impl.getAssessmentsForWorkingSet(workingSet, null, new GenericCallback<List<Assessment>>() {
 				public void onSuccess(List<Assessment> result) {
-					Collections.sort(result, new AssessmentGroupedComparator());
-					
 					callback.handleEvent(result);
 				}
 				public void onFailure(Throwable caught) {

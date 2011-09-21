@@ -14,7 +14,6 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
 import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.panels.AssessmentMonkeyNavigatorPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
 import org.iucn.sis.shared.api.acl.feature.AuthorizablePublishedAssessment;
@@ -22,6 +21,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.comparators.AssessmentDateComparator;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 import org.iucn.sis.shared.api.utils.AssessmentUtils;
 
@@ -209,7 +209,7 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 		final List<Assessment> published = new ArrayList<Assessment>(
 			AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId())
 		);
-		Collections.sort(published, new AssessmentMonkeyNavigatorPanel.AssessmentDateComparator());
+		Collections.sort(published, new AssessmentDateComparator());
 		for (Assessment data : published) {
 			if (!schema.equals(data.getSchema(SchemaCache.impl.getDefaultSchema())))
 				continue;
@@ -232,7 +232,7 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 		final List<Assessment> drafts = new ArrayList<Assessment>(
 			AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId())
 		);
-		Collections.sort(drafts, new AssessmentMonkeyNavigatorPanel.AssessmentDateComparator());
+		Collections.sort(drafts, new AssessmentDateComparator());
 		for (Assessment data : drafts) {
 			if (!schema.equals(data.getSchema(SchemaCache.impl.getDefaultSchema())))
 				continue;
