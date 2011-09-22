@@ -215,6 +215,12 @@ body,td,div,input,p,select,input,button {
  	text-align: center;
  	font-weight: bold;
  }
+ 
+ .monkey_nav_heading {
+ 	font-weight: bold !important;
+ 	font-size: 12px !important;
+ 	color: #15428B !important;
+ }
 
 /**
  * Page Stylings
