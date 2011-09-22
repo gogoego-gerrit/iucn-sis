@@ -120,6 +120,9 @@ public class CommonName implements Serializable, HasReferences, HasNotes {
 		this.generationID = new Date().getTime();
 	}
 	
+	public void setGenerationID(long generationID) {
+		this.generationID = generationID;
+	}
 	
 	public CommonName deepCopy() {
 		CommonName cn =  new CommonName(name, iso == null ? null : iso.getName(), iso == null ? null : iso.getCode(), validated, principal);

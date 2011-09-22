@@ -529,11 +529,13 @@ public class TaxonConverter extends GenericConverter<String> {
 		newTaxon.setTaxonomicAuthority(taxon.getTaxonomicAuthority());
 
 		// ADD COMMON NAMES
+		int generationID = 1;
 		for (CommonNameData commonNameData : taxon.getCommonNames()) {
 			if (commonNameData.getName().length() > 2000)
 				continue;
 			
 			CommonName commonName = new CommonName();
+			commonName.setGenerationID(generationID++); //Ensure uniqueness for set
 			commonName.setChangeReason(commonNameData.getChangeReason());
 			commonName.setName(commonNameData.getName());			
 			commonName.setPrincipal(commonNameData.isPrimary());
@@ -575,7 +577,7 @@ public class TaxonConverter extends GenericConverter<String> {
 		}
 
 		// ADD SYNONYMS
-		int generationID = 1;
+		generationID = 1;
 		for (SynonymData synData : taxon.getSynonyms()) {
 			Synonym synonym = new Synonym();
 			synonym.setGenerationID(generationID++); //Ensure uniqueness for set
