@@ -41,7 +41,6 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
-import com.extjs.gxt.ui.client.widget.Popup;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -390,16 +389,16 @@ public class DEMToolbar extends ToolBar {
 					return;
 				}
 
-				Popup imagePopup = new Popup();
-
-				if (!imagePopup.isRendered()) {
-					ImageManagerPanel imageManager = 
-						new ImageManagerPanel(TaxonomyCache.impl.getCurrentTaxon());
-					imagePopup.add(imageManager);
-				}
-
-				imagePopup.show();
-				imagePopup.center();
+				final ImageManagerPanel manager = new ImageManagerPanel(TaxonomyCache.impl.getCurrentTaxon());
+				manager.update(new DrawsLazily.DoneDrawingCallback() {
+					public void isDrawn() {
+						Window window = WindowUtils.newWindow("Manage Images");
+						window.add(manager);
+						window.setWidth(600);
+						window.setHeight(300);
+						window.show();
+					}
+				});
 			}
 		});
 		mainMenu.add(mItem);
