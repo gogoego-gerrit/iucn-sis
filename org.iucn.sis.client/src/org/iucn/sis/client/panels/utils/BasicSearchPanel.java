@@ -6,22 +6,30 @@ import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.WindowManager;
+import com.solertium.lwxml.shared.GWTNotFoundException;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.extjs.client.WindowUtils;
 
 public class BasicSearchPanel extends SearchPanel {
 	
 	public BasicSearchPanel() {
 		super();
 		addBeforeSearchListener(new Listener<SearchEvent<String>>() {
-			public void handleEvent(SearchEvent<String> be) {
+			public void handleEvent(final SearchEvent<String> be) {
 				if (be.getValue().matches("^[0-9]+$")) {
-					Taxon taxon = TaxonomyCache.impl.getTaxon(be.getValue());
-					if (taxon != null) {
-						StateManager.impl.setTaxon(taxon);
-						//TaxonomyCache.impl.setCurrentTaxon(taxon);
-					}
-					//manager.taxonomicSummaryPanel.update(Integer.valueOf(be.getValue()));
-					WindowManager.get().hideAll();
+					TaxonomyCache.impl.fetchTaxon(Integer.valueOf(be.getValue()), true, new GenericCallback<Taxon>() {
+						public void onFailure(Throwable caught) {
+							WindowUtils.errorAlert("Failed to load taxon " + be.getValue() + ".");
+						}
+						public void onSuccess(Taxon result) {
+							if (result != null) {
+								StateManager.impl.setTaxon(result);
+								WindowManager.get().hideAll();
+							}
+							else
+								onFailure(new GWTNotFoundException());
+						}
+					});
 				}
 			}
 		});
