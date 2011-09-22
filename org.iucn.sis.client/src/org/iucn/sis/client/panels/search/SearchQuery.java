@@ -18,6 +18,7 @@ public class SearchQuery {
 	
 	private final String query;
 	private final String searchID;
+	private final Date time;
 	
 	private boolean commonName;
 	private boolean synonym;
@@ -29,7 +30,8 @@ public class SearchQuery {
 	
 	public SearchQuery(String query) {
 		this.query = query;
-		this.searchID = new Date().getTime() + query.toString();
+		this.searchID = query.toString();
+		this.time = new Date();
 		this.level = TaxonLevel.SPECIES;
 	}
 	
@@ -87,6 +89,14 @@ public class SearchQuery {
 	
 	private boolean isBlank(String text) {
 		return text == null || "".equals(text.trim());
+	}
+	
+	public Date getTime() {
+		return time;
+	}
+	
+	public boolean isSameTime(SearchQuery other) {
+		return time.getTime() == other.getTime().getTime();
 	}
 	
 	@Override

@@ -1,7 +1,7 @@
 package org.iucn.sis.client.panels.search;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,24 +25,34 @@ public class SearchCache {
 	
 	public static final SearchCache impl = new SearchCache();
 	
-	private final Map<SearchQuery, NativeDocument> cache; 
+	private final Map<String, SearchCacheEntry> cache; 
 	
 	private SearchCache() {
-		cache = new HashMap<SearchQuery, NativeDocument>();
+		cache = new LinkedHashMap<String, SearchCacheEntry>();
 	}
 	
 	public List<SearchQuery> getRecentSearches() {
-		return new ArrayList<SearchQuery>(cache.keySet());
+		List<SearchQuery> queries = new ArrayList<SearchQuery>();
+		for (SearchCacheEntry entry : cache.values())
+			queries.add(entry.getQuery());
+		return queries;
 	}
 	
 	public void search(final SearchQuery query, final GenericCallback<NativeDocument> callback) {
-		if (cache.containsKey(query))
-			callback.onSuccess(cache.get(query));
+		if (cache.containsKey(query.getQuery())) {
+			SearchCacheEntry entry = cache.get(query.getQuery());
+			if (entry.getQuery().isSameTime(query))
+				callback.onSuccess(entry.getDocument());
+			else {
+				cache.remove(query.getQuery());
+				search(query, callback);
+			}
+		}
 		else {
 			final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
 			document.post(UriBase.getInstance().getSISBase() + "/search", query.toXML(), new GenericCallback<String>() {
 				public void onSuccess(String result) {
-					cache.put(query, document);
+					cache.put(query.getQuery(), new SearchCacheEntry(query, document));
 					callback.onSuccess(document);
 				}
 				public void onFailure(Throwable caught) {
@@ -50,6 +60,26 @@ public class SearchCache {
 				}
 			});
 		}
+	}
+	
+	private static class SearchCacheEntry {
+		
+		private final SearchQuery query;
+		private final NativeDocument document;
+		
+		public SearchCacheEntry(SearchQuery query, NativeDocument document) {
+			this.query = query;
+			this.document = document;
+		}
+		
+		public NativeDocument getDocument() {
+			return document;
+		}
+		
+		public SearchQuery getQuery() {
+			return query;
+		}
+		
 	}
 	
 }
