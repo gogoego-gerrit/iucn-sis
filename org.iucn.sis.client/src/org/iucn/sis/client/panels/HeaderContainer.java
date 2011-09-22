@@ -461,7 +461,7 @@ public class HeaderContainer extends ContentPanel {
 			}
 			
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.BATCH_UPLOAD_FEATURE)) {
-				final String title = "Batch Upload";
+				final String title = "Batch Image Upload";
 				menu.add(createMenuItem("icon-go-top", title, new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						final ContentPanel tabItem = new ContentPanel();
