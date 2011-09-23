@@ -94,7 +94,7 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 		
 		for (String taxonID : taxaIDs.split(",")) {
 			for (Assessment asmToChange : helper.getAssessments(Integer.valueOf(taxonID))) {
-				if (BatchAssessmentChanger.changeAssessment(
+				if (BatchAssessmentChanger.changeAssessment(session,
 						asmToChange, template, mode,
 						fieldNames)) {
 					returnXML.append("<change id=\""

@@ -5,6 +5,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.extensions.batchchanges.BatchAssessmentChanger;
 import org.iucn.sis.server.extensions.batchchanges.BatchAssessmentChanger.BatchChangeMode;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -27,7 +28,7 @@ public class BatchChange {
 		//it's empty :)
 		Assessment target = new Assessment();
 		
-		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, BatchChangeMode.OVERWRITE, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(getSession(), target, template, BatchChangeMode.OVERWRITE, names);
 		
 		printResults(target);
 		
@@ -60,7 +61,7 @@ public class BatchChange {
 			Assert.assertTrue("raw value".equals(target.getField("field").getPrimitiveField("value").getValue()));
 		}
 		
-		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, BatchChangeMode.OVERWRITE, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(getSession(), target, template, BatchChangeMode.OVERWRITE, names);
 		
 		printResults(target);
 		
@@ -78,7 +79,7 @@ public class BatchChange {
 		
 		Assessment target = new Assessment();
 		
-		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, BatchChangeMode.APPEND, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(getSession(), target, template, BatchChangeMode.APPEND, names);
 		
 		printResults(target);
 		
@@ -111,7 +112,7 @@ public class BatchChange {
 			Assert.assertTrue("raw value".equals(target.getField("Documentation").getPrimitiveField("value").getValue()));
 		}
 		
-		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, BatchChangeMode.APPEND, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(getSession(), target, template, BatchChangeMode.APPEND, names);
 		
 		printResults(target);
 		
@@ -144,7 +145,7 @@ public class BatchChange {
 			Assert.assertTrue("raw value".equals(target.getField("field").getPrimitiveField("value").getValue()));
 		}
 		
-		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, BatchChangeMode.OVERWRITE_IF_BLANK, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(getSession(), target, template, BatchChangeMode.OVERWRITE_IF_BLANK, names);
 		
 		printResults(target);
 		
@@ -162,7 +163,7 @@ public class BatchChange {
 		
 		Assessment target = new Assessment();
 		
-		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, BatchChangeMode.OVERWRITE_IF_BLANK, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(getSession(),target, template, BatchChangeMode.OVERWRITE_IF_BLANK, names);
 		
 		printResults(target);
 		
@@ -183,7 +184,7 @@ public class BatchChange {
 		Assert.assertTrue(template.getField(CanonicalNames.CountryOccurrence).getFields().size() == 1);
 		Assert.assertTrue(target.getField(CanonicalNames.CountryOccurrence).getFields().size() == 2);
 		
-		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, BatchChangeMode.APPEND, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(getSession(),target, template, BatchChangeMode.APPEND, names);
 		
 		Assert.assertTrue(hasChanges);
 		Assert.assertTrue(!target.getField(CanonicalNames.CountryOccurrence).getFields().isEmpty());
@@ -202,7 +203,7 @@ public class BatchChange {
 		Assert.assertTrue(template.getField(CanonicalNames.CountryOccurrence).getFields().size() == 2);
 		Assert.assertTrue(target.getField(CanonicalNames.CountryOccurrence).getFields().size() == 3);
 		
-		boolean hasChanges = BatchAssessmentChanger.changeAssessment(target, template, BatchChangeMode.APPEND, names);
+		boolean hasChanges = BatchAssessmentChanger.changeAssessment(getSession(),target, template, BatchChangeMode.APPEND, names);
 		
 		Assert.assertTrue(hasChanges);
 		Assert.assertTrue(!target.getField(CanonicalNames.CountryOccurrence).getFields().isEmpty());
@@ -262,4 +263,8 @@ public class BatchChange {
 		return template;
 	}
 
+	private Session getSession() {
+		return null;
+	}
+	
 }

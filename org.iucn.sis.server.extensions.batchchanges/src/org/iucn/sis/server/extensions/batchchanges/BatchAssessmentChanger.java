@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.Session;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.Reference;
 
 public class BatchAssessmentChanger {
 	
@@ -26,7 +29,7 @@ public class BatchAssessmentChanger {
 		}
 	}
 	
-	public static boolean changeAssessment(Assessment target, Assessment template, 
+	public static boolean changeAssessment(Session session, Assessment target, Assessment template, 
 			BatchChangeMode mode, List<String> fieldNames) {
 		
 		boolean changed = false;
@@ -40,14 +43,14 @@ public class BatchAssessmentChanger {
 				targetField = new Field(fieldName, target);
 				target.getField().add(targetField);
 			}
-			changed |= copyInto(sourceField, targetField, mode);
+			changed |= copyInto(session, sourceField, targetField, mode);
 		}
 
 		return changed;
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static boolean copyInto(Field source, Field target, BatchChangeMode mode) {
+	private static boolean copyInto(final Session session, Field source, Field target, BatchChangeMode mode) {
 		if (source.equals(target))
 			return false;
 		
@@ -131,7 +134,15 @@ public class BatchAssessmentChanger {
 				//The lookup value.
 				String value = prim.getRawValue();
 				if (value != null && !"0".equals(value) && selectedLookups.add(value)) {
-					Field newField = f.deepCopy(false, true);
+					Field newField = f.deepCopy(false, new Field.ReferenceCopyHandler() {
+						public Reference copyReference(Reference source) {
+							try {
+								return SISPersistentManager.instance().getObject(session, Reference.class, source.getId());
+							} catch (Exception e) {
+								return null;
+							}
+						}
+					});
 					for (Field child : newField.getFields())
 						child.setParent(newField);
 					for (PrimitiveField child : newField.getPrimitiveField())

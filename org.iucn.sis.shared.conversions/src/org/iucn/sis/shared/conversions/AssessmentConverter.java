@@ -292,7 +292,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						if (asmTaxNotes != null) {
 							if (taxonTaxNotes == null) {
 								HashSet<Reference> references = new HashSet<Reference>(asmTaxNotes.getReference());
-								taxonTaxNotes = asmTaxNotes.deepCopy(false, false);
+								taxonTaxNotes = asmTaxNotes.deepCopy(false);
 								taxonTaxNotes.setAssessment(null);
 								
 								Edit edit = new Edit();

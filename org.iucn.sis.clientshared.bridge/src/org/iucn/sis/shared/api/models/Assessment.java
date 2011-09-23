@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Field.ReferenceCopyHandler;
 import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RegionField;
@@ -335,7 +336,10 @@ public class Assessment implements Serializable, AuthorizableObject {
 	public Assessment deepCopy() {
 		return deepCopy(new DeepCopyFilter() {
 			public Field copy(Assessment assessment, Field field) {
-				return field.deepCopy(false, true);
+				return field.deepCopy(false, this);
+			}
+			public Reference copyReference(Reference source) {
+				return source.deepCopy();
 			}
 		});
 	}
@@ -609,7 +613,7 @@ public class Assessment implements Serializable, AuthorizableObject {
 		return getAssessmentType().getDisplayName() + " " + getTaxon().getFriendlyName();
 	}
 	
-	public static interface DeepCopyFilter {
+	public static interface DeepCopyFilter extends Field.ReferenceCopyHandler {
 		
 		public Field copy(Assessment assessment, Field field);
 		

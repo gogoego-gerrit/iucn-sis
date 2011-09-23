@@ -6,6 +6,7 @@ import java.util.List;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
@@ -48,7 +49,7 @@ public class AssessmentDeepCopyFilter implements Assessment.DeepCopyFilter {
 				/*
 				 * Return the field, but remove the history text.
 				 */
-				Field copy = field.deepCopy(false, true);
+				Field copy = field.deepCopy(false, this);
 				PrimitiveField<?> historyText = 
 					copy.getPrimitiveField(RedListCriteriaField.RLHISTORY_TEXT_KEY);
 				if (historyText != null)
@@ -61,8 +62,13 @@ public class AssessmentDeepCopyFilter implements Assessment.DeepCopyFilter {
 			/*
 			 * Else, return a copy of the field
 			 */
-			return field.deepCopy(false, true);
+			return field.deepCopy(false, this);
 		}
+	}
+	
+	@Override
+	public Reference copyReference(Reference source) {
+		return source.deepCopy();
 	}
 	
 }

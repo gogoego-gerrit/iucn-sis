@@ -337,7 +337,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		
 	}
 
-	private Assessment doCreateAssessmentForBatch(User user, AssessmentFilter filter, boolean useTemplate, Taxon taxon, Session session) {
+	private Assessment doCreateAssessmentForBatch(User user, AssessmentFilter filter, boolean useTemplate, Taxon taxon, final Session session) {
 		Assessment assessment = null;
 
 		if (useTemplate) {
@@ -359,7 +359,15 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				assessment = new Assessment(); // No template exists...
 			} else {
 				Collections.sort(assessments, new PublishedAssessmentsComparator(false));
-				assessment = assessments.get(0).deepCopy(new AssessmentDeepCopyFilter());
+				assessment = assessments.get(0).deepCopy(new AssessmentDeepCopyFilter() {
+					public Reference copyReference(Reference source) {
+						try {
+							return (Reference)session.get(Reference.class, source.getId());
+						} catch (Exception e) {
+							return null;
+						}
+					}
+				});
 			}
 		} else
 			assessment = new Assessment();

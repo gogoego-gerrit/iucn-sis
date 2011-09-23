@@ -566,7 +566,7 @@ public class AssessmentIO {
 			for (Reference reference : taxonomicNotes.getReference())
 				refs.add((Reference)session.get(Reference.class, reference.getId()));
 			
-			taxonomicNotes = taxonomicNotes.deepCopy(false, false);
+			taxonomicNotes = taxonomicNotes.deepCopy(false);
 			taxonomicNotes.setReference(refs);
 			
 			Field existing = assessment.getField(CanonicalNames.TaxonomicNotes);
