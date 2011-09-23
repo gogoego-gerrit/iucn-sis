@@ -206,6 +206,7 @@ public class SISNumber extends SISPrimitiveStructure<Float> implements DominantS
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public void setData(PrimitiveField field) {
 		/*
 		 * FIXME: should be typed but fails when data has a number 

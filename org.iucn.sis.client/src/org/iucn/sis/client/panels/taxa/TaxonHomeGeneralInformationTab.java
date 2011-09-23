@@ -204,6 +204,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		return data;	
 	}
 	
+	@SuppressWarnings("unused")
 	private LayoutContainer createSectionHeader(final String name) {
 		return createSectionHeader(name, null);
 	}

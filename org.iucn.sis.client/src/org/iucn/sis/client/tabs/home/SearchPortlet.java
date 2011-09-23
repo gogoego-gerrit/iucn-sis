@@ -2,7 +2,6 @@ package org.iucn.sis.client.tabs.home;
 
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.search.SearchQuery;
-import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;

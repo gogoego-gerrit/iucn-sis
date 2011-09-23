@@ -10,7 +10,6 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -386,9 +385,9 @@ public class TrashBinPanel extends LayoutContainer {
 
 			public void onSuccess(String arg0) {
 
-				int id = 0;
+				/*int id = 0;
 				if (TaxonomyCache.impl.getCurrentTaxon() != null)
-					id = TaxonomyCache.impl.getCurrentTaxon().getId();
+					id = TaxonomyCache.impl.getCurrentTaxon().getId();*/
 				TaxonomyCache.impl.clear();
 				AssessmentCache.impl.clear();
 				/*if (id != 0

@@ -36,6 +36,7 @@ public class ReferenceViewTabPanel extends TabPanel implements ReferenceViewAPI 
 	private BibliographyViewTab bibliography;
 	private ReferenceSearchViewTab search;
 	
+	@SuppressWarnings("unchecked")
 	public ReferenceViewTabPanel() {
 		super();
 		

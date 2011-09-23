@@ -25,7 +25,6 @@ import org.iucn.sis.shared.api.structures.SelectRule;
 import com.google.gwt.core.client.GWT;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
-import com.solertium.lwxml.shared.NativeNamedNodeMap;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 

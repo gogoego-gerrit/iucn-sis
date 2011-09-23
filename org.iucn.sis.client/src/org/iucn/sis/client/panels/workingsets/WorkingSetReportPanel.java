@@ -6,7 +6,6 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.WorkingSet;

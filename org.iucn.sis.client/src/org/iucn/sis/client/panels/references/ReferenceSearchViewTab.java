@@ -227,13 +227,13 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 				}
 			};
 
-			String count = model.get("count").toString();
+			/*String count = model.get("count").toString();
 			int countInt;
 			try {
 				countInt = Integer.parseInt(count);
 			} catch (NumberFormatException e) {
 				countInt = 0;
-			}
+			}*/
 			listener.onNo();
 			/*
 			 * To prompt the user before they open the window, uncomment the code below.

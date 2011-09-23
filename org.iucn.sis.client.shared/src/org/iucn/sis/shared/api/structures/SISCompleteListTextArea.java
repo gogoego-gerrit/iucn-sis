@@ -30,7 +30,7 @@ public class SISCompleteListTextArea extends VerticalPanel {
 	private RedListCreditedUserField field;
 	private List<ClientUser> selectedUsers;
 	
-	private Button generate, edit;
+	private Button edit;
 
 	public SISCompleteListTextArea() {
 		textArea = new TextArea();

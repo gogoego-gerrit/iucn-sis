@@ -50,7 +50,6 @@ public class AssessmentClientSaveUtils {
 	 * @param assessmentToSave
 	 * @param callback
 	 */
-	@SuppressWarnings("unchecked")
 	public static void saveAssessment(final List<Display> fieldWidgets, final Assessment assessmentToSave, final GenericCallback<Object> callback)
 		throws InsufficientRightsException {
 
@@ -136,6 +135,7 @@ public class AssessmentClientSaveUtils {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	private static void sink(Field remoteField, Field localField) {
 		for (PrimitiveField remotePrim : remoteField.getPrimitiveField()) {
 			PrimitiveField localPrim = localField.getPrimitiveField(remotePrim.getName());
@@ -271,7 +271,6 @@ public class AssessmentClientSaveUtils {
 			listener.handleEvent();
 	}
 	
-	@SuppressWarnings("unchecked")
 	private static Map<String, Field> mapByFieldName(Collection<Field> fields) {
 		Map<String, Field> map = new HashMap<String, Field>();
 		for (Field field : fields)

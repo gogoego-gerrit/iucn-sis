@@ -243,7 +243,6 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 			store.setStoreSorter(new StoreSorter<ReferenceModel>(new PortableAlphanumericComparator()));
 			
 			if (parent.getReferenceable() != null) {
-				Iterator<Reference> iter;
 				if (parent.getReferenceable() instanceof ReferenceableAssessment) {
 					for (Reference reference : parent.getReferenceable().getReferencesAsList()) {
 						ReferenceModel model = new ReferenceModel(reference);

@@ -3,7 +3,6 @@ package org.iucn.sis.client.panels.taxomatic;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.StateChangeEvent;
 import org.iucn.sis.client.api.container.StateManager;
-import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Infratype;
@@ -197,6 +196,7 @@ public class TaxonBasicEditor extends TaxomaticWindow implements DrawsLazily {
 		if (taxon.getTaxonStatus() == null)
 			status.setValue(statusStore.getAt(0));
 		else {
+			@SuppressWarnings("unused")
 			TextValueModelData<String> selection = null;
 			status.setValue(selection = statusStore.findModel(taxon.getStatusCode()));
 			//TODO: warn if selection is null

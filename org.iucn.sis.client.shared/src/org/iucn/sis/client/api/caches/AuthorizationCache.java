@@ -291,7 +291,7 @@ public class AuthorizationCache {
 		cache.put(target);
 	}
 	
-	private static class Cache {
+	protected static class Cache {
 		
 		private final Map<String, PermissionGroup> nameCache;
 		private final Map<Integer, PermissionGroup> idCache;

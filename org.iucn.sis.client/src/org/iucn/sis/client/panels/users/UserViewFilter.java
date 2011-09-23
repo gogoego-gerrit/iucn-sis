@@ -140,11 +140,6 @@ public class UserViewFilter implements StoreFilter<UserModelData> {
 		else
 			return filterText.startsWith(value.toLowerCase());
 	}
-
-	private boolean filterOut(String value, String filterBy) {
-		String text = value == null || "".equals(value) ? null : value.toLowerCase();
-		return text != null && !filterBy.toLowerCase().startsWith(value.toLowerCase());
-	}
 	
 	public void showFilter() {
 		filterPopup = WindowUtils.newWindow("Set Filters");

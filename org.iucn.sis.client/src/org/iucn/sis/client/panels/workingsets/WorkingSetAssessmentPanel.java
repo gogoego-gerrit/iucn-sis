@@ -120,6 +120,7 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 			return text;
 	}
 
+	@SuppressWarnings("deprecation")
 	private void getDraftAssessment() {
 		AssessmentCache.impl.fetchAssessments(new AssessmentFetchRequest(null, lastID), new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
@@ -140,6 +141,7 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 		setVisible(show);
 	}
 
+	@SuppressWarnings("deprecation")
 	private void refreshAssessmentInfo(Integer lastID) {
 
 		// TODO: CHANGE TO DISPLAY ALL OF THEM!

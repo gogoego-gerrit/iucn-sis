@@ -138,7 +138,7 @@ public class WorkingSetTaxaList extends RefreshLayoutContainer {
 		this(checked, null);
 	}
 
-	public WorkingSetTaxaList(boolean checked, CheckChangedListener checkListener) {
+	public WorkingSetTaxaList(boolean checked, CheckChangedListener<TaxaData> checkListener) {
 		this.checkListener = checkListener;
 
 		taxaList = new DataList();

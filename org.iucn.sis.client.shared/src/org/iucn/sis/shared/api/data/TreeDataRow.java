@@ -3,8 +3,6 @@ package org.iucn.sis.shared.api.data;
 import java.util.ArrayList;
 import java.util.Stack;
 
-import org.iucn.sis.shared.api.debug.Debug;
-
 public class TreeDataRow extends DisplayData {
 	private static final long serialVersionUID = 1L;
 	// Tree data

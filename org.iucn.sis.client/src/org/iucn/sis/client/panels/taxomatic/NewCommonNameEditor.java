@@ -22,7 +22,6 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -261,8 +260,10 @@ public class NewCommonNameEditor extends TaxomaticWindow implements DrawsLazily 
 		return container;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private BaseModelData newModelData(final CommonName commonName) {
 		BaseModelData model = new BaseModelData() {
+			private static final long serialVersionUID = 1L;
 			public <X> X get(String property) {
 				if ("primary".equals(property)) {
 					CommonName cn = get("model");
@@ -509,6 +510,8 @@ public class NewCommonNameEditor extends TaxomaticWindow implements DrawsLazily 
 	}
 	
 	private static class IsoLanguageModelData extends BaseModelData {
+		
+		private static final long serialVersionUID = 1L;
 		
 		public IsoLanguageModelData() {
 			super();

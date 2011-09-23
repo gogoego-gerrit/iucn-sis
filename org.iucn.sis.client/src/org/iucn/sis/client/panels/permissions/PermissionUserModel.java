@@ -47,6 +47,8 @@ public class PermissionUserModel extends BaseModelData {
 	
 	public static class PermissionsModelData extends BaseModelData {
 		
+		private static final long serialVersionUID = 1L;
+		
 		private final Collection<String> permissions;
 		
 		public PermissionsModelData(String csv) {

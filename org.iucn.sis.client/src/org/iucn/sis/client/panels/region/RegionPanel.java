@@ -2,9 +2,11 @@ package org.iucn.sis.client.panels.region;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.ui.models.region.RegionModel;
 import org.iucn.sis.shared.api.models.Region;
+
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;

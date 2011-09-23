@@ -1,18 +1,10 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
-import org.iucn.sis.shared.api.models.User;
-import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
-import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
-import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.HTML;
@@ -31,7 +23,6 @@ public class SISOptionsList extends Structure<Field> {
 		buildContentPanel(Orientation.VERTICAL);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public boolean hasChanged(Field field) {
 		/*
 		// FOR BACKWARDS COMPATIBILITY
@@ -183,7 +174,6 @@ public class SISOptionsList extends Structure<Field> {
 		return ++offset;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void setData(Field field) {
 		theList.setData(new RedListCreditedUserField(field));
 		/*Map<String, PrimitiveField> data;

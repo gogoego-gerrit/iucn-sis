@@ -149,7 +149,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		redraw(true, callback);
 	}
 	
-	@Override
+	@SuppressWarnings("deprecation")
 	protected LayoutContainer updateFeature() {
 		final Assessment item = AssessmentCache.impl.getAssessment(getSelectedItem());
 		final Taxon taxon = StateManager.impl.getTaxon();

@@ -8,7 +8,6 @@ import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
-import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;

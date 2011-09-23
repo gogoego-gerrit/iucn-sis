@@ -59,6 +59,7 @@ public class PermissionComboBox extends ComboBox<PermissionsModelData> {
 		super.setRawValue(text);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private CheckBoxListView<PermissionsModelData> getCheckBoxView() {
 		return (CheckBoxListView)getView();
 	}

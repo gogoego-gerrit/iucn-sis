@@ -161,6 +161,8 @@ public class CodingOptionTreePanel extends LayoutContainer {
 		DeferredCommand.addCommand(builder);
 	}
 
+	@Deprecated
+	@SuppressWarnings("unused")
 	private static TreeStore<CodingOption> createTreeStore(TreeData treeData, Map<String, CodingOption> selection, Collection<String> disabled) {
 		TreeStore<CodingOption> store = new TreeStore<CodingOption>();
 		store.setStoreSorter(new StoreSorter<CodingOption>(new PortableAlphanumericComparator()));
@@ -313,7 +315,6 @@ public class CodingOptionTreePanel extends LayoutContainer {
 	private static class IncrementalTreeStoreBuilder implements IncrementalCommand {
 		
 		private final TreeStore<CodingOption> store;
-		private final TreeData treeData;
 		private final Map<String, CodingOption> selection;
 		private final Collection<String> disabled;
 		
@@ -332,7 +333,6 @@ public class CodingOptionTreePanel extends LayoutContainer {
 				}
 			});
 			
-			this.treeData = treeData;
 			this.treeRoots = treeData.getTreeRoots();
 			this.selection = selection;
 			this.disabled = disabled;

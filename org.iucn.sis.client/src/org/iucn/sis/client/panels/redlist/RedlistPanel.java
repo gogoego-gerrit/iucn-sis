@@ -12,7 +12,6 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
-import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class RedlistPanel extends LayoutContainer {
 

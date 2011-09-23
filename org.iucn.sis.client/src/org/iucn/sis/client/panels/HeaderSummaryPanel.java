@@ -6,7 +6,6 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
