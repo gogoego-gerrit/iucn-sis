@@ -15,6 +15,7 @@ import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Region;
@@ -72,7 +73,6 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 	
 	private Component getAssessmentsPanel(final Taxon node) {
 		final GroupingStore<BaseModelData> store = new GroupingStore<BaseModelData>();
-		store.groupBy("schema");
 		
 		for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId(), null)) {
 			BaseModelData model = new BaseModelData();
@@ -118,6 +118,8 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 
 			store.add(model);
 		}
+		
+		store.groupBy("schema");
 		
 		List<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 
@@ -167,7 +169,18 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 		view.setShowGroupedColumn(false);
 		view.setGroupRenderer(new GridGroupRenderer() {
 			public String render(GroupColumnData data) {
-				return SchemaCache.impl.getFromCache(data.group).getName();
+				try {
+					String schemaID = data.group;
+					return SchemaCache.impl.getFromCache(schemaID).getName();
+				} catch (Throwable e) {
+					Debug.println("An error occurred rendering schema name for {0}: {1}\n{2}", data.group, e.getMessage(), e);
+					try {
+						return SchemaCache.impl.getFromCache(SchemaCache.impl.getDefaultSchema()).getName();
+					} catch (Throwable f) {
+						Debug.println("A second error occurred rendering schema name for {0}: {1}\n{2}", SchemaCache.impl.getDefaultSchema(), e.getMessage(), e);
+						return data.group;
+					}
+				}
 			}
 		});
 		
