@@ -28,12 +28,15 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -91,9 +94,8 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 		}
 
 		for (Assessment data : AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId(), null)) {
-			BaseModelData model = new BaseModelData();
-
 			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, data)) {
+				BaseModelData model = new BaseModelData();
 				model.set("date", data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed()));
 				model.set("category", AssessmentFormatter.getProperCategoryAbbreviation(data));
 				model.set("criteria", AssessmentFormatter.getProperCriteriaString(data));
@@ -104,19 +106,8 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				model.set("trash", "");
 				model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
 				model.set("id", data.getId());
-			}/* else {
-				model.set("date", "Sorry, you");
-				model.set("category", "do not have");
-				model.set("criteria", "permission");
-				model.set("status", "to view this");
-				model.set("region", "draft assessment.");
-				model.set("edit", "");
-				model.set("trash", "");
-				model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
-				model.set("id", data.getId());
-			}*/
-
-			store.add(model);
+				store.add(model);
+			}
 		}
 		
 		store.groupBy("schema");
@@ -139,27 +130,47 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				if (!value)
 					return "";
 				
-				return "<img src=\"tango/status/mail-attachment.png\" alt=\"This assessment has attachments\" />";
+				IconButton icon = new IconButton("icon-attachment");
+				return icon;
+				
+				//return "<img src=\"tango/status/mail-attachment.png\" alt=\"This assessment has attachments\" />";
 			}
 		});
+		attachments.setHidden(true); //Not ready for prime time
 		columns.add(attachments);
 		
 		ColumnConfig editView = new ColumnConfig("edit", "Edit/View", 60);
 		editView.setRenderer(new GridCellRenderer<BaseModelData>() {
-			public Object render(BaseModelData model, String property,
+			public Object render(final BaseModelData model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<BaseModelData> store, Grid<BaseModelData> grid) {
-				return "<img src =\"images/application_form_edit.png\" class=\"SIS_HyperlinkBehavior\"></img> ";
+				IconButton icon = new IconButton("icon-editDocument");
+				icon.addStyleName("SIS_HyperlinkBehavior");
+				icon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+					public void componentSelected(IconButtonEvent ce) {
+						viewAssessment(model);
+					}
+				});
+				return icon;
+				//return "<img src =\"images/application_form_edit.png\" class=\"SIS_HyperlinkBehavior\"></img> ";
 			}
 		});
 		columns.add(editView);
 		
 		ColumnConfig trash = new ColumnConfig("trash", "Trash", 60);
 		trash.setRenderer(new GridCellRenderer<BaseModelData>() {
-			public Object render(BaseModelData model, String property,
+			public Object render(final BaseModelData model, String property,
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<BaseModelData> store, Grid<BaseModelData> grid) {
-				return "<img src =\"tango/places/user-trash.png\" class=\"SIS_HyperlinkBehavior\"></img> ";
+				IconButton icon = new IconButton("icon-trash");
+				icon.addStyleName("SIS_HyperlinkBehavior");
+				icon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+					public void componentSelected(IconButtonEvent ce) {
+						trashAssessment(node, model);
+					}
+				});
+				return icon;
+				//return "<img src =\"tango/places/user-trash.png\" class=\"SIS_HyperlinkBehavior\"></img> ";
 			}
 		});
 		columns.add(trash);
@@ -187,85 +198,6 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 		final Grid<BaseModelData> tbl = new Grid<BaseModelData>(store, new ColumnModel(columns));
 		tbl.setView(view);
 		tbl.setBorders(false);
-		tbl.addListener(Events.RowClick, new Listener<GridEvent<BaseModelData>>() {
-			public void handleEvent(GridEvent<BaseModelData> be) {
-				if (be.getModel() == null)
-					return;
-
-				BaseModelData model = be.getModel();
-				
-				int column = be.getColIndex();
-
-				final Integer id = model.get("id");
-				final String status = model.get("status");
-				final String type = status.equals("Published") ? 
-						AssessmentType.PUBLISHED_ASSESSMENT_TYPE : AssessmentType.DRAFT_ASSESSMENT_TYPE;
-				if (column == 7) {
-					if (type == AssessmentType.PUBLISHED_ASSESSMENT_TYPE
-							&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
-									AuthorizableObject.DELETE, AssessmentCache.impl.getPublishedAssessment(id))) {
-						WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission "
-								+ "to perform this operation.");
-					} else if (type == AssessmentType.DRAFT_ASSESSMENT_TYPE
-							&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
-									AuthorizableObject.DELETE, AssessmentCache.impl.getDraftAssessment(id))) {
-						WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission "
-								+ "to perform this operation.");
-					} else {
-						WindowUtils.confirmAlert("Confirm Delete",
-								"Are you sure you want to delete this assessment?",
-								new WindowUtils.SimpleMessageBoxListener() {
-							public void onYes() {
-								/*if (AssessmentCache.impl.getCurrentAssessment() != null
-										&& AssessmentCache.impl.getCurrentAssessment().getId() == id
-										.intValue())
-									AssessmentCache.impl.resetCurrentAssessment();*/
-								NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
-								doc.delete(UriBase.getInstance().getSISBase() + "/assessments/" + type
-										+ "/" + id, new GenericCallback<String>() {
-									public void onFailure(Throwable arg0) {
-										WindowUtils.errorAlert("Could not delete, please try again later.");
-									}
-									public void onSuccess(String arg0) {
-										WorkingSetCache.impl.uncacheAssessmentsForWorkingSets();
-										
-										TaxonomyCache.impl.evict(String.valueOf(node.getId()));
-										TaxonomyCache.impl.fetchTaxon(node.getId(), true,
-												new GenericCallback<Taxon>() {
-											public void onFailure(Throwable caught) {
-											};
-											public void onSuccess(Taxon result) {
-												AssessmentCache.impl.clear();
-												//TaxonomyCache.impl.setCurrentTaxon(node);
-												StateChangeEvent event = new StateChangeEvent(StateManager.impl.getWorkingSet(), result, null, null);
-												event.setCanceled(false);
-												
-												StateManager.impl.reset(event);
-												//FIXME: panelManager.recentAssessmentsPanel.update();
-											};
-										});
-									}
-								});
-							}
-						});
-					}
-				} else if (column == 6) {
-					Assessment fetched = AssessmentCache.impl.getAssessment(id);
-					// CHANGE
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ,
-							fetched)) {
-						//AssessmentCache.impl.setCurrentAssessment(fetched);
-						StateManager.impl.setAssessment(fetched);
-						//ClientUIContainer.headerContainer.update();
-						/*ClientUIContainer.bodyContainer
-								.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/
-					} else {
-						WindowUtils.errorAlert("Sorry, you do not have permission to view this assessment.");
-					}
-				}
-			}
-
-		});
 
 		//ClientUIContainer.headerContainer.update();
 		
@@ -279,6 +211,79 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 		assessments.add(tbl);
 		
 		return tbl;
+	}
+	
+	private void viewAssessment(BaseModelData model) {
+		final Integer id = model.get("id");
+		
+		Assessment fetched = AssessmentCache.impl.getAssessment(id);
+		// CHANGE
+		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ,
+				fetched)) {
+			//AssessmentCache.impl.setCurrentAssessment(fetched);
+			StateManager.impl.setAssessment(fetched);
+			//ClientUIContainer.headerContainer.update();
+			/*ClientUIContainer.bodyContainer
+					.setSelection(ClientUIContainer.bodyContainer.tabManager.assessmentEditor);*/
+		} else {
+			WindowUtils.errorAlert("Sorry, you do not have permission to view this assessment.");
+		}
+	}
+	
+	private void trashAssessment(final Taxon node, final BaseModelData model) {
+		final Integer id = model.get("id");
+		final String status = model.get("status");
+		final String type = status.equals("Published") ? 
+				AssessmentType.PUBLISHED_ASSESSMENT_TYPE : AssessmentType.DRAFT_ASSESSMENT_TYPE;
+		
+		if (type == AssessmentType.PUBLISHED_ASSESSMENT_TYPE
+				&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
+						AuthorizableObject.DELETE, AssessmentCache.impl.getPublishedAssessment(id))) {
+			WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission "
+					+ "to perform this operation.");
+		} else if (type == AssessmentType.DRAFT_ASSESSMENT_TYPE
+				&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
+						AuthorizableObject.DELETE, AssessmentCache.impl.getDraftAssessment(id))) {
+			WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission "
+					+ "to perform this operation.");
+		} else {
+			WindowUtils.confirmAlert("Confirm Delete",
+					"Are you sure you want to delete this assessment?",
+					new WindowUtils.SimpleMessageBoxListener() {
+				public void onYes() {
+					/*if (AssessmentCache.impl.getCurrentAssessment() != null
+							&& AssessmentCache.impl.getCurrentAssessment().getId() == id
+							.intValue())
+						AssessmentCache.impl.resetCurrentAssessment();*/
+					NativeDocument doc = SimpleSISClient.getHttpBasicNativeDocument();
+					doc.delete(UriBase.getInstance().getSISBase() + "/assessments/" + type
+							+ "/" + id, new GenericCallback<String>() {
+						public void onFailure(Throwable arg0) {
+							WindowUtils.errorAlert("Could not delete, please try again later.");
+						}
+						public void onSuccess(String arg0) {
+							WorkingSetCache.impl.uncacheAssessmentsForWorkingSets();
+							
+							TaxonomyCache.impl.evict(String.valueOf(node.getId()));
+							TaxonomyCache.impl.fetchTaxon(node.getId(), true,
+									new GenericCallback<Taxon>() {
+								public void onFailure(Throwable caught) {
+								};
+								public void onSuccess(Taxon result) {
+									AssessmentCache.impl.clear();
+									//TaxonomyCache.impl.setCurrentTaxon(node);
+									StateChangeEvent event = new StateChangeEvent(StateManager.impl.getWorkingSet(), result, null, null);
+									event.setCanceled(false);
+									
+									StateManager.impl.reset(event);
+									//FIXME: panelManager.recentAssessmentsPanel.update();
+								};
+							});
+						}
+					});
+				}
+			});
+		}
 	}
 	
 	private String getRegions(Assessment data) {
