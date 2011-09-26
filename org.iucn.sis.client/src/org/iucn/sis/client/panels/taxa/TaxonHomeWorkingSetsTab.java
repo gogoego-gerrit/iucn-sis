@@ -79,9 +79,10 @@ public class TaxonHomeWorkingSetsTab extends LayoutContainer implements DrawsLaz
 					public Object render(final BaseModelData model, String property, ColumnData config,
 							int rowIndex, int colIndex, ListStore<BaseModelData> store,
 							Grid<BaseModelData> grid) {
-						boolean open = model.get(property);
+						final boolean open = model.get(property);
+						final IconButton openIcon;
 						if (open) {
-							IconButton openIcon = new IconButton("icon-go-jump");
+							openIcon = new IconButton("icon-go-jump");
 							openIcon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 								public void componentSelected(IconButtonEvent ce) {
 									openWorkingSet(model);
@@ -90,13 +91,17 @@ public class TaxonHomeWorkingSetsTab extends LayoutContainer implements DrawsLaz
 							
 							return openIcon;
 						}
-						else
-							return "";
+						else {
+							openIcon = new IconButton("icon-read-only");
+							openIcon.addStyleName("pointerDefault");
+						}
+						
+						return openIcon;
 					}
 				});
 				
-				columns.add(new ColumnConfig("wsname", "Working Set Name", 200));
-				columns.add(new ColumnConfig("creator", "Owner", 150));
+				columns.add(new ColumnConfig("wsname", "Working Set Name", 250));
+				columns.add(new ColumnConfig("creator", "Owner", 200));
 				columns.add(openColumn);
 				
 				final Grid<BaseModelData> tbl = new Grid<BaseModelData>(store, new ColumnModel(columns));

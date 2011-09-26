@@ -132,6 +132,10 @@ body,td,div,input,p,select,input,button {
 	cursor: pointer;
 }
 
+.pointerDefault {
+	cursor: default !important;	
+}
+
 .left {
 	text-align: left;
 }
