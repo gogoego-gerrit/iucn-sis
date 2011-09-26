@@ -9,6 +9,12 @@ import org.gogoego.util.getout.GetOut;
 public class UniverseBuilder {
 	
 	public void build(final Connection c, final Connection l, final String schema, final String user) throws DBException {
+		try {
+			c.update("CREATE SCHEMA " + schema);
+		} catch (Exception ignored) { }
+		try {
+			c.update("GRANT USAGE ON " + schema + " TO " + user);
+		} catch (Exception ignored) { }
 		c.update("DROP TABLE IF EXISTS " + schema + ".universe");
 		c.update("CREATE TABLE " + schema + ".universe (a VARCHAR(255), b VARCHAR(255), c VARCHAR(255), d VARCHAR(255));");
 		
