@@ -23,7 +23,7 @@ public class BasicSearchPanel extends SearchPanel {
 						}
 						public void onSuccess(Taxon result) {
 							if (result != null) {
-								StateManager.impl.setTaxon(result);
+								StateManager.impl.setState(null, result, null);
 								WindowManager.get().hideAll();
 							}
 							else

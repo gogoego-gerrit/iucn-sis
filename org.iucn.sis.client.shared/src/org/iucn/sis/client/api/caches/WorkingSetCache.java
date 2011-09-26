@@ -29,6 +29,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
@@ -428,6 +429,32 @@ public class WorkingSetCache {
 				}
 			});
 		}
+	}
+	
+	public void containsTaxon(WorkingSet ws, final Taxon taxon, final ComplexListener<Boolean> callback) {
+		/*
+		 * Eventually this may be a true server-side operation, but for now...
+		 */
+		WorkingSetCache.impl.fetchWorkingSet(ws.getId(), FetchMode.FULL, new GenericCallback<WorkingSet>() {
+			public void onFailure(Throwable caught) {
+				callback.handleEvent(Boolean.FALSE);
+			}
+			public void onSuccess(WorkingSet result) {
+				callback.handleEvent(result.getTaxaMap().containsKey(taxon.getId()));
+			}
+		});
+		
+	}
+	
+	public void containsAssessment(WorkingSet ws, final Assessment assessment, final ComplexListener<Boolean> callback) {
+		listAssessmentsForWorkingSet(ws, assessment.getTaxon(), new GenericCallback<List<Integer>>() {
+			public void onSuccess(List<Integer> result) {
+				callback.handleEvent(result.contains(assessment.getId()));
+			}
+			public void onFailure(Throwable caught) {
+				callback.handleEvent(Boolean.FALSE);
+			}
+		});
 	}
 
 	/**

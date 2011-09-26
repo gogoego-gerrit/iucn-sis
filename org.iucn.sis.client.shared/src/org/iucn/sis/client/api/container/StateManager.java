@@ -74,21 +74,43 @@ public final class StateManager implements CoreObservable<ComplexListener<StateC
 	 * if any.
 	 * @param taxon
 	 */
-	public void setTaxon(Taxon taxon) {
-		setState(getWorkingSet(), taxon, null);
+	public void setTaxon(final Taxon taxon) {
+		if (getWorkingSet() == null)
+			setState(getWorkingSet(), taxon, null);
+		else {
+			WorkingSetCache.impl.containsTaxon(getWorkingSet(), taxon, new ComplexListener<Boolean>() {
+				public void handleEvent(Boolean eventData) {
+					if (eventData)
+						setState(getWorkingSet(), taxon, null);
+					else
+						setState(null, taxon, null);
+				}
+			});
+		}
 	}
 	
 	/**
 	 * Sets the current taxon to the given 
-	 * taxon and resets teh current assessment, 
+	 * taxon and resets the current assessment, 
 	 * if any.  If true is passed for force, it 
 	 * will force a state change, even if the 
 	 * given taxon is the current taxon.
 	 * @param taxon
 	 * @param force
 	 */
-	public void setTaxon(Taxon taxon, boolean force) {
-		setState(new StateChangeEvent(getWorkingSet(), taxon, null, this), force);
+	public void setTaxon(final Taxon taxon, final boolean force) {
+		if (getWorkingSet() == null)
+			setState(new StateChangeEvent(getWorkingSet(), taxon, null, this), force);
+		else {
+			WorkingSetCache.impl.containsTaxon(getWorkingSet(), taxon, new ComplexListener<Boolean>() {
+				public void handleEvent(Boolean eventData) {
+					if (eventData)
+						setState(new StateChangeEvent(getWorkingSet(), taxon, null, this), force);
+					else
+						setState(new StateChangeEvent(null, taxon, null, this), force);
+				}
+			});
+		}
 	}
 	
 	/**
@@ -105,8 +127,19 @@ public final class StateManager implements CoreObservable<ComplexListener<StateC
 	 * Sets the current assessment.
 	 * @param assessment
 	 */
-	public void setAssessment(Assessment assessment) {
-		setState(getWorkingSet(), getTaxon(), assessment);
+	public void setAssessment(final Assessment assessment) {
+		if (getWorkingSet() == null)
+			setState(getWorkingSet(), getTaxon(), assessment);
+		else {
+			WorkingSetCache.impl.containsAssessment(getWorkingSet(), assessment, new ComplexListener<Boolean>() {
+				public void handleEvent(Boolean eventData) {
+					if (eventData)
+						setState(getWorkingSet(), getTaxon(), assessment);
+					else
+						setState(null, getTaxon(), assessment);
+				}
+			});
+		}
 	}
 	
 	/**
