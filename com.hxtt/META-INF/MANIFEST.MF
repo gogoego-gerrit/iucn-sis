@@ -3,7 +3,8 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Hxtt Plug-in
 Bundle-SymbolicName: com.hxtt
 Bundle-Version: 1.0.0
-Bundle-ClassPath: Access_JDBC30.jar
+Bundle-ClassPath: Access_JDBC30.jar,
+ hibernate35.jar
 Export-Package: com.hxtt.a,
  com.hxtt.b,
  com.hxtt.c,
@@ -18,5 +19,7 @@ Export-Package: com.hxtt.a,
  com.hxtt.sql.common,
  com.hxtt.sql.remote,
  com.hxtt.sql.server,
+ com.hxtt.support.hibernate,
  com.hxtt.swing.a,
  com.hxtt.swing.util
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
