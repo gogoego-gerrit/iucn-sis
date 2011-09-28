@@ -1,6 +1,10 @@
 package org.iucn.sis.server.extensions.export.access.exported;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PipedInputStream;
@@ -33,6 +37,8 @@ import com.solertium.util.restlet.CookieUtility;
 
 @SuppressWarnings("deprecation")
 public class GenericExportResource extends TransactionResource {
+	
+	private static final String ACCESS_DB_TEMPLATE = "WSAccessExportTemplate.mdb";
 	
 	private final String schema;
 	private final String workingSet;
@@ -87,7 +93,7 @@ public class GenericExportResource extends TransactionResource {
 		}
 		
 		final PipedInputStream inputStream = new PipedInputStream(); 
-		final Representation representation = new OutputRepresentation(MediaType.TEXT_PLAIN) {
+		final Representation representation = new OutputRepresentation(MediaType.TEXT_HTML) {
 			public void write(OutputStream out) throws IOException {
 				byte[] b = new byte[8];
 				int read;
@@ -105,24 +111,54 @@ public class GenericExportResource extends TransactionResource {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
-		/*
-		 * TODO: determine what the target and template 
-		 * should be...
-		 */
-		
-		
-		AccessExporter exporter = new AccessExporter(source, workingSetID);
-		exporter.setOutputStream(writer, "\n");
+		String folder = createTempFolder(name);
+		AccessExporter exporter = new AccessExporter(source, workingSetID, folder, name + ".mdb");
+		exporter.setOutputStream(writer, "<br/>");
 		try {
 			//exporter.setTarget(createH2Target(name));
-			exporter.setTarget(createPostgresTestTarget(name));
+			//exporter.setTarget(createPostgresTestTarget(name));
+			exporter.setTarget(createAccessTarget(folder, name));
 		} catch (NamingException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
 		new Thread(exporter).start();
 		
 		return representation;
+	}
+	
+	public static String createAccessTarget(String folderName, String source) throws IOException, ResourceException {
+		final File folder = new File(folderName);
+		final File file = new File(folder, source + ".mdb");
+		final InputStream is = GenericExportResource.class.getResourceAsStream(ACCESS_DB_TEMPLATE);
+		final OutputStream os = new BufferedOutputStream(
+			new FileOutputStream(file));
+		
+		final byte[] buf = new byte[65536];
+		int i = 0;
+		while ((i = is.read(buf)) != -1)
+			os.write(buf, 0, i);
+		
+		is.close();
+		os.close();
+		
+		String name = source + "_target";
+		
+		Properties properties = new Properties();
+		properties.setProperty("dbsession." + name + ".uri", "jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ="+file.getAbsolutePath());
+		properties.setProperty("dbsession." + name + ".driver", "sun.jdbc.odbc.JdbcOdbcDriver");
+		properties.setProperty("dbsession." + name + ".user", "");
+		properties.setProperty("dbsession." + name + ".password", "");
+		
+		try {
+			DBSessionFactory.registerDataSource(name, properties);
+		} catch (NamingException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		return name;
 	}
 	
 	@SuppressWarnings("unused")
@@ -145,6 +181,7 @@ public class GenericExportResource extends TransactionResource {
 		return name;
 	}
 	
+	@SuppressWarnings("unused")
 	private String createPostgresTestTarget(String source) throws ResourceException {
 		String location = "localhost:5432";
 		String name = source + "_target";
@@ -162,5 +199,22 @@ public class GenericExportResource extends TransactionResource {
 		}
 		
 		return name;
+	}
+	
+	private String createTempFolder(String fileName) throws ResourceException {
+		File tmp;
+		try {
+			tmp = File.createTempFile("toDelete", "tmp");
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INSUFFICIENT_STORAGE, e);
+		}
+		
+		File folder = tmp.getParentFile();
+		File tmpFolder = new File(folder, fileName);
+		tmpFolder.mkdirs();
+		
+		tmp.delete();
+		
+		return tmpFolder.getAbsolutePath();
 	}
 }

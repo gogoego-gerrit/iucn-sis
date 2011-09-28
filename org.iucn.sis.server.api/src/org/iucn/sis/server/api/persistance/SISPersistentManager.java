@@ -63,6 +63,10 @@ public class SISPersistentManager {
 		loader.addClassLoader(org.h2.Driver.class.getClassLoader());
 		loader.addClassLoader(H2Dialect.class.getClassLoader());
 		
+		//Access
+		loader.addClassLoader(com.hxtt.sql.access.AccessDriver.class.getClassLoader());
+		loader.addClassLoader(com.hxtt.support.hibernate.HxttAccessDialect.class.getClassLoader());
+		
 		return loader;
 	}
 

@@ -112,9 +112,19 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 	}
 	
 	protected void createTable(String table) throws DBException {
+		createTable(table, table);
+	}
+	
+	protected void createTable(String table, String sourceTable) throws DBException {
 		try {
 			target.dropTable(table);
-			target.createTable(table, source.getRow(table));
+		} catch (DBException e) {
+			TrivialExceptionHandler.ignore(this, e);
+		}
+		
+		try {
+			write(" -- Creating table " + table);
+			target.createTable(table, source.getRow(sourceTable));
 		} catch (DBException e) {
 			TrivialExceptionHandler.ignore(this, e);
 			
@@ -185,11 +195,15 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 			Row.Loader rl = new Row.Loader();
 			source.doQuery(query, rl);
 			
-			Row row = rl.getRow();
-			if (row != null) {
+			Row sourceRow = rl.getRow();
+			if (sourceRow != null) {
+				Row targetRow = target.getRow("taxon");
+				for (Column c : targetRow.getColumns())
+					c.setObject(sourceRow.get(c.getLocalName()).getObject());
+				
 				InsertQuery insert = new InsertQuery();
 				insert.setTable("taxon");
-				insert.setRow(row);
+				insert.setRow(targetRow);
 				
 				write("Adding taxon %s to taxon table", taxon.getFullName());
 				
@@ -206,7 +220,7 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 		write(String.format(template, args));
 	}
 	
-	private class CopyProcessor extends RowProcessor {
+	public class CopyProcessor extends RowProcessor {
 		
 		private final String table;
 		private final Row templateRow;
