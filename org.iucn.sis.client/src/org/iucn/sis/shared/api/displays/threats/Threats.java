@@ -39,12 +39,6 @@ public class Threats extends ClassificationScheme {
 	}
 	
 	@Override
-	public void save() {
-		super.save();
-		Debug.println(field);
-	}
-	
-	@Override
 	public void setField(final Field field) {
 		final List<Integer> taxaToFetch = new ArrayList<Integer>();
 		final List<Integer> virusToFetch = new ArrayList<Integer>();

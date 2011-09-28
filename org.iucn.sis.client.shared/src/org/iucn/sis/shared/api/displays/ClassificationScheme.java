@@ -228,6 +228,8 @@ public class ClassificationScheme extends Display {
 		if (field == null)
 			initializeField();
 		
+		field.getFields().clear();
+		
 		for (ClassificationSchemeModelData model : viewer.save(true)) {
 			Field subfield = model.getField();
 			if (subfield == null) {

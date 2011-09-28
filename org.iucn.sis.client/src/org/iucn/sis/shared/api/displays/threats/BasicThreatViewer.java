@@ -244,11 +244,20 @@ public class BasicThreatViewer extends Structure<Field> {
 		Map<String, TreeDataRow> flatTree = 
 			treeData.getTreeData("Stresses").flattenTree();
 		ArrayList<TreeDataRow> selected = new ArrayList<TreeDataRow>();
+		ArrayList<StressField> toRemove = new ArrayList<StressField>();
 		for (StressField stress : field.getStresses()) {
-			String key = stress.getStress().toString();
-			if (flatTree.containsKey(key))
-				selected.add(flatTree.get(key));
+			Integer value = stress.getStress();
+			if (value != null) {
+				String key = value.toString();
+				if (flatTree.containsKey(key))
+					selected.add(flatTree.get(key));
+			}
+			else
+				toRemove.add(stress);
 		}
+		//Queue to remove garbage entries...
+		for (StressField stress : toRemove)
+			raw.getFields().remove(stress.getModel());
 		stresses = new CodingOptionTreePanel(treeData.getTreeData("Stresses"), selected, new ArrayList<String>());
 		
 		impactScore.setText(getScore());

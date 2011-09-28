@@ -153,11 +153,9 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 				eventData.updateDisplayableData();
 					
 				if (addToPagingLoader && !server.contains(eventData))
-					server.add(eventData);
+					addModel(eventData);
 				else
-					server.update(eventData);
-									
-				hasChanged = true;
+					updateModel(eventData);
 			}
 		});
 		window.show();
@@ -199,7 +197,7 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 					WindowUtils.confirmAlert("Delete Confirm", "Are you sure you want to delete this data?", new WindowUtils.SimpleMessageBoxListener() {
 						public void onYes() {
 							if (model != null) {
-								server.remove(model);
+								removeModel(model);
 							}
 						}
 					});
@@ -366,21 +364,21 @@ public class BasicClassificationSchemeViewer extends PagingPanel<ClassificationS
 		}
 	}
 	
-	public void removeModel(ClassificationSchemeModelData model) {
+	public final void removeModel(ClassificationSchemeModelData model) {
 		server.remove(model);
 		
 		hasChanged = true;
 	}
 	
 	@Override
-	public void addModel(ClassificationSchemeModelData model) {
+	public final void addModel(ClassificationSchemeModelData model) {
 		server.add(model);
 		
 		hasChanged = true;
 	}
 	
 	@Override
-	public void updateModel(ClassificationSchemeModelData model) {
+	public final void updateModel(ClassificationSchemeModelData model) {
 		server.update(model);
 							
 		hasChanged = true;

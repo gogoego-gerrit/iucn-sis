@@ -214,5 +214,9 @@ public class ProxyField {
 		else if (value != null)
 			proxy.addPrimitiveField(new DatePrimitiveField(key, proxy, value));
 	}
+	
+	public Field getModel() {
+		return proxy;
+	}
 
 }

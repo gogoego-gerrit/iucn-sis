@@ -11,7 +11,7 @@ public class StressField extends ProxyField {
 	}
 
 	public void setStress(Integer stressID) {
-		setForeignKeyPrimitiveField("stress", stressID);
+		setForeignKeyPrimitiveField("stress", stressID, "StressesLookup");
 	}
 	
 	public Integer getStress() {

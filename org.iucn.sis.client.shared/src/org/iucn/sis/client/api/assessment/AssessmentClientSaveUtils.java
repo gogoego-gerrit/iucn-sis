@@ -2,6 +2,7 @@ package org.iucn.sis.client.api.assessment;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -150,7 +151,7 @@ public class AssessmentClientSaveUtils {
 		}
 		
 		final Map<String, List<Field>> localSubfields = groupByFieldName(localField.getFields());
-		for (Field remoteSubfield : remoteField.getFields()) {
+		for (Field remoteSubfield : sortFields(remoteField.getFields())) {
 			if (localSubfields.containsKey(remoteSubfield.getName())) {
 				List<Field> list = localSubfields.get(remoteSubfield.getName());
 				if (!list.isEmpty()) {
@@ -160,6 +161,7 @@ public class AssessmentClientSaveUtils {
 					sink(remoteSubfield, localSubfield);
 				}
 				else {
+					Debug.println("Warning: Mis-count, empty field listing, manually adding field");
 					remoteSubfield.setParent(localField);
 					localField.getFields().add(remoteSubfield);
 				}
@@ -288,6 +290,15 @@ public class AssessmentClientSaveUtils {
 			}
 			list.add(field);
 		}
+		for (List<Field> values : map.values())
+			Collections.sort(values, new Field.FieldNameComparator());
+		
 		return map;
+	}
+	
+	private static List<Field> sortFields(Collection<Field> fields) {
+		List<Field> list = new ArrayList<Field>(fields);
+		Collections.sort(list, new Field.FieldNameComparator());
+		return list;
 	}
 }

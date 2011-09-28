@@ -19,7 +19,7 @@ public class ThreatsSubfield extends ProxyField {
 	}
 	
 	public void setThreat(Integer threatID) {
-		setForeignKeyPrimitiveField("ThreatsLookup", threatID);
+		setForeignKeyPrimitiveField("ThreatsLookup", threatID, "ThreatsLookup");
 	}
 	
 	public Integer getTiming() {
@@ -27,7 +27,7 @@ public class ThreatsSubfield extends ProxyField {
 	}
 	
 	public void setTiming(Integer timing) {
-		setForeignKeyPrimitiveField("timing", timing);
+		setForeignKeyPrimitiveField("timing", timing, "Threats_timingLookup");
 	}
 	
 	public Integer getScope() {
@@ -35,7 +35,7 @@ public class ThreatsSubfield extends ProxyField {
 	}
 	
 	public void setScope(Integer scope) {
-		setForeignKeyPrimitiveField("scope", scope);
+		setForeignKeyPrimitiveField("scope", scope, "Threats_scopeLookup");
 	}
 	
 	public String getScore() {
@@ -51,7 +51,7 @@ public class ThreatsSubfield extends ProxyField {
 	}
 	
 	public void setSeverity(Integer severity) {
-		setForeignKeyPrimitiveField("severity", severity);
+		setForeignKeyPrimitiveField("severity", severity, "Threats_severityLookup");
 	}
 	
 	public Set<StressField> getStresses() {
