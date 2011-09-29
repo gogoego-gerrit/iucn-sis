@@ -126,6 +126,7 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 				Assessment assessment = model.getModel();
 				String style;
 				String value;
+				boolean locked = false;
 				if (assessment == null) {
 					style = header ? "monkey_navigation_section_header" : MarkedCache.NONE;
 					value = model.get(property);
@@ -134,9 +135,17 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 					style = MarkedCache.impl.getAssessmentStyle(assessment.getId());
 					value = !assessment.isPublished() ? 
 							getDraftDisplayableString(assessment) : getPublishedDisplayableString(assessment);
+					locked = !AuthorizationCache.impl.hasRight(AuthorizableObject.READ, assessment);
 				}
-				//TODO: add lock icon if locked.
-				return "<div class=\"" + style + "\">" + value + "</div>";
+				
+				if (!locked)
+					return "<div class=\"" + style + "\">" + value + "</div>";
+				else {
+					return "<div>" + 
+						"<span style=\"float:left;\" class=\"" + style + "\">" + value + "</span>" +
+						"<span style=\"width:20px;height:20px;float:right;\" class=\"icon-lock\">&nbsp;</span>" + 
+						"</div>";
+				}
 			}
 		});
 		
@@ -350,8 +359,13 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 	
 	@Override
 	protected void open(NavigationModelData<Assessment> model) {
-		if (hasSelection())
-			navigate(curNavWorkingSet, curNavTaxon, getSelected());
+		Assessment selection = getSelected();
+		if (selection != null) {
+			if (canRead(selection))
+				navigate(curNavWorkingSet, curNavTaxon, selection);
+			else
+				WindowUtils.errorAlert("Sorry, you do not have permission to view this assessment.");
+		}
 	}
 	
 	@Override
@@ -369,6 +383,10 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		});
 
 		addTool(jump);	
+	}
+
+	private boolean canRead(Assessment assessment) {
+		return AuthorizationCache.impl.hasRight(AuthorizableObject.READ, assessment);
 	}
 	
 	public static class AssessmentStoreSorter extends StoreSorter<NavigationModelData<Assessment>> {
