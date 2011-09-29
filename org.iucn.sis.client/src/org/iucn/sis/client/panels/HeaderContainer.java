@@ -393,7 +393,7 @@ public class HeaderContainer extends ContentPanel {
 				}));
 			}
 			
-			if (AuthorizationCache.impl.canUse(AuthorizableFeature.ACCESS_EXPORT_FEATURE)) {
+			/*if (AuthorizationCache.impl.canUse(AuthorizableFeature.ACCESS_EXPORT_FEATURE)) {
 				menu.add(createMenuItem("icon-prefs", "Access Export", new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						final LayoutContainer container = new LayoutContainer();
@@ -402,7 +402,7 @@ public class HeaderContainer extends ContentPanel {
 						openAdministrativeTool("Access Export", "icon-prefs", container);
 					}
 				}));
-			}
+			}*/
 			
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.TAXON_FINDER_FEATURE)) {
 				final String title = "Manage New Taxa";
