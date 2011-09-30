@@ -18,8 +18,7 @@ Require-Bundle: com.solertium.lwxml;bundle-version="1.1.2",
  org.slf4j;bundle-version="1.0.0",
  org.apache.commons.collections;bundle-version="1.0.0",
  org.dom4j;bundle-version="1.0.0",
- org.iucn.sis.clientshared.bridge;bundle-version="1.0.0",
- com.hxtt;bundle-version="1.0.0"
+ org.iucn.sis.clientshared.bridge;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.iucn.sis.server.api.application,
  org.iucn.sis.server.api.fields,
@@ -36,7 +35,9 @@ Export-Package: org.iucn.sis.server.api.application,
  org.iucn.sis.server.api.schema.redlist,
  org.iucn.sis.server.api.utils,
  org.iucn.sis.server.api.utils.export
-Import-Package: com.solertium.util.restlet,
+Import-Package: com.hxtt.sql.access,
+ com.hxtt.support.hibernate,
+ com.solertium.util.restlet,
  com.solertium.util.restlet.authentication,
  org.h2,
  org.osgi.framework,
