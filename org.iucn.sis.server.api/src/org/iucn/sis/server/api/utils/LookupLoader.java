@@ -14,7 +14,7 @@ public class LookupLoader {
 	public static String get(String fieldName, String primitiveFieldName, int value) {
 		return get(fieldName, primitiveFieldName, value, null);
 	}
-	
+
 	public static String get(String fieldName, String primitiveFieldName, int value, String defaultValue) {
 		String tableName = fieldName;
 		String columnName;
@@ -45,8 +45,7 @@ public class LookupLoader {
 		} catch (DBException e) {
 			return defaultValue;
 		}
-		
+	
 		return rl.getRow() == null ? defaultValue : rl.getRow().get(0).toString();
 	}
-
 }

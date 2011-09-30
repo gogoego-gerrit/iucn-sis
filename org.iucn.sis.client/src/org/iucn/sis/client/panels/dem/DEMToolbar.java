@@ -12,6 +12,7 @@ import org.iucn.sis.client.api.caches.ViewCache.EditStatus;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.users.panels.ManageCreditsWindow;
 import org.iucn.sis.client.api.ui.views.SISView;
+import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
@@ -27,7 +28,6 @@ import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -520,7 +520,7 @@ public class DEMToolbar extends ToolBar {
 		 * The three items below are not and will not 
 		 * be ready for SIS 2.0 launch.
 		 */
-		/*
+		
 		mItem = new MenuItem();
 		mItem.setText("View Report");
 		mItem.setIconStyle("icon-report");
@@ -529,7 +529,7 @@ public class DEMToolbar extends ToolBar {
 				fetchReport();
 			}
 		});
-		mainMenu.add(mItem);*/
+		mainMenu.add(mItem);
 		
 		final MenuItem integrity = new MenuItem();
 		integrity.setText("Validate Assessment");
@@ -694,7 +694,7 @@ public class DEMToolbar extends ToolBar {
 		ClientAssessmentValidator.validate(data.getId(), data.getType());
 	}
 
-	@SuppressWarnings("unused")
+	//@SuppressWarnings("unused")
 	private void fetchReport() {
 		final CheckBox useLimited = new CheckBox();
 		useLimited.setValue(Boolean.valueOf(true));
@@ -716,20 +716,20 @@ public class DEMToolbar extends ToolBar {
 		
 		form.addButton(new Button("Submit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				Assessment a = AssessmentCache.impl.getCurrentAssessment();
-				String target = "/reports/";
-
-				if (a.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
+				//Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+				String target = "/reports/redlist/";
+				
+				/*if (a.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
 					target += "draft/";
 				} else if (a.getType().equals(AssessmentType.PUBLISHED_ASSESSMENT_TYPE)) {
 					target += "published/";
 				} else if (a.getType().equals(AssessmentType.USER_ASSESSMENT_TYPE)) {
 					target += "user/" + SimpleSISClient.currentUser.getUsername() + "/";
-				}
+				}*/
 
 				w.hide();
 				
-				com.google.gwt.user.client.Window.open(target + AssessmentCache.impl.getCurrentAssessment().getId()
+				com.google.gwt.user.client.Window.open(UriBase.getInstance().getReportBase()+ target + AssessmentCache.impl.getCurrentAssessment().getId()
 						+ "?empty=" + showEmpty.getValue() + "&limited=" + useLimited.getValue(),
 						"_blank", "");
 			}
