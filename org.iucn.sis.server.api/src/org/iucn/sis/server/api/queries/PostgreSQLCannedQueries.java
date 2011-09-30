@@ -18,7 +18,7 @@ public class PostgreSQLCannedQueries extends BaseCannedQueries {
 	}
 	
 	public String cleanSearchTerm(String value) {
-		return value.replace("’", "\'");
+		return value.replace("’", "\'").trim();
 	}
 
 }
