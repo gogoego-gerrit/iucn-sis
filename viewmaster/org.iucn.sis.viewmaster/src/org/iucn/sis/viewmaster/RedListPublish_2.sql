@@ -53,6 +53,7 @@ INSERT INTO $schema.vw_filter
     t1.assessmentid=assessment.id AND
     public.assessment.id=public.vw_regioninformation_regions.assessmentid AND
     public.assessment.assessment_typeid=1 AND
+    public.assessment.state = 0 AND
     public.taxon.taxon_statusid in(1,4)
     GROUP BY t1.taxonid, public.vw_regioninformation_regions.value
   );
