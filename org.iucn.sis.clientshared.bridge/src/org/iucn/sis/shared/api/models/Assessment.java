@@ -27,7 +27,6 @@ import java.util.Set;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.models.Field.ReferenceCopyHandler;
 import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RegionField;
@@ -436,9 +435,9 @@ public class Assessment implements Serializable, AuthorizableObject {
 	
 	public void generateFields() {
 		keyToField = new HashMap<String, Field>();
-		for (Field field : getField()) {
-			keyToField.put(field.getName(), field);
-		}
+		if (getField() != null)
+			for (Field field : getField())
+				keyToField.put(field.getName(), field);
 	}
 	
 	public Set<String> getFieldKeys() {
