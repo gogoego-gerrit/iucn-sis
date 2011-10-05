@@ -159,7 +159,7 @@ public abstract class Classification {
 	}
 	
 	public CriteriaResult b1(HashMap<String, Range> factors) {
-		Range extent = (Range) factors.get(Factors.extent);
+		Range extent = factors.get(Factors.extent);
 		Range and1 = Range.lessthan(extent, bExtent);
 
 		return b(factors, and1, "1");
@@ -180,7 +180,7 @@ public abstract class Classification {
 			
 			Range sf = factors.get(Factors.severeFragmentation);
 			Range loc = factors.get(Factors.locations);
-			loc = Range.lessthan(loc, bLocations);
+			loc = Range.lessthanequal(loc, bLocations);
 			
 			bxa = Range.independentOR(sf, loc);
 

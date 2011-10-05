@@ -179,6 +179,64 @@ public class ExpertSystem extends BasicTest {
 	}
 	
 	@Test
+	public void testB1ab() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.EOO, 
+			new RangePrimitiveField("range", null, "11")
+		));
+		assessment.getField().add(newField(CanonicalNames.EOOContinuingDecline, 
+			new BooleanRangePrimitiveField("isContinuingDecline", null, BooleanRangePrimitiveField.YES),
+			new ForeignKeyPrimitiveField("qualifier", null, INFERRED, "null")
+		));
+		assessment.getField().add(newField(CanonicalNames.EOOExtremeFluctuation, 
+			new BooleanRangePrimitiveField("isFluctuating", null, BooleanRangePrimitiveField.NO)	
+		));
+		
+		assessment.getField().add(newField(CanonicalNames.HabitatContinuingDecline, 
+			new BooleanRangePrimitiveField("isDeclining", null, BooleanRangePrimitiveField.YES),
+			new ForeignKeyPrimitiveField("qualifier", null, INFERRED, "null")
+		));
+		
+		assessment.getField().add(newField(CanonicalNames.AOOContinuingDecline, 
+			new BooleanRangePrimitiveField("isContinuingDecline", null, BooleanRangePrimitiveField.YES),
+			new ForeignKeyPrimitiveField("qualifier", null, INFERRED, "null")
+		));
+		assessment.getField().add(newField(CanonicalNames.AOOExtremeFluctuation, 
+			new BooleanRangePrimitiveField("isFluctuating", null, BooleanRangePrimitiveField.NO)	
+		));
+		assessment.getField().add(newField(CanonicalNames.LocationsNumber, 
+			new RangePrimitiveField("range", null, "1")	
+		));
+		assessment.getField().add(newField(CanonicalNames.LocationContinuingDecline, 
+			new BooleanRangePrimitiveField("inDecline", null, BooleanRangePrimitiveField.UNKNOWN)	
+		));
+		assessment.getField().add(newField(CanonicalNames.LocationExtremeFluctuation, 
+			new BooleanRangePrimitiveField("isFluctuating", null, BooleanRangePrimitiveField.NO)
+		));
+		assessment.getField().add(newField(CanonicalNames.SevereFragmentation, 
+			new BooleanRangePrimitiveField("isFragmented", null, BooleanRangePrimitiveField.NO)
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationContinuingDecline, 
+			new BooleanRangePrimitiveField("isDeclining", null, BooleanRangePrimitiveField.YES)	
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationExtremeFluctuation, 
+			new BooleanRangePrimitiveField("isFluctuating", null, BooleanRangePrimitiveField.NO)	
+		));
+		assessment.getField().add(newField(CanonicalNames.SubpopulationContinuingDecline, 
+			new BooleanRangePrimitiveField("isDeclining", null, BooleanRangePrimitiveField.UNKNOWN)	
+		));
+		
+		assessment.getField().add(newField(CanonicalNames.SubpopulationExtremeFluctuation, 
+			new BooleanRangePrimitiveField("isFluctuating", null, BooleanRangePrimitiveField.NO)	
+		));
+		
+		ExpertResult result = run(assessment);
+		
+		Assert.assertEquals(result.getAbbreviatedCategory(), "CR");
+		Assert.assertEquals(result.getCriteriaString(), "B1ab(i,ii,iii,v)");
+	}
+	
+	@Test
 	public void goodB1B2() {
 		Assessment assessment = new Assessment();
 		assessment.getField().add(newField(CanonicalNames.EOO, 
