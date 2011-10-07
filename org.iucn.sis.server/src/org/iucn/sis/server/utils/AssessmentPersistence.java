@@ -14,6 +14,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentChange;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Reference;
 
@@ -100,6 +101,23 @@ public class AssessmentPersistence {
 			}
 			
 			target.getReference().removeAll(existingReferences.values());
+			
+			Map<Integer, Notes> existingNotes = mapFields(target.getNotes());
+			
+			for (Notes sourceNotes : source.getNotes()) {
+				//Should never be the case...
+				if (sourceNotes.getId() == 0) {
+					sourceNotes.setField(target);
+					target.getNotes().add(sourceNotes);
+				}
+				else {
+					Notes targetNotes = existingNotes.remove(sourceNotes.getId());
+					if (targetNotes == null)
+						target.getNotes().add(SISPersistentManager.instance().loadObject(session, Notes.class, sourceNotes.getId()));
+				}
+			}
+			
+			target.getNotes().removeAll(existingNotes.values());
 			
 		}
 		{
@@ -218,6 +236,8 @@ public class AssessmentPersistence {
 				map.put(((PrimitiveField)field).getId(), field);
 			else if (field instanceof Reference)
 				map.put(((Reference)field).getId(), field);
+			else if (field instanceof Notes)
+				map.put(((Notes)field).getId(), field);
 		}
 		return map;
 	}
