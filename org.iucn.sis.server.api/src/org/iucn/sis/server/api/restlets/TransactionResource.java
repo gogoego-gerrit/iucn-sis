@@ -8,6 +8,7 @@ import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.Context;
+import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
@@ -18,8 +19,16 @@ import org.restlet.resource.ResourceException;
 
 public abstract class TransactionResource extends Resource {
 	
+	private final boolean openTransaction;
+	
 	public TransactionResource(Context context, Request request, Response response) {
 		super(context, request, response);
+		
+		openTransaction = shouldOpenTransaction(request, response);
+	}
+	
+	protected boolean shouldOpenTransaction(Request request, Response response) {
+		return !Method.GET.equals(request.getMethod());
 	}
 	
 	@Override
@@ -131,17 +140,20 @@ public abstract class TransactionResource extends Resource {
 	 */
 	private Session openSession() {
 		Session session = SISPersistentManager.instance().openSession();
-		session.beginTransaction();
+		if (openTransaction)
+			session.beginTransaction();
 		
 		return session;
 	}
 	
 	private void closeSession(Session session, boolean success) {
 		try {
-			if (success)
-				session.getTransaction().commit();
-			else
-				session.getTransaction().rollback();
+			if (openTransaction) {
+				if (success)
+					session.getTransaction().commit();
+				else
+					session.getTransaction().rollback();
+			}
 		} catch (HibernateException e) {
 			Debug.println("Hibernate Error: {0}\n{1}", e.getMessage(), e);
 			if (e.getCause() instanceof BatchUpdateException) {
@@ -150,7 +162,8 @@ public abstract class TransactionResource extends Resource {
 				Debug.println("Caused by SQL Exception: {0}\n{1}", sql.getMessage(), sql);
 			}
 			getResponse().setStatus(Status.SERVER_ERROR_INTERNAL, e, "Hibernate Exception Occurred");
-			session.getTransaction().rollback();
+			if (openTransaction)
+				session.getTransaction().rollback();
 		} finally {
 			session.close();
 		}

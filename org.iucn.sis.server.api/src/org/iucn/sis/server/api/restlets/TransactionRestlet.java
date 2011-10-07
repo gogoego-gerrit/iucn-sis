@@ -26,7 +26,7 @@ public abstract class TransactionRestlet extends Restlet {
 	 * the session's initial transaction before starting anew.
 	 */
 	public final void handle(Request request, Response response) {
-		final boolean openTransation = !Method.GET.equals(request.getMethod());
+		final boolean openTransation = shouldOpenTransation(request, response);
 		final Session session = SISPersistentManager.instance().openSession();
 		if (openTransation)
 			session.beginTransaction();
@@ -60,6 +60,10 @@ public abstract class TransactionRestlet extends Restlet {
 		} finally {
 			session.close();
 		}
+	}
+	
+	protected boolean shouldOpenTransation(Request request, Response response) {
+		return !Method.GET.equals(request.getMethod());
 	}
 	
 	/**
