@@ -39,6 +39,7 @@ import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
+import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
@@ -61,6 +62,14 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		paths.add("/assessments");
 		paths.add("/assessments/{type}");
 		paths.add("/assessments/{type}/{id}");
+	}
+	
+	@Override
+	protected boolean shouldOpenTransation(Request request, Response response) {
+		return super.shouldOpenTransation(request, response) && !(
+			Method.POST.equals(request.getMethod()) && 
+			"fetch".equals(request.getResourceRef().getQueryAsForm().getFirstValue("action"))
+		);
 	}
 	
 	@Override
