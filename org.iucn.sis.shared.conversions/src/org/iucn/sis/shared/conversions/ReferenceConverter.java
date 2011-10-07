@@ -55,7 +55,7 @@ public class ReferenceConverter extends Converter {
 				ref.setEdition(row.get("EDITION").getString());
 				ref.setDateValue(row.get("DATE").getString());
 				ref.setType(row.get("PUBLICATION_TYPE").getString());
-				ref.setSubmissionType(row.get("SUBSIDIARY_AUTHOR").getString());
+				ref.setSubsidiaryAuthor(row.get("SUBSIDIARY_AUTHOR").getString());
 				ref.setShortTitle(row.get("SHORT_TITLE").getString());
 				ref.setAlternateTitle(row.get("ALTERNATE_TITLE").getString());
 				ref.setIsbnIssn(row.get("ISBN/ISSN").getString());
