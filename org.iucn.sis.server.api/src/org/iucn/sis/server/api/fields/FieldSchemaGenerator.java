@@ -147,7 +147,6 @@ public class FieldSchemaGenerator {
 		
 		final Row.Set rs = new Row.Set();
 		
-		System.out.println(query.getSQL(ec.getDBSession()));
 		ec.doQuery(query, rs);
 		
 		for (Row row : rs.getSet()) {
