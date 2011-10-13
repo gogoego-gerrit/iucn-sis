@@ -27,6 +27,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.util.extjs.client.WindowUtils;
@@ -62,6 +63,7 @@ public class SISTreeStructure extends Structure<Field> {
 	}
 	
 	protected Widget generateContent(final boolean viewOnly) {
+		displayPanel.add(new HTML(description));
 		displayPanel.add(readOnlyContainer);
 		
 		String buttonText = viewOnly ? "View Details" : "View/Edit";
