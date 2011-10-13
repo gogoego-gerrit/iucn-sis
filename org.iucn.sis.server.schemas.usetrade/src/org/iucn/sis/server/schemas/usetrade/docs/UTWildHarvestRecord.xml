@@ -6,7 +6,7 @@
 		<structure id="dateOfHarvest" description="Date of Information">
 			<date></date>
 		</structure>
-		<structure>
+		<structure description="Detailed Wild Harvest">
 			<oneToMany>
 						<structure id="isTotalSpeciesRange" description="Total Species Range?">
 							<boolean />
@@ -194,7 +194,7 @@
 						<structure id="habitatConservationBenefitsText" description="Details for conservation benefits for the habitat/ecosystem">
 							<text/>
 						</structure>
-						<structure id="UTEndUseRecord" description="End Use Record">
+						<structure id="UTEndUseRecord" description="End Use">
 							<oneToMany>
 								<structure>
 									<relatedStructure>
