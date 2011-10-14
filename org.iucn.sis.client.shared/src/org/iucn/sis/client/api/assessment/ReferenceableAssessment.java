@@ -65,10 +65,15 @@ public class ReferenceableAssessment implements Referenceable {
 			return;
 		}
 		
-		NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-		document.post(UriBase.getInstance().getSISBase() + "/assessments/" + 
-				assessment.getAssessmentType().getName() + "/" + assessment.getId(), 
-				assessment.toXML(), new GenericCallback<String>() {
+		final StringBuilder out = new StringBuilder();
+		out.append("<references>");
+		for (Reference reference : assessment.getReference())
+			out.append("<reference id=\"" + reference.getId() + "\" />");
+		out.append("</references>");
+		
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.post(UriBase.getInstance().getSISBase() + "/changes/assessments/" + 
+				assessment.getId() + "/references", out.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				callback.onSuccess(result);
 			}

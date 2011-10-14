@@ -197,11 +197,17 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			assessment.setField(fields);
 		}
 	}
-
+	
 	private void postAssessment(Representation entity, Request request, Response response, User username, final Session session) throws ResourceException  {
 		session.clear();
 		
-		NativeDocument doc = getEntityAsNativeDocument(entity);
+		final NativeDocument doc;
+		try {
+			doc = getEntityAsNativeDocument(entity);
+		} catch (ResourceException e) {
+			throw e;
+		}
+		
 		final AssessmentIO assessmentIO = new AssessmentIO(session);
 		try {
 			Assessment source = Assessment.fromXML(doc);
@@ -228,9 +234,10 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				
 				target.getReference().removeAll(targetRefs.values());
 				
-				target.toXML();
+				String sourceXML = source.toXML();
+				String targetXML = target.toXML();
 				
-				final AssessmentPersistence saver = new AssessmentPersistence(session);
+				final AssessmentPersistence saver = new AssessmentPersistence(session, target);
 				saver.setDeleteFieldListener(new ComplexListener<Field>() {
 					public void handleEvent(Field field) {
 						try {
@@ -249,7 +256,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 						}
 					}
 				});
-				saver.sink(source, target);
+				saver.sink(source);
 				
 				Hibernate.initialize(target.getEdit());
 				

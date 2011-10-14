@@ -25,6 +25,7 @@ import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.io.AssessmentChangePacket;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
@@ -652,22 +653,23 @@ public class ManageCreditsWindow extends BasicWindow implements DrawsLazily {
 	}
 
 	protected void onSave() {
-		try{
+		try {
 			Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
-		
-			saveField(CanonicalNames.RedListAssessors, assessment, assessors.getStore());
-			saveField(CanonicalNames.RedListEvaluators, assessment, reviewers.getStore());
-			saveField(CanonicalNames.RedListContributors, assessment, contributors.getStore());
-			saveField(CanonicalNames.RedListFacilitators, assessment, facilitators.getStore());
+			AssessmentChangePacket packet = new AssessmentChangePacket(assessment.getId());
+			
+			saveField(packet, CanonicalNames.RedListAssessors, assessment, assessors.getStore());
+			saveField(packet, CanonicalNames.RedListEvaluators, assessment, reviewers.getStore());
+			saveField(packet, CanonicalNames.RedListContributors, assessment, contributors.getStore());
+			saveField(packet, CanonicalNames.RedListFacilitators, assessment, facilitators.getStore());
 
 			WindowUtils.showLoadingAlert("Saving Credits...");
-			AssessmentClientSaveUtils.saveAssessment(null,assessment, new GenericCallback<Object>() {
+			AssessmentClientSaveUtils.saveAssessment(packet, assessment, new GenericCallback<AssessmentChangePacket>() {
 				public void onFailure(Throwable arg0) {
 					WindowUtils.hideLoadingAlert();
 					WindowUtils.errorAlert("Save Failed", "Failed to save assessment! " + arg0.getMessage());
 				}
 	
-				public void onSuccess(Object arg0) {
+				public void onSuccess(AssessmentChangePacket arg0) {
 					WindowUtils.hideLoadingAlert();
 					Info.display("Save Complete", "Successfully saved assessment {0}.",
 							AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
@@ -685,15 +687,12 @@ public class ManageCreditsWindow extends BasicWindow implements DrawsLazily {
 					);
 				}
 			});
-			
-			
-		}catch(InsufficientRightsException e){
+		} catch(InsufficientRightsException e){
 			WindowUtils.errorAlert("Sorry, but you do not have sufficient rights to perform this action.");
 		}
-		
 	}
 
-	private void saveField(String fieldName, Assessment assessment, ListStore<SearchResults> store) {
+	private void saveField(AssessmentChangePacket packet, String fieldName, Assessment assessment, ListStore<SearchResults> store) {
 		final Set<Integer> userIDs = new HashSet<Integer>();
 		final ArrayList<ClientUser> selectedUsers = new ArrayList<ClientUser>();
 		final StringBuilder order = new StringBuilder();
@@ -734,6 +733,8 @@ public class ManageCreditsWindow extends BasicWindow implements DrawsLazily {
 		if (!userIDs.isEmpty())
 			proxy.setText(null); //Remove any custom text entries.
 		//proxy.setText(RedListCreditedUserField.generateText(selectedUsers, order.toString()));
+		
+		packet.addChange(field);
 	}
 	
 	public void loadRecentUsers() {

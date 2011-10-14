@@ -19,6 +19,7 @@ import org.iucn.sis.shared.api.criteriacalculator.ExpertUtils;
 import org.iucn.sis.shared.api.criteriacalculator.Factors;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.Display;
+import org.iucn.sis.shared.api.io.AssessmentChangePacket;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
@@ -34,16 +35,6 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class AssessmentClientSaveUtils {
 
-	public static void saveAssessment(final GenericCallback<Object> callback)
-			throws InsufficientRightsException {
-		saveAssessment(AssessmentCache.impl.getCurrentAssessment(), callback);
-	}
-	
-	public static void saveAssessment(final Assessment assessmentToSave, final GenericCallback<Object> callback)
-			throws InsufficientRightsException {
-		saveAssessment(null, assessmentToSave, callback);
-	}
-	
 	/**
 	 * Tries to save the assessment passed as an argument. If the assessmentToSave parameter is null
 	 * it will try to pull the current assessment to save.
@@ -51,12 +42,20 @@ public class AssessmentClientSaveUtils {
 	 * @param assessmentToSave
 	 * @param callback
 	 */
-	public static void saveAssessment(final List<Display> fieldWidgets, final Assessment assessmentToSave, final GenericCallback<Object> callback)
+	public static void saveAssessment(final List<Display> fieldWidgets, final Assessment assessmentToSave, final GenericCallback<AssessmentChangePacket> callback)
 		throws InsufficientRightsException {
-
-		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, assessmentToSave)) {
+		
+		AssessmentChangePacket packet = null;
+		if (fieldWidgets != null)
+			packet = saveWidgetDataToAssessment(fieldWidgets, assessmentToSave);
+		
+		saveAssessment(packet, assessmentToSave, callback);
+	}
+	
+	public static void saveAssessment(final AssessmentChangePacket packet, final Assessment assessmentToSave, final GenericCallback<AssessmentChangePacket> callback)
+			throws InsufficientRightsException {
+		if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, assessmentToSave))
 			throw new InsufficientRightsException();
-		}
 
 		StatusCache.impl.checkStatus(assessmentToSave, false, new GenericCallback<Integer>() {
 			public void onFailure(Throwable caught) {
@@ -65,57 +64,64 @@ public class AssessmentClientSaveUtils {
 
 			public void onSuccess(Integer result) {
 				if (result == StatusCache.UNLOCKED || result == StatusCache.HAS_LOCK) {
-					if (fieldWidgets != null)
-						saveWidgetDataToAssessment(fieldWidgets, assessmentToSave);
-
 					final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-					ndoc.post(UriBase.getInstance().getSISBase() +"/assessments", assessmentToSave.toXML(), new GenericCallback<String>() {
-						public void onFailure(Throwable caught) {
-							if (caught instanceof GWTResponseException) {
-								int code = ((GWTResponseException)caught).getCode();
-								if (code == 409)
-									callback.onFailure(new Exception("A draft assessment " +
-										"with the specified regions already exists. Please modify " +
-										"your choice of regions and try again."));
-								else if (code == 403)
-									callback.onFailure(new Exception("This assessment has " +
-										"been locked since you opened it; no changes will " +
-										"be saved.  Please try again in a few minutes."));
-								else if (code == 423)
-									callback.onFailure(new Exception("This assessment has " +
-										"been locked since you opened it; no changes will " +
-										"be saved."));
-								else
-									callback.onFailure(new Exception("An unknown error occurred that " +
-										"prevented this assessment from being saved. Please try again later."));
-							} else {
-								callback.onFailure(new Exception("Please check your internet " +
-								"connection and try again."));
-							}
-						}
-						public void onSuccess(String result) {
-							try {
-								Assessment remote = Assessment.fromXML(ndoc);
-								Assessment local = assessmentToSave;
-								
-								//Copy the edit trail
-								local.setEdit(remote.getEdit());
-								
-								//Set the field IDs
-								sink(remote, local);
-							} catch (Throwable e) {
-								Debug.println(e);
-							}
-								
-							StatusCache.impl.setStatus(assessmentToSave, StatusCache.HAS_LOCK);
-							callback.onSuccess(result);
-						}
-					});
+					
+					if (packet == null)
+						ndoc.post(UriBase.getInstance().getSISBase() + "/assessments", 
+								assessmentToSave.toXML(), getSaveHandler(packet, assessmentToSave, ndoc, callback));
+					else
+						ndoc.post(UriBase.getInstance().getSISBase() + "/changes/assessments/" + assessmentToSave.getId(), 
+								packet.toXML(), getSaveHandler(packet, assessmentToSave, ndoc, callback));
 				} else {
 					callback.onFailure(new Exception("Assessment locked or needs an update."));
 				}
 			}
 		});
+	}
+	
+	private static GenericCallback<String> getSaveHandler(final AssessmentChangePacket packet, final Assessment assessmentToSave, final NativeDocument ndoc, final GenericCallback<AssessmentChangePacket> callback) {
+		return new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				if (caught instanceof GWTResponseException) {
+					int code = ((GWTResponseException)caught).getCode();
+					if (code == 409)
+						callback.onFailure(new Exception("A draft assessment " +
+							"with the specified regions already exists. Please modify " +
+							"your choice of regions and try again."));
+					else if (code == 403)
+						callback.onFailure(new Exception("This assessment has " +
+							"been locked since you opened it; no changes will " +
+							"be saved.  Please try again in a few minutes."));
+					else if (code == 423)
+						callback.onFailure(new Exception("This assessment has " +
+							"been locked since you opened it; no changes will " +
+							"be saved."));
+					else
+						callback.onFailure(new Exception("An unknown error occurred that " +
+							"prevented this assessment from being saved. Please try again later."));
+				} else {
+					callback.onFailure(new Exception("Please check your internet " +
+					"connection and try again."));
+				}
+			}
+			public void onSuccess(String result) {
+				try {
+					Assessment remote = Assessment.fromXML(ndoc);
+					Assessment local = assessmentToSave;
+					
+					//Copy the edit trail
+					local.setEdit(remote.getEdit());
+					
+					//Set the field IDs
+					sink(remote, local);
+				} catch (Throwable e) {
+					Debug.println(e);
+				}
+					
+				StatusCache.impl.setStatus(assessmentToSave, StatusCache.HAS_LOCK);
+				callback.onSuccess(packet);
+			}
+		};
 	}
 	
 	private static void sink(Assessment remote, Assessment local) {
@@ -194,48 +200,58 @@ public class AssessmentClientSaveUtils {
 		}
 	}
 
-	protected static void saveWidgetDataToAssessment(final List<Display> fieldWidgets,
-			final Assessment assessmentToSave) {
-		
+	protected static AssessmentChangePacket saveWidgetDataToAssessment(final List<Display> fieldWidgets, final Assessment assessmentToSave) {
 		Debug.println("Saving assessment...");
 		
 		boolean factorChanged = false;
 		
+		AssessmentChangePacket packet = new AssessmentChangePacket(assessmentToSave.getId());
+		
 		for (Display cur : fieldWidgets) {
 			//Debug.println("Saving data to Field {0}: {1}", cur.getCanonicalName(), cur.getField().getPrimitiveField());
-			
-			try {
-				cur.save();
-				
-				Field curField = cur.getField();
-				if (curField == null)
-					Debug.println("Display {0} yielded a null field after save", cur.getCanonicalName());
-				else { 
-					if (!curField.hasData()) {
-						Debug.println("+ Removing {0} with id {1} because it doesn't have any data", curField.getName(), curField.getId());
-						assessmentToSave.getField().remove(assessmentToSave.getField(curField.getName()));
-						curField.reset();
-						cur.setField(null);
+			if (cur.hasChanged()) {
+				try {
+					cur.save();
+					
+					Field curField = cur.getField();
+					if (curField == null)
+						Debug.println("Display {0} yielded a null field after save", cur.getCanonicalName());
+					else { 
+						if (!curField.hasData()) {
+							if (curField.getId() != 0)
+								packet.addDeletion(curField);
+							Debug.println("+ Removing {0} with id {1} because it doesn't have any data", curField.getName(), curField.getId());
+							assessmentToSave.getField().remove(assessmentToSave.getField(curField.getName()));
+							//curField.reset();
+							cur.setField(null);
+						}
+						else {
+							Debug.println("+ Adding {0} with id {1}", curField.getName(), curField.getId());
+							assessmentToSave.getField().add(curField);
+							curField.setAssessment(assessmentToSave);
+						
+							packet.addChange(curField);
+						}
 					}
-					else {
-						Debug.println("+ Adding {0} with id {1}", curField.getName(), curField.getId());
-						assessmentToSave.getField().add(curField);
-						curField.setAssessment(assessmentToSave);
-					}
+					
+					if (Factors.isFactor(cur.getCanonicalName()) || CanonicalNames.RegionExpertQuestions.equals(cur.getCanonicalName()))
+						factorChanged = true;
+				} catch (Throwable e) {
+					GWT.log("Failed to save display " + cur.getCanonicalName(), e);
+					Debug.println(e);
 				}
-				
-				if (Factors.isFactor(cur.getCanonicalName()) || CanonicalNames.RegionExpertQuestions.equals(cur.getCanonicalName()))
-					factorChanged = true;
-			} catch (Throwable e) {
-				GWT.log("Failed to save display " + cur.getCanonicalName(), e);
-				Debug.println(e);
 			}
 		}
 		
 		if (factorChanged) {
 			Debug.println("A factor was changed, re-analyzing criteria");
 			ExpertUtils.processAssessment(assessmentToSave);
+			
+			packet.addChange(assessmentToSave.getField(CanonicalNames.RedListFuzzyResult));
+			packet.addChange(assessmentToSave.getField(CanonicalNames.RedListCriteria));
 		}
+		
+		return packet;
 	}
 	
 	public static void saveIfNecessary(final SimpleListener listener) {
@@ -248,11 +264,12 @@ public class AssessmentClientSaveUtils {
 					+ " revert unsaved changes. Would you like to save?", new WindowUtils.MessageBoxListener() {
 				public void onYes() {
 					try {
-						saveAssessment(AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
+						saveAssessment(ViewCache.impl.getCurrentView().getCurPage().getMyFields(), 
+								AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<AssessmentChangePacket>() {
 							public void onFailure(Throwable caught) {
 								WindowUtils.errorAlert("Could not save, please try again later.");
 							}
-							public void onSuccess(Object arg0) {
+							public void onSuccess(AssessmentChangePacket arg0) {
 								Info.display("Save Complete", "Successfully saved assessment {0}.",
 										AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
 								listener.handleEvent();

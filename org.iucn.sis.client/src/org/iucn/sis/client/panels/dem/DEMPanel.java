@@ -26,6 +26,7 @@ import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.io.AssessmentChangePacket;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Region;
@@ -414,13 +415,13 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 	private void doSaveCurrentAssessment(final SimpleListener callback) {
 		try {
 			AssessmentClientSaveUtils.saveAssessment(ViewCache.impl.getCurrentView().getCurPage().getMyFields(), 
-					AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
+					AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<AssessmentChangePacket>() {
 				public void onFailure(Throwable arg0) {
 					WindowUtils.hideLoadingAlert();
 					WindowUtils.errorAlert("Save Failed", "Failed to save assessment! " + arg0.getMessage());
 				}
 
-				public void onSuccess(Object arg0) {
+				public void onSuccess(AssessmentChangePacket arg0) {
 					WindowUtils.hideLoadingAlert();
 					Info.display("Save Complete", "Successfully saved assessment {0}.", AssessmentCache.impl
 							.getCurrentAssessment().getSpeciesName());

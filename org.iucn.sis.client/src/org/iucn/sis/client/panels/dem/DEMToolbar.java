@@ -12,6 +12,7 @@ import org.iucn.sis.client.api.caches.ViewCache.EditStatus;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.users.panels.ManageCreditsWindow;
 import org.iucn.sis.client.api.ui.views.SISView;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
@@ -27,6 +28,7 @@ import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
+import org.iucn.sis.shared.api.io.AssessmentChangePacket;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -169,7 +171,7 @@ public class DEMToolbar extends ToolBar {
 						stopAutosaveTimer();
 						WindowUtils.showLoadingAlert("Saving assessment...");
 						AssessmentClientSaveUtils.saveAssessment(ViewCache.impl.getCurrentView().getCurPage().getMyFields(),
-								AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
+								AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<AssessmentChangePacket>() {
 							public void onFailure(Throwable arg0) {
 								WindowUtils.hideLoadingAlert();
 								layout();
@@ -177,11 +179,13 @@ public class DEMToolbar extends ToolBar {
 								resetAutosaveTimer();
 							}
 
-							public void onSuccess(Object arg0) {
+							public void onSuccess(AssessmentChangePacket arg0) {
 								WindowUtils.hideLoadingAlert();
 								Info.display("Save Complete", "Successfully saved assessment {0}.",
 										AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
 								Debug.println("Explicit save happened at {0}", AssessmentCache.impl.getCurrentAssessment().getLastEdit().getCreatedDate());
+								if (SIS.isDebugMode() && arg0 != null)
+									WindowUtils.infoAlert(arg0.toHTML());
 								resetAutosaveTimer();
 								//TODO: ClientUIContainer.headerContainer.update();
 								if (saveListener != null)
@@ -764,13 +768,13 @@ public class DEMToolbar extends ToolBar {
 					AssessmentClientSaveUtils.shouldSaveCurrentAssessment(currentView.getCurPage().getMyFields());
 				if (save) {
 					AssessmentClientSaveUtils.saveAssessment(currentView.getCurPage().getMyFields(),
-							AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
+							AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<AssessmentChangePacket>() {
 						public void onFailure(Throwable arg0) {
 							WindowUtils.errorAlert("Save Failed", "Failed to save assessment! " + arg0.getMessage());
 							startAutosaveTimer();
 						}
 
-						public void onSuccess(Object arg0) {
+						public void onSuccess(AssessmentChangePacket arg0) {
 							Info.display("Auto-save Complete", "Successfully auto-saved assessment {0}.",
 									AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
 							startAutosaveTimer();

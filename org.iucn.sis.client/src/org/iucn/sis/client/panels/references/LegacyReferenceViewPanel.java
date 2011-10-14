@@ -739,7 +739,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 										assessmentID = AssessmentCache.impl.getCurrentAssessment().getId();
 										assessmentType = AssessmentCache.impl.getCurrentAssessment().getType();
 
-										try {
+										/*try {
 											AssessmentClientSaveUtils.saveAssessment(AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<Object>() {
 												public void onFailure(Throwable caught) {
 													doReplace(reference, fromStore, returnedRef, null, null);
@@ -754,7 +754,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 											//AssessmentCache.impl.resetCurrentAssessment();
 											StateManager.impl.setAssessment(null);
 											doReplace(reference, fromStore, returnedRef, null, null);
-										}
+										}*/
 										
 									} else {
 										doReplace(reference, fromStore, returnedRef, assessmentID, assessmentType);

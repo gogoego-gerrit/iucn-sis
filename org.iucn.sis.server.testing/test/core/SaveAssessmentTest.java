@@ -4,7 +4,9 @@ import org.iucn.sis.server.utils.AssessmentPersistence;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
+import org.iucn.sis.shared.api.models.fields.ThreatsSubfield;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.junit.Test;
 
 public class SaveAssessmentTest extends BasicTest {
@@ -13,8 +15,8 @@ public class SaveAssessmentTest extends BasicTest {
 	public void testSaveNew() throws Exception {
 		Assessment target = new Assessment();
 		
-		AssessmentPersistence saver = new AssessmentPersistence(null);
-		saver.sink(createBrandNewAssessmentWithFields(), target);
+		AssessmentPersistence saver = new AssessmentPersistence(null, target);
+		saver.sink(createBrandNewAssessmentWithFields());
 		
 		//System.out.println(toXML(target));
 	}
@@ -23,8 +25,8 @@ public class SaveAssessmentTest extends BasicTest {
 	public void testSaveExisting() throws Exception {
 		Assessment target = createExistingAssessmentWithFields();
 		
-		AssessmentPersistence saver = new AssessmentPersistence(null);
-		saver.sink(createExistingAssessmentWithFields(), target);
+		AssessmentPersistence saver = new AssessmentPersistence(null, target);
+		saver.sink(createExistingAssessmentWithFields());
 		
 		//System.out.println(toXML(target));
 	}
@@ -34,8 +36,36 @@ public class SaveAssessmentTest extends BasicTest {
 		Assessment source = createExistingAssessmentWithFields();
 		Assessment target = createExistingAssessmentWithFields(false);
 		
-		AssessmentPersistence saver = new AssessmentPersistence(null);
-		saver.sink(source, target);
+		AssessmentPersistence saver = new AssessmentPersistence(null, target);
+		saver.sink(source);
+		
+		System.out.println(toXML(target));
+	}
+	
+	@Test
+	public void testSaveClassScheme() throws Exception {
+		Assessment source = new Assessment();
+		Field threat = new Field(CanonicalNames.Threats, source);
+		threat.setId(10);
+		for (int i = 1; i < 4; i++) {
+			Field f = new Field(threat.getName()+"Subfield", null);
+			//f.setId(i);
+			ThreatsSubfield sub = new ThreatsSubfield(f);
+			sub.setThreat(i);
+			sub.setScope(1);
+			sub.setTiming(1);
+			sub.setSeverity(1);
+			threat.getFields().add(f);
+		}
+		source.getField().add(threat);
+		
+		Assessment target = new Assessment();
+		Field threat2 = new Field(CanonicalNames.Threats, source);
+		threat2.setId(10);
+		target.getField().add(threat2);
+		
+		AssessmentPersistence saver = new AssessmentPersistence(null, target);
+		saver.sink(source);
 		
 		System.out.println(toXML(target));
 	}

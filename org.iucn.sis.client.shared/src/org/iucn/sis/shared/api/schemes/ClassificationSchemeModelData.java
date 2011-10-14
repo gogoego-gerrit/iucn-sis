@@ -7,9 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.assessment.ReferenceableField;
-import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.models.Field;
@@ -21,7 +19,6 @@ import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.util.extjs.client.WindowUtils;
 
 @SuppressWarnings("unchecked")
 public class ClassificationSchemeModelData implements ModelData, Referenceable {
@@ -184,21 +181,14 @@ public class ClassificationSchemeModelData implements ModelData, Referenceable {
 	
 	@Override
 	public void removeReferences(ArrayList<Reference> references,
-			GenericCallback<Object> listener) {
+			GenericCallback<Object> callback) {
 		this.references.removeAll(references);
 		if (field != null) {
-			try {
-				AssessmentClientSaveUtils.saveAssessment(listener);
-			} catch (InsufficientRightsException e) {
-				WindowUtils.errorAlert("Insufficient permissions", 
-					"You do not have permission to modify this " +
-					"assessment. The changes you made will not " +
-					"be saved."	
-				);
-			}
+			ReferenceableField referenceableField = new ReferenceableField(field);
+			referenceableField.removeReferences(references, callback);
 		}
 		else
-			listener.onSuccess(null);
+			callback.onSuccess(null);
 	}
 	
 	@Override

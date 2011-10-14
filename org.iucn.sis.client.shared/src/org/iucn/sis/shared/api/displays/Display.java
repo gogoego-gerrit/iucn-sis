@@ -28,6 +28,7 @@ import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DefinitionPanel;
 import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.io.AssessmentChangePacket;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Definition;
@@ -155,14 +156,17 @@ public abstract class Display implements Referenceable {
 		this.associatedFieldId = associate;
 		
 		assigner = new IDAssigner() {
-			public void assignID(Field field, final GenericCallback<Object> callback) {
-				Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+			public void assignID(final Field dummy, final GenericCallback<Object> callback) {
+				final Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
 				initializeField();
 				assessment.getField().add(field);
 				
+				AssessmentChangePacket packet = new AssessmentChangePacket(assessment.getId());
+				packet.addAddition(field);
+				
 				try {
-					AssessmentClientSaveUtils.saveAssessment(null, assessment, new GenericCallback<Object>() {
-						public void onSuccess(Object result) {
+					AssessmentClientSaveUtils.saveAssessment(packet, assessment, new GenericCallback<AssessmentChangePacket>() {
+						public void onSuccess(AssessmentChangePacket result) {
 							callback.onSuccess(result);
 						}
 						public void onFailure(Throwable caught) {

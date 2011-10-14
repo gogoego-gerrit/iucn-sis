@@ -7,7 +7,7 @@ import java.util.Set;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.container.SISClientBase;
-import org.iucn.sis.shared.api.acl.InsufficientRightsException;
+import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -15,6 +15,7 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Reference;
 
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class ReferenceableField implements Referenceable {
@@ -53,19 +54,38 @@ public class ReferenceableField implements Referenceable {
 	}
 	
 	protected void persist(final GenericCallback<Object> callback) {
-		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, 
-				AssessmentCache.impl.getCurrentAssessment())) {
+		Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+		
+		if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, assessment)) {
 			WindowUtils.errorAlert("You cannot add references to an assessment "
 					+ "you don't have permissions to edit.");
 			return;
 		}
 		
-		Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
-		if (!assessment.getField().contains(field))
+		final StringBuilder out = new StringBuilder();
+		out.append("<references field=\"" + field.getId() + "\">");
+		for (Reference reference : field.getReference())
+			out.append("<reference id=\"" + reference.getId() + "\" />");
+		out.append("</references>");
+		
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.post(UriBase.getInstance().getSISBase() + "/changes/assessments/" + 
+				assessment.getId() + "/references", out.toString(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+		
+		
+		/*if (!assessment.getField().contains(field))
 			assessment.getField().add(field);
 		
 		try {
-			AssessmentClientSaveUtils.saveAssessment(null, assessment, new GenericCallback<Object>() {
+			//FIXME: should call a different method...
+			AssessmentClientSaveUtils.saveAssessment((AssessmentChangePacket)null, assessment, new GenericCallback<Object>() {
 				public void onFailure(Throwable caught) {
 					callback.onFailure(caught);
 				};
@@ -77,7 +97,7 @@ public class ReferenceableField implements Referenceable {
 			WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
 					+ "permission to modify this assessment. The changes you " + "just made will not be saved.");
 			callback.onFailure(e);
-		}
+		}*/
 	}
 
 }

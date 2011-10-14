@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
@@ -24,13 +25,22 @@ public class AssessmentPersistence {
 	
 	private final List<AssessmentChange> changeSet;
 	private final Session session;
+	private final Assessment target;
 	
 	private ComplexListener<Field> deleteFieldListener;
 	private ComplexListener<PrimitiveField> deletePrimitiveFieldListener;
 	
-	public AssessmentPersistence(Session session) {
+	private boolean allowAdd = true;
+	private boolean allowDelete = true;
+	
+	public AssessmentPersistence(Session session, Assessment target) {
 		this.session = session;
+		this.target = target;
 		this.changeSet = new ArrayList<AssessmentChange>();
+	}
+	
+	public void addChange(AssessmentChange change) {
+		changeSet.add(change);
 	}
 	
 	public List<AssessmentChange> getChangeSet() {
@@ -45,25 +55,41 @@ public class AssessmentPersistence {
 		this.deletePrimitiveFieldListener = deletePrimitiveFieldListener;
 	}
 	
-	public void sink(Assessment source, Assessment target) throws PersistentException {
+	public void setAllowAdd(boolean allowAdd) {
+		this.allowAdd = allowAdd;
+	}
+	
+	public void setAllowDelete(boolean allowDelete) {
+		this.allowDelete = allowDelete;
+	}
+	
+	public void sink(Assessment source) throws PersistentException {
+		sink(source.getField());
+	}
+	
+	public void sink(Set<Field> sourceFields) throws PersistentException {
 		Map<Integer, Field> existingFields = mapFields(target.getField());
 		
-		for (Field sourceField : source.getField()) {
+		for (Field sourceField : sourceFields) {
 			if (sourceField.getId() == 0) {
-				sourceField.setAssessment(target);
-				//FieldDAO.save(sourceField);
-				target.getField().add(sourceField);
-				changeSet.add(createAddChange(target, sourceField));
+				if (allowAdd) {
+					sourceField.setAssessment(target);
+					//FieldDAO.save(sourceField);
+					target.getField().add(sourceField);
+					changeSet.add(createAddChange(sourceField));
+				}
 			}
 			else {
 				Field targetField = existingFields.remove(sourceField.getId());
 				if (targetField != null) {
-					AssessmentChange pendingEdit = createEditChange(target, targetField, sourceField);
-					AssessmentChange pendingDelete = createDeleteChange(target, targetField);
+					AssessmentChange pendingEdit = createEditChange(targetField, sourceField);
+					AssessmentChange pendingDelete = createDeleteChange(targetField);
 					sink(sourceField, targetField);
 					if (isBlank(targetField)) {
-						changeSet.add(pendingDelete);
-						deleteField(targetField);
+						if (allowDelete) {
+							changeSet.add(pendingDelete);
+							deleteField(targetField);
+						}
 					}
 					else
 						changeSet.add(pendingEdit);
@@ -74,10 +100,12 @@ public class AssessmentPersistence {
 		/*
 		 * Only delete top-level fields
 		 */
-		for (Field field : existingFields.values()) {
-			if (field.getParent() == null) {
-				changeSet.add(createDeleteChange(target, field));
-				deleteField(field);
+		if (allowDelete) {
+			for (Field field : existingFields.values()) {
+				if (field.getParent() == null) {
+					changeSet.add(createDeleteChange(field));
+					deleteField(field);
+				}
 			}
 		}
 	}
@@ -178,9 +206,9 @@ public class AssessmentPersistence {
 			deletePrimitiveFieldListener.handleEvent(field);
 	}
 	
-	private AssessmentChange createAddChange(Assessment assessment, Field newField) {
+	public AssessmentChange createAddChange(Field newField) {
 		AssessmentChange change = new AssessmentChange();
-		change.setAssessment(assessment);
+		change.setAssessment(target);
 		change.setFieldName(newField.getName());
 		change.setOldField(null);
 		change.setNewField(deepCopy(newField));
@@ -189,9 +217,9 @@ public class AssessmentPersistence {
 		return change;
 	}
 	
-	private AssessmentChange createDeleteChange(Assessment assessment, Field removedField) {
+	public AssessmentChange createDeleteChange(Field removedField) {
 		AssessmentChange change = new AssessmentChange();
-		change.setAssessment(assessment);
+		change.setAssessment(target);
 		change.setFieldName(removedField.getName());
 		change.setOldField(deepCopy(removedField));
 		change.setNewField(null);
@@ -200,9 +228,9 @@ public class AssessmentPersistence {
 		return change;
 	}
 	
-	private AssessmentChange createEditChange(Assessment assessment, Field oldField, Field newField) {
+	public AssessmentChange createEditChange(Field oldField, Field newField) {
 		AssessmentChange change = new AssessmentChange();
-		change.setAssessment(assessment);
+		change.setAssessment(target);
 		change.setFieldName(oldField.getName());
 		change.setOldField(deepCopy(oldField));
 		change.setNewField(deepCopy(newField));
