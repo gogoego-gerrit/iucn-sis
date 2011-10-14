@@ -1,5 +1,7 @@
 package org.iucn.sis.client.panels.dem;
 
+import java.util.Date;
+
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.assessment.FieldAttachmentManager;
 import org.iucn.sis.client.api.assessment.FieldAttachmentWindow;
@@ -12,7 +14,6 @@ import org.iucn.sis.client.api.caches.ViewCache.EditStatus;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.users.panels.ManageCreditsWindow;
 import org.iucn.sis.client.api.ui.views.SISView;
-import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
@@ -41,18 +42,21 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.HtmlContainer;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Timer;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
@@ -70,8 +74,11 @@ public class DEMToolbar extends ToolBar {
 	private ComplexListener<EditStatus> refreshListener;
 	private SimpleListener saveListener;
 	
+	private ChangeLog changeLog;
+	
 	public DEMToolbar() {
 		this.autoSave = new AutosaveTimer();
+		this.changeLog = new ChangeLog(15);
 		setAutoSaveInterval(SISClientBase.currentUser.getPreference(UserPreferences.AUTO_SAVE_TIMER, "2"));
 	}
 	
@@ -95,6 +102,10 @@ public class DEMToolbar extends ToolBar {
 	
 	public void setSaveListener(SimpleListener saveListener) {
 		this.saveListener = saveListener;
+	}
+	
+	public void resetChangeLog() {
+		this.changeLog = new ChangeLog(15);
 	}
 	
 	public void build() {
@@ -184,8 +195,9 @@ public class DEMToolbar extends ToolBar {
 								Info.display("Save Complete", "Successfully saved assessment {0}.",
 										AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
 								Debug.println("Explicit save happened at {0}", AssessmentCache.impl.getCurrentAssessment().getLastEdit().getCreatedDate());
-								if (SIS.isDebugMode() && arg0 != null)
-									WindowUtils.infoAlert(arg0.toHTML());
+								
+								log(arg0);
+								
 								resetAutosaveTimer();
 								//TODO: ClientUIContainer.headerContainer.update();
 								if (saveListener != null)
@@ -647,16 +659,71 @@ public class DEMToolbar extends ToolBar {
 				}
 				onPageChange.setSubMenu(pageChangeMenu);
 			}
+			MenuItem quickChangeLog = new MenuItem("Quick Change Log");
+			{
+				quickChangeLog.addSelectionListener(new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						AssessmentChangePacket[] packets = changeLog.getAll();
+						if (packets.length == 0) {
+							WindowUtils.errorAlert("No recent changes logged for this assessment.");
+							return;
+						}
+						
+						Menu changes = new Menu();
+						DateTimeFormat fmt = DateTimeFormat.getFormat("h:mm aa zzz");
+						for (int i = packets.length - 1; i >= 0; i--) {
+							final AssessmentChangePacket packet = packets[i];
+							Date date = new Date(packet.getVersion());
+							MenuItem change = new MenuItem(fmt.format(date));
+							change.addSelectionListener(new SelectionListener<MenuEvent>() {
+								public void componentSelected(MenuEvent ce) {
+									showQuickChanges(packet);
+								}
+							});
+							
+							changes.add(change);
+						}
+						
+						changes.show(ce.getItem());
+					}
+				});
+			}
 			
 			Menu saveModeOptions = new Menu();
 			saveModeOptions.add(onPageChange);
 			saveModeOptions.add(timedAutoSave);
+			saveModeOptions.add(quickChangeLog);
 			
 			saveMode.setMenu(saveModeOptions);
 		}
 		add(saveMode);
 		
 		add(new FillToolItem());
+	}
+	
+	private void showQuickChanges(AssessmentChangePacket packet) {
+		final Window window = WindowUtils.newWindow("Quick Change Log");
+		window.setModal(false);
+		window.setAutoHide(true);
+		window.setLayout(new FitLayout());
+		window.setSize(450, 300);
+		window.addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				window.hide();
+			}
+		}));
+		
+		final HtmlContainer area = new HtmlContainer();
+		area.setHtml(packet.toHTML() + "<br/></br>" +
+			"Version: " + packet.getVersion() + " by " + SISClientBase.currentUser.getUsername() + 
+			" (" + SISClientBase.currentUser.getId() + ")<br/><br/>" +
+			"If this is not what you intended to save, please copy the entire contents of " +
+			"this window and report this as a bug in Assembla or to your system " +
+			"administrator."
+		);
+		
+		window.add(area);
+		window.show();
 	}
 	
 	public void resetAutosaveTimer() {
@@ -750,6 +817,9 @@ public class DEMToolbar extends ToolBar {
 		w.center();
 	}
 	
+	public void log(AssessmentChangePacket packet) {
+		changeLog.add(packet);
+	}
 	
 	private class AutosaveTimer extends Timer {
 		public void run() {
@@ -780,6 +850,8 @@ public class DEMToolbar extends ToolBar {
 							startAutosaveTimer();
 							if (saveListener != null)
 								saveListener.handleEvent();
+							
+							log(arg0);
 						}
 					});
 				} else {
@@ -794,6 +866,52 @@ public class DEMToolbar extends ToolBar {
 			}
 
 		}
+	}
+	
+	private static class ChangeLog {
+		
+		private AssessmentChangePacket [] array;
+	    
+	    int start;
+	    int end;
+	    int capacity;
+	   
+	    public ChangeLog(int capacity) {
+	        array = new AssessmentChangePacket[capacity];
+	        this.capacity = capacity;
+	        start = 0;
+	        end = 0 ;
+	    }
+	   
+	    public void add(AssessmentChangePacket object) {
+	    	   	
+	        if( end == capacity ) {
+	        	array[start] = object;
+	        	start = (start+1) % capacity;
+	        } else {
+	             array[end++] = object;
+	        }
+	    }
+	   
+	    public AssessmentChangePacket get(int i) {
+	    	if (i > end)
+	    		throw new IndexOutOfBoundsException("Index " + i + " out of bounds.");
+	    	
+	        if( end == capacity ) {
+	            //offset i using start
+	            return array[(i + start) % capacity];
+	        } else
+	            return array[i];
+	    }
+
+	    public AssessmentChangePacket[] getAll() {
+	    	int size = end < capacity ? end : capacity; 
+	    	final AssessmentChangePacket[] out = new AssessmentChangePacket[size];
+	    	for (int i = 0; i < size; i++)
+	    		out[i] = array[(i + start) % capacity];
+	    	return out;
+	    }
+	    
 	}
 	
 }

@@ -113,6 +113,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 					ViewCache.impl.setEditStatus(EditStatus.READ_ONLY);
 					toolBar.setViewOnly(true, false);
 				}
+				toolBar.resetChangeLog();
 					
 				BorderLayoutData toolBarData = new BorderLayoutData(LayoutRegion.NORTH);
 				toolBarData.setSize(25);

@@ -1,8 +1,12 @@
 package org.iucn.sis.server.restlets.assessments;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +15,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.EditIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
@@ -18,6 +23,7 @@ import org.iucn.sis.server.api.persistance.FieldDAO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.server.utils.AssessmentPersistence;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -27,6 +33,7 @@ import org.iucn.sis.shared.api.models.AssessmentChange;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -39,7 +46,10 @@ import org.restlet.resource.ResourceException;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.portable.XMLWritingUtils;
+import com.solertium.vfs.VFS;
+import com.solertium.vfs.VFSPath;
 
 public class AssessmentChangesRestlet extends BaseServiceRestlet {
 	
@@ -153,6 +163,22 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 		}
 	}
 	
+	private void persist(AssessmentChangePacket packet, User user) throws IOException {
+		final Date date = Calendar.getInstance().getTime();
+		final SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+		
+		final VFS vfs = SIS.get().getVFS();
+		final VFSPath folder = new VFSPath("/changes/" + fmt.format(date));
+		
+		if (!vfs.exists(folder))
+			vfs.makeCollections(folder);
+		
+		DocumentUtils.writeVFSFile(folder + "/" + user.getId() + "_" + packet.getVersion() + ".xml", 
+			vfs, 
+			BaseDocumentUtils.impl.createDocumentFromString(packet.toXML())	
+		);
+	}
+	
 	@Override
 	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		if ("references".equals(request.getAttributes().get("mode"))) {
@@ -248,13 +274,16 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 		response.setStatus(result.status);
 		response.setEntity(assessment.toXML(), MediaType.TEXT_XML);
 		
-		Debug.println("Updates to assessment #{0}\n{1}", assessment.getId(), packet.toHTML());
-		
 		if (result.edit == null)
 			Debug.println("Error: No edit associated with this change. Not backing up changes.");
 		else
 			saver.saveChanges(assessment, result.edit);
 		
+		try {
+			persist(packet, getUser(request, session));
+		} catch (Throwable e) {
+			Debug.println(e);
+		}
 	}
 	
 	private Representation showEdits(Assessment assessment) {
