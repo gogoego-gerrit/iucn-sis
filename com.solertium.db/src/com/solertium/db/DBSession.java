@@ -591,6 +591,8 @@ public abstract class DBSession {
 	public String formatLiteral(final Literal literal) {
 		if (literal instanceof StringLiteral)
 			return formatLiteral((StringLiteral) literal);
+		else if (literal instanceof BooleanLiteral)
+			return formatLiteral((BooleanLiteral) literal);
 		else
 			return formatLiteral((NumericLiteral) literal);
 	}
@@ -612,6 +614,15 @@ public abstract class DBSession {
 			return "NULL";
 		s = Replacer.replace(s, "'", "''");
 		return "'" + s + "'";
+	}
+	
+	public String formatLiteral(final BooleanLiteral literal) {
+		if (literal == null)
+			return "NULL";
+		final Boolean b = literal.getBoolean();
+		if (b == null)
+			return "NULL";
+		return b.toString();
 	}
 
 	public String fnLowerCase(String in) {
