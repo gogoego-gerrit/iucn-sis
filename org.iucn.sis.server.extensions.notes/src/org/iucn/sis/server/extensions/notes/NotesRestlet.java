@@ -202,10 +202,6 @@ public class NotesRestlet extends BaseServiceRestlet {
 				if (field != null) {
 					field.getNotes().add(note);
 					note.getFields().add(field);				
-					Assessment assessment = assessmentIO.getAssessment(field.getAssessment().getId());
-					assessment.getField().remove(assessment.getField(field.getName()));
-					assessment.getField().add(field);
-					field.setAssessment(assessment);
 					if (noteIO.save(note)) {
 						try {
 							SIS.get().getManager().saveObject(session, field);
