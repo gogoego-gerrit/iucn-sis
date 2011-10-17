@@ -17,6 +17,7 @@ public class ServerApplication extends SimpleSISApplication {
 	public void init() {
 		addServiceToRouter(new AssessmentReportRestlet(app.getContext()));
 		addResource(getStyleSheetRestlet(), "/css/reportStyles.css", false);
+		addResource(getImagesRestlet(), "/images/iucnLogo.gif", false);
 	}
 	
 	private Restlet getStyleSheetRestlet() {
@@ -37,4 +38,23 @@ public class ServerApplication extends SimpleSISApplication {
 			}
 		};
 	}
+	
+	private Restlet getImagesRestlet() {
+		return new Restlet(app.getContext()) {
+			public void handle(Request request, Response response) {
+				if (Method.GET.equals(request.getMethod())) {
+					try {
+						response.setEntity(new InputRepresentation(
+								AssessmentReportRestlet.class.getResourceAsStream("iucnLogo.gif"), 
+							MediaType.IMAGE_GIF
+						));
+					} catch (Exception e) {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL, e);
+					}
+				}
+				else
+					response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+			}
+		};
+	}	
 }

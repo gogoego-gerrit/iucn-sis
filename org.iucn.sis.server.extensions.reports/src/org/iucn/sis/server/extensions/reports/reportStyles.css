@@ -3,6 +3,25 @@ body
 	line-height: 1.6em;
 }
 
+#box-table-c
+{
+	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+	font-size: 12px;
+	margin: 1px;
+	width: 800px;
+	text-align: left;
+	border-collapse: collapse;
+}
+
+#box-table-c td
+{
+	padding: 6px;
+	background: #ffffff; 
+	border-bottom: 1px solid #fff;
+	color: #669;
+	border-top: 1px solid transparent;
+}
+
 #box-table-b
 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;

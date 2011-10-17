@@ -14,6 +14,7 @@ import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.utils.ReportOptionsPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -26,10 +27,7 @@ import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.GridEvent;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
-import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
@@ -85,6 +83,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 			model.set("status", "Published");
 			model.set("region", getRegions(data));
 			model.set("attachments", data.hasAttachments());
+			model.set("report", "");
 			model.set("edit", "");
 			model.set("trash", "");
 			model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
@@ -102,6 +101,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				model.set("status", "Draft");
 				model.set("region", getRegions(data));
 				model.set("attachments", data.hasAttachments());
+				model.set("report", "");
 				model.set("edit", "");
 				model.set("trash", "");
 				model.set("schema", data.getSchema(SchemaCache.impl.getDefaultSchema()));
@@ -133,11 +133,29 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				IconButton icon = new IconButton("icon-attachment");
 				return icon;
 				
-				//return "<img src=\"tango/status/mail-attachment.png\" alt=\"This assessment has attachments\" />";
 			}
 		});
 		attachments.setHidden(true); //Not ready for prime time
 		columns.add(attachments);
+		
+		ColumnConfig report = new ColumnConfig("report", "Report", 60);
+		report.setRenderer(new GridCellRenderer<BaseModelData>() {
+			public Object render(final BaseModelData model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<BaseModelData> store, Grid<BaseModelData> grid) {
+				IconButton icon = new IconButton("icon-report");
+				icon.addStyleName("SIS_HyperlinkBehavior");
+				icon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
+					public void componentSelected(IconButtonEvent ce) {
+						final Integer id = model.get("id");
+						ReportOptionsPanel panel = new ReportOptionsPanel();
+						panel.loadAssessmentReport(id);
+					}
+				});
+				return icon;
+			}
+		});
+		columns.add(report);			
 		
 		ColumnConfig editView = new ColumnConfig("edit", "Edit/View", 60);
 		editView.setRenderer(new GridCellRenderer<BaseModelData>() {
@@ -152,7 +170,6 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 					}
 				});
 				return icon;
-				//return "<img src =\"images/application_form_edit.png\" class=\"SIS_HyperlinkBehavior\"></img> ";
 			}
 		});
 		columns.add(editView);
@@ -170,10 +187,10 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 					}
 				});
 				return icon;
-				//return "<img src =\"tango/places/user-trash.png\" class=\"SIS_HyperlinkBehavior\"></img> ";
 			}
 		});
 		columns.add(trash);
+			
 		columns.add(new ColumnConfig("schema", "Schema", 100));
 
 		final GroupingView view = new GroupingView();
@@ -285,7 +302,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 			});
 		}
 	}
-	
+		
 	private String getRegions(Assessment data) {
 		if (data.getField(CanonicalNames.RegionInformation) != null) {
 			RegionField proxy = new RegionField(data.getField(CanonicalNames.RegionInformation));

@@ -1,5 +1,7 @@
 package org.iucn.sis.server.extensions.reports;
 
+import java.io.IOException;
+
 import org.hibernate.Session;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -34,38 +36,34 @@ public class AssessmentReportRestlet extends BaseServiceRestlet {
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		
 		Form queryString = request.getResourceRef().getQueryAsForm();
-		boolean showEmpties = true; 
-		boolean useLimited = false;
+		boolean showSpecial = false; 
 		
 		Integer id = Integer.valueOf((String) request.getAttributes().get("id"));
-		showEmpties = Boolean.valueOf(queryString.getFirstValue("empty"));
-		useLimited = Boolean.valueOf(queryString.getFirstValue("limited"));
+		showSpecial = Boolean.valueOf(queryString.getFirstValue("special"));
 			
 		final AssessmentIO assessmentIO = new AssessmentIO(session);
 		Assessment assessment = assessmentIO.getAssessment(id);
 		if (assessment != null) {
-		
-			Taxon taxa = assessment.getTaxon();
-			AssessmentReportTemplate template = new AssessmentReportTemplate(showEmpties, useLimited);
 			
+			Taxon taxa = assessment.getTaxon();
+			AssessmentReportTemplate template = new AssessmentReportTemplate(showSpecial);
 			StringBuilder body = new StringBuilder();
-			body.append("<html>");
-			body.append("<head>");
-			body.append("<title>Assessment Report - "+taxa.getFullName()+"</title>");
-			body.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"../../css/reportStyles.css\" />");
-			body.append("</head>");
-			body.append("<body>");
-			body.append(template.buildReportHeading());
-			body.append(template.buildTaxonomy(taxa,assessment));
-			body.append(template.buildAssessmentInfo(assessment));
-			body.append(template.buildGeographicRange(assessment));
-			body.append(template.buildPopulation(assessment));
-			body.append(template.buildHabitatAndEcology(assessment));
-			body.append(template.buildThreats(assessment));
-			body.append(template.buildConservationActions(assessment));
-			body.append(template.buildBibliography(assessment));
-			body.append("</body>");
-			body.append("</html>");
+			try{
+				template.readHTMLTemplate();
+			}catch(IOException e){
+				e.printStackTrace();
+			}				
+			
+			template.buildTaxonomy(taxa,assessment);
+			template.buildAssessmentInfo(assessment);
+			template.buildGeographicRange(assessment);
+			template.buildPopulation(assessment);
+			template.buildHabitatAndEcology(assessment);
+			template.buildThreats(assessment);
+			template.buildConservationActions(assessment);
+			template.buildBibliography(assessment);
+			template.buildCitation(assessment);
+			body.append(template.getHTMLString());
 		
 			response.setStatus(Status.SUCCESS_OK);
 			return new StringRepresentation(body.toString(), MediaType.TEXT_HTML);

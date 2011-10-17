@@ -14,7 +14,6 @@ import org.iucn.sis.client.api.caches.ViewCache.EditStatus;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.users.panels.ManageCreditsWindow;
 import org.iucn.sis.client.api.ui.views.SISView;
-import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
@@ -24,6 +23,7 @@ import org.iucn.sis.client.panels.criteracalculator.ExpertPanel;
 import org.iucn.sis.client.panels.images.ImageManagerPanel;
 import org.iucn.sis.client.panels.taxomatic.NewCommonNameEditor;
 import org.iucn.sis.client.panels.taxomatic.NewTaxonSynonymEditor;
+import org.iucn.sis.client.panels.utils.ReportOptionsPanel;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -47,8 +47,6 @@ import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
@@ -765,56 +763,10 @@ public class DEMToolbar extends ToolBar {
 		ClientAssessmentValidator.validate(data.getId(), data.getType());
 	}
 
-	//@SuppressWarnings("unused")
-	private void fetchReport() {
-		final CheckBox useLimited = new CheckBox();
-		useLimited.setValue(Boolean.valueOf(true));
-		useLimited.setFieldLabel("Use limited field set (more compact report)");
+	private void fetchReport() {		
+		ReportOptionsPanel panel = new ReportOptionsPanel();
+		panel.loadAssessmentReport(AssessmentCache.impl.getCurrentAssessment().getId());
 		
-		final CheckBox showEmpty = new CheckBox();
-		showEmpty.setFieldLabel("Show empty fields");
-		
-		final FormPanel form = new FormPanel();
-		form.setLabelSeparator("?");
-		form.setLabelWidth(300);
-		form.setFieldWidth(50);
-		form.setHeaderVisible(false);
-		form.setBorders(false);
-		form.add(useLimited);
-		form.add(showEmpty);
-		
-		final Window w = WindowUtils.newWindow("Report Options", null, false, true);
-		
-		form.addButton(new Button("Submit", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				//Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
-				String target = "/reports/redlist/";
-				
-				/*if (a.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
-					target += "draft/";
-				} else if (a.getType().equals(AssessmentType.PUBLISHED_ASSESSMENT_TYPE)) {
-					target += "published/";
-				} else if (a.getType().equals(AssessmentType.USER_ASSESSMENT_TYPE)) {
-					target += "user/" + SimpleSISClient.currentUser.getUsername() + "/";
-				}*/
-
-				w.hide();
-				
-				com.google.gwt.user.client.Window.open(UriBase.getInstance().getReportBase()+ target + AssessmentCache.impl.getCurrentAssessment().getId()
-						+ "?empty=" + showEmpty.getValue() + "&limited=" + useLimited.getValue(),
-						"_blank", "");
-			}
-		}));
-		form.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {
-				w.hide();
-			}
-		}));
-		
-		w.add(form);
-		w.setSize(400, 250);
-		w.show();
-		w.center();
 	}
 	
 	public void log(AssessmentChangePacket packet) {
@@ -893,6 +845,7 @@ public class DEMToolbar extends ToolBar {
 	        }
 	    }
 	   
+	    @SuppressWarnings("unused")
 	    public AssessmentChangePacket get(int i) {
 	    	if (i > end)
 	    		throw new IndexOutOfBoundsException("Index " + i + " out of bounds.");
