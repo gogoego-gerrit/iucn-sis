@@ -32,6 +32,8 @@ public class AssessmentPersistence {
 	
 	private boolean allowAdd = true;
 	private boolean allowDelete = true;
+	private boolean allowManageReferences = true;
+	private boolean allowManageNotes = true;
 	
 	public AssessmentPersistence(Session session, Assessment target) {
 		this.session = session;
@@ -61,6 +63,14 @@ public class AssessmentPersistence {
 	
 	public void setAllowDelete(boolean allowDelete) {
 		this.allowDelete = allowDelete;
+	}
+	
+	public void setAllowManageReferences(boolean allowManageReferences) {
+		this.allowManageReferences = allowManageReferences;
+	}
+	
+	public void setAllowManageNotes(boolean allowManageNotes) {
+		this.allowManageNotes = allowManageNotes;
 	}
 	
 	public void sink(Assessment source) throws PersistentException {
@@ -113,40 +123,43 @@ public class AssessmentPersistence {
 	@SuppressWarnings("unchecked")
 	private void sink(Field source, Field target) throws PersistentException {
 		{
-			Map<Integer, Reference> existingReferences = mapFields(target.getReference());
+			if (allowManageReferences) {
+				Map<Integer, Reference> existingReferences = mapFields(target.getReference());
 			
-			for (Reference sourceReference : source.getReference()) {
-				//Should never be the case...
-				if (sourceReference.getId() == 0) {
-					sourceReference.getField().add(target);
-					target.getReference().add(sourceReference);
+				for (Reference sourceReference : source.getReference()) {
+					//Should never be the case...
+					if (sourceReference.getId() == 0) {
+						sourceReference.getField().add(target);
+						target.getReference().add(sourceReference);
+					}
+					else {
+						Reference targetReference = existingReferences.remove(sourceReference.getId());
+						if (targetReference == null)
+							target.getReference().add(SISPersistentManager.instance().loadObject(session, Reference.class, sourceReference.getId()));
+					}
 				}
-				else {
-					Reference targetReference = existingReferences.remove(sourceReference.getId());
-					if (targetReference == null)
-						target.getReference().add(SISPersistentManager.instance().loadObject(session, Reference.class, sourceReference.getId()));
-				}
+				
+				target.getReference().removeAll(existingReferences.values());
 			}
 			
-			target.getReference().removeAll(existingReferences.values());
-			
-			Map<Integer, Notes> existingNotes = mapFields(target.getNotes());
-			
-			for (Notes sourceNotes : source.getNotes()) {
-				//Should never be the case...
-				if (sourceNotes.getId() == 0) {
-					sourceNotes.setField(target);
-					target.getNotes().add(sourceNotes);
+			if (allowManageNotes) {
+				Map<Integer, Notes> existingNotes = mapFields(target.getNotes());
+				
+				for (Notes sourceNotes : source.getNotes()) {
+					//Should never be the case...
+					if (sourceNotes.getId() == 0) {
+						sourceNotes.setField(target);
+						target.getNotes().add(sourceNotes);
+					}
+					else {
+						Notes targetNotes = existingNotes.remove(sourceNotes.getId());
+						if (targetNotes == null)
+							target.getNotes().add(SISPersistentManager.instance().loadObject(session, Notes.class, sourceNotes.getId()));
+					}
 				}
-				else {
-					Notes targetNotes = existingNotes.remove(sourceNotes.getId());
-					if (targetNotes == null)
-						target.getNotes().add(SISPersistentManager.instance().loadObject(session, Notes.class, sourceNotes.getId()));
-				}
+				
+				target.getNotes().removeAll(existingNotes.values());
 			}
-			
-			target.getNotes().removeAll(existingNotes.values());
-			
 		}
 		{
 			Map<Integer, PrimitiveField> existingFields = mapFields(target.getPrimitiveField());

@@ -43,10 +43,11 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 
-import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.BaseDocumentUtils;
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.portable.XMLWritingUtils;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
@@ -97,7 +98,12 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 	}
 	
 	private void saveReferences(Representation entity, Request request, Response response, Session session) throws ResourceException {
-		final NativeDocument document = getEntityAsNativeDocument(entity);
+		final DebuggingNativeDocument document = getEntityAsNativeDocument(entity);
+		try {
+			persist(document.toXML(), null, ".refs.xml", getUser(request, session));
+		} catch (Exception e) {
+			TrivialExceptionHandler.ignore(this, e);
+		}
 		
 		String fieldID = document.getDocumentElement().getAttribute("field");
 		if ("".equals(fieldID))
@@ -164,6 +170,10 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 	}
 	
 	private void persist(AssessmentChangePacket packet, User user) throws IOException {
+		persist(packet.toXML(), packet.getVersion(), ".xml", user);
+	}
+	
+	private void persist(String xml, Long version, String extension, User user) throws IOException {
 		final Date date = Calendar.getInstance().getTime();
 		final SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
 		
@@ -173,9 +183,10 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 		if (!vfs.exists(folder))
 			vfs.makeCollections(folder);
 		
-		DocumentUtils.writeVFSFile(folder + "/" + user.getId() + "_" + packet.getVersion() + ".xml", 
+		DocumentUtils.writeVFSFile(folder + "/" + user.getId() + "_" + 
+				(version == null ? date.getTime() : version) + extension, 
 			vfs, 
-			BaseDocumentUtils.impl.createDocumentFromString(packet.toXML())	
+			BaseDocumentUtils.impl.createDocumentFromString(xml)
 		);
 	}
 	
@@ -186,9 +197,19 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 			return;
 		}
 		
-		final NativeDocument document = getEntityAsNativeDocument(entity);
+		final DebuggingNativeDocument document = getEntityAsNativeDocument(entity);
 		final AssessmentIO assessmentIO = new AssessmentIO(session);
-		final AssessmentChangePacket packet = AssessmentChangePacket.fromXML(document.getDocumentElement());
+		final AssessmentChangePacket packet;
+		try {
+			packet = AssessmentChangePacket.fromXML(document.getDocumentElement());
+		} catch (Exception e) {
+			try {
+				persist(document.toXML(), null, ".parseError.xml", getUser(request, session));
+			} catch (Exception f) {
+				Debug.println("Failed to persist error document: {0}\n{1}", f.getMessage(), document.toXML());
+			}
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
 		
 		final Assessment assessment = assessmentIO.getAssessment(packet.getAssessmentID());
 		if (assessment == null)
@@ -197,6 +218,8 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 		final AssessmentPersistence saver = new AssessmentPersistence(session, assessment);
 		saver.setAllowAdd(false);
 		saver.setAllowDelete(false);
+		saver.setAllowManageNotes(false);
+		saver.setAllowManageReferences(false);
 		
 		final StringBuilder out = new StringBuilder();
 		out.append("<ul>");
@@ -359,6 +382,16 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 		}
 	}
 	
+	protected DebuggingNativeDocument getEntityAsNativeDocument(Representation entity) throws ResourceException {
+		try {
+			DebuggingNativeDocument document = new DebuggingNativeDocument();
+			document.parse(entity.getText());
+			return document;
+		} catch (Exception e) {
+			throw new ResourceException(Status.CLIENT_ERROR_UNPROCESSABLE_ENTITY, e);
+		}
+	}
+	
 	private static class AssessmentChangeComparator implements Comparator<AssessmentChange> {
 		
 		@Override
@@ -383,6 +416,21 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 			
 			//-1 for reverse order
 			return value * -1;
+		}
+		
+	}
+	
+	private static class DebuggingNativeDocument extends JavaNativeDocument {
+		
+		private String xml;
+		
+		public void parse(String xml) {
+			this.xml = xml;
+			super.parse(xml);
+		}
+		
+		public String toXML() {
+			return xml;
 		}
 		
 	}
