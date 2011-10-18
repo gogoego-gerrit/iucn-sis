@@ -29,7 +29,7 @@ public class CommonNameIO {
 		commonName.setTaxon(taxon);
 		taxon.getCommonNames().add(commonName);
 		
-		taxonIO.writeTaxon(taxon, user);
+		taxonIO.writeTaxon(taxon, user, "Common Name added to taxon.");
 	}
 	
 	/**
@@ -83,7 +83,7 @@ public class CommonNameIO {
 			throw new TaxomaticException(e);
 		}
 		
-		taxonIO.writeTaxon(taxon, user);
+		taxonIO.writeTaxon(taxon, user, "Common Name removed from taxon.");
 	}
 
 }

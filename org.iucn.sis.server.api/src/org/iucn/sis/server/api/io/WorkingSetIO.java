@@ -6,13 +6,11 @@ import java.util.List;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.transform.DistinctRootEntityResultTransformer;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.permissions.PermissionUtils;
 import org.iucn.sis.server.api.persistance.WorkingSetCriteria;
 import org.iucn.sis.server.api.persistance.WorkingSetDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.shared.api.acl.BasePermissionUtils;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Edit;
@@ -185,9 +183,9 @@ public class WorkingSetIO {
 		}
 	}
 
-	public boolean saveWorkingSet(WorkingSet ws, User user) {
+	public boolean saveWorkingSet(WorkingSet ws, User user, String reason) {
 		
-		Edit edit = new Edit();
+		Edit edit = new Edit(reason);
 		edit.getWorking_set().add(ws);
 		edit.setUser(user);
 		if (ws.getCreatedDate() == null) {

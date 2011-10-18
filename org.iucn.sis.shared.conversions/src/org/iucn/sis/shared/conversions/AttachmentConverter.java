@@ -77,7 +77,7 @@ public class AttachmentConverter extends GenericConverter<VFSInfo> {
 				continue;
 			}
 			
-			Edit edit = new Edit();
+			Edit edit = new Edit("Data migration.");
 			edit.setUser(user);
 			
 			FieldAttachment attachment = new FieldAttachment();
@@ -88,14 +88,14 @@ public class AttachmentConverter extends GenericConverter<VFSInfo> {
 			
 			Field field = assessment.getField(CanonicalNames.TaxonomicNotes);
 			if (field == null) {
-				Edit noteEdit = new Edit();
+				Edit noteEdit = new Edit("Data migration");
 				noteEdit.setUser(user);
 				
 				Notes note = new Notes();
 				note.setEdit(noteEdit);
 				note.setValue("This field was auto-generated to house an " +
 					"attachment; removing this note and removing all data " +
-					"from this field will result in the attachment being lost.");
+					"from this field will result in the attachment being lost. #SYSGEN");
 				
 				field = new Field(CanonicalNames.TaxonomicNotes, assessment);
 				field.getNotes().add(note);

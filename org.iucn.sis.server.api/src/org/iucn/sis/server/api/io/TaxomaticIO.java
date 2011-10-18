@@ -255,7 +255,7 @@ public class TaxomaticIO {
 						", preventing the creation of new taxon " + taxon.getFriendlyName());
 			}
 			
-			writeTaxon(taxon, null, user, false);
+			writeTaxon(taxon, null, user, "Taxon created.", false);
 		}
 		else
 			throw new TaxomaticException("This taxon already exists and can not be created.");
@@ -302,16 +302,16 @@ public class TaxomaticIO {
 				Debug.println("this is full name before " + taxon.getFullName());
 				taxon.correctFullName();					
 				Debug.println("this is full name after " + taxon.getFullName());
-				//ADD EDIT						
-				Edit edit = new Edit();
+				//ADD EDIT	CS: No need, will happen later...					
+				/*Edit edit = new Edit("Taxomatic operation performed. See taxomatic history for details.");
 				edit.setUser(user);
 				edit.setCreatedDate(date);
 				edit.getTaxon().add(taxon);
 				
-				taxon.getEdits().add(edit);
+				taxon.getEdits().add(edit);*/
 				taxon.toXML();
 				
-				writeTaxon(taxon, user);
+				writeTaxon(taxon, user, "Taxomatic operation performed. See taxomatic history for details.");
 			}
 		} finally {
 			acquirer.releaseLocks();
@@ -343,13 +343,13 @@ public class TaxomaticIO {
 				}
 			}
 			
-			assessmentIO.writeAssessment(current, user, false);
+			assessmentIO.writeAssessment(current, user, "RL History Text Updated.", false);
 		}
 	}
 	
-	void writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user, boolean requireLocking) throws TaxomaticException {
+	void writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user, String reason, boolean requireLocking) throws TaxomaticException {
 		if (oldTaxon == null || !isTaxomaticOperationNecessary(taxonToSave, oldTaxon)) {
-			taxonIO.writeTaxon(taxonToSave, oldTaxon, user);
+			taxonIO.writeTaxon(taxonToSave, oldTaxon, reason, user);
 		} else {
 			// TRY TO AQUIRE LOCKS
 			List<Taxon> taxaToSave;
@@ -367,12 +367,12 @@ public class TaxomaticIO {
 		}
 	}
 	
-	public void writeTaxon(Taxon taxonToSave, User user) throws TaxomaticException {
+	public void writeTaxon(Taxon taxonToSave, User user, String reason) throws TaxomaticException {
 		Taxon oldTaxon = taxonIO.getTaxon(taxonToSave.getId());
 		if (oldTaxon == null)
 			throw new TaxomaticException("This taxa could not be found.", false);
 		
-		writeTaxon(taxonToSave, oldTaxon, user, true);
+		writeTaxon(taxonToSave, oldTaxon, user, reason, true);
 	}
 
 }

@@ -46,7 +46,7 @@ public class SynonymRestlet extends BaseServiceRestlet {
 		Synonym synonym = Synonym.fromXML(newDoc.getDocumentElement(), taxon);
 		
 		try {
-			io.writeTaxon(taxon, getUser(request, session));
+			io.writeTaxon(taxon, getUser(request, session), "Synonym added.");
 		} catch (TaxomaticException e) { 
 			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 		}

@@ -135,7 +135,7 @@ public class NotesWindow extends BasicWindow implements DrawsLazily {
 						if (area.getValue() == null || "".equals(area.getValue())) {
 							WindowUtils.errorAlert("Data Error", "Must enter note body.");
 						} else {
-							Edit edit = new Edit();
+							Edit edit = new Edit("Note added.");
 							edit.setCreatedDate(new Date());
 							edit.setUser(SISClientBase.currentUser);
 							

@@ -113,12 +113,12 @@ public class TaxonIO {
 		return list;
 	}
 
-	public void writeTaxon(Taxon taxonToSave, User user) throws TaxomaticException {
+	public void writeTaxon(Taxon taxonToSave, User user, String reason) throws TaxomaticException {
 		Taxon oldTaxon = getTaxon(taxonToSave.getId());
 		if (oldTaxon != null)
-			writeTaxon(taxonToSave, oldTaxon, user);
+			writeTaxon(taxonToSave, oldTaxon, reason, user);
 		else
-			writeTaxon(taxonToSave, taxonToSave, user);
+			writeTaxon(taxonToSave, taxonToSave, reason, user);
 	}
 
 	/**
@@ -129,21 +129,21 @@ public class TaxonIO {
 	 * @param nodeToSave
 	 * @return summary
 	 */
-	public void writeTaxon(Taxon nodeToSave, User user, boolean requireLocking) throws TaxomaticException {
+	public void writeTaxon(Taxon nodeToSave, User user, String reason, boolean requireLocking) throws TaxomaticException {
 		ArrayList<Taxon> list = new ArrayList<Taxon>();
 		list.add(nodeToSave);
 		
-		writeTaxa(list, user, requireLocking);
+		writeTaxa(list, user, reason, requireLocking);
 	}
 
-	void writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user) throws TaxomaticException {
+	void writeTaxon(Taxon taxonToSave, Taxon oldTaxon, String reason, User user) throws TaxomaticException {
 		ArrayList<Taxon> list = new ArrayList<Taxon>();
 		list.add(taxonToSave);
 
 		Map<Integer, Taxon> idToOldTaxa = new HashMap<Integer, Taxon>();
 		idToOldTaxa.put(taxonToSave.getId(), oldTaxon);
 		
-		writeTaxa(list, idToOldTaxa, user, true);
+		writeTaxa(list, idToOldTaxa, user, reason, true);
 	}
 
 	/**
@@ -152,15 +152,15 @@ public class TaxonIO {
 	 * opertaions, use taxomaticIO
 	 * 
 	 */
-	public void writeTaxa(Collection<Taxon> nodesToSave, User user, boolean requireLocking) throws TaxomaticException {
+	public void writeTaxa(Collection<Taxon> nodesToSave, User user, String reason, boolean requireLocking) throws TaxomaticException {
 		Map<Integer, Taxon> idToOldTaxa = new HashMap<Integer, Taxon>();
 		for (Taxon taxon : nodesToSave)
 			idToOldTaxa.put(taxon.getId(), getTaxon(taxon.getId()));
 		
-		writeTaxa(nodesToSave, idToOldTaxa, user, requireLocking);
+		writeTaxa(nodesToSave, idToOldTaxa, user, reason, requireLocking);
 	}
 
-	void writeTaxa(Collection<Taxon> taxaToSave, Map<Integer, Taxon> idToOldTaxa, User user, boolean requireLocking) throws TaxomaticException {
+	void writeTaxa(Collection<Taxon> taxaToSave, Map<Integer, Taxon> idToOldTaxa, User user, String reason, boolean requireLocking) throws TaxomaticException {
 		TaxomaticIO taxomaticIO = new TaxomaticIO(session);
 		// DO NOT ALLOW ANY TAXOMATIC OPERATION SAVES
 		for (Taxon taxon : taxaToSave) {
@@ -180,7 +180,7 @@ public class TaxonIO {
 			try {
 				Date date = new Date();
 				for (Taxon taxon : taxaToSave) {
-					Edit edit = new Edit();
+					Edit edit = new Edit(reason);
 					edit.setUser(user);
 					edit.setCreatedDate(date);
 					edit.getTaxon().add(taxon);
@@ -242,7 +242,7 @@ public class TaxonIO {
 		
 		taxon.setState(Taxon.ACTIVE);
 		
-		writeTaxon(taxon, user);
+		writeTaxon(taxon, user, "Taxon restored from trash.");
 	}
 
 	public boolean permanentlyDeleteTaxon(Integer taxonID) {
@@ -265,7 +265,7 @@ public class TaxonIO {
 		
 		taxon.setState(Taxon.DELETED);
 		
-		writeTaxon(taxon, user);
+		writeTaxon(taxon, user, "Taxon trashed.");
 		AssessmentIO assessmentIO = new AssessmentIO(session);
 		for (Assessment assessment : taxon.getAssessments()) {
 			AssessmentIOWriteResult result = assessmentIO.trashAssessment(assessment, user);

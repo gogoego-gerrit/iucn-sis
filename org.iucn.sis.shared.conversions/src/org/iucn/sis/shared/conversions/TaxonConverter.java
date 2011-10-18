@@ -243,7 +243,7 @@ public class TaxonConverter extends GenericConverter<String> {
 			taxon.setParent(null);
 			
 			if (taxon.getLastEdit() == null) {
-				Edit edit = new Edit();
+				Edit edit = new Edit("Data migration.");
 				edit.setUser(user);
 				edit.getTaxon().add(taxon);
 				taxon.getEdits().add(edit);							
@@ -405,7 +405,7 @@ public class TaxonConverter extends GenericConverter<String> {
 					if (taxon != null) {
 						
 						if (taxon.getLastEdit() == null) {
-							Edit edit = new Edit();
+							Edit edit = new Edit("Data migration");
 							edit.setUser(user);
 							edit.setCreatedDate(date);
 							edit.getTaxon().add(taxon);
@@ -560,7 +560,7 @@ public class TaxonConverter extends GenericConverter<String> {
 					if (created == null)
 						created = Calendar.getInstance().getTime();
 					
-					Edit edit = new Edit();
+					Edit edit = new Edit("Data migration.");
 					edit.setUser(author);
 					edit.setCreatedDate(created);
 					
@@ -612,7 +612,7 @@ public class TaxonConverter extends GenericConverter<String> {
 			synonym.setStatus(synData.getStatus());
 
 			if (synData.getNotes() != null) {
-				Edit edit = new Edit();
+				Edit edit = new Edit("Data migration.");
 				edit.setUser(user);
 				
 				Notes note = new Notes();
@@ -653,7 +653,7 @@ public class TaxonConverter extends GenericConverter<String> {
 
 		// ADD LAST EDIT
 		if (taxon.getLastUpdatedBy() != null) {
-			Edit edit = new Edit();
+			Edit edit = new Edit("Data migration.");
 			edit.setUser(userIO.getUserFromUsername(taxon.getLastUpdatedBy()));
 			edit.setCreatedDate(lastModified);
 		}

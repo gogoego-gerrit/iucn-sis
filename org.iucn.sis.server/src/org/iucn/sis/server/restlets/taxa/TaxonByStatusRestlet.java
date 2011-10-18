@@ -129,7 +129,7 @@ public class TaxonByStatusRestlet extends BaseServiceRestlet {
 
 
 		// SUCCESSFULLY CREATED WORKINGSET
-		if (workingSetIO.saveWorkingSet(workingSet, user)) {
+		if (workingSetIO.saveWorkingSet(workingSet, user, "Working set created.")) {
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity("Working set was successfully created", MediaType.TEXT_PLAIN);
 		}

@@ -41,10 +41,10 @@ public class PrimitiveFieldIO {
 	 * @return
 	 */
 	public boolean updateTextPrimitveFieldValueInDatabase(Integer textPrimitiveFieldID, String newValue, User user,
-			Assessment assessment) {
+			Assessment assessment, String reason) {
 		Map<Integer, String> idsToNewValue = new HashMap<Integer, String>();
 		idsToNewValue.put(textPrimitiveFieldID, newValue);
-		return updateTextPrimitiveFieldValuesInDatabase(idsToNewValue, user, assessment);
+		return updateTextPrimitiveFieldValuesInDatabase(idsToNewValue, user, assessment, reason);
 	}
 
 	/**
@@ -63,10 +63,10 @@ public class PrimitiveFieldIO {
 	 * @return -- if return false, then you need to rollback transaction
 	 */
 	public boolean updateTextPrimitiveFieldValuesInDatabase(Map<Integer, String> idToNewValues, User user,
-			Assessment assessment) {
+			Assessment assessment, String reason) {
 		try {
 			//ONLY ADD ONE EDIT FOR ALL THESE CHANGES
-			Edit edit = editIO.createAndSaveEditForAssessment(user, assessment.getId(), null);
+			Edit edit = editIO.createAndSaveEditForAssessment(user, assessment.getId(), null, reason);
 			assessment.getEdit().add(edit);
 			
 			for (Entry<Integer, String> entry : idToNewValues.entrySet()) {

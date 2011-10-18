@@ -40,7 +40,7 @@ public class SynonymIO {
 			throw new TaxomaticException(e);
 		}
 		
-		taxonIO.writeTaxon(taxon, user);
+		taxonIO.writeTaxon(taxon, user, "Synonym removed from taxon.");
 	}
 
 }

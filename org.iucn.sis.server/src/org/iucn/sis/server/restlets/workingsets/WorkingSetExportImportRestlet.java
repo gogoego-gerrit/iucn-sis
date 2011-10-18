@@ -513,7 +513,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 			importSynonyms(importedTaxon, sisTaxon);
 			importCommonNames(importedTaxon, sisTaxon);
 			try {
-				taxonIO.writeTaxon(sisTaxon, user);
+				taxonIO.writeTaxon(sisTaxon, user, "Imported taxon.");
 			} catch (TaxomaticException e) {
 				Debug.println(e);
 				return;
@@ -551,7 +551,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		workingSet.setCreatedDate(new Date());
 		workingSet.setCreator(userIO.getUserFromUsername(username));
 		workingSet.getUsers().add(workingSet.getCreator());
-		return workingSetIO.saveWorkingSet(workingSet, workingSet.getCreator());
+		return workingSetIO.saveWorkingSet(workingSet, workingSet.getCreator(), "Imported working set.");
 	}
 
 	private void postZipFile(String username, Response response, Request request, Session session) throws ResourceException {

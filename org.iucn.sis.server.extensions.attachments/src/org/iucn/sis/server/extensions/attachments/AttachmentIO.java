@@ -49,7 +49,7 @@ public class AttachmentIO {
 	}
 	
 	public FieldAttachment createAttachment(String name, String key, boolean publish, User user) {
-		Edit edit = new Edit();
+		Edit edit = new Edit("Attachment created.");
 		edit.setUser(user);
 		
 		FieldAttachment attachment = new FieldAttachment();

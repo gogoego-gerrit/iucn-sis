@@ -270,7 +270,7 @@ public class AssessmentIO {
 		Assessment assessment = AssessmentDAO.getTrashedAssessment(session, assessmentID);
 		if (assessment != null) {
 			assessment.setState(Assessment.ACTIVE);
-			return writeAssessment(assessment, user, true);
+			return writeAssessment(assessment, user, "Assessment restored from trash.", true);
 		}
 		return null;
 
@@ -278,7 +278,7 @@ public class AssessmentIO {
 
 	public AssessmentIOWriteResult trashAssessment(Assessment assessment, User user) {
 		assessment.setState(Assessment.DELETED);
-		return writeAssessment(assessment, user, true);
+		return writeAssessment(assessment, user, "Assessment trashed.", true);
 	}
 
 	public boolean permenantlyDeleteAssessment(Integer assessmentID, User user) {
@@ -327,10 +327,10 @@ public class AssessmentIO {
 		for (Assessment ass : assessments) {
 			ass.setState(Assessment.ACTIVE);
 		}
-		return writeAssessments(Arrays.asList(assessments), user, true);
+		return writeAssessments(Arrays.asList(assessments), user, "Assessment for taxon restored from trash.", true);
 	}
 
-	public AssessmentIOWriteResult writeAssessment(Assessment assessmentToSave, User user, boolean requireLocking) {
+	public AssessmentIOWriteResult writeAssessment(Assessment assessmentToSave, User user, String reason, boolean requireLocking) {
 
 		Status lockStatus = Status.SUCCESS_OK;
 		if (SIS.amIOnline() && requireLocking)
@@ -339,7 +339,7 @@ public class AssessmentIO {
 					user);
 
 		if (lockStatus.isSuccess()) {
-			Edit edit = new Edit();
+			Edit edit = new Edit(reason);
 			edit.setUser(user);
 			edit.getAssessment().add((assessmentToSave));
 			assessmentToSave.getEdit().add(edit);
@@ -369,10 +369,10 @@ public class AssessmentIO {
 	 * @param requireLocking
 	 * @return
 	 */
-	public AssessmentIOMessage writeAssessments(List<Assessment> assessments, User user, boolean requireLocking) {
+	public AssessmentIOMessage writeAssessments(List<Assessment> assessments, User user, String reason, boolean requireLocking) {
 		AssessmentIOMessage ret = new AssessmentIOMessage();
 		for (Assessment current : assessments) {
-			AssessmentIOWriteResult result = writeAssessment(current, user, requireLocking);
+			AssessmentIOWriteResult result = writeAssessment(current, user, reason, requireLocking);
 			if (result.status.isClientError()) {
 				ret.addLocked(current);
 			} else if (result.status.isServerError()) {
@@ -386,14 +386,14 @@ public class AssessmentIO {
 		return ret;
 	}
 	
-	public void saveAssessments(Collection<Assessment> assessments, User user) throws PersistentException {
+	public void saveAssessments(Collection<Assessment> assessments, User user, String reason) throws PersistentException {
 		Status lockStatus = Status.SUCCESS_OK;
 		if (SIS.amIOnline())
 			lockStatus = SIS.get().getLocker().persistentLockAssessments(assessments, LockType.SAVE_LOCK, user);
 
 		if (lockStatus.isSuccess()) {
 			for (Assessment assessmentToSave : assessments) {
-				Edit edit = new Edit();
+				Edit edit = new Edit(reason);
 				edit.setUser(user);
 				edit.getAssessment().add((assessmentToSave));
 				assessmentToSave.getEdit().add(edit);
@@ -410,7 +410,7 @@ public class AssessmentIO {
 	 * @param user
 	 * @return
 	 */
-	public boolean saveAssessmentsWithNoFail(Collection<Assessment> assessments, User user) {
+	public boolean saveAssessmentsWithNoFail(Collection<Assessment> assessments, User user, String reason) {
 		Status lockStatus = Status.SUCCESS_OK;
 		boolean success = false;
 		if (SIS.amIOnline()) {
@@ -420,7 +420,7 @@ public class AssessmentIO {
 		if (lockStatus.isSuccess()) {
 			try {
 				for (Assessment assessmentToSave : assessments) {
-					Edit edit = new Edit();
+					Edit edit = new Edit(reason);
 					edit.setUser(user);
 					edit.getAssessment().add((assessmentToSave));
 					assessmentToSave.getEdit().add(edit);
@@ -441,7 +441,7 @@ public class AssessmentIO {
 		for (Assessment assessment : assessments) {
 			assessment.setTaxon(newParent);
 		}
-		return saveAssessmentsWithNoFail(assessments, user);
+		return saveAssessmentsWithNoFail(assessments, user, "Assessment moved.");
 	}
 
 	public boolean allowedToCreateNewAssessment(Assessment assessment) {
@@ -509,7 +509,7 @@ public class AssessmentIO {
 	public AssessmentIOWriteResult saveNewAssessment(Assessment assessent, User user) throws RegionConflictException {
 		if (!allowedToCreateNewAssessment(assessent))
 			throw new RegionConflictException();
-		return writeAssessment(assessent, user, false);
+		return writeAssessment(assessent, user, "Assessment created.", false);
 	}
 	
 	public void publish(Assessment assessment) {

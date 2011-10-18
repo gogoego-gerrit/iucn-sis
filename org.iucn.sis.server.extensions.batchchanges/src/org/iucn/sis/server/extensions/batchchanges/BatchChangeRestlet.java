@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -108,7 +109,8 @@ public class BatchChangeRestlet extends BaseServiceRestlet {
 		returnXML.append("</changes>");
 			
 		try {
-			assessmentIO.saveAssessments(assessments, user);
+			String verb = fieldNames.size() == 1 ? " field." : " fields.";
+			assessmentIO.saveAssessments(assessments, user, "Changes made via batch change for " + fieldNames.size() + verb);
 		} catch (PersistentException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Unable to save the changes in the assessment", e);
 		}

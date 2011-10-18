@@ -34,9 +34,9 @@ public class EditIO {
 	 * @return
 	 * @throws PersistentException 
 	 */
-	Edit createAndSaveEditForAssessment(User user, Integer assessmentID, Date date) throws PersistentException {
+	Edit createAndSaveEditForAssessment(User user, Integer assessmentID, Date date, String reason) throws PersistentException {
 
-		Edit edit = new Edit();
+		Edit edit = new Edit(reason);
 		edit.setCreatedDate(date == null ? new Date() : date);
 		edit.setUser(user);
 		Assessment assessment = (Assessment) SIS.get().getManager().getObject(session, Assessment.class, assessmentID);

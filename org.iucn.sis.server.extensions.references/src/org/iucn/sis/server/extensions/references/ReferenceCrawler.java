@@ -222,7 +222,7 @@ public class ReferenceCrawler implements Runnable {
 				user.setId(-1);
 				user.setUsername("ReferenceUpdate");
 				
-				assessmentIO.writeAssessment(changed, user, true);
+				assessmentIO.writeAssessment(changed, user, "Reference hashes updated.", true);
 				System.out.println("  document updated");
 			}
 		}

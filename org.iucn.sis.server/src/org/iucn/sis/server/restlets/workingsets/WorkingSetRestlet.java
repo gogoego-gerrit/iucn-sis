@@ -452,7 +452,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 			}
 		}
 
-		if (workingSetIO.saveWorkingSet(ws, user)) {
+		if (workingSetIO.saveWorkingSet(ws, user, "Edit taxa in working set.")) {
 			response.setEntity("Successfully editted the taxa in your working set", MediaType.TEXT_PLAIN);
 			response.setStatus(Status.SUCCESS_OK);
 		} else {
@@ -475,7 +475,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		
 		User user = userIO.getUserFromUsername(username);
 		if (ws.getId() == 0 && user != null) {
-			workingSetIO.saveWorkingSet(ws, user);
+			workingSetIO.saveWorkingSet(ws, user, "Working set created.");
 			response.setStatus(Status.SUCCESS_OK);
 			response.setEntity(Integer.toString(ws.getId()), MediaType.TEXT_PLAIN);
 		} else {
@@ -503,7 +503,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		
 				
 		User user = userIO.getUserFromUsername(username);
-		if (user == null || !workingSetIO.saveWorkingSet(ws, user))
+		if (user == null || !workingSetIO.saveWorkingSet(ws, user, "Edit working set metadata."))
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 	}
 	

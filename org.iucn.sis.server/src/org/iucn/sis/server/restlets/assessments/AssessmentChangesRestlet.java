@@ -264,7 +264,7 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, new RegionConflictException());
 		
 		AssessmentIOWriteResult result = 
-			assessmentIO.writeAssessment(assessment, getUser(request, session), true);
+			assessmentIO.writeAssessment(assessment, getUser(request, session), packet.getReason(), true);
 		
 		if (!result.status.isSuccess())
 			throw new ResourceException(result.status, "AssessmentIOWrite threw exception when saving.");

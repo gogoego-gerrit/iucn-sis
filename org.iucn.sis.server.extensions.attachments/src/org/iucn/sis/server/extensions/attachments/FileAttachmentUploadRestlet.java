@@ -177,7 +177,7 @@ public class FileAttachmentUploadRestlet extends BaseServiceRestlet {
 				throw e;
 			}
 			
-			Edit edit = new Edit();
+			Edit edit = new Edit("File Updated.");
 			edit.setUser(user);
 			edit.getAttachments().add(attachment);
 			

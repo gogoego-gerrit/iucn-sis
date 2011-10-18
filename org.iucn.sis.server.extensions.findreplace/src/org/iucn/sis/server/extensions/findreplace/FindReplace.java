@@ -367,7 +367,7 @@ public class FindReplace {
 			}
 			
 			success = primitiveFieldIO.updateTextPrimitiveFieldValuesInDatabase(fieldsToSave, user,
-					assessment);
+					assessment, "Changes to assessment made via find/replace.");
 
 		}
 		return success;

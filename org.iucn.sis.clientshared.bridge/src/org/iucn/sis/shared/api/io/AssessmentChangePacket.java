@@ -71,6 +71,23 @@ public class AssessmentChangePacket {
 		this.version = version;
 	}
 	
+	public String getReason() {
+		StringBuilder out = new StringBuilder();
+		out.append("Assessment Changes:");
+		if (!add.isEmpty())
+			out.append(" Added " + add.size() + getVerb(" field", " fields", add.size()) + ".");
+		if (!edit.isEmpty())
+			out.append(" Edited " + edit.size() + getVerb(" field", " fields", edit.size()) + ".");
+		if (!delete.isEmpty())
+			out.append(" Deleted " + delete.size() + getVerb(" field", " fields", edit.size()) + ".");
+		
+		return out.toString();
+	}
+	
+	private String getVerb(String single, String plural, int size) {
+		return size == 1 ? single : plural;
+	}
+	
 	public String toHTML() {
 		StringBuilder out = new StringBuilder();
 		appendHTML(out, add, "added", "No new fields were added.");

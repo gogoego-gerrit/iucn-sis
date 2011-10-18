@@ -183,7 +183,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		}
 		
 		try {
-			taxonIO.writeTaxon(taxon, getUser(request, session));
+			taxonIO.writeTaxon(taxon, getUser(request, session), "Taxon references updated.");
 		} catch (TaxomaticException e) {
 			throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e);
 		}
@@ -271,7 +271,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 			}
 			
 			try {
-				taxonIO.writeTaxon(newNode, user, true);
+				taxonIO.writeTaxon(newNode, user, "Taxon metadata updated.", true);
 			} catch (TaxomaticException e) {
 				throw new ResourceException(e.isClientError() ? Status.CLIENT_ERROR_BAD_REQUEST : Status.SERVER_ERROR_INTERNAL, e);
 			}

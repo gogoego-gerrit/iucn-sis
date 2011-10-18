@@ -11,6 +11,7 @@ License Type: Evaluation
 			</generator>
 		</id>
 		<property name="createdDate" column="created_date" type="java.util.Date" not-null="true" lazy="false"/>
+		<property name="reason" column="reason" type="string" length="2048" not-null="false" lazy="false"/>
 		<many-to-one name="user" cascade="lock" column="userid" class="org.iucn.sis.shared.api.models.User" not-null="false" lazy="no-proxy">
 		</many-to-one>
 		<set name="Working_set" table="working_set_edit" lazy="true" cascade="save-update,lock" inverse="true">

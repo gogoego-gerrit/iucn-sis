@@ -184,7 +184,7 @@ public class NotesRestlet extends BaseServiceRestlet {
 			if (note.getValue() == null)
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "No note provided.");
 			
-			Edit edit = new Edit();
+			Edit edit = new Edit("Note added.");
 			edit.setUser(getUser(request, session));
 			edit.setCreatedDate(new Date());
 			edit.getNotes().add(note);

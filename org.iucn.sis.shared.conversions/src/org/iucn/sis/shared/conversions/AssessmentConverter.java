@@ -260,7 +260,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							criteria.setManualCategory(proxy.getCategory());
 							criteria.setManualCriteria(proxy.getCriteriaMet());
 							
-							Edit edit = new Edit();
+							Edit edit = new Edit("Data migration");
 							edit.setUser(user);
 							
 							Notes note = new Notes();
@@ -269,7 +269,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 								criteria.getGeneratedCriteria() + " does not match " + 
 								"SIS 2's generated criteria of " + proxy.getCategory() + " " + 
 								proxy.getCriteriaMet() + ". This assessment has been changed " +
-								"from generated to manual to reflect these changes.");
+								"from generated to manual to reflect these changes. #SYSGEN");
 							note.setEdit(edit);
 							edit.getNotes().add(note);
 							
@@ -295,12 +295,12 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 								taxonTaxNotes = asmTaxNotes.deepCopy(false);
 								taxonTaxNotes.setAssessment(null);
 								
-								Edit edit = new Edit();
+								Edit edit = new Edit("Data migration.");
 								edit.setUser(user);
 								edit.setCreatedDate(date);
 								
 								Notes note = new Notes();
-								note.setValue("Set from assessment " + assessment.getInternalId() + " assessed on " + date);
+								note.setValue("Set from assessment " + assessment.getInternalId() + " assessed on " + date + ". #SYSGEN");
 								note.setEdit(edit);
 								edit.getNotes().add(note);
 								
@@ -335,7 +335,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					}
 						
 					if (assessment.getLastEdit() == null) {
-						Edit edit = new Edit();
+						Edit edit = new Edit("Data migration.");
 						edit.setUser(user);
 						edit.getAssessment().add((assessment));
 						assessment.getEdit().add(edit);
@@ -414,7 +414,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							}*/
 							
 							if (assessment.getLastEdit() == null) {
-								Edit edit = new Edit();
+								Edit edit = new Edit("Data migration.");
 								edit.setUser(user);
 								edit.getAssessment().add((assessment));
 								assessment.getEdit().add(edit);
@@ -606,7 +606,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				text += " -- " + oldNote.getUser();
 			}
 			
-			final Edit edit = new Edit();
+			final Edit edit = new Edit("Data migration.");
 			edit.setUser(possibleUser);
 			edit.setCreatedDate(shortfmt.parse(oldNote.getDate()));
 			

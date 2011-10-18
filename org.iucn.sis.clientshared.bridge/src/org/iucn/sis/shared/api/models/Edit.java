@@ -16,21 +16,36 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
+import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.portable.XMLWritingUtils;
 public class Edit implements Serializable, Comparable<Edit> {
 	
 	public static final String ROOT_TAG = "edit";
 	
 	public static Edit fromXML(NativeElement element) {
-		Edit edit = new Edit();
+		final Edit edit = new Edit();
 		edit.setId(Integer.parseInt(element.getAttribute("id")));
-		edit.setUser(User.fromXML(element.getElementsByTagName(User.ROOT_TAG).elementAt(0)));
-		edit.setCreatedDate(new Date(Long.parseLong(element.getElementsByTagName("date").elementAt(0).getTextContent())));
+		
+		final NativeNodeList nodes = element.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			NativeNode node = nodes.item(i);
+			if (User.ROOT_TAG.equals(node.getNodeName()))
+				edit.setUser(User.fromXML((NativeElement)node));
+			else if ("date".equals(node.getNodeName()))
+				edit.setCreatedDate(new Date(Long.parseLong(node.getTextContent())));
+			else if ("reason".equals(node.getNodeName()))
+				edit.setReason(node.getTextContent());
+		}
+		
 		return edit;
 	}
 	
 	private int id;
 	
 	private Date createdDate;
+	
+	private String reason;
 	
 	private User user;
 	
@@ -45,6 +60,10 @@ public class Edit implements Serializable, Comparable<Edit> {
 	private java.util.Set<FieldAttachment> attachments;
 	
 	public Edit() {
+		this(null);
+	}
+	
+	public Edit(String reason) {
 		createdDate = new Date();
 		working_set = new java.util.HashSet<WorkingSet>();
 		assessment = new java.util.HashSet<Assessment>();
@@ -113,6 +132,13 @@ public class Edit implements Serializable, Comparable<Edit> {
 		this.createdDate = value;
 	}
 	
+	public String getReason() {
+		return reason;
+	}
+	
+	public void setReason(String reason) {
+		this.reason = reason;
+	}
 	
 	private void setId(int value) {
 		this.id = value;
@@ -141,7 +167,14 @@ public class Edit implements Serializable, Comparable<Edit> {
 	}
 	
 	public String toXML() {
-		return "<" + ROOT_TAG + " id=\"" + getId() + "\" >" + getUser().toBasicXML()  + "<date>" + getCreatedDate().getTime() + "</date></" + ROOT_TAG + ">";
+		StringBuilder out = new StringBuilder();
+		out.append("<" + ROOT_TAG + " id=\"" + getId() + "\" >");
+		out.append(getUser().toBasicXML());
+		out.append(XMLWritingUtils.writeCDATATag("date", Long.toString(getCreatedDate().getTime())));
+		out.append(XMLWritingUtils.writeCDATATag("reason", getReason()));
+		out.append("</" + ROOT_TAG + ">");
+		
+		return out.toString();
 	}
 	
 }

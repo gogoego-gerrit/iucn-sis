@@ -572,7 +572,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		
 		currentTaxon.correctFullName();
 		
-		taxomaticIO.writeTaxon(currentTaxon, getUser(request, session));
+		taxomaticIO.writeTaxon(currentTaxon, getUser(request, session), "Taxon metadata updated.");
 	}
 
 }
