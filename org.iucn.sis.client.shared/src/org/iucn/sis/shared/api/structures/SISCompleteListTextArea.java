@@ -7,6 +7,7 @@ import java.util.List;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.UserSearchController;
 import org.iucn.sis.client.api.ui.users.panels.UserSearchController.SearchResults;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
 
@@ -18,6 +19,7 @@ import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -26,17 +28,22 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class SISCompleteListTextArea extends VerticalPanel {
 
 	private final TextArea textArea;
+	private final HTML viewOnlyText;
 	
 	private RedListCreditedUserField field;
 	private List<ClientUser> selectedUsers;
 	
 	private Button edit;
 
+	private boolean ready;
+	
 	public SISCompleteListTextArea() {
 		textArea = new TextArea();
 		textArea.setEmptyText("Use \"Manage Credits\" to select users or click \"Edit\" to set specific credits.");
 		textArea.setReadOnly(true);
 		textArea.setSize("100%", "100%");
+		
+		viewOnlyText = new HTML();
 
 		setWidth("100%");
 		setVerticalAlignment(HasVerticalAlignment.ALIGN_TOP);
@@ -68,6 +75,8 @@ public class SISCompleteListTextArea extends VerticalPanel {
 					textArea.setReadOnly(true);
 					textArea.el().blink(FxConfig.NONE);
 					
+					viewOnlyText.setHTML(textArea.getValue());
+					
 					DeferredCommand.addCommand(new Command() {
 						public void execute() {
 							textArea.el().focus();
@@ -82,10 +91,12 @@ public class SISCompleteListTextArea extends VerticalPanel {
 
 		add(textArea);
 		add(bar);
+		
+		ready = false;
 	}
 	
-	public String getSavedText() {
-		return field.getText();
+	public HTML getViewOnlyLabel() {
+		return viewOnlyText;
 	}
 	
 	private String getText() {
@@ -97,6 +108,9 @@ public class SISCompleteListTextArea extends VerticalPanel {
 	}
 	
 	public boolean hasChanged(Field other) {
+		if (!isReady())
+			return false;
+		
 		String text = getText();
 		
 		if (other == null)
@@ -118,6 +132,7 @@ public class SISCompleteListTextArea extends VerticalPanel {
 	}
 	
 	public void setData(RedListCreditedUserField field) {
+		this.ready = false;
 		this.field = field;
 		if (!field.getUsers().isEmpty()) {
 			edit.setVisible(false);
@@ -131,14 +146,21 @@ public class SISCompleteListTextArea extends VerticalPanel {
 			
 			UserSearchController.search(map, "or", true, new GenericCallback<List<SearchResults>>() {
 				public void onFailure(Throwable caught) {
+					ready = true;
 					WindowUtils.errorAlert("Error", "An error occurred searching for users. " +
 						"Please check your Internet connection, then try again.");
 				}
 				public void onSuccess(List<SearchResults> results) {
-					List<ClientUser> users = new ArrayList<ClientUser>();
+					List<ClientUser> found = new ArrayList<ClientUser>();
 					for (SearchResults result : results)
-						users.add(result.getUser());
-					setUsers(users);
+						found.add(result.getUser());
+					if (users.size() != results.size() && SIS.isDebugMode())
+						WindowUtils.infoAlert("Warning", "Warning: The number of users " +
+								"saved for this assessment (" + users.size() + 
+								") does not match the number of users found in the " +
+								"database (" + results.size() + "). These users may have " +
+								"been deleted, but they will not appear here.");
+					setUsers(found);
 				};
 			});
 		} else {
@@ -153,13 +175,22 @@ public class SISCompleteListTextArea extends VerticalPanel {
 		edit.setText("Edit");
 		textArea.setReadOnly(true);
 		generateTextFromUsers(false);
+		ready = true;
 	}
 	
 	private void generateTextFromUsers(boolean force) {
+		String value;
 		if (force || "".equals(field.getText()))
-			textArea.setValue(RedListCreditedUserField.generateText(selectedUsers, field.getOrder()));
+			value = RedListCreditedUserField.generateText(selectedUsers, field.getOrder());
 		else
-			textArea.setValue(field.getText());
+			value = field.getText();
+		
+		textArea.setValue(value);
+		viewOnlyText.setHTML(value);
+	}
+	
+	public boolean isReady() {
+		return ready;
 	}
 
 }

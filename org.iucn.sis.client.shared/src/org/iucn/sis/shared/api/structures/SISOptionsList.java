@@ -126,8 +126,7 @@ public class SISOptionsList extends Structure<Field> {
 	protected Widget createViewOnlyLabel() {
 		displayPanel.clear();
 		displayPanel.add(descriptionLabel);
-		// displayPanel.add( new HTML( theList.getItemsInListAsCSV() ) );
-		displayPanel.add(new HTML(theList.getSavedText()));
+		displayPanel.add(theList.getViewOnlyLabel());
 		return displayPanel;
 	}
 
