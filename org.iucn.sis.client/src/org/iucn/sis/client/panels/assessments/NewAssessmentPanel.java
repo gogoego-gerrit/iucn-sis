@@ -15,6 +15,7 @@ import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
 import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.acl.feature.AuthorizableAssessmentShim;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
 import org.iucn.sis.shared.api.acl.feature.AuthorizablePublishedAssessment;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -79,11 +80,23 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 		
 		this.node = taxon;
 		
-		String defaultSchema = SchemaCache.impl.getDefaultSchema();
-		this.canCreateDraft = AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, defaultSchema));
-		this.canCreateDraftRegional = AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, defaultSchema, "0"));
-		this.canCreateDraftGlobal = AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, defaultSchema, "global"));
-		this.canCreatePublished = AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new AuthorizablePublishedAssessment(node, defaultSchema));
+		boolean canCreateDraft = false;
+		boolean canCreateDraftRegional = false;
+		boolean canCreateDraftGlobal = false;
+		boolean canCreatePublished = false;
+		
+		for (AssessmentSchema schema : SchemaCache.impl.listFromCache()) {
+			String defaultSchema = schema.getId();
+			canCreateDraft |= AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, defaultSchema));
+			canCreateDraftRegional |= AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, defaultSchema, "0"));
+			canCreateDraftGlobal |= AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new AuthorizableDraftAssessment(node, defaultSchema, "global"));
+			canCreatePublished |= AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, new AuthorizablePublishedAssessment(node, defaultSchema));
+		}
+		
+		this.canCreateDraft = canCreateDraft;
+		this.canCreateDraftGlobal = canCreateDraftGlobal;
+		this.canCreateDraftRegional = canCreateDraftRegional;
+		this.canCreatePublished = canCreatePublished;
 	}
 
 	private void build() {
@@ -253,12 +266,20 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 			//template.addItem(displayable, data.getId()+"");
 		}
 		
-		template = FormBuilder.createModelComboBox("template", null, "", false, models.toArray(new NameValueModelData[models.size()]));
+		ListStore<NameValueModelData> store = new ListStore<NameValueModelData>();
+		store.add(models);
+		
+		template.setStore(store);
 		template.setValue(blank);
+		template.setEnabled(true);
 	}
 
 	private void buildTemplate() {
-		updateTemplates(SchemaCache.impl.getDefaultSchema());
+		template = FormBuilder.createModelComboBox("template", null, "", false, new NameValueModelData("", ""));
+		template.setEmptyText("Please select a schema.");
+		template.setEnabled(false);
+		
+		//updateTemplates(SchemaCache.impl.getDefaultSchema());
 	}
 
 	private void buildType() {
@@ -278,10 +299,29 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 		}
 
 		type = FormBuilder.createModelComboBox("type", null, "", false, models.toArray(new NameValueModelData[models.size()]));
+		type.addSelectionChangedListener(new SelectionChangedListener<NameValueModelData>() {
+			public void selectionChanged(SelectionChangedEvent<NameValueModelData> se) {
+				if (se.getSelectedItem() != null)
+					updateSchemas(se.getSelectedItem().getValue());
+			}
+		});
 	}
 	
 	private void buildSchema() {
-		List<AssessmentSchema> list = SchemaCache.impl.listFromCache();
+		schema = FormBuilder.createModelComboBox("schema", null, "", false, new NameValueModelData("", ""));
+		schema.setEmptyText("Please select an assessment type.");
+		schema.setEnabled(false);
+		schema.addSelectionChangedListener(new SelectionChangedListener<NameValueModelData>() {
+			public void selectionChanged(SelectionChangedEvent<NameValueModelData> se) {
+				NameValueModelData selection = se.getSelectedItem();
+				if (selection != null) {
+					updateTemplates(selection.getValue());
+					updateRegions(selection.getValue());
+				}
+			}
+		});
+		
+		/*List<AssessmentSchema> list = SchemaCache.impl.listFromCache();
 		if (!list.isEmpty()) {
 			List<NameValueModelData> models = new ArrayList<NameValueModelData>();
 			NameValueModelData selection = null;
@@ -303,6 +343,39 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 					}
 				}
 			});
+		}*/
+	}
+	
+	private void updateSchemas(String type) {
+		List<AssessmentSchema> list = SchemaCache.impl.listFromCache();
+		if (!list.isEmpty()) {
+			List<NameValueModelData> models = new ArrayList<NameValueModelData>();
+			NameValueModelData selection = null;
+			for (AssessmentSchema current : list) {
+				AuthorizableAssessmentShim shim;
+				if (AssessmentType.DRAFT_ASSESSMENT_TYPE.equals(type))
+					shim = new AuthorizableDraftAssessment(node, current.getId());
+				else
+					shim = new AuthorizablePublishedAssessment(node, current.getId());
+				
+				if (AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, shim)) {
+					NameValueModelData model = new NameValueModelData(current.getName(), current.getId()); 
+					models.add(model);
+					if (SchemaCache.impl.getDefaultSchema().equals(current.getId()))
+						selection = model;
+				}
+			}
+			if (models.size() == 1)
+				selection = models.get(0);
+			
+			//schema = FormBuilder.createModelComboBox("schema", null, "", false, models.toArray(new NameValueModelData[models.size()]));
+			ListStore<NameValueModelData> store = new ListStore<NameValueModelData>();
+			store.add(models);
+		
+			schema.setEnabled(true);
+			schema.setStore(store);
+			schema.setValue(selection);
+			
 		}
 	}
 	
