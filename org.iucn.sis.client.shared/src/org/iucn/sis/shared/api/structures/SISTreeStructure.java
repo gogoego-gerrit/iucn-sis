@@ -63,6 +63,7 @@ public class SISTreeStructure extends Structure<Field> {
 	}
 	
 	protected Widget generateContent(final boolean viewOnly) {
+		displayPanel.clear();
 		displayPanel.add(new HTML(description));
 		displayPanel.add(readOnlyContainer);
 		
