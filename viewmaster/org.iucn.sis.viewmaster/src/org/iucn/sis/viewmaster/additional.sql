@@ -202,8 +202,8 @@ GRANT SELECT ON $schema.vw_redlistfacilitators_publication TO $user;
 
 DROP VIEW IF EXISTS $schema.vw_workingsettaxon CASCADE;
 CREATE VIEW $schema.vw_workingsettaxon AS
-  SELECT vwf.taxonid, vwf.assessmentid, ws.name
-  FROM vw_filter vwf
+  SELECT DISTINCT vwf.taxonid, ws.name
+  FROM $schema.vw_filter vwf
   JOIN public.working_set_taxon wst ON vwf.taxonid = wst.taxonid
-  JOIN working_set ws ON ws.id = wst.working_setid;
+  JOIN public.working_set ws ON ws.id = wst.working_setid;
 GRANT SELECT ON $schema.vw_workingsettaxon TO $user;
