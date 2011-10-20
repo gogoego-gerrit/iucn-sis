@@ -1,11 +1,12 @@
 package org.iucn.sis.client.panels.taxomatic;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.ui.models.workingset.WSModel;
 import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -13,6 +14,8 @@ import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.TaxonStatus;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -20,18 +23,20 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Params;
-import com.extjs.gxt.ui.client.widget.DataList;
-import com.extjs.gxt.ui.client.widget.DataListItem;
-import com.extjs.gxt.ui.client.widget.Dialog;
+import com.extjs.gxt.ui.client.widget.CheckBoxListView;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GWTResponseException;
@@ -39,10 +44,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 
-@SuppressWarnings("deprecation")
 public class CreateNewTaxonPanel extends TaxomaticWindow {
-	
-	private static final String DATA_KEY = "dataKeyString";
 
 	private final Taxon parentNode;
 	
@@ -84,34 +86,39 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 	}
 
 	private void createWorkingSetSelector(final Taxon newNode) {
-		final Dialog s = new Dialog();
-		s.setModal(true);
-		s.setHeading("Choose Working Set");
+		final Window window = WindowUtils.newWindow("Choose Working Set");
+		window.setSize(500, 400);
+		window.setScrollMode(Scroll.AUTO);
+		window.setLayout(new FillLayout());
+		
+		final HTML message = new HTML("Choose the working set you would like to add " + newNode.getFullName() + " to.");
+		
+		final ListStore<WSModel> store = new ListStore<WSModel>();
+		
+		final List<WorkingSet> workingSets = new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values());
+		Collections.sort(workingSets, new WorkingSetCache.WorkingSetComparator());
+		for (WorkingSet curWS : workingSets)
+			store.add(new WSModel(curWS));
+		
+		final CheckBoxListView<WSModel> list = new CheckBoxListView<WSModel>();
+		list.setDisplayProperty("name");
+		list.setStore(store);
 
-		HTML message = new HTML("Choose the working set you would like to add " + newNode.getFullName() + " to.");
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(message, new BorderLayoutData(LayoutRegion.NORTH, 40, 40, 40));
+		container.add(list, new BorderLayoutData(LayoutRegion.CENTER));
+		
+		window.add(container);
 
-		final DataList list = new DataList();
-		list.setCheckable(true);
-		for (Iterator<WorkingSet> iter = WorkingSetCache.impl.getWorkingSets().values().iterator(); iter.hasNext();) {
-			WorkingSet curWS = (WorkingSet) iter.next();
-			DataListItem curItem = new DataListItem(curWS.getWorkingSetName());
-			curItem.setData(DATA_KEY, curWS);
-
-			list.add(curItem);
-		}
-
-		Button add = new Button("Add to Selected", new SelectionListener<ButtonEvent>() {
-			@Override
+		window.addButton(newButton("Add to Selected", "icon-add", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				final List<Taxon> taxonToAdd = new ArrayList<Taxon>();
 				taxonToAdd.add(newNode);
-
-				List<DataListItem> checked = list.getChecked();
-				for (DataListItem item : checked) {
-					final WorkingSet cur = (WorkingSet) item.getData(DATA_KEY);
-					WorkingSetCache.impl.editTaxaInWorkingSet(cur, taxonToAdd, null, new GenericCallback<String>() {
+				
+				for (final WSModel item : list.getChecked()) {
+					WorkingSetCache.impl.editTaxaInWorkingSet(item.getWorkingSet(), taxonToAdd, null, new GenericCallback<String>() {
 						public void onSuccess(String result) {
-							Info.display("Success!", newNode.getFullName() + " was added to the set {0}.", cur
+							Info.display("Success!", newNode.getFullName() + " was added to the set {0}.", item.getWorkingSet()
 									.getWorkingSetName());
 						}
 						public void onFailure(Throwable caught) {
@@ -120,29 +127,24 @@ public class CreateNewTaxonPanel extends TaxomaticWindow {
 					});
 				}
 
-				s.hide();
+				window.hide();
 			}
-		});
-		add.setIconStyle("icon-add");
-
-		Button close = new Button("Close", new SelectionListener<ButtonEvent>() {
+		}));
+		window.addButton(newButton("Close", "icon-cancel", new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				s.hide();
+				window.hide();
 			}
-		});
-		close.setIconStyle("icon-cancel");
+		}));
 
-		LayoutContainer content = s;
-		content.add(message);
-		content.add(list);
-
-		s.getButtonBar().removeAll();
-		s.addButton(add);
-		s.addButton(close);
-
-		s.show();
-		s.center();
+		window.show();
+	}
+	
+	private Button newButton(String name, String iconStyle, SelectionListener<ButtonEvent> listener) {
+		Button button = new Button(name, listener);
+		button.setIconStyle(iconStyle);
+		
+		return button;
 	}
 	
 	public void show() {
