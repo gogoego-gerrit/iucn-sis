@@ -83,7 +83,11 @@ public class SISOneToManyWindow extends BasicWindow {
 		this.store.setStoreSorter(new StoreSorter<BaseModelData>(new PortableAlphanumericComparator()));
 		
 		this.view = new ListView<BaseModelData>(store);
-		this.view.setSimpleTemplate("<span class=\"{style}\">Record #{id}</span>");
+		this.view.setSimpleTemplate("<span class=\"{style}\">" +
+			"<tpl if=\"saved == true\">Record #{id}</tpl>" +
+			"<tpl if=\"saved == false\">New Unsaved Record</tpl>" +
+		"</span>");
+		//this.view.setSimpleTemplate("<span class=\"{style}\">Record #{id}</span>");
 		
 		this.editingArea = new LayoutContainer();
 		this.editingArea.setLayoutOnChange(true);
@@ -119,6 +123,7 @@ public class SISOneToManyWindow extends BasicWindow {
 		for (BaseModelData model : store.getModels()) {
 			StructureHolder holder = model.get("model");
 			model.set("id", holder.updateId());
+			model.set("saved", holder.isSaved());
 		}
 		
 		view.refresh();
@@ -134,7 +139,10 @@ public class SISOneToManyWindow extends BasicWindow {
 		
 		this.current = holder;
 		
-		this.fullNameDisplay.setHtml("Record #" + holder.getId());
+		if (holder.isSaved())
+			this.fullNameDisplay.setHtml("Record #" + holder.getId());
+		else
+			this.fullNameDisplay.setHtml("New Unsaved Record");
 		
 		editingArea.removeAll();
 		if (viewOnly)
@@ -268,6 +276,7 @@ public class SISOneToManyWindow extends BasicWindow {
 		BaseModelData model = new BaseModelData();
 		model.set("model", structureHolder);
 		model.set("id", structureHolder.getId());
+		model.set("saved", structureHolder.isSaved());
 		
 		return model;
 	}
@@ -410,6 +419,10 @@ public class SISOneToManyWindow extends BasicWindow {
 		
 		public Field getField() {
 			return field;
+		}
+		
+		public boolean isSaved() {
+			return field != null && field.getId() > 0;
 		}
 		
 		public Structure<Object> getStructure() {
