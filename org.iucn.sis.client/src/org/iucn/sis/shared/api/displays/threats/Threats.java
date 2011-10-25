@@ -7,7 +7,6 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.VirusCache;
 import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.data.TreeDataRow;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Virus;

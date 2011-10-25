@@ -20,6 +20,7 @@ import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.EditIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.persistance.FieldDAO;
+import org.iucn.sis.server.api.persistance.PrimitiveFieldDAO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -32,6 +33,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentChange;
 import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
@@ -48,6 +50,7 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.TrivialExceptionHandler;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.portable.XMLWritingUtils;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
@@ -110,9 +113,10 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 			fieldID = null;
 		
 		if (fieldID == null) {
-			Assessment assessment;
+			final AssessmentIO io = new AssessmentIO(session);
+			final Assessment assessment;
 			try {
-				assessment = (Assessment)session.get(Field.class, Integer.valueOf((String)request.getAttributes().get("id")));
+				assessment = io.getAssessment(Integer.valueOf((String)request.getAttributes().get("id")));
 			} catch (NumberFormatException e) {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, e);
 			} catch (HibernateException e) {
@@ -135,6 +139,8 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 			}
 			
 			assessment.setReference(references);
+			
+			io.writeAssessment(assessment, getUser(request, session), "Global references updated.", true);
 			
 			session.update(assessment);
 		}
@@ -191,7 +197,7 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 	}
 	
 	@Override
-	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
+	public void handlePost(Representation entity, Request request, Response response, final Session session) throws ResourceException {
 		if ("references".equals(request.getAttributes().get("mode"))) {
 			saveReferences(entity, request, response, session);
 			return;
@@ -220,6 +226,26 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 		saver.setAllowDelete(false);
 		saver.setAllowManageNotes(false);
 		saver.setAllowManageReferences(false);
+		saver.setDeleteFieldListener(new ComplexListener<Field>() {
+			public void handleEvent(Field field) {
+				packet.addXMLNote("<info>Removing field " + field.getName() + " with ID " + field.getId() + "</info>" + field.toXML());
+				try {
+					FieldDAO.deleteAndDissociate(field, session);
+				} catch (PersistentException e) {
+					Debug.println(e);
+				}
+			}
+		});
+		saver.setDeletePrimitiveFieldListener(new ComplexListener<PrimitiveField<?>>() {
+			public void handleEvent(PrimitiveField<?> field) {
+				packet.addXMLNote("<info>Removing primitive field " + field.getField().getName() + "." + field.getName() + " with ID " + field.getId() + "</info>" + field.toXML());
+				try {
+					PrimitiveFieldDAO.deleteAndDissociate(field, session);
+				} catch (PersistentException e) {
+					Debug.println(e);
+				}
+			}
+		});
 		
 		final StringBuilder out = new StringBuilder();
 		out.append("<ul>");

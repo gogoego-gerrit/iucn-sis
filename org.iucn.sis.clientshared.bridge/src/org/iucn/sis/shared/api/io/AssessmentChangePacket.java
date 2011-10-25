@@ -1,7 +1,9 @@
 package org.iucn.sis.shared.api.io;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.shared.api.models.Field;
@@ -20,6 +22,8 @@ public class AssessmentChangePacket {
 	private final Set<Field> add, edit, delete;
 	private final int assessmentID;
 	
+	private final List<String> notes;
+	
 	private long version;
 	
 	public AssessmentChangePacket(int assessmentID) {
@@ -29,6 +33,7 @@ public class AssessmentChangePacket {
 		this.add = new HashSet<Field>();
 		this.edit = new HashSet<Field>();
 		this.delete = new HashSet<Field>();
+		this.notes = new ArrayList<String>();
 	}
 	
 	public void addChange(Field field) {
@@ -71,6 +76,14 @@ public class AssessmentChangePacket {
 	
 	public Set<Field> getDeletions() {
 		return delete;
+	}
+	
+	public void addSimpleNote(String note) {
+		addXMLNote(XMLWritingUtils.writeCDATATag("simpleNote", note));
+	}
+	
+	public void addXMLNote(String noteXML) {
+		notes.add(noteXML);
 	}
 	
 	public void setVersion(long version) {
@@ -124,6 +137,10 @@ public class AssessmentChangePacket {
 	}
 	
 	public String toXML() {
+		return toXML(true);
+	}
+	
+	public String toXML(boolean includeNotes) {
 		final StringBuilder out = new StringBuilder();
 		out.append("<" + ROOT_TAG + " assessmentid=\"" + getAssessmentID() + "\">");
 	
@@ -143,6 +160,13 @@ public class AssessmentChangePacket {
 		for (Field field : delete)
 			out.append(field.toXML());
 		out.append("</delete>");
+		
+		if (!notes.isEmpty()) {
+			out.append("<notes>");
+			for (String note : notes)
+				out.append(note);
+			out.append("</notes>");
+		}
 		
 		out.append("</" + ROOT_TAG + ">");
 		return out.toString();
@@ -186,6 +210,15 @@ public class AssessmentChangePacket {
 					NativeNode child = children.item(k);
 					if (child.getNodeType() != NativeNode.TEXT_NODE)
 						packet.addDeletion(Field.fromXML((NativeElement)child));
+				}
+			}
+			else if ("notes".equals(node.getNodeName())) {
+				NativeNodeList children = node.getChildNodes();
+				for (int k = 0; k < children.getLength(); k++) {
+					NativeNode child = children.item(k);
+					if ("simpleNote".equals(child.getNodeName()))
+						packet.addSimpleNote(child.getTextContent());
+					//TODO: parse XML notes?
 				}
 			}
 		}

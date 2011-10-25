@@ -28,7 +28,7 @@ public class AssessmentPersistence {
 	private final Assessment target;
 	
 	private ComplexListener<Field> deleteFieldListener;
-	private ComplexListener<PrimitiveField> deletePrimitiveFieldListener;
+	private ComplexListener<PrimitiveField<?>> deletePrimitiveFieldListener;
 	
 	private boolean allowAdd = true;
 	private boolean allowDelete = true;
@@ -53,7 +53,7 @@ public class AssessmentPersistence {
 		this.deleteFieldListener = deleteFieldListener;
 	}
 	
-	public void setDeletePrimitiveFieldListener(ComplexListener<PrimitiveField> deletePrimitiveFieldListener) {
+	public void setDeletePrimitiveFieldListener(ComplexListener<PrimitiveField<?>> deletePrimitiveFieldListener) {
 		this.deletePrimitiveFieldListener = deletePrimitiveFieldListener;
 	}
 	
@@ -162,18 +162,23 @@ public class AssessmentPersistence {
 			}
 		}
 		{
-			Map<Integer, PrimitiveField> existingFields = mapFields(target.getPrimitiveField());
-		
+			/*
+			 * Map by name since the equals method here is based on name...
+			 */
+			Map<String, PrimitiveField> existingFields = new HashMap<String, PrimitiveField>();
+			for (PrimitiveField<?> field : target.getPrimitiveField())
+				existingFields.put(field.getName(), field);
+			
 			for (PrimitiveField sourceField : source.getPrimitiveField()) {
-				if (sourceField.getId() == 0) {
+				PrimitiveField targetField = existingFields.remove(sourceField.getName());
+				if (targetField == null) {
+					sourceField.setId(0); //Should already be 0, but...
 					sourceField.setField(target);
 					//PrimitiveFieldDAO.save(sourceField);
 					target.getPrimitiveField().add(sourceField);
 				}
 				else {
-					PrimitiveField targetField = existingFields.remove(sourceField.getId());
-					if (targetField != null)
-						targetField.setRawValue(sourceField.getRawValue());
+					targetField.setRawValue(sourceField.getRawValue());
 				}
 			}
 			

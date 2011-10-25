@@ -247,8 +247,8 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 						}
 					}
 				});
-				saver.setDeletePrimitiveFieldListener(new ComplexListener<PrimitiveField>() {
-					public void handleEvent(PrimitiveField field) {
+				saver.setDeletePrimitiveFieldListener(new ComplexListener<PrimitiveField<?>>() {
+					public void handleEvent(PrimitiveField<?> field) {
 						try {
 							PrimitiveFieldDAO.deleteAndDissociate(field, session);
 						} catch (PersistentException e) {
