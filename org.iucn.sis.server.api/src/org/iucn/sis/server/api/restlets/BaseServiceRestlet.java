@@ -133,6 +133,7 @@ public abstract class BaseServiceRestlet extends TransactionRestlet {
 	
 	protected void handleUncaughtException(Throwable e, Response response) {
 		response.setStatus(Status.SERVER_ERROR_INTERNAL, e, "Uncaught exception occurred");
+		e.printStackTrace();
 		Debug.println(e);
 	}
 	
