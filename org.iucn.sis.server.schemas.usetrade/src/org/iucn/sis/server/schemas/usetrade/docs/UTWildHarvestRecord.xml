@@ -23,7 +23,73 @@
 							<treeStructure>
 								<defaultStructure>
 									<treeStructures layout="horizontal">
-										
+										<structure>
+											<relatedStructure layout="vertical">
+												<dominantStructures>
+													<structure id="presence" description="Presence">
+														<singleSelect>
+															<option>Extant</option>
+															<option>Possibly Extinct</option>
+															<option>Extinct</option>
+															<option>Presence Uncertain</option>
+															<selected>1</selected>
+														</singleSelect>
+													</structure>
+												</dominantStructures>
+												<dependentStructures>
+													<structure id="formerlyBred" description="Formerly Bred">
+														<booleanUnknown/>
+													</structure>
+												</dependentStructures>
+												<rules>
+													<selectRule>
+														<activateOnIndex>1,2,4</activateOnIndex>
+														<actions>
+															<onTrue>SHOW</onTrue>
+															<onFalse>HIDE</onFalse>
+														</actions>
+													</selectRule>
+												</rules>
+											</relatedStructure>
+										</structure>
+										<structure>
+											<relatedStructure layout="horizontal">
+												<dominantStructures>
+													<structure id="origin" description="Origin">
+														<singleSelect>
+															<option>Native</option>
+															<option>Reintroduced</option>
+															<option>Introduced</option>
+															<option>Prehistorically Introduced</option>
+															<option>Vagrant</option>
+															<option>Origin Uncertain</option>
+															<selected>1</selected>
+														</singleSelect>
+													</structure>
+												</dominantStructures>
+												<dependentStructures>
+													<structure id="seasonality" description="Seasonality">
+														<multipleSelect>
+															<option>Resident</option>
+															<option>Breeding Season</option>
+															<option>Non-Breeding Season</option>
+															<option>Passage</option>
+															<option>Seasonal Occurrence Uncertain</option>
+															<selected>0</selected>
+														</multipleSelect>
+													</structure>
+												</dependentStructures>
+												<rules>
+													<selectRule>
+														<activateOnIndex>5</activateOnIndex>
+														<actions>
+															<onTrue>HIDE</onTrue>
+															<onFalse>SHOW</onFalse>
+														</actions>
+													</selectRule>
+												</rules>
+											</relatedStructure>
+										</structure>
 									</treeStructures>
 								</defaultStructure>
 								<coding name="CountryOccurrence"/>
