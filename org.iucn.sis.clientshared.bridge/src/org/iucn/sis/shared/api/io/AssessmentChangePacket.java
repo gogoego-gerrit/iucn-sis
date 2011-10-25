@@ -35,12 +35,18 @@ public class AssessmentChangePacket {
 		if (field == null)
 			return;
 		
-		if (field.getId() == 0)
-			addAddition(field);
-		else if (field.hasData() || !field.getReference().isEmpty() || !field.getNotes().isEmpty())
+		if (field.getId() == 0) {
+			if (hasData(field))
+				addAddition(field);
+		}
+		else if (hasData(field))
 			addEdit(field);
 		else
 			addDeletion(field);
+	}
+	
+	private boolean hasData(Field field) {
+		return field.hasData() || !field.getReference().isEmpty() || !field.getNotes().isEmpty();
 	}
 	
 	public void addAddition(Field field) {
