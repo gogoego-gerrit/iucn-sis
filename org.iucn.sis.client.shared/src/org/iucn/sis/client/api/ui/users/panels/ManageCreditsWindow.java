@@ -730,8 +730,7 @@ public class ManageCreditsWindow extends BasicWindow implements DrawsLazily {
 		RedListCreditedUserField proxy = new RedListCreditedUserField(field);
 		proxy.setUsers(new ArrayList<Integer>(userIDs));
 		proxy.setOrder(order.toString());
-		if (!userIDs.isEmpty())
-			proxy.setText(null); //Remove any custom text entries.
+		proxy.setText(null); //Remove any custom text entries.
 		//proxy.setText(RedListCreditedUserField.generateText(selectedUsers, order.toString()));
 		
 		packet.addChange(field);
