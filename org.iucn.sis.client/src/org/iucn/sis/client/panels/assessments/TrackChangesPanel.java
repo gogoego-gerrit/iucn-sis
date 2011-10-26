@@ -155,6 +155,8 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 					info.addStyleName("page_assessment_trackChanges_edits");
 					info.add(new Html("<span class=\"page_assessment_trackChanges_edits_user\">" + edit.getUser().getDisplayableName() + "</span>"));
 					info.add(new Html("<span>" + FormattedDate.FULL.getDate(edit.getCreatedDate()) + "</span>"));
+					if (edit.getReason() != null)
+						info.add(new Html("<span>" + edit.getReason() + "</span>"));
 					info.add(bar);
 					
 					container.add(info);
@@ -179,7 +181,10 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 					changes.put(change.getFieldName(), change);
 				}
 			
-				showChanges(changes);
+				if (!changes.isEmpty())
+					showChanges(changes);
+				else
+					WindowUtils.infoAlert("No field changes available for this edit.");
 			}
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Could not load this change, please try again later.");

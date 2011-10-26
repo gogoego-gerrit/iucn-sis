@@ -64,6 +64,8 @@ public class Edit implements Serializable, Comparable<Edit> {
 	}
 	
 	public Edit(String reason) {
+		this.reason = reason;
+		
 		createdDate = new Date();
 		working_set = new java.util.HashSet<WorkingSet>();
 		assessment = new java.util.HashSet<Assessment>();
@@ -171,7 +173,7 @@ public class Edit implements Serializable, Comparable<Edit> {
 		out.append("<" + ROOT_TAG + " id=\"" + getId() + "\" >");
 		out.append(getUser().toBasicXML());
 		out.append(XMLWritingUtils.writeCDATATag("date", Long.toString(getCreatedDate().getTime())));
-		out.append(XMLWritingUtils.writeCDATATag("reason", getReason()));
+		out.append(XMLWritingUtils.writeCDATATag("reason", getReason(), true));
 		out.append("</" + ROOT_TAG + ">");
 		
 		return out.toString();
