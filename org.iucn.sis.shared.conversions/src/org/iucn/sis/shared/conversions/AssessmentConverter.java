@@ -532,7 +532,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		for (final Entry<String, Object> curField : assessData.getDataMap().entrySet()) {
 			//Translate data
-			processField(assessData, report, curField, assessment, user, new ComplexListener<Field>() {
+			processField(assessData, report, user, curField, assessment, user, new ComplexListener<Field>() {
 				public void handleEvent(Field field) {
 					//Translate references
 					for (ReferenceUI curRef : assessData.getReferences(curField.getKey())) {
@@ -626,7 +626,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			field.getNotes().addAll(notes);
 	}
 	
-	private void processField(final AssessmentData assessData, MigrationReport report, Entry<String, Object> curField, Assessment assessment, final User admin, ComplexListener<Field> callback) throws DBException, InstantiationException,
+	private void processField(final AssessmentData assessData, MigrationReport report, User dataMigrationUser, Entry<String, Object> curField, Assessment assessment, final User admin, ComplexListener<Field> callback) throws DBException, InstantiationException,
 			IllegalAccessException, PersistentException {
 		final Field field = new Field(correctFieldName(curField.getKey()), assessment);
 		
@@ -654,7 +654,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				for( int i = 0; i < numStresses.intValue(); i++ ) {
 					List<String> rawData = dataList.subList(subfieldDataSize*i, (subfieldDataSize*(i+1)) );
 					Field subfield = new Field(subfieldName, null);
-					addPrimitiveDataToField(report, field.getName(), subfield, rawData, getLookup(subfieldName));
+					addPrimitiveDataToField(report, dataMigrationUser, field.getName(), subfield, rawData, getLookup(subfieldName));
 					subfields.add(subfield);
 				}
 				
@@ -718,7 +718,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					rawData = slimData.subList(0, 1);
 				}
 					
-				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);	
+				addPrimitiveDataToField(report, dataMigrationUser, curField.getKey(), field, rawData, lookup);	
 			}
 			else if (CanonicalNames.InPlaceEducation.equals(curField.getKey())) {
 				List<String> rawData = (List)curField.getValue();
@@ -889,7 +889,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			else if (CanonicalNames.RedListCriteria.equals(curField.getKey())) {
 				List<String> rawData = (List<String>) (curField.getValue());
-				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);
+				addPrimitiveDataToField(report, dataMigrationUser, curField.getKey(), field, rawData, lookup);
 				
 				RedListCriteriaField proxy = new RedListCriteriaField(field);
 				String value = proxy.getStringPrimitiveField("rlHistoryText");
@@ -938,7 +938,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			else {
 				List<String> rawData = (List<String>) (curField.getValue());
-				addPrimitiveDataToField(report, curField.getKey(), field, rawData, lookup);
+				addPrimitiveDataToField(report, dataMigrationUser, curField.getKey(), field, rawData, lookup);
 			}
 		} else {
 			// It's a classification scheme!
@@ -949,7 +949,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					List<String> dataList = selected.getValue();
 					dataList.add(0, selected.getKey()); //Add the class scheme ID back in
 
-					addPrimitiveDataToField(report, curField.getKey(), subfield, dataList, getLookup(subfield.getName()));
+					addPrimitiveDataToField(report, dataMigrationUser, curField.getKey(), subfield, dataList, getLookup(subfield.getName()));
 					
 					try {
 						addNotesToField(assessData.getType(), assessData.getAssessmentID(), 
@@ -970,7 +970,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 
 					List<String> threatData = dataList.subList(0, 5);
 					
-					addPrimitiveDataToField(report, curField.getKey(), subfield, threatData, getLookup(
+					addPrimitiveDataToField(report, dataMigrationUser, curField.getKey(), subfield, threatData, getLookup(
 							subfield.getName()));
 					
 					try {
@@ -1044,7 +1044,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return name;
 	}
 
-	private void addPrimitiveDataToField(MigrationReport report, String canonicalName, Field field, List<String> rawData,
+	private void addPrimitiveDataToField(MigrationReport report, User user, String canonicalName, Field field, List<String> rawData,
 			Row.Set lookup) throws InstantiationException, IllegalAccessException,
 			DBException {
 		PrimitiveField prim = null;
@@ -1090,7 +1090,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							
 							curPrimitive = curPrimitive.substring(0, 1023);
 							
-							prim = new TextPrimitiveField(prim.getName(), field, curPrimitive);
+							prim = new StringPrimitiveField(prim.getName(), field, curPrimitive);
 						} else
 							prim.setRawValue(curPrimitive);
 					} else if (prim instanceof ForeignKeyPrimitiveField ) {
@@ -1160,8 +1160,14 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 										
 										prim.setValue(new Date());
 										
+										Edit edit = new Edit("Data migration");
+										edit.setUser(user);
+										
 										Notes note = new Notes();
-										note.setValue("Unable to port data '" + curPrimitive + "' because it is not a valid Date format.");
+										note.setEdit(edit);
+										note.setValue("Unable to port data '" + curPrimitive + "' because it is not a valid Date format. #SYSGEN");
+										
+										edit.getNotes().add(note);
 										
 										field.getNotes().add(note);
 										note.setField(field);
@@ -1187,8 +1193,14 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							error(3, report, "NumberFormatException on %s.%s in asm %s: '%s'",
 								field.getName(), prim.getName(), field.getAssessment().getInternalId(), curPrimitive);
 							
+							Edit edit = new Edit("Data migration");
+							edit.setUser(user);
+							
 							Notes note = new Notes();
-							note.setValue("Unable to port data '" + curPrimitive + "' because it is not a number.");
+							note.setEdit(edit);
+							note.setValue("Unable to port data '" + curPrimitive + "' because it is not a number. #SYSGEN");
+							
+							edit.getNotes().add(note);
 							
 							field.getNotes().add(note);
 							note.setField(field);
