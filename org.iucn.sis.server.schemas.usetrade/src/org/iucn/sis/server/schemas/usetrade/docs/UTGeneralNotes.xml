@@ -1,0 +1,10 @@
+<field>
+<canonicalName>UTGeneralNotes</canonicalName>
+<description><![CDATA[General Notes]]></description>
+<classOfService>None</classOfService>
+<structures>
+<structure id="value">
+<richText/>
+</structure>
+</structures>
+</field>

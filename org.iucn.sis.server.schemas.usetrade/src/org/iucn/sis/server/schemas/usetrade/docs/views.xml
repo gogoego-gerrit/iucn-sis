@@ -11,6 +11,7 @@
 						<field id="UTEndUse"/>
 						<field id="UTCaptiveHarvest"/>
 						<field id="UTHarvestTrendComments"/>
+						<field id="UTGeneralNotes"/>
 					</organization>
 				</pageOrganizations>
 			</page>
