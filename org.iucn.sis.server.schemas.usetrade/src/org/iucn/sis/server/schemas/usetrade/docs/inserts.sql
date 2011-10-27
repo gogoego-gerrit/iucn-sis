@@ -1,4 +1,5 @@
 INSERT INTO UTEndUse (name, data_type, number_allowed) VALUES ('value', 'fk_list_primitive_field', '?');
+INSERT INTO UTEndUse (name, data_type, number_allowed) VALUES ('other', 'string_primitive_field', '?');
 INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('0', 'Food - human');
 INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('1', 'Food - animal');
 INSERT INTO UTEndUse_valueLookup (name, label) VALUES ('2', 'Medicine - human & veterinary');

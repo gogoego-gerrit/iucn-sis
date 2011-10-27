@@ -296,7 +296,7 @@
 										</dependentStructures>
 										<rules>
 											<selectRule>
-												<activateOnIndex>18</activateOnIndex>
+												<activateOnIndex>16</activateOnIndex>
 												<actions>
 													<onTrue>SHOW</onTrue>
 													<onFalse>HIDE</onFalse>
