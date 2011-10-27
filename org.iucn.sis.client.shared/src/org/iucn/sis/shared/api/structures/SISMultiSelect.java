@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,7 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
 @SuppressWarnings("deprecation")
 public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> implements DominantStructure<PrimitiveField<List<Integer>>> {
@@ -158,16 +160,21 @@ public class SISMultiSelect extends SISPrimitiveStructure<List<Integer>> impleme
 	public String getData() {
 		final StringBuilder builder = new StringBuilder();
 
+		final List<String> values = new ArrayList<String>();
 		if (list.isVisible()) {
-			for (Iterator<DataListItem> iter = list.getChecked().iterator(); iter.hasNext(); ) {
-				LookupDataValue value = iter.next().getData(LOOKUP);
-				builder.append(value.getID() + (iter.hasNext() ? "," : ""));
+			for (DataListItem item : list.getChecked()) {
+				LookupDataValue value = item.getData(LOOKUP);
+				values.add(value.getID());
 			}
 		} else {
-			for (Iterator<String> iter = checkedItems.iterator(); iter.hasNext(); )
-				builder.append(iter.next() + (iter.hasNext() ? "," : ""));
+			for (String value : checkedItems)
+				values.add(value);
 		}
 
+		Collections.sort(values, new PortableAlphanumericComparator());
+		for (Iterator<String> iter = values.listIterator(); iter.hasNext(); )
+			builder.append(iter.next() + (iter.hasNext() ? "," : ""));
+		
 		String value = builder.toString();
 		
 		return "".equals(value) ? null : value;

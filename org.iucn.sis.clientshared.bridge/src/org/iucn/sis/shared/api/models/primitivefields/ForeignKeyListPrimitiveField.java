@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.models.primitivefields;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.iucn.sis.shared.api.debug.Debug;
@@ -14,6 +15,8 @@ import com.solertium.lwxml.shared.NativeElement;
  */
 public class ForeignKeyListPrimitiveField extends PrimitiveField<List<Integer>> implements
 		java.io.Serializable {
+	
+	private static final long serialVersionUID = 1L;
 
 	private String tableID;
 	private int[] fk_list_primitive_values;
@@ -56,9 +59,12 @@ public class ForeignKeyListPrimitiveField extends PrimitiveField<List<Integer>> 
 	@Override
 	public List<Integer> getValue() {
 		List<Integer> list = new ArrayList<Integer>();
+		if (fk_list_primitive_values == null)
+			return list;
+		
 		for( int cur : fk_list_primitive_values )
 			list.add(new Integer(cur));
-		
+		Collections.sort(list);
 		return list;
 	}
 	
@@ -71,8 +77,8 @@ public class ForeignKeyListPrimitiveField extends PrimitiveField<List<Integer>> 
 	
 	@Override
 	public String getRawValue() {
-		int[] values = getFk_list_primitive_values();
-		if (values == null || values.length == 0)
+		List<Integer> values = getValue();
+		if (values == null || values.isEmpty())
 			return "";
 		
 		StringBuilder str = new StringBuilder();
