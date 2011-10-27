@@ -33,7 +33,7 @@ import ext.ux.theme.slickness.client.Slickness;
 
 public class SimpleSISClient extends SISClientBase {
 	
-	public static ClientUIContainer clientContainer;
+	private ClientUIContainer container;
 	
 	public void loadModule() {
 		instance = this;
@@ -50,18 +50,18 @@ public class SimpleSISClient extends SISClientBase {
 			ThemeManager.register(new Theme(Purple.PURPLE.getId(), Purple.PURPLE.getName(), "css/" + Purple.PURPLE.getFile()));
 			ThemeManager.register(new Theme(Slickness.SLICKNESS.getId(), Slickness.SLICKNESS.getName(), "css/" + Slickness.SLICKNESS.getFile()));
 		}
-
-		clientContainer = new ClientUIContainer();
-		
 		
 		Window.addWindowClosingHandler(new Window.ClosingHandler() {
 			public void onWindowClosing(ClosingEvent event) {
-				if (clientContainer.isLoggedIn())
+				if (container.isLoggedIn())
 					event.setMessage("This action will close SIS Toolkit - all unsaved changes will be lost.");
 			}
 		});
 
-		RootPanel.get().add(clientContainer);
+		container = new ClientUIContainer();
+		container.buildLogin(null);
+		
+		RootPanel.get().add(container);
 		
 		//No server contact, just setup
 		FieldWidgetCache.impl.setFieldParser(new FieldParser());
@@ -82,12 +82,12 @@ public class SimpleSISClient extends SISClientBase {
 	
 	@Override
 	public void buildLogin(String message) {
-		clientContainer.buildLogin(message);
+		container.buildLogin(message);
 	}
 	
 	@Override
 	public void buildPostLogin() {
-		clientContainer.buildPostLogin(currentUser.getFirstName(), currentUser.getLastName(), currentUser
+		container.buildPostLogin(currentUser.getFirstName(), currentUser.getLastName(), currentUser
 				.getAffiliation());
 	}
 	

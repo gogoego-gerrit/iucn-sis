@@ -7,7 +7,9 @@ public class OfflineSimpleSISClient extends SimpleSISClient {
 	@Override
 	public void loadModule() {
 		SISClientBase.iAmOnline = false;
+		//TODO: initialize offline cache here; once done, call super.
+		
 		super.loadModule();
 	}
-
+	
 }

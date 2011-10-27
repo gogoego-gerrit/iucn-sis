@@ -14,6 +14,7 @@ import org.iucn.sis.client.api.caches.ViewCache.EditStatus;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.users.panels.ManageCreditsWindow;
 import org.iucn.sis.client.api.ui.views.SISView;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
@@ -219,7 +220,7 @@ public class DEMToolbar extends ToolBar {
 		item = new Button();
 		item.setIconStyle("icon-attachment");
 		item.setText("Attachments");
-		item.setEnabled(SimpleSISClient.iAmOnline);
+		item.setEnabled(SIS.isOnline());
 		
 		Menu attachmentMenu = new Menu();
 		MenuItem newAttachment = new MenuItem();
@@ -478,7 +479,7 @@ public class DEMToolbar extends ToolBar {
 		mItem.setText("Changes");
 		mItem.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
-				if( SimpleSISClient.iAmOnline ) {
+				//if( SimpleSISClient.iAmOnline ) {
 					TrackChangesPanel panel = new TrackChangesPanel(AssessmentCache.impl.getCurrentAssessment());
 					panel.show();
 					/*final AssessmentChangesPanel panel = new AssessmentChangesPanel();
@@ -494,10 +495,10 @@ public class DEMToolbar extends ToolBar {
 							window.show();	
 						}
 					});*/
-				} else {
+				/*} else {
 					WindowUtils.errorAlert("Not available offline.", "Sorry, this feature is not " +
 							"available offline.");
-				}
+				}*/
 			}
 		});
 

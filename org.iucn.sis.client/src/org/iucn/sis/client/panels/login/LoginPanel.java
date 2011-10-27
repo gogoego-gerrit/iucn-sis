@@ -5,7 +5,6 @@ import org.iucn.sis.client.api.ui.users.panels.AddUserWindow;
 import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
@@ -29,15 +28,11 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
@@ -48,11 +43,15 @@ import com.solertium.util.extjs.login.client.ChangePasswordPanel;
 
 public class LoginPanel extends LayoutContainer {
 
-	private final boolean lockdownCreateNewAccount = SimpleSISClient.iAmOnline;
+	private final boolean lockdownCreateNewAccount = SIS.isOnline();
 
 	private final HTML message;
 	private final TextField<String> userName;
 	private final TextField<String> password;
+	
+	//For offline
+	private final VerticalPanel offlineUpdatePanel;
+	private final HTML offlineUpdateStatus;
 
 	public LoginPanel() {
 		super();
@@ -68,6 +67,13 @@ public class LoginPanel extends LayoutContainer {
 		password = new TextField<String>();
 		password.setFieldLabel("Password");
 		password.setPassword(true);
+		
+		offlineUpdatePanel = new VerticalPanel();
+		offlineUpdatePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		offlineUpdatePanel.addStyleName("dashed-border");
+		offlineUpdatePanel.setWidth("270px");
+		
+		offlineUpdatePanel.add(offlineUpdateStatus = new HTML("Checking update status..."));		
 		
 		drawForm();
 	}
@@ -128,8 +134,8 @@ public class LoginPanel extends LayoutContainer {
 		
 		descriptionPanel.add(ts);
 		
-		if (!SimpleSISClient.iAmOnline) {
-			descriptionPanel.add(new HTML("<div style='margin:5px; margin-top: 20px; margin-bottom:0px;'>" +
+		if (SIS.isOffline()) {
+			descriptionPanel.add(new HTML("<div style='margin: 5px; margin-top: 20px;'>" +
 					"Done with offline data?</div>"));
 			descriptionPanel.add(new Button("Clear data", new ClickHandler() {
 				public void onClick(ClickEvent event) {
@@ -137,33 +143,25 @@ public class LoginPanel extends LayoutContainer {
 					button.setEnabled(false);
 					WindowUtils.confirmAlert("Confirm Deletion of Data", "This will clear all data from the offline version including all assessments and working sets.  This may take a while if you had a lot of data.  Are you sure you want to remove data?", 
 							new WindowUtils.MessageBoxListener() {
-							
-								@Override
-								public void onYes() {
-									final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
-									ndoc.delete(UriBase.getInstance().getOfflineBase() +"/offline/clear", new GenericCallback<String>() {
-									
-										public void onSuccess(String result) {
-											WindowUtils.infoAlert("Success", "All offline data has been removed.  To add in data, please import a working set.");
-											button.setEnabled(true);
-										}
-									
-										public void onFailure(Throwable caught) {
-											WindowUtils.errorAlert(ndoc.getText());
-											button.setEnabled(true);
-										}
-									});
-							
-								}
-							
-								@Override
-								public void onNo() {
+						@Override
+						public void onYes() {
+							final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
+							ndoc.delete(UriBase.getInstance().getOfflineBase() +"/offline/clear", new GenericCallback<String>() {
+								public void onSuccess(String result) {
+									WindowUtils.infoAlert("Success", "All offline data has been removed.  To add in data, please import a working set.");
 									button.setEnabled(true);
-							
 								}
-							}, "Yes, Clear Data", "Cancel");
-					
-			
+								public void onFailure(Throwable caught) {
+									WindowUtils.errorAlert(ndoc.getText());
+									button.setEnabled(true);
+								}
+							});
+						}
+						@Override
+						public void onNo() {
+							button.setEnabled(true);
+						}
+					}, "Yes, Clear Data", "Cancel");
 				}
 			}));
 		}
@@ -381,48 +379,11 @@ public class LoginPanel extends LayoutContainer {
 		LayoutContainer moreWrap = new LayoutContainer();
 		
 		if (!SimpleSISClient.iAmOnline) {
-			final VerticalPanel updateWrapper = new VerticalPanel();
-			updateWrapper.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-			updateWrapper.addStyleName("dashed-border");
-			updateWrapper.setWidth("270px");
-			final HTML updateSummary = new HTML("Checking update status...");
-			final NativeDocument updateDoc = NativeDocumentFactory.newNativeDocument();
-			updateDoc.getAsText(UriBase.getInstance().getSISBase() + "/update/summary", new GenericCallback<String>() {
-				public void onFailure(Throwable caught) {
-					updateSummary.setHTML("<span style=\"color: gray;\"><b>No updates available.</b></span>");
-				}
-
-				public void onSuccess(String result) {
-					String message = updateDoc.getText();
-					updateSummary.setHTML("<span style=\"color: #gray;\"><b>" + message + "</b></span>");
-					Button doUpdate = new Button("Process Updates", new ClickHandler() {
-						public void onClick(ClickEvent event) {
-							WindowUtils.showLoadingAlert("Processing updates ... please wait.");
-							final NativeDocument processUpdatesDoc = NativeDocumentFactory.newNativeDocument();
-							processUpdatesDoc.getAsText(UriBase.getInstance().getSISBase() + "/update", new GenericCallback<String>() {
-								public void onFailure(Throwable caught) {
-									WindowUtils.hideLoadingAlert();
-									Window w = WindowUtils.newWindow("Update Message", null, false, false);
-									w.add(new Html(processUpdatesDoc.getText()));
-									w.show();
-								}
-
-								public void onSuccess(String result) {
-									WindowUtils.hideLoadingAlert();
-									Window w = WindowUtils.newWindow("Update Message", null, false, false);
-									w.add(new Html(processUpdatesDoc.getText()));
-									w.setClosable(false);
-									w.show();
-								}
-							});
-						}
-					});
-					updateWrapper.add(doUpdate);
-				}
-			});
-			updateWrapper.add(updateSummary);
-
-			moreWrap.add(updateWrapper);
+			FieldSet offline = newFieldSet("Offine Status");
+			
+			offline.add(offlineUpdatePanel);
+			
+			formWrapper.add(offline);
 		}
 
 		moreWrap.add(formWrapper);
@@ -440,19 +401,66 @@ public class LoginPanel extends LayoutContainer {
 		
 		return moreWrap;
 	}
+	
+	@Override
+	protected void onAfterLayout() {
+		if (SIS.isOffline())
+			checkForUpdates();
+	}
+	
+	/*
+	 * FIXME: move all of this work to an OfflineCache, then let this happen in OfflineSimpleSISClient. 
+	 * Then, you can load the information in synchronous fashion here.
+	 */
+	private void checkForUpdates() {
+		final NativeDocument updateDoc = NativeDocumentFactory.newNativeDocument();
+		updateDoc.getAsText(UriBase.getInstance().getSISBase() + "/update/summary", new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				offlineUpdateStatus.setHTML("<span style=\"color: gray;\"><b>No updates available.</b></span>");
+			}
 
-	public void draw() {
+			public void onSuccess(String result) {
+				String message = updateDoc.getText();
+				offlineUpdateStatus.setHTML("<span style=\"color: #gray;\"><b>" + message + "</b></span>");
+				Button doUpdate = new Button("Process Updates", new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						WindowUtils.showLoadingAlert("Processing updates ... please wait.");
+						final NativeDocument processUpdatesDoc = NativeDocumentFactory.newNativeDocument();
+						processUpdatesDoc.getAsText(UriBase.getInstance().getSISBase() + "/update", new GenericCallback<String>() {
+							public void onFailure(Throwable caught) {
+								WindowUtils.hideLoadingAlert();
+								Window w = WindowUtils.newWindow("Update Message", null, false, false);
+								w.add(new Html(processUpdatesDoc.getText()));
+								w.show();
+							}
+
+							public void onSuccess(String result) {
+								WindowUtils.hideLoadingAlert();
+								Window w = WindowUtils.newWindow("Update Message", null, false, false);
+								w.add(new Html(processUpdatesDoc.getText()));
+								w.setClosable(false);
+								w.show();
+							}
+						});
+					}
+				});
+				offlineUpdatePanel.add(doUpdate);
+			}
+		});
+	}
+	
+	/*private void draw() {
 		VerticalPanel loginPanel = new VerticalPanel();
 		loginPanel.setWidth("622px");
 		loginPanel.addStyleName("SIS_loginPanel");
 
-		/* TOP PANEL: IMAGE */
+		// TOP PANEL: IMAGE 
 		final Image headerImage = new Image("images/logo-iucn.gif");
 		headerImage.setWidth("89px");
 		headerImage.setHeight("85px");
 		headerImage.addStyleName("SIS_loginHeaderImage");
 
-		/* BOTTOM PANEL: CONTENT */
+		// BOTTOM PANEL: CONTENT 
 		final HorizontalPanel loginContentArea = new HorizontalPanel();
 		loginContentArea.addStyleName("SIS_loginContentArea");
 		loginContentArea.setWidth("622px");
@@ -468,7 +476,7 @@ public class LoginPanel extends LayoutContainer {
 			Debug.println("Error loading build number.");
 		}
 
-		/* Left side of the content area */
+		// Left side of the content area 
 		// Add content to description panel
 		final VerticalPanel descriptionPanel = new VerticalPanel();
 		descriptionPanel.addStyleName("SIS_loginDescription");
@@ -537,7 +545,7 @@ public class LoginPanel extends LayoutContainer {
 			}));
 		}
 		
-		/* Center area */
+		// Center area //
 		
 		final Button login = new Button("Login", new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -548,7 +556,7 @@ public class LoginPanel extends LayoutContainer {
 		});
 		
 
-		/* Right side of the content area */
+		// Right side of the content area 
 		final VerticalPanel loginFields = new VerticalPanel();
 		loginFields.addStyleName("SIS_loginFields");
 		loginFields.setSpacing(6);
@@ -671,18 +679,18 @@ public class LoginPanel extends LayoutContainer {
 		});
 		loginFields.add(resetPassword);
 		
-		/*GoogleAccountsAuthButton b = new GoogleAccountsAuthButton("SIS", GWT.getHostPageBaseURL() + "index.html", new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-			}
-
-			public void onSuccess(final String result) {
-				SimpleSISClient.SimpleSupport.doLogin(result.toString(), "");
-			}
-		});
+//		GoogleAccountsAuthButton b = new GoogleAccountsAuthButton("SIS", GWT.getHostPageBaseURL() + "index.html", new GenericCallback<String>() {
+//			public void onFailure(Throwable caught) {
+//			}
+//
+//			public void onSuccess(final String result) {
+//				SimpleSISClient.SimpleSupport.doLogin(result.toString(), "");
+//			}
+//		});
 
 		// loginFields.add(new HTML(" or ")); // disable Google Accounts for
 		// offline stick
-		// loginFields.add(b);*/
+		// loginFields.add(b);
 
 		// Adding a quick wrapper to center the login fields panel
 		
@@ -746,7 +754,7 @@ public class LoginPanel extends LayoutContainer {
 		loginContentArea.add(wrap);
 
 		add(loginContentArea);
-	}
+	}*/
 	
 	public void setMessage(String messageText) {
 		message.setVisible(messageText != null);

@@ -40,6 +40,14 @@ public class SIS {
 		return "true".equals(com.google.gwt.user.client.Window.Location.getParameter("debug"));
 	}
 	
+	public static boolean isOffline() {
+		return !isOnline();
+	}
+	
+	public static boolean isOnline() {
+		return SISClientBase.iAmOnline;
+	}
+	
 	public static void fetchList(final Collection<String> uriList, final Map<String, GenericCallback<NativeDocument>> listeners) {
 		fetchList(uriList, listeners, null, true);
 	}

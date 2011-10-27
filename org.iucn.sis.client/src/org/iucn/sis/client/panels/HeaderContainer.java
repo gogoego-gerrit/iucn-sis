@@ -379,7 +379,7 @@ public class HeaderContainer extends ContentPanel {
 			options.add(item);
 		}
 		
-		if (SISClientBase.iAmOnline) {
+		if (SIS.isOnline()) {
 			Menu menu = new Menu();
 			
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.DEM_UPLOAD_FEATURE)) {

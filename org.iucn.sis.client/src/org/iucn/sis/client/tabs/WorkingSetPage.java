@@ -11,6 +11,7 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
@@ -308,7 +309,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 	}
 	
 	private void export(final WorkingSet ws) {
-		if (SimpleSISClient.iAmOnline) {
+		if (SIS.isOnline()) {
 			WindowUtils.confirmAlert("Lock Assessments", "Would you like to lock the online version " +
 					"of the draft assessments of the regions " + RegionCache.impl.getRegionNamesAsReadable(ws.getFilter()) + 
 					" for this working set? You can only commit changes to online versions via an " +

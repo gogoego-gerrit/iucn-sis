@@ -7,6 +7,7 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.StateChangeEvent;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.container.StateManager.StateChangeEventType;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.panels.login.LoginPanel;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -35,6 +36,7 @@ import com.solertium.util.extjs.client.WindowUtils;
  * 
  */
 public class ClientUIContainer extends Viewport implements ValueChangeHandler<String> {
+	
 	private LoginPanel loginPanel = null;
 
 	public static BodyContainer bodyContainer = null;
@@ -46,13 +48,12 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 		super();
 		setLayout(new FitLayout());
 		setLayoutOnChange(true);
-		
-		loginPanel = new LoginPanel();
-		
-		buildLogin(null);
 	}
 
 	public void buildLogin(String message) {
+		if (loginPanel == null)
+			loginPanel = new LoginPanel();
+		
 		if (loggedIn == null || loggedIn.booleanValue()) {
 			removeAll();
 			add(loginPanel);
@@ -93,6 +94,10 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 
 		container.add(headerContainer, headerData);
 		container.add(bodyContainer, bodyData);
+		
+		if (SIS.isOffline()) {
+			container.add(new OfflineFooter(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+		}
 		
 		add(container);
 		
