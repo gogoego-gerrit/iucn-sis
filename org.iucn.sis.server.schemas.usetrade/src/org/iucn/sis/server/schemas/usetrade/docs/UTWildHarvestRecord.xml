@@ -16,7 +16,7 @@
 							<number restriction="0-1"/>
 						</structure>
 						<structure id="otherGeographicScope" description="Other">
-							<text/>
+							<narrative/>
 						</structure>
 						<!-- If NOT checked -->
 						<structure id="CountryOccurrence" description="Countries of Occurrence">
@@ -172,7 +172,7 @@
 							</treeStructure>
 						</structure>
 						<structure id="geographicScopeFreeText" description="Free Text">
-							<text/>
+							<narrative/>
 						</structure>
 						<structure id="source" description="Source of harvest from wild">
 							<singleSelect>
@@ -246,19 +246,19 @@
 							<booleanUnknown/>
 						</structure>
 						<structure id="thisConservationBenefitsText" description="Details for conservation benefits for this species">
-							<text/>
+							<narrative/>
 						</structure>
 						<structure id="otherConservationBenefits" description="Conservation Benefits for other species">
 							<booleanUnknown/>
 						</structure>
 						<structure id="otherConservationBenefitsText" description="Details for conservation benefits for other species">
-							<text/>
+							<narrative/>
 						</structure>
 						<structure id="habitatConservationBenefits" description="Conservation Benefits for the habitat">
 							<booleanUnknown/>
 						</structure>
 						<structure id="habitatConservationBenefitsText" description="Details for conservation benefits for the habitat/ecosystem">
-							<text/>
+							<narrative/>
 						</structure>
 						<structure id="UTEndUseRecord" description="End Use">
 							<oneToMany>
@@ -327,7 +327,7 @@
 									</singleSelect>
 								</structure>
 								<structure id="driverDetails" description="Driver details">
-									<text/>
+									<narrative/>
 								</structure>
 							</oneToMany>
 				</structure>

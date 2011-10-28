@@ -91,8 +91,8 @@ INSERT INTO UTEndUseRecord_endUseLookup (name, label) VALUES ('14', 'Sport hunti
 INSERT INTO UTEndUseRecord_endUseLookup (name, label) VALUES ('15', 'Establishing ex-situ production *');
 INSERT INTO UTEndUseRecord_endUseLookup (name, label) VALUES ('16', 'Other (free text)');
 INSERT INTO UTEndUseRecord_endUseLookup (name, label) VALUES ('17', 'Unknown');
-INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('endUseOther', 'text_primitive_field', '?');
-INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('biologicalPart', 'text_primitive_field', '?');
+INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('endUseOther', 'string_primitive_field', '?');
+INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('biologicalPart', 'string_primitive_field', '?');
 INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('scale', 'fk_list_primitive_field', '?');
 INSERT INTO UTEndUseRecord_scaleLookup (name, label) VALUES ('0', 'Local Subsistence - direct use by harvesters');
 INSERT INTO UTEndUseRecord_scaleLookup (name, label) VALUES ('1', 'Local markets/ barter/exchange/ sale');
