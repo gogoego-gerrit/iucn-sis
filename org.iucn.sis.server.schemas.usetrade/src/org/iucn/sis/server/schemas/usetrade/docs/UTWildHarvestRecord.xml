@@ -266,7 +266,7 @@
 									<relatedStructure>
 										<dominantStructures>
 											<structure id="endUse" description="End Use">
-												<multipleSelect>
+												<singleSelect>
 													<option>Food – human</option> 
 													<option>Food – animal</option>
 													<option>Medicine – human and veterinary</option>
@@ -286,7 +286,7 @@
 													<option>Other (free text)</option>
 													<option>Unknown</option>
 													<option>Unset</option>
-												</multipleSelect>
+												</singleSelect>
 											</structure>
 										</dominantStructures>
 										<dependentStructures>
@@ -296,7 +296,7 @@
 										</dependentStructures>
 										<rules>
 											<selectRule>
-												<activateOnIndex>16</activateOnIndex>
+												<activateOnIndex>15</activateOnIndex>
 												<actions>
 													<onTrue>SHOW</onTrue>
 													<onFalse>HIDE</onFalse>
