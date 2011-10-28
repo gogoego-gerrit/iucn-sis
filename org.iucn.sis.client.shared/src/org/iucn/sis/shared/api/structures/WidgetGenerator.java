@@ -81,7 +81,7 @@ public class WidgetGenerator implements CreatesWidget {
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.JUSTIFICATION_STRUCTURE)) {
 			return new SISTextArea(theStructure, "Justification: ", structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.RICH_TEXT_STRUCTURE)) {
-			return new SISRichTextArea(theStructure, description, structID);
+			return new SISRichTextArea(theStructure, description, structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.NOTE_STRUCTURE)) {
 			return new SISHideableNote(theStructure, description, structID);
 		}

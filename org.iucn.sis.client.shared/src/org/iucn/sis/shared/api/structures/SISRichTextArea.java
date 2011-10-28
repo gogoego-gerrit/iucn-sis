@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.structures;
 
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.iucn.sis.client.panels.gwt.richtextarea.RichTextToolbar;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -18,8 +19,40 @@ import com.google.gwt.user.client.ui.RichTextArea;
 import com.google.gwt.user.client.ui.Widget;
 
 public class SISRichTextArea extends SISPrimitiveStructure<String> implements UsesClipboard {
-
-	// private FCKEditor textarea;
+	
+	/*
+	 * Specified by data.get("size").  I explicitly want 
+	 * enumeration here in order to maintain consistency
+	 */
+	private enum NarrativeSize {
+		SMALL("small", "100px"), 
+		MEDIUM("medium", "225px"), 
+		LARGE("large", "450px"),
+		XL("xl", "600px");
+		
+		public static NarrativeSize fromString(String value) {
+			for (NarrativeSize current : NarrativeSize.values())
+				if (current.matches(value))
+					return current;
+			return LARGE; 
+		}
+		
+		private String name, height;
+		
+		private NarrativeSize(String name, String height) {
+			this.name = name;
+			this.height = height;
+		}
+		
+		public String getHeight() {
+			return height;
+		}
+		
+		public boolean matches(String value) {
+			return value != null && name.equals(value.toLowerCase());
+		}
+		
+	}
 
 	private Grid areaPanel;
 	private RichTextArea area;
@@ -27,8 +60,8 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 
 	private String viewOnlyData;
 
-	public SISRichTextArea(String struct, String descript, String structID) {
-		super(struct, descript, structID);
+	public SISRichTextArea(String struct, String descript, String structID, Object data) {
+		super(struct, descript, structID, data);
 		buildContentPanel(Orientation.VERTICAL);
 	}
 
@@ -40,8 +73,6 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 	@Override
 	public void clearData() {
 		viewOnlyData = "";
-		// textarea = new FCKEditor("", description.hashCode()+"", "600px",
-		// "300px", "Default");
 		area.setHTML("");
 	}
 
@@ -54,31 +85,8 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 		clearDisplayPanel();
 		displayPanel.setSize("100%", "100%");
 		displayPanel.add(descriptionLabel);
-		// displayPanel.add(textarea);
 		displayPanel.add(areaPanel);
 		return displayPanel;
-	}
-
-	private Grid createRichText() {
-		area = new RichTextArea();
-		area.ensureDebugId("cwRichText-area");
-		tb = new RichTextToolbar(area);
-		tb.ensureDebugId("cwRichText-toolbar");
-
-		Grid p = new Grid(2, 1);
-		p.setStyleName("cw-RichText");
-		p.setWidget(0, 0, tb);
-		p.setWidget(1, 0, area);
-
-		area.setHeight("450px");
-		area.setWidth("100%");
-		tb.setWidth("100%");
-		p.setWidth("100%");
-		p.setHeight("95%");
-
-		// DOM.setStyleAttribute(p.getElement(), "margin-right", "4px");
-
-		return p;
 	}
 
 	@Override
@@ -89,12 +97,31 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 		return displayPanel;
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
 	public void createWidget() {
 		descriptionLabel = new HTML(description);
-		areaPanel = createRichText();
-		// textarea = new FCKEditor("", description.hashCode()+"", "600px",
-		// "300px", "Default");
+		
+		NarrativeSize size;
+		if (data != null && data instanceof Map)
+			size = NarrativeSize.fromString((String)((Map)data).get("size"));
+		else
+			size = NarrativeSize.LARGE;
+		
+		area = new RichTextArea();
+		area.ensureDebugId("cwRichText-area");
+		area.setHeight(size.getHeight());
+		area.setWidth("100%");
+		
+		tb = new RichTextToolbar(area);
+		tb.ensureDebugId("cwRichText-toolbar");
+		tb.setWidth("100%");
+		
+		areaPanel = new Grid(2, 1);
+		areaPanel.setStyleName("cw-RichText");
+		areaPanel.setWidget(0, 0, tb);
+		areaPanel.setWidget(1, 0, area);
+		areaPanel.setWidth("100%");
+		areaPanel.setHeight("95%");
 	}
 
 	@Override
@@ -134,7 +161,6 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 	@Override
 	public void setData(PrimitiveField<String> field) {
 		String datum = field != null ? field.getValue() : "";
-		Debug.println("In setData for RTA %s - datum is %s", getId(), datum);
 		viewOnlyData = datum.replaceAll("[\\n\\r]", " ").trim();
 		viewOnlyData = FormattingStripper.stripText(viewOnlyData);
 		area.setHTML(viewOnlyData);
