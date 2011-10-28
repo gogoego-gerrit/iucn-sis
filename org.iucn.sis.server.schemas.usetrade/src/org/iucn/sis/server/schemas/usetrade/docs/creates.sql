@@ -17,3 +17,4 @@ CREATE TABLE UTEndUseRecordSubfield (id integer auto_increment primary key, name
 CREATE TABLE UTEndUseRecord_endUseLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE UTEndUseRecord_scaleLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE UTEndUseRecord_driverLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
+CREATE TABLE UTEndUseRecord_significantRiskLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));

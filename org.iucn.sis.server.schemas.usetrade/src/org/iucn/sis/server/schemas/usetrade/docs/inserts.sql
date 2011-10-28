@@ -92,7 +92,7 @@ INSERT INTO UTEndUseRecord_endUseLookup (name, label) VALUES ('15', 'Establishin
 INSERT INTO UTEndUseRecord_endUseLookup (name, label) VALUES ('16', 'Other (free text)');
 INSERT INTO UTEndUseRecord_endUseLookup (name, label) VALUES ('17', 'Unknown');
 INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('endUseOther', 'string_primitive_field', '?');
-INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('biologicalPart', 'string_primitive_field', '?');
+INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('biologicalPart', 'text_primitive_field', '?');
 INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('scale', 'fk_list_primitive_field', '?');
 INSERT INTO UTEndUseRecord_scaleLookup (name, label) VALUES ('0', 'Local Subsistence - direct use by harvesters');
 INSERT INTO UTEndUseRecord_scaleLookup (name, label) VALUES ('1', 'Local markets/ barter/exchange/ sale');
@@ -106,3 +106,8 @@ INSERT INTO UTEndUseRecord_driverLookup (name, label) VALUES ('3', 'Bycatch (whe
 INSERT INTO UTEndUseRecord_driverLookup (name, label) VALUES ('4', 'Minor');
 INSERT INTO UTEndUseRecord_driverLookup (name, label) VALUES ('5', 'Unknown');
 INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('driverDetails', 'text_primitive_field', '?');
+INSERT INTO UTEndUseRecord_significantRiskLookup (name, label) VALUES ('0', 'Yes');
+INSERT INTO UTEndUseRecord_significantRiskLookup (name, label) VALUES ('1', 'Possibly');
+INSERT INTO UTEndUseRecord_significantRiskLookup (name, label) VALUES ('2', 'No');
+INSERT INTO UTEndUseRecord_significantRiskLookup (name, label) VALUES ('3', 'Unknown');
+INSERT INTO UTEndUseRecordSubfield (name, data_type, number_allowed) VALUES ('significantRisk', 'fk_primitive_field', '?');

@@ -306,7 +306,7 @@
 									</relatedStructure>
 								</structure>
 								<structure id="biologicalPart" description="Biological part and/or product">
-									<text/>
+									<narrative/>
 								</structure>
 								<structure id="scale" description="End use scale">
 									<multipleSelect>
@@ -328,6 +328,14 @@
 								</structure>
 								<structure id="driverDetails" description="Driver details">
 									<narrative/>
+								</structure>
+								<structure id="significantRisk" description="Is harvest for this end use a significant risk to the species survival?">
+									<singleSelect>
+										<option>Yes</option>
+										<option>Possibly</option>
+										<option>No</option>
+										<option>Unknown</option>
+									</singleSelect>
 								</structure>
 							</oneToMany>
 				</structure>
