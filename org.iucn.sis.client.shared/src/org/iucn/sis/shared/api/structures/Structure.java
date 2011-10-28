@@ -159,7 +159,7 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 	 */
 	public Widget generate() {
 		// return WidgetGenerator.createPanel(this);
-		addTitleToLabel();
+		// addTitleToLabel();
 
 		if (!isVisible) {
 			hideWidgets();
@@ -183,7 +183,7 @@ public abstract class Structure<T> implements DisplayStructure<T, Field> {
 	}
 
 	public Widget generateViewOnly() {
-		addTitleToLabel();
+		//addTitleToLabel();
 
 		if (!isVisible) {
 			hideWidgets();
