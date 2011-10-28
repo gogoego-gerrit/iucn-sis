@@ -61,7 +61,7 @@ public class SISTextArea extends SISPrimitiveStructure<String> implements UsesCl
 	public SISTextArea(String struct, String descript, String structID, Object data) {
 		super(struct, descript, structID, data);
 		// displayPanel = new VerticalPanel();
-		buildContentPanel(Orientation.HORIZONTAL);
+		buildContentPanel(Orientation.VERTICAL);
 	}
 	
 	@Override
