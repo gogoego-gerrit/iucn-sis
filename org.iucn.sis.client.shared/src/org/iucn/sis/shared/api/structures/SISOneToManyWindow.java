@@ -94,10 +94,10 @@ public class SISOneToManyWindow extends BasicWindow {
 		this.editingArea.setScrollMode(Scroll.AUTO);
 		
 		this.fullNameDisplay = new Html();
+		
 		this.center = new LayoutContainer(new FillLayout());
 		this.center.setLayoutOnChange(true);
-		
-		center.add(completeEditingArea = createEditingArea());
+		this.center.add(completeEditingArea = createEditingArea());
 		
 		final ContentPanel listing = new ContentPanel();
 		listing.setBodyBorder(false);
@@ -264,7 +264,10 @@ public class SISOneToManyWindow extends BasicWindow {
 			}
 		}));
 		
-		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		final BorderLayout layout = new BorderLayout();
+		layout.setContainerStyle("whiteBackground");
+		
+		final LayoutContainer container = new LayoutContainer(layout);
 		container.add(bar, new BorderLayoutData(LayoutRegion.NORTH, 25, 25, 25));
 		container.add(editingArea, new BorderLayoutData(LayoutRegion.CENTER));
 		container.add(bottom, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));

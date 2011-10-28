@@ -110,7 +110,7 @@ body,td,div,input,p,select,input,button {
 }
 
 .bold {
-	font-weight: bold;
+	font-weight: bold !important;
 }
 
 .color-dark-blue {
@@ -1274,6 +1274,16 @@ SIS_Header_Summary_Title {
 .SIS_dataBrowserCustomText_h2, .SIS_dataBrowserCustomText_h3, 
 .SIS_dataBrowserCustomText_warning, .SIS_dataBrowserCustomText_information {
 	background-color: #E8F3FF !important;
+}
+
+.SIS_oneToManyDescription {
+	font-weight: bold !important;	
+}
+
+.SIS_oneToMany_sideBar {
+	border-left: 5px solid #CEDCE9 !important;
+	margin-left: 5px !important;
+	padding: 2px !important;
 }
 
 /******************* TAXOMATIC MODULE ******************/

@@ -18,6 +18,7 @@ import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
 /**
@@ -34,6 +35,7 @@ public class SISOneToMany extends Structure<Field> {
 
 	public SISOneToMany(String struct, String descript, String structID, DisplayData defaultStructure) {
 		super(struct, descript, structID);
+		
 		buildContentPanel(Orientation.VERTICAL);
 		
 		oneToMany = new SISOneToManyWindow(descript, defaultStructure);
@@ -42,6 +44,14 @@ public class SISOneToMany extends Structure<Field> {
 				updateRecordCount();
 			}
 		});
+	}
+	
+	@Override
+	protected void buildContentPanel(Orientation style) {
+		super.buildContentPanel(style);
+		
+		displayPanel.addStyleName("SIS_oneToMany_sideBar");
+		((VerticalPanel)displayPanel).setSpacing(10);
 	}
 	
 	@Override
@@ -191,7 +201,7 @@ public class SISOneToMany extends Structure<Field> {
 	@Override
 	public void createWidget() {
 		descriptionLabel = new HTML(description);
-		descriptionLabel.addStyleName("bold");
+		descriptionLabel.addStyleName("SIS_oneToManyDescription");
 		
 		recordCount = new HTML();
 	}
