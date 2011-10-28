@@ -3,8 +3,8 @@
 <description><![CDATA[General Notes]]></description>
 <classOfService>None</classOfService>
 <structures>
-<structure id="value" size="medium">
-<richText/>
+<structure id="value">
+<richText size="large"/>
 </structure>
 </structures>
 </field>

@@ -1939,6 +1939,7 @@ SIS_Header_Summary_Title {
 .cw-RichText {
   border: 1px solid #BBBBBB;
   border-spacing: 0px;
+  background-color: #FFF;
 }
 
 /* SIS TAB PANEL AND TABS */

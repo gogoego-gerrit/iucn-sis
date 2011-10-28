@@ -25,16 +25,17 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 	 * enumeration here in order to maintain consistency
 	 */
 	private enum NarrativeSize {
-		SMALL("small", "100px"), 
-		MEDIUM("medium", "225px"), 
-		LARGE("large", "450px"),
-		XL("xl", "600px");
+		SMALL("small", "50px"), 
+		MEDIUM("medium", "100px"), 
+		LARGE("large", "225px"),
+		XL("xl", "450px"),
+		XXL("xxl", "600px");
 		
 		public static NarrativeSize fromString(String value) {
 			for (NarrativeSize current : NarrativeSize.values())
 				if (current.matches(value))
 					return current;
-			return LARGE; 
+			return XL; 
 		}
 		
 		private String name, height;
@@ -105,7 +106,7 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 		if (data != null && data instanceof Map)
 			size = NarrativeSize.fromString((String)((Map)data).get("size"));
 		else
-			size = NarrativeSize.LARGE;
+			size = NarrativeSize.XL;
 		
 		area = new RichTextArea();
 		area.ensureDebugId("cwRichText-area");
