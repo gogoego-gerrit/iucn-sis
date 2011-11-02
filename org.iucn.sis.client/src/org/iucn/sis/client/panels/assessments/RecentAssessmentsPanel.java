@@ -138,7 +138,7 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 					}
 					public void onSuccess(Taxon result) {
 						WindowUtils.hideLoadingAlert();
-						StateManager.impl.setState(result, assessment);
+						StateManager.impl.setState(null, result, assessment);
 					}
 				});
 				

@@ -59,6 +59,7 @@ public class ViewCache {
 		currentViewMap = schemaToViews.get(schema);
 		if (currentView != null)
 			currentView.resetCurPage();
+		currentView = null;
 		currentSchema = schema;	
 	}
 
