@@ -28,6 +28,7 @@ INSERT INTO UTNatlCommercialValue (name, data_type, number_allowed) VALUES ('val
 INSERT INTO UTIntlCommercialValue (name, data_type, number_allowed) VALUES ('value', 'boolean_unknown_primitive_field', '?');
 INSERT INTO UTGeneralNotes (name, data_type, number_allowed) VALUES ('value', 'text_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('dateOfHarvest', 'date_primitive_field', '?');
+INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('recordDate', 'string_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('isTotalSpeciesRange', 'boolean_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('percentGlobalRange', 'float_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('otherGeographicScope', 'text_primitive_field', '?');

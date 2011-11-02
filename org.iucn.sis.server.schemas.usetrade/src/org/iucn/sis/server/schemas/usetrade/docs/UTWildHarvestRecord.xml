@@ -8,6 +8,9 @@
 		</structure>
 		<structure description="Detailed Wild Harvest">
 			<oneToMany>
+						<structure id="recordDate" description="Date of harvest information">
+							<text />
+						</structure>
 						<structure id="isTotalSpeciesRange" description="Total Species Range?">
 							<boolean />
 						</structure>
