@@ -239,13 +239,8 @@
 								<option>Unknown</option>
 							</singleSelect>
 						</structure>
-<<<<<<< HEAD
-						<structure id="documentation" description="Amount and/or trends (free text stating units, method of calculating amounts and trends, single or multiple harvest and time periods for harvest data) + references.">
-							<richText size="medium"/>	
-=======
 						<structure id="documentation" size="medium" description="Free text stating method of calculating amounts and trends, single or multiple harvest, and time periods for harvest data + references">
-							<richText/>	
->>>>>>> cbfa997... Field description changes for Use/Trade
+							<richText/>
 						</structure>
 						<structure id="thisConservationBenefits" description="Conservation Benefits for this species">
 							<booleanUnknown/>
