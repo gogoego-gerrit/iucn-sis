@@ -1,9 +1,9 @@
 <field>
 <canonicalName>UTCaptiveHarvest</canonicalName>
-<description><![CDATA[Harvest from captive/cultivated sources]]></description>
+<description><![CDATA[Is there harvest from captive/cultivated sources of this species?]]></description>
 <classOfService>None</classOfService>
 <structures>
-<structure description="Is there harvest from captive/cultivated sources of this species?" id="value">
+<structure id="value">
 <booleanUnknown/>
 </structure>
 </structures>

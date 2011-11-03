@@ -15,7 +15,7 @@
 						<structure id="percentGlobalRange" description="% of global range/population (as decimal)">
 							<number restriction="0-1"/>
 						</structure>
-						<structure id="otherGeographicScope" description="Other">
+						<structure id="otherGeographicScope" description="Geographic location of harvest (if relevant)">
 							<narrative/>
 						</structure>
 						<!-- If NOT checked -->
@@ -239,8 +239,13 @@
 								<option>Unknown</option>
 							</singleSelect>
 						</structure>
+<<<<<<< HEAD
 						<structure id="documentation" description="Amount and/or trends (free text stating units, method of calculating amounts and trends, single or multiple harvest and time periods for harvest data) + references.">
 							<richText size="medium"/>	
+=======
+						<structure id="documentation" size="medium" description="Free text stating method of calculating amounts and trends, single or multiple harvest, and time periods for harvest data + references">
+							<richText/>	
+>>>>>>> cbfa997... Field description changes for Use/Trade
 						</structure>
 						<structure id="thisConservationBenefits" description="Conservation Benefits for this species">
 							<booleanUnknown/>
