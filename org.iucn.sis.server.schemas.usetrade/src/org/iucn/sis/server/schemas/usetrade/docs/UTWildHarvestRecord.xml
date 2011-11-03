@@ -239,6 +239,33 @@
 								<option>Unknown</option>
 							</singleSelect>
 						</structure>
+						<structure>
+							<relatedStructure layout="horizontal">
+								<dominantStructures>
+									<structure id="harvestLevel" description="Harvest Level">
+										<number/>
+									</structure>
+								</dominantStructures>
+								<dependentStructures>
+									<structure id="harvestLevelUnits" description="Units">
+										<singleSelect>
+											<option>Volume (cubic metres)</option>
+											<option>Weight (kgs)</option>
+											<option>Number of individuals</option>
+										</singleSelect>
+									</structure>
+								</dependentStructures>
+								<rules>
+									<contentRule>
+										<activateOnContent></activateOnContent>
+										<actions>
+											<onTrue>HIDE</onTrue>
+											<onFalse>SHOW</onFalse>
+										</actions>
+									</contentRule>
+								</rules>
+							</relatedStructure>
+						</structure>
 						<structure id="documentation" size="medium" description="Free text stating method of calculating amounts and trends, single or multiple harvest, and time periods for harvest data + references">
 							<richText/>
 						</structure>

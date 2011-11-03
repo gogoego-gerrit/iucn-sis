@@ -63,6 +63,11 @@ INSERT INTO UTWildHarvestRecord_relativeHarvestLookup (name, label) VALUES ('1',
 INSERT INTO UTWildHarvestRecord_relativeHarvestLookup (name, label) VALUES ('2', 'Medium to high (approx 50-89%)');
 INSERT INTO UTWildHarvestRecord_relativeHarvestLookup (name, label) VALUES ('3', 'Very high (approx 90-100%)');
 INSERT INTO UTWildHarvestRecord_relativeHarvestLookup (name, label) VALUES ('4', 'Unknown');
+INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('harvestLevel', 'float_primitive_field', '?');
+INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('harvestLevelUnits', 'fk_primitive_field', '?');
+INSERT INTO UTWildHarvestRecord_harvestLevelUnitsLookup (name, label) VALUES ('0', 'Volume (cubic metres)');
+INSERT INTO UTWildHarvestRecord_harvestLevelUnitsLookup (name, label) VALUES ('1', 'Weight (kgs)');
+INSERT INTO UTWildHarvestRecord_harvestLevelUnitsLookup (name, label) VALUES ('2', 'Number of individuals');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('documentation', 'text_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('thisConservationBenefits', 'boolean_unknown_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('thisConservationBenefitsText', 'text_primitive_field', '?');
