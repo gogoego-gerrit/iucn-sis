@@ -11,12 +11,26 @@
 						<structure id="recordDate" description="Date of harvest information">
 							<text />
 						</structure>
-						<structure id="isTotalSpeciesRange" description="Total Species Range?">
-							<boolean />
-						</structure>
-						<!--  If checked --> 
-						<structure id="percentGlobalRange" description="% of global range/population (as decimal)">
-							<number restriction="0-1"/>
+						<structure>
+							<relatedStructure>
+								<dominantStructures>
+									<structure id="isTotalSpeciesRange" description="Total Species Range?">
+										<boolean />
+									</structure>
+								</dominantStructures>
+								<dependentStructures>
+									<structure id="percentGlobalRange" description="% of global range/population (as decimal)">
+										<number restriction="0-1"/>
+									</structure>		
+								</dependentStructures>
+								<rules>
+									<booleanRule>
+										<activateOnRule>false</activateOnRule>
+										<onTrue>HIDE</onTrue>
+										<onFalse>SHOW</onFalse>
+									</booleanRule>
+								</rules>
+							</relatedStructure>
 						</structure>
 						<structure id="otherGeographicScope" description="Geographic location of harvest (if relevant)">
 							<narrative/>
