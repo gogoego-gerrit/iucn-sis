@@ -251,14 +251,18 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						String oldGen = Replacer.stripWhitespace(criteria.getGeneratedCriteria());
 						String newGen = proxy.getCriteriaMet();
 						if (!criteria.isManual() && !oldGen.equals(newGen)) {
+							String version = parameters.getFirstValue("catcritconflictwinner", "v2");
+							
 							if (critField == null) {
 								critField = new Field(org.iucn.sis.shared.api.utils.CanonicalNames.RedListCriteria, assessment);
 								criteria = new RedListCriteriaField(critField);
 							}
 							
 							criteria.setManual(true);
-							criteria.setManualCategory(proxy.getCategory());
-							criteria.setManualCriteria(proxy.getCriteriaMet());
+							if ("v2".equals(version)) {
+								criteria.setManualCategory(proxy.getCategory());
+								criteria.setManualCriteria(proxy.getCriteriaMet());
+							}
 							
 							Edit edit = new Edit("Data migration");
 							edit.setUser(user);
@@ -269,7 +273,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 								criteria.getGeneratedCriteria() + " does not match " + 
 								"SIS 2's generated criteria of " + proxy.getCategory() + " " + 
 								proxy.getCriteriaMet() + ". This assessment has been changed " +
-								"from generated to manual to reflect these changes. #SYSGEN");
+								"from generated to manual to reflect these changes." + 
+								("v1".equals(version) ? "The cat/crit has been set to that of SIS 1" : 
+								"The cat/crit has been set to that of SIS 2. ")
+								+ "#SYSGEN");
 							note.setEdit(edit);
 							edit.getNotes().add(note);
 							
