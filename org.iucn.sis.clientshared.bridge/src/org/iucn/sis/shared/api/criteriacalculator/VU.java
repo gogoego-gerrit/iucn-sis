@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.criteriacalculator;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 
@@ -57,7 +58,7 @@ class VU extends Classification {
 	public final String[] factorsC = new String[] { Factors.populationSize, Factors.populationDeclineGenerations3,
 			Factors.populationDecline, Factors.subpopulationSize, Factors.populationFluctuation };
 	public final String[] factorsD1 = new String[] { Factors.populationSize };
-	public final String[] factorsD2 = new String[] { Factors.areaRestricted };
+	public final String[] factorsD2 = new String[] { Factors.areaRestricted, Factors.locations };
 	public final String[] factorsE = new String[] { Factors.extinctionYears100 };
 
 	public VU() {
@@ -110,11 +111,18 @@ class VU extends Classification {
 		return analysis;
 	}
 
-	public CriteriaResult d2(Range ar) {
+	public CriteriaResult d2(Map<String, Range> map) {
+		Range ar = map.get(Factors.areaRestricted);
+		
+		Range loc = map.get(Factors.locations);
+		loc = Range.lessthanequal(loc, 5);
+		
+		Range fin = Range.independentOR(ar, loc);
+		
 		CriteriaResult analysis = new CriteriaResult(name, "d2");
-		d2 = ar;
-		analysis.range = d2;
-		if (isNonZero(d2))
+		d2 = fin;
+		analysis.range = fin;
+		if (isNonZero(fin))
 			analysis.setCriteriaSet(new CriteriaSet(name, "D2"));
 		
 		return analysis;
