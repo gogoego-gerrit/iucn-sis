@@ -207,3 +207,11 @@ CREATE VIEW $schema.vw_workingsettaxon AS
   JOIN public.working_set_taxon wst ON vwf.taxonid = wst.taxonid
   JOIN public.working_set ws ON ws.id = wst.working_setid;
 GRANT SELECT ON $schema.vw_workingsettaxon TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_common_name;
+CREATE VIEW $schema.vw_common_name AS
+  SELECT taxonid, name
+  FROM common_name
+  WHERE principal = true
+  GROUP BY name, taxonid;
+GRANT SELECT ON $schema.vw_common_name TO $user;
