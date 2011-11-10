@@ -104,7 +104,7 @@ INSERT INTO ConservationActionsDocumentation (name, data_type, number_allowed) V
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('195CFE988FF878099E8B9818E43764FC', '(root)', 1, false, '195CFE988FF878099E8B9818E43764FC', 'Antarctic');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('AQ', '195CFE988FF878099E8B9818E43764FC', 2, true, 'AQ', 'Antarctica');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BV', '195CFE988FF878099E8B9818E43764FC', 2, true, 'BV', 'Bouvet Island');
-INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('TF', '195CFE988FF878099E8B9818E43764FC', 2, true, 'TF', 'French Southern Territories (the)');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('TF', '195CFE988FF878099E8B9818E43764FC', 2, true, 'TF', 'French Southern Territories');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('ASP-OO', 'TF', 3, true, 'ASP-OO', 'Amsterdam-St. Paul Is.');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('CRZ-OO', 'TF', 3, true, 'CRZ-OO', 'Crozet Is.');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('KEG-OO', 'TF', 3, true, 'KEG-OO', 'Kerguelen');
@@ -120,8 +120,12 @@ INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, descr
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BS', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'BS', 'Bahamas');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BB', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'BB', 'Barbados');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BM', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'BM', 'Bermuda');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BQ', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'BQ', 'Bonaire, Sint Eustatius and Saba');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('NLA-SE', 'BQ', 3, true, 'NLA-SE', 'Sint Eustatius');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('NLA-SA', 'BQ', 3, true, 'NLA-SA', 'Saba');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('KY', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'KY', 'Cayman Islands');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('CU', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'CU', 'Cuba');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('CW', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'CW', 'Curaçao');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('DM', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'DM', 'Dominica');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('DO', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'DO', 'Dominican Republic');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('GD', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'GD', 'Grenada');
@@ -132,16 +136,16 @@ INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, descr
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('MS', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'MS', 'Montserrat');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('AN', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'AN', 'Netherlands Antilles');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('NLA-BO', 'AN', 3, true, 'NLA-BO', 'Bonaire');
-INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('NLA-CU', 'AN', 3, true, 'NLA-CU', 'Curaçao');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('LEE-NL', 'AN', 3, true, 'LEE-NL', 'Netherlands Leeward Is.');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('PR', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'PR', 'Puerto Rico');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('HAI-NI', 'PR', 3, true, 'HAI-NI', 'Navassa I.');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('PUE-OO', 'PR', 3, true, 'PUE-OO', 'Puerto Rico (main island)');
-INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BL', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'BL', 'Saint Barthélémy');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BL', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'BL', 'Saint Barthélemy');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('KN', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'KN', 'Saint Kitts and Nevis');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('LC', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'LC', 'Saint Lucia');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('MF', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'MF', 'Saint Martin (French part)');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('VC', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'VC', 'Saint Vincent and the Grenadines');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SX', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'SX', 'Sint Maarten (Dutch part)');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('TT', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'TT', 'Trinidad and Tobago');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('TC', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'TC', 'Turks and Caicos Islands');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('VG', '9B71797473558E6BF3FDA9E9F0A7DE44', 2, true, 'VG', 'Virgin Islands, British');
@@ -343,7 +347,7 @@ INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, descr
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SAS-OO', 'CA', 3, true, 'SAS-OO', 'Saskatchewan');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('YUK-OO', 'CA', 3, true, 'YUK-OO', 'Yukon');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('PM', '5FFEC2D87AB548202F8B549AF380913A', 2, true, 'PM', 'Saint Pierre and Miquelon');
-INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('US', '5FFEC2D87AB548202F8B549AF380913A', 2, true, 'US', 'USA');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('US', '5FFEC2D87AB548202F8B549AF380913A', 2, true, 'US', 'United States');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('ALA-OO', 'US', 3, true, 'ALA-OO', 'Alabama');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('ASK-OO', 'US', 3, true, 'ASK-OO', 'Alaska');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('ALU-OO', 'US', 3, true, 'ALU-OO', 'Aleutian Is.');
@@ -528,7 +532,7 @@ INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, descr
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('AGW-SE', 'AR', 3, true, 'AGW-SE', 'Santiago del Estero');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('AGS-TF', 'AR', 3, true, 'AGS-TF', 'Tierra del Fuego');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('AGW-TU', 'AR', 3, true, 'AGW-TU', 'Tucumán');
-INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BO', 'AAB422ACB3D2334A6DECA0E1495745C2', 2, true, 'BO', 'Bolivia');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BO', 'AAB422ACB3D2334A6DECA0E1495745C2', 2, true, 'BO', 'Bolivia, Plurinational States of');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BR', 'AAB422ACB3D2334A6DECA0E1495745C2', 2, true, 'BR', 'Brazil');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BZN-AC', 'BR', 3, true, 'BZN-AC', 'Acre');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('BZE-AL', 'BR', 3, true, 'BZE-AL', 'Alagoas');
@@ -590,7 +594,7 @@ INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, descr
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('PE', 'AAB422ACB3D2334A6DECA0E1495745C2', 2, true, 'PE', 'Peru');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SR', 'AAB422ACB3D2334A6DECA0E1495745C2', 2, true, 'SR', 'Suriname');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('UY', 'AAB422ACB3D2334A6DECA0E1495745C2', 2, true, 'UY', 'Uruguay');
-INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('VE', 'AAB422ACB3D2334A6DECA0E1495745C2', 2, true, 'VE', 'Venezuela');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('VE', 'AAB422ACB3D2334A6DECA0E1495745C2', 2, true, 'VE', 'Venezuela, Bolivarian Republic of');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('LEE-AV', 'VE', 3, true, 'LEE-AV', 'Aves I.');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('VEN-OO', 'VE', 3, true, 'VEN-OO', 'Venezuela (mainland)');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('VNA-OO', 'VE', 3, true, 'VNA-OO', 'Venezuelan Antilles');
@@ -718,7 +722,7 @@ INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, descr
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('NG', '0A82AE7EB185E8735F84D7F8D83543F5', 2, true, 'NG', 'Nigeria');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('RE', '0A82AE7EB185E8735F84D7F8D83543F5', 2, true, 'RE', 'Réunion');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('RW', '0A82AE7EB185E8735F84D7F8D83543F5', 2, true, 'RW', 'Rwanda');
-INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SH', '0A82AE7EB185E8735F84D7F8D83543F5', 2, true, 'SH', 'Saint Helena');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SH', '0A82AE7EB185E8735F84D7F8D83543F5', 2, true, 'SH', 'Saint Helena, Ascension and Tristan da Cunha');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('ASC-OO', 'SH', 3, true, 'ASC-OO', 'Ascension');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('STH-OO', 'SH', 3, true, 'STH-OO', 'Saint Helena (main island)');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('TDC-OO', 'SH', 3, true, 'TDC-OO', 'Tristan da Cunha');
@@ -742,6 +746,7 @@ INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, descr
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('TVL-NW', 'ZA', 3, true, 'TVL-NW', 'North-West Province');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('CPP-NC', 'ZA', 3, true, 'CPP-NC', 'Northern Cape Province');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('CPP-WC', 'ZA', 3, true, 'CPP-WC', 'Western Cape');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SS', '0A82AE7EB185E8735F84D7F8D83543F5', 2, true, 'SS', 'South Sudan');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SD', '0A82AE7EB185E8735F84D7F8D83543F5', 2, true, 'SD', 'Sudan');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SZ', '0A82AE7EB185E8735F84D7F8D83543F5', 2, true, 'SZ', 'Swaziland');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('TZ', '0A82AE7EB185E8735F84D7F8D83543F5', 2, true, 'TZ', 'Tanzania, United Republic of');
