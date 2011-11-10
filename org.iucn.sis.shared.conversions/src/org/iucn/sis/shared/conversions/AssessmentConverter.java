@@ -1050,6 +1050,20 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		return name;
 	}
+	
+	/**
+	 * Perform any corrections or changes to lookup codes 
+	 * from SIS 1 to SIS 2, particularly for classification 
+	 * schemes.
+	 * @param code
+	 * @return
+	 */
+	private String correctCode(String code) {
+		if ("NLA-CU".equals(code))
+			return "CW";
+		
+		return code;
+	}
 
 	private void addPrimitiveDataToField(MigrationReport report, User user, String canonicalName, Field field, List<String> rawData,
 			Row.Set lookup) throws InstantiationException, IllegalAccessException,
@@ -1246,8 +1260,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 //		String table = canonicalName + "_" + name + "Lookup";
 		
 		for( Row row : getLookup(libraryTable).getSet() ) {
-			if (row.get("code") != null) { 
-				if (value.equalsIgnoreCase(row.get("code").getString()))
+			if (row.get("code") != null) {
+				if (correctCode(value).equalsIgnoreCase(row.get("code").getString()))
 					return row.get("id").getInteger();
 			} else if( value.equalsIgnoreCase(row.get("label").getString()) || 
 					value.equalsIgnoreCase( Integer.toString((Integer.parseInt(
