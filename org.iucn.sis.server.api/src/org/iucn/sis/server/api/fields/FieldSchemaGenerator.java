@@ -165,11 +165,7 @@ public class FieldSchemaGenerator {
 				else {
 					if (tableName.endsWith("Subfield"))
 						tableName = tableName.substring(0, tableName.lastIndexOf("Subfield"));
-					//FIXME: this one's obvious...
-					if ("UseTrade".equals(tableName))
-						tableName += "Details_" + name + "Lookup";
-					else
-						tableName += "_" + name + "Lookup";
+					tableName += "_" + name + "Lookup";
 				}
 				
 				final Map<Integer, String> mapping = loadLookup(tableName);

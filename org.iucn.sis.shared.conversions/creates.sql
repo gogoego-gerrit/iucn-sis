@@ -83,7 +83,7 @@ CREATE TABLE InPlaceLandWaterProtectionSitesIdentified_valueLookup(id integer au
 CREATE TABLE InPlaceLandWaterProtectionInPA (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE InPlaceLandWaterProtectionInPA_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE InPlaceLandWaterProtectionPercentProtected (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE InPlaceLandWaterProtectionPercentProtected_valueLookup (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE InPlaceLandWaterProtectionPercentProtected_valueLookup (id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE InPlaceLandWaterProtectionAreaPlanned (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE InPlaceLandWaterProtectionAreaPlanned_valueLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE InPlaceLandWaterProtectionInvasiveControl (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
@@ -267,7 +267,7 @@ CREATE TABLE UseTradeDetails_sourceLookup(id integer auto_increment primary key,
 CREATE TABLE UseTradeDetails_formRemovedLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE UseTradeDetails_unitsLookup(id integer auto_increment primary key, name varchar(255), label varchar(255));
 CREATE TABLE UseTradeDetails (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
-CREATE TABLE UseTradeSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
+CREATE TABLE UseTradeDetailsSubfield (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE UseTradeDocumentation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE UseTradeNoInformation (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));
 CREATE TABLE WaterBreeding (id integer auto_increment primary key, name varchar(255), data_type varchar(255), number_allowed varchar(255));

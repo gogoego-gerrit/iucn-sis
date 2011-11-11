@@ -94,8 +94,10 @@ public class SISOneToMany extends Structure<Field> {
 		if (field == null) {
 			field = new Field();
 			field.setName(getId());
-			field.setParent(parent);
-			parent.getFields().add(field);
+			if (parent != null) {
+				field.setParent(parent);
+				parent.getFields().add(field);
+			}
 		}
 		
 		final List<StructureHolder> unsaved = new ArrayList<StructureHolder>();
@@ -108,7 +110,7 @@ public class SISOneToMany extends Structure<Field> {
 		}
 		
 		for (StructureHolder cur : unsaved) {
-			Field subfield = new Field(field.getName() + "Subfield", field.getAssessment());
+			Field subfield = new Field(field.getName() + "Subfield", null);
 			subfield.setParent(field);
 			
 			cur.getStructure().save(field, subfield);

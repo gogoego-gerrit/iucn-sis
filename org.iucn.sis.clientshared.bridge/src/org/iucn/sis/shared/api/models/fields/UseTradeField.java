@@ -4,6 +4,8 @@ import org.iucn.sis.shared.api.models.Field;
 
 public class UseTradeField extends ProxyField {
 	
+	public static final String FIELD_NAME = "UseTradeDetailsSubfield";
+	
 	public static final String PURPOSE_KEY = "purpose";
 	public static final String SOURCE_KEY = "source";
 	public static final String FORM_REMOVED_KEY = "formRemoved";
@@ -17,10 +19,12 @@ public class UseTradeField extends ProxyField {
 
 	public UseTradeField(Field field) {
 		super(field);
+		if (field != null)
+			field.setName(FIELD_NAME);
 	}
 
 	public void setPurpose(Integer value) {
-		setForeignKeyPrimitiveField(PURPOSE_KEY, value);
+		setForeignKeyPrimitiveField(PURPOSE_KEY, value, "UseTradeDetails_purposeLookup");
 	}
 	
 	public Integer getPurpose() {
@@ -28,7 +32,7 @@ public class UseTradeField extends ProxyField {
 	}
 	
 	public void setSource(Integer value) {
-		setForeignKeyPrimitiveField(SOURCE_KEY, value);
+		setForeignKeyPrimitiveField(SOURCE_KEY, value, "UseTradeDetails_sourceLookup");
 	}
 	
 	public Integer getSource() {
@@ -36,7 +40,7 @@ public class UseTradeField extends ProxyField {
 	}
 	
 	public void setFormRemoved(Integer value) {
-		setForeignKeyPrimitiveField(FORM_REMOVED_KEY, value);
+		setForeignKeyPrimitiveField(FORM_REMOVED_KEY, value, "UseTradeDetails_formRemovedLookup");
 	}
 	
 	public Integer getFormRemoved() {
@@ -76,7 +80,7 @@ public class UseTradeField extends ProxyField {
 	}
 	
 	public void setUnits(Integer value) {
-		setForeignKeyPrimitiveField(UNITS_KEY, value);
+		setForeignKeyPrimitiveField(UNITS_KEY, value, "UseTradeDetails_unitsLookup");
 	}
 	
 	public Integer getUnits() {
@@ -100,12 +104,12 @@ public class UseTradeField extends ProxyField {
 	}
 	
 	@Override
-	public void setForeignKeyPrimitiveField(String key, Integer value) {
+	public void setForeignKeyPrimitiveField(String key, Integer value, String table) {
 		Integer toSave = value;
 		if (toSave.intValue() == 0)
 			toSave = null;
 		
-		super.setForeignKeyPrimitiveField(key, toSave);
+		super.setForeignKeyPrimitiveField(key, toSave, table);
 	}
 	
 }

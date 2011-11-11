@@ -57,7 +57,7 @@ public class UseTrade extends Structure<Field> {
 	public void save(Field parent, Field field) {
 		if (field == null) {
 			field = new Field();
-			field.setName(getId());
+			field.setName(UseTradeField.FIELD_NAME);
 			field.setParent(parent);
 		}
 		
@@ -76,21 +76,22 @@ public class UseTrade extends Structure<Field> {
 	
 	@SuppressWarnings("unchecked")
 	public boolean hasChanged(Field field) {
-		Field fauxParent = new Field(), fauxChild = new Field(CanonicalNames.UseTradeDetails, null);
+		Field fauxParent = new Field(CanonicalNames.UseTradeDetails, null), 
+			fauxChild = new Field(UseTradeField.FIELD_NAME, null);
 		
 		save(fauxParent, fauxChild);
 		
 		if (field == null) {
 			boolean childHasData = fauxChild.hasData();
 			if (childHasData)
-				Debug.println("HasChanged in UseTradeDetails: DB has null value, but child hasData, there are {0} primitive fields: \n{1}", fauxChild.getPrimitiveField().size(), fauxChild.getKeyToPrimitiveFields().keySet());
+				Debug.println("HasChanged in UseTradeDetailsSubfield: DB has null value, but child hasData, there are {0} primitive fields: \n{1}", fauxChild.getPrimitiveField().size(), fauxChild.getKeyToPrimitiveFields().keySet());
 			else
-				Debug.println("HasChanged in UseTradeDetails: DB has null value, child has no data, no changes.");
+				Debug.println("HasChanged in UseTradeDetailsSubfield: DB has null value, child has no data, no changes.");
 			return childHasData;
 		}
 		
 		if (field.getPrimitiveField().size() != fauxChild.getPrimitiveField().size()) {
-			Debug.println("HasChanged in UseTradeDetails: DB has {0} prims, but child has {1}, there are changes\nDB: {2}\nChild: {3}", field.getPrimitiveField().size(), fauxChild.getPrimitiveField().size(), field.getKeyToPrimitiveFields().keySet(), fauxChild.getKeyToPrimitiveFields().keySet());
+			Debug.println("HasChanged in UseTradeDetailsSubfield: DB has {0} prims, but child has {1}, there are changes\nDB: {2}\nChild: {3}", field.getPrimitiveField().size(), fauxChild.getPrimitiveField().size(), field.getKeyToPrimitiveFields().keySet(), fauxChild.getKeyToPrimitiveFields().keySet());
 			return true;
 		}
 		
@@ -98,7 +99,7 @@ public class UseTrade extends Structure<Field> {
 		for (Map.Entry<String, PrimitiveField> entry : savedFields.entrySet()) {
 			PrimitiveField oldPrimField = field.getPrimitiveField(entry.getKey());
 			if (oldPrimField == null) {
-				Debug.println("HasChanged in UseTradeDetails: DB missing new value for {0} of {1}", entry.getKey(), entry.getValue().getRawValue());
+				Debug.println("HasChanged in UseTradeDetailsSubfield: DB missing new value for {0} of {1}", entry.getKey(), entry.getValue().getRawValue());
 				return true;
 			}
 			
@@ -121,7 +122,7 @@ public class UseTrade extends Structure<Field> {
 					hasChanged = true;
 			}
 			
-			Debug.println("HasChanged in UseTradeDetails: Interrogating {0} with DB value {1} and child value {2}, result is {3}", entry.getKey(), oldValue, newValue, hasChanged);
+			Debug.println("HasChanged in UseTradeDetailsSubfield: Interrogating {0} with DB value {1} and child value {2}, result is {3}", entry.getKey(), oldValue, newValue, hasChanged);
 			
 			if (hasChanged)
 				return hasChanged;

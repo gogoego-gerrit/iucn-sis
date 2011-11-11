@@ -39,6 +39,7 @@ import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RedListFuzzyResultField;
+import org.iucn.sis.shared.api.models.fields.StressField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanUnknownPrimitiveField;
@@ -639,8 +640,6 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		Row.Set lookup = getLookup(curField.getKey());
 		
-		List<Field> subfields = new ArrayList<Field>();
-
 		if (curField.getKey().equals(CanonicalNames.Lakes) || curField.getKey().equals(CanonicalNames.Rivers) || 
 				curField.getKey().equals(CanonicalNames.RedListAssessmentDate) || 
 				curField.getKey().equals(CanonicalNames.RedListCaveat)) {
@@ -650,8 +649,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			
 			List<String> dataList = (List<String>) (curField.getValue());
 			if( dataList.size() > 1 ) {
-				String subfieldName = curField.getKey().equals(CanonicalNames.UseTradeDetails) ? 
-						"UseTradeSubfield" : "LivelihoodsSubfield";
+				String subfieldName = curField.getKey() + "Subfield";
 				int subfieldDataSize = curField.getKey().equals(CanonicalNames.UseTradeDetails) ? 
 						10 : 18;
 				
@@ -662,10 +660,9 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					List<String> rawData = dataList.subList(subfieldDataSize*i, (subfieldDataSize*(i+1)) );
 					Field subfield = new Field(subfieldName, null);
 					addPrimitiveDataToField(report, dataMigrationUser, field.getName(), subfield, rawData, getLookup(subfieldName));
-					subfields.add(subfield);
+					field.getFields().add(subfield);
 				}
 				
-				field.getFields().addAll(subfields);
 			}
 		} else if (curField.getValue() instanceof List) {
 			if (CanonicalNames.RedListAssessors.equals(curField.getKey()) || 
@@ -966,12 +963,13 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					}
 					
 					subfield.setParent(field);
-					subfields.add(subfield);
+					field.getFields().add(subfield);
 				}
-				field.getFields().addAll(subfields);
 			} else {
 				for( Entry<String, List<String>> selected : dataMap.entrySet() ) {
 					Field subfield = new Field(field.getName() + "Subfield", null);
+					subfield.setParent(field);
+					
 					List<String> dataList = selected.getValue();
 					dataList.add(0, selected.getKey()); //Add the threat ID back in
 
@@ -987,25 +985,21 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 						TrivialExceptionHandler.ignore(this, e);
 					}
 					
-					subfield.setParent(field);
-					
-					if( dataList.size() > 6 ) {
+					if (dataList.size() > 6) {
 						Integer numStresses = dataList.get(6).matches("\\d") ? Integer.valueOf(dataList.get(6)) : 0;
 
 						for( int i = 0; i < numStresses.intValue(); i++ ) {
 							Field stress = new Field("StressesSubfield", null);
-							ForeignKeyPrimitiveField fk = new ForeignKeyPrimitiveField("stress", stress);
-							fk.setValue(Integer.valueOf( dataList.get(7+i) ) );
-							fk.setTableID("StressesLookup");
-							stress.getPrimitiveField().add(fk);
-							fk.setField(stress);
-							subfields.add(stress);
+							
+							StressField proxy = new StressField(stress);
+							proxy.setStress(Integer.valueOf( dataList.get(7+i) ) );
+							
+							subfield.getFields().add(stress);
 						}
-
-						subfields.add(subfield);
 					}
+					
+					field.getFields().add(subfield);
 				}
-				field.getFields().addAll(subfields);
 			}
 		}
 		

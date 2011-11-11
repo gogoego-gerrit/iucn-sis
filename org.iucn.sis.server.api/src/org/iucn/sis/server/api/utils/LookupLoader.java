@@ -29,11 +29,7 @@ public class LookupLoader {
 		else {
 			if (tableName.endsWith("Subfield"))
 				tableName = tableName.substring(0, tableName.lastIndexOf("Subfield"));
-			//FIXME: this one's obvious...
-			if ("UseTrade".equals(tableName))
-				tableName += "Details_" + primitiveFieldName + "Lookup";
-			else
-				tableName += "_" + primitiveFieldName + "Lookup";
+			tableName += "_" + primitiveFieldName + "Lookup";
 			columnName1 = "LABEL";
 		}
 		
