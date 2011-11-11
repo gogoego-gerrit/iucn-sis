@@ -659,7 +659,10 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				for( int i = 0; i < numStresses.intValue(); i++ ) {
 					List<String> rawData = dataList.subList(subfieldDataSize*i, (subfieldDataSize*(i+1)) );
 					Field subfield = new Field(subfieldName, null);
+					subfield.setParent(field);
+					
 					addPrimitiveDataToField(report, dataMigrationUser, field.getName(), subfield, rawData, getLookup(subfieldName));
+					
 					field.getFields().add(subfield);
 				}
 				
