@@ -1,0 +1,39 @@
+<module>
+
+	<!-- Inherit the core Web Toolkit stuff. -->
+	<inherits name='com.google.gwt.http.HTTP' />
+	<inherits name='com.google.gwt.user.User'/>
+	<inherits name='com.google.gwt.user.RichText'/>
+	<inherits name='com.extjs.gwt.Resources' />
+	<inherits name='com.extjs.gxt.themes.Themes' />
+	<inherits name='ext.ux.wizard.WizardWindow'/>
+	<inherits name='ext.ux.pwd.PasswordField'/>
+	
+	<!-- GXT -->
+	<inherits name='com.extjs.gxt.ui.GXT'/>
+	
+	<!-- Our libraries -->
+	<inherits name='com.solertium.lwxml.LWXML' />
+	<inherits name='com.solertium.util.extjs.ExtGWTUtils' />
+	<inherits name='com.solertium.util.extjs.login.ExtGWTUtils' />
+	<inherits name='com.solertium.util.gwt.Util' />
+	<inherits name='com.solertium.util.Events' />
+	
+	<!-- Inherit Themes -->
+	<inherits name='ext.ux.theme.black.Black'/>
+	<inherits name='ext.ux.theme.darkgray.DarkGray'/>
+	<inherits name='ext.ux.theme.olive.Olive'/>
+	<inherits name='ext.ux.theme.purple.Purple'/>
+	<inherits name='ext.ux.theme.slickness.Slickness'/>
+	
+	<!-- QueryBuilder -->
+	<inherits name='com.solertium.util.querybuilder.QueryBuilderCore' />
+	<inherits name='com.solertium.util.querybuilder.gwt.QueryBuilderExtSource' />
+	
+	<!-- HTTP Features -->
+	<inherits name='org.iucn.sis.Shared' />
+	
+	<source path='client'/>
+	<source path='shared'/>
+	
+</module>

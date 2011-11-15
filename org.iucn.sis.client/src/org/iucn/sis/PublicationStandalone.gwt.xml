@@ -1,0 +1,7 @@
+<module>
+
+	<inherits name='org.iucn.sis.Publication' />
+	
+	<entry-point class="org.iucn.sis.client.panels.publication.PublicationEntryPoint"/>
+	
+</module>

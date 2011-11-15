@@ -1,9 +1,7 @@
 <module>
 
 	<inherits name='org.iucn.sis.References' />
-		
-	<!-- Specify the app entry point class.
-	     Be sure this is commented out if you are building a full SIS. -->
+	
 	<entry-point class="org.iucn.sis.client.panels.references.StandaloneReferenceClient"/>
 	
 </module>

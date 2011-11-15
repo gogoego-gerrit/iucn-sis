@@ -58,6 +58,19 @@
 		  			<param-value>org.iucn.sis.ClassificationSchemes</param-value>
 				</init-param>
         </servlet>
+        
+        <servlet>
+        		<servlet-name>publication</servlet-name>
+        		<servlet-class>org.restlet.ext.servlet.ServerServlet</servlet-class>
+        		<init-param>
+        			<param-name>org.restlet.application</param-name>
+        			<param-value>com.solertium.gwtproxy.GWTAwarePersistentProxy</param-value>
+        		</init-param>
+        		<init-param>
+        			<param-name>module</param-name>
+        			<param-value>org.iucn.sis.PublicationStandalone</param-value>
+        		</init-param>
+        </servlet>
 
         <servlet-mapping>
                 <servlet-name>sis</servlet-name>
