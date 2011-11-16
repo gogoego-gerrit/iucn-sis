@@ -36,7 +36,7 @@
 							<narrative/>
 						</structure>
 						<!-- If NOT checked -->
-						<structure id="CountryOccurrence" description="Countries of Occurrence">
+						<structure id="CountryOccurrence" description="Harvest of Countries of Occurrence">
 							<treeStructure>
 								<defaultStructure>
 									<treeStructures layout="horizontal">
@@ -112,7 +112,7 @@
 								<coding name="CountryOccurrence"/>
 							</treeStructure>
 						</structure>
-						<structure id="FAOOccurrence" description="FAO Marine Areas">
+						<structure id="FAOOccurrence" description="Harvest of FAO Marine Areas">
 							<treeStructure>
 								<defaultStructure>
 									<treeStructures layout="horizontal">
