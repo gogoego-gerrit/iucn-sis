@@ -14,8 +14,11 @@
 						<structure>
 							<relatedStructure>
 								<dominantStructures>
-									<structure id="isTotalSpeciesRange" description="Total Species Range?">
-										<boolean />
+									<structure id="harvestRange" description="This harvest is taking place: ">
+										<singleSelect>
+											<option>Over total species range</option>
+											<option>Over a proportion of global range</option>
+										</singleSelect>
 									</structure>
 								</dominantStructures>
 								<dependentStructures>
@@ -24,11 +27,11 @@
 									</structure>		
 								</dependentStructures>
 								<rules>
-									<booleanRule>
-										<activateOnRule>false</activateOnRule>
-										<onTrue>HIDE</onTrue>
-										<onFalse>SHOW</onFalse>
-									</booleanRule>
+									<selectRule>
+										<activateOnIndex>2</activateOnIndex>
+										<onTrue>SHOW</onTrue>
+										<onFalse>HIDE</onFalse>
+									</selectRule>
 								</rules>
 							</relatedStructure>
 						</structure>
