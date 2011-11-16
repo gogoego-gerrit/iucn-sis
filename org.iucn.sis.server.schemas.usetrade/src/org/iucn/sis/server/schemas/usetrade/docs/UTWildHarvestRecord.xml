@@ -261,12 +261,33 @@
 									</structure>
 								</dominantStructures>
 								<dependentStructures>
-									<structure id="harvestLevelUnits" description="Units">
-										<singleSelect>
-											<option>Volume (cubic metres)</option>
-											<option>Weight (kgs)</option>
-											<option>Number of individuals</option>
-										</singleSelect>
+									<structure>
+										<relatedStructure layout="horizontal">
+											<dominantStructures>
+												<structure id="harvestLevelUnits" description="Units">
+													<singleSelect>
+														<option>Volume (cubic metres)</option>
+														<option>Weight (kgs)</option>
+														<option>Number of individuals</option>
+														<option>Other</option>
+													</singleSelect>
+												</structure>
+											</dominantStructures>
+											<dependentStructures>
+												<structure id="harvestLevelUnitsOther" description="Other (please specify)">
+													<text/>
+												</structure>
+											</dependentStructures>
+											<rules>
+												<selectRule>
+													<activateOnIndex>4</activateOnIndex>
+													<actions>
+														<onTrue>SHOW</onTrue>
+														<onFalse>HIDE</onFalse>
+													</actions>
+												</selectRule>
+											</rules>
+										</relatedStructure>
 									</structure>
 								</dependentStructures>
 								<rules>
