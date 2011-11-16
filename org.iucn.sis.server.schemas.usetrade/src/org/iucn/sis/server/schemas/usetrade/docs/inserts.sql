@@ -32,7 +32,6 @@ INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('recor
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('isTotalSpeciesRange', 'boolean_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('percentGlobalRange', 'float_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('otherGeographicScope', 'text_primitive_field', '?');
-INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('geographicScopeFreeText', 'text_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord (name, data_type, number_allowed) VALUES ('source', 'fk_primitive_field', '?');
 INSERT INTO UTWildHarvestRecord_sourceLookup (name, label) VALUES ('0', 'Wild');
 INSERT INTO UTWildHarvestRecord_sourceLookup (name, label) VALUES ('1', 'Augmented/enriched population (e.g. salmon/eels restocking to wild)');
