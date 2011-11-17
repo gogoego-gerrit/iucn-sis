@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.iucn.sis.shared.api.models.Field;
 
@@ -12,36 +13,35 @@ import com.google.gwt.user.client.ui.Widget;
 public class SISLabel extends Structure<Field> {
 
 	public static final String LABEL = "label";
+	
+	private HTML label;
 
-	public SISLabel(String struct, String descript, String structID) {
-		super(struct, descript, structID);
+	public SISLabel(String struct, String descript, String structID, Object data) {
+		super(struct, descript, structID, data);
 		// displayPanel = new ContentPanel();
 		buildContentPanel(Orientation.HORIZONTAL);
 	}
 	
 	@Override
 	public void save(Field parent, Field field) {
-		// TODO Auto-generated method stub
-		
+		//Nothing to do here...
 	}
 	
 	@Override
 	public boolean hasChanged(Field field) {
-		/*
-		 * Labels don't change...
-		 */
+		//Labels don't change...
 		return false;
 	}
 
 	@Override
 	public void clearData() {
-
 	}
 
 	@Override
 	public Widget createLabel() {
 		clearDisplayPanel();
-		displayPanel.add(this.descriptionLabel);
+		displayPanel.add(this.label);
+		displayPanel.setWidth("100%");
 		return displayPanel;
 	}
 
@@ -50,9 +50,23 @@ public class SISLabel extends Structure<Field> {
 		return createLabel();
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
 	public void createWidget() {
-		this.descriptionLabel = new HTML(this.description);
+		Map<String, String> map = (Map)data;
+		
+		String style = map.get("style");
+		String text = map.get("value");
+		if (isBlank(text))
+			text = this.description;
+		
+		this.label = new HTML(text);
+		this.label.setWidth("100%");
+		if (!isBlank(style))
+			this.label.addStyleName(style);
+	}
+	
+	private boolean isBlank(String value) {
+		return value == null || "".equals(value);
 	}
 
 	/**
@@ -97,10 +111,6 @@ public class SISLabel extends Structure<Field> {
 	@Override
 	public void setEnabled(boolean isEnabled) {
 		// Nothing to do here
-	}
-
-	public String toXML() {
-		return "";
 	}
 
 }

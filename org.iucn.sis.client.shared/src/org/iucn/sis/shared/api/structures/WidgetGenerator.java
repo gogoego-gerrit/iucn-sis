@@ -61,7 +61,7 @@ public class WidgetGenerator implements CreatesWidget {
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.QUALIFIER_STRUCTURE)) {
 			return new SISQualifier(theStructure, "Qualification: ", structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.LABEL_STRUCTURE)) {
-			return new SISLabel(theStructure, description, structID);
+			return new SISLabel(theStructure, description, structID, data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.OPTIONS_LIST)) {
 			return new SISOptionsList(theStructure, description, structID);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.LIVELIHOODS)) {
