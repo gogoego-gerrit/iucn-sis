@@ -325,6 +325,9 @@
 						<structure id="habitatConservationBenefitsText" description="Details for conservation benefits for the habitat/ecosystem">
 							<narrative/>
 						</structure>
+						<structure description="End Use Records">
+							<label style="SIS_dataBrowserCustomText_h2">Add one or more End Use Records</label>
+						</structure>
 						<structure id="UTEndUseRecord" description="End Use from harvesting in this area">
 							<oneToMany>
 								<structure>
