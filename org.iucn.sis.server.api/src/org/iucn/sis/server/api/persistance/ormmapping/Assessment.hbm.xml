@@ -22,6 +22,8 @@ License Type: Evaluation
 		</many-to-one>
 		<many-to-one name="validation" column="assessment_validation_id" class="org.iucn.sis.shared.api.models.AssessmentIntegrityValidation" not-null="false" lazy="no-proxy">
 		</many-to-one>
+		<many-to-one name="publicationData" cascade="lock,replicate" column="assessment_publication_id" class="org.iucn.sis.shared.api.models.PublicationData" not-null="false" lazy="no-proxy">
+		</many-to-one>
 		<property name="internalId" column="internal_id" type="string" length="255" not-null="false" lazy="false"/>
 		<set name="Edit" table="assessment_edit" lazy="true" cascade="save-update,lock,replicate">
 			<key column="assessmentid" not-null="true"/>

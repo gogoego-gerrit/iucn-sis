@@ -1,0 +1,160 @@
+package org.iucn.sis.client.api.caches;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentType;
+import org.iucn.sis.shared.api.models.PublicationData;
+import org.iucn.sis.shared.api.models.PublicationTarget;
+import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.WorkingSet;
+
+import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.ComplexListener;
+import com.solertium.util.portable.XMLWritingUtils;
+
+public class PublicationCache {
+	
+	public static final PublicationCache impl = new PublicationCache();
+
+	private final Map<Integer, PublicationTarget> targets;
+	private final Map<Integer, PublicationData> data;
+	
+	private PublicationCache() {
+		data = new HashMap<Integer, PublicationData>();
+		targets = new HashMap<Integer, PublicationTarget>();
+	}
+	
+	public void listTargets(final ComplexListener<List<PublicationTarget>> callback) {
+		if (targets.isEmpty()) {
+			final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+			document.get(UriBase.getInstance().getSISBase() + "/publication/targets", new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					final NativeNodeList nodes = document.getDocumentElement().
+						getElementsByTagName(PublicationTarget.ROOT_TAG);
+					for (int i = 0; i < nodes.getLength(); i++)
+						cacheTarget(PublicationTarget.fromXML(nodes.elementAt(i)));
+					
+					callback.handleEvent(listTargetsFromCache());
+				}
+				public void onFailure(Throwable caught) {
+					callback.handleEvent(new ArrayList<PublicationTarget>());
+				}
+			});
+		}
+		else
+			callback.handleEvent(listTargetsFromCache());
+	}
+	
+	public List<PublicationTarget> listTargetsFromCache() {
+		List<PublicationTarget> list = new ArrayList<PublicationTarget>(targets.values());
+		Collections.sort(list);
+		
+		return list;
+	}
+	
+	public List<PublicationData> listDataFromCache() {
+		return new ArrayList<PublicationData>(data.values());
+	}
+	
+	public void listData(final ComplexListener<List<PublicationData>> callback) {
+		if (data.isEmpty()) {
+			final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+			document.get(UriBase.getInstance().getSISBase() + "/publication/data", new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					final NativeNodeList nodes = document.getDocumentElement().
+						getElementsByTagName(PublicationData.ROOT_TAG);
+					for (int i = 0; i < nodes.getLength(); i++)
+						cacheData(PublicationData.fromXML(nodes.elementAt(i)));
+					
+					callback.handleEvent(listDataFromCache());
+				}
+				public void onFailure(Throwable caught) {
+					callback.handleEvent(listDataFromCache());
+				}
+			});
+		}
+		else
+			callback.handleEvent(listDataFromCache());
+	}
+	
+	public void updateData(final String status, final Integer targetGoal, final Integer targetApproved, 
+			final List<Integer> ids, final GenericCallback<Object> callback) {
+		final StringBuilder out = new StringBuilder();
+		out.append("<root>");
+		out.append(XMLWritingUtils.writeCDATATag("status", status, true));
+		out.append(XMLWritingUtils.writeTag("goal", targetGoal == null ? null : targetGoal.toString(), true));
+		out.append(XMLWritingUtils.writeTag("approved", targetApproved == null ? null : targetApproved.toString(), true));
+		for (Integer id : ids)
+			out.append(XMLWritingUtils.writeTag("data", id.toString()));
+		out.append("</root>");
+		
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.post(UriBase.getInstance().getSISBase() + "/publication/data/update", out.toString(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				for (Integer id : ids) {
+					PublicationData model = data.get(id);
+					if (model != null) {
+						if (status != null)
+							model.getAssessment().setType(status);
+						if (targetGoal != null)
+							model.setTargetGoal(targets.get(targetGoal));
+						if (targetApproved != null)
+							model.setTargetApproved(targets.get(targetApproved));
+					}
+				}
+				
+				callback.onSuccess(null);
+			}
+			public void onFailure(Throwable caught) {
+				/*WindowUtils.errorAlert("Could not make changes, please try again later: <br/>" + 
+						ClientDocumentUtils.parseStatus(document));*/
+				onSuccess(null);
+			}
+		});
+	}
+	
+	public void submit(final Assessment assessment, final GenericCallback<Object> callback) {
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.put(UriBase.getInstance().getSISBase() + "/publication/submit/assessment/" + assessment.getId(), "<xml/>", new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				assessment.setPublicationData(PublicationData.fromXML(document.getDocumentElement()));
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	public void submit(final WorkingSet workingSet, final GenericCallback<Object> callback) {
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.put(UriBase.getInstance().getSISBase() + "/publication/submit/workingSet/" + workingSet.getId(), "<xml/>", new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	private void cacheTarget(PublicationTarget target) {
+		targets.put(target.getId(), target);
+	}
+	
+	private void cacheData(PublicationData data) {
+		this.data.put(data.getId(), data);
+	}
+	
+}

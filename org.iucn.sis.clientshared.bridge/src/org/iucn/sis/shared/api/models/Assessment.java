@@ -136,6 +136,8 @@ public class Assessment implements Serializable, AuthorizableObject {
 			}
 			else if (AssessmentIntegrityValidation.ROOT_TAG.equals(current.getNodeName()))
 				assessment.setValidation(AssessmentIntegrityValidation.fromXML((NativeElement)current));
+			else if (PublicationData.ROOT_TAG.equals(current.getNodeName()))
+				assessment.setPublicationData(PublicationData.fromXML(((NativeElement)current)));
 			else if (Edit.ROOT_TAG.equals(current.getNodeName())) {
 				Edit cur = Edit.fromXML((NativeElement)current);
 				if (cur.getAssessment() == null)
@@ -298,6 +300,9 @@ public class Assessment implements Serializable, AuthorizableObject {
 		
 		if (getPublicationReference() != null)
 			xml.append(getPublicationReference().toXML("publicationReference"));
+		
+		if (getPublicationData() != null)
+			xml.append(getPublicationData().toXML());
 		
 		if (getValidation() != null)
 			xml.append(getValidation().toXML());
@@ -485,6 +490,8 @@ public class Assessment implements Serializable, AuthorizableObject {
 	private Reference publicationReference;
 	
 	private AssessmentIntegrityValidation validation;
+	
+	private PublicationData publicationData;
 
 	private java.util.Set<Edit> edit = new java.util.HashSet<Edit>();
 
@@ -602,6 +609,14 @@ public class Assessment implements Serializable, AuthorizableObject {
 	
 	public AssessmentIntegrityValidation getValidation() {
 		return validation;
+	}
+	
+	public void setPublicationData(PublicationData publicationData) {
+		this.publicationData = publicationData;
+	}
+	
+	public PublicationData getPublicationData() {
+		return publicationData;
 	}
 
 	public String toString() {

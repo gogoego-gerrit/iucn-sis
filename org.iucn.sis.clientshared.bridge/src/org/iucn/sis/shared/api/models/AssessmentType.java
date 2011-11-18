@@ -20,48 +20,56 @@ public class AssessmentType implements Serializable {
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS*/
 	public static final String ROOT_TAG = "assessment_type";
 	
-	public static final int DRAFT_ASSESSMENT_STATUS_ID = 2;
 	public static final int PUBLISHED_ASSESSMENT_STATUS_ID = 1;
-	public static final int USER_ASSESSMENT_STATUS_ID = 3 ;
+	public static final int DRAFT_ASSESSMENT_STATUS_ID = 2;
+	public static final int SUBMITTED_ASSESSMENT_STATUS_ID = 3;
+	public static final int FOR_PUBLICATION_ASSESSMENT_STATUS_ID = 4;
 	
-	public static final String DRAFT_ASSESSMENT_TYPE = "draft_status";
 	public static final String PUBLISHED_ASSESSMENT_TYPE = "published_status";
-	public static final String USER_ASSESSMENT_TYPE = "user_status";
+	public static final String DRAFT_ASSESSMENT_TYPE = "draft_status";
+	public static final String SUBMITTED_ASSESSMENT_TYPE = "submitted_status";
+	public static final String FOR_PUBLICATION_ASSESSMENT_TYPE = "for_publication_status";
 	
-	public static AssessmentType getAssessmentType(String type) {
-		AssessmentType assType = new AssessmentType();
-		if (type.equalsIgnoreCase(DRAFT_ASSESSMENT_TYPE)) {
-			assType.setId(DRAFT_ASSESSMENT_STATUS_ID);
-			assType.setName(DRAFT_ASSESSMENT_TYPE);
-		} else if (type.equalsIgnoreCase(PUBLISHED_ASSESSMENT_TYPE)) {
-			assType.setId(PUBLISHED_ASSESSMENT_STATUS_ID);
-			assType.setName(PUBLISHED_ASSESSMENT_TYPE);
-		} else if (type.equalsIgnoreCase(USER_ASSESSMENT_TYPE)) {
-			assType.setId(USER_ASSESSMENT_STATUS_ID);
-			assType.setName(USER_ASSESSMENT_TYPE);
+	public static AssessmentType getAssessmentType(String key) {
+		AssessmentType type = new AssessmentType();
+		if (key.equalsIgnoreCase(DRAFT_ASSESSMENT_TYPE)) {
+			type.setId(DRAFT_ASSESSMENT_STATUS_ID);
+			type.setName(DRAFT_ASSESSMENT_TYPE);
+		} else if (key.equalsIgnoreCase(PUBLISHED_ASSESSMENT_TYPE)) {
+			type.setId(PUBLISHED_ASSESSMENT_STATUS_ID);
+			type.setName(PUBLISHED_ASSESSMENT_TYPE);
+		} else if (key.equalsIgnoreCase(SUBMITTED_ASSESSMENT_TYPE)) {
+			type.setId(SUBMITTED_ASSESSMENT_STATUS_ID);
+			type.setName(SUBMITTED_ASSESSMENT_TYPE);
+		} else if (key.equalsIgnoreCase(FOR_PUBLICATION_ASSESSMENT_TYPE)) {
+			type.setId(FOR_PUBLICATION_ASSESSMENT_STATUS_ID);
+			type.setName(FOR_PUBLICATION_ASSESSMENT_TYPE);
 		} else {
 			return null;
 		}
-		return assType;
-			
+		
+		return type;
 	}
 	
 	public static AssessmentType getAssessmentType(int id) {
-		AssessmentType assType = new AssessmentType();
+		AssessmentType type = new AssessmentType();
 		if (id == DRAFT_ASSESSMENT_STATUS_ID) {
-			assType.setId(DRAFT_ASSESSMENT_STATUS_ID);
-			assType.setName(DRAFT_ASSESSMENT_TYPE);
+			type.setId(DRAFT_ASSESSMENT_STATUS_ID);
+			type.setName(DRAFT_ASSESSMENT_TYPE);
 		} else if (id == PUBLISHED_ASSESSMENT_STATUS_ID) {
-			assType.setId(PUBLISHED_ASSESSMENT_STATUS_ID);
-			assType.setName(PUBLISHED_ASSESSMENT_TYPE);
-		} else if (id == USER_ASSESSMENT_STATUS_ID) {
-			assType.setId(USER_ASSESSMENT_STATUS_ID);
-			assType.setName(USER_ASSESSMENT_TYPE);
+			type.setId(PUBLISHED_ASSESSMENT_STATUS_ID);
+			type.setName(PUBLISHED_ASSESSMENT_TYPE);
+		} else if (id == SUBMITTED_ASSESSMENT_STATUS_ID) {
+			type.setId(SUBMITTED_ASSESSMENT_STATUS_ID);
+			type.setName(SUBMITTED_ASSESSMENT_TYPE);
+		} else if (id == FOR_PUBLICATION_ASSESSMENT_STATUS_ID) {
+			type.setId(FOR_PUBLICATION_ASSESSMENT_STATUS_ID);
+			type.setName(FOR_PUBLICATION_ASSESSMENT_TYPE);
 		} else {
 			return null;
 		}
-		return assType;
-			
+		
+		return type;
 	}
 	
 	public static AssessmentType fromXML(NativeElement element) {
@@ -146,6 +154,9 @@ public class AssessmentType implements Serializable {
 	}
 	
 	public String getDisplayName(boolean capitalize) {
+		if (FOR_PUBLICATION_ASSESSMENT_TYPE.equals(getName()))
+			return "For Publication";
+		
 		String name = getName().replace("_status", "");
 		if (capitalize)
 			name = Character.toUpperCase(name.charAt(0)) + name.substring(1);

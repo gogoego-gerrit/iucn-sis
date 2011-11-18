@@ -59,10 +59,10 @@ public class LibraryGenerator extends GenericConverter<String> {
 	}
 
 	public void generateAssessmentTypes() throws PersistentException {
-		AssessmentType type = AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID);
-		session.save(type);
-		session.save(
-				AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
+		session.save(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
+		session.save(AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID));
+		session.save(AssessmentType.getAssessmentType(AssessmentType.SUBMITTED_ASSESSMENT_STATUS_ID));
+		session.save(AssessmentType.getAssessmentType(AssessmentType.FOR_PUBLICATION_ASSESSMENT_STATUS_ID));
 	}
 
 	public void generateRelationships() throws PersistentException {
