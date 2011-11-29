@@ -640,7 +640,7 @@ public class TaxonConverter extends GenericConverter<String> {
 				newTaxon.setInfratype(infratype);
 			else { //As per #638
 				newTaxon.setInfratype(infratypeIO.getInfratype(Infratype.INFRARANK_TYPE_SUBSPECIES));
-				printf("Warning: Taxon {0} ({1}) has no infratype specified, defaulting to subspecies.", newTaxon.getFriendlyName(), newTaxon.getId());
+				printf("Warning: Taxon %s (%s) has no infratype specified, defaulting to subspecies.", newTaxon.getFriendlyName(), newTaxon.getId());
 			}
 		}
 

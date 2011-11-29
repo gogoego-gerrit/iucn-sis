@@ -61,6 +61,7 @@ import org.restlet.util.Couple;
 
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
+import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
 import com.solertium.db.SystemExecutionContext;
@@ -82,7 +83,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		DRAFT, PUBLISHED, ALL
 	}
 	
-	private ExecutionContext ec;
+	private ExecutionContext SIS1;
+	private ExecutionContext SIS2;
 	private Map<String, Row.Set> lookups;
 
 	private Map<String, Class> typeLookup;
@@ -94,16 +96,21 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	private ReferenceIO referenceIO;
 	
 	public AssessmentConverter() throws NamingException {
-		this("sis_lookups");
+		this("sis_lookups", "sis1_lookups");
 	}
 
-	public AssessmentConverter(String dbSessionName) throws NamingException {
+	public AssessmentConverter(String dbSessionName, String sis1DBS) throws NamingException {
 		setClearSessionAfterTransaction(true);
 		
-		ec = new SystemExecutionContext(dbSessionName);
-		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
-		ec.setExecutionLevel(ExecutionContext.ADMIN);
-		ec.getDBSession().setIdentifierCase(DBSession.CASE_UPPER);
+		SIS2 = new SystemExecutionContext(dbSessionName);
+		SIS2.setAPILevel(ExecutionContext.SQL_ALLOWED);
+		SIS2.setExecutionLevel(ExecutionContext.ADMIN);
+		SIS2.getDBSession().setIdentifierCase(DBSession.CASE_UPPER);
+		
+		SIS1 = new SystemExecutionContext(sis1DBS);
+		SIS1.setAPILevel(ExecutionContext.SQL_ALLOWED);
+		SIS1.setExecutionLevel(ExecutionContext.ADMIN);
+		SIS1.getDBSession().setIdentifierCase(DBSession.CASE_UPPER);
 		
 		lookups = new HashMap<String, Row.Set>();
 
@@ -1287,7 +1294,11 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			
 			Row.Set lookup = new Row.Set();
 			
-			ec.doQuery(query, lookup);
+			try {
+				SIS2.doQuery(query, lookup);
+			} catch (DBException e) {
+				SIS1.doQuery(query, lookup);
+			}
 
 			lookups.put(fieldName, lookup);
 
