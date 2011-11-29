@@ -541,7 +541,7 @@ public class FuzzyExpImpl {
 		CriteriaResult resultVU1 = vulnerable.d1(analyzeFirstFactor(vulnerable.factorsD1, assessment));
 
 		// GET ALL ENTERED INFORMATION FOR D2
-		CriteriaResult resultVU2 = vulnerable.d2(analyzeFactors(vulnerable.factorsD2, assessment));
+		CriteriaResult resultVU2 = vulnerable.d2(analyzeFirstFactor(vulnerable.factorsD2, assessment));
 
 		CriteriaResult finalVU = getFinalSimple(ResultCategory.VU, "D", resultVU1, resultVU2);
 

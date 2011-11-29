@@ -435,21 +435,6 @@ public class ExpertSystem extends BasicTest {
 	}
 	
 	@Test
-	public void goodD2() {
-		Assessment assessment = new Assessment();
-		assessment.getField().add(newField(CanonicalNames.AreaRestricted,
-			new BooleanRangePrimitiveField("isRestricted", null, BooleanRangePrimitiveField.UNKNOWN)
-		));
-		assessment.getField().add(newField(CanonicalNames.LocationsNumber,
-			new RangePrimitiveField("range", null, "5")
-		));
-		
-		ExpertResult result = run(assessment);
-		Assert.assertEquals("VU", result.getAbbreviatedCategory());
-		Assert.assertEquals("D2", result.getCriteriaString());
-	}
-	
-	@Test
 	public void goodE() {
 		Assessment assessment = new Assessment();
 		assessment.getField().add(newField(CanonicalNames.ExtinctionProbabilityGenerations3,
