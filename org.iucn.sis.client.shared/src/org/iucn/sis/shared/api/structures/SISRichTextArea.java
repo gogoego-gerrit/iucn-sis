@@ -133,7 +133,7 @@ public class SISRichTextArea extends SISPrimitiveStructure<String> implements Us
 			viewOnlyData = FormattingStripper.stripText(viewOnlyData);
 			return viewOnlyData.replaceAll("[\\n\\r]", " ").trim();
 		} catch (Throwable e) {
-			e.printStackTrace();
+			Debug.println(e);
 			Debug.println("Error getting rich text data...");
 			return "";
 		}

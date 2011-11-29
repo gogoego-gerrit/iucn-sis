@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -13,6 +14,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 
+import com.google.gwt.user.client.Window;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -118,6 +120,13 @@ public class NotesCache {
 	}
 
 	public void fetchNotes(final Assessment assessment, final GenericCallback<String> callback) {
+		if (assessment == null) {
+			WindowUtils.errorAlert("Unknown Error: No assessment is selected for URL: " + 
+				"\"" + Window.Location.getHash() + "\".  Please try re-opening the assessment " +
+				"you were trying to view.");
+			StateManager.impl.reset();
+		}
+		
 		if (!noteMap.containsKey(getNoteMapID(assessment))) {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 			ndoc.get(UriBase.getInstance().getNotesBase() + "/notes/assessment/" + assessment.getId(),
