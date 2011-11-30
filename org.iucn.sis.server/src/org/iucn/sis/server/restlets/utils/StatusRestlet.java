@@ -22,7 +22,7 @@ public class StatusRestlet extends BaseServiceRestlet {
 
 	@Override
 	public void definePaths() {
-		paths.add("/status/assessment/{id}/{type}/{lastModDate}");
+		paths.add("/status/assessment/{id}/{lastModDate}");
 		paths.add("/status/taxon/{id}/{lastModDate}");
 	}
 	

@@ -17,10 +17,12 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
+import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.events.ComplexListener;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.XMLWritingUtils;
 
 public class PublicationCache {
@@ -105,13 +107,21 @@ public class PublicationCache {
 				for (Integer id : ids) {
 					PublicationData model = data.get(id);
 					if (model != null) {
-						if (status != null)
+						if (status != null) {
 							model.getAssessment().setType(status);
+							Assessment cached = AssessmentCache.impl.getAssessment(model.getAssessment().getId());
+							if (cached != null)
+								cached.setType(status);
+							AssessmentCache.impl.evictTaxonToAssessment(model.getAssessment().getTaxon().getId());
+						}
 						if (targetGoal != null)
 							model.setTargetGoal(targets.get(targetGoal));
 						if (targetApproved != null)
 							model.setTargetApproved(targets.get(targetApproved));
 					}
+					
+					if (model.getAssessment().isDraft())
+						data.remove(id);
 				}
 				
 				callback.onSuccess(null);
@@ -128,10 +138,30 @@ public class PublicationCache {
 		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
 		document.put(UriBase.getInstance().getSISBase() + "/publication/submit/assessment/" + assessment.getId(), "<xml/>", new GenericCallback<String>() {
 			public void onSuccess(String result) {
-				assessment.setPublicationData(PublicationData.fromXML(document.getDocumentElement()));
+				PublicationData data = PublicationData.fromXML(document.getDocumentElement());
+				cacheData(data);
+				
+				assessment.setType(AssessmentType.SUBMITTED_ASSESSMENT_TYPE);
+				assessment.setPublicationData(data);
+				AssessmentCache.impl.evictTaxonToAssessment(assessment.getTaxon().getId());
+				
 				callback.onSuccess(result);
 			}
 			public void onFailure(Throwable caught) {
+				if (!(caught instanceof GWTResponseException))
+					WindowUtils.errorAlert("Failed to submit assessment, please try again later.");
+				else {
+					int status = ((GWTResponseException)caught).getCode();
+					if (status >= 500)
+						WindowUtils.errorAlert("Failed to submit assessment, please try again later.");
+					else if (status == 423)
+						WindowUtils.errorAlert("Only draft assessments can be submitted.");
+					else {
+						//TODO: process exception / xml
+						WindowUtils.errorAlert("Failed to submit assessment due to user error, please try again later.");
+					}
+				}
+				
 				callback.onFailure(caught);
 			}
 		});

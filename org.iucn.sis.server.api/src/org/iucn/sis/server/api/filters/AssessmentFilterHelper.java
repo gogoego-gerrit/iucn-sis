@@ -68,7 +68,7 @@ public class AssessmentFilterHelper {
 		final AssessmentIO io = new AssessmentIO(session);
 		
 		if (filter.isDraft()) {
-			List<Assessment> draftAssessments = io.readDraftAssessmentsForTaxon(taxaID);
+			List<Assessment> draftAssessments = io.readUnpublishedAssessmentsForTaxon(taxaID);
 			for (Assessment draft : draftAssessments)
 				if (allowAssessment(draft, schema, filterRegions))
 					ret.add(draft);

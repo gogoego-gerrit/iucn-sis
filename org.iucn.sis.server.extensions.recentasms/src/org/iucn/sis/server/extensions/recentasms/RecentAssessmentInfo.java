@@ -42,7 +42,7 @@ public class RecentAssessmentInfo extends RecentInfo<Assessment> {
 			}
 			
 			addField("id", assessment.getId() + "");
-			addField("status", assessment.getAssessmentType().getName());
+			addField("status", assessment.getType());
 			addField("species", assessment.getSpeciesName());
 			addField("region", region);
 		}

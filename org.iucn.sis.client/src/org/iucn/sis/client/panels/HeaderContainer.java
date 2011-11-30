@@ -19,6 +19,7 @@ import org.iucn.sis.client.panels.integrity.IntegrityApplicationPanel;
 import org.iucn.sis.client.panels.locking.LockManagementPanel;
 import org.iucn.sis.client.panels.permissions.NewPermissionGroupEditor;
 import org.iucn.sis.client.panels.permissions.PermissionGroupEditor;
+import org.iucn.sis.client.panels.publication.PublicationPanel;
 import org.iucn.sis.client.panels.redlist.RedlistPanel;
 import org.iucn.sis.client.panels.region.RegionPanel;
 import org.iucn.sis.client.panels.search.SearchCache;
@@ -562,6 +563,18 @@ public class HeaderContainer extends ContentPanel {
 		options.add(createMenuItem("icon-book-edit", "Manage References", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				ClientUIContainer.bodyContainer.openReferenceManager();
+			}
+		}));
+		
+		options.add(createMenuItem("icon-workflow", "Publication Workflow", new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				StateManager.impl.reset();
+				final PublicationPanel publicationPanel = new PublicationPanel();
+				publicationPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+					public void isDrawn() {
+						openAdministrativeTool("Publication Workflow", "icon-workflow", publicationPanel);	
+					}
+				});
 			}
 		}));
 		

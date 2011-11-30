@@ -11,6 +11,7 @@ import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.models.Region;
 
@@ -292,6 +293,11 @@ public class RecentlyAccessedCache {
 		@Override
 		public Integer getObjectID() {
 			return id;
+		}
+		
+		public String getDisplayStatus() {
+			AssessmentType assessmentType = AssessmentType.getAssessmentType(type);
+			return assessmentType == null ? type : assessmentType.getDisplayName(true);
 		}
 		
 	}

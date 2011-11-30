@@ -174,14 +174,34 @@ public class AssessmentIO {
 	 * @return a list of Assessment objects. Will never be null, might be empty.
 	 * @throws PersistentException
 	 */
-	public List<Assessment> readDraftAssessmentsForTaxon(Integer taxonID) {
-
+	/*public List<Assessment> readDraftAssessmentsForTaxon(Integer taxonID) {
 		AssessmentCriteria criteria = new AssessmentCriteria(session);
 		
 		AssessmentTypeCriteria assessmentTypeCriteria = criteria.createAssessment_typeCriteria();
 		assessmentTypeCriteria.id.eq(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID);
 		TaxonCriteria taxonCriteria = criteria.createTaxonCriteria();
 		taxonCriteria.id.eq(taxonID);
+		return Arrays.asList(AssessmentDAO.getAssessmentsByCriteria(criteria));
+	}*/
+	
+	/**
+	 * Reads in unpublished assessments based on the taxonID, meaning any 
+	 * assessment with status draft, submitted, or for publication will 
+	 * be pulled in; only published will be ignored.
+	 * 
+	 * @param vfs
+	 * @param taxonID
+	 * @return a list of Assessment objects. Will never be null, might be empty.
+	 * @throws PersistentException
+	 */
+	public List<Assessment> readUnpublishedAssessmentsForTaxon(Integer taxonID) {
+		AssessmentCriteria criteria = new AssessmentCriteria(session);
+		
+		AssessmentTypeCriteria assessmentTypeCriteria = criteria.createAssessment_typeCriteria();
+		assessmentTypeCriteria.id.ne(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID);
+		TaxonCriteria taxonCriteria = criteria.createTaxonCriteria();
+		taxonCriteria.id.eq(taxonID);
+		
 		return Arrays.asList(AssessmentDAO.getAssessmentsByCriteria(criteria));
 	}
 
@@ -239,7 +259,7 @@ public class AssessmentIO {
 	 *            - restrict to this region
 	 * @return
 	 */
-	public List<Assessment> readRegionalDraftAssessmentsForTaxonList(List<Integer> taxonIDs, List<Integer> regionIDs) {
+	/*public List<Assessment> readRegionalDraftAssessmentsForTaxonList(List<Integer> taxonIDs, List<Integer> regionIDs) {
 		List<Assessment> list = new ArrayList<Assessment>();
 		for (Integer taxonID : taxonIDs) {
 			for (Assessment assessment : readDraftAssessmentsForTaxon(taxonID)) {
@@ -252,7 +272,7 @@ public class AssessmentIO {
 		}
 
 		return list;
-	}
+	}*/
 
 	public Assessment[] getTrashedAssessments() throws PersistentException {
 		return AssessmentDAO.getTrashedAssessments(session);
@@ -447,8 +467,8 @@ public class AssessmentIO {
 	public boolean allowedToCreateNewAssessment(Assessment assessment) {
 		return assessment.isPublished() || 
 			!assessment.hasRegions() || 
-			!(assessment.isDraft() && conflicts(assessment, 
-					readDraftAssessmentsForTaxon(assessment.getTaxon().getId())));
+			(assessment.isDraft() && !conflicts(assessment, 
+					readUnpublishedAssessmentsForTaxon(assessment.getTaxon().getId())));
 	}
 	
 	public boolean conflicts(Assessment assessment, List<Assessment> existing) {

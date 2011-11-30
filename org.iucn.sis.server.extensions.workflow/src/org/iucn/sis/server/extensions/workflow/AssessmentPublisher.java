@@ -21,7 +21,7 @@ public class AssessmentPublisher {
 		if (true)
 			throw new UnsupportedOperationException();
 		
-		if (data.getType().equals(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
+		if (!data.isPublished()) {
 			data.setType(AssessmentType.PUBLISHED_ASSESSMENT_TYPE);
 			data.setDateFinalized(FormattedDate.impl.getDate());
 			if (data.getField(CanonicalNames.RedListPublication) == null) {

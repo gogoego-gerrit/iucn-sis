@@ -707,7 +707,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 					Integer newID = importedIdsToSISIds.get(assessmentSpeciesID);
 					assessment.getTaxon().setId(newID);
 
-					List<Assessment> compareTo = assessmentIO.readDraftAssessmentsForTaxon(
+					List<Assessment> compareTo = assessmentIO.readUnpublishedAssessmentsForTaxon(
 							assessment.getSpeciesID());
 
 					boolean found = false;

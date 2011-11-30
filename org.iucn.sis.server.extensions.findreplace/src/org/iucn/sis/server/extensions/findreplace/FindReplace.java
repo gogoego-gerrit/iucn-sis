@@ -135,7 +135,7 @@ public class FindReplace {
 			throws PersistentException, FindReplaceException {
 
 		FindReplaceData result = new FindReplaceData(assessment.getId(), assessment.getSpeciesName() + " "
-				+ assessment.getDateAssessed(), assessment.getAssessmentType().getDisplayName(), searchString);
+				+ assessment.getDateAssessed(), assessment.getAssessmentType().getDisplayName(true), searchString);
 		String javaString = javaSearchString(options, searchString);
 		int flag = calculateFlag(options);
 		List<String> fields = getFieldsToSearch(field);

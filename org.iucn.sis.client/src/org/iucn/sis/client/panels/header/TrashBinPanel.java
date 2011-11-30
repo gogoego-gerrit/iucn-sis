@@ -11,6 +11,7 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.AssessmentType;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -28,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.user.client.ui.HTML;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -57,15 +59,10 @@ public class TrashBinPanel extends LayoutContainer {
 	private HashMap<String, Integer> folderCount;
 
 	public TrashBinPanel() {
-		setLayout(new BorderLayout());
-		setLayoutOnChange(true);
+		setLayout(new FillLayout());
 		folderCount = new HashMap<String, Integer>();
 		trashedObjects = new HashMap<String, List<TrashedObject>>();
 		store = new ListStore<TrashedObject>();
-		build();
-	}
-
-	public void build() {
 
 		centerPanel = new LayoutContainer();
 		westPanel = new LayoutContainer();
@@ -83,9 +80,12 @@ public class TrashBinPanel extends LayoutContainer {
 		buildCenterPanel();
 
 		fillTrash();
-
-		add(centerPanel, centerData);
-		add(westPanel, westData);
+		
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(centerPanel, centerData);
+		container.add(westPanel, westData);
+		
+		add(container);
 	}
 
 	private void buildCenterPanel() {
@@ -261,16 +261,22 @@ public class TrashBinPanel extends LayoutContainer {
 		all.setIconStyle("tree-folder");
 		all.setItemId("all");
 		folders.add(all);
-
-		DataListItem published = new DataListItem("Published Assessments");
-		published.setIconStyle("tree-folder");
-		published.setItemId("assessment:published");
-		folders.add(published);
-
-		DataListItem draft = new DataListItem("Draft Assessments");
-		draft.setIconStyle("tree-folder");
-		draft.setItemId("assessment:draft");
-		folders.add(draft);
+		
+		Integer[] asmTypes = new Integer[] {
+			AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID,
+			AssessmentType.DRAFT_ASSESSMENT_STATUS_ID, 
+			AssessmentType.SUBMITTED_ASSESSMENT_STATUS_ID, 
+			AssessmentType.FOR_PUBLICATION_ASSESSMENT_STATUS_ID 
+		};
+		
+		for (Integer asmType : asmTypes) {
+			AssessmentType type = AssessmentType.getAssessmentType(asmType);
+			
+			DataListItem item = new DataListItem(type.getDisplayName(true) + " Assessments");
+			item.setIconStyle("tree-folder");
+			item.setItemId("assessment:" + type.getDisplayName());
+			folders.add(item);
+		}
 
 		DataListItem taxon = new DataListItem("Taxa");
 		taxon.setIconStyle("tree-folder");
@@ -340,14 +346,13 @@ public class TrashBinPanel extends LayoutContainer {
 	protected void refreshStore() {
 		store.removeAll();
 		if (folders.getSelectedItem() != null) {
-			if (trashedObjects.containsKey(folders.getSelectedItem().getItemId())) {
-				store.add(trashedObjects.get(folders.getSelectedItem().getItemId()));
-			} else {
+			String filter = folders.getSelectedItem().getItemId();
+			if (filter == null || "all".equals(filter))
 				for (Entry<String, List<TrashedObject>> entry : trashedObjects.entrySet())
 					store.add(entry.getValue());
-			}
+			else if (trashedObjects.containsKey(folders.getSelectedItem().getItemId()))
+				store.add(trashedObjects.get(folders.getSelectedItem().getItemId()));
 		}
-
 	}
 
 	@Override

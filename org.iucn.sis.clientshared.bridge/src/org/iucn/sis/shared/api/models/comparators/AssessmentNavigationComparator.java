@@ -1,26 +1,33 @@
 package org.iucn.sis.shared.api.models.comparators;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Taxon;
-
-import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public abstract class AssessmentNavigationComparator implements Comparator<Assessment> {
 	
-	private final PortableAlphanumericComparator comparator;
 	private final AssessmentDateComparator dateComparator;
 	private final TaxonNavigationComparator taxonComparator;
+	
+	private final List<String> typeOrder;
 	
 	public AssessmentNavigationComparator() {
 		this(false);
 	}
 	
 	public AssessmentNavigationComparator(boolean sortByTaxon) {
-		comparator = new PortableAlphanumericComparator();
 		dateComparator = new AssessmentDateComparator();
 		taxonComparator = sortByTaxon ? new TaxonNavigationComparator() : null;
+		
+		typeOrder = new ArrayList<String>();
+		typeOrder.add(AssessmentType.DRAFT_ASSESSMENT_TYPE);
+		typeOrder.add(AssessmentType.SUBMITTED_ASSESSMENT_TYPE);
+		typeOrder.add(AssessmentType.FOR_PUBLICATION_ASSESSMENT_TYPE);
+		typeOrder.add(AssessmentType.PUBLISHED_ASSESSMENT_TYPE);
 	}
 	
 	@Override
@@ -34,10 +41,10 @@ public abstract class AssessmentNavigationComparator implements Comparator<Asses
 		}
 		
 		if (result == 0) {
-			String s1 = o1.getAssessmentType().getName();
-			String s2 = o2.getAssessmentType().getName();
+			Integer s1 = typeOrder.indexOf(o1.getType());
+			Integer s2 = typeOrder.indexOf(o2.getType());
 			
-			result = comparator.compare(s1, s2); 
+			result = s1.compareTo(s2); 
 			
 			if (result == 0)
 				result = dateComparator.compare(o1, o2);

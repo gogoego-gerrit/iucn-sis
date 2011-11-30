@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import javax.naming.NamingException;
 
@@ -14,7 +13,6 @@ import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -35,12 +33,9 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import com.solertium.db.Column;
 import com.solertium.db.DBException;
-import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
-import com.solertium.db.Row;
 import com.solertium.db.SQLDateHelper;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.util.BaseDocumentUtils;
@@ -113,9 +108,9 @@ public class ValidationResource extends BaseIntegrityResource {
 				
 				AssessmentFilterHelper helper = new AssessmentFilterHelper(session, data.getFilter());
 				for (Taxon taxon  : data.getTaxon()) {
-					for( Assessment curAss : helper.getAssessments(taxon.getId()) )
-						if( curAss.isDraft() ) 
-							info.add(new AssessmentInfo(curAss.getId(), AssessmentType.DRAFT_ASSESSMENT_TYPE));
+					for (Assessment assessment : helper.getAssessments(taxon.getId()) )
+						if (!assessment.isPublished()) 
+							info.add(new AssessmentInfo(assessment.getId(), assessment.getType()));
 				}
 			}
 		} else
@@ -203,7 +198,7 @@ public class ValidationResource extends BaseIntegrityResource {
 				.createElementWithText(response, "div", speciesName + " -- " + type.substring(0, type.indexOf("_")) + " -- ");
 		header.setAttribute("class", "sis_integrity_header");
 		
-		if (!isAssessmentInDatabase(session, assessmentID, type)) {
+		if (!isAssessmentInDatabase(session, assessmentID)) {
 			if (attachHeader)
 				root.appendChild(header);
 			final Element failure = BaseDocumentUtils.impl
@@ -262,7 +257,7 @@ public class ValidationResource extends BaseIntegrityResource {
 		return resp.isSuccess();
 	}
 	
-	private boolean isAssessmentInDatabase(Session session, Integer assessmentID, String assessmentType) {
+	private boolean isAssessmentInDatabase(Session session, Integer assessmentID) {
 		return new AssessmentIO(session).getAssessment(assessmentID) != null;
 	}
 	

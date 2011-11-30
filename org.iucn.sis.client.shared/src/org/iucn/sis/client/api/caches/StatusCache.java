@@ -126,7 +126,7 @@ public class StatusCache {
 			long date = assessment.getLastEdit() == null ? 0 : assessment.getLastEdit().getCreatedDate().getTime();
 
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-			ndoc.get(UriBase.getInstance().getSISBase() + "/status/assessment/" + assessment.getId() + "/" + assessment.getType() + "/" + date,
+			ndoc.get(UriBase.getInstance().getSISBase() + "/status/assessment/" + assessment.getId() + "/" + date,
 					new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					// Do nothing. No lock!

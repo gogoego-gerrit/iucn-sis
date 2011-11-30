@@ -122,10 +122,10 @@ public class PublicationData implements Serializable {
 	
 	private String toXML(Assessment assessment) {
 		StringBuilder out = new StringBuilder();
-		out.append("<assessment id=\"" + getId() + "\">");
+		out.append("<assessmentInfo id=\"" + assessment.getId() + "\">");
 		out.append(assessment.getTaxon().toXMLMinimal());
 		out.append(assessment.getAssessmentType().toXML());
-		out.append("</assessment>");
+		out.append("</assessmentInfo>");
 		return out.toString();
 	}
 	
@@ -159,7 +159,7 @@ public class PublicationData implements Serializable {
 		NativeNodeList nodes = element.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			NativeNode node = nodes.item(i);
-			if ("assessment".equals(node.getNodeName()))
+			if ("assessmentInfo".equals(node.getNodeName()))
 				data.setAssessment(assessmentFromXML((NativeElement)node));
 			else if ("group".equals(node.getNodeName()))
 				data.setGroup(node.getTextContent());

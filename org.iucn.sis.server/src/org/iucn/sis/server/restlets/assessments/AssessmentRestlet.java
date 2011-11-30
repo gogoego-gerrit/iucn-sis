@@ -156,7 +156,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 			if (type == null) {
 				fetched.addAll(assessmentIO.readAssessmentsForTaxon(taxonID));
 			} else if (type.equalsIgnoreCase(AssessmentType.DRAFT_ASSESSMENT_TYPE)) {
-				fetched.addAll(assessmentIO.readDraftAssessmentsForTaxon(taxonID));
+				fetched.addAll(assessmentIO.readUnpublishedAssessmentsForTaxon(taxonID));
 			} else if (type.equalsIgnoreCase(AssessmentType.PUBLISHED_ASSESSMENT_TYPE)) {
 				fetched.addAll(assessmentIO.readPublishedAssessmentsForTaxon(taxonID));
 			}

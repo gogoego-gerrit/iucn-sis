@@ -155,7 +155,7 @@ public class AssessmentType implements Serializable {
 	
 	public String getDisplayName(boolean capitalize) {
 		if (FOR_PUBLICATION_ASSESSMENT_TYPE.equals(getName()))
-			return "For Publication";
+			return capitalize ? "For Publication" : "for publication";
 		
 		String name = getName().replace("_status", "");
 		if (capitalize)

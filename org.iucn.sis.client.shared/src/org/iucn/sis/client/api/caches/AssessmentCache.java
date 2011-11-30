@@ -71,6 +71,10 @@ public class AssessmentCache {
 				remove(id);
 		}
 	}
+	
+	public void evictTaxonToAssessment(int taxonID) {
+		taxonToAssessmentCache.remove(taxonID);
+	}
 
 	public Assessment remove(Integer id) {
 		CacheEntry<Assessment> entry = cache.remove(Integer.valueOf(id));
@@ -224,14 +228,48 @@ public class AssessmentCache {
 		return getAssessmentsForTaxon(taxonID, AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID, schema);
 	}
 	
-	public Set<Assessment> getAssessmentsForTaxon(Integer taxonID, int assessmentType, String schema) {
-		if ( taxonToAssessmentCache.containsKey(taxonID)) {
+	public Set<Assessment> getUnpublishedAssessmentsForTaxon(Integer taxonID) {
+		return getUnpublishedAssessmentsForTaxon(taxonID, SchemaCache.impl.getDefaultSchema());
+	}
+	
+	public Set<Assessment> getUnpublishedAssessmentsForTaxon(Integer taxonID, String schema) {
+		Set<Integer> allowed = new HashSet<Integer>();
+		allowed.add(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID);
+		allowed.add(AssessmentType.SUBMITTED_ASSESSMENT_STATUS_ID);
+		allowed.add(AssessmentType.FOR_PUBLICATION_ASSESSMENT_STATUS_ID);
+		
+		return getAssessmentsForTaxon(taxonID, allowed, schema);
+	}
+	
+	public Set<Assessment> getAllAssessmentsForTaxon(Integer taxonID) {
+		return getAllAssessmentsForTaxon(taxonID, SchemaCache.impl.getDefaultSchema());
+	}
+	
+	public Set<Assessment> getAllAssessmentsForTaxon(Integer taxonID, String schema) {
+		Set<Integer> allowed = new HashSet<Integer>();
+		allowed.add(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID);
+		allowed.add(AssessmentType.SUBMITTED_ASSESSMENT_STATUS_ID);
+		allowed.add(AssessmentType.FOR_PUBLICATION_ASSESSMENT_STATUS_ID);
+		allowed.add(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID);
+		
+		return getAssessmentsForTaxon(taxonID, allowed, schema);
+	}
+	
+	public Set<Assessment> getAssessmentsForTaxon(Integer taxonID, Integer assessmentType, String schema) {
+		Set<Integer> allowed = new HashSet<Integer>();
+		allowed.add(assessmentType);
+		
+		return getAssessmentsForTaxon(taxonID, allowed, schema);
+	}
+		
+	public Set<Assessment> getAssessmentsForTaxon(Integer taxonID, Set<Integer> allowedAssessmentType, String schema) {
+		if (taxonToAssessmentCache.containsKey(taxonID)) {
 			Set<Assessment> assessments = new HashSet<Assessment>();
 			for (CacheEntry<Assessment> current : taxonToAssessmentCache.get(taxonID)) {
 				Assessment cur = current.getEntry();
 				String curSchema = cur.getSchema(SchemaCache.impl.getDefaultSchema());
 				if ((schema == null || schema.equals(curSchema)) && 
-						cur.getAssessmentType().getId() == assessmentType)
+						allowedAssessmentType.contains(cur.getAssessmentType().getId()))
 					assessments.add(cur);
 			}
 			return assessments;

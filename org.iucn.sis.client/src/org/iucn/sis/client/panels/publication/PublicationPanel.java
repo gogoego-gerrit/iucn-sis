@@ -36,6 +36,8 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 	
 	private final BorderLayout layout;
 	
+	private boolean drawn = false;
+	
 	public PublicationPanel() {
 		super();
 		setLayout(new FillLayout());
@@ -100,35 +102,38 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 		browser.update();
 		grid.draw(new DoneDrawingCallback() {
 			public void isDrawn() {
-				final BorderLayoutData top = new BorderLayoutData(LayoutRegion.NORTH, 200, 200, 200);
-				top.setFloatable(false);
-				top.setCollapsible(true);
-				top.setSplit(false);
+				if (!drawn) {
+					drawn = true;
 				
-				final LayoutContainer formGrid = new LayoutContainer(layout);
-				formGrid.add(form, top);
-				formGrid.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
-				
-				layout.collapse(LayoutRegion.NORTH);
-				
-				final BorderLayoutData left = new BorderLayoutData(LayoutRegion.WEST, 250, 250, 250);
-				left.setFloatable(true);
-				left.setCollapsible(true);
-				left.setSplit(false);
-				
-				final ContentPanel browserPanel = new ContentPanel();
-				browserPanel.setLayout(new FillLayout());
-				browserPanel.setHeading("Filter by Taxonomy");
-				browserPanel.add(browser);
-				
-				final LayoutContainer container = new LayoutContainer(new BorderLayout());
-				container.add(browserPanel, left);
-				container.add(formGrid, new BorderLayoutData(LayoutRegion.CENTER));
-				
-				((BorderLayout)container.getLayout()).collapse(LayoutRegion.WEST);
-				
-				add(container);
-				
+					final BorderLayoutData top = new BorderLayoutData(LayoutRegion.NORTH, 200, 200, 200);
+					top.setFloatable(false);
+					top.setCollapsible(true);
+					top.setSplit(false);
+					
+					final LayoutContainer formGrid = new LayoutContainer(layout);
+					formGrid.add(form, top);
+					formGrid.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
+					
+					layout.collapse(LayoutRegion.NORTH);
+					
+					final BorderLayoutData left = new BorderLayoutData(LayoutRegion.WEST, 250, 250, 250);
+					left.setFloatable(true);
+					left.setCollapsible(true);
+					left.setSplit(false);
+					
+					final ContentPanel browserPanel = new ContentPanel();
+					browserPanel.setLayout(new FillLayout());
+					browserPanel.setHeading("Filter by Taxonomy");
+					browserPanel.add(browser);
+					
+					final LayoutContainer container = new LayoutContainer(new BorderLayout());
+					container.add(browserPanel, left);
+					container.add(formGrid, new BorderLayoutData(LayoutRegion.CENTER));
+					
+					((BorderLayout)container.getLayout()).collapse(LayoutRegion.WEST);
+					
+					add(container);
+				}
 				callback.isDrawn();
 			}
 		});

@@ -8,6 +8,7 @@ import org.iucn.sis.client.api.assessment.FieldAttachmentWindow;
 import org.iucn.sis.client.api.assessment.ReferenceableAssessment;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.PublicationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.caches.ViewCache.EditStatus;
@@ -556,6 +557,28 @@ public class DEMToolbar extends ToolBar {
 		});
 		
 		mainMenu.add(integrity);
+		
+		final MenuItem submit = new MenuItem();
+		submit.setText("Submit Assessment");
+		submit.setIconStyle("icon-workflow");
+		submit.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				final Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+				PublicationCache.impl.submit(assessment, new GenericCallback<Object>() {
+					public void onSuccess(Object result) {
+						WindowUtils.infoAlert("Assessment has been submitted.");
+						if (saveListener != null)
+							saveListener.handleEvent();
+					}
+					public void onFailure(Throwable caught) {
+						
+					}
+				});
+			}
+		});
+		
+		mainMenu.add(submit);
+		
 		/*
 		final MenuItem workflow = new MenuItem();
 		workflow.setText("Submission Process Notes");

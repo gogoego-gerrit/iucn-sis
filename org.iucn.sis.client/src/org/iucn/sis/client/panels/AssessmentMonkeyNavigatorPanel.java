@@ -17,7 +17,6 @@ import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.models.comparators.AssessmentDateComparator;
@@ -109,11 +108,6 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 	protected ColumnModel getColumnModel() {
 		final List<ColumnConfig> list = new ArrayList<ColumnConfig>();
 		
-		/**
-		 * TODO: add an icon column; if this assessment is locked, 
-		 * display the lock icon.
-		 */
-		
 		ColumnConfig display = new ColumnConfig("name", "Name", 100);
 		display.setRenderer(new GridCellRenderer<NavigationModelData<Assessment>>() {
 			@Override
@@ -134,7 +128,7 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 				else {
 					style = MarkedCache.impl.getAssessmentStyle(assessment.getId());
 					value = !assessment.isPublished() ? 
-							getDraftDisplayableString(assessment) : getPublishedDisplayableString(assessment);
+							getDefaultDisplayableString(assessment) : getPublishedDisplayableString(assessment);
 					locked = !AuthorizationCache.impl.hasRight(AuthorizableObject.READ, assessment);
 				}
 				
@@ -156,6 +150,33 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 	
 	@Override
 	protected void getStore(final GenericCallback<ListStore<NavigationModelData<Assessment>>> callback) {
+		if (curNavTaxon == null)
+			callback.onSuccess(new ListStore<NavigationModelData<Assessment>>());
+		else if (curNavWorkingSet == null) {
+			AssessmentCache.impl.fetchPartialAssessmentsForTaxon(curNavTaxon.getId(), new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					callback.onSuccess(new ListStore<NavigationModelData<Assessment>>());
+				}
+				public void onSuccess(String unused) {
+					callback.onSuccess(createStore(new ArrayList<Assessment>(
+						AssessmentCache.impl.getAllAssessmentsForTaxon(curNavTaxon.getId())
+					)));
+				}
+			});
+		}
+		else {
+			WorkingSetCache.impl.getAssessmentsForWorkingSet(curNavWorkingSet, curNavTaxon, new GenericCallback<List<Assessment>>() {
+				public void onSuccess(List<Assessment> result) {
+					callback.onSuccess(createStore(result));
+				}
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Could not load assessments for the taxon in this working set.");
+				}
+			});
+		}
+	}
+	
+	private ListStore<NavigationModelData<Assessment>> createStore(List<Assessment> assessments) {
 		final ListStore<NavigationModelData<Assessment>> store = 
 			new ListStore<NavigationModelData<Assessment>>();
 		store.setKeyProvider(new ModelKeyProvider<NavigationModelData<Assessment>>() {
@@ -167,114 +188,52 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 			}
 		});
 		
-		if (curNavTaxon == null)
-			callback.onSuccess(store);
-		else if (curNavWorkingSet == null) {
-			AssessmentCache.impl.fetchPartialAssessmentsForTaxon(curNavTaxon.getId(), new GenericCallback<String>() {
-				public void onFailure(Throwable caught) {
-					callback.onSuccess(store);
-				}
-				public void onSuccess(String all) {
-					final List<Assessment> drafts = 
-						new ArrayList<Assessment>(AssessmentCache.impl.getDraftAssessmentsForTaxon(curNavTaxon.getId()));
-					Collections.sort(drafts, new AssessmentGroupedComparator());
-					
-					NavigationModelData<Assessment> draftHeader = new NavigationModelData<Assessment>(null);
-					draftHeader.set("name", "Draft Assessments (" + drafts.size() + ")");
-					draftHeader.set("header", Boolean.TRUE);
-					
-					store.add(draftHeader);
-					
-					for (Assessment current : drafts) {
-						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
-						model.set("name", getDraftDisplayableString(current));
-						model.set("status", "draft");
-						model.set("locked", !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
-									current));
-						model.set("header", Boolean.FALSE);
-						
-						store.add(model);
-					}
-					
-					final List<Assessment> published = 
-						new ArrayList<Assessment>(AssessmentCache.impl.getPublishedAssessmentsForTaxon(curNavTaxon.getId()));
-					Collections.sort(published, new AssessmentGroupedComparator());
-					
-					NavigationModelData<Assessment> pubHeader = new NavigationModelData<Assessment>(null);
-					pubHeader.set("name", "Published Assessments (" + published.size() + ")");
-					pubHeader.set("header", Boolean.TRUE);
-					
-					store.add(pubHeader);
-					
-					for (Assessment current : published) {
-						if (current == null)
-							continue;
-						
-						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
-						model.set("name", getPublishedDisplayableString(current));
-						model.set("status", "published");
-						model.set("header", Boolean.FALSE);
-
-						store.add(model);
-					}
-					
-					callback.onSuccess(store);
-				}
-			});
-		}
-		else {
-			WorkingSetCache.impl.getAssessmentsForWorkingSet(curNavWorkingSet, curNavTaxon, new GenericCallback<List<Assessment>>() {
-				public void onSuccess(List<Assessment> result) {
-					Collections.sort(result, new AssessmentGroupedComparator());
-					
-					String type = null;
-					NavigationModelData<Assessment> currentHeader = null;
-					int groupCount = 0;
-					
-					for (Assessment current : result) {
-						if (!current.getAssessmentType().getDisplayName(true).equals(type)) {
-							if (currentHeader != null)
-								updateHeaderCount(currentHeader, groupCount);
-							
-							type = current.getAssessmentType().getDisplayName(true);
-							
-							NavigationModelData<Assessment> header = new NavigationModelData<Assessment>(null);
-							header.set("name", type + " Assessments");
-							header.set("header", Boolean.TRUE);
-							
-							store.add(header);
-							
-							currentHeader = header;
-							groupCount = 0;
-						}
-						
-						NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
-						model.set("header", Boolean.FALSE);
-						if (AssessmentType.DRAFT_ASSESSMENT_STATUS_ID == (current.getAssessmentType().getId())) {
-							model.set("name", getDraftDisplayableString(current));
-							model.set("status", "draft");
-							model.set("locked", !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
-									current));
-						}
-						else {
-							model.set("name", getPublishedDisplayableString(current));
-							model.set("status", "published");
-						}
-						
-						store.add(model);
-						
-						groupCount++;
-					}
-					
+		Collections.sort(assessments, new AssessmentGroupedComparator());
+		
+		String type = null;
+		NavigationModelData<Assessment> currentHeader = null;
+		int groupCount = 0;
+		
+		for (Assessment current : assessments) {
+			if (!current.getAssessmentType().getDisplayName(true).equals(type)) {
+				if (currentHeader != null)
 					updateHeaderCount(currentHeader, groupCount);
-					
-					callback.onSuccess(store);
-				}
-				public void onFailure(Throwable caught) {
-					WindowUtils.errorAlert("Could not load assessments for the taxon in this working set.");
-				}
-			});
+				
+				type = current.getAssessmentType().getDisplayName(true);
+				
+				NavigationModelData<Assessment> header = new NavigationModelData<Assessment>(null);
+				header.set("name", type + " Assessments");
+				header.set("header", Boolean.TRUE);
+				
+				store.add(header);
+				
+				currentHeader = header;
+				groupCount = 0;
+			}
+			
+			NavigationModelData<Assessment> model = new NavigationModelData<Assessment>(current);
+			model.set("header", Boolean.FALSE);
+			if (current.isPublished()) {
+				model.set("name", getPublishedDisplayableString(current));
+				model.set("status", current.getType());
+			}
+			else {
+				model.set("name", getDefaultDisplayableString(current));
+				model.set("status", current.getType());
+				model.set("locked", !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
+						current));
+			}
+			
+			store.add(model);
+			
+			groupCount++;
 		}
+		
+		updateHeaderCount(currentHeader, groupCount);
+		
+		System.out.println("Store contains " + store.getCount() + " / " + assessments.size() + " assessments.");
+		
+		return store;
 	}
 	
 	private void updateHeaderCount(NavigationModelData<Assessment> header, int count) {
@@ -285,7 +244,9 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		}
 	}
 	
-	private String getDraftDisplayableString(Assessment current) {
+	private String getDefaultDisplayableString(Assessment current) {
+		String type = current.getAssessmentType().getDisplayName(true);
+		
 		String displayable;
 		if (current.getDateAssessed() != null )
 			displayable = FormattedDate.impl.getDate();
@@ -308,12 +269,12 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 				displayable += " --- " + "Global";
 		} else {
 			if (!current.hasRegions())
-				displayable = SchemaCache.impl.getFromCache(current.getSchema()).getName() + " Draft Assessment";
+				displayable = SchemaCache.impl.getFromCache(current.getSchema()).getName() + " " + type + " Assessment";
 			else {
 				if (current.isRegional())
-					displayable = "Regional Draft Assessment";
+					displayable = "Regional " + type + " Assessment";
 				else
-					displayable = "Global Draft Assessment";
+					displayable = "Global " + type + " Assessment";
 			}
 		}
 		

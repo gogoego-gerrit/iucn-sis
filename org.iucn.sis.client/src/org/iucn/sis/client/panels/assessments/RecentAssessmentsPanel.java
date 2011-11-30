@@ -9,7 +9,6 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.models.Taxon;
 
@@ -66,14 +65,7 @@ public class RecentAssessmentsPanel extends RefreshPortlet {
 			for (final RecentlyAccessedCache.RecentAssessment curInfo : recentAssessments) {
 				grid.setText(row, 0, curInfo.name);
 				
-				final String text;
-				if (AssessmentType.DRAFT_ASSESSMENT_TYPE.equals(curInfo.type))
-					text = "Draft";
-				else if (AssessmentType.PUBLISHED_ASSESSMENT_TYPE.equals(curInfo.type))
-					text = "Published";
-				else
-					text = "Mine";
-				grid.setText(row, 1, text);
+				grid.setText(row, 1, curInfo.getDisplayStatus());
 
 				grid.setText(row, 2, curInfo.region);
 				

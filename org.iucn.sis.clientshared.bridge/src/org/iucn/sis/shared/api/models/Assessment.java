@@ -205,7 +205,7 @@ public class Assessment implements Serializable, AuthorizableObject {
 	
 	@Override
 	public String getFullURI() {
-		return "resource/assessment/" + getAssessmentType().getName();
+		return "resource/assessment/" + getType();
 	}
 
 	@Override
