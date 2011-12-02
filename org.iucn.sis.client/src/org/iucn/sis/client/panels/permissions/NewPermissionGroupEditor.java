@@ -770,8 +770,9 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 		MenuItem assessment = new MenuItem("Assessment"); {
 			Menu typeMenu = new Menu();
 			List<AssessmentType> permittable = new ArrayList<AssessmentType>();
-			permittable.add(AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID));
-			permittable.add(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
+			for (int id : new int[] { AssessmentType.DRAFT_ASSESSMENT_STATUS_ID, AssessmentType.SUBMITTED_ASSESSMENT_STATUS_ID, 
+					AssessmentType.FOR_PUBLICATION_ASSESSMENT_STATUS_ID, AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID})
+				permittable.add(AssessmentType.getAssessmentType(id));
 			
 			for (AssessmentType type : permittable)
 				typeMenu.add(newMenuItem(type.getDisplayName(true), "resource/assessment/" + type.getName(), PermissionAttributeOptions.Assessment, listener));
