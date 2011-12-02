@@ -3,10 +3,12 @@ package org.iucn.sis.client.panels.publication;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.PublicationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.publication.PublicationBatchChange.BatchUpdateEvent;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
+import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -105,16 +107,26 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 				if (!drawn) {
 					drawn = true;
 				
-					final BorderLayoutData top = new BorderLayoutData(LayoutRegion.NORTH, 200, 200, 200);
-					top.setFloatable(false);
-					top.setCollapsible(true);
-					top.setSplit(false);
-					
-					final LayoutContainer formGrid = new LayoutContainer(layout);
-					formGrid.add(form, top);
-					formGrid.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
-					
-					layout.collapse(LayoutRegion.NORTH);
+					final LayoutContainer formGrid;
+					if (canBatchChange()) {
+						final BorderLayoutData top = new BorderLayoutData(LayoutRegion.NORTH, 200, 200, 200);
+						top.setFloatable(false);
+						top.setCollapsible(true);
+						top.setSplit(false);
+						
+						formGrid = new LayoutContainer(layout);
+						formGrid.add(form, top);
+						formGrid.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
+						
+						layout.collapse(LayoutRegion.NORTH);
+					}
+					else {
+						formGrid = new LayoutContainer(new FillLayout());
+						formGrid.add(grid);
+						
+						grid.hideCheckbox();
+					}
+						
 					
 					final BorderLayoutData left = new BorderLayoutData(LayoutRegion.WEST, 250, 250, 250);
 					left.setFloatable(true);
@@ -137,6 +149,10 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 				callback.isDrawn();
 			}
 		});
+	}
+	
+	private boolean canBatchChange() {
+		return AuthorizationCache.impl.canUse(AuthorizableFeature.PUBLICATION_MANAGER_EDITING_FEATURE);
 	}
 	
 	private static class FilteringTaxonomyBrowserPanel extends TaxonomyBrowserPanel {

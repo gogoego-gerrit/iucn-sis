@@ -566,17 +566,20 @@ public class HeaderContainer extends ContentPanel {
 			}
 		}));
 		
-		options.add(createMenuItem("icon-workflow", "Publication Workflow", new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				StateManager.impl.reset();
-				final PublicationPanel publicationPanel = new PublicationPanel();
-				publicationPanel.draw(new DrawsLazily.DoneDrawingCallback() {
-					public void isDrawn() {
-						openAdministrativeTool("Publication Workflow", "icon-workflow", publicationPanel);	
-					}
-				});
-			}
-		}));
+		if (AuthorizationCache.impl.canUse(AuthorizableFeature.PUBLICATION_MANAGER_FEATURE) || 
+				AuthorizationCache.impl.canUse(AuthorizableFeature.PUBLICATION_MANAGER_EDITING_FEATURE)) {
+			options.add(createMenuItem("icon-workflow", "Publication Workflow", new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					StateManager.impl.reset();
+					final PublicationPanel publicationPanel = new PublicationPanel();
+					publicationPanel.draw(new DrawsLazily.DoneDrawingCallback() {
+						public void isDrawn() {
+							openAdministrativeTool("Publication Workflow", "icon-workflow", publicationPanel);	
+						}
+					});
+				}
+			}));
+		}
 		
 		{
 			Menu menu = new Menu();

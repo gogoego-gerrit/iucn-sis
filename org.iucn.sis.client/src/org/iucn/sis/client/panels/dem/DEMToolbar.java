@@ -29,6 +29,7 @@ import org.iucn.sis.client.panels.utils.ReportOptionsPanel;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
+import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
 import org.iucn.sis.shared.api.io.AssessmentChangePacket;
@@ -558,26 +559,28 @@ public class DEMToolbar extends ToolBar {
 		
 		mainMenu.add(integrity);
 		
-		final MenuItem submit = new MenuItem();
-		submit.setText("Submit Assessment");
-		submit.setIconStyle("icon-workflow");
-		submit.addSelectionListener(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				final Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
-				PublicationCache.impl.submit(assessment, new GenericCallback<Object>() {
-					public void onSuccess(Object result) {
-						WindowUtils.infoAlert("Assessment has been submitted.");
-						if (saveListener != null)
-							saveListener.handleEvent();
-					}
-					public void onFailure(Throwable caught) {
-						
-					}
-				});
-			}
-		});
-		
-		mainMenu.add(submit);
+		if (AuthorizationCache.impl.canUse(AuthorizableFeature.PUBLICATION_MANAGER_FEATURE)) {
+			final MenuItem submit = new MenuItem();
+			submit.setText("Submit Assessment");
+			submit.setIconStyle("icon-workflow");
+			submit.addSelectionListener(new SelectionListener<MenuEvent>() {
+				public void componentSelected(MenuEvent ce) {
+					final Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+					PublicationCache.impl.submit(assessment, new GenericCallback<Object>() {
+						public void onSuccess(Object result) {
+							WindowUtils.infoAlert("Assessment has been submitted.");
+							if (saveListener != null)
+								saveListener.handleEvent();
+						}
+						public void onFailure(Throwable caught) {
+							
+						}
+					});
+				}
+			});
+			
+			mainMenu.add(submit);
+		}
 		
 		/*
 		final MenuItem workflow = new MenuItem();
