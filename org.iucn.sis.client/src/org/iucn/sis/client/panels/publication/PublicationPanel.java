@@ -172,7 +172,6 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 							WindowUtils.errorAlert("Failed to fetch taxon, please try again later.");
 						}
 						public void onSuccess(Taxon result) {
-							//updateNodeSummary();
 							listener.handleEvent(result);
 						}
 					});

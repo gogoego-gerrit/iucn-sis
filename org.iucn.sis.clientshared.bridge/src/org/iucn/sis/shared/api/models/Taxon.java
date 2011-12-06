@@ -544,7 +544,11 @@ public class Taxon implements AuthorizableObject, Serializable {
 	}
 
 	public String toXMLMinimal() {
-		return toRelatedXML(ROOT_TAG);
+		return toXMLMinimal(false);
+	}
+	
+	public String toXMLMinimal(boolean showFootprint) {
+		return toRelatedXML(ROOT_TAG, showFootprint);
 	}
 
 	/**
@@ -565,6 +569,8 @@ public class Taxon implements AuthorizableObject, Serializable {
 				taxon.setName(child.getTextContent());
 			else if ("fullname".equals(child.getNodeName()))
 				taxon.setFriendlyName(child.getTextContent());
+			else if ("footprint".equals(child.getNodeName()))
+				taxon.setFootprint(child.getTextContent().split(","));
 		}
 		
 		return taxon;
@@ -683,11 +689,17 @@ public class Taxon implements AuthorizableObject, Serializable {
 	 * @return
 	 */
 	String toRelatedXML(String tagName) {
+		return toRelatedXML(tagName, false);
+	}
+	
+	String toRelatedXML(String tagName, boolean showFootprint) {
 		if (tagName.equals("parent") || tagName.equalsIgnoreCase("child") || tagName.equals(Taxon.ROOT_TAG)) {
 			StringBuilder minimal = new StringBuilder();
 			minimal.append("<" + tagName + " id=\"" + getId() + "\">");
 			minimal.append(XMLWritingUtils.writeCDATATag("name", getName()));
 			minimal.append(XMLWritingUtils.writeCDATATag("fullname", getFriendlyName()));
+			if (showFootprint)
+				minimal.append(XMLWritingUtils.writeCDATATag("footprint", getFootprintCSV()));
 			minimal.append("</" + tagName + ">");
 			
 			return minimal.toString();

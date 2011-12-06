@@ -123,7 +123,7 @@ public class PublicationData implements Serializable {
 	private String toXML(Assessment assessment) {
 		StringBuilder out = new StringBuilder();
 		out.append("<assessmentInfo id=\"" + assessment.getId() + "\">");
-		out.append(assessment.getTaxon().toXMLMinimal());
+		out.append(assessment.getTaxon().toXMLMinimal(true));
 		out.append(assessment.getAssessmentType().toXML());
 		out.append("</assessmentInfo>");
 		return out.toString();

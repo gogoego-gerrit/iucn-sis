@@ -10,11 +10,17 @@ import org.iucn.sis.shared.api.models.PublicationTarget;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
+import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
+import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
@@ -22,8 +28,9 @@ import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class PublicationGrid extends PagingPanel<PublicationModelData> implements DrawsLazily {
 	
-	private final Grid<PublicationModelData> grid;
-	private final CheckBoxSelectionModel<PublicationModelData> sm;
+	private Grid<PublicationModelData> grid;
+	private CheckBoxSelectionModel<PublicationModelData> sm;
+	private TaxonFilter filter;
 	
 	public PublicationGrid() {
 		super();
@@ -35,6 +42,9 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 		grid = new Grid<PublicationModelData>(getStoreInstance(), getColumnModel());
 		grid.addPlugin(sm);
 		grid.setSelectionModel(sm);
+		
+		getProxy().setFilter(filter = new TaxonFilter());
+		getProxy().setSort(false);
 	}
 	
 	private ColumnModel getColumnModel() {
@@ -52,6 +62,28 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 		cols.get(0).setHidden(true);
 		
 		return new ColumnModel(cols);
+	}
+	
+	private GridFilters getGridFilters() {
+		ListStore<BaseModelData> filterStore = new ListStore<BaseModelData>();
+		for (PublicationTarget target : PublicationCache.impl.listTargetsFromCache()) {
+			BaseModelData model = new BaseModelData();
+			model.set("text", target.getName());
+			filterStore.add(model);
+		}
+		
+		final GridFilters filters = new GridFilters();
+		filters.setLocal(false);
+		
+		filters.addFilter(new StringFilter("group"));
+		filters.addFilter(new StringFilter("taxon"));
+		filters.addFilter(new StringFilter("status"));
+		filters.addFilter(new StringFilter("submitter"));
+		filters.addFilter(new ListFilter("goal", filterStore));
+		filters.addFilter(new ListFilter("approved", filterStore));
+		filters.addFilter(new StringFilter("notes"));
+		
+		return filters;
 	}
 
 	@Override
@@ -76,10 +108,11 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 	public void draw(final DoneDrawingCallback callback) {
 		PublicationCache.impl.listTargets(new ComplexListener<List<PublicationTarget>>() {
 			public void handleEvent(List<PublicationTarget> eventData) {
-				System.out.println("Targets found: " + eventData);
 				removeAll();
 				refresh(new DrawsLazily.DoneDrawingCallback() {
 					public void isDrawn() {
+						grid.addPlugin(getGridFilters());
+						
 						add(grid);
 						
 						callback.isDrawn();
@@ -102,11 +135,36 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 	}
 	
 	public void filterByTaxon(Taxon taxon) {
-		//TODO: implement
+		filter.setTaxon(taxon);
+		getProxy().filter("taxon", "");
+		getLoader().load();
 	}
 	
 	public List<PublicationModelData> getChecked() {
 		return sm.getSelectedItems();
+	}
+	
+	private static class TaxonFilter implements StoreFilter<PublicationModelData> {
+		
+		private String[] base;
+		
+		public void setTaxon(Taxon taxon) {
+			base = taxon.getFootprint();
+		}
+		
+		@Override
+		public boolean select(Store<PublicationModelData> store,
+				PublicationModelData parent, PublicationModelData item,
+				String property) {
+			String[] test = item.getModel().getAssessment().getTaxon().getFootprint();
+			
+			boolean select = base != null && base.length <= test.length;
+			for (int i = 0; select && i < base.length && i < test.length; i++)
+				select = base[i].equals(test[i]);
+			
+			return select;
+		}
+		
 	}
 	
 }
