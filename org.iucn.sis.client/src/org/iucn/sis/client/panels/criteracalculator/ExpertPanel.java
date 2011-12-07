@@ -1,10 +1,14 @@
 package org.iucn.sis.client.panels.criteracalculator;
 
+import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.utils.BasicWindow;
+import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertUtils;
 import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
+import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.io.AssessmentChangePacket;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.fields.RedListFuzzyResultField;
@@ -19,8 +23,11 @@ import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -268,10 +275,22 @@ public class ExpertPanel extends BasicWindow implements DrawsLazily {
 					draw(new DrawsLazily.DoneDrawingCallback() {
 						public void isDrawn() {
 							layout();
+							DeferredCommand.addCommand(new Command() {
+								public void execute() {
+									backgroundSave();
+								}
+							});
 						}
 					});
 				}
 			}));
+		}
+		else {
+			DeferredCommand.addCommand(new Command() {
+				public void execute() {
+					backgroundSave();
+				}
+			});
 		}
 		addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
@@ -280,6 +299,25 @@ public class ExpertPanel extends BasicWindow implements DrawsLazily {
 		}));
 
 		callback.isDrawn();
+	}
+	
+	private void backgroundSave() {
+		Assessment assessment = AssessmentCache.impl.getCurrentAssessment();
+		Field field = assessment.getField(CanonicalNames.RedListFuzzyResult);
+		if (field != null) {
+			AssessmentChangePacket packet = new AssessmentChangePacket(assessment.getId());
+			packet.addChange(field);
+			
+			try {
+				AssessmentClientSaveUtils.saveAssessment(packet, assessment, new GenericCallback<AssessmentChangePacket>() {
+					public void onSuccess(AssessmentChangePacket result) {
+						Debug.println("Expert System results updated.");
+					}
+					public void onFailure(Throwable caught) {
+					}
+				});
+			} catch (InsufficientRightsException ignored) { }
+		}
 	}
 
 }
