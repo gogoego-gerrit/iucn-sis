@@ -23,7 +23,6 @@ public class AssessmentDeepCopyFilter implements Assessment.DeepCopyFilter {
 		excluded.add(CanonicalNames.RedListPetition);
 		excluded.add(CanonicalNames.RedListEvaluated);
 		excluded.add(CanonicalNames.RedListConsistencyCheck);
-		excluded.add(CanonicalNames.RedListFuzzyResult);
 	}
 	
 	@Override
