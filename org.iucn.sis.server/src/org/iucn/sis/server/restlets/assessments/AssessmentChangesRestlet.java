@@ -251,6 +251,21 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 		out.append("<ul>");
 		
 		for (Field field : packet.getAdditions()) {
+			List<Field> toRemove = new ArrayList<Field>();
+			for (Field existing : assessment.getField())
+				if (field.getName().equals(existing.getName()))
+					toRemove.add(existing);
+			
+			for (Field existing : toRemove) {
+				assessment.getField().remove(existing);
+				try {
+					FieldDAO.deleteAndDissociate(existing, session);
+				} catch (PersistentException e) {
+					Debug.println(e);
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+			}
+			
 			field.setAssessment(assessment);
 			assessment.getField().add(field);
 			
