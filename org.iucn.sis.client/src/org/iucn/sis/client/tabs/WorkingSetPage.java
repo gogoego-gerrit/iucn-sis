@@ -3,6 +3,7 @@ package org.iucn.sis.client.tabs;
 import java.util.Date;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.PublicationCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -26,6 +27,7 @@ import org.iucn.sis.client.panels.workingsets.WorkingSetReportPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetSummaryPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
+import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
@@ -164,6 +166,33 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 			buttonArea.add(createButton("Report Generator", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
 					setBodyContainer(new WorkingSetReportPanel());
+				}
+			}));			
+			buttonArea.add(createButton("Submit For Publication", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {
+					if (AuthorizationCache.impl.canUse(AuthorizableFeature.PUBLICATION_MANAGER_FEATURE)) {
+						WindowUtils.SimpleMessageBoxListener listener = new WindowUtils.SimpleMessageBoxListener() {
+							public void onYes() {
+								PublicationCache.impl.submit(WorkingSetCache.impl.getCurrentWorkingSet(), new GenericCallback<Object>() {
+									public void onSuccess(Object result) {
+										WindowUtils.infoAlert("All assessments in this working set were submitted successfully.");
+									}
+									public void onFailure(Throwable caught) {
+										// TODO: list assessments that caused failure
+										WindowUtils.errorAlert("Failed to submit working set, please try again later.");
+									}
+								});
+							}
+						};
+						
+						WindowUtils.confirmAlert("Confirm", "Are you sure you want to " +
+							"submit this working set? Assessments will only be submitted " +
+							"if <b>every</b> assessment in this working set is eligible " +
+							"for submission and passes integrity valiation.", listener);
+					}
+					else
+						WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission to submit " +
+								"this working set.");
 				}
 			}));
 			buttonArea.add(createButton("Export to Offline", new SelectionListener<ButtonEvent>() {
