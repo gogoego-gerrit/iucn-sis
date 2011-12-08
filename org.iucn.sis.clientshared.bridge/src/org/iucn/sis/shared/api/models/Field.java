@@ -148,6 +148,7 @@ public class Field implements Serializable {
 			field.setNotes(new HashSet<Notes>());
 			for (Notes note : getNotes()) {
 				Notes copy = note.deepCopy();
+				copy.setId(0);
 				copy.getFields().add(field);
 				field.getNotes().add(copy);
 			}
