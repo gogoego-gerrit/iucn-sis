@@ -2,18 +2,20 @@ package org.iucn.sis.server.api.io;
 
 import java.util.Calendar;
 import java.util.List;
-import java.util.Properties;
 
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
@@ -120,6 +122,46 @@ public class PublicationIO {
 			.add(Restrictions.ne("AssessmentType.id", AssessmentType.DRAFT_ASSESSMENT_STATUS_ID));
 		
 		return criteria.list();
+	}
+	
+	public void deleteTarget(int id) throws PublicationException {
+		PublicationTarget target;
+		try {
+			target = (PublicationTarget)session.load(PublicationTarget.class, id);
+		} catch (HibernateException e) {
+			throw new PublicationException(Status.CLIENT_ERROR_BAD_REQUEST, "Target not found: " + id);
+		}
+		
+		Hibernate.initialize(target.getApproved());
+		Hibernate.initialize(target.getGoals());
+		
+		if (target.getApproved().isEmpty() && target.getGoals().isEmpty())
+			session.delete(target);
+		else
+			throw new PublicationException(Status.CLIENT_ERROR_CONFLICT, "Target in use.");
+	}
+	
+	public void updateTarget(PublicationTarget source) throws PublicationException {
+		PublicationTarget target;
+		try {
+			target = (PublicationTarget)session.load(PublicationTarget.class, source.getId());
+		} catch (HibernateException e) {
+			throw new PublicationException(Status.CLIENT_ERROR_NOT_FOUND, "Did not find a target with identifier " + source.getId());
+		}
+		
+		target.setName(source.getName());
+		target.setDate(source.getDate());
+		if (source.getReference() == null)
+			target.setReference(null);
+		else
+			target.setReference((Reference)session.get(Reference.class, source.getReference().getId()));
+		
+		try {
+			session.update(target);
+		} catch (HibernateException e) {
+			Debug.println(e);
+			throw new PublicationException(Status.SERVER_ERROR_INTERNAL, "Could not save due to server error.");
+		}
 	}
 	
 	public static class PublicationException extends ResourceException {

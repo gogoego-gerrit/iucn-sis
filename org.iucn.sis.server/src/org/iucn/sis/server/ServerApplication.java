@@ -13,6 +13,7 @@ import org.iucn.sis.server.restlets.assessments.AsmChangesResource;
 import org.iucn.sis.server.restlets.assessments.AssessmentChangesRestlet;
 import org.iucn.sis.server.restlets.assessments.AssessmentRestlet;
 import org.iucn.sis.server.restlets.publication.PublicationRestlet;
+import org.iucn.sis.server.restlets.publication.PublicationTargetRestlet;
 import org.iucn.sis.server.restlets.schema.AssessmentSchemaRestlet;
 import org.iucn.sis.server.restlets.taxa.CommonNameRestlet;
 import org.iucn.sis.server.restlets.taxa.SynonymRestlet;
@@ -96,6 +97,7 @@ public class ServerApplication extends SISApplication{
 		addServiceToRouter(new LanguageRestlet(app.getContext()));
 		addServiceToRouter(new MultiDocumentRestlet(app.getContext()));
 		addServiceToRouter(new PublicationRestlet(app.getContext()));
+		addServiceToRouter(new PublicationTargetRestlet(app.getContext()));
 	}
 	
 	private void addServiceToRouter(BaseServiceRestlet curService) {

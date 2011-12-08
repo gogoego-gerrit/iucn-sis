@@ -14,5 +14,15 @@ License Type: Evaluation
 		<property name="date" column="date" type="java.util.Date" not-null="false" lazy="false"/>
 		<many-to-one name="reference" cascade="lock,replicate" column="referenceid" class="org.iucn.sis.shared.api.models.Reference" not-null="false" lazy="no-proxy">
 		</many-to-one>
+		<set name="approved" table="assessment_publication" lazy="true" inverse="true">
+			<key column="target_approved" not-null="false" />
+			<many-to-many column="id" class="org.iucn.sis.shared.api.models.PublicationData">
+			</many-to-many>
+		</set>
+		<set name="goals" table="assessment_publication" lazy="true" inverse="true">
+			<key column="target_goal" not-null="false" />
+			<many-to-many column="id" class="org.iucn.sis.shared.api.models.PublicationData">
+			</many-to-many>
+		</set>
 	</class>
 </hibernate-mapping>

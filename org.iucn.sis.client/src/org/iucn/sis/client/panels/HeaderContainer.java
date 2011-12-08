@@ -20,6 +20,7 @@ import org.iucn.sis.client.panels.locking.LockManagementPanel;
 import org.iucn.sis.client.panels.permissions.NewPermissionGroupEditor;
 import org.iucn.sis.client.panels.permissions.PermissionGroupEditor;
 import org.iucn.sis.client.panels.publication.PublicationPanel;
+import org.iucn.sis.client.panels.publication.targets.PublicationTargetManager;
 import org.iucn.sis.client.panels.redlist.RedlistPanel;
 import org.iucn.sis.client.panels.region.RegionPanel;
 import org.iucn.sis.client.panels.search.SearchCache;
@@ -455,6 +456,21 @@ public class HeaderContainer extends ContentPanel {
 						lockManagementPanel.draw(new DrawsLazily.DoneDrawingCallback() {
 							public void isDrawn() {
 								openAdministrativeTool(title, "icon-lock", lockManagementPanel);
+							}
+						});
+					}
+				}));
+			}
+			
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.PUBLICATION_MANAGER_EDITING_FEATURE)) {
+				final String title = "Manage Publication Targets";
+				final String icon = "icon-prefs";
+				menu.add(createMenuItem(icon, title, new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						final PublicationTargetManager manager = new PublicationTargetManager();
+						manager.draw(new DrawsLazily.DoneDrawingCallback() {
+							public void isDrawn() {
+								openAdministrativeTool(title, icon, manager);
 							}
 						});
 					}

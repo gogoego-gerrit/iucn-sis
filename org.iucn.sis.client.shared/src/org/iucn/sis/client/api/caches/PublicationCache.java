@@ -2,7 +2,6 @@ package org.iucn.sis.client.api.caches;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +12,9 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
-import org.iucn.sis.shared.api.models.Taxon;
-import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
+import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -130,6 +128,54 @@ public class PublicationCache {
 				/*WindowUtils.errorAlert("Could not make changes, please try again later: <br/>" + 
 						ClientDocumentUtils.parseStatus(document));*/
 				onSuccess(null);
+			}
+		});
+	}
+	
+	public void createTarget(final PublicationTarget target, final GenericCallback<Object> callback) {
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.put(UriBase.getInstance().getSISBase() + "/publication/targets", target.toXML(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				PublicationTarget source = PublicationTarget.fromXML(document.getDocumentElement());
+				target.setId(source.getId());
+				
+				cacheTarget(target);
+				
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	public void updateTarget(final PublicationTarget target, final GenericCallback<Object> callback) {
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.post(UriBase.getInstance().getSISBase() + "/publication/targets/" + target.getId(), target.toXML(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				callback.onFailure(caught);
+			}
+		});
+	}
+	
+	public void deleteTarget(final PublicationTarget target, final GenericCallback<Object> callback) {
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.delete(UriBase.getInstance().getSISBase() + "/publication/targets/" + target.getId(), new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				targets.remove(target.getId());
+				
+				callback.onSuccess(result);
+			}
+			public void onFailure(Throwable caught) {
+				if (caught instanceof GWTConflictException)
+					WindowUtils.errorAlert("Could not delete as this target is still in use.");
+				else
+					WindowUtils.errorAlert("Could not delete, please try again later.");
+				
+				callback.onFailure(caught);
 			}
 		});
 	}

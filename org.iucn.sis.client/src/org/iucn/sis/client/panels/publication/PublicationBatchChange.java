@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels.publication;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.PublicationCache;
+import org.iucn.sis.client.panels.publication.targets.PublicationTargetEditor;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.PublicationTarget;
 
@@ -10,6 +11,7 @@ import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
@@ -26,6 +28,18 @@ public class PublicationBatchChange extends FormPanel {
 		setHeading("Batch Update");
 		setBorders(false);
 		setBodyBorder(false);
+		
+		addButton(new Button("Add Publication Targets", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				PublicationTargetEditor editor = new PublicationTargetEditor(null);
+				editor.addListener(Events.Update, new Listener<BaseEvent>() {
+					public void handleEvent(BaseEvent be) {
+						refreshStores();
+					}
+				});
+				editor.show();
+			}
+		}));
 		
 		addButton(new Button("Submit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
@@ -65,6 +79,18 @@ public class PublicationBatchChange extends FormPanel {
 		add(approved);
 		
 		layout();
+	}
+	
+	private void refreshStores() {
+		List<PublicationTarget> options = PublicationCache.impl.listTargetsFromCache();
+		
+		goal.getStore().removeAll();
+		approved.getStore().removeAll();
+		
+		for (PublicationTarget option : options) {
+			goal.getStore().add(new NameValueModelData(option.getName(), option.getId()+""));
+			approved.getStore().add(new NameValueModelData(option.getName(), option.getId()+""));
+		}
 	}
 	
 	private ComboBox<NameValueModelData> newComboBox(String label) {

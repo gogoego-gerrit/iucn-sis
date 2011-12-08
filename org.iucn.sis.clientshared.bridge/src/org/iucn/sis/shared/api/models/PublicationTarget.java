@@ -22,6 +22,13 @@ public class PublicationTarget implements Serializable, Comparable<PublicationTa
 	
 	private Reference reference;
 	
+	/*
+	 * Lazy and only used for access on the server.
+	 */
+	private java.util.Set<PublicationData> goals;
+	
+	private java.util.Set<PublicationData> approved;
+	
 	public PublicationTarget() {
 	}
 	
@@ -55,6 +62,22 @@ public class PublicationTarget implements Serializable, Comparable<PublicationTa
 	
 	public void setReference(Reference reference) {
 		this.reference = reference;
+	}
+	
+	public java.util.Set<PublicationData> getApproved() {
+		return approved;
+	}
+	
+	public void setApproved(java.util.Set<PublicationData> approved) {
+		this.approved = approved;
+	}
+	
+	public java.util.Set<PublicationData> getGoals() {
+		return goals;
+	}
+	
+	public void setGoals(java.util.Set<PublicationData> goals) {
+		this.goals = goals;
 	}
 	
 	public String toXML() {

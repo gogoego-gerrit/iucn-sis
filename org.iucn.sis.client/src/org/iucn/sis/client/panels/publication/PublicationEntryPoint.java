@@ -7,6 +7,7 @@ import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.PublicationCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.HasCache;
+import org.iucn.sis.client.panels.BodyContainer;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -57,6 +58,8 @@ public class PublicationEntryPoint extends SISClientBase {
 	@Override
 	public void buildPostLogin() {
 		WindowUtils.hideLoadingAlert();
+		
+		ClientUIContainer.bodyContainer = new BodyContainer();
 		
 		container.removeAll();
 		
