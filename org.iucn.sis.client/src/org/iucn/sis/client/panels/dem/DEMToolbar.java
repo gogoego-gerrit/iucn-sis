@@ -54,6 +54,7 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.menu.CheckMenuItem;
 import com.extjs.gxt.ui.client.widget.menu.Menu;
 import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.extjs.gxt.ui.client.widget.menu.SeparatorMenuItem;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
@@ -144,7 +145,6 @@ public class DEMToolbar extends ToolBar {
 		Button item = new Button();
 		item.setText("New");
 		item.setIconStyle("icon-new-document");
-
 		item.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 
@@ -292,12 +292,7 @@ public class DEMToolbar extends ToolBar {
 		add(new SeparatorToolItem());
 		//add(new SeparatorToolItem());
 
-		item = new Button();
-		item.setText("Tools");
-		item.setIconStyle("icon-preferences-wrench");
-
 		mainMenu = new Menu();
-		item.setMenu(mainMenu);
 
 		mItem = new MenuItem();
 		mItem.setText("Edit Common Names");
@@ -394,6 +389,8 @@ public class DEMToolbar extends ToolBar {
 			}
 		});
 		mainMenu.add(mItem);
+		
+		mainMenu.add(new SeparatorMenuItem());
 
 		mItem = new MenuItem();
 		mItem.setText("Attach Image");
@@ -419,26 +416,6 @@ public class DEMToolbar extends ToolBar {
 			}
 		});
 		mainMenu.add(mItem);
-
-		// mItem = new MenuItem(Style.PUSH);
-		// mItem.setText("View Bibliography");
-		// mItem.setIconStyle("icon-book-open");
-		// mItem.addSelectionListener(new SelectionListener() {
-		// public void widgetSelected(BaseEvent be) {
-		// DEMToolsPopups.buildBibliographyPopup();
-		// }
-		// });
-		// mainMenu.add(mItem);
-		//
-		// mItem = new MenuItem(Style.PUSH);
-		// mItem.setText("View References By Field");
-		// mItem.setIconStyle("icon-book-open");
-		// mItem.addSelectionListener(new SelectionListener() {
-		// public void widgetSelected(BaseEvent be) {
-		// DEMToolsPopups.buildReferencePopup();
-		// }
-		// });
-		// mainMenu.add(mItem);
 
 		mItem = new MenuItem();
 		mItem.setText("Manage References");
@@ -475,69 +452,21 @@ public class DEMToolbar extends ToolBar {
 			}
 		});
 		mainMenu.add(mItem);
+		
+		mainMenu.add(new SeparatorMenuItem());
 
 		mItem = new MenuItem();
 		mItem.setIconStyle("icon-changes");
 		mItem.setText("Changes");
 		mItem.addListener(Events.Select, new Listener<BaseEvent>() {
 			public void handleEvent(BaseEvent be) {
-				//if( SimpleSISClient.iAmOnline ) {
-					TrackChangesPanel panel = new TrackChangesPanel(AssessmentCache.impl.getCurrentAssessment());
-					panel.show();
-					/*final AssessmentChangesPanel panel = new AssessmentChangesPanel();
-					
-					final Window window = WindowUtils.getWindow(true, false, "Assessment Changes");
-					window.setClosable(true);
-					window.setSize(900, 500);
-					window.setLayout(new FillLayout());
-					
-					panel.draw(new DrawsLazily.DoneDrawingCallback() {
-						public void isDrawn() {
-							window.add(panel);	
-							window.show();	
-						}
-					});*/
-				/*} else {
-					WindowUtils.errorAlert("Not available offline.", "Sorry, this feature is not " +
-							"available offline.");
-				}*/
+				TrackChangesPanel panel = new TrackChangesPanel(AssessmentCache.impl.getCurrentAssessment());
+				panel.show();
 			}
 		});
 
 		mainMenu.add(mItem);
 
-//		mItem = new MenuItem();
-//		mItem.setIconStyle("icon-comments");
-//		mItem.setText("Comments");
-//		mItem.addListener(Events.Select, new Listener<BaseEvent>() {
-//			public void handleEvent(BaseEvent be) {
-//				Assessment a = AssessmentCache.impl.getCurrentAssessment();
-//				Window alert = WindowUtils.getWindow(false, false, "Assessment #" + a.getId());
-//				LayoutContainer c = alert;
-//				c.setLayout(new FillLayout());
-//				c.setSize(300, 450);
-//				TabItem item = new TabItem();
-//				item.setIconStyle("icon-comments");
-//				item.setText("Comments");
-//				String target = "/comments/browse/assessment/"
-//					+ FilenameStriper.getIDAsStripedPath(a.getId()) + ".comments.xml";
-//				SysDebugger.getInstance().println(target);
-//				item.setUrl(target);
-//				TabPanel tf = new TabPanel();
-//				tf.add(item);
-//				c.add(tf);
-//				alert.show();
-//				return;
-//			}
-//		});
-//		mainMenu.add(mItem);
-		add(item);
-
-		/*
-		 * The three items below are not and will not 
-		 * be ready for SIS 2.0 launch.
-		 */
-		
 		mItem = new MenuItem();
 		mItem.setText("View Report");
 		mItem.setIconStyle("icon-report");
@@ -547,6 +476,8 @@ public class DEMToolbar extends ToolBar {
 			}
 		});
 		mainMenu.add(mItem);
+		
+		mainMenu.add(new SeparatorMenuItem());
 		
 		final MenuItem integrity = new MenuItem();
 		integrity.setText("Validate Assessment");
@@ -581,21 +512,13 @@ public class DEMToolbar extends ToolBar {
 			
 			mainMenu.add(submit);
 		}
-		
-		/*
-		final MenuItem workflow = new MenuItem();
-		workflow.setText("Submission Process Notes");
-		workflow.setIconStyle("icon-workflow");
-		workflow.addSelectionListener(new SelectionListener<MenuEvent>() {
-			public void componentSelected(MenuEvent ce) {
-				final WorkflowNotesWindow window = 
-					new WorkflowNotesWindow(AssessmentCache.impl.getCurrentAssessment().getId()+"");
-				window.show();
-			}
-		});
-		
-		mainMenu.add(workflow);*/
 
+		item = new Button();
+		item.setText("Tools");
+		item.setIconStyle("icon-preferences-wrench");
+		item.setMenu(mainMenu);
+		add(item);
+		
 		add(new SeparatorToolItem());
 		
 		Button mcbutton = new Button();

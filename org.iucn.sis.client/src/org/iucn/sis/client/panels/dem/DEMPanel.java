@@ -37,12 +37,14 @@ import org.iucn.sis.shared.api.utils.CommonNameComparator;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.InfoConfig;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Command;
@@ -208,8 +210,37 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 				
 		int row = 0;
 		
+		Html statusInfo = new Html(item.getAssessmentType().getDisplayName(true));
+		statusInfo.addStyleName("page_assessment_featured_content");
+		if (item.getPublicationData() != null && !item.isDraft() && !item.isPublished()) {
+			StringBuilder text = new StringBuilder();
+			text.append("Submitted on " + FormattedDate.FULL.getDate(item.getPublicationData().getSubmissionDate()) + " by " + 
+				item.getPublicationData().getSubmitter().getDisplayableName() + ".");
+			if (item.getPublicationData().getGroup() != null && !"".equals(item.getPublicationData().getGroup()))
+				text.append("<br/>It was submitted with the group \"" + item.getPublicationData().getGroup());
+			if (item.getPublicationData().getTargetApproved() != null)
+				text.append("<br/>Publication is approved for " + item.getPublicationData().getTargetApproved().getName() + ", " + 
+					"currently scheduled for around " + FormattedDate.SHORT.getDate(item.getPublicationData().getTargetApproved().getDate()) + 
+					".");
+			else if (item.getPublicationData().getTargetGoal() != null)
+				text.append("<br/>Publication is targeted for " + item.getPublicationData().getTargetGoal().getName() + ", " +
+					"currently scheduled for around " + FormattedDate.SHORT.getDate(item.getPublicationData().getTargetGoal().getDate()) + 
+					". It has not yet been approved.");
+			else
+				text.append("<br/>Publication has not yet been targeted.");
+			
+			ToolTipConfig config = new ToolTipConfig();
+			config.setTitle("Submission Information");
+			config.setText(text.toString());
+			config.setCloseable(true);
+			config.setAutoHide(false);
+			
+			statusInfo.addStyleName("SIS_HyperlinkLookAlike");
+			statusInfo.setToolTip(config);
+		}
+		
 		stats.setWidget(row, 0, new StyledHTML("Status: ", "page_assessment_featured_prompt"));
-		stats.setWidget(row, 1, new StyledHTML(item.getAssessmentType().getDisplayName(true), "page_assessment_featured_content"));
+		stats.setWidget(row, 1, statusInfo);
 		
 		//U/T assessments aren't regional...
 		if (!regions.isEmpty()) {
