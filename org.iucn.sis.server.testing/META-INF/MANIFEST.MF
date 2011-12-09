@@ -48,4 +48,5 @@ Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  org.iucn.sis.server.extensions.attachments;bundle-version="2.0.0",
  org.iucn.sis.server.extensions.export;bundle-version="1.0.0",
  org.iucn.sis.server.extensions.videos;bundle-version="2.0.0",
- org.iucn.sis.server.extensions.reports;bundle-version="1.0.0"
+ org.iucn.sis.server.extensions.reports;bundle-version="1.0.0",
+ org.iucn.sis.server.extensions.offline;bundle-version="1.0.0"
