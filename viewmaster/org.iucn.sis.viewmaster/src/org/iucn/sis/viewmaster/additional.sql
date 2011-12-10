@@ -215,3 +215,16 @@ CREATE VIEW $schema.vw_common_name AS
   WHERE principal = true
   GROUP BY name, taxonid;
 GRANT SELECT ON $schema.vw_common_name TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_synonym;
+CREATE VIEW $schema.vw_synonym AS
+  SELECT taxonid, friendly_name
+  FROM synonym;
+GRANT SELECT ON $schema.vw_synonym TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_common_name_all;
+CREATE VIEW $schema.vw_common_name_all AS
+  SELECT taxonid, name
+  FROM common_name
+  WHERE principal = false;
+GRANT SELECT ON $schema.vw_common_name_all TO $user; 
