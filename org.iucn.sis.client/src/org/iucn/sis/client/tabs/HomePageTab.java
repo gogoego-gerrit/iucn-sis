@@ -2,6 +2,7 @@ package org.iucn.sis.client.tabs;
 
 import org.iucn.sis.client.panels.assessments.RecentAssessmentsPanel;
 import org.iucn.sis.client.tabs.home.BrowseTaxonomyPortlet;
+import org.iucn.sis.client.tabs.home.RecentActivityPortlet;
 import org.iucn.sis.client.tabs.home.SearchPortlet;
 import org.iucn.sis.client.tabs.home.VideoContentPortlet;
 
@@ -48,6 +49,7 @@ public class HomePageTab extends LayoutContainer {
 		portal.add(new SearchPortlet(), 0);
 		portal.add(new BrowseTaxonomyPortlet(), 0);
 		portal.add(recentAssessmentsPanel, 1);
+		portal.add(new RecentActivityPortlet(), 1);
 		portal.add(new VideoContentPortlet(), 2);
 		
 
