@@ -1,12 +1,10 @@
 package org.iucn.sis.server.extensions.recentasms;
 
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.User;
@@ -54,15 +52,11 @@ public class RecentActivityRestlet extends BaseServiceRestlet {
 			"ORDER BY created_date DESC " +
 			"LIMIT 250";
 			
-			List<Object[]> list;
+			final List<Object[]> list;
 			try {
 				list = session.createSQLQuery(query).list();
-			} catch (HibernateException e) {
-				e.printStackTrace();
-				if (e.getCause() instanceof SQLException)
-					((SQLException)e.getCause()).getNextException().printStackTrace();
-				
-				throw e;
+			} catch (Exception e) {
+				throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, e);
 			}
 			
 			final StringBuilder out = new StringBuilder();
@@ -91,6 +85,4 @@ public class RecentActivityRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.SERVER_ERROR_NOT_IMPLEMENTED);
 	}
 	
-	
-
 }
