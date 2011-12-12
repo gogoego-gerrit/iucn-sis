@@ -60,8 +60,13 @@ public abstract class Converter {
 		return "true".equals(parameters.getFirstValue("email", "false"));
 	}
 	
+	public void setSession(Session session) {
+		this.session = session;
+	}
+	
 	public boolean start() {
-		session = SISPersistentManager.instance().openSession();
+		if (session == null)
+			session = SISPersistentManager.instance().openSession();
 		session.beginTransaction();
 		
 		Date start = Calendar.getInstance().getTime();
