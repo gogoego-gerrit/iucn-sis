@@ -272,6 +272,10 @@ public class HeaderContainer extends ContentPanel {
 	}
 	
 	private void openAdministrativeTool(String title, String iconStyle, LayoutContainer container) {
+		openAdministrativeTool(title, iconStyle, 700, 500, container);
+	}
+	
+	private void openAdministrativeTool(String title, String iconStyle, int width, int height, LayoutContainer container) {
 		/*final ContentPanel panel = new ContentPanel();
 		panel.setHeading(title);
 		panel.setIconStyle(iconStyle);
@@ -279,9 +283,9 @@ public class HeaderContainer extends ContentPanel {
 		panel.add(container);
 		
 		ClientUIContainer.bodyContainer.openAdministrativePage(panel, true);*/
-		Window window = WindowUtils.newWindow(title, iconStyle, false, true);
+		Window window = WindowUtils.newWindow(title, iconStyle, true, true);
 		window.setLayout(new FillLayout());
-		window.setSize(700, 500);
+		window.setSize(width, height);
 		window.add(container);
 		window.show();
 	}
@@ -590,7 +594,7 @@ public class HeaderContainer extends ContentPanel {
 					final PublicationPanel publicationPanel = new PublicationPanel();
 					publicationPanel.draw(new DrawsLazily.DoneDrawingCallback() {
 						public void isDrawn() {
-							openAdministrativeTool("Publication Workflow", "icon-workflow", publicationPanel);	
+							openAdministrativeTool("Publication Workflow", "icon-workflow", 800, 600, publicationPanel);	
 						}
 					});
 				}
