@@ -17,17 +17,21 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
+import com.solertium.util.extjs.client.FormBuilder;
 
 public class PublicationBatchChange extends FormPanel {
 	
 	private ComboBox<NameValueModelData> status, goal, approved;
+	private TextArea notes;
 	
 	public PublicationBatchChange() {
 		super();
 		setHeading("Batch Update");
 		setBorders(false);
 		setBodyBorder(false);
+		setLabelWidth(150);
 		
 		addButton(new Button("Add Publication Targets", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
@@ -78,6 +82,8 @@ public class PublicationBatchChange extends FormPanel {
 		
 		add(approved);
 		
+		add(notes = FormBuilder.createTextArea("notes", null, "Notes", false));
+		
 		layout();
 	}
 	
@@ -119,6 +125,9 @@ public class PublicationBatchChange extends FormPanel {
 		if (selApproved != null)
 			event.setTargetApproved(Integer.valueOf(selApproved.getValue()));
 		
+		if (notes.getValue() != null && !"".equals(notes.getValue()))
+			event.setNotes(notes.getValue());
+		
 		doCollapse();
 		
 		reset();
@@ -152,7 +161,7 @@ public class PublicationBatchChange extends FormPanel {
 	
 	public static class BatchUpdateEvent extends BaseEvent {
 		
-		private String status;
+		private String status, notes;
 		private Integer targetGoal, targetApproved;
 		
 		public BatchUpdateEvent() {
@@ -171,6 +180,10 @@ public class PublicationBatchChange extends FormPanel {
 			this.status = status;
 		}
 		
+		public void setNotes(String notes) {
+			this.notes = notes;
+		}
+		
 		public String getStatus() {
 			return status;
 		}
@@ -181,6 +194,10 @@ public class PublicationBatchChange extends FormPanel {
 		
 		public Integer getTargetGoal() {
 			return targetGoal;
+		}
+		
+		public String getNotes() {
+			return notes;
 		}
 		
 	}

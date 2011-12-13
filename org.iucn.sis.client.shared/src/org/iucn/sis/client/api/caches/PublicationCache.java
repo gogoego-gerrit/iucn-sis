@@ -88,13 +88,14 @@ public class PublicationCache {
 			callback.handleEvent(listDataFromCache());
 	}
 	
-	public void updateData(final String status, final Integer targetGoal, final Integer targetApproved, 
-			final List<Integer> ids, final GenericCallback<Object> callback) {
+	public void updateData(final String status, final Integer targetGoal, final Integer targetApproved,
+			final String notes, final List<Integer> ids, final GenericCallback<Object> callback) {
 		final StringBuilder out = new StringBuilder();
 		out.append("<root>");
 		out.append(XMLWritingUtils.writeCDATATag("status", status, true));
 		out.append(XMLWritingUtils.writeTag("goal", targetGoal == null ? null : targetGoal.toString(), true));
 		out.append(XMLWritingUtils.writeTag("approved", targetApproved == null ? null : targetApproved.toString(), true));
+		out.append(XMLWritingUtils.writeCDATATag("notes", notes, true));
 		for (Integer id : ids)
 			out.append(XMLWritingUtils.writeTag("data", id.toString()));
 		out.append("</root>");

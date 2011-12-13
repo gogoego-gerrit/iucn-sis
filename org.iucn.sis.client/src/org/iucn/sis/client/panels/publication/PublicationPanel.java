@@ -72,7 +72,7 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 		});
 		form.addListener(Events.StartEdit, new Listener<PublicationBatchChange.BatchUpdateEvent>() {
 			public void handleEvent(BatchUpdateEvent be) {
-				batchUpdate(be.getStatus(), be.getTargetGoal(), be.getTargetApproved(), new GenericCallback<Object>() {
+				batchUpdate(be.getStatus(), be.getTargetGoal(), be.getTargetApproved(), be.getNotes(), new GenericCallback<Object>() {
 					public void onFailure(Throwable caught) {
 						//Already handled...
 					}
@@ -85,7 +85,7 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 		});
 	}
 	
-	public void batchUpdate(String status, Integer targetGoal, Integer targetApproved, GenericCallback<Object> callback) {
+	public void batchUpdate(String status, Integer targetGoal, Integer targetApproved, String notes, GenericCallback<Object> callback) {
 		List<PublicationModelData> checked = grid.getChecked();
 		if (checked.isEmpty()) {
 			WindowUtils.errorAlert("Please select at least one row.");
@@ -96,7 +96,7 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 		for (PublicationModelData model : checked)
 			ids.add(model.getModel().getId());
 		
-		PublicationCache.impl.updateData(status, targetGoal, targetApproved, ids, callback);
+		PublicationCache.impl.updateData(status, targetGoal, targetApproved, notes, ids, callback);
 	}
 	
 	@Override
@@ -109,7 +109,9 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 				
 					final LayoutContainer formGrid;
 					if (canBatchChange()) {
-						final BorderLayoutData top = new BorderLayoutData(LayoutRegion.NORTH, 200, 200, 200);
+						int size = 225;
+						
+						final BorderLayoutData top = new BorderLayoutData(LayoutRegion.NORTH, size, size, size);
 						top.setFloatable(false);
 						top.setCollapsible(true);
 						top.setSplit(false);
