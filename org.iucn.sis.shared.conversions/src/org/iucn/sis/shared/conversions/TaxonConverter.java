@@ -548,6 +548,9 @@ public class TaxonConverter extends GenericConverter<String> {
 			
 			if (commonNameData.getNotes() != null) {
 				for (Note note : commonNameData.getNotes()) {
+					if (note.getBody() == null)
+						continue;
+					
 					User author = null;
 					if (note.getUser() != null && !"".equals(note.getUser()))
 						author = userIO.getUserFromUsername(note.getUser());
@@ -612,6 +615,9 @@ public class TaxonConverter extends GenericConverter<String> {
 			synonym.setStatus(synData.getStatus());
 
 			if (synData.getNotes() != null) {
+				if (synData.getNotes() == null)
+					continue;
+				
 				Edit edit = new Edit("Data migration.");
 				edit.setUser(user);
 				
@@ -638,7 +644,7 @@ public class TaxonConverter extends GenericConverter<String> {
 			Infratype infratype = infratypeIO.getInfratype(taxon.getInfrarankType());
 			if (infratype != null)
 				newTaxon.setInfratype(infratype);
-			else { //As per #638
+			else if (newTaxon.getLevel() == TaxonLevel.INFRARANK) { //As per #638
 				newTaxon.setInfratype(infratypeIO.getInfratype(Infratype.INFRARANK_TYPE_SUBSPECIES));
 				printf("Warning: Taxon %s (%s) has no infratype specified, defaulting to subspecies.", newTaxon.getFriendlyName(), newTaxon.getId());
 			}

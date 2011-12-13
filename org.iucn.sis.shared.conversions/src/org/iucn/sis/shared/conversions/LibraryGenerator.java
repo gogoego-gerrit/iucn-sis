@@ -26,8 +26,8 @@ public class LibraryGenerator extends GenericConverter<String> {
 		generateAssessmentTypes();
 		generateInfratypes();
 		generateRelationships();
-		generateTaxonLevel();
 		generateTaxonStatus();
+		generateTaxonLevel();
 		generateIsoLanguages();
 	}
 
@@ -70,9 +70,15 @@ public class LibraryGenerator extends GenericConverter<String> {
 		session.save(Relationship.fromName(Relationship.OR));
 		session.save(Relationship.fromName(Relationship.AND));
 	}
+	
+	public void generateTaxonStatus() throws PersistentException {
+		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_NEW));
+		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_ACCEPTED));
+		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_DISCARDED));
+		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_SYNONYM));
+	}
 
 	public void generateTaxonLevel() throws PersistentException {
-		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_ACCEPTED));
 		session.save(TaxonLevel.getTaxonLevel(TaxonLevel.CLASS));
 		session.save(TaxonLevel.getTaxonLevel(TaxonLevel.FAMILY));
 		session.save(TaxonLevel.getTaxonLevel(TaxonLevel.GENUS));
@@ -83,13 +89,6 @@ public class LibraryGenerator extends GenericConverter<String> {
 		session.save(TaxonLevel.getTaxonLevel(TaxonLevel.PHYLUM));
 		session.save(TaxonLevel.getTaxonLevel(TaxonLevel.SPECIES));
 		session.save(TaxonLevel.getTaxonLevel(TaxonLevel.SUBPOPULATION));
-
-	}
-
-	public void generateTaxonStatus() throws PersistentException {
-		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_DISCARDED));
-		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_NEW));
-		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_SYNONYM));
 	}
 
 }

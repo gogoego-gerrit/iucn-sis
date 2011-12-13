@@ -108,7 +108,7 @@ public abstract class Converter {
 				e.printStackTrace();
 				if (e.getCause() instanceof BatchUpdateException)
 					try {
-						((BatchUpdateException)e).getNextException().printStackTrace();
+						((BatchUpdateException)e.getCause()).getNextException().printStackTrace();
 					} catch (NullPointerException f) {
 						printf("Batch Update exception has no cause.");
 					}
