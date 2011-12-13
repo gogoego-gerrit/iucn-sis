@@ -502,6 +502,8 @@ public class DEMToolbar extends ToolBar {
 							WindowUtils.infoAlert("Assessment has been submitted.");
 							if (saveListener != null)
 								saveListener.handleEvent();
+							if (refreshListener != null)
+								refreshListener.handleEvent(ViewCache.impl.getEditStatus());
 						}
 						public void onFailure(Throwable caught) {
 							
