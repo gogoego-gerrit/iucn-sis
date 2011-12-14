@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels.assessments;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.ChangesFieldWidgetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.BasicWindow;
@@ -36,6 +37,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
@@ -43,6 +45,8 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 	
 	private final Assessment assessment;
 	private Edit edit;
+	private Map<String, AssessmentChange> current = null;
+	private LayoutContainer currentEdit;
 	
 	private final LayoutContainer oldField, newField;
 	private final ChangesFieldWidgetCache cache;
@@ -96,6 +100,21 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 				oldFieldPanel.setHeading("Old Version");
 				oldFieldPanel.setScrollMode(Scroll.AUTO);
 				oldFieldPanel.add(oldField);
+				oldFieldPanel.setButtonAlign(HorizontalAlignment.CENTER);
+				oldFieldPanel.addButton(new Button("Rollback", new SelectionListener<ButtonEvent>() {
+					public void componentSelected(ButtonEvent ce) {
+						if (current != null) {
+							AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+								public void handleEvent() {
+									RollbackChangesPanel panel = new RollbackChangesPanel(assessment, current);
+									panel.show();
+								}
+							});
+						}
+						else
+							WindowUtils.errorAlert("Please select a change set.");
+					}
+				}));
 				
 				final ContentPanel newFieldPanel = new ContentPanel();
 				newFieldPanel.setHeading("New Version");
@@ -143,15 +162,22 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 				for (int i = 0; i < nodes.getLength(); i++) {
 					final Edit edit = Edit.fromXML(nodes.elementAt(i)); 
 				
+					final LayoutContainer info = new LayoutContainer();
+					
 					final ButtonBar bar = new ButtonBar();
 					bar.setAlignment(HorizontalAlignment.CENTER);
 					bar.add(new Button("View", new SelectionListener<ButtonEvent>() {
 						public void componentSelected(ButtonEvent ce) {
+							if (currentEdit != null)
+								currentEdit.removeStyleName("whiteBackground");
+							
+							currentEdit = info;
+							currentEdit.addStyleName("whiteBackground");
+							
 							view(edit);
 						}
 					}));
 					
-					final LayoutContainer info = new LayoutContainer();
 					info.addStyleName("page_assessment_trackChanges_edits");
 					info.add(new Html("<span class=\"page_assessment_trackChanges_edits_user\">" + edit.getUser().getDisplayableName() + "</span>"));
 					info.add(new Html("<span>" + FormattedDate.FULL.getDate(edit.getCreatedDate()) + "</span>"));
@@ -193,6 +219,7 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 	}
 	
 	private void showChanges(final Map<String, AssessmentChange> changes) {
+		current = changes;
 		cache.prefetchList(changes.keySet(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				oldField.removeAll();

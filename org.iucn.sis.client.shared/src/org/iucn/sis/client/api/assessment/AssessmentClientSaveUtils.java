@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.FetchMode;
 import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -34,6 +35,10 @@ import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class AssessmentClientSaveUtils {
+	
+	public enum MergeMode {
+		Merge, Replace
+	};
 
 	/**
 	 * Tries to save the assessment passed as an argument. If the assessmentToSave parameter is null
@@ -52,8 +57,13 @@ public class AssessmentClientSaveUtils {
 		saveAssessment(packet, assessmentToSave, callback);
 	}
 	
-	public static void saveAssessment(final AssessmentChangePacket packet, final Assessment assessmentToSave, final GenericCallback<AssessmentChangePacket> callback)
-			throws InsufficientRightsException {
+	public static void saveAssessment(final AssessmentChangePacket packet, final Assessment assessmentToSave, 
+			final GenericCallback<AssessmentChangePacket> callback) throws InsufficientRightsException {
+		saveAssessment(packet, assessmentToSave, MergeMode.Merge, callback);
+	}
+	
+	public static void saveAssessment(final AssessmentChangePacket packet, final Assessment assessmentToSave, 
+			final MergeMode mode, final GenericCallback<AssessmentChangePacket> callback) throws InsufficientRightsException {
 		if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, assessmentToSave))
 			throw new InsufficientRightsException();
 
@@ -68,10 +78,10 @@ public class AssessmentClientSaveUtils {
 					
 					if (packet == null)
 						ndoc.post(UriBase.getInstance().getSISBase() + "/assessments", 
-								assessmentToSave.toXML(), getSaveHandler(packet, assessmentToSave, ndoc, callback));
+								assessmentToSave.toXML(), getSaveHandler(packet, assessmentToSave, ndoc, mode, callback));
 					else
 						ndoc.post(UriBase.getInstance().getSISBase() + "/changes/assessments/" + assessmentToSave.getId(), 
-								packet.toXML(), getSaveHandler(packet, assessmentToSave, ndoc, callback));
+								packet.toXML(), getSaveHandler(packet, assessmentToSave, ndoc, mode, callback));
 				} else {
 					callback.onFailure(new Exception("Assessment locked or needs an update."));
 				}
@@ -79,7 +89,9 @@ public class AssessmentClientSaveUtils {
 		});
 	}
 	
-	private static GenericCallback<String> getSaveHandler(final AssessmentChangePacket packet, final Assessment assessmentToSave, final NativeDocument ndoc, final GenericCallback<AssessmentChangePacket> callback) {
+	private static GenericCallback<String> getSaveHandler(final AssessmentChangePacket packet, 
+			final Assessment assessmentToSave, final NativeDocument ndoc, 
+			final MergeMode mode, final GenericCallback<AssessmentChangePacket> callback) {
 		return new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				if (caught instanceof GWTResponseException) {
@@ -109,11 +121,17 @@ public class AssessmentClientSaveUtils {
 					Assessment remote = Assessment.fromXML(ndoc);
 					Assessment local = assessmentToSave;
 					
-					//Copy the edit trail
-					local.setEdit(remote.getEdit());
-					
-					//Set the field IDs
-					sink(remote, local);
+					if (MergeMode.Merge.equals(mode)) {
+						//Copy the edit trail
+						local.setEdit(remote.getEdit());
+						
+						//Set the field IDs
+						sink(remote, local);
+					}
+					else {
+						AssessmentCache.impl.remove(remote.getId());
+						AssessmentCache.impl.addAssessment(remote, FetchMode.FULL);
+					}
 				} catch (Throwable e) {
 					Debug.println(e);
 				}
