@@ -1,7 +1,10 @@
 package org.iucn.sis.server.api.io;
 
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
@@ -9,14 +12,19 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.persistance.UserCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
+import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.fields.ProxyField;
+import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 
@@ -98,8 +106,84 @@ public class PublicationIO {
 		if (source.getTargetGoal() != null)
 			target.setTargetGoal(getPublicationTarget(source.getTargetGoal().getId()));
 		
+		if (source.getAssessment().isPublished() && target.getTargetApproved() != null)
+			publish(target.getAssessment(), target.getTargetApproved());
+		
 		session.update(target);
 		session.update(target.getAssessment());
+	}
+	
+	private void publish(Assessment assessment, PublicationTarget target) {
+		if (target.getReference() != null) {
+			Field rlSource = assessment.getField(CanonicalNames.RedListSource);
+			if (rlSource == null) {
+				rlSource = new Field(CanonicalNames.RedListSource, assessment);
+				assessment.getField().add(rlSource);
+				session.save(rlSource);
+			}
+			rlSource.setReference(new HashSet<Reference>());
+			rlSource.getReference().add(target.getReference());
+		}
+		
+		Field rlAsmAuthorsField = assessment.getField(CanonicalNames.RedListAssessmentAuthors);
+		ProxyField rlAsmAuthors = new ProxyField(rlAsmAuthorsField);
+		String value = rlAsmAuthors.getStringPrimitiveField("value");
+		if ("".equals(value)) {
+			if (rlAsmAuthorsField == null) {
+				rlAsmAuthorsField = new Field(CanonicalNames.RedListAssessmentAuthors, assessment);
+				rlAsmAuthors = new ProxyField(rlAsmAuthorsField);
+				assessment.getField().add(rlAsmAuthorsField);
+				session.save(rlAsmAuthorsField);
+			}
+			RedListCreditedUserField assessors = new RedListCreditedUserField(assessment.getField(CanonicalNames.RedListAssessors));
+			if (!assessors.getUsers().isEmpty()) {
+				UserCriteria criteria = new UserCriteria(session);
+				criteria.id.in(assessors.getUsers().toArray(new Integer[assessors.getUsers().size()]));
+				List<User> users = Arrays.asList(criteria.listUser());
+				rlAsmAuthors.setStringPrimitiveField("value", RedListCreditedUserField.generateText(users, assessors.getOrder()));
+				session.saveOrUpdate(rlAsmAuthorsField);
+			}
+		}
+		
+		for (String fieldName : CanonicalNames.credits) {
+			Field field = assessment.getField(fieldName);
+			if (field == null)
+				continue;
+			
+			RedListCreditedUserField proxy = new RedListCreditedUserField(field);
+			if (!proxy.getText().equals("")) {
+				proxy.setTextPrimitiveField("publication", proxy.getText());
+			}
+			else if (!proxy.getUsers().isEmpty()) {
+				UserCriteria criteria = new UserCriteria(session);
+				criteria.id.in(proxy.getUsers().toArray(new Integer[proxy.getUsers().size()]));
+				List<User> users = Arrays.asList(criteria.listUser());
+				
+				proxy.setTextPrimitiveField("publication",
+					RedListCreditedUserField.generateText(users, proxy.getOrder())
+				);
+			}
+			session.update(field);
+		}
+		
+		/*
+		 * TODO: elide highlight tag from narratives
+		 */
+		
+		Field taxonomicNotes = assessment.getTaxon().getTaxonomicNotes();
+		if (taxonomicNotes != null) {
+			Set<Reference> refs = new HashSet<Reference>();
+			for (Reference reference : taxonomicNotes.getReference())
+				refs.add((Reference)session.get(Reference.class, reference.getId()));
+			
+			taxonomicNotes = taxonomicNotes.deepCopy(false);
+			taxonomicNotes.setReference(refs);
+			
+			Field existing = assessment.getField(CanonicalNames.TaxonomicNotes);
+			if (existing != null)
+				assessment.getField().remove(existing);
+			assessment.getField().add(taxonomicNotes);
+		}
 	}
 	
 	public void createPublicationTarget(PublicationTarget target) {
@@ -119,7 +203,7 @@ public class PublicationIO {
 		Criteria criteria = session.createCriteria(PublicationData.class)
 			.createAlias("assessment", "Assessment")
 			.createAlias("Assessment.AssessmentType", "AssessmentType")
-			.add(Restrictions.ne("AssessmentType.id", AssessmentType.DRAFT_ASSESSMENT_STATUS_ID));
+			.add(Restrictions.ne("AssessmentType.id", AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
 		
 		return criteria.list();
 	}

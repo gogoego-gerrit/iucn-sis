@@ -117,9 +117,11 @@ public class PublicationCache {
 							model.setTargetGoal(targets.get(targetGoal));
 						if (targetApproved != null)
 							model.setTargetApproved(targets.get(targetApproved));
+						if (notes != null)
+							model.setNotes(notes);
 					}
 					
-					if (model.getAssessment().isDraft())
+					if (model.getAssessment().isPublished())
 						data.remove(id);
 				}
 				
