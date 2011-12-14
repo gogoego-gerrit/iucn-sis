@@ -3,11 +3,11 @@ package org.iucn.sis.client.panels.publication;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.PublicationCache;
+import org.iucn.sis.client.api.models.NameValueModelData;
 import org.iucn.sis.client.panels.publication.targets.PublicationTargetEditor;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.PublicationTarget;
 
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -141,22 +141,6 @@ public class PublicationBatchChange extends FormPanel {
 	
 	private void doCollapse() {
 		fireEvent(Events.CancelEdit);
-	}
-	
-	private static class NameValueModelData extends BaseModelData {
-		
-		private static final long serialVersionUID = 1L;
-		
-		public NameValueModelData(String name, String value) {
-			super();
-			set("text", name);
-			set("value", value);
-		}
-		
-		public String getValue() {
-			return get("value");
-		}
-		
 	}
 	
 	public static class BatchUpdateEvent extends BaseEvent {

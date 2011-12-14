@@ -12,6 +12,7 @@ import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.SchemaCache.AssessmentSchema;
+import org.iucn.sis.client.api.models.NameValueModelData;
 import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -28,7 +29,6 @@ import org.iucn.sis.shared.api.utils.AssessmentUtils;
 
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.Style.VerticalAlignment;
-import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -544,25 +544,7 @@ public class NewAssessmentPanel extends BasicWindow implements DrawsLazily {
 		}
 	}
 	
-	private static class NameValueModelData extends BaseModelData {
-		
-		private static final long serialVersionUID = 1L;
-		
-		public NameValueModelData(String name, String value) {
-			super();
-			set("text", name);
-			set("value", value);
-		}
-		
-		public String getName() {
-			return get("text");
-		}
-		
-		public String getValue() {
-			return get("value");
-		}
-		
-	}
+	
 	
 	private static class RegionSorter extends StoreSorter<NameValueModelData> {
 		
