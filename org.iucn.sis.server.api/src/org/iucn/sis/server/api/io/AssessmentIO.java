@@ -465,10 +465,8 @@ public class AssessmentIO {
 	}
 
 	public boolean allowedToCreateNewAssessment(Assessment assessment) {
-		return assessment.isPublished() || 
-			!assessment.hasRegions() || 
-			(assessment.isDraft() && !conflicts(assessment, 
-					readUnpublishedAssessmentsForTaxon(assessment.getTaxon().getId())));
+		return assessment.isPublished() || !assessment.hasRegions() || 
+			!conflicts(assessment, readUnpublishedAssessmentsForTaxon(assessment.getTaxon().getId()));
 	}
 	
 	public boolean conflicts(Assessment assessment, List<Assessment> existing) {
