@@ -1,9 +1,12 @@
 package org.iucn.sis.shared.api.integrity;
 
+import org.iucn.sis.client.panels.integrity.IntegrityQuery;
+import org.iucn.sis.client.panels.integrity.SQLValidationDesigner;
+
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.solertium.util.events.SimpleListener;
 import com.solertium.util.querybuilder.gwt.client.utils.GWTQBQuery;
-import com.solertium.util.querybuilder.query.QBQuery;
 
 /**
  * AssessmentValidationDesigner.java
@@ -23,23 +26,47 @@ import com.solertium.util.querybuilder.query.QBQuery;
  */
 public class AssessmentValidationDesigner extends LayoutContainer {
 
-	private SISQBQuery query;
+	private IntegrityQuery query;
 	
 	private String savedXML;
+	
+	private SimpleListener beforeSave;
 	
 	public AssessmentValidationDesigner() {
 		super();
 		setScrollMode(Scroll.AUTO);
 	}
 	
-	public void draw(SISQBQuery query) {
+	public void draw(IntegrityQuery query) {
 		removeAll();
 		
 		this.query = query;
+	
+		if (query instanceof SISQBQuery)
+			drawQueryBuilder(((SISQBQuery)query));
+		else
+			drawSQLWriter(((SQLQuery)query));
+		
+		updateSavedXML();
+	}
+	
+	private void drawSQLWriter(final SQLQuery query) {
+		final SQLValidationDesigner designer = new SQLValidationDesigner(query);
+		beforeSave = new SimpleListener() {
+			public void handleEvent() {
+				designer.save();
+			}
+		};
+		
+		add(designer);
+	}
+	
+	private void drawQueryBuilder(final SISQBQuery query) {
+		beforeSave = null;
 		
 		SISQBTreeItem item = new SISQBTreeItem(0, true) {
 			public GWTQBQuery getQuery() {
-				return AssessmentValidationDesigner.this.query;
+				return query;
 			}
 		};
 		add(item);
@@ -47,17 +74,15 @@ public class AssessmentValidationDesigner extends LayoutContainer {
 
 		SISQBConditionGroupRootItem cond = new SISQBConditionGroupRootItem() {
 			public GWTQBQuery getQuery() {
-				return AssessmentValidationDesigner.this.query;
+				return query;
 			}
 		};
 		add(cond);
 		cond.show("Conditions");
 		cond.expandTree();
-		
-		updateSavedXML();
 	}
 
-	public QBQuery getQuery() {
+	public IntegrityQuery getQuery() {
 		return query;
 	}
 	
@@ -71,6 +96,13 @@ public class AssessmentValidationDesigner extends LayoutContainer {
 	
 	public boolean hasChanged() {
 		return savedXML != null && query != null && !savedXML.equals(query.toXML());
+	}
+	
+	public String save() {
+		if (beforeSave != null)
+			beforeSave.handleEvent();
+		
+		return query.toXML();
 	}
 
 }

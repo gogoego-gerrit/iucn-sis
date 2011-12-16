@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Session;
@@ -19,6 +20,8 @@ import org.iucn.sis.shared.api.models.Edit;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
@@ -29,6 +32,7 @@ import com.solertium.db.query.ExperimentalSelectQuery;
 import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.QConstraintGroup;
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPathToken;
@@ -112,27 +116,54 @@ public class IntegrityValidator {
 		);
 		for (Element el : nodes)
 			properties.put(el.getAttribute("name"), el.getTextContent());
-
-		// Hold copy for safe keeping
-		final QConstraintGroup originalConstraints = new QConstraintGroup();
-		originalConstraints.constraints
-				.addAll(query.getConstraints().constraints);
-
-		query.constrain(QConstraint.CG_AND, new QComparisonConstraint(
-				new CanonicalColumnName("assessment", "id"),
-				QConstraint.CT_EQUALS, assessmentID));
 		
-		final Row.Set rs = new Row.Set();
+		String type = BaseDocumentUtils.impl.getAttribute(document.getDocumentElement(), "type");
+		if ("".equals(type))
+			type = "designer";
 		
-		ec.doQuery(query, rs);
-
-		final int status = passesValidation(rs, properties);
-		final AssessmentIntegrityValidation response = status == AssessmentIntegrityValidation.SUCCESS ? 
-				new AssessmentIntegrityValidation()
-				: new AssessmentIntegrityValidation(getCause(ec,
-						originalConstraints, document, errorMessages, properties, assessmentID));
-		response.setRule(rule);
-		response.setStatus(status);
+		final AssessmentIntegrityValidation response;
+		if ("sql".equals(type)) {
+			String errorMessage = errorMessages.get("sql");
+			if (errorMessage == null)
+				errorMessage = "Failed SQL query in test '" + rule + "'.";
+			
+			final Row.Set rs = new Row.Set();
+			
+			ec.doQuery(toSQL(document, assessmentID), rs);
+			
+			final int status = passesValidation(rs, properties);
+			final String prefix = status == AssessmentIntegrityValidation.WARNING ? "Warning: " : "Failure: ";
+			
+			final List<String> errors = new ArrayList<String>();
+			errors.add(prefix + errorMessage);
+			
+			response = status == AssessmentIntegrityValidation.SUCCESS ? 
+					new AssessmentIntegrityValidation() : new AssessmentIntegrityValidation(errors);
+			response.setRule(rule);
+			response.setStatus(status);
+		}
+		else {
+			// Hold copy for safe keeping
+			final QConstraintGroup originalConstraints = new QConstraintGroup();
+			originalConstraints.constraints
+					.addAll(query.getConstraints().constraints);
+	
+			query.constrain(QConstraint.CG_AND, new QComparisonConstraint(
+					new CanonicalColumnName("assessment", "id"),
+					QConstraint.CT_EQUALS, assessmentID));
+			
+			final Row.Set rs = new Row.Set();
+			
+			ec.doQuery(query, rs);
+	
+			final int status = passesValidation(rs, properties);
+			response = status == AssessmentIntegrityValidation.SUCCESS ? 
+					new AssessmentIntegrityValidation()
+					: new AssessmentIntegrityValidation(getCause(ec,
+							originalConstraints, document, errorMessages, properties, assessmentID));
+			response.setRule(rule);
+			response.setStatus(status);
+		}
 		
 		try {
 			updateStatus(session, rule, assessmentID, response);
@@ -141,6 +172,33 @@ public class IntegrityValidator {
 		}
 		
 		return response;
+	}
+	
+	private static String toSQL(Document document, Integer assessmentID) {
+		String joins = null, conditions = null;
+		final NodeList nodes = document.getDocumentElement().getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			Node node = nodes.item(i);
+			if ("joins".equals(node.getNodeName()))
+				joins = node.getTextContent();
+			else if ("conditions".equals(node.getNodeName()))
+				conditions = node.getTextContent();
+		}
+		
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT assessment.id FROM assessment ");
+		if (joins != null)
+			sql.append(joins.trim());
+		sql.append(" WHERE (assessment.id = ");
+		sql.append(assessmentID);
+		sql.append(")");
+		if (conditions != null) {
+			sql.append(" AND (");
+			sql.append(conditions);
+			sql.append(")");
+		}
+		
+		return sql.toString();
 	}
 	
 	public static void updateStatus(Session session, String rule, Integer assessmentID, AssessmentIntegrityValidation response) throws PersistentException {

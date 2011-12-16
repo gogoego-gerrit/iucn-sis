@@ -75,7 +75,7 @@ public class ValidationResource extends BaseIntegrityResource {
 	protected ExecutionContext getExecutionContext() {
 		try {
 			SystemExecutionContext ec = new SystemExecutionContext(DBSessionFactory.getDBSession("integrity"));
-			ec.setAPILevel(ExecutionContext.API_ONLY);
+			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
 			
 			return ec;

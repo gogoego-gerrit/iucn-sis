@@ -2044,6 +2044,12 @@ SIS_Header_Summary_Title {
 	background: url(../images/icon-wrench.png) no-repeat !important;
 }
 
+.integrity_sql_text {
+	font-weight: bold;
+	font-family: Courier New, fixed-width !important;
+	font-size: 20px;
+}
+
 /*** QUERY BUILDER ***/
 
 .clickable {

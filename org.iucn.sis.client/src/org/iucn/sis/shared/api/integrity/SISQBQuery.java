@@ -3,13 +3,15 @@ package org.iucn.sis.shared.api.integrity;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.iucn.sis.client.panels.integrity.IntegrityQuery;
+
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.querybuilder.gwt.client.utils.GWTQBQuery;
 import com.solertium.util.querybuilder.query.SelectedField;
 
-public class SISQBQuery extends GWTQBQuery {
+public class SISQBQuery extends GWTQBQuery implements IntegrityQuery {
 	
 	private final Map<String, String> errorMessages;
 	private final Map<String, String> properties;

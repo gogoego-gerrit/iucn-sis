@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.integrity;
 
 import org.iucn.sis.client.api.utils.BasicWindow;
+import org.iucn.sis.client.panels.integrity.IntegrityQuery;
 import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
@@ -15,12 +16,12 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class IntegrityRulesetPropertiesEditor extends BasicWindow {
 	
-	private final SISQBQuery query;
+	private final IntegrityQuery query;
 	
 	private ComboBox<TextValueModelData> failureCondition;
 	private ComboBox<TextValueModelData> failureMode;
 
-	public IntegrityRulesetPropertiesEditor(SISQBQuery query) {
+	public IntegrityRulesetPropertiesEditor(IntegrityQuery query) {
 		super("Edit Properties");
 		this.query = query;
 		

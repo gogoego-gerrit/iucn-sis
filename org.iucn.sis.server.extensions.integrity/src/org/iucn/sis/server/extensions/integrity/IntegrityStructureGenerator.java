@@ -6,7 +6,6 @@ import java.util.List;
 import org.gogoego.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.FieldIO;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

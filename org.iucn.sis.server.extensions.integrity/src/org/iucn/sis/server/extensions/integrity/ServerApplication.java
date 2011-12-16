@@ -21,7 +21,6 @@ import org.w3c.dom.Document;
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
-import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.util.TrivialExceptionHandler;
 
@@ -81,7 +80,7 @@ public class ServerApplication extends SimpleSISApplication {
 				if (Method.GET.equals(request.getMethod())) {
 					try {
 						response.setEntity(new InputRepresentation(
-							IntegrityApplication.class.getResourceAsStream("styles.css"), 
+							ServerApplication.class.getResourceAsStream("styles.css"), 
 							MediaType.TEXT_CSS
 						));
 					} catch (Exception e) {

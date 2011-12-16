@@ -12,6 +12,7 @@ import org.iucn.sis.shared.api.integrity.HelpWindow;
 import org.iucn.sis.shared.api.integrity.IntegrityRulesetPropertiesEditor;
 import org.iucn.sis.shared.api.integrity.SISQBQuery;
 import org.iucn.sis.shared.api.integrity.SISTableChooserFactory;
+import org.iucn.sis.shared.api.integrity.SQLQuery;
 import org.iucn.sis.shared.api.models.AssessmentType;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -32,6 +33,7 @@ import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.NumberField;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -46,6 +48,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 import com.solertium.util.portable.IDValidator;
@@ -215,8 +218,17 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 				final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
 				document.get(selectedUri, new GenericCallback<String>() {
 					public void onSuccess(String result) {
-						final SISQBQuery query = new SISQBQuery();
-						query.load(document);
+						String type = document.getDocumentElement().getAttribute("type");
+						if (type == null || "".equals(type))
+							type = "designer";
+						
+						final IntegrityQuery query;
+						if ("sql".equals(type)) 
+							query = new SQLQuery();
+						else 
+							query = new SISQBQuery();
+						
+						query.load(document.getDocumentElement());
 
 						designer.draw(query);
 
@@ -349,7 +361,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 				if (item == null)
 					WindowUtils.errorAlert("Please select an item first.");
 				final IntegrityRulesetPropertiesEditor editor = 
-					new IntegrityRulesetPropertiesEditor((SISQBQuery)designer.getQuery());
+					new IntegrityRulesetPropertiesEditor(designer.getQuery());
 				editor.show();
 			}
 		}));
@@ -376,7 +388,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 
 	private void saveQuery(String selectedUri, final GenericCallback<Object> callback) {
 		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-		document.post(selectedUri, designer.getQuery().toXML(), new GenericCallback<String>() {
+		document.post(selectedUri, designer.save(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				designer.updateSavedXML();
 				Info.display("Success", "Information Saved.");
@@ -502,6 +514,7 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 	public static abstract class NewCustomConfigurationPanel extends BasicWindow {
 
 		private final TextField<String> field;
+		private final SimpleComboBox<String> type;
 
 		public NewCustomConfigurationPanel() {
 			super("Add Rule Set");
@@ -512,11 +525,14 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 			field.setFieldLabel("Enter Name");
 			field.setMaxLength(16);
 			field.setAllowBlank(false);
+			
+			type = FormBuilder.createComboBox("type", "Designer", "Query Type", true, "Designer", "SQL");
 
 			final FormPanel panel = new FormPanel();
 			panel.setHeaderVisible(false);
 			panel.add(new Html("Note: The name can contain only letters and numbers."));
 			panel.add(field);
+			panel.add(type);
 
 			add(panel);
 
@@ -568,8 +584,10 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 		}
 
 		private String getDefaultXML() {
+			final String dataType = type.getValue() == null ? "designer" : 
+				type.getValue().getValue().toLowerCase();;
 			final StringBuilder builder = new StringBuilder();
-			builder.append("<query version=\"1.1\">");
+			builder.append("<query type=\"" + dataType + "\" version=\"1.1\">");
 			for (SelectedField field : defaultTables)
 				builder.append(field.toXML());
 			builder.append("</query>");
