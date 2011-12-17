@@ -4,12 +4,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
+import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.ChangesFieldWidgetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentChange;
@@ -92,6 +94,10 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 		super.show();
 	}
 	
+	private boolean canRollback() {
+		return AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, assessment);
+	}
+	
 	@Override
 	public void draw(final DoneDrawingCallback callback) {
 		drawLeft(new DoneDrawingCallbackWithParam<LayoutContainer>() {
@@ -101,20 +107,21 @@ public class TrackChangesPanel extends BasicWindow implements DrawsLazily {
 				oldFieldPanel.setScrollMode(Scroll.AUTO);
 				oldFieldPanel.add(oldField);
 				oldFieldPanel.setButtonAlign(HorizontalAlignment.CENTER);
-				oldFieldPanel.addButton(new Button("Rollback", new SelectionListener<ButtonEvent>() {
-					public void componentSelected(ButtonEvent ce) {
-						if (current != null) {
-							AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
-								public void handleEvent() {
-									RollbackChangesPanel panel = new RollbackChangesPanel(assessment, current);
-									panel.show();
-								}
-							});
+				if (canRollback())
+					oldFieldPanel.addButton(new Button("Rollback", new SelectionListener<ButtonEvent>() {
+						public void componentSelected(ButtonEvent ce) {
+							if (current != null) {
+								AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+									public void handleEvent() {
+										RollbackChangesPanel panel = new RollbackChangesPanel(assessment, current);
+										panel.show();
+									}
+								});
+							}
+							else
+								WindowUtils.errorAlert("Please select a change set.");
 						}
-						else
-							WindowUtils.errorAlert("Please select a change set.");
-					}
-				}));
+					}));
 				
 				final ContentPanel newFieldPanel = new ContentPanel();
 				newFieldPanel.setHeading("New Version");

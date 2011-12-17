@@ -422,7 +422,7 @@ public class DEMToolbar extends ToolBar {
 		mItem.setIconStyle("icon-book");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				GenericCallback<Object> callback = new GenericCallback<Object>() {
+				final GenericCallback<Object> callback = new GenericCallback<Object>() {
 					public void onFailure(Throwable caught) {
 						startAutosaveTimer();
 						WindowUtils.errorAlert("Error committing changes to the "
@@ -435,10 +435,15 @@ public class DEMToolbar extends ToolBar {
 					}
 				};
 				
-				ClientUIContainer.bodyContainer.openReferenceManager(
-						new ReferenceableAssessment(AssessmentCache.impl.getCurrentAssessment()), 
-						"Manage References -- Add to Global References", callback, callback);
 				stopAutosaveTimer();
+				
+				AssessmentClientSaveUtils.saveIfNecessary(new SimpleListener() {
+					public void handleEvent() {
+						ClientUIContainer.bodyContainer.openReferenceManager(
+							new ReferenceableAssessment(AssessmentCache.impl.getCurrentAssessment()), 
+							"Manage References -- Add to Global References", callback, callback);
+					}
+				});
 			}
 		});
 		mainMenu.add(mItem);

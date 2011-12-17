@@ -67,7 +67,7 @@ public class PrimitiveFieldIO {
 		try {
 			//ONLY ADD ONE EDIT FOR ALL THESE CHANGES
 			Edit edit = editIO.createAndSaveEditForAssessment(user, assessment.getId(), null, reason);
-			assessment.getEdit().add(edit);
+			assessment.addEdit(edit);
 			
 			for (Entry<Integer, String> entry : idToNewValues.entrySet()) {
 				TextPrimitiveField field;

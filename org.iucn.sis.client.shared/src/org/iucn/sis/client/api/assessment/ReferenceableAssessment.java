@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Reference;
 
 import com.solertium.lwxml.shared.GenericCallback;
@@ -58,8 +58,7 @@ public class ReferenceableAssessment implements Referenceable {
 	}
 	
 	private void persist(final GenericCallback<Object> callback) {
-		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, 
-				AssessmentCache.impl.getCurrentAssessment())) {
+		if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, assessment)) {
 			WindowUtils.errorAlert("You cannot add references to an assessment "
 					+ "you don't have permissions to edit.");
 			return;
@@ -75,6 +74,7 @@ public class ReferenceableAssessment implements Referenceable {
 		document.post(UriBase.getInstance().getSISBase() + "/changes/assessments/" + 
 				assessment.getId() + "/references", out.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
+				assessment.addEdit(Edit.fromXML(document.getDocumentElement()));
 				callback.onSuccess(result);
 			}
 			public void onFailure(Throwable caught) {

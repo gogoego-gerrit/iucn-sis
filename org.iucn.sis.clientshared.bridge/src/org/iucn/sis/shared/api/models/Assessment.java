@@ -582,6 +582,11 @@ public class Assessment implements Serializable, AuthorizableObject {
 		this.edit = value;
 		lastEdit = null;
 	}
+	
+	public void addEdit(Edit edit) {
+		this.edit.add(edit);
+		lastEdit = null;
+	}
 
 	public java.util.Set<Edit> getEdit() {
 		return edit;

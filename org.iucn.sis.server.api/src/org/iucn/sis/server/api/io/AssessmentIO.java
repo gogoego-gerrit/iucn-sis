@@ -3,9 +3,7 @@ package org.iucn.sis.server.api.io;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -16,7 +14,6 @@ import org.iucn.sis.server.api.persistance.AssessmentCriteria;
 import org.iucn.sis.server.api.persistance.AssessmentDAO;
 import org.iucn.sis.server.api.persistance.AssessmentTypeCriteria;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
-import org.iucn.sis.server.api.persistance.UserCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -25,13 +22,8 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Edit;
-import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
-import org.iucn.sis.shared.api.models.fields.ProxyField;
-import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.data.Status;
 
 /**
@@ -351,33 +343,29 @@ public class AssessmentIO {
 	}
 
 	public AssessmentIOWriteResult writeAssessment(Assessment assessmentToSave, User user, String reason, boolean requireLocking) {
-
 		Status lockStatus = Status.SUCCESS_OK;
 		if (SIS.amIOnline() && requireLocking)
-			lockStatus = SIS.get().getLocker().
-			persistentLockAssessment(assessmentToSave.getId(), LockType.SAVE_LOCK,
-					user);
+			lockStatus = SIS.get().getLocker().persistentLockAssessment(
+					assessmentToSave.getId(), LockType.SAVE_LOCK, user);
 
 		if (lockStatus.isSuccess()) {
 			Edit edit = new Edit(reason);
 			edit.setUser(user);
 			edit.getAssessment().add((assessmentToSave));
-			assessmentToSave.getEdit().add(edit);
+			assessmentToSave.addEdit(edit);
 			assessmentToSave.toXML();
-
 			
-				try {
-					SIS.get().getManager().saveObject(session, assessmentToSave);
-				} catch (PersistentException e) {
-					Debug.println(e);
-					return new AssessmentIOWriteResult(lockStatus, 0, null);
-				}
+			try {
+				SIS.get().getManager().saveObject(session, assessmentToSave);
+			} catch (PersistentException e) {
+				Debug.println(e);
+				return new AssessmentIOWriteResult(Status.SERVER_ERROR_INTERNAL, 0, null);
+			}
 
 			return new AssessmentIOWriteResult(lockStatus, assessmentToSave.getId(), edit);
-
 		}
-		return new AssessmentIOWriteResult(lockStatus, 0, null);
-
+		else
+			return new AssessmentIOWriteResult(lockStatus, 0, null);
 	}
 
 	/**
@@ -416,7 +404,7 @@ public class AssessmentIO {
 				Edit edit = new Edit(reason);
 				edit.setUser(user);
 				edit.getAssessment().add((assessmentToSave));
-				assessmentToSave.getEdit().add(edit);
+				assessmentToSave.addEdit(edit);
 				assessmentToSave.toXML();
 				SIS.get().getManager().saveObject(session, assessmentToSave);
 				SIS.get().getManager().saveObject(session, edit);
@@ -443,7 +431,7 @@ public class AssessmentIO {
 					Edit edit = new Edit(reason);
 					edit.setUser(user);
 					edit.getAssessment().add((assessmentToSave));
-					assessmentToSave.getEdit().add(edit);
+					assessmentToSave.addEdit(edit);
 					assessmentToSave.toXML();
 					SIS.get().getManager().saveObject(session, assessmentToSave);
 					SIS.get().getManager().saveObject(session, edit);

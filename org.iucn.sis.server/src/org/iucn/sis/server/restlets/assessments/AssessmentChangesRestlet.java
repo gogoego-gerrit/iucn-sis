@@ -140,9 +140,15 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 			
 			assessment.setReference(references);
 			
-			io.writeAssessment(assessment, getUser(request, session), "Global references updated.", true);
+			AssessmentIOWriteResult result = io.writeAssessment(assessment, getUser(request, session), "Global references updated.", true);
 			
-			session.update(assessment);
+			if (!result.status.isSuccess())
+				throw new ResourceException(result.status, "AssessmentIOWrite threw exception when saving.");
+			
+			session.flush();
+			
+			response.setStatus(result.status);
+			response.setEntity(result.edit.toXML(), MediaType.TEXT_XML);
 		}
 		else {
 			Field field;
