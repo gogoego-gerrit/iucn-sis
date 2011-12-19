@@ -18,12 +18,14 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
+import org.iucn.sis.shared.api.models.primitivefields.TextPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
@@ -127,8 +129,7 @@ public class PublicationIO {
 		
 		Field rlAsmAuthorsField = assessment.getField(CanonicalNames.RedListAssessmentAuthors);
 		ProxyField rlAsmAuthors = new ProxyField(rlAsmAuthorsField);
-		String value = rlAsmAuthors.getStringPrimitiveField("value");
-		if ("".equals(value)) {
+		if ("".equals(rlAsmAuthors.getStringPrimitiveField("value"))) {
 			if (rlAsmAuthorsField == null) {
 				rlAsmAuthorsField = new Field(CanonicalNames.RedListAssessmentAuthors, assessment);
 				rlAsmAuthors = new ProxyField(rlAsmAuthorsField);
@@ -166,10 +167,6 @@ public class PublicationIO {
 			session.update(field);
 		}
 		
-		/*
-		 * TODO: elide highlight tag from narratives
-		 */
-		
 		Field taxonomicNotes = assessment.getTaxon().getTaxonomicNotes();
 		if (taxonomicNotes != null) {
 			Set<Reference> refs = new HashSet<Reference>();
@@ -183,6 +180,24 @@ public class PublicationIO {
 			if (existing != null)
 				assessment.getField().remove(existing);
 			assessment.getField().add(taxonomicNotes);
+		}
+		
+		for (String fieldName : CanonicalNames.narrativeFields) {
+			Field field = assessment.getField(fieldName);
+			if (field == null)
+				continue;
+			
+			//Narrative fields have only one primitive field...
+			for (PrimitiveField<?> prim : field.getPrimitiveField()) {
+				if (prim instanceof TextPrimitiveField) {
+					String value = prim.getRawValue();
+					if (value == null || "".equals(value)) //Should be impossible
+						continue;
+					
+					prim.setRawValue(value.replaceAll("background-color: [a-z|0-9]*;[\\s]*", ""));
+					session.update(prim);
+				}
+			}
 		}
 	}
 	
