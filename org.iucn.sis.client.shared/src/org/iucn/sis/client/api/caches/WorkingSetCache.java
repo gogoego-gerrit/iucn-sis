@@ -25,6 +25,7 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.solertium.lwxml.shared.GWTNotFoundException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
@@ -48,9 +49,47 @@ public class WorkingSetCache {
 	private Map<Integer, CacheEntry<WorkingSet>> workingSets;
 	private Map<Integer, Map<Integer, List<Integer>>> assessmentRelations;
 
+	@SuppressWarnings("unchecked")
+	private Map<String, List<GenericCallback>> requestCache;
+
+	@SuppressWarnings("unchecked")
 	private WorkingSetCache() {
 		workingSets = new HashMap<Integer, CacheEntry<WorkingSet>>();
 		assessmentRelations = new HashMap<Integer, Map<Integer,List<Integer>>>();
+	
+		requestCache = new HashMap<String, List<GenericCallback>>();
+	}
+	
+	@SuppressWarnings("unchecked")
+	private boolean wait(String url, GenericCallback<?> callback) {
+		List<GenericCallback> list = requestCache.get(url);
+		if (list == null)
+			list = new ArrayList<GenericCallback>();
+		
+		list.add(callback);
+		
+		if (requestCache.containsKey(url)) {
+			requestCache.put(url, list);
+			return true;
+		}
+		else
+			return false;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void clearWaitingSuccess(String url, Object result) {
+		List<GenericCallback> waiting = requestCache.remove(url);
+		if (waiting != null)
+			for (GenericCallback callback : waiting)
+				callback.onSuccess(result);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void clearWaitingFailure(String url, Throwable caught) {
+		List<GenericCallback> waiting = requestCache.remove(url);
+		if (waiting != null)
+			for (GenericCallback<?> callback : waiting)
+				callback.onFailure(caught);
 	}
 
 	/**
@@ -97,7 +136,6 @@ public class WorkingSetCache {
 					+ SISClientBase.currentUser.getUsername() + "/" + id, new GenericCallback<String>() {
 
 				public void onFailure(Throwable caught) {
-					// TODO Auto-generated method stub
 					wayback.onFailure(caught);
 				}
 
@@ -120,7 +158,6 @@ public class WorkingSetCache {
 					new GenericCallback<String>() {
 
 						public void onFailure(Throwable caught) {
-							// TODO Auto-generated method stub
 							wayback.onFailure(caught);
 						}
 
@@ -507,17 +544,44 @@ public class WorkingSetCache {
 		if (isCached(id, mode))
 			callback.onSuccess(getWorkingSet(id));
 		else {
-			final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-			document.get(getCacheUrl() + "/" + id, new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					WorkingSet ws = WorkingSet.fromXML(document);
-					cache(ws, mode);
-					callback.onSuccess(ws);
+			final String url = getCacheUrl() + "/" + id + "?mode=" + mode.name();
+			if (requestCache.containsKey(url)) {
+				if (!wait(url, callback)) {
+					//The request completed while we were attempting to wait...
+					WorkingSet ws = getWorkingSet(id);
+					if (ws == null) {
+						callback.onFailure(new GWTNotFoundException());
+						clearWaitingFailure(url, new GWTNotFoundException());
+					}
+					else {
+						callback.onSuccess(ws);
+						clearWaitingSuccess(url, ws);
+					}
 				}
-				public void onFailure(Throwable caught) {
-					callback.onFailure(caught);
-				}
-			});
+			}
+			else {
+				requestCache.put(url, null);
+				final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+				document.get(url, new GenericCallback<String>() {
+					public void onSuccess(String result) {
+						boolean minimal = !FetchMode.FULL.equals(mode);
+						WorkingSet ws = WorkingSet.fromXML(new WorkingSet(), document.getDocumentElement(), minimal);
+						if (!minimal)
+							for (Taxon taxon : ws.getTaxon())
+								TaxonomyCache.impl.putTaxon(taxon);
+						
+						cache(ws, mode);
+						callback.onSuccess(ws);
+						
+						clearWaitingSuccess(url, ws);
+					}
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+						
+						clearWaitingFailure(url, caught);
+					}
+				});
+			}
 		}
 	}
 

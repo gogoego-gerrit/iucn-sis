@@ -166,6 +166,10 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	}
 	
 	public static WorkingSet fromXML(WorkingSet set, NativeElement element) {
+		return fromXML(set, element, true);
+	}
+	
+	public static WorkingSet fromXML(WorkingSet set, NativeElement element, boolean minimal) {
 		fromXMLMinimal(set, element);
 		
 		final Set<Region> newRegions = new HashSet<Region>();
@@ -187,8 +191,12 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 				set.setIsMostRecentPublished(Boolean.valueOf(node.getTextContent()));
 			else if (Region.ROOT_TAG.equals(nodeName))
 				newRegions.add(Region.fromXML((NativeElement)node));
-			else if (Taxon.ROOT_TAG.equals(nodeName))
-				set.getTaxon().add(Taxon.fromXMLminimal((NativeElement)node));
+			else if (Taxon.ROOT_TAG.equals(nodeName)) {
+				if (minimal)
+					set.getTaxon().add(Taxon.fromXMLminimal((NativeElement)node));
+				else
+					set.getTaxon().add(Taxon.fromXML((NativeElement)node));
+			}
 			else if (User.ROOT_TAG.equals(nodeName)) {
 				set.getUsers().add(User.fromXML((NativeElement)node));
 			}
@@ -213,6 +221,10 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 	}
 
 	public String toXML() {
+		return toXML(true);
+	}
+	
+	public String toXML(boolean minimal) {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + " id=\"" + getId() + "\" date=\""
 				+ getCreatedDate().getTime() + "\">");
@@ -232,8 +244,12 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 		for (Region region : getRegion())
 			xml.append(region.toXML());
 
-		for (Taxon taxon : getTaxon())
-			xml.append(taxon.toXMLMinimal());
+		if (minimal)
+			for (Taxon taxon : getTaxon())
+				xml.append(taxon.toXMLMinimal());
+		else
+			for (Taxon taxon : getTaxon())
+				xml.append(taxon.toXML());
 
 		for (User user : getUsers())
 			xml.append(user.toXML());

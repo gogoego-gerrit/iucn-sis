@@ -100,7 +100,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 			else if (action.equalsIgnoreCase("assessments"))
 				entity = getAssessmentsForWorkingSet(request, response, username, id, workingSetIO, session);
 			else if (identifier.matches("\\d+"))
-				entity = getWorkingSet(username, id, workingSetIO);
+				entity = getWorkingSet(username, id, (String)request.getResourceRef().getQueryAsForm().getFirstValue("mode"), workingSetIO);
 			else
 				throw new ResourceException(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED, "No target for action " + action + " in working sets.");
 		}
@@ -246,12 +246,14 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		return new StringRepresentation(xml.toString(), MediaType.TEXT_XML);
 	}
 	
-	private Representation getWorkingSet(String username, Integer workingSetID, WorkingSetIO workingSetIO) throws ResourceException {
+	private Representation getWorkingSet(String username, Integer workingSetID, String mode, WorkingSetIO workingSetIO) throws ResourceException {
 		final WorkingSet ws = workingSetIO.readWorkingSet(workingSetID);
 		if (ws == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
 		
-		return new StringRepresentation(ws.toXML(), MediaType.TEXT_XML);
+		boolean minimal = !"FULL".equalsIgnoreCase(mode);
+		
+		return new StringRepresentation(ws.toXML(minimal), MediaType.TEXT_XML);
 	}
 
 	/**
