@@ -173,14 +173,18 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 			speciesID = WorkingSetCache.impl.getCurrentWorkingSet().getSpeciesIDs();
 		}
 		
+		WindowUtils.showLoadingAlert("Please wait...");
 		AssessmentUtils.createGlobalDraftAssessments(speciesID, useTemplate, filter, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
+				WindowUtils.hideLoadingAlert();
 				WindowUtils.errorAlert("Unable to complete request, please try again later.");
 				add.enable();
 				hideList();
 			}
 
 			public void onSuccess(String arg0) {
+				WindowUtils.hideLoadingAlert();
+				
 				if (arg0 != null) {
 					com.extjs.gxt.ui.client.widget.Window w = WindowUtils.newWindow("Batch Create Results", null, false, true);
 					w.setScrollMode(Scroll.AUTOY);
