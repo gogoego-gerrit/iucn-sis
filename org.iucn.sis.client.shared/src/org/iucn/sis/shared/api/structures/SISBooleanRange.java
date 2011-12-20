@@ -139,7 +139,7 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 	public Widget createViewOnlyLabel() {
 		clearDisplayPanel();
 		displayPanel.add(descriptionLabel);
-		displayPanel.add(new HTML(range.getText()));
+		displayPanel.add(new HTML(getDisplayString(getData())));
 		return displayPanel;
 	}
 
@@ -212,19 +212,24 @@ public class SISBooleanRange extends SISPrimitiveStructure<String> implements Do
 	@Override
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
 		String data = (String) rawData.get(offset);
-		if (data.length() == 0) {
-			prettyData.add(offset, "(Not Specified)");
-		} else {
-			if (data.equals(BooleanRangePrimitiveField.UNKNOWN))
-				prettyData.add(offset, "Unknown");
-			else if (data.equals(BooleanRangePrimitiveField.YES))
-				prettyData.add(offset, "Yes");
-			else if (data.equals(BooleanRangePrimitiveField.NO))
-				prettyData.add(offset, "No");
-			else
-				prettyData.add(offset, "Custom range: " + data);
-		}
+		prettyData.add(offset, getDisplayString(data));
 		return ++offset;
+	}
+	
+	private String getDisplayString(String data) {
+		String result;
+		if (data == null || "".equals(data))
+			result = "(Not Specified)";
+		else if (data.equals(BooleanRangePrimitiveField.UNKNOWN))
+			result = "Unknown";
+		else if (data.equals(BooleanRangePrimitiveField.YES))
+			result = "Yes";
+		else if (data.equals(BooleanRangePrimitiveField.NO))
+			result = "No";
+		else
+			result = "Custom range: " + data;
+		
+		return result;
 	}
 
 	@Override
