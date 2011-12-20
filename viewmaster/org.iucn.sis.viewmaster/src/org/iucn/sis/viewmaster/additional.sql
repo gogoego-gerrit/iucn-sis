@@ -7,6 +7,14 @@ CREATE VIEW $schema.vw_reference AS
 	JOIN public.reference r ON r.id = public.field_reference.referenceid;
 GRANT SELECT ON $schema.vw_reference TO $user;
 
+DROP VIEW IF EXISTS $schema.vw_reference_global CASCADE;
+CREATE VIEW $schema.vw_reference_global AS 
+  SELECT filter.taxonid, filter.assessmentid, r.*
+    FROM $schema.vw_filter filter
+    JOIN public.assessment_reference ar ON ar.assessmentid = filter.assessmentid
+    JOIN reference r ON r.id = ar.referenceid;
+GRANT SELECT ON $schema.vw_reference_global TO $user;
+
 DROP VIEW IF EXISTS lookups.REGIONINFORMATION_REGIONSLOOKUP CASCADE;
 CREATE VIEW lookups.REGIONINFORMATION_REGIONSLOOKUP AS 
   SELECT public.region.id AS "ID", CAST (public.region.id AS varchar(255)) AS "NAME", 
