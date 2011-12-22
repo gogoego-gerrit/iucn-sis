@@ -9,6 +9,7 @@ import org.iucn.sis.client.api.caches.FetchMode;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
+import org.iucn.sis.client.api.models.NameValueModelData;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.panels.utils.RefreshPortlet;
@@ -16,7 +17,10 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.layout.FlowLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.HTML;
@@ -26,23 +30,70 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class RecentActivityPortlet extends RefreshPortlet {
 	
+	private static enum ActivityMode {
+		ALL("All", "all"), WORKING_SETS("My Working Sets", "ws"), MINE("Mine", "mine");
+		public static ActivityMode get(String key) {
+			for (ActivityMode mode : ActivityMode.values())
+				if (mode.getKey().equals(key))
+					return mode;
+			return null;
+		}
+		private final String name, key;
+		private ActivityMode(String name, String key) { this.name = name; this.key = key; }
+		public String getName() { return name; }
+		public String getKey() { return key; }
+	}
+	
+	private static ActivityMode DEFAULT = ActivityMode.ALL;
+	
 	private List<Activity> activities;
+	private ActivityMode mode;
 	
 	public RecentActivityPortlet() {
 		super("x-panel");
 		setHeading("Recent Activity");
-		setLayout(new FitLayout());
+		setLayout(new FlowLayout());
 		setLayoutOnChange(true);
 		setHeight(200);
 		setScrollMode(Scroll.AUTOY);
 		
 		configureThisAsPortlet();
 		
-		refresh();
+		//TODO: make this configurable via drop-down? tabs?
+		setMode(DEFAULT);
+	}
+	
+	@Override
+	protected void initTools() {
+		NameValueModelData[] options = new NameValueModelData[ActivityMode.values().length];
+		int index = 0;
+		for (ActivityMode option : ActivityMode.values())
+			options[index++] = new NameValueModelData(option.getName(), option.getKey());
+		
+		ComboBox<NameValueModelData> box = FormBuilder.createModelComboBox("mode", DEFAULT.getKey(), "", false, options);
+		box.addSelectionChangedListener(new SelectionChangedListener<NameValueModelData>() {
+			public void selectionChanged(SelectionChangedEvent<NameValueModelData> se) {
+				NameValueModelData selection = se.getSelectedItem();
+				if (selection != null)
+					setMode(ActivityMode.get(selection.getValue()));
+			}
+		});
+		head.addTool(box);
+		
+		super.initTools();
+	}
+	
+	private void setMode(ActivityMode mode) {
+		if (mode != null) {
+			this.mode = mode;
+			
+			refresh();
+		}
 	}
 	
 	private void update() {
@@ -96,8 +147,15 @@ public class RecentActivityPortlet extends RefreshPortlet {
 	
 	@Override
 	public void refresh() {
+		mask("Loading...");
+		
+		final StringBuilder uri = new StringBuilder();
+		uri.append(UriBase.getInstance().getRecentAssessmentsBase());
+		uri.append("/activity/");
+		uri.append(mode.getKey());
+		
 		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-		document.get(UriBase.getInstance().getRecentAssessmentsBase() + "/activity/all", new GenericCallback<String>() {
+		document.get(uri.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				activities = new ArrayList<Activity>();
 				
@@ -124,12 +182,17 @@ public class RecentActivityPortlet extends RefreshPortlet {
 					
 					activities.add(activity);
 				}
+				
 				update();
+				
+				unmask();
 			}
 			public void onFailure(Throwable caught) {
 				activities = new ArrayList<Activity>();
 				
 				update();
+				
+				unmask();
 			}
 		});
 	}
