@@ -1,5 +1,7 @@
 package org.iucn.sis.shared.api.models;
 
+import java.util.Date;
+
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
@@ -9,7 +11,7 @@ public class OfflineMetadata {
 	
 	private String name;
 	private String location;
-	private String lastModified;
+	private Date lastModified;
 	
 	public String getName() {
 		return name;
@@ -23,10 +25,10 @@ public class OfflineMetadata {
 	public void setLocation(String location) {
 		this.location = location;
 	}
-	public String getLastModified() {
+	public Date getLastModified() {
 		return lastModified;
 	}
-	public void setLastModified(String lastModified) {
+	public void setLastModified(Date lastModified) {
 		this.lastModified = lastModified;
 	}
 	
@@ -35,7 +37,7 @@ public class OfflineMetadata {
 		out.append("<offline>");
 		out.append(XMLWritingUtils.writeCDATATag("name", getName()));
 		out.append(XMLWritingUtils.writeCDATATag("location", getLocation()));
-		out.append(XMLWritingUtils.writeCDATATag("date", getLastModified()));
+		out.append(XMLWritingUtils.writeCDATATag("date", Long.toString(getLastModified().getTime())));
 		out.append("</offline>");
 		return out.toString();
 	}
@@ -50,8 +52,11 @@ public class OfflineMetadata {
 				metadata.setName(node.getTextContent());
 			else if ("location".equals(node.getNodeName()))
 				metadata.setLocation(node.getTextContent());
-			else if ("date".equals(node.getNodeName()))
-				metadata.setLastModified(node.getTextContent());
+			else if ("date".equals(node.getNodeName())) {
+				try {
+					metadata.setLastModified(new Date(Long.valueOf(node.getTextContent())));
+				} catch (Exception e) { }
+			}
 		}	
 		return metadata;
 	}

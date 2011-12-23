@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels;
 import org.iucn.sis.client.api.caches.OfflineCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.OfflineMetadata;
@@ -22,12 +23,15 @@ import com.extjs.gxt.ui.client.widget.menu.MenuItem;
 import com.extjs.gxt.ui.client.widget.tips.ToolTipConfig;
 import com.extjs.gxt.ui.client.widget.toolbar.FillToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class OfflineFooter extends ToolBar {
+	
+	private static final LabelToolItem connectionStatus = new LabelToolItem();
 	
 	private OfflineMetadata metadata;
 	
@@ -39,7 +43,7 @@ public class OfflineFooter extends ToolBar {
 		tooltip.setTitle("Details");
 		tooltip.setText("Name: " + metadata.getName() + "<br/>" +
 				"Location: " + metadata.getLocation() + "<br/>" +
-				"Last Modified: " + metadata.getLastModified());
+				"Last Modified: " + FormattedDate.FULL.getDate(metadata.getLastModified()));
 		tooltip.setCloseable(true);
 		
 		IconButton details = new IconButton("icon-information");
@@ -55,32 +59,32 @@ public class OfflineFooter extends ToolBar {
 		
 		add(new LabelToolItem("Offline Database: "+metadata.getName()));
 		add(details);
-		
+		add(new SeparatorToolItem());
 		add(new LabelToolItem("Offline Working Set: "));
 		add(new LabelToolItem(WorkingSetCache.impl.getOfflineWorkingSet().getName()));
 		
-		add(new FillToolItem());	
-		add(new LabelToolItem(setConnectionStatus()));
-		add(gear);		
-		
+		add(new FillToolItem());
+		add(connectionStatus);
+		add(gear);
+	
+		setConnectionStatus(initConnectionStatus());
 	}
 
-	private native String setConnectionStatus()/*-{
-	
-		window.addEventListener('online', function(e) {
-		  this.@org.iucn.sis.client.panels.OfflineFooter::tempFunction();
+	private native String initConnectionStatus() /*-{
+		$wnd.addEventListener('online', function(e) {
+		  @org.iucn.sis.client.panels.OfflineFooter::setConnectionStatus(Ljava/lang/String;)("Online");
 		}, false);
 		
-		window.addEventListener('offline', function(e) {
-		  this.@org.iucn.sis.client.panels.OfflineFooter::tempFunction();
+		$wnd.addEventListener('offline', function(e) {
+		  @org.iucn.sis.client.panels.OfflineFooter::setConnectionStatus(Ljava/lang/String;)("Offline");
 		}, false);			
 	
-	  	if($wnd.navigator.onLine){
-	  		return "ONLINE";
-	  	}else{
-	  		return "OFFLINE";
-	  	}	  	
+	  	return $wnd.navigator.onLine ? "Online" : "Offline";
 	}-*/;
+	
+	public static void setConnectionStatus(String value) {
+		connectionStatus.setLabel(value);
+	}
 	
 	private native void checkConnection()/*-{
 

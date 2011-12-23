@@ -1,7 +1,6 @@
 package org.iucn.sis.server.extensions.offline;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
 
@@ -13,6 +12,7 @@ import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
+import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
@@ -33,19 +33,18 @@ public class OfflineMetaDataRestlet extends BaseServiceRestlet {
 
 		Properties init = GoGoEgo.getInitProperties();
 		
-		String dbUri = init.getProperty("dbsession.sis_offline.uri");
+		String dbUri = init.getProperty("dbsession.sis.uri");
 		String dbName = getDbNameFromUri(dbUri);
 		String dbLocation =  removeJDBCPrefix(dbUri);
 		
 		File file = new File(dbLocation+".data.db");
-		long dbModifiedDate = file.lastModified();
-		SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");		 
-		Date resultdate = new Date(dbModifiedDate);
+		if (!file.exists())
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "SIS Configuration error.");
 		
 		OfflineMetadata metadata = new OfflineMetadata();
 		metadata.setName(dbName);
 		metadata.setLocation(dbLocation);
-		metadata.setLastModified(sdf.format(resultdate));
+		metadata.setLastModified(new Date(file.lastModified()));
 		
 		return new StringRepresentation(metadata.toXML(), MediaType.TEXT_XML);		
 	}
