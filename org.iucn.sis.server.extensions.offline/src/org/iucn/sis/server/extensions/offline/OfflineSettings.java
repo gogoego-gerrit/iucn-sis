@@ -17,5 +17,4 @@ public final class OfflineSettings {
 	public static final String[] ALL = new String[] {
 		DIALECT, URL, DRIVER, USER, PASSWORD
 	};
-
 }

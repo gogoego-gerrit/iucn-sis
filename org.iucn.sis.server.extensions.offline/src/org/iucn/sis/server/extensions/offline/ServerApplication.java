@@ -18,6 +18,8 @@ public class ServerApplication extends SimpleSISApplication {
 	@Override
 	public void init() {
 		addServiceToRouter(new OfflineRestlet(app.getContext()));
+		addServiceToRouter(new OfflineMetaDataRestlet(app.getContext()));
+		addServiceToRouter(new OfflineBackupRestlet(app.getContext()));
 	}
 	
 	@Override

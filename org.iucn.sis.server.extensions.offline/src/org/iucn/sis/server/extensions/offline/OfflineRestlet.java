@@ -35,18 +35,19 @@ public class OfflineRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
+
 		String username = (String) request.getAttributes().get("username");
 		String workingSetID = (String) request.getAttributes().get("workingsetID");
-				
+					
 		UserIO userIO = new UserIO(session);
-
+	
 		try {
 			return importToOnline(userIO.getUserFromUsername(username), Integer.valueOf(workingSetID), 
 						response, request, session);
-
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
+		
 	}
 		
 	private Representation importToOnline(final User user, final Integer workingsetID, final Response response,
@@ -88,7 +89,6 @@ public class OfflineRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, "No target database has been specified.");
 		
 		Properties properties = new Properties();
-		//properties.setProperty("generator", "assigned");
 		properties.setProperty("database_dialect", settings.getProperty(OfflineSettings.DIALECT,"org.hibernate.dialect.PostgreSQLDialect"));
 		properties.setProperty("dbsession.sis_target.uri", settings.getProperty(OfflineSettings.URL));
 		properties.setProperty("dbsession.sis_target.driver", settings.getProperty(OfflineSettings.DRIVER,"org.postgresql.Driver"));

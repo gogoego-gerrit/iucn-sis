@@ -16,12 +16,12 @@ import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
-
 import com.solertium.db.DBException;
 
 public class OfflineToOnlineImporter extends DatabaseExporter {
 	
 	private final Properties targetProperties;
+	//private static final int BATCH_SIZE = 200;
 	
 	protected Session source;
 	protected Session target;
@@ -35,8 +35,7 @@ public class OfflineToOnlineImporter extends DatabaseExporter {
 	protected void afterRun() throws DBException {
 		super.afterRun();
 
-		write("Write complete");
-		
+		write("Write complete");		
 		try {
 			write("--- Complete ---");
 		} catch (Exception e) {
@@ -61,7 +60,6 @@ public class OfflineToOnlineImporter extends DatabaseExporter {
 	
 	protected void execute() throws Throwable {
 		String name = "sis_target";				
-		//String location = "localhost:5432";
 		
 		//The offline database.
 		source = SIS.get().getManager().openSession();
@@ -73,51 +71,50 @@ public class OfflineToOnlineImporter extends DatabaseExporter {
 		
 		//Since not from scratch, we don't need to initialize metadata
 		/*
-		try {
-			if (fromScratch) {
-				List<Class<?>> copyAll = new ArrayList<Class<?>>();
-				copyAll.add(AssessmentType.class);
-				copyAll.add(Definition.class);
-				copyAll.add(Infratype.class);
-				copyAll.add(IsoLanguage.class);
-				copyAll.add(PermissionGroup.class);
-				copyAll.add(Permission.class);
-				copyAll.add(Region.class);
-				copyAll.add(Relationship.class);
-				copyAll.add(TaxonLevel.class);
-				copyAll.add(TaxonStatus.class);
-				copyAll.add(User.class);
-				copyAll.add(Virus.class);
-				//copyAll.add(Reference.class);
-							
-				for (Class<?> clazz : copyAll) {
-					int i = 0;
-					List<?> list = SISPersistentManager.instance().listObjects(clazz, source);
-					source.clear();
-					write("Copying %s...", clazz.getSimpleName());
-					boolean started = false;
-					for (Object obj : list) {
-						if (!started) {
-							started = true;
-							target.beginTransaction();
-						}
-						target.replicate(obj, ReplicationMode.IGNORE);
+		try {		
+			List<Class<?>> copyAll = new ArrayList<Class<?>>();
+			copyAll.add(AssessmentType.class);
+			copyAll.add(Definition.class);
+			copyAll.add(Infratype.class);
+			copyAll.add(IsoLanguage.class);
+			copyAll.add(PermissionGroup.class);
+			copyAll.add(Permission.class);
+			copyAll.add(Region.class);
+			copyAll.add(Relationship.class);
+			copyAll.add(TaxonLevel.class);
+			copyAll.add(TaxonStatus.class);
+			copyAll.add(User.class);
+			copyAll.add(Virus.class);
+			//copyAll.add(Reference.class);
 						
-						if (++i % BATCH_SIZE == 0) {
-							write("  %s...", i);
-							target.getTransaction().commit();
-							target.clear();
-							started = false;
-						}
+			for (Class<?> clazz : copyAll) {
+				int i = 0;
+				List<?> list = SISPersistentManager.instance().listObjects(clazz, source);
+				source.clear();
+				write("Copying %s...", clazz.getSimpleName());
+				boolean started = false;
+				for (Object obj : list) {
+					if (!started) {
+						started = true;
+						target.beginTransaction();
 					}
-					if (started) {
+					target.replicate(obj, ReplicationMode.IGNORE);
+					
+					if (++i % BATCH_SIZE == 0) {
 						write("  %s...", i);
 						target.getTransaction().commit();
 						target.clear();
+						started = false;
 					}
+				}
+				if (started) {
+					write("  %s...", i);
+					target.getTransaction().commit();
 					target.clear();
 				}
+				target.clear();
 			}
+		
 		} catch (Exception e) {
 			source.close();
 			target.close();
@@ -174,8 +171,7 @@ public class OfflineToOnlineImporter extends DatabaseExporter {
 			source.clear();
 			target.replicate(taxon, ReplicationMode.OVERWRITE);
 			
-			seen.add(taxon.getId());
-			
+			seen.add(taxon.getId());			
 			//No need for recursion here, replicate will catch it...
 		}
 	}

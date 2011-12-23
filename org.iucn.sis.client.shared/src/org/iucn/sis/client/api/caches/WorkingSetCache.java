@@ -56,7 +56,6 @@ public class WorkingSetCache {
 	private WorkingSetCache() {
 		workingSets = new HashMap<Integer, CacheEntry<WorkingSet>>();
 		assessmentRelations = new HashMap<Integer, Map<Integer,List<Integer>>>();
-	
 		requestCache = new HashMap<String, List<GenericCallback>>();
 	}
 	
@@ -118,10 +117,14 @@ public class WorkingSetCache {
 		} else
 			wayBack.onFailure(new Throwable("Don't know what to do because user dosen't have rights to specify"
 					+ " the working set id."));
+	}	
+	
+	public WorkingSet getOfflineWorkingSet() {
+		return workingSets.values().iterator().next().getEntry();
 	}
 
 	private void cache(WorkingSet ws, FetchMode mode) {
-		workingSets.put(ws.getId(), new CacheEntry<WorkingSet>(ws, mode));
+		workingSets.put(ws.getId(), new CacheEntry<WorkingSet>(ws, mode));		
 	}
 	
 	public boolean isCached(Integer id, FetchMode mode) {
