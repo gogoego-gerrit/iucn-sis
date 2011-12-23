@@ -106,19 +106,31 @@ public class PublicationCache {
 				for (Integer id : ids) {
 					PublicationData model = data.get(id);
 					if (model != null) {
+						Assessment cached = AssessmentCache.impl.getAssessment(model.getAssessment().getId());
 						if (status != null) {
 							model.getAssessment().setType(status);
-							Assessment cached = AssessmentCache.impl.getAssessment(model.getAssessment().getId());
 							if (cached != null)
 								cached.setType(status);
 							AssessmentCache.impl.evictTaxonToAssessment(model.getAssessment().getTaxon().getId());
 						}
-						if (targetGoal != null)
+						if (targetGoal != null) {
 							model.setTargetGoal(targets.get(targetGoal));
-						if (targetApproved != null)
+							if (cached.getPublicationData() == null)
+								cached.setPublicationData(new PublicationData());
+							cached.getPublicationData().setTargetGoal(model.getTargetGoal());
+						}
+						if (targetApproved != null) {
 							model.setTargetApproved(targets.get(targetApproved));
-						if (notes != null)
+							if (cached.getPublicationData() == null)
+								cached.setPublicationData(new PublicationData());
+							cached.getPublicationData().setTargetApproved(model.getTargetApproved());
+						}
+						if (notes != null) {
 							model.setNotes(notes);
+							if (cached.getPublicationData() == null)
+								cached.setPublicationData(new PublicationData());
+							cached.getPublicationData().setNotes(model.getNotes());
+						}
 					}
 					
 					if (model.getAssessment().isPublished())

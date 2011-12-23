@@ -70,6 +70,11 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 				layout.collapse(LayoutRegion.NORTH);
 			}
 		});
+		form.addListener(Events.BeforeEdit, new Listener<BaseEvent>() {
+			public void handleEvent(BaseEvent be) {
+				be.setCancelled(grid.getChecked().isEmpty());
+			}
+		});
 		form.addListener(Events.StartEdit, new Listener<PublicationBatchChange.BatchUpdateEvent>() {
 			public void handleEvent(BatchUpdateEvent be) {
 				batchUpdate(be.getStatus(), be.getTargetGoal(), be.getTargetApproved(), be.getNotes(), new GenericCallback<Object>() {

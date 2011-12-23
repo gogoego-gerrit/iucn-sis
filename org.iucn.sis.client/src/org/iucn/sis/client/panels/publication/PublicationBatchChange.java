@@ -20,6 +20,7 @@ import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.solertium.util.extjs.client.FormBuilder;
+import com.solertium.util.extjs.client.WindowUtils;
 
 public class PublicationBatchChange extends FormPanel {
 	
@@ -111,28 +112,35 @@ public class PublicationBatchChange extends FormPanel {
 	}
 	
 	private void doSubmit() {
-		BatchUpdateEvent event = new BatchUpdateEvent();
+		BaseEvent beforeEdit = new BaseEvent(Events.BeforeEdit);
+		fireEvent(beforeEdit.getType(), beforeEdit);
 		
-		NameValueModelData selStatus = status.getValue();
-		if (selStatus != null)
-			event.setStatus(selStatus.getValue());
-		
-		NameValueModelData selGoal = goal.getValue();
-		if (selGoal != null)
-			event.setTargetGoal(Integer.valueOf(selGoal.getValue()));
-		
-		NameValueModelData selApproved = approved.getValue();
-		if (selApproved != null)
-			event.setTargetApproved(Integer.valueOf(selApproved.getValue()));
-		
-		if (notes.getValue() != null && !"".equals(notes.getValue()))
-			event.setNotes(notes.getValue());
-		
-		doCollapse();
-		
-		reset();
-		
-		fireEvent(event.getType(), event);
+		if (beforeEdit.isCancelled())
+			WindowUtils.errorAlert("Please select at least one row.");
+		else {
+			BatchUpdateEvent event = new BatchUpdateEvent();
+			
+			NameValueModelData selStatus = status.getValue();
+			if (selStatus != null)
+				event.setStatus(selStatus.getValue());
+			
+			NameValueModelData selGoal = goal.getValue();
+			if (selGoal != null)
+				event.setTargetGoal(Integer.valueOf(selGoal.getValue()));
+			
+			NameValueModelData selApproved = approved.getValue();
+			if (selApproved != null)
+				event.setTargetApproved(Integer.valueOf(selApproved.getValue()));
+			
+			if (notes.getValue() != null && !"".equals(notes.getValue()))
+				event.setNotes(notes.getValue());
+			
+			doCollapse();
+			
+			reset();
+			
+			fireEvent(event.getType(), event);
+		}
 	}
 
 	private void cancel() {
