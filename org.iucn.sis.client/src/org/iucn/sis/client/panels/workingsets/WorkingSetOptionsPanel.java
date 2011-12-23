@@ -5,6 +5,7 @@ import java.util.List;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workingsets.WorkingSetTaxaList.TaxaData;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -352,6 +353,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 		refreshNeededMove = true;
 		anyChanges = true;
 		forceRefreshTaxaList();
+		ClientUIContainer.headerContainer.centerPanel.updateTaxonList();
 	}
 
 	private void moveTaxa(BaseEvent be) {

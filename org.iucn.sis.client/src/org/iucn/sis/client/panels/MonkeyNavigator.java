@@ -119,6 +119,18 @@ public class MonkeyNavigator extends LayoutContainer implements DrawsLazily {
 		assessmentContainer.refreshView(false);
 	}
 	
+	public void updateWorkingSetList() {
+		workingSetContainer.refresh(curNavWorkingSet);
+	}
+	
+	public void updateTaxonList() {
+		taxonContainer.refresh(curNavWorkingSet, curNavTaxon);
+	}
+	
+	public void updateAssessmentList() {
+		assessmentContainer.refresh(curNavWorkingSet, curNavTaxon, curNavAssessment);
+	}
+	
 	public static void getSortedWorkingSets(ComplexListener<List<WorkingSet>> callback) {
 		final List<WorkingSet> ws = new ArrayList<WorkingSet>(WorkingSetCache.impl.getWorkingSets().values());
 		Collections.sort(ws, new WorkingSetNavigationComparator(SISClientBase.currentUser.getId()));
