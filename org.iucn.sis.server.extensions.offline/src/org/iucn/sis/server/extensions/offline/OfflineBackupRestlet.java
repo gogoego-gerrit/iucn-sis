@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Properties;
 
 import org.gogoego.api.plugins.GoGoEgo;
@@ -34,19 +36,21 @@ public class OfflineBackupRestlet extends BaseServiceRestlet {
 		
 		Properties init = GoGoEgo.getInitProperties();
 		
-		String dbUri = init.getProperty("dbsession.sis_offline.uri");
+		String dbUri = init.getProperty("dbsession.sis.uri");
 		String dbLocation =  dbUri.substring(dbUri.indexOf("file:")+5,dbUri.length());	
 		
 		return new StringRepresentation(backUpFiles(dbLocation), MediaType.TEXT_XML);
 	}
 	
-	private String backUpFiles(String location){
+	private String backUpFiles(String location) {
+		SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd_hhmm");
 		String message = "";
 		try{
 			File tempfile = new File(location);
 			String sourceDir = location.substring(0, location.indexOf(tempfile.getName())-1);
 			
-			File destDir = new File(location+"_backup");
+			File destDir = new File(location + "_backup_" + 
+				fmt.format(Calendar.getInstance().getTime()));
 			destDir.mkdir();
 			
 			File sourceFile = new File(sourceDir);
@@ -56,8 +60,8 @@ public class OfflineBackupRestlet extends BaseServiceRestlet {
 				if(fileList[i].getName().contains(".lock"))
 					continue;
 					
-				if (fileList[i].isFile()) 
-					copyFile(fileList[i].getAbsolutePath(), destDir.getAbsolutePath()+"\\"+fileList[i].getName());			    
+				if (fileList[i].isFile() && fileList[i].getName().endsWith(".db")) 
+					copyFile(fileList[i].getAbsolutePath(), destDir.getAbsolutePath(), fileList[i].getName());			    
 			} 
 			message = "Backup Successfully! Location -"+destDir.getAbsolutePath();
 		}catch (Exception e) {
@@ -66,10 +70,10 @@ public class OfflineBackupRestlet extends BaseServiceRestlet {
 		return message;
 	}
 	
-	private static void copyFile(String sourcePath, String destPath) throws IOException {
+	private static void copyFile(String sourcePath, String destFolder, String destFilename) throws IOException {
 		
 		File sourceFile = new File(sourcePath);
-		File destFile = new File(destPath);
+		File destFile = new File(destFolder + File.separator + destFilename);
 		
 		if (!sourceFile.exists()) {
 		    return;
