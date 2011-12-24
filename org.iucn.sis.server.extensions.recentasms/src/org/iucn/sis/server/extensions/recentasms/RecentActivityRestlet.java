@@ -61,18 +61,20 @@ public class RecentActivityRestlet extends BaseServiceRestlet {
 			Hibernate.initialize(user.getSubscribedWorkingSets());
 			if (user.getSubscribedWorkingSets() != null && !user.getSubscribedWorkingSets().isEmpty())
 				query = 
-					"SELECT DiSTINCT u.first_name, u.last_name, u.email, e.created_date, e.reason, " +
+					"SELECT DISTINCT u.first_name, u.last_name, u.email, e.created_date, e.reason, " +
 					"t.friendly_name, a.id as asm_id, t.id as taxon_id " +
 					"FROM assessment_edit ae " +
 					"JOIN edit e ON e.id = ae.editid " +
 					"JOIN \"user\" u ON u.id = e.userid " +
 					"JOIN assessment a ON a.id = ae.assessmentid " +
 					"JOIN taxon t ON t.id = a.taxonid " +
-					"JOIN working_set_subscribe_user w ON u.id = w.userid " +
-					"JOIN working_set_taxon wt ON t.id = wt.taxonid AND w.working_setid = wt.working_setid " + 
-					"WHERE reason is not null AND created_date > '" + date + "' " + 
+					"JOIN working_set_taxon wt ON t.id = wt.taxonid " + 
+					"JOIN working_set_subscribe_user w ON w.working_setid = wt.working_setid " + 
+					"WHERE w.userid = " + user.getId() + " AND reason is not null AND created_date > '" + date + "' " + 
 					"ORDER BY created_date DESC " +
 					"LIMIT 250";
+			else
+				return new StringRepresentation("<root/>", MediaType.TEXT_XML);
 		}
 		else if ("mine".equals(request.getAttributes().get("type"))) {
 			User user = getUser(request, session);
