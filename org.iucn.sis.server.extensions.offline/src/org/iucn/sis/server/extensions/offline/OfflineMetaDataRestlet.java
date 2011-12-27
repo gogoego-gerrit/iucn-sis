@@ -34,10 +34,11 @@ public class OfflineMetaDataRestlet extends BaseServiceRestlet {
 		Properties init = GoGoEgo.getInitProperties();
 		
 		String dbUri = init.getProperty("dbsession.sis.uri");
-		String dbName = getDbNameFromUri(dbUri);
-		String dbLocation =  removeJDBCPrefix(dbUri);
+		String dbLocation = removeJDBCPrefix(dbUri);
+		String dbName = getDbNameFromUri(dbLocation);
 		
 		File file = new File(dbLocation+".data.db");
+		
 		if (!file.exists())
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "SIS Configuration error.");
 		
