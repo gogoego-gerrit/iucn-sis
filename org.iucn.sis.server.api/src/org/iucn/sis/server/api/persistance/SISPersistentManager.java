@@ -37,6 +37,8 @@ import com.solertium.util.ElementCollection;
 
 public class SISPersistentManager {
 
+	public static final String PROP_GENERATOR = "org.iucn.sis.server.configuration.generator";
+	
 	private static SISPersistentManager instance;
 	private SessionFactory sessionFactory;
 
@@ -116,7 +118,9 @@ public class SISPersistentManager {
 	}
 	
 	private Configuration buildConfiguration(String session, Properties properties) {
-		String generator = properties.getProperty("generator", null);
+		String generator = properties.getProperty("generator"); //TODO: Legacy support to be removed
+		if (generator == null)
+			generator = properties.getProperty(PROP_GENERATOR);
 		
 		Configuration configuration = new SISPersistenceConfiguration(generator);
 		setCurrentThread();
@@ -172,6 +176,7 @@ public class SISPersistentManager {
 		session.delete(obj);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void lockObject(Session session, Object obj) throws PersistentException {
 		session.lock(obj, LockMode.NONE);
 		//FIXME: should we be using the code below?

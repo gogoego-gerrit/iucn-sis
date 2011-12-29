@@ -170,7 +170,7 @@ public class WorkingSetExporter extends DatabaseExporter {
 	protected void execute() throws Throwable {
 		String name;
 		Properties properties = new Properties();
-		properties.setProperty("generator", "assigned");
+		properties.setProperty(SISPersistentManager.PROP_GENERATOR, "assigned");
 		if (location == null) {
 			String location = "localhost:5432";
 			name = source + "_target";
