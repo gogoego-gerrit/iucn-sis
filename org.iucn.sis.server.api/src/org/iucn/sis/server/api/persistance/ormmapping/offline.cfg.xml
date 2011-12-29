@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+    	<property name="database_dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="current_session_context_class">thread</property>
+		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+		<property name="connection.pool_size">1</property>
+		<property name="show_sql">false</property>
+		<property name="use_sql_comments">false</property>
+		
+		<!-- mapping files -->
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Assessment.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/AssessmentChange.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/AssessmentIntegrityValidation.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/AssessmentType.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Bookmark.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/CommonName.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Definition.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Edit.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Field.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/FieldAttachment.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Infratype.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/IsoLanguage.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Notes.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Lock.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Marked.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Permission.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PermissionGroup.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PermissionResourceAttribute.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PrimitiveField.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PublicationData.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/PublicationTarget.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/RecentlyAccessed.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/ReferenceForOffline.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Region.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Relationship.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Synonym.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxomaticHistory.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxomaticOperation.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Taxon.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonImage.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonLevel.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/TaxonStatus.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/User.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/UserPreference.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/Virus.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/WorkflowNotes.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/WorkflowStatus.hbm.xml" />
+		<mapping resource="org/iucn/sis/server/api/persistance/ormmapping/WorkingSet.hbm.xml" />
+		
+    </session-factory>
+	
+	
+</hibernate-configuration>

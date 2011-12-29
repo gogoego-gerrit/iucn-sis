@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Licensee: 
+License Type: Evaluation
+-->
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.iucn.sis.shared.api.models.Reference" table="reference" lazy="false">
+		<id name="id" column="id" type="integer" unsaved-value="0">
+			<generator class="native">
+			</generator>
+		</id>
+		<property name="type" column="type" type="string" length="255" not-null="false" lazy="false"/>
+		<property name="citationShort" column="citation_short" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="citation" column="citation" type="string" length="4095" not-null="false" lazy="false"/>
+		<property name="author" column="author" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="year" column="year" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="title" column="title" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="secondaryAuthor" column="secondary_author" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="secondaryTitle" column="secondary_title" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="placePublished" column="place_published" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="publisher" column="publisher" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="volume" column="volume" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="numberOfVolumes" column="number_of_volumes" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="number" column="number" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="pages" column="pages" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="section" column="section" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="tertiaryAuthor" column="tertiary_author" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="tertiaryTitle" column="tertiary_title" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="edition" column="edition" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="dateValue" column="date" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="subsidiaryAuthor" column="subsidiary_author" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="shortTitle" column="short_title" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="alternateTitle" column="alternate_title" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="isbnIssn" column="isbn_issn" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="keywords" column="keywords" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="url" column="url" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="hash" column="bib_hash" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="bibCode" column="bib_code" type="integer" length="10" not-null="false" lazy="false"/>
+		<property name="bibNumber" column="bib_number" type="integer" length="10" not-null="false" lazy="false"/>
+		<property name="bibNoInt" column="bib_no_int" type="integer" length="10" not-null="false" lazy="false"/>
+		<property name="externalBibCode" column="external_bib_code" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="citationComplete" column="citation_complete" type="boolean" length="1" not-null="false" lazy="false"/>
+		<property name="submissionType" column="submission_type" type="string" length="2047" not-null="false" lazy="false"/>
+		
+		<set name="Synonym" table="synonym_reference" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="referenceid" not-null="true"/>
+			<many-to-many column="synonymid" class="org.iucn.sis.shared.api.models.Synonym">
+			</many-to-many>
+		</set>
+		<set name="Common_name" table="common_name_reference" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="referenceid" not-null="true"/>
+			<many-to-many column="common_nameid" class="org.iucn.sis.shared.api.models.CommonName">
+			</many-to-many>
+		</set>
+		<set name="Assessment" table="assessment_reference" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="referenceid" not-null="true"/>
+			<many-to-many column="assessmentid" class="org.iucn.sis.shared.api.models.Assessment">
+			</many-to-many>
+		</set>
+		<set name="Field" table="field_reference" lazy="true" cascade="save-update,lock" inverse="true">
+			<key column="referenceid" not-null="true"/>
+			<many-to-many column="fieldid" class="org.iucn.sis.shared.api.models.Field">
+			</many-to-many>
+		</set>
+		<set name="Taxon" table="reference_taxon" lazy="true" cascade="save-update,lock">
+			<key column="referenceid" not-null="true"/>
+			<many-to-many column="taxonid" class="org.iucn.sis.shared.api.models.Taxon">
+			</many-to-many>
+		</set>
+	</class>
+</hibernate-mapping>
