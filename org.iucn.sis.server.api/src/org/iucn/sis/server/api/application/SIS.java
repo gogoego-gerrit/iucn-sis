@@ -12,6 +12,7 @@ import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.queries.CannedQueries;
+import org.iucn.sis.server.api.queries.H2CannedQueries;
 import org.iucn.sis.server.api.queries.PostgreSQLCannedQueries;
 import org.iucn.sis.server.api.schema.AssessmentSchemaBroker;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -31,7 +32,6 @@ import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.vendor.H2DBSession;
-import com.solertium.db.vendor.PostgreSQLDBSession;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.TrivialExceptionHandler;
@@ -83,10 +83,8 @@ public class SIS {
 			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
 			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 			
-			if (ec.getDBSession() instanceof H2DBSession) {
-				//FIXME: probably want an H2-specific one!
-				queries = new PostgreSQLCannedQueries(); 
-			}
+			if (ec.getDBSession() instanceof H2DBSession)
+				queries = new H2CannedQueries(); 
 			else
 				queries = new PostgreSQLCannedQueries(); 
 			

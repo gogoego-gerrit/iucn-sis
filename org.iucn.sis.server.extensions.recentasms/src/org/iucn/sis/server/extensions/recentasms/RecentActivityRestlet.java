@@ -1,13 +1,14 @@
 package org.iucn.sis.server.extensions.recentasms;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -37,7 +38,7 @@ public class RecentActivityRestlet extends BaseServiceRestlet {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, -1);
 		
-		String date = new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
+		String mode = (String)request.getAttributes().get("type");
 		
 		String query = null;
 		/*
@@ -56,60 +57,30 @@ public class RecentActivityRestlet extends BaseServiceRestlet {
 		 * If you have working sets, it will find recent activity for 
 		 * those working sets.  If you don't then it won't bother.
 		 */
-		if ("ws".equals(request.getAttributes().get("type"))) {
+		if ("ws".equals(mode)) {
 			User user = getUser(request, session);
 			Hibernate.initialize(user.getSubscribedWorkingSets());
 			if (user.getSubscribedWorkingSets() != null && !user.getSubscribedWorkingSets().isEmpty())
 				query = 
-					"SELECT DISTINCT u.first_name, u.last_name, u.email, e.created_date, e.reason, " +
-					"t.friendly_name, a.id as asm_id, t.id as taxon_id " +
-					"FROM assessment_edit ae " +
-					"JOIN edit e ON e.id = ae.editid " +
-					"JOIN \"user\" u ON u.id = e.userid " +
-					"JOIN assessment a ON a.id = ae.assessmentid " +
-					"JOIN taxon t ON t.id = a.taxonid " +
-					"JOIN working_set_taxon wt ON t.id = wt.taxonid " + 
-					"JOIN working_set_subscribe_user w ON w.working_setid = wt.working_setid " + 
-					"WHERE w.userid = " + user.getId() + " AND reason is not null AND created_date > '" + date + "' " + 
-					"ORDER BY created_date DESC " +
-					"LIMIT 250";
+					SIS.get().getQueries().getRecentActivity(mode, cal.getTime(), Integer.toString(user.getId()));
 			else
 				return new StringRepresentation("<root/>", MediaType.TEXT_XML);
 		}
-		else if ("mine".equals(request.getAttributes().get("type"))) {
+		else if ("mine".equals(mode)) {
 			User user = getUser(request, session);
 			
-			query = 
-				"SELECT DiSTINCT u.first_name, u.last_name, u.email, e.created_date, e.reason, " +
-				"t.friendly_name, a.id as asm_id, t.id as taxon_id " +
-				"FROM assessment_edit ae " +
-				"JOIN edit e ON e.id = ae.editid " +
-				"JOIN \"user\" u ON u.id = e.userid " +
-				"JOIN assessment a ON a.id = ae.assessmentid " +
-				"JOIN taxon t ON t.id = a.taxonid " +
-				"WHERE u.id = " + user.getId() + " AND reason is not null AND created_date > '" + date + "' " + 
-				"ORDER BY created_date DESC " +
-				"LIMIT 250";
+			query = SIS.get().getQueries().getRecentActivity(mode, cal.getTime(), Integer.toString(user.getId()));
 		}
 		
 		if (query == null) {
-			query = 
-				"SELECT DISTINCT u.first_name, u.last_name, u.email, e.created_date, e.reason, " +
-				"t.friendly_name, a.id as asm_id, t.id as taxon_id " +
-				"FROM assessment_edit ae " +
-				"JOIN edit e ON e.id = ae.editid " +
-				"JOIN \"user\" u ON u.id = e.userid " +
-				"JOIN assessment a ON a.id = ae.assessmentid " +
-				"JOIN taxon t ON t.id = a.taxonid " +
-				"WHERE reason is not null AND created_date > '" + date + "' " + 
-				"ORDER BY created_date DESC " +
-				"LIMIT 250";
+			query = SIS.get().getQueries().getRecentActivity(mode, cal.getTime());
 		}
 		
 		final List<Object[]> list;
 		try {
 			list = session.createSQLQuery(query).list();
 		} catch (Exception e) {
+			Debug.println(e);
 			throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, e);
 		}
 		

@@ -1,5 +1,7 @@
 package org.iucn.sis.server.api.queries;
 
+import java.util.Date;
+
 /**
  * CannedQueries.java
  * 
@@ -16,6 +18,8 @@ public interface CannedQueries {
 	public String getSubscribableWorkingSets(int userid);
 	
 	public String getWorkingSetsForTaxon(int taxonid);
+	
+	public String getRecentActivity(String mode, Date dateTime, String... parameters);
 	
 	public String cleanSearchTerm(String value);
 
