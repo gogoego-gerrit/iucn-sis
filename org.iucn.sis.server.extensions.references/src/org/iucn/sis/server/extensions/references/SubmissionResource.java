@@ -7,7 +7,6 @@ import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.TransactionResource;
 import org.iucn.sis.shared.api.models.Reference;
-import org.iucn.sis.shared.api.models.Reference.ReferenceMap;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -23,6 +22,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
+@SuppressWarnings("deprecation")
 public class SubmissionResource extends TransactionResource {
 
 	public SubmissionResource(final Context context, final Request request, final Response response) {
@@ -30,7 +30,7 @@ public class SubmissionResource extends TransactionResource {
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public void acceptRepresentation(Representation entity, Session session) throws ResourceException {
 		final NativeDocument doc = new JavaNativeDocument();
 		try {

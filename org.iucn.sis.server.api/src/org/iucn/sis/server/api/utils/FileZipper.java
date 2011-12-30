@@ -13,6 +13,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
+import com.solertium.vfs.utils.VFSUtils;
 
 /**
  * Class that takes a filename and outputs a zipped version of the file,
@@ -88,7 +89,7 @@ public class FileZipper {
 	 */
 	public static ZipOutputStream zipper(VFS vfs, String[] filenames, String outFilename) throws IOException {
 		// Create the ZIP file
-		ZipOutputStream out = new ZipOutputStream(vfs.getOutputStream(outFilename));
+		ZipOutputStream out = new ZipOutputStream(vfs.getOutputStream(VFSUtils.parseVFSPath(outFilename)));
 
 		// Compress the files
 		for (int i = 0; i < filenames.length; i++) {

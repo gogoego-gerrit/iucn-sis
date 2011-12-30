@@ -18,6 +18,7 @@ import org.restlet.resource.ResourceException;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 
+@SuppressWarnings("deprecation")
 public class ReportResource extends TransactionResource {
 
 	public ReportResource(Context context, Request request, Response response) {

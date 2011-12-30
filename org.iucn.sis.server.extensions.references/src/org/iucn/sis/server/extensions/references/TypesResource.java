@@ -14,6 +14,7 @@ import org.restlet.resource.Resource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+@SuppressWarnings("deprecation")
 public class TypesResource extends Resource {
 
 	public TypesResource(final Context context, final Request request, final Response response) {
@@ -25,7 +26,7 @@ public class TypesResource extends Resource {
 	public Representation represent(final Variant variant) {
 		try {
 			final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			@SuppressWarnings("unchecked")
+			
 			final Element rootEl = doc.createElement("reference-types");
 			doc.appendChild(rootEl);
 			for (final String type : ReferenceLabels.loadFrom(getContext()).listTypes()) {

@@ -62,6 +62,7 @@ import java.util.Set;
  * @since 1.2
  */
 
+@SuppressWarnings("unchecked")
 public class Arrays16Emulation {
 	/**
 	 * @serial include

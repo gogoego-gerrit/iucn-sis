@@ -8,8 +8,8 @@ import java.io.Writer;
 import javax.naming.NamingException;
 
 import org.gogoego.api.plugins.GoGoEgo;
-import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.conversions.AssessmentConverter.ConversionMode;
+import org.iucn.sis.shared.helpers.ServerPaths;
 import org.restlet.data.Form;
 
 import com.solertium.util.TrivialExceptionHandler;

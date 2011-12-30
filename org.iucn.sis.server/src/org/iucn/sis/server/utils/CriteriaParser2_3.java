@@ -3,6 +3,10 @@ package org.iucn.sis.server.utils;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 
+/*
+ * @deprecated I don't think we need this on the server
+ */
+@SuppressWarnings("unchecked")
 public class CriteriaParser2_3 {
 
 	protected LinkedHashMap gridA;
@@ -152,7 +156,7 @@ public class CriteriaParser2_3 {
 		String temp1 = "";
 		String temp2 = "";
 		String temp3 = "";
-		String temp4 = "";
+		//FIXME: if not needed, delete //String temp4 = "";
 
 		StringBuffer getChecked = new StringBuffer();
 		int i = 0;

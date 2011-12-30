@@ -1,40 +1,21 @@
 package org.iucn.sis.server.extensions.references;
 
-import javax.naming.NamingException;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.hibernate.Session;
-import org.hibernate.criterion.Example;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.TransactionResource;
-import org.iucn.sis.server.api.utils.SelectCountDBProcessor;
 import org.iucn.sis.shared.api.models.Reference;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
-import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import com.solertium.db.CanonicalColumnName;
-import com.solertium.db.DBException;
-import com.solertium.db.ExecutionContext;
-import com.solertium.db.StringLiteral;
-import com.solertium.db.SystemExecutionContext;
-import com.solertium.db.query.DeleteQuery;
-import com.solertium.db.query.QConstraint;
-import com.solertium.db.query.SelectQuery;
-import com.solertium.util.BaseDocumentUtils;
-
+@SuppressWarnings("deprecation")
 public class ReferenceResource extends TransactionResource {
 
 	public ReferenceResource(final Context context, final Request request, final Response response) {

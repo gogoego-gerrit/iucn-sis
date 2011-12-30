@@ -3,8 +3,6 @@ package org.iucn.sis.server.extensions.fieldmanager.restlets;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.naming.NamingException;
-
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
@@ -26,7 +24,6 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 
-import com.solertium.db.ExecutionContext;
 import com.solertium.util.portable.XMLWritingUtils;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
@@ -34,13 +31,11 @@ import com.solertium.vfs.VFSPath;
 public class UIRestlet extends BaseServiceRestlet {
 	
 	private final FieldSchemaGenerator generator;
-	private final ExecutionContext ec;
 
 	public UIRestlet(Context context, FieldSchemaGenerator generator) {
 		super(context);
 		
 		this.generator = generator;
-		this.ec = generator.getExecutionContext();
 	}
 
 	@Override
@@ -108,7 +103,7 @@ public class UIRestlet extends BaseServiceRestlet {
 				xml.append(XMLWritingUtils.writeCDATATag("description", field.getName()) + "\r\n");
 				xml.append(XMLWritingUtils.writeTag("classOfService", "None/Factor/Species Attributes") + "\r\n");
 				xml.append("<structures>" + "\r\n");
-				for (PrimitiveField prim : field.getPrimitiveField()) {
+				for (PrimitiveField<?> prim : field.getPrimitiveField()) {
 					xml.append("<structure id=\"" + prim.getName() + "\" description=\"Optional Prompt:\">" + "\r\n");
 					xml.append(getDefaultStructureForPrim(field, prim) + "\r\n");
 					xml.append("</structure>" + "\r\n");
@@ -141,7 +136,7 @@ public class UIRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 	}
 	
-	private String getDefaultStructureForPrim(Field parent, PrimitiveField field) {
+	private String getDefaultStructureForPrim(Field parent, PrimitiveField<?> field) {
 		if ("qualifier".equals(field.getName()))
 			return "<qualifier/>";
 		else if ("justification".equals(field.getName()))
@@ -177,7 +172,7 @@ public class UIRestlet extends BaseServiceRestlet {
 		}
 	}
 	
-	private String getOptions(PrimitiveField field) {
+	private String getOptions(PrimitiveField<?> field) {
 		final String table;
 		if (field instanceof ForeignKeyPrimitiveField)
 			table = ((ForeignKeyPrimitiveField)field).getTableID();

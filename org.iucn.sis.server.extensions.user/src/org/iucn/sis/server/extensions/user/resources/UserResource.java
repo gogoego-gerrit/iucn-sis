@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.hibernate.Session;
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.TransactionResource;
@@ -60,6 +59,7 @@ import com.solertium.vfs.utils.VFSUtils;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
+@SuppressWarnings("deprecation")
 public class UserResource extends TransactionResource {
 
 	private static final String MODE_LIGHT = "light";

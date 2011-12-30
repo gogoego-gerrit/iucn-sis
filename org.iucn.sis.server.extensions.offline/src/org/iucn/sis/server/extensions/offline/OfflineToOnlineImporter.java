@@ -12,10 +12,10 @@ import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.utils.DatabaseExporter;
-import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
+
 import com.solertium.db.DBException;
 
 public class OfflineToOnlineImporter extends DatabaseExporter {
@@ -45,9 +45,10 @@ public class OfflineToOnlineImporter extends DatabaseExporter {
 
 	@Override
 	protected void insertAssessment(Session session, Assessment assessment) throws DBException {
-
-		String url = ServerPaths.getAssessmentURL(assessment);
-		SIS.get().getLocker().releaseLock(url);
+		//WRONG: SIS.get().getLocker().releaseLock(url);
+		
+		//You want this instead of the above, on the online server.
+		//SIS.get().getLocker().persistentEagerRelease(id, owner);
 		
 		/*
 		 * Initialize everything this way because it's lazy & recursive.

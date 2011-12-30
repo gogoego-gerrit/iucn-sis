@@ -40,6 +40,7 @@ import com.solertium.util.NodeCollection;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
+@SuppressWarnings("deprecation")
 public class CustomFieldManager extends Resource {
 
 	private final ExecutionContext ec;

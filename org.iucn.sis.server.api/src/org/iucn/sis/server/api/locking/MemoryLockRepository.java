@@ -36,9 +36,6 @@ public class MemoryLockRepository extends LockRepository {
 	}
 	
 	public LockRepository.LockInfo lockAssessment(Integer id, User owner, LockType lockType, String groupID) {
-		String username = "SIS server";
-		if (owner != null)
-			username = owner.getUsername();
 		final LockRepository.LockInfo lock = new LockInfo(id, owner.getId(), lockType, null, this);
 		assessmentLocks.put(id, lock);
 		return lock;

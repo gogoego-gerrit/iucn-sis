@@ -13,7 +13,6 @@ import com.solertium.db.DBException;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.util.ClasspathResources;
-import com.solertium.util.SysDebugger;
 
 public class ReferenceApplication extends Application {
 
@@ -44,7 +43,6 @@ public class ReferenceApplication extends Application {
 
 	@Override
 	public Restlet createRoot() {
-		new ReferenceLabels().saveTo(getContext());
 		final Router root = new Router(getContext());
 		root.attach("/types", TypesResource.class);
 		root.attach("/type/{type}", TypeResource.class);

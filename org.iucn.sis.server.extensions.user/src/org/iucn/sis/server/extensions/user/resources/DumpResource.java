@@ -30,6 +30,7 @@ import com.solertium.vfs.utils.VFSUtils;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
+@SuppressWarnings("deprecation")
 public class DumpResource extends Resource {
 
 	private final ExecutionContext ec;

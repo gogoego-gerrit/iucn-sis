@@ -3,6 +3,7 @@ package org.iucn.sis.server.extensions.references;
 import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.restlet.resource.Resource;
 
+@SuppressWarnings("deprecation")
 public class ServerApplication extends SimpleSISApplication {
 	
 	private static final String PREFIX = "/refsvr";

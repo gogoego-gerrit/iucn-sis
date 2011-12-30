@@ -219,7 +219,7 @@ public class AssessmentPersistence {
 			deleteFieldListener.handleEvent(field);
 	}
 	
-	private void deletePrimitiveField(PrimitiveField field) {
+	private void deletePrimitiveField(PrimitiveField<?> field) {
 		if (deletePrimitiveFieldListener != null)
 			deletePrimitiveFieldListener.handleEvent(field);
 	}
@@ -259,8 +259,8 @@ public class AssessmentPersistence {
 	
 	private Field deepCopy(Field source) {
 		Field target = new Field(source.getName(), null);
-		for (PrimitiveField prim : source.getPrimitiveField()) {
-			PrimitiveField copy = prim.deepCopy(false);
+		for (PrimitiveField<?> prim : source.getPrimitiveField()) {
+			PrimitiveField<?> copy = prim.deepCopy(false);
 			copy.setField(target);
 			target.getPrimitiveField().add(copy);
 		}

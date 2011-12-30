@@ -38,6 +38,7 @@ import com.solertium.util.BaseDocumentUtils;
  * @author carl.scott <carl.scott@solertium.com>
  * 
  */
+@SuppressWarnings("deprecation")
 public class ProfileSearchResource extends TransactionResource {
 
 	private final String[] searchable;
@@ -51,7 +52,7 @@ public class ProfileSearchResource extends TransactionResource {
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public Representation represent(Variant variant, Session session) throws ResourceException {
 		Criterion fullCriterion = null;
 		

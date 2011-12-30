@@ -1,6 +1,5 @@
 package org.iucn.sis.server.extensions.migration;
 
-import java.awt.AlphaComposite;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.hibernate.Session;
-import org.hibernate.ejb.criteria.predicate.IsEmptyPredicate;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.TransactionResource;
@@ -28,6 +26,7 @@ import com.solertium.util.AlphanumericComparator;
 import com.solertium.vfs.VFSPath;
 import com.solertium.vfs.VFSPathToken;
 
+@SuppressWarnings("deprecation")
 public class ListingResource extends TransactionResource {
 	
 	public ListingResource(Context context, Request request, Response response) {

@@ -14,12 +14,10 @@ public class CommonNameIO {
 	
 	private final Session session;
 	private final TaxonIO taxonIO;
-	private final ReferenceIO referenceIO;
 	
 	public CommonNameIO(Session session) {
 		this.session = session;
 		this.taxonIO = new TaxonIO(session);
-		this.referenceIO = new ReferenceIO(session);
 	}
 	
 	public void add(Taxon taxon, CommonName commonName, User user) throws TaxomaticException {

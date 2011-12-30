@@ -17,6 +17,7 @@ import org.restlet.resource.Resource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+@SuppressWarnings("deprecation")
 public class TypeResource extends Resource {
 
 	public TypeResource(final Context context, final Request request, final Response response) {
@@ -35,7 +36,7 @@ public class TypeResource extends Resource {
 				throw new RuntimeException("Expected UTF-8 encoding support not found", x);
 			}
 			final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			@SuppressWarnings("unchecked")
+			
 			final Element rootEl = doc.createElement("reference");
 			doc.appendChild(rootEl);
 			rootEl.setAttribute("type", type);

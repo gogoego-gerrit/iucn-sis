@@ -3,7 +3,6 @@ package org.iucn.sis.server.api.io;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +24,6 @@ import org.iucn.sis.server.api.utils.TaxaComparators;
 import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Synonym;
@@ -53,13 +51,11 @@ public class TaxomaticIO {
 	
 	private final TaxonIO taxonIO;
 	private final AssessmentIO assessmentIO;
-	private final InfratypeIO infratypeIO;
 	private final Session session;
 
 	public TaxomaticIO(Session session) {
 		this.taxonIO = new TaxonIO(session);
 		this.assessmentIO = new AssessmentIO(session);
-		this.infratypeIO = new InfratypeIO(session);
 		this.session = session;
 	}
 
@@ -111,6 +107,7 @@ public class TaxomaticIO {
 		return getTaxomaticHistory(taxon);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<TaxomaticOperation> getTaxomaticHistory(Taxon taxon) {
 		List<TaxomaticOperation> list = new ArrayList<TaxomaticOperation>();
 		
@@ -291,7 +288,6 @@ public class TaxomaticIO {
 		Collections.sort(taxa, TaxaComparators.getTaxonComparatorByLevel());
 			
 		try {
-			Date date = new Date();
 			for (Taxon taxon : taxa) {
 				//UPDATE FRIENDLY NAME
 				if (idsToTaxon.containsKey(taxon.getParent().getId())) {

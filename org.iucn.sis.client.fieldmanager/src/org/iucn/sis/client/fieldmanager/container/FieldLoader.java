@@ -207,7 +207,7 @@ public class FieldLoader extends SimplePanel implements DrawsLazily {
 		final VerticalPanel panel = new VerticalPanel();
 		panel.add(horizontal(new HTML("Field: "), new HTML(field.getName())));
 		
-		for (final PrimitiveField prim : field.getPrimitiveField()) {
+		for (final PrimitiveField<?> prim : field.getPrimitiveField()) {
 			Button delete = new Button("Delete", new ClickHandler() {
 				public void onClick(ClickEvent event) {
 					if (Window.confirm("You sure??")) {
@@ -262,8 +262,8 @@ public class FieldLoader extends SimplePanel implements DrawsLazily {
 		panel.add(listing);
 		panel.add(new Button("Add Another Data Field",new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				showFieldEditor(field, new ComplexListener<PrimitiveField>() {
-					public void handleEvent(PrimitiveField eventData) {
+				showFieldEditor(field, new ComplexListener<PrimitiveField<?>>() {
+					public void handleEvent(PrimitiveField<?> eventData) {
 						field.addPrimitiveField(eventData);
 						openField(field, lookups);
 					}
@@ -354,7 +354,7 @@ public class FieldLoader extends SimplePanel implements DrawsLazily {
 		panel.center();
 	}
 	
-	private void showFieldEditor(final Field parent, final ComplexListener<PrimitiveField> callback) {
+	private void showFieldEditor(final Field parent, final ComplexListener<PrimitiveField<?>> callback) {
 		final DialogBox panel = new DialogBox();
 		panel.setText("Create Data Field");
 		
@@ -382,7 +382,7 @@ public class FieldLoader extends SimplePanel implements DrawsLazily {
 						
 						updateSQL(document);
 						
-						PrimitiveField prim = 
+						PrimitiveField<?> prim = 
 							PrimitiveFieldFactory.generatePrimitiveField(type.getItemText(type.getSelectedIndex()));
 						prim.setName(name.getText());
 						
@@ -496,6 +496,7 @@ public class FieldLoader extends SimplePanel implements DrawsLazily {
 		return urlPrefix + "/apps/org.iucn.sis.server.extensions.fieldmanager" + url;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private Field parse(NativeElement element) {
 		String id = element.getAttribute("id");
 		String name = element.getNodeName();
@@ -556,6 +557,8 @@ public class FieldLoader extends SimplePanel implements DrawsLazily {
 	}
 	
 	public static class LookupDataContainer extends HashMap<String, LookupData> {
+		
+		private static final long serialVersionUID = 1L;
 		
 		private String fieldName;
 		

@@ -1,13 +1,11 @@
 package org.iucn.sis.server.extensions.images;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
-import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonImage;
@@ -19,10 +17,7 @@ import org.restlet.data.Status;
 import org.restlet.representation.InputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
-import com.solertium.util.ElementCollection;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 

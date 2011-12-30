@@ -197,7 +197,7 @@ public class SIS {
 				return false;
 			}
 
-			@Override
+			@SuppressWarnings("deprecation")
 			protected void setDefaultAuthenticator() {
 				authenticators.put(getRealm(), new SISDBAuthenticator(ec));
 			}

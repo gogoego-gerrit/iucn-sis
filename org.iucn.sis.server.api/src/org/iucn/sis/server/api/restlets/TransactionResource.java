@@ -17,6 +17,7 @@ import org.restlet.representation.Variant;
 import org.restlet.resource.Resource;
 import org.restlet.resource.ResourceException;
 
+@SuppressWarnings("deprecation")
 public abstract class TransactionResource extends Resource {
 	
 	private final boolean openTransaction;

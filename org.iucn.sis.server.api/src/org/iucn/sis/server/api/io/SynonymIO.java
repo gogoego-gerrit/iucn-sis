@@ -13,12 +13,10 @@ public class SynonymIO {
 	
 	private final Session session;
 	private final TaxonIO taxonIO;
-	private final ReferenceIO referenceIO;
 	
 	public SynonymIO(Session session) {
 		this.session = session;
 		this.taxonIO = new TaxonIO(session);
-		this.referenceIO = new ReferenceIO(session);
 	}
 	
 	public Synonym get(int id) {

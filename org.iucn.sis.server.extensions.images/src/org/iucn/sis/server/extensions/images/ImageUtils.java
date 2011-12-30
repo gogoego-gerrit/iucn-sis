@@ -106,6 +106,7 @@ public class ImageUtils implements ImageManipulatorHelper {
 			os.write(buf, 0, i);
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static String _getResizedURI(final VFS vfs, final ImageManipulator manipulator, String path, final int size, final int mode, final ExtraTransform transform) {
 		if (path.contains("://")){
 			Reference r = new Reference(path);

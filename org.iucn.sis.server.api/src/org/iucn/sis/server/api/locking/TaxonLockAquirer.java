@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.utils.ServerPaths;
+import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.models.Taxon;
 
 public class TaxonLockAquirer {
@@ -45,7 +45,7 @@ public class TaxonLockAquirer {
 
 	public void aquireLocks(String owner) {
 		for (int i = 0; i < ids.length; i++) {
-			String url = ServerPaths.getTaxonURL(ids[i]);
+			String url = getTaxonURL(ids[i]);
 			if (!locks.contains(url)) {
 				if (SIS.get().getLocker().acquireLock(url, owner, false)) {
 					locks.add(url);
@@ -86,7 +86,7 @@ public class TaxonLockAquirer {
 	}
 
 	public void releaseLock(String id) {
-		String url = ServerPaths.getTaxonURL(id);
+		String url = getTaxonURL(id);
 		SIS.get().getLocker().releaseLock(url);
 		locks.remove(url);
 	}
@@ -96,6 +96,11 @@ public class TaxonLockAquirer {
 			SIS.get().getLocker().releaseLock(locks.get(i));
 		}
 		locks.clear();
+	}
+	
+	private String getTaxonURL(String id) {
+		String stripedID = FilenameStriper.getIDAsStripedPath(Integer.valueOf(id.replace("(\\.xml)", "")));
+		return "/taxa/" + stripedID + ".xml";
 	}
 
 }

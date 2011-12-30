@@ -30,6 +30,7 @@ import com.solertium.db.RowProcessor;
 import com.solertium.util.NodeCollection;
 import com.solertium.util.portable.XMLWritingUtils;
 
+@SuppressWarnings("deprecation")
 public class ReferenceSearchResource extends TransactionResource {
 
 	public ReferenceSearchResource(final Context context, final Request request, final Response response) {

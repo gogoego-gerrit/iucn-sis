@@ -13,7 +13,6 @@ import org.iucn.sis.server.api.schema.AssessmentSchema;
 import org.iucn.sis.server.api.schema.AssessmentSchemaBroker;
 import org.iucn.sis.server.api.schema.AssessmentSchemaFactory;
 import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldFactory;
 import org.iucn.sis.shared.api.models.primitivefields.PrimitiveFieldType;
@@ -55,7 +54,6 @@ public class FieldManagerRestlet extends BaseServiceRestlet {
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		String s = (String)request.getAttributes().get("schema");
-		String mode = (String)request.getAttributes().get("mode");
 		String fieldName = (String)request.getAttributes().get("fieldName");
 		
 		if (s == null) {
@@ -195,7 +193,6 @@ public class FieldManagerRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public void handleDelete(Request request, Response response, Session session) throws ResourceException {
-		String schema = (String)request.getAttributes().get("schema");
 		String mode = (String)request.getAttributes().get("mode");
 		String fieldName = (String)request.getAttributes().get("fieldName");
 		

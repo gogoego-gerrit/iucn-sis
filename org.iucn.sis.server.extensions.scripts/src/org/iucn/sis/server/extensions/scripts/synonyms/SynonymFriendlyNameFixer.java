@@ -2,18 +2,13 @@ package org.iucn.sis.server.extensions.scripts.synonyms;
 
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.SynonymCriteria;
 import org.iucn.sis.server.api.persistance.TaxonCriteria;
-import org.iucn.sis.server.api.utils.DocumentUtils;
-import org.iucn.sis.server.api.utils.ServerPaths;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
-
-import com.solertium.vfs.VFS;
 
 public class SynonymFriendlyNameFixer {
 	
@@ -38,7 +33,6 @@ public class SynonymFriendlyNameFixer {
 				if (results.length == 0)
 					cont = false;
 				else {
-					VFS vfs = SIS.get().getVFS();
 					for (Taxon result : results) {
 						if (result.getId() != startID) {
 							
@@ -47,14 +41,14 @@ public class SynonymFriendlyNameFixer {
 								s.getFriendlyName();
 							}
 							
-							String xml = result.toXML();
+							/*String xml = result.toXML();
 							String taxonPath = ServerPaths.getTaxonURL(result.getId());
 							Debug.println("wrote file " + taxonPath);
 							if (DocumentUtils.writeVFSFile(taxonPath, vfs, xml)) {
 								startID = result.getId();
 							} else {
 								throw new Exception("unable to write file " + taxonPath + " : " + xml);
-							}
+							}*/
 						}
 					}
 					Debug.println("Scripted up to taxon " + startID);

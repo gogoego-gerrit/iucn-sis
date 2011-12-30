@@ -3,7 +3,6 @@ package org.iucn.sis.server.restlets.taxa;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.io.CommonNameIO;
 import org.iucn.sis.server.api.io.IsoLanguageIO;
-import org.iucn.sis.server.api.io.NoteIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -100,7 +99,6 @@ public class CommonNameRestlet extends BaseServiceRestlet {
 		final CommonNameIO io = new CommonNameIO(session);
 		
 		TaxonIO taxonIO = new TaxonIO(session);
-		NoteIO noteIO = new NoteIO(session);
 		IsoLanguageIO isoLanguageIO = new IsoLanguageIO(session);
 		
 		Taxon taxon = taxonIO.getTaxon(getTaxonID(request));

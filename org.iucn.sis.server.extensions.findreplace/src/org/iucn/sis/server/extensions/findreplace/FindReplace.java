@@ -3,20 +3,15 @@ package org.iucn.sis.server.extensions.findreplace;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.hibernate.Session;
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.PrimitiveFieldIO;
-import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
-import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.shared.api.findreplace.FindReplaceData;
@@ -38,6 +33,7 @@ import com.solertium.vfs.VFSPath;
  * @author liz.schwartz
  * 
  */
+@SuppressWarnings("unused")
 public class FindReplace {
 
 	/**
@@ -77,6 +73,7 @@ public class FindReplace {
 		return flag;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected TextPrimitiveField getPrimitiveFieldToSearch(Assessment assessment, String field)
 			throws FindReplaceException {
 		if (assessment.getField(field) != null) {

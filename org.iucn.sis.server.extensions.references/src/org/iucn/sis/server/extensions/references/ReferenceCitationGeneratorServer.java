@@ -11,6 +11,7 @@ import org.w3c.dom.NodeList;
 
 public class ReferenceCitationGeneratorServer {
 
+	@SuppressWarnings("deprecation")
 	private static void generateCitation(Element referenceElement, Document doc, boolean checkFirst) {
 		try {
 

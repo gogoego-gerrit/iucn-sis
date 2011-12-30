@@ -195,7 +195,6 @@ public class NotesRestlet extends BaseServiceRestlet {
 			final NoteIO noteIO = new NoteIO(session);
 			final FieldIO fieldIO = new FieldIO(session);
 			final TaxonIO taxonIO = new TaxonIO(session);
-			final AssessmentIO assessmentIO = new AssessmentIO(session);
 			
 			if (type.equalsIgnoreCase("field")) {
 				Field field = fieldIO.get(id);

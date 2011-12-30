@@ -1,5 +1,6 @@
-package org.iucn.sis.server.api.utils;
+package org.iucn.sis.shared.helpers;
 
+import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.models.Assessment;
 
 

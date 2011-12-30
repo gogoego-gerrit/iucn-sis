@@ -27,6 +27,7 @@ import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.QRelationConstraint;
 import com.solertium.db.query.SelectQuery;
 
+@SuppressWarnings("deprecation")
 public class SpeciesSearchResource extends Resource {
 
 	public SpeciesSearchResource(final Context context, final Request request, final Response response) {
@@ -48,7 +49,7 @@ public class SpeciesSearchResource extends Resource {
 			for (final Parameter p : f)
 				sq.constrain(new CanonicalColumnName("systematics", p.getName()), QConstraint.CT_EQUALS, p.getValue());
 			final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			@SuppressWarnings("unchecked")
+			
 			final Element rootEl = doc.createElement("references");
 			doc.appendChild(rootEl);
 			ec.doQuery(sq, new ReferenceRowProcessor(doc, rootEl, ReferenceLabels.loadFrom(getContext())));

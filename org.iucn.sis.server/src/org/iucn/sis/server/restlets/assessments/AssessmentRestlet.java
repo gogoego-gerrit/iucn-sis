@@ -234,8 +234,9 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				
 				target.getReference().removeAll(targetRefs.values());
 				
-				String sourceXML = source.toXML();
-				String targetXML = target.toXML();
+				//Required...
+				source.toXML();
+				target.toXML();
 				
 				final AssessmentPersistence saver = new AssessmentPersistence(session, target);
 				saver.setDeleteFieldListener(new ComplexListener<Field>() {

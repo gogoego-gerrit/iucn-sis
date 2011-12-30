@@ -25,7 +25,7 @@ public class HibernateLockRepository extends LockRepository {
 		manager = SISPersistentManager.instance();
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
 	public void clearGroup(String id) throws LockException {
 		Session session = manager.openSession();
 		session.beginTransaction();
@@ -97,6 +97,7 @@ public class HibernateLockRepository extends LockRepository {
 		return result;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public boolean isAssessmentPersistentLocked(Session session, Integer id) {
 		Criteria criteria = session.createCriteria(Lock.class);
 		criteria = criteria.add(Restrictions.eq("lockid", id));

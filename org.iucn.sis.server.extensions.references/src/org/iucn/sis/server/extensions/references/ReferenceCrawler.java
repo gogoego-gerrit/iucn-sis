@@ -207,6 +207,7 @@ public class ReferenceCrawler implements Runnable {
 		crawling.set(false);
 	}
 
+	@SuppressWarnings("deprecation")
 	private void traverse(String uri, AssessmentIO assessmentIO) throws NotFoundException {
 		System.out.println(uri);
 		if (vfs.isCollection(uri))

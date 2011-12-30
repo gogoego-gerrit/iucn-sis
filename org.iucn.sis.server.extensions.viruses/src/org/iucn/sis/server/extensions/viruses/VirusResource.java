@@ -21,6 +21,7 @@ import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.BaseDocumentUtils;
 
+@SuppressWarnings("deprecation")
 public class VirusResource extends TransactionResource {
 	
 	private final String identifier;

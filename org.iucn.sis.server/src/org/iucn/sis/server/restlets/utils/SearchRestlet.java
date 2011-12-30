@@ -68,7 +68,7 @@ public class SearchRestlet extends BaseServiceRestlet {
 		int taxonLevel = TaxonLevel.SPECIES;
 		
 		TaxonIO taxonIO = new TaxonIO(session);
-		AssessmentIO assessmentIO = new AssessmentIO(session);
+		//AssessmentIO assessmentIO = new AssessmentIO(session);
 		
 		Disjunction disjunction = Restrictions.disjunction(); 
 		boolean hasQuery = false;
@@ -140,6 +140,7 @@ public class SearchRestlet extends BaseServiceRestlet {
 		return SIS.get().getQueries().cleanSearchTerm(value);
 	}
 	
+	@SuppressWarnings("unused") 
 	private String getCategory(Taxon taxon, AssessmentIO assessmentIO) {
 		List<Assessment> list = 
 			assessmentIO.readPublishedAssessmentsForTaxon(taxon);

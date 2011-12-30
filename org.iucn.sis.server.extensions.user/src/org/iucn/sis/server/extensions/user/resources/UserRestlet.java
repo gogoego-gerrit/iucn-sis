@@ -32,7 +32,6 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
-import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.TrivialExceptionHandler;
 
 public class UserRestlet extends BaseServiceRestlet {
@@ -231,7 +230,7 @@ public class UserRestlet extends BaseServiceRestlet {
 		}
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		Criteria criteria = session.createCriteria(User.class);
 		if (getUsername(request) != null)
