@@ -52,6 +52,7 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 		User user = getUser(request, session);
 		String type = getType(request);
 		
+		@SuppressWarnings("unchecked")
 		List<RecentlyAccessed> list = 
 			session.createCriteria(RecentlyAccessed.class)
 			.add(Restrictions.eq("user", user)).add(Restrictions.eq("type", type))
@@ -61,7 +62,7 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 		out.append("<root>");
 		for (RecentlyAccessed accessed : list) {
 			try {
-				RecentInfo info = RecentInfoFactory.load(accessed, session);
+				RecentInfo<?> info = RecentInfoFactory.load(accessed, session);
 				if (info != null) {
 					info.addField("accessid", accessed.getId() + "");
 					info.addField("accessdate", accessed.getDate().getTime() + "");
@@ -81,6 +82,7 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
 		NativeDocument document = getEntityAsNativeDocument(entity);
 		
+		@SuppressWarnings("unchecked")
 		List<RecentlyAccessed> existing =
 			session.createCriteria(RecentlyAccessed.class)
 			.add(Restrictions.eq("user", getUser(request, session)))
@@ -154,6 +156,7 @@ public class RecentlyAccessedRestlet extends BaseServiceRestlet {
 			}
 		}
 		else {
+			@SuppressWarnings("unchecked")
 			List<RecentlyAccessed> list =
 				session.createCriteria(RecentlyAccessed.class)
 				.add(Restrictions.eq("user", getUser(request, session)))

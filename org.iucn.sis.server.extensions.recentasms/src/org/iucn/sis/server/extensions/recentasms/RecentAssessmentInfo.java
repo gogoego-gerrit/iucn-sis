@@ -9,6 +9,8 @@ import org.iucn.sis.shared.api.models.Region;
 
 public class RecentAssessmentInfo extends RecentInfo<Assessment> {
 	
+	private static final long serialVersionUID = 1L;
+	
 	private final RegionIO regionIO;
 	
 	public RecentAssessmentInfo(Session session) {

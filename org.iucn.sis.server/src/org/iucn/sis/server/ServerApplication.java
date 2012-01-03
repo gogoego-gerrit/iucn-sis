@@ -2,14 +2,12 @@ package org.iucn.sis.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SISApplication;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
-import org.iucn.sis.server.restlets.assessments.AsmChangesResource;
 import org.iucn.sis.server.restlets.assessments.AssessmentChangesRestlet;
 import org.iucn.sis.server.restlets.assessments.AssessmentRestlet;
 import org.iucn.sis.server.restlets.publication.PublicationRestlet;
@@ -108,11 +106,7 @@ public class ServerApplication extends SISApplication{
 		addResource(SIS.get().getGuard(app.getContext()), "/authn", true);
 		addResource(LatestGWTClientResource.class, "/SIS", true);
 		addResource(NamedGWTClientResource.class, "/builds/SIS/{version}", true);
-		
-		final List<String> taxaPaths = new ArrayList<String>();
-		taxaPaths.add("/tagging/taxa/{tag}");
-		taxaPaths.add("/tagging/taxa/{tag}/{mode}");
-		addResource(TaxaTaggingResource.class, taxaPaths, false);
+		addResource(TaxaTaggingResource.class, TaxaTaggingResource.getPaths(), false);
 		
 		addResource(new Restlet() {
 			public void handle(Request request, Response response) {
@@ -127,7 +121,6 @@ public class ServerApplication extends SISApplication{
 		}, "/favicon.ico",  true);
 		
 		addResource(SISVFSResource.class, "/raw", true);
-		addResource(AsmChangesResource.class, "/asmchanges/{asm_id}", false);
 	}
 	
 	@Override

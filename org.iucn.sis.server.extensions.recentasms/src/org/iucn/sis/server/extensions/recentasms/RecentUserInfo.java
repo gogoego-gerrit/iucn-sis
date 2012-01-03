@@ -5,6 +5,8 @@ import org.iucn.sis.shared.api.models.User;
 
 public class RecentUserInfo extends RecentInfo<User> {
 	
+	private static final long serialVersionUID = 1L;
+	
 	public RecentUserInfo(Session session) {
 		super(session);
 	}

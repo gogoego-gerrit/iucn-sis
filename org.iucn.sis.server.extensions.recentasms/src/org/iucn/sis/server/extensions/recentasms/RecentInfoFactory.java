@@ -38,6 +38,7 @@ public class RecentInfoFactory {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static <X> RecentInfo<X> load(String type, Object object, Session session) {
 		RecentInfo parser;
 		if (RecentlyAccessed.ASSESSMENT.equals(type))

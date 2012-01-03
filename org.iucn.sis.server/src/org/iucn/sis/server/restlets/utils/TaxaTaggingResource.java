@@ -1,5 +1,6 @@
 package org.iucn.sis.server.restlets.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -29,6 +30,14 @@ import com.solertium.util.ElementCollection;
 
 @SuppressWarnings("deprecation")
 public class TaxaTaggingResource extends TransactionResource {
+	
+	public static List<String> getPaths() {
+		final List<String> taxaPaths = new ArrayList<String>();
+		taxaPaths.add("/tagging/taxa/{tag}");
+		taxaPaths.add("/tagging/taxa/{tag}/{mode}");
+		
+		return taxaPaths;
+	}
 
 	private final SISPersistentManager manager;
 	private final String tag, mode;
