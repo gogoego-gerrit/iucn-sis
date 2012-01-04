@@ -1,6 +1,9 @@
 package org.iucn.sis.server.api.persistance;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -140,7 +143,9 @@ public class SISPersistentManager {
 			final String name = configUri.substring(configUri.indexOf(':')+1);
 			Debug.println("Creating new persistence manager from local resource " + name);
 			try {
+				Debug.println("Configuring...");
 				configuration.configure(ClassLoaderTester.class.getResource(name + ".cfg.xml"));
+				Debug.println("Configuring complete...");
 			} catch (HibernateException e) {
 				throw new RuntimeException(e);
 			}
@@ -253,17 +258,43 @@ public class SISPersistentManager {
 				return addInputStream(arg1.getResourceAsStream(arg0));
 			
 			try {
-				final Document document = BaseDocumentUtils.impl.getInputStreamFile(arg1.getResourceAsStream(arg0));
-				final ElementCollection nodes = 
-					new ElementCollection(document.getDocumentElement().getElementsByTagName("generator"));
-				for (Element el : nodes) {
-					el.setAttribute("class", generator);
-					break;
-				}
-				return addDocument(document);
-			} catch (Exception e) {
+				return parseString(arg0, arg1);
+			} catch (Throwable e) {
+				Debug.println("Error parsing document: {0}\n{1}", e.getMessage(), e);
 				return addInputStream(arg1.getResourceAsStream(arg0));	
 			}
+		}
+		
+		protected Configuration parseString(String arg0, ClassLoader arg1) throws IOException {
+			final StringBuilder xml = new StringBuilder();
+			final BufferedReader in = new BufferedReader(new InputStreamReader(arg1.getResourceAsStream(arg0)));
+			String line = null;
+			while ((line = in.readLine()) != null)
+				xml.append(line.replaceFirst("native", generator).replaceFirst("assigned", generator));
+			
+			return addXML(xml.toString());
+		}
+		
+		/**
+		 * Old version, was working...
+		 * @param arg0
+		 * @param arg1
+		 * @return
+		 * @throws IOException
+		 */
+		@SuppressWarnings("unused")
+		protected Configuration parseDocument(String arg0, ClassLoader arg1) throws IOException {
+			final Document document = BaseDocumentUtils.impl.getInputStreamFile(arg1.getResourceAsStream(arg0));
+			
+			final ElementCollection nodes = 
+				new ElementCollection(document.getDocumentElement().getElementsByTagName("generator"));
+			
+			for (Element el : nodes) {
+				el.setAttribute("class", generator);
+				break;
+			}
+			
+			return addDocument(document);
 		}
 	}
 
