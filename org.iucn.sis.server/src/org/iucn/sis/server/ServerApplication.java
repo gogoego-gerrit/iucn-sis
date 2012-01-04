@@ -82,7 +82,6 @@ public class ServerApplication extends SISApplication{
 		addServiceToRouter(new WorkingSetRestlet(app.getContext()));
 		addServiceToRouter(new AssessmentRestlet(app.getContext()));
 		addServiceToRouter(new AssessmentChangesRestlet(app.getContext()));
-		addServiceToRouter(new TaxomaticRestlet(app.getContext()));
 		addServiceToRouter(new WorkingSetExportImportRestlet(app.getContext()));
 		addServiceToRouter(new WorkingsetLogBuilder(app.getContext()));
 		addServiceToRouter(new TrashRestlet(app.getContext()));
@@ -126,6 +125,8 @@ public class ServerApplication extends SISApplication{
 	@Override
 	protected void initOnline() {
 		initDual();
+		
+		addServiceToRouter(new TaxomaticRestlet(app.getContext()));
 		
 		addResource(ServeUpdatesResource.class, "/getUpdates", true);
 		addResource(ServeUpdatesResource.class, "/getUpdates/summary", true);
