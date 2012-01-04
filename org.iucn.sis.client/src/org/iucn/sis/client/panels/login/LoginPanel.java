@@ -114,16 +114,16 @@ public class LoginPanel extends LayoutContainer {
 		descriptionPanel.add(headerImage);
 		descriptionPanel
 				.add(new HTML("<div style='margin: 5px; margin-top: 20px;'>"
-						+ "This is the Species Information Service (SIS) Toolkit, rev. 1.5-c4.</div>"
+						+ "This is the Species Information Service (SIS) Toolkit, rev. 2.0.</div>"
 						+ "<div style='margin: 5px; margin-top: 20px;'>"
 						+ SIS.getBuildNumber() + "</div>"
-						+ "<div style='margin: 5px; margin-top: 20px;'>"
+						+ (SIS.isOffline() ? "" : "<div style='margin: 5px; margin-top: 20px;'>"
 						+ "<a href=\"/raw/downloads/sisOffline.zip\">Click here</a> to download "
-						+ "a standalone version of the software.</div>"
+						+ "a standalone version of the software.</div>")
 						+ "<div style='margin: 5px; margin-top: 20px;'>"
 						+ "The following browsers are highly suggested for standards compliance and performance:"
 						+ "<ul><li><a target=\"_blank\" href=\"http://www.google.com/chrome\">Google Chrome</a></li>"
-						+ "<li><a target=\"_blank\" href=\"http://www.firefox.com\">Firefox 3</a></li>"
+						+ "<li><a target=\"_blank\" href=\"http://www.firefox.com\">Firefox</a></li>"
 						+ "<li><a target=\"_blank\" href=\"http://www.apple.com/safari/\">Apple Safari</a></li>"
 						+ "</ul></div><div style='margin: 5px; margin-top: 20px; margin-bottom: 0px;'>"
 						+ "Select theme:</div>"
