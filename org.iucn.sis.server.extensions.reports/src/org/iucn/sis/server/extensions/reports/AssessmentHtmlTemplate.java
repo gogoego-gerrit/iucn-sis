@@ -61,7 +61,7 @@ import com.solertium.util.BaseDocumentUtils;
 
 public class AssessmentHtmlTemplate {
 
-	private static final String PREFIX = "/apps/org.iucn.sis.server.extensions.reports";
+	private static final String PREFIX = "../..";
 	private static final String BLANK_STRING = "(Not specified)";
 	
 	public static final String CSS_LOCATION = PREFIX + "/resources/speciesReportStyle.css";

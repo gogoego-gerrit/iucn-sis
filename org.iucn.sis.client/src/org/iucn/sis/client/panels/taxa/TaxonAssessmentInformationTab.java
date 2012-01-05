@@ -148,8 +148,8 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				icon.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 					public void componentSelected(IconButtonEvent ce) {
 						final Integer id = model.get("id");
-						ReportOptionsPanel panel = new ReportOptionsPanel();
-						panel.loadAssessmentReport(id);
+						ReportOptionsPanel panel = new ReportOptionsPanel(id);
+						panel.show();
 					}
 				});
 				return icon;

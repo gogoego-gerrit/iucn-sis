@@ -19,4 +19,6 @@ public interface UserPreferences {
 	public static final String AUTO_SAVE_TIMER = "autosavetimer";
 	public static final String VIEW_CHOICES = "viewPreference";
 	public static final String DEFAULT_LAYOUT = "defaultLayout";
+	
+	public static final String PREFERRED_REPORT = "preferredReport";
 }

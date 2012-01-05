@@ -1,66 +1,109 @@
 package org.iucn.sis.client.panels.utils;
 
+import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.models.NameValueModelData;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
-/*
+import org.iucn.sis.shared.api.acl.UserPreferences;
+import org.iucn.sis.shared.api.models.Assessment;
+
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
+import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.user.client.Window;
+import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
-*/
+
 /**
  * 
+ * @author carl.scott
  * @author rasanka.jayawardana@iucn.org
  *
  */
-public class ReportOptionsPanel{
+public class ReportOptionsPanel extends BasicWindow {
 	
-	public void loadAssessmentReport(int assessmentID){
+	private final int assessmentID;
+	private final String defaultReportType; 
+	
+	public ReportOptionsPanel(Assessment assessment) {
+		this(assessment.getId());
+	}
+	
+	public ReportOptionsPanel(int assessmentID) {
+		super("Generate Assessment Report", "icon-report");
+		this.assessmentID = assessmentID;
+		this.defaultReportType = SISClientBase.currentUser.
+			getPreference(UserPreferences.PREFERRED_REPORT, "redlist");
 		
-		String target = "/reports/redlist/";
-		com.google.gwt.user.client.Window.open(UriBase.getInstance().getReportBase()+ target + assessmentID
-				+ "?special=true" ,
-				"_blank", "");		
-		/*
-		 * TODO: Have to clarify from the RedList Unit about what should they want additionally in the report
-		 * 
-		 *
-		final CheckBox specialCase = new CheckBox();
-		//specialCase.setValue(Boolean.valueOf(true));
-		specialCase.setFieldLabel("Show Color-coded Special Case Options");
+		setSize(400, 300);
+		setButtonAlign(HorizontalAlignment.CENTER);
+		
+		final ComboBox<NameValueModelData> type = 
+			FormBuilder.createModelComboBox("type", defaultReportType, "Report Type", true, 
+			newModel("Red List Report", "redlist"), 
+			newModel("All Fields Report", "full"), 
+			newModel("Available Fields Report", "available"));
+		
+		final CheckBox empty = FormBuilder.createCheckBoxField("empty", true, "Show Empty Fields");
+		final CheckBox limitedSet = FormBuilder.createCheckBoxField("limited", false, "Limited Set");
+		
+		final FieldSet set = new FieldSet();
+		set.setLayout(new FormLayout());
+		set.setHeading("Options");
+		set.add(empty);
+		set.add(limitedSet);
 		
 		final FormPanel form = new FormPanel();
-		form.setLabelSeparator("?");
-		form.setLabelWidth(300);
-		form.setFieldWidth(50);
 		form.setHeaderVisible(false);
+		form.setBodyBorder(false);
 		form.setBorders(false);
-		form.add(specialCase);
+		form.add(type);
+		form.add(set);
 		
-		final Window w = WindowUtils.newWindow("Report Options", null, false, true);
+		add(form);
 		
-		form.addButton(new Button("Submit", new SelectionListener<ButtonEvent>() {
-			public void componentSelected(ButtonEvent ce) {				
-				w.hide();
-				
-				com.google.gwt.user.client.Window.open(UriBase.getInstance().getReportBase()+ target + assessmentID
-						+ "?special=" + specialCase.getValue() ,
-						"_blank", "");
-			}
-		}));
-		form.addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+		addButton(new Button("Generate", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				w.hide();
+				if (!form.isValid())
+					WindowUtils.errorAlert("Please fill in required fields.");
+				else
+					open(type.getValue().getValue(), empty.getValue(), limitedSet.getValue());
 			}
 		}));
-		
-		w.add(form);
-		w.setSize(400, 250);
-		w.show();
-		w.center();
-		*/
-		
+		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				hide();
+			}
+		}));
 	}
+	
+	private void open(String type, boolean empty, boolean limited) {
+		StringBuilder url = new StringBuilder();
+		url.append(UriBase.getInstance().getReportBase());
+		url.append("/reports/");
+		url.append(type);
+		url.append('/');
+		url.append(assessmentID);
+		url.append('?');
+		url.append("empty=" + empty);
+		url.append('&');
+		url.append("limited=" + limited);
+		
+		hide();
+		Window.open(url.toString(), "_blank", "");
+		
+		if (!type.equals(defaultReportType))
+			SISClientBase.currentUser.setPreference(UserPreferences.PREFERRED_REPORT, type);
+	}
+	
+	private NameValueModelData newModel(String text, String value) {
+		return new NameValueModelData(text, value);
+	}
+	
 }

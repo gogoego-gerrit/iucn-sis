@@ -721,9 +721,8 @@ public class DEMToolbar extends ToolBar {
 	}
 
 	private void fetchReport() {		
-		ReportOptionsPanel panel = new ReportOptionsPanel();
-		panel.loadAssessmentReport(AssessmentCache.impl.getCurrentAssessment().getId());
-		
+		ReportOptionsPanel panel = new ReportOptionsPanel(AssessmentCache.impl.getCurrentAssessment());
+		panel.show();
 	}
 	
 	public void log(AssessmentChangePacket packet) {
