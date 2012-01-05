@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.utils.XMLUtils;
+import org.iucn.sis.shared.api.views.components.ContentRule;
+import org.iucn.sis.shared.api.views.components.Rule;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.BlurEvent;

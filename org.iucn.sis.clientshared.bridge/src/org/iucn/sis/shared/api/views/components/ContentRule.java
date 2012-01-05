@@ -1,6 +1,7 @@
-package org.iucn.sis.shared.api.structures;
+package org.iucn.sis.shared.api.views.components;
 
 import java.util.ArrayList;
+
 
 public class ContentRule extends Rule {
 

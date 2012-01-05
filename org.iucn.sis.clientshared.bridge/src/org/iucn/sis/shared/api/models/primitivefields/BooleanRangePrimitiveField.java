@@ -51,4 +51,20 @@ public class BooleanRangePrimitiveField extends PrimitiveField<String> implement
 	public void setRawValue(String value) {
 		setValue(value);
 	}
+	
+	public static String getDisplayString(String data) {
+		String result;
+		if (data == null || "".equals(data))
+			result = "(Not Specified)";
+		else if (data.equals(BooleanRangePrimitiveField.UNKNOWN))
+			result = "Unknown";
+		else if (data.equals(BooleanRangePrimitiveField.YES))
+			result = "Yes";
+		else if (data.equals(BooleanRangePrimitiveField.NO))
+			result = "No";
+		else
+			result = "Custom range: " + data;
+		
+		return result;
+	}
 }

@@ -1,28 +1,23 @@
-package org.iucn.sis.shared.api.utils;
+package org.iucn.sis.shared.api.views;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.iucn.sis.client.api.caches.FieldWidgetCache.CreatesDisplay;
-import org.iucn.sis.shared.api.data.DisplayData;
-import org.iucn.sis.shared.api.data.DisplayDataProcessor;
-import org.iucn.sis.shared.api.data.FieldData;
-import org.iucn.sis.shared.api.data.LookupData;
-import org.iucn.sis.shared.api.data.TreeData;
-import org.iucn.sis.shared.api.data.TreeDataRow;
-import org.iucn.sis.shared.api.data.DisplayData.LookupDataContainer;
 import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.displays.ClassificationScheme;
-import org.iucn.sis.shared.api.displays.Display;
-import org.iucn.sis.shared.api.displays.FieldDisplay;
-import org.iucn.sis.shared.api.displays.threats.Threats;
-import org.iucn.sis.shared.api.structures.BooleanRule;
-import org.iucn.sis.shared.api.structures.ContentRule;
-import org.iucn.sis.shared.api.structures.Rule;
-import org.iucn.sis.shared.api.structures.SelectRule;
+import org.iucn.sis.shared.api.utils.XMLUtils;
+import org.iucn.sis.shared.api.views.components.BooleanRule;
+import org.iucn.sis.shared.api.views.components.ContentRule;
+import org.iucn.sis.shared.api.views.components.DisplayData;
+import org.iucn.sis.shared.api.views.components.FieldData;
+import org.iucn.sis.shared.api.views.components.LookupData;
+import org.iucn.sis.shared.api.views.components.Rule;
+import org.iucn.sis.shared.api.views.components.SelectRule;
+import org.iucn.sis.shared.api.views.components.ThreatsTreeData;
+import org.iucn.sis.shared.api.views.components.TreeData;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
+import org.iucn.sis.shared.api.views.components.DisplayData.LookupDataContainer;
 
-import com.google.gwt.core.client.GWT;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
@@ -35,87 +30,21 @@ import com.solertium.lwxml.shared.NativeNodeList;
  * 
  */
 @SuppressWarnings("unused")
-public class FieldParser implements CreatesDisplay {
-	private static final String BASIC_INFORMATION_TAG_NAME = "basicInformation";
-	private static final String ASSESSMENT_FIELD_TAG_NAME = "field";
-	private static final String STRUCTURES_DELIMETER_TAG_NAME = "structures";
+public class FieldParser {
+	protected static final String BASIC_INFORMATION_TAG_NAME = "basicInformation";
+	protected static final String ASSESSMENT_FIELD_TAG_NAME = "field";
+	protected static final String STRUCTURES_DELIMETER_TAG_NAME = "structures";
 
-	private static final String ASSESSMENT_TREE_TAG_NAME = "tree";
-	private static final String TREE_ROOT_TAG_NAME = "treeRoot";
+	protected static final String ASSESSMENT_TREE_TAG_NAME = "tree";
+	protected static final String TREE_ROOT_TAG_NAME = "treeRoot";
 
-	private static final String CANONICAL_NAME_TAG_NAME = "canonicalName";
-	private static final String DESCRIPTION_TAG_NAME = "description";
-	private static final String CLASS_OF_SERVICE_TAG_NAME = "classOfService";
-	private static final String LOCATION_TAG_NAME = "location";
-	private static final String LOOKUP_VALUE_TAG_NAME = "lookup";
-	private static final String REFERENCES_TAG_NAME = "references";
-	private static final String FIELD_DEFINITION_TAG_NAME = "definition";
-
-	protected Display doOperate(DisplayData currentDisplayData) {
-		if (currentDisplayData.getType().equalsIgnoreCase(DisplayData.FIELD)) {
-			FieldData currentFieldData = (FieldData) currentDisplayData;
-			
-			final FieldDisplay field = new FieldDisplay(currentFieldData);
-			try {
-				field.addStructure(DisplayDataProcessor.processDisplayStructure(currentDisplayData));
-			} catch (Throwable e) {
-				e.printStackTrace();
-				GWT.log("FieldParser Error", e);
-			}
-
-			return field;
-		} else if (currentDisplayData.getType().equalsIgnoreCase(DisplayData.TREE)) {
-			TreeData currentTreeData = (TreeData) currentDisplayData;
-
-			ClassificationScheme scheme = new ClassificationScheme(currentTreeData);
-			return scheme;
-		} else
-			return null;
-	}
-
-	public Display parseField(NativeDocument doc) {
-		Display display = null;
-		if ("fields".equals(doc.getDocumentElement().getNodeName())) {
-			final NativeNodeList nodes = doc.getDocumentElement().getChildNodes();
-			for (int i = 0; i < nodes.getLength() && display == null; i++) {
-				final NativeNode current = nodes.item(i);
-				if (NativeNode.TEXT_NODE != current.getNodeType() && current instanceof NativeElement) {
-					display = parseField((NativeElement)current);
-				}
-			}
-			return display;
-		}
-		else
-			display = parseField(doc.getDocumentElement());
-		
-		return display;
-	}
-
-	public Display parseField(NativeElement fieldElement) {
-		// Process the display objects
-		if (fieldElement.getNodeName().equalsIgnoreCase(ASSESSMENT_FIELD_TAG_NAME)) {
-			try {
-				return doOperate(processFieldTag(fieldElement));
-			} catch (Throwable e) {
-				e.printStackTrace();
-				Debug.println(
-						"Failed to process field " + fieldElement.getElementByTagName("canonicalName").getText());
-			}
-		} else if (fieldElement.getNodeName().equalsIgnoreCase("threats")) {
-			return new Threats(fieldElement);
-		} else {
-			try {
-				return doOperate(processTreeTags(fieldElement));
-			} catch (Throwable e) {
-				e.printStackTrace();
-				Debug.println(
-						"Failed to process classification scheme "
-								+ fieldElement.getElementByTagName("canonicalName").getText());
-			}
-		}
-
-		return null;
-	}
+	protected static final String CANONICAL_NAME_TAG_NAME = "canonicalName";
+	protected static final String DESCRIPTION_TAG_NAME = "description";
+	protected static final String CLASS_OF_SERVICE_TAG_NAME = "classOfService";
+	protected static final String LOCATION_TAG_NAME = "location";
+	protected static final String LOOKUP_VALUE_TAG_NAME = "lookup";
+	protected static final String REFERENCES_TAG_NAME = "references";
+	protected static final String FIELD_DEFINITION_TAG_NAME = "definition";
 
 	public DisplayData parseFieldData(NativeDocument doc) {
 		return parseFieldData(doc.getDocumentElement());
@@ -127,15 +56,17 @@ public class FieldParser implements CreatesDisplay {
 			try {
 				return processFieldTag(fieldElement);
 			} catch (Exception e) {
-				e.printStackTrace();
+				Debug.println(e);
 				Debug.println(
 						"Failed to process field " + fieldElement.getElementByTagName("canonicalName").getText());
 			}
+		} else if ("threats".equals(fieldElement.getNodeName())) {
+			return new ThreatsTreeData(fieldElement);
 		} else {
 			try {
 				return processTreeTags(fieldElement);
 			} catch (Exception e) {
-				e.printStackTrace();
+				Debug.println(e);
 				Debug.println(
 						"Failed to process classification scheme "
 								+ fieldElement.getElementByTagName("canonicalName").getText());
@@ -634,7 +565,7 @@ public class FieldParser implements CreatesDisplay {
 	 * @param fieldTags
 	 *            NativeNodeList of Field XML data
 	 */
-	private FieldData processFieldTag(NativeElement root) {
+	protected FieldData processFieldTag(NativeElement root) {
 		FieldData currentField = new FieldData();
 		NativeElement structuresTag = root.getElementByTagName(STRUCTURES_DELIMETER_TAG_NAME);
 
@@ -757,7 +688,7 @@ public class FieldParser implements CreatesDisplay {
 	 * @param treeTags
 	 *            NativeNodeList of Tree XML data
 	 */
-	private TreeData processTreeTags(NativeElement root) {
+	protected TreeData processTreeTags(NativeElement root) {
 
 		TreeData treeData = new TreeData();
 

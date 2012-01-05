@@ -3,12 +3,12 @@ package org.iucn.sis.shared.api.displays.threats;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.iucn.sis.shared.api.data.TreeData;
-import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditor;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
+import org.iucn.sis.shared.api.views.components.TreeData;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;

@@ -11,13 +11,13 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.notes.NotesWindow;
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
-import org.iucn.sis.shared.api.data.TreeData;
-import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.FieldNotes;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow.EditMode;
 import org.iucn.sis.shared.api.structures.Structure;
+import org.iucn.sis.shared.api.views.components.TreeData;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;

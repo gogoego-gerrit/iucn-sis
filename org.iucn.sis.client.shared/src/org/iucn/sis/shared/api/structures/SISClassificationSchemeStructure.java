@@ -3,9 +3,9 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.views.components.TreeData;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.user.client.ui.Widget;

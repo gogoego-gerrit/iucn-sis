@@ -5,10 +5,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.iucn.sis.shared.api.data.TreeData;
 import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer.ClassificationSchemeModelDataComparator;
 import org.iucn.sis.shared.api.structures.Structure;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
+import org.iucn.sis.shared.api.views.components.TreeData;
 
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;

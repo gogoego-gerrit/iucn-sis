@@ -8,6 +8,10 @@ import org.iucn.sis.shared.api.models.PrimitiveField;
  */
 public class BooleanUnknownPrimitiveField extends PrimitiveField<Integer> implements
 		java.io.Serializable {
+	
+	public static final Integer YES = 1;
+	public static final Integer NO = 2;
+	public static final Integer UNKNOWN = 3;
 
 	private Integer value;
 
@@ -56,5 +60,23 @@ public class BooleanUnknownPrimitiveField extends PrimitiveField<Integer> implem
 				setValue(3);
 			}
 		}
+	}
+	
+	public static String getDisplayString(Integer data) {
+		return getDisplayString(data, null);
+	}
+	
+	public static String getDisplayString(Integer data, String defaultValue) {
+		String result;
+		if (UNKNOWN.equals(data))
+			result = "Unknown";
+		else if (YES.equals(data))
+			result = "Yes";
+		else if (NO.equals(data))
+			result = "No";
+		else
+			result = defaultValue;	
+		
+		return result;
 	}
 }

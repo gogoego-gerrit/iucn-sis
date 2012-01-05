@@ -1,11 +1,9 @@
-package org.iucn.sis.shared.api.displays.threats;
+package org.iucn.sis.shared.api.views.components;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.iucn.sis.shared.api.data.LookupData;
-import org.iucn.sis.shared.api.data.TreeData;
-import org.iucn.sis.shared.api.utils.FieldParser;
+import org.iucn.sis.shared.api.views.FieldParser;
 
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;

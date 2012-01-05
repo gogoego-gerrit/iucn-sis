@@ -4,7 +4,7 @@
 	<description>Regional Information</description>
 	<classOfService>Documentation</classOfService>
 	<structures>
-		<structure description="Regions" id="b">
+		<structure description="Regions" id="regions">
 			<regionalInformation/>
 		</structure>
 	</structures>

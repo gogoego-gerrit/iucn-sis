@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.caches.DefinitionCache;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
-import org.iucn.sis.shared.api.data.TreeData;
-import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
@@ -18,6 +16,8 @@ import org.iucn.sis.shared.api.schemes.ClassificationSchemeRowEditorWindow;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 import org.iucn.sis.shared.api.structures.Structure;
+import org.iucn.sis.shared.api.views.components.TreeData;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;

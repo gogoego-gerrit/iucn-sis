@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.iucn.sis.shared.api.data.TreeData;
-import org.iucn.sis.shared.api.data.TreeDataRow;
+import org.iucn.sis.shared.api.views.components.TreeData;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SortDir;

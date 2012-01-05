@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.structures;
 
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.views.components.Rule;
 
 import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickHandler;

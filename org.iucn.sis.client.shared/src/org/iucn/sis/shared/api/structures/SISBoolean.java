@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
+import org.iucn.sis.shared.api.views.components.BooleanRule;
+import org.iucn.sis.shared.api.views.components.Rule;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.ChangeHandler;

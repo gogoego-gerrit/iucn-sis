@@ -173,11 +173,11 @@ public class CommonName implements Serializable, HasReferences, HasNotes {
 	}
 	
 	public String getIsoCode() {
-		return iso.getCode();
+		return iso == null ? null : iso.getCode();
 	}
 	
 	public String getLanguage() {
-		return iso.getName();
+		return iso == null ? null : iso.getName();
 	}
 	
 	public String getName() {

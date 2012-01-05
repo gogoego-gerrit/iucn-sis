@@ -28,10 +28,12 @@ import org.restlet.data.Status;
 import org.restlet.engine.util.Base64;
 import org.restlet.representation.Representation;
 
+import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.vendor.H2DBSession;
+import com.solertium.db.vendor.PostgreSQLDBSession;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.TrivialExceptionHandler;
@@ -91,6 +93,8 @@ public class SIS {
 			lookups = new SystemExecutionContext("sis_lookups");
 			lookups.setAPILevel(ExecutionContext.SQL_ALLOWED);
 			lookups.setExecutionLevel(ExecutionContext.ADMIN);
+			if (lookups.getDBSession() instanceof PostgreSQLDBSession)
+				lookups.getDBSession().setIdentifierCase(DBSession.CASE_UPPER);
 		} catch (NotFoundException e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);

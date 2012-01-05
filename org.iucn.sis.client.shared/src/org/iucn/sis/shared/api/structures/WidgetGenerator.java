@@ -3,9 +3,9 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
-import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.utils.XMLUtils;
+import org.iucn.sis.shared.api.views.components.DisplayData;
 
 @SuppressWarnings("unchecked")
 public class WidgetGenerator implements CreatesWidget {

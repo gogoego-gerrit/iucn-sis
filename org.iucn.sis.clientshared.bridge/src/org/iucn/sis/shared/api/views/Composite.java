@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.views;
 import java.util.ArrayList;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
 public class Composite {
@@ -33,10 +34,13 @@ public class Composite {
 	}
 
 	public void parse(NativeElement rootTag) {
-		NativeNodeList fieldTags = rootTag.getElementsByTagName("field");
+		NativeNodeList fieldTags = rootTag.getChildNodes();
 
-		for (int i = 0; i < fieldTags.getLength(); i++)
-			fields.add(fieldTags.elementAt(i).getAttribute("id"));
+		for (int i = 0; i < fieldTags.getLength(); i++) {
+			NativeNode node = fieldTags.item(i);
+			if ("field".equals(node.getNodeName()))
+				fields.add(((NativeElement)node).getAttribute("id"));
+		}
 	}
 
 	public void setAlignment(String alignment) {

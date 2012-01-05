@@ -9,11 +9,11 @@ import java.util.Set;
 
 import org.iucn.sis.client.api.assessment.ReferenceableField;
 import org.iucn.sis.shared.api.citations.Referenceable;
-import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.structures.ClassificationInfo;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
 
 import com.extjs.gxt.ui.client.data.ModelData;
 import com.google.gwt.user.client.ui.SimplePanel;

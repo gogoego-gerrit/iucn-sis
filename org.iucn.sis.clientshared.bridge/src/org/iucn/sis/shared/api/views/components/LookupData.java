@@ -1,4 +1,4 @@
-package org.iucn.sis.shared.api.data;
+package org.iucn.sis.shared.api.views.components;
 
 import java.util.ArrayList;
 import java.util.List;

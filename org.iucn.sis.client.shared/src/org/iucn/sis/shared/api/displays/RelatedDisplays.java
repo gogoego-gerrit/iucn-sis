@@ -6,8 +6,8 @@ import java.util.List;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
 import org.iucn.sis.shared.api.structures.DominantStructure;
-import org.iucn.sis.shared.api.structures.Rule;
 import org.iucn.sis.shared.api.structures.SISStructureCollection;
+import org.iucn.sis.shared.api.views.components.Rule;
 
 import com.google.gwt.event.dom.client.ChangeEvent;
 import com.google.gwt.event.dom.client.ChangeHandler;

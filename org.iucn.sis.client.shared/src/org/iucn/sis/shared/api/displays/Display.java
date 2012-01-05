@@ -26,7 +26,6 @@ import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
 import org.iucn.sis.shared.api.acl.feature.AuthorizablePublishedAssessment;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DefinitionPanel;
-import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.io.AssessmentChangePacket;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -45,6 +44,7 @@ import org.iucn.sis.shared.api.structures.SISStructureCollection;
 import org.iucn.sis.shared.api.structures.Structure;
 import org.iucn.sis.shared.api.utils.clipboard.Clipboard;
 import org.iucn.sis.shared.api.utils.clipboard.UsesClipboard;
+import org.iucn.sis.shared.api.views.components.DisplayData;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;

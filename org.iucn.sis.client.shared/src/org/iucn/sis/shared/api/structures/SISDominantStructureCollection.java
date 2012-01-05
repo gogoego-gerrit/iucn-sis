@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.views.components.Rule;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.ChangeHandler;

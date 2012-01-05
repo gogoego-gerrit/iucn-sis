@@ -1,6 +1,7 @@
 package org.iucn.sis.shared.api.displays.threats;
 
-import org.iucn.sis.shared.api.data.TreeDataRow;
+import org.iucn.sis.shared.api.views.components.ThreatsTreeData;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
 
 public class ThreatViewerFactory {
 	

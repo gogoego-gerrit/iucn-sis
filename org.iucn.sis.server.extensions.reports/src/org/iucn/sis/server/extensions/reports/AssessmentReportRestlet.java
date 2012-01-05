@@ -6,9 +6,7 @@ import org.hibernate.Session;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.Taxon;
 import org.restlet.Context;
-import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -34,40 +32,22 @@ public class AssessmentReportRestlet extends BaseServiceRestlet {
 	}
 
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
-		
-		Form queryString = request.getResourceRef().getQueryAsForm();
-		boolean showSpecial = false; 
-		
 		Integer id = Integer.valueOf((String) request.getAttributes().get("id"));
-		showSpecial = Boolean.valueOf(queryString.getFirstValue("special"));
 			
 		final AssessmentIO assessmentIO = new AssessmentIO(session);
-		Assessment assessment = assessmentIO.getAssessment(id);
-		if (assessment != null) {
-			
-			Taxon taxa = assessment.getTaxon();
-			AssessmentReportTemplate template = new AssessmentReportTemplate(showSpecial);
-			StringBuilder body = new StringBuilder();
-			try{
-				template.readHTMLTemplate();
-			}catch(IOException e){
-				e.printStackTrace();
-			}				
-			
-			template.buildTaxonomy(taxa,assessment);
-			template.buildAssessmentInfo(assessment);
-			template.buildGeographicRange(assessment);
-			template.buildPopulation(assessment);
-			template.buildHabitatAndEcology(assessment);
-			template.buildThreats(assessment);
-			template.buildConservationActions(assessment);
-			template.buildBibliography(assessment);
-			template.buildCitation(assessment);
-			body.append(template.getHTMLString());
+		final Assessment assessment = assessmentIO.getAssessment(id);
 		
-			response.setStatus(Status.SUCCESS_OK);
-			return new StringRepresentation(body.toString(), MediaType.TEXT_HTML);
+		if (assessment != null) {
+			final ReportTemplate template;
+			try {
+				template = new AssessmentReportTemplate(session, assessment);
+			} catch (IOException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
 			
+			template.build();
+		
+			return new StringRepresentation(template.toString(), MediaType.TEXT_HTML);
 		} else {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Could not find assessment #" + id);
 		}

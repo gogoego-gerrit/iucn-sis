@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.iucn.sis.shared.api.data.DisplayData.LookupDataContainer;
-import org.iucn.sis.shared.api.data.LookupData;
-import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.fields.UseTradeField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
+import org.iucn.sis.shared.api.views.components.LookupData;
+import org.iucn.sis.shared.api.views.components.DisplayData.LookupDataContainer;
+import org.iucn.sis.shared.api.views.components.LookupData.LookupDataValue;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.ClickEvent;

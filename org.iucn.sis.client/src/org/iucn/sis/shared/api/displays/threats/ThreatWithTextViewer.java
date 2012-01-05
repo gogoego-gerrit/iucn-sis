@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.displays.threats;
 
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.fields.UnspecifiedTaxaThreatsSubfield;
+import org.iucn.sis.shared.api.views.components.ThreatsTreeData;
 
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.google.gwt.user.client.ui.HTML;

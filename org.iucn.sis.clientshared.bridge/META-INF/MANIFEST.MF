@@ -24,5 +24,6 @@ Export-Package: org.iucn.sis.shared.api.acl,
  org.iucn.sis.shared.api.models.primitivefields,
  org.iucn.sis.shared.api.utils,
  org.iucn.sis.shared.api.views,
+ org.iucn.sis.shared.api.views.components,
  org.iucn.sis.shared.api.workflow
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

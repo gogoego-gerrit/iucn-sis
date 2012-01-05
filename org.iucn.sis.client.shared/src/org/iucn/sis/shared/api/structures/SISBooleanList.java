@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanUnknownPrimitiveField;
+import org.iucn.sis.shared.api.views.components.BooleanRule;
+import org.iucn.sis.shared.api.views.components.Rule;
+import org.iucn.sis.shared.api.views.components.SelectRule;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.ChangeHandler;
@@ -17,10 +20,6 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 
 public class SISBooleanList extends SISPrimitiveStructure<Integer> implements DominantStructure<PrimitiveField<Integer>> {
-
-	public static final int TRUE_INDEX = 1;
-	public static final int FALSE_INDEX = 2;
-	public static final int UNKNOWN_INDEX = 3;
 
 	private ListBox listbox;
 
@@ -118,14 +117,18 @@ public class SISBooleanList extends SISPrimitiveStructure<Integer> implements Do
 	 */
 	@Override
 	public int getDisplayableData(ArrayList<String> rawData, ArrayList<String> prettyData, int offset) {
-		ArrayList<String> data = new ArrayList<String>();
-		// data.add("--- Select ---");
-		data.add("Yes");
-		data.add("No");
-		data.add("Unknown");
+		String pretty = null;
+		try {
+			pretty = BooleanUnknownPrimitiveField.getDisplayString(Integer.valueOf(rawData.get(offset)));
+		} catch (Exception e) {
+			pretty = null;
+		}
+		
+		if (pretty == null)
+			pretty = "(Not specified)";
 
-		prettyData.add(offset, DisplayableDataHelper.toDisplayableSingleSelect((String) rawData.get(offset), data
-				.toArray()));
+		prettyData.add(offset, pretty);
+		
 		return ++offset;
 	}
 
@@ -138,9 +141,9 @@ public class SISBooleanList extends SISPrimitiveStructure<Integer> implements Do
 		try {
 			if (activityRule instanceof BooleanRule) {
 				if (((BooleanRule) activityRule).isTrue())
-					return listbox.getSelectedIndex() == TRUE_INDEX;
+					return listbox.getSelectedIndex() == BooleanUnknownPrimitiveField.YES;
 				else
-					return listbox.getSelectedIndex() == FALSE_INDEX;
+					return listbox.getSelectedIndex() == BooleanUnknownPrimitiveField.NO;
 			} else
 				return ((SelectRule) activityRule).isSelected(listbox.getSelectedIndex());
 		} catch (Exception e) {
@@ -154,15 +157,6 @@ public class SISBooleanList extends SISPrimitiveStructure<Integer> implements Do
 		if (field != null)
 			listbox.setSelectedIndex(field.getValue());
 	}
-/*
-	@Override
-	public void setData(Map<String, PrimitiveField> data) {
-		//super.setData(data);
-		if( data.containsKey(getId())) {
-			Integer datum = ((ForeignKeyPrimitiveField)data.get(getId())).getValue();
-			listbox.setSelectedIndex(datum);
-		}
-	}*/
 
 	@Override
 	public void setEnabled(boolean isEnabled) {

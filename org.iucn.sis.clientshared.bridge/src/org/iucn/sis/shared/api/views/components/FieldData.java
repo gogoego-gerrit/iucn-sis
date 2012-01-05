@@ -1,4 +1,4 @@
-package org.iucn.sis.shared.api.data;
+package org.iucn.sis.shared.api.views.components;
 
 
 public class FieldData extends DisplayData {

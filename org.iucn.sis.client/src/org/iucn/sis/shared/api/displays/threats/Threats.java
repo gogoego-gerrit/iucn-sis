@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.VirusCache;
-import org.iucn.sis.shared.api.data.TreeData;
-import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Virus;
@@ -15,6 +13,9 @@ import org.iucn.sis.shared.api.models.fields.ViralThreatsSubfield;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeModelData;
 import org.iucn.sis.shared.api.schemes.ClassificationSchemeViewer;
 import org.iucn.sis.shared.api.structures.DisplayStructure;
+import org.iucn.sis.shared.api.views.components.ThreatsTreeData;
+import org.iucn.sis.shared.api.views.components.TreeData;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
 
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeNode;

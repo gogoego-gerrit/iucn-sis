@@ -6,18 +6,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.NamingException;
-
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
-import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
-import org.iucn.sis.server.api.fields.TreeBuilder;
+import org.iucn.sis.server.api.io.AssessmentSchemaIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.schema.AssessmentSchema;
 import org.iucn.sis.server.api.schema.AssessmentSchemaBroker;
 import org.iucn.sis.server.api.schema.AssessmentSchemaFactory;
 import org.iucn.sis.shared.api.debug.Debug;
-import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -28,35 +24,20 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import com.solertium.util.BaseDocumentUtils;
-import com.solertium.util.ElementCollection;
 import com.solertium.util.NodeCollection;
 import com.solertium.vfs.NotFoundException;
 
 public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 	
-	private final FieldSchemaGenerator generator;
-	private final TreeBuilder treeBuilder;
+	private final AssessmentSchemaIO io;
 
 	public AssessmentSchemaRestlet(Context context) {
 		super(context);
 		
-		FieldSchemaGenerator generator;
-		TreeBuilder builder;
-		try {
-			generator = new FieldSchemaGenerator();
-			builder = new TreeBuilder();
-		} catch (NamingException e) {
-			generator = null;
-			builder = null;
-			Debug.println(e);
-		}
-		
-		this.generator = generator;
-		this.treeBuilder = builder;
+		io = new AssessmentSchemaIO();
 	}
 
 	@Override
@@ -74,7 +55,7 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 		if (schemaName == null)
 			return listSchemas();
 		
-		AssessmentSchema schema = getSchema(schemaName);
+		AssessmentSchema schema = io.getAssessmentSchema(schemaName);
 			
 		if ("view".equals(request.getResourceRef().getLastSegment()))
 			return new DomRepresentation(MediaType.TEXT_XML, schema.getViews());
@@ -92,7 +73,7 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 		if (schemaName == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please provide an assessment schema.");
 		
-		AssessmentSchema schema = getSchema(schemaName);
+		AssessmentSchema schema = io.getAssessmentSchema(schemaName);
 		
 		final Document entity = getEntityAsDocument(rep);
 		
@@ -134,7 +115,7 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 		for (String field : fieldNames) {
 			try {
 				ret.append(BaseDocumentUtils.impl.serializeDocumentToString(
-					generator.getSchema(field), true, false));
+					io.getFieldSchema(field), true, false));
 			} catch (NotFoundException e) {
 				Debug.println("Field {0} not found!  Skipping...", field);
 			} catch (IOException e) {
@@ -149,95 +130,7 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 	}
 	
 	private String getFieldAsString(AssessmentSchema schema, String fieldName) throws IOException {
-		Document document = schema.getField(fieldName);
-		if (document == null) {
-			Debug.println("FieldRestlet Error: Field {0} not found, skipping", fieldName);
-			return "";
-		}
-		
-		if (generator == null)
-			return BaseDocumentUtils.impl.serializeDocumentToString(document, true, false);
-		else {
-			//Append field definition
-			/*try {
-				content.append(generator.getField(fieldName).toXML("definition"));
-			} catch (Exception e) {
-				e.printStackTrace();
-				TrivialExceptionHandler.ignore(this, e);
-			}*/
-			final String dataType = document.getDocumentElement().getNodeName();
-			if ("field".equals(dataType) || "tree".equals(dataType)) {
-				//Append lookup table info
-				Map<String, Map<Integer, String>> lookups = null;
-				try {
-					lookups = generator.scanForLookups(fieldName);
-				} catch (Exception e) {
-					Debug.println(e);
-				}
-				
-				if (lookups != null) {
-					for (Map.Entry<String, Map<Integer, String>> entry : lookups.entrySet()) {
-						final Element lookupEl = document.createElement("lookup");
-						lookupEl.setAttribute("id", entry.getKey());
-						
-						for (Map.Entry<Integer, String> options : entry.getValue().entrySet()) {
-							final Element option = BaseDocumentUtils.impl.createCDATAElementWithText(
-								document, "option", options.getValue()
-							);
-							option.setAttribute("id", options.getKey().toString());
-							
-							lookupEl.appendChild(option);
-						}
-						
-						document.getDocumentElement().appendChild(lookupEl);
-					}
-				}
-				
-				if ("tree".equals(dataType)) {
-					try {
-						generator.appendCodesForClassificationScheme(document, fieldName);
-					} catch (Exception e) {
-						Debug.println(e);
-					}
-				}
-			}
-			else {
-				final ElementCollection lookups = new ElementCollection(
-					document.getDocumentElement().getElementsByTagName("lookup")
-				);
-				for (Element el : lookups) {
-					final Map<Integer, String> data;
-					try {
-						data = generator.loadLookup(el.getAttribute("name"));
-					} catch (Exception e) {
-						Debug.println(e);
-						continue;
-					}
-					
-					if (data != null) {
-						for (Map.Entry<Integer, String> options : data.entrySet()) {
-							final Element option = BaseDocumentUtils.impl.createCDATAElementWithText(
-								document, "option", options.getValue()
-							);
-							option.setAttribute("id", options.getKey().toString());
-							
-							el.appendChild(option);
-						}
-					}
-				}
-			}
-			final ElementCollection coding = new ElementCollection(
-				document.getDocumentElement().getElementsByTagName("coding")
-			);
-			for (Element el : coding) {
-				if (CanonicalNames.Threats.equals(fieldName))
-					treeBuilder.buildTree(el.getAttribute("name"), document, el);
-				else
-					treeBuilder.buildTree(el.getAttribute("name"), document, el.getParentNode());
-			}
-			
-			return BaseDocumentUtils.impl.serializeDocumentToString(document, true, false);
-		}
+		return io.getFieldAsString(schema, fieldName);
 	}
 	
 	private Representation listSchemas() throws ResourceException {
@@ -292,24 +185,6 @@ public class AssessmentSchemaRestlet extends BaseServiceRestlet {
 	
 	private String getAttribute(String attribute, Request request) {
 		return (String)request.getAttributes().get(attribute);
-	}
-	
-	private AssessmentSchema getSchema(String name) throws ResourceException {
-		AssessmentSchemaFactory factory;
-		try {
-			factory = SIS.get().getAssessmentSchemaBroker().getPlugin(name);
-		} catch (Throwable e) {
-			throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, e);
-		}
-		
-		if (factory == null)
-			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
-		
-		try {
-			return factory.newInstance();
-		} catch (Throwable e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
 	}
 
 }

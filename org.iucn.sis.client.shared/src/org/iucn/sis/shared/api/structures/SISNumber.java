@@ -6,6 +6,8 @@ import java.util.Map;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
+import org.iucn.sis.shared.api.views.components.ContentRule;
+import org.iucn.sis.shared.api.views.components.Rule;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.google.gwt.event.dom.client.BlurEvent;

@@ -6,10 +6,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.iucn.sis.shared.api.data.LookupData;
-import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
+import org.iucn.sis.shared.api.views.components.LookupData;
+import org.iucn.sis.shared.api.views.components.Rule;
+import org.iucn.sis.shared.api.views.components.SelectRule;
+import org.iucn.sis.shared.api.views.components.LookupData.LookupDataValue;
 
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.Style.SelectionMode;

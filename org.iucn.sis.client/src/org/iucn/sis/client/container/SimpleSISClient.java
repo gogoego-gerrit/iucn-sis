@@ -13,9 +13,9 @@ import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.extensions.birdlife.structures.BirdlifeWidgetGenerator;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.citations.Referenceable;
+import org.iucn.sis.shared.api.displays.ClientFieldParser;
 import org.iucn.sis.shared.api.models.RecentlyAccessed;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
-import org.iucn.sis.shared.api.utils.FieldParser;
 
 import com.extjs.gxt.themes.client.Slate;
 import com.extjs.gxt.ui.client.util.Theme;
@@ -64,7 +64,7 @@ public class SimpleSISClient extends SISClientBase {
 		RootPanel.get().add(container);
 		
 		//No server contact, just setup
-		FieldWidgetCache.impl.setFieldParser(new FieldParser());
+		FieldWidgetCache.impl.setFieldParser(new ClientFieldParser());
 		FieldWidgetCache.impl.registerWidgetGenerator(new WidgetGenerator());
 		FieldWidgetCache.impl.registerWidgetGenerator(new BirdlifeWidgetGenerator());
 	}

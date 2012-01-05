@@ -3,7 +3,7 @@ body
 	line-height: 1.6em;
 }
 
-#box-table-c
+.box-table-c
 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 	font-size: 12px;
@@ -13,7 +13,7 @@ body
 	border-collapse: collapse;
 }
 
-#box-table-c td
+.box-table-c td
 {
 	padding: 6px;
 	background: #ffffff; 
@@ -22,7 +22,7 @@ body
 	border-top: 1px solid transparent;
 }
 
-#box-table-b
+.box-table-b
 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 	font-size: 14px;
@@ -32,7 +32,7 @@ body
 	border-collapse: collapse;
 }
 
-#box-table-b td
+.box-table-b td
 {
 	padding: 8px;
 	background: #ffffff; 
@@ -41,7 +41,7 @@ body
 	border-top: 1px solid transparent;
 }
 
-#box-table-a
+.box-table-a
 {
 	font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
 	font-size: 12px;
@@ -51,7 +51,7 @@ body
 	border-collapse: collapse;
 }
 
-#box-table-a th
+.box-table-a th
 {
 	font-size: 13px;
 	font-weight: normal;
@@ -62,7 +62,7 @@ body
 	color: #039;
 }
 
-#box-table-a td
+.box-table-a td
 {
 	padding: 8px;
 	background: #e8edff; 
@@ -71,7 +71,7 @@ body
 	border-top: 1px solid transparent;
 }
 
-#box-table-a tr:hover td
+.box-table-a tr:hover td
 {
 	background: #d0dafd;
 	color: #339;

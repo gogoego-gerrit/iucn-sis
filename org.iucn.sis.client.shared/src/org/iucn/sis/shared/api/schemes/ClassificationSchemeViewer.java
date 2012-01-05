@@ -2,8 +2,8 @@ package org.iucn.sis.shared.api.schemes;
 
 import java.util.List;
 
-import org.iucn.sis.shared.api.data.TreeDataRow;
 import org.iucn.sis.shared.api.structures.Structure;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
 
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 

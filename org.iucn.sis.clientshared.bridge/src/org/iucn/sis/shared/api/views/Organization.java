@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.views;
 import java.util.ArrayList;
 
 import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 
 public class Organization {
@@ -49,19 +50,18 @@ public class Organization {
 	}
 
 	public void parse(NativeElement rootTag) {
-
-		NativeElement textTag = rootTag.getElementByTagName("text");
-		if (textTag != null)
-			this.text = textTag.getTextContent();
-
-		NativeNodeList compositeTags = rootTag.getElementsByTagName("composite");
-
-		if (compositeTags.getLength() == 0) {
-			Composite composite = new Composite("", "", rootTag, true);
-			composites.add(composite);
-		} else {
-			for (int i = 0; i < compositeTags.getLength(); i++) {
-				NativeElement compositeTag = compositeTags.elementAt(i);
+		Composite rootComposite = new Composite("", "", rootTag, true);
+		if (!rootComposite.getFields().isEmpty())
+			composites.add(rootComposite);
+		
+		NativeNodeList nodes = rootTag.getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			NativeNode node = nodes.item(i);
+			if ("text".equals(node.getNodeName())) {
+				this.text = node.getTextContent();
+			}
+			else if ("composite".equals(node.getNodeName())) {
+				NativeElement compositeTag = (NativeElement)node;
 				Composite composite = new Composite(compositeTag.getAttribute("alignment"), compositeTag
 						.getAttribute("style"), compositeTag, true);
 				composites.add(composite);

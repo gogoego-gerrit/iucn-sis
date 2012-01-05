@@ -11,12 +11,12 @@ import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.notes.NotesWindow;
 import org.iucn.sis.client.api.utils.BasicWindow;
-import org.iucn.sis.shared.api.data.DisplayData;
 import org.iucn.sis.shared.api.data.DisplayDataProcessor;
 import org.iucn.sis.shared.api.displays.ClassificationScheme;
 import org.iucn.sis.shared.api.displays.FieldNotes;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
+import org.iucn.sis.shared.api.views.components.DisplayData;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;

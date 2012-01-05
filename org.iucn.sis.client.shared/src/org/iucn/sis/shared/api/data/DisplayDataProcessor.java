@@ -9,6 +9,8 @@ import org.iucn.sis.shared.api.structures.SISStructureCollection;
 import org.iucn.sis.shared.api.structures.Structure;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
 import org.iucn.sis.shared.api.utils.XMLUtils;
+import org.iucn.sis.shared.api.views.components.DisplayData;
+import org.iucn.sis.shared.api.views.components.FieldData;
 
 @SuppressWarnings("unchecked")
 public class DisplayDataProcessor {

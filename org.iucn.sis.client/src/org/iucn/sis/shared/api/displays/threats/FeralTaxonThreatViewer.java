@@ -4,6 +4,7 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.fields.IASTaxaThreatsSubfield;
+import org.iucn.sis.shared.api.views.components.ThreatsTreeData;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;

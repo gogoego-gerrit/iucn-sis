@@ -8,10 +8,10 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.citations.Referenceable;
+import org.iucn.sis.shared.api.displays.ClientFieldParser;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.structures.WidgetGenerator;
-import org.iucn.sis.shared.api.utils.FieldParser;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -89,7 +89,7 @@ public class ClassificationSchemeTestEntryPoint extends SISClientBase {
 				field.setParent(null);
 				
 				final Display display;
-				final FieldParser parser = new FieldParser();
+				final ClientFieldParser parser = new ClientFieldParser();
 				try {
 					display = parser.parseField(document);
 				} catch (Exception e) {

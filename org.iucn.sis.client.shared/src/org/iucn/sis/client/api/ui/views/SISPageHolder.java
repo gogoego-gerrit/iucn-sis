@@ -19,11 +19,11 @@ import org.iucn.sis.client.api.caches.NotesCache;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.displays.RelatedDisplays;
-import org.iucn.sis.shared.api.structures.BooleanRule;
-import org.iucn.sis.shared.api.structures.ContentRule;
-import org.iucn.sis.shared.api.structures.Rule;
-import org.iucn.sis.shared.api.structures.SelectRule;
 import org.iucn.sis.shared.api.utils.XMLUtils;
+import org.iucn.sis.shared.api.views.components.BooleanRule;
+import org.iucn.sis.shared.api.views.components.ContentRule;
+import org.iucn.sis.shared.api.views.components.Rule;
+import org.iucn.sis.shared.api.views.components.SelectRule;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.BaseEvent;

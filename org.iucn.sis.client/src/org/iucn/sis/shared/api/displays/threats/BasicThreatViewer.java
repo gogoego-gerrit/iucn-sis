@@ -6,9 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.iucn.sis.shared.api.data.LookupData;
-import org.iucn.sis.shared.api.data.TreeDataRow;
-import org.iucn.sis.shared.api.data.LookupData.LookupDataValue;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.fields.StressField;
 import org.iucn.sis.shared.api.models.fields.ThreatsSubfield;
@@ -16,6 +13,10 @@ import org.iucn.sis.shared.api.schemes.BasicClassificationSchemeViewer;
 import org.iucn.sis.shared.api.schemes.CodingOptionTreePanel;
 import org.iucn.sis.shared.api.structures.ClassificationInfo;
 import org.iucn.sis.shared.api.structures.Structure;
+import org.iucn.sis.shared.api.views.components.LookupData;
+import org.iucn.sis.shared.api.views.components.ThreatsTreeData;
+import org.iucn.sis.shared.api.views.components.TreeDataRow;
+import org.iucn.sis.shared.api.views.components.LookupData.LookupDataValue;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;

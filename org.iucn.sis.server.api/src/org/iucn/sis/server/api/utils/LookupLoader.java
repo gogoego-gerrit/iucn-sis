@@ -1,6 +1,7 @@
 package org.iucn.sis.server.api.utils;
 
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.shared.api.debug.Debug;
 
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
@@ -46,6 +47,7 @@ public class LookupLoader {
 		try {
 			SIS.get().getLookupDatabase().doQuery(query, rl);
 		} catch (DBException e) {
+			Debug.println(e);
 			return defaultValue;
 		}
 		
