@@ -1,5 +1,7 @@
 package org.iucn.sis.client.panels.users;
 
+import org.iucn.sis.client.api.caches.UserStore;
+import org.iucn.sis.client.api.ui.models.users.UserModelData;
 import org.iucn.sis.client.api.ui.users.panels.ContentManager;
 import org.iucn.sis.client.panels.users.UserViewPanel.HasStore;
 

@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.users;
 
 import org.iucn.sis.client.api.models.ClientUser;
+import org.iucn.sis.client.api.ui.models.users.UserModelData;
 import org.iucn.sis.shared.api.debug.Debug;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;

@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels.users;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
+import org.iucn.sis.client.api.ui.models.users.UserModelData;
 import org.iucn.sis.client.api.ui.users.panels.AddUserWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;

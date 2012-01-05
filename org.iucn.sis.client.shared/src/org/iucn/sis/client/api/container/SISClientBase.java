@@ -17,6 +17,7 @@ import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.caches.UserStore;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.debug.HostedModeDebugger;
@@ -103,6 +104,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 			StateManager.impl.doLogout();
 			ReferenceCache.impl.doLogout();
 			ViewCache.impl.doLogout();
+			UserStore.impl.doLogout();
 			History.newItem("", false);
 			
 			NativeDocumentFactory.setDefaultInstance(new NativeDocumentFactory());

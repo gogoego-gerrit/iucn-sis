@@ -1,12 +1,11 @@
-package org.iucn.sis.client.panels.users;
+package org.iucn.sis.client.api.caches;
 
 import java.util.List;
 
-import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache.RecentUser;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
+import org.iucn.sis.client.api.ui.models.users.UserModelData;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
@@ -42,8 +41,7 @@ public class UserStore {
 			return;
 		}
 		
-		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.USE_FEATURE,
-				AuthorizableFeature.USER_MANAGEMENT_FEATURE)) {
+		if (!AuthorizationCache.impl.canUse(AuthorizableFeature.USER_MANAGEMENT_FEATURE)) {
 			active.add(new UserModelData(SISClientBase.currentUser));
 			loaded = true;
 			callback.handleEvent();
@@ -76,6 +74,11 @@ public class UserStore {
 		}
 	}
 	
+	public void doLogout() {
+		loaded = false;
+		active.removeAll();
+		disabled.removeAll();
+	}
 	
 	public ListStore<UserModelData> getActiveUsers() {
 		return active;

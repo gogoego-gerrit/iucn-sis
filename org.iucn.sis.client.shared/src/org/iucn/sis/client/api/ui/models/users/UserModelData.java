@@ -1,4 +1,4 @@
-package org.iucn.sis.client.panels.users;
+package org.iucn.sis.client.api.ui.models.users;
 
 import org.iucn.sis.client.api.models.ClientUser;
 
