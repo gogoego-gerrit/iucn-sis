@@ -71,9 +71,9 @@ public class AssessmentHtmlTemplate {
 	private final Session session;
 	private final Map<String, View> views;
 	
-	protected StringBuilder theHtml;
-	protected Organization curOrg;
-	protected List<String> exclude, ignore;
+	private StringBuilder theHtml;
+	private Organization curOrg;
+	private List<String> exclude, ignore;
 
 	public AssessmentHtmlTemplate(Session session, boolean showEmptyFields, boolean limitedSet) {
 		this.session = session;
@@ -195,22 +195,23 @@ public class AssessmentHtmlTemplate {
 			
 			if (!exclude.contains(canonicalName) && !ignore.contains(canonicalName)) {
 				Couple<DisplayData, Map<String, String>> currentDisplayData = fetchDisplayData(canonicalName);
-				StringBuilder orgHtml = new StringBuilder();
-				try {
-					if (field.isClassificationScheme())
-						orgHtml = parseClassificationScheme(field, canonicalName, currentDisplayData);
-					else
-						orgHtml = parseField(field, canonicalName, canonicalName, 8, currentDisplayData, false, false, false);
+				if (currentDisplayData != null) {
+					StringBuilder orgHtml = new StringBuilder();
+					try {
+						if (field.isClassificationScheme())
+							orgHtml = parseClassificationScheme(field, canonicalName, currentDisplayData);
+						else
+							orgHtml = parseField(field, canonicalName, canonicalName, 8, currentDisplayData, false, false, false);
+						
+					} catch (Exception e) {
+						debug("DIED TRYING TO BUILD " + canonicalName);
+					}
 					
-				} catch (Exception e) {
-					Debug.println(e);
-					debug("DIED TRYING TO BUILD " + canonicalName);
-				}
-				
-				if (orgHtml.length() > 0) {
-					theHtml.append("<div id=\"" + canonicalName + "\">\n");
-					theHtml.append(orgHtml);
-					theHtml.append("</div>\n");
+					if (orgHtml.length() > 0) {
+						theHtml.append("<div id=\"" + canonicalName + "\">\n");
+						theHtml.append(orgHtml);
+						theHtml.append("</div>\n");
+					}
 				}
 			}
 		}
@@ -487,7 +488,6 @@ public class AssessmentHtmlTemplate {
 			return new Couple<DisplayData, Map<String,String>>(currentDisplayData, 
 					extractDescriptions(canonicalName, currentDisplayData.getDescription(), jnd));
 		} catch (Exception e) {
-			Debug.println(e);
 			debug("DIED FETCHING DISPLAY DATA FOR {0}", canonicalName);
 			return null;
 		}
@@ -681,7 +681,7 @@ public class AssessmentHtmlTemplate {
 	}
 	
 	private void debug(String template, Object... args) {
-		Debug.println(template, args);
+		//Debug.println(template, args);
 	}
 	
 	private boolean isBlank(String value) {
