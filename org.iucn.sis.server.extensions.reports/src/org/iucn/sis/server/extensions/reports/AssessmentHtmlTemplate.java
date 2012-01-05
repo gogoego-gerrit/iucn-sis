@@ -61,18 +61,16 @@ import com.solertium.util.BaseDocumentUtils;
 
 public class AssessmentHtmlTemplate {
 
-	public static final String CSS_VFS_LOCATION = "https://sis.iucnsis.org/reports/speciesReportStyle.css";
-	public static final String CSS_LOCATION = "https://sis.iucnsis.org/raw/reports/speciesReportStyle.css";
-	public static final String LOGO_LOCATION = "https://sis.iucnsis.org/raw/reports/redListLogo.jpg";
-	public static final String LOCAL_CSS_LOCATION = "speciesReportStyle.css";
-	
+	private static final String PREFIX = "/apps/org.iucn.sis.server.extensions.reports";
 	private static final String BLANK_STRING = "(Not specified)";
+	
+	public static final String CSS_LOCATION = PREFIX + "/resources/speciesReportStyle.css";
+	public static final String LOGO_LOCATION = PREFIX + "/resources/redListLogo.jpg";
 	
 	private final boolean showEmptyFields;
 	private final Session session;
 	private final Map<String, View> views;
 	
-	protected Taxon taxon;
 	protected StringBuilder theHtml;
 	protected Organization curOrg;
 	protected List<String> exclude, ignore;
@@ -109,8 +107,6 @@ public class AssessmentHtmlTemplate {
 	}
 
 	public void parse(Assessment assessment, String viewName) {
-		taxon = assessment.getTaxon();
-		
 		// Add IUCN logo and species Name/Authority and Taxonomy Info
 		buildHeadingTable(assessment);
 
@@ -298,20 +294,22 @@ public class AssessmentHtmlTemplate {
 
 	/**** Header ****/
 	private void buildHeadingTable(Assessment assessment) {
+		Taxon taxon = assessment.getTaxon();
+		
 		theHtml.append("<title>");
 		theHtml.append(taxon.getFullName());
 		theHtml.append("</title></head><body>");
 		theHtml.append("<div id=\"header\">\n");
 		if (!assessment.isPublished())
 			theHtml.append("<div id=\"draftType\">"+assessment.getAssessmentType().getDisplayName(true)+"</div>\n");
-		theHtml.append("<img src=\""+LOGO_LOCATION+"\" alt=\"IUCN Red List\">\n");
+		theHtml.append("<img src=\""+LOGO_LOCATION+"\" alt=\"IUCN Red List\" />\n");
 		theHtml.append("<div id=\"speciesInfo\">");
 		theHtml.append("<h1><em>");
 		theHtml.append(taxon.getFullName() + " - " + taxon.getTaxonomicAuthority());
 		theHtml.append("</em></h1>");
 		buildHierarchyList(taxon);
 		theHtml.append("</div>\n</div>\n");
-		buildTaxonomyInformation(assessment);
+		buildTaxonomyInformation(assessment, taxon);
 	}
 
 	private void buildHierarchyList(Taxon taxon) {
@@ -425,7 +423,7 @@ public class AssessmentHtmlTemplate {
 		theHtml.append("</p>\n");
 	}
 
-	private void buildTaxonomyInformation(Assessment assessment) {
+	private void buildTaxonomyInformation(Assessment assessment, Taxon taxon) {
 		theHtml.append("<div id=\"taxonomyInfo\">\n");
 		buildCommonNames(taxon);
 		buildSynonyms(taxon);
@@ -435,7 +433,9 @@ public class AssessmentHtmlTemplate {
 			theHtml.append(" ");
 		}
 		theHtml.append("</p>");
-		Field taxonomicNotes = assessment.getTaxon().getTaxonomicNotes();
+		Field taxonomicNotes = assessment.getField(CanonicalNames.TaxonomicNotes);
+		if (taxonomicNotes == null || !taxonomicNotes.hasData())
+			taxonomicNotes = taxon.getTaxonomicNotes();
 		if (taxonomicNotes != null) {
 			theHtml.append("<p>" + createDataLabel("Taxonomic Note") + "<br/>");
 			theHtml.append(taxonomicNotes.getPrimitiveField().iterator().next().getRawValue() + "</p>");
