@@ -161,7 +161,7 @@ public class AssessmentClientSaveUtils {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private static void sink(Field remoteField, Field localField) {
+	public static void sink(Field remoteField, Field localField) {
 		for (PrimitiveField remotePrim : remoteField.getPrimitiveField()) {
 			PrimitiveField localPrim = localField.getPrimitiveField(remotePrim.getName());
 			if (localPrim == null) {

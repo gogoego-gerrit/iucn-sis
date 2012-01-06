@@ -8,6 +8,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
@@ -534,8 +535,10 @@ public class TaxonomyCache {
 				if (returned.getTaxonomicNotes() != null) {
 					if (taxon.getTaxonomicNotes() == null)
 						taxon.setTaxonomicNotes(returned.getTaxonomicNotes());
-					else
+					else {
 						taxon.getTaxonomicNotes().setId(returned.getTaxonomicNotes().getId());
+						AssessmentClientSaveUtils.sink(returned.getTaxonomicNotes(), taxon.getTaxonomicNotes());
+					}
 				}
 				else
 					taxon.setTaxonomicNotes(null);

@@ -140,8 +140,10 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 					SingleFieldEditorPanel editor = new SingleFieldEditorPanel(field);
 					editor.setSaveListener(new ComplexListener<Field>() {
 						public void handleEvent(final Field eventData) {
-							if (!eventData.hasData() && (eventData.getReference() == null || eventData.getReference().isEmpty()))
+							if (!eventData.hasData() && (eventData.getReference() == null || eventData.getReference().isEmpty())) {
 								node.setTaxonomicNotes(null);
+								eventData.reset();
+							}
 							else
 								node.setTaxonomicNotes(field);
 							
