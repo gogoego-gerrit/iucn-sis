@@ -14,7 +14,7 @@ License Type: Evaluation
 		<property name="citationShort" column="citation_short" type="string" length="2047" not-null="false" lazy="false"/>
 		<property name="citation" column="citation" type="string" length="4095" not-null="false" lazy="false"/>
 		<property name="author" column="author" type="string" length="2047" not-null="false" lazy="false"/>
-		<property name="year" column="year" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="year" column="`YEAR`" type="string" length="2047" not-null="false" lazy="false"/>
 		<property name="title" column="title" type="string" length="2047" not-null="false" lazy="false"/>
 		<property name="secondaryAuthor" column="secondary_author" type="string" length="2047" not-null="false" lazy="false"/>
 		<property name="secondaryTitle" column="secondary_title" type="string" length="2047" not-null="false" lazy="false"/>
@@ -42,6 +42,7 @@ License Type: Evaluation
 		<property name="externalBibCode" column="external_bib_code" type="string" length="2047" not-null="false" lazy="false"/>
 		<property name="citationComplete" column="citation_complete" type="boolean" length="1" not-null="false" lazy="false"/>
 		<property name="submissionType" column="submission_type" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="offlineStatus" column="offline_status" type="boolean" length="1" not-null="true" lazy="false"/>
 		
 		<set name="Synonym" table="synonym_reference" lazy="true" cascade="save-update,lock" inverse="true">
 			<key column="referenceid" not-null="true"/>

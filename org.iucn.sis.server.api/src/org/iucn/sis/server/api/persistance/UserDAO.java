@@ -136,6 +136,7 @@ public class UserDAO {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	protected static User loadUserByORMID(Session session, int id, org.hibernate.LockMode lockMode) throws PersistentException {
 		try {
 			return (User) session.load(User.class, new Integer(id), lockMode);
@@ -146,6 +147,7 @@ public class UserDAO {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	protected static User getUserByORMID(Session session, int id, org.hibernate.LockMode lockMode) throws PersistentException {
 		try {
 			return (User) session.get(User.class, new Integer(id), lockMode);
@@ -182,6 +184,7 @@ public class UserDAO {
 		}
 	}*/
 	
+	@SuppressWarnings("unchecked")
 	protected static User[] listUserByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From User as User");
 		if (condition != null)
@@ -199,6 +202,7 @@ public class UserDAO {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected static User[] listUserByQuery(Session session, String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From User as User");
 		if (condition != null)
@@ -285,6 +289,7 @@ public class UserDAO {
 		}
 	}*/
 	
+	@SuppressWarnings("unchecked")
 	protected static java.util.Iterator iterateUserByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From User as User");
 		if (condition != null)
@@ -301,6 +306,7 @@ public class UserDAO {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected static java.util.Iterator iterateUserByQuery(Session session, String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From User as User");
 		if (condition != null)

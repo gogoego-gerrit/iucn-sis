@@ -314,6 +314,7 @@ public class Reference implements Serializable, AuthorizableObject {
 		copy.setUrl(getUrl());
 		copy.setVolume(getVolume());
 		copy.setYear(getYear());
+		copy.setOfflineStatus(getOfflineStatus());
 		
 		return copy;
 	}
@@ -389,9 +390,10 @@ public class Reference implements Serializable, AuthorizableObject {
 	private Integer bibNoInt;
 	
 	private String externalBibCode;
-	
-		
+			
 	private String submissionType;
+	
+	private boolean offlineStatus;
 	
 	private java.util.Set<Synonym> synonym = new java.util.HashSet<Synonym>();
 	
@@ -404,7 +406,14 @@ public class Reference implements Serializable, AuthorizableObject {
 	private java.util.Set<Taxon> taxon = new java.util.HashSet<Taxon>();
 	
 	
-	
+	public boolean getOfflineStatus() {
+		return offlineStatus;
+	}
+
+	public void setOfflineStatus(boolean offlineStatus) {
+		this.offlineStatus = offlineStatus;
+	}
+
 	public String getHash() {
 		return hash;
 	}
@@ -497,8 +506,6 @@ public class Reference implements Serializable, AuthorizableObject {
 	public String getCitation() {
 		return citation;
 	}
-	
-	
 	
 	public void setAuthor(String value) {
 		this.author = value;

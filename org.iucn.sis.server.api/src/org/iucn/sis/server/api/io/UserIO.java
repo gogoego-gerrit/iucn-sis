@@ -81,6 +81,13 @@ public class UserIO {
 		criteria.sisUser.eq(true);
 		return UserDAO.getUsersByCriteria(criteria);
 	}
+	
+	public User[] getOfflineCreatedUsers() throws PersistentException {
+		UserCriteria criteria = new UserCriteria(session);
+		criteria.offlineStatus.eq(true);
+		
+		return UserDAO.getUsersByCriteria(criteria);
+	}
 
 	@SuppressWarnings("unused")
 	private String determineNewGroup(String curGroup) {

@@ -34,6 +34,7 @@ public class UserCriteria extends AbstractORMCriteria {
 	public final BooleanExpression sisUser;
 	public final BooleanExpression rapidlistUser;
 	public final StringExpression email;
+	public final BooleanExpression offlineStatus;
 	
 	public UserCriteria(Criteria criteria) {
 		super(criteria);
@@ -47,6 +48,7 @@ public class UserCriteria extends AbstractORMCriteria {
 		rapidlistUser = new BooleanExpression("rapidlistUser", this);
 		email = new StringExpression("email", this);
 		state = new IntegerExpression("state", this);
+		offlineStatus = new BooleanExpression("offlineStatus", this);
 	}
 	
 	public UserCriteria(Session session) {
@@ -74,6 +76,7 @@ public class UserCriteria extends AbstractORMCriteria {
 		return (User) super.uniqueResult();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public User[] listUser() {
 		java.util.List list = super.list();
 		return (User[]) list.toArray(new User[list.size()]);

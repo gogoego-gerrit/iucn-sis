@@ -49,7 +49,6 @@ public class OfflineFooter extends ToolBar {
 		IconButton details = new IconButton("icon-information");
 		details.setToolTip(tooltip);
 		
-		//FIXME: need an icon for offline specifically
 		IconButton gear = new IconButton("icon-gear");
 		gear.addSelectionListener(new SelectionListener<IconButtonEvent>() {
 			public void componentSelected(IconButtonEvent ce) {
@@ -147,8 +146,6 @@ public class OfflineFooter extends ToolBar {
 		}));
 		exportWindow.setUrl(url);
 		exportWindow.show();
-		
-		WindowUtils.infoAlert("Live Import Started");
 		
 	}
 	

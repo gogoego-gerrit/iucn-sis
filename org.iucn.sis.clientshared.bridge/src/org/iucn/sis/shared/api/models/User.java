@@ -14,6 +14,7 @@ package org.iucn.sis.shared.api.models;
  */
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
@@ -154,6 +155,28 @@ public class User implements Serializable, Comparable<User> {
 		}
 	}
 	
+	public User deepCopy(){		
+		User copy = new User();
+		copy.setId(getId());
+		copy.setUsername(getUsername());
+		copy.setFirstName(getFirstName());
+		copy.setLastName(getLastName());
+		copy.setNickname(getNickname());
+		copy.setInitials(getInitials());
+		copy.setAffiliation(getAffiliation());
+		copy.setSisUser(getSisUser());
+		copy.setRapidlistUser(getRapidlistUser());
+		copy.setEmail(getEmail());
+		copy.setOfflineStatus(getOfflineStatus());		
+		copy.setPermissionGroups(new HashSet<PermissionGroup>(getPermissionGroups()));
+		copy.setPreferences(new HashSet<UserPreference>(getPreferences()));
+		copy.setOwnedWorkingSets(new HashSet<WorkingSet>(getOwnedWorkingSets()));
+		copy.setSubscribedWorkingSets(new HashSet<WorkingSet>(getSubscribedWorkingSets()));
+		copy.setEdit(new HashSet<Edit>(getEdit()));
+		
+		return copy;
+	}
+	
 	public String getCitationName() {
 		String firstName;
 		if (initials != null && !initials.equalsIgnoreCase(""))
@@ -243,6 +266,8 @@ public class User implements Serializable, Comparable<User> {
 	
 	private String email;
 	
+	private boolean offlineStatus;
+	
 	private java.util.Set<WorkingSet> subscribedWorkingSets = new java.util.HashSet<WorkingSet>();
 	
 	private java.util.Set<PermissionGroup> permissionGroups = new java.util.HashSet<PermissionGroup>();
@@ -255,6 +280,12 @@ public class User implements Serializable, Comparable<User> {
 	
 	private long generationID;
 	
+	public boolean getOfflineStatus() {
+		return offlineStatus;
+	}
+	public void setOfflineStatus(boolean offlineStatus) {
+		this.offlineStatus = offlineStatus;
+	}
 	public void setId(int value) {
 		this.id = value;
 		this.generationID = value;

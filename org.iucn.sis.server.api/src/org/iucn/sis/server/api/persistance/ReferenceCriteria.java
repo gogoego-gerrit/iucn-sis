@@ -17,6 +17,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.iucn.sis.server.api.persistance.hibernate.AbstractORMCriteria;
+import org.iucn.sis.server.api.persistance.hibernate.BooleanExpression;
 import org.iucn.sis.server.api.persistance.hibernate.IntegerExpression;
 import org.iucn.sis.server.api.persistance.hibernate.StringExpression;
 import org.iucn.sis.shared.api.models.Reference;
@@ -50,6 +51,7 @@ public class ReferenceCriteria extends AbstractORMCriteria {
 	public final StringExpression keywords;
 	public final StringExpression url;
 	public final StringExpression hash;
+	public final BooleanExpression offlineStatus;
 	
 	public ReferenceCriteria(Criteria criteria) {
 		super(criteria);
@@ -81,6 +83,7 @@ public class ReferenceCriteria extends AbstractORMCriteria {
 		keywords = new StringExpression("keywords", this);
 		url = new StringExpression("url", this);
 		hash = new StringExpression("hash", this);
+		offlineStatus = new BooleanExpression("offlineStatus", this);
 	}
 	
 	public ReferenceCriteria(Session session) {
@@ -111,6 +114,7 @@ public class ReferenceCriteria extends AbstractORMCriteria {
 		return (Reference) super.uniqueResult();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Reference[] listReference() {
 		java.util.List list = super.list();
 		return (Reference[]) list.toArray(new Reference[list.size()]);

@@ -35,10 +35,10 @@ public class OfflineRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
-
+		
 		String username = (String) request.getAttributes().get("username");
 		String workingSetID = (String) request.getAttributes().get("workingsetID");
-					
+		
 		UserIO userIO = new UserIO(session);
 	
 		try {
@@ -72,16 +72,6 @@ public class OfflineRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
-		/*
-		 * This should point to the Live SIS database, or whatever 
-		 * the target database is for importing data into.
-		 * 
-		 * Declaring properties here to avoid using Context.getCurrent.  
-		 * Also, making this easier to test via JUnit since now we can 
-		 * pass in properties with strings instead of relying on the 
-		 * Restlet Context object, that requires an Application, that 
-		 * requires Bootstrap, that requires... you get the idea.
-		 */
 		Properties settings = SIS.get().getSettings(getContext());
 		
 		for (String key : OfflineSettings.REQUIRED)
@@ -95,7 +85,7 @@ public class OfflineRestlet extends BaseServiceRestlet {
 		properties.setProperty("dbsession.sis_target.user", settings.getProperty(OfflineSettings.USER));
 		properties.setProperty("dbsession.sis_target.password", settings.getProperty(OfflineSettings.PASSWORD));
 		
-		OfflineToOnlineImporter importer = new OfflineToOnlineImporter(workingsetID, properties);
+		OfflineToOnlineImporter importer = new OfflineToOnlineImporter(workingsetID, user, properties);
 		importer.setOutputStream(writer, "<br/>");
 		
 		new Thread(importer).start();

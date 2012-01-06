@@ -289,7 +289,12 @@ public class AssessmentPersistence {
 	}
 	
 	public void saveChanges(Assessment assessment, Edit edit) {
-		ChangeTracker tracker = new ChangeTracker(assessment.getId(), edit.getId(), getChangeSet());
+		ChangeTracker tracker = new ChangeTracker(assessment.getId(), edit.getId(), getChangeSet(), SISPersistentManager.instance());
+		new Thread(tracker).start();
+	}
+	
+	public void saveChanges(Assessment assessment, Edit edit, SISPersistentManager targetManager) {
+		ChangeTracker tracker = new ChangeTracker(assessment.getId(), edit.getId(), getChangeSet(), targetManager);
 		new Thread(tracker).start();
 	}
 	
@@ -297,11 +302,13 @@ public class AssessmentPersistence {
 	
 		private Integer assessmentID, editID;
 		private List<AssessmentChange> changes;
+		private SISPersistentManager targetManager;
 		
-		public ChangeTracker(Integer assessmentID, Integer editID, List<AssessmentChange> changes) {
+		public ChangeTracker(Integer assessmentID, Integer editID, List<AssessmentChange> changes, SISPersistentManager targetManager) {
 			this.assessmentID = assessmentID;
 			this.editID = editID;
 			this.changes = changes;
+			this.targetManager = targetManager;
 		}
 		
 		@Override
@@ -314,12 +321,12 @@ public class AssessmentPersistence {
 		}
 		
 		public void execute() throws Exception {
-			Session session = SISPersistentManager.instance().openSession();
+			Session session = targetManager.openSession();
 			session.beginTransaction();
 			
 			Debug.println("Saving change for assessment {0} with edit {1}", assessmentID, editID);
 			
-			Assessment assessment = SISPersistentManager.instance().getObject(session, Assessment.class, assessmentID);
+			Assessment assessment = targetManager.getObject(session, Assessment.class, assessmentID);
 			Edit edit = getEdit(session, editID);
 			
 			for (AssessmentChange change : changes) {

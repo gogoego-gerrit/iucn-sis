@@ -98,6 +98,7 @@ public class ReferenceDAO {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static Reference loadReferenceByORMID(Session session, int id, org.hibernate.LockMode lockMode) throws PersistentException {
 		try {
 			return (Reference) session.load(Reference.class, new Integer(id), lockMode);
@@ -108,6 +109,7 @@ public class ReferenceDAO {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static Reference getReferenceByORMID(Session session, int id, org.hibernate.LockMode lockMode) throws PersistentException {
 		try {
 			return (Reference) session.get(Reference.class, new Integer(id), lockMode);
@@ -144,6 +146,7 @@ public class ReferenceDAO {
 		}
 	}*/
 	
+	@SuppressWarnings("unchecked")
 	public static Reference[] listReferenceByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Reference as Reference");
 		if (condition != null)
@@ -161,6 +164,7 @@ public class ReferenceDAO {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static Reference[] listReferenceByQuery(Session session, String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Reference as Reference");
 		if (condition != null)
@@ -247,6 +251,7 @@ public class ReferenceDAO {
 		}
 	}*/
 	
+	@SuppressWarnings("unchecked")
 	public static java.util.Iterator iterateReferenceByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Reference as Reference");
 		if (condition != null)
@@ -263,6 +268,7 @@ public class ReferenceDAO {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static java.util.Iterator iterateReferenceByQuery(Session session, String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Reference as Reference");
 		if (condition != null)

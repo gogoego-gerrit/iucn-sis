@@ -8,6 +8,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.PermissionIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
@@ -116,6 +117,7 @@ public class UserRestlet extends BaseServiceRestlet {
 		}
 		
 		final User user;
+		
 		if (isID) {
 			try {
 				user = SISPersistentManager.instance().getObject(session, User.class, Integer.valueOf(username));
@@ -213,12 +215,15 @@ public class UserRestlet extends BaseServiceRestlet {
 						throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "An active user with this username already exists.");
 				}
 				
-				user.setState(state);
+				user.setState(state);				
 			}
 			else {
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "The property " + name + " is invalid.");
 			}
-
+			
+			// Set Offline status to true if User created Offline
+			user.setOfflineStatus(!SIS.amIOnline());
+			
 			try {
 				if (userIO.saveUser(user))
 					response.setStatus(Status.SUCCESS_OK);
@@ -231,6 +236,7 @@ public class UserRestlet extends BaseServiceRestlet {
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 		Criteria criteria = session.createCriteria(User.class);
 		if (getUsername(request) != null)
@@ -310,7 +316,7 @@ public class UserRestlet extends BaseServiceRestlet {
 		}
 		results.append("</xml>");
 		return new StringRepresentation(results.toString(), MediaType.TEXT_XML);
-*/
+		*/
 	}
 
 }

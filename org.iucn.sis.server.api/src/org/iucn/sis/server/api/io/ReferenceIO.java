@@ -39,4 +39,10 @@ public class ReferenceIO {
 		return found;
 	}
 
+	public Reference[] getOfflineCreatedReferences() throws PersistentException {
+		ReferenceCriteria criteria = new ReferenceCriteria(session);
+		criteria.offlineStatus.eq(true);
+		
+		return ReferenceDAO.listReferenceByCriteria(criteria);
+	}
 }

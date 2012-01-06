@@ -42,6 +42,7 @@ License Type: Evaluation
 		<property name="externalBibCode" column="external_bib_code" type="string" length="2047" not-null="false" lazy="false"/>
 		<property name="citationComplete" column="citation_complete" type="boolean" length="1" not-null="false" lazy="false"/>
 		<property name="submissionType" column="submission_type" type="string" length="2047" not-null="false" lazy="false"/>
+		<property name="offlineStatus" column="offline_status" type="boolean" length="1" not-null="true" lazy="false"/>
 		
 		<set name="Synonym" table="synonym_reference" lazy="true" cascade="save-update,lock" inverse="true">
 			<key column="referenceid" not-null="true"/>
