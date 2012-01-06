@@ -19,9 +19,8 @@ public class FileLocker {
 	
 	protected static final int SAVE_LOCK_EXPIRY_MS = 3 * 60 * 1000;
 	
-	ConcurrentHashMap<String, SimpleLock> locks;
-	
-	private LockRepository assessmentLocks;
+	private final ConcurrentHashMap<String, SimpleLock> locks;
+	private final LockRepository assessmentLocks;
 
 	public boolean verboseOutput = true;
 	
@@ -29,15 +28,16 @@ public class FileLocker {
 	 * Should only be one instantiation of this, called from SIS API
 	 */
 	public FileLocker() {
-		locks = new ConcurrentHashMap<String, SimpleLock>();
 		//assessmentLocks = new ConcurrentHashMap<String, Lock>();
 		//assessmentLocks = new PersistentLockRepository();
-		assessmentLocks = new HibernateLockRepository();
-		/*
-		if(OnlineUtil.amIOnline())
-			assessmentLocks = new PersistentLockRepository();
-		else
-			assessmentLocks = new MemoryLockRepository();*/
+		//assessmentLocks = new HibernateLockRepository();
+		
+		this(new HibernateLockRepository());
+	}
+	
+	public FileLocker(LockRepository assessmentLocks) {
+		this.assessmentLocks = assessmentLocks;
+		this.locks = new ConcurrentHashMap<String, SimpleLock>();
 	}
 
 	public boolean acquireLock(String url, String owner, boolean autoExpire) {

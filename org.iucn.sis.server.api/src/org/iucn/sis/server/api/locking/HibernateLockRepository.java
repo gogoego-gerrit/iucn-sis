@@ -22,7 +22,11 @@ public class HibernateLockRepository extends LockRepository {
 	private final SISPersistentManager manager;
 
 	public HibernateLockRepository() {
-		manager = SISPersistentManager.instance();
+		this(SISPersistentManager.instance());
+	}
+	
+	public HibernateLockRepository(SISPersistentManager manager) {
+		this.manager = manager;
 	}
 
 	@SuppressWarnings("unchecked")
