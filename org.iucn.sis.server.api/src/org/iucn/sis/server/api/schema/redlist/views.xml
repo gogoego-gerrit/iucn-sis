@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><views>
 	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="FullView" title="All Fields View" xsi:noNamespaceSchemaLocation="views.xsd">
 		<pages>
-			<page id="TaxonomicNotes" title="Taxonomic Notes">
-				<pageOrganizations>
-					<organization shortTitle="Taxonomic Notes" title="Taxonomic Notes Documentation">
-						<field id="TaxonomicNotes"/>	
-					</organization>
-				</pageOrganizations>
-			</page>
-
 			<page id="Distribution" title="Distribution">
 				<pageOrganizations>
 					<organization title="Geographic Range">
@@ -1744,6 +1736,13 @@
 	</view>
 	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="AdminView" title="Admin View" xsi:noNamespaceSchemaLocation="views.xsd">
 		<pages>
+			<page id="TaxonomicNotes" title="Taxonomic Notes">
+				<pageOrganizations>
+					<organization shortTitle="Taxonomic Notes" title="Taxonomic Notes Documentation">
+						<field id="TaxonomicNotes"/>	
+					</organization>
+				</pageOrganizations>
+			</page>		
 			<page id="RedListing" title="Red List Assessment">
 				<pageOrganizations>
 					<organization title="Red List Status">
