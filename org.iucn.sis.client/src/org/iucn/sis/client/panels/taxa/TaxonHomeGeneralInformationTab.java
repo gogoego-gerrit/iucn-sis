@@ -46,7 +46,6 @@ import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
-import com.extjs.gxt.ui.client.widget.layout.AccordionLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
@@ -92,8 +91,12 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 	}
 	
 	private LayoutContainer drawGeneralInformation(final Taxon node) {
-		final AccordionLayout layout = new AccordionLayout();
+		final BorderLayout layout = new BorderLayout();
 		
+		final BorderLayoutData north = new BorderLayoutData(LayoutRegion.NORTH);
+		north.setSplit(false);
+		north.setSize(220);
+		 
 		final LayoutContainer container = new LayoutContainer();
 		container.setLayout(layout);
 		
@@ -101,15 +104,14 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		overview.setHeading("Overview");
 		overview.add(getOverviewInformation(node));
 		
-		container.add(overview);
+		container.add(overview, north);
 		
 		final ContentPanel taxonomicNotes = new ContentPanel(new FillLayout());
 		taxonomicNotes.setHeading("Taxonomic Notes");
+		taxonomicNotes.setScrollMode(Scroll.AUTO);
 		taxonomicNotes.add(getTaxonomicNotesInformation(node));
 		
-		container.add(taxonomicNotes);
-		
-		layout.setActiveItem(overview);
+		container.add(taxonomicNotes, new BorderLayoutData(LayoutRegion.CENTER));
 		
 		return container;
 	}
