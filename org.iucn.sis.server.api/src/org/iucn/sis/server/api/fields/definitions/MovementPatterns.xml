@@ -4,7 +4,7 @@
 	<description>Movement Patterns</description>
 	<classOfService>Species Attributes</classOfService>
 	<structures>
-		<structure id="value">
+		<structure id="pattern">
 			<singleSelect>
 				<option>Full Migrant</option>
 				<option>Altitudinal Migrant</option>

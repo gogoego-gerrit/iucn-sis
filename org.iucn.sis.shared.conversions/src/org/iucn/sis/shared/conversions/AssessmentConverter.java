@@ -914,7 +914,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					
 					if (value != null) {
 						field.addPrimitiveField(new ForeignKeyPrimitiveField(
-							"value", field, value, field.getName() + "_valueLookup"
+							"pattern", field, value, field.getName() + "_patternLookup"
 						));
 						
 						callback.handleEvent(field);
