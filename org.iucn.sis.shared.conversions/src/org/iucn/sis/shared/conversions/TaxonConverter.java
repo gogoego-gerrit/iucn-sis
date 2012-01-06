@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.hibernate.HibernateException;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.InfratypeIO;
 import org.iucn.sis.server.api.io.IsoLanguageIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
@@ -41,75 +42,16 @@ import org.iucn.sis.shared.helpers.SynonymData;
 import org.iucn.sis.shared.helpers.TaxonNode;
 import org.iucn.sis.shared.helpers.TaxonNodeFactory;
 
+import com.solertium.db.CanonicalColumnName;
+import com.solertium.db.Row;
+import com.solertium.db.query.QConstraint;
+import com.solertium.db.query.SelectQuery;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.TrivialExceptionHandler;
 
 public class TaxonConverter extends GenericConverter<String> {
-	
-	public static void main(String[] args) throws Exception {
-		//List<File> allFiles = FileListing.main("/home/iucn/complete_vfs/HEAD/browse/nodes");
-		List<File> allFiles = new ArrayList<File>();
-		allFiles.add(new File("/home/iucn/complete_vfs/HEAD/browse/nodes/166/166892.xml"));
-		allFiles.add(new File("/home/iucn/complete_vfs/HEAD/browse/nodes/166/166900.xml"));
-		allFiles.add(new File("/home/iucn/complete_vfs/HEAD/browse/nodes/172/172323.xml"));
-		int size = allFiles.size();
-		
-		Map<Integer, Integer> childToParent = new HashMap<Integer, Integer>();
-		
-		for (int i = 0; i < size; i++) {
-			File file = allFiles.get(i);
-			if (file.getPath().endsWith(".xml")) {
-				NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
-				ndoc.parse(FileListing.readFileAsString(file));
-				TaxonNode taxon = TaxonNodeFactory.createNode(ndoc);
-				
-				Taxon newTaxon = new Taxon();
-				newTaxon.state = Taxon.ACTIVE;
-				newTaxon.setId((int) taxon.getId());
-				if (!taxon.getParentId().equals("")) {
-					newTaxon.setParentId(Integer.valueOf(taxon.getParentId()));
-					//Taxon parent = new Taxon();
-					//parent.setId(Integer.valueOf(taxon.getParentId()));
-					//parent.setName(taxon.getParentName());
-				
-				}
-				newTaxon.setStatus(taxon.getStatus());
-				newTaxon.setTaxonLevel(TaxonLevel.getTaxonLevel(taxon.getLevel()));
-				newTaxon.setName(taxon.getName());
-				try {
-					newTaxon.setFriendlyName(taxon.generateFullName());
-				} catch (IndexOutOfBoundsException e) {
-					System.out.println("--- ERROR setting friendly name for taxon " + newTaxon.getId());
-				}
-				newTaxon.setHybrid(taxon.isHybrid());
-				newTaxon.setTaxonomicAuthority(taxon.getTaxonomicAuthority());
-
-				// ADD COMMON NAMES
-				boolean bad = false;
-				int longestLength = 2000;
-				for (CommonNameData commonNameData : taxon.getCommonNames()) {
-					CommonName commonName = new CommonName();
-					commonName.setChangeReason(commonNameData.getChangeReason());
-					commonName.setName(commonNameData.getName());			
-					commonName.setPrincipal(commonNameData.isPrimary());
-					commonName.setValidated(commonNameData.isValidated());
-
-					// ADD ISO LANGUAGUE
-					int len = commonName.getName().length();
-					if (len > longestLength)
-						longestLength = commonName.getName().length();
-							
-				}
-				if (longestLength > 2000)
-					System.out.println("Found bad common name with length " + longestLength + " for " + file.toString());
-				
-				if (i % 1000 == 0)
-					System.out.println(i + "...");
-			}
-		}
-	}
 	
 	private UserIO userIO;
 	private IsoLanguageIO isoLanguageIO;
@@ -122,6 +64,25 @@ public class TaxonConverter extends GenericConverter<String> {
 	public TaxonConverter() {
 		super();
 		setClearSessionAfterTransaction(true);
+	}
+	
+	private boolean isBird(int id) {
+		if ("true".equals(parameters.getFirstValue("birds", "false")))
+			return false;
+		
+		SelectQuery query = new SelectQuery();
+		query.select("aves", "id");
+		query.constrain(new CanonicalColumnName("aves", "id"), QConstraint.CT_EQUALS, id);
+		
+		Row.Loader rl = new Row.Loader();
+		
+		try {
+			SIS.get().getExecutionContext().doQuery(query, rl);
+		} catch (Exception e) {
+			return false;
+		}
+		
+		return rl.getRow() != null;
 	}
 	
 	public void convertAllFaster() throws Exception {
@@ -224,6 +185,11 @@ public class TaxonConverter extends GenericConverter<String> {
 		Taxon taxon = convertTaxonNode(TaxonNodeFactory.createNode(ndoc), new Date(file.lastModified()), user);
 		
 		if (taxon != null) {
+			if (isBird(taxon.getId())) {
+				printf("Skipping taxon %s as it is a bird...");
+				return;
+			}
+			
 			if (taxon.getLevel() == TaxonLevel.KINGDOM) {
 				Integer trueParent = null;
 				if ("ANIMALIA".equals(taxon.getName()))

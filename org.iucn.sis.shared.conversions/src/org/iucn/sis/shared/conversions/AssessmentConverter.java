@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.naming.NamingException;
 
 import org.hibernate.criterion.Restrictions;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
@@ -59,12 +60,14 @@ import org.iucn.sis.shared.helpers.ReferenceUI;
 import org.iucn.sis.shared.report.MigrationReport;
 import org.restlet.util.Couple;
 
+import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
 import com.solertium.db.SystemExecutionContext;
+import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.java.JavaNativeDocument;
@@ -220,6 +223,25 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		}
 	}
 	
+	private boolean isBird(String id) {
+		if ("true".equals(parameters.getFirstValue("birds", "false")))
+			return false;
+		
+		Row.Loader rl = new Row.Loader();
+		
+		try {
+			SelectQuery query = new SelectQuery();
+			query.select("aves", "id");
+			query.constrain(new CanonicalColumnName("aves", "id"), QConstraint.CT_EQUALS, id);
+			
+			SIS.get().getExecutionContext().doQuery(query, rl);
+		} catch (Exception e) {
+			return false;
+		}
+		
+		return rl.getRow() != null;
+	}
+	
 	private void readFile(AssessmentParser parser, User user, AtomicInteger converted, File file) throws Exception {
 		try {
 			NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
@@ -233,11 +255,18 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 				Assessment[] results = criteria.listAssessment();
 				
 				Assessment existing = results.length == 0 ? null : results[0];
-				if (existing != null)
+				if (existing != null) {
 					printf("Skipping assessment %s, already in database", assessData.getAssessmentID());
+					return;
+				}
+			}
+			
+			if (isBird(assessData.getSpeciesID())) {
+				printf("Skipping assessment %s with taxon %s, as it is a bird...");
+				return;
 			}
 				
-			Couple<Assessment, MigrationReport> result = assessmentDataToAssessment(parser.getAssessment(), user);
+			Couple<Assessment, MigrationReport> result = assessmentDataToAssessment(assessData, user);
 			Assessment assessment = result.getFirst();
 			if (assessment != null) {
 				if (assessment.getTaxon() != null) {
