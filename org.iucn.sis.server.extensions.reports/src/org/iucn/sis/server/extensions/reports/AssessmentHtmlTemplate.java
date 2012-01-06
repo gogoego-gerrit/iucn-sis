@@ -64,8 +64,11 @@ public class AssessmentHtmlTemplate {
 	private static final String PREFIX = "../..";
 	private static final String BLANK_STRING = "(Not specified)";
 	
-	public static final String CSS_LOCATION = PREFIX + "/resources/speciesReportStyle.css";
-	public static final String LOGO_LOCATION = PREFIX + "/resources/redListLogo.jpg";
+	public static final String CSS_FILE = "speciesReportStyle.css";
+	public static final String LOGO_FILE = "redListLogo.jpg";
+	
+	public static final String CSS_LOCATION = PREFIX + "/resources/" + CSS_FILE;
+	public static final String LOGO_LOCATION = PREFIX + "/resources/" + LOGO_FILE;
 	
 	private final boolean showEmptyFields;
 	private final Session session;
@@ -74,6 +77,8 @@ public class AssessmentHtmlTemplate {
 	private StringBuilder theHtml;
 	private Organization curOrg;
 	private List<String> exclude, ignore;
+	
+	private boolean isAggregate;
 
 	public AssessmentHtmlTemplate(Session session, boolean showEmptyFields, boolean limitedSet) {
 		this.session = session;
@@ -81,9 +86,6 @@ public class AssessmentHtmlTemplate {
 		this.views = loadViews();
 		
 		theHtml = new StringBuilder();
-		theHtml.append("<html>\n<head>\n<meta http-equiv=\"Content-Type\" " +
-				"content=\"text/html; charset=UTF-8\" />\n" +
-				"<link rel=\"stylesheet\" type=\"text/css\" href=\"" + CSS_LOCATION + "\">");
 		
 		curOrg = null;
 		
@@ -92,6 +94,7 @@ public class AssessmentHtmlTemplate {
 				CanonicalNames.OldDEMPastDecline, CanonicalNames.OldDEMPeriodPastDecline, 
 				CanonicalNames.OldDEMFutureDecline, CanonicalNames.OldDEMPeriodFutureDecline, 
 				CanonicalNames.LandCover);
+		isAggregate = false;
 	}
 	
 	public byte[] getHtmlBytes() {
@@ -100,6 +103,10 @@ public class AssessmentHtmlTemplate {
 
 	public String getHtmlString() {
 		return theHtml.toString();
+	}
+	
+	public void setAggregate(boolean isAggregate) {
+		this.isAggregate = isAggregate;
 	}
 	
 	public void parse(Assessment assessment) {
@@ -150,7 +157,8 @@ public class AssessmentHtmlTemplate {
 			buildBibliography(assessment);
 		}
 
-		theHtml.append("</body>\r\n</html>");
+		if (!isAggregate)
+			theHtml.append("</body>\r\n</html>");
 	}
 	
 	private Map<String, View> loadViews() {
@@ -297,9 +305,15 @@ public class AssessmentHtmlTemplate {
 	private void buildHeadingTable(Assessment assessment) {
 		Taxon taxon = assessment.getTaxon();
 		
-		theHtml.append("<title>");
-		theHtml.append(taxon.getFullName());
-		theHtml.append("</title></head><body>");
+		if (!isAggregate) {
+			theHtml.append("<html>\n" +
+				"<head>\n" +
+				"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
+				"<link rel=\"stylesheet\" type=\"text/css\" href=\"" + CSS_LOCATION + "\">");
+			theHtml.append("<title>");
+			theHtml.append(taxon.getFullName());
+			theHtml.append("</title></head><body>");
+		}
 		theHtml.append("<div id=\"header\">\n");
 		if (!assessment.isPublished())
 			theHtml.append("<div id=\"draftType\">"+assessment.getAssessmentType().getDisplayName(true)+"</div>\n");
@@ -1083,7 +1097,7 @@ public class AssessmentHtmlTemplate {
 		return map;
 	}
 	
-	private static abstract class TextComparator<T> implements Comparator<T> {
+	public static abstract class TextComparator<T> implements Comparator<T> {
 		
 		private static final long serialVersionUID = 1L;
 		

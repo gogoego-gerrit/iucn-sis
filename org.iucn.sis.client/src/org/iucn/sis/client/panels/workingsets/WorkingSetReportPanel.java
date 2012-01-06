@@ -23,7 +23,6 @@ import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.Window;
@@ -108,17 +107,8 @@ public class WorkingSetReportPanel extends RefreshLayoutContainer {
 	}
 
 	private void createGeneralReport() {
-		final com.extjs.gxt.ui.client.widget.Window window = WindowUtils.newWindow("Report Generator", null, false, true);
-		window.addListener(Events.Close, new Listener<BaseEvent>() {
-			public void handleEvent(BaseEvent be) {
-				window.hide();
-			}
-		});
-		window.setLayout(new FitLayout());
-		window.add(new WorkingSetSpeciesReportPanel());
-		window.show();
-		window.setSize(500, 310);
-		window.center();
+		WorkingSetSpeciesReportPanel panel = new WorkingSetSpeciesReportPanel();
+		panel.show();
 	}
 
 	/**

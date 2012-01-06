@@ -4,8 +4,10 @@ import java.io.IOException;
 
 import org.hibernate.Session;
 import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.WorkingSet;
 import org.restlet.Context;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
@@ -33,49 +35,83 @@ public class AssessmentReportRestlet extends BaseServiceRestlet {
 	}
 
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
-		Integer id = Integer.valueOf((String) request.getAttributes().get("id"));
 		String type = (String)request.getAttributes().get("type");
+		
+		if ("redlist".equals(type)) {
+			final ReportTemplate template;
+			try {
+				template = new AssessmentReportTemplate(session, getAssessment(request, session));
+			} catch (IOException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			}
 			
+			template.build();
+		
+			return new StringRepresentation(template.toString(), MediaType.TEXT_HTML);
+		}
+		else if ("full".equals(type)) {
+			Form form = request.getResourceRef().getQueryAsForm();
+			boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
+			boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
+			
+			final AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, showEmptyFields, limitedSet);
+			template.parse(getAssessment(request, session));
+			
+			return new StringRepresentation(template.getHtmlString(), MediaType.TEXT_HTML);
+		}
+		else if ("available".equals(type)) {
+			Form form = request.getResourceRef().getQueryAsForm();
+			boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
+			boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
+			
+			final AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, showEmptyFields, limitedSet);
+			template.parse(getAssessment(request, session), "_none_");
+			
+			return new StringRepresentation(template.getHtmlString(), MediaType.TEXT_HTML);
+		}
+		else
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+	}
+	
+	@Override
+	public void handlePost(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		String type = (String)request.getAttributes().get("type");
+		
+		if ("workingset".equals(type)) {
+			Form form = request.getResourceRef().getQueryAsForm();
+			boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
+			boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
+			boolean single = "true".equals(form.getFirstValue("single", "true"));
+			
+			final AggregateReporter reporter = new AggregateReporter(session, getWorkingSet(request, session), getUser(request, session));
+			
+			String file = reporter.generate(showEmptyFields, limitedSet, single, getEntityAsNativeDocument(entity));
+			
+			response.setEntity(file, MediaType.TEXT_PLAIN);
+		}
+		else
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
+	}
+	
+	private WorkingSet getWorkingSet(Request request, Session session) throws ResourceException {
+		final Integer id = Integer.valueOf((String) request.getAttributes().get("id"));
+		
+		final WorkingSetIO io = new WorkingSetIO(session);
+		final WorkingSet ws = io.readWorkingSet(id);
+		if (ws == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Could not find working set #" + id);
+		
+		return ws;
+	}
+	
+	private Assessment getAssessment(Request request, Session session) throws ResourceException {
+		final Integer id = Integer.valueOf((String) request.getAttributes().get("id"));
+		
 		final AssessmentIO assessmentIO = new AssessmentIO(session);
 		final Assessment assessment = assessmentIO.getAssessment(id);
-		
-		if (assessment != null) {
-			if ("redlist".equals(type)) {
-				final ReportTemplate template;
-				try {
-					template = new AssessmentReportTemplate(session, assessment);
-				} catch (IOException e) {
-					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-				}
-				
-				template.build();
-			
-				return new StringRepresentation(template.toString(), MediaType.TEXT_HTML);
-			}
-			else if ("full".equals(type)) {
-				Form form = request.getResourceRef().getQueryAsForm();
-				boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
-				boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
-				
-				final AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, showEmptyFields, limitedSet);
-				template.parse(assessment);
-				
-				return new StringRepresentation(template.getHtmlString(), MediaType.TEXT_HTML);
-			}
-			else if ("available".equals(type)) {
-				Form form = request.getResourceRef().getQueryAsForm();
-				boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
-				boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
-				
-				final AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, showEmptyFields, limitedSet);
-				template.parse(assessment, "_none_");
-				
-				return new StringRepresentation(template.getHtmlString(), MediaType.TEXT_HTML);
-			}
-			else
-				throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND);
-		} else {
+		if (assessment == null)
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Could not find assessment #" + id);
-		}
+		
+		return assessment;
 	}
 }

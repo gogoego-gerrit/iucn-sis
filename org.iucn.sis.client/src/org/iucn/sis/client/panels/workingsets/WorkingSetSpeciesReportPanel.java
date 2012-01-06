@@ -1,12 +1,12 @@
 package org.iucn.sis.client.panels.workingsets;
 
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
-import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -15,13 +15,12 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.RowData;
 import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.Window;
@@ -30,7 +29,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 
-public class WorkingSetSpeciesReportPanel extends LayoutContainer {
+public class WorkingSetSpeciesReportPanel extends BasicWindow {
 
 //	final protected CheckBox publishedAssessmentsCheck;
 //	final protected CheckBox draftAssessmentsCheck;
@@ -39,7 +38,6 @@ public class WorkingSetSpeciesReportPanel extends LayoutContainer {
 	final protected Radio oneFile;
 	final protected Radio seperateFiles;
 	final protected RadioGroup radioGroup;
-	final protected Button button;
 	final protected WorkingSet ws;
 	final protected AssessmentFilterPanel asmFilterPanel;
 
@@ -47,6 +45,10 @@ public class WorkingSetSpeciesReportPanel extends LayoutContainer {
 	final protected CheckBox showEmpty;
 	
 	public WorkingSetSpeciesReportPanel() {
+		super("Report Generator", "icon-report");
+		setSize(500, 400);
+		setLayout(new FillLayout());
+		
 //		publishedAssessmentsCheck = new CheckBox();
 //		publishedAssessmentsCheck.setBoxLabel("Published Assessments");
 //
@@ -93,21 +95,13 @@ public class WorkingSetSpeciesReportPanel extends LayoutContainer {
 		radioGroup = new RadioGroup("files");
 		radioGroup.add(oneFile);
 		radioGroup.add(seperateFiles);
-
-		button = new Button("Generate Report", new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				submit();
-			};
-		});
-
 		
 		load();
 	}
 
 	protected void load() {
-		RowLayout layout = new RowLayout();
-		setLayout(layout);
+		final LayoutContainer container = new LayoutContainer(new RowLayout());
+		
 		RowData data = new RowData();
 		data.setWidth(1);
 		data.setMargins(new Margins(5,5,5,5));
@@ -117,14 +111,9 @@ public class WorkingSetSpeciesReportPanel extends LayoutContainer {
 				+ "be included in the report, and if you would like the report as a single file, or individual "
 				+ "files for each assessment.  The generated report will be zipped together, and you can save "
 				+ "the report to your computer.");
-		add(instructions, data);
-		add(asmFilterPanel, data);
-		add(radioGroup, data);
-		
-		ButtonBar bar = new ButtonBar();
-		bar.setAlignment(HorizontalAlignment.RIGHT);
-		bar.add(button);
-		add(bar, data);
+		container.add(instructions, data);
+		container.add(asmFilterPanel, data);
+		container.add(radioGroup, data);
 
 		final FormPanel form = new FormPanel();
 		form.setLabelSeparator("?");
@@ -134,11 +123,23 @@ public class WorkingSetSpeciesReportPanel extends LayoutContainer {
 		form.setBorders(false);
 		form.add(useLimited);
 		form.add(showEmpty);
-		add(form, data);
+		container.add(form, data);
+		
+		add(container);
+		
+		addButton(new Button("Generate Report", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				submit();
+			};
+		}));
+		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				hide();
+			}
+		}));
 	}
 
 	protected void submit() {
-		button.disable();
 		final BaseEvent be = new BaseEvent(this);
 		be.setCancelled(false);
 		
@@ -158,21 +159,22 @@ public class WorkingSetSpeciesReportPanel extends LayoutContainer {
 			else
 				string.append("<file>multiple</file>\r\n");
 
+			WindowUtils.showLoadingAlert("Please wait, generating reports...");
 			
 			final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
-			ndoc.postAsText(UriBase.getInstance().getReportBase() +"/reports/workingset/" + ws.getId() + "/true"
-					+ "?empty=" + showEmpty.getValue() + "&limited=" + useLimited.getValue(), 
+			ndoc.postAsText(UriBase.getInstance().getReportBase() +"/reports/workingset/" + ws.getId() + "?" + 
+					"single=" + oneFile.getValue() + "&empty=" + showEmpty.getValue() + 
+					"&limited=" + useLimited.getValue(), 
 					"<xml>" + asmFilterPanel.getFilter().toXML() + string.toString() + "</xml>", 
 					new GenericCallback<String>() {
 
 				public void onFailure(Throwable caught) {
 					WindowUtils.errorAlert("Error creating zip file for workingset.");
-					button.enable();
 				}
-
 				public void onSuccess(String result) {
-//					fireEvent(Events.Close, be);
-					WindowManager.get().getActive().hide();
+					WindowUtils.hideLoadingAlert();
+					hide();
+					
 					Dialog dialog = new Dialog();
 					dialog.setButtons(Dialog.OKCANCEL);
 					dialog.setSize("400px", "300px");
@@ -187,17 +189,17 @@ public class WorkingSetSpeciesReportPanel extends LayoutContainer {
 					((Button)dialog.getButtonBar().getItemByItemId(Dialog.OK)).addListener(Events.Select, new Listener<BaseEvent>() {
 
 						public void handleEvent(BaseEvent be) {
-							Window.open(ndoc.getText(), "_blank", "");
+							String file = ndoc.getText();
+							String url = UriBase.getInstance().getReportBase() + "/download/" + file;
+							Window.open(url, "_blank", "");
 						}
 
 					});
 					dialog.setHideOnButtonClick(true);
 					dialog.show();
-
 				}
 			});
-
 		}
-
 	}
+	
 }

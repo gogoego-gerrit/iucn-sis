@@ -10,6 +10,7 @@ public class ServerApplication extends SimpleSISApplication {
 	public void init() {
 		addServiceToRouter(new AssessmentReportRestlet(app.getContext()));
 		addResource(LocalFileResource.class, LocalFileResource.getPaths(), true);
+		addServiceToRouter(new ReportDownloadRestlet(app.getContext()));
 	}
 	
 }
