@@ -278,20 +278,7 @@
 				<organization shortTitle="Documentation" title="Conservation Actions Documentation">
 					<field id="ConservationActionsDocumentation"/>
 				</organization>
-				<organization title="Research Needed">
-					<field id="Research"/>
-				</organization>
-
-				<organization shortTitle="Conservation Needed" title="Conservation Actions Needed">
-					<field id="ConservationActions"/>
-				</organization>
 				<organization shortTitle="In-Place" title="Conservation Actions In-Place">
-					<field id="InPlaceResearch"/>
-					<field id="InPlaceLandWaterProtection"/>
-					<field id="InPlaceSpeciesManagement"/>
-					<field id="InPlaceEducation"/>
-				</organization>
-				<organization shortTitle="New In-Place" title="New Conservation Actions In-Place">
 					<h3>In-Place Research, Monitoring and Planning</h3>
 					<composite>
 						<field id="InPlaceResearchRecoveryPlan"></field>
@@ -322,6 +309,12 @@
 						<field id="InPlaceEducationInternationalLegislation"></field>
 						<field id="InPlaceEducationControlled"></field>
 					</composite>
+				</organization>
+				<organization shortTitle="Conservation Needed" title="Conservation Actions Needed">
+					<field id="ConservationActions"/>
+				</organization>
+				<organization title="Research Needed">
+					<field id="Research"/>
 				</organization>
 			</pageOrganizations>
 		</page>
