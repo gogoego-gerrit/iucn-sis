@@ -266,8 +266,12 @@ body,td,div,input,p,select,input,button {
 	font-size: 14px !important;	
 }
 
+.page_taxon_general_taxonomicnotes em {
+	font-style: italic !important;
+}
+
 .page_taxon_general span {
-	font-size: 16px !important;
+	font-size: 14px !important;
 }
 
 .page_taxon_general_prompt {

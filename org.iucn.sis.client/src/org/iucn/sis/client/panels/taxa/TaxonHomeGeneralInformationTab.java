@@ -131,6 +131,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		final String value = field.getTextPrimitiveField("value");
 		
 		final HtmlContainer html = new HtmlContainer();
+		html.addStyleName("page_taxon_general_taxonomicnotes");
 		
 		final LayoutContainer container = new LayoutContainer();
 		if ("".equals(value))
