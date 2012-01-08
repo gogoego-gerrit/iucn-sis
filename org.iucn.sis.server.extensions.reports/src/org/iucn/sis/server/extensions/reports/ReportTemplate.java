@@ -316,12 +316,11 @@ public abstract class ReportTemplate {
 	protected String fetchCategoryAndCrieteria(Field field){
 		String catAndCrit = "";
 
-		if(field != null){
-			
+		if (field != null){
 			RedListCriteriaField proxy = new RedListCriteriaField(field);
 			String category = proxy.isManual() ? proxy.getManualCategory() : proxy.getGeneratedCategory();
-				
-			catAndCrit = "".equals(category) ? "-" : ResultCategory.fromString(category).getName();
+			ResultCategory type = ResultCategory.fromString(category);
+			catAndCrit = "".equals(category) ? "-" : type == null ? category : type.getName();
 								
 		}else
 			catAndCrit = "-";
