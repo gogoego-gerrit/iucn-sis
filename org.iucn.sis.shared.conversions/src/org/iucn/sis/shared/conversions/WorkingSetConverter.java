@@ -53,10 +53,10 @@ public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 		relationshipIO = new RelationshipIO(session);
 		taxonIO = new TaxonIO(session);
 		
-		convertAllWorkingSets(data.getOldVFS());
+		convertAllWorkingSets();
 	}
 	
-	public void convertAllWorkingSets(VFS oldVFS) throws Exception {
+	public void convertAllWorkingSets() throws Exception {
 		List<File> allFiles = FileListing.main(data.getOldVFSPath() + "/HEAD/workingsets");
 		//Map<String, HashSet<String>> oldWSIDToUserNames = parseSubscribedDocs(oldVFS);
 		AtomicInteger converted = new AtomicInteger(0);

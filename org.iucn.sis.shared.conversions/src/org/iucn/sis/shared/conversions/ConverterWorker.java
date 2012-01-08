@@ -78,6 +78,8 @@ public class ConverterWorker implements Runnable {
 			success = convertWorkingSets(proceed, writer);
 		else if ("userworkingsets".equals(step))
 			success = convertUserWorkingSets(proceed, writer);
+		else if ("userrecent".equals(step))
+			success = convertUserRecent(proceed, writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -138,6 +140,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertUsers(boolean proceed, Writer writer) {
 		UserConvertor converter = new UserConvertor();
 		initConverter(converter, writer);
+		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
 		
 		return converter.start() && (!proceed || convertReferences(proceed, writer));
 	}
@@ -221,6 +224,14 @@ public class ConverterWorker implements Runnable {
 	
 	private boolean convertUserWorkingSets(boolean proceed, Writer writer) {
 		UserWorkingSetConverter converter = new UserWorkingSetConverter();
+		initConverter(converter, writer);
+		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		
+		return converter.start() && (!proceed || convertUserRecent(proceed, writer));
+	}
+	
+	private boolean convertUserRecent(boolean proceed, Writer writer) {
+		RecentlyViewedConverter converter = new RecentlyViewedConverter();
 		initConverter(converter, writer);
 		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
 		
