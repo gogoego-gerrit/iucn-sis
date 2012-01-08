@@ -65,7 +65,7 @@ public class TaxonHomeWorkingSetsTab extends LayoutContainer implements DrawsLaz
 				for (final WorkingSet data : workingSets) {
 					BaseModelData model = new BaseModelData();
 					model.set("wsname", data.getName());
-					model.set("creator", data.getCreatorUsername());
+					model.set("creator", data.getCreator().getDisplayableName());
 					model.set("id", data.getId());
 					model.set("open", WorkingSetCache.impl.isCached(data.getId(), FetchMode.PARTIAL));
 					store.add(model);
