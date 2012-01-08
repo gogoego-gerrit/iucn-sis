@@ -451,7 +451,7 @@ public class AssessmentHtmlTemplate {
 		Field taxonomicNotes = assessment.getField(CanonicalNames.TaxonomicNotes);
 		if (taxonomicNotes == null || !taxonomicNotes.hasData())
 			taxonomicNotes = taxon.getTaxonomicNotes();
-		if (taxonomicNotes != null) {
+		if (taxonomicNotes != null && taxonomicNotes.getPrimitiveField() != null && !taxonomicNotes.getPrimitiveField().isEmpty()) {
 			theHtml.append("<p>" + createDataLabel("Taxonomic Note") + "<br/>");
 			theHtml.append(taxonomicNotes.getPrimitiveField().iterator().next().getRawValue() + "</p>");
 		}
