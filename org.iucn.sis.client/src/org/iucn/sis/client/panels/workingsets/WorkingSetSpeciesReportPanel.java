@@ -169,6 +169,7 @@ public class WorkingSetSpeciesReportPanel extends BasicWindow {
 					new GenericCallback<String>() {
 
 				public void onFailure(Throwable caught) {
+					WindowUtils.hideLoadingAlert();
 					WindowUtils.errorAlert("Error creating zip file for workingset.");
 				}
 				public void onSuccess(String result) {
