@@ -186,7 +186,7 @@ public class TaxonConverter extends GenericConverter<String> {
 		
 		if (taxon != null) {
 			if (isBird(taxon.getId())) {
-				printf("Skipping taxon %s as it is a bird...");
+				printf("Skipping taxon %s as it is a bird...", taxon.getId());
 				return;
 			}
 			

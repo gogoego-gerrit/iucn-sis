@@ -262,7 +262,8 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 			}
 			
 			if (isBird(assessData.getSpeciesID())) {
-				printf("Skipping assessment %s with taxon %s, as it is a bird...");
+				printf("Skipping assessment %s with taxon %s, as it is a bird...", 
+						assessData.getAssessmentID(), assessData.getSpeciesID());
 				return;
 			}
 				
