@@ -22,8 +22,10 @@ import com.solertium.db.SystemExecutionContext;
 import com.solertium.util.SHA1Hash;
 import com.solertium.vfs.ConflictException;
 import com.solertium.vfs.NotFoundException;
+import com.solertium.vfs.VFS;
+import com.solertium.vfs.VFSPath;
 
-public class UserConvertor extends Converter {
+public class UserConvertor extends GenericConverter<VFSInfo> {
 	
 	@Override
 	protected void run() throws Exception {
@@ -31,10 +33,12 @@ public class UserConvertor extends Converter {
 		final PermissionIO permissionIO = new PermissionIO(session);
 		
 		final Map<String, String> userHashToHashes = new HashMap<String, String>();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(UserConvertor.class.getResourceAsStream("hamsterfish"))); 
+		final VFS vfs = data.getOldVFS();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+			vfs.getInputStream(new VFSPath("/users/.hamsterfish")))); 
 		
 		try {
-			String cur = "";
+			String cur = null;
 			while ((cur = reader.readLine()) != null) {
 				String [] split = cur.split(":");
 				userHashToHashes.put(split[0].replace("|", ""), split[1].replace("|", ""));
