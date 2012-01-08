@@ -50,6 +50,7 @@ public class PermissionConverter extends GenericConverter<String> {
 			
 			
 			newGroup.setName(oldGroup.getName());
+			newGroup.setScopeURI(oldGroup.getScopeURI());
 			
 			for (PermissionResource oldResource : oldGroup.getResources().values()) {
 				Permission newPermission = new Permission();
