@@ -12,6 +12,7 @@ import org.iucn.sis.shared.api.displays.Display;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Taxon;
 
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.Info;
@@ -42,6 +43,7 @@ public class SingleFieldEditorPanel extends BasicWindow implements DrawsLazily {
 		this.field = field;
 		
 		setLayout(new FillLayout());
+		setScrollMode(Scroll.AUTO);
 		setSize(600, 450);
 	}
 	

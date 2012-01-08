@@ -38,13 +38,13 @@ import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.HtmlContainer;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.button.IconButton;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
@@ -93,53 +93,62 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 	private LayoutContainer drawGeneralInformation(final Taxon node) {
 		final BorderLayout layout = new BorderLayout();
 		
+		final Margins margins = new Margins(3);
+		
 		final BorderLayoutData north = new BorderLayoutData(LayoutRegion.NORTH);
 		north.setSplit(false);
-		north.setSize(220);
-		 
+		north.setSize(.50f);
+		north.setMargins(margins);
+		north.setCollapsible(true);
+		north.setFloatable(false);
+		
+		final BorderLayoutData center = new BorderLayoutData(LayoutRegion.CENTER);
+		center.setMargins(margins);
+		center.setSize(.50f);
+		
 		final LayoutContainer container = new LayoutContainer();
 		container.setLayout(layout);
 		
 		final ContentPanel overview = new ContentPanel(new FillLayout());
 		overview.setHeading("Overview");
+		overview.setScrollMode(Scroll.AUTOY);
 		overview.add(getOverviewInformation(node));
 		
 		container.add(overview, north);
 		
 		final ContentPanel taxonomicNotes = new ContentPanel(new FillLayout());
 		taxonomicNotes.setHeading("Taxonomic Notes");
-		taxonomicNotes.setScrollMode(Scroll.AUTO);
-		taxonomicNotes.add(getTaxonomicNotesInformation(node));
+		taxonomicNotes.setScrollMode(Scroll.AUTOY);
+		taxonomicNotes.add(getTaxonomicNotesInformation(node, taxonomicNotes));
 		
-		container.add(taxonomicNotes, new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(taxonomicNotes, center);
 		
 		return container;
 	}
 	
-	private LayoutContainer getTaxonomicNotesInformation(final Taxon node) {
+	private LayoutContainer getTaxonomicNotesInformation(final Taxon node, final ContentPanel taxonomicNotes) {
 		final ProxyField field = new ProxyField(node.getTaxonomicNotes());
 		final String value = field.getTextPrimitiveField("value");
 		
 		final HtmlContainer html = new HtmlContainer();
 		
-		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		final LayoutContainer container = new LayoutContainer();
 		if ("".equals(value))
 			html.setHtml("<i>No taxonomic notes.</i>");
 		else
 			html.setHtml(value);
 		
-		container.add(html, new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(html);
 		
-		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
-			final ButtonBar bar = new ButtonBar();
-			bar.setAlignment(HorizontalAlignment.CENTER);
-			bar.add(new Button("Edit", new SelectionListener<ButtonEvent>() {
+		if (AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, node)) {
+			taxonomicNotes.getHeader().addTool(new Button("Edit", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
 					final Field field = node.getTaxonomicNotes() != null? 
 						node.getTaxonomicNotes() : 
 						new Field(CanonicalNames.TaxonomicNotes, null);
 					
 					SingleFieldEditorPanel editor = new SingleFieldEditorPanel(field);
+					editor.setSize(650, 600);
 					editor.setSaveListener(new ComplexListener<Field>() {
 						public void handleEvent(final Field eventData) {
 							if (!eventData.hasData() && (eventData.getReference() == null || eventData.getReference().isEmpty())) {
@@ -170,8 +179,6 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 					editor.show();
 				}
 			}));
-			
-			container.add(bar, new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
 		}
 		
 		return container;
