@@ -47,7 +47,6 @@ import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.Window;
@@ -388,7 +387,7 @@ public class HeaderContainer extends ContentPanel {
 		if (SIS.isOnline()) {
 			Menu menu = new Menu();
 			
-			if (AuthorizationCache.impl.canUse(AuthorizableFeature.DEM_UPLOAD_FEATURE)) {
+			/*if (AuthorizationCache.impl.canUse(AuthorizableFeature.DEM_UPLOAD_FEATURE)) {
 				menu.add(createMenuItem("icon-refresh", "DEM Import", new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						final LayoutContainer container = new LayoutContainer();
@@ -399,7 +398,7 @@ public class HeaderContainer extends ContentPanel {
 				}));
 			}
 			
-			/*if (AuthorizationCache.impl.canUse(AuthorizableFeature.ACCESS_EXPORT_FEATURE)) {
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.ACCESS_EXPORT_FEATURE)) {
 				menu.add(createMenuItem("icon-prefs", "Access Export", new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						final LayoutContainer container = new LayoutContainer();
