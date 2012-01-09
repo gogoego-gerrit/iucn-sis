@@ -63,7 +63,6 @@ import org.restlet.util.Couple;
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
-import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
 import com.solertium.db.SystemExecutionContext;
@@ -717,7 +716,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 					StringBuilder order = new StringBuilder();
 					List<Integer> userIDs = new ArrayList<Integer>();
 					List<User> users = new ArrayList<User>();
-					for (int i = 1; i < rawData.size(); i++) {
+					for (int i = 2; i < rawData.size(); i++) {
 						final Integer userID;
 						try {
 							userID = Integer.valueOf(rawData.get(i));
@@ -725,17 +724,19 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 							continue;
 						}
 						 
-						userIDs.add(userID);
-						order.append(userID + ",");
-						 
 						User user = null;
 						try {
 							user = (User)session.get(User.class, userID);
 						} catch (Exception e) {
 							continue;
 						}
-						if (user != null)
+						
+						if (user != null && !userIDs.contains(userID)) {
 							users.add(user);
+							
+							userIDs.add(userID);
+							order.append(userID + ",");
+						}
 					}
 					 
 					if (!userIDs.isEmpty()) {
