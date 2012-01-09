@@ -80,6 +80,8 @@ public class ConverterWorker implements Runnable {
 			success = convertUserWorkingSets(proceed, writer);
 		else if ("userrecent".equals(step))
 			success = convertUserRecent(proceed, writer);
+		else if ("globalreferences".equals(step))
+			success = convertGlobalReferences(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -232,6 +234,14 @@ public class ConverterWorker implements Runnable {
 	
 	private boolean convertUserRecent(boolean proceed, Writer writer) {
 		RecentlyViewedConverter converter = new RecentlyViewedConverter();
+		initConverter(converter, writer);
+		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		
+		return converter.start();
+	}
+	
+	private boolean convertGlobalReferences(Writer writer) {
+		GlobalReferenceConverter converter = new GlobalReferenceConverter();
 		initConverter(converter, writer);
 		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
 		
