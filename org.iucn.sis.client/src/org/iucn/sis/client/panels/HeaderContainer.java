@@ -18,7 +18,6 @@ import org.iucn.sis.client.panels.header.TrashBinPanel;
 import org.iucn.sis.client.panels.integrity.IntegrityApplicationPanel;
 import org.iucn.sis.client.panels.locking.LockManagementPanel;
 import org.iucn.sis.client.panels.permissions.NewPermissionGroupEditor;
-import org.iucn.sis.client.panels.permissions.PermissionGroupEditor;
 import org.iucn.sis.client.panels.publication.PublicationPanel;
 import org.iucn.sis.client.panels.publication.targets.PublicationTargetManager;
 import org.iucn.sis.client.panels.redlist.RedlistPanel;
@@ -92,7 +91,6 @@ public class HeaderContainer extends ContentPanel {
 	private final VirusManager virusManagerPanel;
 	private final TaxaTagManager taxaTagManagerPanel;
 	
-	private PermissionGroupEditor permEditor;
 	private UserModelTabPanel userModelPanel;
 
 	public HeaderContainer(String first, String last, String affiliation) {
@@ -604,21 +602,6 @@ public class HeaderContainer extends ContentPanel {
 			Menu menu = new Menu();
 			
 			if (AuthorizationCache.impl.hasRight(AuthorizableObject.USE_FEATURE, AuthorizableFeature.PERMISSION_MANAGEMENT_FEATURE)) {
-				//TODO: remove this once testing is completed
-				if (SIS.isDebugMode()) {
-					menu.add(createMenuItem("icon-user-group-edit", "Edit Permissions (Old Version)", new SelectionListener<MenuEvent>() {
-						public void componentSelected(MenuEvent ce) {
-							permEditor = new PermissionGroupEditor();
-							
-							final Window s = WindowUtils.newWindow("Edit Permissions (Old Version)", "icon-user-group-edit", true, true);
-							s.setSize(800, 600);
-							s.setLayout(new FitLayout()); 
-							s.add(permEditor);
-							s.show();
-						}
-					}));
-				}
-				
 				menu.add(createMenuItem("icon-user-group-edit", "Edit Permissions", new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						final NewPermissionGroupEditor editor = new NewPermissionGroupEditor();

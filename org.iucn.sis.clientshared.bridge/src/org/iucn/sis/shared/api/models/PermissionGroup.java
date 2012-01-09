@@ -135,9 +135,19 @@ public class PermissionGroup implements Serializable {
 			PermissionGroup group = this;
 			while (group != null) {
 				for (Permission perm : group.getPermissions()) {
-					if (!resourceToPermission.containsKey(perm.getUrl())) {
+					if (!resourceToPermission.containsKey(perm.getUrl()))
 						resourceToPermission.put(perm.getUrl(), perm);
-					}					
+					else {
+						Permission merged = resourceToPermission.get(perm.getUrl()).deepCopy();
+						merged.setRead(merged.isRead() || perm.isRead());
+						merged.setWrite(merged.isWrite() || perm.isWrite());
+						merged.setCreate(merged.isCreate() || perm.isCreate());
+						merged.setDelete(merged.isDelete() || perm.isDelete());
+						merged.setGrant(merged.isGrant() || perm.isGrant());
+						merged.setUse(merged.isUse() || perm.isUse());
+						
+						resourceToPermission.put(perm.getUrl(), merged);
+					}
 				}
 				group = group.getParent();	
 			}
