@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
@@ -103,7 +104,7 @@ public class SISDBAuthenticator extends DBAuthenticator {
 			Session session = SISPersistentManager.instance().openSession();
 			
 			User user = (User)session.createCriteria(User.class)
-				.add(Restrictions.eq("username", login))
+				.add(Restrictions.ilike("username", login, MatchMode.EXACT))
 				.add(Restrictions.eq("password", translatedPW))
 				.add(Restrictions.eq("sisUser", Boolean.TRUE))
 				.add(Restrictions.eq("state", User.ACTIVE))
