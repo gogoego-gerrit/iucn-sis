@@ -117,9 +117,9 @@ public class LoginPanel extends LayoutContainer {
 						+ "This is the Species Information Service (SIS) Toolkit, rev. 2.0.</div>"
 						+ "<div style='margin: 5px; margin-top: 20px;'>"
 						+ SIS.getBuildNumber() + "</div>"
-						+ (SIS.isOffline() ? "" : "<div style='margin: 5px; margin-top: 20px;'>"
+						/*+ (SIS.isOffline() ? "" : "<div style='margin: 5px; margin-top: 20px;'>"
 						+ "<a href=\"/raw/downloads/sisOffline.zip\">Click here</a> to download "
-						+ "a standalone version of the software.</div>")
+						+ "a standalone version of the software.</div>")*/
 						+ "<div style='margin: 5px; margin-top: 20px;'>"
 						+ "The following browsers are highly suggested for standards compliance and performance:"
 						+ "<ul><li><a target=\"_blank\" href=\"http://www.google.com/chrome\">Google Chrome</a></li>"
