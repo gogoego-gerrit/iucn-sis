@@ -59,6 +59,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 		super();
 		this.parent = parent;
 		setLayout(new FillLayout());
+		setPageCount(200);
 		draw();
 	}
 	
