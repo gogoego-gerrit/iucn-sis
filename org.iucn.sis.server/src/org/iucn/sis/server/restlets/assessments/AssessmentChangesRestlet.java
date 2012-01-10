@@ -289,17 +289,19 @@ public class AssessmentChangesRestlet extends BaseServiceRestlet {
 				continue;
 			}
 			
-			saver.addChange(saver.createDeleteChange(toDelete));
-			
-			try {
-				FieldDAO.deleteAndDissociate(toDelete, session);
-			} catch (PersistentException e) {
-				Debug.println(e);
-				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			if (toDelete != null) {
+				saver.addChange(saver.createDeleteChange(toDelete));
+				
+				try {
+					FieldDAO.deleteAndDissociate(toDelete, session);
+				} catch (PersistentException e) {
+					Debug.println(e);
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				}
+				assessment.getField().remove(toDelete);
+				
+				out.append(XMLWritingUtils.writeTag("li", "Deleted empty field " + field.getName()));
 			}
-			assessment.getField().remove(toDelete);
-			
-			out.append(XMLWritingUtils.writeTag("li", "Deleted empty field " + field.getName()));
 		}
 		
 		try {
