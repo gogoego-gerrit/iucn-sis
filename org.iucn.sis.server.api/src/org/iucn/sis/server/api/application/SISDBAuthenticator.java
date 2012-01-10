@@ -85,7 +85,7 @@ public class SISDBAuthenticator extends DBAuthenticator {
 	
 	@Override
 	public String translatePassword(String login, String password) {
-		return super.translatePassword(login, password);
+		return super.translatePassword(login.toLowerCase(), password);
 	}
 	
 	@Override
@@ -140,7 +140,6 @@ public class SISDBAuthenticator extends DBAuthenticator {
 			session.close();
 		}
 	}
-	
 	
 	@Override
 	public boolean resetPassword(String username) {
