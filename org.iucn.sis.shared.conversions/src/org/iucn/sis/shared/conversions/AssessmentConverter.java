@@ -1111,12 +1111,14 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		
 		if (rawData.size() > lookup.getSet().size()) {
 			if (!(lookup.getSet().size() == 1 && lookup.getSet().get(0).get("data_type").toString().equals("fk_list_primitive_field")))
-				error(4, report, "Found more data in SIS 1 than can fit in SIS 2 for %s\n%s", canonicalName, rawData);
+				if (!CanonicalNames.EOO.equals(canonicalName))
+					warning(report, "Found more data in SIS 1 than can fit in SIS 2 for %s\n%s", canonicalName, rawData);
 		}
 		
 		for (String curPrimitive : rawData) {
 			if (lookup.getSet().size() <= i) {
-				error(5, "Extra piece of data found for %s, Eliding: '%s'", canonicalName, curPrimitive);
+				if (!CanonicalNames.EOO.equals(canonicalName))
+					error(5, "Extra piece of data found for %s, Eliding: '%s'", canonicalName, curPrimitive);
 				continue;
 			}
 				

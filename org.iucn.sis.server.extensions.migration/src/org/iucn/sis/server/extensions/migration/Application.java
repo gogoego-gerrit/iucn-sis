@@ -22,6 +22,7 @@ public class Application extends SimpleSISApplication {
 		
 		addResource(ListingResource.class, paths, false);
 		addResource(ReportResource.class, "/" + VERSION + "/reports", false);
+		addServiceToRouter(new CleanRestlet(app.getContext()));
 	}
 
 }
