@@ -8,10 +8,12 @@ public class Settings {
 	
 	public static final String ASSEMBLA_EMAIL = "org.iucn.sis.server.extensions.support.assembla.email";
 	public static final String ASSEMBLA_ASSIGNED = "org.iucn.sis.server.extensions.support.assembla.assigned";
+	public static final String ASSEMBLA_AUTORESPOND = "org.iucn.sis.server.extensions.support.assembla.autorespond";
+	
 	
 	public static final String[] ALL = new String[] {
 		ZENDESK_URL, ZENDESK_USER, ZENDESK_PASSWORD, 
-		ASSEMBLA_EMAIL, ASSEMBLA_ASSIGNED
+		ASSEMBLA_EMAIL, ASSEMBLA_ASSIGNED, ASSEMBLA_AUTORESPOND
 	};
 
 }
