@@ -6,11 +6,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
-import org.gogoego.api.mail.InstanceMailer;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
-import org.iucn.sis.shared.api.models.User;
 import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.data.ChallengeResponse;
@@ -29,7 +27,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.solertium.mail.Mailer;
 import com.solertium.util.NodeCollection;
 import com.solertium.util.restlet.RestletUtils;
 
@@ -76,7 +73,6 @@ public class ZendeskResource extends BaseServiceRestlet {
 	}
 	
 	private void sendMail(Representation entity, Request request, Response response, Session session) throws ResourceException {
-		User user = getUser(request, session);
 		String subject = null, body = null, reporter = null;
 		
 		Document document = getEntityAsDocument(entity);
@@ -92,23 +88,12 @@ public class ZendeskResource extends BaseServiceRestlet {
 		if (subject == null || body == null || reporter == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a subject and a body.");
 		
-		final StringBuilder out = new StringBuilder();
-		out.append("Reporter Name: " + reporter + "\n");
-		out.append("Reporter Username: " + user.getUsername() + "\n");
-		out.append("Affiliation: " + user.getAffiliation() + "\n");
-		out.append("Component: Support\n");
-		out.append("Description:\n" + body + "\n.");
-		
-		Mailer mailer = InstanceMailer.getInstance().getMailer();
-		mailer.setTo("sis@support.assembla.com");
+		final AssemblaMailer mailer = 
+			new AssemblaMailer(getUser(request, session), SIS.get().getSettings(getContext()));
+		mailer.setBody(body);
 		mailer.setSubject(subject);
-		mailer.setBody(out.toString());
-		
-		try {
-			mailer.background_send();
-		} catch (Exception e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-		}
+		mailer.setReporter(reporter);
+		mailer.send();
 	}
 	
 	@Override
@@ -169,7 +154,7 @@ public class ZendeskResource extends BaseServiceRestlet {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		if (email.equals("admin"))
-			email = SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com");
+			email = SIS.get().getSettings(getContext()).getProperty(Settings.ZENDESK_USER, "sisproject@solertium.com");
 	
 		Request req = newRequest(Method.GET, "/access/logout");
 			
@@ -239,7 +224,7 @@ public class ZendeskResource extends BaseServiceRestlet {
 		String email = el.getAttribute("email");
 		if (email.equals("admin")) {
 			  name = "Solertium";
-			  email = SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com");
+			  email = SIS.get().getSettings(getContext()).getProperty(Settings.ZENDESK_USER, "sisproject@solertium.com");
 		}
 		  
 		String timestamp =String.valueOf((long)new Date().getTime());
@@ -274,11 +259,11 @@ public class ZendeskResource extends BaseServiceRestlet {
 	}
 	
 	private Request newRequest(Method method, String url) {
-		Request req = new Request(Method.GET, SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.url", "http://support.iucnsis.org") + url);
+		Request req = new Request(Method.GET, SIS.get().getSettings(getContext()).getProperty(Settings.ZENDESK_URL, "http://support.iucnsis.org") + url);
 		req.setChallengeResponse(new ChallengeResponse(
 			ChallengeScheme.HTTP_BASIC, 
-			SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.user", "sisproject@solertium.com"), 
-			SIS.get().getSettings(getContext()).getProperty("org.iucn.sis.server.extension.zendesk.password", "s3cr3t")
+			SIS.get().getSettings(getContext()).getProperty(Settings.ZENDESK_USER, "sisproject@solertium.com"), 
+			SIS.get().getSettings(getContext()).getProperty(Settings.ZENDESK_PASSWORD, "s3cr3t")
 		));
 		return req;
 	}

@@ -1,6 +1,6 @@
 package org.iucn.sis.server.extensions.zendesk;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.iucn.sis.server.api.application.SimpleSISApplication;
@@ -20,12 +20,7 @@ public class ServerApplication extends SimpleSISApplication {
 	
 	@Override
 	protected Collection<String> getSettingsKeys() {
-		final ArrayList<String> keys = new ArrayList<String>();
-		keys.add("org.iucn.sis.server.extension.zendesk.url");
-		keys.add("org.iucn.sis.server.extension.zendesk.user");
-		keys.add("org.iucn.sis.server.extension.zendesk.password");
-		
-		return keys;
+		return Arrays.asList(Settings.ALL);
 	}
 
 }
