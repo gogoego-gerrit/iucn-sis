@@ -21,6 +21,7 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.google.gwt.user.client.Window;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.FormBuilder;
@@ -44,7 +45,8 @@ public class AssemblaSupportPanel extends BasicWindow {
 		
 		text = new HashMap<String, String>();
 		text.put(QUESTION, "Question:\n");
-		text.put(BUG, "What steps will reproduce the problem?\n" +
+		text.put(BUG, "Please answer the questions below to best help us resolve the problem:\n\n" +
+			"What steps will reproduce the problem?\n" +
 			"1. \n" +
 			"2. \n" +
 			"3. \n" +
@@ -93,7 +95,9 @@ public class AssemblaSupportPanel extends BasicWindow {
 						"Question from SIS user " + user.getUsername() + " (" + user.getDisplayableName() + ", " + affil + ")" :
 						"Bug Report from SIS user " + user.getUsername() + " (" + user.getDisplayableName() + ", " + affil + ")";
 					String body = area.getValue();
-					body += "\n\n" + SIS.getBuildNumber();
+					body += "\n\n" + SIS.getBuildNumber() + "\n";
+					body += "Host: " + Window.Location.getHostName() + "\n";
+					body += "URL: " + Window.Location.getPath();
 					submit(subject, reporter.getValue(), body);
 				}
 			}

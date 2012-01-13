@@ -188,10 +188,12 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		final StringBuilder builder = new StringBuilder();
 		builder.append("A javascript error has occurred.  Please save your work, if " +
 			"possible, and refresh your browser.  If you would like to submit this " +
-			"error as a bug, please file a Zendesk ticket and copy the contents of " +
+			"error as a bug, please file a ticket and copy the contents of " +
 			"this textbox into the body of the ticket.  Thank you.\n\n");
 		builder.append("Error occurred on " + new Date() + "\n");
 		builder.append(SIS.getBuildNumber() + "\n");
+		builder.append("Host: " + Window.Location.getHostName() + "\n");
+		builder.append("URL: " + Window.Location.getPath() + "\n");
 		builder.append(HostedModeDebugger.serializeThrowable(e));
 		
 		final TextArea area = new TextArea();
