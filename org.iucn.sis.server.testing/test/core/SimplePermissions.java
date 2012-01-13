@@ -2,6 +2,7 @@ package core;
 
 import junit.framework.Assert;
 
+import org.iucn.sis.server.api.permissions.PermissionUtils;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.PermissionGroup;
@@ -17,8 +18,9 @@ public class SimplePermissions extends BasicTest {
 	public void canNotCreateProfiles() {
 		boolean canUse = false;
 		User user = getBadUser();
+		PermissionUtils p = new PermissionUtils(null, user);
 		for (PermissionGroup group : user.getPermissionGroups())
-			canUse |= SharedPermissionUtils.checkMe(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.USE_FEATURE);
+			canUse |= p.hasPermission(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.USE_FEATURE);
 		
 		Assert.assertFalse(canUse);
 	}
@@ -27,8 +29,9 @@ public class SimplePermissions extends BasicTest {
 	public void canCreateProfiles() {
 		boolean canUse = false;
 		User user = getGoodUser();
+		PermissionUtils p = new PermissionUtils(null, user);
 		for (PermissionGroup group : user.getPermissionGroups())
-			canUse |= SharedPermissionUtils.checkMe(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.USE_FEATURE);
+			canUse |= p.hasPermission(group, AuthorizableFeature.ADD_PROFILE_FEATURE, AuthorizableObject.USE_FEATURE);
 		
 		Assert.assertTrue(canUse);
 	}
