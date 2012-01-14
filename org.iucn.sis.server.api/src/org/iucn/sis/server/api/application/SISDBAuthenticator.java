@@ -153,7 +153,7 @@ public class SISDBAuthenticator extends DBAuthenticator {
 				+ "  Username: " + username + "\r\n  Password: " + newPassword
 				+ "\r\n \r\n We strongly recommend that you change your password on the " +
 						"login page.";
-				Mailer mailer = SISMailer.getGMailer();
+				Mailer mailer = getMailer();
 				mailer.setTo(username);
 				mailer.setBody(body);
 
@@ -184,7 +184,7 @@ public class SISDBAuthenticator extends DBAuthenticator {
 
 		String subject = "Species Information System Account Signup Confirmation";
 		
-		Mailer mailer = SISMailer.getGMailer();
+		Mailer mailer = getMailer();
 		mailer.setTo(email);
 		mailer.setSubject(subject);
 		mailer.setBody(body);
@@ -196,6 +196,10 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		}
 
 		return confirmationCode;
+	}
+	
+	private Mailer getMailer() {
+		return SIS.get().getMailer();
 	}
 
 }

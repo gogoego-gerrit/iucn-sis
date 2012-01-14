@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import javax.naming.NamingException;
 
+import org.gogoego.api.mail.InstanceMailer;
 import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
@@ -36,6 +37,8 @@ import com.solertium.db.vendor.H2DBSession;
 import com.solertium.db.vendor.PostgreSQLDBSession;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.mail.GMailer;
+import com.solertium.mail.Mailer;
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.restlet.authentication.AuthnGuard;
 import com.solertium.util.restlet.authentication.Authenticator.AccountNotFoundException;
@@ -181,6 +184,10 @@ public class SIS {
 	
 	public String getDefaultSchema() {
 		return getSettings(null).getProperty("org.iucn.sis.schema", "org.iucn.sis.server.schemas.redlist");
+	}
+	
+	public Mailer getMailer() {
+		return InstanceMailer.getInstance().getMailer();
 	}
 
 	public AuthnGuard getGuard(Context context) {
