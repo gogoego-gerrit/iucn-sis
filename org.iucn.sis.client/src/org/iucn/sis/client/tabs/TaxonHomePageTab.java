@@ -456,15 +456,21 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		
 		// BEGIN TAXOMATIC FEATURES
 		if (SIS.isOnline()) {
-			MenuItem mItem = new MenuItem();
-			mItem.setText("Edit Taxon");
-			mItem.setIconStyle("icon-note-edit");
-			mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
-				public void componentSelected(MenuEvent ce) {
-					popupChooser(new TaxonBasicEditor());
-				}
-			});
-			mainMenu.add(mItem);
+			boolean canUseTaxomatic = AuthorizationCache.impl.canUse(AuthorizableFeature.TAXOMATIC_FEATURE);
+			
+			MenuItem mItem;
+			
+			if (canUseTaxomatic) {
+				mItem = new MenuItem();
+				mItem.setText("Edit Taxon");
+				mItem.setIconStyle("icon-note-edit");
+				mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+					public void componentSelected(MenuEvent ce) {
+						popupChooser(new TaxonBasicEditor());
+					}
+				});
+				mainMenu.add(mItem);
+			}
 
 			mItem = new MenuItem();
 			mItem.setText("Edit Synonyms");
@@ -536,7 +542,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 			
 			mainMenu.add(mItem);
 			
-			if (AuthorizationCache.impl.canUse(AuthorizableFeature.TAXOMATIC_FEATURE)) {
+			if (canUseTaxomatic) {
 
 				// TODO: Decide if need to guard against deprecated nodes
 				mItem = new MenuItem();
