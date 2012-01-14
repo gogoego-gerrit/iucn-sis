@@ -97,7 +97,8 @@ public class AssemblaSupportPanel extends BasicWindow {
 					String body = area.getValue();
 					body += "\n\n" + SIS.getBuildNumber() + "\n";
 					body += "Host: " + Window.Location.getHostName() + "\n";
-					body += "URL: " + Window.Location.getPath();
+					body += "URL: " + Window.Location.getPath() + Window.Location.getHash();
+					
 					submit(subject, reporter.getValue(), body);
 				}
 			}

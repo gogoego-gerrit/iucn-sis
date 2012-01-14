@@ -193,7 +193,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		builder.append("Error occurred on " + new Date() + "\n");
 		builder.append(SIS.getBuildNumber() + "\n");
 		builder.append("Host: " + Window.Location.getHostName() + "\n");
-		builder.append("URL: " + Window.Location.getPath() + "\n");
+		builder.append("URL: " + Window.Location.getPath() + Window.Location.getHash() + "\n");
 		builder.append(HostedModeDebugger.serializeThrowable(e));
 		
 		final TextArea area = new TextArea();
