@@ -15,19 +15,21 @@ public class AssemblaMailer {
 	private final User user;
 	private final Properties settings;
 	private final Mailer mailer;
+	private final Mailer autoRespondMailer;
 	
 	private String subject;
 	private String body;
 	private String reporter;
 	
 	public AssemblaMailer(User user, Properties settings) {
-		this(user, settings, InstanceMailer.getInstance().getMailer());
+		this(user, settings, InstanceMailer.getInstance().getMailer(), InstanceMailer.getInstance().getMailer());
 	}
 	
-	public AssemblaMailer(User user, Properties settings, Mailer mailer) {
+	public AssemblaMailer(User user, Properties settings, Mailer mailer, Mailer autoRespondMailer) {
 		this.user = user;
 		this.settings = settings;
 		this.mailer = mailer;
+		this.autoRespondMailer = autoRespondMailer;
 	}
 	
 	public void setSubject(String subject) {
@@ -47,25 +49,27 @@ public class AssemblaMailer {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a subject and a body.");
 		
 		final StringBuilder out = new StringBuilder();
+		
+		final String assignedTo = settings.getProperty(Settings.ASSEMBLA_ASSIGNED);
+		if (assignedTo != null)
+			out.append("Assigned-to: " + assignedTo + "\n");
+		
 		out.append("Reporter Name: " + reporter + "\n");
 		out.append("Reporter Username: " + user.getUsername() + "\n");
 		out.append("Affiliation: " + user.getAffiliation() + "\n");
 		out.append("Component: Support\n");
 		out.append("Description:\n" + body + "\n.");
 		
-		final String assignedTo = settings.getProperty(Settings.ASSEMBLA_ASSIGNED);
-		if (assignedTo != null)
-			out.append("Assigned-to: " + assignedTo + "\n");
-		
 		mailer.setTo(settings.getProperty(Settings.ASSEMBLA_EMAIL, "sis@support.assembla.com"));
 		mailer.setSubject(subject);
 		mailer.setBody(out.toString());
 		
 		try {
-			mailer.send();
+			mailer.background_send();
 			
 			autoRespond(user);
 		} catch (Exception e) {
+			Debug.println(e);
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 	}
@@ -84,12 +88,12 @@ public class AssemblaMailer {
 		if (to == null || "".equals(to))
 			to = user.getUsername();
 		
-		mailer.setTo(to);
-		mailer.setSubject("Your SIS Report has been received.");
-		mailer.setBody(msg.toString());
+		autoRespondMailer.setTo(to);
+		autoRespondMailer.setSubject("Your SIS Report has been received.");
+		autoRespondMailer.setBody(msg.toString());
 		
 		try {
-			mailer.background_send();
+			autoRespondMailer.background_send();
 		} catch (Exception e) {
 			Debug.println(e);
 		}
