@@ -205,6 +205,23 @@ public class CodingOptionTreePanel extends LayoutContainer {
 		}
 	}
 	
+	private static boolean isLegacyOption(String text) {
+		StringBuilder num = new StringBuilder();
+		for (char c : text.toCharArray()) {
+			if (Character.isDigit(c))
+				num.append(c);
+			else
+				break;
+		}
+		boolean isLegacy = false;
+		try {
+			isLegacy = Integer.parseInt(num.toString()) >= 100;
+		} catch (Exception e) {
+			//Nothing to do
+		}
+		return isLegacy;
+	}
+	
 	private static class CodingOption extends BaseTreeModel {
 		
 		private static final long serialVersionUID = 1L;
@@ -262,19 +279,8 @@ public class CodingOptionTreePanel extends LayoutContainer {
 			return displayableDesc.toString();
 		}
 		
-		private boolean isValid() {
-			String curLevelID = row.getRowNumber();
-			if ("100".equals(curLevelID) || curLevelID.indexOf('.') > 0) {
-				try {
-					if (Integer.parseInt(curLevelID) >= 100)
-						return false;
-				} catch (NumberFormatException e) {
-					//Not a number, doesn't apply to deprecation format
-					return true;
-				}
-			}
-			
-			return true;
+		public boolean isValid() {
+			return !isLegacyOption((String)get("text"));
 		}
 		
 		public void setDisabled(boolean disabled) {
@@ -333,11 +339,19 @@ public class CodingOptionTreePanel extends LayoutContainer {
 				}
 			});
 			
-			this.treeRoots = treeData.getTreeRoots();
+			this.treeRoots = getActiveRoots(treeData.getTreeRoots());
 			this.selection = selection;
 			this.disabled = disabled;
 			
 			this.size = treeRoots.size();
+		}
+		
+		private List<TreeDataRow> getActiveRoots(Collection<TreeDataRow> all) {
+			List<TreeDataRow> rows = new ArrayList<TreeDataRow>();
+			for (TreeDataRow row : all)
+				if (new CodingOption(row).isValid())
+					rows.add(row);
+			return rows;
 		}
 		
 		public void setListener(ComplexListener<TreeStore<CodingOption>> listener) {
