@@ -128,7 +128,7 @@ public final class StateManager implements CoreObservable<ComplexListener<StateC
 	 * @param assessment
 	 */
 	public void setAssessment(final Assessment assessment) {
-		if (getWorkingSet() == null)
+		if (assessment == null || getWorkingSet() == null)
 			setState(getWorkingSet(), getTaxon(), assessment);
 		else {
 			WorkingSetCache.impl.containsAssessment(getWorkingSet(), assessment, new ComplexListener<Boolean>() {
