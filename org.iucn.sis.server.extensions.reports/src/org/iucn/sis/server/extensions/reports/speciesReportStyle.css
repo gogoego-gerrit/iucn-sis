@@ -1,6 +1,10 @@
 body,p,td,th {
     font-size: 12px;
 }
+@font-face {
+    font-family: Tribune;
+    src: url('TribuneRegular.ttf');
+}
 th {
     background-color: #bbbbbb;
 	text-align: left;
@@ -40,6 +44,8 @@ td {
 	text-align: left;
 }
 body {
+	/*Uncomment below if you want to use the custom font Tribune*/
+	/*font-family: Tribune, Georgia, "Times New Roman", Times, serif;*/
 	font-family: Georgia, "Times New Roman", Times, serif;
 }
 #header img {

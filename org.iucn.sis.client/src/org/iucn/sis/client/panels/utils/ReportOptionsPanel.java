@@ -29,7 +29,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class ReportOptionsPanel extends BasicWindow {
 	
 	private final int assessmentID;
-	private final String defaultReportType; 
+	private final String defaultReportType;
 	
 	public ReportOptionsPanel(Assessment assessment) {
 		this(assessment.getId());
@@ -50,14 +50,18 @@ public class ReportOptionsPanel extends BasicWindow {
 			newModel("All Fields Report", "full"), 
 			newModel("Available Fields Report", "available"));
 		
-		final CheckBox empty = FormBuilder.createCheckBoxField("empty", true, "Show Empty Fields");
-		final CheckBox limitedSet = FormBuilder.createCheckBoxField("limited", false, "Limited Set");
+		final CheckBox limitedSet = FormBuilder.createCheckBoxField("limited", true, "Limited Set");
+		final CheckBox empty = FormBuilder.createCheckBoxField("empty", false, "Show Empty Fields");
+		final ComboBox<NameValueModelData> version = 
+			FormBuilder.createModelComboBox("version", "html", "Version", true, 
+			newModel("HTML", "html"), newModel("Microsoft Word", "word"));
 		
 		final FieldSet set = new FieldSet();
 		set.setLayout(new FormLayout());
 		set.setHeading("Options");
-		set.add(empty);
+		set.add(version);
 		set.add(limitedSet);
+		set.add(empty);
 		
 		final FormPanel form = new FormPanel();
 		form.setHeaderVisible(false);
@@ -73,7 +77,8 @@ public class ReportOptionsPanel extends BasicWindow {
 				if (!form.isValid())
 					WindowUtils.errorAlert("Please fill in required fields.");
 				else
-					open(type.getValue().getValue(), empty.getValue(), limitedSet.getValue());
+					open(type.getValue().getValue(), empty.getValue(), limitedSet.getValue(), 
+							version.getValue().getValue());
 			}
 		}));
 		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
@@ -83,7 +88,7 @@ public class ReportOptionsPanel extends BasicWindow {
 		}));
 	}
 	
-	private void open(String type, boolean empty, boolean limited) {
+	private void open(String type, boolean empty, boolean limited, String version) {
 		StringBuilder url = new StringBuilder();
 		url.append(UriBase.getInstance().getReportBase());
 		url.append("/reports/");
@@ -94,6 +99,8 @@ public class ReportOptionsPanel extends BasicWindow {
 		url.append("empty=" + empty);
 		url.append('&');
 		url.append("limited=" + limited);
+		url.append('&');
+		url.append("version=" + version);
 		
 		hide();
 		Window.open(url.toString(), "_blank", "");

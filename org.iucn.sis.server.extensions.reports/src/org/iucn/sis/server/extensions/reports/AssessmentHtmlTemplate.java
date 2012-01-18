@@ -1,5 +1,8 @@
 package org.iucn.sis.server.extensions.reports;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -287,11 +290,15 @@ public class AssessmentHtmlTemplate {
 		if (!isAggregate) {
 			theHtml.append("<html>\n" +
 				"<head>\n" +
-				"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
-				"<link rel=\"stylesheet\" type=\"text/css\" href=\"" + createUrl(CSS_FILE) + "\">");
+				"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n");
+			try {
+				theHtml.append(injectCSS());
+			} catch (IOException e) {
+				theHtml.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + createUrl(CSS_FILE) + "\">\n");
+			}
 			theHtml.append("<title>");
 			theHtml.append(taxon.getFullName());
-			theHtml.append("</title></head><body>");
+			theHtml.append("</title>\n</head>\n<body>");
 		}
 		theHtml.append("<div id=\"header\">\n");
 		if (!assessment.isPublished())
@@ -305,6 +312,18 @@ public class AssessmentHtmlTemplate {
 		theHtml.append("</div>\n</div>\n");
 		
 		buildTaxonomyInformation();
+	}
+	
+	private String injectCSS() throws IOException {
+		final StringBuilder in = new StringBuilder();
+		in.append("<style type=\"text/css\"><!--\n");
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(
+				AssessmentHtmlTemplate.class.getResourceAsStream(CSS_FILE)));
+		String line = null;
+		while ((line = reader.readLine()) != null)
+			in.append(line+"\n");
+		in.append("--></style>\n");
+		return in.toString();
 	}
 
 	private void buildHierarchyList(Taxon taxon) {

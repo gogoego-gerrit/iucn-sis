@@ -44,7 +44,8 @@ public class AssessmentReportRestlet extends BaseServiceRestlet {
 	}
 
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
-		String type = (String)request.getAttributes().get("type");
+		final String type = (String)request.getAttributes().get("type");
+		final Form form = request.getResourceRef().getQueryAsForm();
 		
 		if ("redlist".equals(type)) {
 			final ReportTemplate template;
@@ -59,7 +60,6 @@ public class AssessmentReportRestlet extends BaseServiceRestlet {
 			return new StringRepresentation(template.toString(), MediaType.TEXT_HTML);
 		}
 		else if ("full".equals(type)) {
-			Form form = request.getResourceRef().getQueryAsForm();
 			boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
 			boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
 			
@@ -71,10 +71,18 @@ public class AssessmentReportRestlet extends BaseServiceRestlet {
 				template.setLogo(logo);
 			template.parse();
 			
-			return new StringRepresentation(template.getHtmlString(), MediaType.TEXT_HTML);
+			Representation representation;
+			if ("word".equals(form.getFirstValue("version"))) {
+				representation = new StringRepresentation(template.getHtmlString(), MediaType.APPLICATION_WORD);
+				representation.setDownloadable(true);
+				representation.setDownloadName("report.doc");
+			}
+			else
+				representation = new StringRepresentation(template.getHtmlString(), MediaType.TEXT_HTML);
+			
+			return representation;
 		}
 		else if ("available".equals(type)) {
-			Form form = request.getResourceRef().getQueryAsForm();
 			boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
 			boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
 			
