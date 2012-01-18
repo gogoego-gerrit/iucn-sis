@@ -1,5 +1,7 @@
 package org.iucn.sis.client.panels;
 
+import java.util.Date;
+
 import org.iucn.sis.client.api.caches.OfflineCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -132,7 +134,8 @@ public class OfflineFooter extends ToolBar {
 		WorkingSet workingSet = WorkingSetCache.impl.getOfflineWorkingSet();
 		
 		final String url = UriBase.getInstance().getOfflineBase() + "/offline/importToLive/"
-			+ SISClientBase.currentUser.getUsername() + "/" + workingSet.getId();
+			+ SISClientBase.currentUser.getUsername() + "/" + workingSet.getId() + 
+			"?uid=" + new Date().getTime();
 		
 		final ContentPanel content = new ContentPanel();
 		content.setUrl(url);

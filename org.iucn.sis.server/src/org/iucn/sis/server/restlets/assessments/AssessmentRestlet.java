@@ -274,7 +274,7 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 				 */
 				/*if (source.getField().size() != target.getField().size())
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Server error: fields not persisted correctly.");*/
-				
+							
 				if (!assessmentIO.allowedToCreateNewAssessment(target))
 					throw new RegionConflictException();
 				
@@ -413,6 +413,10 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 					field.setReference(new HashSet<Reference>());
 				}
 			}
+			
+			// Set Offline status to true if Reference created Offline
+			if(assessment.getId() == 0)
+				assessment.setOfflineStatus(!SIS.amIOnline());
 			
 			AssessmentIO io = new AssessmentIO(session);
 			AssessmentIOWriteResult result = io.saveNewAssessment(assessment, getUser(request, session));

@@ -3,6 +3,7 @@ package org.iucn.sis.server.utils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +75,7 @@ public class AssessmentPersistence {
 	}
 	
 	public void sink(Assessment source) throws PersistentException {
-		sink(source.getField());
+		sink(new HashSet<Field>(source.getField()));
 	}
 	
 	public void sink(Set<Field> sourceFields) throws PersistentException {
@@ -289,8 +290,7 @@ public class AssessmentPersistence {
 	}
 	
 	public void saveChanges(Assessment assessment, Edit edit) {
-		ChangeTracker tracker = new ChangeTracker(assessment.getId(), edit.getId(), getChangeSet(), SISPersistentManager.instance());
-		new Thread(tracker).start();
+		saveChanges(assessment, edit, SISPersistentManager.instance());
 	}
 	
 	public void saveChanges(Assessment assessment, Edit edit, SISPersistentManager targetManager) {
@@ -353,9 +353,9 @@ public class AssessmentPersistence {
 		
 		private Edit getEdit(Session session, Integer id) throws Exception {
 			Edit edit = null;
-			int tries = 0, max = 10;
+			int tries = 0, max = 20;
 			while (edit == null) {
-				Thread.sleep(2000);
+				Thread.sleep(5000);
 				edit = SISPersistentManager.instance().getObject(session, Edit.class, editID);
 				if (++tries > max)
 					break;

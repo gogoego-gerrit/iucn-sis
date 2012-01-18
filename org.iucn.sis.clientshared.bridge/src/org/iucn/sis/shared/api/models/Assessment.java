@@ -43,6 +43,10 @@ import com.solertium.util.portable.XMLWritingUtils;
 
 public class Assessment implements Serializable, AuthorizableObject {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	public static final String ROOT_TAG = "assessment";
 	public static final int DELETED = -1;
@@ -294,6 +298,8 @@ public class Assessment implements Serializable, AuthorizableObject {
 		xml.append("<" + ROOT_TAG + " id=\"" + getId() + "\" internalID=\"" + getInternalId() + "\">");
 		xml.append("<source><![CDATA[" + getSource() + "]]></source>");
 		xml.append("<sourceDate><![CDATA[" + getSourceDate() + "]]></sourceDate>");
+		xml.append("<offlineStatus><![CDATA[" + getOfflineStatus() + "]]></offlineStatus>");
+		xml.append("<onlineId><![CDATA[" + getOnlineId() + "]]></onlineId>");
 		xml.append(XMLWritingUtils.writeCDATATag("schema", getSchema(), true));
 		xml.append(getTaxon().toXMLMinimal());
 		xml.append(getAssessmentType().toXML());
@@ -360,6 +366,8 @@ public class Assessment implements Serializable, AuthorizableObject {
 		assessment.setPublicationReference(getPublicationReference());
 		//Never copy over the validation...
 		//assessment.setValidation(getValidation());
+		assessment.setOfflineStatus(getOfflineStatus());
+		assessment.setOnlineId(getOnlineId());
 		
 		assessment.setField(new HashSet<Field>());
 		for (Field field : getField()) {
@@ -487,6 +495,10 @@ public class Assessment implements Serializable, AuthorizableObject {
 
 	private String internalId;
 	
+	private boolean offlineStatus;
+	
+	private Integer onlineId;
+	
 	private Reference publicationReference;
 	
 	private AssessmentIntegrityValidation validation;
@@ -498,7 +510,22 @@ public class Assessment implements Serializable, AuthorizableObject {
 	private java.util.Set<Reference> reference = new java.util.HashSet<Reference>();
 
 	private java.util.Set<Field> field = new java.util.HashSet<Field>();
-
+	
+	public Integer getOnlineId() {
+		return onlineId;
+	}
+	
+	public void setOnlineId(Integer onlineId) {
+		this.onlineId = onlineId;
+	}
+	
+	public boolean getOfflineStatus() {
+		return offlineStatus;
+	}
+	
+	public void setOfflineStatus(boolean offlineStatus) {
+		this.offlineStatus = offlineStatus;
+	}
 	public int getId() {
 		return id;
 	}

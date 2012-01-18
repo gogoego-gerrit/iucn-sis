@@ -240,6 +240,13 @@ public class AssessmentIO {
 
 		return list;
 	}
+	
+	public Assessment[] getOfflineCreatedAssessments() throws PersistentException {
+		AssessmentCriteria criteria = new AssessmentCriteria(session);
+		criteria.offlineStatus.eq(true);
+		
+		return AssessmentDAO.getAssessmentsByCriteria(criteria);
+	}
 
 	/**
 	 * Reads in a list of regional draft assessments for a list of taxon ids.

@@ -18,8 +18,8 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.iucn.sis.server.api.persistance.hibernate.AbstractORMCriteria;
+import org.iucn.sis.server.api.persistance.hibernate.BooleanExpression;
 import org.iucn.sis.server.api.persistance.hibernate.IntegerExpression;
-import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.persistance.hibernate.StringExpression;
 import org.iucn.sis.shared.api.models.Assessment;
 
@@ -35,12 +35,14 @@ public class AssessmentCriteria extends AbstractORMCriteria {
 		sourceDate = new StringExpression("sourceDate", this);
 		internalId = new StringExpression("internalId", this);
 		state = new IntegerExpression("state", this);
+		offlineStatus = new BooleanExpression("offlineStatus", this);
 	}
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	public final IntegerExpression id;
 	public final StringExpression source;
 	public final StringExpression sourceDate;
 	public final StringExpression internalId;
+	public final BooleanExpression offlineStatus;
 
 	public AssessmentCriteria(Session session) {
 		this(session.createCriteria(Assessment.class));
@@ -70,6 +72,7 @@ public class AssessmentCriteria extends AbstractORMCriteria {
 		return (Assessment) super.uniqueResult();
 	}
 
+	@SuppressWarnings("unchecked")
 	public Assessment[] listAssessment() {
 		java.util.List list = super.list();
 		return (Assessment[]) list.toArray(new Assessment[list.size()]);

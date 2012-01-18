@@ -14,7 +14,6 @@ package org.iucn.sis.server.api.persistance;
  */
 import java.util.List;
 
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -91,6 +90,7 @@ public class AssessmentDAO {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static Assessment loadAssessmentByORMID(Session session, int id, org.hibernate.LockMode lockMode) throws PersistentException {
 		try {
 			return (Assessment) session.load(Assessment.class, new Integer(id), lockMode);
@@ -100,6 +100,7 @@ public class AssessmentDAO {
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	public static Assessment getAssessmentByORMID(Session session, int id, org.hibernate.LockMode lockMode) throws PersistentException {
 		try {
 			return (Assessment) session.get(Assessment.class, new Integer(id), lockMode);
@@ -110,6 +111,7 @@ public class AssessmentDAO {
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	protected static Assessment[] listAssessmentByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Assessment as Assessment");
 		if (condition != null)
@@ -127,6 +129,7 @@ public class AssessmentDAO {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected static Assessment[] listAssessmentByQuery(Session session, String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Assessment as Assessment");
 		if (condition != null)
@@ -161,6 +164,7 @@ public class AssessmentDAO {
 			return null;
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected static java.util.Iterator iterateAssessmentByQuery(Session session, String condition, String orderBy) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Assessment as Assessment");
 		if (condition != null)
@@ -177,6 +181,7 @@ public class AssessmentDAO {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected static java.util.Iterator iterateAssessmentByQuery(Session session, String condition, String orderBy, org.hibernate.LockMode lockMode) throws PersistentException {
 		StringBuffer sb = new StringBuffer("From Assessment as Assessment");
 		if (condition != null)
