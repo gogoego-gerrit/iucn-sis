@@ -35,17 +35,22 @@ import com.solertium.util.MD5Hash;
 
 public class AggregateReporter {
 	
-	private static final String ZIPPED_CSS_LOCATION = "styles.css";
-	private static final String ZIPPED_LOGO_LOCATION = "redListLogo.jpg";
-	
 	private final Session session;
 	private final WorkingSet workingSet;
 	private final User user;
+	
+	private String logo;
 	
 	public AggregateReporter(Session session, WorkingSet workingSet, User user) {
 		this.session = session;
 		this.workingSet = workingSet;
 		this.user = user;
+		
+		setLogo("redListLogo.jpg");
+	}
+	
+	public void setLogo(String logo) {
+		this.logo = logo;
 	}
 	
 	/**
@@ -105,7 +110,7 @@ public class AggregateReporter {
 		report.append("<html>\n" +
 				"<head>\n" +
 				"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
-				"<link rel=\"stylesheet\" type=\"text/css\" href=\"" + ZIPPED_CSS_LOCATION + "\">");
+				"<link rel=\"stylesheet\" type=\"text/css\" href=\"" + AssessmentHtmlTemplate.CSS_FILE + "\">");
 		report.append("<title>");
 		report.append(workingSet.getName());
 		report.append("</title></head><body>");
@@ -125,11 +130,11 @@ public class AggregateReporter {
 			List<Assessment> assessments = taxaIDToAssessments.get(entry.getKey());
 			if (assessments != null) {
 				for (Assessment assessment : assessments) {
-					AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, showEmpties, useLimited);
+					AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, assessment, showEmpties, useLimited);
 					template.setAggregate(true);
-					template.parse(assessment);
+					template.parse();
 					
-					report.append(replaceLogoLocation(template.getHtmlString()));
+					report.append(replaceLogoLocation(template.getHtmlString(), logo));
 
 					report.append("<br /><hr/><hr/><hr/><br />");
 				}
@@ -152,8 +157,9 @@ public class AggregateReporter {
 				out.write(buf, 0, len);
 			}
 			out.closeEntry();
-			addFileToZipped(out, ZIPPED_CSS_LOCATION, AssessmentHtmlTemplate.CSS_FILE);
-			addFileToZipped(out, ZIPPED_LOGO_LOCATION, AssessmentHtmlTemplate.LOGO_FILE);
+			
+			addFileToZipped(out, AssessmentHtmlTemplate.CSS_FILE, AssessmentHtmlTemplate.CSS_FILE);
+			addFileToZipped(out, logo, logo);
 			out.close();
 			bis.close();
 		} catch (IOException e) {
@@ -188,11 +194,11 @@ public class AggregateReporter {
 			List<Assessment> assessments = taxaIDToAssessments.get(entry.getKey());
 			if (assessments != null) {
 				for (Assessment assessment : assessments) {
-					AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, showEmpties, useLimited);
-					template.parse(assessment);
+					AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, assessment, showEmpties, useLimited);
+					template.parse();
 					
 					String stringToSave = replaceCSSLocation(template.getHtmlString());
-					stringToSave = replaceLogoLocation(stringToSave);
+					stringToSave = replaceLogoLocation(stringToSave, logo);
 					
 					ByteArrayInputStream bis = new ByteArrayInputStream(stringToSave.getBytes());
 
@@ -235,8 +241,8 @@ public class AggregateReporter {
 		}
 
 		try {
-			addFileToZipped(out, ZIPPED_CSS_LOCATION, AssessmentHtmlTemplate.CSS_FILE);
-			addFileToZipped(out, ZIPPED_LOGO_LOCATION, AssessmentHtmlTemplate.LOGO_FILE);
+			addFileToZipped(out, AssessmentHtmlTemplate.CSS_FILE, AssessmentHtmlTemplate.CSS_FILE);
+			addFileToZipped(out, logo, logo);
 			out.close();
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
@@ -252,11 +258,11 @@ public class AggregateReporter {
 	 * @return
 	 */
 	private String replaceCSSLocation(String inString) {
-		return inString.replaceAll("\\Q" + AssessmentHtmlTemplate.CSS_LOCATION + "\\E", ZIPPED_CSS_LOCATION);
+		return inString.replaceAll("\\Q" + AssessmentHtmlTemplate.createUrl(AssessmentHtmlTemplate.CSS_FILE) + "\\E", AssessmentHtmlTemplate.CSS_FILE);
 	}
 	
-	private String replaceLogoLocation(String inString) {
-		return inString.replaceAll("\\Q" + AssessmentHtmlTemplate.LOGO_LOCATION + "\\E", ZIPPED_LOGO_LOCATION);
+	private String replaceLogoLocation(String inString, String logo) {
+		return inString.replaceAll("\\Q" + AssessmentHtmlTemplate.createUrl(logo) + "\\E", logo);
 	}
 	
 	private String createTempFolder(String fileName) throws ResourceException {

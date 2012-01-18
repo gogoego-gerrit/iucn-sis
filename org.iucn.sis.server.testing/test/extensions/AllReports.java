@@ -22,10 +22,10 @@ public class AllReports extends BasicHibernateTest {
 	public void testGenerate() throws PersistentException, IOException {
 		Session session = openSession();
 		
-		Assessment assessment = SISPersistentManager.instance().getObject(session, Assessment.class, 8580201);
+		Assessment assessment = SISPersistentManager.instance().getObject(session, Assessment.class, 75822);
 		
-		AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, true, false);
-		template.parse(assessment);
+		AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, assessment, true, false);
+		template.parse();
 		
 		File file = new File("/var/sis/reports/" + assessment.getId() + ".html");
 		file.getParentFile().mkdirs();
@@ -42,8 +42,8 @@ public class AllReports extends BasicHibernateTest {
 		
 		Assessment assessment = SISPersistentManager.instance().getObject(session, Assessment.class, 8580201);
 		
-		AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, true, false);
-		template.parse(assessment, "_false_");
+		AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, assessment, true, false);
+		template.parseAvailable();
 		
 		File file = new File("/var/sis/reports/" + assessment.getId() + "NoView.html");
 		file.getParentFile().mkdirs();

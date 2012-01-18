@@ -1,8 +1,11 @@
 package org.iucn.sis.server.extensions.reports;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -24,9 +27,15 @@ import org.restlet.resource.ResourceException;
  * 
  */
 public class AssessmentReportRestlet extends BaseServiceRestlet {
+	
+	private final Map<String, String> knownLogos;
 
 	public AssessmentReportRestlet(Context context) {
 		super(context);
+		
+		knownLogos = new ConcurrentHashMap<String, String>();
+		knownLogos.put("org.iucn.sis.server.schemas.redlist", "redListLogo.jpg");
+		knownLogos.put("org.iucn.sis.server.schemas.birdlife", "birdlifelogo.gif");
 	}
 
 	@Override
@@ -54,8 +63,13 @@ public class AssessmentReportRestlet extends BaseServiceRestlet {
 			boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
 			boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
 			
-			final AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, showEmptyFields, limitedSet);
-			template.parse(getAssessment(request, session));
+			Assessment assessment = getAssessment(request, session);
+			String logo = knownLogos.get(assessment.getSchema(SIS.get().getDefaultSchema()));
+			
+			final AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, assessment, showEmptyFields, limitedSet);
+			if (logo != null)
+				template.setLogo(logo);
+			template.parse();
 			
 			return new StringRepresentation(template.getHtmlString(), MediaType.TEXT_HTML);
 		}
@@ -64,8 +78,13 @@ public class AssessmentReportRestlet extends BaseServiceRestlet {
 			boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
 			boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
 			
-			final AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, showEmptyFields, limitedSet);
-			template.parse(getAssessment(request, session), "_none_");
+			Assessment assessment = getAssessment(request, session);
+			String logo = knownLogos.get(assessment.getSchema(SIS.get().getDefaultSchema()));
+			
+			final AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, assessment, showEmptyFields, limitedSet);
+			if (logo != null)
+				template.setLogo(logo);
+			template.parseAvailable();
 			
 			return new StringRepresentation(template.getHtmlString(), MediaType.TEXT_HTML);
 		}
@@ -82,8 +101,11 @@ public class AssessmentReportRestlet extends BaseServiceRestlet {
 			boolean limitedSet = "true".equals(form.getFirstValue("limited", "false"));
 			boolean showEmptyFields = "true".equals(form.getFirstValue("empty", "true"));
 			boolean single = "true".equals(form.getFirstValue("single", "true"));
+			String logo = knownLogos.get(SIS.get().getDefaultSchema());
 			
 			final AggregateReporter reporter = new AggregateReporter(session, getWorkingSet(request, session), getUser(request, session));
+			if (logo != null)
+				reporter.setLogo(logo);
 			
 			String file = reporter.generate(showEmptyFields, limitedSet, single, getEntityAsNativeDocument(entity));
 			

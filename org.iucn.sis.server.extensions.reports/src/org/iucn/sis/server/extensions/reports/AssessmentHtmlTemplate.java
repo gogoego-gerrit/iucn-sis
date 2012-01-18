@@ -13,10 +13,11 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentSchemaIO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
-import org.iucn.sis.server.api.schema.redlist.DocumentLoader;
+import org.iucn.sis.server.api.schema.AssessmentSchema;
 import org.iucn.sis.server.api.schema.redlist.RedListAssessmentSchema;
 import org.iucn.sis.server.api.utils.FormattedDate;
 import org.iucn.sis.server.api.utils.LookupLoader;
@@ -50,7 +51,6 @@ import org.iucn.sis.shared.api.views.components.DisplayData;
 import org.iucn.sis.shared.api.views.components.TreeData;
 import org.iucn.sis.shared.api.views.components.TreeDataRow;
 import org.restlet.util.Couple;
-import org.w3c.dom.Document;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -64,37 +64,48 @@ public class AssessmentHtmlTemplate {
 	private static final String PREFIX = "../..";
 	private static final String BLANK_STRING = "(Not specified)";
 	
+	public static final String RESOURCE_LOCATION = PREFIX + "/resources/";
 	public static final String CSS_FILE = "speciesReportStyle.css";
-	public static final String LOGO_FILE = "redListLogo.jpg";
-	
-	public static final String CSS_LOCATION = PREFIX + "/resources/" + CSS_FILE;
-	public static final String LOGO_LOCATION = PREFIX + "/resources/" + LOGO_FILE;
 	
 	private final boolean showEmptyFields;
 	private final Session session;
-	private final Map<String, View> views;
+	private final Assessment assessment;
+	private final Taxon taxon;
+	private final AssessmentSchema schema;
 	
 	private StringBuilder theHtml;
 	private Organization curOrg;
-	private List<String> exclude, ignore;
+	private List<String> exclude;
+	private String logo;
 	
 	private boolean isAggregate;
 
-	public AssessmentHtmlTemplate(Session session, boolean showEmptyFields, boolean limitedSet) {
+	public AssessmentHtmlTemplate(Session session, Assessment assessment, boolean showEmptyFields, boolean limitedSet) {
 		this.session = session;
+		this.assessment = assessment;
+		this.taxon = assessment.getTaxon();
 		this.showEmptyFields = showEmptyFields;
-		this.views = loadViews();
+	
+		AssessmentSchema schema = null;
+		try {
+			schema = SIS.get().getAssessmentSchemaBroker()
+				.getAssessmentSchema(assessment.getSchema(SIS.get().getDefaultSchema()));
+		} catch (Throwable e) {
+			schema = new RedListAssessmentSchema();
+		}
+		this.schema = schema;
+		setLogo("redListLogo.jpg");
 		
 		theHtml = new StringBuilder();
 		
 		curOrg = null;
 		
 		exclude = limitedSet ? Arrays.asList(CanonicalNames.limitedSetExcludes) : new ArrayList<String>();
-		ignore = Arrays.asList(CanonicalNames.RedListConsistencyCheck, CanonicalNames.RedListNotes, 
-				CanonicalNames.OldDEMPastDecline, CanonicalNames.OldDEMPeriodPastDecline, 
-				CanonicalNames.OldDEMFutureDecline, CanonicalNames.OldDEMPeriodFutureDecline, 
-				CanonicalNames.LandCover);
 		isAggregate = false;
+	}
+	
+	public void setLogo(String logo) {
+		this.logo = logo;
 	}
 	
 	public byte[] getHtmlBytes() {
@@ -109,69 +120,49 @@ public class AssessmentHtmlTemplate {
 		this.isAggregate = isAggregate;
 	}
 	
-	public void parse(Assessment assessment) {
-		parse(assessment, "FullView");
+	public void parse() {
+		parseView("Report");
+	}
+	
+	public void parseAvailable() {
+		parseView(null);
 	}
 
-	public void parse(Assessment assessment, String viewName) {
+	public void parseView(String viewName) {
 		// Add IUCN logo and species Name/Authority and Taxonomy Info
-		buildHeadingTable(assessment);
+		buildHeadingTable();
 
 		// if we're not provided with a view just display everything in
 		// alphabetical order
-		View curView = views.get(viewName);
-		if (curView == null) {
-			Debug.println("View name {0} not found.", viewName);
-			// Add assessment info
-			buildAssessmentInfo(assessment);
-			buildBibliography(assessment);
+		if (viewName == null) {
+			buildAssessmentInfo();
 		} else {
-			// Red List
-			buildRedListAssessment(curView.getPages().get("RedListing"), assessment);
-
-			// Distribution
-			buildPage(curView.getPages().get("Distribution"), "Distribution", assessment);
-
-			// Occurrence
-			buildOccurrence(curView.getPages().get("Occurrence"), assessment);
-
-			// Population
-			buildPopulation(curView.getPages().get("Population"), assessment);
-
-			// Habitats
-			buildHabitats(curView.getPages().get("Habitats"), assessment);
-
-			// Use and Trade
-			buildUseTrade(curView.getPages().get("UseTrade"), assessment);
-
-			// Threats
-			buildThreats(curView.getPages().get("Threats"), assessment);
-
-			// Conservation
-			buildConservation(curView.getPages().get("Conservation"), assessment);
-
-			// Services
-			buildServices(curView.getPages().get("EcosystemServices"), assessment);
-			
-			// Bibliography
-			buildBibliography(assessment);
+			View curView = loadView(viewName);
+			for (Page page : curView.getPages().values())
+				buildSection(page);
 		}
+		
+		buildBibliography();
 
 		if (!isAggregate)
 			theHtml.append("</body>\r\n</html>");
 	}
 	
-	private Map<String, View> loadViews() {
-		//TODO: load correct view based on assessment schema? 
-		final Document document = DocumentLoader.getView();
-		final String serialized = BaseDocumentUtils.impl.serializeDocumentToString(document, true, false);
+	private View loadView(String name) {
+		final String serialized = BaseDocumentUtils.impl
+			.serializeDocumentToString(schema.getViews(), true, false);
+		
 		final NativeDocument jnd = new JavaNativeDocument();
 		jnd.parse(serialized);
 		
 		ViewParser parser = new ViewParser();
 		parser.parse(jnd);
 		
-		return parser.getViews();
+		View view = parser.getViews().get(name);
+		if (view == null)
+			view = parser.getViews().get("Report");
+		
+		return view;
 	}
 
 	private StringBuilder appendInlineTable(String heading, String data) {
@@ -188,7 +179,7 @@ public class AssessmentHtmlTemplate {
 		theHtml.append("</h1>\n");
 	}
 
-	private void buildAssessmentInfo(Assessment assessment) {
+	private void buildAssessmentInfo() {
 		ArrayList<Field> fields = new ArrayList<Field>(assessment.getField());
 		Collections.sort(fields, new TextComparator<Field>() {
 			protected String getString(Field model) {
@@ -201,7 +192,7 @@ public class AssessmentHtmlTemplate {
 		for (Field field : fields) {
 			String canonicalName = field.getName();
 			
-			if (!exclude.contains(canonicalName) && !ignore.contains(canonicalName)) {
+			if (!exclude.contains(canonicalName)) {
 				Couple<DisplayData, Map<String, String>> currentDisplayData = fetchDisplayData(canonicalName);
 				if (currentDisplayData != null) {
 					StringBuilder orgHtml = new StringBuilder();
@@ -226,7 +217,7 @@ public class AssessmentHtmlTemplate {
 	}
 
 	// Conservation
-	private void buildBibliography(Assessment assessment) {
+	private void buildBibliography() {
 		appendSectionHeader("Bibliography");
 		StringBuffer orgHtml = new StringBuffer("<div id=\"bibliography\">");
 		
@@ -253,7 +244,7 @@ public class AssessmentHtmlTemplate {
 		theHtml.append(orgHtml.toString());
 	}
 	
-	private void buildCommonNames(Taxon taxon) {
+	private void buildCommonNames() {
 		theHtml.append("<p><strong>Common Names: </strong>");
 		if (taxon.getCommonNames().isEmpty()) {
 			theHtml.append("No Common Names");
@@ -278,38 +269,26 @@ public class AssessmentHtmlTemplate {
 		}
 		theHtml.append("<br/>\n");
 	}
-
-	// Conservation
-	private void buildConservation(Page conservationPage, Assessment assessment) {
-		StringBuffer orgHtml = buildPageOrganizations(conservationPage.getOrganizations(), assessment);
+	
+	private void buildSection(Page page) {
+		StringBuffer orgHtml = buildPageOrganizations(page.getOrganizations());
 		if (orgHtml.length() > 0) {
-			theHtml.append("<div id=\"conservation\">\n");
-			appendSectionHeader(conservationPage.getTitle());
-			theHtml.append(orgHtml);
-			theHtml.append("</div>\n");
-		}
-	}
-
-	// Habitats
-	private void buildHabitats(Page habitatsPage, Assessment assessment) {
-		StringBuffer orgHtml = buildPageOrganizations(habitatsPage.getOrganizations(), assessment);
-		if (orgHtml.length() > 0) {
-			theHtml.append("<div id=\"habitats\">\n");
-			appendSectionHeader(habitatsPage.getTitle());
+			theHtml.append("<div id=\""+page.getId()+"\">\n");
+			appendSectionHeader(page.getTitle());
 			theHtml.append(orgHtml);
 			theHtml.append("</div>\n");
 		}
 	}
 
 	/**** Header ****/
-	private void buildHeadingTable(Assessment assessment) {
+	private void buildHeadingTable() {
 		Taxon taxon = assessment.getTaxon();
 		
 		if (!isAggregate) {
 			theHtml.append("<html>\n" +
 				"<head>\n" +
 				"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n" +
-				"<link rel=\"stylesheet\" type=\"text/css\" href=\"" + CSS_LOCATION + "\">");
+				"<link rel=\"stylesheet\" type=\"text/css\" href=\"" + createUrl(CSS_FILE) + "\">");
 			theHtml.append("<title>");
 			theHtml.append(taxon.getFullName());
 			theHtml.append("</title></head><body>");
@@ -317,14 +296,15 @@ public class AssessmentHtmlTemplate {
 		theHtml.append("<div id=\"header\">\n");
 		if (!assessment.isPublished())
 			theHtml.append("<div id=\"draftType\">"+assessment.getAssessmentType().getDisplayName(true)+"</div>\n");
-		theHtml.append("<img src=\""+LOGO_LOCATION+"\" alt=\"IUCN Red List\" />\n");
+		theHtml.append("<img src=\""+createUrl(logo)+"\" alt=\"Logo\" />\n");
 		theHtml.append("<div id=\"speciesInfo\">");
 		theHtml.append("<h1><em>");
 		theHtml.append(taxon.getFullName() + " - " + taxon.getTaxonomicAuthority());
 		theHtml.append("</em></h1>");
 		buildHierarchyList(taxon);
 		theHtml.append("</div>\n</div>\n");
-		buildTaxonomyInformation(assessment, taxon);
+		
+		buildTaxonomyInformation();
 	}
 
 	private void buildHierarchyList(Taxon taxon) {
@@ -337,36 +317,10 @@ public class AssessmentHtmlTemplate {
 		theHtml.append(taxon.getName());
 	}
 
-	// Occurrence
-	private void buildOccurrence(Page occurrencePage, Assessment assessment) {
-		StringBuffer orgHtml = buildPageOrganizations(occurrencePage.getOrganizations(), assessment);
-		if (orgHtml.length() > 0) {
-			theHtml.append("<div id=\"occurrence\">\n");
-			appendSectionHeader(occurrencePage.getTitle());
-			theHtml.append(orgHtml);
-			theHtml.append("</div>\n");
-		}
-	}
-
-	// Habitats
-	private void buildPage(Page page, String pageName, Assessment assessment) {
-		StringBuffer orgHtml = buildPageOrganizations(page.getOrganizations(), assessment);
-		if (orgHtml.length() > 0) {
-			theHtml.append("<div id=\"" + pageName + "\">\n");
-			appendSectionHeader(page.getTitle());
-			theHtml.append(orgHtml);
-			theHtml.append("</div>\n");
-		}
-	}
-
-	private StringBuffer buildPageOrganizations(ArrayList<Organization> organizations, Assessment assessment) {
+	private StringBuffer buildPageOrganizations(ArrayList<Organization> organizations) {
 		StringBuffer retHtml = new StringBuffer();
 		for (int i = 0; i < organizations.size(); i++) {
 			curOrg = organizations.get(i);
-
-			// Sections to ignore
-			if (curOrg.getTitle().equals("Publication Information"))
-				continue;
 
 			StringBuilder orgHtml = new StringBuilder();
 			for (String fieldId : curOrg.getMyFields())
@@ -383,37 +337,7 @@ public class AssessmentHtmlTemplate {
 		return retHtml;
 	}
 
-	// Population
-	private void buildPopulation(Page populationPage, Assessment assessment) {
-		StringBuffer orgHtml = buildPageOrganizations(populationPage.getOrganizations(), assessment);
-		if (orgHtml.length() > 0) {
-			theHtml.append("<div id=\"population\">\n");
-			appendSectionHeader(populationPage.getTitle());
-			theHtml.append(orgHtml);
-			theHtml.append("</div>\n");
-		}
-	}
-
-	// Red List - assuming this should always have content
-	private void buildRedListAssessment(Page redListPage, Assessment assessment) {
-		theHtml.append("<div id=\"redList\">\n");
-		appendSectionHeader(redListPage.getTitle());
-		theHtml.append(buildPageOrganizations(redListPage.getOrganizations(), assessment));
-		theHtml.append("</div>\n");
-	}
-
-	// Services
-	private void buildServices(Page servicesPage, Assessment assessment) {
-		StringBuffer orgHtml = buildPageOrganizations(servicesPage.getOrganizations(), assessment);
-		if (orgHtml.length() > 0) {
-			theHtml.append("<div id=\"services\">\n");
-			appendSectionHeader(servicesPage.getTitle());
-			theHtml.append(orgHtml);
-			theHtml.append("</div>\n");
-		}
-	}
-
-	private void buildSynonyms(Taxon taxon) {
+	private void buildSynonyms() {
 		theHtml.append("<strong>Synonyms: </strong>");
 		if (taxon.getSynonyms().isEmpty()) {
 			theHtml.append("No Synonyms");
@@ -438,10 +362,10 @@ public class AssessmentHtmlTemplate {
 		theHtml.append("</p>\n");
 	}
 
-	private void buildTaxonomyInformation(Assessment assessment, Taxon taxon) {
+	private void buildTaxonomyInformation() {
 		theHtml.append("<div id=\"taxonomyInfo\">\n");
-		buildCommonNames(taxon);
-		buildSynonyms(taxon);
+		buildCommonNames();
+		buildSynonyms();
 		theHtml.append("<p>");
 		for (Notes notes : taxon.getNotes()) {
 			theHtml.append(notes.getValue());
@@ -458,28 +382,6 @@ public class AssessmentHtmlTemplate {
 		theHtml.append("</div>\n");
 	}
 
-	// Threats
-	private void buildThreats(Page threatsPage, Assessment assessment) {
-		StringBuffer orgHtml = buildPageOrganizations(threatsPage.getOrganizations(), assessment);
-		if (orgHtml.length() > 0) {
-			theHtml.append("<div id=\"threats\">\n");
-			appendSectionHeader(threatsPage.getTitle());
-			theHtml.append(orgHtml);
-			theHtml.append("</div>\n");
-		}
-	}
-
-	// Use and Trade
-	private void buildUseTrade(Page useTradePage, Assessment assessment) {
-		StringBuffer orgHtml = buildPageOrganizations(useTradePage.getOrganizations(), assessment);
-		if (orgHtml.length() > 0) {
-			theHtml.append("<div id=\"useTrade\">\n");
-			appendSectionHeader(useTradePage.getTitle());
-			theHtml.append(orgHtml);
-			theHtml.append("</div>\n");
-		}
-	}
-
 	private String createDataLabel(String label) {
 		String ret = "<span class=\"dataLabel\">" + label;
 		if (!(label.endsWith(":")) && !(label.endsWith("?")) && !(label.endsWith("."))) {
@@ -494,7 +396,7 @@ public class AssessmentHtmlTemplate {
 			AssessmentSchemaIO io = new AssessmentSchemaIO();
 			
 			NativeDocument jnd = new JavaNativeDocument();
-			jnd.parse(io.getFieldAsString(new RedListAssessmentSchema(), canonicalName));
+			jnd.parse(io.getFieldAsString(schema, canonicalName));
 
 			FieldParser parser = new FieldParser();
 			DisplayData currentDisplayData = parser.parseFieldData(jnd);
@@ -575,7 +477,7 @@ public class AssessmentHtmlTemplate {
 		return users;
 	}
 	
-	private boolean isIn(String name, String[] set) {
+	private boolean isIn(String name, String... set) {
 		for (String test : set)
 			if (test.equalsIgnoreCase(name))
 				return true;
@@ -739,27 +641,27 @@ public class AssessmentHtmlTemplate {
 				headersInUse.add(displayData.getFirst().getDescription());
 
 		// Special cases for parsing
-		if (canonicalName.equals("UseTradeDetails")) {
+		if (canonicalName.equals(CanonicalNames.UseTradeDetails)) {
 			retHtml = parseUseTrade(prettyData, headers);
 			return retHtml;
-		} else if (canonicalName.equals("RedListReasonsForChange")) {
+		} else if (canonicalName.equals(CanonicalNames.RedListReasonsForChange)) {
 			retHtml = parseReasonsForChange(prettyData);
 			return retHtml;
-		} else if (canonicalName.equals("RedListCriteria")) {
+		} else if (canonicalName.equals(CanonicalNames.RedListCriteria)) {
 			// Red List status sets it's own header, don't need to do it
 			// automatically
 			parseRedListStatus(data, headers);
 			return retHtml;
-		} else if (canonicalName.contains("PopulationReduction")) {
+		} else if (canonicalName.contains("PopulationReduction") && 
+				!isIn(canonicalName, CanonicalNames.PopulationReductionFuture, CanonicalNames.PopulationReductionPast, 
+				CanonicalNames.PopulationReductionPastandFuture)) {
 			// Print the main percentage in normal table, print basis and causes
 			// in
 			// specially formatted table
-			if (!(canonicalName.endsWith("Past") || canonicalName.endsWith("Future") || canonicalName
-					.endsWith("Ongoing"))) {
-				retHtml = parsePopulationReduction(canonicalName, prettyData);
-				return retHtml;
-			}
-		} else if (curOrg.getTitle().equals("Life History") && !canonicalName.equals("GenerationLength")) {
+			
+			retHtml = parsePopulationReduction(canonicalName, prettyData);
+			return retHtml;
+		} else if (curOrg.getTitle().equals("Life History") && !canonicalName.equals(CanonicalNames.GenerationLength)) {
 			String header = headersInUse.get(0).toString();
 			String tableData = prettyData.get(0).toString();
 			if (tableData.length() == 0) {
@@ -768,19 +670,18 @@ public class AssessmentHtmlTemplate {
 			if (headersInUse.size() == 2 && headersInUse.get(1).equals("Units:")) {
 				tableData += " " + prettyData.get(1);
 			}
-			if (canonicalName.equals("EggLaying")) {
+			if (canonicalName.equals(CanonicalNames.EggLaying)) {
 				retHtml.append("<h2>Breeding Strategy</h2>\n");
 			}
 			retHtml.append(appendInlineTable(header, tableData));
-			if (canonicalName.equals("MaleMaturitySize") || canonicalName.equals("GestationTime")
-					|| canonicalName.equals("NaturalMortality") || canonicalName.equals("Parthenogenesis")) {
+			
+			if (isIn(canonicalName, CanonicalNames.MaleMaturitySize, CanonicalNames.GestationTime, 
+					CanonicalNames.NaturalMortality, CanonicalNames.Parthenogenesis))
 				retHtml.append("<br/>");
-			}
+			
 			return retHtml;
 		}
-
 		
-
 		if (useTable && !forceShowCanonicalName) {
 			retHtml.append("<table>");
 		}
@@ -823,8 +724,8 @@ public class AssessmentHtmlTemplate {
 			retHtml.append("</tr>\n");
 		} else {
 			for (String header : headersInUse) {
-				if (!canonicalName.endsWith("Documentation") && !canonicalName.equalsIgnoreCase("RedListRationale")) {
-					if (!(canonicalName.equals("RedListCaveat") || canonicalName.equals("RedListPetition"))) {
+				if (!canonicalName.endsWith("Documentation") && !canonicalName.equalsIgnoreCase(CanonicalNames.RedListRationale)) {
+					if (!(canonicalName.equals(CanonicalNames.RedListCaveat) || canonicalName.equals(CanonicalNames.RedListPetition))) {
 						retHtml.append("<p>");
 					}
 					retHtml.append(createDataLabel(header));
@@ -849,7 +750,7 @@ public class AssessmentHtmlTemplate {
 			} else if (!tempText.equals(BLANK_STRING))
 				actuallyData = true;
 
-			if (canonicalName.endsWith("Documentation") || canonicalName.equalsIgnoreCase("RedListRationale")) {
+			if (canonicalName.endsWith("Documentation") || canonicalName.equalsIgnoreCase(CanonicalNames.RedListRationale)) {
 				if (!actuallyData && showEmptyFields) {
 					retHtml.append("<p>" + createDataLabel(displayName));
 					retHtml.append("<br/>" + tempText + "</p>");
@@ -912,7 +813,7 @@ public class AssessmentHtmlTemplate {
 
 	private StringBuilder parsePageField(String canonicalName, Field data) {
 		StringBuilder retHtml = new StringBuilder();
-		if (ignore.contains(canonicalName) || exclude.contains(canonicalName))
+		if (exclude.contains(canonicalName))
 			return retHtml;
 		
 		Couple<DisplayData, Map<String, String>> currentDisplayData = fetchDisplayData(canonicalName);
@@ -1095,6 +996,10 @@ public class AssessmentHtmlTemplate {
 		}
 		
 		return map;
+	}
+	
+	public static String createUrl(String resource) {
+		return RESOURCE_LOCATION + resource;
 	}
 	
 	public static abstract class TextComparator<T> implements Comparator<T> {
