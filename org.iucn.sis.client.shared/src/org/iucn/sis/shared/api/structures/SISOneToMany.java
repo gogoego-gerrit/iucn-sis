@@ -101,12 +101,15 @@ public class SISOneToMany extends Structure<Field> {
 		}
 		
 		final List<StructureHolder> unsaved = new ArrayList<StructureHolder>();
-		
+		final List<Integer> saved = new ArrayList<Integer>();
+		saved.add(0);
 		for (StructureHolder cur : oneToMany.getSelected()) {
 			if (cur.getField() == null)
 				unsaved.add(cur);
-			else
+			else {
 				cur.getStructure().save(field, cur.getField());
+				saved.add(cur.getField().getId());
+			}
 		}
 		
 		for (StructureHolder cur : unsaved) {
@@ -119,6 +122,13 @@ public class SISOneToMany extends Structure<Field> {
 			
 			cur.setField(subfield);
 		}
+		
+		final List<Field> toRemove = new ArrayList<Field>();
+		for (Field subfield : field.getFields())
+			if (!saved.contains(subfield.getId()))
+				toRemove.add(subfield);
+		for (Field subfield : toRemove)
+			field.getFields().remove(subfield);
 	}
 
 	@Override
