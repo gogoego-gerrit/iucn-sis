@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
+import org.iucn.sis.shared.api.utils.CaseInsensitiveAlphanumericComparator;
 
 import com.solertium.util.portable.PortableAlphanumericComparator;
 
@@ -238,39 +240,40 @@ public abstract class ReportTemplate {
 		return referenceStr;
 	}
 	
-	protected String fetchReferences(){
+	protected String fetchReferences() {
 		String referenceStr = "";
 
-		StringBuilder builder = new StringBuilder();
-		List<String> list = new ArrayList<String>();
-		Set<Reference> temp = assessment.getReference();
-		if(!temp.isEmpty()){
-			for (Reference cur : temp) {
-				if(cur != null){
-					if(!cur.getCitation().isEmpty() && cur.getCitation() != null)
-						list.add(cur.getCitation());
+		Set<String> references = new HashSet<String>();
+		if (assessment.getReference() != null){
+			for (Reference reference : assessment.getReference()) {
+				String citation = reference.generateCitationIfNotAlreadyGenerate();
+				if (citation != null && !"".equals(citation))
+					references.add(citation);
+			}
+		}
+		for (Field field : assessment.getField()) {
+			if (field.getReference() != null) {
+				for (Reference reference : field.getReference()) {
+					String citation = reference.generateCitationIfNotAlreadyGenerate();
+					if (citation != null && !"".equals(citation))
+						references.add(citation);
 				}
 			}
 		}
-		if(!assessment.getField().isEmpty()){
-			for (Field field : assessment.getField()) {
-				if (field.getReference() != null && !field.getReference().isEmpty()) {
-					for (Reference reference : field.getReference()){
-						if(reference.getCitation() != null && !list.contains(reference.getCitation()))
-							list.add(reference.getCitation());
-					}
-				}
-			}
-		}
-		if(!list.isEmpty()){
-			Collections.sort(list, new PortableAlphanumericComparator());
-			for (String row : list)
+		
+		if (references.isEmpty())
+			referenceStr = "-";
+		else {
+			List<String> values = new ArrayList<String>(references);
+			Collections.sort(values, new CaseInsensitiveAlphanumericComparator());
+			
+			StringBuilder builder = new StringBuilder();
+			for (String row : values)
 				builder.append(row + "<br/>");
 			
 			referenceStr = builder.toString();
-		}else
-			referenceStr = "-";
-
+		}
+		
 		return referenceStr;
 	}
 		
