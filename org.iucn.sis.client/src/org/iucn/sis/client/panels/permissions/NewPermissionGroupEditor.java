@@ -330,7 +330,7 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 		}
 		else if (value.isTaxon()) {
 			final PermissionScopeTaxonomyBrowser browser;
-			final Window window = WindowUtils.newWindow("Select Working Set(s)");
+			final Window window = WindowUtils.newWindow("Select Taxon");
 			window.setLayout(new FillLayout());
 			window.setSize(600, 400);
 			window.setModal(true);
@@ -341,8 +341,11 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 					if (taxon == null)
 						scope.setValue(scope.getStore().getAt(0));
 					else {
-						scopeURI = "taxon/" + taxon.getFullName() + 
-							(taxon.getFootprint().length > 0 ? ("/" + taxon.getFootprint()[0]) : "");
+						String prefix = "taxon";
+						int level = taxon.getLevel();
+						String name = taxon.getFullName();
+						String kingdom = taxon.getKingdomName();
+						scopeURI = prefix + "/" + level + "/" + name + "/" + kingdom;
 						scopeDisplay.setHtml(scopeURI);
 					}
 				}
