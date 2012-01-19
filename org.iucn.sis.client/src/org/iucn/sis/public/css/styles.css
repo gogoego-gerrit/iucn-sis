@@ -113,6 +113,10 @@ body,td,div,input,p,select,input,button {
 	font-weight: bold !important;
 }
 
+.italic {
+	font-style: italic !important;	
+}
+
 .color-dark-blue {
 	color: #00428C !important;
 }

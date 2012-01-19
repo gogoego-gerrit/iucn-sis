@@ -83,6 +83,7 @@ public class AssemblaMailer {
 		msg.append(reporter);
 		msg.append(",\n\n");
 		msg.append(autoRespond);
+		msg.append("\n\nFor more information, visit http://sis.iucnsis.org/support");
 		
 		String to = user.getEmail();
 		if (to == null || "".equals(to))

@@ -9,16 +9,22 @@ import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.User;
 
+import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.HtmlContainer;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.google.gwt.user.client.Window;
@@ -68,7 +74,7 @@ public class AssemblaSupportPanel extends BasicWindow {
 		form.setHeaderVisible(false);
 		form.setLayout(layout);
 		form.add(reporter = FormBuilder.createTextField("reporter", SISClientBase.currentUser.getDisplayableName(), "Reported By", true));
-		form.add(type = FormBuilder.createComboBox("type", null, "I'd like to: ", true, BUG, QUESTION));
+		form.add(type = FormBuilder.createComboBox("type", null, "I'd like to", true, BUG, QUESTION));
 		form.add(area = FormBuilder.createTextArea("body", null, "Message", true));
 		
 		type.setForceSelection(true);
@@ -83,7 +89,16 @@ public class AssemblaSupportPanel extends BasicWindow {
 		
 		type.setValue(type.findModel(BUG));
 		
-		add(form);
+		int size = 25;
+		final BorderLayoutData south = new BorderLayoutData(LayoutRegion.SOUTH, size, size, size);
+		south.setSplit(false);
+		
+		final LayoutContainer container = new LayoutContainer(new BorderLayout());
+		container.add(form, new BorderLayoutData(LayoutRegion.CENTER));
+		container.add(createInfoPanel(), south);
+		
+		add(container);
+		
 		addButton(new Button("Submit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				if (form.isValid()) {
@@ -108,6 +123,18 @@ public class AssemblaSupportPanel extends BasicWindow {
 				hide();
 			}
 		}));
+	}
+	
+	private Component createInfoPanel() {
+		final HtmlContainer container = new HtmlContainer();
+		container.addStyleName("center");
+		container.addStyleName("bold");
+		container.addStyleName("italic");
+		container.setHtml("For more information, visit " +
+			"<a target=\"_blank\" href=\"http://sis.iucnsis.org/support\">" + 
+			"http://sis.iucnsis.org/support</a>.");
+		
+		return container;
 	}
 	
 	private void submit(String subject, String reporter, String value) {
