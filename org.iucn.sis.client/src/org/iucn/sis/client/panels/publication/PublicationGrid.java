@@ -11,10 +11,12 @@ import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
+import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreFilter;
+import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
@@ -53,11 +55,12 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 	
 	private ColumnModel getColumnModel() {
 		List<ColumnConfig> cols = new ArrayList<ColumnConfig>();
-		cols.add(sm.getColumn());
 		
-		cols.add(new ColumnConfig("group", "Working Set Submitted in", 100));
+		cols.add(sm.getColumn());		
+		cols.add(new ColumnConfig("group", "Working Set", 100));
 		cols.add(new ColumnConfig("taxon", "Species Name", 100));
 		cols.add(new ColumnConfig("status", "Status", 100));
+		cols.add(new ColumnConfig("date", "Date Submitted", 150));
 		cols.add(new ColumnConfig("submitter", "Submitted By", 100));
 		cols.add(new ColumnConfig("goal", "Publication Target", 150));
 		cols.add(new ColumnConfig("approved", "For Publication", 150));
@@ -95,9 +98,10 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 		PublicationCache.impl.listData(new ComplexListener<List<PublicationData>>() {
 			public void handleEvent(List<PublicationData> eventData) {
 				ListStore<PublicationModelData> store = new ListStore<PublicationModelData>();
+				store.setStoreSorter(new PublicationStoreSorter());
 				for (PublicationData data : eventData)
 					store.add(new PublicationModelData(data));
-				
+				store.sort("date", SortDir.DESC);
 				callback.onSuccess(store);
 			}
 		});
@@ -113,19 +117,16 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 		PublicationCache.impl.listTargets(new ComplexListener<List<PublicationTarget>>() {
 			public void handleEvent(List<PublicationTarget> eventData) {
 				removeAll();
-				refresh(new DrawsLazily.DoneDrawingCallback() {
-					public void isDrawn() {
-						grid.addPlugin(getGridFilters());
-						
-						final LayoutContainer container = new LayoutContainer(new BorderLayout());
-						container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
-						container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
-						
-						add(container);
-						
-						callback.isDrawn();
-					}
-				});
+				
+				grid.addPlugin(getGridFilters());
+				
+				final LayoutContainer container = new LayoutContainer(new BorderLayout());
+				container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
+				container.add(getPagingToolbar(), new BorderLayoutData(LayoutRegion.SOUTH, 25, 25, 25));
+				
+				add(container);
+				
+				refresh(callback);
 			}
 		});
 	}
@@ -171,6 +172,16 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 				select = base[i].equals(test[i]);
 			
 			return select;
+		}
+		
+	}
+	
+	private static class PublicationStoreSorter extends StoreSorter<PublicationModelData> {
+		
+		@Override
+		public int compare(Store<PublicationModelData> store, PublicationModelData m1, PublicationModelData m2,
+				String property) {
+			return m1.getModel().getSubmissionDate().compareTo(m2.getModel().getSubmissionDate());
 		}
 		
 	}
