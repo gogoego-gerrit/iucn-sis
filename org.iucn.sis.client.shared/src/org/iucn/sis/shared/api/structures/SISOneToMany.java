@@ -2,6 +2,7 @@ package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -122,13 +123,13 @@ public class SISOneToMany extends Structure<Field> {
 			
 			cur.setField(subfield);
 		}
-		
-		final List<Field> toRemove = new ArrayList<Field>();
+				
+		final HashSet<Field> savedSet = new HashSet<Field>();
 		for (Field subfield : field.getFields())
-			if (!saved.contains(subfield.getId()))
-				toRemove.add(subfield);
-		for (Field subfield : toRemove)
-			field.getFields().remove(subfield);
+			if (saved.contains(subfield.getId()))
+				savedSet.add(subfield);
+		
+		field.setFields(savedSet);
 	}
 
 	@Override
