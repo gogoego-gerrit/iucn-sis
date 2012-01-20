@@ -75,12 +75,15 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 	private Component getAssessmentsPanel(final Taxon node) {
 		final GroupingStore<BaseModelData> store = new GroupingStore<BaseModelData>();
 		
+		final String publishedStatusName = AssessmentType
+			.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID)
+			.getDisplayName(true);
 		for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(node.getId(), null)) {
 			BaseModelData model = new BaseModelData();
 			model.set("date", data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed()));
 			model.set("category", AssessmentFormatter.getProperCategoryAbbreviation(data));
 			model.set("criteria", AssessmentFormatter.getProperCriteriaString(data));
-			model.set("status", "Published");
+			model.set("status", publishedStatusName);
 			model.set("region", getRegions(data));
 			model.set("attachments", data.hasAttachments());
 			model.set("report", "");
@@ -92,13 +95,13 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 			store.add(model);
 		}
 
-		for (Assessment data : AssessmentCache.impl.getDraftAssessmentsForTaxon(node.getId(), null)) {
+		for (Assessment data : AssessmentCache.impl.getUnpublishedAssessmentsForTaxon(node.getId(), null)) {
 			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, data)) {
 				BaseModelData model = new BaseModelData();
 				model.set("date", data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed()));
 				model.set("category", AssessmentFormatter.getProperCategoryAbbreviation(data));
 				model.set("criteria", AssessmentFormatter.getProperCriteriaString(data));
-				model.set("status", "Draft");
+				model.set("status", data.getAssessmentType().getDisplayName(true));
 				model.set("region", getRegions(data));
 				model.set("attachments", data.hasAttachments());
 				model.set("report", "");
