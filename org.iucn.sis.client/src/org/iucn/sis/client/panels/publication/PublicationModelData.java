@@ -22,6 +22,7 @@ public class PublicationModelData extends BaseModelData {
 		set("approved", model.getTargetApproved() == null ? "Unset" : model.getTargetApproved().getName());
 		set("submitter", model.getSubmitter().getDisplayableName());
 		set("notes", model.getNotes());
+		set("priority", model.getPriority() == null ? 0 : model.getPriority());
 	}
 	
 	public PublicationData getModel() {

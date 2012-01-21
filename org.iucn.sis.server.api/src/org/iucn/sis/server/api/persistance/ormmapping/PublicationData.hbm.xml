@@ -15,6 +15,7 @@ License Type: Evaluation
 		<property name="group" column="groupname" type="string" length="2048" not-null="false" lazy="false"/>
 		<property name="notes" column="notes" type="text" not-null="false" lazy="false"/>
 		<property name="submissionDate" column="date" type="java.util.Date" not-null="true" lazy="false"/>
+		<property name="priority" column="priority" type="integer" not-null="false" lazy="false" />
 		<many-to-one name="submitter" cascade="lock" column="submitter" class="org.iucn.sis.shared.api.models.User" not-null="false" lazy="no-proxy">
 		</many-to-one>
 		<many-to-one name="targetGoal" cascade="lock" column="target_goal" class="org.iucn.sis.shared.api.models.PublicationTarget" not-null="false" lazy="no-proxy">

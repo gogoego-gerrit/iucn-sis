@@ -107,8 +107,10 @@ public class PublicationIO {
 			target.setTargetApproved(getPublicationTarget(source.getTargetApproved().getId()));
 		if (source.getTargetGoal() != null)
 			target.setTargetGoal(getPublicationTarget(source.getTargetGoal().getId()));
+		if (source.getPriority() != null)
+			target.setPriority(source.getPriority());
 		
-		if (source.getAssessment().isPublished() && target.getTargetApproved() != null)
+		if (source.getAssessment() != null && source.getAssessment().isPublished() && target.getTargetApproved() != null)
 			publish(target.getAssessment(), target.getTargetApproved());
 		
 		session.update(target);

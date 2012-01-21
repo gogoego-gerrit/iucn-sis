@@ -89,13 +89,14 @@ public class PublicationCache {
 	}
 	
 	public void updateData(final String status, final Integer targetGoal, final Integer targetApproved,
-			final String notes, final List<Integer> ids, final GenericCallback<Object> callback) {
+			final String notes, final Integer priority, final List<Integer> ids, final GenericCallback<Object> callback) {
 		final StringBuilder out = new StringBuilder();
 		out.append("<root>");
 		out.append(XMLWritingUtils.writeCDATATag("status", status, true));
 		out.append(XMLWritingUtils.writeTag("goal", targetGoal == null ? null : targetGoal.toString(), true));
 		out.append(XMLWritingUtils.writeTag("approved", targetApproved == null ? null : targetApproved.toString(), true));
 		out.append(XMLWritingUtils.writeCDATATag("notes", notes, true));
+		out.append(XMLWritingUtils.writeTag("priority", priority == null ? null : priority.toString()));
 		for (Integer id : ids)
 			out.append(XMLWritingUtils.writeTag("data", id.toString()));
 		out.append("</root>");
@@ -115,34 +116,47 @@ public class PublicationCache {
 						}
 						if (targetGoal != null) {
 							model.setTargetGoal(targets.get(targetGoal));
-							if (cached.getPublicationData() == null)
-								cached.setPublicationData(new PublicationData());
-							cached.getPublicationData().setTargetGoal(model.getTargetGoal());
+							if (cached != null) {
+								if (cached.getPublicationData() == null)
+									cached.setPublicationData(new PublicationData());
+								cached.getPublicationData().setTargetGoal(model.getTargetGoal());
+							}
 						}
 						if (targetApproved != null) {
 							model.setTargetApproved(targets.get(targetApproved));
-							if (cached.getPublicationData() == null)
-								cached.setPublicationData(new PublicationData());
-							cached.getPublicationData().setTargetApproved(model.getTargetApproved());
+							if (cached != null) {
+								if (cached.getPublicationData() == null)
+									cached.setPublicationData(new PublicationData());
+								cached.getPublicationData().setTargetApproved(model.getTargetApproved());
+							}
+						}
+						if (priority != null) {
+							model.setPriority(priority);
+							if (cached != null) {
+								if (cached.getPublicationData() == null)
+									cached.setPublicationData(new PublicationData());
+								cached.getPublicationData().setPriority(priority);
+							}
 						}
 						if (notes != null) {
 							model.setNotes(notes);
-							if (cached.getPublicationData() == null)
-								cached.setPublicationData(new PublicationData());
-							cached.getPublicationData().setNotes(model.getNotes());
+							if (cached != null) {
+								if (cached.getPublicationData() == null)
+									cached.setPublicationData(new PublicationData());
+								cached.getPublicationData().setNotes(model.getNotes());
+							}
 						}
 					}
 					
-					if (model.getAssessment().isPublished())
+					if (model.getAssessment() != null && model.getAssessment().isPublished())
 						data.remove(id);
 				}
-				
 				callback.onSuccess(null);
 			}
 			public void onFailure(Throwable caught) {
-				/*WindowUtils.errorAlert("Could not make changes, please try again later: <br/>" + 
+				WindowUtils.errorAlert("Could not make changes, please try again later.");/*: <br/>" + 
 						ClientDocumentUtils.parseStatus(document));*/
-				onSuccess(null);
+				//onSuccess(null);
 			}
 		});
 	}

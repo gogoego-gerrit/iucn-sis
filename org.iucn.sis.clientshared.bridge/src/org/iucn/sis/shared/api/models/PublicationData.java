@@ -11,6 +11,9 @@ import com.solertium.util.portable.XMLWritingUtils;
 public class PublicationData implements Serializable {
 	
 	public static final String ROOT_TAG = "publication";
+	public static final int PRIORITY_LOW = -1;
+	public static final int PRIORITY_NORMAL = 0;
+	public static final int PRIORITY_HIGH = 1;
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -29,6 +32,8 @@ public class PublicationData implements Serializable {
 	public PublicationTarget targetApproved;
 	
 	public String notes;
+	
+	public Integer priority;
 	
 	public PublicationData() {
 	}
@@ -97,13 +102,23 @@ public class PublicationData implements Serializable {
 		return targetGoal;
 	}
 	
+	public void setPriority(Integer priority) {
+		this.priority = priority;
+	}
+	
+	public Integer getPriority() {
+		return priority;
+	}
+	
 	public String toXML() {
 		StringBuilder out = new StringBuilder();
 		out.append("<"+ROOT_TAG+" id=\"" + getId() + "\">");
 		out.append(toXML(getAssessment()));
 		out.append(XMLWritingUtils.writeCDATATag("group", getGroup(), true));
 		out.append(XMLWritingUtils.writeCDATATag("notes", getNotes(), true));
-		
+		if (getPriority() != null)
+			out.append(XMLWritingUtils.writeCDATATag("priority", getPriority().toString()));
+	
 		if (getSubmissionDate() != null)
 			out.append(XMLWritingUtils.writeTag("date", Long.toString(getSubmissionDate().getTime())));
 		
@@ -173,6 +188,8 @@ public class PublicationData implements Serializable {
 				data.setTargetGoal(PublicationTarget.fromXML((NativeElement)node));
 			else if ("targetApproved".equals(node.getNodeName()))
 				data.setTargetApproved(PublicationTarget.fromXML((NativeElement)node));
+			else if ("priority".equals(node.getNodeName()))
+				data.setPriority(Integer.valueOf(node.getTextContent()));
 		}
 		
 		return data;

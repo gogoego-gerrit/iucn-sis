@@ -6,6 +6,7 @@ import org.iucn.sis.client.api.caches.PublicationCache;
 import org.iucn.sis.client.api.models.NameValueModelData;
 import org.iucn.sis.client.panels.publication.targets.PublicationTargetEditor;
 import org.iucn.sis.shared.api.models.AssessmentType;
+import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
@@ -24,7 +25,7 @@ import com.solertium.util.extjs.client.WindowUtils;
 
 public class PublicationBatchChange extends FormPanel {
 	
-	private ComboBox<NameValueModelData> status, goal, approved;
+	private ComboBox<NameValueModelData> status, goal, approved, priority;
 	private TextArea notes;
 	
 	public PublicationBatchChange() {
@@ -83,6 +84,13 @@ public class PublicationBatchChange extends FormPanel {
 		
 		add(approved);
 		
+		priority = newComboBox("Priority");
+		priority.getStore().add(new NameValueModelData("Low", Integer.toString(PublicationData.PRIORITY_LOW)));
+		priority.getStore().add(new NameValueModelData("Normal", Integer.toString(PublicationData.PRIORITY_NORMAL)));
+		priority.getStore().add(new NameValueModelData("High", Integer.toString(PublicationData.PRIORITY_HIGH)));
+		
+		add(priority);
+		
 		add(notes = FormBuilder.createTextArea("notes", null, "Notes", false));
 		
 		layout();
@@ -132,6 +140,10 @@ public class PublicationBatchChange extends FormPanel {
 			if (selApproved != null)
 				event.setTargetApproved(Integer.valueOf(selApproved.getValue()));
 			
+			NameValueModelData selPriority = priority.getValue();
+			if (selPriority != null)
+				event.setPriority(Integer.valueOf(selPriority.getValue()));
+			
 			if (notes.getValue() != null && !"".equals(notes.getValue()))
 				event.setNotes(notes.getValue());
 			
@@ -154,7 +166,7 @@ public class PublicationBatchChange extends FormPanel {
 	public static class BatchUpdateEvent extends BaseEvent {
 		
 		private String status, notes;
-		private Integer targetGoal, targetApproved;
+		private Integer targetGoal, targetApproved, priority;
 		
 		public BatchUpdateEvent() {
 			super(Events.StartEdit);
@@ -172,6 +184,10 @@ public class PublicationBatchChange extends FormPanel {
 			this.status = status;
 		}
 		
+		public void setPriority(Integer priority) {
+			this.priority = priority;
+		}
+		
 		public void setNotes(String notes) {
 			this.notes = notes;
 		}
@@ -186,6 +202,10 @@ public class PublicationBatchChange extends FormPanel {
 		
 		public Integer getTargetGoal() {
 			return targetGoal;
+		}
+		
+		public Integer getPriority() {
+			return priority;
 		}
 		
 		public String getNotes() {

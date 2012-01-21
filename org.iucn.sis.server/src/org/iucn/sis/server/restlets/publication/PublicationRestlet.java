@@ -103,7 +103,7 @@ public class PublicationRestlet extends BaseServiceRestlet {
 		final NodeCollection nodes = new NodeCollection(document.getDocumentElement().getChildNodes());
 		
 		String status = null, notes = null;
-		Integer goal = null, approved = null;
+		Integer goal = null, approved = null, priority = null;
 		List<Integer> ids = new ArrayList<Integer>();
 		for (Node node : nodes) {
 			if ("status".equals(node.getNodeName()))
@@ -112,10 +112,12 @@ public class PublicationRestlet extends BaseServiceRestlet {
 				goal = toInt(node.getTextContent());
 			else if ("approved".equals(node.getNodeName()))
 				approved = toInt(node.getTextContent());
+			else if ("priority".equals(node.getNodeName()))
+				priority = toInt(node.getTextContent());
 			else if ("notes".equals(node.getNodeName()))
 				notes = node.getTextContent();
 			else if ("data".equals(node.getNodeName()))
-				ids.add(toInt(node.getTextContent()));
+				ids.add(toInt(node.getTextContent()));	
 		}
 		
 		if (ids.isEmpty())
@@ -137,6 +139,8 @@ public class PublicationRestlet extends BaseServiceRestlet {
 			target.setId(approved);
 			source.setTargetApproved(target);
 		}
+		if (priority != null) 
+			source.setPriority(priority);
 		if (notes != null)
 			source.setNotes(notes);
 		

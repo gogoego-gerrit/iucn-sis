@@ -3,8 +3,10 @@ package org.iucn.sis.client.panels.publication;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.PublicationCache;
 import org.iucn.sis.client.api.utils.PagingPanel;
+import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -13,6 +15,7 @@ import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.data.ModelData;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreFilter;
@@ -22,6 +25,7 @@ import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridViewConfig;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
@@ -56,7 +60,7 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 	private ColumnModel getColumnModel() {
 		List<ColumnConfig> cols = new ArrayList<ColumnConfig>();
 		
-		cols.add(sm.getColumn());		
+		cols.add(sm.getColumn());
 		cols.add(new ColumnConfig("group", "Working Set", 100));
 		cols.add(new ColumnConfig("taxon", "Species Name", 100));
 		cols.add(new ColumnConfig("status", "Status", 100));
@@ -98,13 +102,20 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 		PublicationCache.impl.listData(new ComplexListener<List<PublicationData>>() {
 			public void handleEvent(List<PublicationData> eventData) {
 				ListStore<PublicationModelData> store = new ListStore<PublicationModelData>();
-				store.setStoreSorter(new PublicationStoreSorter());
+				if (usePriority())
+					store.setStoreSorter(new PublicationPriorityStoreSorter());
+				else
+					store.setStoreSorter(new PublicationStoreSorter());
 				for (PublicationData data : eventData)
 					store.add(new PublicationModelData(data));
 				store.sort("date", SortDir.DESC);
 				callback.onSuccess(store);
 			}
 		});
+	}
+	
+	private boolean usePriority() {
+		return AuthorizationCache.impl.canUse(AuthorizableFeature.PUBLICATION_MANAGER_EDITING_FEATURE);
 	}
 	
 	@Override
@@ -119,6 +130,9 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 				removeAll();
 				
 				grid.addPlugin(getGridFilters());
+				
+				if (usePriority())
+					grid.getView().setViewConfig(new PriorityGridViewConfig());
 				
 				final LayoutContainer container = new LayoutContainer(new BorderLayout());
 				container.add(grid, new BorderLayoutData(LayoutRegion.CENTER));
@@ -182,6 +196,38 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 		public int compare(Store<PublicationModelData> store, PublicationModelData m1, PublicationModelData m2,
 				String property) {
 			return m1.getModel().getSubmissionDate().compareTo(m2.getModel().getSubmissionDate());
+		}
+		
+	}
+	
+	private static class PublicationPriorityStoreSorter extends PublicationStoreSorter {
+		
+		@Override
+		public int compare(Store<PublicationModelData> store, PublicationModelData m1, PublicationModelData m2,
+				String property) {
+			Integer p1 = m1.getModel().getPriority() == null ? 0 : m1.getModel().getPriority();
+			Integer p2 = m2.getModel().getPriority() == null ? 0 : m2.getModel().getPriority();
+			
+			int value = p1.compareTo(p2);
+			if (value == 0)
+				value = super.compare(store, m1, m2, property);
+			
+			return value;
+		}
+		
+	}
+	
+	private static class PriorityGridViewConfig extends GridViewConfig {
+		
+		@Override
+		public String getRowStyle(ModelData model, int rowIndex, ListStore<ModelData> ds) {
+			int priority = model.get("priority");
+			if (PublicationData.PRIORITY_HIGH == priority)
+				return "publication_priority_high";
+			else if (PublicationData.PRIORITY_LOW == priority)
+				return "publication_priority_low";
+			else
+				return super.getRowStyle(model, rowIndex, ds);
 		}
 		
 	}

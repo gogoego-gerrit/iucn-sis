@@ -2017,6 +2017,14 @@ SIS_Header_Summary_Title {
 		
 }
 
+.publication_priority_high {
+	background-color: #FF5555;
+}
+
+.publication_priority_low {
+	background-color: #DDD;	
+}
+
 /*** Integrity Validation Results Styling **/
 
 .sis_integrity_header {
