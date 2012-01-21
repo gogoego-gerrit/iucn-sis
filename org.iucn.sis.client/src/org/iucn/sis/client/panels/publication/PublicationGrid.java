@@ -3,10 +3,15 @@ package org.iucn.sis.client.panels.publication;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.FetchMode;
 import org.iucn.sis.client.api.caches.PublicationCache;
+import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
+import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -16,11 +21,15 @@ import com.extjs.gxt.ui.client.Style.SelectionMode;
 import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelData;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.GridEvent;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.store.Store;
 import com.extjs.gxt.ui.client.store.StoreFilter;
 import com.extjs.gxt.ui.client.store.StoreSorter;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -34,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
+import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
 
 public class PublicationGrid extends PagingPanel<PublicationModelData> implements DrawsLazily {
@@ -114,6 +124,29 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 		});
 	}
 	
+	private void jumpToAssessment(PublicationData data) {
+		WindowManager.get().hideAll();
+		WindowUtils.showLoadingAlert("Loading...");
+		AssessmentCache.impl.fetchAssessment(data.getAssessment().getId(), FetchMode.FULL, new GenericCallback<Assessment>() {
+			public void onSuccess(final Assessment assessment) {
+				TaxonomyCache.impl.fetchTaxon(assessment.getTaxon().getId(), new GenericCallback<Taxon>() {
+					public void onFailure(Throwable caught) {
+						WindowUtils.hideLoadingAlert();
+						WindowUtils.errorAlert("Failed to load the taxon for this assessment.");
+					}
+					public void onSuccess(Taxon result) {
+						WindowUtils.hideLoadingAlert();
+						StateManager.impl.setState(result, assessment);
+					}
+				});
+			}
+			public void onFailure(Throwable caught) {
+				WindowUtils.hideLoadingAlert();
+				WindowUtils.errorAlert("Error loading next assessment");
+			}
+		});
+	}
+	
 	private boolean usePriority() {
 		return AuthorizationCache.impl.canUse(AuthorizableFeature.PUBLICATION_MANAGER_EDITING_FEATURE);
 	}
@@ -130,6 +163,12 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 				removeAll();
 				
 				grid.addPlugin(getGridFilters());
+				grid.addListener(Events.RowDoubleClick, new Listener<GridEvent<PublicationModelData>>() {
+					public void handleEvent(GridEvent<PublicationModelData> be) {
+						if (be.getModel() != null)
+							jumpToAssessment(be.getModel().getModel());
+					}
+				});
 				
 				if (usePriority())
 					grid.getView().setViewConfig(new PriorityGridViewConfig());
