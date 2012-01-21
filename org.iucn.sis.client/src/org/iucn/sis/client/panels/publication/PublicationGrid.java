@@ -1,6 +1,7 @@
 package org.iucn.sis.client.panels.publication;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
@@ -9,6 +10,7 @@ import org.iucn.sis.client.api.caches.FetchMode;
 import org.iucn.sis.client.api.caches.PublicationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.StateManager;
+import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -32,9 +34,12 @@ import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.WindowManager;
 import com.extjs.gxt.ui.client.widget.grid.CheckBoxSelectionModel;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
+import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
+import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.GridViewConfig;
+import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.ListFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
@@ -70,11 +75,22 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 	private ColumnModel getColumnModel() {
 		List<ColumnConfig> cols = new ArrayList<ColumnConfig>();
 		
+		ColumnConfig date = new ColumnConfig("date", "Date Submitted", 150);
+		date.setRenderer(new GridCellRenderer<PublicationModelData>() {
+			public Object render(PublicationModelData model, String property,
+					ColumnData config, int rowIndex, int colIndex,
+					ListStore<PublicationModelData> store,
+					Grid<PublicationModelData> grid) {
+				final Date value = model.get(property);
+				return FormattedDate.FULL.getDate(value);
+			}
+		});
+		
 		cols.add(sm.getColumn());
 		cols.add(new ColumnConfig("group", "Working Set", 100));
 		cols.add(new ColumnConfig("taxon", "Species Name", 100));
 		cols.add(new ColumnConfig("status", "Status", 100));
-		cols.add(new ColumnConfig("date", "Date Submitted", 150));
+		cols.add(date);
 		cols.add(new ColumnConfig("submitter", "Submitted By", 100));
 		cols.add(new ColumnConfig("goal", "Publication Target", 150));
 		cols.add(new ColumnConfig("approved", "For Publication", 150));
@@ -99,6 +115,7 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 		filters.addFilter(new StringFilter("group"));
 		filters.addFilter(new StringFilter("taxon"));
 		filters.addFilter(new StringFilter("status"));
+		filters.addFilter(new DateFilter("date"));
 		filters.addFilter(new StringFilter("submitter"));
 		filters.addFilter(new ListFilter("goal", filterStore));
 		filters.addFilter(new ListFilter("approved", filterStore));

@@ -17,7 +17,7 @@ public class PublicationModelData extends BaseModelData {
 		set("group", model.getGroup());
 		set("taxon", model.getAssessment().getTaxon().getFriendlyName());
 		set("status", model.getAssessment().getType());
-		set("date", FormattedDate.FULL.getDate(model.getSubmissionDate()));
+		set("date", model.getSubmissionDate());
 		set("goal", model.getTargetGoal() == null ? "Unset" : model.getTargetGoal().getName());
 		set("approved", model.getTargetApproved() == null ? "Unset" : model.getTargetApproved().getName());
 		set("submitter", model.getSubmitter().getDisplayableName());
