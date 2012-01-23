@@ -80,10 +80,10 @@ public class TaxonByStatusRestlet extends BaseServiceRestlet {
 	}
 	
 	private boolean isValid(String code) {
-		return TaxonStatus.STATUS_NEW.equals(code) || 
-			TaxonStatus.STATUS_ACCEPTED.equals(code) || 
-			TaxonStatus.STATUS_DISCARDED.equals(code) ||
-			TaxonStatus.STATUS_SYNONYM.equals(code);
+		for (String current : TaxonStatus.ALL)
+			if (current.equals(code))
+				return true;
+		return false;
 	}
 	
 	@Override

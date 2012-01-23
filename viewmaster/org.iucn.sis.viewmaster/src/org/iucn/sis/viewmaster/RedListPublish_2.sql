@@ -38,7 +38,7 @@ INSERT INTO $schema.vw_filter
   public.assessment.id = public.vw_regioninformation_regions.assessmentid AND
   public.assessment.assessment_typeid=1 AND
   public.assessment.state = 0 AND
-  public.taxon.taxon_statusid in(1,4) AND
+  public.taxon.taxon_statusid not in(2, 3) AND
   t2.value >= '1996-01-01' AND
   t2.assessmentid NOT IN (
     SELECT assessmentid FROM public.vw_redlisthidden_value

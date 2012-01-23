@@ -2,6 +2,7 @@ package org.iucn.sis.client.api.ui.models.taxa;
 
 import org.iucn.sis.client.api.utils.TaxonComparator;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonStatus;
 
 import com.extjs.gxt.ui.client.data.BaseModel;
 
@@ -23,7 +24,8 @@ public class TaxonListElement extends BaseModel {
 	public TaxonListElement(Taxon node, String footprint) {
 		this.node = node;
 		this.footprint = footprint;
-		set("name", node.getName() + (node.getTaxonStatus().getName().matches("(^[Nn]$)|(^New$)") ? "*" : ""));
+		boolean isNew = TaxonStatus.STATUS_NEW.equals(node.getTaxonStatus().getCode());
+		set("name", node.getName() + (isNew ? "*" : ""));
 		set("fullName", node.getFriendlyName());
 		set(TaxonComparator.SEQ_CODE, String.valueOf(node.getSequenceCode()));
 	}

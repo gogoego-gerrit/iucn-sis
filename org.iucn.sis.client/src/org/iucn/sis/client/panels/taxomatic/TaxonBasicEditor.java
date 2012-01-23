@@ -187,7 +187,7 @@ public class TaxonBasicEditor extends TaxomaticWindow implements DrawsLazily {
 			}
 		});
 		statusStore.add(new TextValueModelData<String>("<Unset>", ""));
-		for (String code : new String[] { TaxonStatus.STATUS_NEW, TaxonStatus.STATUS_ACCEPTED, TaxonStatus.STATUS_DISCARDED, TaxonStatus.STATUS_SYNONYM })
+		for (String code : TaxonStatus.ALL)
 			statusStore.add(new TextValueModelData<String>(TaxonStatus.displayableStatus.get(code), code));
 		if (taxon.getLevel() >= TaxonLevel.SPECIES)
 			statusStore.add(new TextValueModelData<String>("Undescribed", "U"));

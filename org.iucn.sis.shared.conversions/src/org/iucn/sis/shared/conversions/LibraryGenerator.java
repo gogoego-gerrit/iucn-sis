@@ -72,10 +72,8 @@ public class LibraryGenerator extends GenericConverter<String> {
 	}
 	
 	public void generateTaxonStatus() throws PersistentException {
-		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_NEW));
-		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_ACCEPTED));
-		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_DISCARDED));
-		session.save(TaxonStatus.fromCode(TaxonStatus.STATUS_SYNONYM));
+		for (String code : TaxonStatus.ALL)
+			session.save(TaxonStatus.fromCode(code));
 	}
 
 	public void generateTaxonLevel() throws PersistentException {

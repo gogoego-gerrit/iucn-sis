@@ -244,7 +244,10 @@ public class Taxon implements AuthorizableObject, Serializable {
 	}
 
 	public boolean isDeprecated() {
-		return getTaxonStatus().getId() != TaxonStatus.getIdFromCode(TaxonStatus.STATUS_NEW) && getTaxonStatus().getId() != TaxonStatus.getIdFromCode(TaxonStatus.STATUS_ACCEPTED);
+		String code = getTaxonStatus().getCode();
+		
+		return TaxonStatus.STATUS_SYNONYM.equals(code) || 
+			TaxonStatus.STATUS_DISCARDED.equals(code);
 	}
 
 	public int getLevel() {
