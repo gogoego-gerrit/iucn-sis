@@ -90,11 +90,17 @@ public abstract class ReportTemplate {
 					list.add(value);
 				}
 			}
-			Collections.sort(list,new PortableAlphanumericComparator());
-			for (String row : list)
-				builder.append(row + "<br/>");
+			if(!list.isEmpty()){
+				if(!list.contains(null)){
+					Collections.sort(list,new PortableAlphanumericComparator());
+				}
+				for (String row : list)
+					builder.append(row + "<br/>");
+				
+				returnStr = builder.toString();
+			}else
+				returnStr = "-";
 			
-			returnStr = builder.toString();
 		}else
 			returnStr = "-";
 		return returnStr;	
@@ -127,7 +133,6 @@ public abstract class ReportTemplate {
 			}
 				
 			String countryStr = "";
-			//Set<String> keys = dataMap.keySet();
 			StringBuilder builder = new StringBuilder();
 			for (Map.Entry<String, List<String>> entry : dataMap.entrySet()) {
 				if (entry.getValue() != null) {

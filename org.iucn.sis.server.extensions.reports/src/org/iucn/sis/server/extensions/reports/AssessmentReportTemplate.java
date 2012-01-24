@@ -36,6 +36,8 @@ public class AssessmentReportTemplate extends ReportTemplate {
 		setReportValue(CanonicalNames.RedListAssessmentDate,fetchDatePrimitiveField(assessment.getField(CanonicalNames.RedListAssessmentDate),"value"));
 		setReportValue(CanonicalNames.RedListAssessors,fetchUsers(assessment.getField(CanonicalNames.RedListAssessors)));
 		setReportValue(CanonicalNames.RedListEvaluators,fetchUsers(assessment.getField(CanonicalNames.RedListEvaluators)));
+		setReportValue(CanonicalNames.RedListContributors,fetchUsers(assessment.getField(CanonicalNames.RedListContributors)));
+		setReportValue(CanonicalNames.RedListFacilitators,fetchUsers(assessment.getField(CanonicalNames.RedListFacilitators)));
 		setReportValue(CanonicalNames.RedListRationale,fetchTextPrimitiveField(assessment.getField(CanonicalNames.RedListRationale),"value"));
 		setReportValue(CanonicalNames.RedListHistory,fetchTextPrimitiveField(assessment.getField(CanonicalNames.RedListHistory),"narrative"));
 	}
