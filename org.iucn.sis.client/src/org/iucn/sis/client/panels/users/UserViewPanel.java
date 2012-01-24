@@ -120,21 +120,35 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 		userGrid.addListener(Events.AfterEdit, new Listener<GridEvent<UserModelData>>() {
 			public void handleEvent(final GridEvent<UserModelData> be) {
 				final UserModelData model = be.getGrid().getStore().getAt(be.getRowIndex());
-				if (be.getValue() == null) {
-					be.getGrid().getStore().rejectChanges();
-					return;
+				
+				final String col = be.getGrid().getColumnModel().getColumnId(be.getColIndex());
+				final String value;
+				final String originalValue;
+				
+				// Check Nickname edits
+				if ("nickname".equals(col)){
+					if (be.getValue() != null) {
+						value = ((String) be.getValue()).trim();
+					  	originalValue = (String)be.getStartValue();
+					}else{
+						value = "";
+					  	originalValue = (String)be.getStartValue();
+					}
+				}else{
+					if (be.getValue() == null) {
+						be.getGrid().getStore().rejectChanges();
+						return;
+					}
+				
+					value = ((String) be.getValue()).trim();
+				  	originalValue = (String)be.getStartValue();
 				}
 
-				final String value = ((String) be.getValue()).trim();
-				final String originalValue = (String)be.getStartValue();
-				
 				if ((value == null && originalValue == null) || value != null && value.equals(originalValue)) {
 					//No changes made.
 					return;
 				}
-				
-				final String col = be.getGrid().getColumnModel().getColumnId(be.getColIndex());
-				
+
 				final String username;
 				if ("username".equals(col))
 					username = originalValue;
