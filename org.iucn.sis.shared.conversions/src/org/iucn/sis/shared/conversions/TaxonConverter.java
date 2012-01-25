@@ -552,7 +552,19 @@ public class TaxonConverter extends GenericConverter<String> {
 			synonym.setGenerationID(generationID++); //Ensure uniqueness for set
 			synonym.setTaxon_level(TaxonLevel.getTaxonLevel(synData.getLevel()));
 			
-			if (synData.getLevel() == TaxonNode.INFRARANK) {
+			final int level;
+			TaxonLevel tl = TaxonLevel.getTaxonLevel(synData.getLevel());
+			if (tl != null) {
+				synonym.setTaxon_level(tl);
+				level = tl.getLevel();
+			}
+			else {
+				boolean isTrinomal = taxon.getFullName().split(" ").length > 2;
+				level = isTrinomal ? TaxonLevel.INFRARANK : TaxonLevel.SPECIES;
+				synonym.setTaxon_level(TaxonLevel.getTaxonLevel(level));
+			}
+			
+			if (level == TaxonNode.INFRARANK) {
 				//Adding 1 because SIS 1 starts @ 0, SIS 2 starts @ 1.
 				int infrarankLevel;
 				if (synData.getInfrarankType() == -1)
@@ -560,7 +572,6 @@ public class TaxonConverter extends GenericConverter<String> {
 				else
 					infrarankLevel = synData.getInfrarankType() + 1;
 				
-				synonym.setTaxon_level(TaxonLevel.getTaxonLevel(synData.getLevel()));
 				synonym.setInfraTypeObject(Infratype.getInfratype(infrarankLevel));
 			}
 			
@@ -571,7 +582,7 @@ public class TaxonConverter extends GenericConverter<String> {
 			synonym.setSpeciesName(synData.getSpecie());
 			synonym.setStockName(synData.getStockName());
 
-			if (synData.getLevel() >= TaxonLevel.GENUS)
+			if (level >= TaxonLevel.GENUS)
 				synonym.setGenusName(synData.getGenus());
 			else
 				synonym.setName(synData.getUpperLevelName());

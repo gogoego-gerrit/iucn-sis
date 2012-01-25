@@ -82,6 +82,8 @@ public class ConverterWorker implements Runnable {
 			success = convertUserRecent(proceed, writer);
 		else if ("globalreferences".equals(step))
 			success = convertGlobalReferences(writer);
+		else if ("synonyms".equals(step))
+			success = convertSynonyms(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -244,6 +246,14 @@ public class ConverterWorker implements Runnable {
 		GlobalReferenceConverter converter = new GlobalReferenceConverter();
 		initConverter(converter, writer);
 		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		
+		return converter.start();
+	}
+	
+	private boolean convertSynonyms(Writer writer) {
+		SynonymConverter converter = new SynonymConverter();
+		initConverter(converter, writer);
+		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
 		
 		return converter.start();
 	}
