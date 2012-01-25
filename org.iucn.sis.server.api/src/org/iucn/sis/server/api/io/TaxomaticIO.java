@@ -95,7 +95,7 @@ public class TaxomaticIO {
 	boolean isTaxomaticOperationNecessary(Taxon taxonToSave, Taxon oldTaxon) {
 		
 		return !(taxonToSave != null && oldTaxon != null && oldTaxon.getName().equals(taxonToSave.getName()) && 
-				oldTaxon.getParentID() == taxonToSave.getParentID() && 
+				oldTaxon.getParentId() == taxonToSave.getParentId() && 
 				oldTaxon.getTaxonLevel().getLevel() == taxonToSave.getTaxonLevel().getLevel() );
 	}
 	

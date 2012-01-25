@@ -258,10 +258,6 @@ public class Taxon implements AuthorizableObject, Serializable {
 		return getFriendlyName();
 	}
 
-	public int getParentID() {
-		return getParent().getId();
-	}
-
 	protected CommonName primaryCommonName;
 
 	public CommonName getPrimaryCommonName() {
