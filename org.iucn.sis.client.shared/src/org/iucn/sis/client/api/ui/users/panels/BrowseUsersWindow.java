@@ -134,7 +134,7 @@ public class BrowseUsersWindow extends BasicWindow {
 		status = new HTML();
 		draw();
 		setSize(windowWidth, windowHeight);
-
+	
 	}
 
 	public boolean containsSearchResult(ListStore<SearchResults> store,
@@ -280,8 +280,11 @@ public class BrowseUsersWindow extends BasicWindow {
 
 			final LayoutContainer wrapper = new LayoutContainer();
 			wrapper.setLayout(new BorderLayout());
+			
+			int topSize = 150;
 			BorderLayoutData data = new BorderLayoutData(LayoutRegion.NORTH,
-					110, 200, 110);
+					topSize, topSize, topSize);
+			data.setSplit(false);
 			data.setMargins(new Margins(10));
 			wrapper.add(searchWrapper, data);
 			wrapper.add(container, new BorderLayoutData(LayoutRegion.CENTER));
