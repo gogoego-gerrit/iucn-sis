@@ -289,6 +289,8 @@ public class TaxonBasicEditor extends TaxomaticWindow implements DrawsLazily {
 				taxon.setInfratype(null);
 			}
 		}
+		else
+			taxon.setInfratype(null);
 
 		taxon.setName(name.getValue());
 		taxon.setStatus(status.getValue().getValue());

@@ -617,7 +617,7 @@ public class TaxonConverter extends GenericConverter<String> {
 		// As per #423...
 		if (newTaxon.getId() == 40853 || newTaxon.getId() == 37068 || newTaxon.getId() == 37103)
 			newTaxon.setInfratype(infratypeIO.getInfratype(Infratype.INFRARANK_TYPE_FORMA));
-		else {
+		else if (newTaxon.getLevel() > TaxonLevel.SPECIES) {
 			Infratype infratype = infratypeIO.getInfratype(taxon.getInfrarankType());
 			if (infratype != null)
 				newTaxon.setInfratype(infratype);
