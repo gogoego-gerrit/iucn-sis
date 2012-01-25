@@ -38,8 +38,6 @@ import com.solertium.util.restlet.CookieUtility;
 @SuppressWarnings("deprecation")
 public class GenericExportResource extends TransactionResource {
 	
-	private static final String ACCESS_DB_TEMPLATE = "WSAccessExportTemplate.mdb";
-	
 	private final String schema;
 	private final String workingSet;
 
@@ -132,7 +130,7 @@ public class GenericExportResource extends TransactionResource {
 	public static String createAccessTarget(String folderName, String source) throws IOException, ResourceException {
 		final File folder = new File(folderName);
 		final File file = new File(folder, source + ".mdb");
-		final InputStream is = GenericExportResource.class.getResourceAsStream(ACCESS_DB_TEMPLATE);
+		final InputStream is = AccessExporter.getTemplate();
 		final OutputStream os = new BufferedOutputStream(
 			new FileOutputStream(file));
 		
@@ -147,8 +145,11 @@ public class GenericExportResource extends TransactionResource {
 		String name = source + "_target";
 		
 		Properties properties = new Properties();
-		properties.setProperty("dbsession." + name + ".uri", "jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ="+file.getAbsolutePath());
-		properties.setProperty("dbsession." + name + ".driver", "sun.jdbc.odbc.JdbcOdbcDriver");
+		/* This only works on certain Java installations :( */
+		//properties.setProperty("dbsession." + name + ".uri", "jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ="+file.getAbsolutePath());
+		//properties.setProperty("dbsession." + name + ".driver", "sun.jdbc.odbc.JdbcOdbcDriver");
+		properties.setProperty("dbsession." + name + ".uri", "jdbc:access:////"+file.getAbsolutePath());
+		properties.setProperty("dbsession." + name + ".driver", "com.hxtt.sql.access.AccessDriver");
 		properties.setProperty("dbsession." + name + ".user", "");
 		properties.setProperty("dbsession." + name + ".password", "");
 		

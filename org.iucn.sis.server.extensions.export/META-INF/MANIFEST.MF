@@ -28,5 +28,6 @@ Import-Package: org.osgi.framework;version="1.4.0",
  org.restlet.service,
  org.restlet.util
 Bundle-Activator: org.iucn.sis.server.extensions.export.ServerActivator
-Export-Package: org.iucn.sis.server.extensions.export
+Export-Package: org.iucn.sis.server.extensions.export,
+ org.iucn.sis.server.extensions.export.access.exported
 Bundle-Vendor: IUCN

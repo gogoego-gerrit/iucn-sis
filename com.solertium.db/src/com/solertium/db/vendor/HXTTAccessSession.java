@@ -26,9 +26,10 @@ package com.solertium.db.vendor;
 
 import javax.sql.DataSource;
 
-import com.solertium.db.CString;
-
 import net.jcip.annotations.ThreadSafe;
+
+import com.solertium.db.CBoolean;
+import com.solertium.db.CString;
 
 /**
  * This leverages the commercial HXTT Access driver (http://www.hxtt.com/access)
@@ -43,7 +44,7 @@ public class HXTTAccessSession extends MSAccessSession {
 	public HXTTAccessSession(final String name, final DataSource ds) {
 		super(name, ds);
 	}
-
+	
 	@Override
 	public String getDBColumnType(final CString c) {
 		int scale = c.getScale();
@@ -53,4 +54,10 @@ public class HXTTAccessSession extends MSAccessSession {
 			return "VARCHAR(" + scale + ")";
 		return "LONGVARCHAR";
 	}
+	
+	@Override
+	protected String getDBColumnType(CBoolean c) {
+		return "BOOLEAN";
+	}
+	
 }

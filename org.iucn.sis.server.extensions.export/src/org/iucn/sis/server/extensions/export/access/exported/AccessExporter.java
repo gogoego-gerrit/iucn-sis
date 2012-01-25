@@ -26,6 +26,12 @@ import com.solertium.db.query.SelectQuery;
 
 public class AccessExporter extends DatabaseExporter {
 	
+	private static final String ACCESS_DB_TEMPLATE = "WSAccessExportTemplate2002.mdb";
+	
+	public static InputStream getTemplate() {
+		return AccessExporter.class.getResourceAsStream(ACCESS_DB_TEMPLATE);
+	}
+	
 	private final List<String> toExport;
 	private final String location;
 	private final String fileName;
