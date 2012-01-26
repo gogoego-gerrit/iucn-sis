@@ -136,6 +136,10 @@ public class SynonymData {
 	public Iterator<String> getURIPieces() {
 		return Arrays.asList(getFullURI().split(",")).listIterator();
 	}
+	
+	public String getOldVersionName() {
+		return oldVersionName;
+	}
 
 	public SynonymData deepCopy() {
 		SynonymData newSynonymData = new SynonymData(getGenus(), getSpecie(), getInfrarank(), getInfrarankType(),

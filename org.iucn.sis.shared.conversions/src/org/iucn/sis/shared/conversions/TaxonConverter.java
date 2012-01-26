@@ -548,69 +548,15 @@ public class TaxonConverter extends GenericConverter<String> {
 		// ADD SYNONYMS
 		generationID = 1;
 		for (SynonymData synData : taxon.getSynonyms()) {
-			Synonym synonym = new Synonym();
-			synonym.setGenerationID(generationID++); //Ensure uniqueness for set
-			synonym.setTaxon_level(TaxonLevel.getTaxonLevel(synData.getLevel()));
-			
-			final int level;
+			Synonym synonym;
 			TaxonLevel tl = TaxonLevel.getTaxonLevel(synData.getLevel());
-			if (tl != null) {
-				synonym.setTaxon_level(tl);
-				level = tl.getLevel();
-			}
-			else {
-				boolean isTrinomal = taxon.getFullName().split(" ").length > 2;
-				level = isTrinomal ? TaxonLevel.INFRARANK : TaxonLevel.SPECIES;
-				synonym.setTaxon_level(TaxonLevel.getTaxonLevel(level));
-			}
-			
-			if (level == TaxonNode.INFRARANK) {
-				//Adding 1 because SIS 1 starts @ 0, SIS 2 starts @ 1.
-				int infrarankLevel;
-				if (synData.getInfrarankType() == -1)
-					infrarankLevel = Infratype.INFRARANK_TYPE_SUBSPECIES;
-				else
-					infrarankLevel = synData.getInfrarankType() + 1;
-				
-				synonym.setInfraTypeObject(Infratype.getInfratype(infrarankLevel));
-			}
-			
-			for (Entry<String, String> entry : synData.getAuthorities().entrySet())
-				synonym.setAuthority(entry.getValue(), Integer.valueOf(entry.getKey()));
-
-			synonym.setInfraName(synData.getInfrarank());
-			synonym.setSpeciesName(synData.getSpecie());
-			synonym.setStockName(synData.getStockName());
-
-			if (level >= TaxonLevel.GENUS)
-				synonym.setGenusName(synData.getGenus());
+			if (tl != null)
+				synonym = SynonymConverter.convertSynonym(synData, taxon, user, generationID++, tl.getLevel());
 			else
-				synonym.setName(synData.getUpperLevelName());
-
-			//This is now auto-generated.
-			//synonym.setFriendlyName(synData.getName());
-			synonym.setStatus(synData.getStatus());
-
-			if (synData.getNotes() != null) {
-				if (synData.getNotes() == null)
-					continue;
-				
-				Edit edit = new Edit("Data migration.");
-				edit.setUser(user);
-				
-				Notes note = new Notes();
-				note.setSynonym(synonym);
-				note.setValue(synData.getNotes());
-				note.setEdit(edit);
-				
-				edit.getNotes().add(note);
-				
-				synonym.getNotes().add(note);
-			}
+				synonym = SynonymConverter.convertSynonym(synData, taxon, user, generationID++);
 			
 			newTaxon.getSynonyms().add(synonym);
 			synonym.setTaxon(newTaxon);
-			
 		}
 
 		// ADD INFRARANK
