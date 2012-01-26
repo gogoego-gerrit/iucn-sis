@@ -899,8 +899,11 @@ public class AssessmentHtmlTemplate {
 	}
 	
 	private String toCatString(String value) {
-		ResultCategory c = ResultCategory.fromString(value);
-		return c.getShortName() + " - " + c.getName();
+		if (value == null || "".equals(value))
+			return "-";
+		
+		ResultCategory type = ResultCategory.fromString(value);
+		return type == null ? value : type.getShortName() + " - " + type.getName();
 	}
 
 	private void parseRedListStatus(Field data, Map<String, String> headers) {
