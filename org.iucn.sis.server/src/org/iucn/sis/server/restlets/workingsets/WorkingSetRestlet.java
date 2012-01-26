@@ -40,6 +40,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.BaseDocumentUtils;
 
 /**
@@ -132,7 +133,26 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 			getTaxaFootprintWithAdditionalInfo(entity, response, username, id, workingSetIO, session);
 		else if (action.equalsIgnoreCase("editTaxa"))
 			editTaxaInWorkingSet(entity, request, response, username, id, session);
-		else
+		else if (action.equalsIgnoreCase("subscribe") || action.equalsIgnoreCase("unsubscribe")){			
+			NativeDocument ndoc = getEntityAsNativeDocument(entity);
+			NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(User.ROOT_TAG);
+			for (int i = 0; i < list.getLength(); i++) {
+				User user = User.fromXML(list.elementAt(i));
+				if(action.equals("subscribe")){
+					if (workingSetIO.subscribeToWorkingset(id, user.getUsername())) {
+						response.setStatus(Status.SUCCESS_OK);
+					} else {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL);
+					}
+				}else if(action.equals("unsubscribe")){
+					if (workingSetIO.unsubscribeFromWorkingset(user.getUsername(), id)) {
+						response.setStatus(Status.SUCCESS_OK);
+					} else {
+						response.setStatus(Status.SERVER_ERROR_INTERNAL);
+					}
+				}
+			}			
+		}else
 			editWorkingSet(entity, username, id, session);	
 	}
 	

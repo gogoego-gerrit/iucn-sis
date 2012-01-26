@@ -16,6 +16,8 @@ import org.iucn.sis.client.panels.permissions.PermissionUserModel;
 import org.iucn.sis.client.panels.permissions.WorkingSetPermissionGiverPanel;
 import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.api.models.PermissionGroup;
+import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Info;
@@ -76,12 +78,14 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 	@Override
 	protected void onRemoveUsers(final List<PermissionUserModel> removed) {
 		StringBuilder body = new StringBuilder("<updates>\r\n");
+		final List<User> users = new ArrayList<User>();
 		
 		for( final PermissionUserModel cur : removed ) {
 			final ClientUser user = cur.getUser();
 			final String newGroup = removeGroupsFromUser(user);
 			body.append("<user id=\"" + user.getId() + "\"><field name=\"quickGroup\">" + newGroup 
 					+ "</field></user>");
+			users.add(user);
 		}
 		body.append("</updates>");
 
@@ -106,6 +110,10 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 				else
 					Info.display("Success", "Changes saved.");				
 				associatedPermissions.filter("permission");
+				
+				if(users.size() > 0){
+					unsubscribeUsersFromWorkingSet(users);
+				}
 			}
 		});
 	}
@@ -115,9 +123,11 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 		final HashMap<ClientUser, String> usersToUpdate = new HashMap<ClientUser, String>();
 		final List<PermissionGroup> groupsToAdd = new ArrayList<PermissionGroup>();
 		final ListStore<PermissionUserModel> models = getAssociatedPermissions();
+		final List<User> users = new ArrayList<User>();
 		models.commitChanges();
 		
 		for( final PermissionUserModel cur : models.getModels() ) {
+			users.add(cur.getUser());
 			List<String> perms = cur.getPermission().toList();
 			String permGroupName = "ws" + WorkingSetCache.impl.getCurrentWorkingSet().getId();
 			String permAssessorGroup = permGroupName + "assessor";
@@ -219,8 +229,46 @@ public class WorkingSetPermissionPanel extends WorkingSetPermissionGiverPanel im
 			});
 		else
 			updateQuickGroup(usersToUpdate);
+		
+		if(users.size() > 0){
+			subscribeUsersToWorkingSet(users);
+		}
 	}
+	
+	private void subscribeUsersToWorkingSet(List<User> users){	
+		final WorkingSet currentWorkingSet = WorkingSetCache.impl.getCurrentWorkingSet();
+		List<User> usersToSubscribe = new ArrayList<User>();
+		for(User user : users){
+			if(!currentWorkingSet.getUsers().contains(user))
+				usersToSubscribe.add(user);	
+		}
+		if(usersToSubscribe.size() > 0){
+			WorkingSetCache.impl.subscribeUsersToWorkingSet(currentWorkingSet.getId(),usersToSubscribe, new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Error occured when subscribing Users!");
+				}
+				public void onSuccess(String result) {
+					Info.display("Success", "Users Subscribed Successfully!");
+				}
+			});
+		}
+	}
+	
+	private void unsubscribeUsersFromWorkingSet(List<User> users){	
+		final WorkingSet currentWorkingSet = WorkingSetCache.impl.getCurrentWorkingSet();
 
+		if(users.size() > 0){
+			WorkingSetCache.impl.unsubscribeUsersFromWorkingSet(currentWorkingSet.getId(),users, new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					WindowUtils.errorAlert("Error occured when unsubscribing Users!");
+				}
+				public void onSuccess(String result) {
+					Info.display("Success", "Users Unsubscribed Successfully!");
+				}
+			});
+		}
+	}
+	
 	private void updateQuickGroup(final HashMap<ClientUser, String> users) {
 		if( users.size() == 0 ) {
 			Info.display("No Changes", "No changes to save.");

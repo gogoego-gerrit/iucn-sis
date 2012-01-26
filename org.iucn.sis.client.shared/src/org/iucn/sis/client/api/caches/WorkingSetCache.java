@@ -18,6 +18,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
@@ -192,6 +193,27 @@ public class WorkingSetCache {
 
 	}
 
+	public void unsubscribeUsersFromWorkingSet(final int workingSetID, final List<User> users, final GenericCallback<String> wayBack) {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<users>");
+		for (User user : users)
+			xml.append(user.toXML());
+		xml.append("</users>");
+		
+		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
+		// No need of passing the current user here. Just for consistency
+		String userName = SISClientBase.currentUser.getUsername();
+		String url = UriBase.getInstance().getSISBase() +"/workingSet/unsubscribe/"+userName+"/"+workingSetID;
+		doc.post(url, xml.toString(), new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				wayBack.onFailure(caught);
+			}
+			public void onSuccess(String result) {
+				wayBack.onSuccess("OK");
+			}
+		});
+	}
+	
 	public void deleteWorkingSet(final WorkingSet ws, final GenericCallback<String> wayBack) {
 		NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
 		ndoc.delete(UriBase.getInstance().getSISBase() + "/workingSet/public/"
@@ -678,6 +700,27 @@ public class WorkingSetCache {
 				WorkingSet ws = WorkingSet.fromXML(ndoc);
 				cache(ws, FetchMode.FULL);
 				wayBack.onSuccess(ws);
+			}
+		});
+	}
+
+	public void subscribeUsersToWorkingSet(final int workingSetID, final List<User> users, final GenericCallback<String> wayBack) {
+		StringBuilder xml = new StringBuilder();
+		xml.append("<users>");
+		for (User user : users)
+			xml.append(user.toXML());
+		xml.append("</users>");
+		
+		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
+		// No need of passing the current user here. Just for consistency
+		String userName = SISClientBase.currentUser.getUsername();
+		String url = UriBase.getInstance().getSISBase() +"/workingSet/subscribe/"+userName+"/"+workingSetID;
+		doc.post(url, xml.toString(), new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				wayBack.onFailure(caught);
+			}
+			public void onSuccess(String result) {
+				wayBack.onSuccess("OK");
 			}
 		});
 	}
