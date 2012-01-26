@@ -42,6 +42,7 @@ import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanUnknownPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.DatePrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
@@ -61,6 +62,7 @@ import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.AlphanumericComparator;
 import com.solertium.util.BaseDocumentUtils;
+import com.solertium.util.portable.PortableCalculator;
 
 public class AssessmentHtmlTemplate {
 
@@ -596,6 +598,17 @@ public class AssessmentHtmlTemplate {
 					}
 					else if (prim instanceof DatePrimitiveField) {
 						value = FormattedDate.impl.getDate(((DatePrimitiveField)prim).getValue());
+					}
+					else if (prim instanceof FloatPrimitiveField) {
+						Float valueF = Float.valueOf(prim.getRawValue());
+						if (valueF == 0)
+							value = "0";
+						else {
+							value = PortableCalculator.toString(valueF);
+							String[] split = value.split("\\.");
+							if (split.length == 1 || split[1].equals("00"))
+								value = split[0];
+						}
 					}
 					else {
 						value = prim.getRawValue();
