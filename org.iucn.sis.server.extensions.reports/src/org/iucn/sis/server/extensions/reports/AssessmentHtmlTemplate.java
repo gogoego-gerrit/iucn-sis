@@ -650,7 +650,7 @@ public class AssessmentHtmlTemplate {
 		if (!showEmptyFields) {
 			boolean allEmptyFields = true;
 			for (int i = 0; i < prettyData.size() && (allEmptyFields &= isBlank(prettyData.get(i))); i++);
-			if (allEmptyFields)
+			if (allEmptyFields && !CanonicalNames.RedListCriteria.equals(canonicalName) && !data.isClassificationScheme())
 				return retHtml;
 		}
 
@@ -950,21 +950,21 @@ public class AssessmentHtmlTemplate {
 			// if Manual or Auto Category is CR add the possibly extinct fields
 			if ((isManual && manualCategory.startsWith("CR")) || (!isManual && autoCategory.startsWith("CR"))) {
 				retHtml.append("<tr><td colspan=\"2\">&nbsp</td></tr><tr><td>");
-				retHtml.append(headers.get(RedListCriteriaField.POSSIBLY_EXTINCT_KEY) + ": ");
+				retHtml.append("Possibly Extinct" + ": ");
 				retHtml.append("</td><td>");
 				retHtml.append(toYesNo(proxy.isPossiblyExtinct()));
 				retHtml.append("</td></tr>\n<tr><td>");
-				retHtml.append(headers.get(RedListCriteriaField.POSSIBLY_EXTINCT_CANDIDATE_KEY) + ": ");
+				retHtml.append("Possibly Extinct in the Wild" + ": ");
 				retHtml.append("</td><td>");
 				retHtml.append(toYesNo(proxy.isPossiblyExtinctCandidate()));
 				retHtml.append("</td></tr>\n<tr><td>");
-				retHtml.append(headers.get(RedListCriteriaField.YEAR_LAST_SEEN_KEY) + ": ");
+				retHtml.append("Year Last Seen" + ": ");
 				retHtml.append("</td><td>");
 				retHtml.append(proxy.getYearLastSeen());
 				retHtml.append("</td></tr>\n");
 			} else if( manualCategory.startsWith("DD") ) {
 				retHtml.append("<tr><td colspan=\"2\">&nbsp</td></tr><tr><td>");
-				retHtml.append(headers.get(RedListCriteriaField.DATA_DEFICIENT_KEY) + ": ");
+				retHtml.append("Data Deficient reason: " + ": ");
 				retHtml.append("</td><td>");
 				retHtml.append(proxy.getDataDeficient());
 				retHtml.append("</td></tr>\n");
