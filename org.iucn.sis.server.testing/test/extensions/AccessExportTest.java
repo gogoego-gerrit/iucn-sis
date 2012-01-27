@@ -13,6 +13,7 @@ import javax.naming.NamingException;
 
 import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.extensions.export.access.exported.AccessExporter;
+import org.iucn.sis.server.extensions.export.access.exported.AccessExporterViaJackcess;
 import org.junit.Test;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
@@ -72,6 +73,50 @@ public class AccessExportTest extends BasicHibernateTest {
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
+		
+		exporter.run();
+		
+	}
+	
+	@Test
+	public void runJackcess() throws ResourceException, IOException {
+		Integer workingSetID = 10912542;
+		
+		String name = "export_"+Calendar.getInstance().getTimeInMillis()+"_"+CookieUtility.newUniqueID();
+		if (DBSessionFactory.isRegistered(name))
+			DBSessionFactory.unregisterDataSource(name);
+		
+		Properties properties = GoGoEgo.getInitProperties();
+		Properties sourceProperties = new Properties();
+		for (Object key : properties.keySet()) {
+			String keyName = (String)key;
+			if (keyName.startsWith("dbsession.sis.")) {
+				String last = keyName.split("\\.")[2];
+				String newName = "dbsession." + name + "." + last;
+				sourceProperties.setProperty(newName, properties.getProperty(keyName));
+			}
+		}
+		
+		ExecutionContext source;
+		try {
+			DBSessionFactory.registerDataSource(name, sourceProperties);
+			DBSession sourceDB = DBSessionFactory.getDBSession(name);
+			sourceDB.setSchema("access");
+			sourceDB.setAllowedTableTypes("TABLE", "VIEW");
+			
+			source = new SystemExecutionContext(sourceDB);
+			source.setAPILevel(ExecutionContext.SQL_ALLOWED);
+			source.setExecutionLevel(ExecutionContext.ADMIN);
+		} catch (NamingException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		String folder = createTempFolder(name);
+		createAccessTarget(folder, name);
+		
+		AccessExporterViaJackcess exporter = new AccessExporterViaJackcess(source, workingSetID, folder, name + ".mdb");
+		exporter.setTarget(new SystemExecutionContext());
+		//exporter.setOutputStream(writer, "<br/>");
 		
 		exporter.run();
 		

@@ -32,7 +32,7 @@ public class AccessExporter extends DatabaseExporter {
 		return AccessExporter.class.getResourceAsStream(ACCESS_DB_TEMPLATE);
 	}
 	
-	private final List<String> toExport;
+	protected final List<String> toExport;
 	private final String location;
 	private final String fileName;
 	

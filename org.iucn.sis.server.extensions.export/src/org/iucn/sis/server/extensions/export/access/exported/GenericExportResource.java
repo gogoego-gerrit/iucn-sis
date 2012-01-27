@@ -33,6 +33,7 @@ import com.solertium.db.DBSession;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.restlet.CookieUtility;
 
 @SuppressWarnings("deprecation")
@@ -49,7 +50,7 @@ public class GenericExportResource extends TransactionResource {
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
 
-	@Override
+	@SuppressWarnings("unused")
 	public Representation represent(Variant variant, Session session) throws ResourceException {
 		if (schema == null || workingSet == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
@@ -102,25 +103,39 @@ public class GenericExportResource extends TransactionResource {
 			}
 		};
 		
-		PrintWriter writer;
+		final PrintWriter writer;
 		try {
 			writer = new PrintWriter(new OutputStreamWriter(new PipedOutputStream(inputStream)), true);
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
-		String folder = createTempFolder(name);
-		AccessExporter exporter = new AccessExporter(source, workingSetID, folder, name + ".mdb");
-		exporter.setOutputStream(writer, "<br/>");
+		final String folder = createTempFolder(name);
+		final String target;
 		try {
 			//exporter.setTarget(createH2Target(name));
 			//exporter.setTarget(createPostgresTestTarget(name));
-			exporter.setTarget(createAccessTarget(folder, name));
-		} catch (NamingException e) {
-			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+			target = createAccessTarget(folder, name);
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
+		
+		/*final AccessExporter exporter = new AccessExporter(source, workingSetID, folder, name + ".mdb");
+		exporter.setOutputStream(writer, "<br/>");
+		try {
+			exporter.setTarget(target);
+		} catch (NamingException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}*/
+		
+		final AccessExporterViaJackcess exporter;
+		try {
+			exporter = new AccessExporterViaJackcess(source, workingSetID, folder, name + ".mdb");
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Could not create target database.", e);
+		}
+		exporter.setOutputStream(writer, "<br/>");
+		exporter.setTarget(new SystemExecutionContext());
 		
 		new Thread(exporter).start();
 		
@@ -145,11 +160,22 @@ public class GenericExportResource extends TransactionResource {
 		String name = source + "_target";
 		
 		Properties properties = new Properties();
+		boolean useJdbcObdc = false;
+		try {
+			Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
+			useJdbcObdc = true;
+		} catch (Exception e) {
+			TrivialExceptionHandler.ignore(new Object(), e);
+		}
 		/* This only works on certain Java installations :( */
-		//properties.setProperty("dbsession." + name + ".uri", "jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ="+file.getAbsolutePath());
-		//properties.setProperty("dbsession." + name + ".driver", "sun.jdbc.odbc.JdbcOdbcDriver");
-		properties.setProperty("dbsession." + name + ".uri", "jdbc:access:////"+file.getAbsolutePath());
-		properties.setProperty("dbsession." + name + ".driver", "com.hxtt.sql.access.AccessDriver");
+		if (useJdbcObdc) {
+			properties.setProperty("dbsession." + name + ".uri", "jdbc:odbc:Driver={Microsoft Access Driver (*.mdb)};DBQ="+file.getAbsolutePath());
+			properties.setProperty("dbsession." + name + ".driver", "sun.jdbc.odbc.JdbcOdbcDriver");
+		}
+		else {
+			properties.setProperty("dbsession." + name + ".uri", "jdbc:access:////"+file.getAbsolutePath());
+			properties.setProperty("dbsession." + name + ".driver", "com.hxtt.sql.access.AccessDriver");
+		}
 		properties.setProperty("dbsession." + name + ".user", "");
 		properties.setProperty("dbsession." + name + ".password", "");
 		
