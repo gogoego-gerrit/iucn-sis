@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Jackcess
+Bundle-SymbolicName: com.healthmarketscience.jackcess
+Bundle-Version: 1.2.6
+Bundle-Vendor: HEALTHMARKETSCIENCE
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ClassPath: jackcess-1.2.6.jar,
+ .
+Export-Package: com.healthmarketscience.jackcess,
+ com.healthmarketscience.jackcess.complex,
+ com.healthmarketscience.jackcess.query,
+ com.healthmarketscience.jackcess.scsu
+Require-Bundle: org.apache.commons.logging;bundle-version="1.1.0",
+ org.apache.commons.lang;bundle-version="2.0.0"
