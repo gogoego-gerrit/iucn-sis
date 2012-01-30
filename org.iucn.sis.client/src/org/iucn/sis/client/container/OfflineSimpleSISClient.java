@@ -8,11 +8,15 @@ import org.iucn.sis.client.api.caches.OfflineCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.HasCache;
 
+import com.google.gwt.user.client.Window;
+
 public class OfflineSimpleSISClient extends SimpleSISClient {
 	
 	@Override
 	public void loadModule() {
 		SISClientBase.iAmOnline = false;
+		
+		Window.setTitle("Offline - " + Window.getTitle());
 		
 		super.loadModule();
 	}

@@ -1506,6 +1506,17 @@ SIS_Header_Summary_Title {
 	margin-left: 50px;
 }
 
+.SIS_loginParagraph {
+	margin: 5px; 
+	margin-top: 20px;	
+}
+
+.SIS_loginParagraphLast {
+	margin: 5px; 
+	margin-top: 20px;
+	margin-bottom: 5px;	
+}
+
 .SIS_smallButton {
 	font-size: 6pt;
 	font-weight: bold;

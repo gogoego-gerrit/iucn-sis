@@ -40,6 +40,7 @@ import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.extjs.login.client.ChangePasswordPanel;
+import com.solertium.util.gwt.ui.StyledHTML;
 
 public class LoginPanel extends LayoutContainer {
 
@@ -112,29 +113,32 @@ public class LoginPanel extends LayoutContainer {
 		descriptionPanel.addStyleName("SIS_loginDescription");
 		descriptionPanel.setWidth("210px");
 		descriptionPanel.add(headerImage);
-		descriptionPanel
-				.add(new HTML("<div style='margin: 5px; margin-top: 20px;'>"
-						+ "This is the Species Information Service (SIS) Toolkit, rev. 2.0.</div>"
-						+ "<div style='margin: 5px; margin-top: 20px;'>"
-						+ SIS.getBuildNumber() + "</div>"
-						/*+ (SIS.isOffline() ? "" : "<div style='margin: 5px; margin-top: 20px;'>"
-						+ "<a href=\"/raw/downloads/sisOffline.zip\">Click here</a> to download "
-						+ "a standalone version of the software.</div>")*/
-						+ "<div style='margin: 5px; margin-top: 20px;'>"
-						+ "The following browsers are highly suggested for standards compliance and performance:"
-						+ "<ul><li><a target=\"_blank\" href=\"http://www.google.com/chrome\">Google Chrome</a></li>"
-						+ "<li><a target=\"_blank\" href=\"http://www.firefox.com\">Firefox</a></li>"
-						+ "<li><a target=\"_blank\" href=\"http://www.apple.com/safari/\">Apple Safari</a></li>"
-						+ "</ul></div><div style='margin: 5px; margin-top: 20px; margin-bottom: 0px;'>"
-						+ "Select theme:</div>"
-						));
+		descriptionPanel.add(
+			new Paragraph("This is the Species Information Service (SIS) Toolkit, rev. 2.0.")
+		);
+		descriptionPanel.add(new Paragraph(SIS.getBuildNumber()));
+		//FIXME: re-instate
+		/*+ (SIS.isOffline() ? "" : "<div style='margin: 5px; margin-top: 20px;'>"
+			+ "<a href=\"/raw/downloads/sisOffline.zip\">Click here</a> to download "
+			+ "a standalone version of the software.</div>")*/
+		descriptionPanel.add(new Paragraph(
+				"The following browsers are highly suggested for standards compliance and performance:"
+				+ "<ul><li><a target=\"_blank\" href=\"http://www.google.com/chrome\">Google Chrome</a></li>"
+				+ "<li><a target=\"_blank\" href=\"http://www.firefox.com\">Firefox</a></li>"
+				+ "<li><a target=\"_blank\" href=\"http://www.apple.com/safari/\">Apple Safari</a></li>"
+				+ "</ul>"));
+		descriptionPanel.add(new Paragraph("Select theme:", "SIS_loginParagraphLast"));
 
 		ThemeSelector ts = new ThemeSelector();
 		ts.addStyleName("SIS_loginTheme");
 		
 		descriptionPanel.add(ts);
 		
-		if (SIS.isOffline()) {
+		if (SIS.isOffline())
+			descriptionPanel.add(new Paragraph("You are working offline.", "bold"));
+		
+		//FIXME: re-tooling needed here.
+		/*if (SIS.isOffline()) {
 			descriptionPanel.add(new HTML("<div style='margin: 5px; margin-top: 20px;'>" +
 					"Done with offline data?</div>"));
 			descriptionPanel.add(new Button("Clear data", new ClickHandler() {
@@ -164,8 +168,7 @@ public class LoginPanel extends LayoutContainer {
 					}, "Yes, Clear Data", "Cancel");
 				}
 			}));
-		}
-		
+		}*/
 		
 		/*wrap.addStyleName("SIS_CenteredPage");
 		wrap.setWidget(moreWrap);*/
@@ -372,21 +375,14 @@ public class LoginPanel extends LayoutContainer {
 		// loginFields.add(new HTML(" or ")); // disable Google Accounts for
 		// offline stick
 		// loginFields.add(b);*/
-
-		// Adding a quick wrapper to center the login fields panel
 		
-		
-		LayoutContainer moreWrap = new LayoutContainer();
-		
-		if (!SimpleSISClient.iAmOnline) {
-			FieldSet offline = newFieldSet("Offine Status");
+		/*if (SIS.isOffline()) {
+			FieldSet offline = newFieldSet("Offline Status");
 			
 			offline.add(offlineUpdatePanel);
 			
 			formWrapper.add(offline);
-		}
-
-		moreWrap.add(formWrapper);
+		}*/
 		
 		/*
 		 * Adding spacer to push the login area up a 
@@ -397,6 +393,9 @@ public class LoginPanel extends LayoutContainer {
 		HTML spacer = new HTML("&nbsp;");
 		spacer.setHeight("200px");
 		
+		// Adding a quick wrapper to center the login fields panel
+		LayoutContainer moreWrap = new LayoutContainer();
+		moreWrap.add(formWrapper);
 		moreWrap.add(spacer);
 		
 		return moreWrap;
@@ -789,4 +788,17 @@ public class LoginPanel extends LayoutContainer {
 		if (focus)
 			password.focus();
 	}
+	
+	private static class Paragraph extends StyledHTML {
+		
+		public Paragraph(String text) {
+			super(text, "SIS_loginParagraph");
+		}
+		
+		public Paragraph(String text, String style) {
+			super(text, "SIS_loginParagraph;" + style);
+		}
+		
+	}
+	
 }

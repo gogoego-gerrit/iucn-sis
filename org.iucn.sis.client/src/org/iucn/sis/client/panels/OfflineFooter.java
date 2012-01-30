@@ -98,7 +98,8 @@ public class OfflineFooter extends ToolBar {
 	private Menu getMenu() {
 		Menu menu = new Menu();
 		
-		MenuItem syncItem = new MenuItem("Sync Online", new SelectionListener<MenuEvent>() {
+		//FIXME: re-instate once ready
+		/*MenuItem syncItem = new MenuItem("Sync Online", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {				
 				WindowUtils.confirmAlert("Confirm", "Are your sure you want to Sync data to Online?", new WindowUtils.SimpleMessageBoxListener() {					
 					@Override
@@ -107,8 +108,8 @@ public class OfflineFooter extends ToolBar {
 					}
 				});				
 			}
-		}); 
-		menu.add(syncItem);
+		});
+		menu.add(syncItem);*/
 		
 		MenuItem backupItem = new MenuItem("Backup Offline", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {				
