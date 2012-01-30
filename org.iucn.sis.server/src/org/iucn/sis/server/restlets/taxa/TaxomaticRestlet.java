@@ -15,6 +15,7 @@ import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -564,11 +565,10 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		currentTaxon.setInvasive(updatedTaxon.getInvasive());
 		
 		InfratypeIO io = new InfratypeIO(session);
-		if (updatedTaxon.getInfratype() == null) 
-			currentTaxon.setInfratype(null);
-		else {
+		if (currentTaxon.getLevel() > TaxonLevel.SPECIES && updatedTaxon.getInfratype() != null)
 			currentTaxon.setInfratype(io.getInfratype(updatedTaxon.getInfratype().getName()));
-		}
+		else
+			currentTaxon.setInfratype(null);
 		
 		currentTaxon.correctFullName();
 		
