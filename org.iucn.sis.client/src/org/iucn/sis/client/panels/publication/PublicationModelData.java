@@ -1,6 +1,5 @@
 package org.iucn.sis.client.panels.publication;
 
-import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.shared.api.models.PublicationData;
 
 import com.extjs.gxt.ui.client.data.BaseModelData;
