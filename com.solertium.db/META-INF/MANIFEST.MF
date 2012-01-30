@@ -10,11 +10,10 @@ Import-Package: com.solertium.util,
  org.apache.commons.dbcp,
  org.apache.commons.pool,
  org.apache.commons.pool.impl
-Export-Package: com.hxtt.sql.access,
- com.solertium.db,
+Export-Package: com.solertium.db,
  com.solertium.db.query,
  com.solertium.db.satools,
  com.solertium.db.utils,
  com.solertium.db.vendor
-Bundle-ClassPath: Access_JDBC30.jar,
- .
+Bundle-ClassPath: .
+Require-Bundle: org.apache.commons.dbcp;bundle-version="1.4.0"
