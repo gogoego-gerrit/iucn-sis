@@ -35,6 +35,7 @@ import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.IsoLanguage;
 import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.api.models.PermissionGroup;
+import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Relationship;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -202,6 +203,7 @@ public class WorkingSetExporter extends DatabaseExporter {
 		try {
 			if (fromScratch) {
 				List<Class<?>> copyAll = new ArrayList<Class<?>>();
+				copyAll.add(Reference.class);
 				copyAll.add(AssessmentType.class);
 				copyAll.add(Definition.class);
 				copyAll.add(Infratype.class);
@@ -214,12 +216,6 @@ public class WorkingSetExporter extends DatabaseExporter {
 				copyAll.add(TaxonStatus.class);
 				copyAll.add(User.class);
 				copyAll.add(Virus.class);
-				
-				/*
-				 * TODO: Copy all references ... currently works, 
-				 * but takes a Really Long Time (TM)
-				 */
-				//copyAll.add(Reference.class);
 							
 				for (Class<?> clazz : copyAll) {
 					int i = 0;
