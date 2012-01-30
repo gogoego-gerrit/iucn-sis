@@ -32,12 +32,14 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 
+import com.solertium.util.restlet.DesktopIntegration.IconProvider;
+
 import edu.stanford.ejalbert.BrowserLauncher;
 
 public class TrayUI {
 
 	@SuppressWarnings("unchecked")
-	public TrayUI(final String appname, final String uri) throws AWTException {
+	public TrayUI(final String appname, final String uri, IconProvider provider) throws AWTException {
 
 		final String furi = uri;
 
@@ -50,18 +52,15 @@ public class TrayUI {
 				throw new AWTException("SystemTray not supported");
 
 			Image image = null;
-			if ("/".equals(java.io.File.separator))
+			if ("/".equals(java.io.File.separator)) {
 				image = Toolkit
 						.getDefaultToolkit()
-						.getImage(
-								TrayUI.class
-										.getResource("/com/solertium/container/appicon22.png"));
+						.getImage(provider.getIcon22());
+			}
 			else
 				image = Toolkit
 						.getDefaultToolkit()
-						.getImage(
-								TrayUI.class
-										.getResource("/com/solertium/container/appicon16.png"));
+						.getImage(provider.getIcon16());
 			final MouseListener mouseListener = new MouseListener() {
 				public void mouseClicked(MouseEvent e) {
 				}

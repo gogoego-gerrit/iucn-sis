@@ -31,6 +31,8 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 
+import com.solertium.util.restlet.DesktopIntegration.IconProvider;
+
 import edu.stanford.ejalbert.BrowserLauncher;
 
 public class WindowUI extends Frame {
@@ -39,13 +41,12 @@ public class WindowUI extends Frame {
 
 	String uri = null;
 	
-	public WindowUI(String appname, String uri){
+	public WindowUI(String appname, String uri, IconProvider provider){
 		this.uri = uri;
 		final String furi = uri;
 
 		// use full size (48px) icon image
-		this.setIconImage(Toolkit.getDefaultToolkit().getImage(TrayUI.class.getResource(
-			"/com/solertium/container/appicon48.png")));
+		this.setIconImage(Toolkit.getDefaultToolkit().getImage(provider.getIcon48()));
 		
 		setSize(400,200);
 		setTitle(appname+" Server");

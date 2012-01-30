@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?pde version="3.4"?>
+<?pde version="3.5"?>
 
-<product name="GoGoEgo" id="com.solertium.gogoego.equinox.application.product" application="com.solertium.gogoego.equinox.application.application" version="1.1.0" useFeatures="false">
+<product name="SIS" id="com.solertium.gogoego.equinox.application.product" application="com.solertium.gogoego.equinox.application.application" version="2.0.0" useFeatures="false" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
@@ -9,17 +9,16 @@
    <launcherArgs>
       <programArgs>-clean</programArgs>
       <programArgsMac>-XstartOnFirstThread</programArgsMac>
-      <vmArgs>-DCOMPONENT_CONFIG=instance.ini
--XX:CompileCommand=exclude,org/restlet/engine/http/HeaderReader,readValue 
--XX:CompileCommand=exclude,org/restlet/engine/http/PreferenceReader,readPreference</vmArgs>
+      <vmArgs>-DCOMPONENT_CONFIG=instance.ini</vmArgs>
    </launcherArgs>
 
    <windowImages/>
 
-   <launcher name="GoGoEgo">
-      <macosx icon="/com.solertium.gogoego.equinox.application/g.icns"/>
+   <launcher name="SIS">
+      <macosx icon="/com.solertium.gogoego.equinox.application/sis.icns"/>
       <solaris/>
-      <win useIco="false">
+      <win useIco="true">
+         <ico path="/com.solertium.gogoego.equinox.application/sis.ico"/>
          <bmp/>
       </win>
    </launcher>
@@ -83,5 +82,6 @@
       <plugin id="org.restlet.ext.jetty"/>
       <plugin id="org.restlet.ext.xml"/>
    </plugins>
+
 
 </product>

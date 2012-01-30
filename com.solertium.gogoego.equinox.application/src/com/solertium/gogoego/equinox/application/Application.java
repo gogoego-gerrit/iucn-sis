@@ -28,6 +28,8 @@ import com.solertium.gogoego.server.GoGoDebug;
 import com.solertium.gogoego.server.Restarter;
 import com.solertium.gogoego.server.cm.PluginAgent;
 import com.solertium.util.CurrentBinary;
+import com.solertium.util.TrivialExceptionHandler;
+import com.solertium.util.restlet.DesktopIntegration;
 
 public class Application implements IApplication, Restarter {
 
@@ -76,10 +78,22 @@ public class Application implements IApplication, Restarter {
 			System.err.println("Could not start DBSession: " + e.getMessage());
 		}
 
-		try {
-			component.start();
-		} catch (final Exception startupException) {
-			startupException.printStackTrace();
+		if ("true".equals(GoGoEgo.getInitProperties().getProperty("GOGOEGO_DESKTOP"))) {
+			String appName = GoGoEgo.getInitProperties().getProperty("GOGOEGO_DESKTOP_NAME", "GoGoEgo");
+			String startUrl = GoGoEgo.getInitProperties().getProperty("GOGOEGO_DESKTOP_STARTURL", "/admin/index.html");
+			
+			try {
+				DesktopIntegration.launch(appName, startUrl, component.getIconProvider(), component);
+			} catch (Exception e) {
+				TrivialExceptionHandler.ignore(this, e);
+			}
+		}
+		else {
+			try {
+				component.start();
+			} catch (final Exception startupException) {
+				startupException.printStackTrace();
+			}
 		}
 		
 		// idle needed

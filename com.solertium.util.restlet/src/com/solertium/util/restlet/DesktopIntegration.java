@@ -17,6 +17,7 @@
 package com.solertium.util.restlet;
 
 import java.awt.AWTException;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -30,62 +31,149 @@ import org.restlet.data.Response;
 import edu.stanford.ejalbert.BrowserLauncher;
 
 public class DesktopIntegration {
-
+	
 	public static void launch(String appname, String startUriFragment, StandardServerComponent component){
+		launch(appname, startUriFragment, new SimpleIconProvider("appicon.png"), component);
+	}
 
-		int httpport = component.getHttpPort();
+	public static void launch(String appname, String startUriFragment, IconProvider provider, StandardServerComponent component){
+		String uri = "http://localhost:11001/index.html";
 		
-		String uri = "http://127.0.0.1:"+httpport+startUriFragment;
-		
-		uri = "http://127.0.0.1:"+httpport+startUriFragment;
-		try{
-			System.out.println("Starting on port "+httpport);
+		//For testing purposes...
+		if (component != null) {
+			int httpport = component.getHttpPort();
 			
-			// try the port
-			ServerSocket serverSocket = new ServerSocket(httpport, 1, InetAddress.getByName("127.0.0.1"));
-			serverSocket.close();
-			
+			uri = "http://127.0.0.1:"+httpport+startUriFragment;
+
 			try{
-				component.start();
-			} catch (Exception exception) {
-				System.err.println("Component failed to start.");
-				exception.printStackTrace();
-				System.exit(0);
-			}
-		} catch (IOException exception) {
-			// could not open port ...
-			try { // check to see if already running
-				Request request = new Request(Method.GET, "http://127.0.0.1:"+httpport+"/version");
-				Client client = new Client(Protocol.HTTP);
-				Response response = client.handle(request);
-				response.getEntity().getText();
-				System.out.println("Opening in existing instance");
+				System.out.println("Starting on port "+httpport);
+				
+				// try the port
+				ServerSocket serverSocket = new ServerSocket(httpport, 1, InetAddress.getByName("127.0.0.1"));
+				serverSocket.close();
+				
 				try{
-					BrowserLauncher launcher = new BrowserLauncher();
-					launcher.openURLinBrowser(uri);
-				} catch (Exception poorlyHandled){
-					poorlyHandled.printStackTrace();
+					component.start();
+				} catch (Exception exception) {
+					System.err.println("Component failed to start.");
+					exception.printStackTrace();
+					System.exit(0);
 				}
-				System.exit(0);
-			} catch (Exception notResponsive) {
-				System.err.println("The usual server port is not responding");
-				System.exit(0);
+			} catch (IOException exception) {
+				// could not open port ...
+				try { // check to see if already running
+					Request request = new Request(Method.GET, "http://127.0.0.1:"+httpport+"/version");
+					Client client = new Client(Protocol.HTTP);
+					Response response = client.handle(request);
+					response.getEntity().getText();
+					System.out.println("Opening in existing instance");
+					try{
+						BrowserLauncher launcher = new BrowserLauncher();
+						launcher.openURLinBrowser(uri);
+					} catch (Exception poorlyHandled){
+						poorlyHandled.printStackTrace();
+					}
+					System.exit(0);
+				} catch (Exception notResponsive) {
+					System.err.println("The usual server port is not responding");
+					System.exit(0);
+				}
 			}
 		}
-		
 		System.out.println("Started");
 		
 		try {
-			new TrayUI(appname, uri);
+			new TrayUI(appname, uri, provider);
 		} catch (AWTException notray) {
 			System.out.println("System tray not supported, using fallback UI");
 			notray.printStackTrace();
-			new WindowUI(appname, uri);
+			new WindowUI(appname, uri, provider);
 		} catch (NoClassDefFoundError noclass) {
 			System.out.println("Java 1.5, using fallback UI");
 			noclass.printStackTrace();
-			new WindowUI(appname, uri);
+			new WindowUI(appname, uri, provider);
 		}
+	}
+	
+	public static class SimpleIconProvider implements IconProvider {
+		
+		private final String icon;
+		
+		public SimpleIconProvider(String icon) {
+			this.icon = icon;
+		}
+		
+		public String getIcon16() {
+			return getIcon();
+		}
+		
+		public String getIcon22() {
+			return getIcon();
+		}
+		
+		public String getIcon48() {
+			return getIcon();
+		}
+		
+		public String getIcon() {
+			File file = new File(icon);
+			try {
+				return file.exists() ? file.getAbsolutePath() : null;//file.exists() ? file.toURI().toURL() : null;
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		
+	}
+	
+	public static class BaseIconProvider implements IconProvider {
+		
+		private final String folder;
+		private final String iconNameBase;
+		
+		public BaseIconProvider(String folder, String iconNameBase) {
+			this.folder = folder;
+			this.iconNameBase = iconNameBase;
+		}
+		
+		public String getIcon16() {
+			return inject(16);
+		}
+		
+		public String getIcon22() {
+			return inject(22);
+		}
+		
+		public String getIcon48() {
+			return inject(48);
+		}
+		
+		private String inject(int size) {
+			try {
+				int index = iconNameBase.lastIndexOf('.');
+				String path = iconNameBase.substring(0, index) + "_" + size + 
+					iconNameBase.substring(index);
+				File file;
+				if (folder != null && !"".equals(folder))
+					file = new File(folder, path);
+				else
+					file = new File(path);
+			
+				return file.exists() ? file.getAbsolutePath() : null;//file.exists() ? file.toURI().toURL() : null;
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		
+	}
+	
+	public static interface IconProvider {
+		
+		public String getIcon16();
+		
+		public String getIcon22();
+		
+		public String getIcon48();
 		
 	}
 	

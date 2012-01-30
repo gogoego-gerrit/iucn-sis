@@ -43,6 +43,7 @@ import com.solertium.gogoego.server.cm.PluginAgent;
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.restlet.DesktopIntegration;
 import com.solertium.util.restlet.StandardServerComponent;
+import com.solertium.util.restlet.DesktopIntegration.IconProvider;
 
 /**
  * Bootstrap is the entry point for the standalone GoGoEgo container. It is the
@@ -80,7 +81,7 @@ public class Bootstrap extends StandardServerComponent {
 		}
 
 		if ((args.length > 0) && "-desktop".equals(args[args.length - 1]))
-			DesktopIntegration.launch("GoGoEgo", "/admin/index.html", component);
+			DesktopIntegration.launch("GoGoEgo", "/admin/index.html", component.getIconProvider(), component);
 		else
 			try {
 				component.start();
@@ -250,6 +251,23 @@ public class Bootstrap extends StandardServerComponent {
 		} else {
 			System.err.println("Bootstrap "+toString()+" on "+Thread.currentThread().getName()+":"+Thread.currentThread().getId()+" could not signal component start.  This is bad.");
 		}
+	}
+	
+	public IconProvider getIconProvider() {
+		String iconMode = GoGoEgo.getInitProperties().getProperty("GOGOEGO_DESKTOP_ICON_MODE", "simple").toLowerCase();
+		
+		IconProvider provider;
+		if ("basic".equals(iconMode)) {
+			provider = new DesktopIntegration.BaseIconProvider(
+				GoGoEgo.getInitProperties().getProperty("GOGOEGO_DESKTOP_ICON_BASIC_FOLDER", ""), 
+				GoGoEgo.getInitProperties().getProperty("GOGOEGO_DESKTOP_ICON_BASIC_NAME", "appicon.png")
+			);
+		}
+		else {
+			provider = new DesktopIntegration.SimpleIconProvider(
+				GoGoEgo.getInitProperties().getProperty("GOGOEGO_DESKTOP_ICON_SIMPLE_ICON", "appicon.png"));
+		}
+		return provider;
 	}
 
 	public void setRestarter(Restarter restarter) {

@@ -3,7 +3,7 @@
 <plugin>
    <extension
          id="application"
-         name="GoGoEgo"
+         name="SIS"
          point="org.eclipse.core.runtime.applications">
       <application>
          <run class="com.solertium.gogoego.equinox.application.Application"/>
@@ -11,14 +11,14 @@
    </extension>
    <extension
          id="product"
-         name="GoGoEgo"
+         name="SIS"
          point="org.eclipse.core.runtime.products">
       <product
             application="com.solertium.gogoego.equinox.application.application"
-            name="GoGoEgo">
+            name="SIS">
          <property
                name="appName"
-               value="GoGoEgo">
+               value="SIS">
          </property>
       </product>
    </extension>
