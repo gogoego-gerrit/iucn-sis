@@ -5,7 +5,8 @@ Bundle-SymbolicName: org.apache.commons.pool
 Bundle-Version: 1.5.4
 Bundle-ClassPath: commons-pool-1.5.4.jar
 Bundle-Vendor: The Apache Software Foundation
-Export-Package: org.apache.commons.pool.impl;version="1.5.4",org.apache.commons.pool;version="1.5.4"
+Export-Package: org.apache.commons.pool,
+ org.apache.commons.pool.impl
 Bundle-Description: Commons Object Pooling Library
 Build-Jdk: 1.6.0_15
 Specification-Version: 1.5.4
@@ -24,4 +25,4 @@ Created-By: 1.6.0_15 (Apple Inc.)
 Specification-Title: Commons Pool
 Implementation-Version: 1.5.4
 Archiver-Version: Plexus Archiver
-Import-Package: org.apache.commons.pool;version="1.5.4",org.apache.commons.pool.impl;version="1.5.4"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
