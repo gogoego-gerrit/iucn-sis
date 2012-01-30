@@ -213,6 +213,9 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		data.add(new Span("Status: " + node.getTaxonStatus().getName()), layout);
 		data.add(new Span("Hybrid: " + (node.getHybrid() ? "Yes" : "No")), layout);
 		
+		data.add(new Span("Invasive: " + (node.getInvasive() ? "Yes" : "No")), layout);
+		data.add(new Span("Feral: " + (node.getFeral() ? "Yes" : "No")), layout);
+		
 		return data;	
 	}
 	
