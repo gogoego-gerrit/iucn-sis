@@ -327,8 +327,10 @@ public abstract class ReportTemplate {
 		if (field != null){
 			RedListCriteriaField proxy = new RedListCriteriaField(field);
 			String category = proxy.isManual() ? proxy.getManualCategory() : proxy.getGeneratedCategory();
+			String criteria = proxy.isManual() ? proxy.getManualCriteria() : proxy.getGeneratedCriteria();
 			ResultCategory type = ResultCategory.fromString(category);
 			catAndCrit = "".equals(category) ? "-" : type == null ? category : type.getName();
+			catAndCrit += "".equals(criteria) ? "  N/A" : "  "+criteria;
 								
 		}else
 			catAndCrit = "-";
