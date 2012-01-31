@@ -47,7 +47,7 @@ public class PublicationBatchChange extends FormPanel {
 			}
 		}));
 		
-		addButton(new Button("Submit", new SelectionListener<ButtonEvent>() {
+		addButton(new Button("Update", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				doSubmit();
 			}
