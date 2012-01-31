@@ -96,7 +96,7 @@ public class PublicationCache {
 		out.append(XMLWritingUtils.writeTag("goal", targetGoal == null ? null : targetGoal.toString(), true));
 		out.append(XMLWritingUtils.writeTag("approved", targetApproved == null ? null : targetApproved.toString(), true));
 		out.append(XMLWritingUtils.writeCDATATag("notes", notes, true));
-		out.append(XMLWritingUtils.writeTag("priority", priority == null ? null : priority.toString()));
+		out.append(XMLWritingUtils.writeTag("priority", priority == null ? null : priority.toString(), true));
 		for (Integer id : ids)
 			out.append(XMLWritingUtils.writeTag("data", id.toString()));
 		out.append("</root>");
