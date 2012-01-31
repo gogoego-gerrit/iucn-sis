@@ -928,8 +928,9 @@ public class AssessmentHtmlTemplate {
 		String manualCategory = proxy.getManualCategory();
 		String autoCategory = proxy.getGeneratedCategory();
 		retHtml.append("<center><table id=\"redListStatus\"><tr><th colspan=\"2\">Red List Status</th></tr>\n");
-		if ((isManual && (manualCategory.equals("None")) || manualCategory.equals("")) || 
-				(!isManual && (autoCategory.equals("None") || autoCategory.equals("")))) {
+		
+		if ((isManual && isIn(manualCategory, "None", "")) || 
+				(!isManual && isIn(autoCategory, "None", ""))) {
 			retHtml.append("<tr><td colspan=\"2\">Red List category not determined</td></tr>\n");
 			retHtml.append("</table></center>");
 		} else {
