@@ -121,7 +121,7 @@ public class WorkingSetCache {
 	}	
 	
 	public WorkingSet getOfflineWorkingSet() {
-		return workingSets.values().iterator().next().getEntry();
+		return workingSets.isEmpty() ? null : workingSets.values().iterator().next().getEntry();
 	}
 
 	private void cache(WorkingSet ws, FetchMode mode) {
