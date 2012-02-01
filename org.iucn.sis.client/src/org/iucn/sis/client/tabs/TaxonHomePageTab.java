@@ -209,13 +209,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 			col.setRenderer(new GridCellRenderer<TaxonListElement>() {
 				public Object render(TaxonListElement model, String property, ColumnData config, int rowIndex, int colIndex,
 						ListStore<TaxonListElement> store, Grid<TaxonListElement> grid) {
-					String style;
-					if (model.getNode().isDeprecated())
-						style = "deleted";
-					else
-						style = "color-dark-blue";
-					
-					return "<span class=\"" + style + "\">" + model.get(property) + "</span>";
+					return model.toHtml((String)model.get(property));
 				}
 			});
 			final List<ColumnConfig> cols = new ArrayList<ColumnConfig>();
@@ -427,7 +421,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		hierarchy.setIconStyle("icon-hierarchy");
 		hierarchy.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				new TaxonTreePopup(getTaxon()).show();
+				TaxonTreePopup.open(getTaxon());
 			}
 		});
 		

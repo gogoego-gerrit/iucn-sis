@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.panels.utils.SearchPanel;
-import org.iucn.sis.shared.api.models.TaxonStatus;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -94,12 +93,7 @@ public class SearchResultPage extends PagingPanel<SearchResultPage.TaxonSearchRe
 					ColumnData config, int rowIndex, int colIndex,
 					ListStore<TaxonSearchResult> store,
 					Grid<TaxonSearchResult> grid) {
-				String status = model.get("status");
-				if (TaxonStatus.STATUS_DISCARDED.equals(status) || 
-						TaxonStatus.STATUS_SYNONYM.equals(status))
-					return "<span class=\"deleted\">" + model.get(property) + "</span>";
-				else
-					return model.get(property);
+				return model.toHtml((String)model.get(property));
 			}
 		});
 		
@@ -197,6 +191,13 @@ public class SearchResultPage extends PagingPanel<SearchResultPage.TaxonSearchRe
 		
 		public int getTaxonID() {
 			return taxonID;
+		}
+		
+		public String toHtml(String name) {
+			String status = get("status");
+			String styleName = "taxon_status_" + status;
+			
+			return "<span class=\"" + styleName + "\">" + name + "</span>";
 		}
 	}
 	

@@ -9,24 +9,18 @@ import com.extjs.gxt.ui.client.data.BaseModel;
 public class TaxonListElement extends BaseModel {
 	private static final long serialVersionUID = 1L;
 	
-	Taxon node;
-	String footprint;
-
-	public TaxonListElement() {
-		super();
-	}
-
-	public TaxonListElement(String name) {
-		set("name", name);
-		set("fullName", name);
-	}
+	private final Taxon node;
+	private final String footprint;
 
 	public TaxonListElement(Taxon node, String footprint) {
 		this.node = node;
 		this.footprint = footprint;
+		
 		boolean isNew = TaxonStatus.STATUS_NEW.equals(node.getTaxonStatus().getCode());
+		
 		set("name", node.getName() + (isNew ? "*" : ""));
 		set("fullName", node.getFriendlyName());
+		set("status", node.getStatusCode());
 		set(TaxonComparator.SEQ_CODE, String.valueOf(node.getSequenceCode()));
 	}
 
@@ -40,6 +34,18 @@ public class TaxonListElement extends BaseModel {
 
 	public void setSequenceCode(String code) {
 		set(TaxonComparator.SEQ_CODE, code);
+	}
+	
+	public String getStyleName() {
+		return "taxon_status_" + get("status");
+	}
+	
+	public String toHtml() {
+		return toHtml((String)get("fullName"));
+	}
+	
+	public String toHtml(String name) {
+		return "<span class=\"" + getStyleName() + "\">" + name + "</span>";
 	}
 
 }

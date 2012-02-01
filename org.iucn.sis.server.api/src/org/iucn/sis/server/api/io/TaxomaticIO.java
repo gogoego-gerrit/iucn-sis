@@ -243,11 +243,8 @@ public class TaxomaticIO {
 	public void saveNewTaxon(Taxon taxon, User user) throws TaxomaticException {
 		if (taxon.getId() == 0 || taxonIO.getTaxon(taxon.getId()) == null) {
 			if (taxon.getFootprint() != null && taxon.getFootprint().length > 0) {
-				final Taxon existing = taxonIO.readTaxonByName(taxon.getKingdomName(), 
-						taxon.getFriendlyName(), taxon.getTaxonLevel());
-				
-				if (existing != null)
-					throw new TaxomaticException("The taxon " + existing.getFriendlyName() + 
+				if (taxonIO.hasDuplicate(taxon))
+					throw new TaxomaticException("A taxon with this name" + 
 						" already exists within this kingdom at the " + taxon.getTaxonLevel().getName() + 
 						", preventing the creation of new taxon " + taxon.getFriendlyName());
 			}

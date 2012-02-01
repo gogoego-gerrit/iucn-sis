@@ -48,17 +48,6 @@ public class Taxon implements AuthorizableObject, Serializable {
 		this.state = state;
 	}
 
-	public String getXMLofFootprintAndChildren() {
-		StringBuilder xml = new StringBuilder("<hierarchy>");
-		xml.append("<footprint>" + getIDFootprintAsString(0, "-") + "</footprint>");
-		xml.append("<options>");
-		for (Taxon child : getChildren())
-			xml.append("<option>" + child.getId() + "</option>");
-		xml.append("</options>");
-		xml.append("</hierarchy>");
-		return xml.toString();
-	}
-
 	public void setId(int value) {
 		this.id = value;
 	}
@@ -248,6 +237,10 @@ public class Taxon implements AuthorizableObject, Serializable {
 		
 		return TaxonStatus.STATUS_SYNONYM.equals(code) || 
 			TaxonStatus.STATUS_DISCARDED.equals(code);
+	}
+	
+	public boolean isNotAssigned() {
+		return TaxonStatus.STATUS_NOT_ASSIGNED.equals(getStatusCode());
 	}
 
 	public int getLevel() {

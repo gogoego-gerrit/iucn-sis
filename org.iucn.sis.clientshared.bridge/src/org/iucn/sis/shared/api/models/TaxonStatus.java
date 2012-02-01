@@ -29,10 +29,11 @@ public class TaxonStatus implements Serializable {
 	public static final String STATUS_SYNONYM = "S";
 	public static final String STATUS_UNCERTAIN = "Q";
 	public static final String STATUS_UNPUBLISHED = "P";
+	public static final String STATUS_NOT_ASSIGNED = "I";
 	
 	public static final String[] ALL = new String[] {
 		STATUS_NEW, STATUS_ACCEPTED, STATUS_DISCARDED, STATUS_SYNONYM, 
-		STATUS_UNCERTAIN, STATUS_UNPUBLISHED
+		STATUS_UNCERTAIN, STATUS_UNPUBLISHED, STATUS_NOT_ASSIGNED
 	};
 	
 	protected static final Integer getIdFromCode(String code) {
@@ -49,6 +50,8 @@ public class TaxonStatus implements Serializable {
 			id = 5;
 		else if (STATUS_UNPUBLISHED.equals(code))
 			id = 6;
+		else if (STATUS_NOT_ASSIGNED.equals(code))
+			id = 7;
 		else
 			id = 0;
 		
@@ -63,6 +66,7 @@ public class TaxonStatus implements Serializable {
 			put(STATUS_SYNONYM, "Synonym");
 			put(STATUS_UNCERTAIN, "Uncertain");
 			put(STATUS_UNPUBLISHED, "Unpublished");
+			put(STATUS_NOT_ASSIGNED, "Not Assigned");
 		}
 	};
 	

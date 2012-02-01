@@ -554,6 +554,10 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		final NativeDocument ndoc = getEntityAsNativeDocument(entity);
 		
 		Taxon updatedTaxon = Taxon.fromXML(ndoc);
+		
+		if (taxonIO.hasDuplicate(updatedTaxon))
+			throw new TaxomaticException("A taxon with the name " + updatedTaxon.getFriendlyName() + " already exists in this kingdom.");
+		
 		Taxon currentTaxon = taxonIO.getTaxon(updatedTaxon.getId());
 		
 		currentTaxon.setName(updatedTaxon.getName());

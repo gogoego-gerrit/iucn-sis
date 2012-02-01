@@ -204,37 +204,6 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		return tmpFolder.getAbsolutePath();
 	}
 
-	private void doLockThings(final User username, final StringBuilder lockLog, WorkingSet ws, Integer assessmentID,
-			Taxon curNode, Map<Integer, String> locked) {
-		if (SIS.amIOnline()) {
-			Status ret = SIS.get().getLocker().persistentLockAssessment(assessmentID, LockType.CHECKED_OUT, username,
-					ws.getId() + "");
-
-			if (!ret.isSuccess()) {
-				LockInfo lock;
-				try {
-					lock = SIS.get().getLocker().getAssessmentPersistentLock(assessmentID);
-				} catch (LockException e) {
-					return;
-				}
-				if (lock.getLockType().equals(LockType.CHECKED_OUT)) {
-					lockLog.append("<div>Global draft assessment for " + curNode.getFullName()
-							+ " is already checked out by " + lock.getUsername());
-				} else {
-					lockLog.append("<div>Global draft assessment for " + curNode.getFullName()
-							+ " is locked for saving by " + lock.getUsername() + ". Save"
-							+ " locks are granted for a 2 minute period after each save." + " Please try again later.");
-				}
-			} else
-				locked.put(assessmentID, username.getUsername());
-		}
-	}
-
-	public String getSpeciesID(Document draftDoc) {
-		return ((Element) draftDoc.getDocumentElement().getElementsByTagName("basicInformation").item(0))
-				.getElementsByTagName("speciesID").item(0).getTextContent();
-	}
-
 	private String getImportFUllPath(String username, String entryName) {
 		return getImportPath(username) + "/" + entryName;
 	}
@@ -310,18 +279,6 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 
 	private String getUserPath(String username) {
 		return "/users/" + username;
-	}
-
-	private String getWorkingSetTempPath(String workingSetName, String userName) {
-		return getUserPath(userName) + "/" + workingSetName + "Temp.xml";
-	}
-
-	private String getZippedFolder(String username) {
-		return (getUserPath(username) + "/export");
-	}
-
-	private String getZippedPath(String workingSetName, String username) {
-		return (getZippedFolder(username) + "/" + workingSetName + ".zip");
 	}
 
 	private boolean importDraftAssessment(Assessment assessment, String username, Request request) {
@@ -496,11 +453,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 		
 		Integer importedID = importedTaxon.getId();
 
-		// DETERMINE IF IMPORTING NEW TAXON OR IF ALREADY EXIST IN SIS
-		Taxon sisTaxon = taxonIO.readTaxonByName(importedTaxon.getKingdomName(), 
-				importedTaxon.getFriendlyName(), importedTaxon.getTaxonLevel());
-
-		if (sisTaxon == null) {
+		if (!taxonIO.hasDuplicate(importedTaxon)) {
 			// THE TAXON IS NEW!
 			importedTaxon.setId(0);
 			try {
@@ -510,6 +463,9 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 				return;
 			}
 		} else {
+			Taxon sisTaxon = taxonIO.readTaxonByName(importedTaxon.getKingdomName(), 
+					importedTaxon.getFriendlyName(), importedTaxon.getTaxonLevel());
+			
 			importSynonyms(importedTaxon, sisTaxon);
 			importCommonNames(importedTaxon, sisTaxon);
 			try {

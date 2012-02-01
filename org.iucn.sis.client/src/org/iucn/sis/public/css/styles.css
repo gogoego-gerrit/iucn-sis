@@ -39,6 +39,10 @@ body,td,div,input,p,select,input,button {
 	font-size: 12px !important;	
 }
 
+.fontSize14 {
+	font-size: 14px !important;	
+}
+
 .redFont {
 	color: #C01B24 !important;	
 }
@@ -59,6 +63,21 @@ body,td,div,input,p,select,input,button {
 .deleted {
 	text-decoration: line-through;
 	color: #C01B24;
+}
+
+/** TAXON STATUS **/
+
+.taxon_status_N, .taxon_status_A, .taxon_status_Q, .taxon_status_P {
+	color: #00428C !important;
+}
+
+.taxon_status_D, .taxon_status_S {
+	color: #C01B24 !important;
+	text-decoration: line-through;
+}
+
+.taxon_status_I {
+	color: #DDD !important;	
 }
 
 .dashed-border {

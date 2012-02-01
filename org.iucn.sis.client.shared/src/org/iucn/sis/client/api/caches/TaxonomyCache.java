@@ -20,6 +20,7 @@ import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonHierarchy;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.models.interfaces.HasNotes;
 import org.iucn.sis.shared.api.models.interfaces.HasReferences;
@@ -37,13 +38,9 @@ public class TaxonomyCache {
 
 	public static final TaxonomyCache impl = new TaxonomyCache();
 
-	private Set<Integer> recentlyAccessed;
-	private HashMap<Integer, Taxon> cache;
-
-	/**
-	 * HashMap<String, NativeDocument>();
-	 */
-	private HashMap<String, NativeDocument> pathCache;
+	private final Set<Integer> recentlyAccessed;
+	private final HashMap<Integer, Taxon> cache;
+	private final HashMap<String, TaxonHierarchy> pathCache;
 
 	/**
 	 * HashMap<String, ArrayList> - NodeID request, and list of callbacks
@@ -53,7 +50,7 @@ public class TaxonomyCache {
 
 	private TaxonomyCache() {
 		cache = new HashMap<Integer, Taxon>();
-		pathCache = new HashMap<String, NativeDocument>();
+		pathCache = new HashMap<String, TaxonHierarchy>();
 		recentlyAccessed = new LinkedHashSet<Integer>();
 		requested = new HashMap<Integer, List<GenericCallback<Taxon>>>();
 	}
@@ -317,29 +314,20 @@ public class TaxonomyCache {
 	}
 	
 	public void fetchChildren(final Taxon node, final GenericCallback<List<TaxonListElement>> wayback) {
-		TaxonomyCache.impl.fetchPath(String.valueOf(node.getId()), new GenericCallback<NativeDocument>() {
+		TaxonomyCache.impl.fetchPath(String.valueOf(node.getId()), new GenericCallback<TaxonHierarchy>() {
 			public void onFailure(Throwable caught) {
-				wayback.onFailure(new Throwable());
+				wayback.onFailure(caught);
 			}
-
-			public void onSuccess(NativeDocument result) {
-				final NativeNodeList options = (result).getDocumentElement().getElementsByTagName("option");
-				final ArrayList<TaxonListElement> childModel = new ArrayList<TaxonListElement>();
-				List<Integer> ids = new ArrayList<Integer>();
-				for (int i = 0; i < options.getLength(); i++) {
-					ids.add(Integer.valueOf(options.elementAt(i).getText()));
-				}
-				if (ids.size() > 0) {
-					TaxonomyCache.impl.fetchList(ids, new GenericCallback<String>() {
+			public void onSuccess(final TaxonHierarchy result) {
+				if (result.hasChildren()) {
+					TaxonomyCache.impl.fetchList(result.getChildren(), new GenericCallback<String>() {
 						public void onFailure(Throwable caught) {
 							wayback.onFailure(caught);
 						}
-
-						public void onSuccess(String result) {
-							for (int i = 0; i < options.getLength(); i++) {
-								childModel.add(new TaxonListElement(TaxonomyCache.impl.getTaxon(options.elementAt(i)
-										.getText()), ""));
-							}
+						public void onSuccess(String useless) {
+							final ArrayList<TaxonListElement> childModel = new ArrayList<TaxonListElement>();
+							for (Integer id : result.getChildren())
+								childModel.add(new TaxonListElement(getTaxon(id), ""));
 
 							wayback.onSuccess(childModel);
 						}
@@ -347,12 +335,11 @@ public class TaxonomyCache {
 				} else {
 					wayback.onFailure(new Throwable());
 				}
-
 			}
 		});
 	}
 
-	public void fetchPath(final String path, final GenericCallback<NativeDocument> wayback) {
+	public void fetchPath(final String path, final GenericCallback<TaxonHierarchy> wayback) {
 		if (pathCache.containsKey(path)) {
 			wayback.onSuccess(pathCache.get(path));
 		} else {
@@ -363,33 +350,38 @@ public class TaxonomyCache {
 				}
 
 				public void onSuccess(String result) {
-					pathCache.put(path, ndoc);
-					wayback.onSuccess(ndoc);
+					TaxonHierarchy hierarchy = TaxonHierarchy.fromXML(ndoc);
+					pathCache.put(path, hierarchy);
+					wayback.onSuccess(hierarchy);
 				}
 			});
 		}
 	}
 
-	public void fetchPathWithID(final String id, final GenericCallback<NativeDocument> wayback) {
-		final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-		ndoc.get(UriBase.getInstance().getSISBase() + "/browse/hierarchy/" + id, new GenericCallback<String>() {
-
-			public void onFailure(Throwable caught) {
-				wayback.onFailure(caught);
-			}
-
-			public void onSuccess(String result) {
-				try {
-					String path = ndoc.getDocumentElement().getElementByTagName("footprint").getText();
-					pathCache.put(path, ndoc);
-					wayback.onSuccess(ndoc);
-				} catch (Exception e) {
-					wayback.onFailure(new Throwable());
+	public void fetchPathWithID(final Integer id, final GenericCallback<TaxonHierarchy> wayback) {
+		fetchPathWithID(id.toString(), wayback);
+	}
+	
+	public void fetchPathWithID(final String id, final GenericCallback<TaxonHierarchy> wayback) {
+		if (pathCache.containsKey(id))
+			wayback.onSuccess(pathCache.get(id));
+		else {
+			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+			ndoc.get(UriBase.getInstance().getSISBase() + "/browse/hierarchy/" + id, new GenericCallback<String>() {
+				public void onFailure(Throwable caught) {
+					wayback.onFailure(caught);
 				}
-
-			}
-
-		});
+				public void onSuccess(String result) {
+					try {
+						TaxonHierarchy hierarchy = TaxonHierarchy.fromXML(ndoc);
+						pathCache.put(hierarchy.getFootprint(), hierarchy);
+						wayback.onSuccess(hierarchy);
+					} catch (Exception e) {
+						wayback.onFailure(e);
+					}
+				}
+			});
+		}
 	}
 
 	/**

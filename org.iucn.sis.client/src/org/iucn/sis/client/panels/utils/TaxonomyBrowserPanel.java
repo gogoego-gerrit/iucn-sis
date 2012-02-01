@@ -1,8 +1,6 @@
 package org.iucn.sis.client.panels.utils;
 
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.StateManager;
@@ -10,6 +8,7 @@ import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
 import org.iucn.sis.client.api.utils.TaxonComparator;
 import org.iucn.sis.client.api.utils.TaxonPagingLoader;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonHierarchy;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -39,8 +38,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.ViewerFilterTextBox;
@@ -93,11 +90,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 		binder.setDisplayProperty("name");
 		binder.setStyleProvider(new ModelStringProvider<TaxonListElement>() {
 			public String getStringValue(TaxonListElement model, String property) {
-				if( model.getNode().isDeprecated() )
-					return "deleted";
-				else
-					return "color-dark-blue";
-					
+				return model.getStyleName();	
 			}
 		});
 		
@@ -142,8 +135,8 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 		}));
 	}
 
-	protected void display(NativeDocument ndoc) {
-		String footprint = ndoc.getDocumentElement().getElementByTagName("footprint").getText();
+	protected void display(TaxonHierarchy hierarchy) {
+		String footprint = hierarchy.getFootprint();
 
 		if (footprint.indexOf("-") > 0)
 			footprints = footprint.split("-");
@@ -154,7 +147,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 
 		updateFootprintPanel();
 		
-		updateBody(ndoc, footprint, 0, new DrawsLazily.DoneDrawingCallback() {
+		updateBody(hierarchy, footprint, 0, new DrawsLazily.DoneDrawingCallback() {
 			public void isDrawn() {
 				resizeList(getOffsetWidth(), getOffsetHeight());
 				
@@ -201,23 +194,23 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 	 * @param path
 	 */
 	protected void fetch(String path) {
-		TaxonomyCache.impl.fetchPath(path, new GenericCallback<NativeDocument>() {
+		TaxonomyCache.impl.fetchPath(path, new GenericCallback<TaxonHierarchy>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Failed to fetch taxa, please try again later.");
 			}
-			public void onSuccess(NativeDocument result) {
+			public void onSuccess(TaxonHierarchy result) {
 				display(result);
 			}
 		});
 	}
 
 	protected void fetchWithID(String id) {
-		TaxonomyCache.impl.fetchPathWithID(id, new GenericCallback<NativeDocument>() {
+		TaxonomyCache.impl.fetchPathWithID(id, new GenericCallback<TaxonHierarchy>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.errorAlert("Failed to fetch taxa, please try again later.");
 			}
-			public void onSuccess(NativeDocument result) {
-				display((NativeDocument) result);
+			public void onSuccess(TaxonHierarchy result) {
+				display(result);
 			}
 		});
 	}
@@ -296,9 +289,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 		fetchWithID(id);
 	}
 
-	protected void updateBody(NativeDocument ndoc, String footprint, int offset, final DrawsLazily.DoneDrawingCallback callback) {
-		final NativeNodeList options = ndoc.getDocumentElement().getElementsByTagName("option");
-
+	protected void updateBody(final TaxonHierarchy hierarchy, String footprint, int offset, final DrawsLazily.DoneDrawingCallback callback) {
 		if (list.isCheckable())
 			for (DataListItem curItem : list.getItems())
 				curItem.setChecked(false);
@@ -311,7 +302,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 		
 		list.getChecked().clear();
 
-		if (options.getLength() == 0) {
+		if (!hierarchy.hasChildren()) {
 			optionsPanel.add(new HTML("No " + Taxon.getDisplayableLevel(footprint.split("-").length) + "."));
 		
 			callback.isDrawn();
@@ -329,11 +320,6 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 			final String foot = footprint;
 			
 			list.setCheckable(asCheckable && footprints.length >= checkableLevel);
-			
-			// CREATE CSV TO USE TO FECTH ELEMENTS
-			final List<Integer> idList = new ArrayList<Integer>();
-			for (int i = 0; i < options.getLength(); i++)
-				idList.add(Integer.parseInt(options.elementAt(i).getText()));
 			
 			final SimpleListener listener = new SimpleListener() {
 				public void handleEvent() {
@@ -355,16 +341,16 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 				}
 			};
 			
-			if (idList.isEmpty())
+			if (!hierarchy.hasChildren())
 				listener.handleEvent();
 			else {
-				TaxonomyCache.impl.fetchList(idList, new GenericCallback<String>() {
+				TaxonomyCache.impl.fetchList(hierarchy.getChildren(), new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {
 						WindowUtils.errorAlert("Could not fetch taxa, please try again later.");
 					}
 					public void onSuccess(String arg0) {
 						loader.getFullList().clear();
-						for (Integer id : idList) {
+						for (Integer id : hierarchy.getChildren()) {
 							Taxon node = TaxonomyCache.impl.getTaxon(id);
 							if (node != null) {
 								String path = foot + node.getId();

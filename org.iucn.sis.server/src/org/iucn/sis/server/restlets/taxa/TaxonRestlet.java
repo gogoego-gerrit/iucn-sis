@@ -21,6 +21,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonHierarchy;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -42,7 +43,6 @@ import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.ElementCollection;
-import com.solertium.util.portable.XMLWritingUtils;
 
 public class TaxonRestlet extends BaseServiceRestlet {
 
@@ -189,10 +189,12 @@ public class TaxonRestlet extends BaseServiceRestlet {
 		}
 	}
 
-	private Representation getFootprintOfIDsAndChildren(Integer id, TaxonIO taxonIO) {
+	private Representation getFootprintOfIDsAndChildren(Integer id, TaxonIO taxonIO) throws ResourceException {
 		Taxon taxon = taxonIO.getTaxon(id);
+		if (taxon == null)
+			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Taxon with ID " + id + " not found.");
 		
-		return new StringRepresentation(taxon.getXMLofFootprintAndChildren(), MediaType.TEXT_XML);
+		return new StringRepresentation(TaxonHierarchy.fromTaxon(taxon).toXML(), MediaType.TEXT_XML);
 	}
 
 	private Representation getFullFootprint(String ids, TaxonIO taxonIO) throws ResourceException {
@@ -306,16 +308,10 @@ public class TaxonRestlet extends BaseServiceRestlet {
 	}
 
 	private String getHierarchyFootprintXML(Taxon root, TaxonIO taxonIO, Session session) {
-		StringBuilder xml = new StringBuilder();
-		xml.append("<hierarchy>\r\n");
-		xml.append("<footprint>" + (root == null ? "" : root.getIDFootprintAsString(0, "-")) + "</footprint>\r\n");
-
-		xml.append("<options>\r\n");
+		final TaxonHierarchy hierarchy;
+		
 		if (root != null)
-			for (Taxon child : root.getChildren()) {
-				if (Taxon.ACTIVE == child.getState())
-					xml.append("<option>" + child.getId() + "</option>\r\n");
-			}
+			hierarchy = TaxonHierarchy.fromTaxon(root);
 		else {
 			TaxonCriteria criteria = new TaxonCriteria(session);
 			criteria.createTaxonLevelCriteria().level.eq(TaxonLevel.KINGDOM);
@@ -347,14 +343,16 @@ public class TaxonRestlet extends BaseServiceRestlet {
 				}
 			});
 			
-			for (Taxon taxon : results) {
-				xml.append(XMLWritingUtils.writeTag("option", Integer.toString(taxon.getId()))+"\r\n");
-			}
+			hierarchy = new TaxonHierarchy();
+			
+			final List<Integer> children = new ArrayList<Integer>();
+			for (Taxon taxon : results)
+				children.add(taxon.getId());
+			
+			hierarchy.setChildren(children);
 		}
-		xml.append("</options>\r\n");
-		xml.append("</hierarchy>");
-
-		return xml.toString();
+		
+		return hierarchy.toXML();
 	}
 
 	private Representation serveByName(String kingdomName, String fullName, TaxonIO taxonIO) throws ResourceException {

@@ -7,6 +7,7 @@ import org.iucn.sis.client.panels.taxomatic.TaxomaticUtils.TaxonomyException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonHierarchy;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.TaxonStatus;
 
@@ -26,7 +27,6 @@ import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
 import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GenericCallback;
-import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.FormBuilder;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.gwt.ui.DrawsLazily;
@@ -82,17 +82,13 @@ public class TaxonBasicEditor extends TaxomaticWindow implements DrawsLazily {
 	
 	@Override
 	public void draw(final DoneDrawingCallback callback) {
-		TaxonomyCache.impl.fetchPathWithID(taxon.getId() + "", new GenericCallback<NativeDocument>() {
+		TaxonomyCache.impl.fetchPathWithID(taxon.getId(), new GenericCallback<TaxonHierarchy>() {
 			public void onFailure(Throwable caught) {
 				onSuccess(null);
 			}
-			public void onSuccess(NativeDocument ndoc) {
+			public void onSuccess(TaxonHierarchy hierarchy) {
 				// It has no children - it can be changed to a subpop.
-				boolean canEditLevel;
-				if (ndoc == null)
-					canEditLevel = false;
-				else
-					canEditLevel = ndoc.getDocumentElement().getElementsByTagName("option").getLength() == 0;
+				boolean canEditLevel = hierarchy == null || hierarchy.hasChildren();
 
 				buildButtons();
 				drawInfo(canEditLevel);

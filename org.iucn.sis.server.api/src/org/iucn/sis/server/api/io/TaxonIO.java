@@ -70,14 +70,6 @@ public class TaxonIO {
 		return taxa;
 	}
 
-	/*public String getTaxonXML(Integer id) {
-		try {
-			return getXMLFromVFS(id);
-		} catch (IOException e) {
-			return null;
-		}
-	}*/
-
 	/**
 	 * Reads taxa in from the file system based on an ID and parses it using the
 	 * TaxonFactory. If a taxon cannot be read in, nullFail determines whether
@@ -291,6 +283,24 @@ public class TaxonIO {
 		
 		return null;
 	}
+	
+	public boolean hasDuplicate(Taxon taxon) {
+		if (taxon.getTaxonStatus() != null && TaxonStatus.STATUS_NOT_ASSIGNED.equals(taxon.getStatusCode()))
+			return false;
+		
+		TaxonCriteria criteria = new TaxonCriteria(session);
+		criteria.id.ne(taxon.getId());
+		criteria.friendlyName.eq(taxon.getFriendlyName());
+		criteria.createTaxonLevelCriteria().level.eq(taxon.getLevel());
+		criteria.createTaxonStatusCriteria().code.ne(TaxonStatus.STATUS_NOT_ASSIGNED);
+		
+		Taxon[] duplicates = TaxonDAO.getTaxonByCriteria(criteria);
+		for (Taxon possibleDuplicate : duplicates)
+			if (possibleDuplicate.getKingdomName().equalsIgnoreCase(taxon.getKingdomName()))
+				return true;
+		
+		return false;
+	}
 
 	public Taxon[] getTaxaByStatus(String code) {
 		return getTaxaByStatus(TaxonStatus.fromCode(code));
@@ -305,52 +315,6 @@ public class TaxonIO {
 		
 		return criteria.listTaxon();
 	}
-
-	/**
-	 * SHOULD ONLY BE CALLED FROM THE SISHIBERNATELISTENER, 
-	 * OR WHEN NEEDED TO WRITE OUT TO VFS
-	 * 
-	 * @param taxon
-	 */
-	public void afterSaveTaxon(Taxon taxon) {
-		/*Edit edit = taxon.getLastEdit();
-		String xml = taxon.getGeneratedXML();
-		VFSPath taxonPath = new VFSPath(ServerPaths.getTaxonURL(taxon.getId()));
-		if (xml != null) {
-			DocumentUtils.writeVFSFile(taxonPath.toString(), vfs, xml);
-		} else {
-			try {
-				vfs.delete(taxonPath);
-			} catch (NotFoundException e) {
-				Debug.println(e);
-			} catch (ConflictException e) {
-				Debug.println(e);
-			}
-		}
-		try {
-			vfs.setLastModified(taxonPath, edit.getCreatedDate());
-		} catch (Exception e) {
-			//probably NPE
-			Debug.println("Warning: Modification date not set on taxon {0} due to exception: \n{1}", taxonPath, e);
-		}*/
-	}
-
-	/*public Taxon getTaxonFromVFS(Integer taxonID) {
-		final String text;
-		try {
-			text = getXMLFromVFS(taxonID);
-		} catch (IOException e) {
-			Debug.println("Failed to load taxon {0} from VFS: \n{1}", taxonID, e);
-			return null;
-		}
-		if (text != null && !text.trim().equalsIgnoreCase("")) {
-			NativeDocument ndoc = new JavaNativeDocument();
-			ndoc.parse(text);
-			return Taxon.fromXML(ndoc);
-		}
-		else
-			return null;
-	}*/
 
 	public Taxon[] getChildrenOfTaxon(Integer parentTaxonID) throws PersistentException {
 		TaxonCriteria criteria = new TaxonCriteria(session);
@@ -367,9 +331,5 @@ public class TaxonIO {
 		}
 		return children;
 	}
-
-	/*protected String getXMLFromVFS(Integer id) throws NotFoundException, BoundsException, IOException {
-		return vfs.getString(new VFSPath(ServerPaths.getTaxonURL(id)));
-	}*/
 
 }
