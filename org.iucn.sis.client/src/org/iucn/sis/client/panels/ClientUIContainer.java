@@ -11,7 +11,7 @@ import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.panels.login.LoginPanel;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
-import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonHierarchy;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -163,15 +163,15 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 			ws = null;
 		
 		if (taxonID != null) {
-			TaxonomyCache.impl.fetchTaxon(taxonID, new GenericCallback<Taxon>() {
-				public void onSuccess(final Taxon result) {
+			TaxonomyCache.impl.fetchPathWithID(taxonID, new GenericCallback<TaxonHierarchy>() {
+				public void onSuccess(final TaxonHierarchy result) {
 					if (assessmentID != null) {
 						AssessmentCache.impl.fetchPartialAssessmentsForTaxon(taxonID, new GenericCallback<String>() {
 							public void onSuccess(String list) {
 								AssessmentCache.impl.fetchAssessment(assessmentID, FetchMode.FULL, new GenericCallback<Assessment>() {
 									public void onSuccess(Assessment assessment) {
 										try {
-											StateManager.impl.setState(ws, result, assessment);
+											StateManager.impl.setState(ws, result.getTaxon(), assessment);
 										} catch (Throwable e) {
 											Debug.println(e);
 										}
@@ -187,7 +187,7 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 						});
 					}
 					else {
-						StateManager.impl.setState(ws, result, null);
+						StateManager.impl.setState(ws, result.getTaxon(), null);
 					}
 				}
 				public void onFailure(Throwable caught) {

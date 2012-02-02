@@ -563,6 +563,8 @@ public class Taxon implements AuthorizableObject, Serializable {
 				taxon.setFriendlyName(child.getTextContent());
 			else if ("footprint".equals(child.getNodeName()))
 				taxon.setFootprint(child.getTextContent().split(","));
+			else if (TaxonStatus.ROOT_TAG.equals(child.getNodeName()))
+				taxon.setTaxonStatus(TaxonStatus.fromXML((NativeElement)child));
 		}
 		
 		return taxon;
@@ -692,6 +694,7 @@ public class Taxon implements AuthorizableObject, Serializable {
 			minimal.append(XMLWritingUtils.writeCDATATag("fullname", getFriendlyName()));
 			if (showFootprint)
 				minimal.append(XMLWritingUtils.writeCDATATag("footprint", getFootprintCSV()));
+			minimal.append(getTaxonStatus().toXML());
 			minimal.append("</" + tagName + ">");
 			
 			return minimal.toString();

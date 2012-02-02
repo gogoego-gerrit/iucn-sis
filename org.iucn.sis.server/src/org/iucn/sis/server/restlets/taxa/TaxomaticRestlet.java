@@ -559,6 +559,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 			throw new TaxomaticException("A taxon with the name " + updatedTaxon.getFriendlyName() + " already exists in this kingdom.");
 		
 		Taxon currentTaxon = taxonIO.getTaxon(updatedTaxon.getId());
+		Taxon oldTaxon = deepCopy(currentTaxon);
 		
 		currentTaxon.setName(updatedTaxon.getName());
 		currentTaxon.setTaxonLevel(updatedTaxon.getTaxonLevel());
@@ -576,7 +577,14 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		
 		currentTaxon.correctFullName();
 		
-		taxomaticIO.writeTaxon(currentTaxon, getUser(request, session), "Taxon metadata updated.");
+		taxomaticIO.writeTaxon(currentTaxon, oldTaxon, getUser(request, session), "Taxon metadata updated.", true);
+	}
+	
+	private Taxon deepCopy(Taxon taxon) {
+		NativeDocument document = new JavaNativeDocument();
+		document.parse(taxon.toXML());
+		
+		return Taxon.fromXML(document);
 	}
 
 }

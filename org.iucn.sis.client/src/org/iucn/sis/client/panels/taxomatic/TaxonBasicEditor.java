@@ -246,7 +246,7 @@ public class TaxonBasicEditor extends TaxomaticWindow implements DrawsLazily {
 				else if (caught instanceof GWTConflictException) {
 					WindowUtils.infoAlert("Error", taxon.getFullName() + " has not been saved. A taxon"
 							+ " in the kingdom " + taxon.getKingdomName() + " already exists.");
-					TaxonomyCache.impl.evict(taxon.getId()+"");
+					//TaxonomyCache.impl.evict(taxon.getId()+"");
 				} else {
 					WindowUtils.errorAlert(taxon.getFullName() + " has not been saved.  "
 							+ "Please try again later.");

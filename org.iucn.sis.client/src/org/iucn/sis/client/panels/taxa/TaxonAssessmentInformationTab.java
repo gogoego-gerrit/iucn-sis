@@ -21,6 +21,7 @@ import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonHierarchy;
 import org.iucn.sis.shared.api.models.fields.RegionField;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
@@ -284,15 +285,15 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 						public void onSuccess(String arg0) {
 							WorkingSetCache.impl.uncacheAssessmentsForWorkingSets();
 							
-							TaxonomyCache.impl.evict(String.valueOf(node.getId()));
-							TaxonomyCache.impl.fetchTaxon(node.getId(), true,
-									new GenericCallback<Taxon>() {
+							TaxonomyCache.impl.evictNode(node.getId());
+							TaxonomyCache.impl.fetchPathWithID(node.getId(),
+									new GenericCallback<TaxonHierarchy>() {
 								public void onFailure(Throwable caught) {
 								};
-								public void onSuccess(Taxon result) {
+								public void onSuccess(TaxonHierarchy result) {
 									AssessmentCache.impl.clear();
 									//TaxonomyCache.impl.setCurrentTaxon(node);
-									StateChangeEvent event = new StateChangeEvent(StateManager.impl.getWorkingSet(), result, null, null);
+									StateChangeEvent event = new StateChangeEvent(StateManager.impl.getWorkingSet(), result.getTaxon(), null, null);
 									event.setCanceled(false);
 									
 									StateManager.impl.reset(event);

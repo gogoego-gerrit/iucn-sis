@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.XMLWritingUtils;
@@ -17,13 +18,13 @@ public class TaxonHierarchy {
 	 */
 	public static TaxonHierarchy fromTaxon(Taxon taxon) {
 		final TaxonHierarchy hierarchy = new TaxonHierarchy();
-		
+		hierarchy.setTaxon(taxon);
 		hierarchy.setFootprint(taxon.getIDFootprintAsString(0, "-"));
 		
-		final List<Integer> list = new ArrayList<Integer>();
+		final List<Taxon> list = new ArrayList<Taxon>();
 		for (Taxon child : taxon.getChildren())
 			if (Taxon.ACTIVE == child.getState())
-				list.add(child.getId());
+				list.add(child);
 		hierarchy.setChildren(list);
 		
 		return hierarchy;
@@ -37,14 +38,16 @@ public class TaxonHierarchy {
 			final NativeNode node = nodes.item(i);
 			if ("footprint".equals(node.getNodeName()))
 				hierarchy.setFootprint(node.getTextContent());
-			else if ("options".equals(node.getNodeName())) {
-				final List<Integer> list = new ArrayList<Integer>();
+			else if (Taxon.ROOT_TAG.equals(node.getNodeName()))
+				hierarchy.setTaxon(Taxon.fromXML((NativeElement)node));
+			else if ("children".equals(node.getNodeName())) {
+				final List<Taxon> list = new ArrayList<Taxon>();
 				
 				final NativeNodeList children = node.getChildNodes();
 				for (int k = 0; k < children.getLength(); k++) {
 					final NativeNode child = children.item(k);
-					if ("option".equals(child.getNodeName()))
-						list.add(Integer.valueOf(child.getTextContent()));
+					if (Taxon.ROOT_TAG.equals(child.getNodeName()))
+						list.add(Taxon.fromXMLminimal((NativeElement)child));
 				}
 				
 				hierarchy.setChildren(list);
@@ -54,25 +57,33 @@ public class TaxonHierarchy {
 		return hierarchy;
 	}
 	
-	private List<Integer> children;
-	
-	private String[] idFootprint;
+	private List<Taxon> children;
 	private String footprint;
+	private String[] idFootprint;
+	private Taxon taxon;
 	
 	public TaxonHierarchy() {
-		children = new ArrayList<Integer>();
+		children = new ArrayList<Taxon>();
 	}
 	
-	public List<Integer> getChildren() {
+	public List<Taxon> getChildren() {
 		return children;
 	}
 	
-	public void setChildren(List<Integer> children) {
+	public void setChildren(List<Taxon> children) {
 		this.children = children;
 	}
 	
 	public boolean hasChildren() {
 		return !children.isEmpty();
+	}
+	
+	public Taxon getTaxon() {
+		return taxon;
+	}
+	
+	public void setTaxon(Taxon taxon) {
+		this.taxon = taxon;
 	}
 	
 	public String getFootprint() {
@@ -98,11 +109,12 @@ public class TaxonHierarchy {
 		final StringBuilder out = new StringBuilder();
 		out.append("<hierarchy>");
 		out.append(XMLWritingUtils.writeTag("footprint", footprint, true));
-		
-		out.append("<options>");
-		for (Integer child : children)
-			out.append(XMLWritingUtils.writeTag("option", child.toString()));
-		out.append("</options>");
+		if (taxon != null)
+			out.append(taxon.toXML());
+		out.append("<children>");
+		for (Taxon child : children)
+			out.append(child.toXMLMinimal());
+		out.append("</children>");
 		
 		out.append("</hierarchy>");
 		return out.toString();

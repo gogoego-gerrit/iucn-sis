@@ -122,6 +122,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 	protected void addViewButtonToFootprint() {
 		footprintPanel.add(new Button("View", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
+				WindowUtils.showLoadingAlert("Loading...");
 				TaxonomyCache.impl.fetchTaxon(Integer.valueOf(footprints[footprints.length - 1]), true, new GenericCallback<Taxon>() {
 					public void onFailure(Throwable caught) {
 						WindowUtils.errorAlert("Failed to fetch taxon, please try again later.");
@@ -135,7 +136,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 		}));
 	}
 
-	protected void display(TaxonHierarchy hierarchy) {
+	protected void display(final TaxonHierarchy hierarchy) {
 		String footprint = hierarchy.getFootprint();
 
 		if (footprint.indexOf("-") > 0)
@@ -145,15 +146,17 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 		else
 			footprints = new String[0];
 
-		updateFootprintPanel();
+		updateFootprintPanel(hierarchy.getTaxon());
 		
 		updateBody(hierarchy, footprint, 0, new DrawsLazily.DoneDrawingCallback() {
 			public void isDrawn() {
 				resizeList(getOffsetWidth(), getOffsetHeight());
 				
-				onChangedTaxon();
+				onChangedTaxon(hierarchy.getTaxon());
 				
-				layout();	
+				layout();
+				
+				hideLoadingScreen();
 			}
 		});
 	}
@@ -162,10 +165,20 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 	 * Does nothing by default, but is AFTER a user selects a new taxon, and the hierarchy browser
 	 * has been updated to reflect the new taxon. 
 	 */
-	private void onChangedTaxon() {
+	private void onChangedTaxon(final Taxon taxon) {
+		//String id = footprints[footprints.length - 1];
+		if (taxon == null)
+			return;
+		 
 		try {
-			fireEvent(Events.Change, new TaxonChangeEvent(this, TaxonomyCache.
-					impl.getTaxon(footprints[footprints.length - 1])));
+			fireEvent(Events.Change, new TaxonChangeEvent(TaxonomyBrowserPanel.this, taxon));
+			/*TaxonomyCache.impl.fetchTaxon(Integer.valueOf(id), new GenericCallback<Taxon>() {
+				public void onSuccess(Taxon result) {
+					fireEvent(Events.Change, new TaxonChangeEvent(TaxonomyBrowserPanel.this, result));
+				}
+				public void onFailure(Throwable caught) {
+				}
+			});*/
 		} catch (IndexOutOfBoundsException e) {
 			//It's fine.
 		} catch (NumberFormatException e) {
@@ -194,8 +207,10 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 	 * @param path
 	 */
 	protected void fetch(String path) {
+		showLoadingScren();
 		TaxonomyCache.impl.fetchPath(path, new GenericCallback<TaxonHierarchy>() {
 			public void onFailure(Throwable caught) {
+				hideLoadingScreen();
 				WindowUtils.errorAlert("Failed to fetch taxa, please try again later.");
 			}
 			public void onSuccess(TaxonHierarchy result) {
@@ -238,7 +253,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 		ret.addStyleName("SIS_HyperlinkLookAlike");
 		ret.addStyleName("inline");
 
-		if (!label.equalsIgnoreCase("Kingdoms")) {
+		/*if (!label.equalsIgnoreCase("Kingdoms")) {
 			TaxonomyCache.impl.fetchTaxon(Integer.valueOf(label), false, new GenericCallback<Taxon>() {
 				public void onFailure(Throwable caught) {
 					WindowUtils.errorAlert("Failed to fetch taxon, please try again later.");
@@ -247,7 +262,7 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 					ret.setText(result.getName());
 				}
 			});
-		}
+		}*/
 
 		return ret;
 	}
@@ -273,6 +288,16 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 			// label
 			list.setSize(bodyWidth, bodyHeight - 75 - 25);
 		}
+	}
+	
+	private void showLoadingScren() {
+		if (isRendered())
+			el().mask("Loading...");
+	}
+	
+	private void hideLoadingScreen() {
+		if (isRendered())
+			el().unmask();
 	}
 
 	public void setAsCheckable(boolean asCheckable) {
@@ -344,7 +369,26 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 			if (!hierarchy.hasChildren())
 				listener.handleEvent();
 			else {
-				TaxonomyCache.impl.fetchList(hierarchy.getChildren(), new GenericCallback<String>() {
+				loader.getFullList().clear();
+				for (Taxon node : hierarchy.getChildren()) {
+					if (node != null) {
+						String path = foot + node.getId();
+						TaxonListElement el = new TaxonListElement(node, path);
+
+						loader.getFullList().add(el);
+					}
+				}
+
+				//FIXME: this should come back from the server in the correct order...
+				ArrayUtils.quicksort(loader.getFullList(), new Comparator<TaxonListElement>() {
+					public int compare(TaxonListElement o1, TaxonListElement o2) {
+						return ((String) o1.get("name")).compareTo((String) o2.get("name"));
+					}
+				});
+				loader.getPagingLoader().load();
+				
+				listener.handleEvent();
+				/*TaxonomyCache.impl.fetchList(hierarchy.getChildren(), new GenericCallback<String>() {
 					public void onFailure(Throwable caught) {
 						WindowUtils.errorAlert("Could not fetch taxa, please try again later.");
 					}
@@ -369,12 +413,12 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 						
 						listener.handleEvent();
 					}
-				});
+				});*/
 			}
 		}
 	}
 
-	private void updateFootprintPanel() {
+	private void updateFootprintPanel(Taxon taxon) {
 		if (footprintPanel == null)
 			return;
 
@@ -394,14 +438,15 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 			inner.clear();
 			inner.add(getClickableHTML("Kingdoms", ""));
 
+			String[] displayNames = taxon.getFootprint();
 			String path = "";
 			for (int i = 0; i < footprints.length; i++) {
 				path += footprints[i] + "-";
 				arrow = new HTML("->");
 				if (i < footprints.length - 1)
-					curHTML = getClickableHTML(footprints[i], path.substring(0, path.length() - 1));
+					curHTML = getClickableHTML(displayNames[i], path.substring(0, path.length() - 1));
 				else
-					curHTML = new HTML(TaxonomyCache.impl.getTaxon(footprints[footprints.length - 1]).getName());
+					curHTML = new HTML(taxon.getName());
 
 				inner.add(arrow);
 				if ((inner.getOffsetWidth() + arrow.getOffsetWidth() + 5) > cellWidth) {

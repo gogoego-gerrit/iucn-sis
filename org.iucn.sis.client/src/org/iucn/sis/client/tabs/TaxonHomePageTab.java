@@ -45,6 +45,7 @@ import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonHierarchy;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.utils.CommonNameComparator;
 
@@ -228,11 +229,8 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 			grid.addListener(Events.RowClick, new Listener<GridEvent<TaxonListElement>>() {
 				public void handleEvent(GridEvent<TaxonListElement> be) {
 					TaxonListElement model = be.getGrid().getStore().getAt(be.getRowIndex());
-					if (model != null) {
-						//TaxonomyCache.impl.setCurrentTaxon(se.getSelectedItem().getNode());
-						StateManager.impl.setState(null, model.getNode(), null);
-						//update(se.getSelectedItem().getNode().getId());
-					}
+					if (model != null)
+						updateSelection(model.getNode().getId());
 				}
 			});
 			
@@ -366,11 +364,12 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 	
 	@Override
 	protected void updateSelection(final Integer selection) {
-		TaxonomyCache.impl.fetchTaxon(selection, new GenericCallback<Taxon>() {
+		TaxonomyCache.impl.fetchPathWithID(selection, new GenericCallback<TaxonHierarchy>() {
 			public void onFailure(Throwable caught) {
+				WindowUtils.hideLoadingAlert();
 				WindowUtils.errorAlert("Could not load this taxon. Please try again later.");
 			}
-			public void onSuccess(Taxon result) {
+			public void onSuccess(TaxonHierarchy result) {
 				if (getSelectedItem() == selection)
 					draw(new DrawsLazily.DoneDrawingCallback() {
 						public void isDrawn() {
@@ -378,7 +377,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 						}
 					});
 				else
-					StateManager.impl.setState(result, null);
+					StateManager.impl.setTaxon(result.getTaxon());
 			}
 		});
 	}
@@ -394,19 +393,11 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 		goToParent.setIconStyle("icon-previous");
 		goToParent.addSelectionListener(new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				TaxonomyCache.impl.fetchTaxon(getTaxon().getParentId(), true, new GenericCallback<Taxon>() {
-					public void onFailure(Throwable caught) {
-						//updatePanel(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
-					}
-					public void onSuccess(Taxon arg0) {
-						/*taxon = arg0;
-						updatePanel(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
-						ClientUIContainer.headerContainer.update();*/
-						//update(taxon.getParentId());
-						//StateManager.impl.setTaxon(arg0);
-						StateManager.impl.setState(null, arg0, null);
-					}
-				});
+				Taxon parent = getTaxon().getParent();
+				if (parent == null)
+					return;
+				
+				updateSelection(parent.getId());
 			}
 		});
 		
@@ -703,9 +694,10 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 									public void onYes() {
 										TaxomaticUtils.impl.deleteTaxon(node, new GenericCallback<String>() {
 											public void onSuccess(String dresult) {
-												TaxonomyCache.impl.clear();
-												TaxonomyCache.impl.evict(node.getParentId() + "," + node.getId());
-												TaxonomyCache.impl.fetchTaxon(node.getParentId(), true,
+												TaxonomyCache.impl.evictNodes(node.getParentId() + "," + node.getId());
+												updateSelection(node.getParentId());
+												
+												/*TaxonomyCache.impl.fetchTaxon(node.getParentId(), true,
 														new GenericCallback<Taxon>() {
 													public void onFailure(Throwable caught) {
 														//ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel.update(null);
@@ -713,11 +705,11 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 													};
 													public void onSuccess(Taxon result) {
 														updateSelection(result.getId());
-														/*ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
-															.update(TaxonomyCache.impl.getCurrentTaxon().getId());*/
+														ClientUIContainer.bodyContainer.tabManager.panelManager.taxonomicSummaryPanel
+															.update(TaxonomyCache.impl.getCurrentTaxon().getId());
 														//FIXME: panelManager.recentAssessmentsPanel.update();
 													};
-												});
+												});*/
 											}
 											public void onFailure(Throwable caught) {
 												//close();

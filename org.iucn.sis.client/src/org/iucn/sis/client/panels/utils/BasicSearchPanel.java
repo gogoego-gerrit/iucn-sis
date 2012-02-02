@@ -2,7 +2,7 @@ package org.iucn.sis.client.panels.utils;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.StateManager;
-import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonHierarchy;
 
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.widget.WindowManager;
@@ -17,13 +17,13 @@ public class BasicSearchPanel extends SearchPanel {
 		addBeforeSearchListener(new Listener<SearchEvent<String>>() {
 			public void handleEvent(final SearchEvent<String> be) {
 				if (be.getValue().matches("^[0-9]+$")) {
-					TaxonomyCache.impl.fetchTaxon(Integer.valueOf(be.getValue()), true, new GenericCallback<Taxon>() {
+					TaxonomyCache.impl.fetchPathWithID(Integer.valueOf(be.getValue()), new GenericCallback<TaxonHierarchy>() {
 						public void onFailure(Throwable caught) {
 							WindowUtils.errorAlert("Failed to load taxon " + be.getValue() + ".");
 						}
-						public void onSuccess(Taxon result) {
+						public void onSuccess(TaxonHierarchy result) {
 							if (result != null) {
-								StateManager.impl.setState(null, result, null);
+								StateManager.impl.setTaxon(result.getTaxon());
 								WindowManager.get().hideAll();
 							}
 							else
@@ -35,12 +35,12 @@ public class BasicSearchPanel extends SearchPanel {
 		});
 		addSearchSelectionListener(new Listener<SearchEvent<Integer>>() {
 			public void handleEvent(final SearchEvent<Integer> be) {
-				TaxonomyCache.impl.fetchTaxon(be.getValue(), true, new GenericCallback<Taxon >() {
+				TaxonomyCache.impl.fetchPathWithID(be.getValue(), new GenericCallback<TaxonHierarchy>() {
 					public void onFailure(Throwable caught) {
 					}
-					public void onSuccess(Taxon result) {
+					public void onSuccess(TaxonHierarchy result) {
 						//TaxonomyCache.impl.setCurrentTaxon(result);
-						StateManager.impl.setTaxon(result);
+						StateManager.impl.setTaxon(result.getTaxon());
 						//manager.taxonomicSummaryPanel.update(be.getValue());
 						WindowManager.get().hideAll();
 					}

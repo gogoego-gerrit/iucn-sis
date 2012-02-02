@@ -40,7 +40,7 @@ public class TaxonomyCache {
 
 	private final Set<Integer> recentlyAccessed;
 	private final HashMap<Integer, Taxon> cache;
-	private final HashMap<String, TaxonHierarchy> pathCache;
+	private final HashMap<String, CacheBackedTaxonHierarchy> pathCache;
 
 	/**
 	 * HashMap<String, ArrayList> - NodeID request, and list of callbacks
@@ -50,7 +50,7 @@ public class TaxonomyCache {
 
 	private TaxonomyCache() {
 		cache = new HashMap<Integer, Taxon>();
-		pathCache = new HashMap<String, TaxonHierarchy>();
+		pathCache = new HashMap<String, CacheBackedTaxonHierarchy>();
 		recentlyAccessed = new LinkedHashSet<Integer>();
 		requested = new HashMap<Integer, List<GenericCallback<Taxon>>>();
 	}
@@ -70,14 +70,6 @@ public class TaxonomyCache {
 
 	public boolean contains(Integer id) {
 		return cache.containsKey(id);
-	}
-
-	public Object remove(int id) {
-		return cache.remove(Integer.valueOf(id));
-	}
-
-	public Object remove(Integer id) {
-		return cache.remove(id);
 	}
 
 	private void doListFetch(final String payload, final GenericCallback<String> wayBack) {
@@ -106,27 +98,41 @@ public class TaxonomyCache {
 		pathCache.clear();
 		recentlyAccessed.clear();
 	}
+	
+	public void evictNode(Integer id) {
+		if (id == null)
+			return;
+		
+		evictNode(id.toString());
+	}
+	
+	public void evictNode(String id) {
+		evict(id);
+	}
+	
+	public void evictNodes(String csv) {
+		evict(csv);
+	}
 
 	/**
 	 * Evicts the nodes from the cache, and then calls evictPaths();
 	 * 
 	 * @param csvIDs
 	 */
-	public void evict(String csvIDs) {
+	private void evict(String csvIDs) {
+		if (csvIDs == null)
+			return;
+		
 		String[] ids = csvIDs.split(",");
-		for (int i = 0; i < ids.length; i++) {
-			Taxon node = (Taxon) remove(Integer.parseInt(ids[i]));
-			if (node != null)
-				recentlyAccessed.remove(node.getId());
+		for (String idStr : ids) {
+			Integer idInt = Integer.valueOf(idStr);
+			cache.remove(idInt);
+			pathCache.remove(idStr);
+			recentlyAccessed.remove(idInt);
 		}
-		evictPaths();
+		//evictPaths();
 	}
-
-	/**
-	 * Evicts ALL taxonomic hierarchy paths from local cache.
-	 * 
-	 * @param csvIDs
-	 */
+	
 	public void evictPaths() {
 		pathCache.clear();
 	}
@@ -320,6 +326,12 @@ public class TaxonomyCache {
 			}
 			public void onSuccess(final TaxonHierarchy result) {
 				if (result.hasChildren()) {
+					final ArrayList<TaxonListElement> childModel = new ArrayList<TaxonListElement>();
+					for (Taxon taxon : result.getChildren())
+						childModel.add(new TaxonListElement(taxon, ""));
+
+					wayback.onSuccess(childModel);
+					/*
 					TaxonomyCache.impl.fetchList(result.getChildren(), new GenericCallback<String>() {
 						public void onFailure(Throwable caught) {
 							wayback.onFailure(caught);
@@ -331,7 +343,7 @@ public class TaxonomyCache {
 
 							wayback.onSuccess(childModel);
 						}
-					});
+					});*/
 				} else {
 					wayback.onFailure(new Throwable());
 				}
@@ -340,21 +352,12 @@ public class TaxonomyCache {
 	}
 
 	public void fetchPath(final String path, final GenericCallback<TaxonHierarchy> wayback) {
-		if (pathCache.containsKey(path)) {
-			wayback.onSuccess(pathCache.get(path));
+		if (containsPath(path)) {
+			wayback.onSuccess(getHierarchy(path));
 		} else {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-			ndoc.load(UriBase.getInstance().getSISBase() + "/browse/taxonomy/" + path, new GenericCallback<String>() {
-				public void onFailure(Throwable caught) {
-					wayback.onFailure(caught);
-				}
-
-				public void onSuccess(String result) {
-					TaxonHierarchy hierarchy = TaxonHierarchy.fromXML(ndoc);
-					pathCache.put(path, hierarchy);
-					wayback.onSuccess(hierarchy);
-				}
-			});
+			ndoc.load(UriBase.getInstance().getSISBase() + "/browse/taxonomy/" + path, 
+					getPathFetchCallback(ndoc, wayback));
 		}
 	}
 
@@ -363,25 +366,38 @@ public class TaxonomyCache {
 	}
 	
 	public void fetchPathWithID(final String id, final GenericCallback<TaxonHierarchy> wayback) {
-		if (pathCache.containsKey(id))
-			wayback.onSuccess(pathCache.get(id));
+		if (containsPath(id))
+			wayback.onSuccess(getHierarchy(id));
 		else {
 			final NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
-			ndoc.get(UriBase.getInstance().getSISBase() + "/browse/hierarchy/" + id, new GenericCallback<String>() {
-				public void onFailure(Throwable caught) {
-					wayback.onFailure(caught);
-				}
-				public void onSuccess(String result) {
-					try {
-						TaxonHierarchy hierarchy = TaxonHierarchy.fromXML(ndoc);
-						pathCache.put(hierarchy.getFootprint(), hierarchy);
-						wayback.onSuccess(hierarchy);
-					} catch (Exception e) {
-						wayback.onFailure(e);
-					}
-				}
-			});
+			ndoc.get(UriBase.getInstance().getSISBase() + "/browse/hierarchy/" + id, 
+					getPathFetchCallback(ndoc, wayback));
 		}
+	}
+	
+	private GenericCallback<String> getPathFetchCallback(final NativeDocument document, final GenericCallback<TaxonHierarchy> wayback) {
+		return new GenericCallback<String>() {
+			public void onFailure(Throwable caught) {
+				wayback.onFailure(caught);
+			}
+			public void onSuccess(String result) {
+				try {
+					TaxonHierarchy hierarchy = TaxonHierarchy.fromXML(document);
+					if (hierarchy.getTaxon() != null) {
+						Integer id = hierarchy.getTaxon().getId();
+						if (!contains(id))
+							putTaxon(hierarchy.getTaxon());
+						
+						hierarchy.setTaxon(getTaxon(id));
+					}
+					CacheBackedTaxonHierarchy cached = new CacheBackedTaxonHierarchy(hierarchy);
+					putHierarchy(cached);
+					wayback.onSuccess(cached);
+				} catch (Exception e) {
+					wayback.onFailure(e);
+				}
+			}
+		};
 	}
 
 	/**
@@ -442,13 +458,6 @@ public class TaxonomyCache {
 			recentlyAccessed.add(getCurrentTaxon().getId());
 	}
 
-	public Object invalidatePath(Integer pathID) {
-		if (pathID != null)
-			return pathCache.remove(pathID.toString());
-		else
-			return null;
-	}
-
 	private void invokeCallbacks(Integer id, Taxon defaultNode) {
 		for (GenericCallback<Taxon> curCallback : requested.get(id))
 			curCallback.onSuccess(defaultNode);
@@ -495,10 +504,51 @@ public class TaxonomyCache {
 	public void putTaxon(Taxon node) {
 		cache.put(Integer.valueOf(node.getId()), node);
 	}
-
-	/*public void resetCurrentTaxon() {
-		setCurrentTaxon(null, false);
-	}*/
+	
+	private String getPathAsKey(String path) {
+		final String key;
+		int index;
+		if ((index = path.lastIndexOf('-')) == -1)
+			key = path;
+		else if (!path.endsWith("-"))
+			key = path.substring(index+1);
+		else
+			key = null;
+		
+		return key;
+	}
+	
+	private boolean containsPath(String path) {
+		final String key = getPathAsKey(path);
+		if (key == null)
+			return false;
+		
+		return pathCache.containsKey(key);
+	}
+	
+	private void putHierarchy(CacheBackedTaxonHierarchy hierarchy) {
+		String key = "";
+		if (hierarchy.getTaxon() != null)
+			key = String.valueOf(hierarchy.getTaxon().getId());
+		
+		putHierarchy(key, hierarchy);
+	}
+	
+	private void putHierarchy(String path, CacheBackedTaxonHierarchy hierarchy) {
+		final String key = getPathAsKey(path);
+		if (key == null)
+			return;
+		
+		pathCache.put(key, hierarchy);
+	}
+	
+	private TaxonHierarchy getHierarchy(String path) {
+		final String key = getPathAsKey(path);
+		if (key == null)
+			return null;
+		
+		return pathCache.get(key);
+	}
 	
 	public void saveReferences(Taxon taxon, final GenericCallback<String> callback) {
 		final StringBuilder out = new StringBuilder();
@@ -992,6 +1042,37 @@ public class TaxonomyCache {
 				callback.onFailure(caught);
 			}
 		});
+	}
+	
+	public static class CacheBackedTaxonHierarchy extends TaxonHierarchy {
+		
+		private final Integer taxonID;
+		
+		public CacheBackedTaxonHierarchy(TaxonHierarchy hierarchy) {
+			super();
+			this.taxonID = hierarchy.getTaxon() == null ? null : hierarchy.getTaxon().getId();
+			setFootprint(hierarchy.getFootprint());
+			setChildren(hierarchy.getChildren());
+		}
+		
+		@Override
+		public Taxon getTaxon() {
+			return TaxonomyCache.impl.getTaxon(taxonID);
+		}
+		
+		@Override
+		public List<Taxon> getChildren() {
+			List<Taxon> children = new ArrayList<Taxon>();
+			for (Taxon thin : super.getChildren()) {
+				Taxon full = TaxonomyCache.impl.getTaxon(thin.getId());
+				if (full == null)
+					children.add(thin);
+				else
+					children.add(full);
+			}
+			return children;
+		}
+		
 	}
 
 }

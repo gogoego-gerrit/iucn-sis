@@ -344,12 +344,7 @@ public class TaxonRestlet extends BaseServiceRestlet {
 			});
 			
 			hierarchy = new TaxonHierarchy();
-			
-			final List<Integer> children = new ArrayList<Integer>();
-			for (Taxon taxon : results)
-				children.add(taxon.getId());
-			
-			hierarchy.setChildren(children);
+			hierarchy.setChildren(results);
 		}
 		
 		return hierarchy.toXML();

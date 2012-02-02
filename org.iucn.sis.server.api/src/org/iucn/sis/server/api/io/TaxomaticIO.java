@@ -340,7 +340,7 @@ public class TaxomaticIO {
 		}
 	}
 	
-	void writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user, String reason, boolean requireLocking) throws TaxomaticException {
+	public void writeTaxon(Taxon taxonToSave, Taxon oldTaxon, User user, String reason, boolean requireLocking) throws TaxomaticException {
 		if (oldTaxon == null || !isTaxomaticOperationNecessary(taxonToSave, oldTaxon)) {
 			taxonIO.writeTaxon(taxonToSave, oldTaxon, reason, user);
 		} else {
