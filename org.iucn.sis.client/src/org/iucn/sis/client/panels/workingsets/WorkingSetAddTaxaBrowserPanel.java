@@ -1,5 +1,6 @@
 package org.iucn.sis.client.panels.workingsets;
 
+import java.util.HashSet;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
@@ -11,9 +12,14 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.DataListEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.DataListItem;
+import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.button.Button;
 import com.extjs.gxt.ui.client.widget.button.ButtonBar;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayout;
@@ -34,11 +40,38 @@ import com.solertium.util.extjs.client.WindowUtils;
 public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 
 	static class MyTaxonomyBrowser extends TaxonomyBrowserPanel {
-		// private ListStore<TaxonListElement> store = null;
-
+		
+		private HashSet<Integer> species;
+		
 		public MyTaxonomyBrowser() {
 			super();
+			this.species = new HashSet<Integer>();
+			
 			setAsCheckable(true);
+			
+			addListener(Events.Change, new Listener<BaseEvent>() {
+				public void handleEvent(BaseEvent be) {
+					if (getList().isCheckable())
+						disableExistingTaxa();
+				};
+			});
+			
+			getList().addListener(Events.CheckChange, new Listener<DataListEvent>() {
+				public void handleEvent(DataListEvent be) {
+					DataListItem item = be.getItem();
+					if (item.isChecked()) {
+						TaxonListElement model = item.getModel();
+						if (species.contains(model.getNode().getId())) {
+							Info.display("Note", "You have already added this taxon to your working set.");
+							item.setChecked(false);
+						}
+					}
+				}
+			});
+		}
+		
+		public void setWorkingSet(WorkingSet workingSet) {
+			species = new HashSet<Integer>(workingSet.getSpeciesIDs());
 		}
 
 		@Override
@@ -59,6 +92,18 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 			for (int i = 0; i < getList().getItemCount(); i++)
 				getList().getItem(i).setChecked(true);
 		}
+		
+		private void disableExistingTaxa() {
+			for (DataListItem curItem : getList().getItems()){
+				TaxonListElement element = (TaxonListElement)curItem.getModel();
+				if (species.contains(element.getNode().getId())) {
+					curItem.setChecked(false);
+					curItem.disableTextSelection(true);
+					curItem.disable();
+				}
+			}
+		}
+		
 	}
 
 	private ButtonBar buttons = null;
@@ -72,13 +117,12 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 
 		browser = new MyTaxonomyBrowser();
 		instructions = new HTML();
-
+		
 		build();
 	}
 
 	private void build() {
 		BorderLayout layout = new BorderLayout();
-		// layout.setSpacing(10);
 		setLayout(layout);
 
 		buildButtons();
@@ -172,6 +216,7 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 	@Override
 	public void refresh() {
 		workingSet = WorkingSetCache.impl.getCurrentWorkingSet();
+		browser.setWorkingSet(workingSet);
 		browser.update();
 		if (workingSet != null)
 			instructions.setHTML("<b>Instructions:</b> Browse down to a family, genus, species, sub-species, or"
@@ -180,4 +225,5 @@ public class WorkingSetAddTaxaBrowserPanel extends RefreshLayoutContainer {
 		else
 			instructions.setHTML("<b>Instructions:</b> Please select a working set.");
 	}
+	
 }
