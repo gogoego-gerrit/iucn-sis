@@ -196,12 +196,8 @@ public class HibernateLockRepository extends LockRepository {
 		LockInfo result = new LockInfo(lock.getLockID(), lock.getUser().getId(), 
 				LockType.fromString(lock.getType()), groupID, this);
 		
-		Debug.println("Created Hibernate lock ({0}): {1}", lock.getId(), result);
-		
 		session.getTransaction().commit();
 		session.close();
-		
-		Debug.println(listLocks());
 		
 		return result;
 	}
