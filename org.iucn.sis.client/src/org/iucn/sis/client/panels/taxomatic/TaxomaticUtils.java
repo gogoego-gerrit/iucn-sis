@@ -241,7 +241,25 @@ public class TaxomaticUtils {
 		builder.append("</moveAssessments>");
 
 		final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
-		ndoc.post(UriBase.getInstance().getSISBase() +"/taxomatic/moveAssessments", builder.toString(), getDefaultCallback(ndoc, wayback, oldNodeID));
+		ndoc.post(UriBase.getInstance().getSISBase() +"/taxomatic/moveAssessments", builder.toString(), new GenericCallback<String>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				wayback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(String result) {				
+				afterTaxomaticOperation(Integer.valueOf(oldNodeID), new GenericCallback<String>() {
+					public void onFailure(Throwable caught) {
+						wayback.onFailure(caught);
+					}
+					public void onSuccess(String arg0) {
+						wayback.onSuccess(ndoc.getText());
+					}
+				});				
+			}
+		});
 	}
 
 	/**

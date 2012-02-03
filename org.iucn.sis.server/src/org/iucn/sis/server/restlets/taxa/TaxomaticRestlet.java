@@ -8,6 +8,7 @@ import java.util.List;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.InfratypeIO;
+import org.iucn.sis.server.api.io.RegionIO;
 import org.iucn.sis.server.api.io.TaxomaticIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
@@ -17,6 +18,8 @@ import org.iucn.sis.shared.api.models.TaxomaticOperation;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -206,7 +209,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 	 * @param session TODO
 	 * @param response
 	 */
-	private void moveAssessments(final Element documentElement, Request request, TaxonIO taxonIO, User user, Session session) throws TaxomaticException, ResourceException {
+	private void moveAssessments(final Element documentElement, Request request, Response response, TaxonIO taxonIO, User user, Session session) throws TaxomaticException, ResourceException {
 		final NodeList oldNode = documentElement.getElementsByTagName("oldNode");
 		final NodeList nodeToMoveAssessmentsInto = documentElement.getElementsByTagName("nodeToMoveInto");
 		final NodeList assessmentNodeList = documentElement.getElementsByTagName("assessmentID");
@@ -218,24 +221,72 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 		} else if (assessmentNodeList.getLength() == 0) {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
 		} else {
+			String oldNodeID = oldNode.item(0).getTextContent();
 			String newNodeID = nodeToMoveAssessmentsInto.item(0).getTextContent();
 			
-			AssessmentIO io = new AssessmentIO(session);
+			AssessmentIO assessmentIO = new AssessmentIO(session);
+			RegionIO regionIO = new RegionIO(session);
+			
+			StringBuilder successfulIDs = new StringBuilder();
+			StringBuilder unsuccessfulIDs = new StringBuilder();
 			
 			ArrayList<Assessment> assessments = new ArrayList<Assessment>();
-			for (Node id : new NodeCollection(assessmentNodeList)) {
-				assessments.add(io.getAttachedAssessment(
-						Integer.valueOf(id.getTextContent())));
+			List<Assessment> unPublishedAssessmentsForTaxon = assessmentIO.readUnpublishedAssessmentsForTaxon(Integer.valueOf(newNodeID));
+			for (Node id : new NodeCollection(assessmentNodeList)) {				
+				Assessment assessment = assessmentIO.getAssessment(Integer.valueOf(id.getTextContent()));
+				if(!assessmentIO.allowedToCreateNewAssessment(assessment,unPublishedAssessmentsForTaxon)){
+					unsuccessfulIDs.append(generateAssessmentName(assessment,regionIO)+ ", ");
+					continue;
+				}
+				assessments.add(assessment);
+				successfulIDs.append(generateAssessmentName(assessment,regionIO)+ ", ");
 			}
 			
-			if (!io.moveAssessments(
-					taxonIO.getTaxon(Integer.valueOf(newNodeID)), assessments,
-					user)) {
-				throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+			StringBuilder responseStr = new StringBuilder();
+			if(assessments.size() > 0){
+				if (!assessmentIO.moveAssessments(
+						taxonIO.getTaxon(Integer.valueOf(newNodeID)), assessments,
+						user)) {				
+					throw new ResourceException(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+				}
+				responseStr.append("<div>Following assessments were moved from <b>" 
+						+ taxonIO.getTaxon(Integer.valueOf(oldNodeID)).getFullName() + "</b> into <b>" 
+						+ taxonIO.getTaxon(Integer.valueOf(newNodeID)).getFullName() + "</b>.</div>\r\n\r\n");
+				responseStr.append(successfulIDs.substring(0, successfulIDs.length()-2));
 			}
+			
+			if (unsuccessfulIDs.length() > 0){
+				responseStr.append("<div>Draft already exists with same region for following assessments: " 
+						+ unsuccessfulIDs.substring(0, unsuccessfulIDs.length()-2) + "</div>\r\n");
+			}
+			response.setStatus(Status.SUCCESS_OK);
+			response.setEntity(responseStr.toString(), MediaType.TEXT_HTML);
 		}
 	}
+	
+	private String generateAssessmentName(Assessment assessment, RegionIO regionIO){
+		
+		String assessmentName = assessment.getAssessmentType().getDisplayName(true) + " -- ";
+		
+		if(assessment.getDateAssessed() != null)
+			assessmentName += assessment.getDateAssessed();
+		else
+			assessmentName += "N/A";
+		
+		if (assessment.isRegional())
+			assessmentName += " --- " + regionIO.getRegion(assessment.getRegionIDs().get(0)).getName();
+		else
+			assessmentName += " --- " + "Global";
 
+		RedListCriteriaField proxy = new RedListCriteriaField(assessment.getField(CanonicalNames.RedListCriteria));
+		String category = proxy.isManual() ? proxy.getManualCategory() : proxy.getGeneratedCategory();
+		category = "".equals(category) ? "N/A" : category;
+		
+		assessmentName += " --- " + category;
+		
+		return assessmentName;
+	}
+	
 	/**
 	 * For the lateral move, (for a species or any other rank) you choose the
 	 * new genus (or rank directly higher) where you would like to move the
@@ -320,7 +371,7 @@ public class TaxomaticRestlet extends BaseServiceRestlet {
 			else if (operation.equalsIgnoreCase("merge")) {
 				mergeTaxa(getEntityAsDocument(entity).getDocumentElement(), request, taxomaticIO, taxonIO, user);
 			} else if (operation.equalsIgnoreCase("moveAssessments")) {
-				moveAssessments(getEntityAsDocument(entity).getDocumentElement(), request, taxonIO, user, session);
+				moveAssessments(getEntityAsDocument(entity).getDocumentElement(), request, response, taxonIO, user, session);
 			} else if (operation.equalsIgnoreCase("mergeupinfrarank")) {
 				mergeUpInfraranks(getEntityAsDocument(entity).getDocumentElement(), request, taxomaticIO, taxonIO, user);
 			} else if (operation.equalsIgnoreCase("split")) {

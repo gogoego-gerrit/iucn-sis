@@ -56,13 +56,12 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 		load();
 	}
 
-	protected void addItem(Taxon target) {
+	protected void addItem(final Taxon target) {
 		if (target == null)
 			return;
 		
 		this.target = target;
-
-		htmlOfNodeToMoveAssessmentsINTO.setHtml(target.getFullName());
+		htmlOfNodeToMoveAssessmentsINTO.setHtml(target.getFullName());		
 	}
 
 	protected VerticalPanel getRightSide() {
@@ -80,30 +79,21 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 		assessmentList.setCheckable(true);
 		assessmentList.setWidth("100%");
 		assessmentList.setScrollMode(Scroll.AUTO);
-		for (Assessment data : AssessmentCache.impl.getPublishedAssessmentsForTaxon(source.getId())) {
+		
+		for (Assessment data : AssessmentCache.impl.getAllAssessmentsForTaxon(source.getId())) {	
 			DataListItem item = new DataListItem();
-			String displayable = "Published -- ";
-
-			displayable += data.getDateAssessed();
-
-			if (data.isRegional())
-				displayable += " --- " + RegionCache.impl.getRegionName(data.getRegionIDs());
-			else
-				displayable += " --- " + "Global";
-
-			displayable += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(data);
+			
+			String displayable = "";
+			displayable = generateAssessmentName(data);
+			
 			item.setText(displayable);
 			item.setData("id", data.getId());
 			assessmentList.add(item);
 		}
+		
 		middle.add(assessmentList);
 
-		bottom.add(new Button("Complete Move", new SelectionListener<ButtonEvent>() {
-			@Override
-			public void componentSelected(ButtonEvent ce) {
-				onSubmit();
-			};
-		}));
+		bottom.add(submitButton);
 
 		vp.setSpacing(15);
 		vp.add(top);
@@ -111,6 +101,25 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 		vp.add(bottom);
 
 		return vp;
+	}
+	
+	private String generateAssessmentName(Assessment assessment){
+		
+		String assessmentName = assessment.getAssessmentType().getDisplayName(true) + " -- ";
+
+		if(assessment.getDateAssessed() != null)
+			assessmentName += assessment.getDateAssessed();
+		else
+			assessmentName += "N/A";
+		
+		if (assessment.isRegional())
+			assessmentName += " --- " + RegionCache.impl.getRegionName(assessment.getRegionIDs());
+		else
+			assessmentName += " --- " + "Global";
+
+		assessmentName += " --- " + AssessmentFormatter.getProperCategoryAbbreviation(assessment);
+		
+		return assessmentName;
 	}
 
 	protected void load() {
@@ -173,38 +182,29 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 				Integer id = item.getData("id");
 				ids.add(id.toString());
 			}
+			
 			TaxomaticUtils.impl.performMoveAssessments(ids, Integer.toString(source.getId()), Integer.toString(target.getId()),
 					new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
-					WindowUtils
-						.errorAlert("Error",
+					WindowUtils.errorAlert("Error",
 						"An error occurred while moving assessments, and the assessments were not successfully moved.");
 				}
 				public void onSuccess(String result) {
-					if (assessmentList.getChecked().size() == assessmentList.getItemCount()) {
-						WindowUtils.infoAlert("Success", "The selected assessments were moved from "
-								+ source.getFullName() + " into "
-								+ target.getFullName() + ".");
-					} else {
-						WindowUtils.confirmAlert("Success", "The selected assessments were moved from "
-								+ source.getFullName() + " into "
-								+ target.getFullName() + ".  Would you like to move more "
-								+ "assessments from " + source.getFullName() + "?",
-								new WindowUtils.MessageBoxListener() {
-							@Override
-							public void onNo() {
-								TaxomaticAssessmentMover.this.hide();
-							}
-							public void onYes() {
-								for (DataListItem item : checked) {
-									assessmentList.remove(item);
-								}
-							}
-						}, "Move More Assessments", "Finished");
+					if (assessmentList.getChecked().size() == assessmentList.getItemCount()) 
+						TaxomaticAssessmentMover.this.hide();
+					else{
+						for (DataListItem item : checked) 
+							assessmentList.remove(item);
+						
+						submitButton.setEnabled(true);
 					}
+					com.extjs.gxt.ui.client.widget.Window w = WindowUtils.newWindow("Move Assessment Results", null, false, true);
+					w.setScrollMode(Scroll.AUTOY);
+					w.setSize(400, 500);
+					w.add(new Html(result));
+					w.show();											
 				}
 			});
 		}
 	}
-
 }

@@ -458,10 +458,14 @@ public class AssessmentIO {
 		}
 		return saveAssessmentsWithNoFail(assessments, user, "Assessment moved.");
 	}
+	
+	public boolean allowedToCreateNewAssessment(Assessment assessment, List<Assessment> unpublishedAssessments) {
+		return assessment.isPublished() || !assessment.hasRegions() || 
+			!conflicts(assessment, unpublishedAssessments);
+	}
 
 	public boolean allowedToCreateNewAssessment(Assessment assessment) {
-		return assessment.isPublished() || !assessment.hasRegions() || 
-			!conflicts(assessment, readUnpublishedAssessmentsForTaxon(assessment.getTaxon().getId()));
+		return allowedToCreateNewAssessment(assessment,readUnpublishedAssessmentsForTaxon(assessment.getTaxon().getId()));
 	}
 	
 	public boolean conflicts(Assessment assessment, List<Assessment> existing) {
