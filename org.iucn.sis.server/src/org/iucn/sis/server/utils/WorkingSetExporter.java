@@ -299,6 +299,10 @@ public class WorkingSetExporter extends DatabaseExporter {
 			taxon.toXML();
 			
 			source.clear();
+			
+			//Don't copy child taxa
+			taxon.setChildren(null);
+			
 			target.replicate(taxon, ReplicationMode.OVERWRITE);
 			
 			seen.add(taxon.getId());
