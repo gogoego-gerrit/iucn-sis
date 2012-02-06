@@ -17,6 +17,7 @@ public class BasicSearchPanel extends SearchPanel {
 		addBeforeSearchListener(new Listener<SearchEvent<String>>() {
 			public void handleEvent(final SearchEvent<String> be) {
 				if (be.getValue().matches("^[0-9]+$")) {
+					WindowUtils.showLoadingAlert("Loading...");
 					TaxonomyCache.impl.fetchPathWithID(Integer.valueOf(be.getValue()), new GenericCallback<TaxonHierarchy>() {
 						public void onFailure(Throwable caught) {
 							WindowUtils.errorAlert("Failed to load taxon " + be.getValue() + ".");
@@ -35,6 +36,7 @@ public class BasicSearchPanel extends SearchPanel {
 		});
 		addSearchSelectionListener(new Listener<SearchEvent<Integer>>() {
 			public void handleEvent(final SearchEvent<Integer> be) {
+				WindowUtils.showLoadingAlert("Loading...");
 				TaxonomyCache.impl.fetchPathWithID(be.getValue(), new GenericCallback<TaxonHierarchy>() {
 					public void onFailure(Throwable caught) {
 					}

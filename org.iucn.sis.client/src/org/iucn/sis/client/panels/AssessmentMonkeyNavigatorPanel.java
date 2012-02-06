@@ -18,6 +18,7 @@ import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.models.comparators.AssessmentDateComparator;
 import org.iucn.sis.shared.api.models.comparators.AssessmentNavigationComparator;
@@ -153,16 +154,19 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		if (curNavTaxon == null)
 			callback.onSuccess(new ListStore<NavigationModelData<Assessment>>());
 		else if (curNavWorkingSet == null) {
-			AssessmentCache.impl.fetchPartialAssessmentsForTaxon(curNavTaxon.getId(), new GenericCallback<String>() {
-				public void onFailure(Throwable caught) {
-					callback.onSuccess(new ListStore<NavigationModelData<Assessment>>());
-				}
-				public void onSuccess(String unused) {
-					callback.onSuccess(createStore(new ArrayList<Assessment>(
-						AssessmentCache.impl.getAllAssessmentsForTaxon(curNavTaxon.getId())
-					)));
-				}
-			});
+			if (curNavTaxon.getLevel() >= TaxonLevel.SPECIES)
+				AssessmentCache.impl.fetchPartialAssessmentsForTaxon(curNavTaxon.getId(), new GenericCallback<String>() {
+					public void onFailure(Throwable caught) {
+						callback.onSuccess(new ListStore<NavigationModelData<Assessment>>());
+					}
+					public void onSuccess(String unused) {
+						callback.onSuccess(createStore(new ArrayList<Assessment>(
+							AssessmentCache.impl.getAllAssessmentsForTaxon(curNavTaxon.getId())
+						)));
+					}
+				});
+			else
+				callback.onSuccess(new ListStore<NavigationModelData<Assessment>>());
 		}
 		else {
 			WorkingSetCache.impl.getAssessmentsForWorkingSet(curNavWorkingSet, curNavTaxon, new GenericCallback<List<Assessment>>() {

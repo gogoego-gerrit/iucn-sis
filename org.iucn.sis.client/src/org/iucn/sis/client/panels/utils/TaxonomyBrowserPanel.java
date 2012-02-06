@@ -220,8 +220,10 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 	}
 
 	protected void fetchWithID(String id) {
+		showLoadingScren();
 		TaxonomyCache.impl.fetchPathWithID(id, new GenericCallback<TaxonHierarchy>() {
 			public void onFailure(Throwable caught) {
+				hideLoadingScreen();
 				WindowUtils.errorAlert("Failed to fetch taxa, please try again later.");
 			}
 			public void onSuccess(TaxonHierarchy result) {

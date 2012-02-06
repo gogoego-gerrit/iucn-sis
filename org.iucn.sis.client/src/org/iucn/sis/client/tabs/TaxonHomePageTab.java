@@ -364,6 +364,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 	
 	@Override
 	protected void updateSelection(final Integer selection) {
+		WindowUtils.showLoadingAlert("Loading...");
 		TaxonomyCache.impl.fetchPathWithID(selection, new GenericCallback<TaxonHierarchy>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils.hideLoadingAlert();
@@ -374,6 +375,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 					draw(new DrawsLazily.DoneDrawingCallback() {
 						public void isDrawn() {
 							layout();
+							WindowUtils.hideLoadingAlert();
 						}
 					});
 				else

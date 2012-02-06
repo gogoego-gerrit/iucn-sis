@@ -30,20 +30,19 @@ public class TaxonTreePopup extends BasicWindow {
 
 	private TaxonTreePopup(final Taxon node, final TaxonHierarchy hierarchy) {
 		super("Full Taxonomic View");
-		setSize(350, 300);
+		setSize(400, 300);
 		
 		final String[] footprint = node.getFootprint();
 
 		final FlexTable table = new FlexTable();
 		table.setCellSpacing(8);
-		table.addStyleName("fontSize14");
 		table.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				final Cell cell = table.getCellForEvent(event);
-				if (cell != null && cell.getCellIndex() == 1) {
+				if (cell != null) {
 					String id = hierarchy.getFootprintAt(cell.getRowIndex());
 					if (id == null) {
-						String taxonName = table.getText(cell.getRowIndex(), cell.getCellIndex());
+						String taxonName = table.getText(cell.getRowIndex(), 1);
 						Debug.println("Could not located id in hierarchy for {0}, search by name...", taxonName);
 						openTaxonByName(footprint[0], taxonName);
 					}
@@ -62,32 +61,43 @@ public class TaxonTreePopup extends BasicWindow {
 			
 			table.setText(i, 0, TaxonLevel.getDisplayableLevel(i) + ":");
 			table.setText(i, 1, fullName);
+			
+			table.getCellFormatter().addStyleName(i, 0, "bold");
+			table.getCellFormatter().addStyleName(i, 0, "clickable");
+			table.getCellFormatter().addStyleName(i, 0, "fontSize14");
+			
+			table.getCellFormatter().addStyleName(i, 1, "SIS_HyperlinkLookAlike");
+			table.getCellFormatter().addStyleName(i, 1, "fontSize14");
 		}
-		
-		table.getColumnFormatter().addStyleName(0, "bold");
-		table.getColumnFormatter().addStyleName(1, "clickable");
 		
 		add(table);
 	}
 	
 	private void openTaxonByID(String id) {
 		hide();
-		TaxonomyCache.impl.fetchTaxon(Integer.valueOf(id), getCallback());
+		WindowUtils.showLoadingAlert("Loading...");
+		TaxonomyCache.impl.fetchPathWithID(Integer.valueOf(id), new GenericCallback<TaxonHierarchy>() {
+			public void onSuccess(TaxonHierarchy result) {
+				StateManager.impl.setState(null, result.getTaxon(), null);
+			}
+			public void onFailure(Throwable caught) {
+				WindowUtils.hideLoadingAlert();
+				WindowUtils.errorAlert("Failed to find this taxon, please try again later.");
+			}
+		});
 	}
 
 	private void openTaxonByName(String kingdom, String name) {
 		hide();
-		TaxonomyCache.impl.fetchTaxonWithKingdom(kingdom, name, getCallback());
-	}
-	
-	private GenericCallback<Taxon> getCallback() {
-		return new GenericCallback<Taxon>() {
+		WindowUtils.showLoadingAlert("Loading...");
+		TaxonomyCache.impl.fetchTaxonWithKingdom(kingdom, name, new GenericCallback<Taxon>() {
 			public void onFailure(Throwable caught) {
+				WindowUtils.hideLoadingAlert();
 				WindowUtils.errorAlert("Failed to find this taxon, please try again later.");
 			}
 			public void onSuccess(Taxon result) {
 				StateManager.impl.setState(null, result, null);
 			}
-		};
+		});
 	}
 }

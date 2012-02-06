@@ -22,6 +22,8 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.History;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
@@ -163,6 +165,7 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 			ws = null;
 		
 		if (taxonID != null) {
+			WindowUtils.showLoadingAlert("Loading...");
 			TaxonomyCache.impl.fetchPathWithID(taxonID, new GenericCallback<TaxonHierarchy>() {
 				public void onSuccess(final TaxonHierarchy result) {
 					if (assessmentID != null) {
@@ -214,15 +217,19 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 		}
 	}
 	
-	public void onHistoryChanged(StateChangeEvent eventData, boolean updateNavigation) {
-		if (eventData.getAssessment() != null)
-			ClientUIContainer.bodyContainer.openAssessment(eventData.getUrl(), updateNavigation);
-		else if (eventData.getTaxon() != null)
-			ClientUIContainer.bodyContainer.openTaxon(eventData.getUrl(), updateNavigation);
-		else if (eventData.getWorkingSet() != null)
-			ClientUIContainer.bodyContainer.openWorkingSet(eventData.getUrl(), updateNavigation);
-		else
-			ClientUIContainer.bodyContainer.openHomePage(true);
+	public void onHistoryChanged(final StateChangeEvent eventData, final boolean updateNavigation) {
+		DeferredCommand.addCommand(new Command() {
+			public void execute() {
+				if (eventData.getAssessment() != null)
+					ClientUIContainer.bodyContainer.openAssessment(eventData.getUrl(), updateNavigation);
+				else if (eventData.getTaxon() != null)
+					ClientUIContainer.bodyContainer.openTaxon(eventData.getUrl(), updateNavigation);
+				else if (eventData.getWorkingSet() != null)
+					ClientUIContainer.bodyContainer.openWorkingSet(eventData.getUrl(), updateNavigation);
+				else
+					ClientUIContainer.bodyContainer.openHomePage(true);
+			}
+		});
 	}
 	
 	public boolean isLoggedIn() {
