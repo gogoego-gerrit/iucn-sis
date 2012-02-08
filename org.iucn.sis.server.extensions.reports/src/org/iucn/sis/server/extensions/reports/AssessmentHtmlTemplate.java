@@ -726,8 +726,6 @@ public class AssessmentHtmlTemplate {
 					retHtml.append("Threat");
 				} else if (CanonicalNames.GeneralHabitats.equals(canonicalName)) {
 					retHtml.append("Habitat");
-					retHtml.append("</th><th>Suitability</th><th>Major Importance?");
-					numHeadersToUse = 0;
 				}
 				else if (CanonicalNames.Research.equals(canonicalName))
 					retHtml.append("Research");
