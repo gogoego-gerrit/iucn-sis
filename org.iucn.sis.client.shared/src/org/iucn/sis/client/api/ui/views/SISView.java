@@ -2,6 +2,7 @@ package org.iucn.sis.client.api.ui.views;
 
 import java.util.ArrayList;
 
+import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 
 import com.solertium.util.gwt.ui.DrawsLazily;
@@ -18,7 +19,13 @@ import com.solertium.util.gwt.ui.DrawsLazily;
  *         using different styles.
  * @author carl.scott
  */
-public class SISView {
+public class SISView implements AuthorizableObject {
+	
+	public static final SISView ALL = new SISView() {
+		public String getFullURI() {
+			return RESOURCE_TYPE_PATH + "/layouts";
+		}
+	};
 
 	private String id;
 	private String displayableTitle;
@@ -50,6 +57,16 @@ public class SISView {
 
 	public String getId() {
 		return id;
+	}
+	
+	@Override
+	public String getFullURI() {
+		return RESOURCE_TYPE_PATH + "/layouts/" + getId();
+	}
+	
+	@Override
+	public String getProperty(String key) {
+		return "";
 	}
 
 	public SISPageHolder getPageAt(int index) {

@@ -2,9 +2,12 @@ package org.iucn.sis.client.api.caches;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,13 +15,16 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.views.SISPageHolder;
 import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.utils.XMLUtils;
 
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.gwt.ui.DrawsLazily;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 
 public class ViewCache {
 	
@@ -109,6 +115,22 @@ public class ViewCache {
 			});
 		}
 	}
+	
+	public void getGrantableViews(final String schema, final ComplexListener<List<SISView>> callback) {
+		fetchViews(schema, new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				List<SISView> grantable = new ArrayList<SISView>();
+				for (SISView view : getAvailableViews())
+					if (AuthorizationCache.impl.hasRight(AuthorizableObject.GRANT, view))
+						grantable.add(view);
+				Collections.sort(grantable, new SISViewComparator());
+				callback.handleEvent(grantable);
+			}
+			public void onFailure(Throwable caught) {
+				callback.handleEvent(new ArrayList<SISView>());	
+			}
+		});
+	}
 
 	public Set<String> getAvailableKeys() {
 		if (currentViewMap != null)
@@ -169,5 +191,26 @@ public class ViewCache {
 	
 	public void setEditStatus(EditStatus editStatus) {
 		this.editStatus = editStatus;
+	}
+	
+	private static class SISViewComparator implements Comparator<SISView> {
+		
+		private final PortableAlphanumericComparator comparator;
+		
+		public SISViewComparator() {
+			this.comparator = new PortableAlphanumericComparator();
+		}
+		
+		@Override
+		public int compare(SISView arg0, SISView arg1) {
+			String t1 = arg0.getDisplayableTitle();
+			String t2 = arg1.getDisplayableTitle();
+			
+			if (t1 == null) t1 = "";
+			if (t2 == null) t2 = "";
+			
+			return comparator.compare(t1, t2);
+		}
+		
 	}
 }

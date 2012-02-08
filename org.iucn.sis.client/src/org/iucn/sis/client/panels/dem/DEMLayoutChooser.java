@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AssessmentCache;
+import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.container.SISClientBase;
@@ -11,6 +12,7 @@ import org.iucn.sis.client.api.ui.views.SISPageHolder;
 import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.api.ui.views.ViewDisplay.PageChangeRequest;
 import org.iucn.sis.shared.api.acl.UserPreferences;
+import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.Assessment;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -95,7 +97,7 @@ public class DEMLayoutChooser extends LayoutContainer {
 		});
 		
 		for (final SISView curView : ViewCache.impl.getAvailableViews()) {
-			if (viewsToShow == null || viewsToShow.contains(curView.getId())) {
+			if ((viewsToShow == null || viewsToShow.contains(curView.getId())) && hasPermission(curView)) {
 				listing.add(new ViewModelData(curView.getDisplayableTitle(), curView.getId()));		
 				
 				for (SISPageHolder curPage : curView.getPages()) {
@@ -181,6 +183,10 @@ public class DEMLayoutChooser extends LayoutContainer {
 			add(container);
 			return ViewCache.impl.getLastPageViewed(current.getId());
 		}
+	}
+	
+	private boolean hasPermission(SISView view) {
+		return AuthorizationCache.impl.hasRight(AuthorizableObject.READ, view);
 	}
 	
 	private static class SectionSelectionModel extends ListViewSelectionModel<SectionModelData> {

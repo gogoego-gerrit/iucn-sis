@@ -243,8 +243,16 @@ public class NewPermissionEditor extends LayoutContainer {
 		}
 		else if (url.startsWith("resource")) {
 			type = "resource";
-			//TODO: this can be more fine-tuned to particular resources
 			disableForResource();
+			
+			/*
+			 * TODO: this can be more fine-tuned to particular resources
+			 * Extract code like this into some re-usable form to make it 
+			 * generalized.  OR, this can be the place for it. Just needs
+			 * to be consistent.
+			 */
+			if (url.indexOf("/layouts") > -1)
+				disableBoxes("wcd");
 		}
 	}
 	

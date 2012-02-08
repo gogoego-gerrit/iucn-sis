@@ -7,9 +7,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
+import org.iucn.sis.client.api.caches.SchemaCache;
+import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.panels.permissions.NewPermissionEditor.PermissionAttributeOptions;
 import org.iucn.sis.client.panels.permissions.NewPermissionEditor.PermissionResource;
+import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Permission;
@@ -76,6 +80,7 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 	private final FormPanel editingArea;
 	
 	private List<WorkingSet> workingSets;
+	private List<SISView> layouts;
 	
 	private TextField<String> name;
 	private NewPermissionEditor defaultPermission;
@@ -167,21 +172,29 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 	}
 	
 	public void draw(final DoneDrawingCallback callback) {
+		WindowUtils.showLoadingAlert("Loading...");
 		WorkingSetCache.impl.getGrantableWorkingSets(new GenericCallback<List<WorkingSet>>() {
-			public void onSuccess(List<WorkingSet> result) {
-				NewPermissionGroupEditor.this.workingSets = result;
-				
-				center.add(completeEditingArea = createEditingArea());
-				
-				final LayoutContainer container = new LayoutContainer(new BorderLayout());
-				container.add(createListingArea(), new BorderLayoutData(LayoutRegion.WEST, 150, 150, 150));
-				container.add(center, new BorderLayoutData(LayoutRegion.CENTER));
-				
-				add(container);
-				
-				stopEditing();
-				
-				callback.isDrawn();
+			public void onSuccess(final List<WorkingSet> result) {
+				ViewCache.impl.getGrantableViews(SchemaCache.impl.getDefaultSchema(), new ComplexListener<List<SISView>>() {
+					public void handleEvent(List<SISView> eventData) {
+						NewPermissionGroupEditor.this.workingSets = result;
+						NewPermissionGroupEditor.this.layouts = eventData;
+						
+						center.add(completeEditingArea = createEditingArea());
+						
+						final LayoutContainer container = new LayoutContainer(new BorderLayout());
+						container.add(createListingArea(), new BorderLayoutData(LayoutRegion.WEST, 150, 150, 150));
+						container.add(center, new BorderLayoutData(LayoutRegion.CENTER));
+						
+						add(container);
+						
+						stopEditing();
+						
+						callback.isDrawn();
+						
+						WindowUtils.hideLoadingAlert();
+					}
+				});
 			}
 			public void onFailure(Throwable caught) {
 				onSuccess(new ArrayList<WorkingSet>());
@@ -456,7 +469,7 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 						}
 					}
 				};
-				getResourceMenu(callback, workingSets).show(ce.getButton());
+				getResourceMenu(callback).show(ce.getButton());
 			}
 		}));
 		
@@ -756,7 +769,7 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 		return features;
 	}
 	
-	private Menu getResourceMenu(final ComplexListener<PermissionResource> callback, final List<WorkingSet> workingSets) {
+	private Menu getResourceMenu(final ComplexListener<PermissionResource> callback) {
 		final SelectionListener<MenuEvent> listener = new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				MenuItem item = (MenuItem)ce.getItem();
@@ -790,7 +803,7 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 		
 		MenuItem workingSet = new MenuItem("Working Set"); {
 			Menu listWS = new Menu();
-			listWS.setMaxHeight(250);
+			listWS.setMaxHeight(350);
 			
 			listWS.add(newMenuItem("(All)", "resource/workingSet", listener));
 			if (!workingSets.isEmpty())
@@ -801,6 +814,24 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 			workingSet.setSubMenu(listWS);
 		}
 		resources.add(workingSet);
+		
+		MenuItem layoutsItem = new MenuItem("Layouts"); {
+			Menu listLayouts = new Menu();
+			listLayouts.setMaxHeight(350);
+			
+			if (AuthorizationCache.impl.hasRight(AuthorizableObject.GRANT, SISView.ALL)) {
+				listLayouts.add(newMenuItem("(All)", "resource/layouts", listener));
+				if (layouts != null && !layouts.isEmpty())
+					listLayouts.add(new SeparatorMenuItem());
+			}
+			for (SISView view : layouts)
+				listLayouts.add(newMenuItem(view.getDisplayableTitle(), "resource/layouts/" + view.getId(), listener));
+			
+			if (listLayouts.getItemCount() > 0)
+				layoutsItem.setSubMenu(listLayouts);
+		}
+		if (layoutsItem.getSubMenu() != null)
+			resources.add(layoutsItem);
 		
 		return resources;
 	}
