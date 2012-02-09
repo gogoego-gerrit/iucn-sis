@@ -30,7 +30,6 @@ import com.extjs.gxt.ui.client.Style.SortDir;
 import com.extjs.gxt.ui.client.data.BaseModelData;
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -342,15 +341,8 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 			window.show();
 		}
 		else if (value.isTaxon()) {
-			final PermissionScopeTaxonomyBrowser browser;
-			final Window window = WindowUtils.newWindow("Select Taxon");
-			window.setLayout(new FillLayout());
-			window.setSize(600, 400);
-			window.setModal(true);
-			window.setClosable(false); 
-			window.add(browser = new PermissionScopeTaxonomyBrowser(new ComplexListener<Taxon>() {
+			final Window window = new PermissionScopeTaxonomyBrowser(new ComplexListener<Taxon>() {
 				public void handleEvent(Taxon taxon) {
-					window.hide();
 					if (taxon == null)
 						scope.setValue(scope.getStore().getAt(0));
 					else {
@@ -362,8 +354,7 @@ public class NewPermissionGroupEditor extends LayoutContainer implements DrawsLa
 						scopeDisplay.setHtml(scopeURI);
 					}
 				}
-			}));
-			browser.fireEvent(Events.Show);
+			});
 			window.show();
 		}
 	}

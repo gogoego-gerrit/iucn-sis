@@ -1,26 +1,28 @@
 package org.iucn.sis.client.panels.permissions;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.ui.models.taxa.TaxonListElement;
+import org.iucn.sis.client.api.utils.BasicWindow;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.Taxon;
 
-import com.extjs.gxt.ui.client.data.ModelStringProvider;
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.DeferredCommand;
+import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.events.ComplexListener;
+import com.solertium.util.extjs.client.WindowUtils;
 
-public class PermissionScopeTaxonomyBrowser extends ContentPanel {
+public class PermissionScopeTaxonomyBrowser extends BasicWindow {
 
-	private TaxonomyBrowserPanel scopeBrowser;
+	private final TaxonomyBrowserPanel scopeBrowser;
 	private Button select;
 	private Taxon  currentlySelected;
 	
@@ -31,8 +33,10 @@ public class PermissionScopeTaxonomyBrowser extends ContentPanel {
 	 * @param editor the editor using this taxonomy browser
 	 */
 	public PermissionScopeTaxonomyBrowser(final ComplexListener<Taxon> listener) {
-		setLayout(new FitLayout());
-		setHeaderVisible(false);
+		super("Select Taxon", null, true);
+		setLayout(new FillLayout());
+		setClosable(false);
+		setSize(600, 400);
 		currentlySelected = null;
 		
 		scopeBrowser = new TaxonomyBrowserPanel() {
@@ -45,19 +49,11 @@ public class PermissionScopeTaxonomyBrowser extends ContentPanel {
 				updateCurrent(be.getTaxon());
 			}
 		});
-		scopeBrowser.getBinder().setStyleProvider(new ModelStringProvider<TaxonListElement>() {
-			public String getStringValue(TaxonListElement model, String property) {
-				if( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.GRANT, model.getNode()) )
-					return "deleted";
-				else
-					return "";
-			}
-		});
 		
 		select = new Button("No Taxon Selected", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
+				hide();
 				listener.handleEvent(currentlySelected);
-				//editor.updateScope(currentlySelected);
 			}
 		});
 		select.setEnabled(false);
@@ -79,7 +75,7 @@ public class PermissionScopeTaxonomyBrowser extends ContentPanel {
 		});
 	}
 	
-	protected void updateCurrent(Taxon  taxon) {
+	protected void updateCurrent(Taxon taxon) {
 		this.currentlySelected = taxon;
 		
 		if( taxon == null ) {
@@ -93,4 +89,27 @@ public class PermissionScopeTaxonomyBrowser extends ContentPanel {
 			select.setText("Use " + taxon.getFullName());
 		}
 	}
+	
+	@Override
+	public void show() {
+		WindowUtils.showLoadingAlert("Loading...");
+		DeferredCommand.addCommand(new Command() {
+			public void execute() {
+				scopeBrowser.update(new GenericCallback<Object>() {
+					public void onSuccess(Object result) {
+						open();
+						WindowUtils.hideLoadingAlert();
+					}
+					public void onFailure(Throwable caught) {
+						WindowUtils.hideLoadingAlert();
+					}
+				});
+			}
+		});
+	}
+	
+	private void open() {
+		super.show();
+	}
+	
 }
