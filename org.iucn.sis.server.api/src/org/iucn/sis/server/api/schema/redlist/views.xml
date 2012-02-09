@@ -567,13 +567,6 @@
 	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="NarrativeView" title="Narrative View" xsi:noNamespaceSchemaLocation="views.xsd">
 
 		<pages>
-			<page id="TaxonomicNotes" title="Taxonomic Notes">
-				<pageOrganizations>
-					<organization shortTitle="Taxon Notes" title="Taxonomic Notes Documentation">
-						<field id="TaxonomicNotes"/>	
-					</organization>
-				</pageOrganizations>
-			</page>
 			<page id="ConservationActionsDocumentation" title="Conservation Actions">
 
 				<pageOrganizations>
@@ -634,20 +627,6 @@
 <view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="SXbeetles" title="SX Beetle View" xsi:noNamespaceSchemaLocation="views.xsd">
 
 		<pages>
-
-			<page id="TaxonomicNotes" title="Taxonomic Notes">
-
-				<pageOrganizations>
-
-					<organization shortTitle="Taxon Notes" title="Taxonomic Notes Documentation">
-
-						<field id="TaxonomicNotes"/>	
-
-					</organization>
-
-				</pageOrganizations>
-
-			</page>
 
 			<page id="Distribution" title="Distribution">
 
@@ -810,14 +789,6 @@
 	</view>
 	<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="PlantsView" title="Plants View" xsi:noNamespaceSchemaLocation="views.xsd">
 		<pages>
-			<page id="TaxonomicNotes" title="Taxonomic Notes">
-				<pageOrganizations>
-					<organization title="Taxonomic Notes">
-
-						<field id="TaxonomicNotes"/>	
-					</organization>
-				</pageOrganizations>
-			</page>
 			<page id="Distribution" title="Distribution">
 				<pageOrganizations>
 					<organization title="Distribution Information">
@@ -1093,20 +1064,6 @@
 <view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="InvertView" title="Invertebrates View" xsi:noNamespaceSchemaLocation="views.xsd">
 
 		<pages>
-
-			<page id="TaxonomicNotes" title="Taxonomic Notes">
-
-				<pageOrganizations>
-
-					<organization title="Taxonomic Notes">
-
-						<field id="TaxonomicNotes"/>	
-
-					</organization>
-
-				</pageOrganizations>
-
-			</page>
 
 			<page id="Distribution" title="Distribution">
 
@@ -1504,13 +1461,6 @@
 
 <view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="FWView" title="Freshwater View" xsi:noNamespaceSchemaLocation="views.xsd">
 		<pages>
-			<page id="TaxonomicNotes" title="Taxonomic Notes">
-				<pageOrganizations>
-					<organization title="Taxonomic Notes">
-						<field id="TaxonomicNotes"/>	
-					</organization>
-				</pageOrganizations>
-			</page>
 			<page id="Distribution" title="Distribution">
 
 				<pageOrganizations>
