@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Offline Plug-in
+Bundle-Name: SIS Offline Support
 Bundle-SymbolicName: org.iucn.sis.server.extensions.offline
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.gogoego.api;bundle-version="1.1.2",
  com.solertium.db.restlet;bundle-version="1.1.0",

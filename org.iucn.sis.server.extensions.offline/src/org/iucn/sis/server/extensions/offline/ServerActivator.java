@@ -7,12 +7,12 @@ public class ServerActivator extends SISActivator{
 
 	@Override
 	protected String getAppDescription() {
-		return "SIS Offline Clearer";
+		return "SIS Offline Support";
 	}
 	
 	@Override
 	protected String getAppName() {
-		return "SIS Offline Clearer";
+		return "SIS Offline Support";
 	}
 	
 	@Override
