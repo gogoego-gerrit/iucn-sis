@@ -3,6 +3,8 @@ package org.iucn.sis.server.extensions.references;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.naming.NamingException;
+
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -25,9 +27,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.solertium.db.DBException;
+import com.solertium.db.DBSessionFactory;
 import com.solertium.db.Row;
 import com.solertium.db.RowProcessor;
+import com.solertium.db.vendor.H2DBSession;
 import com.solertium.util.NodeCollection;
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.portable.XMLWritingUtils;
 
 @SuppressWarnings("deprecation")
@@ -84,11 +89,19 @@ public class ReferenceSearchResource extends TransactionResource {
 		String where = null;
 		for (Map.Entry<String, String> entry : constraints.entrySet()) {
 			if (!"start".equals(entry.getKey()) && !"limit".equals(entry.getKey())) {
+				String column = entry.getKey();
+				try {
+					if ("year".equals(column) && DBSessionFactory.getDBSession("sis") instanceof H2DBSession)
+						column = "\"year\"";
+				} catch (NamingException e) {
+					TrivialExceptionHandler.ignore(this, e);
+				}
+					
 				if (where == null)
 					where = "WHERE ";
 				else
 					where += " AND ";
-				where += "UPPER(reference." + entry.getKey() + ") like '%" + clean(entry.getValue().toUpperCase()) + "%'";
+				where += "UPPER(reference." + column + ") like '%" + clean(entry.getValue().toUpperCase()) + "%'";
 			}
 		}
 
