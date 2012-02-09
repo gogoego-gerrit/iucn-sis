@@ -55,13 +55,13 @@ import org.iucn.sis.shared.api.views.components.DisplayData;
 import org.iucn.sis.shared.api.views.components.TreeData;
 import org.iucn.sis.shared.api.views.components.TreeDataRow;
 import org.restlet.util.Couple;
+import org.w3c.dom.Document;
 
 import com.solertium.lwxml.java.JavaNativeDocument;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.AlphanumericComparator;
-import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.portable.PortableCalculator;
 
 public class AssessmentHtmlTemplate {
@@ -154,14 +154,8 @@ public class AssessmentHtmlTemplate {
 	}
 	
 	private View loadView(String name) {
-		final String serialized = BaseDocumentUtils.impl
-			.serializeDocumentToString(schema.getViews(), true, false);
-		
-		final NativeDocument jnd = new JavaNativeDocument();
-		jnd.parse(serialized);
-		
 		ViewParser parser = new ViewParser();
-		parser.parse(jnd);
+		parser.parse(new ViewNativeDocument(schema.getViews()));
 		
 		View view = parser.getViews().get(name);
 		if (view == null)
@@ -1049,4 +1043,14 @@ public class AssessmentHtmlTemplate {
 		protected abstract String getString(T model);
 		
 	}
+	
+	public static class ViewNativeDocument extends JavaNativeDocument {
+		
+		public ViewNativeDocument(Document peer) {
+			super();
+			this.peer = peer;
+		}
+		
+	}
+	
 }
