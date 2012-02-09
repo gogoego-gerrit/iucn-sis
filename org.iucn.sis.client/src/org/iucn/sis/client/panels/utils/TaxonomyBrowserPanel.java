@@ -207,14 +207,22 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 	 * @param path
 	 */
 	protected void fetch(String path) {
+		fetch(path, null);
+	}
+	
+	protected void fetch(String path, final GenericCallback<Object> callback) {
 		showLoadingScren();
 		TaxonomyCache.impl.fetchPath(path, new GenericCallback<TaxonHierarchy>() {
 			public void onFailure(Throwable caught) {
 				hideLoadingScreen();
 				WindowUtils.errorAlert("Failed to fetch taxa, please try again later.");
+				if (callback != null)
+					callback.onFailure(caught);
 			}
 			public void onSuccess(TaxonHierarchy result) {
 				display(result);
+				if (callback != null)
+					callback.onSuccess(result);
 			}
 		});
 	}
@@ -309,6 +317,11 @@ public class TaxonomyBrowserPanel extends LayoutContainer {
 	public void update() {
 		updateWithoutFetch();
 		fetch("");
+	}
+	
+	public void update(GenericCallback<Object> callback){
+		updateWithoutFetch();
+		fetch("", callback);
 	}
 
 	public void update(String id) {
