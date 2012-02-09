@@ -250,6 +250,7 @@ public class FileLocker {
 		if (assessmentLocks.isAssessmentPersistentLocked(id)) {
 			LockRepository.LockInfo l = assessmentLocks.getLockedAssessment(id);
 			if (l.getUsername().equalsIgnoreCase(owner.getUsername())) {
+				assessmentLocks.removeLockByID(l.getLockID());
 				return Status.SUCCESS_OK;
 			} else {
 				return Status.CLIENT_ERROR_FORBIDDEN;
