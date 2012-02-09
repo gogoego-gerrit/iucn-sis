@@ -113,6 +113,7 @@ public class BasicHibernateTest extends BasicTest {
 	@AfterClass
 	public static void shutdown() {
 		SISPersistentManager.instance().shutdown();
+		DBSessionFactory.unregisterDataSource("sis_lookups");
 	}
 
 }
