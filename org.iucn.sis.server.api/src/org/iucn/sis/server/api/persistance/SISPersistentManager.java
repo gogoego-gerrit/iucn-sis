@@ -13,7 +13,6 @@ import java.util.Properties;
 import javassist.util.proxy.MethodFilter;
 
 import org.dom4j.DocumentException;
-import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.MappingException;
@@ -26,9 +25,11 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 import org.hibernate.tuple.entity.EntityTuplizerFactory;
 import org.hibernate.tuple.entity.PojoEntityTuplizer;
 import org.iucn.sis.server.api.application.MultiClassLoader;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.persistance.listeners.SISHibernateListener;
 import org.iucn.sis.server.api.persistance.ormmapping.ClassLoaderTester;
+import org.iucn.sis.server.api.utils.SISGlobalSettings;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.postgresql.Driver;
 import org.slf4j.impl.StaticLoggerBinder;
@@ -40,8 +41,6 @@ import com.solertium.util.ElementCollection;
 
 public class SISPersistentManager {
 
-	public static final String PROP_GENERATOR = "org.iucn.sis.server.configuration.generator";
-	
 	private static SISPersistentManager instance;
 	private SessionFactory sessionFactory;
 
@@ -74,12 +73,18 @@ public class SISPersistentManager {
 		
 		return loader;
 	}
+	
+	public static synchronized final SISPersistentManager refresh() {
+		instance = null;
+		
+		return instance();
+	}
 
 	public static synchronized final SISPersistentManager instance() {
 		if (instance == null || instance.sessionFactory == null) {
 			setCurrentThread();
 			instance = new SISPersistentManager();
-			instance.sessionFactory = instance.buildSessionFactory("sis", GoGoEgo.getInitProperties());
+			instance.sessionFactory = instance.buildSessionFactory("sis", SIS.get().getSettings(null));
 		}
 		return instance;
 	}
@@ -118,17 +123,20 @@ public class SISPersistentManager {
 
 	public void shutdown() {
 		sessionFactory.close();
+		instance = null;
 	}
 	
 	private Configuration buildConfiguration(String session, Properties properties) {
 		String generator = properties.getProperty("generator"); //TODO: Legacy support to be removed
 		if (generator == null)
-			generator = properties.getProperty(PROP_GENERATOR);
+			generator = properties.getProperty(SISGlobalSettings.GENERATOR);
+		if ("".equals(generator))
+			generator = null;
 		
 		Configuration configuration = new SISPersistenceConfiguration(generator);
 		setCurrentThread();
 		
-		final String configUri = properties.getProperty("org.iucn.sis.server.configuration.uri", "local:postgres");
+		final String configUri = properties.getProperty(SISGlobalSettings.CONFIG_URI, "local:postgres");
 		if (configUri.startsWith("file")) {
 			Debug.println("Creating new persistence manager from file " + configUri);
 			try {

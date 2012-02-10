@@ -27,7 +27,9 @@ import org.iucn.sis.server.api.locking.LockException;
 import org.iucn.sis.server.api.locking.LockType;
 import org.iucn.sis.server.api.locking.LockRepository.LockInfo;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.DatabaseExporter;
+import org.iucn.sis.server.api.utils.SISGlobalSettings;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Definition;
@@ -50,23 +52,23 @@ import com.solertium.db.DBException;
 
 public class WorkingSetExporter extends DatabaseExporter {
 	
-	private static final int BATCH_SIZE = 200;
+	protected static final int BATCH_SIZE = 200;
 	
-	private final boolean lock;
-	private final String username;
-	private final HashMap<Integer, String> locked;
-	
-	private final String location;
+	protected final boolean lock;
+	protected final String username;
+	protected final HashMap<Integer, String> locked;
 	
 	protected Session source;
 	protected Session target;
 	
+	protected String location;
 	protected String fileName;
 	
 	public WorkingSetExporter(Integer workingSetID, String username, boolean lock, String location, String fileName) {
 		super(null, workingSetID);
 		this.username = username;
-		this.lock = lock && SIS.amIOnline();
+		this.lock = lock;
+		
 		this.location = location;
 		this.fileName = fileName;
 		
@@ -138,7 +140,7 @@ public class WorkingSetExporter extends DatabaseExporter {
 		target.replicate(assessment, ReplicationMode.OVERWRITE);
 	}
 	
-	private void lockAssessment(Assessment assessment) throws DBException {
+	protected void lockAssessment(Assessment assessment) throws DBException {
 		Session session = SISPersistentManager.instance().openSession();
 		User user = new UserIO(session).getUserFromUsername(username);
 		
@@ -171,7 +173,7 @@ public class WorkingSetExporter extends DatabaseExporter {
 	protected void execute() throws Throwable {
 		String name;
 		Properties properties = new Properties();
-		properties.setProperty(SISPersistentManager.PROP_GENERATOR, "assigned");
+		properties.setProperty(SISGlobalSettings.GENERATOR, "assigned");
 		if (location == null) {
 			String location = "localhost:5432";
 			name = source + "_target";
@@ -201,94 +203,91 @@ public class WorkingSetExporter extends DatabaseExporter {
 		target = targetManager.openSession();
 		
 		try {
-			if (fromScratch) {
-				List<Class<?>> copyAll = new ArrayList<Class<?>>();
-				copyAll.add(Reference.class);
-				copyAll.add(AssessmentType.class);
-				copyAll.add(Definition.class);
-				copyAll.add(Infratype.class);
-				copyAll.add(IsoLanguage.class);
-				copyAll.add(PermissionGroup.class);
-				copyAll.add(Permission.class);
-				copyAll.add(Region.class);
-				copyAll.add(Relationship.class);
-				copyAll.add(TaxonLevel.class);
-				copyAll.add(TaxonStatus.class);
-				copyAll.add(User.class);
-				copyAll.add(Virus.class);
-							
-				for (Class<?> clazz : copyAll) {
-					int i = 0;
-					List<?> list = SISPersistentManager.instance().listObjects(clazz, source);
-					source.clear();
-					write("Copying %s...", clazz.getSimpleName());
-					boolean started = false;
-					for (Object obj : list) {
-						if (!started) {
-							started = true;
-							target.beginTransaction();
-						}
-						target.replicate(obj, ReplicationMode.IGNORE);
-						
-						if (++i % BATCH_SIZE == 0) {
-							write("  %s...", i);
-							target.getTransaction().commit();
-							target.clear();
-							started = false;
-						}
-					}
-					if (started) {
-						write("  %s...", i);
-						target.getTransaction().commit();
-						target.clear();
-					}
-					target.clear();
-				}
-			}
-		} catch (Exception e) {
-			source.close();
-			target.close();
-			targetManager.shutdown();
-			throw e;
-		}
-		
-		final WorkingSet workingSet = new WorkingSetIO(source).readWorkingSet(workingSetID);
-		Hibernate.initialize(workingSet.getUsers());
-		
-		try {
-			final AssessmentFilterHelper helper = new AssessmentFilterHelper(source, workingSet.getFilter());
-			final int size = workingSet.getTaxon().size();
-			final HashSet<Integer> seen = new HashSet<Integer>();
+			copy(source, target, fromScratch);
 			
-			int count = 0;
-			for (Taxon taxon : workingSet.getTaxon()) {
-				target.beginTransaction();
-				insertTaxa(taxon, seen);
-				target.getTransaction().commit();
-				
-				Collection<Assessment> assessments = helper.getAssessments(taxon.getId());
-				write("Copying %s eligible assessments for %s, (%s/%s)", 
-					assessments.size(), taxon.getFullName(), ++count, size);
-				target.beginTransaction();
-				for (Assessment assessment : assessments) {
-					write("  Writing assessment #%s", assessment.getId());
-					insertAssessment(null, assessment);
-				}
-				target.getTransaction().commit();
-				target.clear();
-			}
-			
-			target.clear();
-			target.beginTransaction();
-			target.replicate(workingSet, ReplicationMode.OVERWRITE);
-			target.getTransaction().commit();
+			afterRun();
 		} finally {
 			source.close();
 			target.close();
 			targetManager.shutdown();
 		}
+	}
+	
+	protected void copy(Session source, Session target, boolean fromScratch) throws DBException, PersistentException {
+		if (fromScratch) {
+			List<Class<?>> copyAll = new ArrayList<Class<?>>();
+			copyAll.add(Reference.class);
+			copyAll.add(AssessmentType.class);
+			copyAll.add(Definition.class);
+			copyAll.add(Infratype.class);
+			copyAll.add(IsoLanguage.class);
+			copyAll.add(PermissionGroup.class);
+			copyAll.add(Permission.class);
+			copyAll.add(Region.class);
+			copyAll.add(Relationship.class);
+			copyAll.add(TaxonLevel.class);
+			copyAll.add(TaxonStatus.class);
+			copyAll.add(User.class);
+			copyAll.add(Virus.class);
+						
+			for (Class<?> clazz : copyAll) {
+				int i = 0;
+				List<?> list = SISPersistentManager.instance().listObjects(clazz, source);
+				source.clear();
+				write("Copying %s...", clazz.getSimpleName());
+				boolean started = false;
+				for (Object obj : list) {
+					if (!started) {
+						started = true;
+						target.beginTransaction();
+					}
+					target.replicate(obj, ReplicationMode.OVERWRITE);
+					
+					if (++i % BATCH_SIZE == 0) {
+						write("  %s...", i);
+						target.getTransaction().commit();
+						target.clear();
+						started = false;
+					}
+				}
+				if (started) {
+					write("  %s...", i);
+					target.getTransaction().commit();
+					target.clear();
+				}
+				target.clear();
+			}
+		}
 		
-		afterRun();
+		final WorkingSet workingSet = new WorkingSetIO(source).readWorkingSet(workingSetID);
+		Hibernate.initialize(workingSet.getUsers());
+		
+		final AssessmentFilterHelper helper = new AssessmentFilterHelper(source, workingSet.getFilter());
+		final int size = workingSet.getTaxon().size();
+		final HashSet<Integer> seen = new HashSet<Integer>();
+		
+		int count = 0;
+		for (Taxon taxon : workingSet.getTaxon()) {
+			target.beginTransaction();
+			insertTaxa(taxon, seen);
+			target.getTransaction().commit();
+			
+			Collection<Assessment> assessments = helper.getAssessments(taxon.getId());
+			write("Copying %s eligible assessments for %s, (%s/%s)", 
+				assessments.size(), taxon.getFullName(), ++count, size);
+			target.beginTransaction();
+			for (Assessment assessment : assessments) {
+				write("  Writing assessment #%s", assessment.getId());
+				insertAssessment(null, assessment);
+			}
+			target.getTransaction().commit();
+			target.clear();
+		}
+		
+		target.clear();
+		target.beginTransaction();
+		target.replicate(workingSet, ReplicationMode.OVERWRITE);
+		target.getTransaction().commit();
 	}
 	
 	protected void insertTaxa(Taxon taxon, HashSet<Integer> seen) throws DBException {

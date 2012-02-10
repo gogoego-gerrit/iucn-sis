@@ -108,7 +108,7 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 	
 	@Override
 	protected VFS getVFS() {
-		File file = new File(GoGoEgo.getInitProperties().getProperty("sis_vfs", "/var/sis/newest_vfs"));
+		File file = new File(GoGoEgo.getInitProperties().getProperty("sis_vfs", "/var/sis/new_vfs"));
 		if (file.exists())
 			try {
 				return VFSFactory.getVersionedVFS(file);

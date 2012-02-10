@@ -1,16 +1,10 @@
 package org.iucn.sis.server.extensions.export;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.iucn.sis.server.api.application.SimpleSISApplication;
 import org.iucn.sis.server.extensions.export.access.exported.AccessDownloadResource;
 import org.iucn.sis.server.extensions.export.access.exported.GenericExportResource;
-import org.restlet.Context;
 
 public class ExportApplication extends SimpleSISApplication {
-	
-	public static ExportApplication getApplication(Context context) {
-		return (ExportApplication) GoGoEgo.get().getApplication(context, "org.iucn.sis.server.extensions.export");
-	}
 	
 	public ExportApplication() {
 		super(RunMode.ONLINE);

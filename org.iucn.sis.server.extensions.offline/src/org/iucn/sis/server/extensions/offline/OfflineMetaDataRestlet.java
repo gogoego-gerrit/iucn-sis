@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.Date;
 import java.util.Properties;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.OfflineMetadata;
 import org.restlet.Context;
@@ -31,7 +31,7 @@ public class OfflineMetaDataRestlet extends BaseServiceRestlet {
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
 
-		Properties init = GoGoEgo.getInitProperties();
+		Properties init = SIS.get().getSettings(getContext());
 		
 		String dbUri = init.getProperty("dbsession.sis.uri");
 		String dbLocation = removeJDBCPrefix(dbUri);

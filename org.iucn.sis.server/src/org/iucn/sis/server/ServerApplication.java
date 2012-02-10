@@ -1,6 +1,6 @@
 package org.iucn.sis.server;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.gogoego.api.plugins.GoGoEgo;
@@ -8,6 +8,7 @@ import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.application.SISApplication;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.server.api.utils.SISGlobalSettings;
 import org.iucn.sis.server.restlets.assessments.AssessmentChangesRestlet;
 import org.iucn.sis.server.restlets.assessments.AssessmentRestlet;
 import org.iucn.sis.server.restlets.publication.PublicationRestlet;
@@ -57,9 +58,7 @@ public class ServerApplication extends SISApplication{
 	
 	@Override
 	protected Collection<String> getSettingsKeys() {
-		ArrayList<String> settings = new ArrayList<String>();
-		settings.add("org.iucn.sis.schema");
-		return settings;
+		return Arrays.asList(SISGlobalSettings.ALL);
 	}
 	
 	/**

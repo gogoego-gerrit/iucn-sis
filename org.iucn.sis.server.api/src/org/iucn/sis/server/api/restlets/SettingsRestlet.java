@@ -1,13 +1,10 @@
 package org.iucn.sis.server.api.restlets;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Properties;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.restlet.Context;
@@ -78,20 +75,8 @@ public class SettingsRestlet extends BaseServiceRestlet {
 				properties.setProperty(name, value);
 		}
 		
-		final String rootFolder = 
-			GoGoEgo.getInitProperties().getProperty("sis_settings", "/ebs/sis/test/files/settings");
-		
-		File folder = new File(rootFolder);
-		if (!folder.exists()) {
-			try {
-				folder.mkdirs();
-			} catch (Exception e) {
-				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-			}
-		}
-		
 		try {
-			properties.store(new FileWriter(new File(folder, "global.properties")), null);
+			SIS.get().saveSettings(getContext());
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}

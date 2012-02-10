@@ -15,7 +15,6 @@ import java.util.Properties;
 
 import javax.naming.NamingException;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.TransactionResource;
@@ -66,7 +65,7 @@ public class GenericExportResource extends TransactionResource {
 		if (DBSessionFactory.isRegistered(name))
 			DBSessionFactory.unregisterDataSource(name);
 		
-		Properties properties = GoGoEgo.getInitProperties();
+		Properties properties = SIS.get().getSettings(getContext());
 		Properties sourceProperties = new Properties();
 		for (Object key : properties.keySet()) {
 			String keyName = (String)key;

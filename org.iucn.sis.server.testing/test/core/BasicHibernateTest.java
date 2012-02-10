@@ -4,7 +4,6 @@ import java.io.File;
 
 import javax.naming.NamingException;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.gogoego.api.utils.ProductProperties;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
@@ -46,9 +45,6 @@ public class BasicHibernateTest extends BasicTest {
 		if (file.getAbsolutePath().endsWith(File.separatorChar + "bin"))
 			file = file.getParentFile();
 		ProductProperties.impl.setWorkingDirectory(file);
-		
-		//Register the database specified in the properties file
-		DBSessionFactory.registerDataSources(GoGoEgo.getInitProperties());
 		
 		//Set the debugger to this.
 		Debug.setInstance(core);

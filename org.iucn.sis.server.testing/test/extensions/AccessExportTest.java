@@ -11,7 +11,7 @@ import java.util.Properties;
 
 import javax.naming.NamingException;
 
-import org.gogoego.api.plugins.GoGoEgo;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.extensions.export.access.exported.AccessExporter;
 import org.iucn.sis.server.extensions.export.access.exported.AccessExporterViaJackcess;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class AccessExportTest extends BasicHibernateTest {
 		if (DBSessionFactory.isRegistered(name))
 			DBSessionFactory.unregisterDataSource(name);
 		
-		Properties properties = GoGoEgo.getInitProperties();
+		Properties properties = SIS.get().getSettings(null);
 		Properties sourceProperties = new Properties();
 		for (Object key : properties.keySet()) {
 			String keyName = (String)key;
@@ -86,7 +86,7 @@ public class AccessExportTest extends BasicHibernateTest {
 		if (DBSessionFactory.isRegistered(name))
 			DBSessionFactory.unregisterDataSource(name);
 		
-		Properties properties = GoGoEgo.getInitProperties();
+		Properties properties = SIS.get().getSettings(null);
 		Properties sourceProperties = new Properties();
 		for (Object key : properties.keySet()) {
 			String keyName = (String)key;

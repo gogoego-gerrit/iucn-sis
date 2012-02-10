@@ -2,6 +2,7 @@ package org.iucn.sis.server.api.application;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -16,6 +17,7 @@ import org.iucn.sis.server.api.queries.CannedQueries;
 import org.iucn.sis.server.api.queries.H2CannedQueries;
 import org.iucn.sis.server.api.queries.PostgreSQLCannedQueries;
 import org.iucn.sis.server.api.schema.AssessmentSchemaBroker;
+import org.iucn.sis.server.api.utils.SISGlobalSettings;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.debug.Debugger;
 import org.restlet.Context;
@@ -37,7 +39,6 @@ import com.solertium.db.vendor.H2DBSession;
 import com.solertium.db.vendor.PostgreSQLDBSession;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.mail.GMailer;
 import com.solertium.mail.Mailer;
 import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.restlet.authentication.AuthnGuard;
@@ -50,48 +51,37 @@ public class SIS {
 
 	private static SIS impl;
 	
-	protected final FileLocker locker;
-	protected final VFS vfs;
-	protected final String vfsroot;
-	protected final ExecutionContext ec, lookups;
-	protected final CannedQueries queries;
+	public static SIS get() {
+		if (impl == null) {
+			impl = new SIS();
+			SISPersistentManager.instance();
+		}
+		return impl;
+	}
 	
-	protected AssessmentSchemaBroker broker;
-	protected Properties settings;
+	private final ExecutionContext lookups;
+	private final String vfsroot;
+	private final VFS vfs;
+	
+	private AssessmentSchemaBroker broker;
+	private Properties settings;
+	private ExecutionContext ec;
+	private CannedQueries queries;
+	
+	private FileLocker locker;
 
-	protected SIS() {
+	private SIS() {
 		Debug.setInstance(new SISDebugger());
-		Debug.println("map of properties is: {0}", GoGoEgo.getInitProperties());
+		
+		final Properties properties = getSettings(null);
+		Debug.println("map of properties is: {0}", properties);
 		
 		try {
-			vfsroot = GoGoEgo.getInitProperties().getProperty("sis_vfs");
+			vfsroot = properties.getProperty(SISGlobalSettings.VFS, 
+					properties.getProperty("sis_vfs"));
 			vfs = VFSFactory.getVFS(new File(vfsroot));
-			locker = new FileLocker();
 			
-			/*taxomaticIO = new TaxomaticIO((VersionedFileVFS) vfs);
-			assessmentIO = new AssessmentIO((VersionedFileVFS) vfs);
-			taxonIO = new TaxonIO((VersionedFileVFS) vfs);
-			userIO = new UserIO((VersionedFileVFS) vfs);
-			permissionIO = new PermissionIO();
-			workingSetIO = new WorkingSetIO((VersionedFileVFS) vfs);
-			infratypeIO = new InfratypeIO();
-			isoLanguageIO = new IsoLanguageIO();
-			relationshipIO = new RelationshipIO();
-			primitiveFieldIO = new PrimitiveFieldIO();
-			regionIO = new RegionIO();
-			referenceIO = new ReferenceIO();
-			editIO = new EditIO();
-			noteIO = new NoteIO();
-			fieldIO = new FieldIO();*/
-			
-			ec = new SystemExecutionContext(DBSessionFactory.getDBSession(getDBSessionName()));
-			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
-			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
-			
-			if (ec.getDBSession() instanceof H2DBSession)
-				queries = new H2CannedQueries(); 
-			else
-				queries = new PostgreSQLCannedQueries(); 
+			refreshDatabase();
 			
 			lookups = new SystemExecutionContext("sis_lookups");
 			lookups.setAPILevel(ExecutionContext.SQL_ALLOWED);
@@ -114,51 +104,44 @@ public class SIS {
 		} catch (Exception e) {
 			//OK.
 		}
-
-		SISPersistentManager.instance();
 	}
 
-	public static SIS get() {
-		if (impl == null)
-			impl = new SIS();
-		return impl;
+	public void refreshDatabase() {
+		Properties settings = getSettings(null);
+		Properties dbsession = new Properties();
+		
+		for (Object name : settings.keySet()) {
+			String key = (String) name;
+			if (key.startsWith("dbsession."))
+				dbsession.setProperty(key, settings.getProperty(key));
+		}
+		
+		try {
+			DBSessionFactory.registerDataSources(dbsession);
+			
+			ec = new SystemExecutionContext(DBSessionFactory.getDBSession("sis"));
+			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
+			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
+			
+			if (ec.getDBSession() instanceof H2DBSession)
+				queries = new H2CannedQueries(); 
+			else
+				queries = new PostgreSQLCannedQueries();
+		} catch (NamingException e) {
+			Debug.println(e);
+			throw new RuntimeException(e);
+		}
 	}
-
-	/*public AssessmentIO getAssessmentIO() {
-		return assessmentIO;
-	}*/
 	
 	public AssessmentSchemaBroker getAssessmentSchemaBroker() {
 		return broker;
 	}
 
-	/*public PermissionIO getPermissionIO() {
-		return permissionIO;
-	}
-
-	public UserIO getUserIO() {
-		return userIO;
-	}
-
-	public TaxonIO getTaxonIO() {
-		return taxonIO;
-	}
-
-	public WorkingSetIO getWorkingSetIO() {
-		return workingSetIO;
-	}*/
-
 	public FileLocker getLocker() {
+		if (locker == null)
+			locker = new FileLocker();
 		return locker;
 	}
-	
-	/*public PrimitiveFieldIO getPrimitiveFieldIO() {
-		return primitiveFieldIO;
-	}
-	
-	public EditIO getEditIO() {
-		return editIO;
-	}*/
 	
 	public Properties getSettings(Context context) {
 		if (settings != null)
@@ -182,8 +165,21 @@ public class SIS {
 		return settings;
 	}
 	
+	public void saveSettings(Context context) throws IOException {
+		final Properties properties = getSettings(context);
+		final String rootFolder = 
+			GoGoEgo.getInitProperties().getProperty("sis_settings", 
+					"/ebs/sis/test/files/settings");
+		
+		File folder = new File(rootFolder);
+		if (!folder.exists())
+			folder.mkdirs();
+		
+		properties.store(new FileWriter(new File(folder, "global.properties")), null);
+	}
+	
 	public String getDefaultSchema() {
-		return getSettings(null).getProperty("org.iucn.sis.schema", "org.iucn.sis.server.schemas.redlist");
+		return getSettings(null).getProperty(SISGlobalSettings.SCHEMA, "org.iucn.sis.server.schemas.redlist");
 	}
 	
 	public Mailer getMailer() {
@@ -250,18 +246,6 @@ public class SIS {
 		};
 	}
 
-	/*public User getUser(Request request) {
-		String username = request.getChallengeResponse().getIdentifier();
-		if( username != null ) {
-			return getUserIO().getUserFromUsername(username);
-		} else
-			return null;
-	}
-
-	public String getUsername(Request request) {
-		return request.getChallengeResponse().getIdentifier();
-	}*/
-
 	public boolean isHostedMode() {
 		return GoGoEgo.getInitProperties().containsKey("HOSTED_MODE");
 	}
@@ -293,7 +277,7 @@ public class SIS {
 	 */
 	public static boolean amIOnline() {
 		//return OnlineUtil.amIOnline();
-		return !"false".equals(GoGoEgo.getInitProperties().getProperty("org.iucn.sis.online", "true"));
+		return !"false".equals(SIS.get().getSettings(null).getProperty(SISGlobalSettings.ONLINE, "true"));
 	}
 	
 	/**
@@ -302,51 +286,15 @@ public class SIS {
 	 * @return
 	 */
 	public static boolean forceHTTPS() {
-		return "true".equals(GoGoEgo.getInitProperties().getProperty("org.iucn.sis.forcehttps", "false"));
+		return "true".equals(SIS.get().getSettings(null).getProperty(SISGlobalSettings.FORCE_HTTPS, "false"));
 	}
 
 	boolean isEncodeableEntity(Representation entity) {
 		return entity.getMediaType().equals(MediaType.TEXT_XML) && entity.getSize() > 2048;
 	}
 
-	/*public InfratypeIO getInfratypeIO() {
-		return infratypeIO;
-	}
-
-	public TaxomaticIO getTaxomaticIO() {
-		return taxomaticIO;
-	}*/
-
 	public SISPersistentManager getManager() throws PersistentException {
 		return SISPersistentManager.instance();
-	}
-
-	/*public IsoLanguageIO getIsoLanguageIO() {
-		return isoLanguageIO;
-	}
-
-	public RelationshipIO getRelationshipIO() {
-		return relationshipIO;
-	}
-
-	public RegionIO getRegionIO() {
-		return regionIO;
-	}
-	
-	public ReferenceIO getReferenceIO() {
-		return referenceIO;
-	}
-	
-	public NoteIO getNoteIO() {
-		return noteIO;
-	}
-	
-	public FieldIO getFieldIO() {
-		return fieldIO;
-	}*/
-	
-	public String getDBSessionName() {
-		return "sis";
 	}
 	
 	public ExecutionContext getExecutionContext() {
