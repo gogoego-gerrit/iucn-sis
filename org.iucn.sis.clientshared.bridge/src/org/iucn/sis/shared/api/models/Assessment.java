@@ -30,6 +30,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RegionField;
+import org.iucn.sis.shared.api.models.interfaces.ForeignObject;
 import org.iucn.sis.shared.api.models.parsers.FieldV1Parser;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
@@ -41,11 +42,8 @@ import com.solertium.lwxml.shared.utils.ArrayUtils;
 import com.solertium.util.portable.PortableAlphanumericComparator;
 import com.solertium.util.portable.XMLWritingUtils;
 
-public class Assessment implements Serializable, AuthorizableObject {
+public class Assessment implements Serializable, AuthorizableObject, ForeignObject<Assessment> {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 	public static final String ROOT_TAG = "assessment";
@@ -296,10 +294,9 @@ public class Assessment implements Serializable, AuthorizableObject {
 	public String toXML() {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + " id=\"" + getId() + "\" internalID=\"" + getInternalId() + "\">");
-		xml.append("<source><![CDATA[" + getSource() + "]]></source>");
-		xml.append("<sourceDate><![CDATA[" + getSourceDate() + "]]></sourceDate>");
-		xml.append("<offlineStatus><![CDATA[" + getOfflineStatus() + "]]></offlineStatus>");
-		xml.append("<onlineId><![CDATA[" + getOnlineId() + "]]></onlineId>");
+		xml.append(XMLWritingUtils.writeCDATATag("source", getSource()));
+		xml.append(XMLWritingUtils.writeCDATATag("sourceDate", getSourceDate()));
+		xml.append(XMLWritingUtils.writeTag("offlineStatus", Boolean.toString(getOfflineStatus())));
 		xml.append(XMLWritingUtils.writeCDATATag("schema", getSchema(), true));
 		xml.append(getTaxon().toXMLMinimal());
 		xml.append(getAssessmentType().toXML());
@@ -367,7 +364,6 @@ public class Assessment implements Serializable, AuthorizableObject {
 		//Never copy over the validation...
 		//assessment.setValidation(getValidation());
 		assessment.setOfflineStatus(getOfflineStatus());
-		assessment.setOnlineId(getOnlineId());
 		
 		assessment.setField(new HashSet<Field>());
 		for (Field field : getField()) {
@@ -497,8 +493,6 @@ public class Assessment implements Serializable, AuthorizableObject {
 	
 	private boolean offlineStatus;
 	
-	private Integer onlineId;
-	
 	private Reference publicationReference;
 	
 	private AssessmentIntegrityValidation validation;
@@ -511,21 +505,6 @@ public class Assessment implements Serializable, AuthorizableObject {
 
 	private java.util.Set<Field> field = new java.util.HashSet<Field>();
 	
-	public Integer getOnlineId() {
-		return onlineId;
-	}
-	
-	public void setOnlineId(Integer onlineId) {
-		this.onlineId = onlineId;
-	}
-	
-	public boolean getOfflineStatus() {
-		return offlineStatus;
-	}
-	
-	public void setOfflineStatus(boolean offlineStatus) {
-		this.offlineStatus = offlineStatus;
-	}
 	public int getId() {
 		return id;
 	}
@@ -579,6 +558,22 @@ public class Assessment implements Serializable, AuthorizableObject {
 
 	public String getInternalId() {
 		return internalId;
+	}
+	
+	public boolean getOfflineStatus() {
+		return offlineStatus;
+	}
+	
+	public void setOfflineStatus(boolean offlineStatus) {
+		this.offlineStatus = offlineStatus;
+	}
+	
+	@Override
+	public Assessment getOfflineCopy() {
+		Assessment copy = deepCopy();
+		copy.setId(0);
+		
+		return copy;
 	}
 
 	public void setAssessmentType(AssessmentType value) {

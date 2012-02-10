@@ -17,6 +17,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.iucn.sis.server.api.persistance.hibernate.AbstractORMCriteria;
+import org.iucn.sis.server.api.persistance.hibernate.BooleanExpression;
 import org.iucn.sis.server.api.persistance.hibernate.IntegerExpression;
 import org.iucn.sis.server.api.persistance.hibernate.StringExpression;
 import org.iucn.sis.shared.api.models.Notes;
@@ -24,11 +25,13 @@ import org.iucn.sis.shared.api.models.Notes;
 public class NotesCriteria extends AbstractORMCriteria {
 	public final IntegerExpression id;
 	public final StringExpression value;
+	public final BooleanExpression offlineStatus;
 	
 	public NotesCriteria(Criteria criteria) {
 		super(criteria);
 		id = new IntegerExpression("id", this);
 		value = new StringExpression("value", this);
+		offlineStatus = new BooleanExpression("offlineStatus", this);
 	}
 	
 	public NotesCriteria(Session session) {
@@ -59,6 +62,7 @@ public class NotesCriteria extends AbstractORMCriteria {
 		return (Notes) super.uniqueResult();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Notes[] listNotes() {
 		java.util.List list = super.list();
 		return (Notes[]) list.toArray(new Notes[list.size()]);

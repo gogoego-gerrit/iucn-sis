@@ -22,7 +22,9 @@ public class AllReports extends BasicHibernateTest {
 	public void testGenerate() throws PersistentException, IOException {
 		Session session = openSession();
 		
-		Assessment assessment = SISPersistentManager.instance().getObject(session, Assessment.class, 75822);
+		int localAsm = 85616;
+		
+		Assessment assessment = SISPersistentManager.instance().getObject(session, Assessment.class, localAsm);
 		
 		AssessmentHtmlTemplate template = new AssessmentHtmlTemplate(session, assessment, true, false);
 		template.parse();

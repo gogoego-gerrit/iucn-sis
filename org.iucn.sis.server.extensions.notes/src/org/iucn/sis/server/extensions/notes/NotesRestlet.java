@@ -180,6 +180,8 @@ public class NotesRestlet extends BaseServiceRestlet {
 			document.parse(request.getEntityAsText());
 			
 			Notes note = Notes.fromXML(document.getDocumentElement());
+			if (!SIS.amIOnline())
+				note.setOfflineStatus(true);
 			
 			if (note.getValue() == null)
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "No note provided.");

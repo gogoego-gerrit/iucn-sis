@@ -16,11 +16,13 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 
+import org.iucn.sis.shared.api.models.interfaces.ForeignObject;
+
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.XMLWritingUtils;
-public class User implements Serializable, Comparable<User> {
+public class User implements Serializable, Comparable<User>, ForeignObject<User> {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -55,6 +57,7 @@ public class User implements Serializable, Comparable<User> {
 		xml.append(XMLWritingUtils.writeCDATATag("sisUser", getSisUser() == null ? null : getSisUser()+"", true));
 		xml.append(XMLWritingUtils.writeCDATATag("rapidListUser", getRapidlistUser() == null ? null : getRapidlistUser()+"", true));
 		xml.append(XMLWritingUtils.writeCDATATag("email", email, true));
+		xml.append(XMLWritingUtils.writeTag("offlineStatus", Boolean.toString(getOfflineStatus())));
 		xml.append("</" + ROOT_TAG + ">");
 		return xml.toString();		
 	}
@@ -72,6 +75,7 @@ public class User implements Serializable, Comparable<User> {
 		xml.append(XMLWritingUtils.writeCDATATag("sisUser", getSisUser() == null ? null : getSisUser()+"", true));
 		xml.append(XMLWritingUtils.writeCDATATag("rapidListUser", getRapidlistUser() == null ? null : getRapidlistUser()+"", true));
 		xml.append(XMLWritingUtils.writeCDATATag("email", email, true));
+		xml.append(XMLWritingUtils.writeTag("offlineStatus", Boolean.toString(getOfflineStatus())));
 		
 		for (UserPreference preference : getPreferences())
 			xml.append(preference.toXML());
@@ -143,6 +147,8 @@ public class User implements Serializable, Comparable<User> {
 				user.setRapidlistUser("true".equals(value));
 			else if (UserPreference.ROOT_TAG.equals(name))
 				user.getPreferences().add(UserPreference.fromXML((NativeElement)node));
+			else if ("offlineStatus".equals(name))
+				user.setOfflineStatus(Boolean.valueOf(value));
 		}
 		
 		//FULL XML
@@ -283,9 +289,11 @@ public class User implements Serializable, Comparable<User> {
 	public boolean getOfflineStatus() {
 		return offlineStatus;
 	}
+	
 	public void setOfflineStatus(boolean offlineStatus) {
 		this.offlineStatus = offlineStatus;
 	}
+	
 	public void setId(int value) {
 		this.id = value;
 		this.generationID = value;
@@ -412,6 +420,14 @@ public class User implements Serializable, Comparable<User> {
 	
 	public java.util.Set<UserPreference> getPreferences() {
 		return preferences;
+	}
+	
+	@Override
+	public User getOfflineCopy() {
+		User copy = deepCopy();
+		copy.setId(0);
+		
+		return copy;
 	}
 	
 	@Override

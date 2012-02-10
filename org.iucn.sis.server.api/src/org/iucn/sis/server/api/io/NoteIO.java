@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.persistance.NotesCriteria;
 import org.iucn.sis.server.api.persistance.NotesDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -32,6 +33,13 @@ public class NoteIO {
 		if ( note.getTaxon() != null) {
 			updatedNoteToTaxon.put(note.getId(), note.getTaxon());
 		}
+	}
+	
+	public Notes[] getOfflineCreatedNotes() throws PersistentException {
+		NotesCriteria criteria = new NotesCriteria(session);
+		criteria.offlineStatus.eq(true);
+		
+		return NotesDAO.listNotesByCriteria(criteria);
 	}
 	
 	public Taxon getNoteFromTaxon(Integer noteID) {

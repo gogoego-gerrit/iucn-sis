@@ -20,12 +20,15 @@ import java.util.List;
 import java.util.Set;
 
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.interfaces.ForeignObject;
 
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.portable.XMLWritingUtils;
 
-public class Notes implements Serializable {
+@SuppressWarnings("serial")
+public class Notes implements Serializable, ForeignObject<Notes> {
 
 	public static String ROOT_TAG = "note";
 
@@ -44,6 +47,8 @@ public class Notes implements Serializable {
 			final NativeNode child = children.item(i);
 			if ("value".equals(child.getNodeName()))
 				note.setValue(child.getTextContent());
+			else if ("offlineStatus".equals(child.getNodeName()))
+				note.setOfflineStatus(Boolean.valueOf(child.getTextContent()));
 			else if (Edit.ROOT_TAG.equals(child.getNodeName()))
 				note.getEdits().add(Edit.fromXML((NativeElement)child));	
 		}
@@ -62,6 +67,7 @@ public class Notes implements Serializable {
 
 	private int id;
 	private String value;
+	private boolean offlineStatus;
 	private Set<Synonym> synonyms;
 	private Set<CommonName> commonNames;
 	private Set<Taxon> taxa;
@@ -112,6 +118,19 @@ public class Notes implements Serializable {
 
 	public int getORMID() {
 		return getId();
+	}
+	
+	@Override
+	public boolean getOfflineStatus() {
+		return offlineStatus;
+	}
+	
+	@Override
+	public Notes getOfflineCopy() {
+		Notes copy = deepCopy();
+		copy.setId(0);
+		
+		return copy;
 	}
 
 	public Synonym getSynonym() {
@@ -164,6 +183,11 @@ public class Notes implements Serializable {
 	public void setId(int value) {
 		this.id = value;
 	}
+	
+	@Override
+	public void setOfflineStatus(boolean offlineStatus) {
+		this.offlineStatus = offlineStatus;
+	}
 
 	public void setSynonym(Synonym value) {
 		synonyms.clear();
@@ -192,7 +216,9 @@ public class Notes implements Serializable {
 	}
 
 	public String toXML() {
-		StringBuilder xml =  new StringBuilder("<" + ROOT_TAG + " id=\"" + getId() + "\"><value><![CDATA[" + getValue() + "]]></value>");
+		StringBuilder xml =  new StringBuilder("<" + ROOT_TAG + " id=\"" + getId() + "\">");
+		xml.append(XMLWritingUtils.writeCDATATag("value", getValue()));
+		xml.append(XMLWritingUtils.writeTag("offlineStatus", Boolean.toString(getOfflineStatus())));
 		for (Edit edit : getEdits())
 			xml.append(edit.toXML());
 		xml.append("</" + ROOT_TAG + ">");

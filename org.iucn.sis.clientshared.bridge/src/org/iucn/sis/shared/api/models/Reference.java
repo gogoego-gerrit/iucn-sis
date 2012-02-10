@@ -21,12 +21,13 @@ import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared;
 import org.iucn.sis.shared.api.citations.ReferenceCitationGeneratorShared.ReturnedCitation;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.interfaces.ForeignObject;
 import org.iucn.sis.shared.api.models.parsers.ReferenceParserFactory;
 
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.util.portable.PortableReplacer;
 import com.solertium.util.portable.XMLWritingUtils;
-public class Reference implements Serializable, AuthorizableObject {
+public class Reference implements Serializable, AuthorizableObject, ForeignObject<Reference> {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -181,6 +182,7 @@ public class Reference implements Serializable, AuthorizableObject {
 	public String toXML(String ROOT_TAG) {
 		StringBuilder xml = new StringBuilder();
 		xml.append("<" + ROOT_TAG + ">");
+		xml.append(XMLWritingUtils.writeTag("offlineStatus", Boolean.toString(getOfflineStatus())));
 		for (Map.Entry<String, String> entry : toMap().entrySet())
 			xml.append(XMLWritingUtils.writeCDATATag(entry.getKey(), entry.getValue(), true));
 		xml.append("</" + ROOT_TAG + ">");
@@ -414,6 +416,14 @@ public class Reference implements Serializable, AuthorizableObject {
 		this.offlineStatus = offlineStatus;
 	}
 
+	@Override
+	public Reference getOfflineCopy() {
+		Reference copy = deepCopy();
+		copy.setId(0);
+		
+		return copy;
+	}
+	
 	public String getHash() {
 		return hash;
 	}

@@ -1,5 +1,6 @@
 package org.iucn.sis.server.extensions.offline;
 
+import java.io.Writer;
 import java.sql.BatchUpdateException;
 import java.util.Calendar;
 import java.util.Collection;
@@ -12,6 +13,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
+import org.iucn.sis.server.api.io.NoteIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
@@ -24,15 +26,16 @@ import org.iucn.sis.server.api.persistance.PrimitiveFieldDAO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.RegionConflictException;
-import org.iucn.sis.server.utils.AssessmentPersistence;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.models.interfaces.ForeignObject;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 
@@ -40,27 +43,39 @@ import com.solertium.util.DynamicWriter;
 import com.solertium.util.events.ComplexListener;
 
 public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
-
-	private final Properties targetProperties;
-	private final User loggedInUser;
-	private final Integer workingSetID;
 	
-	private SISPersistentManager targetManager;
-	private boolean unlock;
+	public enum OfflineImportMode {
+		RESYNC, REMOVE
+	}
+
+	private final Map<Integer, Integer> offlineNotesMap, offlineReferencesMap;
+	private final Properties targetProperties;
+	private final String username;
+	
+	private SISPersistentManager onlineTargetManager;
+	private OfflineImportMode mode;
 
 	protected Session offline;
 	protected Session online;
+	protected User loggedInUser;
+	
+	private Writer out;
+	private String lineBreakRule;
 
-	public OfflineToOnlineImporter(Integer workingSetID, User user, Properties properties) {
+	public OfflineToOnlineImporter(String username, Properties properties) {
 		super();
-		this.workingSetID = workingSetID;
 		this.targetProperties = properties;
-		this.loggedInUser = user;
-		this.unlock = true;
+		this.username = username;
+		this.mode = OfflineImportMode.RESYNC;
+		this.offlineNotesMap = new HashMap<Integer, Integer>();
+		this.offlineReferencesMap = new HashMap<Integer, Integer>();
 	}
 	
-	public void setUnlock(boolean unlock) {
-		this.unlock = unlock;
+	@Override
+	public void setOutputStream(Writer writer, String lineBreakRule) {
+		super.setOutputStream(writer, lineBreakRule);
+		this.out = writer;
+		this.lineBreakRule = lineBreakRule;
 	}
 
 	public final void run() {
@@ -72,8 +87,10 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		offline = SISPersistentManager.instance().openSession();
 
 		// Live DB will NEVER be from scratch...
-		targetManager = SISPersistentManager.newInstance("sis_target", targetProperties, false);
-		online = targetManager.openSession();
+		onlineTargetManager = SISPersistentManager.newInstance("sis_target", targetProperties, false);
+		online = onlineTargetManager.openSession();
+		
+		loggedInUser = new UserIO(offline).getUserFromUsername(username);
 
 		try {
 			execute();
@@ -102,32 +119,13 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		super.close();
 		offline.close();
 		online.close();
-		targetManager.shutdown();
+		onlineTargetManager.shutdown();
 	}
 
 	protected void execute() throws PersistentException {
-		// Update User profiles created Offline
-		UserIO userIO = new UserIO(offline);
-		User[] offlineUsers = userIO.getOfflineCreatedUsers();
-		if (offlineUsers.length > 0) {
-			write("Writing %s Offline Users", offlineUsers.length);
-			insertOfflineUsers(offlineUsers);
-		} else
-			write("Detected no users created offline");
+		// Update Foreign Object metadata first 
+		pushMetadataToOnline();
 		
-		offline.clear();
-
-		// Update References created Offline
-		ReferenceIO referenceIO = new ReferenceIO(offline);
-		Reference[] offlineReferences = referenceIO.getOfflineCreatedReferences();
-		if (offlineReferences.length > 0) {
-			write("Writing %s Offline References", offlineReferences.length);
-			insertOfflineReference(offlineReferences);
-		} else
-			write("Detected no references created offline");
-		
-		offline.clear();
-
 		// Update Assessments created Offline
 		AssessmentIO assessmentIO = new AssessmentIO(offline);
 		Assessment[] offlineAssessments = assessmentIO.getOfflineCreatedAssessments();
@@ -138,8 +136,49 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 			write("Detected no assessments created offline");
 		
 		offline.clear();
+		
+		//Merge the assessment data
+		for (WorkingSet ws : SISPersistentManager.instance().listObjects(WorkingSet.class, offline)) {
+			write("Synchronizing data for working set %s (#%s)", ws.getName(), ws.getId());
+			
+			if (mergeAssessments(ws.getId())) {
+				if (OfflineImportMode.RESYNC.equals(mode)) {
+					write("-- Creating Database Backup --");
+					OfflineBackupWorker.backup();
+					
+					write("-- Re-syncing online data to offline --");
+					OfflineWorkingSetReExporter exporter = 
+						new OfflineWorkingSetReExporter(ws.getId(), username, onlineTargetManager);
+					exporter.setOutputStream(out, lineBreakRule);
+					exporter.run();
+					write("-- Database synchronized successfully --");
+				}
+				
+				break;
+			}
+		}
 
+		write("Sync data to Online Complete.");
+		
+		if (OfflineImportMode.REMOVE.equals(mode)) {
+			//TODO: Disconnect database, backup, delete.
+			write("Database image backed up to " + OfflineBackupWorker.backup());
+			
+			SISPersistentManager.instance().shutdown();
+			
+			OfflineBackupWorker.delete();
+		}
+	}
+	
+	private boolean mergeAssessments(Integer workingSetID) throws PersistentException {
+		final AssessmentIO assessmentIO = new AssessmentIO(offline);
+		
 		final WorkingSet workingSet = new WorkingSetIO(online).readWorkingSet(workingSetID);
+		if (workingSet == null) {
+			write(" - Working set %s was not found online, stopping.", workingSetID);
+			return false;
+		}
+		
 		Hibernate.initialize(workingSet.getUsers());
 		Hibernate.initialize(workingSet.getAssessmentTypes());
 		// workingSet.toXML();
@@ -175,139 +214,95 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 				}
 			}
 		}
-
+		
+		return true;
+	}
+	
+	private void pushMetadataToOnline() throws PersistentException {
+		UserIO userIO = new UserIO(offline);
+		User[] offlineUsers = userIO.getOfflineCreatedUsers();
 		if (offlineUsers.length > 0) {
-			write("Updating Offline Users ");
-			updateOfflineCreatedUser(offlineUsers);
-		}
+			write("Writing %s Offline Users", offlineUsers.length);
+			insertOfflineMetadata(offlineUsers, null);
+		} else
+			write("Detected no users created offline");
+		
+		offline.clear();
 
+		// Update References created Offline
+		ReferenceIO referenceIO = new ReferenceIO(offline);
+		Reference[] offlineReferences = referenceIO.getOfflineCreatedReferences();
 		if (offlineReferences.length > 0) {
-			write("Updating Offline References ");
-			updateOfflineCreatedReference(offlineReferences);
+			write("Writing %s Offline References", offlineReferences.length);
+			insertOfflineMetadata(offlineReferences, offlineReferencesMap);
+		} else
+			write("Detected no references created offline");
+		
+		offline.clear();
+		
+		// Update Notes created Offline
+		NoteIO notesIO = new NoteIO(offline);
+		Notes[] offlineNotes = notesIO.getOfflineCreatedNotes();
+		if (offlineNotes.length > 0) {
+			write("Writing %s Offline Notes", offlineNotes.length);
+			insertOfflineMetadata(offlineNotes, offlineNotesMap);
 		}
-
-		write("Sync data to Online Complete.");
+		else
+			write("Detected no notes created offline");
+		
+		offline.clear();
 	}
 
 	private void insertOfflineAssessments(Assessment[] offlineAssessments) throws PersistentException {
-		
 		if (offlineAssessments.length > 0) {
 			online.clear();
-			online.beginTransaction();
+			
+			final AssessmentIO io = new AssessmentIO(online);
 			for (Assessment assessment : offlineAssessments) {
+				online.beginTransaction();
+				
 				assessment.toXML();
-				if (assessment.getOnlineId() == null) {
-					write("  Writing new assessment #%s", assessment.getId());
-					Assessment newAssessment = assessment.deepCopy();
-					newAssessment.setId(0);
+				
+				write("  Writing new assessment #%s", assessment.getId());
+				
+				Assessment newAssessment = assessment.getOfflineCopy();
 
-					online.save(newAssessment);
-
-					updateAssessmentOnlineId(assessment, newAssessment.getId());
-				} else {
-					write("  Merging offline assessment #%s with online assessment #%s", 
-							assessment.getId(), assessment.getOnlineId());
-					int onlineId = assessment.getOnlineId();
-
-					AssessmentIO assessmentIO = new AssessmentIO(online);
-					Assessment targetAssessment = assessmentIO.getAssessment(onlineId);
-					
-					try {
-						syncAssessment(assessment, targetAssessment);
-					} catch (ResourceException e) {
-						if (online.getTransaction() != null) {
-							try {
-								online.getTransaction().rollback();
-							} catch (Exception f) {
-								Debug.println(f);
-							}
-						}
-					}
+				final AssessmentIOWriteResult result;
+				try {
+					result = io.saveNewAssessment(newAssessment, loggedInUser);
+				} catch (RegionConflictException e) {
+					write(" - Failed to save new assessment: regions conflict.");
+					online.getTransaction().rollback();
+					continue;
 				}
+				
+				if (result.status.isSuccess())
+					write(" + Write successful.");
+				else
+					write(" - Write failed.");
+				
+				online.getTransaction().commit();
 			}
-			online.getTransaction().commit();
 		}		
 	}
-
-	private void insertOfflineReference(Reference[] offlineReferences) {
-		try {
-			if (offlineReferences.length > 0) {
+	
+	@SuppressWarnings("unchecked")
+	private void insertOfflineMetadata(ForeignObject[] objects, Map<Integer, Integer> storage) {
+		if (objects.length > 0) {
+			for (ForeignObject<ForeignObject> object : objects) {
 				online.clear();
 				online.beginTransaction();
-				for (Reference reference : offlineReferences) {
-					Reference newRef = reference.deepCopy();
-					newRef.setId(0);
-					online.save(newRef);
-				}
+				ForeignObject data = object.getOfflineCopy();
+				data.setOfflineStatus(false);
+				online.save(data);
+				online.flush();
 				online.getTransaction().commit();
-			}
-		} catch (Exception e) {
-			Debug.println(e);
-		}
-	}
-
-	private void insertOfflineUsers(User[] offlineUsers) {
-		try {
-			if (offlineUsers.length > 0) {
-				online.clear();
-				online.beginTransaction();
-				for (User user : offlineUsers) {
-					User newUser = user.deepCopy();
-					newUser.setId(0);
-					online.save(newUser);
+				
+				if (storage != null) {
+					storage.put(object.getId(), data.getId());
+					write(" + Added %s %s online with ID %s", object.getClass().getSimpleName(), object.getId(), data.getId());
 				}
-				online.getTransaction().commit();
 			}
-		} catch (Exception e) {
-			Debug.println(e);
-		}
-	}
-
-	private void updateOfflineCreatedReference(Reference[] offlineReferences) {
-		try {
-			if (offlineReferences.length > 0) {
-				offline.clear();
-				offline.beginTransaction();
-				for (Reference reference : offlineReferences) {
-					Reference newRef = reference.deepCopy();
-					newRef.setOfflineStatus(false);
-					offline.update(newRef);
-				}
-				offline.getTransaction().commit();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	private void updateOfflineCreatedUser(User[] offlineUsers) {
-		try {
-			if (offlineUsers.length > 0) {
-				offline.clear();
-				offline.beginTransaction();
-				for (User user : offlineUsers) {
-					User newUser = user.deepCopy();
-					newUser.setOfflineStatus(false);
-					offline.update(newUser);
-				}
-				offline.getTransaction().commit();
-			}
-		} catch (Exception e) {
-			Debug.println(e);
-		}
-	}
-	
-	private void updateAssessmentOnlineId(Assessment assessment, Integer onlineId) {
-		try {
-			offline.clear();
-			offline.beginTransaction();
-
-			assessment.setOnlineId(onlineId);
-
-			offline.update(assessment);
-			offline.getTransaction().commit();
-		} catch (Exception e) {
-			Debug.println(e);
 		}
 	}
 	
@@ -344,11 +339,13 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		targetAsm.getReference().removeAll(targetRefs.values());
 		targetAsm.toXML();
 
-		final AssessmentPersistence saver = new AssessmentPersistence(online, targetAsm);
+		final OfflineAssessmentPersistence saver = new OfflineAssessmentPersistence(online, targetAsm);
+		saver.setOfflineNotes(offlineNotesMap);
+		saver.setOfflineReferences(offlineReferencesMap);
 		saver.setAllowAdd(true);
 		saver.setAllowDelete(true);
-		saver.setAllowManageNotes(false);
-		saver.setAllowManageReferences(false);
+		saver.setAllowManageNotes(true);
+		saver.setAllowManageReferences(true);
 		saver.setDeleteFieldListener(new ComplexListener<Field>() {
 			public void handleEvent(Field field) {
 				try {
@@ -403,28 +400,26 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		if (result.edit == null)
 			Debug.println("Error: No edit associated with this change. Not backing up changes.");
 		else
-			saver.saveChanges(targetAsm, result.edit, targetManager);
+			saver.saveChanges(targetAsm, result.edit, onlineTargetManager);
 
 		/*
 		 * After successful merge, unlock online assessment.
 		 */
-		if (unlock) {
-			try {
-				// Create objects
-				HibernateLockRepository repository = new HibernateLockRepository(targetManager);
-				FileLocker locker = new FileLocker(repository);
-	
-				// Unlock Live Assessment
-				Status status = locker.persistentEagerRelease(sourceAsm.getId(), loggedInUser);
-				if (status.isSuccess())
-					write(" + Assessment unlocked.");
-				else if (Status.CLIENT_ERROR_NOT_FOUND.equals(status))
-					write(" - No lock found for this assessment.");
-				else if (Status.CLIENT_ERROR_FORBIDDEN.equals(status))
-					write(" - Can not unlock this assessment, not yours.");
-			} catch (LockException e) {
-				write(" - Unable to unlock assessment %s: %s", sourceAsm.getId(), e.getMessage());
-			}
+		try {
+			// Create objects
+			HibernateLockRepository repository = new HibernateLockRepository(onlineTargetManager);
+			FileLocker locker = new FileLocker(repository);
+
+			// Unlock Live Assessment
+			Status status = locker.persistentEagerRelease(sourceAsm.getId(), loggedInUser);
+			if (status.isSuccess())
+				write(" + Assessment unlocked.");
+			else if (Status.CLIENT_ERROR_NOT_FOUND.equals(status))
+				write(" - No lock found for this assessment.");
+			else if (Status.CLIENT_ERROR_FORBIDDEN.equals(status))
+				write(" - Can not unlock this assessment, not yours.");
+		} catch (LockException e) {
+			write(" - Unable to unlock assessment %s: %s", sourceAsm.getId(), e.getMessage());
 		}
 	}
 

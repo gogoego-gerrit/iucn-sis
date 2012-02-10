@@ -135,8 +135,11 @@ public class AssessmentPersistence {
 					}
 					else {
 						Reference targetReference = existingReferences.remove(sourceReference.getId());
-						if (targetReference == null)
-							target.getReference().add(SISPersistentManager.instance().loadObject(session, Reference.class, sourceReference.getId()));
+						if (targetReference == null) {
+							targetReference = findReference(sourceReference);
+							targetReference.getField().add(target);
+							target.getReference().add(targetReference);
+						}
 					}
 				}
 				
@@ -154,8 +157,11 @@ public class AssessmentPersistence {
 					}
 					else {
 						Notes targetNotes = existingNotes.remove(sourceNotes.getId());
-						if (targetNotes == null)
-							target.getNotes().add(SISPersistentManager.instance().loadObject(session, Notes.class, sourceNotes.getId()));
+						if (targetNotes == null) {
+							targetNotes = findNote(sourceNotes);
+							targetNotes.setField(target);
+							target.getNotes().add(targetNotes);
+						}
 					}
 				}
 				
@@ -209,6 +215,14 @@ public class AssessmentPersistence {
 		}
 		
 		//FieldDAO.save(target);
+	}
+	
+	protected Notes findNote(Notes sourceNote) throws PersistentException {
+		return SISPersistentManager.instance().loadObject(session, Notes.class, sourceNote.getId());
+	}
+	
+	protected Reference findReference(Reference sourceReference) throws PersistentException {
+		return SISPersistentManager.instance().loadObject(session, Reference.class, sourceReference.getId());
 	}
 	
 	private boolean isBlank(Field field) {

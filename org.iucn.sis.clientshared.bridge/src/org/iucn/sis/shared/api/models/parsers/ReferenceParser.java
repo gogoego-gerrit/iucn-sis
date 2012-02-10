@@ -21,8 +21,11 @@ public class ReferenceParser {
 			final NativeNode field = nodes.item(i);
 			final String name = field.getNodeName();
 			final String value = field.getTextContent();
-	
-			Reference.addField(reference, name, value);
+			
+			if ("offlineStatus".equals(name))
+				reference.setOfflineStatus(Boolean.valueOf(value));
+			else
+				Reference.addField(reference, name, value);
 		}	
 		
 		if (!allowNew && reference.getId() <= 0)
