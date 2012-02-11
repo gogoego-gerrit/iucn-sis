@@ -63,6 +63,7 @@ public class PermissionScopeTaxonomyBrowser extends BasicWindow {
 		addButton(select);
 		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
+				hide();
 				listener.handleEvent(null);
 			}
 		}));
