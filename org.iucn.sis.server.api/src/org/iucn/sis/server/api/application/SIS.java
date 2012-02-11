@@ -51,7 +51,7 @@ public class SIS {
 
 	private static SIS impl;
 	
-	public static SIS get() {
+	public static synchronized SIS get() {
 		if (impl == null) {
 			impl = new SIS();
 			SISPersistentManager.instance();
