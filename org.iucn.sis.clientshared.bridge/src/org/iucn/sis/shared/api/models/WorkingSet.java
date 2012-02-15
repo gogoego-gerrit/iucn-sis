@@ -95,7 +95,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 		getRegion().clear();
 		getAssessmentTypes().clear();
 		isMostRecentPublished = new Boolean(false);
-		
+		 
 		if (filter.isAllRegions()) {
 			getRegion().clear();
 			setRelationship(Relationship.fromName(Relationship.ALL));
@@ -206,15 +206,17 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 		
 		if (set.getRegion().isEmpty()) {
 			set.getRegion().addAll(newRegions);
-		}
-		else {
+		} else {			
 			final List<Region> toRemove = new ArrayList<Region>();
-			for (Region region : set.getRegion())
+			for (Region region : set.getRegion()){
 				if (!newRegions.contains(region))
 					toRemove.add(region);
+			}
 			
 			for (Region region : toRemove)
 				set.getRegion().remove(region);
+			
+			set.getRegion().addAll(newRegions);			
 		}
 		
 		return set;
@@ -243,7 +245,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 
 		for (Region region : getRegion())
 			xml.append(region.toXML());
-
+		
 		if (minimal)
 			for (Taxon taxon : getTaxon())
 				xml.append(taxon.toXMLMinimal());
