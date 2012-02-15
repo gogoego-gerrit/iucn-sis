@@ -10,8 +10,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Properties;
 
-import org.gogoego.api.plugins.GoGoEgo;
 import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.restlet.data.Form;
@@ -160,22 +160,23 @@ public abstract class Converter {
 	}
 
 	protected void emailResults(boolean success) {
-		Properties properties = GoGoEgo.getInitProperties();
+		Properties properties = SIS.get().getSettings(null);
 		String[] required = new String[] {
-			"org.iucn.sis.conversions.mail.account", 
-			"org.iucn.sis.conversions.mail.password", 
-			"org.iucn.sis.conversions.mail.recipient"
+			Settings.MAIL_ACCOUNT, 
+			Settings.MAIL_PASSWORD, 
+			Settings.MAIL_RECIPIENT
 		};
 		for (String s : required)
-			if (properties.getProperty(s) == null)
+			if (properties.getProperty(s) == null || "".equals(properties.getProperty(s)))
 				return;
 		
 		
 		GMailer mailer = new GMailer(
-			properties.getProperty("org.iucn.sis.conversions.mail.account"), 
-			properties.getProperty("org.iucn.sis.conversions.mail.password")
+			properties.getProperty(Settings.MAIL_ACCOUNT), 
+			properties.getProperty(Settings.MAIL_PASSWORD)
 		);
-		mailer.setTo(properties.getProperty("org.iucn.sis.conversions.mail.recipient", "org.iucn.sis.conversions.mail.account"));
+		mailer.setTo(properties.getProperty(Settings.MAIL_RECIPIENT, 
+			properties.getProperty(Settings.MAIL_ACCOUNT, "org.iucn.sis.conversions.mail.account")));
 		mailer.setSubject(getClass().getSimpleName() + " SIS-1 -> SIS-2 Conversion Results");
 		mailer.setBody("Success: " + success + lineBreakRule + lineBreakRule + 
 			"Output: " + lineBreakRule + lineBreakRule + localWriter.toString());

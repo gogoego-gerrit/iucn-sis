@@ -1,9 +1,13 @@
 package org.iucn.sis.shared.conversions;
 
-import java.util.*;
-import java.io.*;
-
-import com.solertium.vfs.VFSPath;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
 * Recursive file listing under a specified directory.

@@ -7,17 +7,15 @@ public class Activator extends SISActivator{
 	
 	@Override
 	protected String getAppDescription() {
-		// TODO Auto-generated method stub
-		return "Conversions App";
+		return "SIS 1.0 to 2.0 Conversion";
 	}
 	@Override
 	protected String getAppName() {
-		// TODO Auto-generated method stub
-		return "Conversions App";
+		return "SIS 1.0 to 2.0 Conversion";
 	}
+	
 	@Override
 	protected SISApplication getInstance() {
-		// TODO Auto-generated method stub
 		return new Application();
 	}
 }

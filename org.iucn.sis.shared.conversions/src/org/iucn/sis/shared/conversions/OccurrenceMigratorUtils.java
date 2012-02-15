@@ -92,6 +92,7 @@ public class OccurrenceMigratorUtils {
 		curSelected.getValue().add(seasonality);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static boolean operateOn(AssessmentData data, String canonicalName) {
 		boolean writeback = false;
 

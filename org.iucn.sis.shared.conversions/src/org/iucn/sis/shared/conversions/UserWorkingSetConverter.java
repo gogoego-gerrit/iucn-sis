@@ -1,7 +1,5 @@
 package org.iucn.sis.shared.conversions;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.hibernate.Hibernate;
 import org.iucn.sis.server.api.io.RelationshipIO;
 import org.iucn.sis.server.api.io.TaxonIO;
@@ -45,7 +43,6 @@ public class UserWorkingSetConverter extends GenericConverter<VFSInfo> {
 		if (isTestMode())
 			print("### RUNNING IN TEST MODE ###");
 		
-		final AtomicInteger count = new AtomicInteger(0);
 		final WorkingSetIO wsIO = new WorkingSetIO(session);
 		
 		for (VFSPathToken token : data.getOldVFS().list(new VFSPath("/users"))) {

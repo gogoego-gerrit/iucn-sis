@@ -77,6 +77,7 @@ import com.solertium.util.events.ComplexListener;
 import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPath;
 
+@SuppressWarnings("unchecked")
 public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	
 	private static final DateFormat shortfmt = new SimpleDateFormat("yyyy-MM-dd");
@@ -420,86 +421,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 	
 	
 	public void convertAll(String rootURL, VFS oldVFS, VFS newVFS) throws Exception {
-		if (true) {
-			convertAllFaster(rootURL, oldVFS, newVFS);
-			return;
-		}
-			
-		List<File> allFiles = FileListing.main(data.getOldVFSPath() + rootURL);
-		int size = allFiles.size();
-		// List<File> allFiles = new ArrayList<File>();
-		// File aFile = new File(GoGoEgo.getInitProperties().get("sis_vfs") +
-		// "/HEAD/browse/nodes/100/100001.xml");
-		// allFiles.add(aFile);
-
-		//long assessmentsConverted = 0;
-		AssessmentParser parser = new AssessmentParser();
-
-		User user = userIO.getUserFromUsername("admin");
-		
-		final AtomicInteger converted = new AtomicInteger(0);
-		for (File file : allFiles) {
-			try {
-				if (file.getPath().endsWith(".xml")) {
-					NativeDocument ndoc = NativeDocumentFactory.newNativeDocument();
-					ndoc.parse(FileListing.readFileAsString(file));
-					parser.parse(ndoc);
-					
-					Couple<Assessment, MigrationReport> result = 
-						assessmentDataToAssessment(parser.getAssessment(), user);
-					Assessment assessment = result.getFirst();
-					if (assessment != null) {
-						if (assessment.getTaxon() != null) {
-							/*User userToSave;
-							if (assessment.getLastEdit() != null)  {
-								userToSave = assessment.getLastEdit().getUser();
-							} else {
-								userToSave = user;
-							}*/
-							
-							if (assessment.getLastEdit() == null) {
-								Edit edit = new Edit("Data migration.");
-								edit.setUser(user);
-								edit.getAssessment().add((assessment));
-								assessment.getEdit().add(edit);
-							}
-							
-							if (assessment.getId() == 0)
-								session.save(assessment);
-							else
-								session.update(assessment);
-							
-							result.getSecond().save(assessment, data.getNewVFS());
-							
-							/*if (!assessmentIO.writeAssessment(assessment, userToSave, false).status.isSuccess()) {
-								throw new Exception("The assessment " + file.getPath() + " did not want to save");
-							}*/
-							
-							if (converted.incrementAndGet() % 50 == 0) {
-								commitAndStartTransaction();
-								printf("Converted %s/%s assessments...", converted.get(), size);
-							}
-						} else {
-							print("The taxon " + parser.getAssessment().getSpeciesID() + " is null");
-						}
-					} else {
-						print("The assessment " + file.getPath() + " is null");
-					}
-
-				}
-			} catch (Throwable e) {
-				print("Failed on file " + file.getPath());
-				e.printStackTrace();
-				throw new Exception(e);
-			}
-		}
-		
-		/*
-		if( assessmentsConverted % 50 != 0 ) {
-			SIS.get().getManager().getSession().getTransaction().commit();
-			SIS.get().getManager().getSession().beginTransaction();
-		}*/
-
+		convertAllFaster(rootURL, oldVFS, newVFS);
 	}
 	
 	private Taxon getTaxon(MigrationReport report, AssessmentData assessData) {
@@ -616,6 +538,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 		return new Couple<Assessment, MigrationReport>(assessment, report);
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void addNotesToField(String type, String assessmentID, String canonicalName, Field field, User user) throws Exception {
 		final VFS vfs = data.getOldVFS();
 		String url;

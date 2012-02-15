@@ -22,7 +22,6 @@ import org.iucn.sis.shared.helpers.WorkingSetParser;
 
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.vfs.VFS;
 
 public class WorkingSetConverter extends GenericConverter<VFSInfo> {
 	

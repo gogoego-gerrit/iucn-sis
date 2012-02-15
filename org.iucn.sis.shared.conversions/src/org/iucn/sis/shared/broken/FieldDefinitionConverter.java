@@ -1,21 +1,5 @@
 package org.iucn.sis.shared.broken;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.gogoego.api.utils.DocumentUtils;
-
-import com.solertium.db.DBException;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
-import com.solertium.lwxml.java.JavaNativeDocumentFactory;
-import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.vfs.VFS;
-import com.solertium.vfs.VFSFactory;
 
 public class FieldDefinitionConverter {
 

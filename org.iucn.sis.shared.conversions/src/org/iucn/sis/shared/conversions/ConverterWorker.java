@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Properties;
 
 import javax.naming.NamingException;
 
-import org.gogoego.api.plugins.GoGoEgo;
+import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.utils.SISGlobalSettings;
 import org.iucn.sis.shared.conversions.AssessmentConverter.ConversionMode;
 import org.iucn.sis.shared.helpers.ServerPaths;
 import org.restlet.data.Form;
@@ -18,11 +20,6 @@ import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSFactory;
 
 public class ConverterWorker implements Runnable {
-	
-	private static final String OLD_VFS_PROPERTY = "sis_old_vfs";
-	private static final String OLD_VFS_PATH_PROPERTY = "sis_old_vfs_path";
-	private static final String NEW_VFS_PROPERTY = "sis_vfs";
-	private static final String NEW_VFS_PATH_PROPERTY = "sis_vfs_path";
 	
 	public static boolean running = false;
 	
@@ -84,6 +81,8 @@ public class ConverterWorker implements Runnable {
 			success = convertGlobalReferences(writer);
 		else if ("synonyms".equals(step))
 			success = convertSynonyms(writer);
+		else if ("occurrence".equals(step))
+			success = convertOccurrence(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -101,11 +100,13 @@ public class ConverterWorker implements Runnable {
 		running = false;
 	}
 
+	@SuppressWarnings("deprecation")
 	private boolean init(boolean proceed, Writer writer) {
 		try {
 			if (oldVFS == null) {
-				newVFS = VFSFactory.getVFS(GoGoEgo.getInitProperties().getProperty(NEW_VFS_PROPERTY));
-				oldVFS = VFSFactory.getVFS(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PROPERTY));
+				Properties settings = SIS.get().getSettings(null);
+				newVFS = VFSFactory.getVFS(settings.getProperty(SISGlobalSettings.VFS));
+				oldVFS = VFSFactory.getVFS(settings.getProperty(Settings.OLD_VFS));
 			}
 		} catch (NotFoundException e) {
 			die("Couldn't instantiate VFS's", e, writer);
@@ -120,7 +121,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertLibrary(boolean proceed, Writer writer) {
 		LibraryGenerator converter = new LibraryGenerator();
 		initConverter(converter, writer);
-		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
+		converter.setData(getOldVFSPath());
 		
 		return converter.start() && (!proceed || convertDefinitions(proceed, writer));
 	}
@@ -128,7 +129,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertDefinitions(boolean proceed, Writer writer) {
 		DefinitionConverter converter = new DefinitionConverter();
 		initConverter(converter, writer);
-		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
+		converter.setData(getOldVFSPath());
 		
 		return converter.start() && (!proceed || convertPermissions(proceed, writer));
 	}
@@ -136,7 +137,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertPermissions(boolean proceed, Writer writer) {
 		PermissionConverter converter = new PermissionConverter();
 		initConverter(converter, writer);
-		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
+		converter.setData(getOldVFSPath());
 		
 		return converter.start() && (!proceed || convertUsers(proceed, writer));
 	}
@@ -144,7 +145,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertUsers(boolean proceed, Writer writer) {
 		UserConvertor converter = new UserConvertor();
 		initConverter(converter, writer);
-		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
 		
 		return converter.start() && (!proceed || convertReferences(proceed, writer));
 	}
@@ -159,7 +160,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertRegions(boolean proceed, Writer writer) {
 		RegionConverter converter = new RegionConverter();
 		initConverter(converter, writer);
-		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
+		converter.setData(getOldVFSPath());
 		
 		return converter.start() && (!proceed || convertTaxa(proceed, writer));
 	}
@@ -167,7 +168,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertTaxa(boolean proceed, Writer writer) {
 		TaxonConverter converter = new TaxonConverter();
 		initConverter(converter, writer);
-		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
+		converter.setData(getOldVFSPath());
 		
 		return converter.start() && (!proceed || convertImages(proceed, writer));
 	}
@@ -175,7 +176,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertImages(boolean proceed, Writer writer) {
 		TaxonImageConverter converter = new TaxonImageConverter();
 		initConverter(converter, writer);
-		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
 		
 		return converter.start() && (!proceed || convertDrafts(proceed, writer));
 	}
@@ -189,7 +190,7 @@ public class ConverterWorker implements Runnable {
 			return false;
 		}
 		initConverter(converter, writer);
-		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
 		converter.setConversionMode(ConversionMode.DRAFT);
 		
 		return converter.start() && (!proceed || convertPublished(proceed, writer));
@@ -204,7 +205,7 @@ public class ConverterWorker implements Runnable {
 			return false;
 		}
 		initConverter(converter, writer);
-		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
 		converter.setConversionMode(ConversionMode.PUBLISHED);
 		
 		return converter.start() && (!proceed || convertAttachments(proceed, writer));
@@ -213,7 +214,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertAttachments(boolean proceed, Writer writer) {
 		AttachmentConverter converter = new AttachmentConverter();
 		initConverter(converter, writer);
-		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
 		
 		return converter.start() && (!proceed || convertWorkingSets(proceed, writer));
 	}
@@ -221,7 +222,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertWorkingSets(boolean proceed, Writer writer) {
 		WorkingSetConverter converter = new WorkingSetConverter();
 		initConverter(converter, writer);
-		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
 		
 		return converter.start() && (!proceed || convertUserWorkingSets(proceed, writer));
 	}
@@ -229,7 +230,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertUserWorkingSets(boolean proceed, Writer writer) {
 		UserWorkingSetConverter converter = new UserWorkingSetConverter();
 		initConverter(converter, writer);
-		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
 		
 		return converter.start() && (!proceed || convertUserRecent(proceed, writer));
 	}
@@ -237,7 +238,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertUserRecent(boolean proceed, Writer writer) {
 		RecentlyViewedConverter converter = new RecentlyViewedConverter();
 		initConverter(converter, writer);
-		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
 		
 		return converter.start();
 	}
@@ -245,7 +246,7 @@ public class ConverterWorker implements Runnable {
 	private boolean convertGlobalReferences(Writer writer) {
 		GlobalReferenceConverter converter = new GlobalReferenceConverter();
 		initConverter(converter, writer);
-		converter.setData(new VFSInfo(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY), oldVFS, newVFS));
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
 		
 		return converter.start();
 	}
@@ -253,9 +254,27 @@ public class ConverterWorker implements Runnable {
 	private boolean convertSynonyms(Writer writer) {
 		SynonymConverter converter = new SynonymConverter();
 		initConverter(converter, writer);
-		converter.setData(GoGoEgo.getInitProperties().getProperty(OLD_VFS_PATH_PROPERTY));
+		converter.setData(getOldVFSPath());
 		
 		return converter.start();
+	}
+	
+	private boolean convertOccurrence(Writer writer) {
+		OccurrenceConverter converter;
+		try {
+			converter = new OccurrenceConverter();
+		} catch (NamingException e) {
+			die("Failed to locate lookup database", e, writer);
+			return false;
+		}
+		initConverter(converter, writer);
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
+		
+		return converter.start();
+	}
+	
+	private String getOldVFSPath() {
+		return SIS.get().getSettings(null).getProperty(Settings.OLD_VFS_PATH);
 	}
 	
 	private void initConverter(Converter converter, Writer writer) {
@@ -281,7 +300,7 @@ public class ConverterWorker implements Runnable {
 				ServerPaths.getTaxonRootURL() };
 
 		for (String dir : dirs) {
-			File file = new File(GoGoEgo.getInitProperties().getProperty(NEW_VFS_PATH_PROPERTY) + "/HEAD" + dir);
+			File file = new File(SIS.get().getSettings(null).getProperty(Settings.NEW_VFS_PATH) + "/HEAD" + dir);
 			if (!file.exists())
 				file.mkdirs();
 		}
