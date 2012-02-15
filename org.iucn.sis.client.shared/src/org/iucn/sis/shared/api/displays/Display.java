@@ -23,6 +23,7 @@ import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
+import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.acl.feature.AuthorizablePublishedAssessment;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.data.DefinitionPanel;
@@ -891,7 +892,7 @@ public abstract class Display implements Referenceable {
 		optionsMenu.add(definitions);
 		
 		final WorkingSet ws = WorkingSetCache.impl.getCurrentWorkingSet();
-		if (hasAssessment && isSaved() && ws != null) {
+		if (hasAssessment && isSaved() && ws != null && canBatchChange()) {
 			MenuItem batchChange = new MenuItem("Batch Change " + ws.getName() + " Working Set");
 			batchChange.setIconStyle("icon-page-copy");
 			
@@ -950,6 +951,10 @@ public abstract class Display implements Referenceable {
 			
 			optionsMenu.add(attach);
 		}
+	}
+	
+	private boolean canBatchChange() {
+		return AuthorizationCache.impl.canUse(AuthorizableFeature.BATCH_CHANGE_FEATURE);
 	}
 	
 	/**
@@ -1044,6 +1049,8 @@ public abstract class Display implements Referenceable {
 			}
 		});
 	}
+	
+	
 
 	public void showStructures() {
 		iconPanel.setVisible(true);
