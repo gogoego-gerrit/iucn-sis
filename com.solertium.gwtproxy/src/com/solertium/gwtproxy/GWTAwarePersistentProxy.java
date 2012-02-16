@@ -1,10 +1,15 @@
 package com.solertium.gwtproxy;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.Restlet;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.ChallengeScheme;
+import org.restlet.data.Form;
+import org.restlet.data.Message;
 import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -59,6 +64,10 @@ public class GWTAwarePersistentProxy extends Application {
 				};
 		}
 		root.attachDefault(redirector);
+		
+		Logger restlet = Logger.getLogger("org.restlet");
+		restlet.setLevel(Level.SEVERE);
+		restlet.setUseParentHandlers(false);
 
 		return root;
 	}
@@ -74,10 +83,8 @@ public class GWTAwarePersistentProxy extends Application {
 	        // Save the base URI if it exists as we might need it for redirections
 	        final Reference baseRef = request.getResourceRef().getBaseRef();
 	        String rr = targetRef.getPath();
-	        System.out.println("RR is " + rr);
 	        if (rr != null && (rr.startsWith(PROXY_SERVICE_MOUNT) || System.getProperty("PROXY_TARGET") != null)) {
 	        	rr = rr.replaceFirst(PROXY_SERVICE_MOUNT, "");
-	        	System.out.println("RR changed to " + rr);
 	        	targetRef.setPath(rr);
 	        }
 	        // Update the request to cleanly go to the target URI
@@ -86,9 +93,15 @@ public class GWTAwarePersistentProxy extends Application {
 	        // request.getAttributes().remove("org.restlet.http.headers");
 	        getContext().getClientDispatcher().handle(request, response);
 
+	        String cacheControl = getHeader(response, "Cache-Control");
+	        
 	        // Allow for response rewriting and clean the headers
 	        response.setEntity(rewrite(response.getEntity()));
 	        response.getAttributes().remove("org.restlet.http.headers");
+	        
+	        // Add cache-control headers if found...
+	        if (cacheControl != null)
+		        addHeaders(response, "Cache-Control", cacheControl);
 
 	        // In case of redirection, we may have to rewrite the redirect URI
 	        if (response.getLocationRef() != null) {
@@ -107,6 +120,29 @@ public class GWTAwarePersistentProxy extends Application {
 	            }
 	        }
 	    }
+	}
+	
+	static void addHeaders(final Message message, 
+		final String headerName, final String headerValue) {
+		Form headers = (Form) message.getAttributes().get("org.restlet.http.headers");
+		if (headers == null) {
+			headers = new Form();
+			message.getAttributes().put("org.restlet.http.headers", headers);
+		}
+		headers.add(headerName, headerValue);
+	}
+	
+	static String getHeader(final Message message, final String headerName) {
+		String ret = null;
+		try {
+			final Form headers = (Form)message.getAttributes().get("org.restlet.http.headers");
+			ret = headers.getFirstValue(headerName);
+			if (ret == null)
+				ret = headers.getFirstValue(headerName.toLowerCase());
+		} catch (final Exception poorly_handled) {
+			System.out.println("Restlet Header Miss: " + poorly_handled.getMessage());
+		}
+		return ret;
 	}
 
 }
