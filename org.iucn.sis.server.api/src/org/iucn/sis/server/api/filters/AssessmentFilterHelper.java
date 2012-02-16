@@ -33,11 +33,11 @@ import com.solertium.db.query.SelectQuery;
 public class AssessmentFilterHelper {
 
 	private final AssessmentFilter filter;
-	private final Session session;
+	private final AssessmentIO io;
 
 	public AssessmentFilterHelper(Session session, AssessmentFilter filter) {
 		this.filter = filter;
-		this.session = session;
+		this.io = new AssessmentIO(session);
 		
 		/*Debug.println("Created an assessment filter with properties: \n" +
 			"Draft: {0}; SI Published: {1}; Recent Published: {2}; " +
@@ -65,24 +65,22 @@ public class AssessmentFilterHelper {
 
 		final List<Integer> filterRegions = filter.listRegionIDs();
 		
-		final AssessmentIO io = new AssessmentIO(session);
-		
 		if (filter.isDraft()) {
-			List<Assessment> draftAssessments = io.readUnpublishedAssessmentsForTaxon(taxaID);
+			List<Assessment> draftAssessments = readUnpublishedAssessments(taxaID);
 			for (Assessment draft : draftAssessments)
 				if (allowAssessment(draft, schema, filterRegions))
 					ret.add(draft);
 		}
 
 		if (filter.isAllPublished()) {
-			List<Assessment> publishedAssessments  = io.readPublishedAssessmentsForTaxon(taxaID);
+			List<Assessment> publishedAssessments  = readPublishedAssessments(taxaID);
 			//Probably don't need to sort here...
 			//Collections.sort(publishedAssessments, new PublishedAssessmentsComparator());
 			for (Assessment published : publishedAssessments)
 				if (published != null && allowAssessment(published, schema, filterRegions)) 
 					ret.add(published);
 		}else if (filter.isRecentPublished()) {
-			List<Assessment> publishedAssessments  = io.readPublishedAssessmentsForTaxon(taxaID);
+			List<Assessment> publishedAssessments  = readPublishedAssessments(taxaID);
 			Collections.sort(publishedAssessments, new PublishedAssessmentsComparator(false));
 			if(!publishedAssessments.isEmpty()){
 				Assessment published = publishedAssessments.get(0);
@@ -93,6 +91,14 @@ public class AssessmentFilterHelper {
 		}
 
 		return ret;
+	}
+	
+	protected List<Assessment> readUnpublishedAssessments(Integer taxonID) {
+		return io.readUnpublishedAssessmentsForTaxon(taxonID);
+	}
+	
+	protected List<Assessment> readPublishedAssessments(Integer taxonID) {
+		return io.readPublishedAssessmentsForTaxon(taxonID);
 	}
 	
 	public boolean allowAssessment(Assessment assessment) {
