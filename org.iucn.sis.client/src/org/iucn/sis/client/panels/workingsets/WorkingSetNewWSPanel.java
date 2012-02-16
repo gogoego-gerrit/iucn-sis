@@ -7,6 +7,7 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
+import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.tabs.WorkingSetPage;
@@ -430,8 +431,8 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 				public void onSuccess(String arg0) {
 					enableSaveButtons(true);
 					WSStore.getStore().update();
-					/*ClientUIContainer.bodyContainer.tabManager.panelManager.workingSetHierarchy
-							.setCurrentlySelected(id);*/
+					//Taxa can't change on this page, but assessments may
+					ClientUIContainer.headerContainer.centerPanel.updateAssessmentList();
 					if (saveMode == SAVE) {
 						Info.display(new InfoConfig("Successful Save", "Successfully saved working set " + name));
 						fireSaveExistingListener(currentWorkingSet);
