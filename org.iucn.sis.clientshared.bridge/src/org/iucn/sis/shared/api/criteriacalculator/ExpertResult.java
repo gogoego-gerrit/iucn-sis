@@ -14,7 +14,7 @@ public class ExpertResult {
 		CR("CR", "Critically Endangered", "CR"), 
 		EN("EN", "Endangered", "EN", "CR", "EN"),
 		VU("VU", "Vulnerable", "CR", "EN", "VU"),
-		LR("LC", "Lower Risk"),
+		LR("LC", "Least Concern"),
 		DD("DD", "Data Deficient");
 		
 		public static ResultCategory fromString(String shortName) {
