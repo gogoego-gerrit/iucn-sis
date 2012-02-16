@@ -22,19 +22,16 @@ import com.extjs.gxt.ui.client.widget.layout.RowLayout;
 import com.google.gwt.user.client.ui.HTML;
 
 public class AssessmentFilterPanel extends HorizontalPanel {
-
-
 	
 	protected AssessmentFilter filter;
+	protected CheckBox allDraft;
 	protected CheckBox allPublished;
 	protected CheckBox recentPublisheds;
-	protected CheckBox allDraft;
-
+	
 	protected boolean addDescription;
 	protected boolean allowAllPublishedAssessments;
 	protected boolean allowAllLocales;
 	protected boolean allowMatchesAnyRegion;
-
 
 	protected AssessmentFilterRegionalPanel regionPanel;
 	
@@ -197,7 +194,7 @@ public class AssessmentFilterPanel extends HorizontalPanel {
 
 	public boolean putIntoAssessmentFilter() {
 		if (checkValidity() == null) {
-			filter.setAllPublished(allPublished.getValue());
+			filter.setAllPublished(allowAllPublishedAssessments && allPublished.getValue());
 			filter.setDraft(allDraft.getValue());
 			filter.setRecentPublished(recentPublisheds.getValue());
 

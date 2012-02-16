@@ -173,6 +173,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 		fromXMLMinimal(set, element);
 		
 		final Set<Region> newRegions = new HashSet<Region>();
+		final Set<AssessmentType> newTypes = new HashSet<AssessmentType>();
 		
 		final NativeNodeList nodes = element.getChildNodes();
 		for (int i = 0; i < nodes.getLength(); i++) {
@@ -201,7 +202,7 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 				set.getUsers().add(User.fromXML((NativeElement)node));
 			}
 			else if (AssessmentType.ROOT_TAG.equals(nodeName))
-				set.getAssessmentTypes().add(AssessmentType.fromXML((NativeElement)node));	
+				newTypes.add(AssessmentType.fromXML((NativeElement)node));	
 		}
 		
 		if (set.getRegion().isEmpty()) {
@@ -217,6 +218,18 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 				set.getRegion().remove(region);
 			
 			set.getRegion().addAll(newRegions);			
+		}
+		
+		if (set.getAssessmentTypes().isEmpty())
+			set.getAssessmentTypes().addAll(newTypes);
+		else {
+			final List<AssessmentType> toRemove = new ArrayList<AssessmentType>();
+			for (AssessmentType type : set.getAssessmentTypes())
+				if (!newTypes.contains(type))
+					toRemove.add(type);
+			for (AssessmentType type : toRemove)
+				set.getAssessmentTypes().remove(type);
+			set.getAssessmentTypes().addAll(newTypes);
 		}
 		
 		return set;
