@@ -71,7 +71,14 @@ public abstract class PagingPanel<T extends ModelData> extends LayoutContainer {
 			public void onSuccess(ListStore<T> result) {
 				proxy.setStore(result);
 				
-				loader.load(0, pageCount);
+				int refreshOffset = loader.getOffset();
+				int resultCount = result.getCount();
+				if(resultCount <= refreshOffset){
+					refreshOffset = refreshOffset - pageCount;
+					if(refreshOffset < 0)
+						refreshOffset = 0;
+				}
+				loader.load(refreshOffset, pageCount);
 				
 				refreshView();
 				/*try {
