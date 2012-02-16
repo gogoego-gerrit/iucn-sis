@@ -19,11 +19,16 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.utils.PermissionUtils;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.DeferredCommand;
+import com.google.gwt.user.client.IncrementalCommand;
 import com.solertium.lwxml.gwt.NativeDocumentImpl;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.events.ComplexListener;
+import com.solertium.util.events.SimpleListener;
+import com.solertium.util.extjs.client.WindowUtils;
 
 public class AuthorizationCache {
 
@@ -190,20 +195,27 @@ public class AuthorizationCache {
 		
 		final NativeDocument ndoc = getNativeDocument();
 		ndoc.get(UriBase.getInstance() + "/acl/groups", new GenericCallback<String>() {
-			public void onSuccess(String result) {
-				NativeNodeList groupEls = ndoc.getDocumentElement().getElementsByTagName(PermissionGroup.ROOT_TAG);
-				for (int i = 0; i < groupEls.getLength(); i++) {
-					PermissionGroup group = PermissionGroup.fromXML(groupEls.elementAt(i));
-					cache.put(group);
-				}
-				for (PermissionGroup group : cache.values()) {
-					if (group.getParent() != null) {
-						group.setParent(cache.get(Integer.valueOf(group.getParent().getId())));
+			public void onSuccess(final String result) {
+				final Parser parser = new Parser(ndoc);
+				parser.setListener(new ComplexListener<PermissionGroup>() {
+					public void handleEvent(PermissionGroup eventData) {
+						cache.put(eventData);
 					}
-				}
+				});
+				parser.setFinishListener(new SimpleListener() {
+					public void handleEvent() {
+						for (PermissionGroup group : cache.values()) {
+							if (group.getParent() != null) {
+								group.setParent(cache.get(Integer.valueOf(group.getParent().getId())));
+							}
+						}
+						
+						if (initCallback != null)
+							initCallback.onSuccess(result);
+					}
+				});
 				
-				if (initCallback != null)
-					initCallback.onSuccess(result);
+				DeferredCommand.addCommand(parser);
 			}
 
 			public void onFailure(Throwable caught) {
@@ -289,6 +301,50 @@ public class AuthorizationCache {
 		}
 		
 		cache.put(target);
+	}
+	
+	private static class Parser implements IncrementalCommand {
+		
+		private final NativeNodeList nodes;
+		private int current, batch, size;
+		private ComplexListener<PermissionGroup> listener;
+		private SimpleListener finishListener;
+		
+		public Parser(NativeDocument document) {
+			nodes = document.getDocumentElement().getElementsByTagName(PermissionGroup.ROOT_TAG);
+			current = 0;
+			batch = 50;
+			size = nodes.getLength();
+		}
+		
+		public void setListener(ComplexListener<PermissionGroup> listener) {
+			this.listener = listener;
+		}
+		
+		public void setFinishListener(SimpleListener finishListener) {
+			this.finishListener = finishListener;
+		}
+		
+		@Override
+		public boolean execute() {
+			WindowUtils.showLoadingAlert("Loading permissions " + (current + 1) + " - " + (current + batch) + " of " + size);
+			int i;
+			for (i = current; i < size; i++) {
+				if (listener != null)
+					listener.handleEvent(PermissionGroup.fromXML(nodes.elementAt(i)));
+				if ((i+1) % batch == 0)
+					break;
+			}
+			if ((current = ++i) > size) {
+				WindowUtils.showLoadingAlert("Done loading permissions.");
+				if (finishListener != null)
+					finishListener.handleEvent();
+				return false;
+			}
+			else
+				return true;
+		}
+		
 	}
 	
 	protected static class Cache {
