@@ -143,29 +143,31 @@ public class SIS {
 		return locker;
 	}
 	
-	public Properties getSettings(Context context) {
+	public synchronized Properties getSettings(Context context) {
 		if (settings != null)
 			return settings;
 		
-		final String rootFolder = 
-			GoGoEgo.getInitProperties().getProperty("sis_settings", 
-					"/ebs/sis/test/files/settings");
-		
-		Properties settings = new Properties();
-		try {
-			settings = new Properties();
-			settings.load(new FileReader(new File(rootFolder + "/global.properties")));
-		} catch (IOException e) {
-			TrivialExceptionHandler.ignore(this, e);
-			return new Properties();
+		{
+			final String rootFolder = 
+				GoGoEgo.getInitProperties().getProperty("sis_settings", 
+						"/ebs/sis/test/files/settings");
+			
+			Properties settings = new Properties();
+			try {
+				settings = new Properties();
+				settings.load(new FileReader(new File(rootFolder + "/global.properties")));
+			} catch (IOException e) {
+				TrivialExceptionHandler.ignore(this, e);
+				return new Properties();
+			}
+			
+			this.settings = settings;
 		}
-		
-		this.settings = settings;
 		
 		return settings;
 	}
 	
-	public void saveSettings(Context context) throws IOException {
+	public synchronized void saveSettings(Context context) throws IOException {
 		final Properties properties = getSettings(context);
 		final String rootFolder = 
 			GoGoEgo.getInitProperties().getProperty("sis_settings", 
