@@ -716,13 +716,36 @@
 
 						<field id="ConservationActionsDocumentation"/>
 
-						<field id="InPlaceResearch"/>
-
-						<field id="InPlaceLandWaterProtection"/>
-
-						<field id="InPlaceSpeciesManagement"/>
-
-						<field id="InPlaceEducation"/>
+						<h3>In-Place Research, Monitoring and Planning</h3>
+						<composite>
+							<field id="InPlaceResearchRecoveryPlan"></field>
+							<field id="InPlaceResearchMonitoringScheme"></field>
+						</composite>
+						<h3>In-Place Land/Water Protection and Management</h3>
+						<composite>
+							<field id="InPlaceLandWaterProtectionSitesIdentified"></field>
+							<field id="InPlaceLandWaterProtectionInPA"></field>
+						</composite>
+						<composite>
+							<field id="InPlaceLandWaterProtectionPercentProtected"></field>
+							<field id="InPlaceLandWaterProtectionAreaPlanned"></field>
+						</composite>
+						<composite>
+							<field id="InPlaceLandWaterProtectionInvasiveControl"></field>
+							<field id="_blank"></field>
+						</composite>
+						<h3>In-Place Species Management</h3>
+						<composite>
+							<field id="InPlaceSpeciesManagementHarvestPlan"></field>
+							<field id="InPlaceSpeciesManagementReintroduced"></field>
+							<field id="InPlaceSpeciesManagementExSitu"></field>
+						</composite>
+						<h3>In-Place Education</h3>
+						<composite>
+							<field id="InPlaceEducationSubjectToPrograms"></field>
+							<field id="InPlaceEducationInternationalLegislation"></field>
+							<field id="InPlaceEducationControlled"></field>
+						</composite>
 
 					</organization>
 
@@ -966,25 +989,45 @@
 			</page>
 			<page id="Conservation" title="Conservation">
 				<pageOrganizations>
-					<organization title="Conservation Actions Documentation">
+					<organization shortTitle="Conservation Actions Documentation" title="Conservation Actions Documentation">
 						<composite>
 							<field id="ConservationActionsDocumentation"/>
 						</composite>
 						<composite>
 							<field id="ConservationActions"/>
-
 						</composite>
 						<composite>
 							<field id="Research"/>
 						</composite>
+						<h3>In-Place Research, Monitoring and Planning</h3>
 						<composite>
-							<field id="InPlaceResearch"/>
-							<field id="InPlaceLandWaterProtection"/>
+							<field id="InPlaceResearchRecoveryPlan"></field>
+							<field id="InPlaceResearchMonitoringScheme"></field>
+						</composite>
+						<h3>In-Place Land/Water Protection and Management</h3>
+						<composite>
+							<field id="InPlaceLandWaterProtectionSitesIdentified"></field>
+							<field id="InPlaceLandWaterProtectionInPA"></field>
 						</composite>
 						<composite>
-
-							<field id="InPlaceSpeciesManagement"/>
-							<field id="InPlaceEducation"/>
+							<field id="InPlaceLandWaterProtectionPercentProtected"></field>
+							<field id="InPlaceLandWaterProtectionAreaPlanned"></field>
+						</composite>
+						<composite>
+							<field id="InPlaceLandWaterProtectionInvasiveControl"></field>
+							<field id="_blank"></field>
+						</composite>
+						<h3>In-Place Species Management</h3>
+						<composite>
+							<field id="InPlaceSpeciesManagementHarvestPlan"></field>
+							<field id="InPlaceSpeciesManagementReintroduced"></field>
+							<field id="InPlaceSpeciesManagementExSitu"></field>
+						</composite>
+						<h3>In-Place Education</h3>
+						<composite>
+							<field id="InPlaceEducationSubjectToPrograms"></field>
+							<field id="InPlaceEducationInternationalLegislation"></field>
+							<field id="InPlaceEducationControlled"></field>
 						</composite>
 					</organization>
 				</pageOrganizations>
@@ -1333,21 +1376,35 @@
 
 						</composite>
 
-						<text/><text> **** Conservation Actions In-Place **** </text><text/>
+						<h3>In-Place Research, Monitoring and Planning</h3>
 						<composite>
-
-							<field id="InPlaceResearch"/>
-
-							<field id="InPlaceLandWaterProtection"/>
-
+							<field id="InPlaceResearchRecoveryPlan"></field>
+							<field id="InPlaceResearchMonitoringScheme"></field>
 						</composite>
-
+						<h3>In-Place Land/Water Protection and Management</h3>
 						<composite>
-
-							<field id="InPlaceSpeciesManagement"/>
-
-							<field id="InPlaceEducation"/>
-
+							<field id="InPlaceLandWaterProtectionSitesIdentified"></field>
+							<field id="InPlaceLandWaterProtectionInPA"></field>
+						</composite>
+						<composite>
+							<field id="InPlaceLandWaterProtectionPercentProtected"></field>
+							<field id="InPlaceLandWaterProtectionAreaPlanned"></field>
+						</composite>
+						<composite>
+							<field id="InPlaceLandWaterProtectionInvasiveControl"></field>
+							<field id="_blank"></field>
+						</composite>
+						<h3>In-Place Species Management</h3>
+						<composite>
+							<field id="InPlaceSpeciesManagementHarvestPlan"></field>
+							<field id="InPlaceSpeciesManagementReintroduced"></field>
+							<field id="InPlaceSpeciesManagementExSitu"></field>
+						</composite>
+						<h3>In-Place Education</h3>
+						<composite>
+							<field id="InPlaceEducationSubjectToPrograms"></field>
+							<field id="InPlaceEducationInternationalLegislation"></field>
+							<field id="InPlaceEducationControlled"></field>
 						</composite>
 
 					</organization>
@@ -1579,29 +1636,47 @@
 			</page>
 			<page id="Conservation" title="Conservation">
 				<pageOrganizations>
-					<organization title="Conservation Actions Documentation">
+					<organization shortTitle="Conservation Actions Documentation" title="Conservation Actions Documentation">
 						<composite>
 							<field id="ConservationActionsDocumentation"/>
-
-						</composite>
-						<composite>
-							<field id="Research"/>
 						</composite>
 						<composite>
 							<field id="ConservationActions"/>
 						</composite>
-						<text/><text> **** Conservation Actions In-Place **** </text><text/>
-
 						<composite>
-							<field id="InPlaceResearch"/>
-							<field id="InPlaceLandWaterProtection"/>
+							<field id="Research"/>
+						</composite>
+						<h3>In-Place Research, Monitoring and Planning</h3>
+						<composite>
+							<field id="InPlaceResearchRecoveryPlan"></field>
+							<field id="InPlaceResearchMonitoringScheme"></field>
+						</composite>
+						<h3>In-Place Land/Water Protection and Management</h3>
+						<composite>
+							<field id="InPlaceLandWaterProtectionSitesIdentified"></field>
+							<field id="InPlaceLandWaterProtectionInPA"></field>
 						</composite>
 						<composite>
-							<field id="InPlaceSpeciesManagement"/>
-							<field id="InPlaceEducation"/>
+							<field id="InPlaceLandWaterProtectionPercentProtected"></field>
+							<field id="InPlaceLandWaterProtectionAreaPlanned"></field>
+						</composite>
+						<composite>
+							<field id="InPlaceLandWaterProtectionInvasiveControl"></field>
+							<field id="_blank"></field>
+						</composite>
+						<h3>In-Place Species Management</h3>
+						<composite>
+							<field id="InPlaceSpeciesManagementHarvestPlan"></field>
+							<field id="InPlaceSpeciesManagementReintroduced"></field>
+							<field id="InPlaceSpeciesManagementExSitu"></field>
+						</composite>
+						<h3>In-Place Education</h3>
+						<composite>
+							<field id="InPlaceEducationSubjectToPrograms"></field>
+							<field id="InPlaceEducationInternationalLegislation"></field>
+							<field id="InPlaceEducationControlled"></field>
 						</composite>
 					</organization>
-
 				</pageOrganizations>
 			</page>
 			
