@@ -1,11 +1,8 @@
 package org.iucn.sis.server.extensions.offline;
 
 import java.io.File;
-import java.util.Date;
-import java.util.Properties;
 
 import org.hibernate.Session;
-import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.shared.api.models.OfflineMetadata;
 import org.restlet.Context;
@@ -30,22 +27,9 @@ public class OfflineMetaDataRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
-
-		Properties init = SIS.get().getSettings(getContext());
-		
-		String dbUri = init.getProperty("dbsession.sis.uri");
-		String dbLocation = removeJDBCPrefix(dbUri);
-		String dbName = getDbNameFromUri(dbLocation);
-		
-		File file = new File(dbLocation+".data.db");
-		
-		if (!file.exists())
+		OfflineMetadata metadata = OfflineBackupWorker.get();
+		if (metadata == null)
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "SIS Configuration error.");
-		
-		OfflineMetadata metadata = new OfflineMetadata();
-		metadata.setName(dbName);
-		metadata.setLocation(dbLocation);
-		metadata.setLastModified(new Date(file.lastModified()));
 		
 		return new StringRepresentation(metadata.toXML(), MediaType.TEXT_XML);		
 	}

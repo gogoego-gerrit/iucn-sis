@@ -81,5 +81,10 @@ public class OfflineWorkingSetReExporter extends WorkingSetExporter {
 		
 		session.close();
 	}
+	
+	@Override
+	public void close() {
+		//Don't close the stream
+	}
 
 }

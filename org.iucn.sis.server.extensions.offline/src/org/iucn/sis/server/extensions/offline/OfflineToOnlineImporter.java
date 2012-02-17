@@ -77,22 +77,26 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		this.out = writer;
 		this.lineBreakRule = lineBreakRule;
 	}
+	
+	public void setMode(OfflineImportMode mode) {
+		this.mode = mode;
+	}
 
 	public final void run() {
 		Date start = Calendar.getInstance().getTime();
 
 		write("Export started at %s", start);
 
-		// The offline database.
-		offline = SISPersistentManager.instance().openSession();
-
-		// Live DB will NEVER be from scratch...
-		onlineTargetManager = SISPersistentManager.newInstance("sis_target", targetProperties, false);
-		online = onlineTargetManager.openSession();
-		
-		loggedInUser = new UserIO(offline).getUserFromUsername(username);
-
 		try {
+			// The offline database.
+			offline = SISPersistentManager.instance().openSession();
+	
+			// Live DB will NEVER be from scratch...
+			onlineTargetManager = SISPersistentManager.newInstance("sis_target", targetProperties, false);
+			online = onlineTargetManager.openSession();
+			
+			loggedInUser = new UserIO(offline).getUserFromUsername(username);
+
 			execute();
 		} catch (Throwable e) {
 			Debug.println(e);
@@ -109,6 +113,7 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 			int mins = (int) (secs / 60);
 
 			write("Export completed at %s in %s minutes, %s seconds.", end, mins, secs);
+			write("<br/><a href=\"../manager\">Click here to return to the Offline Manager.</a>");
 
 			close();
 		}

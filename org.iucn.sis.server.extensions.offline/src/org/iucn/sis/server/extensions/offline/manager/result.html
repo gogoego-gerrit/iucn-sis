@@ -1,0 +1,28 @@
+<html>
+	<head>
+		<title>Result</title>
+		<link rel="stylesheet" type="text/css" href="../manager/resources/styles.css" />
+	</head>
+	<body>
+		<div id="container" style="height:100%">
+			<div style="padding:20px;">
+				<div style="float:left;"><h1>SIS Offline Manager Services - Results</h1></div>
+				<div style="float:right;"><img src="../manager/resources/sislogo_cropped.png" border="0" /></div>
+			</div>
+			<div style="clear:both;height:20px;">&nbsp;</div>
+			<hr/>
+			<div id="content">
+				<p class="resultMessage">$message</p>
+				<p class="resultRedirectMessage"><span>Please wait while you are redirected back to the manager.  If the page does not load within 
+				five seconds, please </span><a href="../manager">click here.</a></p>
+				<script type="text/javascript">
+				  function jump() {
+				    window.location.href = '../manager';
+				  }
+				  setTimeout('jump()', 5000);
+				</script>
+			</div>
+		</div>
+</body>
+</html>
+

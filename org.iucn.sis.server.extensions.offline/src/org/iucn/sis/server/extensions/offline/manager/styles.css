@@ -1,0 +1,72 @@
+body {
+	font-family: Arial, sans-serif, Tahoma, Helvetica;
+	background-color: #DDD;
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+#container {
+	margin-top: 0px;
+	margin-left: 100px;
+	margin-right: 100px;
+	margin-bottom: 0px;
+	border-left: 2px solid black;
+	border-right: 2px solid black;
+	background-color: white;
+	font-size: 14px !important;
+	/*height: 100%;*/
+}
+
+hr {
+	color: #C01B24;
+	background-color: #C01B24;
+	height: 2px;
+}
+
+#content h1 {
+	background-color: #DDD;
+	border-top: 1px solid #C01B24;
+	border-bottom: 1px solid #C01B24;
+	padding: 5px;
+}
+
+.submitButton {
+	text-align: right;	
+}
+
+.submitButton input {
+	background-color: #DDD;
+	font-weight: bold;
+	padding: 5px;
+	border: 1px outset #C01B24;
+	color: black;
+	font-size: 14px;
+	margin-right: 10px;
+}
+
+.syncDetails {
+	font-size: 12px;
+	margin-left: 10px;
+	font-style: italic;	
+}
+
+#content {
+	padding: 10px;
+}
+
+.loginLink {
+	font-size: 16px;
+	font-weight: bold;
+	font-color: #C01B24;
+	text-align: center;
+}
+
+.resultMessage {
+	font-size: 14px;
+	font-weight: bold;
+}
+
+.resultRedirectMessage {
+	font-style: italic;
+	font-size: 12px;
+}

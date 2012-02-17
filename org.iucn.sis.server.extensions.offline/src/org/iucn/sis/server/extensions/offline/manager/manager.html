@@ -1,0 +1,75 @@
+<html>
+	<head>
+		<title>SIS Offline Manager</title>
+		<link rel="stylesheet" type="text/css" href="manager/resources/styles.css" />
+	</head>
+	<body>
+		<div id="container">
+			<div style="padding:20px;">
+				<div style="float:left;"><h1>SIS Offline Manager</h1></div>
+				<div style="float:right;"><img src="manager/resources/sislogo_cropped.png" border="0" /></div>
+			</div>
+			<div style="clear:both;height:20px;">&nbsp;</div>
+			<hr/>
+			<div class="loginLink"><a href="/index.html">Login to SIS Offline</a></div>
+			<hr/>
+			<div id="content">
+				<h1>Upload Offline Database</h1>
+				<div>
+					<p>The current database is: $database</p>
+				</div>
+				<form method="POST" enctype="multipart/form-data" action="services/upload">
+					<span>Select Offline Database ZIP file:</span>
+					<input name="file" type="file" />
+					<div class="submitButton">
+						<input type="submit" value="Submit" />
+					</div>
+				</form>
+	      		<h1>Synchronize Data</h1>
+	      		<form method="GET" action="services/import">
+	      			<div>
+	      				<span>User Name: </span><span><input type="text" name="username" /></span>
+	      			</div>
+	      			<br/>
+	      			<div>
+	      				<span>Synchronize and Checkout</span><input type="radio" name="mode" value="resync" checked/><br/>
+	      				<span class="syncDetails">Use this option to synchronize the data to the live server, then check it back out to make further changes.</span><br/>
+	      			</div>
+	      			<br/>
+	      			<div>
+	      				<span>Synchronize and Delete</span><input type="radio" name="mode" value="remove" /><br/>
+	      				<span class="syncDetails">Use this option to synchronize the data to the live server, then delete your offline database.</span>
+	      			</div>
+	      			<div class="submitButton">
+	      				<input type="submit" value="Submit" />
+	      			</div>
+	      		</form>
+	      		<h1>Backup Data</h1>
+	      		<div>
+	      			<p>Backup your Offline SIS database so that you can recover any changes you don't want, or 
+	      			in case errors occur during work.  Backups are automatically created during the sync 
+	      			process.</p> 
+	      			<form method="POST" action="services/backup">
+	      				<input type="hidden" name="redirect" value="true" />
+	      				<div class="submitButton">
+	      					<input type="submit" value="Submit" />
+	      				</div>
+	      			</form>
+	      		</div>
+	      		<h1>Restore Backup</h1>
+	      		<div>
+	      			<p>Below is a list of all your current database backups.  To revert to one of these 
+	      			versions, select the version from the list below, then click Submit.  Your current 
+	      			version will be backed up first, then the selected version will become the working 
+	      			database.</p>
+	      			<form method="POST" action="services/restore">
+	      				$backups
+	      				<div class="submitButton">
+	      					<input type="submit" value="Submit" />
+	      				</div>
+	      			</form>
+	      		</div>
+			</div>
+		</div>
+	</body>
+</html>
