@@ -8,6 +8,7 @@ import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.BooleanUnknownPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.DatePrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
@@ -235,6 +236,26 @@ public class ProxyField {
 		}
 		else if (value != null)
 			proxy.addPrimitiveField(new BooleanRangePrimitiveField(key, proxy, value));
+	}
+	
+	public Integer getBooleanUnknownPrimitiveField(String key) {
+		PrimitiveField<?> field = proxy.getPrimitiveField(key);
+		if (field == null)
+			return null;
+		else
+			return ((BooleanUnknownPrimitiveField)field).getValue();
+	}
+	
+	public void setBooleanUnknownPrimitiveField(String key, Integer value) {
+		PrimitiveField<?> field = proxy.getPrimitiveField(key);
+		if (field != null) {
+			if (value == null)
+				((BooleanUnknownPrimitiveField)field).setValue(value);
+			else
+				proxy.getPrimitiveField().remove(field);
+		}
+		else if (value != null)
+			proxy.addPrimitiveField(new BooleanUnknownPrimitiveField(key, proxy, value));
 	}
 	
 	public String getRangePrimitiveField(String key) {
