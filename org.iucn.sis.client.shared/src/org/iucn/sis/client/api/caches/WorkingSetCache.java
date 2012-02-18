@@ -698,6 +698,8 @@ public class WorkingSetCache {
 			}
 			public void onSuccess(String arg0) {
 				WorkingSet ws = WorkingSet.fromXML(ndoc);
+				for (Taxon taxon : ws.getTaxon())
+					TaxonomyCache.impl.putTaxon(taxon);
 				cache(ws, FetchMode.FULL);
 				wayBack.onSuccess(ws);
 			}
