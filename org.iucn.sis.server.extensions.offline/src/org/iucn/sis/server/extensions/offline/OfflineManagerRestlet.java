@@ -39,8 +39,34 @@ public class OfflineManagerRestlet extends Restlet {
 		}
 		
 		String value = in.toString();
+		value = Replacer.replace(value, "$state", getStateMessage(arg0));
 		value = Replacer.replace(value, "$database", getDatabaseInfo());
+		value = Replacer.replace(value, "$backups", getBackupsListing());
 		
+		arg1.setStatus(Status.SUCCESS_OK);
+		arg1.setEntity(value, MediaType.TEXT_HTML);
+	}
+	
+	private String getStateMessage(Request request) {
+		String message = null;
+		String state = request.getResourceRef().getQueryAsForm().getFirstValue("s");
+		if ("1".equals(state))
+			message = "Please upload your SIS 2 Offline Database ZIP file.";
+		
+		String html;
+		if (message == null)
+			html = "";
+		else {
+			html = "<div id=\"state\">" +
+				"<img src=\"manager/resources/emblem-important.png\" />" +
+				"<span class=\"state-message\">"+message+"</span>" +
+				"</div>";
+		}
+		
+		return html;
+	}
+	
+	private String getBackupsListing() {
 		List<OfflineMetadata> list = OfflineBackupWorker.listBackups();
 		StringBuilder sel = new StringBuilder();
 		if (list.isEmpty())
@@ -54,10 +80,8 @@ public class OfflineManagerRestlet extends Restlet {
 			}
 			sel.append("</select>");
 		}
-		value = Replacer.replace(value, "$backups", sel.toString());
 		
-		arg1.setStatus(Status.SUCCESS_OK);
-		arg1.setEntity(value, MediaType.TEXT_HTML);
+		return sel.toString();
 	}
 
 	private String getDatabaseInfo() {

@@ -17,6 +17,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.extensions.offline.OfflineToOnlineImporter.OfflineImportMode;
 import org.iucn.sis.server.extensions.offline.manager.Resources;
+import org.iucn.sis.shared.api.models.OfflineMetadata;
 import org.restlet.Context;
 import org.restlet.Restlet;
 import org.restlet.data.Form;
@@ -68,6 +69,17 @@ public class OfflineManagerServicesRestlet extends Restlet {
 			} catch (Exception e) {
 				arg1.setEntity(getResultPage("Error starting sync: " + e.getMessage()));
 			}
+		}
+		else if ("init".equals(service)) {
+			OfflineMetadata md = OfflineBackupWorker.get();
+			if (md == null)
+				arg1.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+			else
+				arg1.setEntity(md.toXML(), MediaType.TEXT_XML);
+			/*
+			 * TODO: this would be a good spot to check for updates 
+			 */
+			
 		}
 		else
 			arg1.setEntity(getResultPage("Service not found: " + service));

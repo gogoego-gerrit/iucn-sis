@@ -35,6 +35,7 @@ hr {
 }
 
 .submitButton input {
+	font-family: Arial, sans-serif, Tahoma, Helvetica;
 	background-color: #DDD;
 	font-weight: bold;
 	padding: 5px;
@@ -69,4 +70,23 @@ hr {
 .resultRedirectMessage {
 	font-style: italic;
 	font-size: 12px;
+}
+
+#state {
+	border: 2px groove #C01B24;
+	padding: 4px;
+	margin: 5px;
+}
+
+#state img {
+	border: 0px solid black;
+	margin: 10px;
+	vertical-align: middle;
+}
+
+.state-message {
+	margin: 10px;
+	color: black;
+	font-weight: bold;
+	font-size: 16px;
 }

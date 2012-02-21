@@ -8,8 +8,10 @@ import org.iucn.sis.client.api.caches.OfflineCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.HasCache;
+import org.iucn.sis.client.api.utils.UriBase;
 
 import com.google.gwt.user.client.Window;
+import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.util.extjs.client.WindowUtils;
 
 public class OfflineSimpleSISClient extends SimpleSISClient {
@@ -20,6 +22,17 @@ public class OfflineSimpleSISClient extends SimpleSISClient {
 		
 		Window.setTitle("Offline - " + Window.getTitle());
 		
+		OfflineCache.impl.initialize(new GenericCallback<Object>() {
+			public void onSuccess(Object result) {
+				finishLoading();
+			}
+			public void onFailure(Throwable caught) {
+				Window.Location.assign(UriBase.getInstance().getOfflineBase() + "/manager?s=1");
+			}
+		});
+	}
+	
+	private void finishLoading() {
 		super.loadModule();
 	}
 	
