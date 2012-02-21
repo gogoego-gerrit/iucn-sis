@@ -11,6 +11,7 @@ License Type: Evaluation
 			</generator>
 		</id>
 		<property name="value" column="value" type="text" not-null="true" lazy="false"/>
+		<property name="offlineStatus" column="offline_status" type="boolean" length="1" not-null="true" lazy="false"/>
 		<set name="Synonyms" table="synonym_notes" lazy="true" cascade="save-update,lock" inverse="true">
 			<key column="notesid" not-null="true"/>
 			<many-to-many column="synonymid" class="org.iucn.sis.shared.api.models.Synonym">
