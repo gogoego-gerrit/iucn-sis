@@ -13,7 +13,6 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.IconButtonEvent;
 import com.extjs.gxt.ui.client.event.MenuEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -51,12 +50,14 @@ public class OfflineFooter extends ToolBar {
 		IconButton details = new IconButton("icon-information");
 		details.setToolTip(tooltip);
 		
-		IconButton gear = new IconButton("icon-gear");
-		gear.addSelectionListener(new SelectionListener<IconButtonEvent>() {
-			public void componentSelected(IconButtonEvent ce) {
-				getMenu().show(ce.getIconButton());
+		Button gear = new Button("Open SIS Offline Manager", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				com.google.gwt.user.client.Window.Location.assign(
+					UriBase.getInstance().getOfflineBase() + "/manager"
+				);
 			}
 		});
+		gear.addStyleName("icon-gear");
 		
 		add(new LabelToolItem("Offline Database: "+metadata.getName()));
 		add(details);
@@ -65,7 +66,9 @@ public class OfflineFooter extends ToolBar {
 		add(new LabelToolItem(WorkingSetCache.impl.getOfflineWorkingSet().getName()));
 		
 		add(new FillToolItem());
+		add(new LabelToolItem("Connection Status: "));
 		add(connectionStatus);
+		add(new SeparatorToolItem());
 		add(gear);
 	
 		setConnectionStatus(initConnectionStatus());
@@ -97,6 +100,7 @@ public class OfflineFooter extends ToolBar {
 
 	}-*/;
 	
+	@SuppressWarnings("unused")
 	private Menu getMenu() {
 		Menu menu = new Menu();
 		
