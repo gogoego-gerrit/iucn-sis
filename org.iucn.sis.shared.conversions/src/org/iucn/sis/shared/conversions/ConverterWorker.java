@@ -83,6 +83,8 @@ public class ConverterWorker implements Runnable {
 			success = convertSynonyms(writer);
 		else if ("occurrence".equals(step))
 			success = convertOccurrence(writer);
+		else if ("redlistevaluated".equals(step))
+			success = convertRedListEvaluated(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -263,6 +265,20 @@ public class ConverterWorker implements Runnable {
 		OccurrenceConverter converter;
 		try {
 			converter = new OccurrenceConverter();
+		} catch (NamingException e) {
+			die("Failed to locate lookup database", e, writer);
+			return false;
+		}
+		initConverter(converter, writer);
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
+		
+		return converter.start();
+	}
+	
+	private boolean convertRedListEvaluated(Writer writer) {
+		RedListEvaluatedConverter converter;
+		try {
+			converter = new RedListEvaluatedConverter();
 		} catch (NamingException e) {
 			die("Failed to locate lookup database", e, writer);
 			return false;
