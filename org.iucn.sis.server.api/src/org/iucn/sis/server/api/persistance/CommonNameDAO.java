@@ -304,9 +304,15 @@ public class CommonNameDAO {
 	
 	public static boolean deleteAndDissociate(CommonName commonName, Session session)throws PersistentException {
 		try {
-			if(commonName.getIso() != null) {
+			commonName.setIso(null);
+			/*
+			 * TODO: not sure if the below is necessary, but it is 
+			 * incredibly slow for obvious reasons.  Removing it 
+			 * does not cause the delete to fail, though...
+			 */
+			/*if(commonName.getIso() != null) {
 				commonName.getIso().getCommonName().remove(commonName);
-			}
+			}*/
 			
 			if(commonName.getTaxon() != null) {
 				commonName.getTaxon().getCommonNames().remove(commonName);

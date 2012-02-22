@@ -305,9 +305,15 @@ public class SynonymDAO {
 	
 	public static boolean deleteAndDissociate(Synonym synonym, Session session)throws PersistentException {
 		try {
-			if(synonym.getTaxon_level() != null) {
+			synonym.setTaxon_level(null);
+			/*
+			 * TODO: not sure if the below is necessary, but it is 
+			 * incredibly slow for obvious reasons.  Removing it 
+			 * does not cause the delete to fail, though...
+			 */
+			/*if(synonym.getTaxon_level() != null) {
 				synonym.getTaxon_level().getSynonyms().remove(synonym);
-			}
+			}*/
 			
 			if(synonym.getTaxon() != null) {
 				synonym.getTaxon().getSynonyms().remove(synonym);
@@ -318,10 +324,12 @@ public class SynonymDAO {
 			for(int i = 0; i < lNotess.length; i++) {
 				lNotess[i].getSynonyms().remove(synonym);
 			}
+			
 			Reference[] lReferences = (Reference[])synonym.getReference().toArray(new Reference[synonym.getReference().size()]);
 			for(int i = 0; i < lReferences.length; i++) {
 				lReferences[i].getSynonym().remove(synonym);
 			}
+			
 			try {
 				session.delete(synonym);
 				return true;
