@@ -188,7 +188,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 						WindowUtils.confirmAlert("Confirm", "Are you sure you want to " +
 							"submit this working set? Assessments will only be submitted " +
 							"if <b>every</b> assessment in this working set is eligible " +
-							"for submission and passes integrity valiation.", listener);
+							"for submission and passes integrity validation.", listener);
 					}
 					else
 						WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission to submit " +
