@@ -9,7 +9,6 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.panels.dem.DEMPanel;
 import org.iucn.sis.client.panels.references.ReferenceViewTabPanel;
-import org.iucn.sis.client.panels.search.SearchQuery;
 import org.iucn.sis.client.panels.utils.BasicSearchPanel;
 import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.client.tabs.HomePageTab;
@@ -17,6 +16,7 @@ import org.iucn.sis.client.tabs.TaxonHomePageTab;
 import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.SearchQuery;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;

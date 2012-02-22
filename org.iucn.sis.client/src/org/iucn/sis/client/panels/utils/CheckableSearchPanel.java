@@ -1,8 +1,8 @@
 package org.iucn.sis.client.panels.utils;
 
 import org.iucn.sis.client.panels.search.CheckableSearchResultsPage;
-import org.iucn.sis.client.panels.search.SearchQuery;
 import org.iucn.sis.client.panels.search.SearchResultPage;
+import org.iucn.sis.shared.api.models.SearchQuery;
 
 public class CheckableSearchPanel extends SearchPanel {
 	

@@ -23,7 +23,6 @@ import org.iucn.sis.client.panels.publication.targets.PublicationTargetManager;
 import org.iucn.sis.client.panels.redlist.RedlistPanel;
 import org.iucn.sis.client.panels.region.RegionPanel;
 import org.iucn.sis.client.panels.search.SearchCache;
-import org.iucn.sis.client.panels.search.SearchQuery;
 import org.iucn.sis.client.panels.taxa.TaxonFinderPanel;
 import org.iucn.sis.client.panels.taxa.tagging.TaxaTagManager;
 import org.iucn.sis.client.panels.users.UploadUsersPanel;
@@ -33,6 +32,7 @@ import org.iucn.sis.client.panels.viruses.VirusManager;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.Bookmark;
+import org.iucn.sis.shared.api.models.SearchQuery;
 import org.iucn.sis.shared.api.utils.UserAffiliationProperties;
 import org.iucn.sis.shared.api.utils.UserAffiliationPropertiesFactory;
 

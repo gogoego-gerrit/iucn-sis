@@ -8,8 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.Disjunction;
+import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.locking.TaxonLockAquirer;
@@ -21,6 +25,7 @@ import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
+import org.iucn.sis.shared.api.models.SearchQuery;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.TaxonStatus;
@@ -36,10 +41,6 @@ public class TaxonIO {
 
 	public TaxonCriteria getCriteria() {
 		return new TaxonCriteria(session);
-	}
-
-	public Taxon[] search(TaxonCriteria criteria) {
-		return TaxonDAO.getTaxonByCriteria(criteria);
 	}
 
 	public Taxon getTaxon(Integer id) {
@@ -264,6 +265,53 @@ public class TaxonIO {
 			if (result.status.isError())
 				throw new TaxomaticException("Unable to save assessment " + assessment.getId() + ", it may be locked");
 		}
+	}
+	
+	public List<Taxon> search(SearchQuery query) {
+		Disjunction disjunction = Restrictions.disjunction(); 
+		boolean hasQuery = false;
+								
+		if (query.isCommonName()) {
+			hasQuery = true;
+			disjunction.add(Restrictions.ilike("CommonNames.name", clean(query.getQuery()), MatchMode.ANYWHERE));
+		}
+		
+		if (query.isSynonym()) {
+			hasQuery = true;
+			disjunction.add(Restrictions.ilike("Synonyms.friendlyName", clean(query.getQuery()), MatchMode.ANYWHERE));
+		}			
+			
+		if (query.isScientificName()) {
+			hasQuery = true;
+			disjunction.add(Restrictions.ilike("friendlyName", clean(query.getQuery()), MatchMode.ANYWHERE));
+		}
+		
+		//TODO: add support for countries and assessors
+		
+		final List<Taxon> taxa;
+		if (hasQuery) {
+			TaxonCriteria search = new TaxonCriteria(session.createCriteria(Taxon.class)
+				.createAlias("CommonNames", "CommonNames", Criteria.LEFT_JOIN)
+				.createAlias("Synonyms", "Synonyms", Criteria.LEFT_JOIN)
+				.add(disjunction)
+				.addOrder(Order.asc("friendlyName"))
+				.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY));
+			search.createTaxonLevelCriteria().level.ge(query.getLevel());
+			
+			taxa = Arrays.asList(search(search));
+		}
+		else
+			taxa = new ArrayList<Taxon>();
+		
+		return taxa;
+	}
+
+	public Taxon[] search(TaxonCriteria criteria) {
+		return TaxonDAO.getTaxonByCriteria(criteria);
+	}
+	
+	private String clean(String value) {
+		return SIS.get().getQueries().cleanSearchTerm(value);
 	}
 
 	public Taxon readTaxonByName(String kingdomName, String name) {

@@ -1,9 +1,12 @@
-package org.iucn.sis.client.panels.search;
+package org.iucn.sis.shared.api.models;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.iucn.sis.shared.api.models.TaxonLevel;
-
+import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeNode;
+import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.XMLWritingUtils;
 
 /**
@@ -142,6 +145,30 @@ public class SearchQuery {
 		xml.append("</search>");
 		
 		return xml.toString();
+	}
+	
+	public static SearchQuery fromXML(NativeDocument document) {
+		Map<String, String> data = new HashMap<String, String>();
+		NativeNodeList nodes = document.getDocumentElement().getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			NativeNode node = nodes.item(i);
+			
+			data.put(node.getNodeName(), node.getTextContent());
+		}
+		
+		String text = data.containsKey("commonName") ? data.get("commonName") : 
+			data.containsKey("synonym") ? data.get("synonym") : 
+				data.containsKey("sciName") ? data.get("sciName") : null;
+		
+		SearchQuery query = new SearchQuery(text);
+		query.setAssessor(data.get("assessor"));
+		query.setCountryOfOccurrence(data.get("country"));
+		query.setCommonName(data.containsKey("commonName"));
+		query.setLevel(Integer.valueOf(data.get("level")));
+		query.setScientificName(data.containsKey("sciName"));
+		query.setSynonym(data.containsKey("synonym"));
+				
+		return query;
 	}
 
 }

@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.iucn.sis.client.panels.search.SearchQuery;
 import org.iucn.sis.client.panels.search.SearchResultPage;
 import org.iucn.sis.client.panels.search.SearchResultPage.TaxonSearchResult;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.SearchQuery;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 
 import com.extjs.gxt.ui.client.Style.Orientation;

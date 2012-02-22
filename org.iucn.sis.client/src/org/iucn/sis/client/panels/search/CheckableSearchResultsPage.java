@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.TaxonomyCache;
+import org.iucn.sis.shared.api.models.SearchQuery;
 import org.iucn.sis.shared.api.models.Taxon;
 
 import com.extjs.gxt.ui.client.Style.SelectionMode;

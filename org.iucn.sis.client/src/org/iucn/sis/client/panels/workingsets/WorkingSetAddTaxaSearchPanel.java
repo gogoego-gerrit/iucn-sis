@@ -3,11 +3,11 @@ package org.iucn.sis.client.panels.workingsets;
 import java.util.Collection;
 
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.panels.search.SearchQuery;
 import org.iucn.sis.client.panels.search.SearchResultPage;
 import org.iucn.sis.client.panels.search.WorkingSetSearchResultsPage;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.utils.SearchPanel;
+import org.iucn.sis.shared.api.models.SearchQuery;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 

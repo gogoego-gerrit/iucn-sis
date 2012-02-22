@@ -2,6 +2,7 @@ package org.iucn.sis.client.panels.search;
 
 import java.util.List;
 
+import org.iucn.sis.shared.api.models.SearchQuery;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.solertium.lwxml.shared.NativeElement;

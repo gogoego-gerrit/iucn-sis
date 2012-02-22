@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.utils.PagingPanel;
 import org.iucn.sis.client.panels.utils.SearchPanel;
+import org.iucn.sis.shared.api.models.SearchQuery;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
