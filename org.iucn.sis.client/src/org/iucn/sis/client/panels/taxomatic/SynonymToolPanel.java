@@ -45,12 +45,15 @@ public class SynonymToolPanel extends Menu implements Referenceable {
 			public void componentSelected(MenuEvent ce) {
 				WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove this synonym?", new WindowUtils.SimpleMessageBoxListener() {
 					public void onYes() {
+						WindowUtils.showLoadingAlert("Deleting synonym...");
 						TaxonomyCache.impl.deleteSynonymn(taxon, synonym, new GenericCallback<String>() {
 							public void onSuccess(String result) {
+								WindowUtils.hideLoadingAlert();
 								WindowUtils.infoAlert("Successful delete of synonym " + synonym.getName());
 								ClientUIContainer.bodyContainer.refreshBody();
 							}
 							public void onFailure(Throwable caught) {
+								WindowUtils.hideLoadingAlert();
 								WindowUtils.errorAlert("Synonym was unable to be deleted");
 							}
 						});

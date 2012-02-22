@@ -47,18 +47,20 @@ public class CommonNameToolPanel extends Menu implements Referenceable {
 			public void componentSelected(MenuEvent ce) {
 				WindowUtils.confirmAlert("Confirm", "Are you sure you want to remove this common name?", new WindowUtils.SimpleMessageBoxListener() {
 					public void onYes() {
+						WindowUtils.showLoadingAlert("Deleting common name...");
 						cn.setChangeReason(CommonName.DELETED);
 						cn.setValidated(false);
 						TaxonomyCache.impl.editCommonName(taxon, cn, new GenericCallback<String>() {
 							public void onSuccess(String result) {
+								WindowUtils.hideLoadingAlert();
 								WindowUtils.infoAlert("Successful delete of common name " + cn.getName());
 								ClientUIContainer.bodyContainer.refreshBody();
 							}
 
 							@Override
 							public void onFailure(Throwable caught) {
+								WindowUtils.hideLoadingAlert();
 								WindowUtils.errorAlert("Common name was unable to be deleted");
-								
 							}
 						});
 					}
