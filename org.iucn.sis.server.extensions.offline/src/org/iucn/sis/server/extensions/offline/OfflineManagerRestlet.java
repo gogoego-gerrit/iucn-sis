@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.extensions.offline.manager.Resources;
 import org.iucn.sis.shared.api.models.OfflineMetadata;
 import org.restlet.Context;
@@ -42,9 +43,14 @@ public class OfflineManagerRestlet extends Restlet {
 		value = Replacer.replace(value, "$state", getStateMessage(arg0));
 		value = Replacer.replace(value, "$database", getDatabaseInfo());
 		value = Replacer.replace(value, "$backups", getBackupsListing());
+		value = Replacer.replace(value, "$version", getSoftwareVersion());
 		
 		arg1.setStatus(Status.SUCCESS_OK);
 		arg1.setEntity(value, MediaType.TEXT_HTML);
+	}
+	
+	private String getSoftwareVersion() {
+		return SIS.get().getSettings(null).getProperty(OfflineSettings.VERSION);
 	}
 	
 	private String getStateMessage(Request request) {

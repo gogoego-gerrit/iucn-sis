@@ -1,7 +1,10 @@
 package org.iucn.sis.server.extensions.offline;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -18,19 +21,23 @@ import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.extensions.offline.OfflineToOnlineImporter.OfflineImportMode;
 import org.iucn.sis.server.extensions.offline.manager.Resources;
 import org.iucn.sis.shared.api.models.OfflineMetadata;
+import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.Restlet;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
+import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.ext.fileupload.RestletFileUpload;
+import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.OutputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
+import org.w3c.dom.Document;
 
 import com.solertium.util.Replacer;
 import com.solertium.util.TrivialExceptionHandler;
@@ -81,6 +88,26 @@ public class OfflineManagerServicesRestlet extends Restlet {
 			 */
 			
 		}
+		else if ("update".equals(service)) {
+			String version = SIS.get().getSettings(null).getProperty(OfflineSettings.VERSION);
+			String updates = SIS.get().getSettings(null).getProperty(OfflineSettings.UPDATES);
+			boolean test = "true".equals(arg0.getResourceRef().getQueryAsForm().getFirstValue("test", "false"));
+			if (version == null) {
+				arg1.setEntity(getResultPage("No software version date detected, please check your settings and try again."));
+			}
+			else if (updates == null) {
+				arg1.setEntity(getResultPage("No update source site detected, please check your settings and try again."));
+			}
+			else {
+				try {
+					arg1.setEntity(getUpdates(version, updates, !test));
+				} catch (ResourceException e) {
+					arg1.setEntity(getResultPage(e.getMessage()));
+				} catch (Exception e) {
+					arg1.setEntity(getResultPage("Error starting sync: " + e.getMessage()));
+				}
+			}
+		}
 		else
 			arg1.setEntity(getResultPage("Service not found: " + service));
 	}
@@ -108,7 +135,90 @@ public class OfflineManagerServicesRestlet extends Restlet {
 		arg1.setEntity(getResultPage(message));
 	}
 	
+	private Representation getUpdates(String version, String updates, boolean live) throws IOException, ResourceException {
+		final PipedInputStream inputStream = new PipedInputStream(); 
+		final Representation representation = new OutputRepresentation(MediaType.TEXT_HTML) {
+			public void write(OutputStream out) throws IOException {
+				byte[] b = new byte[8];
+				int read;
+				while ((read = inputStream.read(b)) != -1) {
+					out.write(b, 0, read);
+					out.flush();
+				}
+			}
+		};
+		
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(new OutputStreamWriter(new PipedOutputStream(inputStream)), true);
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		final String url = updates + "/apps/org.iucn.sis.server.extensions.updates" + 
+			"/updates/" + version + "/zip";
+		final Request request = new Request(Method.GET, url);
+		
+		final Client client = new Client(Protocol.HTTP);
+		final Response response = client.handle(request);
+		if (!response.getStatus().isSuccess())
+			if (Status.SERVER_ERROR_SERVICE_UNAVAILABLE.equals(response.getStatus()))
+				return getResultPage("No updates available.");
+			else
+				return getResultPage("Error fetching updates: " + response.getStatus());
+		
+		File file = File.createTempFile("updates", "zip");
+		InputStream is = response.getEntity().getStream();
+		FileOutputStream os = new FileOutputStream(file);
+		
+		final byte[] buf = new byte[65536];
+		int i = 0;
+		while ((i = is.read(buf)) != -1)
+			os.write(buf, 0, i);
+		
+		os.close();
+		is.close();
+		
+		OfflineUpdater offlineUpdater = new OfflineUpdater(SIS.get().getExecutionContext(), file);
+		offlineUpdater.setOutputStream(writer, "<br/>");
+		offlineUpdater.setLive(live);
+		
+		new Thread(offlineUpdater).start();
+		
+		return representation;
+	}
+	
+	private boolean hasUpdates() {
+		String version = SIS.get().getSettings(null).getProperty(OfflineSettings.VERSION);
+		String updates = SIS.get().getSettings(null).getProperty(OfflineSettings.UPDATES);
+		
+		if (version != null && updates != null) {
+			final String url = updates + "/apps/org.iucn.sis.server.extensions.updates" + 
+				"/updates/" + version + "/list";
+			final Request request = new Request(Method.GET, url);
+			
+			final Client client = new Client(Protocol.HTTP);
+			final Response response = client.handle(request);
+			if (response.getStatus().isSuccess()) {
+				Document document;
+				try {
+					document = new DomRepresentation(response.getEntity()).getDocument();
+					
+					int count = Integer.valueOf(document.getDocumentElement().getAttribute("count"));
+					return count > 0;
+				} catch (Exception e) {
+					return false;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 	private Representation importToOnline(final String username, final OfflineImportMode mode) throws IOException, ResourceException {
+		if (hasUpdates())
+			return getResultPage("Software updates found. Please update your software before synchronizing.");
+		
 		final PipedInputStream inputStream = new PipedInputStream(); 
 		final Representation representation = new OutputRepresentation(MediaType.TEXT_HTML) {
 			public void write(OutputStream out) throws IOException {
