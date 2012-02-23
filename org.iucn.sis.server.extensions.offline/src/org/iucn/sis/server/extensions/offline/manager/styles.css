@@ -90,3 +90,46 @@ hr {
 	font-weight: bold;
 	font-size: 16px;
 }
+
+/* Loading Screen */
+
+#veil {
+	z-index: 20; 
+	position: absolute; 
+	left: 0px; 
+	top: 0px; 
+	background: #DDD; 
+	display:none; 
+	filter: alpha(opacity=75); 
+	opacity: 0.75;
+}
+
+#loadingArea {
+	z-index: 30; 
+	border: 2px solid #C01B24;
+	background-color: #FFF; 
+	width: 400px; 
+	padding: 10px; 
+	padding-top: 30px; 
+	padding-bottom: 30px; 
+	text-align: center; 
+	position: absolute; 
+	left: 0px; 
+	top: 0px; 
+	display: none;
+}
+
+#loadingArea img {
+	vertical-align: middle;
+	border: 0px solid #FFF;
+}
+
+#loadingText {
+	margin-top: 20px;
+	margin-right: 20px;
+	float: right;
+	text-align: center;
+	color: black;
+	font-weight: bold;
+	font-size: 18px;
+}

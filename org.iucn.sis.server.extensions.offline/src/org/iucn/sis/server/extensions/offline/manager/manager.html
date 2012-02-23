@@ -2,6 +2,7 @@
 	<head>
 		<title>SIS Offline Manager</title>
 		<link rel="stylesheet" type="text/css" href="manager/resources/styles.css" />
+		<script type="text/javascript" src="manager/resources/script.js"></script>
 	</head>
 	<body>
 		<div id="container">
@@ -19,7 +20,7 @@
 				<div>
 					<p>The current database is: $database</p>
 				</div>
-				<form method="POST" enctype="multipart/form-data" action="services/upload">
+				<form method="POST" enctype="multipart/form-data" action="services/upload" onsubmit="return showLoadingScreen();">
 					<span>Select Offline Database ZIP file:</span>
 					<input name="file" type="file" />
 					<div class="submitButton">
@@ -50,7 +51,7 @@
 	      			<p>Backup your Offline SIS database so that you can recover any changes you don't want, or 
 	      			in case errors occur during work.  Backups are automatically created during the sync 
 	      			process.</p> 
-	      			<form method="POST" action="services/backup">
+	      			<form method="POST" action="services/backup" onsubmit="return showLoadingScreen();">
 	      				<input type="hidden" name="redirect" value="true" />
 	      				<div class="submitButton">
 	      					<input type="submit" value="Submit" />
@@ -63,7 +64,7 @@
 	      			versions, select the version from the list below, then click Submit.  Your current 
 	      			version will be backed up first, then the selected version will become the working 
 	      			database.</p>
-	      			<form method="POST" action="services/restore">
+	      			<form method="POST" action="services/restore" onsubmit="return showLoadingScreen();">
 	      				$backups
 	      				<div class="submitButton">
 	      					<input type="submit" value="Submit" />
@@ -83,6 +84,14 @@
 	      				</div>
 	      			</form>
 	      		</div>
+			</div>
+		</div>
+		<div>
+			<div id="veil"></div>
+			<div id="loadingArea">
+				<img src="manager/resources/rotatingclock-fast.gif" />
+	 			<div id="loadingText">
+	 			</div>
 			</div>
 		</div>
 	</body>
