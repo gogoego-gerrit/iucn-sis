@@ -11,7 +11,8 @@ public class Application extends SimpleSISApplication {
 
 	@Override
 	public void init() {
-		addServiceToRouter(new SoftwareVersionRestlet(app.getContext()));
+		SoftwareVersionRestlet service = new SoftwareVersionRestlet(app.getContext());
+		addResource(service, service.getPaths(), true);
 	}
 
 }
