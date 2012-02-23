@@ -74,6 +74,16 @@ public class Edit implements Serializable, Comparable<Edit> {
 		attachments = new java.util.HashSet<FieldAttachment>();
 	}
 	
+	public Edit deepCopy() {
+		Edit edit = new Edit();
+		edit.setId(getId());
+		edit.setCreatedDate(getCreatedDate());
+		edit.setReason(getReason());
+		edit.setUser(getUser());
+		
+		return edit;
+	}
+	
 	@Override
 	public int compareTo(Edit o) {
 		if (this == o)
@@ -142,7 +152,7 @@ public class Edit implements Serializable, Comparable<Edit> {
 		this.reason = reason;
 	}
 	
-	private void setId(int value) {
+	public void setId(int value) {
 		this.id = value;
 	}
 	

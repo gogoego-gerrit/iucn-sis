@@ -161,6 +161,7 @@ public class AssessmentPersistence {
 							targetNotes = findNote(sourceNotes);
 							targetNotes.setField(target);
 							target.getNotes().add(targetNotes);
+							session.update(targetNotes);
 						}
 					}
 				}

@@ -82,12 +82,15 @@ public class Notes implements Serializable, ForeignObject<Notes> {
 		edits = new HashSet<Edit>();
 		fields = new HashSet<Field>();
 	}
+	
 	public Notes deepCopy() {
 		Notes note = new Notes();
 		note.setId(getId());
 		note.setValue(getValue());
+		note.setEdit(getEdit().deepCopy());
 		return note;
 	}
+	
 	public CommonName getCommonName() {
 		return commonNames.iterator().hasNext() ? commonNames.iterator().next() : null;
 	}
@@ -129,6 +132,7 @@ public class Notes implements Serializable, ForeignObject<Notes> {
 	public Notes getOfflineCopy() {
 		Notes copy = deepCopy();
 		copy.setId(0);
+		copy.getEdit().setId(0);
 		
 		return copy;
 	}
