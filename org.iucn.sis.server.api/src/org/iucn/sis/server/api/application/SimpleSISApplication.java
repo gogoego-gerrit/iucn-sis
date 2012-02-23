@@ -1,6 +1,7 @@
 package org.iucn.sis.server.api.application;
 
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.server.api.restlets.SimpleRestlet;
 
 /**
  * SimpleSISApplication.java
@@ -46,6 +47,10 @@ public abstract class SimpleSISApplication extends SISApplication {
 	}
 	
 	protected void addServiceToRouter(BaseServiceRestlet curService) {
+		addResource(curService, curService.getPaths(), false);
+	}
+	
+	protected void addServiceToRouter(SimpleRestlet curService) {
 		addResource(curService, curService.getPaths(), false);
 	}
 
