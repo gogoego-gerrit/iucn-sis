@@ -84,12 +84,12 @@ public class WorkingSetExporter extends DatabaseExporter {
 			return;
 		};
 		
-		write("Write complete, zipping results...");
-		
 		try {
 			write("--- Complete ---");
+			write("Write complete, zipping results...");
+			String link = zip();
 			write("You can now download your working set.");
-			write("<a target=\"blank\" href=\"/apps/org.iucn.sis.server/workingSetExporter/downloads/%s\">Click here to download</a>", zip());
+			write("<a target=\"blank\" href=\"/apps/org.iucn.sis.server/workingSetExporter/downloads/%s\">Click here to download</a>", link);
 		} catch (Exception e) {
 			write("Failed to zip database");
 		}
@@ -204,13 +204,13 @@ public class WorkingSetExporter extends DatabaseExporter {
 		
 		try {
 			copy(source, target, fromScratch);
-			
-			afterRun();
 		} finally {
 			source.close();
 			target.close();
 			targetManager.shutdown();
 		}
+		
+		afterRun();
 	}
 	
 	protected void copy(Session source, Session target, boolean fromScratch) throws DBException, PersistentException {
