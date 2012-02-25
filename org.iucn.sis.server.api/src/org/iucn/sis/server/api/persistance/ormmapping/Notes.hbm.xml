@@ -32,7 +32,7 @@ License Type: Evaluation
 			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
 			</many-to-many>
 		</set>
-		<set name="Fields" table="notes_field" lazy="true" cascade="save-update,lock">
+		<set name="Fields" table="notes_field" lazy="true" cascade="save-update,lock" inverse="true">
 			<key column="notesid" not-null="true"/>
 			<many-to-many column="fieldid" class="org.iucn.sis.shared.api.models.Field">
 			</many-to-many>

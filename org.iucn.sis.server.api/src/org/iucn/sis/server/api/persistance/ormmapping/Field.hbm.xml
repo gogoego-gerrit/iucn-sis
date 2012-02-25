@@ -15,7 +15,7 @@ License Type: Evaluation
 		<property name="name" column="name" type="string" length="255" not-null="true" lazy="false"/>
 		<many-to-one name="parent" cascade="lock,replicate" column="parentid" class="org.iucn.sis.shared.api.models.Field" not-null="false" lazy="no-proxy">
 		</many-to-one>
-		<set name="Notes" table="notes_field" lazy="true" cascade="save-update,lock,replicate" inverse="true">
+		<set name="Notes" table="notes_field" lazy="true" cascade="save-update,lock,replicate">
 			<key column="fieldid" not-null="true"/>
 			<many-to-many column="notesid" class="org.iucn.sis.shared.api.models.Notes">
 			</many-to-many>
@@ -33,7 +33,7 @@ License Type: Evaluation
 			<key column="fieldid" not-null="true"/>
 			<one-to-many class="org.iucn.sis.shared.api.models.PrimitiveField"/>
 		</set>
-		<set name="FieldAttachment" table="fieldattachment_field" lazy="false" cascade="save-update,lock,replicate">
+		<set name="FieldAttachment" table="fieldattachment_field" lazy="false" cascade="save-update,lock,replicate" inverse="true">
 			<key column="fieldid" not-null="true"/>
 			<many-to-many column="fieldattachmentid" class="org.iucn.sis.shared.api.models.FieldAttachment">
 			</many-to-many>

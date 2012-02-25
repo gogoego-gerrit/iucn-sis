@@ -13,7 +13,7 @@ License Type: Evaluation
 		<property name="name" column="name" type="string" length="1024" not-null="true" lazy="false"/>
 		<property name="key" column="key" type="string" length="1024" not-null="true" lazy="false"/>
 		<property name="publish" column="publish" type="boolean" length="1" not-null="true" lazy="false"/>
-		<set name="Edits" table="fieldattachment_edit" lazy="true" cascade="save-update,lock">
+		<set name="Edits" table="fieldattachment_edit" lazy="true" cascade="save-update,lock,replicate">
 			<key column="fieldattachmentid" not-null="true"/>
 			<many-to-many column="editid" class="org.iucn.sis.shared.api.models.Edit">
 			</many-to-many>
