@@ -35,6 +35,7 @@ public class AssessmentPersistence {
 	private boolean allowDelete = true;
 	private boolean allowManageReferences = true;
 	private boolean allowManageNotes = true;
+	private boolean allowForeignData = false;
 	
 	public AssessmentPersistence(Session session, Assessment target) {
 		this.session = session;
@@ -74,13 +75,20 @@ public class AssessmentPersistence {
 		this.allowManageNotes = allowManageNotes;
 	}
 	
+	public void setAllowForeignData(boolean allowForeignData) {
+		this.allowForeignData = allowForeignData;
+	}
+	
 	public void sink(Assessment source) throws PersistentException {
 		sink(new HashSet<Field>(source.getField()));
 	}
 	
 	public void sink(Set<Field> sourceFields) throws PersistentException {
-		Map<Integer, Field> existingFields = mapFields(target.getField());
-		
+		Map<Integer, Field> existingFieldsByID = mapFields(target.getField());
+		Map<String, Field> existingFieldsByName = new HashMap<String, Field>();
+		for (Field field : target.getField())
+			existingFieldsByName.put(field.getName(), field);
+			
 		for (Field sourceField : sourceFields) {
 			if (sourceField.getId() == 0) {
 				if (allowAdd) {
@@ -90,8 +98,23 @@ public class AssessmentPersistence {
 					changeSet.add(createAddChange(sourceField));
 				}
 			}
+			else if (!existingFieldsByName.containsKey(sourceField.getName())) {
+				if (allowAdd && allowForeignData) {
+					//Field is new to this assessment, create a copy..
+					
+					Field copy = sourceField.deepCopy(false);
+					copy.setAssessment(target);
+					copy.setReference(new HashSet<Reference>(sourceField.getReference()));
+					
+					target.getField().add(copy);
+					changeSet.add(createAddChange(copy));
+				}
+			}
 			else {
-				Field targetField = existingFields.remove(sourceField.getId());
+				Field targetField = existingFieldsByID.remove(sourceField.getId());
+				if (targetField == null && allowForeignData)
+					targetField = existingFieldsByID.remove(sourceField.getName());
+				
 				if (targetField != null) {
 					AssessmentChange pendingEdit = createEditChange(targetField, sourceField);
 					AssessmentChange pendingDelete = createDeleteChange(targetField);
@@ -112,7 +135,7 @@ public class AssessmentPersistence {
 		 * Only delete top-level fields
 		 */
 		if (allowDelete) {
-			for (Field field : existingFields.values()) {
+			for (Field field : existingFieldsByID.values()) {
 				if (field.getParent() == null) {
 					changeSet.add(createDeleteChange(field));
 					deleteField(field);
@@ -201,6 +224,14 @@ public class AssessmentPersistence {
 					sourceField.setParent(target);
 					//FieldDAO.save(sourceField);
 					target.getFields().add(sourceField);
+				}
+				else if (!existingFields.containsKey(sourceField.getId())) {
+					if (allowForeignData) {
+						Field copy = sourceField.deepCopy(false);
+						copy.setReference(sourceField.getReference());
+						
+						target.getFields().add(copy);
+					}
 				}
 				else {
 					Field targetField = existingFields.remove(sourceField.getId());

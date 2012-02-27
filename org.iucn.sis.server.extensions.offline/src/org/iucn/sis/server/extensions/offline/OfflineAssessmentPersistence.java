@@ -16,6 +16,7 @@ public class OfflineAssessmentPersistence extends AssessmentPersistence {
 	
 	public OfflineAssessmentPersistence(Session session, Assessment target) {
 		super(session, target);
+		setAllowForeignData(true);
 	}
 	
 	public void setOfflineNotes(Map<Integer, Integer> offlineNotes) {
