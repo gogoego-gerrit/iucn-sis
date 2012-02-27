@@ -21,6 +21,8 @@ public interface CannedQueries {
 	
 	public String getRecentActivity(String mode, Date dateTime, String... parameters);
 	
+	public String getReferenceSearchQuery(String where);
+	
 	public String cleanSearchTerm(String value);
 
 }

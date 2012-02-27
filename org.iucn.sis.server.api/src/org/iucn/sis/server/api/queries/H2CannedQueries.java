@@ -3,6 +3,8 @@ package org.iucn.sis.server.api.queries;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.solertium.util.Replacer;
+
 public class H2CannedQueries extends PostgreSQLCannedQueries {
 
 	@Override
@@ -53,6 +55,28 @@ public class H2CannedQueries extends PostgreSQLCannedQueries {
 		}
 		
 		return query;
+	}
+	
+	public String getReferenceSearchQuery(String where) {
+		return Replacer.replace(
+			"SELECT usage.*, CAST(SUM(taxon_count) + SUM(field_count) + SUM(assessment_count) " +
+			"+ SUM(common_name_count) + SUM(synonym_count) AS INT) AS total_count " +
+			"FROM ( " + 
+			"SELECT id, COUNT(taxonid) AS taxon_count, COUNT(assessmentid) AS assessment_count, " + 
+			"COUNT(fieldid) AS field_count, COUNT(common_nameid) AS common_name_count, " + 
+			"COUNT(synonymid) AS synonym_count " + 
+	  	    "FROM reference " + 
+	  	    "LEFT JOIN common_name_reference cr on cr.referenceid = id " + 
+	  	    "LEFT JOIN synonym_reference sr on sr.referenceid = id " + 
+	  	    "LEFT JOIN reference_taxon tr on tr.referenceid = id " + 
+	  	    "LEFT JOIN assessment_reference ar on ar.referenceid = id " + 
+	  	    "LEFT JOIN field_reference fr on fr.referenceid = id " + 
+	  	    "$where " + 
+	  	    "GROUP BY id " + 
+	  	    ") usage " + 
+	  	    "GROUP BY id, taxon_count, assessment_count, field_count, common_name_count, synonym_count " + 
+		   	"LIMIT 500", "$where", where
+		);
 	}
 
 }
