@@ -40,6 +40,7 @@ import org.iucn.sis.shared.helpers.ReferenceUI;
 import org.iucn.sis.shared.helpers.SynonymData;
 import org.iucn.sis.shared.helpers.TaxonNode;
 import org.iucn.sis.shared.helpers.TaxonNodeFactory;
+import org.iucn.sis.shared.migration.SynonymConverter;
 
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.Row;

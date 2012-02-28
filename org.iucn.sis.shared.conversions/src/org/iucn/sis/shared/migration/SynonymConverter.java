@@ -1,4 +1,4 @@
-package org.iucn.sis.shared.conversions;
+package org.iucn.sis.shared.migration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,6 +18,8 @@ import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.conversions.FileListing;
+import org.iucn.sis.shared.conversions.GenericConverter;
 import org.iucn.sis.shared.helpers.SynonymData;
 import org.iucn.sis.shared.helpers.TaxonNode;
 import org.iucn.sis.shared.helpers.TaxonNodeFactory;

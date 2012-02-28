@@ -1,4 +1,4 @@
-package org.iucn.sis.shared.conversions;
+package org.iucn.sis.shared.migration;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,6 +15,9 @@ import org.iucn.sis.server.api.utils.FilenameStriper;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.User;
+import org.iucn.sis.shared.conversions.FileListing;
+import org.iucn.sis.shared.conversions.GenericConverter;
+import org.iucn.sis.shared.conversions.VFSInfo;
 import org.iucn.sis.shared.helpers.AssessmentData;
 import org.iucn.sis.shared.helpers.AssessmentParser;
 import org.iucn.sis.shared.helpers.ReferenceUI;

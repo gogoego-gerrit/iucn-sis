@@ -954,6 +954,7 @@ public class AssessmentConverter extends GenericConverter<VFSInfo> {
 
 						for( int i = 0; i < numStresses.intValue(); i++ ) {
 							Field stress = new Field("StressesSubfield", null);
+							stress.setParent(subfield);
 							
 							StressField proxy = new StressField(stress);
 							proxy.setStress(Integer.valueOf( dataList.get(7+i) ) );

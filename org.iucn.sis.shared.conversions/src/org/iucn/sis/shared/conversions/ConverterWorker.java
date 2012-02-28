@@ -12,6 +12,11 @@ import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.utils.SISGlobalSettings;
 import org.iucn.sis.shared.conversions.AssessmentConverter.ConversionMode;
 import org.iucn.sis.shared.helpers.ServerPaths;
+import org.iucn.sis.shared.migration.GlobalReferenceConverter;
+import org.iucn.sis.shared.migration.OccurrenceConverter;
+import org.iucn.sis.shared.migration.RedListEvaluatedConverter;
+import org.iucn.sis.shared.migration.StressesConverter;
+import org.iucn.sis.shared.migration.SynonymConverter;
 import org.restlet.data.Form;
 
 import com.solertium.util.TrivialExceptionHandler;
@@ -85,6 +90,8 @@ public class ConverterWorker implements Runnable {
 			success = convertOccurrence(writer);
 		else if ("redlistevaluated".equals(step))
 			success = convertRedListEvaluated(writer);
+		else if ("stresses".equals(step))
+			success = convertStresses(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -279,6 +286,20 @@ public class ConverterWorker implements Runnable {
 		RedListEvaluatedConverter converter;
 		try {
 			converter = new RedListEvaluatedConverter();
+		} catch (NamingException e) {
+			die("Failed to locate lookup database", e, writer);
+			return false;
+		}
+		initConverter(converter, writer);
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
+		
+		return converter.start();
+	}
+	
+	private boolean convertStresses(Writer writer) {
+		StressesConverter converter;
+		try {
+			converter = new StressesConverter();
 		} catch (NamingException e) {
 			die("Failed to locate lookup database", e, writer);
 			return false;
