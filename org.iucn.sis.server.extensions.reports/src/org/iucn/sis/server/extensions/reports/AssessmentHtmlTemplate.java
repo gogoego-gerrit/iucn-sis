@@ -387,7 +387,9 @@ public class AssessmentHtmlTemplate {
 			theHtml.append(" ");
 		}
 		theHtml.append("</p>");
-		Field taxonomicNotes = assessment.getField(CanonicalNames.TaxonomicNotes);
+		Field taxonomicNotes = null;
+		if (assessment.isPublished())
+			taxonomicNotes = assessment.getField(CanonicalNames.TaxonomicNotes);
 		if (taxonomicNotes == null || !taxonomicNotes.hasData())
 			taxonomicNotes = taxon.getTaxonomicNotes();
 		if (taxonomicNotes != null && taxonomicNotes.getPrimitiveField() != null && !taxonomicNotes.getPrimitiveField().isEmpty()) {
