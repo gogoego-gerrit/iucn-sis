@@ -14,6 +14,7 @@ import org.gogoego.api.representations.GoGoEgoBaseRepresentation;
 import org.gogoego.api.representations.GoGoEgoStringRepresentation;
 import org.gogoego.api.utils.MagicDisablingFilter;
 import org.gogoego.api.utils.PluginBroker;
+import org.iucn.sis.server.api.application.SIS;
 import org.restlet.Context;
 import org.restlet.data.Encoding;
 import org.restlet.data.MediaType;
@@ -127,6 +128,8 @@ public abstract class VersionedGWTClientResource extends SimpleClasspathResource
 				else
 					return version;
 			}
+			else if ("online".equals(key))
+				return Boolean.toString(SIS.amIOnline());
 			else
 				return super.resolveEL(key);
 		}

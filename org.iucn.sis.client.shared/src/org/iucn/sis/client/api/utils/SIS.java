@@ -11,6 +11,7 @@ import org.iucn.sis.shared.api.debug.Debug;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.google.gwt.user.client.IncrementalCommand;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GWTResponseException;
@@ -25,6 +26,8 @@ import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.portable.XMLWritingUtils;
 
 public class SIS {
+	
+	private static Boolean isOnline = null;
 	
 	public static String getBuildNumber() {
 		String buildNumber = "2.0.0";
@@ -45,7 +48,19 @@ public class SIS {
 	}
 	
 	public static boolean isOnline() {
-		return SISClientBase.iAmOnline;
+		if (isOnline == null) {
+			boolean online = true;
+			try {
+				online = !"false".equals(RootPanel.get("online").getElement().getInnerText());
+			} catch (Throwable e) {
+				Debug.println("Error determining connection status.");
+			}
+			if (online && UriBase.getInstance().isHostedMode())
+				online = !"true".equals(Window.Location.getParameter("offline"));
+			
+			isOnline = online;
+		}
+		return isOnline;
 	}
 	
 	public static void fetchList(final Collection<String> uriList, final Map<String, GenericCallback<NativeDocument>> listeners) {

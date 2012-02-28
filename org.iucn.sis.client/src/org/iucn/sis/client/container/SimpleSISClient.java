@@ -6,10 +6,14 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.BookmarkCache;
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
+import org.iucn.sis.client.api.caches.OfflineCache;
 import org.iucn.sis.client.api.caches.RecentlyAccessedCache;
 import org.iucn.sis.client.api.caches.ViewCache;
+import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.HasCache;
+import org.iucn.sis.client.api.utils.SIS;
+import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.extensions.birdlife.structures.BirdlifeWidgetGenerator;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.citations.Referenceable;
@@ -24,6 +28,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.Window.ClosingEvent;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.solertium.lwxml.shared.GenericCallback;
+import com.solertium.util.extjs.client.WindowUtils;
 
 import ext.ux.theme.black.client.Black;
 import ext.ux.theme.darkgray.client.DarkGray;
@@ -37,6 +42,24 @@ public class SimpleSISClient extends SISClientBase {
 	
 	public void loadModule() {
 		instance = this;
+		
+		if (SIS.isOffline()) {
+			Window.setTitle("Offline - " + Window.getTitle());
+			
+			OfflineCache.impl.initialize(new GenericCallback<Object>() {
+				public void onSuccess(Object result) {
+					finishLoading();
+				}
+				public void onFailure(Throwable caught) {
+					Window.Location.assign(UriBase.getInstance().getOfflineBase() + "/manager?s=1");
+				}
+			});
+		}
+		else
+			finishLoading();
+	}
+	
+	private void finishLoading() {
 		
 		/*
 		 * This must happen before any Ext widget 
@@ -76,6 +99,8 @@ public class SimpleSISClient extends SISClientBase {
 		
 		List<HasCache> list = new ArrayList<HasCache>();
 		list.add(BookmarkCache.impl);
+		if (SIS.isOffline())
+			list.add(OfflineCache.impl);
 		
 		return list;
 	}
@@ -87,8 +112,18 @@ public class SimpleSISClient extends SISClientBase {
 	
 	@Override
 	public void buildPostLogin() {
-		container.buildPostLogin(currentUser.getFirstName(), currentUser.getLastName(), currentUser
-				.getAffiliation());
+		if (SIS.isOffline()) {
+			if (OfflineCache.impl.get() == null)
+				WindowUtils.errorAlert("Could not load working set metadata, please check your installation parameters.");
+			else if (WorkingSetCache.impl.getOfflineWorkingSet() == null)
+				WindowUtils.errorAlert("Sorry, you do not have permission to edit the offline working set. Ask the working set owner to share it with you.");
+			else
+				container.buildPostLogin(currentUser.getFirstName(), currentUser.getLastName(), currentUser
+						.getAffiliation());
+		}
+		else
+			container.buildPostLogin(currentUser.getFirstName(), currentUser.getLastName(), currentUser
+					.getAffiliation());
 	}
 	
 	@Override

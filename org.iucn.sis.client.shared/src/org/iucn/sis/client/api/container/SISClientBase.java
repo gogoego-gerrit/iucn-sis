@@ -145,7 +145,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 									currentUser.setProperty(UserPreferences.AUTO_SAVE, UserPreferences.AutoSave.DO_ACTION);
 								
 								try {
-									if (!iAmOnline)
+									if (SIS.isOffline())
 										currentUser.setProperty("quickGroup", "offline");
 									
 									AuthorizationCache.impl.addUser(currentUser);
@@ -207,8 +207,6 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 	public static SISClientBase instance;
 	
 	public static ClientUser currentUser;
-	
-	public static boolean iAmOnline = true;
 
 	public static NativeDocument getHttpBasicNativeDocument() {
 		return NativeDocumentFactory.newNativeDocument();

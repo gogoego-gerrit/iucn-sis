@@ -1,8 +1,0 @@
-<module rename-to="SIS">
-
-	<inherits name='org.iucn.sis.SISBase' />
-	
-	<!-- Specify the app entry point class. -->
-	<entry-point class="org.iucn.sis.client.container.OfflineSimpleSISClient"/>
-	
-</module>
