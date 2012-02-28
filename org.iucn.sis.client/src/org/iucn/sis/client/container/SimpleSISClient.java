@@ -13,7 +13,6 @@ import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.HasCache;
 import org.iucn.sis.client.api.utils.SIS;
-import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.extensions.birdlife.structures.BirdlifeWidgetGenerator;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.shared.api.citations.Referenceable;
@@ -51,7 +50,7 @@ public class SimpleSISClient extends SISClientBase {
 					finishLoading();
 				}
 				public void onFailure(Throwable caught) {
-					Window.Location.assign(UriBase.getInstance().getOfflineBase() + "/manager?s=1");
+					OfflineCache.impl.openManager("s=1");
 				}
 			});
 		}

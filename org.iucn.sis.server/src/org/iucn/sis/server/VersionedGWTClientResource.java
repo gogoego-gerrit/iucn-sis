@@ -110,6 +110,7 @@ public abstract class VersionedGWTClientResource extends SimpleClasspathResource
 
 	public static class ClientTemplateRepresentation extends GoGoEgoStringRepresentation {
 		
+		@SuppressWarnings("unused")
 		private final String plugin;
 		private final String version;
 		
@@ -130,6 +131,9 @@ public abstract class VersionedGWTClientResource extends SimpleClasspathResource
 			}
 			else if ("online".equals(key))
 				return Boolean.toString(SIS.amIOnline());
+			else if ("software".equals(key))
+				return SIS.get().getSettings(null).
+					getProperty("org.iucn.sis.server.extensions.offline.version", "current");
 			else
 				return super.resolveEL(key);
 		}

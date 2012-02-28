@@ -1,5 +1,6 @@
 package org.iucn.sis.client.panels.login;
 
+import org.iucn.sis.client.api.caches.OfflineCache;
 import org.iucn.sis.client.api.container.SISClientBase.SimpleSupport;
 import org.iucn.sis.client.api.ui.users.panels.AddUserWindow;
 import org.iucn.sis.client.api.utils.SIS;
@@ -13,11 +14,9 @@ import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.custom.ThemeSelector;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.TextField;
@@ -35,9 +34,9 @@ import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.extjs.login.client.ChangePasswordPanel;
 import com.solertium.util.gwt.ui.StyledHTML;
@@ -136,42 +135,6 @@ public class LoginPanel extends LayoutContainer {
 		
 		if (SIS.isOffline())
 			descriptionPanel.add(new Paragraph("You are working offline.", "bold"));
-		
-		//FIXME: re-tooling needed here.
-		/*if (SIS.isOffline()) {
-			descriptionPanel.add(new HTML("<div style='margin: 5px; margin-top: 20px;'>" +
-					"Done with offline data?</div>"));
-			descriptionPanel.add(new Button("Clear data", new ClickHandler() {
-				public void onClick(ClickEvent event) {
-					final Button button = (Button)event.getSource();
-					button.setEnabled(false);
-					WindowUtils.confirmAlert("Confirm Deletion of Data", "This will clear all data from the offline version including all assessments and working sets.  This may take a while if you had a lot of data.  Are you sure you want to remove data?", 
-							new WindowUtils.MessageBoxListener() {
-						@Override
-						public void onYes() {
-							final NativeDocument ndoc = SimpleSISClient.getHttpBasicNativeDocument();
-							ndoc.delete(UriBase.getInstance().getOfflineBase() +"/offline/clear", new GenericCallback<String>() {
-								public void onSuccess(String result) {
-									WindowUtils.infoAlert("Success", "All offline data has been removed.  To add in data, please import a working set.");
-									button.setEnabled(true);
-								}
-								public void onFailure(Throwable caught) {
-									WindowUtils.errorAlert(ndoc.getText());
-									button.setEnabled(true);
-								}
-							});
-						}
-						@Override
-						public void onNo() {
-							button.setEnabled(true);
-						}
-					}, "Yes, Clear Data", "Cancel");
-				}
-			}));
-		}*/
-		
-		/*wrap.addStyleName("SIS_CenteredPage");
-		wrap.setWidget(moreWrap);*/
 
 		// Add content to content area
 		/* BOTTOM PANEL: CONTENT */
@@ -412,38 +375,24 @@ public class LoginPanel extends LayoutContainer {
 	 * Then, you can load the information in synchronous fashion here.
 	 */
 	private void checkForUpdates() {
-		final NativeDocument updateDoc = NativeDocumentFactory.newNativeDocument();
-		updateDoc.getAsText(UriBase.getInstance().getSISBase() + "/update/summary", new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				offlineUpdateStatus.setHTML("<span style=\"color: gray;\"><b>No updates available.</b></span>");
-			}
-
-			public void onSuccess(String result) {
-				String message = updateDoc.getText();
-				offlineUpdateStatus.setHTML("<span style=\"color: #gray;\"><b>" + message + "</b></span>");
-				Button doUpdate = new Button("Process Updates", new ClickHandler() {
-					public void onClick(ClickEvent event) {
-						WindowUtils.showLoadingAlert("Processing updates ... please wait.");
-						final NativeDocument processUpdatesDoc = NativeDocumentFactory.newNativeDocument();
-						processUpdatesDoc.getAsText(UriBase.getInstance().getSISBase() + "/update", new GenericCallback<String>() {
-							public void onFailure(Throwable caught) {
-								WindowUtils.hideLoadingAlert();
-								Window w = WindowUtils.newWindow("Update Message", null, false, false);
-								w.add(new Html(processUpdatesDoc.getText()));
-								w.show();
-							}
-
-							public void onSuccess(String result) {
-								WindowUtils.hideLoadingAlert();
-								Window w = WindowUtils.newWindow("Update Message", null, false, false);
-								w.add(new Html(processUpdatesDoc.getText()));
-								w.setClosable(false);
-								w.show();
-							}
-						});
-					}
-				});
-				offlineUpdatePanel.add(doUpdate);
+		OfflineCache.impl.checkForUpdates(new ComplexListener<Integer>() {
+			public void handleEvent(Integer eventData) {
+				String message;
+				if (eventData == 0)
+					message = "<span style=\"color: gray;\"><i>No updates available.</i></span>";
+				else if (eventData == 1)
+					message = "<span style=\"color: #gray;\"><b>One update available. Please use the Offline Manager to download it.</b></span>";
+				else
+					message = "<span style=\"color: #gray;\"><b>"+eventData+" updates available. Please use the Offline Manager to download them.</b></span>";
+				
+				offlineUpdateStatus.setHTML(message);
+				if (eventData > 0) {
+					offlineUpdatePanel.add(new Button("Get Updates", new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							OfflineCache.impl.openManager();
+						}
+					}));
+				}
 			}
 		});
 	}

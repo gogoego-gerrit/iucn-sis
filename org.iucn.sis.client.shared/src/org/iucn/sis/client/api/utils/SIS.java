@@ -63,6 +63,20 @@ public class SIS {
 		return isOnline;
 	}
 	
+	public static String getSoftwareVersion() {
+		String software = "current";
+		try {
+			software = RootPanel.get("software").getElement().getInnerText();
+		} catch (Throwable e) {
+			Debug.println("Error loading software version.");
+		}
+		return software;
+	}
+	
+	public static boolean isSoftwareCurrent() {
+		return "current".equals(getSoftwareVersion());
+	}
+	
 	public static void fetchList(final Collection<String> uriList, final Map<String, GenericCallback<NativeDocument>> listeners) {
 		fetchList(uriList, listeners, null, true);
 	}

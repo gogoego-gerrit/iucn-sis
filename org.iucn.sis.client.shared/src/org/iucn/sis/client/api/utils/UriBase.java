@@ -113,6 +113,10 @@ public class UriBase {
 		return getBase() + "/org.iucn.sis.server.extensions.tags";
 	}
 	
+	public String getUpdatesBase() {
+		return getBase() + "/org.iucn.sis.server.extensions.updates";
+	}
+	
 	public String getUserBase() {
 		return getBase() + "/org.iucn.sis.server.extensions.user";
 	}

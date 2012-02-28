@@ -52,9 +52,7 @@ public class OfflineFooter extends ToolBar {
 		
 		Button gear = new Button("Open SIS Offline Manager", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				com.google.gwt.user.client.Window.Location.assign(
-					UriBase.getInstance().getOfflineBase() + "/manager"
-				);
+				OfflineCache.impl.openManager();
 			}
 		});
 		gear.addStyleName("icon-gear");
