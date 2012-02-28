@@ -25,7 +25,7 @@ public class UploadUsersPanel extends LayoutContainer {
 		panel.add(new Html("Please select a spreadsheet to upload to create new users and profiles."));
 		panel.add(new Html("&nbsp;"));
 		panel.add(new Html("The columns are required to be in the following order (* = required):"));
-		panel.add(new Html("email*,type* (\"u\" for user, \"p\" for profile only),first_name,last_name*,mid_initial,nickname,affiliation"));
+		panel.add(new Html("email*,type* (\"u\" for user, \"p\" for profile only),first_name,last_name*,initials,nickname,affiliation"));
 		panel.add(new Html("&nbsp;"));
 		panel.add(new Html("Click the button below to begin.  You may be required to enter your username and password."));
 		panel.add(new Html("&nbsp;"));

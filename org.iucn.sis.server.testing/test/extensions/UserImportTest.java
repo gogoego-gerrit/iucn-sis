@@ -92,13 +92,33 @@ public class UserImportTest extends BasicTest implements ImportFromCSV.UserEvent
 		Assert.assertTrue(result.contains("3 new identities"));
 		Assert.assertTrue(!result.contains("were not created"));
 	}
+	
+	@Test
+	public void testInitials() throws IOException {
+		StringBuilder lines = new StringBuilder();
+		lines.append("email,type,first_name,last_name,initials,nickname,affiliation\n");
+		lines.append("carl.scott@solertium.com,u,Carl,Scott,C.E.,SIS,Solertium\n");
+		lines.append("carl.scott.2@solertium.com,p,Carl,Scott\n");
+		lines.append("carl.scott.3@solertium.com,u,Carl,Scott,,Test,Me\n");
+		
+		StringWriter writer = new StringWriter();
+		
+		worker.setOutputStream(writer, "\r\n");
+		worker.importUsers(new StringReader(lines.toString()));
+		
+		String result = writer.toString();
+		Debug.println(result);
+		
+		Assert.assertTrue(result.contains("3 new identities"));
+		Assert.assertTrue(!result.contains("were not created"));
+	}
 
 	@Override
 	public boolean addUser(User user) {
-		Debug.println("{0} - {1} {2} ({3}) initials: {4}, affil: {5}; user? {6}", 
+		Debug.println("{0} - {1} {2} ({3}) initials: {4}, affil: {5}; user? {6}; Citation as {7}", 
 			user.getUsername(), user.getFirstName(), user.getLastName(), 
 			user.getNickname(), user.getInitials(), user.getAffiliation(), 
-			user.isSISUser()
+			user.isSISUser(), user.getCitationName()
 		);
 		
 		return seen.add(user.getUsername());

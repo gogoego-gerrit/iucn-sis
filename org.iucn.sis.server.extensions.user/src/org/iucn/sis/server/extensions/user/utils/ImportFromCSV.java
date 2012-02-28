@@ -17,7 +17,7 @@ public class ImportFromCSV extends DynamicWriter {
 	private static final int TYPE = 1;
 	private static final int FIRST = 2;
 	private static final int LAST = 3;
-	private static final int MID_INITIAL = 4;
+	private static final int INITIALS = 4;
 	private static final int NICKNAME = 5;
 	private static final int AFFILIATION = 6;
 	
@@ -70,8 +70,7 @@ public class ImportFromCSV extends DynamicWriter {
 				case LAST:
 					user.setLastName(token);
 					break;
-				case MID_INITIAL:
-					//SIS doens't take the middle initial...let's add it to the initial tho
+				case INITIALS:
 					user.setInitials(token);
 					break;
 				case NICKNAME:
@@ -97,16 +96,6 @@ public class ImportFromCSV extends DynamicWriter {
 				
 				continue;
 			}
-			
-			if (!isBlank(user.getInitials())) {
-				String middle = user.getInitials();
-				String initials = "";
-				if (!isBlank(user.getFirstName()))
-					initials = user.getFirstName().charAt(0) + middle + user.getLastName().charAt(0);
-				user.setInitials(initials);
-			}
-			else if (!isBlank(user.getFirstName()))
-				user.setInitials(user.getFirstName().charAt(0) + "" + user.getLastName().charAt(0));
 			
 			if ("u".equalsIgnoreCase(mode)) {
 				user.setSisUser(true);
