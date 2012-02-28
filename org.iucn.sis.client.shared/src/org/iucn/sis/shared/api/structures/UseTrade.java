@@ -276,7 +276,30 @@ public class UseTrade extends Structure<Field> {
 	
 	@Override
 	public List<ClassificationInfo> getClassificationInfo() {
-		return new ArrayList<ClassificationInfo>();
+		Field data = new Field();
+		save(null, data);
+		
+		UseTradeField proxy = new UseTradeField(data);
+		
+		ArrayList<String> rawData = new ArrayList<String>();
+		rawData.add(proxy.getPurpose() == null ? "-1" : Integer.toString(proxy.getPurpose()));
+		rawData.add(proxy.getSource() == null ? "-1" : Integer.toString(proxy.getSource()));
+		rawData.add(proxy.getFormRemoved() == null ? "-1" : Integer.toString(proxy.getFormRemoved()));
+		rawData.add(proxy.getSubsistence() == null ? "false" : Boolean.toString(proxy.getSubsistence()));
+		rawData.add(proxy.getNational() == null ? "false" : Boolean.toString(proxy.getNational()));
+		rawData.add(proxy.getInternational() == null ? "false" : Boolean.toString(proxy.getInternational()));
+		rawData.add(proxy.getHarvestLevel());
+		rawData.add(proxy.getUnits() == null ? "-1" : Integer.toString(proxy.getUnits()));
+		rawData.add(proxy.getPossibleThreat() == null ? "false" : Boolean.toString(proxy.getPossibleThreat()));
+		rawData.add(proxy.getJustification());
+		
+		ArrayList<String> desc = extractDescriptions();
+		
+		List<ClassificationInfo> info = new ArrayList<ClassificationInfo>();
+		for (int i = 0; i < desc.size(); i++)
+			info.add(new ClassificationInfo(desc.get(i), rawData.get(i)));
+		
+		return info;
 	}
 
 	/**

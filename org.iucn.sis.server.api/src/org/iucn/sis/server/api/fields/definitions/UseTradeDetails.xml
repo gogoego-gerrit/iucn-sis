@@ -4,7 +4,7 @@
 	<classOfService>Documentation</classOfService>
 	<structures>
 		<structure>
-			<oneToMany>
+			<oneToMany columns="0,1,2">
 				<structure>
 					<useTrade></useTrade>
 				</structure>	
