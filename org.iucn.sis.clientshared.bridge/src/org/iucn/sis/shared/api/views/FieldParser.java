@@ -151,12 +151,22 @@ public class FieldParser {
 				
 				if (parsedStructs.isEmpty())
 					currentDisplayData.setData(null);
-				else if (parsedStructs.size() == 1)
-					currentDisplayData.setData(parsedStructs.get(0));
+				else if (parsedStructs.size() == 1) {
+					Map<String, Object> data = new HashMap<String, Object>();
+					data.put("data", parsedStructs.get(0));
+					data.put("columns", XMLUtils.getXMLAttribute(current, "columns",  null));
+					
+					currentDisplayData.setData(data);
+				}
 				else {
-					FieldData data = new FieldData();
-					data.setStructure(XMLUtils.STRUCTURE_COLLECTION);
-					data.setData(parsedStructs);
+					FieldData fieldData = new FieldData();
+					fieldData.setStructure(XMLUtils.STRUCTURE_COLLECTION);
+					fieldData.setData(parsedStructs);
+					
+					Map<String, Object> data = new HashMap<String, Object>();
+					data.put("data", fieldData);
+					data.put("columns", XMLUtils.getXMLAttribute(current, "columns", null));
+					
 					currentDisplayData.setData(data);
 				}
 			}

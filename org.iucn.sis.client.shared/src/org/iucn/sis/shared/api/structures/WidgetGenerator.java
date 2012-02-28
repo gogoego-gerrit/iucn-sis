@@ -1,11 +1,10 @@
 package org.iucn.sis.shared.api.structures;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.iucn.sis.client.api.caches.FieldWidgetCache;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.utils.XMLUtils;
-import org.iucn.sis.shared.api.views.components.DisplayData;
 
 @SuppressWarnings("unchecked")
 public class WidgetGenerator implements CreatesWidget {
@@ -69,9 +68,8 @@ public class WidgetGenerator implements CreatesWidget {
 		}
 
 		else if (theStructure.equalsIgnoreCase(XMLUtils.ONE_TO_MANY)) {
-			return new SISOneToMany(theStructure, description, structID, (DisplayData) data);
+			return new SISOneToMany(theStructure, description, structID, (Map<String, Object>) data);
 		} else if (theStructure.equalsIgnoreCase(XMLUtils.USE_TRADE)) {
-			Debug.println("Creating use trade with data type {0}", data.getClass().getName());
 			return new UseTrade(theStructure, description, structID, data);
 		}
 

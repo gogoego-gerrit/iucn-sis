@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.structures;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,9 @@ import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.WindowEvent;
 import com.extjs.gxt.ui.client.event.WindowListener;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 
@@ -30,21 +33,38 @@ import com.google.gwt.user.client.ui.Widget;
  */
 @SuppressWarnings("unchecked")
 public class SISOneToMany extends Structure<Field> {
+	
+	private final List<Integer> displayFields;
 
 	private SISOneToManyWindow oneToMany;
+	private SimplePanel records;
 	private HTML recordCount;
 
-	public SISOneToMany(String struct, String descript, String structID, DisplayData defaultStructure) {
+	public SISOneToMany(String struct, String descript, String structID, Map<String, Object> data) {
 		super(struct, descript, structID);
 		
 		buildContentPanel(Orientation.VERTICAL);
+		
+		DisplayData defaultStructure = (DisplayData) data.get("data");
+		String columnCSV = (String) data.get("columns");
 		
 		oneToMany = new SISOneToManyWindow(descript, defaultStructure);
 		oneToMany.addWindowListener(new WindowListener() {
 			public void windowHide(WindowEvent we) {
 				updateRecordCount();
+				
+				updateRecords();
 			}
 		});
+		
+		displayFields = new ArrayList<Integer>();
+		if (columnCSV != null) {
+			for (String value : columnCSV.split(",")) {
+				try {
+					displayFields.add(Integer.valueOf(value.trim()));
+				} catch (Exception e) { }
+			}
+		}
 	}
 	
 	@Override
@@ -140,41 +160,14 @@ public class SISOneToMany extends Structure<Field> {
 	@Override
 	protected Widget createLabel() {
 		clearDisplayPanel();
-		/*selectedPanel.clear();
-
-		for (final StructureHolder curStruct : selected) {
-			HorizontalPanel structWrapper = new HorizontalPanel();
-
-			Button remove = new Button();
-			remove.setIconStyle("icon-remove");
-			remove.setSize("18px", "18px");
-			remove.addSelectionListener(new SelectionListener<ButtonEvent>() {
-				@Override
-				public void componentSelected(ButtonEvent ce) {
-					WindowUtils.confirmAlert("Confirm", "Are you sure you want to delete this data?",
-							new Listener<MessageBoxEvent>() {
-								public void handleEvent(MessageBoxEvent be) {
-									if (be.getButtonClicked().getText().equalsIgnoreCase("yes")) {
-										selected.remove(curStruct);
-										createLabel();
-									}
-								}
-							});
-				}
-			});
-
-			structWrapper.add(remove);
-			structWrapper.add(curStruct.structure.createLabel());
-
-			selectedPanel.add(structWrapper);
-		}
-
-		selectedPanel.add(addNew);*/
 		
 		updateRecordCount();
+		
+		updateRecords();
 
 		displayPanel.add(descriptionLabel);
 		displayPanel.add(recordCount);
+		displayPanel.add(records);
 		displayPanel.add(new Button("View/Edit", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				oneToMany.createLabel(false);
@@ -189,14 +182,92 @@ public class SISOneToMany extends Structure<Field> {
 		
 		updateRecordCount();
 		
+		updateRecords();
+		
 		displayPanel.add(descriptionLabel);
 		displayPanel.add(recordCount);
+		displayPanel.add(records);
 		displayPanel.add(new Button("View", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
 				oneToMany.createLabel(false);
 			}
 		}));
 		return displayPanel;
+	}
+	
+	private void updateRecords() {
+		records.clear();
+		
+		if (displayFields.isEmpty()) {
+			records.setWidget(new HTML(""));
+			return;
+		}
+		
+		List<StructureHolder> holders = oneToMany.getSelected();
+		if (holders.isEmpty()) {
+			records.setWidget(new HTML(""));
+			return;
+		}
+		
+		List<String> descs = holders.get(0).
+			getStructure().extractDescriptions();
+		
+		Grid grid = new Grid(holders.size() + 1, displayFields.size());
+		grid.setCellSpacing(0);
+		grid.setCellPadding(8);
+		
+		int row = 0;
+		int column = 0;
+		for (Integer value : displayFields) {
+			try {
+				grid.setHTML(row, column, "<b>" + descs.get(value) + "</b>");
+			} catch (IndexOutOfBoundsException e) {
+				grid.setHTML(row, column, "-");
+			} finally {
+				column++;
+			}
+		}
+		
+		row++;
+		
+		for (StructureHolder holder : holders) {
+			final ArrayList<String> raw = new ArrayList<String>(), 
+				pretty = new ArrayList<String>();
+			
+			final Structure<Object> structure = holder.getStructure();
+			
+			final Map<String, String> map = new LinkedHashMap<String, String>();
+		
+			for (Object obj : structure.getClassificationInfo()) {
+				ClassificationInfo info = (ClassificationInfo)obj;
+				map.put(info.getDescription(), info.getData());
+				raw.add(info.getData());
+			}
+			
+			try {
+				structure.getDisplayableData(raw, pretty, 0);
+			} catch (Exception e) {
+				continue;
+			}
+			
+			column = 0;
+			for (Integer value : displayFields) {
+				try {
+					grid.setHTML(row, column, pretty.get(value));
+				} catch (IndexOutOfBoundsException e) {
+					grid.setText(row, column, "-");
+				} finally {
+					column++;
+				}
+			}
+			
+			row++;
+		}
+		
+		for (int i = 0; i < grid.getColumnCount(); i++)
+			grid.getColumnFormatter().setWidth(i, "150px");
+		
+		records.setWidget(grid);
 	}
 	
 	private void updateRecordCount() {
@@ -209,6 +280,7 @@ public class SISOneToMany extends Structure<Field> {
 		recordCount.setHTML(size == 0 ? "No" + description + " records." : 
 			size == 1 ? "One" + description + " record." : 
 			size + description + " records");
+		
 	}
 
 	@Override
@@ -217,6 +289,8 @@ public class SISOneToMany extends Structure<Field> {
 		descriptionLabel.addStyleName("SIS_oneToManyDescription");
 		
 		recordCount = new HTML();
+		
+		records = new SimplePanel();
 	}
 
 	/**
