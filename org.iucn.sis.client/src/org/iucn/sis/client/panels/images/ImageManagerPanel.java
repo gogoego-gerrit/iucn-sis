@@ -3,6 +3,7 @@ package org.iucn.sis.client.panels.images;
 import java.util.ArrayList;
 
 import org.iucn.sis.client.api.ui.models.image.ManagedImage;
+import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
@@ -458,6 +459,11 @@ public class ImageManagerPanel extends LayoutContainer {
 	}
 
 	public void update(final DrawsLazily.DoneDrawingCallback callback) {
+		if (SIS.isOffline()) {
+			WindowUtils.infoAlert("Image Management is currently not available offline.");
+			return;
+		}
+		
 		selected = -1;
 		selectedList.clear();
 		imageList.clear();

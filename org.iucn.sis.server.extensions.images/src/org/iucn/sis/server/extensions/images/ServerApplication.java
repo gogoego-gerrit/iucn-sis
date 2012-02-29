@@ -1,23 +1,28 @@
 package org.iucn.sis.server.extensions.images;
 
-import org.iucn.sis.server.api.application.SimpleSISApplication;
+import org.iucn.sis.server.api.application.SISApplication;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 
-public class ServerApplication extends SimpleSISApplication {
+public class ServerApplication extends SISApplication {
 	
 	public ServerApplication() {
-		super(RunMode.ONLINE);
+		super();
+	}
+	
+	@Override
+	protected void initOffline() {
+		addServiceToRouter(new ImageViewerRestlet(app.getContext()), true);
 	}
 	
 	/**
 	 * Images available online & offline
 	 */
-	public void init() {
+	@Override
+	protected void initOnline() {
 		addServiceToRouter(new ImageViewerRestlet(app.getContext()), true);
 		addServiceToRouter(new ImageRestlet(app.getContext()));
 	}
 	
-	@Override
 	protected void addServiceToRouter(BaseServiceRestlet curService) {
 		addServiceToRouter(curService, false);
 	}

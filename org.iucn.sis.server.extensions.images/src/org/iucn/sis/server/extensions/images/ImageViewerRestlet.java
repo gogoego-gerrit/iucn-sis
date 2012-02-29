@@ -46,6 +46,9 @@ public class ImageViewerRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
+		if (!SIS.amIOnline())
+			return notAvailable();
+		
 		final String mode = (String) request.getAttributes().get("mode");
 		final Integer taxonID = getTaxonID(request);
 		final String uri = request.getResourceRef().getLastSegment();
