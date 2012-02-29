@@ -13,16 +13,23 @@ import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.extjs.gxt.ui.client.data.ModelKeyProvider;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.GroupingStore;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.Store;
+import com.extjs.gxt.ui.client.store.StoreFilter;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
 import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.DeferredCommand;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -34,10 +41,13 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 	
 	private WorkingSet curNavWorkingSet;
 	private Taxon curNavTaxon;
+	private final ContentFilter filter;
 	
 	public TaxonMonkeyNavigatorPanel() {
 		super();
 		setHeading("Taxon List");
+		
+		getProxy().setFilter(filter = new ContentFilter());
 	}
 	
 	public void refresh(final WorkingSet curNavWorkingSet, final Taxon curNavTaxon) {
@@ -273,8 +283,57 @@ public class TaxonMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigatorPanel
 				});
 			}
 		});
+
+		final TextField<String> filterField = new TextField<String>();
+			
+		filterField.setEmptyText("Filter...");
+		filterField.addKeyListener(new KeyListener() {
+			public void componentKeyUp(ComponentEvent event) {
+				String value = filterField.getValue();
+				if (value != null && !"".equals(value)) {
+					filter.setContentValue(value);
+					getProxy().filter("name", value);
+					getLoader().load();
+				}else{
+					filter.setContentValue(null);
+					getProxy().filter("name", null);
+					filterField.reset();
+					getLoader().load();
+				}
+			}
+		});
 		
+		LayoutContainer fieldContainer = new LayoutContainer();
+		fieldContainer.add(filterField);
+		
+		addTool(fieldContainer);
+		addTool(new SeparatorToolItem());
 		addTool(goToTaxon);
 	}
-
+	
+	public static class ContentFilter implements StoreFilter<NavigationModelData<Taxon>> {
+		
+		private String contentValue;
+		
+		public void setContentValue(String contentValue) {
+			this.contentValue = contentValue;
+		}
+		
+		@Override
+		public boolean select(Store<NavigationModelData<Taxon>> store, NavigationModelData<Taxon> parent, NavigationModelData<Taxon> item, String property) {
+			if (contentValue == null || "".equals(contentValue))
+				return true;
+			
+			boolean header = Boolean.TRUE.equals(item.get("header"));
+			if (header)
+				return false;
+			
+			String value = item.get(property);
+			
+			boolean result = value.toLowerCase().contains(contentValue.toLowerCase());
+			
+			return result;
+		}
+		
+	}
 }
