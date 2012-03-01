@@ -40,40 +40,44 @@ public class Threats extends ClassificationScheme {
 	
 	@Override
 	public void setField(final Field field) {
-		final List<Integer> taxaToFetch = new ArrayList<Integer>();
-		final List<Integer> virusToFetch = new ArrayList<Integer>();
-		
-		for (Field subfield : field.getFields()) {
-			if ((canonicalName + "Subfield").equals(subfield.getName())) {
-				IASTaxaThreatsSubfield proxy = new IASTaxaThreatsSubfield(subfield);
-				Integer taxonID = proxy.getIASTaxa();
-				if (taxonID != null)
-					taxaToFetch.add(taxonID);
-				
-				ViralThreatsSubfield vProxy = new ViralThreatsSubfield(subfield);
-				Integer virusID = vProxy.getVirus();
-				if (virusID != null)
-					virusToFetch.add(virusID);
+		if (field == null)
+			super.setField(field);
+		else {
+			final List<Integer> taxaToFetch = new ArrayList<Integer>();
+			final List<Integer> virusToFetch = new ArrayList<Integer>();
+			
+			for (Field subfield : field.getFields()) {
+				if ((canonicalName + "Subfield").equals(subfield.getName())) {
+					IASTaxaThreatsSubfield proxy = new IASTaxaThreatsSubfield(subfield);
+					Integer taxonID = proxy.getIASTaxa();
+					if (taxonID != null)
+						taxaToFetch.add(taxonID);
+					
+					ViralThreatsSubfield vProxy = new ViralThreatsSubfield(subfield);
+					Integer virusID = vProxy.getVirus();
+					if (virusID != null)
+						virusToFetch.add(virusID);
+				}
 			}
+			
+			TaxonomyCache.impl.fetchList(taxaToFetch, new GenericCallback<String>() {
+				public void onSuccess(String result) {
+					final ComplexListener<List<Virus>> callback = new ComplexListener<List<Virus>>() {
+						public void handleEvent(List<Virus> eventData) {
+							Threats.super.setField(field);		
+						}
+					};
+					
+					if (virusToFetch.isEmpty())
+						callback.handleEvent(null);
+					else
+						VirusCache.impl.get(virusToFetch, callback);
+				}
+				public void onFailure(Throwable caught) {
+					onSuccess(null);
+				}
+			});
 		}
-		
-		TaxonomyCache.impl.fetchList(taxaToFetch, new GenericCallback<String>() {
-			public void onSuccess(String result) {
-				final ComplexListener<List<Virus>> callback = new ComplexListener<List<Virus>>() {
-					public void handleEvent(List<Virus> eventData) {
-						Threats.super.setField(field);		
-					}
-				};
-				
-				if (virusToFetch.isEmpty())
-					callback.handleEvent(null);
-				else
-					VirusCache.impl.get(virusToFetch, callback);
-			}
-			public void onFailure(Throwable caught) {
-				onSuccess(null);
-			}
-		});
 	}
 	
 	@Override
