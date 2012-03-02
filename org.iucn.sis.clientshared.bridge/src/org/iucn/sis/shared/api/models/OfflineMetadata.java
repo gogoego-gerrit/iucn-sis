@@ -2,7 +2,6 @@ package org.iucn.sis.shared.api.models;
 
 import java.util.Date;
 
-import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.portable.XMLWritingUtils;
@@ -42,7 +41,7 @@ public class OfflineMetadata {
 		return out.toString();
 	}
 	
-	public static OfflineMetadata fromXML(NativeElement element) {
+	public static OfflineMetadata fromXML(NativeNode element) {
 		final OfflineMetadata metadata = new OfflineMetadata();
 		
 		NativeNodeList nodes = element.getChildNodes();

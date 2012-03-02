@@ -59,6 +59,8 @@ public class OfflineManagerServicesRestlet extends Restlet {
 	
 	public void handleGet(Request arg0, Response arg1) {
 		final String service = (String) arg0.getAttributes().get("service");
+		final String version = SIS.get().getSettings(null).getProperty(OfflineSettings.VERSION);
+		final String updates = SIS.get().getSettings(null).getProperty(OfflineSettings.UPDATES);
 		
 		arg1.setStatus(Status.SUCCESS_OK);
 		
@@ -81,16 +83,18 @@ public class OfflineManagerServicesRestlet extends Restlet {
 			OfflineMetadata md = OfflineBackupWorker.get();
 			if (md == null)
 				arg1.setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
-			else
-				arg1.setEntity(md.toXML(), MediaType.TEXT_XML);
-			/*
-			 * TODO: this would be a good spot to check for updates 
-			 */
-			
+			else {
+				StringBuilder xml = new StringBuilder();
+				xml.append("<root>");
+				xml.append(md.toXML());
+				if (version != null && updates != null) {
+					xml.append(listUpdates(version, updates));
+				}
+				xml.append("</root>");
+				arg1.setEntity(xml.toString(), MediaType.TEXT_XML);
+			}
 		}
 		else if ("update".equals(service)) {
-			String version = SIS.get().getSettings(null).getProperty(OfflineSettings.VERSION);
-			String updates = SIS.get().getSettings(null).getProperty(OfflineSettings.UPDATES);
 			boolean test = "true".equals(arg0.getResourceRef().getQueryAsForm().getFirstValue("test", "false"));
 			if (version == null) {
 				arg1.setEntity(getResultPage("No software version date detected, please check your settings and try again."));
@@ -133,6 +137,24 @@ public class OfflineManagerServicesRestlet extends Restlet {
 		
 		arg1.setStatus(Status.SUCCESS_OK);
 		arg1.setEntity(getResultPage(message));
+	}
+	
+	private String listUpdates(String version, String updates) {
+		final String url = updates + "/apps/org.iucn.sis.server.extensions.updates" + 
+			"/updates/" + version + "/list";
+		final Request request = new Request(Method.GET, url);
+		
+		final Client client = new Client(Protocol.HTTP);
+		final Response response = client.handle(request);
+		if (response.getStatus().isSuccess()) {
+			try {
+				return response.getEntity().getText();
+			} catch (Exception e) {
+				return "<updates count=\"0\" restart=\"false\" />";
+			}
+		}
+		else
+			return "<updates count=\"0\" restart=\"false\" />";
 	}
 	
 	private Representation getUpdates(String version, String updates, boolean live) throws IOException, ResourceException {

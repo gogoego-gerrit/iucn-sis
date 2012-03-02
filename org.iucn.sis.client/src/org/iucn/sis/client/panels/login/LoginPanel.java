@@ -7,6 +7,8 @@ import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.container.SimpleSISClient;
 
+import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.Style.VerticalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -14,14 +16,18 @@ import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.custom.ThemeSelector;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FillLayout;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.layout.FormLayout;
+import com.extjs.gxt.ui.client.widget.layout.TableData;
+import com.extjs.gxt.ui.client.widget.layout.TableLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -36,7 +42,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.util.events.ComplexListener;
 import com.solertium.util.extjs.client.WindowUtils;
 import com.solertium.util.extjs.login.client.ChangePasswordPanel;
 import com.solertium.util.gwt.ui.StyledHTML;
@@ -48,10 +53,6 @@ public class LoginPanel extends LayoutContainer {
 	private final HTML message;
 	private final TextField<String> userName;
 	private final TextField<String> password;
-	
-	//For offline
-	private final VerticalPanel offlineUpdatePanel;
-	private final HTML offlineUpdateStatus;
 
 	public LoginPanel() {
 		super();
@@ -67,13 +68,6 @@ public class LoginPanel extends LayoutContainer {
 		password = new TextField<String>();
 		password.setFieldLabel("Password");
 		password.setPassword(true);
-		
-		offlineUpdatePanel = new VerticalPanel();
-		offlineUpdatePanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
-		offlineUpdatePanel.addStyleName("dashed-border");
-		offlineUpdatePanel.setWidth("270px");
-		
-		offlineUpdatePanel.add(offlineUpdateStatus = new HTML("Checking update status..."));		
 		
 		drawForm();
 	}
@@ -339,13 +333,45 @@ public class LoginPanel extends LayoutContainer {
 		// offline stick
 		// loginFields.add(b);*/
 		
-		/*if (SIS.isOffline()) {
+		if (SIS.isOffline()) {
+			int updateCount = OfflineCache.impl.getUpdateCount();
+			String message;
+			if (updateCount == 0)
+				message = "<i>No updates available.</i>";
+			else if (updateCount == 1)
+				message = "<b>One update available.</b><br/>Download it via the Offline Manager.";
+			else
+				message = "<b>"+updateCount+" updates available.</b><br/>Download them via the Offline Manager.";
+			
 			FieldSet offline = newFieldSet("Offline Status");
 			
-			offline.add(offlineUpdatePanel);
+			if (updateCount == 0) {
+				offline.setLayout(new FillLayout());
+				offline.add(new StyledHTML(message, "center"));
+			}
+			else {
+				TableLayout layout = new TableLayout(2);
+				layout.setCellSpacing(8);
+				
+				TableData text = new TableData();
+				text.setHorizontalAlign(HorizontalAlignment.CENTER);
+				
+				TableData buttonData = new TableData();
+				buttonData.setHorizontalAlign(HorizontalAlignment.RIGHT);
+				buttonData.setVerticalAlign(VerticalAlignment.MIDDLE);
+				
+				offline.setLayout(layout);
+				offline.add(new Html(message), text);
+				offline.add(new Button("Get Updates", new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						OfflineCache.impl.openManager();
+					}
+				}), buttonData);
+				
+			}
 			
 			formWrapper.add(offline);
-		}*/
+		}
 		
 		/*
 		 * Adding spacer to push the login area up a 
@@ -362,39 +388,6 @@ public class LoginPanel extends LayoutContainer {
 		moreWrap.add(spacer);
 		
 		return moreWrap;
-	}
-	
-	@Override
-	protected void onAfterLayout() {
-		if (SIS.isOffline())
-			checkForUpdates();
-	}
-	
-	/*
-	 * FIXME: move all of this work to an OfflineCache, then let this happen in OfflineSimpleSISClient. 
-	 * Then, you can load the information in synchronous fashion here.
-	 */
-	private void checkForUpdates() {
-		OfflineCache.impl.checkForUpdates(new ComplexListener<Integer>() {
-			public void handleEvent(Integer eventData) {
-				String message;
-				if (eventData == 0)
-					message = "<span style=\"color: gray;\"><i>No updates available.</i></span>";
-				else if (eventData == 1)
-					message = "<span style=\"color: #gray;\"><b>One update available. Please use the Offline Manager to download it.</b></span>";
-				else
-					message = "<span style=\"color: #gray;\"><b>"+eventData+" updates available. Please use the Offline Manager to download them.</b></span>";
-				
-				offlineUpdateStatus.setHTML(message);
-				if (eventData > 0) {
-					offlineUpdatePanel.add(new Button("Get Updates", new ClickHandler() {
-						public void onClick(ClickEvent event) {
-							OfflineCache.impl.openManager();
-						}
-					}));
-				}
-			}
-		});
 	}
 	
 	/*private void draw() {

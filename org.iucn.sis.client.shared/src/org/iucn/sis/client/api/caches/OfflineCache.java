@@ -1,7 +1,6 @@
 package org.iucn.sis.client.api.caches;
 
 import org.iucn.sis.client.api.utils.HasCache;
-import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.OfflineMetadata;
@@ -10,16 +9,20 @@ import com.google.gwt.user.client.Window;
 import com.solertium.lwxml.gwt.NativeDocumentImpl;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
-import com.solertium.util.events.ComplexListener;
+import com.solertium.lwxml.shared.NativeElement;
+import com.solertium.lwxml.shared.NativeNode;
+import com.solertium.lwxml.shared.NativeNodeList;
 
-public class OfflineCache implements HasCache{
+public class OfflineCache implements HasCache {
 	
 	public static final OfflineCache impl = new OfflineCache();
 	
 	private OfflineMetadata metadata;
+	private int updateCount;
 	
 	private OfflineCache() {
 		metadata = new OfflineMetadata();
+		updateCount = 0;
 	}
 	
 	public void openManager() {
@@ -34,28 +37,8 @@ public class OfflineCache implements HasCache{
 		Window.Location.assign(UriBase.getInstance().getOfflineBase() + "/manager" + query);
 	}
 	
-	public void checkForUpdates(final ComplexListener<Integer> listener) {
-		if (SIS.isSoftwareCurrent())
-			listener.handleEvent(0);
-		else {
-			final String uri = UriBase.getInstance().getUpdatesBase() + 
-				"/updates/" + SIS.getSoftwareVersion() + "/list";
-			final NativeDocument document = new NativeDocumentImpl();
-			document.get(uri, new GenericCallback<String>() {
-				public void onSuccess(String result) {
-					try {
-						listener.handleEvent(Integer.valueOf(
-							document.getDocumentElement().getAttribute("count")
-						));
-					} catch (Exception e) {
-						listener.handleEvent(0);
-					}
-				}
-				public void onFailure(Throwable caught) {
-					listener.handleEvent(0);
-				}
-			});
-		}
+	public int getUpdateCount() {
+		return updateCount;
 	}
 	
 	public void initialize(final GenericCallback<Object> callback) {
@@ -64,12 +47,20 @@ public class OfflineCache implements HasCache{
 		final NativeDocument document = new NativeDocumentImpl();
 		document.get(uri, new GenericCallback<String>() {
 			public void onSuccess(String result) {
-				OfflineMetadata md = 
-					OfflineMetadata.fromXML(document.getDocumentElement());
-				if ("none".equals(md.getName()))
-					callback.onFailure(new Exception());
-				else
-					callback.onSuccess(result);
+				NativeNodeList nodes = document.getDocumentElement().getChildNodes();
+				for (int i = 0; i < nodes.getLength(); i++) {
+					NativeNode node = nodes.item(i);
+					if ("offline".equals(node.getNodeName())) {
+						OfflineMetadata md = OfflineMetadata.fromXML(node);
+						if ("none".equals(md.getName()))
+							callback.onFailure(new Exception());
+						else
+							metadata = md;
+					}
+					else if ("updates".equals(node.getNodeName()))
+						updateCount = Integer.valueOf(((NativeElement)node).getAttribute("count"));
+				}
+				callback.onSuccess(result);
 			}
 			public void onFailure(Throwable caught) {
 				callback.onFailure(caught);
