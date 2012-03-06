@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
-import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
@@ -23,6 +22,7 @@ public class AssessmentDeepCopyFilter implements Assessment.DeepCopyFilter {
 		excluded.add(CanonicalNames.RedListPetition);
 		excluded.add(CanonicalNames.RedListEvaluated);
 		excluded.add(CanonicalNames.RedListConsistencyCheck);
+		excluded.add(CanonicalNames.RedListHistory);
 	}
 	
 	@Override
@@ -36,25 +36,16 @@ public class AssessmentDeepCopyFilter implements Assessment.DeepCopyFilter {
 		else if (CanonicalNames.RedListCriteria.equals(field.getName())) {
 			RedListCriteriaField proxy = new RedListCriteriaField(field);
 			Integer version = proxy.getCriteriaVersion();
-			if (0 == version.intValue()) {
-				/*
-				 * Will be 0 if there is no data or if 
-				 * the most current version is selected. 
-				 * Either way, we want to remove the data.
-				 */
-				return null;
+			if (RedListCriteriaField.CRIT_VERSION_CURRENT >= version.intValue()) {
+				return field.deepCopy(false, this);
 			}
 			else {
-				/*
-				 * Return the field, but remove the history text.
-				 */
-				Field copy = field.deepCopy(false, this);
-				PrimitiveField<?> historyText = 
-					copy.getPrimitiveField(RedListCriteriaField.RLHISTORY_TEXT_KEY);
-				if (historyText != null)
-					copy.getPrimitiveField().remove(historyText);
+				Field newField = new Field(CanonicalNames.RedListCriteria, null);
 				
-				return copy;
+				RedListCriteriaField newFieldProxy = new RedListCriteriaField(newField);
+				newFieldProxy.setCriteriaVersion(RedListCriteriaField.CRIT_VERSION_CURRENT);
+				
+				return newField;
 			}
 		}
 		else {
