@@ -66,15 +66,17 @@
 				</pageOrganizations>
 			</page>
 			<page id="Occurrence" title="Occurrence">
-				<pageOrganizations>
-
+				<pageOrganizations>					
 					<organization shortTitle="Countries" title="Countries of Occurrence">
+						<information align="center">When using Quick-Add, please ensure you also select the appropriate country-level for each subcountry unit.</information>
 						<field id="CountryOccurrence"/>
 					</organization>
 					<organization shortTitle="LME" title="Large Marine Ecosystems (LME) Occurrence">
+						<information align="center">When using Quick-Add, please ensure you also select the appropriate ecosystem-level for each subecosystem unit.</information>
 						<field id="LargeMarineEcosystems"/>
 					</organization>
 					<organization shortTitle="FAO" title="FAO Area Occurrence">
+						<information align="center">When using Quick-Add, please ensure you also select the appropriate area-level for each subarea unit.</information>
 						<field id="FAOOccurrence"/>
 					</organization>
 
@@ -841,6 +843,7 @@
 			<page id="Occurrence" title="Occurrence">
 				<pageOrganizations>
 					<organization title="Occurrence Information">
+						<information align="center">When using Quick-Add, please ensure you also select the appropriate country-level for each subcountry unit.</information>
 						<field id="CountryOccurrence"/>
 					</organization>
 				</pageOrganizations>
@@ -1166,6 +1169,8 @@
 				<pageOrganizations>
 
 					<organization title="Occurrence Information">
+
+						<information align="center">When using Quick-Add, please ensure you also select the appropriate country-level for each subcountry unit.</information>
 
 						<field id="CountryOccurrence"/>
 
@@ -1893,14 +1898,16 @@
 			</page>
 			<page id="Occurrence" title="Occurrence">
 				<pageOrganizations>
-
 					<organization shortTitle="Countries" title="Countries of Occurrence">
+						<information align="center">When using Quick-Add, please ensure you also select the appropriate country-level for each subcountry unit.</information>
 						<field id="CountryOccurrence"/>
 					</organization>
 					<organization shortTitle="LME" title="Large Marine Ecosystems (LME) Occurrence">
+						<information align="center">When using Quick-Add, please ensure you also select the appropriate ecosystem-level for each subecosystem unit.</information>
 						<field id="LargeMarineEcosystems"/>
 					</organization>
 					<organization shortTitle="FAO" title="FAO Area Occurrence">
+						<information align="center">When using Quick-Add, please ensure you also select the appropriate area-level for each subarea unit.</information>
 						<field id="FAOOccurrence"/>
 					</organization>
 
