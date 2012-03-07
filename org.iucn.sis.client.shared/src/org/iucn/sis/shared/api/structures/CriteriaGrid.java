@@ -1,18 +1,26 @@
 package org.iucn.sis.shared.api.structures;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.iucn.sis.shared.api.criteriacalculator.CriteriaSet;
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 import org.iucn.sis.shared.api.data.CanParseCriteriaString;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
+import com.solertium.util.portable.PortableReplacer;
 
 public abstract class CriteriaGrid extends CanParseCriteriaString {
+	
+	protected final Map<String, GridCoordinates> classificationToGrid;
 
 	protected Grid gridA;
 	protected Grid gridB;
@@ -22,10 +30,9 @@ public abstract class CriteriaGrid extends CanParseCriteriaString {
 
 	protected VerticalPanel gridPanel;
 
-	protected HashMap<String, String> classificationToGrid;
-
 	public CriteriaGrid() {
-		classificationToGrid = new HashMap<String, String>();
+		classificationToGrid = new HashMap<String, GridCoordinates>();
+		
 		buildGrid();
 
 		gridPanel = new VerticalPanel();
@@ -67,177 +74,126 @@ public abstract class CriteriaGrid extends CanParseCriteriaString {
 	 */
 	public abstract void buildGrid();
 
-	protected void check(String grid, String key) {
-
-		String index = (String) classificationToGrid.get(key);
-		try {
-			String[] keys = index.split(",");
-			int row = Integer.valueOf(keys[0]).intValue();
-			int col = Integer.valueOf(keys[1]).intValue();
-
-			if (grid.equalsIgnoreCase("A")) {
-				((CheckBox) gridA.getWidget(row, col)).setValue(true);
-			} else if (grid.equalsIgnoreCase("B")) {
-				((CheckBox) gridB.getWidget(row, col)).setValue(true);
-			} else if (grid.equalsIgnoreCase("C")) {
-				((CheckBox) gridC.getWidget(row, col)).setValue(true);
-			} else if (grid.equalsIgnoreCase("D")) {
-				((CheckBox) gridD.getWidget(row, col)).setValue(true);
-			} else if (grid.equalsIgnoreCase("E")) {
-				((CheckBox) gridE.getWidget(row, col)).setValue(true);
-			}
-
-		} catch (Exception e) {
-			GWT.log("Error checking grid for "+ grid + ":" + key, e);
-		}
-
+	protected Grid[] getGrids() {
+		return new Grid[] { gridA, gridB, gridC, gridD, gridE };
 	}
-
+	
 	/**
 	 * Clears all grid info
 	 */
 	public void clearWidgets() {
-		for (int i = 0; i < gridA.getColumnCount(); i++) {
-			for (int j = 0; j < gridA.getRowCount(); j++) {
-				if (gridA.getWidget(j, i) != null)
-					((CheckBox) gridA.getWidget(j, i)).setValue(false);
-			}
-		}
-
-		for (int i = 0; i < gridB.getColumnCount(); i++) {
-			for (int j = 0; j < gridB.getRowCount(); j++) {
-				if (gridB.getWidget(j, i) != null)
-					((CheckBox) gridB.getWidget(j, i)).setValue(false);
-			}
-		}
-
-		for (int i = 0; i < gridC.getColumnCount(); i++) {
-			for (int j = 0; j < gridC.getRowCount(); j++) {
-				if (gridC.getWidget(j, i) != null)
-					((CheckBox) gridC.getWidget(j, i)).setValue(false);
-			}
-		}
-
-		for (int i = 0; i < gridD.getColumnCount(); i++) {
-			for (int j = 0; j < gridD.getRowCount(); j++) {
-				if (gridD.getWidget(j, i) != null)
-					((CheckBox) gridD.getWidget(j, i)).setValue(false);
-			}
-		}
-
-		for (int i = 0; i < gridE.getColumnCount(); i++) {
-			for (int j = 0; j < gridE.getRowCount(); j++) {
-				if (gridE.getWidget(j, i) != null)
-					((CheckBox) gridE.getWidget(j, i)).setValue(false);
+		for (Grid grid : getGrids()) {
+			for (int row = 0; row < grid.getRowCount(); row++) {
+				for (int col = 0; col < grid.getColumnCount(); col++) {
+					if (grid.getWidget(row, col) != null)
+						((CheckBox) grid.getWidget(row, col)).setValue(false);
+				}
 			}
 		}
 	}
 
 	public String createCriteriaString() {
-		String A = getAchecked();
-		String B = getBchecked();
-		String C = getCchecked();
-		String D = getDchecked();
-		String E = getEchecked();
+		List<String> criteria = new ArrayList<String>();
+		for (Grid grid : getGrids()) {
+			for (int row = 0; row < grid.getRowCount(); row++) {
+				for (int column = 0; column < grid.getColumnCount(); column++) {
+					if (grid.getWidget(row, column) != null) {
+						CheckBox box = (CheckBox) grid.getWidget(row, column);
+						if (box.getValue())
+							criteria.add(box.getName().trim());
+					}
+				}
+			}
+		}
+		
+		CriteriaSet criteriaSet = new CriteriaSet(ResultCategory.DD, criteria);
 
-		StringBuffer string = new StringBuffer();
-		if (A.length() > 0) {
-			A = "A" + A;
-			string.append(A + ";");
-		}
-		if (B.length() > 0) {
-			B = "B" + B;
-			string.append(B + ";");
-		}
-		if (C.length() > 0) {
-			C = "C" + C;
-			string.append(C + ";");
-		}
-		if (D.length() > 0) {
-			string.append(D + ";");
-		}
-		if (E.length() > 0) {
-			string.append(E + ";");
-		}
-
-		if (string.length() > 0)
-			return string.substring(0, string.length() - 1);
-		else
-			return string.toString();
-
+		return criteriaSet.toString();
 	}
 
 	protected CheckBox createWidget(String text, int i, int j) {
-		classificationToGrid.put(text, i + "," + j);
+		return createWidget(text, PortableReplacer.stripNonalphanumeric(text), i, j);
+	}
+	
+	protected CheckBox createWidget(String text, String value, int i, int j) {
+		classificationToGrid.put(value, new GridCoordinates(text, i, j));
 
-		return new CheckBox("  " + text);
+		CheckBox box = new CheckBox("  " + text);
+		box.setName(value);
+		
+		return box;
 	}
 
+	private GridCoordinates getCoordinates(String criterion) {
+		String key = PortableReplacer.stripNonalphanumeric(criterion);
+		return classificationToGrid.get(key);
+	}
+	
 	@Override
-	public void foundCriterion(String prefix, String suffix) {
-		check(prefix, suffix);
+	public void foundCriterion(String criterion) {
+		GridCoordinates coordinates = getCoordinates(criterion);
+		if (coordinates == null)
+			return;
+		
+		Grid grid = null;
+		switch (criterion.charAt(0)) {
+			case 'A':
+				grid = gridA; break;
+			case 'B':
+				grid = gridB; break;
+			case 'C':
+				grid = gridC; break;
+			case 'D':
+				grid = gridD; break;
+			case 'E':
+				grid = gridE; break;
+			default:
+				grid = null;
+		}
+		
+		Widget widget;
+		if (grid != null && (widget = grid.getWidget(coordinates.getRow(), coordinates.getColumn())) != null) {
+			CheckBox box = (CheckBox) widget;
+			box.setValue(true);
+		}
 	}
-
-	protected abstract String getAchecked();
-
-	protected abstract String getBchecked();
-
-	protected abstract String getCchecked();
-
-	protected abstract String getDchecked();
-
-	protected abstract String getEchecked();
 
 	public VerticalPanel getWidget() {
 		return gridPanel;
 	}
 
-	public abstract boolean isChecked(String key);
+	public boolean isChecked(String key) {
+		String grid = key.substring(0, 1);
+
+		GridCoordinates coords = getCoordinates(key);
+
+		int row = coords.getRow();
+		int col = coords.getColumn();
+
+		if (grid.equalsIgnoreCase("A")) {
+			return ((CheckBox) gridA.getWidget(row, col)).getValue();
+		} else if (grid.equalsIgnoreCase("B")) {
+			return ((CheckBox) gridB.getWidget(row, col)).getValue();
+		} else if (grid.equalsIgnoreCase("C")) {
+			return ((CheckBox) gridC.getWidget(row, col)).getValue();
+		} else if (grid.equalsIgnoreCase("D")) {
+			return ((CheckBox) gridD.getWidget(row, col)).getValue();
+		} else if (grid.equalsIgnoreCase("E")) {
+			return ((CheckBox) gridE.getWidget(row, col)).getValue();
+		} else {
+			return false;
+		}
+	}
 
 	public abstract boolean isCriteriaValid(String criteriaString, String category);
 
-	/**
-	 * Publicly accessible way to have this criteria grid parse a criteria
-	 * String. Based on the grid's version, this should invoke the appropriate
-	 * parse function from the CanParseCriteriaString abstract class.
-	 * 
-	 * @param criteriaString
-	 */
-	public abstract void parseCriteriaString(String criteriaString);
-
 	protected void setEnabled(boolean isManual) {
-		for (int i = 0; i < gridA.getColumnCount(); i++) {
-			for (int j = 0; j < gridA.getRowCount(); j++) {
-				if (gridA.getWidget(j, i) != null)
-					((CheckBox) gridA.getWidget(j, i)).setEnabled(isManual);
-			}
-		}
-
-		for (int i = 0; i < gridB.getColumnCount(); i++) {
-			for (int j = 0; j < gridB.getRowCount(); j++) {
-				if (gridB.getWidget(j, i) != null)
-					((CheckBox) gridB.getWidget(j, i)).setEnabled(isManual);
-			}
-		}
-
-		for (int i = 0; i < gridC.getColumnCount(); i++) {
-			for (int j = 0; j < gridC.getRowCount(); j++) {
-				if (gridC.getWidget(j, i) != null)
-					((CheckBox) gridC.getWidget(j, i)).setEnabled(isManual);
-			}
-		}
-
-		for (int i = 0; i < gridD.getColumnCount(); i++) {
-			for (int j = 0; j < gridD.getRowCount(); j++) {
-				if (gridD.getWidget(j, i) != null)
-					((CheckBox) gridD.getWidget(j, i)).setEnabled(isManual);
-			}
-		}
-
-		for (int i = 0; i < gridE.getColumnCount(); i++) {
-			for (int j = 0; j < gridE.getRowCount(); j++) {
-				if (gridE.getWidget(j, i) != null)
-					((CheckBox) gridE.getWidget(j, i)).setEnabled(isManual);
+		for (Grid grid : getGrids()) {
+			for (int row = 0; row < grid.getRowCount(); row++) {
+				for (int col = 0; col < grid.getColumnCount(); col++) {
+					if (grid.getWidget(row, col) != null)
+						((CheckBox) grid.getWidget(row, col)).setEnabled(isManual);
+				}
 			}
 		}
 	}
@@ -252,4 +208,29 @@ public abstract class CriteriaGrid extends CanParseCriteriaString {
 	 * @param result
 	 */
 	protected abstract void updateCriteriaString(String result);
+	
+	protected static class GridCoordinates {
+		
+		private final String name;
+		private final int row, column;
+		
+		public GridCoordinates(String name, int row, int column) {
+			this.name = name;
+			this.row = row;
+			this.column = column;
+		}
+		
+		public int getColumn() {
+			return column;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		public int getRow() {
+			return row;
+		}
+		
+	}
 }

@@ -1,11 +1,9 @@
 package org.iucn.sis.shared.api.structures;
 
-import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.SourcesTableEvents;
-import com.google.gwt.user.client.ui.TableListener;
 
-@SuppressWarnings("deprecation")
 public abstract class CriteriaGrid3_1 extends CriteriaGrid {
 
 	protected String[] categoriesForValidation = { "CR", "EN", "VU" };
@@ -17,37 +15,14 @@ public abstract class CriteriaGrid3_1 extends CriteriaGrid {
 		gridD = new Grid(3, 1);
 		gridE = new Grid(1, 1);
 
-		gridA.addTableListener(new TableListener() {
-			public void onCellClicked(SourcesTableEvents sender, int row, int cell) {
-				updateCriteriaString(createCriteriaString());
-			}
-		});
-		gridB.addTableListener(new TableListener() {
-			public void onCellClicked(SourcesTableEvents sender, int row, int cell) {
-				updateCriteriaString(createCriteriaString());
-			}
-		});
-		gridC.addTableListener(new TableListener() {
-			public void onCellClicked(SourcesTableEvents sender, int row, int cell) {
-				updateCriteriaString(createCriteriaString());
-			}
-		});
-		gridD.addTableListener(new TableListener() {
-			public void onCellClicked(SourcesTableEvents sender, int row, int cell) {
-				updateCriteriaString(createCriteriaString());
-			}
-		});
-		gridE.addTableListener(new TableListener() {
-			public void onCellClicked(SourcesTableEvents sender, int row, int cell) {
-				updateCriteriaString(createCriteriaString());
-			}
-		});
-
-		gridA.setCellSpacing(4);
-		gridB.setCellSpacing(4);
-		gridC.setCellSpacing(4);
-		gridD.setCellSpacing(4);
-		gridE.setCellSpacing(4);
+		for (Grid grid : getGrids()) {
+			grid.setCellSpacing(4);
+			grid.addClickHandler(new ClickHandler() {
+				public void onClick(ClickEvent event) {
+					updateCriteriaString(createCriteriaString());
+				}
+			});
+		}
 
 		gridA.setWidget(0, 0, createWidget("A1a", 0, 0));
 		gridA.setWidget(0, 1, createWidget("A1b", 0, 1));
@@ -105,166 +80,6 @@ public abstract class CriteriaGrid3_1 extends CriteriaGrid {
 		gridE.setWidget(0, 0, createWidget("E", 0, 0));
 	}
 
-	protected String getAchecked() {
-		StringBuffer getChecked = new StringBuffer();
-		for (int i = 0; i < gridA.getRowCount(); i++) {
-			String tempA = "";
-			for (int j = 0; j < gridA.getColumnCount(); j++) {
-				if (gridA.getWidget(i, j) != null && ((CheckBox) gridA.getWidget(i, j)).isChecked()) {
-					String temp = ((CheckBox) gridA.getWidget(i, j)).getText().trim();
-					if (tempA.equals("")) {
-						tempA = temp.substring(1, 2);
-					}
-					tempA += temp.substring(2, 3);
-
-				}
-			}
-			if (!tempA.equals(""))
-				getChecked.append(tempA + "+");
-		}
-		if (getChecked.length() > 0) {
-			return getChecked.substring(0, getChecked.length() - 1);
-		} else
-			return getChecked.toString();
-	}
-
-	protected String getBchecked() {
-		StringBuffer getChecked = new StringBuffer();
-		String temp1 = "";
-		String temp2 = "";
-		for (int i = 0; i < gridB.getRowCount(); i++) {
-			String innerIndex = "";
-			String letter = "";
-			for (int j = 0; j < gridB.getColumnCount(); j++) {
-				if (((gridB.getWidget(i, j)) != null) && (((CheckBox) gridB.getWidget(i, j)).isChecked())) {
-					String temp = ((CheckBox) gridB.getWidget(i, j)).getText().trim();
-					// DO INDEX 1
-					if (i < 3 && temp1.equals("")) {
-						temp1 = "1";
-					}
-					// DO INDEX 2
-					else if (i >= 3 && temp2.equals("")) {
-						temp2 = "2";
-					}
-					if (letter.trim().equals("")) {
-						letter = temp.substring(2, 3);
-					}
-					// get inner index
-					if (temp.length() > 3) {
-						temp = temp.replaceFirst(".*\\(", "");
-						temp = temp.replaceFirst("\\).*", "");
-						innerIndex += temp + ",";
-					}
-				}
-			}
-
-			if (i < 3 && temp1.length() > 0) {
-				temp1 = temp1 + letter;
-				if (innerIndex.length() > 0) {
-					innerIndex = "(" + innerIndex.substring(0, innerIndex.length() - 1) + ")";
-					temp1 = temp1 + innerIndex;
-				}
-			} else if (i >= 3 && temp2.length() > 0) {
-				temp2 = temp2 + letter;
-				if (innerIndex.length() > 0) {
-					innerIndex = "(" + innerIndex.substring(0, innerIndex.length() - 1) + ")";
-					temp2 = temp2 + innerIndex;
-				}
-			}
-		}
-
-		if (!temp1.equals("") && !temp2.equals("")) {
-			getChecked.append(temp1 + "+" + temp2);
-		} else if (!temp1.equals("")) {
-			getChecked.append(temp1);
-		} else if (!temp2.equals("")) {
-			getChecked.append(temp2);
-		}
-		return getChecked.toString();
-
-	}
-
-	protected String getCchecked() {
-		StringBuffer getChecked = new StringBuffer();
-
-		boolean ai = ((CheckBox) gridC.getWidget(1, 0)).isChecked();
-		boolean aii = ((CheckBox) gridC.getWidget(1, 1)).isChecked();
-
-		String tempa = "";
-		if (ai && aii) {
-			tempa = "2a(i,ii)";
-		} else if (ai) {
-			tempa = "2a(i)";
-		} else if (aii) {
-			tempa = "2a(ii)";
-		}
-
-		boolean b = ((CheckBox) gridC.getWidget(2, 0)).isChecked();
-		String tempb = "";
-		if (b) {
-			if (aii || ai) {
-				tempb = "b";
-			} else {
-				tempb = "2b";
-			}
-		}
-
-		if (((CheckBox) gridC.getWidget(0, 0)).isChecked()) {
-			getChecked.append("1");
-			if (aii | ai | b) {
-				getChecked.append("+");
-			}
-		}
-		getChecked.append(tempa + tempb);
-		return getChecked.toString();
-	}
-
-	protected String getDchecked() {
-		String temp = "";
-		if (((CheckBox) gridD.getWidget(0, 0)).isChecked()) {
-			temp = "D";
-		} else {
-			if ((((CheckBox) gridD.getWidget(1, 0)).isChecked()) && (((CheckBox) gridD.getWidget(2, 0)).isChecked())) {
-				temp = "D1+2";
-			} else if (((CheckBox) gridD.getWidget(1, 0)).isChecked())
-				temp = "D1";
-			else if (((CheckBox) gridD.getWidget(2, 0)).isChecked())
-				temp = "D2";
-		}
-		return temp;
-	}
-
-	protected String getEchecked() {
-		String temp = "";
-		if (((CheckBox) gridE.getWidget(0, 0)).isChecked()) {
-			temp = "E";
-		}
-		return temp;
-	}
-
-	public boolean isChecked(String key) {
-		String grid = key.substring(0, 1);
-		String index = (String) classificationToGrid.get(key);
-
-		String[] keys = index.split(",");
-		int row = Integer.valueOf(keys[0]).intValue();
-		int col = Integer.valueOf(keys[1]).intValue();
-
-		if (grid.equalsIgnoreCase("A")) {
-			return ((CheckBox) gridA.getWidget(row, col)).isChecked();
-		} else if (grid.equalsIgnoreCase("B")) {
-			return ((CheckBox) gridB.getWidget(row, col)).isChecked();
-		} else if (grid.equalsIgnoreCase("C")) {
-			return ((CheckBox) gridC.getWidget(row, col)).isChecked();
-		} else if (grid.equalsIgnoreCase("D")) {
-			return ((CheckBox) gridD.getWidget(row, col)).isChecked();
-		} else if (grid.equalsIgnoreCase("E")) {
-			return ((CheckBox) gridE.getWidget(row, col)).isChecked();
-		} else {
-			return false;
-		}
-	}
-
 	@Override
 	public boolean isCriteriaValid(String criteria, String category) {
 		boolean doValidation = false;
@@ -304,9 +119,8 @@ public abstract class CriteriaGrid3_1 extends CriteriaGrid {
 				}
 				// CHECK INVALIDITY OF C CRITERIA
 				if (!fastFail && criteria.contains("C") && !valid) {
-					String cString = getCchecked();
-					boolean contains1 = cString.contains("1");
-					boolean contains2 = cString.contains("2");
+					boolean contains1 = isChecked("C1");
+					boolean contains2 = isChecked("C2a(i)") || isChecked("C2a(iI)") || isChecked("C2b");
 					if (!(contains1 && contains2)) {
 						valid = true;
 					} else {
@@ -369,11 +183,6 @@ public abstract class CriteriaGrid3_1 extends CriteriaGrid {
 			}
 		}
 		return valid && !fastFail;
-	}
-
-	@Override
-	public final void parseCriteriaString(String criteriaString) {
-		parse3_1CriteriaString(criteriaString);
 	}
 
 }

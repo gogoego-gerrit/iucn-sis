@@ -802,17 +802,18 @@ public class SISCategoryAndCriteria extends Structure<Field> {
 		criteriaStringBox.setText(isManual ? manualCriteria : generatedCriteria);
 		invalidCriteriaString.setText("");
 
-		if (version == RedListCriteriaField.CRIT_VERSION_3_1)
+		if (version == RedListCriteriaField.CRIT_VERSION_3_1) {
 			if (isManual)
 				v3_1Grid.parseCriteriaString(manualCriteria);
 			//else
 				//v3_1Grid.parseCriteriaString(generatedCriteria);
-
-		else if (version == RedListCriteriaField.CRIT_VERSION_2_3)
+		}
+		else if (version == RedListCriteriaField.CRIT_VERSION_2_3) {
 			if (isManual)
 				v2_3Grid.parseCriteriaString(manualCriteria);
 			//else
 				//v2_3Grid.parseCriteriaString(generatedCriteria);
+		}
 		
 		if (categoryListBox.getItemText(categoryListBox.getSelectedIndex()).startsWith("Extinct"))
 			dateLastSeenPanel.setVisible(true);
