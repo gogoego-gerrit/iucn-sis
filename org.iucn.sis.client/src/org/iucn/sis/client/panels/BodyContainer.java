@@ -200,7 +200,7 @@ public class BodyContainer extends LayoutContainer {
 	public void openReferenceManager(Referenceable referenceable, String windowTitle, GenericCallback<Object> addCallback, GenericCallback<Object> removeCallback) {
 		refViewPanel.setReferences(referenceable, addCallback, removeCallback);
 		
-		final Window s = WindowUtils.newWindow(windowTitle, "icon-book", true, true);
+		final Window s = WindowUtils.newWindow(windowTitle, "icon-book-edit", true, true);
 		s.setLayout(new FitLayout());
 		s.add(refViewPanel);
 		s.setSize(850, 550);

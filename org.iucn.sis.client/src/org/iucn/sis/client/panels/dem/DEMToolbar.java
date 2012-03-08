@@ -18,6 +18,7 @@ import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
+import org.iucn.sis.client.panels.assessments.AssessmentReferencesPanel;
 import org.iucn.sis.client.panels.assessments.NewAssessmentPanel;
 import org.iucn.sis.client.panels.assessments.SingleFieldEditorPanel;
 import org.iucn.sis.client.panels.assessments.TrackChangesPanel;
@@ -416,10 +417,21 @@ public class DEMToolbar extends ToolBar {
 			}
 		});
 		mainMenu.add(mItem);
+			
+		mItem = new MenuItem();
+		mItem.setText("View References");
+		mItem.setIconStyle("icon-book");
+		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
+			public void componentSelected(MenuEvent ce) {
+				AssessmentReferencesPanel panel = new AssessmentReferencesPanel(AssessmentCache.impl.getCurrentAssessment());
+				panel.show();
+			}
+		});
+		mainMenu.add(mItem);				
 
 		mItem = new MenuItem();
 		mItem.setText("Manage References");
-		mItem.setIconStyle("icon-book");
+		mItem.setIconStyle("icon-book-edit");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
 				final GenericCallback<Object> callback = new GenericCallback<Object>() {
