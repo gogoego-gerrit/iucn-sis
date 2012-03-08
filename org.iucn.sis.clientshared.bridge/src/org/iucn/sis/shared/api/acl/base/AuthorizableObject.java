@@ -41,4 +41,12 @@ public interface AuthorizableObject {
 	 * @return value associated with the key
 	 */
 	public String getProperty(String key);
+	
+	/**
+	 * Determine if this object falls under scoping.  If true, permissions will only 
+	 * affect this object if it is within the permission group's scope.  Otherwise, 
+	 * permissions will be used regardless.
+	 * @return true if scoped, false otherwise.
+	 */
+	public boolean isScoped();
 }

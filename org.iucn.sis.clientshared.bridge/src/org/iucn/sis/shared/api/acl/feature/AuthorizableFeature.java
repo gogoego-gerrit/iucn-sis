@@ -91,6 +91,10 @@ public class AuthorizableFeature implements AuthorizableObject, Comparable<Autho
 		return "";
 	}
 	
+	public boolean isScoped() {
+		return false;
+	}
+	
 	@Override
 	public int compareTo(AuthorizableFeature arg0) {
 		return new PortableAlphanumericComparator().compare(this, arg0);

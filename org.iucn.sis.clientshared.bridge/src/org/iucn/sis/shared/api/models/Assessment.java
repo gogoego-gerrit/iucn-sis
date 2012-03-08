@@ -220,6 +220,9 @@ public class Assessment implements Serializable, AuthorizableObject, ForeignObje
 			return "";
 	}
 
+	public boolean isScoped() {
+		return true;
+	}
 	
 	private String serializeRegionIDs(List<Integer> regionIDs) {
         ArrayUtils.insertionSort(regionIDs, new PortableAlphanumericComparator());

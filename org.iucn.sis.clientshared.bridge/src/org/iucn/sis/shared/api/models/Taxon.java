@@ -55,6 +55,10 @@ public class Taxon implements AuthorizableObject, Serializable {
 	public String getFullURI() {
 		return "resource/taxon/" + getTaxonLevel().getLevel() + "/" + getName();
 	}
+	
+	public boolean isScoped() {
+		return true;
+	}
 
 	public String getKingdomName() {
 		return getFootprint()[0];

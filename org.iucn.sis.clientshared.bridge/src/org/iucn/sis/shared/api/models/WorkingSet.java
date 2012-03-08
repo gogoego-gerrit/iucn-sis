@@ -61,6 +61,10 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 		} else
 			return "";
 	}
+	
+	public boolean isScoped() {
+		return false;
+	}
 
 	public List<Taxon> getSpecies() {
 		return new ArrayList<Taxon>(taxon);

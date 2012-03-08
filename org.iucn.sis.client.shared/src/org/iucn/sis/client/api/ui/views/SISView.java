@@ -68,6 +68,10 @@ public class SISView implements AuthorizableObject {
 	public String getProperty(String key) {
 		return "";
 	}
+	
+	public boolean isScoped() {
+		return false;
+	}
 
 	public SISPageHolder getPageAt(int index) {
 		return (SISPageHolder) pages.get(index);

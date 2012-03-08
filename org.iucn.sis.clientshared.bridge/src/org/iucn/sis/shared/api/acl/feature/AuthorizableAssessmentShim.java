@@ -25,4 +25,8 @@ public abstract class AuthorizableAssessmentShim extends BaseAuthorizableObject 
 			return super.getProperty(key);
 	}
 	
+	public boolean isScoped() {
+		return true;
+	}
+	
 }

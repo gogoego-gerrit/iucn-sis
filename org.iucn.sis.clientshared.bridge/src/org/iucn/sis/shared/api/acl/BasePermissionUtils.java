@@ -3,15 +3,14 @@ package org.iucn.sis.shared.api.acl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableAssessmentShim;
-import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Permission;
 import org.iucn.sis.shared.api.models.PermissionGroup;
 import org.iucn.sis.shared.api.models.PermissionResourceAttribute;
-import org.iucn.sis.shared.api.models.Reference;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Relationship;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -32,13 +31,9 @@ public class BasePermissionUtils {
 	 * @return
 	 */
 	public boolean inScope(PermissionGroup group, AuthorizableObject object) {
-		if (group.getScope() == null || group.getScope().trim().equals("")) {
+		if (group.getScope() == null || group.getScope().trim().equals("") || !object.isScoped())
 			return true;
-		}
-		else if (object instanceof AuthorizableFeature || object instanceof WorkingSet || object instanceof Reference) {
-			// Features, working sets and references aren't scoped
-			return true;
-		} else if (object instanceof Taxon) {
+		else if (object instanceof Taxon) {
 			Taxon taxon = (Taxon) object;
 
 			if (group.getScope().startsWith("taxon")) {
@@ -138,9 +133,10 @@ public class BasePermissionUtils {
 		if (object != null && inScope(group, object)) {			
 			String uri = object.getFullURI();
 			boolean found = false;
+			Map<String, Permission> permissions = group.getResourceToPermission();
 			while (uri.indexOf("/") > -1 && !found) {
-				if (group.getResourceToPermission().containsKey(uri)) {
-					Permission perm = group.getResourceToPermission().get(uri);
+				if (permissions.containsKey(uri)) {
+					Permission perm = permissions.get(uri);
 					hasPermission = perm.check(operation);
 					if (hasPermission) {
 						for (PermissionResourceAttribute cur : perm.getAttributes()) {

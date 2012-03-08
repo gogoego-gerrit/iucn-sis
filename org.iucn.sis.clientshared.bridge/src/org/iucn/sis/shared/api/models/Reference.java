@@ -46,6 +46,10 @@ public class Reference implements Serializable, AuthorizableObject, ForeignObjec
 		return "";
 	}
 	
+	public boolean isScoped() {
+		return false;
+	}
+	
 	public static Reference fromMap(Map<String, String> map) {
 		Reference reference = new Reference();
 		reference.setId(0);
