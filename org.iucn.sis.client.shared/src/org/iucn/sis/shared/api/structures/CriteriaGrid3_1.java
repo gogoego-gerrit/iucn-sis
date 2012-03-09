@@ -120,7 +120,7 @@ public abstract class CriteriaGrid3_1 extends CriteriaGrid {
 				// CHECK INVALIDITY OF C CRITERIA
 				if (!fastFail && criteria.contains("C") && !valid) {
 					boolean contains1 = isChecked("C1");
-					boolean contains2 = isChecked("C2a(i)") || isChecked("C2a(iI)") || isChecked("C2b");
+					boolean contains2 = isChecked("C2a(i)") || isChecked("C2a(ii)") || isChecked("C2b");
 					if (!(contains1 && contains2)) {
 						valid = true;
 					} else {

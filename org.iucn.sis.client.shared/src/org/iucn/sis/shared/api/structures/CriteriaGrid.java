@@ -164,8 +164,10 @@ public abstract class CriteriaGrid extends CanParseCriteriaString {
 
 	public boolean isChecked(String key) {
 		String grid = key.substring(0, 1);
-
+		
 		GridCoordinates coords = getCoordinates(key);
+		if (coords == null)
+			return false;
 
 		int row = coords.getRow();
 		int col = coords.getColumn();
