@@ -3,7 +3,6 @@ package core;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import junit.framework.Assert;
 
@@ -11,6 +10,7 @@ import org.iucn.sis.server.utils.AssessmentPersistence;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentChange;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.fields.ThreatsSubfield;
 import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
@@ -20,6 +20,36 @@ import org.junit.Test;
 import com.solertium.util.events.ComplexListener;
 
 public class SaveAssessmentTest extends BasicTest {
+	
+	@Test
+	public void testNotesSaved() throws Exception {
+		Assessment source = createExistingAssessmentWithFields();
+		
+		Field field = source.getField("a");
+		
+		Assert.assertNotNull(field);
+		
+		Notes note = new Notes();
+		note.setField(field);
+		note.setValue("A note");
+		
+		field.getNotes().add(note);
+		
+		Assessment target = createExistingAssessmentWithFields();
+		
+		AssessmentPersistence saver = new AssessmentPersistence(null, target);
+		saver.setAllowManageNotes(false);
+		saver.sink(source);
+		
+		Assert.assertNotNull(target.getField("a"));
+		Assert.assertTrue(target.getField("a").getNotes().isEmpty());
+		
+		saver.setAllowManageNotes(true);
+		saver.sink(source);
+		
+		Assert.assertNotNull(target.getField("a"));
+		Assert.assertFalse(target.getField("a").getNotes().isEmpty());
+	}
 	
 	@Test
 	public void testSaveNew() throws Exception {
