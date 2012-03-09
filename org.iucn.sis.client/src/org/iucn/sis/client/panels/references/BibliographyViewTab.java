@@ -50,8 +50,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	
 	private Grid<ReferenceModel> grid;
 	
-	//private boolean fieldsShowing;
-	//private Iterator<Reference> local;
+	private boolean fieldsShowing;
 	
 	private Set<Reference> currentReferences;
 	
@@ -64,6 +63,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 	}
 	
 	public void draw() {
+		fieldsShowing = false;
 		final GridSelectionModel<ReferenceModel> sm = 
 			new GridSelectionModel<ReferenceModel>();
 		sm.setSelectionMode(SelectionMode.MULTI);
@@ -133,7 +133,6 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 					for (ReferenceModel curItem : items) {
 						Reference curRef = curItem.getModel();
 						list.add(curRef);
-						// currentReferences.remove(curRef);
 						removeFromCurrentList(curRef);
 					}
 					if (!list.isEmpty()) {
@@ -151,35 +150,40 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 				editReference(grid.getSelectionModel().getSelectedItem());
 			}
 		});
-		/*final ToggleButton showFields = new ToggleButton();
+		
+		final ToggleButton showFields = new ToggleButton();
 		showFields.setIconStyle("icon-accept");
-		showFields.setText("Show Field Info");
+		showFields.setText("Show Field Info");		
 		showFields.addListener(Events.Select, new SelectionListener<ComponentEvent>() {
 			public void componentSelected(ComponentEvent ce) {
 				final ColumnConfig column = grid.getColumnModel().getColumnById("field");
 				
 				final boolean showing = column.isHidden();
 				column.setHidden(!showing);
-				
 				if (showing) {
 					showFields.setText("Hide Field Info");
-					showFields.setIconStyle("icon-stop");
-
+					showFields.setIconStyle("icon-cross");
+					fieldsShowing = true;
 					refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 				} else {
 					showFields.setText("Show Field Info");
 					showFields.setIconStyle("icon-accept");
-
+					fieldsShowing = false;	
 					refresh(new DrawsLazily.DoneDrawingWithNothingToDoCallback());
 				}
 			}
-		});*/
-
+		});
+		
 		biblioBar.add(removeItem);
 		biblioBar.add(editExisting);
-		//biblioBar.add(showFields);
+		biblioBar.add(showFields);
 		
 		return biblioBar;
+	}
+	
+	private void displayFieldColomn(boolean value){
+		ColumnConfig column = grid.getColumnModel().getColumnById("field");
+		column.setHidden(value);
 	}
 	
 	private void editReference(ReferenceModel selection) {
@@ -191,7 +195,6 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 					if (reference != null && getProxy().getStore() != null) {
 						reference.rebuild();
 						getProxy().getStore().update(reference);
-						//fromStore.update(reference);
 					}
 					
 					final Referenceable curReferenceable = parent.getReferenceable();
@@ -270,15 +273,44 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 						
 						if (isField)
 							model.setField(((FieldDisplay)parent.getReferenceable()).getCanonicalName());
-		
+			
 						store.add(model);
 					}
 				}
 			}
 			
+			if(fieldsShowing){
+				callback.onSuccess(store);
+				displayFieldColomn(false);
+			}else{
+				callback.onSuccess(removeDuplicates(store));
+				displayFieldColomn(true);
+			}
 			
-			callback.onSuccess(store);
 		}
+	}
+
+	private ListStore<ReferenceModel> removeDuplicates(ListStore<ReferenceModel> store){
+		ListStore<ReferenceModel> newStore = new ListStore<ReferenceModel>();
+		for(int i = 0; i < store.getCount(); i++){
+
+			if(newStore.getCount() == 0)
+				newStore.add(store.getAt(i));
+			else{ 
+				boolean found = true; 
+				for(ReferenceModel newModel : newStore.getModels()){ 
+					if(newModel.getModel().getCitation().equals(store.getAt(i).getModel().getCitation())){ 
+						found = true;
+						break;
+					}else{
+						found = false;	
+					}
+				}
+				if(!found)
+					newStore.add(store.getAt(i));
+			}
+		}
+		return newStore;
 	}
 	
 	/**
