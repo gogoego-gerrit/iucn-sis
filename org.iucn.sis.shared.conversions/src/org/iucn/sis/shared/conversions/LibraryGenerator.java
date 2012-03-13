@@ -5,8 +5,10 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Properties;
 
 import org.hibernate.HibernateException;
+import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Infratype;
@@ -16,6 +18,27 @@ import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.TaxonStatus;
 
 public class LibraryGenerator extends GenericConverter<String> {
+	
+	/**
+	 * Use this to quickie-create a new database from scratch with 
+	 * standard baseline library information included.
+	 * @param args
+	 */
+	public static void main(String[] args) { 
+		Properties properties = new Properties();
+		properties.setProperty("dbsession.sis.uri", "**URL**");
+		properties.setProperty("dbsession.sis.driver", "org.postgresql.Driver");
+		properties.setProperty("dbsession.sis.user", "**USERNAME**");
+		properties.setProperty("dbsession.sis.password", "**PW**");
+		properties.setProperty("database_dialect", "org.hibernate.dialect.PostgreSQLDialect");
+		
+		SISPersistentManager manager = SISPersistentManager.newInstance("sis", properties, true);
+		
+		LibraryGenerator generator = new LibraryGenerator();
+		generator.setData("/var/sis/new_vfs");
+		generator.setSession(manager.openSession());
+		generator.start();
+	}
 	
 	public LibraryGenerator() {
 		super();

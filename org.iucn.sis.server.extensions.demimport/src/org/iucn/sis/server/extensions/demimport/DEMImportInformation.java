@@ -3,31 +3,34 @@ package org.iucn.sis.server.extensions.demimport;
 import java.io.Writer;
 import java.util.Date;
 
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.utils.DocumentUtils;
 import org.iucn.sis.server.api.utils.FormattedDate;
 import org.iucn.sis.server.api.utils.XMLUtils;
+import org.iucn.sis.shared.api.debug.Debug;
 
-import com.solertium.util.SysDebugger;
 import com.solertium.vfs.VFS;
+import com.solertium.vfs.VFSPath;
 
 public class DEMImportInformation {
-	private static VFS vfs = null;
 	static String logURL = "/logs/DEMImport.log";
 	static String htmlLogURL = "/logs/DEMImportLog.html";
 	static String verboseLogBaseURL = "/logs/verbose/";
 
-	public static void addToQueue(DEMImportInformation info) {
+	public static void addToQueue(DEMImportInformation info, VFS vfs) {
 		Writer writer = null;
-
+		vfs = SIS.get().getVFS();
 		try {
-			String out = info.toString() + DocumentUtils.getVFSFileAsString(logURL, vfs);
-			writer = vfs.getWriter(logURL);
+			Debug.println(info.toString());
+			
+			String out = DocumentUtils.getVFSFileAsString(logURL, vfs);
+			writer = vfs.getWriter(new VFSPath(logURL));
 			writer.append(out);
 			writer.close();
 		} catch (Exception e) {
-			e.printStackTrace();
-			SysDebugger.getNamedInstance("error").println("Failed to write to DEMImport log: ");
-			SysDebugger.getNamedInstance("error").println(info.toUnformattedHTML());
+			Debug.println("DEM Import Logging Error: {0}", e);
+			Debug.println("Failed to write to DEMImport log: ");
+			Debug.println(info.toUnformattedHTML());
 
 			try {
 				writer.close();
@@ -36,16 +39,16 @@ public class DEMImportInformation {
 		}
 
 		try {
-			writer = vfs.getWriter(info.getVerboseLogURL());
+			writer = vfs.getWriter(new VFSPath(info.getVerboseLogURL()));
 			writer.append("<html><head><meta http-equiv=\"Content-Type\" " + "content=\"text/html; charset=UTF-8\">"
 					+ "<style type=\"text/css\"> td {font-size: 10px} th {font-size: 12px}" + "</style></head><body>"
 					+ info.getVerboseLog() + "</body></html>");
 
 			writer.close();
 		} catch (Exception e) {
-			e.printStackTrace();
-			SysDebugger.getNamedInstance("error").println("Failed to write to verbose DEMImport log: ");
-			SysDebugger.getNamedInstance("error").println(info.getVerboseLog());
+			Debug.println("DEM Import Logging Error: {0}", e);
+			Debug.println("Failed to write to verbose DEMImport log: ");
+			Debug.println(info.getVerboseLog());
 
 			try {
 				writer.close();
@@ -54,13 +57,13 @@ public class DEMImportInformation {
 		}
 		try {
 			String out = info.toUnformattedHTML() + "<br><hr>" + DocumentUtils.getVFSFileAsString(htmlLogURL, vfs);
-			writer = vfs.getWriter(htmlLogURL);
+			writer = vfs.getWriter(new VFSPath(htmlLogURL));
 			writer.write(out);
 			writer.close();
 		} catch (Exception e) {
-			e.printStackTrace();
-			SysDebugger.getNamedInstance("error").println("Failed to write to verbose DEMImport log: ");
-			SysDebugger.getNamedInstance("error").println(info.getVerboseLog());
+			Debug.println("DEM Import Logging Error: {0}", e);
+			Debug.println("Failed to write to verbose DEMImport log: ");
+			Debug.println(info.getVerboseLog());
 
 			try {
 				writer.close();
@@ -69,19 +72,12 @@ public class DEMImportInformation {
 		}
 	}
 
-	public static void init(VFS baseVFS) {
-		vfs = baseVFS;
-	}
-
 	private Date timestamp;
 	private boolean failure;
 	private String message;
 	private String fileName;
 	private String importer;
 	private String verboseLog;
-
-	public DEMImportInformation() {
-	}
 
 	public DEMImportInformation(Date timestamp, boolean failure, String message, String fileName, String importer,
 			String verboseLog) {
@@ -154,7 +150,7 @@ public class DEMImportInformation {
 		ret += "\nUser: " + getImporter();
 		ret += "\nImport success: " + isFailure();
 		ret += "\nStatus log: " + getMessage().replaceAll("<br>", "\n");
-		ret += "\nVerbose status log URL: /raw" + getVerboseLogURL();
+		ret += "\nVerbose status log URL: /apps/org.iucn.sis.server/raw" + getVerboseLogURL();
 		ret += "\n-------------------------------------";
 
 		return ret;

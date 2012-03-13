@@ -2,6 +2,9 @@ package org.iucn.sis.shared.helpers;
 
 import java.util.HashMap;
 
+import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
+
 /**
  * "Stores" a bunch of TaxonNodes.
  * 
@@ -14,89 +17,90 @@ import java.util.HashMap;
 public class TaxonomyTree {
 
 	public class Kingdom {
-		HashMap[] levels;
+		HashMap<String, Taxon>[] levels;
 
-		TaxonNode theKingdom;
+		Taxon theKingdom;
 
-		HashMap phylums;
-		HashMap classes;
-		HashMap orders;
-		HashMap family;
-		HashMap genus;
-		HashMap species;
-		HashMap infraranks;
-		HashMap subpopulations;
-		HashMap infrasubpopulations;
+		HashMap<String, Taxon> phylums;
+		HashMap<String, Taxon> classes;
+		HashMap<String, Taxon> orders;
+		HashMap<String, Taxon> family;
+		HashMap<String, Taxon> genus;
+		HashMap<String, Taxon> species;
+		HashMap<String, Taxon> infraranks;
+		HashMap<String, Taxon> subpopulations;
+		HashMap<String, Taxon> infrasubpopulations;
 
-		public Kingdom(TaxonNode theKingdom) {
+		@SuppressWarnings("unchecked")
+		public Kingdom(Taxon theKingdom) {
 			this.theKingdom = theKingdom;
 
-			phylums = new HashMap();
-			classes = new HashMap();
-			orders = new HashMap();
-			family = new HashMap();
-			genus = new HashMap();
-			species = new HashMap();
-			infraranks = new HashMap();
-			subpopulations = new HashMap();
-			infrasubpopulations = new HashMap();
+			phylums = new HashMap<String, Taxon>();
+			classes = new HashMap<String, Taxon>();
+			orders = new HashMap<String, Taxon>();
+			family = new HashMap<String, Taxon>();
+			genus = new HashMap<String, Taxon>();
+			species = new HashMap<String, Taxon>();
+			infraranks = new HashMap<String, Taxon>();
+			subpopulations = new HashMap<String, Taxon>();
+			infrasubpopulations = new HashMap<String, Taxon>();
 
 			levels = new HashMap[] { phylums, classes, orders, family, genus, species, infraranks, subpopulations,
 					infrasubpopulations };
 		}
 
-		public HashMap getClasses() {
+		public HashMap<String, Taxon> getClasses() {
 			return classes;
 		}
 
-		public HashMap getFamily() {
+		public HashMap<String, Taxon> getFamily() {
 			return family;
 		}
 
-		public HashMap getGenus() {
+		public HashMap<String, Taxon> getGenus() {
 			return genus;
 		}
 
-		public HashMap getInfraranks() {
+		public HashMap<String, Taxon> getInfraranks() {
 			return infraranks;
 		}
 
-		public HashMap getInfrasubpopulations() {
+		public HashMap<String, Taxon> getInfrasubpopulations() {
 			return infrasubpopulations;
 		}
 
-		public HashMap[] getLevels() {
+		public HashMap<String, Taxon>[] getLevels() {
 			return levels;
 		}
 
-		public HashMap getOrders() {
+		public HashMap<String, Taxon> getOrders() {
 			return orders;
 		}
 
-		public HashMap getPhylums() {
+		public HashMap<String, Taxon> getPhylums() {
 			return phylums;
 		}
 
-		public HashMap getSpecies() {
+		public HashMap<String, Taxon> getSpecies() {
 			return species;
 		}
 
-		public HashMap getSubpopulations() {
+		public HashMap<String, Taxon> getSubpopulations() {
 			return subpopulations;
 		}
 
-		public TaxonNode getTheKingdom() {
+		public Taxon getTheKingdom() {
 			return theKingdom;
 		}
 
 	}
 
-	private HashMap kingdoms;
+	private HashMap<String, Kingdom> kingdoms;
 
 	private int[] counts;
 
 	public TaxonomyTree() {
-		kingdoms = new HashMap();
+		kingdoms = new HashMap<String, Kingdom>();
 	}
 
 	// public int getNumberOfLevels()
@@ -104,18 +108,18 @@ public class TaxonomyTree {
 	// return levels.length;
 	// }
 
-	public void addNode(String kingdom, TaxonNode nodeToAdd) {
+	public void addNode(String kingdom, Taxon nodeToAdd) {
 		if (nodeToAdd.getLevel() == TaxonNode.KINGDOM)
 			kingdoms.put(kingdom, new Kingdom(nodeToAdd));
 		else
-			((Kingdom) kingdoms.get(kingdom)).levels[nodeToAdd.getLevel() - 1].put(nodeToAdd.getFullName(), nodeToAdd);
+			kingdoms.get(kingdom).levels[nodeToAdd.getLevel() - 1].put(nodeToAdd.getFullName(), nodeToAdd);
 	}
 
 	public int[] getCounts() {
 		return counts;
 	}
 
-	public HashMap getKingdoms() {
+	public HashMap<String, Kingdom> getKingdoms() {
 		return kingdoms;
 	}
 
@@ -207,16 +211,15 @@ public class TaxonomyTree {
 	// return levels[level].containsKey(id);
 	// }
 
-	public TaxonNode getNode(int level, String kingdom, String name) {
-		Kingdom curKingdom = (Kingdom) kingdoms.get(kingdom);
-
+	public Taxon getNode(int level, String kingdom, String name) {
+		Kingdom curKingdom = kingdoms.get(kingdom);
 		if (curKingdom == null)
 			return null;
 
-		if (level == TaxonNode.KINGDOM)
+		if (level == TaxonLevel.KINGDOM)
 			return curKingdom.getTheKingdom();
 		else
-			return (TaxonNode) curKingdom.levels[level - 1].get(name);
+			return curKingdom.levels[level - 1].get(name);
 	}
 
 	// public TaxonNode findNode( String id )
@@ -233,9 +236,9 @@ public class TaxonomyTree {
 	// return levels[level];
 	// }
 
-	public void removeNode(String kingdom, TaxonNode nodeToRemove) {
-		if (nodeToRemove.getLevel() != TaxonNode.KINGDOM)
-			((Kingdom) kingdoms.get(kingdom)).levels[nodeToRemove.getLevel() - 1].remove(nodeToRemove.getFullName());
+	public void removeNode(String kingdom, Taxon nodeToRemove) {
+		if (nodeToRemove.getLevel() != TaxonLevel.KINGDOM)
+			kingdoms.get(kingdom).levels[nodeToRemove.getLevel() - 1].remove(nodeToRemove.getFullName());
 		else
 			kingdoms.remove(kingdom);
 	}
