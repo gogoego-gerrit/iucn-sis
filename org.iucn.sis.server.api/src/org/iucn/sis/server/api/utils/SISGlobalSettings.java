@@ -11,6 +11,8 @@ public class SISGlobalSettings {
 	public static final String ONLINE = "org.iucn.sis.server.online";
 	public static final String FORCE_HTTPS = "org.iucn.sis.server.forcehttps";
 	
+	public static final String AUTH_RESET_BCC = "org.iucn.sis.server.auth.reset.bcc";
+	
 	public static final String DB_URI = "dbsession.sis.uri";
 	public static final String DB_DRIVER = "dbsession.sis.driver";
 	public static final String DB_USER = "dbsession.sis.user";

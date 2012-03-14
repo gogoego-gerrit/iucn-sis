@@ -161,6 +161,10 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 					}
 					public void onSuccess(String result) {
 						be.getGrid().getStore().commitChanges();
+						// After the username change the password should be reset
+						if ("username".equals(col)){
+							resetPassword(value);
+						}
 					}
 				});
 			}
@@ -179,6 +183,22 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 		isDrawn = true;
 		
 		refresh(callback);
+	}
+	
+	private void resetPassword(final String username){
+		NativeDocument ndoc = SISClientBase.getHttpBasicNativeDocument();
+		ndoc.post(UriBase.getInstance().getSISBase() + "/authn/reset", "<root><u>"
+				+ username + "</u></root>", new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				Info.display("Reset Success!",
+						"A new password for {0} has been sent.", username);
+				WindowUtils.infoAlert("Password Reset", "Password Reset for the account "+username+". A new password for "+username+" has been sent.");
+			}
+			public void onFailure(Throwable caught) {
+				WindowUtils.errorAlert("Reset failed!", "Resetting this "
+						+ "user's password failed. Please check your Internet connection and try again.");
+			}
+		});
 	}
 	
 	@Override

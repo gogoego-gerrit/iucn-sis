@@ -2,6 +2,7 @@ package org.iucn.sis.server.api.application;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Properties;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -10,6 +11,7 @@ import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
+import org.iucn.sis.server.api.utils.SISGlobalSettings;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.User;
 
@@ -146,15 +148,20 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		if (!username.equalsIgnoreCase("admin") || username.equals("")) {
 			String newPassword = new MD5Hash(username + new Date().toString()).toString().substring(0, 8);
 			if (changePassword(username, newPassword)) {
-				System.out.println("Changed password to " + newPassword);
-				
 				String body = "Hello " + username + ", \r\n \r\n Your password has been "
 				+ "reset for your IUCN application.  Please log in using the new credentials:\r\n"
 				+ "  Username: " + username + "\r\n  Password: " + newPassword
 				+ "\r\n \r\n We strongly recommend that you change your password on the " +
 						"login page.";
+				
+				Properties properties = SIS.get().getSettings(null);
+				
+				String bccAddress = properties.getProperty(SISGlobalSettings.AUTH_RESET_BCC);
+				
 				Mailer mailer = getMailer();
 				mailer.setTo(username);
+				if (bccAddress != null && !bccAddress.equals(""))
+					mailer.setBCC(bccAddress);
 				mailer.setBody(body);
 
 				try {
