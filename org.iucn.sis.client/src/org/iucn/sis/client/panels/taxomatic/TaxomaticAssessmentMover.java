@@ -9,6 +9,7 @@ import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
+import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.utils.AssessmentFormatter;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -58,7 +59,15 @@ public class TaxomaticAssessmentMover extends TaxomaticWindow {
 
 	protected void addItem(final Taxon target) {
 		if (target == null)
+			return;		
+		if(target.getId() == source.getId()){
+			WindowUtils.infoAlert("Please select some other taxon to Move Assessments.");
 			return;
+		}		
+		if(target.getLevel() < TaxonLevel.SPECIES){
+			WindowUtils.errorAlert("Assessments can be moved only between Species level.");
+			return;
+		}
 		
 		this.target = target;
 		htmlOfNodeToMoveAssessmentsINTO.setHtml(target.getFullName());		
