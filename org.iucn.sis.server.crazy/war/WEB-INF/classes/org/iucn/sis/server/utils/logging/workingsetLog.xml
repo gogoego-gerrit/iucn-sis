@@ -1,8 +1,0 @@
-<structure id="org.iucn.sis.server.workingsetlog.structure" version="1">
-	<table name="workingSetLog">
-		<column name="ID" type="CInteger"/>
-		<column name="CREATOR" type="CString" scale="255"/>
-		<column name="DATE" type="CString" scale="255"/>
-		<column name="NAME" type="CString" scale="255"/>
-	</table>
-</structure>

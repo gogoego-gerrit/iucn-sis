@@ -1,9 +1,0 @@
-<structure id="org.iucn.sis.server.commitlog.structure" version="1">
-	<table name="commitLog">
-		<column name="ASSESSMENT" type="CString"/>
-		<column name="STATUS" type="CString" scale="255"/>
-		<column name="USER" type="CString" scale="255"/>
-		<column name="DATE" type="CString" scale="255"/>
-		<column name="NAME" type="CString" scale="255"/>
-	</table>
-</structure>
