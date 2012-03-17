@@ -88,13 +88,33 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 				dominantStructure.save(field, null);
 		
 		for (DisplayStructure cur : dependantStructures) {
-			if (cur.isPrimitive())
-				cur.save(field, field.getPrimitiveField(cur.getId()));
+			if (cur instanceof Structure && !((Structure)cur).displayPanel.isVisible()) {
+				try {
+					cur.clearData();
+				} catch (Exception e) {
+					Debug.println("Error attempting to clear data: {0}\r\n{1}", e.getMessage(), e);
+				}
+				if (cur.isPrimitive())
+					field.getPrimitiveField().remove(field.getPrimitiveField(cur.getId()));
+				else {
+					if (cur.hasId())
+						field.getFields().remove(field.getField(cur.getId()));
+					else {
+						//FIXME: what to do in this case?  Not the below...?
+						//field.setFields(new HashSet<Field>());
+						//field.setPrimitiveField(new HashSet<PrimitiveField>());
+					}
+				}
+			}
 			else {
-				if (cur.hasId())
-					cur.save(field, field.getField(cur.getId()));
-				else
-					cur.save(null, field);
+				if (cur.isPrimitive())
+					cur.save(field, field.getPrimitiveField(cur.getId()));
+				else {
+					if (cur.hasId())
+						cur.save(field, field.getField(cur.getId()));
+					else
+						cur.save(null, field);
+				}
 			}
 		}
 	}
@@ -114,12 +134,26 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 		
 		if (!hasChanged) {
 			for (DisplayStructure cur : dependantStructures) {
-				if (cur.isPrimitive())
-					hasChanged = cur.hasChanged(field == null ? null : field.getPrimitiveField(cur.getId()));
-				else if (cur.hasId())
-					hasChanged = cur.hasChanged(field == null ? null : field.getField(cur.getId()));
-				else
-					hasChanged = cur.hasChanged(field);
+				/*
+				 * If the structure is hidden, then the data to be saved will be null. 
+				 * Thus, if there exists any data, it constitutes a change.
+				 */
+				if (cur instanceof Structure && !((Structure)cur).displayPanel.isVisible()) {
+					if (cur.isPrimitive())
+						hasChanged = field != null && field.getPrimitiveField(cur.getId()) != null;
+					else if (cur.hasId())
+						hasChanged = field != null && field.getField(cur.getId()) != null;
+					else
+						hasChanged = field.hasData();
+				}
+				else {
+					if (cur.isPrimitive())
+						hasChanged = cur.hasChanged(field == null ? null : field.getPrimitiveField(cur.getId()));
+					else if (cur.hasId())
+						hasChanged = cur.hasChanged(field == null ? null : field.getField(cur.getId()));
+					else
+						hasChanged = cur.hasChanged(field);
+				}
 		
 				Debug.println("For {0}, dep struct {1} changed? {2}", getDescription(), cur.getId(), hasChanged);
 				

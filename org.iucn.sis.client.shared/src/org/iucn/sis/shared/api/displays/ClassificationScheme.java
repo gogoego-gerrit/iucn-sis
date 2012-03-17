@@ -230,7 +230,8 @@ public class ClassificationScheme extends Display {
 		
 		field.getFields().clear();
 		
-		for (ClassificationSchemeModelData model : viewer.save(true)) {
+		final List<ClassificationSchemeModelData> models = viewer.save(true);
+		for (ClassificationSchemeModelData model : models) {
 			Field subfield = model.getField();
 			if (subfield == null) {
 				subfield = new Field();
@@ -258,6 +259,8 @@ public class ClassificationScheme extends Display {
 			 */
 			field.getFields().add(subfield);
 		}
+		
+		buildReadOnlyContainer(readOnlyContainer, models);
 	}
 	
 	@Override
