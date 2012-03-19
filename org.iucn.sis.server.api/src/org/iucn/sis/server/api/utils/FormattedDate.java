@@ -43,9 +43,11 @@ public class FormattedDate {
 		try {
 			return formatter.parse(formattedDate);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
+			try {
+				return formatterWithTime.parse(formattedDate);
+			} catch (ParseException f) {
+				return null;
+			}
 		}
 	}
 }
