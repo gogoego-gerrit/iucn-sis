@@ -95,6 +95,10 @@ public class SISPersistentManager {
 		SISPersistentManager instance = new SISPersistentManager();
 		
 		if (fresh) {
+			if (properties.getProperty("dbsession." + name + ".uri").contains("sis.iucnsis.org") || 
+					properties.getProperty("dbsession." + name + ".uri").contains("live.2.iucnsis.org"))
+				throw new RuntimeException("You are about to overwrite the live SIS database ... NO!");
+			
 			Configuration config = instance.buildConfiguration(name, properties);
 			
 			SchemaExport export = new SchemaExport(config);
