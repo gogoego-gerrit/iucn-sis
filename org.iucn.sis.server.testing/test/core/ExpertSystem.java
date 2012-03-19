@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.iucn.sis.shared.api.criteriacalculator.CriteriaSet;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertResult;
 import org.iucn.sis.shared.api.criteriacalculator.FuzzyExpImpl;
+import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
@@ -39,6 +41,131 @@ public class ExpertSystem extends BasicTest {
 	@BeforeClass
 	public static void setup() {
 		FuzzyExpImpl.VERBOSE = true;
+	}
+	
+	@Test
+	public void parse23Criteria() {
+		String criteria = "A1bc";
+		
+		String[] semiColonSplit;
+
+		if (criteria.indexOf(";") > -1)
+			semiColonSplit = criteria.split(";");
+		else
+			semiColonSplit = new String[] { criteria };
+
+		for (int i = 0; i < semiColonSplit.length; i++) {
+			semiColonSplit[i] = semiColonSplit[i].trim();
+			char firstLetter = semiColonSplit[i].charAt(0);
+			String internalCriteria = semiColonSplit[i].substring(1);
+			if (firstLetter == 'A') {
+				String[] plusSplit = internalCriteria.split("\\+");
+				for (int j = 0; j < plusSplit.length; j++) {
+					String numLetters = plusSplit[j];
+
+					// GET NUMBER
+					char number = numLetters.charAt(0);
+
+					// GET LETTERS
+					for (int k = 1; k < numLetters.length(); k++) {
+
+						char letter = numLetters.charAt(k);
+
+						StringBuffer finalString = new StringBuffer();
+						finalString.append(firstLetter);
+						finalString.append(number);
+						finalString.append(letter);
+
+						// Mark Grid
+						foundCriterion("A", finalString.toString());
+					}
+				}
+			}
+
+			else if (firstLetter == 'B') {
+				String[] plusSplit = internalCriteria.split("\\+");
+				for (int j = 0; j < plusSplit.length; j++) {
+					String numLetters = plusSplit[j];
+
+					// GET NUMBER
+					char number = numLetters.charAt(0);
+
+					if (number == '1') {
+						foundCriterion("B", "B1");
+					}
+
+					// GET LETTERS
+					for (int k = 1; k < numLetters.length(); k++) {
+
+						char letter = numLetters.charAt(k);
+
+						StringBuffer finalString = new StringBuffer();
+						finalString.append(firstLetter);
+						finalString.append(number);
+						finalString.append(letter);
+
+						// Mark Grid
+						foundCriterion("B", finalString.toString());
+					}
+				}
+
+			}
+
+			else if (firstLetter == 'C') {
+
+				String[] plusSplit = internalCriteria.split("\\+");
+
+				for (int j = 0; j < plusSplit.length; j++) {
+
+					String almostThere = plusSplit[j];
+
+					// EITHER A 1 OR A 2 FIRST
+					if (almostThere.equalsIgnoreCase("1")) {
+
+						foundCriterion("C", "C1");
+
+					}
+
+					else {
+						if (almostThere.matches(".*[b].*")) {
+							foundCriterion("C", "C2b");
+						}
+
+						if (almostThere.matches(".*a.*")) {
+							foundCriterion("C", "C2a");
+						}
+
+					}
+
+				}
+			} else if (firstLetter == 'D') {
+				if (internalCriteria.length() == 0 || internalCriteria.trim().equalsIgnoreCase("")) {
+					foundCriterion("D", "D");
+				} else if (internalCriteria.trim().equalsIgnoreCase("1")) {
+					foundCriterion("D", "D1");
+				} else if (internalCriteria.trim().equalsIgnoreCase("2")) {
+					foundCriterion("D", "D2");
+				} else {
+					foundCriterion("D", "D1");
+					foundCriterion("D", "D2");
+				}
+
+			}
+
+			else if (firstLetter == 'E') {
+				foundCriterion("E", "E");
+			}
+		}
+		System.out.println("Now doing it via criteria set");
+		
+		CriteriaSet set = CriteriaSet.fromString(ResultCategory.DD, criteria);
+		for (String criterion : set.getCriteria()) {
+			foundCriterion(Character.toString(criterion.charAt(0)), criterion);
+		}
+	}
+	
+	private void foundCriterion(String a, String b) {
+		System.out.println(a + " -> " + b);
 	}
 	
 	public void tryIt() {

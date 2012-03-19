@@ -38,6 +38,16 @@ public class CriteriaLevelTest {
 	}
 	
 	@Test
+	public void testB5() {
+		CriteriaSet set = CriteriaSet.fromString(ResultCategory.DD, "B2ab(v)");
+		for (String criterion : set.getCriteria())
+			System.out.println(criterion);
+		Assert.assertEquals(2, set.getCriteria().size());
+		
+		
+	}
+	
+	@Test
 	public void testC() {
 		Field C1 = new Field();
 		C1.addPrimitiveField(new StringPrimitiveField("C1", C1, "CR"));
