@@ -536,7 +536,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 	private void subscribeToPublicWorkingSet(Request request, Response response, String username, Integer id, WorkingSetIO workingSetIO) {
 		if (workingSetIO.subscribeToWorkingset(id, username)) {
 			response.setStatus(Status.SUCCESS_OK);
-			response.setEntity(workingSetIO.readWorkingSet(id).toXML(), MediaType.TEXT_XML);
+			response.setEntity(workingSetIO.readWorkingSet(id).toXML(false), MediaType.TEXT_XML);
 		} else {
 			response.setStatus(Status.SERVER_ERROR_INTERNAL);
 		}
