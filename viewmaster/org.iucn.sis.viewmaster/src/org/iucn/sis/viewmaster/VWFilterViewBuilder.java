@@ -11,7 +11,7 @@ public class VWFilterViewBuilder {
 	public void build(Connection c, final String schema, final String user) throws DBException, IOException {
 		final String file;
 		if ("vw_published".equals(schema))
-			file = "RedListPublish_2.sql"; 
+			file = "RedListPublish3.sql"; 
 		else if ("vw_drafts".equals(schema))
 			file = "AllDrafts.sql";
 		else

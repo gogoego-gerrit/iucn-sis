@@ -4,7 +4,7 @@ Bundle-Name: PostgreSQL Adapter for GoGoEgo DB
 Bundle-SymbolicName: org.gogoego.util.db.postgresql
 Bundle-Version: 1.0.0
 Bundle-Activator: org.gogoego.util.db.postgresql.Activator
-Import-Package: org.apache.commons.dbcp;version="1.4.0",
+Import-Package: org.apache.commons.dbcp,
  org.gogoego.util.db,
  org.gogoego.util.db.shared,
  org.gogoego.util.getout,
