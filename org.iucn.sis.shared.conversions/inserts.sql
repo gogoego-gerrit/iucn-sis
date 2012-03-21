@@ -1493,7 +1493,7 @@ INSERT INTO MovementPatterns_patternLookup (name, label) VALUES ('1', 'Altitudin
 INSERT INTO MovementPatterns_patternLookup (name, label) VALUES ('2', 'Not a Migrant');
 INSERT INTO MovementPatterns_patternLookup (name, label) VALUES ('3', 'Nomadic');
 INSERT INTO MovementPatterns_patternLookup (name, label) VALUES ('4', 'Unknown');
-INSERT INTO MovementPatterns (name, data_type, number_allowed) VALUES ('pattern', 'fk_list_primitive_field', '?');
+INSERT INTO MovementPatterns (name, data_type, number_allowed) VALUES ('pattern', 'fk_primitive_field', '?');
 INSERT INTO NaturalMortality (name, data_type, number_allowed) VALUES ('value', 'string_primitive_field', '?');
 INSERT INTO NonConsumptiveUse (name, data_type, number_allowed) VALUES ('isNonConsumptiveUse', 'boolean_primitive_field', '?');
 INSERT INTO NonConsumptiveUseDescription (name, data_type, number_allowed) VALUES ('narrative', 'text_primitive_field', '?');
