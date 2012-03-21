@@ -171,7 +171,20 @@ public abstract class ReportTemplate {
 		setReportValue("SPECIES_AUTHORITY",taxa.getTaxonomicAuthority());
 		setReportValue("COMMON_NAMES",fetchCommonNames(taxa));
 		setReportValue("SYNONYMS",fetchSynonyms(taxa));
-		setReportValue("TAXA_NOTES",fetchTextPrimitiveField(assessment.getField(CanonicalNames.TaxonomicNotes), "value"));
+		setReportValue("TAXA_NOTES",fetchTaxonomicNotes(taxa));
+	}
+	
+	protected String fetchTaxonomicNotes(Taxon taxon){		
+		Field taxonomicNotes = null;
+		if (assessment.isPublished())
+			taxonomicNotes = assessment.getField(CanonicalNames.TaxonomicNotes);
+		if (taxonomicNotes == null || !taxonomicNotes.hasData())
+			taxonomicNotes = taxon.getTaxonomicNotes();
+		
+		if (taxonomicNotes != null && taxonomicNotes.getPrimitiveField() != null && !taxonomicNotes.getPrimitiveField().isEmpty()) 
+			return taxonomicNotes.getPrimitiveField().iterator().next().getRawValue();
+		else
+			return "-";
 	}
 	
 	protected String fetchCommonNames(Taxon taxon) {
