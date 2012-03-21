@@ -236,6 +236,20 @@ public class Synonym implements Serializable, HasReferences, HasNotes {
 			setInfrarankAuthor(authority);
 		}
 	}
+	
+	public String getAuthority(){
+		String authority = null;
+		if(getTaxon_level() != null){
+			if (getTaxon_level().getLevel() <= TaxonLevel.GENUS) {
+				authority = getAuthor();
+			} else if (getTaxon_level().getLevel() == TaxonLevel.SPECIES) {
+				authority = getSpeciesAuthor();
+			} else if (getTaxon_level().getLevel() > TaxonLevel.SPECIES) {
+				authority = getInfrarankAuthor(); 
+			}
+		}
+		return authority;
+	}
 
 	/* THINGS I HAVE ADDED... IF YOU REGENERATE, MUST ALSO COPY THIS */
 

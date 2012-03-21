@@ -302,8 +302,8 @@ public class AssessmentHtmlTemplate {
 		theHtml.append("<img src=\""+createUrl(logo)+"\" alt=\"Logo\" />\n");
 		theHtml.append("<div id=\"speciesInfo\">");
 		theHtml.append("<h1><em>");
-		theHtml.append(taxon.getFullName() + " - " + taxon.getTaxonomicAuthority());
-		theHtml.append("</em></h1>");
+		theHtml.append(taxon.getFullName());
+		theHtml.append("</em> - "+ taxon.getTaxonomicAuthority() +"</h1>");
 		buildHierarchyList(taxon);
 		theHtml.append("</div>\n</div>\n");
 		
@@ -361,17 +361,24 @@ public class AssessmentHtmlTemplate {
 
 			for (Synonym curSyn : taxon.getSynonyms()) {
 				if (!dupes.containsKey(curSyn.getName()))
-					dupes.put(curSyn.getName(), curSyn.getAuthor());
+					dupes.put(curSyn.getName(), curSyn.getAuthority());
 				else if (dupes.get(curSyn.getName()) == null || dupes.get(curSyn.getName()).equals(""))
 					if (curSyn.getAuthor() != null)
-						dupes.put(curSyn.getName(), curSyn.getAuthor());
+						dupes.put(curSyn.getName(), curSyn.getAuthority());
 			}
 
 			for (Entry<String, String> curEntry : dupes.entrySet()) {
-				theHtml.append(curEntry.getKey());
-				theHtml.append(" ");
-				theHtml.append(curEntry.getValue());
-				theHtml.append("; ");
+				if(curEntry.getKey() != null && !curEntry.getKey().equals("")){
+					if(curEntry.getValue() != null){
+						theHtml.append(curEntry.getKey());
+						theHtml.append(" ");
+						theHtml.append(curEntry.getValue());
+						theHtml.append("; ");	
+					}else{	
+						theHtml.append(curEntry.getKey());
+						theHtml.append("; ");				
+					}
+				}
 			}
 		}
 		theHtml.append("</p>\n");
