@@ -143,12 +143,6 @@ public class RedListEvaluatedConverter extends FieldMigrationConverter {
 		return prototype;
 	}
 	
-	private CString getTextColumn(String name) {
-		CString col = new CString(name, null);
-		col.setScale(4000); //>255
-		return col;
-	}
-	
 	@SuppressWarnings("unchecked")
 	protected void process(String fieldName, AssessmentData assessData, Object rawData) throws DBException {
 		Row row = getPrototype();

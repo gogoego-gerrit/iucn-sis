@@ -25,6 +25,7 @@ import org.iucn.sis.shared.helpers.AssessmentData;
 import org.iucn.sis.shared.helpers.AssessmentParser;
 import org.iucn.sis.shared.helpers.CanonicalNames;
 
+import com.solertium.db.CString;
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
@@ -311,6 +312,12 @@ public abstract class FieldMigrationConverter extends GenericConverter<VFSInfo> 
 			}
 		}
 		return date;
+	}
+	
+	protected CString getTextColumn(String name) {
+		CString col = new CString(name, null);
+		col.setScale(4000); //>255
+		return col;
 	}
 	
 	protected final Integer getIndex(String canonicalName, String libraryTable, String name, String value) throws DBException {

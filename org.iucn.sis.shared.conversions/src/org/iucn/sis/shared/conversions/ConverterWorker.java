@@ -13,6 +13,7 @@ import org.iucn.sis.server.api.utils.SISGlobalSettings;
 import org.iucn.sis.shared.conversions.AssessmentConverter.ConversionMode;
 import org.iucn.sis.shared.helpers.ServerPaths;
 import org.iucn.sis.shared.migration.GlobalReferenceConverter;
+import org.iucn.sis.shared.migration.MovementPatternsConverter;
 import org.iucn.sis.shared.migration.OccurrenceConverter;
 import org.iucn.sis.shared.migration.RedListEvaluatedConverter;
 import org.iucn.sis.shared.migration.StressesConverter;
@@ -92,6 +93,8 @@ public class ConverterWorker implements Runnable {
 			success = convertRedListEvaluated(writer);
 		else if ("stresses".equals(step))
 			success = convertStresses(writer);
+		else if ("movementpatterns".equals(step))
+			success = convertMovementPatterns(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -300,6 +303,20 @@ public class ConverterWorker implements Runnable {
 		StressesConverter converter;
 		try {
 			converter = new StressesConverter();
+		} catch (NamingException e) {
+			die("Failed to locate lookup database", e, writer);
+			return false;
+		}
+		initConverter(converter, writer);
+		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
+		
+		return converter.start();
+	}
+	
+	private boolean convertMovementPatterns(Writer writer) {
+		MovementPatternsConverter converter;
+		try {
+			converter = new MovementPatternsConverter();
 		} catch (NamingException e) {
 			die("Failed to locate lookup database", e, writer);
 			return false;
