@@ -178,8 +178,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 										WindowUtils.infoAlert("All assessments in this working set were submitted successfully.");
 									}
 									public void onFailure(Throwable caught) {
-										// TODO: list assessments that caused failure
-										WindowUtils.errorAlert("Failed to submit working set, please try again later.");
+										// Already handled.
 									}
 								});
 							}

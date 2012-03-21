@@ -12,6 +12,7 @@ public class SISGlobalSettings {
 	public static final String FORCE_HTTPS = "org.iucn.sis.server.forcehttps";
 	
 	public static final String AUTH_RESET_BCC = "org.iucn.sis.server.auth.reset.bcc";
+	public static final String PUBLICATION_INTEGRITY_VALIDATION = "org.iucn.sis.server.publication.validate";
 	
 	public static final String DB_URI = "dbsession.sis.uri";
 	public static final String DB_DRIVER = "dbsession.sis.driver";
@@ -26,6 +27,7 @@ public class SISGlobalSettings {
 	
 	public static final String[] ALL = {
 		SCHEMA, VFS, CONFIG_URI, GENERATOR, ONLINE, FORCE_HTTPS,
+		AUTH_RESET_BCC, PUBLICATION_INTEGRITY_VALIDATION, 
 		DB_URI, DB_DRIVER, DB_USER, DB_PASSWORD, DB_DIALECT,
 		LOOKUPS_URI, LOOKUPS_DRIVER, LOOKUPS_USER, LOOKUPS_PASSWORD
 	};

@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Session;
+import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.PublicationIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
+import org.iucn.sis.server.extensions.integrity.IntegrityValidator;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
@@ -21,12 +24,14 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
+import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.NodeCollection;
 
 public class PublicationRestlet extends BaseServiceRestlet {
@@ -48,11 +53,25 @@ public class PublicationRestlet extends BaseServiceRestlet {
 		final String type = (String)request.getAttributes().get("type");
 		final Integer id = toInt((String)request.getAttributes().get("id"));
 		final User user = getUser(request, session);
+		final boolean doValidation = "true".equals(SIS.get().getSettings(null).getProperty("org.iucn.sis.server.publication.validate", "false"));
 		
 		if ("assessment".equals(type)) {
 			Assessment assessment = new AssessmentIO(session).getAssessment(id);
 			if (assessment == null)
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+			
+			boolean passesValidation = !doValidation;
+			if (!passesValidation) {
+				try {
+					passesValidation = IntegrityValidator.
+						validate_background(session, SIS.get().getVFS(), 
+							SIS.get().getExecutionContext(), assessment.getId());
+				} catch (Exception e) {
+					Debug.println("Failed attempting to run validation: {0}\n{1]", e.getMessage(), e);
+				}
+			}
+			if (!passesValidation)
+				throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "Validation failed.");
 			
 			io.submit(assessment, null, user);
 			
@@ -67,8 +86,24 @@ public class PublicationRestlet extends BaseServiceRestlet {
 			
 			AssessmentFilterHelper helper = new AssessmentFilterHelper(session, ws.getFilter());
 			for (Taxon taxon : ws.getTaxon()) {
-				for (Assessment assessment : helper.getAssessments(taxon.getId()))
+				for (Assessment assessment : helper.getAssessments(taxon.getId())) {
+					boolean passesValidation = !doValidation;
+					if (!passesValidation) {
+						try {
+							passesValidation = IntegrityValidator.
+								validate_background(session, SIS.get().getVFS(), 
+									SIS.get().getExecutionContext(), assessment.getId());
+						} catch (Exception e) {
+							Debug.println("Failed attempting to run validation: {0}\n{1]", e.getMessage(), e);
+						}
+					}
+					if (!passesValidation) {
+						String message = "Validation failed on " + assessment.getAssessmentType().getDisplayName() + " assessment for " + assessment.getSpeciesName() + ".";
+						response.setEntity(new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createErrorDocument(message)));
+						throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, message);
+					}
 					io.submit(assessment, group, user);
+				}
 			}
 		}
 		else

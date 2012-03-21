@@ -1,7 +1,7 @@
 package org.iucn.sis.shared.api.integrity;
 
-import org.iucn.sis.client.container.SimpleSISClient;
-import org.iucn.sis.client.panels.integrity.IntegrityApplicationPanel;
+import org.iucn.sis.client.api.container.SISClientBase;
+import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
 import com.google.gwt.user.client.Window;
@@ -21,11 +21,19 @@ import com.solertium.util.extjs.client.WindowUtils;
  */
 public class ClientAssessmentValidator {
 	
+	public static String createUrl(String ruleName) {
+		return createUrl(ruleName, "ruleset");
+	}
+
+	public static String createUrl(String ruleName, String service) {
+		return UriBase.getInstance().getIntegrityBase() + "/" + service + (ruleName == null ? "" : "/" + ruleName + ".xml");
+	}
+	
 	public static void validate(WorkingSet workingSet) {
 		//List<String> assessmentIDs = workingSet.getSpeciesIDs();
 		
 		StringBuilder url = new StringBuilder();
-		url.append(IntegrityApplicationPanel.createUrl(null, "validate"));
+		url.append(createUrl(null, "validate"));
 		url.append('?');
 		url.append("set=" + workingSet.getId());
 		/*for(Iterator<String> iter = workingSet.getSpeciesIDs().iterator(); iter.hasNext(); ) {
@@ -41,7 +49,7 @@ public class ClientAssessmentValidator {
 	
 	public static void validate(final Integer assessmentID, final String assessmentType) {
 		StringBuilder url = new StringBuilder();
-		url.append(IntegrityApplicationPanel.createUrl(null, "validate"));
+		url.append(createUrl(null, "validate"));
 		url.append('?');
 		url.append("id=" + assessmentID);
 		url.append('&');
@@ -60,9 +68,8 @@ public class ClientAssessmentValidator {
 		final String body = "<root><assessment type=\"" + assessmentType + "\">" + assessmentID
 				+ "</assessment></root>";
 
-		final NativeDocument document = SimpleSISClient.getHttpBasicNativeDocument();
-		document.postAsText(IntegrityApplicationPanel.createUrl(rulesetName,
-				"validate"), body, new GenericCallback<String>() {
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.postAsText(createUrl(rulesetName, "validate"), body, new GenericCallback<String>() {
 			public void onFailure(Throwable caught) {
 				WindowUtils
 						.errorAlert("Error in validation process, please try again later.");

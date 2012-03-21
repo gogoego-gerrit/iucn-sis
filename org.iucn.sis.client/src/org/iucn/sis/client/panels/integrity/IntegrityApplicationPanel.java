@@ -406,11 +406,11 @@ public class IntegrityApplicationPanel extends LayoutContainer implements DrawsL
 	}
 
 	public static String createUrl(String ruleName) {
-		return createUrl(ruleName, "ruleset");
+		return ClientAssessmentValidator.createUrl(ruleName);
 	}
 
 	public static String createUrl(String ruleName, String service) {
-		return UriBase.getInstance().getIntegrityBase() + "/" + service + (ruleName == null ? "" : "/" + ruleName + ".xml");
+		return ClientAssessmentValidator.createUrl(ruleName, service);
 	}
 
 	public static class ValidateAssessmentWindow extends BasicWindow {

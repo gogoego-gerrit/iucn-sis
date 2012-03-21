@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
+import org.iucn.sis.shared.api.integrity.ClientAssessmentValidator;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.PublicationData;
@@ -225,6 +226,14 @@ public class PublicationCache {
 			public void onFailure(Throwable caught) {
 				if (!(caught instanceof GWTResponseException))
 					WindowUtils.errorAlert("Failed to submit assessment, please try again later.");
+				else if (caught instanceof GWTConflictException) {
+					String message = "Integrity validation failed for this assessment. Would you like to see detailed results?";
+					WindowUtils.confirmAlert("Submission Failed.", message, new WindowUtils.SimpleMessageBoxListener() {
+						public void onYes() {
+							ClientAssessmentValidator.validate(assessment.getId(), assessment.getType());
+						}
+					});
+				}
 				else {
 					int status = ((GWTResponseException)caught).getCode();
 					if (status >= 500)
@@ -249,6 +258,22 @@ public class PublicationCache {
 				callback.onSuccess(result);
 			}
 			public void onFailure(Throwable caught) {
+				if (!(caught instanceof GWTResponseException))
+					WindowUtils.errorAlert("Failed to submit assessment, please try again later.");
+				else if (caught instanceof GWTConflictException) {
+					String message = "Integrity validation failed for one or more assessments in this working set. Would you like to see detailed results?";
+					WindowUtils.confirmAlert("Submission Failed.", message, new WindowUtils.SimpleMessageBoxListener() {
+						public void onYes() {
+							ClientAssessmentValidator.validate(workingSet);
+						}
+					});
+				}
+				else {
+					//int status = ((GWTResponseException)caught).getCode();
+					//TODO: message by status?
+					
+					WindowUtils.errorAlert("Failed to submit working set, please try again later.");
+				}
 				callback.onFailure(caught);
 			}
 		});
