@@ -284,6 +284,7 @@ public class WorkingSetExporter extends DatabaseExporter {
 			target.clear();
 		}
 		
+		source.clear();
 		target.clear();
 		target.beginTransaction();
 		target.replicate(workingSet, ReplicationMode.OVERWRITE);
