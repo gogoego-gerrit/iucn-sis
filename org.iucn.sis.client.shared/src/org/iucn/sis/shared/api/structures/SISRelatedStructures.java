@@ -144,7 +144,7 @@ public class SISRelatedStructures extends Structure<Field> implements DominantSt
 					else if (cur.hasId())
 						hasChanged = field != null && field.getField(cur.getId()) != null;
 					else
-						hasChanged = field.hasData();
+						hasChanged = field != null && field.hasData();
 				}
 				else {
 					if (cur.isPrimitive())
