@@ -160,6 +160,9 @@ public class UserRestlet extends BaseServiceRestlet {
 							throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "An active user with this username already exists.");
 					}
 					
+					// Remove old username from the LoginCache
+					SIS.get().getLoginCache().remove(user.getUsername(), true);
+					
 					user.setUsername(value);
 					if (user.getEmail() == null || username.equals(user.getEmail()))
 						user.setEmail(value);

@@ -69,6 +69,7 @@ public class SIS {
 	private CannedQueries queries;
 	
 	private FileLocker locker;
+	private LoginCache loginCache;
 
 	private SIS() {
 		Debug.setInstance(new SISDebugger());
@@ -141,6 +142,12 @@ public class SIS {
 		if (locker == null)
 			locker = new FileLocker();
 		return locker;
+	}
+	
+	public LoginCache getLoginCache(){
+		if(loginCache == null)
+			loginCache = new LoginCache();		
+		return loginCache;
 	}
 	
 	public synchronized Properties getSettings(Context context) {

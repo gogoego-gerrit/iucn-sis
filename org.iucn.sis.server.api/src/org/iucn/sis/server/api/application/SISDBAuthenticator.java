@@ -1,7 +1,6 @@
 package org.iucn.sis.server.api.application;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Properties;
 
 import org.hibernate.HibernateException;
@@ -22,11 +21,8 @@ import com.solertium.util.restlet.authentication.DBAuthenticator;
 
 public class SISDBAuthenticator extends DBAuthenticator {
 	
-	private final HashMap<String, String> loginCache;
-
 	public SISDBAuthenticator(ExecutionContext ec) {
 		super(ec, "user", "username", "password");
-		loginCache = new HashMap<String, String>();
 	}
 	
 	@Override
@@ -98,11 +94,11 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		}
 		else {
 			final String translatedPW = translatePassword(login, password);
-			final String translatedUN = getSHA1Hash(login);
+			final String translatedUN = getSHA1Hash(login.toLowerCase());
 			
-			if (translatedPW.equalsIgnoreCase(loginCache.get(translatedUN)))
+			if (SIS.get().getLoginCache().contains(login, password, false))
 				return true;
-			
+							
 			Session session = SISPersistentManager.instance().openSession();
 			
 			User user = (User)session.createCriteria(User.class)
@@ -113,9 +109,9 @@ public class SISDBAuthenticator extends DBAuthenticator {
 				.uniqueResult();
 			
 			boolean success = user != null;
-			
+
 			if (success)
-				loginCache.put(translatedUN, translatedPW);
+				SIS.get().getLoginCache().add(translatedUN, translatedPW, false);
 			
 			session.close();
 			
@@ -134,6 +130,8 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		}
 		user.state = User.DELETED;
 		
+		SIS.get().getLoginCache().remove(username, true);
+		
 		try {
 			return io.saveUser(user);
 		} catch (PersistentException e) {
@@ -148,6 +146,9 @@ public class SISDBAuthenticator extends DBAuthenticator {
 		if (!username.equalsIgnoreCase("admin") || username.equals("")) {
 			String newPassword = new MD5Hash(username + new Date().toString()).toString().substring(0, 8);
 			if (changePassword(username, newPassword)) {
+				// Remove the password changed user from the LoginCache
+				SIS.get().getLoginCache().remove(username, true);
+				
 				String body = "Hello " + username + ", \r\n \r\n Your password has been "
 				+ "reset for your IUCN application.  Please log in using the new credentials:\r\n"
 				+ "  Username: " + username + "\r\n  Password: " + newPassword
