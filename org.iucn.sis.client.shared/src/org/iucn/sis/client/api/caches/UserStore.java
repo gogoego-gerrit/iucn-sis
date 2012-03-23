@@ -77,6 +77,8 @@ public class UserStore {
 		loaded = false;
 		active.removeAll();
 		disabled.removeAll();
+		active.removeAllListeners();
+		disabled.removeAllListeners();
 	}
 	
 	public ListStore<UserModelData> getActiveUsers() {
