@@ -83,6 +83,7 @@ public class SISAutoComplete extends SISPrimitiveStructure<String> {
 	
 	@Override
 	public void setData(PrimitiveField<String> field) {
+		clearData();
 		if (field != null)
 			textbox.setText(field.getValue());
 	}

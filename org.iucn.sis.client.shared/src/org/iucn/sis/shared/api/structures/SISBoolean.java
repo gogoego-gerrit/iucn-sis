@@ -111,6 +111,7 @@ public class SISBoolean extends SISPrimitiveStructure<Boolean> implements Domina
 	
 	@Override
 	public void setData(PrimitiveField<Boolean> field) {
+		clearData();
 		if (field != null)
 			checkbox.setValue((field.getValue()).booleanValue());			
 	}
