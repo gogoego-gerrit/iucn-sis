@@ -139,30 +139,35 @@ public class SISCompleteListTextArea extends VerticalPanel {
 			
 			final List<String> users = new ArrayList<String>();
 			for (Integer userID : field.getUsers())
-				users.add(userID.toString());
+				if (userID != 0)
+					users.add(userID.toString());
 			
-			HashMap<String, List<String>> map = new HashMap<String, List<String>>();
-			map.put("userid", users);
-			
-			UserSearchController.search(map, "or", true, new GenericCallback<List<SearchResults>>() {
-				public void onFailure(Throwable caught) {
-					ready = true;
-					WindowUtils.errorAlert("Error", "An error occurred searching for users. " +
-						"Please check your Internet connection, then try again.");
-				}
-				public void onSuccess(List<SearchResults> results) {
-					List<ClientUser> found = new ArrayList<ClientUser>();
-					for (SearchResults result : results)
-						found.add(result.getUser());
-					if (users.size() != results.size() && SIS.isDebugMode())
-						WindowUtils.infoAlert("Warning", "Warning: The number of users " +
-								"saved for this assessment (" + users.size() + 
-								") does not match the number of users found in the " +
-								"database (" + results.size() + "). These users may have " +
-								"been deleted, but they will not appear here.");
-					setUsers(found);
-				};
-			});
+			if (users.isEmpty())
+				setUsers(new ArrayList<ClientUser>());
+			else {
+				HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+				map.put("userid", users);
+				
+				UserSearchController.search(map, "or", true, new GenericCallback<List<SearchResults>>() {
+					public void onFailure(Throwable caught) {
+						ready = true;
+						WindowUtils.errorAlert("Error", "An error occurred searching for users. " +
+							"Please check your Internet connection, then try again.");
+					}
+					public void onSuccess(List<SearchResults> results) {
+						List<ClientUser> found = new ArrayList<ClientUser>();
+						for (SearchResults result : results)
+							found.add(result.getUser());
+						if (users.size() != results.size() && SIS.isDebugMode())
+							WindowUtils.infoAlert("Warning", "Warning: The number of users " +
+									"saved for this assessment (" + users.size() + 
+									") does not match the number of users found in the " +
+									"database (" + results.size() + "). These users may have " +
+									"been deleted, but they will not appear here.");
+						setUsers(found);
+					};
+				});
+			}
 		} else {
 			edit.setVisible(!"".equals(field.getText()));
 			setUsers(new ArrayList<ClientUser>());
