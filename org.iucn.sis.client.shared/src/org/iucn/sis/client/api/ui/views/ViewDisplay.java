@@ -108,10 +108,12 @@ public class ViewDisplay extends LayoutContainer implements DrawsLazily {
 		private SISView view;
 		private SISPageHolder page;
 		private boolean allowSamePage;
+		private boolean autoSaveOnPageChange;
 		
 		public PageChangeRequest(SISView view, SISPageHolder page) {
 			this.view = view;
 			this.page = page;
+			this.autoSaveOnPageChange = true;
 		}
 		
 		public SISPageHolder getPage() {
@@ -128,6 +130,14 @@ public class ViewDisplay extends LayoutContainer implements DrawsLazily {
 		
 		public void setAllowSamePage(boolean allowSamePage) {
 			this.allowSamePage = allowSamePage;
+		}
+		
+		public boolean isAutoSaveOnPageChange() {
+			return autoSaveOnPageChange;
+		}
+		
+		public void setAutoSaveOnPageChange(boolean autoSaveOnPageChange) {
+			this.autoSaveOnPageChange = autoSaveOnPageChange;
 		}
 		
 	}

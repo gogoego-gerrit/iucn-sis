@@ -12,9 +12,11 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.FetchMode;
 import org.iucn.sis.client.api.caches.StatusCache;
 import org.iucn.sis.client.api.caches.ViewCache;
+import org.iucn.sis.client.api.caches.ViewCache.EditStatus;
 import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.acl.InsufficientRightsException;
+import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.criteriacalculator.ExpertUtils;
 import org.iucn.sis.shared.api.criteriacalculator.Factors;
@@ -31,6 +33,7 @@ import com.google.gwt.core.client.GWT;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.util.events.ComplexListener;
 import com.solertium.util.events.SimpleListener;
 import com.solertium.util.extjs.client.WindowUtils;
 
@@ -273,39 +276,70 @@ public class AssessmentClientSaveUtils {
 	}
 	
 	public static void saveIfNecessary(final SimpleListener listener) {
-		if (AssessmentCache.impl.getCurrentAssessment() != null
-				&& ViewCache.impl.getCurrentView() != null 
-				&& ViewCache.impl.getCurrentView().getCurPage() != null
-				&& shouldSaveCurrentAssessment(
-						ViewCache.impl.getCurrentView().getCurPage().getMyFields())) {
-			WindowUtils.confirmAlert("By the way...", "Navigating away from this page will"
-					+ " revert unsaved changes. Would you like to save?", new WindowUtils.MessageBoxListener() {
-				public void onYes() {
+		saveIfNecessary(new ComplexListener<Boolean>() {
+			public void handleEvent(Boolean allIsWell) {
+				if (allIsWell.booleanValue())
+					listener.handleEvent();
+			}
+		});
+	}
+	
+	public static void saveIfNecessary(final ComplexListener<Boolean> listener) {
+		boolean hasEditablePageWithField = AssessmentCache.impl.getCurrentAssessment() != null && 
+			EditStatus.EDIT_DATA.equals(ViewCache.impl.getEditStatus()) &&
+			ViewCache.impl.getCurrentView() != null && 
+			ViewCache.impl.getCurrentView().getCurPage() != null && 
+			shouldSaveCurrentAssessment(ViewCache.impl.getCurrentView().getCurPage().getMyFields());
+		
+		if (hasEditablePageWithField) {
+			final String savePreference = 
+				SISClientBase.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.AutoSave.PROMPT);
+			
+			final SimpleListener doSaveCurrentAssessment = new SimpleListener() {
+				public void handleEvent() {
 					try {
 						saveAssessment(ViewCache.impl.getCurrentView().getCurPage().getMyFields(), 
 								AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<AssessmentChangePacket>() {
 							public void onFailure(Throwable caught) {
+								WindowUtils.hideLoadingAlert();
 								WindowUtils.errorAlert("Could not save, please try again later.");
+								listener.handleEvent(false);
 							}
 							public void onSuccess(AssessmentChangePacket arg0) {
-								Info.display("Save Complete", "Successfully saved assessment {0}.",
+								WindowUtils.hideLoadingAlert();
+								Info.display("Save Complete", "Successfully saved assessment for {0}.",
 										AssessmentCache.impl.getCurrentAssessment().getSpeciesName());
-								listener.handleEvent();
+								listener.handleEvent(true);
 							};
 						});
 					} catch (InsufficientRightsException e) {
 						WindowUtils.errorAlert("Insufficient Permissions", "You do not have "
 								+ "permission to modify this assessment. The changes you "
-								+ "just made will not be saved.");
+								+ "made will not be saved.");
+						listener.handleEvent(false);
 					}
 				}
-				@Override
-				public void onNo() {
-					listener.handleEvent();
-				}
-			});
-		} else
-			listener.handleEvent();
+			};
+			
+			if (UserPreferences.AutoSave.DO_ACTION.equals(savePreference))
+				doSaveCurrentAssessment.handleEvent();
+			else if (UserPreferences.AutoSave.IGNORE.equals(savePreference))
+				listener.handleEvent(true);
+			else {
+				WindowUtils.confirmAlert("By the way...", "Navigating away from this page will"
+					+ " revert unsaved changes. Would you like to save?", new WindowUtils.MessageBoxListener() {
+					public void onYes() {
+						WindowUtils.showLoadingAlert("Saving assessment...");
+						doSaveCurrentAssessment.handleEvent();
+					}
+					public void onNo() {
+						listener.handleEvent(true);
+					}
+				});
+			}
+		}
+		else
+			listener.handleEvent(true);
 	}
 	
 	private static Map<String, Field> mapByFieldName(Collection<Field> fields) {

@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.iucn.sis.client.api.assessment.AssessmentClientSaveUtils;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -189,23 +189,27 @@ public final class StateManager implements CoreObservable<ComplexListener<StateC
 		setState(event, false);
 	}
 	
-	private void setState(StateChangeEvent event, boolean forceChange) {
+	private void setState(final StateChangeEvent event, boolean forceChange) {
 		if (forceChange || 
 				hasChanges(getWorkingSet(), event.getWorkingSet()) || 
 				hasChanges(getTaxon(), event.getTaxon()) || 
 				hasChanges(getAssessment(), event.getAssessment())) {
 	
 			if (!fireEvent(StateChangeEventType.BeforeStateChanged.getValue(), event)) {
-				this.workingSet = event.getWorkingSet() == null ? null : event.getWorkingSet().getId();
-				this.taxon = event.getTaxon() == null ? null : event.getTaxon().getId();
-				this.assessment = event.getAssessment() == null ? null : event.getAssessment().getId();
-				
-				if (taxon != null)
-					TaxonomyCache.impl.updateRecentTaxa();
-				if (assessment != null)
-					AssessmentCache.impl.updateRecentAssessments();
-				
-				fireEvent(StateChangeEventType.StateChanged.getValue(), event.getSource(), event.getUrl());
+				AssessmentClientSaveUtils.saveIfNecessary(new ComplexListener<Boolean>() {
+					public void handleEvent(Boolean dontCare) {
+						workingSet = event.getWorkingSet() == null ? null : event.getWorkingSet().getId();
+						taxon = event.getTaxon() == null ? null : event.getTaxon().getId();
+						assessment = event.getAssessment() == null ? null : event.getAssessment().getId();
+						
+						if (taxon != null)
+							TaxonomyCache.impl.updateRecentTaxa();
+						if (assessment != null)
+							AssessmentCache.impl.updateRecentAssessments();
+						
+						fireEvent(StateChangeEventType.StateChanged.getValue(), event.getSource(), event.getUrl());
+					}
+				});
 			}
 		}
 	}
@@ -248,7 +252,6 @@ public final class StateManager implements CoreObservable<ComplexListener<StateC
 	 * @return true if the event got canceled, false otherwise
 	 */
 	public boolean fireEvent(int eventType, StateChangeEvent event) {
-		Debug.println("Firing event {0}", eventType);
 		Integer key = new Integer(eventType);
 		List<ComplexListener<StateChangeEvent>> group = listeners.get(key);
 		
@@ -260,7 +263,6 @@ public final class StateManager implements CoreObservable<ComplexListener<StateC
 			}
 		}
 		
-		Debug.println("{0} listeners fired for event {1}, canceled = {2}", group == null ? 0 : group.size(), eventType, retValue);
 		return retValue;
 	}
 

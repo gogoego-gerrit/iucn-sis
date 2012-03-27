@@ -23,10 +23,7 @@ import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.tabs.FeaturedItemContainer;
-import org.iucn.sis.shared.api.acl.InsufficientRightsException;
-import org.iucn.sis.shared.api.acl.UserPreferences;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
-import org.iucn.sis.shared.api.io.AssessmentChangePacket;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.CommonName;
 import org.iucn.sis.shared.api.models.Region;
@@ -335,6 +332,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 					
 					PageChangeRequest request = new PageChangeRequest(currentView, page);
 					request.setAllowSamePage(true);
+					request.setAutoSaveOnPageChange(!removeAndAddContainer);
 					
 					changePage(request);
 				}
@@ -408,61 +406,12 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 		if (samePage && !request.isAllowSamePage())
 			return;
 		
-		boolean hasEditablePageWithFields =
-			EditStatus.EDIT_DATA.equals(ViewCache.impl.getEditStatus()) && 
-			ViewCache.impl.getCurrentView() != null && 
-			ViewCache.impl.getCurrentView().getCurPage() != null;
-		
-		if (hasEditablePageWithFields && AssessmentClientSaveUtils.shouldSaveCurrentAssessment(
-				ViewCache.impl.getCurrentView().getCurPage().getMyFields())) {
-			stopAutosaveTimer();
-
-			String savePreference = 
-				SimpleSISClient.currentUser.getPreference(UserPreferences.AUTO_SAVE, UserPreferences.AutoSave.PROMPT);
-			
-			if (savePreference.equals(UserPreferences.AutoSave.DO_ACTION))
-				doSaveCurrentAssessment(listener);
-			else if (savePreference.equals(UserPreferences.AutoSave.IGNORE)) {
-				listener.handleEvent();
-			}
-			else {
-				WindowUtils.confirmAlert("By the way...", "Navigating away from this page will"
-						+ " revert unsaved changes. Would you like to save?", new WindowUtils.SimpleMessageBoxListener() {
-					public void onYes() {
-						toolBar.startAutosaveTimer();
-
-						WindowUtils.showLoadingAlert("Saving assessment...");
-						doSaveCurrentAssessment(listener);
-					}
-					public void onNo() {
-						listener.handleEvent();		
-					}
-				});
-			}
-		} else {
+		if (!request.isAutoSaveOnPageChange())
 			listener.handleEvent();
-		}
-	}
-
-	private void doSaveCurrentAssessment(final SimpleListener callback) {
-		try {
-			AssessmentClientSaveUtils.saveAssessment(ViewCache.impl.getCurrentView().getCurPage().getMyFields(), 
-					AssessmentCache.impl.getCurrentAssessment(), new GenericCallback<AssessmentChangePacket>() {
-				public void onFailure(Throwable arg0) {
-					WindowUtils.hideLoadingAlert();
-					WindowUtils.errorAlert("Save Failed", "Failed to save assessment! " + arg0.getMessage());
-				}
-
-				public void onSuccess(AssessmentChangePacket arg0) {
-					WindowUtils.hideLoadingAlert();
-					Info.display("Save Complete", "Successfully saved assessment {0}.", AssessmentCache.impl
-							.getCurrentAssessment().getSpeciesName());
-
-					callback.handleEvent();
-				}
-			});
-		} catch (InsufficientRightsException e) {
-			WindowUtils.errorAlert("Auto-save failed. You do not have sufficient " + "rights to perform this action.");
+		else {
+			stopAutosaveTimer();
+			
+			AssessmentClientSaveUtils.saveIfNecessary(listener);
 		}
 	}
 
