@@ -215,14 +215,15 @@ public class SISOneToMany extends Structure<Field> {
 		Grid grid = new Grid(holders.size() + 1, displayFields.size());
 		grid.setCellSpacing(0);
 		grid.setCellPadding(8);
+		grid.addStyleName("page_assessment_classScheme_grid");
 		
 		int row = 0;
 		int column = 0;
 		for (Integer value : displayFields) {
 			try {
-				grid.setHTML(row, column, "<b>" + descs.get(value) + "</b>");
+				grid.setHTML(row, column, "<span class=\"page_assessment_classScheme_grid_th\">" + descs.get(value) + "</span>");
 			} catch (IndexOutOfBoundsException e) {
-				grid.setHTML(row, column, "-");
+				grid.setHTML(row, column, "<span class=\"page_assessment_classScheme_grid_th\">-</span>");
 			} finally {
 				column++;
 			}
@@ -253,9 +254,9 @@ public class SISOneToMany extends Structure<Field> {
 			column = 0;
 			for (Integer value : displayFields) {
 				try {
-					grid.setHTML(row, column, pretty.get(value));
+					grid.setHTML(row, column, "<span class=\"page_assessment_classScheme_content\">" + pretty.get(value) + "</span>");
 				} catch (IndexOutOfBoundsException e) {
-					grid.setText(row, column, "-");
+					grid.setHTML(row, column, "<span class=\"page_assessment_classScheme_content\">-</span>");
 				} finally {
 					column++;
 				}
