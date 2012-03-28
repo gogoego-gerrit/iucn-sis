@@ -238,7 +238,7 @@ public class RepresentationUtils {
 					cal.add(Calendar.MONTH, 2);
 				finalRepresentation.setExpirationDate(cal.getTime());
 			} else {
-				GoGoDebug.get("fine").println("No expiry sent with this response");
+				//GoGoDebug.get("fine").println("No expiry sent with this response");
 			}
 			if(response.getAttributes().containsKey(Constants.DISABLE_EXPIRATION)){
 				// Great!  Do not send last-modified either.

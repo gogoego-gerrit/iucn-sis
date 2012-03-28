@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?pde version="3.5"?>
+
+<product name="SIS" id="org.iucn.sis.offline.equinox.application.product" application="org.iucn.sis.offline.equinox.application.application" version="2.0.0" useFeatures="false" includeLaunchers="true">
+
+   <configIni use="default">
+   </configIni>
+
+   <launcherArgs>
+      <programArgs>-clean</programArgs>
+      <programArgsMac>-XstartOnFirstThread</programArgsMac>
+      <vmArgs>-DCOMPONENT_CONFIG=instance.ini</vmArgs>
+   </launcherArgs>
+
+   <windowImages/>
+
+   <launcher name="SIS">
+      <macosx icon="/org.iucn.sis.offline.equinox.application/sis.icns"/>
+      <solaris/>
+      <win useIco="true">
+         <ico path="/org.iucn.sis.offline.equinox.application/sis.ico"/>
+         <bmp/>
+      </win>
+   </launcher>
+
+   <vm>
+      <macos>org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.launching.macosx.MacOSXType/JVM 1.6.0</macos>
+   </vm>
+
+   <plugins>
+      <plugin id="com.hxtt"/>
+      <plugin id="com.mysql.jdbc"/>
+      <plugin id="com.solertium.db"/>
+      <plugin id="com.solertium.gogoego.server"/>
+      <plugin id="com.solertium.lwxml"/>
+      <plugin id="com.solertium.lwxml.java"/>
+      <plugin id="com.solertium.mail"/>
+      <plugin id="com.solertium.util"/>
+      <plugin id="com.solertium.util.dom.readonly"/>
+      <plugin id="com.solertium.util.portable"/>
+      <plugin id="com.solertium.util.restlet"/>
+      <plugin id="com.solertium.util.restlet.authentication"/>
+      <plugin id="com.solertium.util.restlet.authorization"/>
+      <plugin id="com.solertium.util.restlet.usermodel"/>
+      <plugin id="com.solertium.util.restlet.usermodel.groups"/>
+      <plugin id="com.solertium.vfs"/>
+      <plugin id="com.solertium.vfs.restlet"/>
+      <plugin id="edu.stanford.ejalbert"/>
+      <plugin id="javax.activation"/>
+      <plugin id="javax.mail"/>
+      <plugin id="javax.script"/>
+      <plugin id="javax.servlet"/>
+      <plugin id="javax.transaction"/>
+      <plugin id="net.jcip.annotations"/>
+      <plugin id="net.sf.ehcache"/>
+      <plugin id="org.apache.commons.codec"/>
+      <plugin id="org.apache.commons.collections"/>
+      <plugin id="org.apache.commons.compress"/>
+      <plugin id="org.apache.commons.dbcp"/>
+      <plugin id="org.apache.commons.fileupload"/>
+      <plugin id="org.apache.commons.httpclient"/>
+      <plugin id="org.apache.commons.io"/>
+      <plugin id="org.apache.commons.lang"/>
+      <plugin id="org.apache.commons.logging"/>
+      <plugin id="org.apache.commons.pool"/>
+      <plugin id="org.eclipse.core.contenttype"/>
+      <plugin id="org.eclipse.core.jobs"/>
+      <plugin id="org.eclipse.core.runtime"/>
+      <plugin id="org.eclipse.core.runtime.compatibility.registry" fragment="true"/>
+      <plugin id="org.eclipse.equinox.app"/>
+      <plugin id="org.eclipse.equinox.common"/>
+      <plugin id="org.eclipse.equinox.preferences"/>
+      <plugin id="org.eclipse.equinox.registry"/>
+      <plugin id="org.eclipse.osgi"/>
+      <plugin id="org.eclipse.osgi.services"/>
+      <plugin id="org.gogoego.api"/>
+      <plugin id="org.h2"/>
+      <plugin id="org.iucn.sis.offline.equinox.application"/>
+      <plugin id="org.junit4"/>
+      <plugin id="org.mortbay.jetty"/>
+      <plugin id="org.outerj.daisy.diff"/>
+      <plugin id="org.postgresql"/>
+      <plugin id="org.restlet"/>
+      <plugin id="org.restlet.ext.fileupload"/>
+      <plugin id="org.restlet.ext.httpclient"/>
+      <plugin id="org.restlet.ext.jetty"/>
+      <plugin id="org.restlet.ext.xml"/>
+   </plugins>
+
+
+</product>

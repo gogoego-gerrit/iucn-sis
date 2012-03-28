@@ -16,4 +16,3 @@ Export-Package: com.solertium.db,
  com.solertium.db.utils,
  com.solertium.db.vendor
 Bundle-ClassPath: .
-Require-Bundle: org.apache.commons.dbcp;bundle-version="1.4.0"

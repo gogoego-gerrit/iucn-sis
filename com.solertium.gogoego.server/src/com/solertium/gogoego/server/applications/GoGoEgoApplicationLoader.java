@@ -152,11 +152,10 @@ public abstract class GoGoEgoApplicationLoader {
 	}
 	
 	private void handleOSGiError(String bundleName, Throwable e) {
-		e.printStackTrace();
 		GoGoDebug.get("error", api.getSiteID()).println(
 			"Application {0} threw unexpected " +
-			"exception in isInstalled(): {1}", 
-			bundleName, e.getMessage()
+			"exception in isInstalled(): {1}\n{2}", 
+			bundleName, e.getMessage(), e
 		);
 		onFailure(bundleName);
 	}
