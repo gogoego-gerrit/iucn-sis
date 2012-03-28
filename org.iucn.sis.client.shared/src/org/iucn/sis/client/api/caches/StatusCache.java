@@ -7,16 +7,13 @@ import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.shared.api.models.Assessment;
 
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MessageBoxEvent;
 import com.extjs.gxt.ui.client.widget.Info;
-import com.extjs.gxt.ui.client.widget.MessageBox;
-import com.extjs.gxt.ui.client.widget.button.Button;
 import com.google.gwt.user.client.Timer;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.util.extjs.client.WindowUtils;
+import com.solertium.util.extjs.client.WindowUtils.MessageBoxListener;
 
 /**
  * Resolves and caches statuses (save-locked, checked-out, needs updating) for
@@ -242,33 +239,25 @@ public class StatusCache {
 				// clobber any data and is actually necessary.
 				doUpdate(assessment, ndoc, callback);
 			} else {
-				Listener<MessageBoxEvent> listener = new Listener<MessageBoxEvent>() {
-					public void handleEvent(MessageBoxEvent we) {
-						if (we.getButtonClicked().getText().equalsIgnoreCase("Update")) {
-							doUpdate(assessment, ndoc, callback);
-							//callback.onFailure(new Exception("Stale version updated."));
-						} else if (we.getButtonClicked().getText().equalsIgnoreCase("Override")) {
-							callback.onSuccess(StatusCache.UNLOCKED);
-						} else {
-							callback.onFailure(new Exception("Nothing doing."));
-						}
+				
+				MessageBoxListener listner = new MessageBoxListener() {					
+					@Override
+					public void onYes() {
+						doUpdate(assessment, ndoc, callback);
+					}					
+					@Override
+					public void onNo() {
+						callback.onSuccess(StatusCache.UNLOCKED);
 					}
 				};
-				MessageBox box = new MessageBox();
-				box.setButtons(MessageBox.CANCEL);
-				Button override = new Button("Override");
-				Button update = new Button("Update");
-				box.setIcon(MessageBox.WARNING);
-				box.getDialog().getButtonBar().insert(override, 0);
-				box.getDialog().getButtonBar().insert(update, 0);
-				box.addCallback(listener);
-				box.setTitle("Conflict!");
-				box.setMessage("Changes have been made to this assessment by another " + "user in the system, " + owner
+				
+				String message = "Changes have been made to this assessment by another " + "user in the system, " + owner
 						+ ", since your last successful "
 						+ "save. If you choose Override, their changes will be lost. If "
 						+ "you choose Update, you will lose the changes you've made since "
-						+ "your last successful save.");
-				box.show();
+						+ "your last successful save.";
+				
+				WindowUtils.confirmAlert("Conflict!", message, listner, "Update", "Override");
 			}
 		}
 	}
