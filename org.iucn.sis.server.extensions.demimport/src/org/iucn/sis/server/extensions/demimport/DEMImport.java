@@ -1248,7 +1248,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		ws.setCreatedDate(Calendar.getInstance().getTime());
 		ws.setName("DEM Import for " + userO.getUsername() + " on " + FormattedDate.impl.getDate(ws.getCreatedDate()));
 		ws.setDescription(ws.getName());
-		ws.getAssessmentTypes().add(AssessmentType.getAssessmentType(AssessmentType.DRAFT_ASSESSMENT_STATUS_ID));
+		ws.getAssessmentTypes().add((AssessmentType)session.get(AssessmentType.class, AssessmentType.DRAFT_ASSESSMENT_STATUS_ID));
 		ws.setCreator(userO);
 		ws.getUsers().add(userO);
 		ws.setIsMostRecentPublished(false);
