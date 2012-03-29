@@ -1,5 +1,6 @@
 package org.iucn.sis.client.panels;
 
+import java.util.Date;
 import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
@@ -385,18 +386,21 @@ public class HeaderContainer extends ContentPanel {
 		if (SIS.isOnline()) {
 			Menu menu = new Menu();
 			
-			/*if (AuthorizationCache.impl.canUse(AuthorizableFeature.DEM_UPLOAD_FEATURE)) {
+			if (AuthorizationCache.impl.canUse(AuthorizableFeature.DEM_UPLOAD_FEATURE)) {
 				menu.add(createMenuItem("icon-refresh", "DEM Import", new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
-						final LayoutContainer container = new LayoutContainer();
-						container.add(new Html("This feature is not yet available."));
+						final ContentPanel container = new ContentPanel();
+						container.setBodyBorder(false);
+						container.setBorders(false);
+						container.setHeaderVisible(false);
+						container.setUrl(UriBase.getInstance().getDEMBase() + "/database?id=" + new Date().getTime());
 						
 						openAdministrativeTool("DEM Import", "icon-refresh", container);
 					}
 				}));
 			}
 			
-			if (AuthorizationCache.impl.canUse(AuthorizableFeature.ACCESS_EXPORT_FEATURE)) {
+			/*if (AuthorizationCache.impl.canUse(AuthorizableFeature.ACCESS_EXPORT_FEATURE)) {
 				menu.add(createMenuItem("icon-prefs", "Access Export", new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
 						final LayoutContainer container = new LayoutContainer();

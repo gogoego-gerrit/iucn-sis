@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Demimport Plug-in
+Bundle-Name: SIS DEM Importer
 Bundle-SymbolicName: org.iucn.sis.server.extensions.demimport
-Bundle-Version: 1.0.0
+Bundle-Version: 2.0.0
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: com.solertium.db,
  com.solertium.db.query,
@@ -27,3 +27,4 @@ Require-Bundle: org.restlet;bundle-version="2.0.0",
  org.gogoego.api;bundle-version="1.1.2"
 Bundle-Activator: org.iucn.sis.server.extensions.demimport.ServerActivator
 Export-Package: org.iucn.sis.server.extensions.demimport
+Bundle-Vendor: IUCN

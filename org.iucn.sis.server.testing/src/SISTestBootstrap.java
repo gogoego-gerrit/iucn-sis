@@ -81,7 +81,7 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 		map.put("org.iucn.sis.server.extensions.batchchanges", 
 			new org.iucn.sis.server.extensions.batchchanges.ServerActivator().getApplicationFactory().newInstance());
 		map.put("org.iucn.sis.server.extensions.bookmarks", 
-				new org.iucn.sis.server.extensions.bookmarks.ServerActivator().getApplicationFactory().newInstance());
+			new org.iucn.sis.server.extensions.bookmarks.ServerActivator().getApplicationFactory().newInstance());
 		map.put("org.iucn.sis.server.extensions.migration", 
 			new org.iucn.sis.server.extensions.migration.Activator().getApplicationFactory().newInstance());
 		map.put("org.iucn.sis.server.extensions.attachments", 
@@ -93,7 +93,9 @@ public class SISTestBootstrap extends MultiAppGenericBootstrap {
 		map.put("org.iucn.sis.server.extensions.reports", 
 			new org.iucn.sis.server.extensions.reports.ServerActivator().getApplicationFactory().newInstance());
 		map.put("org.iucn.sis.server.extensions.offline", 
-				new org.iucn.sis.server.extensions.offline.ServerActivator().getApplicationFactory().newInstance());
+			new org.iucn.sis.server.extensions.offline.ServerActivator().getApplicationFactory().newInstance());
+		map.put("org.iucn.sis.server.extensions.demimport", 
+			new org.iucn.sis.server.extensions.demimport.ServerActivator().getApplicationFactory().newInstance());
 		
 		//TODO add additional plugins
 		SIS.get().getAssessmentSchemaBroker().addLocalReference("org.iucn.sis.server.schemas.usetrade",

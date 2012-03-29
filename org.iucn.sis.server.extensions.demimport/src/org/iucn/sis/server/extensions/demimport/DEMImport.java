@@ -1266,7 +1266,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 				for (Taxon cur : curLevel.values()) {
 					if (cur.getState() == STATE_TO_IMPORT) // SUBMIT IT
 					{	
-						if (allowCreate)
+						if (!allowCreate && cur.getLevel() < TaxonLevel.GENUS)
 							throw new Exception("Creating taxa only allowed at the Genus level and below.");
 						
 						cur.setState(Taxon.ACTIVE);
