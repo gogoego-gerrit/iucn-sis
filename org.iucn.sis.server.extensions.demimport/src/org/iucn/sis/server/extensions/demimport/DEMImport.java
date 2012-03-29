@@ -124,8 +124,10 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	
 	private final LinkedHashMap<Long, Taxon> assessedNodesBySpc_id;
 	private final LinkedHashMap<String, Long> spcNameToIDMap;
-	private final List<Assessment> assessments;
 	private final Collection<Taxon> nodes;
+	
+	private final List<Assessment> successfulAssessments;
+	private final List<Assessment> failedAssessments;
 	
 	private final ExecutionContext lec;
 
@@ -154,8 +156,10 @@ public class DEMImport extends DynamicWriter implements Runnable {
 
 		spcNameToIDMap = new LinkedHashMap<String, Long>();
 		assessedNodesBySpc_id = new LinkedHashMap<Long, Taxon>();
-		assessments = new ArrayList<Assessment>();
 		nodes = new HashSet<Taxon>();
+		
+		successfulAssessments = new ArrayList<Assessment>();
+		failedAssessments = new ArrayList<Assessment>();
 	}
 
 	private void addTaxaDetails() throws DBException {
@@ -319,45 +323,37 @@ public class DEMImport extends DynamicWriter implements Runnable {
 				continue;
 			
 			if (!assessmentIO.allowedToCreateNewAssessment(curAssessment)) {
-				if (curAssessment.isGlobal())
-					statusMessage.append("A global draft assessment for the species " + curNode.getFullName() + 
-							" already exists. Remove the species from the DEM, or delete the assessment in SIS" +
-							" so the import can succeed.");
-				else
-					statusMessage.append("A regional draft assessment for the species " + curNode.getFullName() + 
-							" with the region specified in the DEM already exists. Remove the species" +
-							" from the DEM, or delete the assessment in SIS so the import can.");
-				failed.set(true);
-				return;
+				failedAssessments.add(curAssessment);
 			}
-			
-			distributionTableImport(curDEMid, curAssessment);
-//			populationTableImport(curDEMid, curAssessment, data);
-			habitatTableImport(curDEMid, curAssessment);
-//			lifeHistoryTableImport(curDEMid, curAssessment, data);
-//			threatTableImport(curDEMid, curAssessment, data);
-//			countryTableImport(curDEMid, curAssessment, data);
-			redListingTableImport(curDEMid, curAssessment);
-//			landCoverTableImport(curDEMid, curAssessment, data);
-//			utilisationTableImport(curDEMid, curAssessment, data);
-//			growthFormTableImport(curDEMid, curAssessment, data);
-//			conservationMeasuresTableImport(curDEMid, curAssessment, data);
-//			ecosystemServicesTableImport(curDEMid, curAssessment, data);
-//			riversTableImport(curDEMid, curAssessment, data);
-//			lakesTableImport(curDEMid, curAssessment, data);
-//			faoMarineTableImport(curDEMid, curAssessment, data);
-//			lmeTableImport(curDEMid, curAssessment, data);
-//			useTradeImport(curDEMid, curAssessment, data);
-//			livelihoodsTableImport(curDEMid, curAssessment, data);
-//
-//			curAssessment.addData(data);
-//
-			referencesImport(curDEMid, curAssessment);
-
-			//FIXME: this is probably wrong
-			//OccurrenceMigratorUtils.migrateOccurrenceData(curAssessment);
-
-			assessments.add(curAssessment);
+			else {
+				distributionTableImport(curDEMid, curAssessment);
+	//			populationTableImport(curDEMid, curAssessment, data);
+				habitatTableImport(curDEMid, curAssessment);
+	//			lifeHistoryTableImport(curDEMid, curAssessment, data);
+	//			threatTableImport(curDEMid, curAssessment, data);
+	//			countryTableImport(curDEMid, curAssessment, data);
+				redListingTableImport(curDEMid, curAssessment);
+	//			landCoverTableImport(curDEMid, curAssessment, data);
+	//			utilisationTableImport(curDEMid, curAssessment, data);
+	//			growthFormTableImport(curDEMid, curAssessment, data);
+	//			conservationMeasuresTableImport(curDEMid, curAssessment, data);
+	//			ecosystemServicesTableImport(curDEMid, curAssessment, data);
+	//			riversTableImport(curDEMid, curAssessment, data);
+	//			lakesTableImport(curDEMid, curAssessment, data);
+	//			faoMarineTableImport(curDEMid, curAssessment, data);
+	//			lmeTableImport(curDEMid, curAssessment, data);
+	//			useTradeImport(curDEMid, curAssessment, data);
+	//			livelihoodsTableImport(curDEMid, curAssessment, data);
+	//
+	//			curAssessment.addData(data);
+	//
+				referencesImport(curDEMid, curAssessment);
+	
+				//FIXME: this is probably wrong
+				//OccurrenceMigratorUtils.migrateOccurrenceData(curAssessment);
+	
+				successfulAssessments.add(curAssessment);
+			}
 		}
 	}
 	
@@ -1202,29 +1198,50 @@ public class DEMImport extends DynamicWriter implements Runnable {
 //
 	private void exportAssessments() throws Exception {
 		session.beginTransaction();
+		
 		Map<Integer, Region> regionCache = new HashMap<Integer, Region>();
 		
 		Set<Region> regions = new HashSet<Region>();
 		Set<Taxon> taxa = new HashSet<Taxon>();
-		for (Assessment assessment : assessments) {
-			taxa.add(assessment.getTaxon());
-			for (Integer regionID : assessment.getRegionIDs()) {
-				Region region;
-				if (regionCache.containsKey(regionID))
-					region = regionCache.get(regionID);
-				else {
-					Region r = regionIO.getRegion(regionID);
-					regionCache.put(regionID, r);
-					region = r;
+		
+		if (!successfulAssessments.isEmpty()) {
+			printf(" - Saving %s assessments", successfulAssessments.size());
+			for (Assessment assessment : successfulAssessments) {
+				taxa.add(assessment.getTaxon());
+				for (Integer regionID : assessment.getRegionIDs()) {
+					Region region;
+					if (regionCache.containsKey(regionID))
+						region = regionCache.get(regionID);
+					else {
+						Region r = regionIO.getRegion(regionID);
+						regionCache.put(regionID, r);
+						region = r;
+					}
+						
+					if (region != null)
+						regions.add(region);
 				}
-					
-				if (region != null)
-					regions.add(region);
+				
+				AssessmentIOWriteResult result = assessmentIO.saveNewAssessment(assessment, userO);
+				if (!result.status.isSuccess())
+					println("Error putting draft assessment for " + assessment.getSpeciesName());
 			}
-			
-			AssessmentIOWriteResult result = assessmentIO.saveNewAssessment(assessment, userO);
-			if (!result.status.isSuccess())
-				println("Error putting draft assessment for " + assessment.getSpeciesName());
+		}
+		
+		if (!failedAssessments.isEmpty()) {
+			printf("====== Failed Assessments (%s) ======", failedAssessments.size());
+			for (Assessment assessment : failedAssessments) {
+				if (assessment.isGlobal())
+					printf("A global draft assessment for the species %s" +  
+							" already exists. Remove the species from the DEM, or delete the assessment in SIS" +
+							" so the import can succeed.", assessment.getSpeciesName());
+				else
+					printf("A regional draft assessment for the species %s" +
+							" with the region specified in the DEM already exists. Remove the species" +
+							" from the DEM, or delete the assessment in SIS so the import can.", 
+							assessment.getSpeciesName());
+			}
+			print("============");
 		}
 		
 		WorkingSet ws = new WorkingSet();
