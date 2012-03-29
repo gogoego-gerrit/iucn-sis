@@ -230,9 +230,20 @@ public class ClientUIContainer extends Viewport implements ValueChangeHandler<St
 					ClientUIContainer.bodyContainer.openHomePage(true);
 			}
 		});
+		DeferredCommand.addCommand(new Command() {
+			public void execute() {
+				String display = eventData.getDisplayName();
+				if ("".equals(display))
+					display = "Home";
+				SIS.recordAnalytics(eventData.getToken() + ": " + display);
+			}
+		});
 	}
 	
 	public boolean isLoggedIn() {
 		return loggedIn;
 	}
+	
+	
+	
 }

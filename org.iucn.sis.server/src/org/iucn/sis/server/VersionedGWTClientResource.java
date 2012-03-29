@@ -53,8 +53,6 @@ public abstract class VersionedGWTClientResource extends SimpleClasspathResource
 	
 	@Override
 	public Representation represent(Variant variant) throws ResourceException {
-		getRequest().getAttributes().put(MagicDisablingFilter.MAGIC_DISABLING_KEY, true);
-		
 		final GoGoEgoBaseRepresentation representation = 
 			(GoGoEgoBaseRepresentation)super.represent(variant);
 		
@@ -78,8 +76,10 @@ public abstract class VersionedGWTClientResource extends SimpleClasspathResource
 		
 		if ("/index.html".equals(encodedUri))
 			return gzip(GoGoEgo.get().applyTemplating(representation, new ClientTemplateRepresentation(getPluginName(), version)));
-		else
+		else {
+			getRequest().getAttributes().put(MagicDisablingFilter.MAGIC_DISABLING_KEY, true);
 			return gzip(representation);
+		}
 	}
 	
 	public abstract String getVersion();

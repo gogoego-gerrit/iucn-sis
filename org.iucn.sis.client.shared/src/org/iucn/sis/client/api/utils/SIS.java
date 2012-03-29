@@ -28,6 +28,34 @@ import com.solertium.util.portable.XMLWritingUtils;
 public class SIS {
 	
 	private static Boolean isOnline = null;
+	private static Boolean hasAnalytics = null;
+	
+	public static void recordAnalytics(String pageName) {
+		if (hasAnalytics == null) {
+			try {
+				hasAnalytics = _hasAnalytics();
+			} catch (Throwable e) {
+				Debug.println("Error determining analytics: {0}", e);
+			}
+			if (hasAnalytics == null) {
+				Debug.println("Failed to determine status of analytics");
+				hasAnalytics = false;
+			}
+			else
+				Debug.println("Analytics enabled: {0}", hasAnalytics);
+		}
+		
+		if (hasAnalytics.booleanValue())
+			_recordAnalyticsHit(pageName);
+	}
+	
+	public static native boolean _hasAnalytics() /*-{
+	    return $wnd._gaq ? true : false;
+	}-*/;
+	
+	public static native void _recordAnalyticsHit(String pageName) /*-{
+	    $wnd._gaq.push(['_trackPageview(' + pageName + ')']);
+	}-*/;
 	
 	public static String getBuildNumber() {
 		String buildNumber = "2.0.0";

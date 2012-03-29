@@ -7,18 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.caches.ChangesFieldWidgetCache;
-import org.iucn.sis.client.api.caches.FieldWidgetCache;
 import org.iucn.sis.client.api.caches.MarkedCache;
-import org.iucn.sis.client.api.caches.ReferenceCache;
 import org.iucn.sis.client.api.caches.RegionCache;
 import org.iucn.sis.client.api.caches.SchemaCache;
-import org.iucn.sis.client.api.caches.StatusCache;
-import org.iucn.sis.client.api.caches.TaxonomyCache;
-import org.iucn.sis.client.api.caches.UserStore;
-import org.iucn.sis.client.api.caches.ViewCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.debug.HostedModeDebugger;
 import org.iucn.sis.client.api.debug.LiveDebugger;
@@ -91,9 +83,12 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 		public static void doLogout() {
 			currentUser = null;
 			instance.buildLogin("Log out successful.");
+			
+			History.newItem("", false);
+			
+			Window.Location.reload();
 
-			// TODO: FLUSH APPROPRIATE CACHES
-			AssessmentCache.impl.doLogout();
+			/*AssessmentCache.impl.doLogout();
 			FieldWidgetCache.impl.doLogout();
 			ChangesFieldWidgetCache.get().doLogout();
 			TaxonomyCache.impl.doLogout();
@@ -107,7 +102,7 @@ public abstract class SISClientBase implements EntryPoint, DebuggingApplication 
 			UserStore.impl.doLogout();
 			History.newItem("", false);
 			
-			NativeDocumentFactory.setDefaultInstance(new NativeDocumentFactory());
+			NativeDocumentFactory.setDefaultInstance(new NativeDocumentFactory());*/
 		}
 
 		private static void getProfile(final String password, final String username, final String authn) {
