@@ -308,7 +308,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		}
 		
 		if ("PARTIAL".equalsIgnoreCase(mode)) {
-			ws.setTaxon(new HashSet<Taxon>());
+			//ws.setTaxon(new HashSet<Taxon>());
 			ws.setUsers(new HashSet<User>());
 		}
 		

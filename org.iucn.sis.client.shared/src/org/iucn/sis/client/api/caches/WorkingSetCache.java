@@ -744,7 +744,8 @@ public class WorkingSetCache {
 					NativeNodeList nodes = ndoc.getDocumentElement().getElementsByTagName("workingSet");
 					for (int i = 0; i < nodes.getLength(); i++) {
 						NativeElement element = nodes.elementAt(i);
-						WorkingSet ws = WorkingSet.fromXMLMinimal(element);
+						/*WorkingSet ws = WorkingSet.fromXMLMinimal(element);*/
+						WorkingSet ws = WorkingSet.fromXML(new WorkingSet(), element, true);
 						if (ws != null)
 							cache(ws, FetchMode.PARTIAL);
 					}
