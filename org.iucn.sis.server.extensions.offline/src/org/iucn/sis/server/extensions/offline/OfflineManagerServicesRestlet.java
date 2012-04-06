@@ -95,13 +95,15 @@ public class OfflineManagerServicesRestlet extends Restlet {
 			}
 		}
 		else if ("update".equals(service)) {
+			OfflineMetadata md = OfflineBackupWorker.get();
+			
 			boolean test = "true".equals(arg0.getResourceRef().getQueryAsForm().getFirstValue("test", "false"));
-			if (version == null) {
+			if (version == null)
 				arg1.setEntity(getResultPage("No software version date detected, please check your settings and try again."));
-			}
-			else if (updates == null) {
+			else if (updates == null)
 				arg1.setEntity(getResultPage("No update source site detected, please check your settings and try again."));
-			}
+			else if ("none".equals(md.getName()))
+				arg1.setEntity(getResultPage("No database detected, please upload a database first."));
 			else {
 				try {
 					arg1.setEntity(getUpdates(version, updates, !test));
