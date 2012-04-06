@@ -319,8 +319,16 @@ public class TaxonIO {
 	}
 	
 	public Taxon readTaxonByName(String kingdomName, String name, TaxonLevel level) {
+		return readTaxonByName(kingdomName, name, level, true);
+	}
+	
+	public Taxon readTaxonByName(String kingdomName, String name, TaxonLevel level, boolean isCaseSensitive) {
 		TaxonCriteria criteria = new TaxonCriteria(session);
-		criteria.friendlyName.eq(name);
+		if (isCaseSensitive)
+			criteria.friendlyName.eq(name);
+		else
+			criteria.friendlyName.ilike(name);
+		
 		if (level != null)
 			criteria.createTaxonLevelCriteria().level.eq(level.getLevel());
 		

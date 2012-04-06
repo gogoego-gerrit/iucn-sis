@@ -1510,7 +1510,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	}
 
 	private Taxon fetchNode(String kingdomName, String fullName) throws Exception {
-		Taxon existing = taxonIO.readTaxonByName(kingdomName, fullName);
+		Taxon existing = taxonIO.readTaxonByName(kingdomName, fullName, null, false);
 		if (existing != null)
 			printf("Found existing taxon %s with id %s", existing.getFullName(), existing.getId());
 		return existing;
