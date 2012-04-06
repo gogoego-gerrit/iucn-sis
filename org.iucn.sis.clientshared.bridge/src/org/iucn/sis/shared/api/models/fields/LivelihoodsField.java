@@ -3,6 +3,7 @@ package org.iucn.sis.shared.api.models.fields;
 import java.util.Date;
 
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 public class LivelihoodsField extends ProxyField {
 	
@@ -179,7 +180,7 @@ public class LivelihoodsField extends ProxyField {
 		if (toSave.intValue() == 0)
 			toSave = null;
 		
-		super.setForeignKeyPrimitiveField(key, toSave);
+		super.setForeignKeyPrimitiveField(key, toSave, CanonicalNames.Livelihoods + "_" + key + "Lookup");
 	}
 	
 

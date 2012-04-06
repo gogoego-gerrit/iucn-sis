@@ -67,7 +67,7 @@ public class ThreatsSubfield extends ProxyField {
 		proxy.getFields().clear();
 		
 		for (Integer stress : stresses) {
-			Field raw = new Field("StressesSubfield", proxy.getAssessment());
+			Field raw = new Field("StressesSubfield", null);
 			raw.setParent(proxy);
 			
 			StressField field = new StressField(raw);

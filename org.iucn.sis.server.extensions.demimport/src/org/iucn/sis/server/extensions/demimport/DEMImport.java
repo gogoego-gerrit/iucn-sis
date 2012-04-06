@@ -1,6 +1,7 @@
 package org.iucn.sis.server.extensions.demimport;
 
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -24,7 +25,6 @@ import org.iucn.sis.server.api.fields.FieldSchemaGenerator;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.IsoLanguageIO;
 import org.iucn.sis.server.api.io.RegionIO;
-import org.iucn.sis.server.api.io.TaxomaticIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
@@ -37,8 +37,10 @@ import org.iucn.sis.server.api.utils.XMLUtils;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.CommonName;
+import org.iucn.sis.shared.api.models.Edit;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Infratype;
+import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Relationship;
 import org.iucn.sis.shared.api.models.Synonym;
@@ -46,15 +48,23 @@ import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
+import org.iucn.sis.shared.api.models.fields.LivelihoodsField;
 import org.iucn.sis.shared.api.models.fields.ProxyField;
 import org.iucn.sis.shared.api.models.fields.RedListCreditedUserField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
+import org.iucn.sis.shared.api.models.fields.ThreatsSubfield;
+import org.iucn.sis.shared.api.models.fields.UseTradeField;
 import org.iucn.sis.shared.api.models.primitivefields.BooleanRangePrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.BooleanUnknownPrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
+import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 import org.iucn.sis.shared.api.utils.FormattingStripper;
 import org.iucn.sis.shared.helpers.TaxonNode;
 import org.iucn.sis.shared.helpers.TaxonomyTree;
 import org.iucn.sis.shared.helpers.TaxonomyTree.Kingdom;
+import org.restlet.util.Couple;
+import org.restlet.util.Triple;
 
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.Column;
@@ -62,6 +72,7 @@ import com.solertium.db.DBException;
 import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
+import com.solertium.db.RowProcessor;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.QConstraint;
 import com.solertium.db.query.QRelationConstraint;
@@ -81,6 +92,7 @@ import com.solertium.util.TrivialExceptionHandler;
 public class DEMImport extends DynamicWriter implements Runnable {
 	
 	private static final String CANNED_NOTE = "Unparseable data encountered during DEM import: ";
+	private static final SimpleDateFormat ASSESS_DATE_FMT = new SimpleDateFormat("m/d/yyyy");
 	
 	private static final int STATE_CHANGED = 1001;
 	private static final int STATE_TO_IMPORT = 1002;
@@ -113,7 +125,6 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	
 	private final User userO;
 	private final IsoLanguageIO isoLanguageIO;
-	private final TaxomaticIO taxomaticIO;
 	private final TaxonIO taxonIO;
 	private final RegionIO regionIO;
 	private final AssessmentIO assessmentIO;
@@ -125,13 +136,15 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	private final LinkedHashMap<Long, Taxon> assessedNodesBySpc_id;
 	private final LinkedHashMap<String, Long> spcNameToIDMap;
 	private final Collection<Taxon> nodes;
+	private final Map<String, Map<String, String>> library;
 	
 	private final List<Assessment> successfulAssessments;
 	private final List<Assessment> failedAssessments;
 	
 	private final ExecutionContext lec;
 
-	private ExecutionContext ec;
+	private ExecutionContext ec, demConversion, demSource;
+	
 	private TaxonomyTree tree;
 
 	private StringBuilder log = new StringBuilder();	
@@ -144,7 +157,6 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		this.allowCreate = allowCreate;
 		
 		this.isoLanguageIO = new IsoLanguageIO(session);
-		this.taxomaticIO = new TaxomaticIO(session);
 		this.taxonIO = new TaxonIO(session);
 		this.regionIO = new RegionIO(session);
 		this.assessmentIO = new AssessmentIO(session);
@@ -152,6 +164,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		this.generator = new FieldSchemaGenerator();
 		
 		lookups = new HashMap<String, Row.Set>();
+		library = new HashMap<String, Map<String,String>>();
 		lec = SIS.get().getLookupDatabase();
 
 		spcNameToIDMap = new LinkedHashMap<String, Long>();
@@ -175,7 +188,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			for (Row curRow : queryDEM("common_names", curSpcID)) {
 				String name = curRow.get("Common_name").getString(Column.NEVER_NULL);
 				boolean primary = curRow.get("Primary").getInteger(Column.NEVER_NULL) == 1;
-				String language = curRow.get("Language").getString(Column.NEVER_NULL);
+				//String language = curRow.get("Language").getString(Column.NEVER_NULL);
 				String isoCode = curRow.get("ISO_LANG").getString(Column.NEVER_NULL);
 
 				CommonName commonName = new CommonName();
@@ -280,7 +293,12 @@ public class DEMImport extends DynamicWriter implements Runnable {
 				curSyn.setStockName(subpopName);
 				curSyn.setStatus(Synonym.ADDED);
 				curSyn.setAuthority(authority, synlevel);
-				//FIXME add notes
+				
+				if (!isBlank(notes)) {
+					Notes note = createNote(notes);
+					note.setSynonym(curSyn);
+					curSyn.getNotes().add(note);
+				}
 
 				boolean alreadyExists = false;
 
@@ -302,8 +320,10 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	}
 
 	private void buildAssessments() throws Exception {
+		initCaches();
+		
 		log.append("<tr><td align=\"center\" colspan=\"9\">" + "<b><u>New Draft Assessments</u></b></td></tr>");
-
+		
 		// FOR EACH NEW SPECIES...
 		for (Iterator<Long> iter = assessedNodesBySpc_id.keySet().iterator(); iter.hasNext();) {
 			Long curDEMid = iter.next();
@@ -327,34 +347,109 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			}
 			else {
 				distributionTableImport(curDEMid, curAssessment);
-	//			populationTableImport(curDEMid, curAssessment, data);
+				populationTableImport(curDEMid, curAssessment);
 				habitatTableImport(curDEMid, curAssessment);
-	//			lifeHistoryTableImport(curDEMid, curAssessment, data);
-	//			threatTableImport(curDEMid, curAssessment, data);
-	//			countryTableImport(curDEMid, curAssessment, data);
+				lifeHistoryTableImport(curDEMid, curAssessment);
+				threatTableImport(curDEMid, curAssessment);
+				countryTableImport(curDEMid, curAssessment);
 				redListingTableImport(curDEMid, curAssessment);
-	//			landCoverTableImport(curDEMid, curAssessment, data);
-	//			utilisationTableImport(curDEMid, curAssessment, data);
-	//			growthFormTableImport(curDEMid, curAssessment, data);
-	//			conservationMeasuresTableImport(curDEMid, curAssessment, data);
-	//			ecosystemServicesTableImport(curDEMid, curAssessment, data);
-	//			riversTableImport(curDEMid, curAssessment, data);
-	//			lakesTableImport(curDEMid, curAssessment, data);
-	//			faoMarineTableImport(curDEMid, curAssessment, data);
-	//			lmeTableImport(curDEMid, curAssessment, data);
-	//			useTradeImport(curDEMid, curAssessment, data);
-	//			livelihoodsTableImport(curDEMid, curAssessment, data);
-	//
-	//			curAssessment.addData(data);
-	//
+				landCoverTableImport(curDEMid, curAssessment);
+				utilisationTableImport(curDEMid, curAssessment);
+				growthFormTableImport(curDEMid, curAssessment);
+				conservationMeasuresTableImport(curDEMid, curAssessment);
+				ecosystemServicesTableImport(curDEMid, curAssessment);
+				faoMarineTableImport(curDEMid, curAssessment);
+				lmeTableImport(curDEMid, curAssessment);
+				useTradeImport(curDEMid, curAssessment);
+				livelihoodsTableImport(curDEMid, curAssessment);
+
+				//Unused in SIS 2:
+//				riversTableImport(curDEMid, curAssessment, data);
+//				lakesTableImport(curDEMid, curAssessment, data);
+				
 				referencesImport(curDEMid, curAssessment);
-	
-				//FIXME: this is probably wrong
-				//OccurrenceMigratorUtils.migrateOccurrenceData(curAssessment);
 	
 				successfulAssessments.add(curAssessment);
 			}
 		}
+	}
+	
+	private synchronized void initCaches() throws DBException {
+		List<Triple<String, String, String>> occurrenceEntries = new ArrayList<Triple<String,String,String>>();
+		occurrenceEntries.add(new Triple<String, String, String>("subcountry_list_all", "subcountry_number", "BruLevel4Code"));
+		occurrenceEntries.add(new Triple<String, String, String>("countries_list_all", "Country_Number", "Country_code"));
+		occurrenceEntries.add(new Triple<String, String, String>("large_marine_ecosystems_list", "lme_code", "Marine_ref"));
+		occurrenceEntries.add(new Triple<String, String, String>("FAO_marine_list", "aquatic_number", "FAO_ID"));
+		
+		for (final Triple<String, String, String> entry : occurrenceEntries) {
+			SelectQuery query = new SelectQuery();
+			query.select(entry.getFirst(), entry.getSecond());
+			query.select(entry.getFirst(), entry.getThird());
+			
+			synchronized (query) {
+				final Map<String, String> cache = new HashMap<String, String>();
+				
+				demSource.doQuery(query, new RowProcessor() {
+					public void process(Row row) {
+						cache.put(row.get(entry.getSecond()).toString(), row.get(entry.getThird()).toString());
+					}
+				});
+				
+				library.put(entry.getFirst(), cache);
+			}
+		}
+		
+		Map<String, Triple<String, String, String>> demConversions = 
+			new HashMap<String, Triple<String,String,String>>();
+		demConversions.put("OldConsActions to new Actions IN Place", new Triple<String, String, String>("oldaction", "newaction", "comment"));
+		demConversions.put("OLD CONS ACT to RESEARCH MAPPING", new Triple<String, String, String>("old ActionAFID", "newResearchAFID", "comments"));
+		demConversions.put("CONS ACTIONS MAPPING OLD TO NEW", new Triple<String, String, String>("oldActionID", "newActionID", "Comment"));
+		
+		for (Map.Entry<String, Triple<String, String, String>> entry : demConversions.entrySet()) {
+			SelectQuery query = new SelectQuery();
+			query.select(entry.getKey(), entry.getValue().getFirst());
+			query.select(entry.getKey(), entry.getValue().getSecond());
+			query.select(entry.getKey(), entry.getValue().getThird());
+			
+			Row.Set rs = new Row.Set();
+			
+			demConversion.doQuery(query, rs);
+			
+			Map<String, String> cache = new HashMap<String, String>();
+			for (Row row : rs.getSet())
+				cache.put(row.get(entry.getValue().getFirst()).toString(), 
+						row.get(entry.getValue().getSecond()) + "_" + row.get(entry.getValue().getThird()));
+			
+			library.put(entry.getKey(), cache);
+		}
+		
+		Map<String, String> offTakeLookup = new HashMap<String, String>();
+		offTakeLookup.put("Increasing", "1");
+		offTakeLookup.put("Decreasing", "2");
+		offTakeLookup.put("Stable", "3");
+		offTakeLookup.put("Unknown", "4");
+		
+		library.put(CanonicalNames.TrendInWildOfftake, offTakeLookup);
+		
+		Map<String, String> domesticLookup = new HashMap<String, String>();
+		domesticLookup.put("Increasing", "1");
+		domesticLookup.put("Decreasing", "2");
+		domesticLookup.put("Stable", "3");
+		domesticLookup.put("Not cultivated", "4");
+		domesticLookup.put("Unknown", "5");
+		
+		library.put(CanonicalNames.TrendInDomesticOfftake, domesticLookup);
+		
+		SelectQuery selectRegion = new SelectQuery();
+		selectRegion.select("region_lookup_table", "*");
+
+		Row.Set rs = new Row.Set();
+		
+		Map<String, String> regionCache = new HashMap<String, String>();
+		for (Row row : rs.getSet())
+			regionCache.put(getString(row, "Region_number"), getString(row, "Region_name"));
+		
+		library.put(CanonicalNames.RegionInformation, regionCache);
 	}
 	
 	private void report(Taxon taxon) {
@@ -683,120 +778,100 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		printf("Found %s nodes in the tree", nodes.size());
 		printf("Kingdoms are %s", tree.getKingdoms());
 	}
-//
-//	private void conservationMeasuresTableImport(Long curDEMid, AssessmentData curAssessment,
-//			HashMap<String, Object> data) throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("conservation_measures", "*");
-//		select.constrain(new CanonicalColumnName("conservation_measures", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		HashMap<String, ArrayList<String>> consSelected = new HashMap<String, ArrayList<String>>();
-//		HashMap<String, ArrayList<String>> researchSelected = new HashMap<String, ArrayList<String>>();
-//		for (Row curRow : rowLoader.getSet()) {
-//			int curCode = curRow.get("Measure_code").getInteger();
-//			int score = curRow.get("cm_timing").getInteger(Column.NEVER_NULL);
-//
-//			try {
-//				switchToDBSession("demConversion");
-//
-//				if (score == 1) // Do in-place conversion
-//				{
-//					try {
-//						doResearchInPlace(data, curCode);
-//					} catch (DBException ignored) {
-//					}
-//				}// End if in-place needed
-//
-//				if (score == 2) // Do research needed conversion
-//				{
-//					try {
-//						doResearchNeeded(researchSelected, curCode);
-//					} catch (DBException ignored) {
-//					}
-//				}
-//
-//				if (score == 2) // Do conservation needed conversion
-//				{
-//					try {
-//						doConservationNeeded(consSelected, curCode);
-//					} catch (DBException ignored) {
-//					}
-//				}
-//
-//				data.put(CanonicalNames.ConservationActions, consSelected);
-//				data.put(CanonicalNames.Research, researchSelected);
-//
-//				try {
-//					switchToDBSession("dem");
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//					SysDebugger
-//							.getInstance()
-//							.println(
-//									"Error switching back to DEM after building Conservation actions. Import will assuredly fail.");
-//				}
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				SysDebugger.getInstance().println("Error checking against conversion table.");
-//			}
-//		}
-//	}
-//
-//	private void countryTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws Exception {
-//		SelectQuery select = new SelectQuery();
-//		select.select("coding_occurence", "*");
-//		select.constrain(new CanonicalColumnName("coding_occurence", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//		select.constrain(new CanonicalColumnName("coding_occurence", "co_type"), QConstraint.CT_EQUALS,
-//				COUNTRY_CODING_OCCURRENCE_TYPE);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		HashMap<String, ArrayList<String>> selected = new HashMap<String, ArrayList<String>>();
-//		for (Iterator<Row> iter = rowLoader.getSet().listIterator(); iter.hasNext();) {
-//			Row curRow = iter.next();
-//
-//			String country_number = curRow.get("obj_id").getString(Column.NEVER_NULL);
-//
-//			ArrayList<String> dataList = new ArrayList<String>();
-//			fetchCodingOccurrenceData(curRow, dataList);
-//
-//			selected.put(fetchCountryIsoCode(country_number), dataList);
-//		}
-//		switchToDBSession("dem");
-//
-//		select = new SelectQuery();
-//		select.select("coding_occurence", "*");
-//		select.constrain(new CanonicalColumnName("coding_occurence", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//		select.constrain(new CanonicalColumnName("coding_occurence", "co_type"), QConstraint.CT_EQUALS,
-//				SUBCOUNTRY_CODING_OCCURRENCE_TYPE);
-//
-//		rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//		for (Iterator<Row> iter = rowLoader.getSet().listIterator(); iter.hasNext();) {
-//			Row curRow = iter.next();
-//
-//			String subcountry_number = curRow.get("obj_id").getString(Column.NEVER_NULL);
-//
-//			ArrayList<String> dataList = new ArrayList<String>();
-//			fetchCodingOccurrenceData(curRow, dataList);
-//
-//			selected.put(fetchSubcountryIsoCode(subcountry_number), dataList);
-//		}
-//
-//		switchToDBSession("dem");
-//		data.put(CanonicalNames.CountryOccurrence, selected);
-//	}
+
+	private void conservationMeasuresTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		HashMap<Integer, Field> consSelected = new HashMap<Integer, Field>();
+		HashMap<Integer, Field> researchSelected = new HashMap<Integer, Field>();
+		
+		Field conservationAction = new Field(CanonicalNames.ConservationActions, curAssessment);
+		Field researchNeeded = new Field(CanonicalNames.Research, curAssessment);
+		
+		for (Row curRow : queryDEM("conservation_measures", curDEMid)) {
+			int curCode = curRow.get("Measure_code").getInteger();
+			int score = curRow.get("cm_timing").getInteger(Column.NEVER_NULL);
+
+			try {
+				if (score == 1) // Do in-place conversion
+				{
+					try {
+						doResearchInPlace(curAssessment, curCode);
+					} catch (DBException ignored) {
+					}
+				}// End if in-place needed
+				else if (score == 2) // Do research needed conversion
+				{
+					try {
+						doActionsParse(researchSelected, "OLD CONS ACT to RESEARCH MAPPING", researchNeeded, curCode);
+					} catch (DBException ignored) {
+						TrivialExceptionHandler.ignore(this, ignored);
+					}
+					try {
+						doActionsParse(consSelected, "CONS ACTIONS MAPPING OLD TO NEW", conservationAction, curCode);
+					} catch (DBException ignored) {
+						TrivialExceptionHandler.ignore(this, ignored);
+					}
+				}
+			} catch (Exception e) {
+				println("Error checking against conversion table.");
+			}
+		}
+		
+		if (!consSelected.isEmpty()) {
+			conservationAction.getFields().addAll(consSelected.values());
+			
+			curAssessment.setField(conservationAction);
+		}
+		
+		if (!researchSelected.isEmpty()) {
+			researchNeeded.getFields().addAll(researchSelected.values());
+			
+			curAssessment.setField(researchNeeded);
+		}
+	}
+
+	private void parseOccurrence(Field field, long curDEMid, String countryJoinTable, int occurrenceType) throws Exception {
+		SelectQuery select = new SelectQuery();
+		select.select("coding_occurence", "*");
+		select.constrain(new CanonicalColumnName("coding_occurence", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
+		select.constrain(new CanonicalColumnName("coding_occurence", "co_type"), QConstraint.CT_EQUALS,
+				occurrenceType);
+
+		for (Row row : queryDEM(select)) {
+			String countryISO = searchLibrary(countryJoinTable, getString(row, "obj_id"));
+			if (countryISO == null) {
+				printf("- Occurrence cache miss for %s in %s", getString(row, "obj_id"), countryJoinTable);
+				continue;
+			}
+			
+			Integer index = getIndex(field.getName() + "Lookup", countryISO, null);
+			if (index == null) {
+				printf("No SIS 2 Country matching %s", countryISO);
+				continue;
+			}
+			
+			Field subfield = new Field();
+			subfield.setName(field.getName() + "Subfield");
+			subfield.setParent(field);
+
+			fetchCodingOccurrenceData(row, subfield);
+			
+			ProxyField proxy = new ProxyField(subfield);
+			proxy.setForeignKeyPrimitiveField(field.getName()+"Lookup", index, field.getName()+"Lookup");
+
+			field.getFields().add(subfield);
+		}
+	}
+	
+	private void countryTableImport(Long curDEMid, Assessment curAssessment) throws Exception {
+		final Field field = new Field(CanonicalNames.CountryOccurrence, curAssessment);
+		
+		parseOccurrence(field, curDEMid, "countries_list_all", COUNTRY_CODING_OCCURRENCE_TYPE);
+		
+		parseOccurrence(field, curDEMid, "subcountry_list_all", SUBCOUNTRY_CODING_OCCURRENCE_TYPE);
+
+		if (field.hasData())
+			curAssessment.getField().add(field);
+	}
 	
 	private void addTextPrimitiveField(String fieldName, String dataPoint, Assessment assessment, String value) {
 		if (isBlank(value))
@@ -844,6 +919,28 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		Field field = new Field(fieldName, assessment);
 		ProxyField proxy = new ProxyField(field);
 		proxy.setBooleanRangePrimitiveField(dataPoint, dataValue);
+		
+		assessment.getField().add(field);
+	}
+	
+	private void addBooleanUnknownPrimitiveField(String fieldName, String dataPoint, Assessment assessment, Integer value) {
+		if (value == null)
+			return;
+		
+		Field field = new Field(fieldName, assessment);
+		ProxyField proxy = new ProxyField(field);
+		proxy.setBooleanUnknownPrimitiveField(dataPoint, value);
+		
+		assessment.getField().add(field);
+	}
+	
+	private void addBooleanPrimitiveField(String fieldName, String dataPoint, Assessment assessment, Boolean value) {
+		if (value == null || !value.booleanValue())
+			return;
+		
+		Field field = new Field(fieldName, assessment);
+		ProxyField proxy = new ProxyField(field);
+		proxy.setBooleanPrimitiveField(dataPoint, value, Boolean.FALSE);
 		
 		assessment.getField().add(field);
 	}
@@ -913,6 +1010,17 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		else
 			return null;
 	}
+	
+	private void addForeignKeyPrimitiveField(String fieldName, String dataPoint, Assessment assessment, Integer value) {
+		if (value == null)
+			return;
+		
+		Field field = new Field(fieldName, assessment);
+		ProxyField proxy = new ProxyField(field);
+		proxy.setForeignKeyPrimitiveField(dataPoint, value, fmtLookupTableName(fieldName, dataPoint));
+		
+		assessment.getField().add(field);
+	}
 
 	private void distributionTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
 		List<Row> rows = queryDEM("Distribution", curDEMid);
@@ -929,27 +1037,19 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		addFieldForCheckedOptions(CanonicalNames.System, "value", row, curAssessment,
 				"Terrestrial", "Freshwater", "Marine");
 
-		//FIXME: update to use MovementPatterns and Congregatory fields.
-		/*
-		// Movement Patterns
-		dataList = new ArrayList<String>();
-		String movementPatterns = "";
-		if (row.get("Nomadic").getInteger(Column.NEVER_NULL) == 1)
-			movementPatterns += "1,";
-		if (row.get("Congregatory").getInteger(Column.NEVER_NULL) == 1)
-			movementPatterns += "2,";
-		if (row.get("Migratory").getInteger(Column.NEVER_NULL) == 1)
-			movementPatterns += "3,";
-		if (row.get("Altitudinally_migrant").getInteger(Column.NEVER_NULL) == 1)
-			movementPatterns += "4,";
-		if (movementPatterns.endsWith(","))
-			movementPatterns = movementPatterns.substring(0, movementPatterns.length() - 1);
-		else
-			movementPatterns = "0";
-
-		dataList.add(movementPatterns);
-		data.put(CanonicalNames.MovementPatterns, dataList);
-		*/
+		if (isChecked(row, "Congregatory"))
+			addForeignKeyPrimitiveField(CanonicalNames.Congregatory, "value", curAssessment, 1);
+		
+		Integer movementPattern = null;
+		if (isChecked(row, "Nomadic"))
+			movementPattern = 4;
+		else if (isChecked(row, "Migratory"))
+			movementPattern = 1;
+		else if (isChecked(row, "Altitudinally_migrant"))
+			movementPattern = 2;
+		
+		if (movementPattern != null)
+			addForeignKeyPrimitiveField(CanonicalNames.MovementPatterns, "pattern", curAssessment, movementPattern);
 		
 		// Map Status
 		String mapStatus = row.get("Map_status").toString();
@@ -982,219 +1082,204 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		addRangePrimitiveField(CanonicalNames.AOO, "range", curAssessment, row.get("AOO").toString());
 		addRangePrimitiveField(CanonicalNames.EOO, "range", curAssessment, row.get("EOO").toString());
 	}
-//
-//	private void doConservationNeeded(HashMap<String, ArrayList<String>> consSelected, int curCode) throws DBException {
-//		String notes;
-//		// DO Straight conversion
-//		SelectQuery conversionSelect = new SelectQuery();
-//		conversionSelect.select("CONS ACTIONS MAPPING OLD TO NEW", "*");
-//		conversionSelect.constrain(new CanonicalColumnName("CONS ACTIONS MAPPING OLD TO NEW", "oldActionID"),
-//				QConstraint.CT_EQUALS, curCode);
-//
-//		Row.Loader conversionRow = new Row.Loader();
-//
-//		ec.doQuery(conversionSelect, conversionRow);
-//
-//		if (conversionRow.getRow() != null) {
-//			curCode = conversionRow.getRow().get("newActionID").getInteger();
-//			notes = conversionRow.getRow().get("Comment").getString(Column.NEVER_NULL);
-//
-//			if (!consSelected.containsKey("" + curCode))
-//				consSelected.put("" + curCode, createDataArray(notes, true));
-//			else if (!notes.equals("")) {
-//				String temp = consSelected.get("" + curCode).get(0);
-//				temp += " --- \n" + XMLUtils.clean(notes);
-//				consSelected.put("" + curCode, createDataArray(temp, true));
-//			}
-//		}
-//	}
-//
-//	private void doResearchInPlace(HashMap<String, Object> data, int curCode) throws DBException {
-//		String notes;
-//		SelectQuery conversionSelect = new SelectQuery();
-//		conversionSelect.select("OldConsActions to new Actions IN Place", "*");
-//		conversionSelect.constrain(new CanonicalColumnName("OldConsActions to new Actions IN Place", "oldaction"),
-//				QConstraint.CT_EQUALS, curCode);
-//
-//		Row.Loader conversionRow = new Row.Loader();
-//
-//		ec.doQuery(conversionSelect, conversionRow);
-//
-//		if (conversionRow.getRow() != null) {
-//			curCode = conversionRow.getRow().get("newaction").getInteger();
-//			notes = conversionRow.getRow().get("comment").getString(Column.NEVER_NULL);
-//
-//			if (curCode > 0 && curCode < 3) {
-//				ArrayList<String> dataList;
-//
-//				if (data.containsKey(CanonicalNames.InPlaceResearch))
-//					dataList = (ArrayList<String>) data.get(CanonicalNames.InPlaceResearch);
-//				else
-//					dataList = createDataArray("0", "", "0", "");
-//
-//				if (curCode == 1)
-//					curCode--;
-//
-//				dataList.remove(curCode);
-//				dataList.add(curCode, "1");
-//				dataList.remove(curCode + 1);
-//				dataList.add(curCode + 1, notes);
-//
-//				data.put(CanonicalNames.InPlaceResearch, dataList);
-//			} else if (curCode >= 3 && curCode < 9) {
-//				curCode -= 3;
-//
-//				ArrayList<String> dataList;
-//
-//				if (data.containsKey(CanonicalNames.InPlaceLandWaterProtection))
-//					dataList = (ArrayList<String>) data.get(CanonicalNames.InPlaceLandWaterProtection);
-//				else
-//					dataList = createDataArray(new String[] { "0", "0", "", "0", "", "", "0", "" });
-//
-//				if (curCode == 5)
-//					curCode++;
-//
-//				dataList.remove(curCode);
-//				dataList.add(curCode, "1");
-//				if (curCode < 4) {
-//					dataList.remove(curCode + 2);
-//					dataList.add(curCode + 2, notes);
-//				} else {
-//					dataList.remove(curCode + 1);
-//					dataList.add(curCode + 1, notes);
-//				}
-//
-//				data.put(CanonicalNames.InPlaceLandWaterProtection, dataList);
-//			} else if (curCode >= 9 && curCode < 12) {
-//				curCode -= 9;
-//
-//				ArrayList<String> dataList;
-//
-//				if (data.containsKey(CanonicalNames.InPlaceSpeciesManagement))
-//					dataList = (ArrayList<String>) data.get(CanonicalNames.InPlaceSpeciesManagement);
-//				else
-//					dataList = createDataArray(new String[] { "0", "", "0", "", "0", "" });
-//
-//				curCode = curCode * 2;
-//
-//				dataList.remove(curCode);
-//				dataList.add(curCode, "1");
-//				dataList.remove(curCode + 1);
-//				dataList.add(curCode + 1, notes);
-//
-//				data.put(CanonicalNames.InPlaceSpeciesManagement, dataList);
-//			} else if (curCode >= 12 && curCode < 15) {
-//				curCode -= 12;
-//
-//				ArrayList<String> dataList;
-//
-//				if (data.containsKey(CanonicalNames.InPlaceEducation))
-//					dataList = (ArrayList<String>) data.get(CanonicalNames.InPlaceEducation);
-//				else
-//					dataList = createDataArray(new String[] { "0", "", "0", "", "0", "" });
-//
-//				curCode = curCode * 2;
-//
-//				dataList.remove(curCode);
-//				dataList.add(curCode, "1");
-//				dataList.remove(curCode + 1);
-//				dataList.add(curCode + 1, notes);
-//
-//				data.put(CanonicalNames.InPlaceEducation, dataList);
-//			}
-//		}
-//	}
-//
-//	private void doResearchNeeded(HashMap<String, ArrayList<String>> researchSelected, int curCode) throws DBException {
-//		String notes;
-//		SelectQuery conversionSelect = new SelectQuery();
-//		conversionSelect.select("OLD CONS ACT to RESEARCH MAPPING", "*");
-//		conversionSelect.constrain(new CanonicalColumnName("OLD CONS ACT to RESEARCH MAPPING", "old ActionAFID"),
-//				QConstraint.CT_EQUALS, curCode);
-//
-//		Row.Loader conversionRow = new Row.Loader();
-//
-//		ec.doQuery(conversionSelect, conversionRow);
-//
-//		if (conversionRow.getRow() != null) {
-//			curCode = conversionRow.getRow().get("newResearchAFID").getInteger();
-//			notes = conversionRow.getRow().get("comments").getString(Column.NEVER_NULL);
-//
-//			if (!researchSelected.containsKey("" + curCode))
-//				researchSelected.put("" + curCode, createDataArray(notes, true));
-//			else if (!notes.equals("")) {
-//				String temp = researchSelected.get("" + curCode).get(0);
-//				temp += " --- \n" + XMLUtils.clean(notes);
-//				researchSelected.put("" + curCode, createDataArray(temp, true));
-//			}
-//		}
-//	}
-//
-//	private void ecosystemServicesTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("ecosystem_services", "*");
-//		select.constrain(new CanonicalColumnName("ecosystem_services", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		HashMap<String, ArrayList<String>> selected = new HashMap<String, ArrayList<String>>();
-//		for (Iterator<Row> iter = rowLoader.getSet().listIterator(); iter.hasNext();) {
-//			Row curRow = iter.next();
-//
-//			int curCode = 1;
-//			int curRank;
-//			String curScale;
-//
-//			data.put(CanonicalNames.EcosystemServicesInsufficientInfo, createDataArray(""
-//					+ (curRow.get("info_available").getInteger(Column.NEVER_NULL) == 1), true));
-//			data.put(CanonicalNames.EcosystemServicesProvidesNone, createDataArray(""
-//					+ (curRow.get("no_services").getInteger(Column.NEVER_NULL) == 1), true));
-//
-//			for (int i = 4; i < 30; i += 2) {
-//				curRank = curRow.get(i).getInteger(Column.NEVER_NULL);
-//				curScale = curRow.get(i + 1).getString(Column.NEVER_NULL);
-//				if (curScale.equals(""))
-//					curScale = "0";
-//
-//				selected.put("" + curCode, createDataArray("" + curRank, "" + curScale));
-//				curCode++;
-//			}
-//
-//			if (curRow.get("specify_other1").getString() != null) {
-//				curRank = curRow.get("Other_rank1").getInteger(Column.NEVER_NULL);
-//				curScale = curRow.get("Other_scale1").getString(Column.NEVER_NULL);
-//				if (curScale.equals(""))
-//					curScale = "0";
-//
-//				String content = curRow.get("specify_other1").getString();
-//				selected.put("" + curCode, createDataArray("" + curRank, "" + curScale));
-//				curCode++;
-//
-//				sendNote(curAssessment.getType(), "Other 1 specified as: " + content, curAssessment.getAssessmentID(),
-//						CanonicalNames.EcosystemServices);
-//			}
-//			if (curRow.get("specify_other2").getString() != null) {
-//				curRank = curRow.get("Other_rank2").getInteger(Column.NEVER_NULL);
-//				curScale = curRow.get("Other_scale2").getString(Column.NEVER_NULL);
-//				if (curScale.equals(""))
-//					curScale = "0";
-//
-//				String content = curRow.get("specify_other2").getString();
-//				selected.put("" + curCode, createDataArray("" + curRank, "" + curScale));
-//				curCode++;
-//
-//				sendNote(curAssessment.getType(), "Other 2 specified as: " + content, curAssessment.getAssessmentID(),
-//						CanonicalNames.EcosystemServices);
-//			}
-//		}
-//
-//		data.put(CanonicalNames.EcosystemServices, selected);
-//	}
+
+	private String searchLibrary(String catalog, String key) {
+		Map<String, String> cache = library.get(catalog);
+		if (cache == null || key == null)
+			return null;
+		
+		return cache.get(key);
+	}
+	
+	private void addSimpleInPlaceFieldWithNote(int value, String notes, String fieldName, Assessment assessment) {
+		Field field = new Field(fieldName, assessment);
+		field.addPrimitiveField(new ForeignKeyPrimitiveField(
+			"value", field, value, fmtLookupTableName(fieldName, "value")
+		));
+		if (notes != null)
+			field.addPrimitiveField(new StringPrimitiveField("note", field, notes));
+		
+		assessment.setField(field);
+	}
+	
+	private void doResearchInPlace(Assessment assessment, int oldaction) throws DBException {
+		String newData = searchLibrary("OldConsActions to new Actions IN Place", Integer.toString(oldaction));
+
+		if (newData != null) {
+			String[] split = newData.split("_");
+			//int newAction = Integer.valueOf(split[0]);
+			String notes = split[1];
+			
+			if (oldaction == 52)
+				addSimpleInPlaceFieldWithNote(1, notes, CanonicalNames.InPlaceResearchRecoveryPlan, assessment);
+			else if (oldaction == 40 || oldaction == 41)
+				addSimpleInPlaceFieldWithNote(1, notes, CanonicalNames.InPlaceLandWaterProtectionSitesIdentified, assessment);
+			else if (oldaction == 39)
+				addSimpleInPlaceFieldWithNote(1, notes, CanonicalNames.InPlaceLandWaterProtectionInPA, assessment);
+			else if (oldaction == 50)
+				addSimpleInPlaceFieldWithNote(1, notes, CanonicalNames.InPlaceSpeciesManagementHarvestPlan, assessment);
+			else if (oldaction == 47 || oldaction == 48)
+				addSimpleInPlaceFieldWithNote(1, notes, CanonicalNames.InPlaceSpeciesManagementReintroduced, assessment);
+			else if (oldaction == 55 || oldaction == 56 || oldaction == 57)
+				addSimpleInPlaceFieldWithNote(1, notes, CanonicalNames.InPlaceSpeciesManagementExSitu, assessment);
+			else if (oldaction == 19 || oldaction == 20 || oldaction == 21 || oldaction == 22)
+				addSimpleInPlaceFieldWithNote(1, notes, CanonicalNames.InPlaceEducationSubjectToPrograms, assessment);
+		}
+	}
+
+	private void doActionsParse(HashMap<Integer, Field> dataMap, String libraryTable, Field field, int oldCode) throws DBException {
+		String newData = searchLibrary(libraryTable, Integer.toString(oldCode));
+
+		if (newData != null) {
+			String[] split = newData.split("_");
+			String newCode = split[0];
+			String notes = split[1];
+			
+			String numericCode = null;
+			for (char c : newCode.toCharArray())
+				if (Character.isWhitespace(c))
+					break;
+				else
+					numericCode += c;
+			
+			Integer index = getIndex(field.getName()+"Lookup", numericCode, null);
+			if (index == null) {
+				printf("No %sLookup found to match %s (found from %s).", field.getName(), numericCode, newCode);
+				return;
+			}
+			
+			Field subfield = dataMap.get(index);
+			if (subfield == null) {
+				subfield = new Field(field.getName()+"Subfield", null);
+				subfield.setParent(field);
+				
+				ProxyField proxy = new ProxyField(subfield);
+				proxy.setForeignKeyPrimitiveField(field.getName()+"Lookup", index, field.getName()+"Lookup");
+				
+				dataMap.put(index, subfield);
+			}
+			
+			ProxyField proxy = new ProxyField(subfield);
+			String existingNote = proxy.getStringPrimitiveField("note");
+			if ("".equals(existingNote))
+				proxy.setStringPrimitiveField("note", XMLUtils.clean(notes));
+			else
+				proxy.setStringPrimitiveField("note", existingNote + " --- \n" + XMLUtils.clean(notes));
+		}
+	}
+
+	private void ecosystemServicesTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		SelectQuery select = new SelectQuery();
+		select.select("ecosystem_services", "*");
+		select.constrain(new CanonicalColumnName("ecosystem_services", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
+
+		Row.Set rowLoader = new Row.Set();
+		ec.doQuery(select, rowLoader);
+
+		if (rowLoader == null)
+			return;
+		
+		Field field = new Field(CanonicalNames.EcosystemServices, curAssessment);
+		
+		boolean infoAvailable = false;
+		boolean providesNothing = false;
+
+		for (Row row : queryDEM("ecosystem_services", curDEMid)) {
+			infoAvailable |= isChecked(row, "info_available");
+			providesNothing |= isChecked(row, "no_services");
+			
+			List<Couple<String, String>> selections = new ArrayList<Couple<String,String>>();
+			selections.add(new Couple<String, String>("1", "Water_quality"));
+			selections.add(new Couple<String, String>("2", "Water_supplies"));
+			selections.add(new Couple<String, String>("3", "Flood_control"));
+			selections.add(new Couple<String, String>("4", "Climate_regulation"));
+			selections.add(new Couple<String, String>("5", "Landscape"));
+			selections.add(new Couple<String, String>("6", "Air_quality"));
+			selections.add(new Couple<String, String>("7", "Nutrient_cycling"));
+			selections.add(new Couple<String, String>("8", "Habitat_maintenance"));
+			selections.add(new Couple<String, String>("9", "Critical_habitat"));
+			selections.add(new Couple<String, String>("10", "Pollination"));
+			selections.add(new Couple<String, String>("11", "Erosion_control"));
+			selections.add(new Couple<String, String>("12", "Biocontrol"));
+			selections.add(new Couple<String, String>("13", "Shoreline_protection"));
+			selections.add(new Couple<String, String>("14", "Other"));
+			selections.add(new Couple<String, String>("15", "Other"));
+
+			for (Couple<String, String> entry : selections) {
+				Field subfield = new Field(field.getName()+"Subfield", null);
+				subfield.setParent(field);
+
+				ProxyField proxy = new ProxyField(subfield);
+				
+				String rankKey = entry.getSecond()+"_rank", scaleKey = entry.getSecond()+"_scale", otherKey = null;
+				if (entry.getFirst().equals("14")) {
+					rankKey += "1";
+					scaleKey += "1";
+					otherKey = "specify_other1";
+				}
+				else if (entry.getFirst().equals("15")) {
+					rankKey += "2";
+					scaleKey += "2";
+					otherKey = "specify_other2";
+				}
+				
+				String rankImportance = getString(row, entry.getSecond()+"_rank", null);
+				String scaleRangeOfBenefit = getString(row, entry.getSecond()+"_scale", null);
+				
+				if (rankImportance != null) {
+					try {
+						proxy.setForeignKeyPrimitiveField("importance", Integer.valueOf(rankImportance), fmtLookupTableName(field.getName(), "importance"));
+					} catch (Exception e) {
+						printf(" - Error saving importance %s", rankImportance);
+					}
+				}
+					
+				if (scaleRangeOfBenefit != null) {
+					try {
+						proxy.setForeignKeyPrimitiveField("rangeOfBenefit", Integer.valueOf(scaleRangeOfBenefit), fmtLookupTableName(field.getName(), "rangeOfBenefit"));
+					} catch (Exception e) { 
+						printf(" - Error saving range of benefit %s", scaleRangeOfBenefit);
+					}
+				}
+				
+				if (subfield.hasData()) {
+					if (otherKey != null) {
+						String notes = getString(row, otherKey, null);
+						if (notes != null) {
+							Notes note = createNote(notes);
+							note.setField(subfield);
+							subfield.getNotes().add(note);
+						}
+					}
+					
+					proxy.setForeignKeyPrimitiveField(field.getName()+"Lookup", Integer.valueOf(entry.getFirst()), field.getName()+"Lookup");
+					field.getFields().add(subfield);
+				}
+			}
+		}
+
+		if (field.hasData())
+			curAssessment.getField().add(field);
+		
+		if (!infoAvailable)
+			addBooleanPrimitiveField(CanonicalNames.EcosystemServicesInsufficientInfo, "isInsufficient", curAssessment, true);
+		
+		if (providesNothing)
+			addBooleanPrimitiveField(CanonicalNames.EcosystemServicesProvidesNone, "providesNothing", curAssessment, true);
+	}
+	
+	private Notes createNote(String value) {
+		Edit edit = new Edit("Note created via DEM Import.");
+		edit.setUser(userO);
+		
+		Notes notes = new Notes();
+		notes.setEdit(edit);
+		edit.getNotes().add(notes);
+		
+		notes.setValue(value);
+		
+		return notes;
+	}
 //
 	private void exportAssessments() throws Exception {
 		session.beginTransaction();
@@ -1312,122 +1397,157 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		session.getTransaction().commit();
 	}
 //
-//	private void faoMarineTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws Exception {
-//		SelectQuery select = new SelectQuery();
-//		select.select("coding_occurence", "*");
-//		select.constrain(new CanonicalColumnName("coding_occurence", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//		select.constrain(new CanonicalColumnName("coding_occurence", "co_type"), QConstraint.CT_EQUALS,
-//				FAO_CODING_OCCURRENCE_TYPE);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		HashMap<String, ArrayList<String>> selected = new HashMap<String, ArrayList<String>>();
-//		for (Iterator<Row> iter = rowLoader.getSet().listIterator(); iter.hasNext();) {
-//			Row curRow = iter.next();
-//
-//			String curCode = curRow.get("obj_id").getString();
-//
-//			ArrayList<String> dataList = new ArrayList<String>();
-//			fetchCodingOccurrenceData(curRow, dataList);
-//
-//			selected.put(curCode, dataList);
-//		}
-//
-//		data.put(CanonicalNames.FAOOccurrence, selected);
-//	}
-//
-//	private void fetchCodingOccurrenceData(Row codingRow, ArrayList<String> dataList) throws Exception {
-//		String p_code = "0";
-//		String o_code = "0";
-//		String m_code = "0";
-//
-//		if (codingRow != null) {
-//			p_code = codingRow.get("p_code").getString(Column.NEVER_NULL);
-//			o_code = codingRow.get("o_code").getString(Column.NEVER_NULL);
-//			m_code = codingRow.get("m_code").getString(Column.NEVER_NULL);
-//
-//			if (p_code.equals("9"))
-//				p_code = "6";
-//			if (o_code.equals("9"))
-//				o_code = "5";
-//		}
-//
-//		dataList.add(p_code);
-//		dataList.add(new Boolean(m_code.equals("1")).toString());
-//		dataList.add(o_code);
-//	}
-//
-//	private String fetchCountryIsoCode(String country_number) throws Exception {
-//		switchToDBSession("demSource");
-//
-//		SelectQuery select = new SelectQuery();
-//		select.select("countries_list_all", "Country_code");
-//		select.select("countries_list_all", "Country_Number");
-//		select.constrain(new CanonicalColumnName("countries_list_all", "Country_Number"), QConstraint.CT_EQUALS,
-//				country_number);
-//
-//		Row.Loader code = new Row.Loader();
-//		ec.doQuery(select, code);
-//
-//		return code.getRow().get("Country_code").getString().trim();
-//	}
-//
+	private void faoMarineTableImport(Long curDEMid, Assessment curAssessment) throws Exception {
+		Field field = new Field(CanonicalNames.FAOOccurrence, curAssessment);
+		
+		parseOccurrence(field, curDEMid, "FAO_marine_list", FAO_CODING_OCCURRENCE_TYPE);
+		
+		if (field.hasData())
+			curAssessment.getField().add(field);
+	}
+
+	private void fetchCodingOccurrenceData(Row codingRow, Field field) throws Exception {
+		String p_code = "0";
+		String o_code = "0";
+		String m_code = "0";
+
+		if (codingRow != null) {
+			p_code = getString(codingRow, "p_code");
+			o_code = getString(codingRow, "o_code");
+			m_code = getString(codingRow, "m_code");
+
+			if ("9".equals(p_code))
+				p_code = "6";
+			if ("9".equals(o_code))
+				o_code = "5";
+		}
+
+		ArrayList<String> dataList = new ArrayList<String>();
+		dataList.add(p_code);
+		dataList.add(new Boolean(m_code.equals("1")).toString());
+		dataList.add(o_code);
+		
+		modifyOccurrenceEntry(dataList);
+		
+		ProxyField proxy = new ProxyField(field);
+		String presence = dataList.get(0), formerlyBred = dataList.get(1), origin = dataList.get(2);
+		if (!"0".equals(presence))
+			proxy.setForeignKeyPrimitiveField("presence", Integer.valueOf(presence), fmtLookupTableName(field.getName(), "presence"));
+		if (!"0".equals(formerlyBred))
+			proxy.setBooleanUnknownPrimitiveField("formerlyBred", Integer.valueOf(formerlyBred));
+		if (!"0".equals(origin))
+			proxy.setForeignKeyPrimitiveField("origin", Integer.valueOf(origin), fmtLookupTableName(field.getName(), "origin"));
+		
+		List<Integer> seasonalityValues = null;
+		String seasonality = dataList.get(3);
+		if (!isBlank(seasonality)) {
+			seasonalityValues = new ArrayList<Integer>();
+			for (String current : seasonality.split(","))
+				seasonalityValues.add(Integer.valueOf(current));
+		}
+		proxy.setForeignKeyListPrimitiveField("seasonality", seasonalityValues, fmtLookupTableName(field.getName(), "seasonality"));
+	}
+	
+	private void modifyOccurrenceEntry(ArrayList<String> curSelected) {
+		curSelected.ensureCapacity(4);
+
+		String presenceCode = curSelected.get(0);
+		String passageMigrant = curSelected.get(1);
+		String origin = curSelected.get(2);
+
+		String seasonality = "";
+
+		if (!presenceCode.equals("") && !presenceCode.equals("0")) {
+			int pCode = Integer.valueOf(presenceCode);
+			if (pCode <= 3) {
+				curSelected.set(0, "1");
+
+				if (pCode == 1)
+					seasonality += "1,";
+				else if (pCode == 2)
+					seasonality += "2,";
+				else if (pCode == 3)
+					seasonality += "3,";
+			} else if (pCode == 4)
+				curSelected.set(0, "2");
+			else if (pCode == 5)
+				curSelected.set(0, "3");
+			else if (pCode == 6)
+				curSelected.set(0, "4");
+		} else {
+			curSelected.set(0, "0");
+		}
+
+		//Formerly bred is unseleted
+		curSelected.set(1, "0");
+
+		if (passageMigrant.equals("true"))
+			seasonality += "4";
+
+		if (!origin.equals("") && !origin.equals("0")) {
+			int oCode = Integer.valueOf(origin);
+
+			if (oCode == 1)
+				curSelected.set(2, "1");
+			else if (oCode == 2)
+				curSelected.set(2, "3");
+			else if (oCode == 3)
+				curSelected.set(2, "2");
+			else if (oCode == 4)
+				curSelected.set(2, "5");
+			else if (oCode == 5)
+				curSelected.set(2, "6");
+			else if (oCode == 9) // This shouldn't be in there, but somehow a
+				// few are...
+				curSelected.set(2, "6");
+		} else
+			curSelected.set(2, "0");
+
+		if (seasonality.endsWith(","))
+			seasonality = seasonality.substring(0, seasonality.length() - 1);
+
+		curSelected.add(seasonality);
+	}
+
 	private Taxon fetchNode(String kingdomName, String fullName) throws Exception {
 		Taxon existing = taxonIO.readTaxonByName(kingdomName, fullName);
 		if (existing != null)
 			printf("Found existing taxon %s with id %s", existing.getFullName(), existing.getId());
 		return existing;
-		//FIXME: 
-		/*String id = TaxonomyDocUtils.getIDByName(kingdomName, fullNameNoSpaces.replaceAll("\\s", ""));
-		
-		if (id != null) {
-			return TaxaIO.readNode(id, SISContainerApp.getStaticVFS());
-		} else
-			return null;*/
 	}
-//
-//	private String fetchSubcountryIsoCode(String subcountry_number) throws Exception {
-//		switchToDBSession("demSource");
-//
-//		SelectQuery select = new SelectQuery();
-//		select.select("subcountry_list_all", "BruLevel4Code");
-//		select.select("subcountry_list_all", "subcountry_number");
-//		select.constrain(new CanonicalColumnName("subcountry_list_all", "subcountry_number"), QConstraint.CT_EQUALS,
-//				subcountry_number);
-//
-//		Row.Loader code = new Row.Loader();
-//		ec.doQuery(select, code);
-//
-//		return code.getRow().get("BruLevel4Code").getString().trim();
-//	}
-//
-//	private void growthFormTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("growth_form_table", "*");
-//		select.constrain(new CanonicalColumnName("growth_form_table", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		HashMap<String, ArrayList<String>> selected = new HashMap<String, ArrayList<String>>();
-//		for (Iterator<Row> iter = rowLoader.getSet().listIterator(); iter.hasNext();) {
-//			Row curRow = iter.next();
-//
-//			String curCode = curRow.get("Growthform_code").getString();
-//			selected.put(curCode, new ArrayList<String>());
-//		}
-//
-//		data.put(CanonicalNames.PlantGrowthForms, selected);
-//	}
+	
+	private void growthFormTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		SelectQuery select = new SelectQuery();
+		select.select("growth_form_table", "*");
+		select.constrain(new CanonicalColumnName("growth_form_table", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
+
+		Row.Set rowLoader = new Row.Set();
+		ec.doQuery(select, rowLoader);
+
+		if (rowLoader == null)
+			return;
+		
+		Field field = new Field(CanonicalNames.PlantGrowthForms, curAssessment);
+		
+		for (Row row : queryDEM("growth_form_table", curDEMid)) {
+			String curCode = getString(row, "Growthform_code");
+			
+			Integer index = getIndex(field.getName()+"Lookup", curCode, null);
+			if (index == null)
+				continue;
+			
+			Field subfield = new Field(field.getName()+"Subfield", null);
+			subfield.setParent(field);
+			
+			ProxyField proxy = new ProxyField(subfield);
+			proxy.setForeignKeyPrimitiveField(field.getName()+"Lookup", index);
+			
+			field.getFields().add(subfield);
+		}
+
+		if (field.hasData())
+			curAssessment.getField().add(field);
+	}
 	
 	private String fmtLookupTableName(String field, String dataPoint) {
 		return field + "_" + dataPoint + "Lookup";
@@ -1518,335 +1638,248 @@ public class DEMImport extends DynamicWriter implements Runnable {
 //		data.put(CanonicalNames.Lakes, selected);
 //	}
 //
-//	private void landCoverTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("Land_cover", "*");
-//		select.constrain(new CanonicalColumnName("Land_cover", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		HashMap<String, ArrayList<String>> selected = new HashMap<String, ArrayList<String>>();
-//		for (Iterator<Row> iter = rowLoader.getSet().listIterator(); iter.hasNext();) {
-//			Row curRow = iter.next();
-//
-//			String curCode = curRow.get("Lc_N").getString();
-//			int score = curRow.get("Score").getInteger(Column.NEVER_NULL);
-//
-//			if (score == 9)
-//				score = 3; // 3 is index of possible answer
-//
-//			ArrayList<String> landCoverData = new ArrayList<String>();
-//			landCoverData.add("" + score);
-//
-//			selected.put(curCode, landCoverData);
-//		}
-//
-//		data.put(CanonicalNames.LandCover, selected);
-//	}
-//
-//	private void lifeHistoryTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("life_history", "*");
-//		select.constrain(new CanonicalColumnName("life_history", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		Row.Loader rowLoader = new Row.Loader();
-//
-//		try {
-//			ec.doQuery(select, rowLoader);
-//		} catch (Exception e) {
-//			// NO LIFE HISTORY RECORDS FOR THIS BABY
-//			return;
-//		}
-//
-//		Row row = rowLoader.getRow();
-//
-//		if (row == null)
-//			return;
-//
-//		// AGE MATURITY UNITS - FOR BOTH FEMALE AND MALE
-//		String units = row.get("age_maturity_units").getString(Column.NEVER_NULL);
-//		if (units.equals(""))
-//			units = "0";
-//		else if (units.equalsIgnoreCase("days"))
-//			units = "1";
-//		else if (units.equalsIgnoreCase("weeks"))
-//			units = "2";
-//		else if (units.equalsIgnoreCase("months"))
-//			units = "3";
-//		else if (units.equalsIgnoreCase("years"))
-//			units = "4";
-//		else {
-//			String message = "Unparseable units value from DEM import on "
-//					+ DateFormatUtils.ISO_DATE_FORMAT.format(new Date()) + ". Imported value: " + units;
-//
-//			try {
-//				sendNote(curAssessment.getType(), message, curAssessment.getAssessmentID(),
-//						CanonicalNames.FemaleMaturityAge);
-//				sendNote(curAssessment.getType(), message, curAssessment.getAssessmentID(),
-//						CanonicalNames.MaleMaturityAge);
-//
-//				units = "";
-//			} catch (Exception e) {
-//				print("Unable to attach note: stack trace follows.");
-//				e.printStackTrace();
-//				units = "";
-//			}
-//		}
-//
-//		data.put(CanonicalNames.FemaleMaturityAge, createDataArray(row.get("f_age_maturity").getString(
-//				Column.NEVER_NULL), units));
-//
-//		data.put(CanonicalNames.MaleMaturityAge, createDataArray(
-//				row.get("m_age_maturity").getString(Column.NEVER_NULL), units));
-//
-//		// FEMALE MATURITY SIZE
-//		data.put(CanonicalNames.FemaleMaturitySize, createDataArray(row.get("f_size_maturity").getString(
-//				Column.NEVER_NULL), true));
-//
-//		// MALE MATURITY SIZE
-//		data.put(CanonicalNames.MaleMaturitySize, createDataArray(row.get("m_size_maturity").getString(
-//				Column.NEVER_NULL), true));
-//
-//		// MAX SIZE
-//		data.put(CanonicalNames.MaxSize, createDataArray(row.get("max_size").getString(Column.NEVER_NULL), true));
-//
-//		// Birth SIZE
-//		data.put(CanonicalNames.BirthSize, createDataArray(row.get("birth_size").getString(Column.NEVER_NULL), true));
-//
-//		// GENERATION LENGTH
-//		String generations = row.get("Gen_len").getString(Column.NEVER_NULL);
-//		String genJust = XMLUtils.clean(row.get("Gen_Len_Just").getString(Column.NEVER_NULL));
-//		
-//		String mod_generations = generations.toLowerCase();
-//		mod_generations = mod_generations.replaceAll("\\s", "");
-//		mod_generations = mod_generations.replaceAll("years", "");
-//		mod_generations = mod_generations.replaceAll("days", "");
-//		mod_generations = mod_generations.replaceAll("weeks", "");
-//		mod_generations = mod_generations.replaceAll("months", "");
-//
-//		String leftovers = generations.replace(mod_generations, "");
-//		if( !leftovers.replaceAll("\\s", "").equals("") )
-//			genJust = XMLUtils.clean(leftovers.trim()) + (genJust.equals("") ? "" : " -- " + genJust);
-//		
-//		if (!isValidRangeFormat(mod_generations))
-//			sendNote(curAssessment.getType(), CANNED_NOTE + generations + " with justification: " + genJust, curAssessment.getAssessmentID(),
-//					CanonicalNames.GenerationLength);
-//		else
-//			data.put(CanonicalNames.GenerationLength, createDataArray(mod_generations, genJust));
-//
-//		// REPRODUCTIVE PERIODICITY
-//		data.put(CanonicalNames.ReproduictivePeriodicity, createDataArray(row.get("reproductive_periodicity")
-//				.getString(Column.NEVER_NULL), true));
-//
-//		// LITTER SIZE
-//		data.put(CanonicalNames.AvgAnnualFecundity, createDataArray(
-//				row.get("litter_size").getString(Column.NEVER_NULL), true));
-//
-//		// POPULATION INCREASE RATE
-//		data.put(CanonicalNames.PopulationIncreaseRate, createDataArray(row.get("rate_pop_increase").getString(
-//				Column.NEVER_NULL), true));
-//
-//		// MORTALITY
-//		data.put(CanonicalNames.NaturalMortality, createDataArray(row.get("mortality").getString(Column.NEVER_NULL),
-//				true));
-//
-//		// EGG LAYING
-//		data.put(CanonicalNames.EggLaying, createDataArray(
-//				row.get("egg_laying").getInteger(Column.NEVER_NULL) == 1 ? "true" : "false", true));
-//
-//		// LARVAL
-//		data.put(CanonicalNames.FreeLivingLarvae, createDataArray(
-//				row.get("larval").getInteger(Column.NEVER_NULL) == 1 ? "true" : "false", true));
-//
-//		// LIVE YOUNG
-//		data.put(CanonicalNames.LiveBirth, createDataArray(
-//				row.get("live_young").getInteger(Column.NEVER_NULL) == 1 ? "true" : "false", true));
-//
-//		// PARTHENOGENSIS
-//		data.put(CanonicalNames.Parthenogenesis, createDataArray(row.get("parthenogenesis").getInteger(
-//				Column.NEVER_NULL) == 1 ? "true" : "false", true));
-//
-//		// WATER BREEDING
-//		data.put(CanonicalNames.WaterBreeding, createDataArray(
-//				row.get("water_breeding").getInteger(Column.NEVER_NULL) == 1 ? "true" : "false", true));
-//
-//		// LONGEVITY
-//		units = row.get("longevity_units").getString(Column.NEVER_NULL);
-//		if (units.equals(""))
-//			units = "0";
-//		else if (units.equalsIgnoreCase("days"))
-//			units = "1";
-//		else if (units.equalsIgnoreCase("months"))
-//			units = "2";
-//		else if (units.equalsIgnoreCase("years"))
-//			units = "3";
-//		else {
-//			String message = "Unparseable units value from DEM import on "
-//					+ DateFormatUtils.ISO_DATE_FORMAT.format(new Date()) + ". Imported value: " + units;
-//
-//			try {
-//				sendNote(curAssessment.getType(), message, curAssessment.getAssessmentID(), CanonicalNames.Longevity);
-//				units = "";
-//			} catch (Exception e) {
-//				print("Unable to attach note: stack trace follows.");
-//				e.printStackTrace();
-//				units = "";
-//			}
-//		}
-//		data.put(CanonicalNames.Longevity, createDataArray(row.get("longevity").getString(Column.NEVER_NULL), units));
-//
-//		// REPRODUCTIVE AGE
-//		units = row.get("ave_reproductive_age_units").getString(Column.NEVER_NULL);
-//		if (units.equals(""))
-//			units = "0";
-//		else if (units.equalsIgnoreCase("days"))
-//			units = "1";
-//		else if (units.equalsIgnoreCase("months"))
-//			units = "2";
-//		else if (units.equalsIgnoreCase("years"))
-//			units = "3";
-//		else {
-//			String message = "Unparseable units value from DEM import on "
-//					+ DateFormatUtils.ISO_DATE_FORMAT.format(new Date()) + ". Imported value: " + units;
-//
-//			try {
-//				sendNote(curAssessment.getType(), message, curAssessment.getAssessmentID(),
-//						CanonicalNames.AvgReproductiveAge);
-//				units = "";
-//			} catch (Exception e) {
-//				print("Unable to attach note: stack trace follows.");
-//				e.printStackTrace();
-//				units = "";
-//			}
-//		}
-//		data.put(CanonicalNames.AvgReproductiveAge, createDataArray(row.get("ave_reproductive_age").getString(
-//				Column.NEVER_NULL), units));
-//
-//		// GESTATION
-//		units = row.get("gestation_units").getString(Column.NEVER_NULL);
-//		if (units.equals(""))
-//			units = "0";
-//		else if (units.equalsIgnoreCase("days"))
-//			units = "1";
-//		else if (units.equalsIgnoreCase("months"))
-//			units = "2";
-//		else if (units.equalsIgnoreCase("years"))
-//			units = "3";
-//		else {
-//			String message = "Unparseable units value from DEM import on "
-//					+ DateFormatUtils.ISO_DATE_FORMAT.format(new Date()) + ". Imported value: " + units;
-//
-//			try {
-//				sendNote(curAssessment.getType(), message, curAssessment.getAssessmentID(),
-//						CanonicalNames.GestationTime);
-//				units = "";
-//			} catch (Exception e) {
-//				print("Unable to attach note: stack trace follows.");
-//				e.printStackTrace();
-//				units = "";
-//			}
-//		}
-//		data.put(CanonicalNames.GestationTime,
-//				createDataArray(row.get("gestation").getString(Column.NEVER_NULL), units));
-//	}
-//
-//	private void livelihoodsTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("Livelihoods", "*");
-//		select.constrain(new CanonicalColumnName("Livelihoods", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		ArrayList<String> selected = new ArrayList<String>();
-//
-//		int numSelected = 0;
-//		for (Iterator<Row> iter = rowLoader.getSet().listIterator(); iter.hasNext();) {
-//			Row curRow = iter.next();
-//
-//			ArrayList<String> curLivelihood = SISLivelihoods.generateDefaultDataList();
-//
-//			boolean noInformation = curRow.get("data_available").getInteger(Column.NEVER_NULL) == 1;
-//			selected.add("" + noInformation);
-//
-//			int count = 0;
-//			Integer scale = curRow.get("Assess_type_ID").getInteger(Column.NEVER_NULL);
-//			curLivelihood.set(count++, scale.toString());
-//
-//			String regionName = curRow.get("Assess_name").getString(Column.NEVER_NULL);
-//			curLivelihood.set(count++, regionName);
-//			curLivelihood.set(count++, curRow.get("Assess_date").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_product").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_Single_harvest_amount").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("P_Single_harvest_amount_unit").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_Multi_harvest_amount").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_Multi_harvest_amount_unit").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_harvest_percent").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_Multi_amount").getString(Column.NEVER_NULL));
-//
-//			curLivelihood.set(count++, curRow.get("p_human_reliance").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_harvest_gender").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_harvest_socioeconomic").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_other_harvest_socioeconomic").getString(Column.NEVER_NULL));
-//
-//			curLivelihood.set(count++, curRow.get("p_involve_percent").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_household_consumption_percent").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_household_income_percent").getString(Column.NEVER_NULL));
-//			curLivelihood.set(count++, curRow.get("p_cash_income").getString(Column.NEVER_NULL));
-//
-//			selected.addAll(curLivelihood);
-//			numSelected++;
-//		}
-//
-//		if (selected.size() == 0) {
-//			selected.add("false");
-//			selected.add("0");
-//		} else
-//			selected.add(1, "" + numSelected);
-//
-//		data.put(CanonicalNames.Livelihoods, selected);
-//	}
-//
-//	private void lmeTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws Exception {
-//		SelectQuery select = new SelectQuery();
-//		select.select("coding_occurence", "*");
-//		select.constrain(new CanonicalColumnName("coding_occurence", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//		select.constrain(new CanonicalColumnName("coding_occurence", "co_type"), QConstraint.CT_EQUALS,
-//				LME_CODING_OCCURRENCE_TYPE);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		HashMap<String, ArrayList<String>> selected = new HashMap<String, ArrayList<String>>();
-//		for (Iterator<Row> iter = rowLoader.getSet().listIterator(); iter.hasNext();) {
-//			Row curRow = iter.next();
-//
-//			String curCode = curRow.get("obj_id").getString();
-//
-//			ArrayList<String> dataList = new ArrayList<String>();
-//
-//			fetchCodingOccurrenceData(curRow, dataList);
-//
-//			selected.put(curCode, dataList);
-//		}
-//
-//		data.put(CanonicalNames.LargeMarineEcosystems, selected);
-//	}
-//
+	private void landCoverTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		Field field = new Field(CanonicalNames.LandCover, curAssessment);
+		
+		for (Row row : queryDEM("Land_cover", curDEMid)) {
+			String curCode = getString(row, "Lc_N", null);
+			Integer score = row.get("Score").getInteger();
+			if (curCode == null || score == null)
+				continue;
+			
+			Integer index = getIndex(field.getName()+"Lookup", curCode, null);
+			if (index == null)
+				continue;
+
+			if (score == 9)
+				score = 4; // 3 is index of possible answer
+
+			Field subfield = new Field(field.getName()+"Subfield", null);
+			subfield.setParent(field);
+			
+			ProxyField proxy = new ProxyField(subfield);
+			proxy.setForeignKeyPrimitiveField(field.getName()+"Lookup", index, field.getName()+"Lookup");
+			proxy.setForeignKeyPrimitiveField("suitability", score, fmtLookupTableName(field.getName(), "suitability"));
+			
+			field.getFields().add(subfield);
+		}
+		
+		if (field.hasData())
+			curAssessment.getField().add(field);
+	}
+	
+	private void lifeHistoryTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		List<Row> rows = queryDEM("life_history", curDEMid);
+		if (rows.isEmpty())
+			return;
+		
+		Row row = rows.get(0);
+		// AGE MATURITY UNITS - FOR BOTH FEMALE AND MALE
+		String maturityUnits = getString(row, "age_maturity_units");
+		if (isBlank(maturityUnits))
+			maturityUnits = "0";
+		else if (maturityUnits.equalsIgnoreCase("days"))
+			maturityUnits = "1";
+		else if (maturityUnits.equalsIgnoreCase("weeks"))
+			maturityUnits = "2";
+		else if (maturityUnits.equalsIgnoreCase("months"))
+			maturityUnits = "3";
+		else if (maturityUnits.equalsIgnoreCase("years"))
+			maturityUnits = "4";
+		else {
+			printf("Unparseable units value from DEM import for Female & Male maturity age. Imported value: %s", maturityUnits);
+		}
+		
+		Map<String, String> maturityAge = new HashMap<String, String>();
+		maturityAge.put(CanonicalNames.FemaleMaturityAge, "f_age_maturity");
+		maturityAge.put(CanonicalNames.MaleMaturityAge, "m_age_maturity");
+		
+		for (Map.Entry<String, String> entry : maturityAge.entrySet()) {
+			String age = getString(row, entry.getValue());
+			if (!isBlank(age)) {
+				Field field = new Field(entry.getKey(), curAssessment);
+				ProxyField proxy = new ProxyField(field);
+				proxy.setStringPrimitiveField("age", age);
+				if (!isBlank(maturityUnits))
+					proxy.setForeignKeyPrimitiveField("units", Integer.valueOf(maturityUnits), fmtLookupTableName(entry.getKey(), "units"));
+				
+				curAssessment.setField(field);
+			}
+		}
+		
+		List<Triple<String, String, String>> simpleStringFields = new ArrayList<Triple<String,String,String>>();
+		simpleStringFields.add(new Triple<String, String, String>(CanonicalNames.AvgAnnualFecundity, "fecundity", "litter_size"));
+		simpleStringFields.add(new Triple<String, String, String>(CanonicalNames.NaturalMortality, "value", "mortality"));
+		simpleStringFields.add(new Triple<String, String, String>(CanonicalNames.ReproductivePeriodicity, "value", "reproductive_periodicity"));
+		simpleStringFields.add(new Triple<String, String, String>(CanonicalNames.FemaleMaturitySize, "size", "f_size_maturity"));
+		simpleStringFields.add(new Triple<String, String, String>(CanonicalNames.MaleMaturitySize, "size", "m_size_maturity"));
+		simpleStringFields.add(new Triple<String, String, String>(CanonicalNames.MaxSize, "size", "max_size"));
+		simpleStringFields.add(new Triple<String, String, String>(CanonicalNames.BirthSize, "size", "birth_size"));
+		
+		for (Triple<String, String, String> value : simpleStringFields)
+			addStringPrimitiveField(value.getFirst(), value.getSecond(), curAssessment, getString(row, value.getThird()));
+		
+		// GENERATION LENGTH
+		String generations = row.get("Gen_len").getString(Column.NEVER_NULL);
+		String genJust = XMLUtils.clean(row.get("Gen_Len_Just").getString(Column.NEVER_NULL));
+		
+		String mod_generations = generations.toLowerCase();
+		mod_generations = mod_generations.replaceAll("\\s", "");
+		mod_generations = mod_generations.replaceAll("years", "");
+		mod_generations = mod_generations.replaceAll("days", "");
+		mod_generations = mod_generations.replaceAll("weeks", "");
+		mod_generations = mod_generations.replaceAll("months", "");
+
+		String leftovers = generations.replace(mod_generations, "");
+		if( !leftovers.replaceAll("\\s", "").equals("") )
+			genJust = XMLUtils.clean(leftovers.trim()) + (genJust.equals("") ? "" : " -- " + genJust);
+		
+		if (!isValidRangeFormat(mod_generations))
+			printf(CANNED_NOTE + generations + " with justification: " + genJust);
+		else {
+			Field field = new Field(CanonicalNames.GenerationLength, curAssessment);
+			ProxyField proxy = new ProxyField(field);
+			proxy.setRangePrimitiveField("range", mod_generations);
+			proxy.setStringPrimitiveField("justification", genJust);
+			
+			curAssessment.setField(field);
+		}
+		
+		addTextPrimitiveField(CanonicalNames.PopulationIncreaseRate, "narrative", curAssessment, getString(row, "rate_pop_increase"));
+		
+		List<Triple<String, String, String>> booleans = new ArrayList<Triple<String,String,String>>();
+		booleans.add(new Triple<String, String, String>(CanonicalNames.EggLaying, "egg_laying", "layEggs"));
+		booleans.add(new Triple<String, String, String>(CanonicalNames.FreeLivingLarvae, "larval", "hasStage"));
+		booleans.add(new Triple<String, String, String>(CanonicalNames.LiveBirth, "live_young", "liveBirth"));
+		booleans.add(new Triple<String, String, String>(CanonicalNames.Parthenogenesis, "parthenogenesis", "exhibitsParthenogenesis"));
+		booleans.add(new Triple<String, String, String>(CanonicalNames.WaterBreeding, "water_breeding", "value"));
+		
+		for (Triple<String, String, String> value : booleans) {
+			String rawValue = getString(row, value.getSecond());
+			if (!isBlank(rawValue)) {
+				Integer dataValue = isChecked(row, value.getSecond()) ? BooleanUnknownPrimitiveField.YES : BooleanUnknownPrimitiveField.NO;
+				addBooleanUnknownPrimitiveField(value.getFirst(), value.getThird(), curAssessment, dataValue);
+			}
+		}
+		
+		Map<String, Triple<String, String, String>> fieldAndUnits = new HashMap<String, Triple<String, String, String>>();
+		fieldAndUnits.put(CanonicalNames.Longevity, new Triple<String, String, String>("longevity_units", "longevity", "longevity"));
+		fieldAndUnits.put(CanonicalNames.AvgReproductiveAge, new Triple<String, String, String>("ave_reproductive_age_units", "ave_reproductive_age", "age"));
+		fieldAndUnits.put(CanonicalNames.GestationTime, new Triple<String, String, String>("gestation_units", "gestation", "time"));
+
+		
+		for (Map.Entry<String, Triple<String, String, String>> entry : fieldAndUnits.entrySet()) {
+		// LONGEVITY
+			String units = getString(row, entry.getValue().getFirst());
+			if (isBlank(units))
+				units = "0";
+			else if (units.equalsIgnoreCase("days"))
+				units = "1";
+			else if (units.equalsIgnoreCase("months"))
+				units = "2";
+			else if (units.equalsIgnoreCase("years"))
+				units = "3";
+			else {
+				printf("Unparseable units value from DEM import on %s.%s. Imported value: %s", 
+						entry.getKey(), entry.getValue().getFirst(), units);
+			}
+	
+			String value = getString(row, entry.getValue().getSecond());
+			if (!isBlank(value)) {
+				Field field = new Field(entry.getKey(), curAssessment);
+				ProxyField proxy = new ProxyField(field);
+				proxy.setStringPrimitiveField(entry.getValue().getThird(), value);
+				if (!isBlank(units))
+					proxy.setForeignKeyPrimitiveField("units", Integer.valueOf(units), fmtLookupTableName(entry.getKey(), "units"));
+				
+				curAssessment.setField(field);
+			}
+		}
+	}
+
+	private void livelihoodsTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		List<Row> rows = queryDEM("Livelihoods", curDEMid);
+		if (rows.isEmpty())
+			return;
+
+		Field field = new Field(CanonicalNames.Livelihoods, curAssessment);
+		
+		for (Row row : rows) {
+			Field subfield = new Field(field.getName() + "Subfield", null);
+			subfield.setParent(field);
+			field.getFields().add(subfield);
+			
+			LivelihoodsField proxy = new LivelihoodsField(subfield);
+			proxy.setScale(row.get("Assess_type_ID").getInteger());
+			proxy.setLocalityName(getString(row, "Assess_name", null));
+			try {
+				proxy.setDate(FormattedDate.impl.getDate(getString(row, "Assess_date", null)));
+			} catch (Exception e) { 
+				try {
+					proxy.setDate(ASSESS_DATE_FMT.parse(getString(row, "Assess_date", null)));
+				} catch (Exception f) { }
+			}
+			
+			proxy.setProductDescription(getString(row, "p_product", null));
+			proxy.setAnnualHarvest(getString(row, "p_Single_harvest_amount", null));
+			try {
+				proxy.setAnnualHarvestUnits(Integer.valueOf(getString(row, "p_Single_harvest_amount_unit", null)));
+			} catch (Exception e) { }
+			
+			proxy.setMultiSpeciesHarvest(getString(row, "p_Multi_harvest_amount", null));
+			try {
+				proxy.setMultiSpeciesHarvestUnits(Integer.valueOf(getString(row, "p_Multi_harvest_amount_unit", null)));
+			} catch (Exception e) { }
+			
+			proxy.setPercentInHarvest(getString(row, "p_harvest_percent", null));
+			proxy.setAmountInHarvest(getString(row, "p_Multi_amount", null));
+			
+			try {
+				proxy.setHumanReliance(Integer.valueOf(getString(row, "p_human_reliance", null)));
+			} catch (Exception e) { }
+			
+			try {
+				proxy.setGenderAge(Integer.valueOf(getString(row, "p_harvest_gender", null)));
+			} catch (Exception e) { }
+			
+			try {
+				proxy.setSocioEconomic(Integer.valueOf(getString(row, "p_harvest_socioeconomic", null)));
+			} catch (Exception e) { }
+			
+			proxy.setOther(getString(row, "p_other_harvest_socioeconomic", null));
+			
+			try {
+				proxy.setTotalPopulationBenefit(Integer.valueOf(getString(row, "p_involve_percent", null)));
+			} catch (Exception e) { }
+			
+			try {
+				proxy.setHouseholdConsumption(Integer.valueOf(getString(row, "p_household_consumption_percent", null)));
+			} catch (Exception e) { }
+			
+			try {
+				proxy.setHouseholdIncome(Integer.valueOf(getString(row, "p_household_income_percent", null)));
+			} catch (Exception e) { }
+			
+			proxy.setAnnualCashIncome(getString(row, "p_cash_income", null));
+		}
+		
+		ProxyField proxy = new ProxyField(field);
+		if (!field.getFields().isEmpty())
+			proxy.setBooleanPrimitiveField("noInfo", Boolean.TRUE, Boolean.FALSE);
+
+		curAssessment.getField().add(field);
+	}
+
+	private void lmeTableImport(Long curDEMid, Assessment curAssessment)
+			throws Exception {
+		Field field = new Field(CanonicalNames.LargeMarineEcosystems, curAssessment);
+		
+		parseOccurrence(field, curDEMid, "large_marine_ecosystems_list", LME_CODING_OCCURRENCE_TYPE);
+		
+		if (field.hasData())
+			curAssessment.getField().add(field);
+	}
+
 	private void logAsNewCell(String string) {
 		log.append("<td>" + string + "</td>");
 	}
@@ -1867,44 +1900,52 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			return false;
 		}
 	}
-//
-//	private void populationTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("Population", "*");
-//		select.constrain(new CanonicalColumnName("Population", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		Row.Loader rowLoader = new Row.Loader();
-//		ec.doQuery(select, rowLoader);
-//		Row row = rowLoader.getRow();
-//
-//		if (row == null)
-//			return;
-//
-//		String max = row.get("Max_population").getString(Column.NEVER_NULL);
-//		String min = row.get("Min_population").getString(Column.NEVER_NULL);
-//
-//		max = max.replaceAll(",", "").replaceAll("\\s", "");
-//		min = min.replaceAll(",", "").replaceAll("\\s", "");
-//
-//		// IF EITHER ARE "", WE DON'T NEED A COMMA - WE'LL TREAT IT AS A BEST
-//		// GUESS
-//		String minMax = min + (min.equals("") || max.equals("") ? "" : "-") + max;
-//
-//		if (!(isValidRangeFormat(minMax))) {
-//			String message = "Unparseable population values from DEM import on "
-//					+ DateFormatUtils.ISO_DATE_FORMAT.format(new Date()) + ". Minimum value from DEM: " + min
-//					+ " --- maximum value from DEM: " + max;
-//
-//			sendNote(curAssessment.getType(), message, curAssessment.getAssessmentID(), CanonicalNames.PopulationSize);
-//		} else {
-//			ArrayList<String> dataList = new ArrayList<String>();
-//			dataList.add(minMax);
-//			data.put(CanonicalNames.PopulationSize, dataList);
-//		}
-//	}
-//
-//	@SuppressWarnings(value = "unchecked")
+	
+	private String getString(Row row, String key) {
+		return getString(row, key, "");
+	}
+	
+	private String getString(Row row, String key, String defaultValue) {
+		Column column = row.get(key);
+		if (column == null)
+			return defaultValue;
+		
+		String value = column.toString();
+		if (value == null)
+			value = defaultValue;
+		
+		return value;
+	}
+
+	private void populationTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		List<Row> rows = queryDEM("Population", curDEMid);
+		if (rows.isEmpty())
+			return;
+		
+		Row row = rows.get(0);
+		
+		String max = getString(row, "Max_population");
+		String min = getString(row, "Min_population");
+
+		max = max.replaceAll(",", "").replaceAll("\\s", "");
+		min = min.replaceAll(",", "").replaceAll("\\s", "");
+
+		// IF EITHER ARE "", WE DON'T NEED A COMMA - WE'LL TREAT IT AS A BEST
+		// GUESS
+		String minMax = min + (min.equals("") || max.equals("") ? "" : "-") + max;
+
+		if (!isValidRangeFormat(minMax)) {
+			printf("Unparseable population values from DEM import. Minimum value from DEM: " + min
+					+ " --- maximum value from DEM: " + max);
+		} else {
+			Field field = new Field(CanonicalNames.PopulationSize, curAssessment);
+			
+			ProxyField proxy = new ProxyField(field);
+			proxy.setRangePrimitiveField("range", minMax);
+			
+			curAssessment.setField(field);
+		}
+	}
 	
 	private boolean isBlank(String value) {
 		return value == null || "".equals(value);
@@ -1930,13 +1971,10 @@ public class DEMImport extends DynamicWriter implements Runnable {
 					proxy.setManualCriteria(crit);
 				}
 				
-				/*
-				 * FIXME: date last seen is now year last seen. Need to convert this 
-				 * to a date, then scrape the year, if possible.
-				 */
-				/*dataList.add(SISCategoryAndCriteria.DATE_LAST_SEEN_INDEX, XMLUtils.clean(curRow.get("last_seen").getString(
-						Column.NEVER_NULL)));*/
-	
+				String dateLastSeen = getString(curRow, "last_seen", null);
+				if (dateLastSeen != null)
+					proxy.setYearLastSeen(dateLastSeen);
+				
 				/*
 				 * PEC in it's old form has essentially been removed in SIS 2
 				 */
@@ -2025,11 +2063,12 @@ public class DEMImport extends DynamicWriter implements Runnable {
 				}
 			}
 			
-			//TODO: port assessment date.
 			String rlAsmDate = curRow.get("assess_date").toString();
 			if (!isBlank(rlAsmDate)) {
-				addDatePrimitiveField(CanonicalNames.RedListAssessmentDate, "value", 
-					curAssessment, FormattedDate.impl.getDate(rlAsmDate));
+				try {
+					addDatePrimitiveField(CanonicalNames.RedListAssessmentDate, "value", 
+						curAssessment, ASSESS_DATE_FMT.parse(rlAsmDate));
+				} catch (Exception e) { }
 			}
 
 			// Red List Notes
@@ -2164,7 +2203,17 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			registerDatasource("demSource", "jdbc:access:////usr/data/demSource.mdb",
 					"com.hxtt.sql.access.AccessDriver", "", "");*/
 
-			switchToDBSession("dem");
+			ec = new SystemExecutionContext(demSessionName);
+			ec.setExecutionLevel(ExecutionContext.ADMIN);
+			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
+			
+			demConversion = new SystemExecutionContext("demConversion");
+			demConversion.setExecutionLevel(ExecutionContext.ADMIN);
+			demConversion.setAPILevel(ExecutionContext.SQL_ALLOWED);
+			
+			demSource = new SystemExecutionContext("demSource");
+			demSource.setExecutionLevel(ExecutionContext.ADMIN);
+			demSource.setAPILevel(ExecutionContext.SQL_ALLOWED);
 
 			log.append("<table border=\"1\"><tr>" + "<th>Level</th>" + "<th>Friendly Name</th>" + "<th>Kingdom</th>"
 					+ "<th>Phylum</th>" + "<th>Class</th>" + "<th>Order</th>" + "<th>Family</th>" + "<th>Genus</th>"
@@ -2343,12 +2392,6 @@ public class DEMImport extends DynamicWriter implements Runnable {
 //		}
 //	}
 
-	private void switchToDBSession(String sessionName) throws Exception {
-		ec = new SystemExecutionContext("dem".equals(sessionName) ? demSessionName : sessionName);
-		ec.setExecutionLevel(ExecutionContext.ADMIN);
-		ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
-	}
-
 	private void systematicsTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
 		List<Row> rows = queryDEM("Systematics", curDEMid);
 		if (rows.isEmpty())
@@ -2376,23 +2419,9 @@ public class DEMImport extends DynamicWriter implements Runnable {
 
 			Integer region = row.get("Region").getInteger();
 			if (region != null) {
-				//TODO: cache this query...
-				SelectQuery selectRegion = new SelectQuery();
-				selectRegion.select("region_lookup_table", "*");
-				selectRegion.constrain(new CanonicalColumnName("region_lookup_table", "Region_number"),
-						QConstraint.CT_EQUALS, region);
-	
-				Row.Loader regionLoader = new Row.Loader();
-	
-				try {
-					ec.doQuery(selectRegion, regionLoader);
-					regionName = regionLoader.getRow().get("Region_name").toString();
-				} catch (DBException e) {
-					//print("Error grabbing region name for id " + region);
-					e.printStackTrace();
-				} catch (NullPointerException e) {
-					//print("NPE. Just going to assume it's a global, then, couldn't find " + region);
-				}
+				String foundRegion = searchLibrary(CanonicalNames.RegionInformation, getString(row, "Region"));
+				if (foundRegion != null)
+					regionName = foundRegion;
 			}
 		}
 
@@ -2466,109 +2495,116 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			
 		}
 	}
-//
-//	private void threatTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("threat_table", "*");
-//		select.constrain(new CanonicalColumnName("threat_table", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		HashMap<String, ArrayList<String>> selected = new HashMap<String, ArrayList<String>>();
-//		for (Iterator<Row> iter = rowLoader.getSet().listIterator(); iter.hasNext();) {
-//			Row curRow = iter.next();
-//
-//			String curCode = curRow.get("Threat_code").getString();
-//			int curTiming = curRow.get("threat_timing").getInteger(Column.NEVER_NULL);
-//
-//			String stress1 = null;
-//			String stress2 = null;
-//			String notes = "";
-//
-//			try {
-//				switchToDBSession("demConversion");
-//
-//				SelectQuery conversionSelect = new SelectQuery();
-//				conversionSelect.select("Threat crosswalking", "*");
-//				conversionSelect.constrain(new CanonicalColumnName("Threat crosswalking", "oldthreat_id"),
-//						QConstraint.CT_EQUALS, curCode);
-//
-//				Row.Loader conversionRow = new Row.Loader();
-//				ec.doQuery(conversionSelect, conversionRow);
-//
-//				if (conversionRow.getRow() != null) {
-//					curCode = conversionRow.getRow().get("newthreat_id").getString();
-//					stress1 = conversionRow.getRow().get("stress 1").getString();
-//					stress2 = conversionRow.getRow().get("stress 2").getString();
-//					notes = XMLUtils.clean(conversionRow.getRow().get("comment").getString(Column.NEVER_NULL));
-//				}
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				SysDebugger.getInstance().println("Error checking against conversion table.");
-//			}
-//
-//			// If an entry has already been added, just tweak the timings
-//			if (selected.containsKey(curCode)) {
-//				ArrayList arr = (ArrayList) selected.get(curCode);
-//				String extantTiming = ((ArrayList) selected.get(curCode)).get(0).toString();
-//
-//				if (extantTiming == "" + SISThreatStructure.TIMING_ONGOING_INDEX) {
-//					// If it's ongoing just leave things alone
-//				}
-//
-//				// If it's ever present mark it ongoing
-//				else if (curTiming == SISThreatStructure.TIMING_ONGOING_INDEX)
-//					arr.set(0, "" + SISThreatStructure.TIMING_ONGOING_INDEX);
-//
-//				// If it's definitely not ongoing, look for past and future
-//				else if (curTiming == SISThreatStructure.TIMING_PAST_UNLIKELY_RETURN_INDEX
-//						&& extantTiming.equals("" + SISThreatStructure.TIMING_FUTURE_INDEX))
-//					arr.set(0, "" + SISThreatStructure.TIMING_PAST_LIKELY_RETURN_INDEX);
-//
-//				else if (curTiming == SISThreatStructure.TIMING_FUTURE_INDEX
-//						&& extantTiming.equals("" + SISThreatStructure.TIMING_PAST_UNLIKELY_RETURN_INDEX))
-//					arr.set(0, "" + SISThreatStructure.TIMING_PAST_LIKELY_RETURN_INDEX);
-//
-//				// No need to put it back in, I don't believe
-//				// selected.put(curCode, arr);
-//			} else {
-//				ArrayList<String> dataArray = new ArrayList<String>();
-//				dataArray.add("" + curTiming);
-//				dataArray.add("0");
-//				dataArray.add("0");
-//				dataArray.add("");
-//				dataArray.add(notes);
-//
-//				if (stress1 != null && !stress1.equals("0") && !stress1.equals("")) {
-//					if (stress2 != null && !stress2.equals("0") && !stress2.equals("")) {
-//						dataArray.add("2");
-//						dataArray.add(stress1);
-//						dataArray.add(stress2);
-//					} else {
-//						dataArray.add("1");
-//						dataArray.add(stress1);
-//					}
-//				} else
-//					dataArray.add("0");
-//
-//				selected.put(curCode, dataArray);
-//			}
-//		}
-//
-//		data.put(CanonicalNames.Threats, selected);
-//
-//		try {
-//			switchToDBSession("dem");
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			print("Error switching back to DEM after building Threats. Import will now fail.");
-//		}
-//	}
+	
+	private Row findThreatID(String code) {
+		Row.Loader rl = new Row.Loader();
+		try {
+			SelectQuery conversionSelect = new SelectQuery();
+			conversionSelect.select("Threat crosswalking", "*");
+			conversionSelect.constrain(new CanonicalColumnName("Threat crosswalking", "oldthreat_id"),
+					QConstraint.CT_EQUALS, code);
+
+			demConversion.doQuery(conversionSelect, rl);
+		} catch (Exception e) {
+			printf("Error checking against conversion table.");
+			return null;
+		}
+		
+		return rl.getRow();
+	}
+
+	private void threatTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		List<Row> rows = queryDEM("threat_table", curDEMid);
+		if (rows.isEmpty())
+			return;
+		
+		Field field = new Field(CanonicalNames.Threats, curAssessment);
+		
+		Map<Integer, Field> data = new HashMap<Integer, Field>();
+		
+		for (Row row : rows) {
+			String curCode = getString(row, "Threat_code");
+			Integer curTiming = row.get("threat_timing").getInteger();
+			if (curTiming == null)
+				curTiming = 0;
+
+			String stress1 = null;
+			String stress2 = null;
+			String notes = "";
+			
+			Row conversionRow = findThreatID(curCode);
+			if (conversionRow != null) {
+				curCode = getString(conversionRow, "newthreat_id", null);
+				stress1 = getString(conversionRow, "stress 1", null);
+				stress2 = getString(conversionRow, "stress 2", null);
+				notes = XMLUtils.clean(getString(conversionRow, "comment"));
+			}
+			
+			Integer index = getIndex(CanonicalNames.Threats + "Lookup", curCode, null);
+			if (index == null) {
+				printf("No threat found for code %s, skipping...", curCode);
+				//TODO: throw failure exception?
+				continue;
+			}
+			
+			if (data.containsKey(index)) {
+				Field subfield = data.get(index);
+				ThreatsSubfield proxy = new ThreatsSubfield(subfield);
+				
+				Integer existingTiming = proxy.getTiming();
+				if (existingTiming != null) {
+					if (curTiming == 2) {
+						proxy.setTiming(2);
+					}
+					else if (curTiming == 1 && existingTiming == 3) {
+						//Past, unlikely to return, future
+						proxy.setTiming(1);
+					}
+					else if (curTiming == 3 && existingTiming == 1)
+						proxy.setTiming(1);
+				}
+			}
+			else {
+				Field subfield = new Field();
+				subfield.setName(CanonicalNames.Threats + "Subfield");
+				subfield.setParent(field);
+				field.getFields().add(subfield);
+				
+				ThreatsSubfield proxy = new ThreatsSubfield(subfield);
+				proxy.setThreat(index);
+				proxy.setTiming(curTiming);
+				
+				if (!isBlank(notes)) {
+					Edit edit = new Edit();
+					edit.setUser(userO);
+					edit.setReason("Threat created via DEM Import.");
+					
+					Notes note = new Notes();
+					note.setValue(notes);
+					
+					note.setEdit(edit);
+					edit.getNotes().add(note);
+					
+					note.setField(subfield);
+					subfield.getNotes().add(note);
+				}
+				
+				List<Integer> stresses = new ArrayList<Integer>();
+				for (String stress : new String[] { stress1, stress2 }) {
+					if (!isBlank(stress) && !"0".equals(stress)) {
+						Integer stressIndex = getIndex("StressesLookup", stress, null);
+						if (stressIndex != null)
+							stresses.add(stressIndex);
+					}
+				}
+				proxy.setStresses(stresses);
+				
+				data.put(index, subfield);
+			}
+		}
+
+		curAssessment.getField().add(field);
+	}
 //
 	private void updateFootprint(ArrayList<String> footprint, Taxon taxon) {
 		// Ensure footprint is on par with what the nodes say, not what the DEM
@@ -2583,193 +2619,135 @@ public class DEMImport extends DynamicWriter implements Runnable {
 //	 * removed_from_wild_table
 //	 */
 //	@SuppressWarnings(value = "unchecked")
-//	private void useTradeImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("Source_of_specimens_table", "*");
-//		select.constrain(new CanonicalColumnName("Source_of_specimens_table", "Sp_code"), QConstraint.CT_EQUALS,
-//				curDEMid);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		ArrayList<Integer> sourcesSelected = new ArrayList<Integer>();
-//		for (Row curRow : rowLoader.getSet())
-//			sourcesSelected.add(curRow.get("Source_code").getInteger(Column.NEVER_NULL));
-//
-//		select = new SelectQuery();
-//		select.select("purpose_table", "*");
-//		select.constrain(new CanonicalColumnName("purpose_table", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		HashMap<Integer, ArrayList<Integer>> purposesSelected = new HashMap<Integer, ArrayList<Integer>>();
-//		for (Row curRow : rowLoader.getSet()) {
-//			int purposeCode = curRow.get("Purpose_code").getInteger(Column.NEVER_NULL);
-//			int useCode = curRow.get("utilisation_code").getInteger(Column.NEVER_NULL);
-//
-//			ArrayList<Integer> mine = null;
-//
-//			if (purposesSelected.containsKey(new Integer(purposeCode)))
-//				mine = purposesSelected.get(new Integer(purposeCode));
-//			else {
-//				mine = new ArrayList<Integer>();
-//				purposesSelected.put(new Integer(purposeCode), mine);
-//			}
-//
-//			mine.add(new Integer(useCode));
-//		}
-//
-//		select = new SelectQuery();
-//		select.select("removed_from_wild_table", "*");
-//		select
-//				.constrain(new CanonicalColumnName("removed_from_wild_table", "Sp_code"), QConstraint.CT_EQUALS,
-//						curDEMid);
-//
-//		rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		ArrayList<Integer> wildSelected = new ArrayList<Integer>();
-//		for (Row curRow : rowLoader.getSet())
-//			wildSelected.add(curRow.get("Wild_code").getInteger(Column.NEVER_NULL));
-//
-//		if (!(sourcesSelected.size() == 0 && purposesSelected.size() == 0 && wildSelected.size() == 0)) {
-//			if (sourcesSelected.size() == 0)
-//				sourcesSelected.add(new Integer(0));
-//			if (purposesSelected.keySet().size() == 0)
-//				purposesSelected.put(new Integer(0), null);
-//			if (wildSelected.size() == 0)
-//				wildSelected.add(new Integer(0));
-//
-//			ArrayList<String> selected = new ArrayList();
-//
-//			int count = 0;
-//			int index1;
-//			int index2;
-//			int index3;
-//
-//			for (Integer curPurpose : purposesSelected.keySet()) {
-//				index1 = curPurpose.intValue();
-//
-//				for (int j = 0; j < sourcesSelected.size(); j++) {
-//					index2 = sourcesSelected.get(j).intValue();
-//
-//					for (int k = 0; k < wildSelected.size(); k++) {
-//						index3 = wildSelected.get(k).intValue();
-//						ArrayList dataList = UseTrade.generateDefaultDataList();
-//						dataList.remove(2);
-//						dataList.add(2, "" + index3);
-//						dataList.remove(1);
-//						dataList.add(1, "" + index2);
-//						dataList.remove(0);
-//						dataList.add(0, "" + index1);
-//
-//						ArrayList<Integer> ticks = purposesSelected.get(curPurpose);
-//						if (ticks != null) {
-//							// Magic number use: 2, as subsistence == 1,
-//							// national == 2
-//							// and international == 3, and the tick box offsets
-//							// in the
-//							// structure are 3, 4 and 5
-//							for (Integer purp : ticks) {
-//								dataList.remove(2 + purp.intValue());
-//								dataList.add(2 + purp.intValue(), "true");
-//							}
-//						}
-//
-//						selected.addAll(dataList);
-//
-//						count++;
-//					}
-//				}
-//			}
-//
-//			selected.add(0, "" + count);
-//			data.put(CanonicalNames.UseTradeDetails, selected);
-//		}
-//	}
-//
-//	private void utilisationTableImport(Long curDEMid, AssessmentData curAssessment, HashMap<String, Object> data)
-//			throws DBException {
-//		SelectQuery select = new SelectQuery();
-//		select.select("utilisation_general", "*");
-//		select.constrain(new CanonicalColumnName("utilisation_general", "Sp_code"), QConstraint.CT_EQUALS, curDEMid);
-//
-//		Row.Set rowLoader = new Row.Set();
-//		ec.doQuery(select, rowLoader);
-//
-//		if (rowLoader == null)
-//			return;
-//
-//		for (Row curRow : rowLoader.getSet()) {
-//			String useTradeNarrative = "";
-//
-//			data.put(CanonicalNames.NotUtilized, createDataArray(""
-//					+ (curRow.get("Utilised").getInteger(Column.NEVER_NULL) == 1), true));
-//
-//			String curNarText = XMLUtils.clean(curRow.get("Other_purpose").getString(Column.NEVER_NULL));
-//			if (!curNarText.equals("")) {
-//				useTradeNarrative += "--- Other purpose text ---<br>";
-//				useTradeNarrative += curNarText.replaceAll("\n", "<br>").replaceAll("\r", "");
-//			}
-//
-//			curNarText = XMLUtils.clean(curRow.get("Other_wild").getString(Column.NEVER_NULL));
-//			if (!curNarText.equals("")) {
-//				useTradeNarrative += "--- Other wild text ---<br>";
-//				useTradeNarrative += curNarText.replaceAll("\n", "<br>").replaceAll("\r", "");
-//			}
-//
-//			curNarText = XMLUtils.clean(curRow.get("Other_source").getString(Column.NEVER_NULL));
-//			if (!curNarText.equals("")) {
-//				useTradeNarrative += "--- Other source text ---<br>";
-//				useTradeNarrative += curNarText.replaceAll("\n", "<br>").replaceAll("\r", "");
-//			}
-//			data.put(CanonicalNames.UseTradeDocumentation, createDataArray(useTradeNarrative, false));
-//
-//			String wildOfftake = curRow.get("Offtake").getString(Column.NEVER_NULL);
-//
-//			if (wildOfftake.equalsIgnoreCase("Increasing"))
-//				data.put(CanonicalNames.TrendInWildOfftake, createDataArray("1", true));
-//			else if (wildOfftake.equalsIgnoreCase("Decreasing"))
-//				data.put(CanonicalNames.TrendInWildOfftake, createDataArray("2", true));
-//			else if (wildOfftake.equalsIgnoreCase("Stable"))
-//				data.put(CanonicalNames.TrendInWildOfftake, createDataArray("3", true));
-//			else if (wildOfftake.equalsIgnoreCase("Unknown"))
-//				data.put(CanonicalNames.TrendInWildOfftake, createDataArray("4", true));
-//			else
-//				data.put(CanonicalNames.TrendInWildOfftake, createDataArray("0", true));
-//
-//			String domesticOfftake = curRow.get("Trend").getString(Column.NEVER_NULL);
-//
-//			if (domesticOfftake.equalsIgnoreCase("Increasing"))
-//				data.put(CanonicalNames.TrendInDomesticOfftake, createDataArray("1", true));
-//			else if (domesticOfftake.equalsIgnoreCase("Decreasing"))
-//				data.put(CanonicalNames.TrendInDomesticOfftake, createDataArray("2", true));
-//			else if (domesticOfftake.equalsIgnoreCase("Stable"))
-//				data.put(CanonicalNames.TrendInDomesticOfftake, createDataArray("3", true));
-//			else if (domesticOfftake.equalsIgnoreCase("Not cultivated"))
-//				data.put(CanonicalNames.TrendInDomesticOfftake, createDataArray("4", true));
-//			else if (domesticOfftake.equalsIgnoreCase("Unknown"))
-//				data.put(CanonicalNames.TrendInDomesticOfftake, createDataArray("5", true));
-//			else
-//				data.put(CanonicalNames.TrendInDomesticOfftake, createDataArray("0", true));
-//
-//		}
-//	}
+	private void useTradeImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		List<Integer> sourcesSelected = new ArrayList<Integer>();
+		for (Row curRow : queryDEM("Source_of_specimens_table", curDEMid))
+			sourcesSelected.add(curRow.get("Source_code").getInteger(Column.NEVER_NULL));
+
+		Map<Integer, Set<Integer>> purposesSelected = new HashMap<Integer, Set<Integer>>();
+		for (Row curRow : queryDEM("purpose_table", curDEMid)) {
+			Integer purposeCode = curRow.get("Purpose_code").getInteger();
+			Integer useCode = curRow.get("utilisation_code").getInteger();
+
+			if (purposeCode == null)
+				continue;
+			
+			Set<Integer> purposeSelections = purposesSelected.get(purposeCode);
+			if (purposeSelections == null) {
+				purposeSelections = new HashSet<Integer>();
+				purposesSelected.put(purposeCode, purposeSelections);
+			}
+			if (useCode != null)
+				purposeSelections.add(useCode);
+		}
+
+		List<Integer> wildSelected = new ArrayList<Integer>();
+		for (Row curRow : queryDEM("removed_from_wild_table", curDEMid))
+			wildSelected.add(curRow.get("Wild_code").getInteger(Column.NEVER_NULL));
+
+		if (!(sourcesSelected.size() == 0 && purposesSelected.size() == 0 && wildSelected.size() == 0)) {
+			if (sourcesSelected.size() == 0)
+				sourcesSelected.add(new Integer(0));
+			if (purposesSelected.keySet().size() == 0)
+				purposesSelected.put(new Integer(0), null);
+			if (wildSelected.size() == 0)
+				wildSelected.add(new Integer(0));
+			
+			Field field = new Field(CanonicalNames.UseTradeDetails, curAssessment);
+
+			for (Map.Entry<Integer, Set<Integer>> curPurpose : purposesSelected.entrySet()) {
+				for (Integer curSource : sourcesSelected) {
+					for (Integer formInWild : wildSelected) {
+						Field subfield = new Field(field.getName()+"Subfield", null);
+						subfield.setParent(field);
+						
+						UseTradeField proxy = new UseTradeField(subfield);
+						proxy.setPurpose(curPurpose.getKey());
+						proxy.setSource(curSource);
+						proxy.setFormRemoved(formInWild);
+
+						Set<Integer> ticks = curPurpose.getValue();
+						if (ticks != null) {
+							proxy.setSubsistence(ticks.contains(Integer.valueOf(1)));
+							proxy.setNational(ticks.contains(Integer.valueOf(2)));
+							proxy.setInternational(ticks.contains(Integer.valueOf(3)));
+						}
+
+						field.getFields().add(subfield);
+					}
+				}
+			}
+
+			curAssessment.getField().add(field);
+		}
+	}
+
+	private void utilisationTableImport(Long curDEMid, Assessment curAssessment) throws DBException {
+		List<Row> rows = queryDEM("utilisation_general", curDEMid);
+		if (rows.isEmpty())
+			return;
+
+		Row row = rows.get(0);
+		
+		boolean isNotUtilized = isChecked(row, "Utilised");
+		if (isNotUtilized) {
+			Field notUtilized = new Field(CanonicalNames.NotUtilized, curAssessment);
+			ProxyField proxy = new ProxyField(notUtilized);
+			proxy.setBooleanPrimitiveField("isNotUtilized", Boolean.TRUE, Boolean.FALSE);
+			
+			curAssessment.setField(notUtilized);
+		}
+		
+		StringBuilder useTradeNarrative = new StringBuilder();
+
+		String narrativeText = getString(row, "Other_purpose", null);
+		if (narrativeText != null) {
+			useTradeNarrative.append("--- Other purpose text ---<br/>");
+			useTradeNarrative.append(XMLUtils.clean(narrativeText).replaceAll("\n", "<br/>").replaceAll("\r", ""));
+			useTradeNarrative.append("<br/>");
+		}
+
+		narrativeText = getString(row, "Other_wild", null);
+		if (narrativeText != null) {
+			useTradeNarrative.append("--- Other wild text ---<br/>");
+			useTradeNarrative.append(XMLUtils.clean(narrativeText).replaceAll("\n", "<br/>").replaceAll("\r", ""));
+			useTradeNarrative.append("<br/>");
+		}
+		
+		
+		narrativeText = getString(row, "Other_source", null);
+		if (narrativeText != null) {
+			useTradeNarrative.append("--- Other source text ---<br/>");
+			useTradeNarrative.append(XMLUtils.clean(narrativeText).replaceAll("\n", "<br/>").replaceAll("\r", ""));
+			useTradeNarrative.append("<br/>");
+		}
+		
+		narrativeText = useTradeNarrative.toString();
+		if (!"".equals(narrativeText)) {
+			addTextPrimitiveField(CanonicalNames.UseTradeDocumentation, "value", curAssessment, narrativeText);
+		}
+
+		String wildOfftake = searchLibrary(CanonicalNames.TrendInWildOfftake, getString(row, "Offtake"));
+		if (wildOfftake != null)
+			addForeignKeyPrimitiveField(CanonicalNames.TrendInWildOfftake, "value", curAssessment, Integer.valueOf(wildOfftake));
+	
+		String domesticOfftake = searchLibrary(CanonicalNames.TrendInDomesticOfftake, getString(row, "Trend"));
+		if (domesticOfftake != null)
+			addForeignKeyPrimitiveField(CanonicalNames.TrendInDomesticOfftake, "value", curAssessment, Integer.valueOf(domesticOfftake));
+	}
 	
 	private List<Row> queryDEM(String table, Long SpcRecID) throws DBException {
-		//FIXME: use Jackcess API instead?
 		SelectQuery select = new SelectQuery();
 		select.select(table, "*");
 		select.constrain(new CanonicalColumnName(table, "Sp_code"), QConstraint.CT_EQUALS, SpcRecID);
-
+		
+		return queryDEM(select);
+	}
+	
+	private List<Row> queryDEM(SelectQuery query) throws DBException {
 		Row.Set rs = new Row.Set();
 		
-		ec.doQuery(select, rs);
+		ec.doQuery(query, rs);
 
 		return rs.getSet();
 	}
