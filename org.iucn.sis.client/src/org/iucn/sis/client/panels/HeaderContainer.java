@@ -389,13 +389,9 @@ public class HeaderContainer extends ContentPanel {
 			if (AuthorizationCache.impl.canUse(AuthorizableFeature.DEM_UPLOAD_FEATURE)) {
 				menu.add(createMenuItem("icon-refresh", "DEM Import", new SelectionListener<MenuEvent>() {
 					public void componentSelected(MenuEvent ce) {
-						final ContentPanel container = new ContentPanel();
-						container.setBodyBorder(false);
-						container.setBorders(false);
-						container.setHeaderVisible(false);
-						container.setUrl(UriBase.getInstance().getDEMBase() + "/database?id=" + new Date().getTime());
-						
-						openAdministrativeTool("DEM Import", "icon-refresh", container);
+						com.google.gwt.user.client.Window.open(
+							UriBase.getInstance().getDEMBase() + "/database?id=" + new Date().getTime(), 
+							"_blank", "");
 					}
 				}));
 			}
