@@ -83,7 +83,7 @@ public class DEMSubmitResource extends TransactionResource {
 				"<form method=\"POST\" enctype=\"multipart/form-data\">");
 			sb.append("<span>Attach DEM database: </span>");
 			sb.append("<input type=\"file\" name=\"dem\" size=\"60\"/>");
-			sb.append("<p><span>Allow Taxa Creation?</span><input type=\"checkbox\" name=\"allowCreate\" /></p>");
+			sb.append("<p><span>Allow Upper-Level Taxa Creation (Legacy Behavior)?</span><input type=\"checkbox\" name=\"allowCreate\" /></p>");
 			sb.append("<p><input type=\"submit\" value=\"Submit\"/></p>");
 			sb.append("</form>");
 			sb.append(generatePriorImportsStatus());
