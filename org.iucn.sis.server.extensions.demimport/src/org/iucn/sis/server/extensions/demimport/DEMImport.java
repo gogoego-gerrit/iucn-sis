@@ -913,14 +913,24 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			return;
 		
 		String dataValue = value;
-		if ("2".equals(dataValue))
+		if ("true".equalsIgnoreCase(dataValue) || "Y".equalsIgnoreCase(dataValue))
+			dataValue = BooleanRangePrimitiveField.YES;
+		else if ("false".equalsIgnoreCase(dataValue) || "N".equalsIgnoreCase(dataValue))
+			dataValue = BooleanRangePrimitiveField.NO;
+		else if ("2".equals(dataValue))
 			dataValue = BooleanRangePrimitiveField.UNKNOWN;
 		
-		Field field = new Field(fieldName, assessment);
-		ProxyField proxy = new ProxyField(field);
-		proxy.setBooleanRangePrimitiveField(dataPoint, dataValue);
-		
-		assessment.getField().add(field);
+		if (BooleanRangePrimitiveField.UNKNOWN.equals(dataValue) || 
+				BooleanRangePrimitiveField.YES.equals(dataValue) || 
+				BooleanRangePrimitiveField.NO.equals(dataValue)) {
+			Field field = new Field(fieldName, assessment);
+			ProxyField proxy = new ProxyField(field);
+			proxy.setBooleanRangePrimitiveField(dataPoint, dataValue);
+			
+			assessment.getField().add(field);
+		}
+		else
+			printf("Boolean Range value for %s.%s could not be translated from given value %s", fieldName, dataPoint, value);
 	}
 	
 	private void addBooleanUnknownPrimitiveField(String fieldName, String dataPoint, Assessment assessment, Integer value) {
@@ -1181,12 +1191,22 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		
 		Field field = new Field(CanonicalNames.EcosystemServices, curAssessment);
 		
-		boolean infoAvailable = false;
-		boolean providesNothing = false;
+		Boolean infoAvailable = null;
+		Boolean providesNothing = null;
 
 		for (Row row : queryDEM("ecosystem_services", curDEMid)) {
-			infoAvailable |= isChecked(row, "info_available");
-			providesNothing |= isChecked(row, "no_services");
+			if (getString(row, "info_available", null) != null) {
+				if (infoAvailable == null)
+					infoAvailable = isChecked(row, "info_available");
+				else
+					infoAvailable |= isChecked(row, "info_available");
+			}
+			if (getString(row, "no_services", null) != null) {
+				if (providesNothing == null)
+					providesNothing = isChecked(row, "no_services");
+				else
+					providesNothing |= isChecked(row, "no_services");
+			}
 			
 			List<Couple<String, String>> selections = new ArrayList<Couple<String,String>>();
 			selections.add(new Couple<String, String>("1", "Water_quality"));
@@ -1261,11 +1281,10 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		if (field.hasData())
 			curAssessment.getField().add(field);
 		
-		if (!infoAvailable)
+		if (infoAvailable != null && !infoAvailable.booleanValue())
 			addBooleanPrimitiveField(CanonicalNames.EcosystemServicesInsufficientInfo, "isInsufficient", curAssessment, true);
 		
-		if (providesNothing)
-			addBooleanPrimitiveField(CanonicalNames.EcosystemServicesProvidesNone, "providesNothing", curAssessment, true);
+		addBooleanPrimitiveField(CanonicalNames.EcosystemServicesProvidesNone, "providesNothing", curAssessment, providesNothing);
 	}
 	
 	private Notes createNote(String value) {
@@ -1355,7 +1374,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		for (Kingdom curKingdom : tree.getKingdoms().values()) {
 			Taxon kingdom = curKingdom.getTheKingdom();
 			if (kingdom.getState() == STATE_TO_IMPORT) {
-				if (allowCreate)
+				if (!allowCreate)
 					throw new Exception("Creating taxa only allowed at the Genus level and below.");
 				
 				kingdom.setState(Taxon.ACTIVE);
@@ -1911,7 +1930,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			return defaultValue;
 		
 		String value = column.toString();
-		if (value == null)
+		if (isBlank(value))
 			value = defaultValue;
 		
 		return value;
@@ -1938,12 +1957,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			printf("Unparseable population values from DEM import. Minimum value from DEM: " + min
 					+ " --- maximum value from DEM: " + max);
 		} else {
-			Field field = new Field(CanonicalNames.PopulationSize, curAssessment);
-			
-			ProxyField proxy = new ProxyField(field);
-			proxy.setRangePrimitiveField("range", minMax);
-			
-			curAssessment.setField(field);
+			addRangePrimitiveField(CanonicalNames.PopulationSize, "range", curAssessment, minMax);
 		}
 	}
 	
@@ -2111,12 +2125,13 @@ public class DEMImport extends DynamicWriter implements Runnable {
 				}
 			}
 
-			addStringPrimitiveField(CanonicalNames.OldDEMPastDecline, "value", curAssessment, curRow.get("past_decline").toString());
-			addStringPrimitiveField(CanonicalNames.OldDEMPeriodPastDecline, "value", curAssessment, curRow.get("period_past_decline").toString());
-			addStringPrimitiveField(CanonicalNames.OldDEMFutureDecline, "value", curAssessment, curRow.get("future_decline").toString());
-			addStringPrimitiveField(CanonicalNames.OldDEMPeriodFutureDecline, "value", curAssessment, curRow.get("period_future_decline").toString());
+			addStringPrimitiveField(CanonicalNames.OldDEMPastDecline, "value", curAssessment, getString(curRow, "past_decline", null));
+			addStringPrimitiveField(CanonicalNames.OldDEMPeriodPastDecline, "value", curAssessment, getString(curRow, "period_past_decline", null));
+			addStringPrimitiveField(CanonicalNames.OldDEMFutureDecline, "value", curAssessment, getString(curRow, "future_decline", null));
+			addStringPrimitiveField(CanonicalNames.OldDEMPeriodFutureDecline, "value", curAssessment, getString(curRow, "period_future_decline"));
 			
-			addBooleanRangePrimitiveField(CanonicalNames.SevereFragmentation, "isFragmented", curAssessment, curRow.get("severely_frag").toString());
+			System.out.println("The value of severe_frag is " + getString(curRow, "severely_frag", null));
+			addBooleanRangePrimitiveField(CanonicalNames.SevereFragmentation, "isFragmented", curAssessment, getString(curRow, "severely_frag", null));
 		}
 	}
 	
@@ -2713,7 +2728,6 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			useTradeNarrative.append(XMLUtils.clean(narrativeText).replaceAll("\n", "<br/>").replaceAll("\r", ""));
 			useTradeNarrative.append("<br/>");
 		}
-		
 		
 		narrativeText = getString(row, "Other_source", null);
 		if (narrativeText != null) {

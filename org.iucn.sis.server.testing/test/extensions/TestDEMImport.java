@@ -53,6 +53,8 @@ public class TestDEMImport extends BasicHibernateTest {
 	
 	@Test
 	public void run() throws Exception {
+		configure(openSession());
+		
 		start();
 	}
 	
@@ -65,6 +67,14 @@ public class TestDEMImport extends BasicHibernateTest {
 		generator.setSession(manager.openSession());
 		generator.start();
 		
+		configure(manager.openSession());
+		
+		manager.shutdown();
+		
+		start();
+	}
+	
+	private void configure(Session session) {
 		SISDBAuthenticator auth = new SISDBAuthenticator(SIS.get().getExecutionContext());
 		
 		Permission defaultPerm = new Permission(PermissionGroup.DEFAULT_PERMISSION_URI, true, true, true, true, true, true);
@@ -84,7 +94,6 @@ public class TestDEMImport extends BasicHibernateTest {
 		user.setSisUser(true);
 		user.setUsername("admin");
 		
-		Session session = manager.openSession();
 		session.beginTransaction();
 		
 		session.save(perm);
@@ -98,14 +107,10 @@ public class TestDEMImport extends BasicHibernateTest {
 		
 		session.getTransaction().commit();
 		session.close();
-		manager.shutdown();
-		start();
-		
-		
 	}
 	
 	private void start() throws NamingException {
-		DBSessionFactory.registerDataSource("dem", "jdbc:access:////Users/carlscott/Projects/SIS/dem/demfish.mdb", "com.hxtt.sql.access.AccessDriver", "", "");
+		DBSessionFactory.registerDataSource("dem", "jdbc:access:////Users/carlscott/Projects/SIS/dem/demAcrididae.mdb", "com.hxtt.sql.access.AccessDriver", "", "");
 		
 		DEMImport importer = new DEMImport("admin", "dem", true, openSession());
 		importer.run();
