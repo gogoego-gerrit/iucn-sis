@@ -158,7 +158,6 @@ public class Field implements Serializable {
 			field.setReference(new HashSet<Reference>());
 			for (Reference reference : getReference()) {
 				Reference copy = refHandler.copyReference(reference);
-				copy.getField().add(field);
 				field.getReference().add(copy);
 			}
 		}
@@ -175,7 +174,7 @@ public class Field implements Serializable {
 		if (this.getFields() != null) {
 			field.setFields(new HashSet<Field>());
 			for (Field f : getFields()) {
-				Field copy = f.deepCopy(copyReferenceToAssessment);
+				Field copy = f.deepCopy(copyReferenceToAssessment, refHandler);
 				copy.setParent(field);
 				field.getFields().add(copy);
 			}

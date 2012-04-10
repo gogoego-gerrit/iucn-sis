@@ -84,10 +84,13 @@ public class Notes implements Serializable, ForeignObject<Notes> {
 	}
 	
 	public Notes deepCopy() {
+		Edit edit = getEdit().deepCopy();
+		edit.setId(0);
+		
 		Notes note = new Notes();
 		note.setId(getId());
 		note.setValue(getValue());
-		note.setEdit(getEdit().deepCopy());
+		note.setEdit(edit);
 		return note;
 	}
 	
