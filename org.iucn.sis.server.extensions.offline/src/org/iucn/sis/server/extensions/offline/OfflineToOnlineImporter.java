@@ -40,6 +40,7 @@ import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 
 import com.solertium.util.DynamicWriter;
+import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.events.ComplexListener;
 
 public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
@@ -175,18 +176,43 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		}
 	}
 	
+	private WorkingSet createOnlineWorkingSet(WorkingSet source) {
+		User user = new UserIO(online).getUserFromUsername(source.getCreatorUsername());
+		
+		WorkingSet target = new WorkingSet();
+		target.setFilter(source.getFilter().deepCopy());
+		target.setCreatedDate(source.getCreatedDate());
+		target.setCreator(user);
+		target.setDescription(source.getDescription());
+		target.setName(source.getName());
+		target.setNotes(source.getNotes());
+		target.getUsers().add(user);
+		for (Taxon targetTaxon : target.getTaxon()) {
+			try {
+				target.getTaxon().add((Taxon)online.load(Taxon.class, targetTaxon.getId()));
+			} catch (Exception e) {
+				//Doesn't exist online ... 
+				TrivialExceptionHandler.ignore(this, e);
+			}
+		}
+		
+		online.save(target);
+		
+		return target;
+	}
+	
 	private boolean mergeAssessments(Integer workingSetID) throws PersistentException {
 		final AssessmentIO assessmentIO = new AssessmentIO(offline);
 		
-		final WorkingSet workingSet = new WorkingSetIO(online).readWorkingSet(workingSetID);
+		WorkingSet workingSet = new WorkingSetIO(online).readWorkingSet(workingSetID);
 		if (workingSet == null) {
-			write(" - Working set %s was not found online, stopping.", workingSetID);
-			return false;
+			workingSet = createOnlineWorkingSet(new WorkingSetIO(offline).readWorkingSet(workingSetID));
 		}
-		
-		Hibernate.initialize(workingSet.getUsers());
-		Hibernate.initialize(workingSet.getAssessmentTypes());
-		// workingSet.toXML();
+		else {
+			Hibernate.initialize(workingSet.getUsers());
+			Hibernate.initialize(workingSet.getAssessmentTypes());
+			// workingSet.toXML();
+		}
 
 		final AssessmentFilterHelper helper = new AssessmentFilterHelper(online, workingSet.getFilter());
 		final int size = workingSet.getTaxon().size();
