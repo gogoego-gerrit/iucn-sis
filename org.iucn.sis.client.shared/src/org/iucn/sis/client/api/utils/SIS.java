@@ -29,6 +29,7 @@ public class SIS {
 	
 	private static Boolean isOnline = null;
 	private static Boolean hasAnalytics = null;
+	private static Boolean isAnalyticsRecorded = null;
 	
 	public static void recordAnalytics(String pageName) {
 		if (hasAnalytics == null) {
@@ -45,16 +46,24 @@ public class SIS {
 				Debug.println("Analytics enabled: {0}", hasAnalytics);
 		}
 		
-		if (hasAnalytics.booleanValue())
-			_recordAnalyticsHit(pageName);
+		if (hasAnalytics.booleanValue()) {
+			boolean result = _recordAnalyticsHit(pageName);
+			if (isAnalyticsRecorded == null)
+				Debug.println("Analytics recorded: {0}", isAnalyticsRecorded = result);
+		}
 	}
 	
 	public static native boolean _hasAnalytics() /*-{
 	    return $wnd._gaq ? true : false;
 	}-*/;
 	
-	public static native void _recordAnalyticsHit(String pageName) /*-{
-	    $wnd._gaq.push(['_trackPageview(' + pageName + ')']);
+	public static native boolean _recordAnalyticsHit(String pageName) /*-{
+		try {
+	    	$wnd._gaq.push(['_trackPageview', pageName]);
+	    	return true;
+	    } catch (e) {
+	    	return false;
+	    }
 	}-*/;
 	
 	public static String getBuildNumber() {
