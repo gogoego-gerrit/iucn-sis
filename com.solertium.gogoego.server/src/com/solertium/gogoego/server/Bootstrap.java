@@ -102,7 +102,7 @@ public class Bootstrap extends StandardServerComponent {
 	protected void setup() {
 		System.out.println("Initializing ImageIO");
 		try{
-			ImageIO.read(getClass().getResourceAsStream("init.gif"));
+			ImageIO.read(Bootstrap.class.getResourceAsStream("init.gif"));
 		} catch (IOException iox) {
 			iox.printStackTrace();
 		}	

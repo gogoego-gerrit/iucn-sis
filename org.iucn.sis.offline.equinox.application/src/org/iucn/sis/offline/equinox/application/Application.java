@@ -72,7 +72,7 @@ public class Application implements IApplication, Restarter {
 		//One hack down! 
 		//new Clapper().initClap();
 		try {
-			component = new Bootstrap();
+			component = new SISBootstrap();
 			component.setRestarter(this);
 		} catch (DBException e) {
 			System.err.println("Could not start DBSession: " + e.getMessage());
