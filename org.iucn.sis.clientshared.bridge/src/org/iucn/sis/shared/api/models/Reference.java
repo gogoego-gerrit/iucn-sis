@@ -230,7 +230,7 @@ public class Reference implements Serializable, AuthorizableObject, ForeignObjec
 		map.put("url", getUrl());
 		map.put("hash", getHash());
 		map.put("bibCode", toStringOrNull(getBibCode()));
-		map.put("bibNumtoStringOrNull", toStringOrNull(getBibNumber()));
+		map.put("bibNumber", toStringOrNull(getBibNumber()));
 		map.put("bibNoInt", toStringOrNull(getBibNoInt()));
 		map.put("externalBibCode", getExternalBibCode());
 		map.put("submissionType", getSubmissionType());
