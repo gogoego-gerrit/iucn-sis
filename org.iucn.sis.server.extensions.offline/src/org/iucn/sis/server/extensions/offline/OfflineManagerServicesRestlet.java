@@ -39,6 +39,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.ResourceException;
 import org.w3c.dom.Document;
 
+import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.Replacer;
 import com.solertium.util.TrivialExceptionHandler;
 
@@ -150,7 +151,9 @@ public class OfflineManagerServicesRestlet extends Restlet {
 		final Response response = client.handle(request);
 		if (response.getStatus().isSuccess()) {
 			try {
-				return response.getEntity().getText();
+				return BaseDocumentUtils.impl.serializeDocumentToString(
+					new DomRepresentation(response.getEntity()).getDocument(),
+					true, true);
 			} catch (Exception e) {
 				return "<updates count=\"0\" restart=\"false\" />";
 			}
