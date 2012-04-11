@@ -124,8 +124,10 @@ public class SIS {
 			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
 			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
 			
-			if (ec.getDBSession() instanceof H2DBSession)
+			if (ec.getDBSession() instanceof H2DBSession) {
+				ec.getDBSession().setIdentifierCase(DBSession.CASE_UPPER);
 				queries = new H2CannedQueries(); 
+			}
 			else
 				queries = new PostgreSQLCannedQueries();
 		} catch (NamingException e) {

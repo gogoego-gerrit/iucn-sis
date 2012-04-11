@@ -92,10 +92,16 @@ public class ReferenceSearchResource extends SimpleRestlet {
 		String where = null;
 		for (Map.Entry<String, String> entry : constraints.entrySet()) {
 			if (!"start".equals(entry.getKey()) && !"limit".equals(entry.getKey())) {
+				String table = "reference";
 				String column = entry.getKey();
 				try {
-					if ("year".equals(column) && DBSessionFactory.getDBSession("sis") instanceof H2DBSession)
-						column = "\"year\"";
+					if (DBSessionFactory.getDBSession("sis") instanceof H2DBSession) {
+						table = "r";
+						if ("year".equals(column))
+							column = "\"year\"";
+						else
+							column = column.toUpperCase();
+					}	
 				} catch (NamingException e) {
 					TrivialExceptionHandler.ignore(this, e);
 				}
@@ -104,7 +110,7 @@ public class ReferenceSearchResource extends SimpleRestlet {
 					where = "WHERE ";
 				else
 					where += " AND ";
-				where += "UPPER(reference." + column + ") like '%" + clean(entry.getValue().toUpperCase()) + "%'";
+				where += "UPPER(" + table + "." + column + ") like '%" + clean(entry.getValue().toUpperCase()) + "%'";
 			}
 		}
 		
@@ -123,7 +129,7 @@ public class ReferenceSearchResource extends SimpleRestlet {
 				});
 			} catch (DBException e) {
 				Debug.println(e);
-				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 			}
 		}
 		
