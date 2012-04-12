@@ -127,8 +127,11 @@ public class LoginPanel extends LayoutContainer {
 		
 		descriptionPanel.add(ts);
 		
-		if (SIS.isOffline())
+		if (SIS.isOffline()) {
 			descriptionPanel.add(new Paragraph("You are working offline.", "bold"));
+			descriptionPanel.add(new Paragraph("<a href=\"" + UriBase.getInstance().getOfflineBase() 
+				+ "/manager\">Click here to open Offline Manager.</a>"));
+		}
 
 		// Add content to content area
 		/* BOTTOM PANEL: CONTENT */
