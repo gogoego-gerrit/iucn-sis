@@ -49,6 +49,7 @@ import org.restlet.resource.ResourceException;
 
 import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeNodeList;
+import com.solertium.util.AlphanumericComparator;
 import com.solertium.util.events.ComplexListener;
 
 public class AssessmentRestlet extends BaseServiceRestlet {
@@ -308,50 +309,58 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 	}
 
 	private void batchCreate(Representation entity, Request request, Response response, User user, Session session) throws ResourceException {
-		NativeDocument doc = getEntityAsNativeDocument(entity);
-		StringBuffer successfulIDs = new StringBuffer();
-		StringBuffer extantIDs = new StringBuffer();
-		StringBuffer unsuccessfulIDs = new StringBuffer();
+		final NativeDocument doc = getEntityAsNativeDocument(entity);
 		
-		AssessmentFilter filter = AssessmentFilter.fromXML(doc.getDocumentElement().getElementsByTagName(
+		final List<String> successfulIDs = new ArrayList<String>();
+		final List<String> extantIDs = new ArrayList<String>();
+		final List<String> unsuccessfulIDs = new ArrayList<String>();
+		
+		final AssessmentFilter filter = AssessmentFilter.fromXML(doc.getDocumentElement().getElementsByTagName(
 				AssessmentFilter.ROOT_TAG).elementAt(0));
 
 		NativeNodeList nodes = doc.getDocumentElement().getElementsByTagName("taxon");
 		boolean useTemplate = Boolean.parseBoolean(doc.getDocumentElement().getElementsByTagName("useTemplate")
 				.elementAt(0).getTextContent());
-		Debug.println("Using template? {0}", useTemplate);
 		
 		TaxonIO taxonIO = new TaxonIO(session);
-		
 		AssessmentIO io = new AssessmentIO(session);
 
-		for (int i = 0; i < nodes.getLength(); i++) {
+		final int count = nodes.getLength();
+		for (int i = 0; i < count; i++) {
 			Taxon taxon = taxonIO.getTaxon(Integer.valueOf(nodes.elementAt(i).getTextContent()));
 			Assessment curAssessment = doCreateAssessmentForBatch(user, filter, useTemplate, taxon, session);
 			try {
 				AssessmentIOWriteResult result = io.saveNewAssessment(curAssessment, user);
 				if (result.status.isSuccess())
-					successfulIDs.append(curAssessment.getSpeciesName() + (i == nodes.getLength() - 1 ? "" : ", "));
+					successfulIDs.add(taxon.getFriendlyName());
 				else
-					unsuccessfulIDs.append(curAssessment.getSpeciesName() + (i == nodes.getLength() - 1 ? "" : ", "));
+					unsuccessfulIDs.add(taxon.getFriendlyName());
 			} catch (RegionConflictException e) {
-				extantIDs.append(curAssessment.getSpeciesName() + (i == nodes.getLength() - 1 ? "" : ", "));
+				extantIDs.add(taxon.getFriendlyName());
 			}
 		}
 
 		StringBuilder ret = new StringBuilder();
-		if (unsuccessfulIDs.length() > 0)
-			ret.append("<div>Unable to create an assessment for the following species: " + unsuccessfulIDs
-					+ "</div>\r\n");
-		if (extantIDs.length() > 0)
-			ret.append("<div>The following species already have draft assessments with the specific locality: "
-					+ extantIDs + "</div>\r\n");
-		if (successfulIDs.length() > 0)
-			ret.append("<div>Successfully created an assessment for the following species: " + successfulIDs
-					+ "</div>\r\n");
+		ret.append("<div>");
+		listBatchResultBlock(ret, "Unable to create an assessment for the following species", unsuccessfulIDs, count);
+		listBatchResultBlock(ret, "The following species already have draft assessments with the specific locality", extantIDs, count);
+		listBatchResultBlock(ret, "Successfully created an assessment for the following species", successfulIDs, count);
+		ret.append("</div>");
+		
 		response.setStatus(Status.SUCCESS_OK);
 		response.setEntity(ret.toString(), MediaType.TEXT_HTML);
-		
+	}
+	
+	private void listBatchResultBlock(StringBuilder ret, String heading, List<String> list, int count) {
+		if (!list.isEmpty()) {
+			Collections.sort(list, new AlphanumericComparator());
+			
+			ret.append("<div>\r\n");
+			ret.append(String.format("<h3>%s: (%s/%s)</h3>\r\n", heading, list.size(), count));
+			for (String name : list)
+				ret.append("<div> - " + name + "</div>");
+			ret.append("</div>\r\n");
+		}
 	}
 
 	private Assessment doCreateAssessmentForBatch(User user, AssessmentFilter filter, boolean useTemplate, Taxon taxon, final Session session) {
