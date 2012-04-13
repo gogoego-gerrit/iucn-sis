@@ -28,10 +28,13 @@ import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Field;
 import org.iucn.sis.shared.api.models.Notes;
 import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.Reference;
+import org.iucn.sis.shared.api.models.Region;
+import org.iucn.sis.shared.api.models.Relationship;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.User;
 import org.iucn.sis.shared.api.models.WorkingSet;
@@ -40,7 +43,6 @@ import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 
 import com.solertium.util.DynamicWriter;
-import com.solertium.util.TrivialExceptionHandler;
 import com.solertium.util.events.ComplexListener;
 
 public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
@@ -101,10 +103,11 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 			execute();
 		} catch (Throwable e) {
 			Debug.println(e);
-			write("Failed unexpectedly: %s", e.getMessage());
+			write("Failed unexpectedly: %s\n%s", e.getMessage(), toString(e));
 			
 			if (e.getCause() instanceof BatchUpdateException) {
-				((BatchUpdateException)e.getCause()).getNextException().printStackTrace();
+				Debug.println("Full error: {0}", 
+					toString(((BatchUpdateException)e.getCause()).getNextException()));
 			}
 		} finally {
 			Date end = Calendar.getInstance().getTime();
@@ -118,6 +121,21 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 
 			close();
 		}
+	}
+	
+	protected String toString(Throwable e) {
+		final StringBuilder out = new StringBuilder();
+		out.append(e.toString() + "\r\n");
+		for (StackTraceElement el : e.getStackTrace())
+			out.append(el.toString() + "\r\n");
+		int count = 0;
+		Throwable t = e;
+		while (count++ < 10 && (t = t.getCause()) != null) {
+			out.append(t.toString() + "\r\n");
+			for (StackTraceElement el : t.getStackTrace())
+				out.append(el.toString() + "\r\n");
+		}
+		return out.toString();
 	}
 
 	@Override
@@ -177,26 +195,35 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 	}
 	
 	private WorkingSet createOnlineWorkingSet(WorkingSet source) {
+		source.toXML();
+		
+		online.beginTransaction();
+		
 		User user = new UserIO(online).getUserFromUsername(source.getCreatorUsername());
 		
 		WorkingSet target = new WorkingSet();
-		target.setFilter(source.getFilter().deepCopy());
+		if (source.getAssessmentTypes() != null)
+			for (AssessmentType type : source.getAssessmentTypes())
+				target.getAssessmentTypes().add((AssessmentType)online.load(AssessmentType.class, type.getId()));
+		if (source.getRegion() != null)
+			for (Region region : source.getRegion())
+				target.getRegion().add((Region)online.load(Region.class, region.getId()));
+		if (source.getRelationship() != null)
+			target.setRelationship((Relationship)online.load(Relationship.class, source.getRelationship().getId()));
+		
+		target.setIsMostRecentPublished(source.getIsMostRecentPublished());
 		target.setCreatedDate(source.getCreatedDate());
 		target.setCreator(user);
 		target.setDescription(source.getDescription());
 		target.setName(source.getName());
 		target.setNotes(source.getNotes());
 		target.getUsers().add(user);
-		for (Taxon targetTaxon : target.getTaxon()) {
-			try {
-				target.getTaxon().add((Taxon)online.load(Taxon.class, targetTaxon.getId()));
-			} catch (Exception e) {
-				//Doesn't exist online ... 
-				TrivialExceptionHandler.ignore(this, e);
-			}
-		}
+		for (Taxon taxon : source.getTaxon())
+			target.getTaxon().add((Taxon)online.load(Taxon.class, taxon.getId()));
 		
 		online.save(target);
+		
+		online.getTransaction().commit();
 		
 		return target;
 	}
@@ -297,6 +324,7 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 				write("  Writing new assessment #%s", assessment.getId());
 				
 				Assessment newAssessment = assessment.getOfflineCopy();
+				newAssessment.setOfflineStatus(false);
 
 				final AssessmentIOWriteResult result;
 				try {

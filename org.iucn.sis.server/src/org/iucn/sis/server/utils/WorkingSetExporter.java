@@ -16,9 +16,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
+import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.ReplicationMode;
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
 import org.iucn.sis.server.api.io.UserIO;
@@ -52,7 +54,7 @@ import com.solertium.db.DBException;
 
 public class WorkingSetExporter extends DatabaseExporter {
 	
-	protected static final int BATCH_SIZE = 200;
+	protected static final int BATCH_SIZE = 10000;
 	
 	protected final boolean lock;
 	protected final String username;
@@ -232,31 +234,52 @@ public class WorkingSetExporter extends DatabaseExporter {
 						
 			for (Class<?> clazz : copyAll) {
 				int i = 0;
-				List<?> list = SISPersistentManager.instance().listObjects(clazz, source);
 				source.clear();
 				write("Copying %s...", clazz.getSimpleName());
-				boolean started = false;
-				for (Object obj : list) {
-					if (!started) {
-						started = true;
-						target.beginTransaction();
-					}
-					target.replicate(obj, ReplicationMode.OVERWRITE);
+				
+				Criteria criteria = source.createCriteria(clazz)
+					.setFirstResult(i)
+					.setMaxResults(BATCH_SIZE)
+					.addOrder(Order.asc("id"));
+				
+				List<?> list = criteria.list();
+				while (!list.isEmpty()) {
+					boolean started = false;
 					
-					if (++i % BATCH_SIZE == 0) {
+					source.clear();
+					
+					for (Object obj : list) {
+						if (!started) {
+							started = true;
+							target.beginTransaction();
+						}
+						target.replicate(obj, ReplicationMode.OVERWRITE);
+						
+						if (++i % BATCH_SIZE == 0) {
+							write("  %s...", i);
+							target.getTransaction().commit();
+							target.clear();
+							started = false;
+						}
+					}
+				
+					if (started) {
 						write("  %s...", i);
 						target.getTransaction().commit();
 						target.clear();
-						started = false;
 					}
-				}
-				if (started) {
-					write("  %s...", i);
-					target.getTransaction().commit();
+					
 					target.clear();
+					
+					list = source.createCriteria(clazz)
+						.setFirstResult(i)
+						.setMaxResults(BATCH_SIZE)
+						.addOrder(Order.asc("id"))
+						.list();
 				}
-				target.clear();
 			}
+			
+			source.clear();
 		}
 		
 		final WorkingSet workingSet = new WorkingSetIO(source).readWorkingSet(workingSetID);

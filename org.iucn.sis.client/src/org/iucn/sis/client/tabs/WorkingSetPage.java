@@ -350,7 +350,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 				}
 			}, "Yes", "No");
 		} else {
-			attemptLocking(ws);
+			fireExport(ws, false);
 		}
 	}
 	
