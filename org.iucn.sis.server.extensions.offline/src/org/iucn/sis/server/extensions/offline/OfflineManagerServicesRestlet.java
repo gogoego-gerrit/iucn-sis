@@ -42,6 +42,7 @@ import org.w3c.dom.Document;
 import com.solertium.util.BaseDocumentUtils;
 import com.solertium.util.Replacer;
 import com.solertium.util.TrivialExceptionHandler;
+import com.solertium.util.restlet.RestletUtils;
 
 public class OfflineManagerServicesRestlet extends Restlet {
 
@@ -56,6 +57,8 @@ public class OfflineManagerServicesRestlet extends Restlet {
 			handleGet(arg0, arg1);
 		else
 			arg1.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+		
+		RestletUtils.setHeader(arg1, "Cache-control", "no-cache");
 	}
 	
 	public void handleGet(Request arg0, Response arg1) {
