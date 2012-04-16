@@ -1,11 +1,12 @@
 package org.iucn.sis.client.panels.workingsets;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
@@ -244,21 +245,22 @@ public abstract class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 
 	private void refreshContent() {
 		list.removeAll();
+		final List<WorkingSet> wsList = new ArrayList<WorkingSet>();
 		if (WorkingSetCache.impl.getCurrentWorkingSet() != null) {
-			final Map<Integer, WorkingSet> workingSets = WorkingSetCache.impl.getWorkingSets();
-			for( Entry<Integer, WorkingSet> curEntry : workingSets.entrySet() ) {
-				WorkingSet ws = curEntry.getValue();
+			for (WorkingSet ws : WorkingSetCache.impl.getWorkingSets().values()) {
 				if (!ws.equals(WorkingSetCache.impl.getCurrentWorkingSet())
-						&& AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, ws)) {
-					DataListItem item = new DataListItem(ws.getName() + " -- " + ws.getSpeciesIDs().size()
-							+ " species");
-					item.setId(ws.getId()+"");
-					list.add(item);
-				}
-
+						&& AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, ws))
+					wsList.add(ws);
 			}
 		}
-
+		if (!wsList.isEmpty()) {
+			Collections.sort(wsList, new WorkingSetCache.WorkingSetComparator());
+			for (WorkingSet ws : wsList) {
+				DataListItem item = new DataListItem(ws.getName() + " -- " + ws.getSpeciesIDs().size() + " species");
+				item.setId(ws.getId()+"");
+				list.add(item);
+			}
+		}
 	}
 
 	private void refreshMode() {
