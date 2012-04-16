@@ -18,6 +18,7 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 
 import com.solertium.util.Replacer;
+import com.solertium.util.restlet.RestletUtils;
 
 public class OfflineManagerRestlet extends Restlet {
 	
@@ -47,6 +48,8 @@ public class OfflineManagerRestlet extends Restlet {
 		
 		arg1.setStatus(Status.SUCCESS_OK);
 		arg1.setEntity(value, MediaType.TEXT_HTML);
+		
+		RestletUtils.setHeader(arg1, "Cache-control", "no-cache");
 	}
 	
 	private String getSoftwareVersion() {

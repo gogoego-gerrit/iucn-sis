@@ -189,7 +189,7 @@ public class OfflineManagerServicesRestlet extends Restlet {
 			"/updates/" + version + "/zip";
 		final Request request = new Request(Method.GET, url);
 		
-		final Client client = new Client(Protocol.HTTP);
+		final Client client = new Client(request.getProtocol());
 		final Response response = client.handle(request);
 		if (!response.getStatus().isSuccess())
 			if (Status.SERVER_ERROR_SERVICE_UNAVAILABLE.equals(response.getStatus()))
