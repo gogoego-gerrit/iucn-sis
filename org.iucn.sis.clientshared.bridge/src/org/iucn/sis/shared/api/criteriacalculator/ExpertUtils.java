@@ -7,9 +7,9 @@ import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Field;
+import org.iucn.sis.shared.api.models.PrimitiveField;
 import org.iucn.sis.shared.api.models.fields.RedListCriteriaField;
 import org.iucn.sis.shared.api.models.fields.RedListFuzzyResultField;
-import org.iucn.sis.shared.api.models.primitivefields.StringPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 public class ExpertUtils {
@@ -58,8 +58,9 @@ public class ExpertUtils {
 					&& currentAssessment.getField(CanonicalNames.RegionExpertQuestions) != null) {
 				
 				Field regExpertField = currentAssessment.getField(CanonicalNames.RegionExpertQuestions);
-				if( regExpertField != null ) {
-					String regionalExpString = ((StringPrimitiveField)regExpertField.getKeyToPrimitiveFields().get("answers")).getValue();
+				if (regExpertField != null) {
+					PrimitiveField<?> prim = regExpertField.getPrimitiveField("answers");
+					String regionalExpString = prim == null ? "" : prim.getRawValue();
 					String[] regionalExpData = regionalExpString.split(",");
 
 					if (regionalExpData.length > 2) {
@@ -78,7 +79,6 @@ public class ExpertUtils {
 						redListCriteriaField.setGeneratedCategory(category);
 						
 						redListFuzzyResultField.setCategory(category);
-						
 					}
 				}
 			} else {
