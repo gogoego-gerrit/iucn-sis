@@ -171,7 +171,7 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 		});
 		
 		ToolBar bar = new ToolBar();
-		if (AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.USE_FEATURE,
+		if (AuthorizationCache.impl.hasRight(AuthorizableObject.USE_FEATURE,
 				AuthorizableFeature.USER_MANAGEMENT_FEATURE)) {
 			bar = new UserViewToolBar(this);
 		}
@@ -373,7 +373,7 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 		}
 		configs.add(affiliation);
 
-		if (AuthorizationCache.impl.hasRight(SISClientBase.currentUser,
+		if (AuthorizationCache.impl.hasRight(
 				AuthorizableObject.USE_FEATURE, AuthorizableFeature.PERMISSION_MANAGEMENT_FEATURE)) {
 			final ColumnConfig quickGroup = new ColumnConfig();
 			quickGroup.setId(ClientUser.QUICK_GROUP);
@@ -432,7 +432,7 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 		rapidListUser.add("true");
 		rapidListUser.add("false");
 		
-		if (AuthorizationCache.impl.hasRight(SISClientBase.currentUser,
+		if (AuthorizationCache.impl.hasRight(
 				AuthorizableObject.USE_FEATURE, AuthorizableFeature.USER_MANAGEMENT_FEATURE)) {
 			final SimpleComboBox<String> sisUser = new SimpleComboBox<String>();
 			sisUser.setForceSelection(true);

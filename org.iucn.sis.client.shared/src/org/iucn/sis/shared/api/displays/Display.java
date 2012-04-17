@@ -978,7 +978,7 @@ public abstract class Display implements Referenceable {
 							String regionRegex = region+"";
 							if (region == Region.GLOBAL_ID)
 								regionRegex = "global";
-							if(!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, 
+							if(!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, 
 									new AuthorizablePublishedAssessment(curTaxa, SchemaCache.impl.getDefaultSchema(), regionRegex)) ) {
 								WindowUtils.errorAlert("Unauthorized!", "You are unauthorized to modify " +
 										"published assessments for at least the taxon " + curTaxa.getFullName() +
@@ -995,7 +995,7 @@ public abstract class Display implements Referenceable {
 					taxaIDs = "";
 					for (Taxon curTaxa : ws.getSpecies()) {
 						for (Integer region : filter.listRegionIDs())
-							if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, 
+							if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, 
 								new AuthorizableDraftAssessment(curTaxa, SchemaCache.impl.getDefaultSchema(), region+"")))
 							{	
 								WindowUtils.hideLoadingAlert();

@@ -540,7 +540,7 @@ public class HeaderContainer extends ContentPanel {
 
 		options.add(createMenuItem("icon-find", "Find/Replace", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.FIND_REPLACE_FEATURE)) {
+				if (AuthorizationCache.impl.hasRight(AuthorizableObject.USE_FEATURE, AuthorizableFeature.FIND_REPLACE_FEATURE)) {
 					Window nS = WindowUtils.newWindow("Find and Replace", null, true, true);
 					nS.setSize(875, 600);
 
@@ -569,7 +569,7 @@ public class HeaderContainer extends ContentPanel {
 		
 		options.add(createMenuItem("icon-world-edit", "Edit Region List", new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.TAXON_FINDER_FEATURE)) {
+				if (!AuthorizationCache.impl.hasRight(AuthorizableObject.USE_FEATURE, AuthorizableFeature.TAXON_FINDER_FEATURE)) {
 					WindowUtils.errorAlert("This is a currently restricted to administrative users only.");
 				} else {
 					Window nS = WindowUtils.newWindow("", null, true, true);

@@ -9,7 +9,6 @@ import org.iucn.sis.client.api.assessment.ReferenceableAssessment;
 import org.iucn.sis.client.api.caches.AssessmentCache;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.utils.PagingPanel;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.citations.Referenceable;
 import org.iucn.sis.shared.api.displays.FieldDisplay;
@@ -123,7 +122,7 @@ public class BibliographyViewTab extends PagingPanel<ReferenceModel> {
 							+ "the reference is removed from the correct place, please "
 							+ "filter your references by field, then try removing again.");
 				} else */
-				if( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, 
+				if( !AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, 
 						AssessmentCache.impl.getCurrentAssessment()) ) {
 					WindowUtils.errorAlert("Cannot remove", "You do not have permission to edit this " +
 							"assessment, so you may not remove references.");

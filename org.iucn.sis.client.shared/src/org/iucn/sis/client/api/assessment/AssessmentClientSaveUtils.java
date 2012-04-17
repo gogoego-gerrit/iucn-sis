@@ -208,7 +208,7 @@ public class AssessmentClientSaveUtils {
 	 * @return boolean - save needed or not
 	 */
 	public static boolean shouldSaveCurrentAssessment(List<Display> fieldWidgets) {
-		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl.getCurrentAssessment())) {
+		if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, AssessmentCache.impl.getCurrentAssessment())) {
 			return false;
 		} else {
 			for( Display cur : fieldWidgets ) {

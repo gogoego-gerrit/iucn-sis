@@ -13,7 +13,6 @@ import org.iucn.sis.client.api.caches.SchemaCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -224,8 +223,7 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 			else {
 				model.set("name", getDefaultDisplayableString(current));
 				model.set("status", current.getType());
-				model.set("locked", !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
-						current));
+				model.set("locked", !AuthorizationCache.impl.hasRight(AuthorizableObject.READ, current));
 			}
 			
 			store.add(model);
@@ -257,8 +255,7 @@ public class AssessmentMonkeyNavigatorPanel extends GridNonPagingMonkeyNavigator
 		else
 			displayable = "";
 		
-		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, 
-				current)) {
+		if (AuthorizationCache.impl.hasRight(AuthorizableObject.READ, current)) {
 			if (displayable == null || displayable.equals(""))
 				if (current.getLastEdit() == null)
 					displayable = "New";

@@ -6,7 +6,6 @@ import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.models.users.UserModelData;
 import org.iucn.sis.client.api.ui.users.panels.AddUserWindow;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 import org.iucn.sis.shared.api.models.User;
 
@@ -198,8 +197,7 @@ public class UserViewToolBar extends ToolBar {
 	}
 	
 	private boolean canDelete() {
-		return AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.USE_FEATURE,
-				AuthorizableFeature.DELETE_USERS_FEATURE);		
+		return AuthorizationCache.impl.canUse(AuthorizableFeature.DELETE_USERS_FEATURE);		
 	}
 
 	private Button newButton(String text, String iconStyle, SelectionListener<ButtonEvent> listener) {

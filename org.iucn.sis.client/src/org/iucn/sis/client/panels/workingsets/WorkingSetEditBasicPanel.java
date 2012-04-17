@@ -3,7 +3,6 @@ package org.iucn.sis.client.panels.workingsets;
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
 import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.tabs.WorkingSetPage;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
@@ -38,7 +37,7 @@ public class WorkingSetEditBasicPanel extends WorkingSetNewWSPanel {
 		if (ws == null)
 			return false;
 		else 
-			return AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, ws);
+			return AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, ws);
 	}
 
 	@Override

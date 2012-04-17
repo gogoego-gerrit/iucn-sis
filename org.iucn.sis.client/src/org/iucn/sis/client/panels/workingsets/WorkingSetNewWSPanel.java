@@ -421,7 +421,7 @@ public class WorkingSetNewWSPanel extends RefreshLayoutContainer {
 
 		}
 
-		else if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, WorkingSetCache.impl.getCurrentWorkingSet())) {
+		else if (AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, WorkingSetCache.impl.getCurrentWorkingSet())) {
 			WorkingSetCache.impl.editWorkingSet(currentWorkingSet, new GenericCallback<String>() {
 				public void onFailure(Throwable caught) {
 					enableSaveButtons(true);

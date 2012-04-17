@@ -82,7 +82,7 @@ public class PermissionScopeTaxonomyBrowser extends BasicWindow {
 		if( taxon == null ) {
 			select.setEnabled(false);
 			select.setText("No Taxon Selected");
-		} else if( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.GRANT, taxon) ) {
+		} else if( !AuthorizationCache.impl.hasRight(AuthorizableObject.GRANT, taxon) ) {
 			select.setEnabled(false);
 			select.setText(taxon.getFullName());
 		} else {

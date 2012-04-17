@@ -569,7 +569,7 @@ public class ManageCreditsWindow extends BasicWindow implements DrawsLazily {
 	}
 	
 	private boolean canAddProfiles() {
-		return AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.ADD_PROFILE_FEATURE);
+		return AuthorizationCache.impl.hasRight(AuthorizableObject.USE_FEATURE, AuthorizableFeature.ADD_PROFILE_FEATURE);
 	}
 	
 	/*

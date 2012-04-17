@@ -308,7 +308,7 @@ public class BatchChangePanel extends LayoutContainer {
 					taxaIDs = "";
 					for (Taxon curTaxa : ws.getSpecies()) {
 						for (Integer region : filter.listRegionIDs()) {
-							if(!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, new AuthorizablePublishedAssessment(curTaxa, region+"")) ) {
+							if(!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, new AuthorizablePublishedAssessment(curTaxa, region+"")) ) {
 								WindowUtils.hideLoadingAlert();
 								WindowUtils.errorAlert("Unauthorized!", "You are unauthorized to modify " +
 										"published assessments for at least the taxon " + curTaxa.getFullName() +
@@ -328,7 +328,7 @@ public class BatchChangePanel extends LayoutContainer {
 					taxaIDs = "";
 					for (Taxon curTaxa : ws.getSpecies()) {
 						for (Integer region : filter.listRegionIDs())
-							if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, 
+							if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, 
 									new AuthorizableDraftAssessment(curTaxa, SchemaCache.impl.getDefaultSchema(), region+"")))
 							{	
 								WindowUtils.hideLoadingAlert();

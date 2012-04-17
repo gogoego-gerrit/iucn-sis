@@ -97,7 +97,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 		}
 
 		for (Assessment data : AssessmentCache.impl.getUnpublishedAssessmentsForTaxon(node.getId(), null)) {
-			if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, data)) {
+			if (AuthorizationCache.impl.hasRight(AuthorizableObject.READ, data)) {
 				BaseModelData model = new BaseModelData();
 				model.set("date", data.getDateAssessed() == null ? "(Not set)" : FormattedDate.impl.getDate(data.getDateAssessed()));
 				model.set("category", AssessmentFormatter.getProperCategoryAbbreviation(data));
@@ -239,8 +239,7 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 		
 		Assessment fetched = AssessmentCache.impl.getAssessment(id);
 		// CHANGE
-		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ,
-				fetched)) {
+		if (AuthorizationCache.impl.hasRight(AuthorizableObject.READ, fetched)) {
 			//AssessmentCache.impl.setCurrentAssessment(fetched);
 			StateManager.impl.setAssessment(fetched);
 			//ClientUIContainer.headerContainer.update();
@@ -258,12 +257,12 @@ public class TaxonAssessmentInformationTab extends LayoutContainer implements Dr
 				AssessmentType.PUBLISHED_ASSESSMENT_TYPE : AssessmentType.DRAFT_ASSESSMENT_TYPE;
 		
 		if (type == AssessmentType.PUBLISHED_ASSESSMENT_TYPE
-				&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
+				&& !AuthorizationCache.impl.hasRight(
 						AuthorizableObject.DELETE, AssessmentCache.impl.getPublishedAssessment(id))) {
 			WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission "
 					+ "to perform this operation.");
 		} else if (type == AssessmentType.DRAFT_ASSESSMENT_TYPE
-				&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser,
+				&& !AuthorizationCache.impl.hasRight(
 						AuthorizableObject.DELETE, AssessmentCache.impl.getDraftAssessment(id))) {
 			WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission "
 					+ "to perform this operation.");

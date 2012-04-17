@@ -281,6 +281,9 @@ public class WorkingSet implements Serializable, AuthorizableObject {
 		return xml.toString();
 	}
 
+	public boolean containsTaxon(Integer id) {
+		return getSpeciesIDs().contains(id);
+	}
 	
 	public String getSpeciesIDsAsString() {
 		StringBuffer id = new StringBuffer();

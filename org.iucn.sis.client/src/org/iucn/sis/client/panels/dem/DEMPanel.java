@@ -20,7 +20,6 @@ import org.iucn.sis.client.api.ui.views.SISView;
 import org.iucn.sis.client.api.ui.views.ViewDisplay;
 import org.iucn.sis.client.api.ui.views.ViewDisplay.PageChangeRequest;
 import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.tabs.FeaturedItemContainer;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -355,7 +354,7 @@ public class DEMPanel extends FeaturedItemContainer<Integer> {
 	private void changePage(final ViewDisplay.PageChangeRequest request) {
 		onBeforePageChange(request, new SimpleListener() {
 			public void handleEvent() {
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl
+				if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, AssessmentCache.impl
 						.getCurrentAssessment())) {
 					Info.display("Insufficient Permissions", "NOTICE: You do not have "
 							+ "permission to save modifications to this assessment.");

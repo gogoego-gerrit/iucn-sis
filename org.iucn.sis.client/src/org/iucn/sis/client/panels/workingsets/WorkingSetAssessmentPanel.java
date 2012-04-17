@@ -5,7 +5,6 @@ import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.TaxonomyCache;
 import org.iucn.sis.client.api.container.StateManager;
 import org.iucn.sis.client.api.utils.FormattedDate;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.assessments.AssessmentFetchRequest;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -90,7 +89,7 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 			public void componentSelected(ButtonEvent ce) {
 				final Assessment assessment = AssessmentCache.impl.getDraftAssessment(lastID);
 				if (assessment != null) {
-					if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, assessment ) ) {
+					if( AuthorizationCache.impl.hasRight(AuthorizableObject.READ, assessment) ) {
 						//AssessmentCache.impl.setCurrentAssessment(assessment);
 						TaxonomyCache.impl.fetchTaxon(assessment.getSpeciesID(), new GenericCallback<Taxon>() {
 							public void onFailure(Throwable caught) {
@@ -152,7 +151,7 @@ public class WorkingSetAssessmentPanel extends LayoutContainer {
 			assessors.setText("");
 			evaluators.setText("");
 			status.setText("");
-		} else if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.READ, assessment ) ) {
+		} else if( AuthorizationCache.impl.hasRight(AuthorizableObject.READ, assessment ) ) {
 			title.setText("Draft Assessment");
 			dateCreated.setText(displayText(FormattedDate.impl.getDate(assessment.getDateAssessed())));
 			assessors.setText(displayText(AssessmentFormatter.getDisplayableAssessors(assessment)));

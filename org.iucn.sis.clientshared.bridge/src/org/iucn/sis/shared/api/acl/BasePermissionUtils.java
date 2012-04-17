@@ -52,7 +52,7 @@ public class BasePermissionUtils {
 					return false;
 			} else if (group.getScope().startsWith("workingSets")) {
 				for (WorkingSet set : source.getAllWorkingSets()) {
-					if (set.getSpeciesIDs().contains(taxon.getId() + ""))
+					if (set.containsTaxon(taxon.getId()))
 						return true;
 				}
 				return false;
@@ -65,7 +65,7 @@ public class BasePermissionUtils {
 				for (String cur : split) {
 					WorkingSet set = source.getWorkingSet(Integer.valueOf(cur));
 					if (set != null) {
-						ret = set.getSpeciesIDs().contains(taxon.getId());
+						ret = set.containsTaxon(taxon.getId());
 
 						if (ret)
 							return true;
@@ -86,7 +86,7 @@ public class BasePermissionUtils {
 					Integer cur = Integer.valueOf(curStr);
 					WorkingSet set = source.getWorkingSet(cur);
 					if (set != null) {
-						if (set.getSpeciesIDs().contains(assessment.getSpeciesID())) {
+						if (set.containsTaxon(assessment.getSpeciesID())) {
 							Collection<Region> filterRegionList = set.getFilter().getRegions();
 							List<Integer> filterRegionIDs = new ArrayList<Integer>();
 							for (Region curReg : filterRegionList)
@@ -121,6 +121,8 @@ public class BasePermissionUtils {
 		} else
 			return false; // Invalid scope URI
 	}
+	
+	
 	
 	/**
 	 * 		

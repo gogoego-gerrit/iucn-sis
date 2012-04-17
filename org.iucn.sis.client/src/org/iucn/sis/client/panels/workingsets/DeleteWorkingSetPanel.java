@@ -134,7 +134,7 @@ public class DeleteWorkingSetPanel extends RefreshLayoutContainer {
 		};
 		
 		if( delete ) {
-			if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.DELETE, ws)) {
+			if( AuthorizationCache.impl.hasRight(AuthorizableObject.DELETE, ws)) {
 				ensurePermissionsCleared(ws.getId(), new GenericCallback<String>() {
 					public void onSuccess(String result) {
 						WorkingSetCache.impl.deleteWorkingSet(ws, wayback);

@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workingsets.WorkingSetTaxaList.TaxaData;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
@@ -169,12 +168,12 @@ public abstract class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 
 					final WorkingSet workingSetToMoveTaxaInto = WorkingSetCache.impl.getWorkingSets().get(Integer.valueOf(checkedList[0].getId()));
 					if (mode == MOVE
-							&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, workingSetToMoveTaxaInto)) {
+							&& !AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, workingSetToMoveTaxaInto)) {
 						WindowUtils.errorAlert("Insufficient Permissions",
 								"You cannot modify a public working set you did not create. "
 										+ "Check to ensure you created both source and destination working sets.");
 					} else if (mode == COPY
-							&& !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, workingSetToMoveTaxaInto)) {
+							&& !AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, workingSetToMoveTaxaInto)) {
 						WindowUtils.errorAlert("Insufficient Permissions",
 								"You cannot copy to a public working set you did not create.");
 					} else {
@@ -277,7 +276,7 @@ public abstract class WorkingSetMoveTaxaPanel extends RefreshLayoutContainer {
 					+ WorkingSetCache.impl.getCurrentWorkingSet().getWorkingSetName()
 					+ " working set in the selected family (genus) will be copied to the selected working sets. ";
 
-			if ( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.GRANT, WorkingSetCache.impl.getCurrentWorkingSet()) )
+			if ( !AuthorizationCache.impl.hasRight(AuthorizableObject.GRANT, WorkingSetCache.impl.getCurrentWorkingSet()) )
 				move.setEnabled(false);
 			else
 				move.setEnabled(true);

@@ -120,7 +120,7 @@ public class DEMToolbar extends ToolBar {
 				Assessment cur = AssessmentCache.impl.getCurrentAssessment();
 				Button source = ce.getButton();
 
-				if (cur != null && !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, cur)) {
+				if (cur != null && !AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, cur)) {
 					WindowUtils.errorAlert("You do not have rights to edit this assessment.");
 				} else {
 					EditStatus eventData;
@@ -231,7 +231,7 @@ public class DEMToolbar extends ToolBar {
 		newAttachment.setIconStyle("icon-attachment");
 		newAttachment.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
+				if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
 					WindowUtils.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
 					return;
 				}
@@ -248,7 +248,7 @@ public class DEMToolbar extends ToolBar {
 		manageAttachments.setIconStyle("icon-attachment");
 		manageAttachments.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
+				if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
 					WindowUtils.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
 					return;
 				}
@@ -305,7 +305,7 @@ public class DEMToolbar extends ToolBar {
 					return;
 				}
 
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
+				if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
 					WindowUtils
 					.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
 					return;
@@ -334,7 +334,7 @@ public class DEMToolbar extends ToolBar {
 					return;
 				}
 
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
+				if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
 					WindowUtils
 					.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
 					return;
@@ -357,7 +357,7 @@ public class DEMToolbar extends ToolBar {
 					return;
 				}
 
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+				if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, node)) {
 					WindowUtils
 					.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
 					return;
@@ -398,7 +398,7 @@ public class DEMToolbar extends ToolBar {
 		mItem.setIconStyle("icon-image");
 		mItem.addSelectionListener(new SelectionListener<MenuEvent>() {
 			public void componentSelected(MenuEvent ce) {
-				if (!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
+				if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, TaxonomyCache.impl.getCurrentTaxon())) {
 					WindowUtils
 					.errorAlert("Sorry. You do not have sufficient permissions " + "to perform this action.");
 					return;
@@ -699,7 +699,7 @@ public class DEMToolbar extends ToolBar {
 	}
 	
 	public void startAutosaveTimer() {
-		if (autoSaveInterval != null && AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, AssessmentCache.impl.getCurrentAssessment())) {
+		if (autoSaveInterval != null && AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, AssessmentCache.impl.getCurrentAssessment())) {
 			Debug.println("Starting autosave.");
 			autoSave.schedule(autoSaveInterval.intValue() * 60 * 1000);
 		}

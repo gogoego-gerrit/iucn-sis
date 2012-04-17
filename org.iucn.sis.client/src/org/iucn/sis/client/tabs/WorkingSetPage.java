@@ -14,7 +14,6 @@ import org.iucn.sis.client.api.ui.models.workingset.WSStore;
 import org.iucn.sis.client.api.utils.FormattedDate;
 import org.iucn.sis.client.api.utils.SIS;
 import org.iucn.sis.client.api.utils.UriBase;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
@@ -150,7 +149,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 			}));
 			buttonArea.add(createButton("Permission Manager", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.GRANT, 
+					if (AuthorizationCache.impl.hasRight(AuthorizableObject.GRANT, 
 							WorkingSetCache.impl.getCurrentWorkingSet())) {
 						final WorkingSetPermissionPanel panel = new WorkingSetPermissionPanel();
 						panel.draw(new DrawsLazily.DoneDrawingCallback() {
@@ -304,7 +303,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 	}
 	
 	private boolean canDelete(WorkingSet workingSet) {
-		return AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.DELETE, workingSet);
+		return AuthorizationCache.impl.hasRight(AuthorizableObject.DELETE, workingSet);
 	}
 	
 	private Button createButton(String text, SelectionListener<ButtonEvent> listener) {
@@ -366,7 +365,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 					SchemaCache.impl.getDefaultSchema(), 
 					ws.getFilter().getRegionIDsCSV());
 			
-			if(!AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, d))
+			if(!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, d))
 				permissionProblem = d.getTaxon().getFullName();
 		}
 

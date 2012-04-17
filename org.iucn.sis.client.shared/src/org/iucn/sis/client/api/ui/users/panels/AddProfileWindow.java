@@ -9,10 +9,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
-import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.ui.users.panels.UserSearchController.SearchResults;
 import org.iucn.sis.client.api.utils.BasicWindow;
-import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -224,7 +222,7 @@ public class AddProfileWindow extends BasicWindow {
 	
 	@Override
 	public void show() {
-		if (AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.USE_FEATURE, AuthorizableFeature.ADD_PROFILE_FEATURE))
+		if (AuthorizationCache.impl.canUse(AuthorizableFeature.ADD_PROFILE_FEATURE))
 			open();
 		else
 			WindowUtils.errorAlert("You do not have permission to use this feature.");

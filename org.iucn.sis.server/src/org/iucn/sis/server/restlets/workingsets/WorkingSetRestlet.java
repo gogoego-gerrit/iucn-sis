@@ -81,6 +81,8 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 				entity = getSubscribableWorkingSets(request, response, username, workingSetIO);
 			else if (action.equalsIgnoreCase("grants"))
 				entity = getGrantableWorkingSets(request, response, username, workingSetIO);
+			else if (action.equalsIgnoreCase("taxaIDs"))
+				entity = getTaxaListForWorkingSets(username, workingSetIO);
 			else {
 				String mode = request.getResourceRef().getQueryAsForm().getFirstValue("mode", "FULL");
 				entity = getWorkingSets(username, workingSetIO, mode);
@@ -308,7 +310,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		}
 		
 		if ("PARTIAL".equalsIgnoreCase(mode)) {
-			//ws.setTaxon(new HashSet<Taxon>());
+			ws.setTaxon(new HashSet<Taxon>());
 			ws.setUsers(new HashSet<User>());
 		}
 		
@@ -379,6 +381,28 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, "Working set " + id + " not found for user " + username);
 		
 		return new StringRepresentation(ws.getSpeciesIDsAsString(), MediaType.TEXT_PLAIN);
+	}
+	
+	private Representation getTaxaListForWorkingSets(String username, WorkingSetIO workingSetIO) throws ResourceException {
+		final WorkingSet[] sets;
+		try {
+			sets = workingSetIO.getSubscribedWorkingSets(username);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		final StringBuilder builder = new StringBuilder();
+		builder.append("<root>");
+		for (WorkingSet ws : sets) {
+			builder.append("<set id=\"");
+			builder.append(ws.getId());
+			builder.append("\"><![CDATA[");
+			builder.append(ws.getSpeciesIDsAsString());
+			builder.append("]]></set>");
+		}
+		builder.append("</root>");
+		
+		return new StringRepresentation(builder.toString(), MediaType.TEXT_XML);
 	}
 
 	private void writeReport(String report, String username) {

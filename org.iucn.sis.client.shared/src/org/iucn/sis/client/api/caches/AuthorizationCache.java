@@ -260,7 +260,7 @@ public class AuthorizationCache {
 		return hasRight(SISClientBase.currentUser, operation, auth);
 	}
 
-	public boolean hasRight(ClientUser user, String operation, AuthorizableObject auth) {
+	private boolean hasRight(ClientUser user, String operation, AuthorizableObject auth) {
 		boolean ret = false;
 
 		//If it's a working set, test ownership first to escape early

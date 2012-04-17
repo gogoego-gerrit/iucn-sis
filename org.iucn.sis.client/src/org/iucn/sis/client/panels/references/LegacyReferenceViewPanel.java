@@ -280,7 +280,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 							+ "the same reference attached to multiple fields. To ensure "
 							+ "the reference is removed from the correct place, please "
 							+ "filter your references by field, then try removing again.");
-				} else if( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, 
+				} else if( !AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, 
 						AssessmentCache.impl.getCurrentAssessment()) ) {
 					WindowUtils.errorAlert("Cannot remove", "You do not have permission to edit this " +
 							"assessment, so you may not remove references.");
@@ -453,7 +453,7 @@ public class LegacyReferenceViewPanel extends TabPanel {
 		add.addListener(Events.Select, new SelectionListener<ComponentEvent>() {
 			@Override
 			public void componentSelected(ComponentEvent ce) {
-				if( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, 
+				if( !AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, 
 						AssessmentCache.impl.getCurrentAssessment()) ) {
 					WindowUtils.errorAlert("Cannot add", "You do not have permission to edit this " +
 							"assessment, so you may not add references.");

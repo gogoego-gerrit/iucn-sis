@@ -540,7 +540,7 @@ public class TaxonHomePageTab extends FeaturedItemContainer<Integer> {
 						Taxon curNode = TaxonomyCache.impl.getCurrentTaxon();
 	
 						if (curNode != null) {
-							if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.CREATE, curNode)) {
+							if (AuthorizationCache.impl.hasRight(AuthorizableObject.CREATE, curNode)) {
 								CreateNewTaxonPanel panel = new CreateNewTaxonPanel(TaxonomyCache.impl.getCurrentTaxon());
 								panel.setHeading("Add New Child Taxon");
 								panel.show();

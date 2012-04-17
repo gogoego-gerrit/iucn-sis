@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workingsets.WorkingSetTaxaList.TaxaData;
@@ -274,7 +273,7 @@ public class WorkingSetOptionsPanel extends RefreshLayoutContainer {
 			WindowUtils.infoAlert("You must first select a working set to edit...");
 			disableButtons();
 			return false;
-		} else if( AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, ws)) {
+		} else if( AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, ws)) {
 			enableButtons();
 			return true;
 		} else {

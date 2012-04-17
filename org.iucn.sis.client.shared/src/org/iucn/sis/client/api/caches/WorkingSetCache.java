@@ -49,6 +49,7 @@ public class WorkingSetCache {
 	
 	private Map<Integer, CacheEntry<WorkingSet>> workingSets;
 	private Map<Integer, Map<Integer, List<Integer>>> assessmentRelations;
+	private Map<Integer, String> taxonRelations;
 
 	@SuppressWarnings("unchecked")
 	private Map<String, List<GenericCallback>> requestCache;
@@ -57,6 +58,7 @@ public class WorkingSetCache {
 	private WorkingSetCache() {
 		workingSets = new HashMap<Integer, CacheEntry<WorkingSet>>();
 		assessmentRelations = new HashMap<Integer, Map<Integer,List<Integer>>>();
+		taxonRelations = new HashMap<Integer, String>();
 		requestCache = new HashMap<String, List<GenericCallback>>();
 	}
 	
@@ -539,7 +541,7 @@ public class WorkingSetCache {
 					WorkingSet ws = WorkingSet.fromXMLMinimal(element);
 
 					//TODO: server should not even return working sets that you can't read...
-					if (AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.READ, ws)) {
+					if (AuthorizationCache.impl.hasRight(AuthorizableObject.READ, ws)) {
 						subscribableWorkingSets.add(ws);
 					}
 				}
@@ -744,16 +746,61 @@ public class WorkingSetCache {
 					NativeNodeList nodes = ndoc.getDocumentElement().getElementsByTagName("workingSet");
 					for (int i = 0; i < nodes.getLength(); i++) {
 						NativeElement element = nodes.elementAt(i);
-						/*WorkingSet ws = WorkingSet.fromXMLMinimal(element);*/
+						//WorkingSet ws = WorkingSet.fromXMLMinimal(element);
 						WorkingSet ws = WorkingSet.fromXML(new WorkingSet(), element, true);
 						if (ws != null)
 							cache(ws, FetchMode.PARTIAL);
 					}
 					
-					backInTheDay.onSuccess(arg0);
+					loadTaxaIDs(new SimpleListener() {
+						public void handleEvent() {
+							backInTheDay.onSuccess(null);	
+						}
+					});
 				} catch (Exception e) {
 					Debug.println("Working Set Parse Failure\n{0}", e);
 				}
+			}
+		});
+	}
+	
+	public String getTaxaForWorkingSetCSV(Integer id) {
+		String taxa = taxonRelations.get(id);
+		return taxa == null ? "" : taxa;
+	}
+	
+	public Set<Integer> getTaxaForWorkingSet(Integer id) {
+		String taxa = taxonRelations.get(id);
+		Set<Integer> set = new HashSet<Integer>();
+		for (String str : taxa.split(","))
+			set.add(Integer.valueOf(str));
+			
+		return set;
+	}
+	
+	private void loadTaxaIDs(final SimpleListener callback) {
+		final String url = UriBase.getInstance().getSISBase() + 
+			"/workingSet/taxaIDs/" + SISClientBase.currentUser.getUsername();
+		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
+		document.get(url, new GenericCallback<String>() {
+			public void onSuccess(String result) {
+				taxonRelations.clear();
+				
+				final NativeNodeList nodes = document.getDocumentElement().getElementsByTagName("set");
+				for (int i = 0; i < nodes.getLength(); i++) {
+					NativeElement node = nodes.elementAt(i);
+					Integer id = Integer.valueOf(node.getAttribute("id"));
+					String value = node.getTextContent();
+					if (value == null)
+						value = "";
+					
+					taxonRelations.put(id, value);
+				}
+				
+				callback.handleEvent();
+			}
+			public void onFailure(Throwable caught) {
+				callback.handleEvent();
 			}
 		});
 	}

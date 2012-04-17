@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.caches.WorkingSetCache;
+import org.iucn.sis.client.api.container.SISClientBase;
 import org.iucn.sis.client.api.models.ClientUser;
 import org.iucn.sis.client.api.ui.users.panels.BrowseUsersWindow;
 import org.iucn.sis.client.container.SimpleSISClient;
@@ -106,24 +107,24 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 	
 	public void drawSimple() {
 		final WorkingSet curWS = WorkingSetCache.impl.getCurrentWorkingSet();
-		final ClientUser curUser = SimpleSISClient.currentUser;
-		setAllowWrite(AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS));
+		setAllowWrite(AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, curWS));
 		
 		associatedPermissions.addFilter(new StoreFilter<PermissionUserModel>() {
 			public boolean select(Store<PermissionUserModel> store, PermissionUserModel parent,
 					PermissionUserModel item, String property) {
 				if( property.equals("permission") && item.getPermission() != null && item.getPermission().toCSV().indexOf("write") > -1 )
-					return AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS);
+					return AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, curWS);
 				else
 					return true;
 			}
 		});
 		
-		if (!AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS))
+		if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, curWS))
 			associatedPermissions.filter("permission");
 		
+		final ClientUser curUser = SISClientBase.currentUser;
 		final boolean showAssessorColumn;
-		if (AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.GRANT, curWS) 
+		if (AuthorizationCache.impl.hasRight(AuthorizableObject.GRANT, curWS) 
 				&& (curUser.getProperty("quickGroup").contains("ws" + curWS.getId() + "assessor")
 						|| curUser.getProperty("quickGroup").contains("rlu")
 						|| curUser.getProperty("quickGroup").contains("sysAdmin"))) {
@@ -219,7 +220,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		final WorkingSet curWS = WorkingSetCache.impl.getCurrentWorkingSet();
 		final ClientUser curUser = SimpleSISClient.currentUser;
 		
-		setAllowWrite(AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, WorkingSetCache.impl.getCurrentWorkingSet()));
+		setAllowWrite(AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, WorkingSetCache.impl.getCurrentWorkingSet()));
 		
 		ArrayList<ColumnConfig> columns = new ArrayList<ColumnConfig>();
 		ColumnConfig nameColumn = new ColumnConfig("name", "Name", widthOfNameColumn);
@@ -249,7 +250,7 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 		columns.add(permissionColumn);
 
 		CheckColumnConfig assessorColumn = new CheckColumnConfig("assessor", "Assessor Rights", 100);
-		if( AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.GRANT, curWS)
+		if( AuthorizationCache.impl.hasRight(AuthorizableObject.GRANT, curWS)
 				 && (curUser.getProperty("quickGroup").contains("ws" + curWS.getId() + "assessor")
 				   || curUser.getProperty("quickGroup").contains("rlu")
 				   || curUser.getProperty("quickGroup").contains("sysAdmin") ) ) {
@@ -267,13 +268,13 @@ public abstract class WorkingSetPermissionGiverPanel extends ContentPanel {
 			public boolean select(Store<PermissionUserModel> store, PermissionUserModel parent,
 					PermissionUserModel item, String property) {
 				if( property.equals("permission") && item.getPermission() != null && item.getPermission().toCSV().indexOf("write") > -1 )
-					return AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS);
+					return AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, curWS);
 				else
 					return true;
 			}
 		});
 		
-		if( !AuthorizationCache.impl.hasRight(curUser, AuthorizableObject.WRITE, curWS) )
+		if( !AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, curWS) )
 			associatedPermissions.filter("permission");
 		
 		GridSelectionModel<PermissionUserModel> model = new GridSelectionModel<PermissionUserModel>();

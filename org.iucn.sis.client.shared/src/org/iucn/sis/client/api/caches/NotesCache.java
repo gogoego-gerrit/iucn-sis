@@ -44,7 +44,7 @@ public class NotesCache {
 	 * @param callback
 	 */
 	public void addNote(final Field field, Notes note, final Assessment assessment, final GenericCallback<String> callback) {
-		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, assessment)) {
+		if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, assessment)) {
 			WindowUtils.errorAlert("You do not have sufficient permissions to perform " + "this operation.");
 			return;
 		}
@@ -97,7 +97,7 @@ public class NotesCache {
 	}
 
 	public void deleteNote(final Field field, final Notes currentNote, final Assessment assessment, final GenericCallback<String> callback) {
-		if (!AuthorizationCache.impl.hasRight(SISClientBase.currentUser, AuthorizableObject.WRITE, assessment)) {
+		if (!AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, assessment)) {
 			WindowUtils.errorAlert("You do not have sufficient permissions to perform " + "this operation.");
 			return;
 		}

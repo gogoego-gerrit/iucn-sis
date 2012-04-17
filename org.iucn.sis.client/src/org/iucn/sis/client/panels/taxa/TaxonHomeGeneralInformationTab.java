@@ -262,7 +262,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 		data.setScrollMode(Scroll.AUTO);
 		
 		ComplexListener<IconButton> synonymListener = null;
-		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+		if (AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, node)) {
 			synonymListener = new ComplexListener<IconButton>() {
 				public void handleEvent(IconButton eventData) {
 					final NewTaxonSynonymEditor editor = new NewTaxonSynonymEditor();
@@ -279,7 +279,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 			addSynonyms(node, data);
 		
 		ComplexListener<IconButton> commonNameListener = null;
-		if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+		if (AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, node)) {
 			commonNameListener = new ComplexListener<IconButton>() {
 				public void handleEvent(IconButton icon) {
 					final NewCommonNameEditor editor = new NewCommonNameEditor();
@@ -484,7 +484,7 @@ public class TaxonHomeGeneralInformationTab extends LayoutContainer implements D
 					final Window container = WindowUtils.newWindow("Edit Common Names", null, false, false);
 					container.setScrollMode(Scroll.AUTO);
 	
-					if (AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, node)) {
+					if (AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, node)) {
 						Button item = new Button();
 						item.setText("New Common Name");
 						item.setIconStyle("icon-add");

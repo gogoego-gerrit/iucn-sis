@@ -164,7 +164,7 @@ public class ReferenceSearchViewTab extends PagingPanel<ReferenceModel> {
 		add.addListener(Events.Select, new SelectionListener<ComponentEvent>() {
 			@Override
 			public void componentSelected(ComponentEvent ce) {
-				if( !AuthorizationCache.impl.hasRight(SimpleSISClient.currentUser, AuthorizableObject.WRITE, 
+				if( !AuthorizationCache.impl.hasRight(AuthorizableObject.WRITE, 
 						AssessmentCache.impl.getCurrentAssessment()) ) {
 					WindowUtils.errorAlert("Cannot add", "You do not have permission to edit this " +
 							"assessment, so you may not add references.");
