@@ -55,8 +55,6 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 	private void build() {
 
 		RowLayout layout = new RowLayout();
-		// layout.setSpacing(10);
-		// layout.setMargin(6);
 
 		instructions = new HTML();
 		
@@ -74,6 +72,7 @@ public class WorkingSetAddAssessmentsPanel extends RefreshLayoutContainer {
 							createNewAssessmentsIfNotExist();
 						}
 					});
+					workingSetTaxaPanel.updateStore();
 					workingSetTaxaPanel.show();
 				}else{
 					createNewAssessmentsIfNotExist();
