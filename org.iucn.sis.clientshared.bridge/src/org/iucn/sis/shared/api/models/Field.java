@@ -158,7 +158,8 @@ public class Field implements Serializable {
 			field.setReference(new HashSet<Reference>());
 			for (Reference reference : getReference()) {
 				Reference copy = refHandler.copyReference(reference);
-				field.getReference().add(copy);
+				if (copy != null)
+					field.getReference().add(copy);
 			}
 		}
 		
