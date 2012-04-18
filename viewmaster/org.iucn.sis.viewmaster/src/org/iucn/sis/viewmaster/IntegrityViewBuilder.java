@@ -64,8 +64,8 @@ public class IntegrityViewBuilder {
 						first = false;
 						
 						if ("field".equals(currentColumns.get(s))) {
-							columnspecs.append("s1."+s);
-							subcolumnspecs.append("sf" + count + ".id as " + s);
+							columnspecs.append("s1.\""+s+"\"");
+							subcolumnspecs.append("sf" + count + ".id as \"" + s + "\"");
 							joinspecs.append("    LEFT JOIN public.field sf" + count + " ON " + 
 									joinPrimWith + ".id = sf"+count+".parentid AND sf" + 
 									count + ".name = '" + s + "'\n");
@@ -74,8 +74,8 @@ public class IntegrityViewBuilder {
 							wherespecs.append("sf"+count+".name = '" + s + "'");*/
 						}
 						else {
-							columnspecs.append("s1."+s);
-							subcolumnspecs.append("ff"+count+".value as "+s);
+							columnspecs.append("s1.\""+s+"\"");
+							subcolumnspecs.append("ff"+count+".value as \""+s + "\"");
 							joinspecs.append("    LEFT JOIN public.primitive_field pf"+count+
 									" ON pf"+count+".fieldid = "+joinPrimWith+".id AND pf" + 
 									count + ".name = '" + s + "'\n");
