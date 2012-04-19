@@ -290,7 +290,10 @@ public class FuzzyExpImpl {
 		if (factorField != null) {
 			for (PrimitiveField<?> curPrim : factorField.getPrimitiveField()) {
 				if (curPrim instanceof RangePrimitiveField) {
-					result = new Range(((PrimitiveField<String>)curPrim).getValue());
+					String value = ((RangePrimitiveField)curPrim).getValue();
+					//Disregard "unknown" as of ticket #57, BL#301
+					if (!BooleanRangePrimitiveField.UNKNOWN.equals(value))
+						result = new Range(value);
 					break;
 				}
 				else if (curPrim instanceof BooleanRangePrimitiveField) {
