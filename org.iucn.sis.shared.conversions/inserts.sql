@@ -792,6 +792,11 @@ INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, descr
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('YEM-NY', 'YE', 3, true, 'YEM-NY', 'North Yemen');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SOC-OO', 'YE', 3, true, 'SOC-OO', 'Socotra');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('YEM-SY', 'YE', 3, true, 'YEM-SY', 'South Yemen');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('OLD-SIS1', '(root)', 1, false, '100.0', 'Legacy Codes');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('OLD-01', 'OLD-SIS1', 2, true, '100.1', 'OLD - Serbia and Montenegro');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('OLD-02', 'OLD-SIS1', 2, true, '100.2', 'OLD - Northern Provinces');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('OLD-03', 'OLD-SIS1', 2, true, '100.3', 'OLD - Reunion (main island group)');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('OLD-04', 'OLD-SIS1', 2, true, '100.4', 'OLD - United Kingdom, Chanel Is.');
 INSERT INTO CountryOccurrence_presenceLookup (name, label) VALUES ('0', 'Extant');
 INSERT INTO CountryOccurrence_presenceLookup (name, label) VALUES ('1', 'Possibly Extinct');
 INSERT INTO CountryOccurrence_presenceLookup (name, label) VALUES ('2', 'Extinct');
