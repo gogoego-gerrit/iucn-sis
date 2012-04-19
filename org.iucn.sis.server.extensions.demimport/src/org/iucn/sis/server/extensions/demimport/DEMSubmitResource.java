@@ -84,6 +84,7 @@ public class DEMSubmitResource extends TransactionResource {
 			sb.append("<span>Attach DEM database: </span>");
 			sb.append("<input type=\"file\" name=\"dem\" size=\"60\"/>");
 			sb.append("<p><span>Allow Upper-Level Taxa Creation (Legacy Behavior)?</span><input type=\"checkbox\" name=\"allowCreate\" /></p>");
+			sb.append("<p><span>Allow Assessment Import?</span><input type=\"checkbox\" name=\"allowAssessment\" checked/></p>");
 			sb.append("<p><input type=\"submit\" value=\"Submit\"/></p>");
 			sb.append("</form>");
 			sb.append(generatePriorImportsStatus());
@@ -134,7 +135,9 @@ public class DEMSubmitResource extends TransactionResource {
 			final DEMImport demImport;
 			try {
 				demImport = new DEMImport(getRequest().getChallengeResponse().getIdentifier(), 
-						demName, demName.contains("import-all"), SISPersistentManager.instance().openSession());
+						demName, SISPersistentManager.instance().openSession());
+				demImport.setAllowCreateUpperLevelTaxa(demName.contains("taxon-all"));
+				demImport.setAllowAssessments(demName.contains("asm-on"));
 			} catch (Exception e) {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 			}
@@ -164,9 +167,14 @@ public class DEMSubmitResource extends TransactionResource {
 			
 			FileItem demFile = null;
 			boolean allowCreate = false;
+			boolean allowAssessments = false;
 			for (FileItem item : upload.parseRequest(getRequest())) {
-				if (item.isFormField())
-					allowCreate = "on".equals(item.getString()) || "true".equals(item.getString());
+				if (item.isFormField()) {
+					if ("allowCreate".equals(item.getFieldName()))
+						allowCreate = "on".equals(item.getString()) || "true".equals(item.getString());
+					else if ("allowAssessment".equals(item.getFieldName()))
+						allowAssessments = "on".equals(item.getString()) || "true".equals(item.getString());
+				}
 				else
 					demFile = item;
 			}
@@ -174,8 +182,9 @@ public class DEMSubmitResource extends TransactionResource {
 			if (demFile == null)
 				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "No file found to upload.");
 			
-			String mode = allowCreate ? "import-all" : "import-family";
-			String demName = "dem-" + mode + "-" + RandString.getString(8);
+			String taxonMode = allowCreate ? "taxon-all" : "taxon-family";
+			String asmMode = allowAssessments ? "asm-on" : "asm-off";
+			String demName = "dem_" + taxonMode + "_" + asmMode + "_" + RandString.getString(8);
 			
 			File temp = File.createTempFile(demName, ".mdb");
 			try {
@@ -208,6 +217,5 @@ public class DEMSubmitResource extends TransactionResource {
 
 		return ret;
 	}
-	
 	
 }

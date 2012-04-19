@@ -121,7 +121,6 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	private final String user;
 	private final String demSessionName;
 	private final Session session;
-	private final boolean allowCreate;
 	
 	private final User userO;
 	private final IsoLanguageIO isoLanguageIO;
@@ -130,6 +129,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	private final AssessmentIO assessmentIO;
 	private final WorkingSetIO workingSetIO;
 	private final FieldSchemaGenerator generator;
+	private final StringBuilder log;
 	
 	private final Map<String, Row.Set> lookups;
 	
@@ -147,14 +147,14 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	
 	private TaxonomyTree tree;
 
-	private StringBuilder log = new StringBuilder();	
+	private boolean allowCreateUpperLevelTaxa;
+	private boolean allowAssessments;
 
-	public DEMImport(String user, String demSessionName, boolean allowCreate, Session session) throws NamingException {
+	public DEMImport(String user, String demSessionName, Session session) throws NamingException {
 		this.user = user;
 		this.userO = new UserIO(session).getUserFromUsername(user);
 		this.demSessionName = demSessionName;
 		this.session = session;
-		this.allowCreate = allowCreate;
 		
 		this.isoLanguageIO = new IsoLanguageIO(session);
 		this.taxonIO = new TaxonIO(session);
@@ -170,9 +170,220 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		spcNameToIDMap = new LinkedHashMap<String, Long>();
 		assessedNodesBySpc_id = new LinkedHashMap<Long, Taxon>();
 		nodes = new HashSet<Taxon>();
+		log = new StringBuilder();
 		
 		successfulAssessments = new ArrayList<Assessment>();
 		failedAssessments = new ArrayList<Assessment>();
+		
+		allowCreateUpperLevelTaxa = true;
+		allowAssessments = true;
+	}
+	
+	public void setAllowAssessments(boolean allowAssessments) {
+		this.allowAssessments = allowAssessments;
+	}
+	
+	public void setAllowCreateUpperLevelTaxa(boolean allowCreateUpperLevelTaxa) {
+		this.allowCreateUpperLevelTaxa = allowCreateUpperLevelTaxa;
+	}
+	
+	public void run() {
+		running.set(true);
+		failed.set(false);
+		statusMessage = new StringBuilder();
+		
+		Date start = Calendar.getInstance().getTime();
+		printf("! -- Starting %s conversion at %s", getClass().getSimpleName(), start.toString());
+		
+		try {
+
+			//registerDatasource("dem", "jdbc:access:///" + source.getAbsolutePath(), "com.hxtt.sql.access.AccessDriver", "", "");
+
+			/*try {
+				Document structDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
+						DEMImport.class.getResourceAsStream("refstruct.xml"));
+				new SystemExecutionContext("dem").setStructure(structDoc);
+			} catch (Exception ugly) {
+				ugly.printStackTrace();
+				statusMessage.append("Internal system failure: could not read DEM.<br>");
+				statusMessage.append("Please report the following message:<br>");
+				statusMessage.append(DocumentUtils.getStackTraceAsString(ugly).replaceAll("\n", "<br>"));
+				failed.set(true);
+			}*/
+			
+			/*registerDatasource("demConversion", "jdbc:access:////usr/data/demMigration.mdb",
+					"com.hxtt.sql.access.AccessDriver", "", "");
+			registerDatasource("demSource", "jdbc:access:////usr/data/demSource.mdb",
+					"com.hxtt.sql.access.AccessDriver", "", "");*/
+
+			ec = new SystemExecutionContext(demSessionName);
+			ec.setExecutionLevel(ExecutionContext.ADMIN);
+			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
+			
+			demConversion = new SystemExecutionContext("demConversion");
+			demConversion.setExecutionLevel(ExecutionContext.ADMIN);
+			demConversion.setAPILevel(ExecutionContext.SQL_ALLOWED);
+			
+			demSource = new SystemExecutionContext("demSource");
+			demSource.setExecutionLevel(ExecutionContext.ADMIN);
+			demSource.setAPILevel(ExecutionContext.SQL_ALLOWED);
+
+			log.append("<table border=\"1\"><tr>" + "<th>Level</th>" + "<th>Friendly Name</th>" + "<th>Kingdom</th>"
+					+ "<th>Phylum</th>" + "<th>Class</th>" + "<th>Order</th>" + "<th>Family</th>" + "<th>Genus</th>"
+					+ "<th>Species</th>" + "<th>Infrarank</th></tr>");
+
+			if (!failed.get()) {
+				try {
+					buildTree();
+				} catch (Exception e) {
+					statusMessage.append("Failed to convert taxa to the SIS data format.<br>");
+					statusMessage.append("Please report the following message:<br>");
+					statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
+					failed.set(true);
+					if( e instanceof DBException ) {
+						Throwable f = e.getCause();
+						
+						while( f != null ) {
+							if( f instanceof SQLException && ((SQLException)f).getNextException() != null )
+								print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
+							
+							f = f.getCause();
+						}
+					}
+					failed.set(true);
+				}
+			} else
+				statusMessage.append("(Did not convert taxa to the SIS data format due to a prior failure.)<br>");
+
+			if (!failed.get()) {
+				try {
+					addTaxaDetails();
+				} catch (Exception e) {
+					statusMessage.append("Failed adding taxa details.<br>");
+					statusMessage.append("Please report the following message:<br>");
+					statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
+					failed.set(true);
+					if( e instanceof DBException ) {
+						Throwable f = e.getCause();
+						
+						while( f != null ) {
+							if( f instanceof SQLException )
+								print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
+							
+							f = f.getCause();
+						}
+					}
+					failed.set(true);
+				}
+			}
+
+			if (!failed.get()) {
+				try {
+					exportNodes();
+				} catch (Exception e) {
+					statusMessage.append("Failed saving new taxa in SIS.<br>");
+					statusMessage.append("Please report the following message:<br>");
+					statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
+					failed.set(true);
+					if( e instanceof DBException ) {
+						Throwable f = e.getCause();
+						
+						while( f != null ) {
+							if( f instanceof SQLException )
+								print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
+							
+							f = f.getCause();
+						}
+					}
+					failed.set(true);
+				}
+			} else
+				statusMessage.append("(Did not save new taxa in SIS due to a prior failure.)<br>");
+
+			
+			if (!allowAssessments)
+				print("Assessment import has been disabled.  No assessments will be imported.");
+			else {
+				if (!failed.get()) {
+					try {
+						buildAssessments();
+					} catch (Exception e) {
+						statusMessage.append("Failed converting assessments to SIS format.<br>");
+						statusMessage.append("Please report the following message:<br>");
+						statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
+						failed.set(true);
+						if( e instanceof DBException ) {
+							Throwable f = e.getCause();
+							
+							while( f != null ) {
+								if( f instanceof SQLException )
+									print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
+								
+								f = f.getCause();
+							}
+						}
+						failed.set(true);
+					}
+				} else
+					statusMessage
+							.append("(Did not attempt conversion of assessments to SIS format due to a prior failure.)<br>");
+	
+				
+				if (!failed.get()) {
+					try {
+						exportAssessments();
+						statusMessage.append("Import successful.");
+					} catch (Exception e) {
+						statusMessage.append("Failed saving assessments in SIS.<br>");
+						statusMessage.append("Please report the following message:<br>");
+						statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
+						failed.set(true);
+						if( e instanceof DBException ) {
+							Throwable f = e.getCause();
+							
+							while( f != null ) {
+								if( f instanceof SQLException )
+									print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
+								
+								f = f.getCause();
+							}
+						}
+						failed.set(true);
+					}
+				} else
+					statusMessage.append("(Did not save assessments in SIS due to a prior failure.)<br>");
+			}
+		} catch (Throwable ex) {
+			ex.printStackTrace();
+			statusMessage.append("Internal system failure setting up DEMImport.<br>");
+			statusMessage.append("Please report the following message:<br>");
+			statusMessage.append(DocumentUtils.getStackTraceAsString(ex).replaceAll("\n", "<br>"));
+			failed.set(true);
+		}
+		
+		log.append("</table>");
+		
+		running.set(false);
+		
+		DBSessionFactory.unregisterDataSource(demSessionName);
+		
+		DEMImportInformation info = new DEMImportInformation(
+			new Date(), !failed.get(), statusMessage.toString(), "", user, log.toString()
+		);
+		
+		Date end = Calendar.getInstance().getTime();
+		
+		long millis = end.getTime() - start.getTime();
+		long secs = millis / 1000;
+		long mins = secs / 60;
+		
+		printf("! -- Finished %s import in %s mins, %s seconds at %s", getClass().getSimpleName(), mins, secs, end.toString());
+		print("Results:");
+		print(info.toString());
+		
+		close();
+		
+		DEMImportInformation.addToQueue(info, SIS.get().getVFS());
 	}
 
 	private void addTaxaDetails() throws DBException {
@@ -1374,7 +1585,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		for (Kingdom curKingdom : tree.getKingdoms().values()) {
 			Taxon kingdom = curKingdom.getTheKingdom();
 			if (kingdom.getState() == STATE_TO_IMPORT) {
-				if (!allowCreate)
+				if (!allowCreateUpperLevelTaxa)
 					throw new Exception("Creating taxa only allowed at the Genus level and below.");
 				
 				kingdom.setState(Taxon.ACTIVE);
@@ -1387,7 +1598,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 				for (Taxon cur : curLevel.values()) {
 					if (cur.getState() == STATE_TO_IMPORT) // SUBMIT IT
 					{	
-						if (!allowCreate && cur.getLevel() < TaxonLevel.GENUS)
+						if (!allowCreateUpperLevelTaxa && cur.getLevel() < TaxonLevel.GENUS)
 							throw new Exception("Creating taxa only allowed at the Genus level and below.");
 						
 						cur.setState(Taxon.ACTIVE);
@@ -1926,7 +2137,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	
 	private String getString(Row row, String key, String defaultValue) {
 		Column column = row.get(key);
-		if (column == null)
+		if (column == null || column.isEmpty())
 			return defaultValue;
 		
 		String value = column.toString();
@@ -2189,201 +2400,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 //		data.put(CanonicalNames.Rivers, selected);
 //	}
 
-	public void run() {
-		running.set(true);
-		failed.set(false);
-		statusMessage = new StringBuilder();
-		
-		Date start = Calendar.getInstance().getTime();
-		printf("! -- Starting %s conversion at %s", getClass().getSimpleName(), start.toString());
-		
-		try {
-
-			//registerDatasource("dem", "jdbc:access:///" + source.getAbsolutePath(), "com.hxtt.sql.access.AccessDriver", "", "");
-
-			/*try {
-				Document structDoc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-						DEMImport.class.getResourceAsStream("refstruct.xml"));
-				new SystemExecutionContext("dem").setStructure(structDoc);
-			} catch (Exception ugly) {
-				ugly.printStackTrace();
-				statusMessage.append("Internal system failure: could not read DEM.<br>");
-				statusMessage.append("Please report the following message:<br>");
-				statusMessage.append(DocumentUtils.getStackTraceAsString(ugly).replaceAll("\n", "<br>"));
-				failed.set(true);
-			}*/
-			
-			/*registerDatasource("demConversion", "jdbc:access:////usr/data/demMigration.mdb",
-					"com.hxtt.sql.access.AccessDriver", "", "");
-			registerDatasource("demSource", "jdbc:access:////usr/data/demSource.mdb",
-					"com.hxtt.sql.access.AccessDriver", "", "");*/
-
-			ec = new SystemExecutionContext(demSessionName);
-			ec.setExecutionLevel(ExecutionContext.ADMIN);
-			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
-			
-			demConversion = new SystemExecutionContext("demConversion");
-			demConversion.setExecutionLevel(ExecutionContext.ADMIN);
-			demConversion.setAPILevel(ExecutionContext.SQL_ALLOWED);
-			
-			demSource = new SystemExecutionContext("demSource");
-			demSource.setExecutionLevel(ExecutionContext.ADMIN);
-			demSource.setAPILevel(ExecutionContext.SQL_ALLOWED);
-
-			log.append("<table border=\"1\"><tr>" + "<th>Level</th>" + "<th>Friendly Name</th>" + "<th>Kingdom</th>"
-					+ "<th>Phylum</th>" + "<th>Class</th>" + "<th>Order</th>" + "<th>Family</th>" + "<th>Genus</th>"
-					+ "<th>Species</th>" + "<th>Infrarank</th></tr>");
-
-			if (!failed.get()) {
-				try {
-					buildTree();
-				} catch (Exception e) {
-					statusMessage.append("Failed to convert taxa to the SIS data format.<br>");
-					statusMessage.append("Please report the following message:<br>");
-					statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
-					failed.set(true);
-					if( e instanceof DBException ) {
-						Throwable f = e.getCause();
-						
-						while( f != null ) {
-							if( f instanceof SQLException && ((SQLException)f).getNextException() != null )
-								print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
-							
-							f = f.getCause();
-						}
-					}
-					failed.set(true);
-				}
-			} else
-				statusMessage.append("(Did not convert taxa to the SIS data format due to a prior failure.)<br>");
-
-			if (!failed.get()) {
-				try {
-					addTaxaDetails();
-				} catch (Exception e) {
-					statusMessage.append("Failed adding taxa details.<br>");
-					statusMessage.append("Please report the following message:<br>");
-					statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
-					failed.set(true);
-					if( e instanceof DBException ) {
-						Throwable f = e.getCause();
-						
-						while( f != null ) {
-							if( f instanceof SQLException )
-								print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
-							
-							f = f.getCause();
-						}
-					}
-					failed.set(true);
-				}
-			}
-
-			if (!failed.get()) {
-				try {
-					exportNodes();
-				} catch (Exception e) {
-					statusMessage.append("Failed saving new taxa in SIS.<br>");
-					statusMessage.append("Please report the following message:<br>");
-					statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
-					failed.set(true);
-					if( e instanceof DBException ) {
-						Throwable f = e.getCause();
-						
-						while( f != null ) {
-							if( f instanceof SQLException )
-								print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
-							
-							f = f.getCause();
-						}
-					}
-					failed.set(true);
-				}
-			} else
-				statusMessage.append("(Did not save new taxa in SIS due to a prior failure.)<br>");
-
-			
-			if (!failed.get()) {
-				try {
-					buildAssessments();
-				} catch (Exception e) {
-					statusMessage.append("Failed converting assessments to SIS format.<br>");
-					statusMessage.append("Please report the following message:<br>");
-					statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
-					failed.set(true);
-					if( e instanceof DBException ) {
-						Throwable f = e.getCause();
-						
-						while( f != null ) {
-							if( f instanceof SQLException )
-								print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
-							
-							f = f.getCause();
-						}
-					}
-					failed.set(true);
-				}
-			} else
-				statusMessage
-						.append("(Did not attempt conversion of assessments to SIS format due to a prior failure.)<br>");
-
-			
-			if (!failed.get()) {
-				try {
-					exportAssessments();
-					statusMessage.append("Import successful.");
-				} catch (Exception e) {
-					statusMessage.append("Failed saving assessments in SIS.<br>");
-					statusMessage.append("Please report the following message:<br>");
-					statusMessage.append(DocumentUtils.getStackTraceAsString(e).replaceAll("\n", "<br>"));
-					failed.set(true);
-					if( e instanceof DBException ) {
-						Throwable f = e.getCause();
-						
-						while( f != null ) {
-							if( f instanceof SQLException )
-								print("--- SQL Exception - Next Exception ---\n" + DocumentUtils.getStackTraceAsString(((SQLException)f).getNextException()));
-							
-							f = f.getCause();
-						}
-					}
-					failed.set(true);
-				}
-			} else
-				statusMessage.append("(Did not save assessments in SIS due to a prior failure.)<br>");
-
-		} catch (Throwable ex) {
-			ex.printStackTrace();
-			statusMessage.append("Internal system failure setting up DEMImport.<br>");
-			statusMessage.append("Please report the following message:<br>");
-			statusMessage.append(DocumentUtils.getStackTraceAsString(ex).replaceAll("\n", "<br>"));
-			failed.set(true);
-		}
-		
-		log.append("</table>");
-		
-		running.set(false);
-		
-		DBSessionFactory.unregisterDataSource(demSessionName);
-		
-		DEMImportInformation info = new DEMImportInformation(
-			new Date(), !failed.get(), statusMessage.toString(), "", user, log.toString()
-		);
-		
-		Date end = Calendar.getInstance().getTime();
-		
-		long millis = end.getTime() - start.getTime();
-		long secs = millis / 1000;
-		long mins = secs / 60;
-		
-		printf("! -- Finished %s import in %s mins, %s seconds at %s", getClass().getSimpleName(), mins, secs, end.toString());
-		print("Results:");
-		print(info.toString());
-		
-		close();
-		
-		DEMImportInformation.addToQueue(info, SIS.get().getVFS());
-	}
+	
 
 //	private void sendNote(String assessmentType, String noteBody, String assessmentID, String canonicalName) {
 //		Note note = new Note();

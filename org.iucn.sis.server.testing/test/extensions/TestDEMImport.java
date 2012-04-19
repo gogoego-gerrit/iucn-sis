@@ -112,7 +112,7 @@ public class TestDEMImport extends BasicHibernateTest {
 	private void start() throws NamingException {
 		DBSessionFactory.registerDataSource("dem", "jdbc:access:////Users/carlscott/Projects/SIS/dem/demAcrididae.mdb", "com.hxtt.sql.access.AccessDriver", "", "");
 		
-		DEMImport importer = new DEMImport("admin", "dem", true, openSession());
+		DEMImport importer = new DEMImport("admin", "dem", openSession());
 		importer.run();
 	}
 
