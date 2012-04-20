@@ -39,15 +39,15 @@ import com.solertium.vfs.VFSPathToken;
 
 public class IntegrityValidator {
 	
-	public static boolean validate_background(Session session, VFS vfs, ExecutionContext ec, Integer assessmentID) throws DBException {
+	public static int validate_background(Session session, VFS vfs, ExecutionContext ec, Integer assessmentID) throws DBException {
 		final VFSPathToken[] tokens;
 		try {
 			tokens = vfs.list(ValidationResource.ROOT_PATH);
 		} catch (IOException e) {
-			return true;
+			return AssessmentIntegrityValidation.SUCCESS;
 		}
 		
-		boolean success = true;
+		int status = AssessmentIntegrityValidation.SUCCESS;
 		
 		for (VFSPathToken token : tokens) {
 			Document rule;
@@ -61,13 +61,14 @@ public class IntegrityValidator {
 			AssessmentIntegrityValidation response = 
 				validate(session, ec, token.toString(), rule, assessmentID);
 			
-			if (!response.isSuccess()) {
-				success = false;
+			if (response.getStatus() > status)
+				status = response.getStatus();
+			
+			if (response.isFailure())
 				break;
-			}
 		}
 		
-		return success;
+		return status;
 	}
 
 	/**

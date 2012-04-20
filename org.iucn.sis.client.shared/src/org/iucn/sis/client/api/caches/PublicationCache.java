@@ -15,6 +15,7 @@ import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
 import org.iucn.sis.shared.api.models.WorkingSet;
 
+import com.solertium.lwxml.gwt.utils.ClientDocumentUtils;
 import com.solertium.lwxml.shared.GWTConflictException;
 import com.solertium.lwxml.shared.GWTResponseException;
 import com.solertium.lwxml.shared.GenericCallback;
@@ -211,8 +212,16 @@ public class PublicationCache {
 	}
 	
 	public void submit(final Assessment assessment, final GenericCallback<Object> callback) {
+		submit(assessment, callback, false);
+	}
+	
+	public void submit(final Assessment assessment, final GenericCallback<Object> callback, boolean ignoreWarnings) {
+		String url = UriBase.getInstance().getSISBase() + "/publication/submit/assessment/" + assessment.getId();
+		if (ignoreWarnings)
+			url += "?allow_warnings=true";
+		
 		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-		document.put(UriBase.getInstance().getSISBase() + "/publication/submit/assessment/" + assessment.getId(), "<xml/>", new GenericCallback<String>() {
+		document.put(url, "<xml/>", new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				PublicationData data = PublicationData.fromXML(document.getDocumentElement());
 				cacheData(data);
@@ -227,12 +236,27 @@ public class PublicationCache {
 				if (!(caught instanceof GWTResponseException))
 					WindowUtils.errorAlert("Failed to submit assessment, please try again later.");
 				else if (caught instanceof GWTConflictException) {
-					String message = "Integrity validation failed for this assessment. Would you like to see detailed results?";
-					WindowUtils.confirmAlert("Submission Failed.", message, new WindowUtils.SimpleMessageBoxListener() {
-						public void onYes() {
-							ClientAssessmentValidator.validate(assessment.getId(), assessment.getType());
-						}
-					});
+					String status = ClientDocumentUtils.parseStatus(document);
+					if (status != null && status.startsWith("WARNING")) {
+						String message = "Integrity validation passed with warnings for this assessment. " +
+								"Would you like to submit anyway?";
+						WindowUtils.confirmAlert("Submission Passed with Warnings", message, new WindowUtils.MessageBoxListener() {
+							public void onYes() {
+								submit(assessment, callback, true);
+							}
+							public void onNo() {
+								ClientAssessmentValidator.validate(assessment.getId(), assessment.getType());
+							}
+						}, "Submit Anyway", "Review Warnings");
+					}
+					else {
+						String message = "Integrity validation failed for this assessment. Would you like to see detailed results?";
+						WindowUtils.confirmAlert("Submission Failed.", message, new WindowUtils.SimpleMessageBoxListener() {
+							public void onYes() {
+								ClientAssessmentValidator.validate(assessment.getId(), assessment.getType());
+							}
+						});
+					}
 				}
 				else {
 					int status = ((GWTResponseException)caught).getCode();
@@ -252,8 +276,16 @@ public class PublicationCache {
 	}
 	
 	public void submit(final WorkingSet workingSet, final GenericCallback<Object> callback) {
+		submit(workingSet, callback, false);
+	}
+	
+	public void submit(final WorkingSet workingSet, final GenericCallback<Object> callback, boolean ignoreWarnings) {
+		String url = UriBase.getInstance().getSISBase() + "/publication/submit/workingSet/" + workingSet.getId();
+		if (ignoreWarnings)
+			url += "?allow_warnings=true";
+		
 		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
-		document.put(UriBase.getInstance().getSISBase() + "/publication/submit/workingSet/" + workingSet.getId(), "<xml/>", new GenericCallback<String>() {
+		document.put(url, "<xml/>", new GenericCallback<String>() {
 			public void onSuccess(String result) {
 				callback.onSuccess(result);
 			}
@@ -261,12 +293,27 @@ public class PublicationCache {
 				if (!(caught instanceof GWTResponseException))
 					WindowUtils.errorAlert("Failed to submit assessment, please try again later.");
 				else if (caught instanceof GWTConflictException) {
-					String message = "Integrity validation failed for one or more assessments in this working set. Would you like to see detailed results?";
-					WindowUtils.confirmAlert("Submission Failed.", message, new WindowUtils.SimpleMessageBoxListener() {
-						public void onYes() {
-							ClientAssessmentValidator.validate(workingSet);
-						}
-					});
+					String status = ClientDocumentUtils.parseStatus(document);
+					if (status != null && status.startsWith("WARNING")) {
+						String message = "Integrity validation passed with warnings one or more assessments in this working set. " +
+								"Would you like to submit anyway?";
+						WindowUtils.confirmAlert("Submission Passed with Warnings", message, new WindowUtils.MessageBoxListener() {
+							public void onYes() {
+								submit(workingSet, callback, true);
+							}
+							public void onNo() {
+								ClientAssessmentValidator.validate(workingSet);
+							}
+						}, "Submit Anyway", "Review Warnings");
+					}
+					else {
+						String message = "Integrity validation failed for one or more assessments in this working set. Would you like to see detailed results?";
+						WindowUtils.confirmAlert("Submission Failed.", message, new WindowUtils.SimpleMessageBoxListener() {
+							public void onYes() {
+								ClientAssessmentValidator.validate(workingSet);
+							}
+						});
+					}
 				}
 				else {
 					//int status = ((GWTResponseException)caught).getCode();

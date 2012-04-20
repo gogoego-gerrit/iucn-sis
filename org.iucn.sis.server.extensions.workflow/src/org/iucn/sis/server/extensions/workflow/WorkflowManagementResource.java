@@ -10,6 +10,7 @@ import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.extensions.integrity.IntegrityValidator;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.workflow.WorkflowStatus;
 import org.iucn.sis.shared.api.workflow.WorkflowUserInfo;
@@ -135,7 +136,7 @@ public class WorkflowManagementResource extends WFDBResource {
 						success &= IntegrityValidator.
 							validate_background(session, SIS.get().getVFS(), 
 								ec, assessment.getId()
-							);
+							) == AssessmentIntegrityValidation.SUCCESS;
 					} catch (DBException e) {
 						Debug.println(e);
 						continue;

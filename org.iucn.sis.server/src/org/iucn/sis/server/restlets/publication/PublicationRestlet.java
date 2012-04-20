@@ -14,6 +14,7 @@ import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.extensions.integrity.IntegrityValidator;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
+import org.iucn.sis.shared.api.models.AssessmentIntegrityValidation;
 import org.iucn.sis.shared.api.models.PublicationData;
 import org.iucn.sis.shared.api.models.PublicationTarget;
 import org.iucn.sis.shared.api.models.Taxon;
@@ -54,24 +55,31 @@ public class PublicationRestlet extends BaseServiceRestlet {
 		final Integer id = toInt((String)request.getAttributes().get("id"));
 		final User user = getUser(request, session);
 		final boolean doValidation = "true".equals(SIS.get().getSettings(null).getProperty("org.iucn.sis.server.publication.validate", "false"));
+		final boolean allowWarning = "true".equals(request.getResourceRef().getQueryAsForm().getFirstValue("allow_warnings", "false"));
 		
 		if ("assessment".equals(type)) {
 			Assessment assessment = new AssessmentIO(session).getAssessment(id);
 			if (assessment == null)
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 			
-			boolean passesValidation = !doValidation;
-			if (!passesValidation) {
+			if (doValidation){
+				int status = AssessmentIntegrityValidation.SUCCESS;
 				try {
-					passesValidation = IntegrityValidator.
-						validate_background(session, SIS.get().getVFS(), 
-							SIS.get().getExecutionContext(), assessment.getId());
+					status = IntegrityValidator.validate_background(session, SIS.get().getVFS(), 
+						SIS.get().getExecutionContext(), assessment.getId());
 				} catch (Exception e) {
 					Debug.println("Failed attempting to run validation: {0}\n{1]", e.getMessage(), e);
 				}
+				
+				if (status == AssessmentIntegrityValidation.FAILURE) {
+					response.setEntity(getSubmissionErrorEntity("FAILURE: Validation failed on this assessment."));
+					throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "Validation failed.");
+				}
+				else if (status == AssessmentIntegrityValidation.WARNING && !allowWarning) {
+					response.setEntity(getSubmissionErrorEntity("WARNING: Validation failed with warnings on this assessment."));
+					throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "Validation failed with warnings.");
+				}
 			}
-			if (!passesValidation)
-				throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, "Validation failed.");
 			
 			io.submit(assessment, null, user);
 			
@@ -87,20 +95,25 @@ public class PublicationRestlet extends BaseServiceRestlet {
 			AssessmentFilterHelper helper = new AssessmentFilterHelper(session, ws.getFilter());
 			for (Taxon taxon : ws.getTaxon()) {
 				for (Assessment assessment : helper.getAssessments(taxon.getId())) {
-					boolean passesValidation = !doValidation;
-					if (!passesValidation) {
+					if (doValidation) {
+						int status = AssessmentIntegrityValidation.SUCCESS;
 						try {
-							passesValidation = IntegrityValidator.
-								validate_background(session, SIS.get().getVFS(), 
+							status = IntegrityValidator.validate_background(session, SIS.get().getVFS(), 
 									SIS.get().getExecutionContext(), assessment.getId());
 						} catch (Exception e) {
 							Debug.println("Failed attempting to run validation: {0}\n{1]", e.getMessage(), e);
 						}
-					}
-					if (!passesValidation) {
-						String message = "Validation failed on " + assessment.getAssessmentType().getDisplayName() + " assessment for " + assessment.getSpeciesName() + ".";
-						response.setEntity(new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createErrorDocument(message)));
-						throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, message);
+					
+						if (status == AssessmentIntegrityValidation.FAILURE) {
+							String message = "FAILURE: Validation failed on " + assessment.getAssessmentType().getDisplayName() + " assessment for " + assessment.getSpeciesName() + ".";
+							response.setEntity(getSubmissionErrorEntity(message));
+							throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, message);
+						}
+						else if (status == AssessmentIntegrityValidation.WARNING) {
+							String message = "WARNING: Validation failed on " + assessment.getAssessmentType().getDisplayName() + " assessment for " + assessment.getSpeciesName() + ".";
+							response.setEntity(getSubmissionErrorEntity(message));
+							throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, message);
+						}
 					}
 					io.submit(assessment, group, user);
 				}
@@ -110,6 +123,10 @@ public class PublicationRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid type specified.");
 			
 		response.setStatus(Status.SUCCESS_OK);
+	}
+	
+	private Representation getSubmissionErrorEntity(String message) {
+		return new DomRepresentation(MediaType.TEXT_XML, BaseDocumentUtils.impl.createErrorDocument(message));
 	}
 	
 	@Override
