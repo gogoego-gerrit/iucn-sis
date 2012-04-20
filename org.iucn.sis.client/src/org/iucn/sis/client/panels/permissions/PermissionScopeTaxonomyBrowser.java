@@ -2,7 +2,6 @@ package org.iucn.sis.client.panels.permissions;
 
 import org.iucn.sis.client.api.caches.AuthorizationCache;
 import org.iucn.sis.client.api.utils.BasicWindow;
-import org.iucn.sis.client.container.SimpleSISClient;
 import org.iucn.sis.client.panels.utils.TaxonomyBrowserPanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.models.Taxon;
