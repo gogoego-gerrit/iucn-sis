@@ -13,6 +13,7 @@ import org.iucn.sis.server.api.utils.SISGlobalSettings;
 import org.iucn.sis.shared.conversions.AssessmentConverter.ConversionMode;
 import org.iucn.sis.shared.helpers.ServerPaths;
 import org.iucn.sis.shared.migration.GlobalReferenceConverter;
+import org.iucn.sis.shared.migration.LeftoverCountryConverter;
 import org.iucn.sis.shared.migration.MovementPatternsConverter;
 import org.iucn.sis.shared.migration.OccurrenceConverter;
 import org.iucn.sis.shared.migration.RedListEvaluatedConverter;
@@ -95,6 +96,8 @@ public class ConverterWorker implements Runnable {
 			success = convertStresses(writer);
 		else if ("movementpatterns".equals(step))
 			success = convertMovementPatterns(writer);
+		else if ("legacycountries".equals(step))
+			success = convertLegacyCountries(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -323,6 +326,19 @@ public class ConverterWorker implements Runnable {
 		}
 		initConverter(converter, writer);
 		converter.setData(new VFSInfo(getOldVFSPath(), oldVFS, newVFS));
+		
+		return converter.start();
+	}
+	
+	private boolean convertLegacyCountries(Writer writer) {
+		LeftoverCountryConverter converter;
+		try {
+			converter = new LeftoverCountryConverter();
+		} catch (NamingException e) {
+			die("Failed to locate lookup database", e, writer);
+			return false;
+		}
+		initConverter(converter, writer);
 		
 		return converter.start();
 	}
