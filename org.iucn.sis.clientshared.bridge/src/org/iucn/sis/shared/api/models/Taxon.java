@@ -557,6 +557,7 @@ public class Taxon implements AuthorizableObject, Serializable {
 	public static Taxon fromXMLminimal(NativeElement element) {
 		Taxon taxon = new Taxon();
 		taxon.setId(Integer.parseInt(element.getAttribute("id")));
+		taxon.setTaxonLevel(TaxonLevel.getTaxonLevel(Integer.parseInt(element.getAttribute("level"))));
 		
 		NativeNodeList children = element.getChildNodes();
 		for (int i = 0; i < children.getLength(); i++) {
@@ -693,7 +694,9 @@ public class Taxon implements AuthorizableObject, Serializable {
 	String toRelatedXML(String tagName, boolean showFootprint) {
 		if (tagName.equals("parent") || tagName.equalsIgnoreCase("child") || tagName.equals(Taxon.ROOT_TAG)) {
 			StringBuilder minimal = new StringBuilder();
-			minimal.append("<" + tagName + " id=\"" + getId() + "\">");
+			minimal.append("<" + tagName + " id=\"" + getId() +
+					"\" level=\"" + getLevel() +	
+					"\">");
 			minimal.append(XMLWritingUtils.writeCDATATag("name", getName()));
 			minimal.append(XMLWritingUtils.writeCDATATag("fullname", getFriendlyName()));
 			if (showFootprint)
