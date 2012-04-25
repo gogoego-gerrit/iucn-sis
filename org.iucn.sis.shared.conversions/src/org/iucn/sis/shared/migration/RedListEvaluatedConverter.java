@@ -53,6 +53,9 @@ public class RedListEvaluatedConverter extends FieldMigrationConverter {
 				query.constrain(new CanonicalColumnName(getTableName(name), "taxon_id"), 
 						QConstraint.CT_EQUALS, parameters.getFirstValue("taxon_id", taxonid));
 			}
+			else if (parameters.getFirstValue("working_set") != null) {
+				constrainQueryToWorkingSet(query, name);
+			}
 			
 			ec.doQuery(query, new RowProcessor() {
 				public void process(Row row) {

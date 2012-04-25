@@ -33,6 +33,7 @@ import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.QConstraint;
+import com.solertium.db.query.QRelationConstraint;
 import com.solertium.db.query.SelectQuery;
 import com.solertium.lwxml.factory.NativeDocumentFactory;
 import com.solertium.lwxml.shared.NativeDocument;
@@ -371,6 +372,19 @@ public abstract class FieldMigrationConverter extends GenericConverter<VFSInfo> 
 			return "CW";
 		
 		return code;
+	}
+	
+	protected void constrainQueryToWorkingSet(SelectQuery query, String name) {
+		query.join("assessment", new QRelationConstraint(
+			new CanonicalColumnName(getTableName(name), "internal_id"), 
+			new CanonicalColumnName("assessment", "internal_id")
+		));
+		query.join("working_set_taxon", new QRelationConstraint(
+			new CanonicalColumnName("assessment", "taxonid"), 
+			new CanonicalColumnName("working_set_taxon", "taxonid")
+		));
+		query.constrain(new CanonicalColumnName("working_set_taxon", "working_setid"), 
+			QConstraint.CT_EQUALS, Integer.valueOf(parameters.getFirstValue("working_set")));
 	}
 	
 }

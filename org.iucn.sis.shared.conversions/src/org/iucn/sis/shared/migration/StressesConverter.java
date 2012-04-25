@@ -64,6 +64,9 @@ public class StressesConverter extends FieldMigrationConverter {
 				query.constrain(new CanonicalColumnName(getTableName(fieldName), "taxon_id"), 
 						QConstraint.CT_EQUALS, parameters.getFirstValue("taxon_id", "171912"));
 			}
+			else if (parameters.getFirstValue("working_set") != null) {
+				constrainQueryToWorkingSet(query, fieldName);
+			}
 			
 			final AtomicReference<String> ref = new AtomicReference<String>("");
 			final Map<Integer, Row> values = new ConcurrentHashMap<Integer, Row>();
