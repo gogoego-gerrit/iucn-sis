@@ -36,8 +36,9 @@ import com.solertium.util.CSVTokenizer;
 
 public class LeftoverCountryConverter extends Converter {
 	
-	@SuppressWarnings("unused")
-	private static final int TAXON = 0, ASM = 1, COUNTRY = 2, TRANSLATION = 3;
+	private static final int TAXON = 0;
+	private static final int ASM = 1;
+	private static final int TRANSLATION = 3;
 	
 	public static void main(String[] args) throws IOException {
 		final Map<String, String> translations = new HashMap<String, String>();
@@ -134,6 +135,10 @@ public class LeftoverCountryConverter extends Converter {
 		
 		String line = reader.readLine();
 		
+		int count = 0;
+		
+		printf("Starting...");
+		
 		while ((line = reader.readLine()) != null) {
 			CSVTokenizer tokenizer = new CSVTokenizer(line);
 			tokenizer.setNullOnEnd(true);
@@ -145,7 +150,12 @@ public class LeftoverCountryConverter extends Converter {
 				data.put(i++, token);
 			
 			process(data);
+			
+			if (++count % 50 == 0)
+				printf("%s...", count);
 		}
+		
+		printf("Complete.");
 	}
 	
 	private void process(Map<Integer, String> data) throws DBException {
@@ -163,43 +173,45 @@ public class LeftoverCountryConverter extends Converter {
 				toUpdate.add(field);
 		}
 		
-		if (toUpdate.size() > 1)
-			printf("# Manual Update Required: " + data);
+		if (toUpdate.isEmpty())
+			printf("No errors found for row, fixed already? %s", data);
 		else {
-			Field field = toUpdate.get(0);
-			
-			String[] translations = data.get(TRANSLATION).split(",");
-			if (translations.length == 1) {
-				ProxyField proxy = new ProxyField(field);
-				proxy.setForeignKeyPrimitiveField(parent.getName()+"Lookup", 
-					getIndex(CanonicalNames.CountryOccurrence, parent.getName()+"Lookup", parent.getName()+"Lookup", translations[0]), 
-					parent.getName()+"Lookup");
+			for (int i = 0; i < toUpdate.size(); i++) {
+				Field field = toUpdate.get(i);
 				
-				session.update(field);
-			}
-			else {
-				for (String translation : translations) {
-					Field newField = field.deepCopy(false);
-					newField.setAssessment(null);
-					newField.setParent(parent);
-					
-					if (field.getReference() != null && !field.getReference().isEmpty())
-						newField.setReference(new HashSet<Reference>(field.getReference()));
-					
+				String[] translations = data.get(TRANSLATION+i).split(",");
+				if (translations.length == 1) {
 					ProxyField proxy = new ProxyField(field);
 					proxy.setForeignKeyPrimitiveField(parent.getName()+"Lookup", 
-						getIndex(CanonicalNames.CountryOccurrence, parent.getName()+"Lookup", parent.getName()+"Lookup", translation), 
+						getIndex(CanonicalNames.CountryOccurrence, parent.getName()+"Lookup", parent.getName()+"Lookup", translations[0]), 
 						parent.getName()+"Lookup");
 					
-					parent.getFields().add(newField);
-					
-					session.save(newField);
+					session.update(field);
 				}
-				
-				try {
-					FieldDAO.deleteAndDissociate(field, session);
-				} catch (PersistentException e) {
-					printf("Unable to delete subfield %s", field.getId());
+				else {
+					for (String translation : translations) {
+						Field newField = field.deepCopy(false);
+						newField.setAssessment(null);
+						newField.setParent(parent);
+						
+						if (field.getReference() != null && !field.getReference().isEmpty())
+							newField.setReference(new HashSet<Reference>(field.getReference()));
+						
+						ProxyField proxy = new ProxyField(field);
+						proxy.setForeignKeyPrimitiveField(parent.getName()+"Lookup", 
+							getIndex(CanonicalNames.CountryOccurrence, parent.getName()+"Lookup", parent.getName()+"Lookup", translation), 
+							parent.getName()+"Lookup");
+						
+						parent.getFields().add(newField);
+						
+						session.save(newField);
+					}
+					
+					try {
+						FieldDAO.deleteAndDissociate(field, session);
+					} catch (PersistentException e) {
+						printf("Unable to delete subfield %s", field.getId());
+					}
 				}
 			}
 		}
