@@ -82,7 +82,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 			else if (action.equalsIgnoreCase("grants"))
 				entity = getGrantableWorkingSets(request, response, username, workingSetIO);
 			else if (action.equalsIgnoreCase("taxaIDs"))
-				entity = getTaxaListForWorkingSets(username, workingSetIO);
+				entity = getTaxaListForWorkingSets(session, username, workingSetIO);
 			else {
 				String mode = request.getResourceRef().getQueryAsForm().getFirstValue("mode", "FULL");
 				entity = getWorkingSets(username, workingSetIO, mode);
@@ -383,7 +383,7 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		return new StringRepresentation(ws.getSpeciesIDsAsString(), MediaType.TEXT_PLAIN);
 	}
 	
-	private Representation getTaxaListForWorkingSets(String username, WorkingSetIO workingSetIO) throws ResourceException {
+	private Representation getTaxaListForWorkingSets(Session session, String username, WorkingSetIO workingSetIO) throws ResourceException {
 		final WorkingSet[] sets;
 		try {
 			sets = workingSetIO.getSubscribedWorkingSets(username);
@@ -397,12 +397,32 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 			builder.append("<set id=\"");
 			builder.append(ws.getId());
 			builder.append("\"><![CDATA[");
-			builder.append(ws.getSpeciesIDsAsString());
+			//builder.append(ws.getSpeciesIDsAsString());
+			builder.append(getSpeciesIDsAsString(session, ws.getId()));
 			builder.append("]]></set>");
 		}
 		builder.append("</root>");
 		
 		return new StringRepresentation(builder.toString(), MediaType.TEXT_XML);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private String getSpeciesIDsAsString(Session session, Integer workingSetID) {
+		List<Object> results = session.createSQLQuery(String.format(
+			"SELECT taxonid FROM working_set_taxon WHERE working_setid = %s", 
+			workingSetID)).list();
+		String value;
+		if (results.isEmpty())
+			value = "";
+		else {
+			final StringBuilder builder = new StringBuilder();
+			for (Object result : results)
+				builder.append(result + ",");
+			
+			value = builder.toString();
+			value.substring(0, value.length()-1);
+		}
+		return value;
 	}
 
 	private void writeReport(String report, String username) {
