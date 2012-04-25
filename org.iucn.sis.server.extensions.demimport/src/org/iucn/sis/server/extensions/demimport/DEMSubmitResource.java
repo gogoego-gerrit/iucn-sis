@@ -193,7 +193,7 @@ public class DEMSubmitResource extends TransactionResource {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Could not write item to " + temp.getPath());
 			}
 			
-			getResponse().redirectSeeOther(getRequest().getResourceRef() + "/" + temp.getName());
+			getResponse().redirectSeeOther(getRequest().getResourceRef().getPath() + "/" + temp.getName());
 		} catch (FileUploadException fx) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Upload failed: " + fx.getMessage(), fx);
 		} catch (IOException ix) {
