@@ -39,7 +39,7 @@ public class ProxyField {
 	}
 	
 	public void setForeignKeyPrimitiveField(String key, Integer value) {
-		setForeignKeyPrimitiveField(key, value, "null");
+		setForeignKeyPrimitiveField(key, value, proxy.getName() + "_" + key + "Lookup");
 	}
 	
 	public void setForeignKeyPrimitiveField(String key, Integer value, String table) {
@@ -67,7 +67,7 @@ public class ProxyField {
 	}
 	
 	public void setForeignKeyListPrimitiveField(String key, List<Integer> value) {
-		setForeignKeyListPrimitiveField(key, value, "null");
+		setForeignKeyListPrimitiveField(key, value, proxy.getName() + "_" + key + "Lookup");
 	}
 	
 	public void setForeignKeyListPrimitiveField(String key, List<Integer> value, String table) {
@@ -229,7 +229,7 @@ public class ProxyField {
 	public void setBooleanRangePrimitiveField(String key, String value) {
 		PrimitiveField<?> field = proxy.getPrimitiveField(key);
 		if (field != null) {
-			if (value == null)
+			if (value != null)
 				((BooleanRangePrimitiveField)field).setValue(value);
 			else
 				proxy.getPrimitiveField().remove(field);
@@ -249,7 +249,7 @@ public class ProxyField {
 	public void setBooleanUnknownPrimitiveField(String key, Integer value) {
 		PrimitiveField<?> field = proxy.getPrimitiveField(key);
 		if (field != null) {
-			if (value == null)
+			if (value != null)
 				((BooleanUnknownPrimitiveField)field).setValue(value);
 			else
 				proxy.getPrimitiveField().remove(field);
@@ -269,7 +269,7 @@ public class ProxyField {
 	public void setRangePrimitiveField(String key, String value) {
 		PrimitiveField<?> field = proxy.getPrimitiveField(key);
 		if (field != null) {
-			if (value == null)
+			if (value != null)
 				((RangePrimitiveField)field).setValue(value);
 			else
 				proxy.getPrimitiveField().remove(field);
