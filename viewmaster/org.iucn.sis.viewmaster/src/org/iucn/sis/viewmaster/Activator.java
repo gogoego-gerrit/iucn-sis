@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.gogoego.util.db.DBSessionFactory;
 import org.gogoego.util.db.fluent.Connection;
+import org.gogoego.util.db.postgresql.PostgreSQLDBSessionFactory;
 import org.gogoego.util.getout.GetOut;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -15,6 +16,11 @@ public class Activator implements BundleActivator {
 	
 	private static final String USER = "**USER**";
 	private static final String PASSWORD = "**PASSWORD**";
+	
+	public static void main(String[] args) throws Exception {
+		PostgreSQLDBSessionFactory.getInstance().register();
+		new Activator().start(null);
+	}
 
 	public void start(BundleContext context) throws Exception {
 		
