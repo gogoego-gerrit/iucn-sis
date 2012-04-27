@@ -14,6 +14,7 @@ import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
+import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.AssessmentFilter;
 import org.iucn.sis.shared.api.models.AssessmentType;
@@ -34,26 +35,44 @@ public class AssessmentFilterHelper {
 
 	private final AssessmentFilter filter;
 	private final AssessmentIO io;
+	private boolean verbose;
 
 	public AssessmentFilterHelper(Session session, AssessmentFilter filter) {
+		this(session, filter, false);
+	}
+	
+	public AssessmentFilterHelper(Session session, AssessmentFilter filter, boolean verbose) {
 		this.filter = filter;
 		this.io = new AssessmentIO(session);
+		this.verbose = verbose;
 		
-		/*Debug.println("Created an assessment filter with properties: \n" +
-			"Draft: {0}; SI Published: {1}; Recent Published: {2}; " +
-			"Region Relationship: {3}; Regions: {4}", 
-			filter.isDraft(), filter.isAllPublished(), filter.isRecentPublished(), 
-			filter.getRelationshipName(), filter.listRegionIDs()
-		);*/
+		if (verbose) {
+			Debug.println("Created an assessment filter with properties: \n" +
+				"Draft: {0}; All Published: {1}; Recent Published: {2}; " +
+				"Region Relationship: {3}; Regions: {4}", 
+				filter.isDraft(), filter.isAllPublished(), filter.isRecentPublished(), 
+				filter.getRelationshipName(), filter.listRegionIDs()
+			);
+		}
+	}
+	
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
+	}
+	
+	public boolean isVerbose() {
+		return verbose;
 	}
 
 	private void reportAssessmentInformation(Assessment assessment) {
-		/*Debug.println("Found assessment {0} with properties: \n" +
-			"Draft: {1}; Is Published: {2}; Is Historical (Not Recent Published): {3}; " +
-			"Regions: {4}", 
-			assessment.getId(), assessment.isDraft(), assessment.isPublished(), 
-			assessment.getIsHistorical(), assessment.getRegionIDs()
-		);*/
+		if (verbose) {
+			Debug.println("Found assessment {0} with properties: \n" +
+				"Draft: {1}; Is Published: {2}; Is Historical (Not Recent Published): {3}; " +
+				"Regions: {4}", 
+				assessment.getId(), assessment.isDraft(), assessment.isPublished(), 
+				"Unknown", assessment.getRegionIDs()
+			);
+		}
 	}
 	
 	public List<Assessment> getAssessments(Integer taxaID) {
@@ -82,11 +101,12 @@ public class AssessmentFilterHelper {
 		}else if (filter.isRecentPublished()) {
 			List<Assessment> publishedAssessments  = readPublishedAssessments(taxaID);
 			Collections.sort(publishedAssessments, new PublishedAssessmentsComparator(false));
-			if(!publishedAssessments.isEmpty()){
-				Assessment published = publishedAssessments.get(0);
-					
-				if (published != null && allowAssessment(published, schema, filterRegions)) 
+			
+			for (Assessment published : publishedAssessments) {
+				if (published != null && allowAssessment(published, schema, filterRegions)) {
 					ret.add(published);
+					break;
+				}
 			}
 		}
 

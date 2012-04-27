@@ -1,6 +1,7 @@
 package core;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -26,6 +27,8 @@ public class WorkingSetFilter extends BasicHibernateTest {
 	private static final int DRAFT_FRANCE = 3;
 	private static final int PUB_GLOBAL = 4;
 	private static final int DRAFT_FRANCE_ITALY = 5;
+	private static final int PUB_GLOBAL_MEXICO = 6;
+	private static final int PUB_FRANCE = 7;
 	
 	private static final Region GLOBAL = Region.getGlobalRegion();
 	private static final Region MEXICO = new Region(3, "Mexico", "Mexico");
@@ -50,7 +53,7 @@ public class WorkingSetFilter extends BasicHibernateTest {
 	
 	@Test
 	public void testMexicoFilter() {
-		WorkingSet ws = createDraftMexicoWorkingSet();
+		WorkingSet ws = createWorkingSetWithFilter(AssessmentFilter.DRAFT_TAG, MEXICO);
 		
 		Set<Integer> correctResult = new HashSet<Integer>();
 		correctResult.add(DRAFT_MEXICO);
@@ -66,6 +69,59 @@ public class WorkingSetFilter extends BasicHibernateTest {
 		correctResult.add(PUB_GLOBAL);
 		
 		filter(ws, correctResult);
+	}
+	
+	/*
+	 * Ensure that an assessment is found as most recent 
+	 * even if it is not the most recent assessment.
+	 */
+	@Test
+	public void testHistoricalPublishedFilter() {
+		WorkingSet ws = createWorkingSetWithFilter(AssessmentFilter.RECENT_PUBLISHED, FRANCE);
+		
+		Set<Integer> correctResult = new HashSet<Integer>();
+		correctResult.add(PUB_FRANCE);
+		
+		filter(ws, correctResult, getDraftAssessments(), getManyPublishedAssessments());
+	}
+	
+	@Test
+	public void testHistoricalRegionalPublishedFilter() {
+		WorkingSet ws = createWorkingSetWithFilter(AssessmentFilter.RECENT_PUBLISHED, GLOBAL, MEXICO);
+		
+		Set<Integer> correctResult = new HashSet<Integer>();
+		correctResult.add(PUB_GLOBAL_MEXICO);
+		
+		filter(ws, correctResult, getDraftAssessments(), getManyPublishedAssessments());
+	}
+	
+	/*
+	 * This should only allow the most recent Global assessment, not both of them.
+	 */
+	@Test
+	public void testMostRecentPublishedFilter() {
+		WorkingSet ws = createWorkingSetWithFilter(AssessmentFilter.RECENT_PUBLISHED, GLOBAL);
+		ws.setRelationship(Relationship.fromName(Relationship.OR));
+		
+		Set<Integer> correctResult = new HashSet<Integer>();
+		correctResult.add(PUB_GLOBAL);
+		
+		filter(ws, correctResult, getDraftAssessments(), getManyPublishedAssessments());
+	}
+	
+	/*
+	 * This should allow all published Global assessments, not just one. 
+	 */
+	@Test
+	public void testAllGlobalPublishedFilter() {
+		WorkingSet ws = createWorkingSetWithFilter(AssessmentFilter.ALL_PUBLISHED, GLOBAL);
+		ws.setRelationship(Relationship.fromName(Relationship.OR));
+		
+		Set<Integer> correctResult = new HashSet<Integer>();
+		correctResult.add(PUB_GLOBAL);
+		correctResult.add(PUB_GLOBAL_MEXICO);
+		
+		filter(ws, correctResult, getDraftAssessments(), getManyPublishedAssessments());
 	}
 	
 	@Test
@@ -159,9 +215,14 @@ public class WorkingSetFilter extends BasicHibernateTest {
 	}
 	
 	private void filter(WorkingSet ws, Set<Integer> correctResult) {
+		filter(ws, correctResult, getDraftAssessments(), getPublishedAssessments());
+	}
+	
+	private void filter(WorkingSet ws, Set<Integer> correctResult, List<Assessment> draftAssessments, 
+			List<Assessment> publishedAssessments) {
 		AssessmentFilter filter = ws.getFilter();
 		AssessmentFilterHelperForTesting helper = 
-			new AssessmentFilterHelperForTesting(filter, getDraftAssessments(), getPublishedAssessments());
+			new AssessmentFilterHelperForTesting(filter, draftAssessments, publishedAssessments);
 		
 		Debug.println("Filter is draft? {0} with regions {1}", filter.isDraft(), filter.listRegionIDs());
 		
@@ -189,6 +250,55 @@ public class WorkingSetFilter extends BasicHibernateTest {
 			pubGlobal.setRegions(regions);
 		}
 		list.add(pubGlobal);
+		
+		return list;
+	}
+	
+	private List<Assessment> getManyPublishedAssessments() {
+		final List<Assessment> list = new ArrayList<Assessment>();
+		
+		//Most recent
+		Assessment pubGlobal = new Assessment(); {
+			Collection<Region> regions = new ArrayList<Region>();
+			regions.add(GLOBAL);
+		
+			pubGlobal.setId(PUB_GLOBAL);
+			pubGlobal.setAssessmentType(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
+			pubGlobal.setRegions(regions);
+			pubGlobal.setDateAssessed(Calendar.getInstance().getTime());
+		}
+		
+		//Published 3 months ago.
+		Assessment pubGlobalMexico = new Assessment(); {
+			final Calendar calendar = Calendar.getInstance();
+			calendar.add(Calendar.MONTH, -3);
+			
+			Collection<Region> regions = new ArrayList<Region>();
+			regions.add(GLOBAL);
+			regions.add(MEXICO);
+			
+			pubGlobalMexico.setId(PUB_GLOBAL_MEXICO);
+			pubGlobalMexico.setAssessmentType(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
+			pubGlobalMexico.setRegions(regions);
+			pubGlobalMexico.setDateAssessed(calendar.getTime());
+		}
+		
+		Assessment pubFrance = new Assessment(); {
+			final Calendar calendar = Calendar.getInstance();
+			calendar.add(Calendar.YEAR, -1);
+			
+			Collection<Region> regions = new ArrayList<Region>();
+			regions.add(FRANCE);
+			
+			pubFrance.setId(PUB_FRANCE);
+			pubFrance.setAssessmentType(AssessmentType.getAssessmentType(AssessmentType.PUBLISHED_ASSESSMENT_STATUS_ID));
+			pubFrance.setRegions(regions);
+			pubFrance.setDateAssessed(calendar.getTime());
+		}
+		
+		list.add(pubGlobal);
+		list.add(pubGlobalMexico);
+		list.add(pubFrance);
 		
 		return list;
 	}
@@ -250,21 +360,19 @@ public class WorkingSetFilter extends BasicHibernateTest {
 	}
 	
 	private WorkingSet createPublishedGlobalWorkingSet() {
-		AssessmentFilter filter = new AssessmentFilter(AssessmentFilter.ALL_PUBLISHED);
-		
-		WorkingSet ws = new WorkingSet();
-		ws.setFilter(filter);
-		
-		return ws;
+		return createWorkingSetWithFilter(AssessmentFilter.ALL_PUBLISHED);
 	}
 	
-	private WorkingSet createDraftMexicoWorkingSet() {
-		AssessmentFilter filter = new AssessmentFilter();
+	private WorkingSet createWorkingSetWithFilter(String filterType, Region... regions) {
+		AssessmentFilter filter = new AssessmentFilter(filterType);
 		
 		WorkingSet ws = new WorkingSet();
 		ws.setFilter(filter);
-		ws.getRegion().clear();
-		ws.getRegion().add(MEXICO);
+		if (regions.length > 0) {
+			ws.getRegion().clear();
+			for (Region region : regions)
+				ws.getRegion().add(region);
+		}
 		
 		return ws;
 	}
@@ -287,7 +395,7 @@ public class WorkingSetFilter extends BasicHibernateTest {
 		private final List<Assessment> published;
 		
 		public AssessmentFilterHelperForTesting(AssessmentFilter filter, List<Assessment> drafts, List<Assessment> published) {
-			super(null, filter);
+			super(null, filter, true);
 			this.drafts = drafts;
 			this.published = published;
 		}
