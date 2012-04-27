@@ -6,8 +6,10 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.hibernate.Hibernate;
 import org.hibernate.Session;
@@ -16,7 +18,6 @@ import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.io.NoteIO;
 import org.iucn.sis.server.api.io.ReferenceIO;
 import org.iucn.sis.server.api.io.UserIO;
-import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.io.AssessmentIO.AssessmentIOWriteResult;
 import org.iucn.sis.server.api.locking.FileLocker;
 import org.iucn.sis.server.api.locking.HibernateLockRepository;
@@ -24,6 +25,7 @@ import org.iucn.sis.server.api.locking.LockException;
 import org.iucn.sis.server.api.persistance.FieldDAO;
 import org.iucn.sis.server.api.persistance.PrimitiveFieldDAO;
 import org.iucn.sis.server.api.persistance.SISPersistentManager;
+import org.iucn.sis.server.api.persistance.WorkingSetCriteria;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.RegionConflictException;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -64,6 +66,7 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 	
 	private Writer out;
 	private String lineBreakRule;
+	private Set<Integer> importedAssessments;
 
 	public OfflineToOnlineImporter(String username, Properties properties) {
 		super();
@@ -89,6 +92,8 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		Date start = Calendar.getInstance().getTime();
 
 		write("Export started at %s", start);
+		
+		importedAssessments = new HashSet<Integer>();
 
 		try {
 			// The offline database.
@@ -165,7 +170,7 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		for (WorkingSet ws : SISPersistentManager.instance().listObjects(WorkingSet.class, offline)) {
 			write("Synchronizing data for working set %s (#%s)", ws.getName(), ws.getId());
 			
-			if (mergeAssessments(ws.getId())) {
+			if (mergeAssessments(ws)) {
 				if (OfflineImportMode.RESYNC.equals(mode)) {
 					write("-- Creating Database Backup --");
 					OfflineBackupWorker.backup();
@@ -177,8 +182,6 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 					exporter.run();
 					write("-- Database synchronized successfully --");
 				}
-				
-				break;
 			}
 		}
 
@@ -228,12 +231,12 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		return target;
 	}
 	
-	private boolean mergeAssessments(Integer workingSetID) throws PersistentException {
+	private boolean mergeAssessments(final WorkingSet offlineWorkingSet) throws PersistentException {
 		final AssessmentIO assessmentIO = new AssessmentIO(offline);
 		
-		WorkingSet workingSet = new WorkingSetIO(online).readWorkingSet(workingSetID);
+		WorkingSet workingSet = getOnlineWorkingSet(offlineWorkingSet);
 		if (workingSet == null) {
-			workingSet = createOnlineWorkingSet(new WorkingSetIO(offline).readWorkingSet(workingSetID));
+			workingSet = createOnlineWorkingSet(offlineWorkingSet);
 		}
 		else {
 			Hibernate.initialize(workingSet.getUsers());
@@ -244,12 +247,16 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		final AssessmentFilterHelper helper = new AssessmentFilterHelper(online, workingSet.getFilter());
 		final int size = workingSet.getTaxon().size();
 		int count = 0;
+		write("Beginning import for %s taxa", size);
 		for (Taxon taxon : workingSet.getTaxon()) {
 			Collection<Assessment> assessments = helper.getAssessments(taxon.getId());
 			write("Copying %s eligible assessments for %s, (%s/%s)", assessments.size(), taxon.getFullName(), ++count,
 					size);
 
 			for (Assessment targetAsm : assessments) {
+				if (importedAssessments.contains(targetAsm.getId()))
+					continue;
+				
 				// Fetch Assessments
 				offline.clear();
 				Assessment sourceAsm = assessmentIO.getAssessment(targetAsm.getId());
@@ -259,6 +266,7 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 					try {
 						syncAssessment(sourceAsm, targetAsm);
 						write(" + Write successful!");
+						importedAssessments.add(targetAsm.getId());
 					} catch (ResourceException e) {
 						write(" - Write failed.");
 						if (online.getTransaction() != null) {
@@ -274,6 +282,19 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		}
 		
 		return true;
+	}
+	
+	private WorkingSet getOnlineWorkingSet(WorkingSet offlineWorkingSet) {
+		WorkingSetCriteria criteria = new WorkingSetCriteria(online);
+		criteria.id.eq(offlineWorkingSet.getId());
+		criteria.name.eq(offlineWorkingSet.getName());
+		criteria.createCreatorCriteria().username.eq(offlineWorkingSet.getCreatorUsername());
+		
+		try {
+			return criteria.uniqueWorkingSet();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	private void pushMetadataToOnline() throws PersistentException {
@@ -376,7 +397,7 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		/*
 		 * Initialize everything this way because it's lazy & recursive.
 		 */
-		sourceAsm.toXML();		
+		sourceAsm.toXML();
 
 		final Map<Integer, Reference> targetRefs = new HashMap<Integer, Reference>();
 		for (Reference reference : targetAsm.getReference())
@@ -442,6 +463,8 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 			write(" - Another assessment in this region already exists, could not save");
 			throw new ResourceException(Status.CLIENT_ERROR_CONFLICT, new RegionConflictException());
 		}
+		
+		offline.clear();
 
 		AssessmentIOWriteResult result = 
 			assessmentIO.writeAssessment(targetAsm, loggedInUser, "Sync'd from Offline",

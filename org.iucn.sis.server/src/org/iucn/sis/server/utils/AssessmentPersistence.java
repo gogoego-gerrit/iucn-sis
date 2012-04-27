@@ -112,8 +112,11 @@ public class AssessmentPersistence {
 			}
 			else {
 				Field targetField = existingFieldsByID.remove(sourceField.getId());
-				if (targetField == null && allowForeignData)
-					targetField = existingFieldsByID.remove(sourceField.getName());
+				if (targetField == null && allowForeignData) {
+					targetField = existingFieldsByName.remove(sourceField.getName());
+					if (targetField != null)
+						existingFieldsByID.remove(targetField.getId());
+				}
 				
 				if (targetField != null) {
 					AssessmentChange pendingEdit = createEditChange(targetField, sourceField);

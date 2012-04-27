@@ -21,8 +21,6 @@ public class ServerApplication extends SimpleSISApplication {
 		addServiceToRouter(new OfflineMetaDataRestlet(app.getContext()));
 		
 		//For the Offline Data Management Application
-		addResource(new OfflineImportRestlet(app.getContext()), "/offline/importToLive/{username}", true);
-		addResource(new OfflineBackupRestlet(app.getContext()), "/offline/backupOffline", true);
 		addResource(new OfflineManagerResources(app.getContext()), "/manager/resources", true);
 		addResource(new OfflineManagerServicesRestlet(app.getContext()), "/services/{service}", true);
 		addResource(new OfflineManagerRestlet(app.getContext()), "/manager", true);
