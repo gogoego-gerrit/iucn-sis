@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -374,17 +375,36 @@ public abstract class FieldMigrationConverter extends GenericConverter<VFSInfo> 
 		return code;
 	}
 	
+	protected boolean canOverride() {
+		return "true".equals(parameters.getFirstValue("override"));
+	}
+	
 	protected void constrainQueryToWorkingSet(SelectQuery query, String name) {
 		query.join("assessment", new QRelationConstraint(
-			new CanonicalColumnName(getTableName(name), "internal_id"), 
-			new CanonicalColumnName("assessment", "internal_id")
+			new CanonicalColumnName("assessment", "internal_id"),
+			new CanonicalColumnName(getTableName(name), "internal_id") 
 		));
 		query.join("working_set_taxon", new QRelationConstraint(
-			new CanonicalColumnName("assessment", "taxonid"), 
-			new CanonicalColumnName("working_set_taxon", "taxonid")
+			new CanonicalColumnName("working_set_taxon", "taxonid"),
+			new CanonicalColumnName("assessment", "taxonid")
 		));
+		query.constrain(QConstraint.CG_AND, new CanonicalColumnName("assessment", "assessment_typeid"), 
+			QConstraint.CT_EQUALS, 2);
 		query.constrain(new CanonicalColumnName("working_set_taxon", "working_setid"), 
 			QConstraint.CT_EQUALS, Integer.valueOf(parameters.getFirstValue("working_set")));
+	}
+	
+	protected SelectQuery newSelectQuery() {
+		return new LinkedSelectQuery();
+	}
+	
+	private static class LinkedSelectQuery extends SelectQuery {
+		
+		public LinkedSelectQuery() {
+			super();
+			explicitJoins = new LinkedHashMap<String, QConstraint>();
+		}
+		
 	}
 	
 }

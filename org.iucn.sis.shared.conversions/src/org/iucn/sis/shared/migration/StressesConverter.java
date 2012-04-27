@@ -57,7 +57,7 @@ public class StressesConverter extends FieldMigrationConverter {
 			
 			printf("Running corrections for %s", fieldName);
 			
-			SelectQuery query = new SelectQuery();
+			SelectQuery query = newSelectQuery();
 			query.select(getTableName(fieldName), "internal_id", "ASC");
 			query.select(getTableName(fieldName), "*");
 			if ("true".equals(parameters.getFirstValue("test"))) {
@@ -70,6 +70,8 @@ public class StressesConverter extends FieldMigrationConverter {
 			
 			final AtomicReference<String> ref = new AtomicReference<String>("");
 			final Map<Integer, Row> values = new ConcurrentHashMap<Integer, Row>();
+			
+			print(query.getSQL(ec.getDBSession()));
 			
 			ec.doQuery(query, new RowProcessor() {
 				public void process(Row row) {
@@ -119,14 +121,16 @@ public class StressesConverter extends FieldMigrationConverter {
 			return;
 		}
 		
-		List<AssessmentChange> changes = session.createCriteria(AssessmentChange.class)
-			.add(Restrictions.eq("assessment", field.getAssessment()))
-			.add(Restrictions.eq("fieldName", name))
-			.list();
-		if (!changes.isEmpty()) {
-			printf("Not updating field for T%sA%s; has updates", 
-				field.getAssessment().getTaxon().getId(), field.getAssessment().getId());
-			return;
+		if (!canOverride()) {
+			List<AssessmentChange> changes = session.createCriteria(AssessmentChange.class)
+				.add(Restrictions.eq("assessment", field.getAssessment()))
+				.add(Restrictions.eq("fieldName", name))
+				.list();
+			if (!changes.isEmpty()) {
+				printf("Not updating field for T%sA%s; has updates", 
+					field.getAssessment().getTaxon().getId(), field.getAssessment().getId());
+				return;
+			}
 		}
 		
 		int count = 0, size = field.getFields().size();

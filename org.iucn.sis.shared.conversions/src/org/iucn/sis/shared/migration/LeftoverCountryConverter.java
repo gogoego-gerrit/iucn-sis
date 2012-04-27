@@ -220,7 +220,7 @@ public class LeftoverCountryConverter extends Converter {
 	private Assessment getAssessment(Map<Integer, String> data) {
 		AssessmentCriteria criteria = new AssessmentCriteria(session);
 		criteria.createTaxonCriteria().id.eq(Integer.valueOf(data.get(TAXON)));
-		criteria.internalId.eq(data.get(ASM));
+		criteria.id.eq(Integer.valueOf(data.get(ASM)));
 		
 		try {
 			return criteria.uniqueAssessment();

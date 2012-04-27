@@ -45,7 +45,7 @@ public class RedListEvaluatedConverter extends FieldMigrationConverter {
 			
 			printf("Running corrections for %s", name);
 			
-			SelectQuery query = new SelectQuery();
+			SelectQuery query = newSelectQuery();
 			query.select(getTableName(name), "internal_id", "ASC");
 			query.select(getTableName(name), "*");
 			if ("true".equals(parameters.getFirstValue("test"))) {
@@ -56,6 +56,8 @@ public class RedListEvaluatedConverter extends FieldMigrationConverter {
 			else if (parameters.getFirstValue("working_set") != null) {
 				constrainQueryToWorkingSet(query, name);
 			}
+			
+			print(query.getSQL(ec.getDBSession()));
 			
 			ec.doQuery(query, new RowProcessor() {
 				public void process(Row row) {
@@ -88,7 +90,17 @@ public class RedListEvaluatedConverter extends FieldMigrationConverter {
 			TrivialExceptionHandler.ignore(this, e);
 		}
 		
-		if (field != null && !"true".equals(parameters.getFirstValue("ignoreChanges", "false"))) {
+		if (field == null) {
+			Assessment assessment = getAssessment(internal_id);
+			if (assessment == null) {
+				printf("No unique assessment found for %s", internal_id);
+				return;
+			}
+			field = new Field(CanonicalNames.RedListEvaluated, assessment);
+			assessment.getField().add(field);
+		}
+		
+		if (!canOverride()) {
 			List<AssessmentChange> changes = session.createCriteria(AssessmentChange.class)
 				.add(Restrictions.eq("assessment", field.getAssessment()))
 				.add(Restrictions.eq("fieldName", name))
@@ -101,19 +113,10 @@ public class RedListEvaluatedConverter extends FieldMigrationConverter {
 			}
 		}
 		
-		if (field == null) {
-			Assessment assessment = getAssessment(internal_id);
-			if (assessment == null) {
-				printf("No unique assessment found for %s", internal_id);
-				return;
-			}
-			field = new Field(CanonicalNames.RedListEvaluated, assessment);
-			assessment.getField().add(field);
-		}
-		
 		ProxyField proxy = new ProxyField(field);
 		proxy.setBooleanPrimitiveField("isEvaluated", "Y".equals(row.get("isEvaluated").getString()), Boolean.FALSE);
-		proxy.setDatePrimitiveField("date", row.get("date").getDate());
+		if (row.get("date") != null && !row.get("date").isEmpty())
+			proxy.setDatePrimitiveField("date", row.get("date").getDate());
 		proxy.setForeignKeyPrimitiveField("status", row.get("status").getInteger(), name + "_statusLookup");
 		proxy.setTextPrimitiveField("reasons", row.get("reasons").getString());
 		proxy.setTextPrimitiveField("improvementsNeeded", row.get("improvementsNeeded").getString());
