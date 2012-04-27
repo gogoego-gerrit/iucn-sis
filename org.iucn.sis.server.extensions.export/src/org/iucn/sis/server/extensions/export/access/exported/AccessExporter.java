@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -36,7 +37,10 @@ public class AccessExporter extends DatabaseExporter {
 	private final String location;
 	private final String fileName;
 	
-	private boolean inAfterRun;
+	protected boolean inAfterRun;
+	protected Writer writer;
+	protected String lineBreakRule;
+	protected String ignorePrefix = "base";
 
 	public AccessExporter(ExecutionContext source, Integer workingSetID, String location, String fileName) {
 		super(source, workingSetID);
@@ -45,6 +49,13 @@ public class AccessExporter extends DatabaseExporter {
 		this.fileName = fileName;
 		this.toExport = new ArrayList<String>();
 		this.inAfterRun = false;
+	}
+	
+	@Override
+	public void setOutputStream(Writer writer, String lineBreakRule) {
+		super.setOutputStream(writer, lineBreakRule);
+		this.writer = writer;
+		this.lineBreakRule = lineBreakRule;
 	}
 	
 	@Override
@@ -108,7 +119,7 @@ public class AccessExporter extends DatabaseExporter {
 			toExport.add(tableName);
 			createTable(tableName);
 		}
-		else {
+		else if (!tableName.toLowerCase().startsWith(ignorePrefix)) {
 			String name = tableName;
 			if (name.startsWith("export_"))
 				name = tableName.substring("export_".length());

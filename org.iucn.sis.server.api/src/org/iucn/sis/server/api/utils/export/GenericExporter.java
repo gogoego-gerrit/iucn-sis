@@ -28,7 +28,7 @@ import com.solertium.util.TrivialExceptionHandler;
 
 public class GenericExporter extends DynamicWriter implements Runnable {
 	
-	protected final ExecutionContext source;
+	protected ExecutionContext source;
 	protected ExecutionContext target;
 	
 	public GenericExporter(ExecutionContext source) {
@@ -42,6 +42,10 @@ public class GenericExporter extends DynamicWriter implements Runnable {
 		ec.setExecutionLevel(ExecutionContext.ADMIN);
 		
 		setTarget(ec);
+	}
+	
+	public void setSource(ExecutionContext source) {
+		this.source = source;
 	}
 	
 	public void setTarget(ExecutionContext target) {

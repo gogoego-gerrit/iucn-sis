@@ -11,9 +11,13 @@ import java.util.Properties;
 
 import javax.naming.NamingException;
 
+import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.extensions.export.access.exported.AccessCopyViaJackcess;
 import org.iucn.sis.server.extensions.export.access.exported.AccessExporter;
 import org.iucn.sis.server.extensions.export.access.exported.AccessExporterViaJackcess;
+import org.iucn.sis.server.extensions.export.access.exported.AccessViewBuilder;
+import org.iucn.sis.shared.api.models.WorkingSet;
 import org.junit.Test;
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
@@ -27,6 +31,17 @@ import com.solertium.util.restlet.CookieUtility;
 import core.BasicHibernateTest;
 
 public class AccessExportTest extends BasicHibernateTest {
+	
+	@Test
+	public void testGenerate() throws Exception {
+		Session session = openSession();
+		WorkingSet ws = (WorkingSet) session.load(WorkingSet.class, 16509077);
+		AccessViewBuilder builder = new AccessViewBuilder(ws, SIS.get().getExecutionContext(), "access_test");
+		builder.setFailOnUpdateError(true);
+		builder.destroy();
+		builder.build();
+		closeSession(session);
+	}
 	
 	@Test
 	public void run() throws ResourceException {
@@ -76,6 +91,36 @@ public class AccessExportTest extends BasicHibernateTest {
 		
 		exporter.run();
 		
+	}
+	
+	@Test
+	public void runJackessCopy() throws ResourceException, IOException {
+		Integer workingSetID = 16509077;
+		
+		String name = "export_"+Calendar.getInstance().getTimeInMillis()+"_"+CookieUtility.newUniqueID();
+		if (DBSessionFactory.isRegistered(name))
+			DBSessionFactory.unregisterDataSource(name);
+		
+		Properties properties = SIS.get().getSettings(null);
+		Properties sourceProperties = new Properties();
+		for (Object key : properties.keySet()) {
+			String keyName = (String)key;
+			if (keyName.startsWith("dbsession.sis.")) {
+				String last = keyName.split("\\.")[2];
+				String newName = "dbsession." + name + "." + last;
+				sourceProperties.setProperty(newName, properties.getProperty(keyName));
+			}
+		}
+		
+		String folder = createTempFolder(name);
+		createAccessTarget(folder, name);
+		
+		AccessCopyViaJackcess exporter = new AccessCopyViaJackcess(SIS.get().getExecutionContext(), 
+				workingSetID, name, sourceProperties, folder, name + ".mdb");
+		exporter.setTarget(new SystemExecutionContext());
+		//exporter.setOutputStream(writer, "<br/>");
+		
+		exporter.run();
 	}
 	
 	@Test

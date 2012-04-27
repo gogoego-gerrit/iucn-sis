@@ -49,7 +49,6 @@ public class GenericExportResource extends TransactionResource {
 		getVariants().add(new Variant(MediaType.TEXT_XML));
 	}
 
-	@SuppressWarnings("unused")
 	public Representation represent(Variant variant, Session session) throws ResourceException {
 		if (schema == null || workingSet == null)
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
@@ -61,6 +60,71 @@ public class GenericExportResource extends TransactionResource {
 			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Please supply a valid working set ID");
 		}
 		
+		return copyViaJackcess(workingSetID);
+	}
+	
+	public Representation copyViaJackcess(final Integer workingSetID) throws ResourceException {
+		String name = "export_"+Calendar.getInstance().getTimeInMillis()+"_"+CookieUtility.newUniqueID();
+		if (DBSessionFactory.isRegistered(name))
+			DBSessionFactory.unregisterDataSource(name);
+		
+		Properties properties = SIS.get().getSettings(null);
+		Properties sourceProperties = new Properties();
+		for (Object key : properties.keySet()) {
+			String keyName = (String)key;
+			if (keyName.startsWith("dbsession.sis.")) {
+				String last = keyName.split("\\.")[2];
+				String newName = "dbsession." + name + "." + last;
+				sourceProperties.setProperty(newName, properties.getProperty(keyName));
+			}
+		}
+		
+		final PipedInputStream inputStream = new PipedInputStream(); 
+		final Representation representation = new OutputRepresentation(MediaType.TEXT_HTML) {
+			public void write(OutputStream out) throws IOException {
+				byte[] b = new byte[8];
+				int read;
+				while ((read = inputStream.read(b)) != -1) {
+					out.write(b, 0, read);
+					out.flush();
+				}
+			}
+		};
+		
+		final PrintWriter writer;
+		try {
+			writer = new PrintWriter(new OutputStreamWriter(new PipedOutputStream(inputStream)), true);
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		String folder = createTempFolder(name);
+		try {
+			createAccessTarget(folder, name);
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
+		}
+		
+		final AccessCopyViaJackcess exporter;
+		try {
+			exporter = new AccessCopyViaJackcess(SIS.get().getExecutionContext(), 
+				workingSetID, name, sourceProperties, folder, name + ".mdb");
+		} catch (IOException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Could not create target database.", e);
+		}		
+		exporter.setTarget(new SystemExecutionContext());
+		exporter.setOutputStream(writer, "<br/>");
+		
+		new Thread(exporter).start();
+		
+		return representation;
+	}
+	
+	/**
+	 * @deprecated use copyViaJackcess instead.
+	 */
+	@SuppressWarnings("unused")
+	public Representation exportViaJackcess(final Integer workingSetID) throws ResourceException {
 		String name = "export_"+Calendar.getInstance().getTimeInMillis()+"_"+CookieUtility.newUniqueID();
 		if (DBSessionFactory.isRegistered(name))
 			DBSessionFactory.unregisterDataSource(name);
