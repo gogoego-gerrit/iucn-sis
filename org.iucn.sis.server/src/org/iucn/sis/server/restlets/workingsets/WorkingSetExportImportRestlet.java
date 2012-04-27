@@ -150,7 +150,7 @@ public class WorkingSetExportImportRestlet extends BaseServiceRestlet {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
 		}
 		
-		String fileName = user.getUsername()+ "_" + workingsetID + "_" + 
+		String fileName = user.getId() + "_" + workingsetID + "_" + 
 			Calendar.getInstance().getTimeInMillis();
 		
 		WorkingSetExporter exporter = new WorkingSetExporter( 
