@@ -63,12 +63,13 @@ public class PublicationRestlet extends BaseServiceRestlet {
 				throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
 			
 			if (doValidation){
-				int status = AssessmentIntegrityValidation.SUCCESS;
+				int status;
 				try {
 					status = IntegrityValidator.validate_background(session, SIS.get().getVFS(), 
 						SIS.get().getExecutionContext(), assessment.getId());
 				} catch (Exception e) {
 					Debug.println("Failed attempting to run validation: {0}\n{1]", e.getMessage(), e);
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 				}
 				
 				if (status == AssessmentIntegrityValidation.FAILURE) {
@@ -96,12 +97,13 @@ public class PublicationRestlet extends BaseServiceRestlet {
 			for (Taxon taxon : ws.getTaxon()) {
 				for (Assessment assessment : helper.getAssessments(taxon.getId())) {
 					if (doValidation) {
-						int status = AssessmentIntegrityValidation.SUCCESS;
+						int status;
 						try {
 							status = IntegrityValidator.validate_background(session, SIS.get().getVFS(), 
 									SIS.get().getExecutionContext(), assessment.getId());
 						} catch (Exception e) {
 							Debug.println("Failed attempting to run validation: {0}\n{1]", e.getMessage(), e);
+							throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
 						}
 					
 						if (status == AssessmentIntegrityValidation.FAILURE) {
