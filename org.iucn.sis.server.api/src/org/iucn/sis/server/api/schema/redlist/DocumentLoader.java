@@ -1,6 +1,9 @@
 package org.iucn.sis.server.api.schema.redlist;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.shared.api.debug.Debug;
@@ -34,15 +37,28 @@ public class DocumentLoader {
 		final VFSPathToken token = new VFSPathToken(fieldName + ".xml");
 		if (SIS.get().getVFS().exists(FIELDS_DIR.child(token))) {
 			try {
-				return SIS.get().getVFS().getMutableDocument(FIELDS_DIR.child(token));
+				return getInputStreamFile(SIS.get().getVFS().getInputStream(FIELDS_DIR.child(token)));
 			} catch (IOException e) {
 				Debug.println("Field {0} reported existence, but could not be loaded:\n{1}", fieldName, e);
 			}
 		}
 		
-		return BaseDocumentUtils.impl.getInputStreamFile(
+		return getInputStreamFile(
 			DocumentLoader.class.getResourceAsStream(fieldName + ".xml")
 		);
+	}
+	
+	private static Document getInputStreamFile(InputStream stream) {
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+			String line = "", xml = "";
+			while ((line = reader.readLine()) != null)
+				xml += line;
+			reader.close();
+			return BaseDocumentUtils.impl.createDocumentFromString(xml);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 }
