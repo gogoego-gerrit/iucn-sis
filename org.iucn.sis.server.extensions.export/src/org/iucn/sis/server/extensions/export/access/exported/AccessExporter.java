@@ -34,7 +34,7 @@ public class AccessExporter extends DatabaseExporter {
 	}
 	
 	protected final List<String> toExport;
-	private final String location;
+	protected final String location;
 	private final String fileName;
 	
 	protected boolean inAfterRun;
@@ -82,7 +82,7 @@ public class AccessExporter extends DatabaseExporter {
 		inAfterRun = false;
 	}
 	
-	private String zip() throws Exception {
+	protected String zip() throws Exception {
 		File folder = new File(location);
 		File tmp = new File(folder, fileName + ".zip");
 		

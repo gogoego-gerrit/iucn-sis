@@ -57,6 +57,23 @@ public class AccessCopyViaJackcess extends AccessExporterViaJackcess {
 		} finally {
 			session.close();
 		}
+		
+		if (location == null) {
+			write("Your database has been exported successfully.");
+			return;
+		};
+		
+		write("Write complete, zipping results...");
+		
+		try {
+			write("--- Complete ---");
+			write("You can now download your working set.");
+			write("<a target=\"blank\" href=\"/apps/org.iucn.sis.server.extensions.export/downloads/%s\">Click here to download</a>", zip());
+		} catch (Exception e) {
+			write("Failed to zip database");
+		}
+		
+		inAfterRun = false;
 	}
 	
 	@Override
