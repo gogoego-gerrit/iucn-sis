@@ -51,11 +51,12 @@ public class DocumentLoader {
 	private static Document getInputStreamFile(InputStream stream) {
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-			String line = "", xml = "";
+			StringBuilder xml = new StringBuilder();
+			String line = null;
 			while ((line = reader.readLine()) != null)
-				xml += line;
+				xml.append(line);
 			reader.close();
-			return BaseDocumentUtils.impl.createDocumentFromString(xml);
+			return BaseDocumentUtils.impl.createDocumentFromString(xml.toString());
 		} catch (Exception e) {
 			return null;
 		}
