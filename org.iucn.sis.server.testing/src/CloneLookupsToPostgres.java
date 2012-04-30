@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.w3c.dom.Document;
@@ -9,6 +11,7 @@ import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.TableCopier;
 import com.solertium.db.query.SelectQuery;
+import com.solertium.util.AlphanumericComparator;
 import com.solertium.util.TrivialExceptionHandler;
 
 public class CloneLookupsToPostgres {
@@ -45,6 +48,7 @@ public class CloneLookupsToPostgres {
 		ectarget.getDBSession().setSchema("lookups");
 
 		System.out.println("Applying new structure");
+		Collections.sort(tables, new AlphanumericComparator());
 		for(String tn : tables){
 			try{
 				ectarget.dropTable(tn);
@@ -62,12 +66,21 @@ public class CloneLookupsToPostgres {
 			ecsource.doQuery(sq, new TableCopier(ectarget, tn));
 		}
 		
+		System.out.println("Creating indices and access privileges...");
 		for (String tn : tables) {
-			try {
-				ectarget.doUpdate("GRANT SELECT ON lookups.\"" + tn + "\" TO PUBLIC");
-				ectarget.doUpdate("CREATE INDEX idx_" + tn + " ON lookups.\"" + tn + "\" (ID)");
-			} catch (Exception e) {
-				TrivialExceptionHandler.ignore(ectarget, e);
+			List<String> queries = new ArrayList<String>();
+			queries.add("GRANT SELECT ON lookups.\"" + tn + "\" TO PUBLIC");
+			queries.add("CREATE INDEX idx_" + tn + " ON lookups.\"" + tn + "\" (\"ID\")");
+			if (tn.endsWith("LOOKUP")) {
+				queries.add("CREATE INDEX idx_" + tn + "_code ON lookups.\"" + tn + "\" (\"CODE\")");
+				queries.add("CREATE INDEX idx_" + tn + "_parentid ON lookups.\"" + tn + "\" (\"PARENTID\")");
+			}
+			for (String query : queries) {
+				try {
+					ectarget.doUpdate(query);
+				} catch (Exception e) {
+					TrivialExceptionHandler.ignore(ectarget, e);
+				}
 			}
 		}
 		
