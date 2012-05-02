@@ -181,108 +181,108 @@ CREATE OR REPLACE VIEW "$schema"."BASE_PUBLISHED_REGIONAL_HISTORIC_ASSESSMENT" A
 
    
 -- ALL_DRAFTS_GLOBAL
-CREATE OR REPLACE VIEW "$schema"."ALL_DRAFTS_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
-   FROM $schema.vw_draft_global_assessment a
-   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
-   JOIN taxon ON taxon.id = a.taxonid
-   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
-   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
-   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
-   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
-   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id;  
+--CREATE OR REPLACE VIEW "$schema"."ALL_DRAFTS_GLOBAL" AS 
+-- SELECT a.taxonid, a.id AS assessmentid, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
+--   FROM $schema.vw_draft_global_assessment a
+--   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
+--   JOIN taxon ON taxon.id = a.taxonid
+--   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
+--   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
+--   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
+--   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
+--   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
+--   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id;  
    
 ------------------------------------------------------------------------------------------------------------ 
 -- ALL_DRAFTS_REGIONAL
-CREATE OR REPLACE VIEW "$schema"."ALL_DRAFTS_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
-   FROM $schema.vw_draft_regional_assessment a
-   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
-   JOIN taxon ON taxon.id = a.taxonid
-   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
-   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
-   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
-   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
-   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id
-   LEFT JOIN vw_regioninformation_regions vw_reg ON vw_reg.assessmentid = a.id AND vw_reg.value <> 1
-   LEFT JOIN region reg ON reg.id = vw_reg.value
-   LEFT JOIN vw_regioninformation_endemic vw_end ON vw_end.assessmentid = a.id;  
+--CREATE OR REPLACE VIEW "$schema"."ALL_DRAFTS_REGIONAL" AS 
+-- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
+--   FROM $schema.vw_draft_regional_assessment a
+--   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
+--   JOIN taxon ON taxon.id = a.taxonid
+--   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
+--   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
+--   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
+--   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
+--   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
+--   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id
+--   LEFT JOIN vw_regioninformation_regions vw_reg ON vw_reg.assessmentid = a.id AND vw_reg.value <> 1
+--   LEFT JOIN region reg ON reg.id = vw_reg.value
+--   LEFT JOIN vw_regioninformation_endemic vw_end ON vw_end.assessmentid = a.id;  
    
 ------------------------------------------------------------------------------------------------------------ 
 -- ALL_PUBLISHED_GLOBAL
-CREATE OR REPLACE VIEW "$schema"."ALL_PUBLISHED_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
-   FROM $schema.vw_published_global_assessment a
-   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
-   JOIN taxon ON taxon.id = a.taxonid
-   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
-   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
-   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
-   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
-   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id;  
+--CREATE OR REPLACE VIEW "$schema"."ALL_PUBLISHED_GLOBAL" AS 
+-- SELECT a.taxonid, a.id AS assessmentid, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
+--   FROM $schema.vw_published_global_assessment a
+--   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
+--   JOIN taxon ON taxon.id = a.taxonid
+--   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
+--   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
+--   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
+--   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
+--   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
+--   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id;  
    
 ------------------------------------------------------------------------------------------------------------ 
 -- ALL_PUBLISHED_GLOBAL_HISTORIC
-CREATE OR REPLACE VIEW "$schema"."ALL_PUBLISHED_GLOBAL_HISTORIC" AS 
- SELECT a.taxonid, a.id AS assessmentid, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
-   FROM $schema.vw_published_global_historic_assessment a
-   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
-   JOIN taxon ON taxon.id = a.taxonid
-   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
-   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
-   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
-   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
-   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id;    
+--CREATE OR REPLACE VIEW "$schema"."ALL_PUBLISHED_GLOBAL_HISTORIC" AS 
+-- SELECT a.taxonid, a.id AS assessmentid, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
+--   FROM $schema.vw_published_global_historic_assessment a
+--   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
+--   JOIN taxon ON taxon.id = a.taxonid
+--   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
+--   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
+--   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
+--   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
+--   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
+--   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id;    
    
 ------------------------------------------------------------------------------------------------------------ 
 -- ALL_PUBLISHED_REGIONAL
-CREATE OR REPLACE VIEW "$schema"."ALL_PUBLISHED_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
-   FROM $schema.vw_published_regional_assessment a
-   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
-   JOIN taxon ON taxon.id = a.taxonid
-   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
-   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
-   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
-   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
-   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id
-   LEFT JOIN vw_regioninformation_regions vw_reg ON vw_reg.assessmentid = a.id AND vw_reg.value <> 1
-   LEFT JOIN region reg ON reg.id = vw_reg.value
-   LEFT JOIN vw_regioninformation_endemic vw_end ON vw_end.assessmentid = a.id; 
+--CREATE OR REPLACE VIEW "$schema"."ALL_PUBLISHED_REGIONAL" AS 
+-- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
+--   FROM $schema.vw_published_regional_assessment a
+--   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
+--   JOIN taxon ON taxon.id = a.taxonid
+--   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
+--   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
+--   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
+--   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
+--   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
+--   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id
+--   LEFT JOIN vw_regioninformation_regions vw_reg ON vw_reg.assessmentid = a.id AND vw_reg.value <> 1
+--   LEFT JOIN region reg ON reg.id = vw_reg.value
+--   LEFT JOIN vw_regioninformation_endemic vw_end ON vw_end.assessmentid = a.id; 
    
 ------------------------------------------------------------------------------------------------------------ 
 -- ALL_PUBLISHED_REGIONAL_HISTORIC
-CREATE OR REPLACE VIEW "$schema"."ALL_PUBLISHED_REGIONAL_HISTORIC" AS 
- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
-   FROM $schema.vw_published_regional_historic_assessment a
-   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
-   JOIN taxon ON taxon.id = a.taxonid
-   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
-   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
-   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
-   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
-   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
-   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id
-   LEFT JOIN vw_regioninformation_regions vw_reg ON vw_reg.assessmentid = a.id AND vw_reg.value <> 1
-   LEFT JOIN region reg ON reg.id = vw_reg.value
-   LEFT JOIN vw_regioninformation_endemic vw_end ON vw_end.assessmentid = a.id;    
+--CREATE OR REPLACE VIEW "$schema"."ALL_PUBLISHED_REGIONAL_HISTORIC" AS 
+-- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom, ft.phylum, ft.class, ft."order", ft.family, ft.genus, ft.species, ft.infrarank, ft.infratype, ft.subpopulation, taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.value AS possibly_extinct, pec.value AS possibly_extinct_wild, rld.value AS assessmentdate, ca.value AS assessors, ce.value AS evaluators, cc.value AS contributors, cf.value AS facilitators
+--   FROM $schema.vw_published_regional_historic_assessment a
+--   JOIN vw_footprint ft ON ft.taxonid = a.taxonid
+--   JOIN taxon ON taxon.id = a.taxonid
+--   LEFT JOIN vw_redlistassessors_publication ca ON ca.assessmentid = a.id
+--   LEFT JOIN vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
+--   LEFT JOIN vw_redlistcontributors_publication cc ON cc.assessmentid = a.id
+--   LEFT JOIN vw_redlistfacilitators_publication cf ON cf.assessmentid = a.id
+--   LEFT JOIN vw_redlistassessmentdate_value rld ON a.id = rld.assessmentid
+--   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinct pe ON pe.assessmentid = a.id
+--   LEFT JOIN vw_redlistcriteria_possiblyextinctcandidate pec ON pec.assessmentid = a.id
+--   LEFT JOIN vw_regioninformation_regions vw_reg ON vw_reg.assessmentid = a.id AND vw_reg.value <> 1
+--   LEFT JOIN region reg ON reg.id = vw_reg.value
+--   LEFT JOIN vw_regioninformation_endemic vw_end ON vw_end.assessmentid = a.id;    
    
 ------------------------------------------------------------------------------------------------------------ 
 -- ALL_TAXA_CONSERVATION_ACTIONS_DRAFTS_GLOBAL
