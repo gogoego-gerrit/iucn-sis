@@ -179,6 +179,15 @@ CREATE OR REPLACE VIEW "$schema"."BASE_PUBLISHED_REGIONAL_HISTORIC_ASSESSMENT" A
  SELECT DISTINCT taxonid, id as assessmentid
    FROM $schema.vw_published_regional_historic_assessment;
 
+CREATE OR REPLACE VIEW "$schema".assessment AS
+ SELECT a.*
+   FROM $schema.vw_assessments f 
+   JOIN public.assessment a ON f.assessmentid = a.id;
+   
+CREATE OR REPLACE VIEW "$schema".all_assessments AS
+ SELECT a.*
+   FROM $schema.vw_filter vf
+   JOIN public.assessment a ON vf.assessmentid = a.id;
    
 -- ALL_DRAFTS_GLOBAL
 --CREATE OR REPLACE VIEW "$schema"."ALL_DRAFTS_GLOBAL" AS 

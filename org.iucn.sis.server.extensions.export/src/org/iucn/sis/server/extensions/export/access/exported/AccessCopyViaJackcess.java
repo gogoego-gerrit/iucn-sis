@@ -48,7 +48,6 @@ public class AccessCopyViaJackcess extends AccessExporterViaJackcess {
 		final WorkingSet workingSet = new WorkingSetIO(session).readWorkingSet(workingSetID);
 		
 		createTable("taxon");
-		createTable("assessment");
 		
 		try {
 			final HashSet<Integer> seen = new HashSet<Integer>();
