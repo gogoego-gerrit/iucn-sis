@@ -100,7 +100,7 @@ CREATE TABLE "$schema".vw_draft_global_assessment AS
  SELECT DISTINCT f.taxonid, f.assessmentid as id
  FROM $schema.vw_assessments f
  LEFT JOIN $schema."REGIONINFORMATION" r ON r.assessmentid = f.assessmentid
- WHERE f.assessment_typeid = 2  
+ WHERE f.assessment_typeid <> 1  
   AND r.regions = 1;
 
 ------------------------------------------------------------------------------------------------------------          
@@ -110,7 +110,7 @@ CREATE TABLE "$schema".vw_draft_regional_assessment AS
  FROM $schema.vw_assessments f
  JOIN $schema."REGIONINFORMATION" r ON r.assessmentid = f.assessmentid
  JOIN public.region reg ON reg.id = r.regions
- WHERE f.assessment_typeid = 2
+ WHERE f.assessment_typeid <> 1
   AND r.regions <> 1;
 
 ------------------------------------------------------------------------------------------------------------          
@@ -129,7 +129,7 @@ CREATE TABLE "$schema".vw_published_global_historic_assessment AS
  FROM $schema.vw_assessments f
  JOIN $schema."REGIONINFORMATION" r ON r.assessmentid = f.assessmentid
  LEFT JOIN $schema.recent_published rp ON rp.assessmentid = f.assessmentid
- WHERE rp.assessmentid is null AND r.regions = 1;
+ WHERE f.assessment_typeid = 1 and rp.assessmentid is null AND r.regions = 1;
 
 ------------------------------------------------------------------------------------------------------------          
 -- CURRENT PUBLISHED REGIONAL ASSESSMENTS
@@ -149,7 +149,7 @@ CREATE TABLE "$schema".vw_published_regional_historic_assessment AS
  JOIN $schema."REGIONINFORMATION" r ON r.assessmentid = f.assessmentid
  JOIN public.region reg ON reg.id = r.regions
  LEFT JOIN $schema.recent_published rp ON rp.assessmentid = f.assessmentid
- WHERE rp.assessmentid is null AND r.regions <> 1;
+ WHERE f.assessment_typeid = 1 and rp.assessmentid is null AND r.regions <> 1;
           
 ------------------------------------------------------------------------------------------------------------
 -- EXPORT VIEWS
