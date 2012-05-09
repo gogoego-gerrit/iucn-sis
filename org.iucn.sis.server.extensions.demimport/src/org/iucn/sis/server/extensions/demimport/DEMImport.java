@@ -1,7 +1,6 @@
 package org.iucn.sis.server.extensions.demimport;
 
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -92,7 +91,6 @@ import com.solertium.util.TrivialExceptionHandler;
 public class DEMImport extends DynamicWriter implements Runnable {
 	
 	private static final String CANNED_NOTE = "Unparseable data encountered during DEM import: ";
-	private static final SimpleDateFormat ASSESS_DATE_FMT = new SimpleDateFormat("m/d/yyyy");
 	
 	private static final int STATE_CHANGED = 1001;
 	private static final int STATE_TO_IMPORT = 1002;
@@ -435,12 +433,10 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			}
 			
 			// DO SYNONYMS
-			for (Row curRow : queryDEM("Synonyms", curSpcID)) {
-				String name = curRow.get("Species_name").getString(Column.NEVER_NULL);
-				String notes = curRow.get("SynonymNotes").getString(Column.NEVER_NULL);
-
-				Synonym curSyn;
-				int synlevel = TaxonNode.SPECIES;
+			for (Row row : queryDEM("Synonyms", curSpcID)) {
+				String name = getString(row, "Species_name");
+				String notes = getString(row, "SynonymNotes", null);
+				int synlevel = TaxonLevel.SPECIES;
 				String[] brokenName = name.split("\\s");
 				String genusName = "";
 				String spcName = "";
@@ -449,31 +445,37 @@ public class DEMImport extends DynamicWriter implements Runnable {
 				String subpopName = "";
 
 				genusName = brokenName[0];
-				synlevel = TaxonNode.GENUS;
+				synlevel = TaxonLevel.GENUS;
 
 				if (brokenName.length > 1) {
 					spcName = brokenName[1];
-					synlevel = TaxonNode.SPECIES;
+					synlevel = TaxonLevel.SPECIES;
 				}
 				if (brokenName.length > 2) {
-					if (brokenName[2].matches("^ssp\\.?$") || brokenName[2].matches("^var\\.?$")) {
-						if (brokenName[2].matches("^ssp\\.?$"))
-							infraType = TaxonNode.INFRARANK_TYPE_SUBSPECIES;
+					if (brokenName[2].matches("^ssp\\.?$") || brokenName[2].matches("^var\\.?$") || 
+							brokenName[2].matches("^fma\\.?$")) {
+						if (brokenName[2].matches("^fma\\.?$"))
+							infraType = Infratype.INFRARANK_TYPE_FORMA;
+						else if (brokenName[2].matches("^var\\.?$"))
+							infraType = Infratype.INFRARANK_TYPE_VARIETY;
 						else
-							infraType = TaxonNode.INFRARANK_TYPE_VARIETY;
+							infraType = Infratype.INFRARANK_TYPE_SUBSPECIES;
 
 						infraName = brokenName[3];
 						for (int i = 4; i < brokenName.length; i++)
 							infraName += " " + brokenName[i];
 
-						synlevel = TaxonNode.INFRARANK;
+						synlevel = TaxonLevel.INFRARANK;
 					} else if (brokenName.length > 3
-							&& (brokenName[3].matches("^\\.?$") || brokenName[3].matches("^var\\.?$"))) {
+							&& (brokenName[3].matches("^ssp\\.?$") || brokenName[3].matches("^var\\.?$") || 
+									brokenName[2].matches("^fma\\.?$"))) {
 						spcName += " " + brokenName[2];
-						if (brokenName[3].matches("^ssp\\.?$"))
-							infraType = TaxonNode.INFRARANK_TYPE_SUBSPECIES;
+						if (brokenName[3].matches("^fma\\.?$"))
+							infraType = Infratype.INFRARANK_TYPE_FORMA;
+						else if (brokenName[3].matches("^var\\.?$"))
+							infraType = Infratype.INFRARANK_TYPE_VARIETY;
 						else
-							infraType = TaxonNode.INFRARANK_TYPE_VARIETY;
+							infraType = Infratype.INFRARANK_TYPE_SUBSPECIES;
 
 						infraName = brokenName[4];
 						for (int i = 5; i < brokenName.length; i++)
@@ -486,42 +488,43 @@ public class DEMImport extends DynamicWriter implements Runnable {
 						if (whatsLeft.toLowerCase().contains("stock")
 								|| whatsLeft.toLowerCase().contains("subpopulation")) {
 							subpopName = whatsLeft;
-							synlevel = TaxonNode.SUBPOPULATION;
+							synlevel = TaxonLevel.SUBPOPULATION;
 						} else
 							spcName += " " + whatsLeft;
 					}
 				}
-				String authority = curRow.get("Syn_Authority").getString(Column.NEVER_NULL);
+				String authority = getString(row, ("Syn_Authority"));
 
-				curSyn = new Synonym();
-				curSyn.setGenusName(genusName);
-				curSyn.setSpeciesName(spcName);
-				curSyn.setInfraName(infraName);
-				try {
-				curSyn.setInfraType(Infratype.getInfratype(infraType).getName());
-				} catch (NullPointerException e) { }
-				curSyn.setTaxon_level(TaxonLevel.getTaxonLevel(synlevel));
-				curSyn.setStockName(subpopName);
-				curSyn.setStatus(Synonym.ADDED);
-				curSyn.setAuthority(authority, synlevel);
+				Synonym synonym = new Synonym();
+				synonym.setGenusName(genusName);
+				synonym.setSpeciesName(spcName);
+				synonym.setInfraName(infraName);
+				
+				if (infraType > -1) {
+					synonym.setInfraType(Infratype.getInfratype(infraType).getName());
+				}
+				synonym.setTaxon_level(TaxonLevel.getTaxonLevel(synlevel));
+				synonym.setStockName(subpopName);
+				synonym.setStatus(Synonym.ADDED);
+				synonym.setAuthority(authority, synlevel);
 				
 				if (!isBlank(notes)) {
 					Notes note = createNote(notes);
-					note.setSynonym(curSyn);
-					curSyn.getNotes().add(note);
+					note.setSynonym(synonym);
+					synonym.getNotes().add(note);
 				}
 
 				boolean alreadyExists = false;
 
 				for (Synonym syn : curNode.getSynonyms()) 
-					alreadyExists = curSyn.getFriendlyName().equals(syn.getFriendlyName());
+					alreadyExists |= synonym.getFriendlyName().equals(syn.getFriendlyName());
 
 				if (!alreadyExists) {
-					curSyn.setTaxon(curNode);
-					curNode.getSynonyms().add(curSyn);
+					synonym.setTaxon(curNode);
+					curNode.getSynonyms().add(synonym);
 					changed = true;
 					
-					printf("Added %s", curSyn.getFriendlyName());
+					printf(" - Added synonym %s", synonym.getFriendlyName());
 				}
 			}
 
@@ -602,7 +605,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 				
 				demSource.doQuery(query, new RowProcessor() {
 					public void process(Row row) {
-						cache.put(row.get(entry.getSecond()).toString(), row.get(entry.getThird()).toString());
+						cache.put(row.get(entry.getSecond()).toString(), row.get(entry.getThird()).toString().trim());
 					}
 				});
 				
@@ -630,6 +633,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			for (Row row : rs.getSet())
 				cache.put(row.get(entry.getValue().getFirst()).toString(), 
 						row.get(entry.getValue().getSecond()) + "_" + row.get(entry.getValue().getThird()));
+			
 			
 			library.put(entry.getKey(), cache);
 		}
@@ -1056,7 +1060,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			
 			Integer index = getIndex(field.getName() + "Lookup", countryISO, null);
 			if (index == null) {
-				printf("No SIS 2 Country matching %s", countryISO);
+				printf("No SIS 2 Country matching '%s'", countryISO);
 				continue;
 			}
 			
@@ -1206,7 +1210,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	private Field addFieldForCheckedOptions(String fieldName, String dataPoint, Row row, Assessment assessment, String... options) throws DBException {
 		ArrayList<Integer> selection = new ArrayList<Integer>();
 		for (String option : options) {
-			boolean checked = Integer.valueOf(1).equals(row.get(option).getInteger());
+			boolean checked = isChecked(row, option);
 			if (checked) {
 				Integer value = getIndex(fieldName, dataPoint, option, null);
 				if (value != null)
@@ -1350,13 +1354,13 @@ public class DEMImport extends DynamicWriter implements Runnable {
 
 	private void doActionsParse(HashMap<Integer, Field> dataMap, String libraryTable, Field field, int oldCode) throws DBException {
 		String newData = searchLibrary(libraryTable, Integer.toString(oldCode));
-
+		
 		if (newData != null) {
 			String[] split = newData.split("_");
 			String newCode = split[0];
-			String notes = split[1];
+			String notes = split.length > 1 ? split[1] : null;
 			
-			String numericCode = null;
+			String numericCode = "";
 			for (char c : newCode.toCharArray())
 				if (Character.isWhitespace(c))
 					break;
@@ -1380,12 +1384,14 @@ public class DEMImport extends DynamicWriter implements Runnable {
 				dataMap.put(index, subfield);
 			}
 			
-			ProxyField proxy = new ProxyField(subfield);
-			String existingNote = proxy.getStringPrimitiveField("note");
-			if ("".equals(existingNote))
-				proxy.setStringPrimitiveField("note", XMLUtils.clean(notes));
-			else
-				proxy.setStringPrimitiveField("note", existingNote + " --- \n" + XMLUtils.clean(notes));
+			if (!isBlank(notes)) {
+				ProxyField proxy = new ProxyField(subfield);
+				String existingNote = proxy.getStringPrimitiveField("note");
+				if ("".equals(existingNote))
+					proxy.setStringPrimitiveField("note", XMLUtils.clean(notes));
+				else
+					proxy.setStringPrimitiveField("note", existingNote + " --- \n" + XMLUtils.clean(notes));
+			}
 		}
 	}
 
@@ -1792,9 +1798,9 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		
 		for (Row curRow : rows) {
 			String fieldName = CanonicalNames.GeneralHabitats + "Subfield";
-			String curCode = curRow.get("Gh_N").getString();
+			String curCode = getString(curRow, "Gh_N", "");
 			
-			Integer lookup = getIndex(fieldName, curCode, null);
+			Integer lookup = getIndex(field.getName()+"Lookup", curCode, null);
 			if (lookup == null) {
 				printf("No lookup to match habitat %s", curCode);
 				continue;
@@ -2043,12 +2049,8 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			proxy.setScale(row.get("Assess_type_ID").getInteger());
 			proxy.setLocalityName(getString(row, "Assess_name", null));
 			try {
-				proxy.setDate(FormattedDate.impl.getDate(getString(row, "Assess_date", null)));
-			} catch (Exception e) { 
-				try {
-					proxy.setDate(ASSESS_DATE_FMT.parse(getString(row, "Assess_date", null)));
-				} catch (Exception f) { }
-			}
+				proxy.setDate(row.get("Assess_date").getDate());
+			} catch (Exception e) { }
 			
 			proxy.setProductDescription(getString(row, "p_product", null));
 			proxy.setAnnualHarvest(getString(row, "p_Single_harvest_amount", null));
@@ -2125,7 +2127,8 @@ public class DEMImport extends DynamicWriter implements Runnable {
 	
 	private boolean isChecked(Row row, String key) {
 		try {
-			return Integer.valueOf(1).equals(row.get(key).toString());
+			return "Y".equals(row.get(key).toString()) || 
+				"1".equals(row.get(key).toString());
 		} catch (NullPointerException e) {
 			return false;
 		}
@@ -2292,7 +2295,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			if (!isBlank(rlAsmDate)) {
 				try {
 					addDatePrimitiveField(CanonicalNames.RedListAssessmentDate, "value", 
-						curAssessment, ASSESS_DATE_FMT.parse(rlAsmDate));
+						curAssessment, curRow.get("assess_date").getDate());
 				} catch (Exception e) { }
 			}
 
@@ -2341,7 +2344,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			addStringPrimitiveField(CanonicalNames.OldDEMFutureDecline, "value", curAssessment, getString(curRow, "future_decline", null));
 			addStringPrimitiveField(CanonicalNames.OldDEMPeriodFutureDecline, "value", curAssessment, getString(curRow, "period_future_decline"));
 			
-			System.out.println("The value of severe_frag is " + getString(curRow, "severely_frag", null));
+			//System.out.println("The value of severe_frag is " + getString(curRow, "severely_frag", null));
 			addBooleanRangePrimitiveField(CanonicalNames.SevereFragmentation, "isFragmented", curAssessment, getString(curRow, "severely_frag", null));
 		}
 	}
@@ -2721,14 +2724,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 
 		Row row = rows.get(0);
 		
-		boolean isNotUtilized = isChecked(row, "Utilised");
-		if (isNotUtilized) {
-			Field notUtilized = new Field(CanonicalNames.NotUtilized, curAssessment);
-			ProxyField proxy = new ProxyField(notUtilized);
-			proxy.setBooleanPrimitiveField("isNotUtilized", Boolean.TRUE, Boolean.FALSE);
-			
-			curAssessment.setField(notUtilized);
-		}
+		addBooleanPrimitiveField(CanonicalNames.NotUtilized, "isNotUtilized", curAssessment, isChecked(row, "Utilised"));
 		
 		StringBuilder useTradeNarrative = new StringBuilder();
 
@@ -2825,7 +2821,7 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			lec.doQuery(query, lookup);
 			
 			lookups.put(fieldName, lookup);
-
+			
 			return lookup;
 		}
 	}

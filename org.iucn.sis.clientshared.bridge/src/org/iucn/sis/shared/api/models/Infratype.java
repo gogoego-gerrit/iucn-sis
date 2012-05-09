@@ -71,7 +71,7 @@ public class Infratype implements Serializable {
 	}
 	
 	public static Infratype getInfratype(int id, Taxon taxon) {
-		if (id <= 0 && id >= names.length)
+		if (id <= 0 || id >= names.length)
 			return null;
 		
 		Infratype ret = new Infratype(id, names[id], codes[id]);
