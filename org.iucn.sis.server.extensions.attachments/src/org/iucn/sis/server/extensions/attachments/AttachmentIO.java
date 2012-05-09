@@ -1,12 +1,12 @@
 package org.iucn.sis.server.extensions.attachments;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.hibernate.Session;
 import org.iucn.sis.server.api.persistance.AssessmentCriteria;
 import org.iucn.sis.server.api.persistance.FieldCriteria;
-import org.iucn.sis.server.api.persistance.FieldDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.shared.api.models.Assessment;
 import org.iucn.sis.shared.api.models.Edit;
@@ -65,7 +65,7 @@ public class AttachmentIO {
 		return attachment;
 	}
 	
-	public void attach(Integer attachmentID, List<Integer> fields) throws PersistentException {
+	public void attach(Integer attachmentID, Collection<Integer> fields) throws PersistentException {
 		FieldAttachment attachment = AttachmentDAO.getAttachment(session, attachmentID);
 		if (attachment == null)
 			throw new PersistentException("Attachment " + attachmentID + " not found.");
@@ -75,14 +75,11 @@ public class AttachmentIO {
 			attached.add(field.getId());
 		
 		for (Integer fieldID : fields) {
-			if (!attached.contains(fieldID)) {
-				Field field = FieldDAO.getFieldByORMID(session, fieldID);
-				if (field != null)
-					attachment.getFields().add(field);
-			}
+			if (!attached.contains(fieldID))
+				attachment.getFields().add((Field)session.load(Field.class, fieldID));
 		}
 		
-		session.save(attachment);
+		session.update(attachment);
 	}
 	
 	public void detach(Integer attachmentID, Integer fieldID) throws PersistentException {

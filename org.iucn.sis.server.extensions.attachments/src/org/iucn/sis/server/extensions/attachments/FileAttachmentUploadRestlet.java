@@ -1,12 +1,13 @@
 package org.iucn.sis.server.extensions.attachments;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.io.AssessmentIO;
@@ -127,25 +128,17 @@ public class FileAttachmentUploadRestlet extends BaseServiceRestlet {
 		final FieldAttachment attachment;
 		if (attachmentID == null) {
 			attachment = io.createAttachment(cleanFilename(file.getName()), "unsaved", isPublished, user); 
+			Collection<Integer> fieldIDs = new HashSet<Integer>();
 			for (String fieldName : fields) {
 				Field field = assessment.getField(fieldName);
-				if (field == null) {
-					field = new Field();
-					field.setName(fieldName);
-					field.setAssessment(assessment);
-					
-					assessment.getField().add(field);
-				}
-				
-				Hibernate.initialize(field.getFieldAttachment());
-				
-				field.getFieldAttachment().add(attachment);
-			
-				try {
-					SISPersistentManager.instance().saveObject(session, field);
-				} catch (PersistentException e) {
-					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e);
-				}
+				if (field != null) //UI enforces this, if not found, ignore.
+					fieldIDs.add(field.getId());
+			}
+			try {
+				session.flush();
+				io.attach(attachment.getId(), fieldIDs);
+			} catch (PersistentException e) {
+				throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Failed to attach fields", e);
 			}
 		}
 		else
