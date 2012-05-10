@@ -17,6 +17,7 @@ import org.iucn.sis.client.api.utils.UriBase;
 import org.iucn.sis.client.panels.users.UserViewToolBar.UserViewToolbarAPI;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
+import org.iucn.sis.shared.api.models.User;
 
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -161,9 +162,12 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 					}
 					public void onSuccess(String result) {
 						be.getGrid().getStore().commitChanges();
-						// After the username change the password should be reset
-						if ("username".equals(col)){
-							resetPassword(value);
+						// After the username change the password should be reset for active user's						
+						if(Boolean.parseBoolean((String)model.get(ClientUser.SIS_USER)) && 
+								Integer.parseInt((String)model.get(ClientUser.STATE)) == User.ACTIVE){
+							if ("username".equals(col)){
+								resetPassword(value);
+							}
 						}
 					}
 				});
