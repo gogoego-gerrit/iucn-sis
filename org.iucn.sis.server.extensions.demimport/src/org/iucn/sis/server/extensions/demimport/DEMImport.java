@@ -1135,6 +1135,11 @@ public class DEMImport extends DynamicWriter implements Runnable {
 		else if ("2".equals(dataValue))
 			dataValue = BooleanRangePrimitiveField.UNKNOWN;
 		
+		//Only SevereFragmentation (see #908)
+		if (CanonicalNames.SevereFragmentation.equals(fieldName) && 
+				BooleanRangePrimitiveField.NO.equals(dataValue))
+			return;
+		
 		if (BooleanRangePrimitiveField.UNKNOWN.equals(dataValue) || 
 				BooleanRangePrimitiveField.YES.equals(dataValue) || 
 				BooleanRangePrimitiveField.NO.equals(dataValue)) {
@@ -2344,7 +2349,6 @@ public class DEMImport extends DynamicWriter implements Runnable {
 			addStringPrimitiveField(CanonicalNames.OldDEMFutureDecline, "value", curAssessment, getString(curRow, "future_decline", null));
 			addStringPrimitiveField(CanonicalNames.OldDEMPeriodFutureDecline, "value", curAssessment, getString(curRow, "period_future_decline"));
 			
-			//System.out.println("The value of severe_frag is " + getString(curRow, "severely_frag", null));
 			addBooleanRangePrimitiveField(CanonicalNames.SevereFragmentation, "isFragmented", curAssessment, getString(curRow, "severely_frag", null));
 		}
 	}
