@@ -18,6 +18,7 @@ import org.iucn.sis.client.panels.ClientUIContainer;
 import org.iucn.sis.client.panels.filters.AssessmentFilterPanel;
 import org.iucn.sis.client.panels.utils.RefreshLayoutContainer;
 import org.iucn.sis.client.panels.workingsets.DeleteWorkingSetPanel;
+import org.iucn.sis.client.panels.workingsets.WorkingSetAccessExportWindow;
 import org.iucn.sis.client.panels.workingsets.WorkingSetAddAssessmentsPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetEditBasicPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetOptionsPanel;
@@ -209,27 +210,9 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 			}));
 			buttonArea.add(createButton("Export to Access", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					WindowUtils.confirmAlert("Confirm", "Are you sure you want to begin the exporting process?", new WindowUtils.SimpleMessageBoxListener() {
-						public void onYes() {
-							final WorkingSet workingSet = WorkingSetCache.impl.getCurrentWorkingSet(); 
-							final String url = UriBase.getInstance().getExportBase() + "/sources/access/" + 
-								workingSet.getId() + "?time=" + new Date().getTime();
-						
-							final ContentPanel content = new ContentPanel();
-							content.setUrl(url);
-						
-							final Window exportWindow = WindowUtils.newWindow("Export " + workingSet.getName() + "...");
-							exportWindow.setScrollMode(Scroll.AUTO);
-							exportWindow.setSize(500, 400);
-							exportWindow.addButton(new Button("Close", new SelectionListener<ButtonEvent>() {
-								public void componentSelected(ButtonEvent ce) {
-									exportWindow.hide();
-								}
-							}));
-							exportWindow.setUrl(url);
-							exportWindow.show();
-						}
-					});
+					WorkingSetAccessExportWindow window = 
+						new WorkingSetAccessExportWindow();
+					window.show();
 				}
 			}));
 			

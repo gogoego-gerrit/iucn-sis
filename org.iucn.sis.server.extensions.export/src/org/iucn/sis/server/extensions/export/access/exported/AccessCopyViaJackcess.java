@@ -29,12 +29,19 @@ public class AccessCopyViaJackcess extends AccessExporterViaJackcess {
 	private final Properties sourceProperties;
 	private final String sessionName;
 	
+	private boolean restrict;
+	
 	public AccessCopyViaJackcess(ExecutionContext source, Integer workingSetID,
 			String sessionName, Properties sourceProperties, String location, String fileName) throws IOException {
 		super(source, workingSetID, location, fileName);
 		this.ignorePrefix = "vw_";
 		this.sourceProperties = sourceProperties;
 		this.sessionName = sessionName;
+		this.restrict = true;
+	}
+	
+	public void setRestrict(boolean restrict) {
+		this.restrict = restrict;
 	}
 	
 	protected void afterRun() throws DBException {
@@ -82,6 +89,7 @@ public class AccessCopyViaJackcess extends AccessExporterViaJackcess {
 		
 		AccessViewBuilder builder = new AccessViewBuilder(ws, source);
 		builder.setOutputStream(writer, lineBreakRule);
+		builder.setIgnoreWorkingSetRestrictions(!restrict);
 		builder.build();
 		
 		ExecutionContext source;

@@ -111,7 +111,9 @@ public class GenericExportResource extends TransactionResource {
 				workingSetID, name, sourceProperties, folder, name + ".mdb");
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Could not create target database.", e);
-		}		
+		}
+		if ("true".equals(getRequest().getResourceRef().getQueryAsForm().getFirstValue("historical")))
+			exporter.setRestrict(false);
 		exporter.setTarget(new SystemExecutionContext());
 		exporter.setOutputStream(writer, "<br/>");
 		

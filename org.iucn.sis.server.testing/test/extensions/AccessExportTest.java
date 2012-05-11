@@ -44,6 +44,18 @@ public class AccessExportTest extends BasicHibernateTest {
 	}
 	
 	@Test
+	public void testGenerateHistorical() throws Exception {
+		Session session = openSession();
+		WorkingSet ws = (WorkingSet) session.load(WorkingSet.class, 16509077);
+		AccessViewBuilder builder = new AccessViewBuilder(ws, SIS.get().getExecutionContext(), "access_test");
+		builder.setFailOnUpdateError(true);
+		builder.setIgnoreWorkingSetRestrictions(true);
+		builder.destroy();
+		builder.build();
+		closeSession(session);
+	}
+	
+	@Test
 	public void run() throws ResourceException {
 		Integer workingSetID = 10912542;
 		
