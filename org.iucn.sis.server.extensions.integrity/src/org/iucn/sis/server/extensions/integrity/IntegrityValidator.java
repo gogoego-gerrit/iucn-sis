@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.NamingException;
+
 import org.hibernate.Session;
 import org.iucn.sis.server.api.io.AssessmentIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
@@ -26,8 +28,10 @@ import org.w3c.dom.NodeList;
 import com.solertium.db.CanonicalColumnName;
 import com.solertium.db.DBException;
 import com.solertium.db.DBSession;
+import com.solertium.db.DBSessionFactory;
 import com.solertium.db.ExecutionContext;
 import com.solertium.db.Row;
+import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.query.ExperimentalSelectQuery;
 import com.solertium.db.query.QComparisonConstraint;
 import com.solertium.db.query.QConstraint;
@@ -38,6 +42,18 @@ import com.solertium.vfs.VFS;
 import com.solertium.vfs.VFSPathToken;
 
 public class IntegrityValidator {
+	
+	public static ExecutionContext getExecutionContext() {
+		try {
+			SystemExecutionContext ec = new SystemExecutionContext(DBSessionFactory.getDBSession("integrity"));
+			ec.setAPILevel(ExecutionContext.SQL_ALLOWED);
+			ec.setExecutionLevel(ExecutionContext.READ_WRITE);
+			
+			return ec;
+		} catch (NamingException e) {
+			return null;
+		}
+	}
 	
 	public static int validate_background(Session session, VFS vfs, ExecutionContext ec, Integer assessmentID) throws DBException {
 		final VFSPathToken[] tokens;

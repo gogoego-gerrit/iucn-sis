@@ -66,7 +66,7 @@ public class PublicationRestlet extends BaseServiceRestlet {
 				int status;
 				try {
 					status = IntegrityValidator.validate_background(session, SIS.get().getVFS(), 
-						SIS.get().getExecutionContext(), assessment.getId());
+						IntegrityValidator.getExecutionContext(), assessment.getId());
 				} catch (Exception e) {
 					Debug.println("Failed attempting to run validation: {0}\n{1]", e.getMessage(), e);
 					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
@@ -100,7 +100,7 @@ public class PublicationRestlet extends BaseServiceRestlet {
 						int status;
 						try {
 							status = IntegrityValidator.validate_background(session, SIS.get().getVFS(), 
-									SIS.get().getExecutionContext(), assessment.getId());
+									IntegrityValidator.getExecutionContext(), assessment.getId());
 						} catch (Exception e) {
 							Debug.println("Failed attempting to run validation: {0}\n{1]", e.getMessage(), e);
 							throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage(), e);
