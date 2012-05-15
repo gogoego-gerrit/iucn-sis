@@ -2,13 +2,16 @@ package org.iucn.sis.server.extensions.export.access.exported;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.hibernate.Hibernate;
 import org.iucn.sis.shared.api.models.AssessmentType;
 import org.iucn.sis.shared.api.models.Region;
 import org.iucn.sis.shared.api.models.Relationship;
+import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.WorkingSet;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
 
@@ -87,18 +90,9 @@ public class AccessViewBuilder extends DynamicWriter {
 	}
 	
 	public void build() throws DBException, IOException {
-		print("Generating schema for working set...");
+		generateSchema();
 		
-		safeUpdate(String.format("DROP SCHEMA IF EXISTS %s CASCADE", schema));
-		update(String.format("CREATE SCHEMA %s", schema));
-		
-		print("Generating filter...");
-	
-		if (ignoreWorkingSetRestrictions)
-			createFilterBasedOnTaxa();
-		else
-			createFilterBasedOnWorkingSet();
-		
+		generateFilter();
 		
 		print("Generating basic tables...");
 		
@@ -212,11 +206,52 @@ public class AccessViewBuilder extends DynamicWriter {
 			}
 		});
 		
+		generateTaxonListing();
+		generateTaxonomyQueries();
+		
 		printf("Generating utility queries...");
 		generateUtilityQueries();
+		
+		printf("Done.");
 	}
 	
-	private void createFilterBasedOnWorkingSet() {
+	public void generateSchema() {
+		print("Generating schema for working set...");
+		
+		safeUpdate(String.format("DROP SCHEMA IF EXISTS %s CASCADE", schema));
+		update(String.format("CREATE SCHEMA %s", schema));
+	}
+	
+	public void generateFilter() {
+		print("Generating filter...");
+		
+		if (ignoreWorkingSetRestrictions)
+			createFilterBasedOnTaxa();
+		else
+			createFilterBasedOnWorkingSet();	
+	}
+	
+	public void generateTaxonListing() {
+		printf("Generating taxonomic hierarchy...");
+		
+		update("CREATE TABLE %s.vw_filter_taxa ( taxonid integer );", schema);
+		HashSet<Integer> seen = new HashSet<Integer>();
+		Hibernate.initialize(ws.getTaxon());
+		for (Taxon taxon : ws.getTaxon())
+			insertTaxa(taxon, seen);
+	}
+	
+	private void insertTaxa(Taxon taxon, HashSet<Integer> seen) {
+		if (taxon != null && !seen.contains(taxon.getId())) {
+			update("INSERT INTO %s.vw_filter_taxa (taxonid) VALUES (%s);", schema, taxon.getId());
+			
+			seen.add(taxon.getId());
+			
+			insertTaxa(taxon.getParent(), seen);
+		}
+	}
+	
+	public void createFilterBasedOnWorkingSet() {
 		StringBuilder where = new StringBuilder();
 		where.append("WHERE a.state = 0 AND taxon.state = 0 AND wt.working_setid = %s");
 		if (ws.getRelationship().getId() != Relationship.ALL_ID) {
@@ -249,7 +284,7 @@ public class AccessViewBuilder extends DynamicWriter {
 			where, schema, ws.getId());
 	}
 	
-	private void createFilterBasedOnTaxa() {
+	public void createFilterBasedOnTaxa() {
 		update("CREATE TABLE %s.vw_filter AS " +
 			"SELECT DISTINCT a.taxonid, a.id as assessmentid " +
 			"FROM public.assessment a " +
@@ -259,7 +294,15 @@ public class AccessViewBuilder extends DynamicWriter {
 	}
 	
 	public void generateUtilityQueries() throws DBException, IOException {
-		for (String sql : new SQLReader("AccessQueries.sql"))
+		runSQLFile("AccessQueries.sql");
+	}
+	
+	public void generateTaxonomyQueries() throws DBException, IOException {
+		runSQLFile("AccessQueriesTaxonomy.sql");
+	}
+	
+	private void runSQLFile(String file) throws DBException, IOException {
+		for (String sql : new SQLReader(file))
 			update(sql.replace("$schema", schema));
 	}
 	

@@ -13,7 +13,7 @@ CREATE TABLE $schema.recent_regional AS
   JOIN primitive_field pf2 ON f2.id = pf2.fieldid AND pf2.name = 'regions'
   JOIN foreign_key_list_primitive_field fk2 ON pf2.id = fk2.id
   JOIN fk_list_primitive_values fi2 ON fk2.id = fi2.fk_list_primitive_id
-  WHERE (a.taxonid, fi2.value, df1.value) IN (
+  WHERE a.assessment_typeid = 1 AND (a.taxonid, fi2.value, df1.value) IN (
     SELECT a.taxonid, fi2.value as region, MAX(df1.value) as date
     FROM $schema.vw_filter vf
     JOIN assessment a ON vf.assessmentid = a.id
@@ -311,7 +311,7 @@ SELECT a.taxonid, a.id AS assessmentid, ft.kingdom, ft.phylum, ft.class, ft."ord
        taxon.friendly_name, ft.taxonomic_authority, rl.rlcategory AS category, rl.rlcriteria AS criteria, pe.possiblyextinct AS possibly_extinct, pe.possiblyextinctcandidate AS possibly_extinct_wild, 
        rld.value AS assessmentdate, ca.value as assessors, ce.value as evaluators, cc.value as contributors, cf.value as facilitators
   FROM $schema.vw_draft_global_assessment a
-  JOIN public.vw_footprint ft ON ft.taxonid = a.taxonid
+  JOIN $schema.vw_footprint ft ON ft.taxonid = a.taxonid
   JOIN $schema.taxon ON taxon.id = a.taxonid
   LEFT JOIN $schema.vw_redlistassessors_publication ca ON ca.assessmentid = a.id
   LEFT JOIN $schema.vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
@@ -329,7 +329,7 @@ SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom,
        pe.possiblyextinct AS possibly_extinct, pe.possiblyextinctcandidate AS possibly_extinct_wild, 
        rld.value AS assessmentdate, ca.value as assessors, ce.value as evaluators, cc.value as contributors, cf.value as facilitators
   FROM $schema.vw_draft_regional_assessment a
-  JOIN public.vw_footprint ft ON ft.taxonid = a.taxonid
+  JOIN $schema.vw_footprint ft ON ft.taxonid = a.taxonid
   JOIN $schema.taxon ON taxon.id = a.taxonid
   LEFT JOIN $schema.vw_redlistassessors_publication ca ON ca.assessmentid = a.id
   LEFT JOIN $schema.vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
@@ -347,7 +347,7 @@ SELECT a.taxonid, a.id AS assessmentid, ft.kingdom, ft.phylum, ft.class, ft."ord
        pe.possiblyextinct AS possibly_extinct, pe.possiblyextinctcandidate AS possibly_extinct_wild, rld.value AS assessmentdate, 
        ca.value as assessors, ce.value as evaluators, cc.value as contributors, cf.value as facilitators
   FROM $schema.vw_published_global_assessment a
-  JOIN public.vw_footprint ft ON ft.taxonid = a.taxonid
+  JOIN $schema.vw_footprint ft ON ft.taxonid = a.taxonid
   JOIN $schema.taxon ON taxon.id = a.taxonid
   LEFT JOIN $schema.vw_redlistassessors_publication ca ON ca.assessmentid = a.id
   LEFT JOIN $schema.vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
@@ -365,7 +365,7 @@ SELECT a.taxonid, a.id AS assessmentid, ft.kingdom, ft.phylum, ft.class, ft."ord
        pe.possiblyextinct AS possibly_extinct, pe.possiblyextinctcandidate AS possibly_extinct_wild, rld.value AS assessmentdate, 
        ca.value as assessors, ce.value as evaluators, cc.value as contributors, cf.value as facilitators 
   FROM $schema.vw_published_global_historic_assessment a
-  JOIN public.vw_footprint ft ON ft.taxonid = a.taxonid
+  JOIN $schema.vw_footprint ft ON ft.taxonid = a.taxonid
   JOIN $schema.taxon ON taxon.id = a.taxonid
   LEFT JOIN $schema.vw_redlistassessors_publication ca ON ca.assessmentid = a.id
   LEFT JOIN $schema.vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
@@ -383,7 +383,7 @@ SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom,
        pe.possiblyextinct AS possibly_extinct, pe.possiblyextinctcandidate AS possibly_extinct_wild, rld.value AS assessmentdate, 
        ca.value as assessors, ce.value as evaluators, cc.value as contributors, cf.value as facilitators
   FROM $schema.vw_published_regional_assessment a
-  JOIN public.vw_footprint ft ON ft.taxonid = a.taxonid
+  JOIN $schema.vw_footprint ft ON ft.taxonid = a.taxonid
   JOIN $schema.taxon ON taxon.id = a.taxonid
   LEFT JOIN $schema.vw_redlistassessors_publication ca ON ca.assessmentid = a.id
   LEFT JOIN $schema.vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
@@ -401,7 +401,7 @@ SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom,
        pe.possiblyextinct AS possibly_extinct, pe.possiblyextinctcandidate AS possibly_extinct_wild, rld.value AS assessmentdate, 
        ca.value as assessors, ce.value as evaluators, cc.value as contributors, cf.value as facilitators
   FROM $schema.vw_published_regional_historic_assessment a
-  JOIN public.vw_footprint ft ON ft.taxonid = a.taxonid
+  JOIN $schema.vw_footprint ft ON ft.taxonid = a.taxonid
   JOIN $schema.taxon ON taxon.id = a.taxonid
   LEFT JOIN $schema.vw_redlistassessors_publication ca ON ca.assessmentid = a.id
   LEFT JOIN $schema.vw_redlistevaluators_publication ce ON ce.assessmentid = a.id
