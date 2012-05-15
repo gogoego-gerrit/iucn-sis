@@ -219,6 +219,61 @@ public class Taxomatic extends BasicHibernateTest {
 	}
 	
 	@Test
+	public void testLateralMoveRecursive() throws TaxomaticException {
+		Session session = openTransaction();
+		
+		Taxon oldParent = addTaxon(session, "OldParent", TaxonLevel.GENUS);
+		Taxon newParent = addTaxon(session, "NewParent", TaxonLevel.GENUS);
+		Taxon oldSpecies = addTaxon(session, "OldSpecies", TaxonLevel.SPECIES, oldParent);
+		Taxon oldInfrarank = addTaxon(session, "OldInfrarank", TaxonLevel.INFRARANK, oldSpecies);
+		
+		int sourceGenus = oldParent.getId();
+		int targetGenus = newParent.getId();
+		int sourceSpecies = oldSpecies.getId();
+		int sourceInfrarank = oldInfrarank.getId();
+		
+		Debug.println("Sp: {0}", oldSpecies.getFriendlyName());
+		Debug.println("Ssp: {0}", oldInfrarank.getFriendlyName());
+		Debug.println("IDs: {0}, sp: {1}, ssp: {2}", targetGenus, sourceSpecies, sourceInfrarank);
+		
+		closeTransaction(session);
+		
+		session = openTransaction();
+		
+		UserIO userIO = new UserIO(session);
+		User user = userIO.getUserFromUsername("admin");
+		
+		newParent = (Taxon)session.load(Taxon.class, targetGenus);
+		
+		List<Taxon> children = new ArrayList<Taxon>();
+		children.add((Taxon)session.load(Taxon.class, sourceSpecies));
+		
+		TaxomaticIO io = new TaxomaticIO(session);
+		io.moveTaxa(newParent, children, user);
+		
+		closeTransaction(session);
+		
+		session = openSession();
+		
+		oldParent = (Taxon)session.load(Taxon.class, sourceGenus);
+		newParent = (Taxon)session.load(Taxon.class, targetGenus);
+		oldSpecies = (Taxon)session.load(Taxon.class, sourceSpecies);
+		oldInfrarank = (Taxon)session.load(Taxon.class, sourceInfrarank);
+		
+		Debug.println("Sp: {0}", oldSpecies.getFriendlyName());
+		Debug.println("Ssp: {0}", oldInfrarank.getFriendlyName());
+		
+		Assert.assertTrue(oldParent.getChildren().isEmpty());
+		Assert.assertEquals(1, newParent.getChildren().size());
+		Assert.assertTrue(oldSpecies.getFriendlyName().contains("NewParent"));
+		Assert.assertEquals(sourceSpecies, oldInfrarank.getParentId());
+		Assert.assertEquals(targetGenus, oldInfrarank.getParent().getParent().getId());
+		Assert.assertTrue("Recursive infrarank update", oldInfrarank.getFriendlyName().contains("NewParent"));
+		
+		closeSession(session);
+	}
+	
+	@Test
 	public void testLateralMove() throws TaxomaticException {
 		Session session = openTransaction();
 		
