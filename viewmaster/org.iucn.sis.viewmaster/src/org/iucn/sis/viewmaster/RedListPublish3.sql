@@ -9,7 +9,7 @@ CREATE TABLE vw_published.recent_regional AS
   JOIN primitive_field pf2 ON f2.id = pf2.fieldid AND pf2.name = 'regions'
   JOIN foreign_key_list_primitive_field fk2 ON pf2.id = fk2.id
   JOIN fk_list_primitive_values fi2 ON fk2.id = fi2.fk_list_primitive_id
-  WHERE (a.taxonid, fi2.value, df1.value) IN (
+  WHERE a.assessment_typeid = 1 AND (a.taxonid, fi2.value, df1.value) IN (
     SELECT taxonid, fi2.value as region, MAX(df1.value) as date
     FROM assessment a
     JOIN taxon ON a.taxonid = taxon.id
