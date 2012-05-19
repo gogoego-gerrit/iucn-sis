@@ -50,7 +50,7 @@ public class ReportOptionsPanel extends BasicWindow {
 			newModel("All Fields Report", "full"), 
 			newModel("Available Fields Report", "available"));
 		
-		final CheckBox limitedSet = FormBuilder.createCheckBoxField("limited", true, "Limited Set");
+		final CheckBox limitedSet = FormBuilder.createCheckBoxField("limited", false, "Limited Set");
 		final CheckBox empty = FormBuilder.createCheckBoxField("empty", false, "Show Empty Fields");
 		final ComboBox<NameValueModelData> version = 
 			FormBuilder.createModelComboBox("version", "html", "Version", true, 
