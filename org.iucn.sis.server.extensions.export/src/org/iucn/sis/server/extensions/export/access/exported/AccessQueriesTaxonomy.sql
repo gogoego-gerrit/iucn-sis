@@ -71,4 +71,3 @@ CREATE TABLE $schema.vw_footprint AS
   UNION ALL
   SELECT $schema.vw_species.*, NULL, NULL, NULL, taxon.taxonomic_authority from $schema.vw_species
   JOIN taxon ON taxon.id = $schema.vw_species.taxonid;
-GRANT SELECT ON vw_footprint TO iucn;
