@@ -90,20 +90,35 @@ public class PublicationPanel extends LayoutContainer implements DrawsLazily {
 		});
 	}
 	
-	public void batchUpdate(PublicationBatchChange.BatchUpdateEvent event, GenericCallback<Object> callback) {
-		List<PublicationModelData> checked = grid.getChecked();
+	public void batchUpdate(final PublicationBatchChange.BatchUpdateEvent event, final GenericCallback<Object> callback) {
+		final List<PublicationModelData> checked;
+		if (event.isComplete())
+			checked = grid.getAll();
+		else
+			checked = grid.getChecked();
+		
 		if (checked.isEmpty()) {
 			WindowUtils.errorAlert("Please select at least one row.");
 			return;
 		}
 		
-		List<Integer> ids = new ArrayList<Integer>();
-		for (PublicationModelData model : checked)
-			ids.add(model.getModel().getId());
+		WindowUtils.MessageBoxListener listener = new WindowUtils.SimpleMessageBoxListener() {
+			public void onYes() {
+				List<Integer> ids = new ArrayList<Integer>();
+				for (PublicationModelData model : checked)
+					ids.add(model.getModel().getId());
+				
+				PublicationCache.impl.updateData(event.getStatus(), 
+						event.getTargetGoal(), event.getTargetApproved(), 
+						event.getNotes(), event.getPriority(), ids, callback);
+			}
+		};
 		
-		PublicationCache.impl.updateData(event.getStatus(), 
-				event.getTargetGoal(), event.getTargetApproved(), 
-				event.getNotes(), event.getPriority(), ids, callback);
+		if (event.isComplete())
+			WindowUtils.confirmAlert("Confirm", "Are you sure you want to update all " + 
+				checked.size() + " assessments?", listener);
+		else
+			listener.onYes();
 	}
 	
 	@Override

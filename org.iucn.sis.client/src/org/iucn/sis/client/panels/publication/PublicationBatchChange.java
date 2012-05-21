@@ -47,9 +47,14 @@ public class PublicationBatchChange extends FormPanel {
 			}
 		}));
 		
-		addButton(new Button("Update", new SelectionListener<ButtonEvent>() {
+		addButton(new Button("Update Checked", new SelectionListener<ButtonEvent>() {
 			public void componentSelected(ButtonEvent ce) {
-				doSubmit();
+				doSubmit(false);
+			}
+		}));
+		addButton(new Button("Update ALL", new SelectionListener<ButtonEvent>() {
+			public void componentSelected(ButtonEvent ce) {
+				doSubmit(true);
 			}
 		}));
 		addButton(new Button("Cancel", new SelectionListener<ButtonEvent>() {
@@ -119,14 +124,15 @@ public class PublicationBatchChange extends FormPanel {
 		return box;
 	}
 	
-	private void doSubmit() {
+	private void doSubmit(boolean complete) {
 		BaseEvent beforeEdit = new BaseEvent(Events.BeforeEdit);
 		fireEvent(beforeEdit.getType(), beforeEdit);
 		
-		if (beforeEdit.isCancelled())
+		if (!complete && beforeEdit.isCancelled())
 			WindowUtils.errorAlert("Please select at least one row.");
 		else {
 			BatchUpdateEvent event = new BatchUpdateEvent();
+			event.setComplete(complete);
 			
 			NameValueModelData selStatus = status.getValue();
 			if (selStatus != null)
@@ -167,6 +173,7 @@ public class PublicationBatchChange extends FormPanel {
 		
 		private String status, notes;
 		private Integer targetGoal, targetApproved, priority;
+		private boolean complete;
 		
 		public BatchUpdateEvent() {
 			super(Events.StartEdit);
@@ -190,6 +197,14 @@ public class PublicationBatchChange extends FormPanel {
 		
 		public void setNotes(String notes) {
 			this.notes = notes;
+		}
+		
+		public void setComplete(boolean complete) {
+			this.complete = complete;
+		}
+		
+		public boolean isComplete() {
+			return complete;
 		}
 		
 		public String getStatus() {

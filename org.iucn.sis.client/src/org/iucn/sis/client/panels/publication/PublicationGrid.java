@@ -223,6 +223,10 @@ public class PublicationGrid extends PagingPanel<PublicationModelData> implement
 		return sm.getSelectedItems();
 	}
 	
+	public List<PublicationModelData> getAll() {
+		return getProxy().getStore().getModels();
+	}
+	
 	private static class TaxonFilter implements StoreFilter<PublicationModelData> {
 		
 		private String[] base;

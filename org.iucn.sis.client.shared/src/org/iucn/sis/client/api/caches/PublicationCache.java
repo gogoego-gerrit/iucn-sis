@@ -103,6 +103,8 @@ public class PublicationCache {
 			out.append(XMLWritingUtils.writeTag("data", id.toString()));
 		out.append("</root>");
 		
+		WindowUtils.showLoadingAlert("Updating assessments...");
+		
 		final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
 		document.post(UriBase.getInstance().getSISBase() + "/publication/data/update", out.toString(), new GenericCallback<String>() {
 			public void onSuccess(String result) {
@@ -153,14 +155,15 @@ public class PublicationCache {
 					if (model.getAssessment() != null && model.getAssessment().isPublished())
 						data.remove(id);
 				}
+				WindowUtils.hideLoadingAlert();
 				callback.onSuccess(null);
 			}
 			public void onFailure(Throwable caught) {
+				WindowUtils.hideLoadingAlert();
 				if (caught instanceof GWTConflictException)
 					WindowUtils.errorAlert("Could not publish one or more assessments: please specify a publication target for all assessments you wish to publish.");
 				else
-					WindowUtils.errorAlert("Could not make changes, please try again later.");/*: <br/>" + 
-						ClientDocumentUtils.parseStatus(document));*/
+					WindowUtils.errorAlert("Could not make changes, please try again later.");
 				//onSuccess(null);
 			}
 		});
