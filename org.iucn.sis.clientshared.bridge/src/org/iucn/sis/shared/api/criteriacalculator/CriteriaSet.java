@@ -23,7 +23,7 @@ public class CriteriaSet {
 		
 		StringBuilder buf = new StringBuilder();
 		for (char c : criteria.toCharArray()) {
-			if ('(' == c || ')' == c || Character.isWhitespace(c))
+			if ('(' == c || ')' == c || isWhitespace(c))
 				continue;
 			
 			if (palette[level].indexOf(c) != -1) {
@@ -78,6 +78,10 @@ public class CriteriaSet {
 		return new CriteriaSet(category, list);
 	}
 	
+	private static boolean isWhitespace(char c) {
+		return c == ' ' || c == '\n' || c == '\r' || c == '\t';
+	}
+	
 	private static List<String> extractFromField(ResultCategory category, Field field) {
 		List<String> list = new ArrayList<String>();
 		for (PrimitiveField<?> prim : field.getPrimitiveField()) {
@@ -128,7 +132,7 @@ public class CriteriaSet {
 			char[] chars = name.toCharArray();
 			for (int i = 0; i < chars.length; i++) {
 				char c = chars[i];
-				if (Character.isWhitespace(c))
+				if (isWhitespace(c))
 					continue;
 				buf.append(c);
 				if (CriteriaLevel.L4.contains(buf.toString()) && i+1 < chars.length) {
