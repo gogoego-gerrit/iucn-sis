@@ -326,7 +326,7 @@ INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, descr
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('EG', '9EC6663A5A9D96845A1E887A647AFE53', 2, true, 'EG', 'Egypt');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('EGY-OO', 'EG', 3, true, 'EGY-OO', 'Egypt (African part)');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('SIN-OO', 'EG', 3, true, 'SIN-OO', 'Sinai');
-INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('LY', '9EC6663A5A9D96845A1E887A647AFE53', 2, true, 'LY', 'Libyan Arab Jamahiriya');
+INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('LY', '9EC6663A5A9D96845A1E887A647AFE53', 2, true, 'LY', 'Libya');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('MA', '9EC6663A5A9D96845A1E887A647AFE53', 2, true, 'MA', 'Morocco');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('TN', '9EC6663A5A9D96845A1E887A647AFE53', 2, true, 'TN', 'Tunisia');
 INSERT INTO CountryOccurrenceLookup (code, parentID, level, codeable, ref, description) VALUES ('EH', '9EC6663A5A9D96845A1E887A647AFE53', 2, true, 'EH', 'Western Sahara');
