@@ -35,7 +35,7 @@
 							<field id="LocationExtremeFluctuation"/>
 						</organization>
 					<organization shortTitle="Very restricted" title="Very restricted AOO or number locations VU (D2)">
-					  <warning align="center">Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</warning>
+					  <information>Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</information>
 		  <field id="AreaRestricted"/>
 		</organization>  
 					<organization shortTitle="Elevation/Depth" title="Elevation / Depth / Depth Zones">
@@ -396,7 +396,7 @@
 						<field id="AOO"/>
 						<field id="AOOContinuingDecline"/>
 						<field id="AOOExtremeFluctuation"/>
-						<warning align="center">Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</warning>
+						<information>Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</information>
 						<field id="AreaRestricted"/>
 
 					</organization>
@@ -553,7 +553,7 @@
 				<pageOrganizations>
 				<organization shortTitle="Population Size" title="Population Size (D)">
 					<field id="PopulationSize"/>
-					<warning align="center">Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</warning>
+					<information>Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</information>
 					<field id="AreaRestricted"/>
 				</organization>
 				</pageOrganizations>
@@ -833,7 +833,7 @@
 						<composite>
 
 						<field id="LocationsNumber"/>
-						<warning align="center">Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</warning>
+						<information>Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</information>
 						<field id="AreaRestricted"/>
 						</composite>
 						<composite>
@@ -1132,7 +1132,7 @@
 
 						<field id="LocationsNumber"/>
 
-						<warning align="center">Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</warning>	
+						<information>Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</information>	
 						
 						<field id="AreaRestricted"/>
 
@@ -1871,7 +1871,7 @@
 							<field id="LocationExtremeFluctuation"/>
 						</organization>
 					<organization shortTitle="Very restricted" title="Very restricted AOO or number locations VU (D2)">
-					  <warning align="center">Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</warning>
+					  <information>Population with a very restricted area of occupancy (typically less than 20km2) or number of locations (typically five or fewer) such that it is prone to the effects of human activities or stochastic events within a very short time period in an uncertain future, and is thus capable of becoming Critically Engangered or even Extinct in a very short time period.</information>
 		  <field id="AreaRestricted"/>
 		</organization>  
 					<organization shortTitle="Elevation/Depth" title="Elevation / Depth / Depth Zones">
