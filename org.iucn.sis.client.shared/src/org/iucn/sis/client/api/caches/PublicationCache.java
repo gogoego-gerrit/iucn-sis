@@ -156,7 +156,10 @@ public class PublicationCache {
 				callback.onSuccess(null);
 			}
 			public void onFailure(Throwable caught) {
-				WindowUtils.errorAlert("Could not make changes, please try again later.");/*: <br/>" + 
+				if (caught instanceof GWTConflictException)
+					WindowUtils.errorAlert("Could not publish one or more assessments: please specify a publication target for all assessments you wish to publish.");
+				else
+					WindowUtils.errorAlert("Could not make changes, please try again later.");/*: <br/>" + 
 						ClientDocumentUtils.parseStatus(document));*/
 				//onSuccess(null);
 			}

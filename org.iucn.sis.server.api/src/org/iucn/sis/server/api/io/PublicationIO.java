@@ -72,7 +72,7 @@ public class PublicationIO {
 		session.update(assessment);
 	}
 	
-	public void update(PublicationData source, List<Integer> dataList) throws PersistentException {
+	public void update(PublicationData source, List<Integer> dataList) throws PersistentException, PublicationException {
 		int batchSize = 100;
 		int count = 0;
 		
@@ -88,7 +88,7 @@ public class PublicationIO {
 		}
 	}
 	
-	public void update(PublicationData source, int targetID) throws PersistentException {
+	public void update(PublicationData source, int targetID) throws PersistentException, PublicationException {
 		PublicationData target = (PublicationData)session.get(PublicationData.class, targetID);
 		if (target == null)
 			throw new PersistentException("Object " + source.getId() + " not found");
@@ -98,7 +98,7 @@ public class PublicationIO {
 		update(source, target);
 	}
 	
-	private void update(PublicationData source, PublicationData target) throws PersistentException {
+	private void update(PublicationData source, PublicationData target) throws PersistentException, PublicationException {
 		if (source.getAssessment() != null)
 			target.getAssessment().setType(source.getAssessment().getType());
 		if (source.getNotes() != null)
@@ -110,8 +110,12 @@ public class PublicationIO {
 		if (source.getPriority() != null)
 			target.setPriority(source.getPriority());
 		
-		if (source.getAssessment() != null && source.getAssessment().isPublished() && target.getTargetApproved() != null)
-			publish(target.getAssessment(), target.getTargetApproved());
+		if (source.getAssessment() != null && source.getAssessment().isPublished()) {
+			if (target.getTargetApproved() != null)
+				publish(target.getAssessment(), target.getTargetApproved());
+			else
+				throw new PublicationException(Status.CLIENT_ERROR_CONFLICT, "No publication target specified.");
+		}
 		
 		session.update(target);
 		session.update(target.getAssessment());
@@ -119,9 +123,9 @@ public class PublicationIO {
 	
 	private void publish(Assessment assessment, PublicationTarget target) {
 		if (target.getReference() != null) {
-			Field rlSource = assessment.getField(CanonicalNames.RedListSource);
+			Field rlSource = assessment.getField(CanonicalNames.RedListPublication);
 			if (rlSource == null) {
-				rlSource = new Field(CanonicalNames.RedListSource, assessment);
+				rlSource = new Field(CanonicalNames.RedListPublication, assessment);
 				assessment.getField().add(rlSource);
 				session.save(rlSource);
 			}
@@ -176,12 +180,15 @@ public class PublicationIO {
 				refs.add((Reference)session.get(Reference.class, reference.getId()));
 			
 			taxonomicNotes = taxonomicNotes.deepCopy(false);
+			taxonomicNotes.setAssessment(assessment);
 			taxonomicNotes.setReference(refs);
 			
 			Field existing = assessment.getField(CanonicalNames.TaxonomicNotes);
 			if (existing != null)
 				assessment.getField().remove(existing);
 			assessment.getField().add(taxonomicNotes);
+			
+			session.save(taxonomicNotes);
 		}
 		
 		for (String fieldName : CanonicalNames.narrativeFields) {
@@ -197,7 +204,7 @@ public class PublicationIO {
 						continue;
 					
 					prim.setRawValue(value.replaceAll("background-color: [a-z|0-9]*;[\\s]*", ""));
-					session.update(prim);
+					session.saveOrUpdate(prim);
 				}
 			}
 		}
