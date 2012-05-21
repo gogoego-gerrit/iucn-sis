@@ -96,7 +96,7 @@ public class CriteriaLevelTest {
 		
 		ABC.addPrimitiveField(new StringPrimitiveField("D", ABC, "CR"));
 		
-		check("C1+2a(i,ii)b;D", ABC, "CR");
+		check("C1+2a(i,ii)b; D", ABC, "CR");
 		
 		ABC.addPrimitiveField(new StringPrimitiveField("A2", ABC, "CR"));
 		ABC.addPrimitiveField(new StringPrimitiveField("A1c", ABC, "CR"));
@@ -104,7 +104,7 @@ public class CriteriaLevelTest {
 		ABC.addPrimitiveField(new StringPrimitiveField("B1a", ABC, "CR"));
 		ABC.addPrimitiveField(new StringPrimitiveField("B2biv", ABC, "CR"));
 		
-		check("A1bc+2;B1a+2b(iv);C1+2a(i,ii)b;D", ABC, "CR");
+		check("A1bc+2; B1a+2b(iv); C1+2a(i,ii)b; D", ABC, "CR");
 	}
 	
 	@Test
@@ -118,7 +118,7 @@ public class CriteriaLevelTest {
 		
 		check("D", levels, "EN");
 		
-		check("A2;D1", levels, "VU");
+		check("A2; D1", levels, "VU");
 		
 		Field high = new Field();
 		high.addPrimitiveField(new StringPrimitiveField("A2", high, "CR"));
@@ -127,28 +127,28 @@ public class CriteriaLevelTest {
 		high.addPrimitiveField(new StringPrimitiveField("E", high, "CR"));
 		high.addPrimitiveField(new StringPrimitiveField("B2ciii", high, "CR"));
 		
-		check("A2;B2c(iii);D;E", high, "EN");
-		check("A2;B2c(iii);D1;E", high, "VU");
+		check("A2; B2c(iii); D; E", high, "EN");
+		check("A2; B2c(iii); D1; E", high, "VU");
 	}
 	
 	@Test
 	public void testFromString() {
 		//Simple
 		testString("A1+2");
-		testString("D;E");
+		testString("D; E");
 		testString("E");
 		testString("B1a");
 		testString("B1ac(i)");
 		
 		//Complete
 		testString("B1ac(i,ii,iii)");
-		testString("A2c+3c;B1ab(iii)");
+		testString("A2c+3c; B1ab(iii)");
 		testString("B2ab(i,ii,iii)");
-		testString("A1c;B1ab(iii);C2a(i)");
+		testString("A1c; B1ab(iii); C2a(i)");
 		testString("B1ab(i,ii,v)c(iii,iv)+2b(i)c(ii,v)");
-		testString("A2abc+3bc+4abc;B1b(iii,iv,v)c(ii,iii,iv)+2b(iii,iv,v)c(ii,iii,iv)");
+		testString("A2abc+3bc+4abc; B1b(iii,iv,v)c(ii,iii,iv)+2b(iii,iv,v)c(ii,iii,iv)");
 		testString("A1cd");
-		testString("A2c;D");
+		testString("A2c; D");
 		testString("D");
 		testString("C2a(ii)");
 		testString("B2b(iii)c(ii)");

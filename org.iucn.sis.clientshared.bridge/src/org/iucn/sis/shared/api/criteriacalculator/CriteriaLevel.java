@@ -28,7 +28,7 @@ public class CriteriaLevel implements Comparable<CriteriaLevel> {
 	public CriteriaLevel(String code) {
 		this.code = code;
 		this.level = calculateLevel();
-		this.separator = level > 0 ? SEPARATORS[level-1] : ";";
+		this.separator = level > 0 ? SEPARATORS[level-1] : "; ";
 		this.children = new HashMap<String, CriteriaLevel>();
 		this.comparator = new PortableAlphanumericComparator();
 	}
@@ -82,7 +82,7 @@ public class CriteriaLevel implements Comparable<CriteriaLevel> {
 			if (paren)
 				out.append(')');
 		}
-		return out.toString();
+		return out.toString().trim();
 	}
 	
 	@Override

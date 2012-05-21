@@ -23,7 +23,7 @@ public class CriteriaSet {
 		
 		StringBuilder buf = new StringBuilder();
 		for (char c : criteria.toCharArray()) {
-			if ('(' == c || ')' == c)
+			if ('(' == c || ')' == c || Character.isWhitespace(c))
 				continue;
 			
 			if (palette[level].indexOf(c) != -1) {
@@ -128,6 +128,8 @@ public class CriteriaSet {
 			char[] chars = name.toCharArray();
 			for (int i = 0; i < chars.length; i++) {
 				char c = chars[i];
+				if (Character.isWhitespace(c))
+					continue;
 				buf.append(c);
 				if (CriteriaLevel.L4.contains(buf.toString()) && i+1 < chars.length) {
 					continue;
