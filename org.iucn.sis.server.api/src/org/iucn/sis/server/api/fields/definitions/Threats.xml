@@ -6,6 +6,7 @@
 	<lookup name="Threats_scopeLookup" />
 	<lookup name="Threats_severityLookup" />
 	<lookup name="Threats_ancestryLookup" />
+	<lookup name="Threats_internationalTradeLookup" />
 	<coding name="Threats" />
 	<coding name="Stresses" />
 </threats>

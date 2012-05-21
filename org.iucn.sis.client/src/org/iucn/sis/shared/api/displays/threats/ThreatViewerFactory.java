@@ -21,6 +21,9 @@ public class ThreatViewerFactory {
 		else if (matches(value, "8.1.2", "8.2.2", "8.4.2")) {
 			return new FeralTaxonThreatViewer(data);
 		}
+		else if (matches(value, "5.1.1","5.2.1","5.3.1","5.3.2","5.4.1","5.4.2")) {
+			return new ThreatWithInternationalTrade("Is international trade a significant driver?",data);
+		}
 		else {
 			return new BasicThreatViewer(data);
 		}

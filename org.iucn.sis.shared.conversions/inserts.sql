@@ -2218,6 +2218,9 @@ INSERT INTO Threats_severityLookup (name, label) VALUES ('6', 'Unknown');
 INSERT INTO Threats_ancestryLookup (name, label) VALUES ('0', 'Feral');
 INSERT INTO Threats_ancestryLookup (name, label) VALUES ('1', 'Wild');
 INSERT INTO Threats_ancestryLookup (name, label) VALUES ('2', 'Unknown Ancestry');
+INSERT INTO Threats_internationalTradeLookup (name, label) VALUES ('0', 'Yes');
+INSERT INTO Threats_internationalTradeLookup (name, label) VALUES ('1', 'No');
+INSERT INTO Threats_internationalTradeLookup (name, label) VALUES ('2', 'Unknown');
 INSERT INTO StressesLookup (code, parentID, level, codeable, ref, description) VALUES('1', '(root)', 0, false, '1', 'Ecosystem stresses');
 INSERT INTO StressesLookup (code, parentID, level, codeable, ref, description) VALUES('2', '1', 1, true, '1.1', 'Ecosystem conversion');
 INSERT INTO StressesLookup (code, parentID, level, codeable, ref, description) VALUES('3', '1', 1, true, '1.2', 'Ecosystem degradation');
@@ -2245,6 +2248,7 @@ INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('ias', 'fk
 INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('ancestry', 'fk_primitive_field', '?');
 INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('virus', 'fk_primitive_field', '?');
 INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('StressesSubfield', 'field', '*');
+INSERT INTO ThreatsSubfield (name, data_type, number_allowed) VALUES ('internationalTrade', 'fk_primitive_field', '?');
 INSERT INTO StressesSubfield (name, data_type, number_allowed) VALUES ('stress', 'fk_primitive_field', '*');
 INSERT INTO ThreatsDocumentation (name, data_type, number_allowed) VALUES ('value', 'text_primitive_field', '?');
 INSERT INTO ThreatsUnknown (name, data_type, number_allowed) VALUES ('value', 'boolean_primitive_field', '?');

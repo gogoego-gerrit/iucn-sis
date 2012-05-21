@@ -76,5 +76,13 @@ public class ThreatsSubfield extends ProxyField {
 			proxy.getFields().add(raw);
 		}
 	}
+	
+	public Integer getInternationalTrade() {
+		return getForeignKeyPrimitiveField("internationalTrade");
+	}
+	
+	public void setInternationalTrade(Integer international_trade) {
+		setForeignKeyPrimitiveField("internationalTrade", international_trade, "Threats_internationalTradeLookup");
+	}
 
 }
