@@ -46,6 +46,7 @@ import org.iucn.sis.shared.api.models.primitivefields.FloatPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyListPrimitiveField;
 import org.iucn.sis.shared.api.models.primitivefields.ForeignKeyPrimitiveField;
 import org.iucn.sis.shared.api.utils.CanonicalNames;
+import org.iucn.sis.shared.api.utils.CommonNameComparator;
 import org.iucn.sis.shared.api.views.FieldParser;
 import org.iucn.sis.shared.api.views.Organization;
 import org.iucn.sis.shared.api.views.Page;
@@ -62,6 +63,7 @@ import com.solertium.lwxml.shared.NativeDocument;
 import com.solertium.lwxml.shared.NativeElement;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.AlphanumericComparator;
+import com.solertium.util.portable.PortableAlphanumericComparator;
 import com.solertium.util.portable.PortableCalculator;
 
 public class AssessmentHtmlTemplate {
@@ -248,9 +250,10 @@ public class AssessmentHtmlTemplate {
 		if (taxon.getCommonNames().isEmpty()) {
 			theHtml.append("No Common Names");
 		} else {
-			HashMap<String, String> dupes = new HashMap<String, String>();
-
-			for (CommonName curCN : taxon.getCommonNames()) {
+			HashMap<String, String> dupes = new LinkedHashMap<String, String>();
+			List<CommonName> cnames = new ArrayList<CommonName>(taxon.getCommonNames());
+			Collections.sort(cnames, new CommonNameComparator());
+			for (CommonName curCN : cnames) {
 				if (!dupes.containsKey(curCN.getName()))
 					dupes.put(curCN.getName(), curCN.getLanguage());
 				else if (dupes.get(curCN.getName()) == null || dupes.get(curCN.getName()).equals(""))
@@ -357,9 +360,15 @@ public class AssessmentHtmlTemplate {
 		if (taxon.getSynonyms().isEmpty()) {
 			theHtml.append("No Synonyms");
 		} else {
-			HashMap<String, String> dupes = new HashMap<String, String>();
-
-			for (Synonym curSyn : taxon.getSynonyms()) {
+			HashMap<String, String> dupes = new LinkedHashMap<String, String>();
+			final List<Synonym> ordered = new ArrayList<Synonym>(taxon.getSynonyms());
+			Collections.sort(ordered, new Comparator<Synonym>() {
+				private final PortableAlphanumericComparator comparator = new PortableAlphanumericComparator();
+				public int compare(Synonym o1, Synonym o2) {
+					return comparator.compare(o1.toDisplayableString(), o2.toDisplayableString());
+				}
+			});
+			for (Synonym curSyn : ordered) {
 				if (!dupes.containsKey(curSyn.getName()))
 					dupes.put(curSyn.getName(), curSyn.getAuthority());
 				else if (dupes.get(curSyn.getName()) == null || dupes.get(curSyn.getName()).equals(""))
