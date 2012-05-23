@@ -412,6 +412,11 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 		try {
 			Assessment assessment = Assessment.fromXML(doc);
 			
+			final List<Integer> globalReferences = new ArrayList<Integer>();
+			for (Reference ref : assessment.getReference())
+				globalReferences.add(ref.getId());
+			assessment.getReference().clear();
+		
 			final Map<String, List<Integer>> references = new HashMap<String, List<Integer>>();
 			for (Field field : assessment.getField()) {
 				if (field.getReference() != null && !field.getReference().isEmpty()) {
@@ -440,6 +445,9 @@ public class AssessmentRestlet extends BaseServiceRestlet {
 						
 						session.update(field);
 					}
+				}
+				for (Integer refID : globalReferences) {
+					assessment.getReference().add((Reference)session.get(Reference.class, refID));
 				}
 				
 				response.setEntity(assessment.getId()+"", MediaType.TEXT_PLAIN);

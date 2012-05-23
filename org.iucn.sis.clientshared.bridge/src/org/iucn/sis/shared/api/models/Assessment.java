@@ -379,7 +379,7 @@ public class Assessment implements Serializable, AuthorizableObject, ForeignObje
 		
 		assessment.setReference(new HashSet<Reference>());
 		for (Reference ref : getReference())
-			assessment.getReference().add(ref.deepCopy());	
+			assessment.getReference().add(filter.copyReference(ref));	
 		
 		return assessment;
 	}
