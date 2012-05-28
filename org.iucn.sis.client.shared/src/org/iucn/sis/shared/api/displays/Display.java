@@ -961,7 +961,7 @@ public abstract class Display implements Referenceable {
 	 * FIXME: why can't I just send my field and my working set down to the 
 	 * server and handle all this mess there?!?
 	 */
-	private void doSimpleBatchChange(final WorkingSet ws, final Field field, final BatchChangeMode mode) {
+	private void doSimpleBatchChange(final WorkingSet ws, final Field field, final BatchChangeMode mode) {		
 		final AssessmentFilter filter = ws.getFilter();
 		if (filter.getRegionType().equalsIgnoreCase(Relationship.ALL) || filter.getRegionType().equalsIgnoreCase(Relationship.OR)) {
 			WindowUtils.errorAlert("Unable to perform operations on working sets that don't have an exact region match.");
@@ -1028,6 +1028,7 @@ public abstract class Display implements Referenceable {
 				xml.append(XMLWritingUtils.writeTag("set", Boolean.toString(BatchChangeMode.OVERWRITE.equals(mode))));
 				xml.append("</batchChange>\n");
 				
+				WindowUtils.showLoadingAlert("Processing Batch Change...");
 				final NativeDocument document = SISClientBase.getHttpBasicNativeDocument();
 				document.post(UriBase.getInstance().getBatchChangeBase() + "/batchChange", xml.toString(), new GenericCallback<String>() {
 					public void onSuccess(String result) {
@@ -1036,10 +1037,11 @@ public abstract class Display implements Referenceable {
 							NativeElement el = nodes.elementAt(i);
 							AssessmentCache.impl.uncache(Integer.valueOf(el.getAttribute("id")));
 						}
-							
+						WindowUtils.hideLoadingAlert();	
 						WindowUtils.infoAlert("Success", "Batch change process was completed successfully.");
 					}
 					public void onFailure(Throwable caught) {
+						WindowUtils.hideLoadingAlert();
 						WindowUtils.errorAlert("Error in processing batch change. Please try again later.");
 					}
 				});
