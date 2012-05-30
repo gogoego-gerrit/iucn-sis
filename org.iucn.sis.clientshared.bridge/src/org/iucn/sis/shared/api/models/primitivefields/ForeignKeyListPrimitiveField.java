@@ -53,6 +53,7 @@ public class ForeignKeyListPrimitiveField extends PrimitiveField<List<Integer>> 
 	public ForeignKeyListPrimitiveField deepCopy() {
 		ForeignKeyListPrimitiveField ret = new ForeignKeyListPrimitiveField();
 		copyInto(ret);
+		ret.setTableID(getTableID());
 		return ret;
 	}
 	
