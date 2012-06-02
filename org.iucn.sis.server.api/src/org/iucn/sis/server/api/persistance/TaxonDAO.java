@@ -297,14 +297,13 @@ public class TaxonDAO {
 	
 	public static boolean deleteAndDissociate(Taxon taxon, Session session)throws PersistentException {
 		try {
-			if(taxon.getTaxonLevel() != null) {
+			/*if(taxon.getTaxonLevel() != null) {
 				taxon.getTaxonLevel().getTaxa().remove(taxon);
 			}
 			
 			if(taxon.getTaxonStatus() != null) {
 				taxon.getTaxonStatus().getTaxa().remove(taxon);
-			}
-			
+			}*/
 			if(taxon.getParent() != null) {
 				taxon.getParent().getChildren().remove(taxon);
 			}
@@ -370,9 +369,13 @@ public class TaxonDAO {
 				session.delete(lImagess[i]);
 			}
 			
-			if(taxon.getInfratype() != null) {
+			/*if(taxon.getInfratype() != null) {
 				taxon.getInfratype().getTaxa().remove(taxon);
-			}
+			}*/
+			
+			taxon.setTaxonLevel(null);
+			taxon.setTaxonStatus(null);
+			taxon.setInfratype(null);
 			
 			try {
 				session.delete(taxon);

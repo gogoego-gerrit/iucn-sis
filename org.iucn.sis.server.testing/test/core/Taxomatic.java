@@ -20,6 +20,7 @@ import org.iucn.sis.server.api.persistance.TaxonDAO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.debug.Debug;
+import org.iucn.sis.shared.api.models.Infratype;
 import org.iucn.sis.shared.api.models.Synonym;
 import org.iucn.sis.shared.api.models.Taxon;
 import org.iucn.sis.shared.api.models.TaxonLevel;
@@ -270,7 +271,18 @@ public class Taxomatic extends BasicHibernateTest {
 		Assert.assertEquals(targetGenus, oldInfrarank.getParent().getParent().getId());
 		Assert.assertTrue("Recursive infrarank update", oldInfrarank.getFriendlyName().contains("NewParent"));
 		
+		List<Taxon> list = new ArrayList<Taxon>();
+		list.add(newParent);
+		
+		while (!list.isEmpty()) {
+			Taxon current = list.remove(0);
+			Debug.println("{0}: {1}", current.getLevel(), current.getFriendlyName());
+			list.addAll(current.getChildren());
+		}
+		
 		closeSession(session);
+		
+		Debug.println(" - Fin - ");
 	}
 	
 	@Test
@@ -383,6 +395,8 @@ public class Taxomatic extends BasicHibernateTest {
 	private Taxon addTaxon(Session session, String name, int level, Taxon parent) {
 		Taxon taxon = new Taxon();
 		taxon.setTaxonLevel(TaxonLevel.getTaxonLevel(level));
+		if (level >= TaxonLevel.INFRARANK)
+			taxon.setInfratype((Infratype)session.load(Infratype.class, Infratype.INFRARANK_TYPE_SUBSPECIES));
 		taxon.setName("JUnit Test - " + name);
 		taxon.setStatus(TaxonStatus.STATUS_NEW);
 		taxon.setState(Taxon.ACTIVE);

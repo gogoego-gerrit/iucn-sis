@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import org.hibernate.Session;
 import org.hibernate.TransientObjectException;
@@ -174,9 +175,49 @@ public class TaxomaticIO {
 		Taxon oldParent = child.getParent();
 
 		if (synStatus != null) {
-			String oldChildName = child.generateFullName();
-			child.setParent(newParent);
-			String newChildName = child.generateFullName();
+			Stack<Taxon> stack = new Stack<Taxon>();
+			stack.push(child);
+			
+			Map<Integer, String> oldParents = new HashMap<Integer, String>();
+			Map<Integer, String> newParents = new HashMap<Integer, String>();
+			
+			oldParents.put(newParent.getLevel(), child.getParent().getFullName());
+			newParents.put(newParent.getLevel(), newParent.getFullName());
+			
+			while (!stack.isEmpty()) {
+				Taxon current = stack.pop();
+				int currentLevel = current.getLevel();
+				
+				String oldName = generateFriendlyName(
+					current.getLevel(), oldParents.get(currentLevel-1), current.getName(), current.getInfratype());
+				String newName = generateFriendlyName(
+					current.getLevel(), newParents.get(currentLevel-1), current.getName(), current.getInfratype());
+				
+				if (!oldName.equals(newName)) {
+					changed.add(current);
+					if (synStatus != null) {
+						Synonym syn = Taxon.synonymizeTaxon(current);
+						syn.setStatus(synStatus);
+						current.getSynonyms().add(syn);
+					}
+					if (updateAssessments) {
+						updateRLHistoryText(current, user);
+					}
+					
+					oldParents.put(currentLevel, oldName);
+					newParents.put(currentLevel, newName);
+					
+					current.setFriendlyName(newName);
+					
+					for (Taxon taxon : current.getChildren())
+						stack.push(taxon);
+				}
+			}
+			
+			
+			
+			/*String oldChildName = generateFriendlyName(oldParent, child);
+			String newChildName = generateFriendlyName(newParent, child);
 
 			if (!oldChildName.equals(newChildName)) {
 
@@ -206,7 +247,7 @@ public class TaxomaticIO {
 
 					}
 				}
-			}
+			}*/
 		}
 		changed.add(child);
 		changed.add(oldParent);
@@ -217,6 +258,25 @@ public class TaxomaticIO {
 		newParent.getChildren().add(child);
 
 		return changed;
+	}
+	
+	private String generateFriendlyName(int taxonLevel, String parentFriendlyName, String childName, Infratype infratype) {
+		if (taxonLevel <= TaxonLevel.SPECIES)
+			return parentFriendlyName;
+		
+		String name = parentFriendlyName;
+		
+		if (infratype != null) {
+			name += " " + infratype.getCode();
+			for (int code : Infratype.ALL) {
+				Infratype type = Infratype.getInfratype(code);
+				childName = childName.replace(type.getCode(), "").trim();
+			}
+		}
+		
+		name = name + " " + childName;
+		
+		return name.trim();
 	}
 
 	public void performTaxomaticUndo(User user) throws TaxomaticException {
