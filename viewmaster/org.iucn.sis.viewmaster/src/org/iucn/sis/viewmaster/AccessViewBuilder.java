@@ -1,5 +1,6 @@
 package org.iucn.sis.viewmaster;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -12,28 +13,82 @@ import org.iucn.sis.shared.api.utils.CanonicalNames;
 
 public class AccessViewBuilder {
 	
-	public void build(final Connection c) throws DBException {
-		final String schema = "access";
-		final String user = "public";
-		
-		GetOut.log("Building table");
-		
-		c.update(String.format("DROP SCHEMA IF EXISTS %s", schema));
-		c.update(String.format("CREATE SCHEMA %s", schema));
-		c.update(String.format("GRANT USAGE ON SCHEMA %s TO %s", schema, user));
-		
-		GetOut.log("Creating required tables");
-		//Required tables
-		for (String tbl : new String[] { "assessment", "taxon" }) {
-			GetOut.log(tbl + "...");
-			c.update(String.format("DROP VIEW IF EXISTS %s.%s CASCADE", schema, tbl));
-			c.update(String.format("CREATE VIEW %s.%s AS \nSELECT * FROM public.%s", schema, tbl, tbl));
-			c.update(String.format("GRANT SELECT ON %s.%s TO %s", schema, tbl, user));
+	private Connection ec;
+	private String schema;
+	private String user;
+	
+	private boolean echo = false;
+	private boolean failOnUpdateError = false;
+	
+	public void setEcho(boolean echo) {
+		this.echo = echo;
+	}
+	
+	public void setFailOnUpdateError(boolean failOnUpdateError) {
+		this.failOnUpdateError = failOnUpdateError;
+	}
+	
+	public void query(String sql, RowProcessor processor) throws DBException {
+		if (echo)
+			print(sql);
+		ec.query(sql, processor);
+	}
+	
+	public void update(String sql, Object... args) {
+		update(String.format(sql, args));
+	}
+	
+	public void update(String sql) {
+		try {
+			ec.updateOrFail(sql);
+		} catch (DBException e){
+			printf("Error: Query failed: %s", sql);
+			if (failOnUpdateError)
+				throw new Error(e);
+			else
+				GetOut.log(e);
+		} finally {
+			if (echo)
+				print(sql);
 		}
+	}
+	
+	public void safeUpdate(String sql, Object... args) {
+		safeUpdate(String.format(sql, args));
+	}
+	
+	public void safeUpdate(String sql) {
+		try {
+			ec.updateOrFail(sql);
+		} catch (DBException e){
+			//printf("Error: Query failed: %s", sql);
+		} finally {
+			if (echo)
+				print(sql);
+		}
+	}
+	
+	public void destroy() throws DBException {
+		safeUpdate("DROP SCHEMA %s CASCADE", schema);
+	}
+	
+	public void build(Connection c, final String schema, final String user) throws DBException, IOException {
+		this.ec = c;
+		this.schema = schema;
+		this.user = user;
 		
-		GetOut.log("Creating export tables");
+		print("Generating export views...");
+		generateExportViews();
+		
+		printf("Generating utility queries...");
+		generateUtilityQueries("vw_published".equals(schema));
+		
+		printf("Done.");
+	}
+	
+	public void generateExportViews() throws DBException {
 		//Export Tables
-		c.query("select * from "+ "public" + ".universe", new RowProcessor(){
+		query("select * from "+ "public" + ".universe ORDER BY a", new RowProcessor() {
 			String currentViewName = CanonicalNames.AOO;
 			Map<String,String> currentColumns = new TreeMap<String,String>();
 			
@@ -46,9 +101,9 @@ public class AccessViewBuilder {
 					if (sfi > 0)
 						joinTable = FriendlyNameFactory.get(currentViewName.substring(0, sfi));
 					
-					GetOut.log("New view: %s", currentViewName);
-					String localViewName = "export_" + currentViewName.toUpperCase();
-					c.update(String.format("DROP VIEW IF EXISTS %s.\"%s\" CASCADE", schema, localViewName));
+					printf("Generated system view: %s", currentViewName);
+					String localViewName = currentViewName.toUpperCase();
+					
 					StringBuilder columnspecs = new StringBuilder();
 					StringBuilder joinspecs = new StringBuilder();
 					StringBuilder subcolumnspecs = new StringBuilder();
@@ -106,19 +161,22 @@ public class AccessViewBuilder {
 						firstWhere = false;
 					}
 					String sql = 
-						"CREATE VIEW "+schema+".\""+localViewName+"\" AS SELECT "+"public"+".assessment.taxonid, "+"public"+".assessment.id as assessmentid, "
+						"CREATE TABLE "+schema+".\""+localViewName+"\" AS SELECT "+schema+".vw_filter.taxonid, " 
+						+ schema + ".vw_filter.assessmentid, "
 						+ columnspecs + "\n"
-						+ "FROM " + "public" + ".assessment \n"
+						+ "FROM " + schema + ".vw_filter \n"
 						+ "LEFT JOIN ( \n"
-						+ "  SELECT " + "public" + ".assessment.id as assessmentid, "
+						+ "  SELECT " + schema + ".vw_filter.assessmentid, "
 						+ subcolumnspecs + "\n"
-						+ "  FROM " + "public" + ".assessment \n"
-						+ "  JOIN public.field on public.field.assessmentid = " + "public" + ".assessment.id AND public.field.name='"+joinTable+"'\n"
+						+ "  FROM " + schema + ".vw_filter \n"
+						+ "  JOIN public.field on public.field.assessmentid = " + schema + ".vw_filter.assessmentid AND public.field.name='"+joinTable+"'\n"
 						+ joinspecs + "\n"
 						//+ wherespecs
-						+ ") s1 ON " + "public" + ".assessment.id = s1.assessmentid";
-					c.update(sql);
-					c.update("GRANT SELECT ON "+schema+".\""+localViewName+"\" TO " + user);
+						+ ") s1 ON " + schema + ".vw_filter.assessmentid = s1.assessmentid";
+					
+					safeUpdate("DROP TABLE IF EXISTS %s.\"%s\"", schema, localViewName);
+					safeUpdate(sql);
+					safeUpdate("GRANT SELECT ON %s.\"%s\" TO %s", schema, localViewName, user);
 					
 					currentViewName = newViewName;
 					currentColumns.clear();
@@ -132,6 +190,63 @@ public class AccessViewBuilder {
 				if(!"N/A".equals(name)) currentColumns.put(name,where);
 			}
 		});
+	}
+	
+	public void generateUtilityQueries(boolean published) throws DBException, IOException {
+		runSQLFile("AccessQueries" + (published ? "Published" : "") + ".sql");
+	}
+	
+	public void generateTaxonomyQueries() throws DBException, IOException {
+		runSQLFile("AccessQueriesTaxonomy.sql");
+	}
+	
+	private void runSQLFile(String file) throws DBException, IOException {
+		for (String sql : new SQLReader(file)) {
+			TableInfo info = findTableName(sql);
+			if (info == null)
+				printf(" - No table name found in query: \n%s", sql);
+			
+			if (info != null)
+				update("DROP %s IF EXISTS %s CASCADE", info.type, info.table);
+				
+			update(sql.replace("$schema", schema).replace("$user", user));
+			
+			if (info != null)
+				safeUpdate("GRANT SELECT ON %s TO %s", info.table, user);
+		}
+	}
+	
+	private TableInfo findTableName(String sql) {
+		String type;
+		
+		int startIndex = sql.indexOf(type = "TABLE");
+		if (startIndex < 0)
+			startIndex = sql.indexOf(type = "VIEW");
+		int endIndex = sql.indexOf(" AS");
+		
+		if (startIndex < 0 || endIndex < 0)
+			return null;
+		
+		return new TableInfo(type, sql.substring(startIndex + 5, endIndex).trim().replace("$schema", schema));
+	}
+	
+	private void print(String out) {
+		GetOut.log(out);
+	}
+	
+	private void printf(String out, Object... args) {
+		GetOut.log(out, args);
+	}
+	
+	private static class TableInfo {
+		
+		public String type, table;
+		
+		public TableInfo(String type, String table) {
+			this.type = type;
+			this.table = table;
+		}
+		
 	}
 
 }

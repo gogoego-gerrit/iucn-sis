@@ -32,5 +32,9 @@ public class Connection {
 			GetOut.log(oops,sql);
 		}
 	}
+	
+	public void updateOrFail(String sql) throws DBException {
+		ec.doUpdate(sql);
+	}
 
 }
