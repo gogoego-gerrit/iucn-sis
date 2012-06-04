@@ -72,6 +72,11 @@ public class Activator implements BundleActivator {
 				VWFilterViewBuilder filter = new VWFilterViewBuilder();
 				filter.build(c, targetSchema, targetUser);
 			}
+			
+			AccessViewBuilder access = new AccessViewBuilder();
+			access.setFailOnUpdateError(true);
+			access.setEcho(true);
+			access.build(c, targetSchema, targetUser);
 		}
 		
 		IntegrityViewBuilder integrity = new IntegrityViewBuilder();
