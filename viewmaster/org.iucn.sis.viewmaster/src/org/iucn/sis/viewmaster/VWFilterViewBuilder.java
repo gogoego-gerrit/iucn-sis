@@ -14,6 +14,8 @@ public class VWFilterViewBuilder {
 			file = "RedListPublish3.sql"; 
 		else if ("vw_drafts".equals(schema))
 			file = "AllDrafts.sql";
+		else if ("vw_all".equals(schema))
+			file = "AllTaxa.sql";
 		else
 			return;
 		

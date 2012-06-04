@@ -10,7 +10,7 @@ CREATE TABLE vw_published.recent_by_region AS
   LEFT JOIN primitive_field pf2 ON f2.id = pf2.fieldid AND pf2.name = 'regions'
   LEFT JOIN foreign_key_list_primitive_field fk2 ON pf2.id = fk2.id
   LEFT JOIN fk_list_primitive_values fi2 ON fk2.id = fi2.fk_list_primitive_id
-  WHERE taxon.taxon_statusid NOT IN (2, 3) AND
+  WHERE taxon.taxon_statusid NOT IN (2, 3) AND taxon.state = 0 AND 
     a.state = 0 AND
     a.assessment_typeid = 1
   GROUP BY taxonid, fi2.value;
