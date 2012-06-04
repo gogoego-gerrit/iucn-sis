@@ -97,116 +97,144 @@ CREATE VIEW $schema.vw_redlistcaveat_value AS
 GRANT SELECT ON $schema.vw_redlistcaveat_value TO $user;
 
 DROP VIEW IF EXISTS $schema.vw_redlistassessors_publication CASCADE;
-CREATE VIEW $schema.vw_redlistassessors_publication AS
- SELECT vw.taxonid, vw.assessmentid, 
-  CASE
-   WHEN vw.text IS NULL THEN
+CREATE VIEW $schema.vw_redlistassessors_publication AS 
+ SELECT v.taxonid, v.assessmentid, array_to_string(array_agg(v.value), ', ') as value
+ FROM (
+  SELECT DISTINCT vw.taxonid, vw.assessmentid, 
    CASE
-    WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
-    WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
-    ELSE u.last_name||', '||u.initials
-   END
-   ELSE vw.text
-  END AS value
- FROM ( 
-   SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
-   FROM $schema.vw_filter
-   LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
-           FROM $schema.vw_filter
-      JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListAssessors'::text
-   LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
-   LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
-   LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
-   LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
-   LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
- ) vw
- LEFT JOIN public."user" u ON u.id = vw.value
- ORDER BY u.last_name, u.first_name;
+    WHEN vw.text IS NULL THEN
+     CASE
+      WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
+      WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
+      ELSE u.last_name||', '||u.initials
+     END
+    ELSE vw.text
+    END AS value
+   FROM ( 
+    SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
+    FROM $schema.vw_filter
+    LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
+            FROM $schema.vw_filter
+       JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListAssessors'::text
+    LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
+    LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
+    LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
+    LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
+    LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
+  ) vw
+  LEFT JOIN public."user" u ON u.id = vw.value
+  ORDER BY taxonid, value
+ ) v
+ GROUP BY taxonid, assessmentid;
 GRANT SELECT ON $schema.vw_redlistassessors_publication TO $user;
 
 DROP VIEW IF EXISTS $schema.vw_redlistevaluators_publication CASCADE;
-CREATE VIEW $schema.vw_redlistevaluators_publication AS
- SELECT vw.taxonid, vw.assessmentid, 
-  CASE
-   WHEN vw.text IS NULL THEN
+CREATE VIEW $schema.vw_redlistevaluators_publication AS 
+ SELECT v.taxonid, v.assessmentid, array_to_string(array_agg(v.value), ', ') as value
+ FROM (
+  SELECT DISTINCT vw.taxonid, vw.assessmentid, 
    CASE
-    WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
-    WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
-    ELSE u.last_name||', '||u.initials
-   END
-   ELSE vw.text
-  END AS value
- FROM ( 
-   SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
-   FROM $schema.vw_filter
-   LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
-           FROM $schema.vw_filter
-      JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListEvaluators'::text
-   LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
-   LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
-   LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
-   LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
-   LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
- ) vw
- LEFT JOIN public."user" u ON u.id = vw.value
- ORDER BY u.last_name, u.first_name;
+    WHEN vw.text IS NULL THEN
+     CASE
+      WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
+      WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
+      ELSE u.last_name||', '||u.initials
+     END
+    ELSE vw.text
+    END AS value
+   FROM ( 
+    SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
+    FROM $schema.vw_filter
+    LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
+            FROM $schema.vw_filter
+       JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListEvaluators'::text
+    LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
+    LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
+    LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
+    LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
+    LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
+  ) vw
+  LEFT JOIN public."user" u ON u.id = vw.value
+  ORDER BY taxonid, value
+ ) v
+ GROUP BY taxonid, assessmentid;
 GRANT SELECT ON $schema.vw_redlistevaluators_publication TO $user;
 
 DROP VIEW IF EXISTS $schema.vw_redlistcontributors_publication CASCADE;
-CREATE VIEW $schema.vw_redlistcontributors_publication AS
- SELECT vw.taxonid, vw.assessmentid, 
-  CASE
-   WHEN vw.text IS NULL THEN
+CREATE VIEW $schema.vw_redlistcontributors_publication AS 
+ SELECT v.taxonid, v.assessmentid, array_to_string(array_agg(v.value), ', ') as value
+ FROM (
+  SELECT DISTINCT vw.taxonid, vw.assessmentid, 
    CASE
-    WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
-    WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
-    ELSE u.last_name||', '||u.initials
-   END
-   ELSE vw.text
-  END AS value
- FROM ( 
-   SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
-   FROM $schema.vw_filter
-   LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
-           FROM $schema.vw_filter
-      JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListContributors'::text
-   LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
-   LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
-   LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
-   LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
-   LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
- ) vw
- LEFT JOIN public."user" u ON u.id = vw.value
- ORDER BY u.last_name, u.first_name;
+    WHEN vw.text IS NULL THEN
+     CASE
+      WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
+      WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
+      ELSE u.last_name||', '||u.initials
+     END
+    ELSE vw.text
+    END AS value
+   FROM ( 
+    SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
+    FROM $schema.vw_filter
+    LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
+            FROM $schema.vw_filter
+       JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListContributors'::text
+    LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
+    LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
+    LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
+    LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
+    LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
+  ) vw
+  LEFT JOIN public."user" u ON u.id = vw.value
+  ORDER BY taxonid, value
+ ) v
+ GROUP BY taxonid, assessmentid;
 GRANT SELECT ON $schema.vw_redlistcontributors_publication TO $user;
 
 DROP VIEW IF EXISTS $schema.vw_redlistfacilitators_publication CASCADE;
-CREATE VIEW $schema.vw_redlistfacilitators_publication AS
- SELECT vw.taxonid, vw.assessmentid, 
-  CASE
-   WHEN vw.text IS NULL THEN
+CREATE VIEW $schema.vw_redlistfacilitators_publication AS 
+ SELECT v.taxonid, v.assessmentid, array_to_string(array_agg(v.value), ', ') as value
+ FROM (
+  SELECT DISTINCT vw.taxonid, vw.assessmentid, 
    CASE
-    WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
-    WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
-    ELSE u.last_name||', '||u.initials
-   END
-   ELSE vw.text
-  END AS value
- FROM ( 
-   SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
-   FROM $schema.vw_filter
-   LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
-           FROM $schema.vw_filter
-      JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListFacilitators'::text
-   LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
-   LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
-   LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
-   LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
-   LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
- ) vw
- LEFT JOIN public."user" u ON u.id = vw.value
- ORDER BY u.last_name, u.first_name;
+    WHEN vw.text IS NULL THEN
+     CASE
+      WHEN u.initials = '' AND u.first_name = '' THEN u.last_name
+      WHEN u.initials = '' THEN u.last_name||', '||substring(u.first_name from 1 for 1)||'.'
+      ELSE u.last_name||', '||u.initials
+     END
+    ELSE vw.text
+    END AS value
+   FROM ( 
+    SELECT vw_filter.taxonid, vw_filter.assessmentid, s1.text, s1.value
+    FROM $schema.vw_filter
+    LEFT JOIN ( SELECT vw_filter.assessmentid, ff1.value AS text, ff2.value
+            FROM $schema.vw_filter
+       JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'RedListFacilitators'::text
+    LEFT JOIN primitive_field pf1 ON pf1.fieldid = field.id AND pf1.name::text = 'text'::text
+    LEFT JOIN string_primitive_field ff1 ON ff1.id = pf1.id
+    LEFT JOIN primitive_field pf2 ON pf2.fieldid = field.id AND pf2.name::text = 'value'::text
+    LEFT JOIN foreign_key_list_primitive_field fi2 ON fi2.id = pf2.id
+    LEFT JOIN fk_list_primitive_values ff2 ON ff2.fk_list_primitive_id = pf2.id) s1 ON vw_filter.assessmentid = s1.assessmentid
+  ) vw
+  LEFT JOIN public."user" u ON u.id = vw.value
+  ORDER BY taxonid, value
+ ) v
+ GROUP BY taxonid, assessmentid;
 GRANT SELECT ON $schema.vw_redlistfacilitators_publication TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_stressessubfield_stress CASCADE;
+CREATE OR REPLACE VIEW $schema.vw_stressessubfield_stress AS 
+ SELECT vw_filter.taxonid, vw_filter.assessmentid, thr.id AS recordid, ff.value
+   FROM $schema.vw_filter
+   JOIN field ON field.assessmentid = vw_filter.assessmentid AND field.name::text = 'Threats'::text
+   JOIN field thr ON thr.parentid = field.id AND thr.name::text = 'ThreatsSubfield'::text
+   JOIN field sf ON sf.parentid = thr.id
+   JOIN primitive_field pf ON pf.fieldid = sf.id
+   JOIN foreign_key_primitive_field ff ON ff.id = pf.id
+  WHERE sf.name::text = 'StressesSubfield'::text AND pf.name::text = 'stress'::text;
+GRANT SELECT ON $schema.vw_stressessubfield_stress TO $user;
 
 DROP VIEW IF EXISTS $schema.vw_workingsettaxon CASCADE;
 CREATE VIEW $schema.vw_workingsettaxon AS
@@ -236,3 +264,4 @@ CREATE VIEW $schema.vw_common_name_all AS
   FROM common_name
   WHERE principal = false;
 GRANT SELECT ON $schema.vw_common_name_all TO $user; 
+
