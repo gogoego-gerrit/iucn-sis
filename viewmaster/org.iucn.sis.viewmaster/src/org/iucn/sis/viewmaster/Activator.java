@@ -2,8 +2,11 @@ package org.iucn.sis.viewmaster;
 
 import static org.gogoego.util.db.fluent.Statics.configure;
 
+import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.gogoego.util.db.DBSessionFactory;
 import org.gogoego.util.db.fluent.Connection;
@@ -14,31 +17,27 @@ import org.osgi.framework.BundleContext;
 
 public class Activator implements BundleActivator {
 	
-	private static final String USER = "**USER**";
-	private static final String PASSWORD = "**PASSWORD**";
-	
 	public static void main(String[] args) throws Exception {
 		PostgreSQLDBSessionFactory.getInstance().register();
 		new Activator().start(null);
 	}
 
 	public void start(BundleContext context) throws Exception {
+		final File file = new File("/var/sis/viewmaster/db.properties");
+		if (!file.exists())
+			throw new Exception("Database properties file missing from " + file.getAbsolutePath() + ". Please specify properties.");
 		
-		final Connection c = configure(
-				"application",
-				"**URL**",
-				USER,
-				PASSWORD);
-
-		final Connection l = configure(
-				"lookups",
-				"**URL**",
-				USER,
-				PASSWORD);
+		final Properties properties = new Properties();
+		properties.load(new FileReader(file));
+		
+		final Connection c = configureConnection("application", properties);
+		final Connection l = configureConnection("lookups", properties);
+		
+		final String user = properties.getProperty("viewmaster.generate.user", "public");
 		
 		List<SchemaUser> list = new ArrayList<SchemaUser>();
-		list.add(new SchemaUser("public", "iucn"));
-		list.add(new SchemaUser("vw_published", "iucn"));
+		for (String schema : properties.getProperty("viewmaster.generate.schema").split(","))
+			list.add(new SchemaUser(schema.trim(), user));
 		
 		for (SchemaUser current : list) {
 			String targetSchema = current.targetSchema, targetUser = current.targetUser;
@@ -78,13 +77,18 @@ public class Activator implements BundleActivator {
 		IntegrityViewBuilder integrity = new IntegrityViewBuilder();
 		integrity.build(c);
 		
-		AccessViewBuilder access = new AccessViewBuilder();
-		access.build(c);
-		
 		GetOut.log("Closing connections.");
 		
 		DBSessionFactory.unregisterDataSource("application");
 		DBSessionFactory.unregisterDataSource("lookups");
+	}
+	
+	private Connection configureConnection(String name, Properties properties) {
+		return configure(name, 
+			properties.getProperty("viewmaster." + name + ".url"), 
+			properties.getProperty("viewmaster." + name + ".user"), 
+			properties.getProperty("viewmaster." + name + ".password")
+		);
 	}
 
 	public void stop(BundleContext context) throws Exception {
