@@ -27,6 +27,7 @@ public class AuthorizableFeature implements AuthorizableObject, Comparable<Autho
 	private static final String ADD_PROFILE = "addProfile";
 	private static final String PUBLICATION_MANAGER = "publicationManager";
 	private static final String PUBLICATION_MANAGER_EDIT = "publicationManagerEdit";
+	private static final String TAXON_STATUS_BATCH_CHANGE = "taxonStatusBatchChange";
 	
 	public static AuthorizableFeature TAXOMATIC_FEATURE = new AuthorizableFeature(TAXOMATIC, "Taxomatic"); 
 	public static AuthorizableFeature BATCH_CHANGE_FEATURE = new AuthorizableFeature(BATCH_CHANGE, "Batch Change");
@@ -49,12 +50,13 @@ public class AuthorizableFeature implements AuthorizableObject, Comparable<Autho
 	public static AuthorizableFeature ADD_PROFILE_FEATURE = new AuthorizableFeature(ADD_PROFILE, "Add User Profiles");
 	public static AuthorizableFeature PUBLICATION_MANAGER_FEATURE = new AuthorizableFeature(PUBLICATION_MANAGER, "View Publication Workflow");
 	public static AuthorizableFeature PUBLICATION_MANAGER_EDITING_FEATURE = new AuthorizableFeature(PUBLICATION_MANAGER_EDIT, "Edit Publication Workflow");
+	public static AuthorizableFeature TAXON_STATUS_BATCH_CHANGE_FEATURE = new AuthorizableFeature("TAXON_STATUS_BATCH_CHANGE", "Taxon Status Batch Change");
 	
 	public static String [] featureNames = new String [] { TAXOMATIC, BATCH_CHANGE, 
 		FIND_REPLACE, DEM_UPLOAD, TAXON_FINDER, EDIT_REGIONS,  
 		PERMISSION_MANAGEMENT, ACCESS_EXPORT, WORKING_SET_ACCESS_EXPORT, USER_MANAGEMENT, 
 		DEFINITION_MANAGEMENT, DELETE_USERS, INTEGRITY_CHECK, VIRUS_MANAGEMENT, TAXA_TAGGING,
-		ADD_PROFILE, PUBLICATION_MANAGER, PUBLICATION_MANAGER_EDIT
+		ADD_PROFILE, PUBLICATION_MANAGER, PUBLICATION_MANAGER_EDIT, TAXON_STATUS_BATCH_CHANGE
 	};
 	
 	public static AuthorizableFeature [] features = new AuthorizableFeature [] { TAXOMATIC_FEATURE, BATCH_CHANGE_FEATURE, 
@@ -63,7 +65,8 @@ public class AuthorizableFeature implements AuthorizableObject, Comparable<Autho
 		WORKING_SET_ACCESS_EXPORT_FEATURE, USER_MANAGEMENT_FEATURE, 
 		DEFINITION_MANAGEMENT_FEATURE, DELETE_USERS_FEATURE, INTEGRITY_CHECK_FEATURE, 
 		VIRUS_MANAGEMENT_FEATURE, TAXA_TAGGING_FEATURE, ADD_PROFILE_FEATURE,
-		PUBLICATION_MANAGER_FEATURE, PUBLICATION_MANAGER_EDITING_FEATURE
+		PUBLICATION_MANAGER_FEATURE, PUBLICATION_MANAGER_EDITING_FEATURE,
+		TAXON_STATUS_BATCH_CHANGE_FEATURE
 	};
 	
 	

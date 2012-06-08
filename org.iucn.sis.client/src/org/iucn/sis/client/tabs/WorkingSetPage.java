@@ -25,6 +25,7 @@ import org.iucn.sis.client.panels.workingsets.WorkingSetOptionsPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetPermissionPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetReportPanel;
 import org.iucn.sis.client.panels.workingsets.WorkingSetSummaryPanel;
+import org.iucn.sis.client.panels.workingsets.WorkingSetTaxaBatchChangePanel;
 import org.iucn.sis.shared.api.acl.base.AuthorizableObject;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableDraftAssessment;
 import org.iucn.sis.shared.api.acl.feature.AuthorizableFeature;
@@ -59,6 +60,7 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 	private final WorkingSetEditBasicPanel editor = new WorkingSetEditBasicPanel(this);
 	private final WorkingSetAddAssessmentsPanel assessments = new WorkingSetAddAssessmentsPanel(this);
 	private final WorkingSetOptionsPanel taxa = new WorkingSetOptionsPanel();
+	private final WorkingSetTaxaBatchChangePanel taxaBatchChange = new WorkingSetTaxaBatchChangePanel(this);
 	
 	@Override
 	protected void drawBody(DoneDrawingCallback callback) {
@@ -107,7 +109,6 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 	
 	@Override
 	protected void updateSelection(Integer selection) {
-		//WorkingSetCache.impl.setCurrentWorkingSet(selection, true);
 		StateManager.impl.setWorkingSet(WorkingSetCache.impl.getWorkingSet(selection));
 	}
 	
@@ -122,7 +123,6 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 	
 	@Override
 	protected void drawOptions(DrawsLazily.DoneDrawingCallback callback) {
-		//final WorkingSet item = WorkingSetCache.impl.getWorkingSet(getSelectedItem());
 		
 		if (optionsContainer.getItemCount() == 0) {
 			final TableLayout layout = new TableLayout(1);
@@ -141,6 +141,15 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 			buttonArea.add(createButton("Taxa Manager", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
 					setBodyContainer(taxa);
+				}
+			}));
+			buttonArea.add(createButton("Taxa Batch Change", new SelectionListener<ButtonEvent>() {
+				public void componentSelected(ButtonEvent ce) {										
+					if (AuthorizationCache.impl.canUse(AuthorizableFeature.TAXON_STATUS_BATCH_CHANGE_FEATURE)) 
+						setBodyContainer(taxaBatchChange);					
+					else
+						WindowUtils.errorAlert("Insufficient Permissions", "You do not have permission to batch update taxon status on " +
+								"this working set.");					
 				}
 			}));
 			buttonArea.add(createButton("Create Draft Assessment", new SelectionListener<ButtonEvent>() {
@@ -196,7 +205,6 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 			}));
 			buttonArea.add(createButton("Export to Offline", new SelectionListener<ButtonEvent>() {
 				public void componentSelected(ButtonEvent ce) {
-					//setBodyContainer(new WorkingSetExporter(WorkingSetPage.this));
 					WindowUtils.confirmAlert("Export Working Set", "A dialog box will appear and ask"
 							+ " you where you like to save the zipped working set.  The zipped file "
 							+ "will contain the entire working set including the basic information, the "
@@ -318,6 +326,10 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 		setBodyContainer(taxa);
 	}
 	
+	public void setTaxaBatchChangeTab() {
+		setBodyContainer(taxaBatchChange);
+	}
+	
 	private void export(final WorkingSet ws) {
 		if (SIS.isOnline()) {
 			WindowUtils.confirmAlert("Lock Assessments", "Would you like to lock the online version " +
@@ -391,15 +403,6 @@ public class WorkingSetPage extends FeaturedItemContainer<Integer> {
 				+ "available for download.  Please be patient as larger working sets will "
 				+ "take longer to export.");
 		
-		/*
-		WorkingSetCache.impl.exportWorkingSet(workingSet.getId(), lock, new GenericCallback<String>() {
-			public void onFailure(Throwable caught) {
-				WindowUtils.errorAlert("Export failed, please try again later.");
-			}
-			public void onSuccess(String arg0) {
-				WorkingSetExporter.saveExportedZip(arg0, workingSet);
-			}
-		});*/
 	}
 
 }

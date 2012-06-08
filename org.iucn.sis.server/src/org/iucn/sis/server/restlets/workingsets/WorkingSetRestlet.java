@@ -9,12 +9,14 @@ import java.util.List;
 import org.hibernate.Session;
 import org.iucn.sis.server.api.application.SIS;
 import org.iucn.sis.server.api.filters.AssessmentFilterHelper;
+import org.iucn.sis.server.api.io.TaxomaticIO;
 import org.iucn.sis.server.api.io.TaxonIO;
 import org.iucn.sis.server.api.io.UserIO;
 import org.iucn.sis.server.api.io.WorkingSetIO;
 import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.server.api.utils.TaxomaticException;
 import org.iucn.sis.shared.api.assessments.PublishedAssessmentsComparator;
 import org.iucn.sis.shared.api.debug.Debug;
 import org.iucn.sis.shared.api.models.Assessment;
@@ -40,6 +42,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.solertium.lwxml.shared.NativeDocument;
+import com.solertium.lwxml.shared.NativeNode;
 import com.solertium.lwxml.shared.NativeNodeList;
 import com.solertium.util.BaseDocumentUtils;
 
@@ -135,6 +138,8 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 			getTaxaFootprintWithAdditionalInfo(entity, response, username, id, workingSetIO, session);
 		else if (action.equalsIgnoreCase("editTaxa"))
 			editTaxaInWorkingSet(entity, request, response, username, id, session);
+		else if (action.equalsIgnoreCase("batchUpdateTaxaStatus"))
+			batchUpdateTaxonStatus(entity, request, response, session);	
 		else if (action.equalsIgnoreCase("subscribe") || action.equalsIgnoreCase("unsubscribe")){			
 			NativeDocument ndoc = getEntityAsNativeDocument(entity);
 			NativeNodeList list = ndoc.getDocumentElement().getElementsByTagName(User.ROOT_TAG);
@@ -584,6 +589,51 @@ public class WorkingSetRestlet extends BaseServiceRestlet {
 		} else {
 			response.setStatus(Status.SERVER_ERROR_INTERNAL);
 		}
+	}
+	
+	public void batchUpdateTaxonStatus(Representation entity, Request request, Response response, Session session) throws ResourceException {
+		final NativeDocument dataDoc = getEntityAsNativeDocument(entity);
+		
+		String taxaIDs = null;
+		String status = null;
+		
+		TaxonIO taxonIO = new TaxonIO(session);
+		TaxomaticIO taxomaticIO = new TaxomaticIO(session);
+		
+		final NativeNodeList nodes = dataDoc.getDocumentElement().getChildNodes();
+		for (int i = 0; i < nodes.getLength(); i++) {
+			NativeNode current = nodes.item(i);
+			if ("taxa".equals(current.getNodeName())) {
+				taxaIDs = current.getTextContent();
+			}
+			else if ("status".equals(current.getNodeName())) {
+				status = current.getTextContent();
+			}			
+		}
+		
+		if (taxaIDs == null || status == null || "".equals(taxaIDs))
+			throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST);
+			
+		StringBuilder updatedIDs = new StringBuilder();
+		for (String taxonID : taxaIDs.split(",")) {
+			Taxon temp = taxonIO.getTaxon(Integer.valueOf(taxonID));
+			if(!temp.getStatusCode().equals(status)){
+				temp.setStatus(status);
+				try {
+					taxomaticIO.writeTaxon(temp, getUser(request, session), "Taxon Status Batch Update");
+					updatedIDs.append(temp.getId()+",");
+				} catch (TaxomaticException e) {
+					throw new ResourceException(Status.SERVER_ERROR_INTERNAL, "Unable to save the changes in the Taxa", e);
+				}
+			}
+		}			
+		
+		String result = updatedIDs.toString();
+		if (!"".equals(result))
+			result = result.substring(0, result.length()-1);
+		
+		response.setEntity(result, MediaType.TEXT_PLAIN);
+		response.setStatus(Status.SUCCESS_OK);
 	}
 
 }

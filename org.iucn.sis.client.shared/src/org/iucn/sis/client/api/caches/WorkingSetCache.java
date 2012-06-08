@@ -805,6 +805,27 @@ public class WorkingSetCache {
 		});
 	}
 	
+	public void batchUpdateTaxonStatus(final String taxaIDs, final String newStatus, final GenericCallback<String> callback){		
+		StringBuffer xml = new StringBuffer("<batchChange>\n");
+		xml.append("<taxa>" + taxaIDs + "</taxa>");
+		xml.append("<status>" + newStatus + "</status>\n");
+		xml.append("</batchChange>\n");
+		
+		WindowUtils.showLoadingAlert("Updating...");
+		final NativeDocument doc = SISClientBase.getHttpBasicNativeDocument();
+		String userName = SISClientBase.currentUser.getUsername();
+		String url = UriBase.getInstance().getSISBase() +"/workingSet/batchUpdateTaxaStatus/"+userName+"/"+getCurrentWorkingSet().getId();
+		doc.post(url, xml.toString(), new GenericCallback<String>() {
+			public void onFailure(Throwable arg0) {
+				callback.onFailure(arg0);
+			}
+
+			public void onSuccess(String arg0) {
+				callback.onSuccess(doc.getText());						
+			}
+		});					
+	}
+	
 	public static class WorkingSetComparator extends PortableAlphanumericComparator {
 		private static final long serialVersionUID = 1L;
 		public WorkingSetComparator() {
