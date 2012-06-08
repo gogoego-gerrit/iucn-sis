@@ -42,50 +42,83 @@ public class Activator implements BundleActivator {
 		for (SchemaUser current : list) {
 			String targetSchema = current.targetSchema, targetUser = current.targetUser;
 			
-			UniverseBuilder universe = new UniverseBuilder();
-			universe.build(c, l, targetSchema, targetUser);
+			if (build("universe", properties)) {
+				UniverseBuilder universe = new UniverseBuilder();
+				universe.build(c, l, targetSchema, targetUser);
+			}
 	
 			//The old school method
-			SingleTableViewBuilder byTable = new SingleTableViewBuilder();
-			//byTable.build(c, targetSchema, targetUser);
+			if (build("singletable", properties, false)) {
+				SingleTableViewBuilder byTable = new SingleTableViewBuilder();
+				byTable.build(c, targetSchema, targetUser);
+			}
 			
 			// Each column is its own view
-			SingleColumnViewBuilder byColumn = new SingleColumnViewBuilder();
-			byColumn.build(c, targetSchema, targetUser);
+			if (build("singlecolumn", properties)) {
+				SingleColumnViewBuilder byColumn = new SingleColumnViewBuilder();
+				byColumn.build(c, targetSchema, targetUser);
+			}
 			
 			// Re-creates the old school way based on the views.
 			// FIXME: not done yet
-			AggregatedTableViewBuilder aggregated = new AggregatedTableViewBuilder();
-			//aggregated.build(c);
-			
-			// Build up the taxonomy views
-			TaxonomyViewBuilder taxonomy = new TaxonomyViewBuilder();
-			taxonomy.build(c, targetSchema, targetUser);
-			
-			// Quickie additional views
-			AdditionalViewBuilder additional = new AdditionalViewBuilder();
-			additional.addFile("additional.sql");
-			additional.addFile("attachments.sql");
-			additional.build(c, targetSchema, targetUser);
-			
-			if (!"public".equals(targetSchema)) {
-				VWFilterViewBuilder filter = new VWFilterViewBuilder();
-				filter.build(c, targetSchema, targetUser);
+			if (build("aggregated", properties, false)) {
+				AggregatedTableViewBuilder aggregated = new AggregatedTableViewBuilder();
+				aggregated.build(c);
 			}
 			
-			AccessViewBuilder access = new AccessViewBuilder();
-			access.setFailOnUpdateError(true);
-			access.setEcho(true);
-			access.build(c, targetSchema, targetUser);
+			// Build up the taxonomy views
+			if (build("taxonomy", properties)) {
+				TaxonomyViewBuilder taxonomy = new TaxonomyViewBuilder();
+				taxonomy.build(c, targetSchema, targetUser);
+			}
+			
+			// Quickie additional views
+			if (build("additional", properties)) {
+				AdditionalViewBuilder additional = new AdditionalViewBuilder();
+				additional.addFile("additional.sql");
+				additional.addFile("attachments.sql");
+				
+				String additionalFiles = properties.getProperty("viewmaster.additional.include");
+				if (additionalFiles != null && !"".equals(additionalFiles)) {
+					for (String fileName : additionalFiles.split(","))
+						additional.addFile(fileName);
+				}
+			
+				additional.build(c, targetSchema, targetUser);
+			}
+			
+			if (build("filter", properties)) {
+				if (!"public".equals(targetSchema)) {
+					VWFilterViewBuilder filter = new VWFilterViewBuilder();
+					filter.build(c, targetSchema, targetUser);
+				}
+			}
+			
+			if (build("access", properties, false)) {
+				AccessViewBuilder access = new AccessViewBuilder();
+				access.setFailOnUpdateError(true);
+				access.setEcho(true);
+				access.build(c, targetSchema, targetUser);
+			}
 		}
 		
-		IntegrityViewBuilder integrity = new IntegrityViewBuilder();
-		integrity.build(c);
+		if (build("integrity", properties, false)) {
+			IntegrityViewBuilder integrity = new IntegrityViewBuilder();
+			integrity.build(c);
+		}
 		
 		GetOut.log("Closing connections.");
 		
 		DBSessionFactory.unregisterDataSource("application");
 		DBSessionFactory.unregisterDataSource("lookups");
+	}
+	
+	private boolean build(String key, Properties properties) {
+		return build(key, properties, true);
+	}
+	
+	private boolean build(String key, Properties properties, boolean defaultValue) {
+		return "true".equalsIgnoreCase(properties.getProperty("viewmaster." + key + ".build", Boolean.toString(defaultValue)));
 	}
 	
 	private Connection configureConnection(String name, Properties properties) {
