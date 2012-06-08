@@ -15,48 +15,52 @@ CREATE VIEW $schema.vw_reference_global AS
     JOIN reference r ON r.id = ar.referenceid;
 GRANT SELECT ON $schema.vw_reference_global TO $user;
 
-DROP VIEW IF EXISTS lookups.REGIONINFORMATION_REGIONSLOOKUP CASCADE;
-CREATE VIEW lookups.REGIONINFORMATION_REGIONSLOOKUP AS 
+DROP VIEW IF EXISTS lookups."REGIONINFORMATION_REGIONSLOOKUP" CASCADE;
+CREATE VIEW lookups."REGIONINFORMATION_REGIONSLOOKUP" AS 
   SELECT public.region.id AS "ID", CAST (public.region.id AS varchar(255)) AS "NAME", 
   public.region.name AS "LABEL" FROM public.region;
-GRANT SELECT ON lookups.REGIONINFORMATION_REGIONSLOOKUP TO PUBLIC;
+GRANT SELECT ON lookups."REGIONINFORMATION_REGIONSLOOKUP" TO PUBLIC;
 
-DROP VIEW IF EXISTS lookups.REDLISTASSESSORS_VALUELOOKUP CASCADE;
-CREATE VIEW lookups.REDLISTASSESSORS_VALUELOOKUP AS 
+DROP VIEW IF EXISTS lookups."REDLISTASSESSORS_VALUELOOKUP" CASCADE;
+CREATE VIEW lookups."REDLISTASSESSORS_VALUELOOKUP" AS 
   SELECT public."user".id AS "ID", CAST (public."user".id AS varchar(255)) AS "NAME", 
   public."user".username AS "LABEL" FROM public."user";
-GRANT SELECT ON lookups.REDLISTASSESSORS_VALUELOOKUP TO PUBLIC;
+GRANT SELECT ON lookups."REDLISTASSESSORS_VALUELOOKUP" TO PUBLIC;
 
-DROP VIEW IF EXISTS lookups.REDLISTEVALUATORS_VALUELOOKUP CASCADE;
-CREATE VIEW lookups.REDLISTEVALUATORS_VALUELOOKUP AS 
+DROP VIEW IF EXISTS lookups."REDLISTEVALUATORS_VALUELOOKUP" CASCADE;
+CREATE VIEW lookups."REDLISTEVALUATORS_VALUELOOKUP" AS 
   SELECT public."user".id AS "ID", CAST (public."user".id AS varchar(255)) AS "NAME", 
   public."user".username AS "LABEL" FROM public."user";
-GRANT SELECT ON lookups.REDLISTEVALUATORS_VALUELOOKUP TO PUBLIC;
+GRANT SELECT ON lookups."REDLISTEVALUATORS_VALUELOOKUP" TO PUBLIC;
 
-DROP VIEW IF EXISTS lookups.REDLISTCONTRIBUTORS_VALUELOOKUP CASCADE;
-CREATE VIEW lookups.REDLISTCONTRIBUTORS_VALUELOOKUP AS 
+DROP VIEW IF EXISTS lookups."REDLISTCONTRIBUTORS_VALUELOOKUP" CASCADE;
+CREATE VIEW lookups."REDLISTCONTRIBUTORS_VALUELOOKUP" AS 
   SELECT public."user".id AS "ID", CAST (public."user".id AS varchar(255)) AS "NAME", 
   public."user".username AS "LABEL" FROM public."user";
-GRANT SELECT ON lookups.REDLISTCONTRIBUTORS_VALUELOOKUP TO PUBLIC;
+GRANT SELECT ON lookups."REDLISTCONTRIBUTORS_VALUELOOKUP" TO PUBLIC;
 
-DROP VIEW IF EXISTS lookups.REDLISTFACILITATORS_VALUELOOKUP CASCADE;
-CREATE VIEW lookups.REDLISTFACILITATORS_VALUELOOKUP AS 
+DROP VIEW IF EXISTS lookups."REDLISTFACILITATORS_VALUELOOKUP" CASCADE;
+CREATE VIEW lookups."REDLISTFACILITATORS_VALUELOOKUP" AS 
   SELECT public."user".id AS "ID", CAST (public."user".id AS varchar(255)) AS "NAME", 
   public."user".username AS "LABEL" FROM public."user";
-GRANT SELECT ON lookups.REDLISTFACILITATORS_VALUELOOKUP TO PUBLIC;
+GRANT SELECT ON lookups."REDLISTFACILITATORS_VALUELOOKUP" TO PUBLIC;
 
-DROP VIEW IF EXISTS lookups.THREATS_VIRUSLOOKUP CASCADE;
-CREATE VIEW lookups.THREATS_VIRUSLOOKUP AS 
+DROP VIEW IF EXISTS lookups."THREATS_VIRUSLOOKUP" CASCADE;
+CREATE VIEW lookups."THREATS_VIRUSLOOKUP" AS 
   SELECT public.virus.id AS "ID", CAST(public.virus.id AS varchar(255)) AS "NAME", 
   public.virus.name AS "LABEL" FROM public.virus;
-GRANT SELECT ON lookups.THREATS_VIRUSLOOKUP TO PUBLIC;
+GRANT SELECT ON lookups."THREATS_VIRUSLOOKUP" TO PUBLIC;
 
-DROP VIEW IF EXISTS lookups.THREATS_IASLOOKUP CASCADE;
-CREATE VIEW lookups.THREATS_IASLOOKUP AS 
+DROP VIEW IF EXISTS lookups."THREATS_IASLOOKUP" CASCADE;
+CREATE VIEW lookups."THREATS_IASLOOKUP" AS 
   SELECT public.taxon.id AS "ID", public.taxon.name AS "NAME", 
-  public.taxon.friendly_name AS "LABEL" FROM public.taxon 
-  WHERE taxon.taxon_levelid = 7 AND taxon.state = 0;
-GRANT SELECT ON lookups.THREATS_IASLOOKUP TO PUBLIC;
+  		CASE
+  			WHEN taxon_levelid < 7 THEN 'Unspecified '||public.taxon.friendly_name
+  			ELSE public.taxon.friendly_name
+  		END AS "LABEL"
+  FROM public.taxon 
+  WHERE taxon.state = 0;
+GRANT SELECT ON lookups."THREATS_IASLOOKUP" TO PUBLIC;
 
 DROP VIEW IF EXISTS $schema.vw_redlistcategoryandcriteria CASCADE;
 CREATE VIEW $schema.vw_redlistcategoryandcriteria AS
@@ -265,3 +269,18 @@ CREATE VIEW $schema.vw_common_name_all AS
   WHERE principal = false;
 GRANT SELECT ON $schema.vw_common_name_all TO $user; 
 
+DROP VIEW IF EXISTS $schema.vw_threatssubfield_virus_publication;
+CREATE VIEW $schema.vw_threatssubfield_virus_publication AS 
+  SELECT v.taxonid, v.assessmentid, v.recordid, virus.name as value
+  FROM $schema.vw_threatssubfield_virus v
+  LEFT JOIN virus ON virus.id = v.value;
+GRANT SELECT ON $schema.vw_threatssubfield_virus_publication TO $user;
+
+DROP VIEW IF EXISTS $schema.vw_threatssubfield_ias_publication CASCADE;
+CREATE VIEW $schema.vw_threatssubfield_ias_publication AS 
+  SELECT l.taxonid, l.assessmentid, l.recordid, t."LABEL"
+  FROM $schema.vw_threatssubfield_threatslookup l
+  JOIN lookups."THREATSLOOKUP" code ON code."ID" = l.value AND l.value IN (82, 85)
+  JOIN $schema.vw_threatssubfield_ias i ON l.recordid = i.recordid
+  LEFT JOIN lookups."THREATS_IASLOOKUP" t ON i.value = t."ID";
+GRANT SELECT ON $schema.vw_threatssubfield_ias_publication TO $user;
