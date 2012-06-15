@@ -16,6 +16,7 @@ public class AttachmentCriteria extends AbstractORMCriteria {
 	
 	public final IntegerExpression id;
 	public final StringExpression name;
+	public final StringExpression key;
 	public final BooleanExpression publish;
 	
 	public AttachmentCriteria(Session session) {
@@ -26,6 +27,7 @@ public class AttachmentCriteria extends AbstractORMCriteria {
 		super(criteria);
 		id = new IntegerExpression("id", this);
 		name = new StringExpression("name", this);
+		key = new StringExpression("key", this);
 		publish = new BooleanExpression("publish", this);
 	}
 	
