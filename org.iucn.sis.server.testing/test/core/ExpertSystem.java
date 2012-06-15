@@ -205,6 +205,70 @@ public class ExpertSystem extends BasicTest {
 	}
 	
 	@Test
+	public void A2Unknown() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPast, 
+			new RangePrimitiveField("range", null, "85")	
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPastReversible, 
+			new BooleanRangePrimitiveField("value", null, BooleanRangePrimitiveField.UNKNOWN)	
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPastUnderstood, 
+			new BooleanRangePrimitiveField("value", null, BooleanRangePrimitiveField.YES)	
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPastCeased, 
+			new BooleanRangePrimitiveField("value", null, BooleanRangePrimitiveField.YES)
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPastBasis, 
+			newFKList("value", 1, 4)
+		));
+		
+		int index = 0;
+		String[] crit = new String[] { "CR", "EN", "VU", "DD" };
+		String[] cat = new String[] { "A2ad", "A2ad", "A2ad", "" };
+		for (String value : new String[] { "85", "55", "35", "15" }) {
+			Field field = assessment.getField(CanonicalNames.PopulationReductionPast);
+			field.getPrimitiveField("range").setRawValue(value);
+			
+			ExpertResult result = run(assessment);
+			Assert.assertEquals(cat[index], result.getCriteriaString());
+			Assert.assertEquals(crit[index++], result.getAbbreviatedCategory());
+		}
+	}
+	
+	@Test
+	public void A4Unknown() {
+		Assessment assessment = new Assessment();
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPastandFuture, 
+			new RangePrimitiveField("range", null, "85")	
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPastandFutureReversible, 
+			new BooleanRangePrimitiveField("value", null, BooleanRangePrimitiveField.UNKNOWN)	
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPastandFutureUnderstood, 
+			new BooleanRangePrimitiveField("value", null, BooleanRangePrimitiveField.YES)	
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPastandFutureCeased, 
+			new BooleanRangePrimitiveField("value", null, BooleanRangePrimitiveField.YES)
+		));
+		assessment.getField().add(newField(CanonicalNames.PopulationReductionPastandFutureBasis, 
+			newFKList("value", 1, 4)
+		));
+		
+		int index = 0;
+		String[] crit = new String[] { "CR", "EN", "VU", "DD" };
+		String[] cat = new String[] { "A4ad", "A4ad", "A4ad", "" };
+		for (String value : new String[] { "85", "55", "35", "15" }) {
+			Field field = assessment.getField(CanonicalNames.PopulationReductionPastandFuture);
+			field.getPrimitiveField("range").setRawValue(value);
+			
+			ExpertResult result = run(assessment);
+			Assert.assertEquals(cat[index], result.getCriteriaString());
+			Assert.assertEquals(crit[index++], result.getAbbreviatedCategory());
+		}
+	}
+	
+	@Test
 	public void goodA2() {
 		Assessment assessment = new Assessment();
 		assessment.getField().add(newField(CanonicalNames.PopulationReductionPast, 

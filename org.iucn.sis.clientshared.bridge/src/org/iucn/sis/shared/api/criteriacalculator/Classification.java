@@ -9,6 +9,8 @@ import org.iucn.sis.shared.api.criteriacalculator.ExpertResult.ResultCategory;
 
 public abstract class Classification {
 	
+	public static final String A_UNKNOWN = "0-1";
+	
 	protected final ResultCategory name;
 	
 	// RANGES FOR EACH CRITERIA

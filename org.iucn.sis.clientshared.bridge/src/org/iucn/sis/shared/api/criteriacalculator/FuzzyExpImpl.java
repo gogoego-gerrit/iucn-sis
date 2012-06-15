@@ -282,8 +282,12 @@ public class FuzzyExpImpl {
 		return returnVals;
 	}
 
-	@SuppressWarnings("unchecked")
 	private Range createRangeFromAssessment(Assessment assessment, String factor) {
+		return createRangeFromAssessment(assessment, factor, null);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Range createRangeFromAssessment(Assessment assessment, String factor, String unknownRange) {
 		Field factorField = assessment.getField(factor);
 		Range result = null;
 		
@@ -291,16 +295,24 @@ public class FuzzyExpImpl {
 			for (PrimitiveField<?> curPrim : factorField.getPrimitiveField()) {
 				if (curPrim instanceof RangePrimitiveField) {
 					String value = ((RangePrimitiveField)curPrim).getValue();
-					//Disregard "unknown" as of ticket #57, BL#301
-					if (!BooleanRangePrimitiveField.UNKNOWN.equals(value))
+					/*
+					 * Disregard "unknown" as of ticket #57, BL#301
+					 * As of #905, unknown has meaning for A2 & A4
+					 */
+					if (BooleanRangePrimitiveField.UNKNOWN.equals(value))
+						result = unknownRange == null ? null : new Range(unknownRange);
+					else
 						result = new Range(value);
 					break;
 				}
 				else if (curPrim instanceof BooleanRangePrimitiveField) {
 					String value = ((PrimitiveField<String>)curPrim).getValue();
 					//Disregard "unknown" as of ticket #57
-					if (!BooleanRangePrimitiveField.UNKNOWN.equals(value))
+					if (BooleanRangePrimitiveField.UNKNOWN.equals(value))
+						result = unknownRange == null ? null : new Range(unknownRange);
+					else
 						result = new Range(value);
+					
 					break;
 				}
 			}
@@ -364,9 +376,13 @@ public class FuzzyExpImpl {
 	}
 	
 	private HashMap<String, Range> analyzeFactors(String[] factors, Assessment assessment) {
+		return analyzeFactors(factors, assessment, null);
+	}
+	
+	private HashMap<String, Range> analyzeFactors(String[] factors, Assessment assessment, String unknownRange) {
 		final HashMap<String, Range> map = new HashMap<String, Range>();
 		for (String factor : factors) {
-			Range primary = createRangeFromAssessment(assessment, factor);
+			Range primary = createRangeFromAssessment(assessment, factor, unknownRange);
 			if (INDIVIDUALDT)
 				primary = Range.dt(primary, dt);
 			map.put(factor, primary);
@@ -400,17 +416,17 @@ public class FuzzyExpImpl {
 
 		// GET ALL ENTERED INFORMATION FOR A2
 		CriteriaResult resultCR2 = critical.a2(
-			analyzeFactors(critical.factorsA2, assessment), 
+			analyzeFactors(critical.factorsA2, assessment, Classification.A_UNKNOWN), 
 			populationReductionPastBasis
 		);
 
 		CriteriaResult resultEN2 = endangered.a2(
-			analyzeFactors(endangered.factorsA2, assessment), 
+			analyzeFactors(endangered.factorsA2, assessment, Classification.A_UNKNOWN), 
 			populationReductionPastBasis
 		);
 
 		CriteriaResult resultVU2 = vulnerable.a2(
-			analyzeFactors(vulnerable.factorsA2, assessment), 
+			analyzeFactors(vulnerable.factorsA2, assessment, Classification.A_UNKNOWN), 
 			populationReductionPastBasis
 		);
 
@@ -434,16 +450,16 @@ public class FuzzyExpImpl {
 		String populationReductionEitherBasis = 
 			createStringFromAssessment(assessment, Factors.populationReductionEitherBasis);
 		CriteriaResult resultCR4 = critical.a4(
-			analyzeFactors(critical.factorsA4, assessment), 
+			analyzeFactors(critical.factorsA4, assessment, Classification.A_UNKNOWN), 
 			populationReductionEitherBasis);
 
 		CriteriaResult resultEN4 = endangered.a4(
-			analyzeFactors(endangered.factorsA4, assessment), 
+			analyzeFactors(endangered.factorsA4, assessment, Classification.A_UNKNOWN), 
 			populationReductionEitherBasis
 		);
 
 		CriteriaResult resultVU4 = vulnerable.a4(
-			analyzeFactors(vulnerable.factorsA4, assessment), 
+			analyzeFactors(vulnerable.factorsA4, assessment, Classification.A_UNKNOWN), 
 			populationReductionEitherBasis
 		);
 
