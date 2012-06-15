@@ -11,6 +11,7 @@ import com.solertium.db.ExecutionContext;
 import com.solertium.db.SystemExecutionContext;
 import com.solertium.db.TableCopier;
 import com.solertium.db.query.SelectQuery;
+import com.solertium.db.vendor.PostgreSQLDBSession;
 import com.solertium.util.AlphanumericComparator;
 import com.solertium.util.TrivialExceptionHandler;
 
@@ -55,6 +56,9 @@ public class CloneLookupsToPostgres {
 			    System.out.println("Dropped existing table:" + tn);
 			} catch (DBException reallyNotAProblem) {
 				// this is OK.  Really.
+				ectarget.doUpdate(String.format("%s lookups.\"%s\"", 
+					(ectarget.getDBSession() instanceof PostgreSQLDBSession ? "TRUNCATE " : "DELETE FROM "), 
+					tn));
 			}
 		}
 		ectarget.createStructure(structDoc);
@@ -63,7 +67,7 @@ public class CloneLookupsToPostgres {
 			System.out.println("Export table:" + tn);
 			SelectQuery sq = new SelectQuery();
 	    	sq.select(new CanonicalColumnName(tn,"*"));
-			ecsource.doQuery(sq, new TableCopier(ectarget, tn));
+			ecsource.doQuery(sq, new TableCopier(ectarget, tn, null, 0));
 		}
 		
 		System.out.println("Creating indices and access privileges...");
