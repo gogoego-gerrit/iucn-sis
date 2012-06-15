@@ -77,16 +77,32 @@ public class AttachmentConverter extends GenericConverter<VFSInfo> {
 				continue;
 			}
 			
-			Edit edit = new Edit("Data migration.");
-			edit.setUser(user);
+			String key = uri.getCollection().child(new VFSPathToken(filename)).toString();
 			
-			FieldAttachment attachment = new FieldAttachment();
-			attachment.getEdits().add(edit);
-			attachment.setName(filename);
-			attachment.setPublish(published);
-			attachment.setKey(uri.getCollection().child(new VFSPathToken(filename)).toString());
+			FieldAttachment attachment = null;
+			try {
+				attachment = (FieldAttachment) session.createCriteria(FieldAttachment.class)
+				.add(Restrictions.eq("key", key)).uniqueResult();
+			} catch (Exception e) {
+				TrivialExceptionHandler.ignore(this, e);
+			}
 			
-			Field field = assessment.getField(CanonicalNames.TaxonomicNotes);
+			boolean isNew = false;
+			
+			if (isNew = attachment == null) {
+				Edit edit = new Edit("Data re-migration.");
+				edit.setUser(user);
+				
+				attachment = new FieldAttachment();
+				attachment.getEdits().add(edit);
+				attachment.setName(filename);
+				attachment.setPublish(published);
+				attachment.setKey(key);
+				
+				edit.getAttachments().add(attachment);
+			}
+			
+			Field field = assessment.getField(CanonicalNames.RangeDocumentation);
 			if (field == null) {
 				Edit noteEdit = new Edit("Data migration");
 				noteEdit.setUser(user);
@@ -97,22 +113,19 @@ public class AttachmentConverter extends GenericConverter<VFSInfo> {
 					"attachment; removing this note and removing all data " +
 					"from this field will result in the attachment being lost. #SYSGEN");
 				
-				field = new Field(CanonicalNames.TaxonomicNotes, assessment);
+				field = new Field(CanonicalNames.RangeDocumentation, assessment);
 				field.getNotes().add(note);
 				
 				note.setField(field);
 			}
 				
 			attachment.getFields().add(field);
-			
 			field.getFieldAttachment().add(attachment);
 			
-			edit.getAttachments().add(attachment);
-			
-			session.save(attachment);
+			session.saveOrUpdate(attachment);
 			session.save(field);
 			
-			printf("Wrote attachment %s for assessment %s (%s)", attachment.getName(), assessment.getId(), assessment.getInternalId());
+			printf("%s attachment %s for assessment %s (%s)", isNew ? "Created" : "Updated", attachment.getName(), assessment.getId(), assessment.getInternalId());
 		}
 		
 		if (!nodes.isEmpty())
