@@ -98,6 +98,8 @@ public class ConverterWorker implements Runnable {
 			success = convertMovementPatterns(writer);
 		else if ("legacycountries".equals(step))
 			success = convertLegacyCountries(writer);
+		else if ("950".equals(step))
+			success = convertMissingAttachments950(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -338,6 +340,13 @@ public class ConverterWorker implements Runnable {
 			die("Failed to locate lookup database", e, writer);
 			return false;
 		}
+		initConverter(converter, writer);
+		
+		return converter.start();
+	}
+	
+	private boolean convertMissingAttachments950(Writer writer) {
+		MissingAttachments950Converter converter = new MissingAttachments950Converter();
 		initConverter(converter, writer);
 		
 		return converter.start();
