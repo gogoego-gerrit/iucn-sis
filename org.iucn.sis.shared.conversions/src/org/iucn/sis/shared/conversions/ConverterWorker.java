@@ -100,6 +100,8 @@ public class ConverterWorker implements Runnable {
 			success = convertLegacyCountries(writer);
 		else if ("950".equals(step))
 			success = convertMissingAttachments950(writer);
+		else if ("citations".equals(step))
+			success = convertMissingCitations(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -347,6 +349,13 @@ public class ConverterWorker implements Runnable {
 	
 	private boolean convertMissingAttachments950(Writer writer) {
 		MissingAttachments950Converter converter = new MissingAttachments950Converter();
+		initConverter(converter, writer);
+		
+		return converter.start();
+	}
+	
+	private boolean convertMissingCitations(Writer writer) {
+		CitationConverter converter = new CitationConverter();
 		initConverter(converter, writer);
 		
 		return converter.start();
