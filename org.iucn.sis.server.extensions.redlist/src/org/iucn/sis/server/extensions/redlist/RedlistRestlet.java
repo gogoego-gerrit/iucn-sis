@@ -6,11 +6,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.hibernate.Session;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.iucn.sis.server.api.application.SIS;
+import org.iucn.sis.server.api.persistance.hibernate.PersistentException;
 import org.iucn.sis.server.api.restlets.BaseServiceRestlet;
 import org.iucn.sis.server.api.utils.DocumentUtils;
+import org.iucn.sis.server.api.utils.FilenameStriper;
+import org.iucn.sis.shared.api.models.TaxonImage;
 import org.restlet.Client;
 import org.restlet.Context;
 import org.restlet.data.ChallengeResponse;
@@ -24,6 +30,7 @@ import org.restlet.data.Status;
 import org.restlet.ext.xml.DomRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
+import org.restlet.util.Triple;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -47,13 +54,26 @@ public class RedlistRestlet extends BaseServiceRestlet {
 	
 	@Override
 	public Representation handleGet(Request request, Response response, Session session) throws ResourceException {
-		Document document = BaseDocumentUtils.getInstance().createDocumentFromString("<images/>");
+		Triple<String, String, String> props = null;
+		
+		boolean publish = "true".equals(request.getResourceRef().getQueryAsForm().getFirstValue("publish", "false"));
+		if (publish)
+			props = getPublicationProperties();
+		
+		Document document; //BaseDocumentUtils.getInstance().createDocumentFromString("<images/>");
 
+		try {
+			document = generateXML(session, props);
+		} catch (PersistentException e) {
+			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
+		}
+		
+		/*
 		try {
 			buildXML(document, request.getChallengeResponse(), getDestinationURL(getContext()), new VFSPath("/images"), false);
 		} catch (IOException e) {
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL);
-		}
+		}*/
 		
 		return new DomRepresentation(MediaType.TEXT_XML, document);
 	}
@@ -111,7 +131,128 @@ public class RedlistRestlet extends BaseServiceRestlet {
 			e.printStackTrace();
 		}
 	}*/
+	
+	@SuppressWarnings("unchecked")
+	private Document generateXML(Session session, Triple<String, String, String> publishProps) throws PersistentException, ResourceException {
+		final List<TaxonImage> images = session.createCriteria(TaxonImage.class)
+			.add(Restrictions.eq("showRedList", true))
+			.addOrder(Order.asc("Taxon.id"))
+			.addOrder(Order.desc("primary"))
+			.createAlias("taxon", "Taxon")
+			.list();
+		
+		final Document master = BaseDocumentUtils.impl.newDocument();
+		final Element root = master.createElement("root");
+		master.appendChild(root);
+		
+		Document current = null;
+		Integer taxon = null;
+		
+		for (TaxonImage image : images) {
+			if (taxon == null || !taxon.equals(image.getTaxon().getId())) {
+				if (current != null) {
+					publish(taxon, current, publishProps);
+					
+					root.appendChild(master.importNode(current.getDocumentElement(), true));
+				}
+				
+				current = BaseDocumentUtils.impl.newDocument();
+				current.appendChild(current.createElement("images"));
+			}
+			
+			taxon = image.getTaxon().getId();
+			
+			String encoding = image.getEncoding();
+			
+			String extension;
+			if ("image/jpeg".equals(encoding)) {
+				extension = "jpg";
+			}
+			else if ("image/gif".equals(encoding)) {
+				extension = "gif";
+			}
+			else if ("image/png".equals(encoding)) {
+				extension = "png";
+			}
+			else {
+				extension = "jpg";
+			}
+			
+			String currentItemUri = image.getIdentifier() + "." + extension;
+			
+			String sp_id = Integer.toString(taxon);
+			String isPrimary = Boolean.toString(image.getPrimary());
+			String imageID = currentItemUri; //Integer.toString(image.getId());
+			
+			//If this image
+			Element el = current.createElement("image");
+			el.setAttribute("image_id", imageID);
+			el.setAttribute("sp_id", sp_id);
+			el.setAttribute("primary", isPrimary);
+			
+			if (!isBlank(image.getCredit()))
+				el.appendChild(BaseDocumentUtils.impl.createCDATAElementWithText(current, "credit", image.getCredit()));
+			
+			if (!isBlank(image.getSource()))
+				el.appendChild(BaseDocumentUtils.impl.createCDATAElementWithText(current, "source", image.getSource()));
+			
+			if (!isBlank(image.getCaption()))
+				el.appendChild(BaseDocumentUtils.impl.createCDATAElementWithText(current, "caption", image.getCaption()));
 
+			current.getDocumentElement().appendChild(el);
+		}
+		
+		return master;
+	}
+	
+	private void publish(Integer taxonID, Document document, Triple<String, String, String> publishProps) throws ResourceException {
+		if (publishProps != null && document != null && taxonID != null) {
+			Client client = new Client(Protocol.HTTPS);
+			Request req = new Request(Method.PUT, publishProps.getFirst() + "/" + taxonID + ".xml");
+			ChallengeResponse cr = new ChallengeResponse(ChallengeScheme.HTTP_BASIC, publishProps.getSecond(), publishProps.getThird());
+			req.setChallengeResponse(cr);
+			req.setEntity(new DomRepresentation(MediaType.TEXT_XML, document));
+			
+			Response resp = client.handle(req);
+			if (!resp.getStatus().isSuccess())
+				throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Request failed due to error: " + resp.getStatus().getCode());
+		}
+		else {
+			final VFSPath path = new VFSPath("/redlist/published");
+			final VFS vfs = SIS.get().getVFS();
+			
+			if (!vfs.exists(path)) {
+				try {
+					vfs.makeCollections(path);
+				} catch (Exception e) {
+					throw new ResourceException(Status.CLIENT_ERROR_BAD_REQUEST, "Failed to create directory.");
+				}
+			}
+			
+			DocumentUtils.writeVFSFile(path + "/" + FilenameStriper.getIDAsStripedPath(taxonID+"") + ".xml", vfs, document);
+		}
+	}
+	
+	private Triple<String, String, String> getPublicationProperties() {
+		Triple<String, String, String> props = null;
+		
+		Properties properties = SIS.get().getSettings(getContext());
+			
+		String destinationURL = properties.getProperty("org.iucn.sis.server.extensions.redlist.imagePublishURL", 
+					"https://rl2009.gogoego.com/admin/files/images/published");
+		String identifier = properties.getProperty("org.iucn.sis.server.extensions.redlist.publish.identifier");
+		String secret = properties.getProperty("org.iucn.sis.server.extensions.redlist.publish.secret");
+		
+		if (identifier != null && secret != null)
+			props = new Triple<String, String, String>(destinationURL, identifier, secret);
+		
+		return props;
+	}
+
+	private boolean isBlank(String value) {
+		return value == null || "".equals(value);
+	}
+	
 	/*
 	 * FIXME: stop try/catching everything. 
 	 * 
@@ -119,6 +260,7 @@ public class RedlistRestlet extends BaseServiceRestlet {
 	private void buildXML(Document document, ChallengeResponse challenge, String destinationURL, VFSPath path, boolean put) throws IOException, ResourceException {
 		VFS vfs = SIS.get().getVFS();
 		VFSPathToken[] listing = vfs.list(path);
+		
 		for(int i=0;i<listing.length; i++){
 			VFSPath cur = path.child(listing[i]);
 			if (vfs.isCollection(cur))
