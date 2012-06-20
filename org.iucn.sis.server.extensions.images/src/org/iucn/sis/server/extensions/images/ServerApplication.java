@@ -20,7 +20,7 @@ public class ServerApplication extends SISApplication {
 	@Override
 	protected void initOnline() {
 		addServiceToRouter(new ImageViewerRestlet(app.getContext()), true);
-		addServiceToRouter(new ImageRestlet(app.getContext()));
+		addServiceToRouter(new ImageRestlet(app.getContext()), true);
 	}
 	
 	protected void addServiceToRouter(BaseServiceRestlet curService) {
