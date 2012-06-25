@@ -55,7 +55,7 @@ public class MissingAttachments950Converter extends Converter {
 				if (T.equals(result[entry.getKey()]))
 					fieldNames.add(entry.getValue());
 		
-			Integer attachmentID = attachmentCache.get(attachment);
+			Integer attachmentID = null; //attachmentCache.get(attachment);
 			if (attachmentID == null) {
 				if (test) {
 					attachmentCache.put(attachment, testid);
@@ -65,7 +65,7 @@ public class MissingAttachments950Converter extends Converter {
 				else {
 					FieldAttachment fa = io.createAttachment((String)result[9], 
 						attachment, true, new UserIO(session).getUserFromUsername("admin"));
-					attachmentCache.put(attachment, fa.getId());
+					//attachmentCache.put(attachment, fa.getId());
 					printf("Created new attachment %s at %s", attachment, attachmentID = fa.getId());
 				}
 			}
