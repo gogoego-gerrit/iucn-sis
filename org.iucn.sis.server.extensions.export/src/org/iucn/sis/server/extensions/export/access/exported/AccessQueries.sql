@@ -414,66 +414,158 @@ SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, ft.kingdom,
 ------------------------------------------------------------------------------------------------------------ 
 -- ALL_TAXA_CONSERVATION_ACTIONS_DRAFTS_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_CONSERVATION_ACTIONS_DRAFTS_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, 
-    lv2."ID" AS ca_id, 
-    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
+    null AS ca_ref1, null AS ca_desc1, 
+    null AS ca_ref2, null AS ca_desc2
+FROM $schema.vw_draft_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."ID" = tbl.conservationactionslookup
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0  
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
+    lv1."REF" AS ca_ref1, lv1."DESCRIPTION" AS ca_desc1, 
+    null AS ca_ref2, null AS ca_desc2
+FROM $schema.vw_draft_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."ID" = tbl.conservationactionslookup
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
     lv1."REF" AS ca_ref1, lv1."DESCRIPTION" AS ca_desc1, 
     lv2."REF" AS ca_ref2, lv2."DESCRIPTION" AS ca_desc2
-   FROM $schema.vw_draft_global_assessment a
+FROM $schema.vw_draft_global_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
    JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv2 ON lv2."ID" = tbl.conservationactionslookup
-   LEFT JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;     
    
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_CONSERVATION_ACTIONS_DRAFTS_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_CONSERVATION_ACTIONS_DRAFTS_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, 
-    lv2."ID" AS ca_id, 
-    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
+    null AS ca_ref1, null AS ca_desc1, 
+    null AS ca_ref2, null AS ca_desc2
+FROM $schema.vw_draft_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."ID" = tbl.conservationactionslookup
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0  
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
+    lv1."REF" AS ca_ref1, lv1."DESCRIPTION" AS ca_desc1, 
+    null AS ca_ref2, null AS ca_desc2
+FROM $schema.vw_draft_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."ID" = tbl.conservationactionslookup
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
     lv1."REF" AS ca_ref1, lv1."DESCRIPTION" AS ca_desc1, 
     lv2."REF" AS ca_ref2, lv2."DESCRIPTION" AS ca_desc2
-   FROM $schema.vw_draft_regional_assessment a
+FROM $schema.vw_draft_regional_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
    JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv2 ON lv2."ID" = tbl.conservationactionslookup
-   LEFT JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_CONSERVATION_ACTIONS_PUBLISHED_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_CONSERVATION_ACTIONS_PUBLISHED_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, 
-    lv2."ID" AS ca_id, 
-    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
+    null AS ca_ref1, null AS ca_desc1, 
+    null AS ca_ref2, null AS ca_desc2
+FROM $schema.vw_published_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."ID" = tbl.conservationactionslookup
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0  
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
+    lv1."REF" AS ca_ref1, lv1."DESCRIPTION" AS ca_desc1, 
+    null AS ca_ref2, null AS ca_desc2
+FROM $schema.vw_published_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."ID" = tbl.conservationactionslookup
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
     lv1."REF" AS ca_ref1, lv1."DESCRIPTION" AS ca_desc1, 
     lv2."REF" AS ca_ref2, lv2."DESCRIPTION" AS ca_desc2
-   FROM $schema.vw_published_global_assessment a
+FROM $schema.vw_published_global_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
    JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv2 ON lv2."ID" = tbl.conservationactionslookup
-   LEFT JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_CONSERVATION_ACTIONS_PUBLISHED_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_CONSERVATION_ACTIONS_PUBLISHED_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, 
-    lv2."ID" AS ca_id, 
-    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
+    null AS ca_ref1, null AS ca_desc1, 
+    null AS ca_ref2, null AS ca_desc2
+FROM $schema.vw_published_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."ID" = tbl.conservationactionslookup
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0  
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
+    lv1."REF" AS ca_ref1, lv1."DESCRIPTION" AS ca_desc1, 
+    null AS ca_ref2, null AS ca_desc2
+FROM $schema.vw_published_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."ID" = tbl.conservationactionslookup
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS ca_id, 
+    lv0."REF" AS ca_ref0, lv0."DESCRIPTION" AS ca_desc0,
     lv1."REF" AS ca_ref1, lv1."DESCRIPTION" AS ca_desc1, 
     lv2."REF" AS ca_ref2, lv2."DESCRIPTION" AS ca_desc2
-   FROM $schema.vw_published_regional_assessment a
+FROM $schema.vw_published_regional_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."CONSERVATIONACTIONSSUBFIELD" tbl ON a.id = tbl.assessmentid
    JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv2 ON lv2."ID" = tbl.conservationactionslookup
-   LEFT JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."CONSERVATIONACTIONSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_COO_DRAFTS_GLOBAL
@@ -594,74 +686,194 @@ CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_FAO_PUBLISHED_REGIONAL" AS
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_HABITAT_DRAFTS_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_HABITAT_DRAFTS_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS habitat_id, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS habitat_id, 
+	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
+	null AS habitat_ref1, null AS habitat_desc1, 
+	null AS habitat_ref2, null AS habitat_desc2, 
+	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
+FROM $schema.vw_draft_global_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."ID" = tbl.generalhabitatslookup
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS habitat_id, 
+	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
+	lv1."REF" AS habitat_ref1, lv1."DESCRIPTION" AS habitat_desc1, 
+	null AS habitat_ref2, null AS habitat_desc2, 
+	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
+FROM $schema.vw_draft_global_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."ID" = tbl.generalhabitatslookup
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS habitat_id, 
 	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
 	lv1."REF" AS habitat_ref1, lv1."DESCRIPTION" AS habitat_desc1, 
 	lv2."REF" AS habitat_ref2, lv2."DESCRIPTION" AS habitat_desc2, 
 	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
-   FROM $schema.vw_draft_global_assessment a
-   JOIN taxon ON taxon.id = a.taxonid
-   JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid	
-   JOIN lookups."GENERALHABITATSLOOKUP" lv2 ON lv2."ID" = tbl.generalhabitatslookup
-   LEFT JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
-   LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id; 
+FROM $schema.vw_draft_global_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv2 ON lv2."ID" = tbl.generalhabitatslookup
+     JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;   
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_HABITAT_DRAFTS_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_HABITAT_DRAFTS_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS habitat_id, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS habitat_id, 
+	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
+	null AS habitat_ref1, null AS habitat_desc1, 
+	null AS habitat_ref2, null AS habitat_desc2, 
+	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
+FROM $schema.vw_draft_regional_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."ID" = tbl.generalhabitatslookup
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS habitat_id, 
+	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
+	lv1."REF" AS habitat_ref1, lv1."DESCRIPTION" AS habitat_desc1, 
+	null AS habitat_ref2, null AS habitat_desc2, 
+	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
+FROM $schema.vw_draft_regional_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."ID" = tbl.generalhabitatslookup
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS habitat_id, 
 	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
 	lv1."REF" AS habitat_ref1, lv1."DESCRIPTION" AS habitat_desc1, 
 	lv2."REF" AS habitat_ref2, lv2."DESCRIPTION" AS habitat_desc2, 
 	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
-   FROM $schema.vw_draft_regional_assessment a
-   JOIN taxon ON taxon.id = a.taxonid
-   JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid   
-   JOIN lookups."GENERALHABITATSLOOKUP" lv2 ON lv2."ID" = tbl.generalhabitatslookup
-   LEFT JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
-   LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+FROM $schema.vw_draft_regional_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv2 ON lv2."ID" = tbl.generalhabitatslookup
+     JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_HABITAT_PUBLISHED_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_HABITAT_PUBLISHED_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS habitat_id, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS habitat_id, 
+	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
+	null AS habitat_ref1, null AS habitat_desc1, 
+	null AS habitat_ref2, null AS habitat_desc2, 
+	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
+FROM $schema.vw_published_global_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."ID" = tbl.generalhabitatslookup
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS habitat_id, 
+	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
+	lv1."REF" AS habitat_ref1, lv1."DESCRIPTION" AS habitat_desc1, 
+	null AS habitat_ref2, null AS habitat_desc2, 
+	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
+FROM $schema.vw_published_global_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."ID" = tbl.generalhabitatslookup
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS habitat_id, 
 	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
 	lv1."REF" AS habitat_ref1, lv1."DESCRIPTION" AS habitat_desc1, 
 	lv2."REF" AS habitat_ref2, lv2."DESCRIPTION" AS habitat_desc2, 
 	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
-   FROM $schema.vw_published_global_assessment a
-   JOIN taxon ON taxon.id = a.taxonid
-   JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid	
-   JOIN lookups."GENERALHABITATSLOOKUP" lv2 ON lv2."ID" = tbl.generalhabitatslookup
-   LEFT JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
-   LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;   
+FROM $schema.vw_published_global_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv2 ON lv2."ID" = tbl.generalhabitatslookup
+     JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;    
 
 ------------------------------------------------------------------------------------------------------------    
 -- ALL_TAXA_HABITAT_PUBLISHED_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_HABITAT_PUBLISHED_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS habitat_id, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS habitat_id, 
+	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
+	null AS habitat_ref1, null AS habitat_desc1, 
+	null AS habitat_ref2, null AS habitat_desc2, 
+	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
+FROM $schema.vw_published_regional_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."ID" = tbl.generalhabitatslookup
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS habitat_id, 
+	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
+	lv1."REF" AS habitat_ref1, lv1."DESCRIPTION" AS habitat_desc1, 
+	null AS habitat_ref2, null AS habitat_desc2, 
+	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
+FROM $schema.vw_published_regional_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."ID" = tbl.generalhabitatslookup
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS habitat_id, 
 	lv0."REF" AS habitat_ref0, lv0."DESCRIPTION" AS habitat_desc0, 
 	lv1."REF" AS habitat_ref1, lv1."DESCRIPTION" AS habitat_desc1, 
 	lv2."REF" AS habitat_ref2, lv2."DESCRIPTION" AS habitat_desc2, 
 	su."LABEL" AS suitability, mi."LABEL" AS majorimportance
-   FROM $schema.vw_published_regional_assessment a
-   JOIN taxon ON taxon.id = a.taxonid
-   JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid   
-   JOIN lookups."GENERALHABITATSLOOKUP" lv2 ON lv2."ID" = tbl.generalhabitatslookup
-   LEFT JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
-   LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+FROM $schema.vw_published_regional_assessment a
+     JOIN taxon ON taxon.id = a.taxonid
+     JOIN $schema."GENERALHABITATSSUBFIELD" tbl ON a.id = tbl.assessmentid
+     JOIN lookups."GENERALHABITATSLOOKUP" lv2 ON lv2."ID" = tbl.generalhabitatslookup
+     JOIN lookups."GENERALHABITATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+     JOIN lookups."GENERALHABITATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+     LEFT JOIN lookups."GENERALHABITATS_SUITABILITYLOOKUP" su ON su."ID" = tbl.suitability
+     LEFT JOIN lookups."GENERALHABITATS_MAJORIMPORTANCELOOKUP" mi ON mi."ID" = tbl.majorimportance
+     LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_LME_DRAFTS_GLOBAL
@@ -718,208 +930,542 @@ CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_LME_PUBLISHED_REGIONAL" AS
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_RESEARCH_ACTIONS_DRAFTS_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_RESEARCH_ACTIONS_DRAFTS_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS res_id, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS res_id, 
+	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
+	null AS res_ref1, null AS res_desc1, 
+	null AS res_ref2, null AS res_desc2
+FROM $schema.vw_draft_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."ID" = tbl.researchlookup
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS res_id, 
+	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
+	lv1."REF" AS res_ref1, lv1."DESCRIPTION" AS res_desc1, 
+	null AS res_ref2, null AS res_desc2
+FROM $schema.vw_draft_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."ID" = tbl.researchlookup
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS res_id, 
 	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
 	lv1."REF" AS res_ref1, lv1."DESCRIPTION" AS res_desc1, 
 	lv2."REF" AS res_ref2, lv2."DESCRIPTION" AS res_desc2
-   FROM $schema.vw_draft_global_assessment a
+FROM $schema.vw_draft_global_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
    JOIN lookups."RESEARCHLOOKUP" lv2 ON lv2."ID" = tbl.researchlookup
-   LEFT JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id; 
+   JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;      
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_RESEARCH_ACTIONS_DRAFTS_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_RESEARCH_ACTIONS_DRAFTS_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS res_id, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS res_id, 
+	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
+	null AS res_ref1, null AS res_desc1, 
+	null AS res_ref2, null AS res_desc2
+FROM $schema.vw_draft_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."ID" = tbl.researchlookup
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS res_id, 
+	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
+	lv1."REF" AS res_ref1, lv1."DESCRIPTION" AS res_desc1, 
+	null AS res_ref2, null AS res_desc2
+FROM $schema.vw_draft_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."ID" = tbl.researchlookup
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS res_id, 
 	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
 	lv1."REF" AS res_ref1, lv1."DESCRIPTION" AS res_desc1, 
 	lv2."REF" AS res_ref2, lv2."DESCRIPTION" AS res_desc2
-   FROM $schema.vw_draft_regional_assessment a
+FROM $schema.vw_draft_regional_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
    JOIN lookups."RESEARCHLOOKUP" lv2 ON lv2."ID" = tbl.researchlookup
-   LEFT JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2; 
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_RESEARCH_ACTIONS_PUBLISHED_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_RESEARCH_ACTIONS_PUBLISHED_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS res_id, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS res_id, 
+	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
+	null AS res_ref1, null AS res_desc1, 
+	null AS res_ref2, null AS res_desc2
+FROM $schema.vw_published_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."ID" = tbl.researchlookup
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS res_id, 
+	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
+	lv1."REF" AS res_ref1, lv1."DESCRIPTION" AS res_desc1, 
+	null AS res_ref2, null AS res_desc2
+FROM $schema.vw_published_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."ID" = tbl.researchlookup
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS res_id, 
 	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
 	lv1."REF" AS res_ref1, lv1."DESCRIPTION" AS res_desc1, 
 	lv2."REF" AS res_ref2, lv2."DESCRIPTION" AS res_desc2
-   FROM $schema.vw_published_global_assessment a
+FROM $schema.vw_published_global_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
    JOIN lookups."RESEARCHLOOKUP" lv2 ON lv2."ID" = tbl.researchlookup
-   LEFT JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id; 
+   JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2; 
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_RESEARCH_ACTIONS_PUBLISHED_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_RESEARCH_ACTIONS_PUBLISHED_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS res_id, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS res_id, 
+	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
+	null AS res_ref1, null AS res_desc1, 
+	null AS res_ref2, null AS res_desc2
+FROM $schema.vw_published_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."ID" = tbl.researchlookup
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS res_id, 
+	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
+	lv1."REF" AS res_ref1, lv1."DESCRIPTION" AS res_desc1, 
+	null AS res_ref2, null AS res_desc2
+FROM $schema.vw_published_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."ID" = tbl.researchlookup
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS res_id, 
 	lv0."REF" AS res_ref0, lv0."DESCRIPTION" AS res_desc0, 
 	lv1."REF" AS res_ref1, lv1."DESCRIPTION" AS res_desc1, 
 	lv2."REF" AS res_ref2, lv2."DESCRIPTION" AS res_desc2
-   FROM $schema.vw_published_regional_assessment a
+FROM $schema.vw_published_regional_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."RESEARCHSUBFIELD" tbl ON a.id = tbl.assessmentid	   
    JOIN lookups."RESEARCHLOOKUP" lv2 ON lv2."ID" = tbl.researchlookup
-   LEFT JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   JOIN lookups."RESEARCHLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."RESEARCHLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2; 
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_STRESSES_DRAFTS_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_STRESSES_DRAFTS_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv2."ID" AS stresses_id, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv0."ID" AS stresses_id, 
+	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
+	null AS stresses_ref1, null AS stresses_desc1, 
+	null AS stresses_ref2, null AS stresses_desc2
+FROM $schema.vw_draft_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."ID" = tbl.stress
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv1."ID" AS stresses_id, 
+	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
+	lv1."REF" AS stresses_ref1, lv1."DESCRIPTION" AS stresses_desc1, 
+	null AS stresses_ref2, null AS stresses_desc2
+FROM $schema.vw_draft_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."ID" = tbl.stress
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv2."ID" AS stresses_id, 
 	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
 	lv1."REF" AS stresses_ref1, lv1."DESCRIPTION" AS stresses_desc1, 
 	lv2."REF" AS stresses_ref2, lv2."DESCRIPTION" AS stresses_desc2
-   FROM $schema.vw_draft_global_assessment a
+FROM $schema.vw_draft_global_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
-   LEFT JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
-   LEFT JOIN lookups."STRESSESLOOKUP" lv2 ON lv2."ID" = tbl.stress
-   LEFT JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv2 ON lv2."ID" = tbl.stress
+   JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_STRESSES_DRAFTS_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_STRESSES_DRAFTS_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, a.region_name, a.is_endemic, rl.rlcategory AS category, 
-	thr."ID" AS threat_id, lv2."ID" AS stresses_id, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv0."ID" AS stresses_id, 
+	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
+	null AS stresses_ref1, null AS stresses_desc1, 
+	null AS stresses_ref2, null AS stresses_desc2
+FROM $schema.vw_draft_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."ID" = tbl.stress
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv1."ID" AS stresses_id, 
+	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
+	lv1."REF" AS stresses_ref1, lv1."DESCRIPTION" AS stresses_desc1, 
+	null AS stresses_ref2, null AS stresses_desc2
+FROM $schema.vw_draft_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."ID" = tbl.stress
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv2."ID" AS stresses_id, 
 	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
 	lv1."REF" AS stresses_ref1, lv1."DESCRIPTION" AS stresses_desc1, 
 	lv2."REF" AS stresses_ref2, lv2."DESCRIPTION" AS stresses_desc2
-   FROM $schema.vw_draft_regional_assessment a
+FROM $schema.vw_draft_regional_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
-   LEFT JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
-   LEFT JOIN lookups."STRESSESLOOKUP" lv2 ON lv2."ID" = tbl.stress
-   LEFT JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv2 ON lv2."ID" = tbl.stress
+   JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_STRESSES_PUBLISHED_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_STRESSES_PUBLISHED_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv2."ID" AS stresses_id, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv0."ID" AS stresses_id, 
+	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
+	null AS stresses_ref1, null AS stresses_desc1, 
+	null AS stresses_ref2, null AS stresses_desc2
+FROM $schema.vw_published_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."ID" = tbl.stress
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv1."ID" AS stresses_id, 
+	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
+	lv1."REF" AS stresses_ref1, lv1."DESCRIPTION" AS stresses_desc1, 
+	null AS stresses_ref2, null AS stresses_desc2
+FROM $schema.vw_published_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."ID" = tbl.stress
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv2."ID" AS stresses_id, 
 	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
 	lv1."REF" AS stresses_ref1, lv1."DESCRIPTION" AS stresses_desc1, 
 	lv2."REF" AS stresses_ref2, lv2."DESCRIPTION" AS stresses_desc2
-   FROM $schema.vw_published_global_assessment a
+FROM $schema.vw_published_global_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
-   LEFT JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
-   LEFT JOIN lookups."STRESSESLOOKUP" lv2 ON lv2."ID" = tbl.stress
-   LEFT JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id; 
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv2 ON lv2."ID" = tbl.stress
+   JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_STRESSES_PUBLISHED_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_STRESSES_PUBLISHED_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, a.region_name, a.is_endemic, rl.rlcategory AS category, 
-	thr."ID" AS threat_id, lv2."ID" AS stresses_id, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv0."ID" AS stresses_id, 
+	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
+	null AS stresses_ref1, null AS stresses_desc1, 
+	null AS stresses_ref2, null AS stresses_desc2
+FROM $schema.vw_published_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."ID" = tbl.stress
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv0."LEVEL" = 0   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv1."ID" AS stresses_id, 
+	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
+	lv1."REF" AS stresses_ref1, lv1."DESCRIPTION" AS stresses_desc1, 
+	null AS stresses_ref2, null AS stresses_desc2
+FROM $schema.vw_published_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."ID" = tbl.stress
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, thr."ID" AS threat_id, lv2."ID" AS stresses_id, 
 	lv0."REF" AS stresses_ref0, lv0."DESCRIPTION" AS stresses_desc0, 
 	lv1."REF" AS stresses_ref1, lv1."DESCRIPTION" AS stresses_desc1, 
 	lv2."REF" AS stresses_ref2, lv2."DESCRIPTION" AS stresses_desc2
-   FROM $schema.vw_published_regional_assessment a
+FROM $schema.vw_published_regional_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."STRESSESSUBFIELD" tbl ON a.id = tbl.assessmentid	   
-   LEFT JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
-   LEFT JOIN lookups."STRESSESLOOKUP" lv2 ON lv2."ID" = tbl.stress
-   LEFT JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   JOIN lookups."THREATSLOOKUP" thr ON thr."ID" = tbl.recordid
+   JOIN lookups."STRESSESLOOKUP" lv2 ON lv2."ID" = tbl.stress
+   JOIN lookups."STRESSESLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."STRESSESLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_THREATS_DRAFTS_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_THREATS_DRAFTS_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS threat_id, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS threat_id, 
+	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
+	null AS threat_ref1, null AS threat_desc1, 
+	null AS threat_ref2, null AS threat_desc2, 
+	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
+	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
+FROM $schema.vw_draft_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."ID" = tbl.threatslookup
+   LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
+   LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
+   LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id 
+WHERE lv0."LEVEL" = 0    
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS threat_id, 
+	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
+	lv1."REF" AS threat_ref1, lv1."DESCRIPTION" AS threat_desc1, 
+	null AS threat_ref2, null AS threat_desc2, 
+	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
+	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
+FROM $schema.vw_draft_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
+   JOIN lookups."THREATSLOOKUP" lv1 ON lv1."ID" = tbl.threatslookup
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
+   LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
+   LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id 
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS threat_id, 
 	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
 	lv1."REF" AS threat_ref1, lv1."DESCRIPTION" AS threat_desc1, 
 	lv2."REF" AS threat_ref2, lv2."DESCRIPTION" AS threat_desc2, 
 	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
 	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
-   FROM $schema.vw_draft_global_assessment a
+FROM $schema.vw_draft_global_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
    JOIN lookups."THREATSLOOKUP" lv2 ON lv2."ID" = tbl.threatslookup
-   LEFT JOIN lookups."THREATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   JOIN lookups."THREATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
    LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
    LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
    LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id; 
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id     
+WHERE lv2."LEVEL" = 2;    
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_THREATS_DRAFTS_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_THREATS_DRAFTS_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS threat_id, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS threat_id, 
+	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
+	null AS threat_ref1, null AS threat_desc1, 
+	null AS threat_ref2, null AS threat_desc2, 
+	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
+	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
+FROM $schema.vw_draft_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."ID" = tbl.threatslookup
+   LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
+   LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
+   LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id 
+WHERE lv0."LEVEL" = 0    
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS threat_id, 
+	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
+	lv1."REF" AS threat_ref1, lv1."DESCRIPTION" AS threat_desc1, 
+	null AS threat_ref2, null AS threat_desc2, 
+	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
+	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
+FROM $schema.vw_draft_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
+   JOIN lookups."THREATSLOOKUP" lv1 ON lv1."ID" = tbl.threatslookup
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
+   LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
+   LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id 
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS threat_id, 
 	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
 	lv1."REF" AS threat_ref1, lv1."DESCRIPTION" AS threat_desc1, 
 	lv2."REF" AS threat_ref2, lv2."DESCRIPTION" AS threat_desc2, 
 	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
 	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
-   FROM $schema.vw_draft_regional_assessment a
+FROM $schema.vw_draft_regional_assessment a
    JOIN taxon ON taxon.id = a.taxonid
-   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid
-   LEFT JOIN lookups."THREATSLOOKUP" lv2 ON lv2."ID" = tbl.threatslookup
-   LEFT JOIN lookups."THREATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
+   JOIN lookups."THREATSLOOKUP" lv2 ON lv2."ID" = tbl.threatslookup
+   JOIN lookups."THREATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
    LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
    LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
    LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id     
+WHERE lv2."LEVEL" = 2;    
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_THREATS_PUBLISHED_GLOBAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_THREATS_PUBLISHED_GLOBAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS threat_id, 
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS threat_id, 
+	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
+	null AS threat_ref1, null AS threat_desc1, 
+	null AS threat_ref2, null AS threat_desc2, 
+	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
+	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
+FROM $schema.vw_published_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."ID" = tbl.threatslookup
+   LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
+   LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
+   LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id 
+WHERE lv0."LEVEL" = 0    
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS threat_id, 
+	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
+	lv1."REF" AS threat_ref1, lv1."DESCRIPTION" AS threat_desc1, 
+	null AS threat_ref2, null AS threat_desc2, 
+	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
+	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
+FROM $schema.vw_published_global_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
+   JOIN lookups."THREATSLOOKUP" lv1 ON lv1."ID" = tbl.threatslookup
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
+   LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
+   LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id 
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS threat_id, 
 	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
 	lv1."REF" AS threat_ref1, lv1."DESCRIPTION" AS threat_desc1, 
 	lv2."REF" AS threat_ref2, lv2."DESCRIPTION" AS threat_desc2, 
 	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
 	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
-   FROM $schema.vw_published_global_assessment a
+FROM $schema.vw_published_global_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
    JOIN lookups."THREATSLOOKUP" lv2 ON lv2."ID" = tbl.threatslookup
-   LEFT JOIN lookups."THREATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   JOIN lookups."THREATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
    LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
    LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
    LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id; 
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id     
+WHERE lv2."LEVEL" = 2;
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_THREATS_PUBLISHED_REGIONAL
 CREATE OR REPLACE VIEW "$schema"."ALL_TAXA_THREATS_PUBLISHED_REGIONAL" AS 
- SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS threat_id, 
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv0."ID" AS threat_id, 
+	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
+	null AS threat_ref1, null AS threat_desc1, 
+	null AS threat_ref2, null AS threat_desc2, 
+	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
+	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
+FROM $schema.vw_published_regional_assessment a 
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."ID" = tbl.threatslookup
+   LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
+   LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
+   LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id 
+WHERE lv0."LEVEL" = 0    
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv1."ID" AS threat_id, 
+	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
+	lv1."REF" AS threat_ref1, lv1."DESCRIPTION" AS threat_desc1, 
+	null AS threat_ref2, null AS threat_desc2, 
+	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
+	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
+FROM $schema.vw_published_regional_assessment a
+   JOIN taxon ON taxon.id = a.taxonid
+   JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
+   JOIN lookups."THREATSLOOKUP" lv1 ON lv1."ID" = tbl.threatslookup
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
+   LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
+   LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id 
+WHERE lv1."LEVEL" = 1   
+UNION ALL
+SELECT a.taxonid, a.id AS assessmentid, a.region_name, a.is_endemic, taxon.friendly_name, rl.rlcategory AS category, lv2."ID" AS threat_id, 
 	lv0."REF" AS threat_ref0, lv0."DESCRIPTION" AS threat_desc0, 
 	lv1."REF" AS threat_ref1, lv1."DESCRIPTION" AS threat_desc1, 
 	lv2."REF" AS threat_ref2, lv2."DESCRIPTION" AS threat_desc2, 
 	tbl.scope AS scope_id, thrsc."LABEL" AS scope_description, tbl.severity AS severity_id, thrse."LABEL" AS severity_description, 
 	tbl.timing AS timing_id, thrt."LABEL" AS timing_description
-   FROM $schema.vw_published_regional_assessment a
+FROM $schema.vw_published_regional_assessment a
    JOIN taxon ON taxon.id = a.taxonid
    JOIN $schema."THREATSSUBFIELD" tbl ON a.id = tbl.assessmentid	      
    JOIN lookups."THREATSLOOKUP" lv2 ON lv2."ID" = tbl.threatslookup
-   LEFT JOIN lookups."THREATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
-   LEFT JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
+   JOIN lookups."THREATSLOOKUP" lv1 ON lv1."CODE"::text = lv2."PARENTID"::text
+   JOIN lookups."THREATSLOOKUP" lv0 ON lv0."CODE"::text = lv1."PARENTID"::text
    LEFT JOIN lookups."THREATS_SCOPELOOKUP" thrsc ON thrsc."ID" = tbl.scope
    LEFT JOIN lookups."THREATS_SEVERITYLOOKUP" thrse ON thrse."ID" = tbl.severity
    LEFT JOIN lookups."THREATS_TIMINGLOOKUP" thrt ON thrt."ID" = tbl.timing
-   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id;
+   LEFT JOIN $schema.vw_redlistcategoryandcriteria rl ON rl.assessmentid = a.id     
+WHERE lv2."LEVEL" = 2;    
 
 ------------------------------------------------------------------------------------------------------------
 -- ALL_TAXA_USE_TRADE_DRAFTS_GLOBAL
