@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.store.StoreEvent;
 import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.widget.Info;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.grid.CellEditor;
@@ -130,26 +131,27 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 				if ("nickname".equals(col)){
 					if (be.getValue() != null) {
 						value = ((String) be.getValue()).trim();
-					  	originalValue = (String)be.getStartValue();
+					  	originalValue = getStartValue(be.getStartValue());
 					}else{
 						value = "";
-					  	originalValue = (String)be.getStartValue();
+					  	originalValue = getStartValue(be.getStartValue());
 					}
 				}else{
 					if (be.getValue() == null) {
 						be.getGrid().getStore().rejectChanges();
 						return;
 					}
-				
+					
 					value = ((String) be.getValue()).trim();
-				  	originalValue = (String)be.getStartValue();
+					originalValue = getStartValue(be.getStartValue());
+		  	
 				}
-
+				
 				if ((value == null && originalValue == null) || value != null && value.equals(originalValue)) {
 					//No changes made.
 					return;
 				}
-
+				
 				final String username;
 				if ("username".equals(col))
 					username = originalValue;
@@ -187,6 +189,19 @@ public class UserViewPanel extends PagingPanel<UserModelData> implements DrawsLa
 		isDrawn = true;
 		
 		refresh(callback);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String getStartValue(Object startValue){
+		
+		if (startValue instanceof String)
+		     return (String) startValue;
+		else if (startValue instanceof SimpleComboValue)
+		     return ((SimpleComboValue<String>) startValue).getValue();
+		else if (startValue != null)
+		     return startValue.toString();
+		else
+		     return null;
 	}
 	
 	private void resetPassword(final String username){
