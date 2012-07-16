@@ -102,6 +102,8 @@ public class ConverterWorker implements Runnable {
 			success = convertMissingAttachments950(writer);
 		else if ("citations".equals(step))
 			success = convertMissingCitations(writer);
+		else if ("948".equals(step))
+			success = convertTextData948(writer);
 		else {
 			success = true;
 			writer.write("Conversion for " + step + " complete, cascade was " + proceed);
@@ -356,6 +358,13 @@ public class ConverterWorker implements Runnable {
 	
 	private boolean convertMissingCitations(Writer writer) {
 		CitationConverter converter = new CitationConverter();
+		initConverter(converter, writer);
+		
+		return converter.start();
+	}
+	
+	private boolean convertTextData948(Writer writer) {
+		CorrectTextFields converter = new CorrectTextFields();
 		initConverter(converter, writer);
 		
 		return converter.start();
