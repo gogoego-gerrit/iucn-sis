@@ -96,6 +96,9 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 		importedAssessments = new HashSet<Integer>();
 
 		try {
+			if (username == null || "".equals(username))
+				throw new NullPointerException("No username supplied. Stopping.");
+			
 			// The offline database.
 			offline = SISPersistentManager.instance().openSession();
 	
@@ -104,6 +107,8 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 			online = onlineTargetManager.openSession();
 			
 			loggedInUser = new UserIO(offline).getUserFromUsername(username);
+			if (loggedInUser == null)
+				throw new NullPointerException("No user found with the username \"" + username + "\". Stopping.");
 
 			execute();
 		} catch (Throwable e) {
