@@ -71,7 +71,7 @@ public class OfflineToOnlineImporter extends DynamicWriter implements Runnable {
 	public OfflineToOnlineImporter(String username, Properties properties) {
 		super();
 		this.targetProperties = properties;
-		this.username = username;
+		this.username = username == null ? username : username.trim();
 		this.mode = OfflineImportMode.RESYNC;
 		this.offlineNotesMap = new HashMap<Integer, Integer>();
 		this.offlineReferencesMap = new HashMap<Integer, Integer>();
